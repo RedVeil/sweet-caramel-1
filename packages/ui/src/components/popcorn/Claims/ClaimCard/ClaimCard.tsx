@@ -25,7 +25,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
       <div className="bg-white rounded-xl border border-w-0.5 px-5 py-6 flex flex-row mb-3">
         <div
           className={`${
-            disabled ? 'bg-gray-300' : iconCol
+            disabled ? 'bg-gray-400' : iconCol
           } mt-2 text-white rounded-full h-10 w-10 flex items-center justify-center`}
         >
           <Icon className="h-6 w-6" aria-hidden="true"></Icon>
@@ -39,7 +39,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
       </div>
       <span
         className={`inline-flex w-32 my-4 pl-3 pr-5 py-2 rounded-full text-sm font-medium text-white ${
-          disabled ? 'bg-gray-300' : 'bg-green-500'
+          disabled ? 'bg-gray-400' : 'bg-green-500'
         }`}
       >
         <CheckCircleIcon className="h-5 w-5 mr-3" />
@@ -50,7 +50,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
 
       <button
         className={`w-full text-center mt-50  px-12 py-3 text-white rounded-xl disabled:opacity-75 ${
-          disabled ? 'hover:bg-blue-700 bg-gray-300' : 'bg-blue-600'
+          disabled ? 'hover:bg-blue-700 bg-gray-400' : 'bg-blue-600'
         }`}
         onClick={(e) => console.log(`Handle ${type} claim`)}
         disabled={disabled}
