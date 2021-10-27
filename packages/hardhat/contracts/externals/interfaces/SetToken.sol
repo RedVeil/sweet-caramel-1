@@ -213,7 +213,7 @@ library Address {
 
 // Dependency file: @openzeppelin/contracts/GSN/Context.sol
 
-// pragma solidity >=0.6.0 <0.8.0;
+// pragma solidity ^0.8.0;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -227,7 +227,7 @@ library Address {
  */
 abstract contract Context {
   function _msgSender() internal view virtual returns (address payable) {
-    return msg.sender;
+    return payable(msg.sender);
   }
 
   function _msgData() internal view virtual returns (bytes memory) {
@@ -238,7 +238,7 @@ abstract contract Context {
 
 // Dependency file: @openzeppelin/contracts/token/ERC20/IERC20.sol
 
-// pragma solidity >=0.6.0 <0.8.0;
+// pragma solidity ^0.8.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -323,7 +323,7 @@ interface IERC20 {
 
 // Dependency file: @openzeppelin/contracts/math/SafeMath.sol
 
-// pragma solidity >=0.6.0 <0.8.0;
+// pragma solidity ^0.8.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -495,7 +495,7 @@ library SafeMath {
 
 // Dependency file: @openzeppelin/contracts/utils/SafeCast.sol
 
-// pragma solidity >=0.6.0 <0.8.0;
+// pragma solidity ^0.8.0;
 
 /**
  * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
@@ -720,7 +720,7 @@ library SafeCast {
 
 // Dependency file: @openzeppelin/contracts/math/SignedSafeMath.sol
 
-// pragma solidity >=0.6.0 <0.8.0;
+// pragma solidity ^0.8.0;
 
 /**
  * @title SignedSafeMath
@@ -1634,7 +1634,7 @@ library AddressArrayUtils {
         return (i, true);
       }
     }
-    return (uint256(-1), false);
+    return (type(uint256).max, false);
   }
 
   /**
@@ -1774,7 +1774,7 @@ library AddressArrayUtils {
 
 */
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 // import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -2461,7 +2461,7 @@ contract SetToken is ERC20 {
    */
   function _getPositionsAbsMinimumVirtualUnit() internal view returns (int256) {
     // Additional assignment happens in the loop below
-    uint256 minimumUnit = uint256(-1);
+    uint256 minimumUnit = type(uint256).max;
 
     for (uint256 i = 0; i < components.length; i++) {
       address component = components[i];

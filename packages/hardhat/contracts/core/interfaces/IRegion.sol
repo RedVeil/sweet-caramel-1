@@ -1,4 +1,4 @@
-pragma solidity >=0.7.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 interface IRegion {
   function defaultRegion() external view returns (bytes32);
