@@ -6,26 +6,37 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("ERC20", {
+  await deploy("POP", {
     from: deployer,
     args: ["POP", "POP"],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "ERC20",
   });
 
-  await deploy("ERC20", {
+  await deploy("3CRV", {
     from: deployer,
     args: ["Three Curve", "3CRV"],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "ERC20",
   });
 
   //Temp solution for local deployment
-  await deploy("ERC20", {
+  await deploy("POP_ETH_LP", {
+    from: deployer,
+    args: ["POP_ETH_LP", "POPETH"],
+    log: true,
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "ERC20",
+  });
+
+  await deploy("BUTTER", {
     from: deployer,
     args: ["Butter", "BUTTER"],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "ERC20",
   });
 };
 export default func;

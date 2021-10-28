@@ -26,6 +26,7 @@ export interface StakingContracts {
 export interface Contracts {
   pop: ERC20;
   threeCrv: ERC20;
+  popEthLp: ERC20;
   butter: ISetToken;
   staking: StakingContracts;
 }
@@ -105,6 +106,7 @@ export default function ContractsWrapper({
     setContracts({
       pop: ERC20__factory.connect(addresses.POP.hardhat, library),
       threeCrv: ERC20__factory.connect(addresses.THREE_CRV.hardhat, library),
+      popEthLp: ERC20__factory.connect(addresses.POP_ETH_LP.hardhat, library),
       butter: ISetToken__factory.connect(addresses.BUTTER.hardhat, library),
       staking: {
         pop: StakingRewards__factory.connect(

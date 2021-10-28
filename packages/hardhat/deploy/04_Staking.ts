@@ -6,25 +6,32 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("StakingRewards", {
+  const pop = await deployments.get("POP");
+  const popEthLp = await deployments.get("POP_ETH_LP");
+  const butter = await deployments.get("BUTTER");
+
+  await deploy("PopStaking", {
     from: deployer,
-    args: ["POP_ADDRESS", "POP_ADDRESS"],
+    args: [pop.address, pop.address],
     log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
+    contract: "StakingRewards",
   });
 
-  await deploy("StakingRewards", {
+  await deploy("popEthLPStaking", {
     from: deployer,
-    args: ["POP_ADDRESS", "ETH_POP_LP_ADDRESS"],
+    args: [pop.address, popEthLp.address],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "StakingRewards",
   });
 
-  await deploy("StakingRewards", {
+  await deploy("butterStaking", {
     from: deployer,
-    args: ["POP_ADDRESS", "BUTTER_ADDRESS"],
+    args: [pop.address, butter.address],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "StakingRewards",
   });
 };
 export default func;

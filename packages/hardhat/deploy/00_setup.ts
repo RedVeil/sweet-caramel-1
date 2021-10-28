@@ -3,10 +3,19 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import getNamedAccounts from "../lib/utils/getNamedAccounts";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const signer = hre.askForSigner();
+  let signer;
+  let deployer;
+
+  if (["hardhat", "local"].includes(hre.network.name)) {
+    signer = (await hre.ethers.getSigners())[0];
+    deployer = signer.address;
+  } else {
+    signer = hre.askForSigner();
+    deployer = `privateKey://${signer.privateKey}`;
+  }
 
   hre.config.namedAccounts = {
-    deployer: `privateKey://${signer.privateKey}`,
+    deployer: deployer,
     ...getNamedAccounts(),
   };
 };

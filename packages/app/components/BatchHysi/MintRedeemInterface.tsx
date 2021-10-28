@@ -1,10 +1,12 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { BatchType } from '@popcorn/hardhat/adapters/HYSIBatchInteraction/HYSIBatchInteractionAdapter';
+import { BatchType } from '@popcorn/hardhat';
 import AccountValue from './AccountValue';
 import DepositWithdrawToggle from './DepositWithdrawToggle';
-import TokenInput, { TokenInputProps } from './TokenInput';
+import TokenInputWithOutputPreview, {
+  TokenInputWithOutputPreviewProps,
+} from './TokenInputWithOutputPreview';
 
-interface MintRedeemInterfaceProps extends TokenInputProps {
+interface MintRedeemInterfaceProps extends TokenInputWithOutputPreviewProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
   depositDisabled: boolean;
 }
@@ -32,7 +34,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
             withdrawal={withdrawal}
             setwithdrawal={setwithdrawal}
           />
-          <TokenInput
+          <TokenInputWithOutputPreview
             threeCrvBalance={threeCrvBalance}
             threeCrvPrice={threeCrvPrice}
             hysiBalance={hysiBalance}

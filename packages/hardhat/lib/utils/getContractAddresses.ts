@@ -3,34 +3,49 @@
 export default function getContractAddresses() {
   return {
     POP: {
-      mainnet: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
-      rinkeby: "0x39a1610cccca2c7b59ffbebfdf970a65c84b26ae",
-      hardhat: "",
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
     },
     THREE_CRV: {
-      mainnet: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
-      rinkeby: "0x7D9B21704B5311bB480f0109dFD5D84ed1207e11",
-      hardhat: "",
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
     },
     BUTTER: {
-      mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
-      rinkeby: "0xc0e334b5bc637eac105da3d84c7c1bd342ae8ae9",
-      hardhat: "",
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    },
+    POP_ETH_LP: {
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
     },
     STAKE_POP: {
-      mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
-      rinkeby: "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
-      hardhat: "",
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
     },
     STAKE_POP_ETH_LP: {
-      mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
-      rinkeby: "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
-      hardhat: "",
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
     },
     STAKE_BUTTER: {
-      mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
-      rinkeby: "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
-      hardhat: "",
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+    },
+    ACL_REGISTRY: {
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    },
+    CONTRACT_REGISTRY: {
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
     },
   };
 }
