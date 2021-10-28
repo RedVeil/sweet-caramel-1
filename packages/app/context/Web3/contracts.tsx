@@ -72,7 +72,6 @@ export default function ContractsWrapper({
     error,
   } = context;
   const [contracts, setContracts] = useState<Contracts>();
-
   const { dispatch } = useContext(store);
 
   useEffect(() => {

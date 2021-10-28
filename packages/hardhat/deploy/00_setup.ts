@@ -19,4 +19,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ...getNamedAccounts(),
   };
 };
-export default func;
+
+module.exports = func;
+module.exports.tags = ["LBP"];
