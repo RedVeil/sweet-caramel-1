@@ -1,4 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
+import { StakingRewards } from '@popcorn/hardhat/typechain';
 import { getEarned, getStakingReturns } from '@popcorn/utils';
 import { TokenBalances } from '@popcorn/utils/getBalances';
 import { useWeb3React } from '@web3-react/core';
@@ -8,7 +9,7 @@ import StakeClaimCard from 'components/StakeClaimCard';
 import { ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import * as Icon from 'react-feather';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
@@ -32,6 +33,20 @@ export default function index(): JSX.Element {
     }
     setTotalEarned(earned.pop + earned.popEthLp + earned.butter);
   }, [earned]);
+
+  async function claimReward(stakingContract: StakingRewards): Promise<void> {
+    toast.loading(`Claiming POP Rewards...`);
+    stakingContract
+      .connect(library.getSigner())
+      .getReward()
+      .then((res) => {
+        toast.dismiss();
+        toast.success(`POP Rewards claimed!`);
+      })
+      .catch((err) => toast.error(err.data.message.split("'")[1]));
+    getEarned(account, contracts).then((res) => setEarned(res));
+    getStakingReturns(contracts).then((res) => setStakingReturns(res));
+  }
 
   return (
     <div className="w-full bg-gray-50 h-screen">
@@ -82,11 +97,7 @@ export default function index(): JSX.Element {
                       },
                     ]}
                     buttonLabel="Claim"
-                    handleClick={() =>
-                      contracts.staking.pop
-                        .connect(library.getSigner())
-                        .getReward()
-                    }
+                    handleClick={() => claimReward(contracts.staking.pop)}
                   />
                   <StakeClaimCard
                     title="POP-ETH LP Rewards"
@@ -102,11 +113,7 @@ export default function index(): JSX.Element {
                       },
                     ]}
                     buttonLabel="Claim"
-                    handleClick={() =>
-                      contracts.staking.popEthLp
-                        .connect(library.getSigner())
-                        .getReward()
-                    }
+                    handleClick={() => claimReward(contracts.staking.popEthLp)}
                   />
                   <StakeClaimCard
                     title="BUTTER Rewards"
@@ -122,11 +129,7 @@ export default function index(): JSX.Element {
                       },
                     ]}
                     buttonLabel="Claim"
-                    handleClick={() =>
-                      contracts.staking.butter
-                        .connect(library.getSigner())
-                        .getReward()
-                    }
+                    handleClick={() => claimReward(contracts.staking.butter)}
                   />
                 </>
               )}

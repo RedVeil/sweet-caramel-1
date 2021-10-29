@@ -28,7 +28,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await deployments.get("TestPOP")
     ).address,
     signer,
-    deployer,
+    await signer.getAddress(),
     hre
   );
 };
