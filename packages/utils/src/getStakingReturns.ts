@@ -1,5 +1,5 @@
 import { parseEther } from '@ethersproject/units';
-import { StakingRewards } from 'packages/hardhat/typechain';
+import { StakingRewards } from '../../hardhat/typechain';
 import { bigNumberToNumber } from './formatBigNumber';
 
 async function calculateAPY(stakingContract: StakingRewards): Promise<number> {
