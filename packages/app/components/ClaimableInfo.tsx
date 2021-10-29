@@ -1,7 +1,7 @@
 import { InfoIconWithModal } from './InfoIconWithModal';
 
 //WIP for claim page
-export default function claimableInfo(): JSX.Element {
+export default function ClaimableInfo(): JSX.Element {
   return (
     <div className="bg-white rounded-md shadow w-1/3 mr-4 px-4 py-4">
       <div className="flex flex-row items-center justify-between">
