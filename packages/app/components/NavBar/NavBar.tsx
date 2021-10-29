@@ -4,9 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { connectors } from '../../context/Web3/connectors';
-import { GrantsMenu } from './GrantsMenu';
 import NavbarLink from './NavbarLinks';
-import { ProposalsMenu } from './ProposalsMenu';
 
 const Navbar: React.FC = () => {
   const context = useWeb3React<Web3Provider>();
@@ -49,13 +47,9 @@ const Navbar: React.FC = () => {
           </li>
           <li>
             <NavbarLink
-              label="Grant Elections"
-              onClick={() => setShowGrants(!showGrants)}
-              isActive={router.pathname === '/grant-elections/all'}
-            />
-            <GrantsMenu
-              visible={showGrants}
-              toggleSubMenu={() => setShowGrants(!showGrants)}
+              label="Rewards"
+              url="/rewards"
+              isActive={router.pathname === '/rewards'}
             />
           </li>
           <li>
@@ -64,24 +58,6 @@ const Navbar: React.FC = () => {
               url="/docs/Popcorn_whitepaper_v1.pdf"
               isActive={false}
               target="_window"
-            />
-          </li>
-          <li>
-            <NavbarLink
-              label="Beneficiaries"
-              url="/beneficiaries"
-              isActive={router.pathname === '/beneficiaries'}
-            />
-          </li>
-          <li>
-            <NavbarLink
-              label="Proposals"
-              onClick={() => setShowProposals(!showProposals)}
-              isActive={router.pathname === '/proposals'}
-            />
-            <ProposalsMenu
-              visible={showProposals}
-              toggleSubMenu={() => setShowProposals(!showProposals)}
             />
           </li>
         </ul>

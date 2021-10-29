@@ -1,6 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Switch } from '@headlessui/react';
 import { ERC20, StakingRewards } from '@popcorn/hardhat/typechain';
+import { calculateAPY } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import TokenInput from 'components/Common/TokenInput';
 import MainActionButton from 'components/MainActionButton';
@@ -12,7 +13,6 @@ import { useRouter } from 'next/router';
 import 'rc-slider/assets/index.css';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import calculateAPY from '../../../utils/src/getStakingReturns';
 
 interface StakingInfo {
   inputToken: ERC20;
