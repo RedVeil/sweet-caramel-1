@@ -66,7 +66,7 @@ export default function stake(): JSX.Element {
   }, [id, contracts]);
 
   useEffect(() => {
-    if (!account) {
+    if (!account || !stakingInfo) {
       return;
     }
     stakingInfo.inputToken
@@ -160,7 +160,7 @@ export default function stake(): JSX.Element {
                           APY
                         </h3>
                         <p className="px-3 text-center my-4 text-4xl font-black tracking-tight text-gray-900 sm:text-6xl">
-                          {apy} %
+                          {apy.toLocaleString()} %
                         </p>
                         <div className="w-10/12 mx-auto mt-4">
                           {stakingInfo && (
@@ -207,17 +207,6 @@ export default function stake(): JSX.Element {
                         <div className="rounded-lg shadow-md mt-12 w-96 mx-auto">
                           {account ? (
                             <>
-                              {!account && (
-                                <MainActionButton
-                                  label={'Connect Wallet'}
-                                  handleClick={() =>
-                                    activate(connectors.Injected)
-                                  }
-                                />
-                              )}
-                            </>
-                          ) : (
-                            <>
                               {withdraw ? (
                                 <MainActionButton
                                   label={`Withdraw ${stakingInfo.tokenName}`}
@@ -242,6 +231,11 @@ export default function stake(): JSX.Element {
                                 </>
                               )}
                             </>
+                          ) : (
+                            <MainActionButton
+                              label={'Connect Wallet'}
+                              handleClick={() => activate(connectors.Injected)}
+                            />
                           )}
                         </div>
                       )}
