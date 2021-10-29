@@ -30,8 +30,8 @@
       "@popcorn/ui/*": ["../ui/src/*"],
       "@popcorn/utils": ["../utils/src"],
       "@popcorn/utils/*": ["../utils/src/*"],
-      "@popcorn/hardhat": ["../hardhat/src"],
-      "@popcorn/hardhat/*": ["../hardhat/src/*"]
+      "@popcorn/hardhat": ["../hardhat"],
+      "@popcorn/hardhat/*": ["../hardhat/*"]
     }
   }
 }
