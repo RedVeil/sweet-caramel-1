@@ -9,8 +9,6 @@ import getContractAddresses from '../../../hardhat/lib/utils/getContractAddresse
 import {
   ERC20,
   ERC20__factory,
-  ISetToken,
-  ISetToken__factory,
   StakingRewards,
   StakingRewards__factory,
 } from '../../../hardhat/typechain';
@@ -27,7 +25,7 @@ export interface Contracts {
   pop: ERC20;
   threeCrv: ERC20;
   popEthLp: ERC20;
-  butter: ISetToken;
+  butter: ERC20;
   staking: StakingContracts;
 }
 
@@ -106,7 +104,7 @@ export default function ContractsWrapper({
       pop: ERC20__factory.connect(addresses.POP.hardhat, library),
       threeCrv: ERC20__factory.connect(addresses.THREE_CRV.hardhat, library),
       popEthLp: ERC20__factory.connect(addresses.POP_ETH_LP.hardhat, library),
-      butter: ISetToken__factory.connect(addresses.BUTTER.hardhat, library),
+      butter: ERC20__factory.connect(addresses.BUTTER.hardhat, library),
       staking: {
         pop: StakingRewards__factory.connect(
           addresses.STAKE_POP.hardhat,

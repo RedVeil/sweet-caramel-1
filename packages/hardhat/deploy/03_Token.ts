@@ -28,7 +28,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: ["POP_ETH_LP", "POPETH"],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "ERC20",
+    contract: "MockERC20",
   });
 
   await deploy("BUTTER", {
@@ -36,7 +36,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: ["Butter", "BUTTER"],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "ERC20",
+    contract: "MockERC20",
   });
 };
 export default func;

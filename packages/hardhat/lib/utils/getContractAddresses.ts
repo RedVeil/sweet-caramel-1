@@ -5,7 +5,7 @@ export default function getContractAddresses() {
     POP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      hardhat: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
     },
     THREE_CRV: {
       mainnet: "",
@@ -15,27 +15,27 @@ export default function getContractAddresses() {
     BUTTER: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      hardhat: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
     },
     POP_ETH_LP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      hardhat: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
     },
     STAKE_POP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      hardhat: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
     },
     STAKE_POP_ETH_LP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      hardhat: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
     },
     STAKE_BUTTER: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      hardhat: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
     },
     ACL_REGISTRY: {
       mainnet: "",
