@@ -1,5 +1,5 @@
-import { ERC20, MockERC20, StakingRewards } from 'packages/hardhat/typechain';
 import { bigNumberToNumber } from '.';
+import { ERC20, MockERC20, StakingRewards } from '../../hardhat/typechain';
 
 export interface TokenBalances {
   pop: number;
