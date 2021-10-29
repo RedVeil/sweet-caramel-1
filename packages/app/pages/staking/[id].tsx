@@ -65,10 +65,7 @@ export default function stake(): JSX.Element {
     setStakingInfo(getStakingInfo(id as string, contracts));
   }, [id, contracts]);
 
-  useEffect(() => {
-    if (!account || !stakingInfo) {
-      return;
-    }
+  async function updateData(): Promise<void> {
     stakingInfo.inputToken
       .balanceOf(account)
       .then((res) => setTokenBalance(Number(utils.formatEther(res))));
@@ -79,7 +76,14 @@ export default function stake(): JSX.Element {
       .balanceOf(account)
       .then((res) => setAmountStaked(Number(utils.formatEther(res))));
     calculateAPY(stakingInfo.stakingContract).then((res) => setApy(res));
-  }, [stakingInfo]);
+  }
+
+  useEffect(() => {
+    if (!account || !stakingInfo || !contracts) {
+      return;
+    }
+    updateData();
+  }, [account, stakingInfo]);
 
   async function stake(): Promise<void> {
     setWait(true);
@@ -90,11 +94,15 @@ export default function stake(): JSX.Element {
     await connectedStaking
       .stake(lockedPopInEth)
       .then((res) => {
-        toast.success(`${stakingInfo.tokenName} staked!`);
+        {
+          toast.dismiss();
+          toast.success(`${stakingInfo.tokenName} staked!`);
+        }
       })
       .catch((err) => {
         toast.error(err.data.message.split("'")[1]);
       });
+    await updateData();
     setWait(false);
   }
 
@@ -107,11 +115,15 @@ export default function stake(): JSX.Element {
     await connectedStaking
       .withdraw(lockedPopInEth)
       .then((res) => {
-        toast.success(`${stakingInfo.tokenName} withdrawn!`);
+        {
+          toast.dismiss();
+          toast.success(`${stakingInfo.tokenName} withdrawn!`);
+        }
       })
       .catch((err) => {
         toast.error(err.data.message.split("'")[1]);
       });
+    await updateData();
     setWait(false);
   }
 
@@ -126,8 +138,12 @@ export default function stake(): JSX.Element {
     const connected = await contracts.pop.connect(library.getSigner());
     await connected
       .approve(stakingInfo.stakingContract.address, lockedTokenInEth)
-      .then((res) => toast.success(`${stakingInfo.tokenName} approved!`))
+      .then((res) => {
+        toast.dismiss();
+        toast.success(`${stakingInfo.tokenName} approved!`);
+      })
       .catch((err) => toast.error(err.data.message.split("'")[1]));
+    await updateData();
     setWait(false);
   }
 
