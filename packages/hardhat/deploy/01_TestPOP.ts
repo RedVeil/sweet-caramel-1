@@ -18,7 +18,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     waitConfirmations: 1,
   });
 
-  const signer = getSignerFrom(
+  const signer = await getSignerFrom(
     hre.config.namedAccounts.deployer as string,
     hre
   );
@@ -28,7 +28,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await deployments.get("TestPOP")
     ).address,
     signer,
-    deployer,
+    await signer.getAddress(),
     hre
   );
 };
