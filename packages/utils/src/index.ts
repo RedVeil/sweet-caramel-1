@@ -13,6 +13,12 @@ export {
   getStakingReturns,
 } from './getStakingReturns';
 export {
+  calculateAPY,
+  getSingleStakingStats,
+  getStakingStats,
+} from './getStakingStats';
+export type { SingleStakingStats, StakingStats } from './getStakingStats';
+export {
   getBytes32FromIpfsHash,
   getIpfsHashFromBytes32,
 } from './ipfsHashManipulation';
