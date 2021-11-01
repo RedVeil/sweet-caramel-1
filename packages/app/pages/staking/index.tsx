@@ -1,13 +1,16 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
-import StakingCard from 'components/StakeCard';
+import StakeCard from 'components/StakeCard';
+import StatInfoCard from 'components/StatInfoCard';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
-import * as Icon from 'react-feather';
 import { Toaster } from 'react-hot-toast';
-import { bigNumberToNumber } from '../../../utils';
-import calculateAPY from '../../../utils/src/getStakingReturns';
+import {
+  bigNumberToNumber,
+  getStakingStats,
+  StakingStats,
+} from '../../../utils';
 
 interface TokenBalances {
   pop: number;
@@ -71,82 +74,97 @@ async function getBalances(
   };
 }
 
-async function getStakingReturns(contracts: Contracts): Promise<TokenBalances> {
-  return {
-    pop: await calculateAPY(contracts.staking.pop),
-    popEthLp: await calculateAPY(contracts.staking.popEthLp),
-    butter: await calculateAPY(contracts.staking.butter),
-  };
-}
-
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
   const { library, account, activate, active } = context;
   const [balances, setBalances] = useState<Balances>();
-  const [stakingReturns, setStakingReturns] = useState<TokenBalances>();
+  const [stakingStats, setStakingStats] = useState<StakingStats>();
+
+  useEffect(() => {
+    if (!contracts) {
+      return;
+    }
+    getStakingStats(contracts).then((res) => setStakingStats(res));
+  }, [contracts]);
 
   useEffect(() => {
     if (!account || !contracts) {
       return;
     }
     getBalances(account, contracts).then((res) => setBalances(res));
-    getStakingReturns(contracts).then((res) => setStakingReturns(res));
   }, [account, contracts]);
 
-  useEffect(() => {
-    if (!balances) {
-      return;
-    }
-    balances.earned.pop;
-  }, [balances]);
-
   return (
-    <div className="w-full bg-gray-50 h-screen">
+    <div className="w-full h-screen">
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
         <div className="w-9/12 mx-auto flex flex-row mt-14">
-          <div className="w-2/12 space-y-4 mr-20">
-            <p className="text-lg font-medium text-gray-800 pl-3 py-3 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-900">
-              Staking
-            </p>
-            <p className="text-lg font-medium text-gray-500 pl-3 py-3 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-700">
-              Coming soon...
-            </p>
-            <p className="text-lg font-medium text-gray-500 pl-3 py-3 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-700">
-              Coming soon...
-            </p>
+          <div className="w-1/3">
+            <div className="">
+              <h1 className="text-3xl text-gray-800 font-medium">Staking</h1>
+              <p className="text-lg text-gray-500">
+                Earn more income staking your crypto with us
+              </p>
+            </div>
+            <div className="bg-primaryLight rounded-xl pt-12 mr-12 mt-12">
+              <img
+                src="/images/farmerCat.svg"
+                alt="farmcerCat"
+                className="mx-auto"
+              />
+            </div>
           </div>
 
-          <div className="w-9/12">
-            <div className="flex flex-row items-center">
-              <div className="w-16 h-16 bg-pink-400 rounded-full flex items-center">
-                <Icon.Lock className="text-white mx-auto" />
+          <div className="w-2/3">
+            {balances && (
+              <div className="mt-28 flex flex-row items-center">
+                <div className="w-1/2 mr-2">
+                  <StatInfoCard
+                    title="Staked Balance"
+                    content={`${(
+                      balances.staked.butter +
+                      balances.staked.pop +
+                      balances.staked.popEthLp
+                    ).toLocaleString()} Token`}
+                    icon={{
+                      icon: 'Money',
+                      color: 'bg-green-200',
+                      iconColor: 'text-gray-800',
+                    }}
+                  />
+                </div>
+                <div className="w-1/2 ml-2">
+                  <StatInfoCard
+                    title="Cumulative Rewards"
+                    content={`${(
+                      balances.earned.pop +
+                      balances.earned.popEthLp +
+                      balances.earned.butter
+                    ).toLocaleString()} POP`}
+                    icon={{ icon: 'Money', color: 'bg-blue-300' }}
+                  />
+                </div>
               </div>
-              <h1 className="ml-2 text-3xl text-gray-800 font-medium">
-                Staking
-              </h1>
-            </div>
-
-            <div className="flex flex-row items-center mt-16">
-              {stakingReturns && balances && (
+            )}
+            <div className="mt-8 space-y-4">
+              {stakingStats && (
                 <>
-                  <StakingCard
+                  <StakeCard
                     tokenName="POP"
-                    apy={stakingReturns.pop}
-                    stakedBalance={balances.staked.pop}
+                    stakingStats={stakingStats.pop}
+                    url="pop"
                   />
-                  <StakingCard
-                    tokenName="POP ETH LP"
-                    apy={stakingReturns.popEthLp}
-                    stakedBalance={balances.staked.popEthLp}
-                    url="POP_ETH_LP"
+                  <StakeCard
+                    tokenName="POP/ETH LP"
+                    stakingStats={stakingStats.popEthLp}
+                    url="pop-eth-lp"
                   />
-                  <StakingCard
+                  <StakeCard
                     tokenName="BUTTER"
-                    apy={stakingReturns.butter}
-                    stakedBalance={balances.staked.butter}
+                    stakingStats={stakingStats.butter}
+                    url="butter"
                   />
                 </>
               )}

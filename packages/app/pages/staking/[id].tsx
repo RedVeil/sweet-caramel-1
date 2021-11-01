@@ -1,6 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Switch } from '@headlessui/react';
 import { ERC20, StakingRewards } from '@popcorn/hardhat/typechain';
+import { calculateAPY } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import TokenInput from 'components/Common/TokenInput';
 import MainActionButton from 'components/MainActionButton';
@@ -12,7 +13,6 @@ import { useRouter } from 'next/router';
 import 'rc-slider/assets/index.css';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import calculateAPY from '../../../utils/src/getStakingReturns';
 
 interface StakingInfo {
   inputToken: ERC20;
@@ -22,19 +22,19 @@ interface StakingInfo {
 
 function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
   switch (id) {
-    case 'POP':
+    case 'pop':
       return {
         inputToken: contracts.pop,
         stakingContract: contracts.staking.pop,
         tokenName: 'POP',
       };
-    case 'POP_ETH_LP':
+    case 'pop-eth-lp':
       return {
         inputToken: contracts.popEthLp,
         stakingContract: contracts.staking.popEthLp,
         tokenName: 'POP-ETH LP',
       };
-    case 'BUTTER':
+    case 'butter':
       return {
         inputToken: contracts.butter,
         stakingContract: contracts.staking.butter,
@@ -65,25 +65,33 @@ export default function stake(): JSX.Element {
     setStakingInfo(getStakingInfo(id as string, contracts));
   }, [id, contracts]);
 
-  async function updateData(): Promise<void> {
-    stakingInfo.inputToken
-      .balanceOf(account)
-      .then((res) => setTokenBalance(Number(utils.formatEther(res))));
-    stakingInfo.inputToken
-      .allowance(account, stakingInfo.stakingContract.address)
-      .then((res) => setApproval(Number(utils.formatEther(res))));
-    stakingInfo.stakingContract
-      .balanceOf(account)
-      .then((res) => setAmountStaked(Number(utils.formatEther(res))));
-    calculateAPY(stakingInfo.stakingContract).then((res) => setApy(res));
-  }
-
   useEffect(() => {
     if (!account || !stakingInfo || !contracts) {
       return;
     }
     updateData();
   }, [account, stakingInfo]);
+
+  async function updateData(): Promise<void> {
+    const inputBalance = await stakingInfo.inputToken.balanceOf(account);
+    console.log(inputBalance);
+    setTokenBalance((prevState) => Number(utils.formatEther(inputBalance)));
+
+    const allowance = await stakingInfo.inputToken.allowance(
+      account,
+      stakingInfo.stakingContract.address,
+    );
+    setApproval((prevState) => Number(utils.formatEther(allowance)));
+
+    const stakedAmount = await stakingInfo.stakingContract.balanceOf(account);
+    setAmountStaked(Number(utils.formatEther(stakedAmount)));
+
+    const apy = await calculateAPY(
+      await stakingInfo.stakingContract.getRewardForDuration(),
+      await stakingInfo.stakingContract.totalSupply(),
+    );
+    setApy((prevState) => apy);
+  }
 
   async function stake(): Promise<void> {
     setWait(true);
@@ -93,17 +101,21 @@ export default function stake(): JSX.Element {
     const connectedStaking = await stakingInfo.stakingContract.connect(signer);
     await connectedStaking
       .stake(lockedPopInEth)
-      .then((res) => {
-        {
-          toast.dismiss();
-          toast.success(`${stakingInfo.tokenName} staked!`);
-        }
-      })
+      .then((res) =>
+        res.wait().then((res) => {
+          {
+            toast.dismiss();
+            toast.success(`${stakingInfo.tokenName} staked!`);
+          }
+        }),
+      )
       .catch((err) => {
         toast.error(err.data.message.split("'")[1]);
       });
+
     await updateData();
     setWait(false);
+    setInputTokenAmount(0);
   }
 
   async function withdrawStake(): Promise<void> {
@@ -114,17 +126,20 @@ export default function stake(): JSX.Element {
     const connectedStaking = await stakingInfo.stakingContract.connect(signer);
     await connectedStaking
       .withdraw(lockedPopInEth)
-      .then((res) => {
-        {
-          toast.dismiss();
-          toast.success(`${stakingInfo.tokenName} withdrawn!`);
-        }
-      })
+      .then((res) =>
+        res.wait().then((res) => {
+          {
+            toast.dismiss();
+            toast.success(`${stakingInfo.tokenName} withdrawn!`);
+          }
+        }),
+      )
       .catch((err) => {
         toast.error(err.data.message.split("'")[1]);
       });
     await updateData();
     setWait(false);
+    setInputTokenAmount(0);
   }
 
   async function approve(): Promise<void> {
@@ -138,10 +153,12 @@ export default function stake(): JSX.Element {
     const connected = await contracts.pop.connect(library.getSigner());
     await connected
       .approve(stakingInfo.stakingContract.address, lockedTokenInEth)
-      .then((res) => {
-        toast.dismiss();
-        toast.success(`${stakingInfo.tokenName} approved!`);
-      })
+      .then((res) =>
+        res.wait().then((res) => {
+          toast.dismiss();
+          toast.success(`${stakingInfo.tokenName} approved!`);
+        }),
+      )
       .catch((err) => toast.error(err.data.message.split("'")[1]));
     await updateData();
     setWait(false);
