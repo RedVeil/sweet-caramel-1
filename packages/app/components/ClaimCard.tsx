@@ -50,4 +50,4 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
     </div>
   );
 };
-export default StakingCard;
+export default ClaimCard;
