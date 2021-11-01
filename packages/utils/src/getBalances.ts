@@ -13,7 +13,7 @@ export interface ContractsWithBalance {
   butter: ERC20 | MockERC20 | StakingRewards;
 }
 
-export async function getBalances(
+async function getBalances(
   account: string,
   contracts: ContractsWithBalance,
 ): Promise<TokenBalances> {
@@ -23,3 +23,4 @@ export async function getBalances(
     butter: bigNumberToNumber(await contracts.butter.balanceOf(account)),
   };
 }
+export default getBalances;

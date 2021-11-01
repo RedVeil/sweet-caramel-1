@@ -5,15 +5,11 @@ export {
   numberToBigNumber,
   scaleNumberToBigNumber,
 } from './formatBigNumber';
-export { getBalances } from './getBalances';
+export { default as getBalances } from './getBalances';
 export type { ContractsWithBalance, TokenBalances } from './getBalances';
 export {
   calculateAPY,
   getEarned,
-  getStakingReturns,
-} from './getStakingReturns';
-export {
-  calculateAPY,
   getSingleStakingStats,
   getStakingStats,
 } from './getStakingStats';

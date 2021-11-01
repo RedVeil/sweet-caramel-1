@@ -6,7 +6,12 @@ import StatInfoCard from 'components/StatInfoCard';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { getStakingStats, StakingStats } from '../../../utils';
+import {
+  getBalances,
+  getEarned,
+  getStakingStats,
+  StakingStats,
+} from '../../../utils';
 
 interface TokenBalances {
   pop: number;
@@ -57,7 +62,7 @@ export default function index(): JSX.Element {
     if (!account || !contracts) {
       return;
     }
-    getBalances(account, contracts).then((res) => setBalances(res));
+    getUserBalances(account, contracts).then((res) => setBalances(res));
   }, [account, contracts]);
 
   return (
