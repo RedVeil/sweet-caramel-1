@@ -14,7 +14,7 @@ export default function StatInfoCard({
   info,
 }: StatInfoCardProps): JSX.Element {
   return (
-    <div className="bg-white rounded-md border border-gray-200 w-full px-4 py-4">
+    <div className="bg-white rounded-md border border-gray-200 w-full px-4 py-5">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
           <CardIcon

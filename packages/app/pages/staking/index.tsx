@@ -118,37 +118,39 @@ export default function index(): JSX.Element {
           </div>
 
           <div className="w-2/3">
-            {balances && (
-              <div className="mt-28 flex flex-row items-center">
-                <div className="w-1/2 mr-2">
-                  <StatInfoCard
-                    title="Staked Balance"
-                    content={`${(
-                      balances.staked.butter +
-                      balances.staked.pop +
-                      balances.staked.popEthLp
-                    ).toLocaleString()} Token`}
-                    icon={{
-                      icon: 'Money',
-                      color: 'bg-green-200',
-                      iconColor: 'text-gray-800',
-                    }}
-                  />
-                </div>
-                <div className="w-1/2 ml-2">
-                  <StatInfoCard
-                    title="Cumulative Rewards"
-                    content={`${(
-                      balances.earned.pop +
-                      balances.earned.popEthLp +
-                      balances.earned.butter
-                    ).toLocaleString()} POP`}
-                    icon={{ icon: 'Money', color: 'bg-blue-300' }}
-                  />
-                </div>
-              </div>
-            )}
-            <div className="mt-8 space-y-4">
+            <div className="mt-28 flex flex-row items-center">
+              {balances && (
+                <>
+                  <div className="w-1/2 mr-2">
+                    <StatInfoCard
+                      title="Staked Balance"
+                      content={`${(
+                        balances.staked.butter +
+                        balances.staked.pop +
+                        balances.staked.popEthLp
+                      ).toLocaleString()} Token`}
+                      icon={{
+                        icon: 'Money',
+                        color: 'bg-green-200',
+                        iconColor: 'text-gray-800',
+                      }}
+                    />
+                  </div>
+                  <div className="w-1/2 ml-2">
+                    <StatInfoCard
+                      title="Cumulative Rewards"
+                      content={`${(
+                        balances.earned.pop +
+                        balances.earned.popEthLp +
+                        balances.earned.butter
+                      ).toLocaleString()} POP`}
+                      icon={{ icon: 'Money', color: 'bg-blue-300' }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            <div className={`${balances ? 'mt-8' : ''} space-y-4`}>
               {stakingStats && (
                 <>
                   <StakeCard
