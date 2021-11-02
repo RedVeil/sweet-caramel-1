@@ -26,20 +26,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [
       contractRegistryAddress,
-      (await deployments.get("Butter")).address,
+      (await deployments.get("BUTTER")).address,
       threeCrvAddress,
-      (await deployments.get("BasicIssuanceModule")).address,
+      contractRegistryAddress,
+      //(await deployments.get("BasicIssuanceModule")).address,
       [
         (await deployments.get("yVault1")).address,
         (await deployments.get("yVault2")).address,
       ],
       [
         {
-          curveMetaPool: (await deployments.get("CurveMetapool1")).address,
+          curveMetaPool: contractRegistryAddress, //(await deployments.get("CurveMetapool1")).address,
           crvLPToken: (await deployments.get("crvLP1")).address,
         },
         {
-          curveMetaPool: (await deployments.get("CurveMetapool2")).address,
+          curveMetaPool: contractRegistryAddress, //(await deployments.get("CurveMetapool2")).address,
           crvLPToken: (await deployments.get("crvLP2")).address,
         },
       ],
@@ -63,13 +64,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deploy("ButterBatchZapper", {
     from: deployer,
     args: [
-      (await deployments.get("ContractRegistry")).address,
-      (await deployments.get("CurveThreePool")).address,
+      contractRegistryAddress,
+      contractRegistryAddress,
+      //(await deployments.get("CurveThreePool")).address,
       threeCrvAddress,
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "HysiBatchInteraction",
+    contract: "HysiBatchZapper",
   });
 
   await contractRegistry.addContract(

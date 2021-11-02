@@ -30,7 +30,6 @@
     "husky": ">=6",
     "jest": "^26.1.0",
     "lint-staged": ">=10",
-    "prettier": "^2.0.5",
     "tsconfig-paths": "3.9.0"
   },
   "repository": {

@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //Temp solution for local deployment
   await deploy("POP_ETH_LP", {
     from: deployer,
-    args: ["POP_ETH_LP", "POPETH"],
+    args: ["POP_ETH_LP", "POPETH", 18],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "MockERC20",
@@ -17,7 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("BUTTER", {
     from: deployer,
-    args: ["Butter", "BUTTER"],
+    args: ["Butter", "BUTTER", 18],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "MockERC20",
