@@ -23,7 +23,7 @@ export default function StatInfoCard({
             iconColor={icon.iconColor}
           />
           <div className="ml-4">
-            <p className="text-gray-500 font-light uppercase">{title}</p>
+            <p className="text-gray-500 font-light">{title}</p>
             <h3 className="text-xl font-medium text-gray-800">{content}</h3>
           </div>
         </div>
