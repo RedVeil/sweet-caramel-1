@@ -222,7 +222,10 @@ export default function stake(): JSX.Element {
 
   return (
     <>
-      <div className="w-screen h-full overflow-hidden">
+      <div
+        className="overflow-hidden"
+        style={{ width: '100vw', height: '90vh' }}
+      >
         <Navbar />
         <Toaster position="top-right" />
         <div className="w-9/12 mx-auto ">
@@ -376,23 +379,29 @@ export default function stake(): JSX.Element {
                         />
                       </div>
                     </div>
-                    <StatInfoCard
-                      title="Amount Claimable"
-                      content={`${balances.earned.toLocaleString()} POP`}
-                      icon={{
-                        icon: 'Money',
-                        color: 'bg-green-300',
-                        iconColor: 'text-gray-800',
-                      }}
-                    />
+                    <div className="bg-white rounded-md border border-gray-300 w-full px-4 py-5">
+                      <div className="flex flex-row items-center justify-between">
+                        <div className="flex flex-row items-center">
+                          <div className="ml-4">
+                            <p className="text-base text-gray-500">
+                              Amount Claimable
+                            </p>
+                            <h3 className="text-xl font-medium text-gray-800">
+                              {balances.earned.toLocaleString()} POP
+                            </h3>
+                          </div>
+                        </div>
+                        <div></div>
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
             </div>
           </div>
           <img
-            src="/images/stakingBG.png"
-            className="w-9/12 absolute bottom-0"
+            src="/images/catPopVault.png"
+            className="w-9/12 absolute bottom-0 right-0"
           />
         </div>
       </div>
