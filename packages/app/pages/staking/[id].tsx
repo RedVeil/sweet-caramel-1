@@ -2,6 +2,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { Switch } from '@headlessui/react';
 import { ERC20, StakingRewards } from '@popcorn/hardhat/typechain';
 import {
+  bigNumberToNumber,
   calculateAPY,
   getSingleStakingStats,
   SingleStakingStats,
@@ -10,6 +11,7 @@ import { useWeb3React } from '@web3-react/core';
 import TokenInput from 'components/Common/TokenInput';
 import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
+import StatInfoCard from 'components/StatInfoCard';
 import TokenIcon from 'components/TokenIcon';
 import { connectors } from 'context/Web3/connectors';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
@@ -23,6 +25,13 @@ interface StakingInfo {
   inputToken: ERC20;
   stakingContract: StakingRewards;
   tokenName: string;
+}
+
+interface Balances {
+  wallet: number;
+  staked: number;
+  allowance: number;
+  earned: number;
 }
 
 function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
@@ -57,9 +66,12 @@ export default function stake(): JSX.Element {
   const [stakingInfo, setStakingInfo] = useState<StakingInfo>();
   const [stakingStats, setStakingStats] = useState<SingleStakingStats>();
   const [inputTokenAmount, setInputTokenAmount] = useState<number>(0);
-  const [tokenBalance, setTokenBalance] = useState(0);
-  const [amountStaked, setAmountStaked] = useState(0);
-  const [approved, setApproval] = useState<number>(0);
+  const [balances, setBalances] = useState<Balances>({
+    wallet: 0,
+    staked: 0,
+    allowance: 0,
+    earned: 0,
+  });
   const [apy, setApy] = useState<number>(0);
   const [wait, setWait] = useState<boolean>(false);
   const [withdraw, setWithdraw] = useState<boolean>(false);
@@ -89,16 +101,18 @@ export default function stake(): JSX.Element {
 
   async function updateData(): Promise<void> {
     const inputBalance = await stakingInfo.inputToken.balanceOf(account);
-    setTokenBalance((prevState) => Number(utils.formatEther(inputBalance)));
-
     const allowance = await stakingInfo.inputToken.allowance(
       account,
       stakingInfo.stakingContract.address,
     );
-    setApproval((prevState) => Number(utils.formatEther(allowance)));
-
     const stakedAmount = await stakingInfo.stakingContract.balanceOf(account);
-    setAmountStaked(Number(utils.formatEther(stakedAmount)));
+    const earned = await stakingInfo.stakingContract.earned(account);
+    setBalances({
+      wallet: bigNumberToNumber(inputBalance),
+      staked: bigNumberToNumber(stakedAmount),
+      allowance: bigNumberToNumber(allowance),
+      earned: bigNumberToNumber(earned),
+    });
 
     const apy = await calculateAPY(
       await stakingInfo.stakingContract.getRewardForDuration(),
@@ -208,12 +222,12 @@ export default function stake(): JSX.Element {
 
   return (
     <>
-      <div className="w-full h-screen">
+      <div className="w-screen h-full overflow-hidden">
         <Navbar />
         <Toaster position="top-right" />
-        <div className="">
-          <div className="w-9/12 mx-auto flex flex-row mt-14">
-            <div className="w-1/3 mx-auto">
+        <div className="w-9/12 mx-auto ">
+          <div className="flex flex-row mt-14">
+            <div className="w-1/3 mr-8">
               <div className="">
                 {stakingInfo && (
                   <span className="flex flex-row items-center">
@@ -255,13 +269,13 @@ export default function stake(): JSX.Element {
                   </div>
                 </div>
               </div>
-              <div className="mt-12 py-12 px-6 border border-gray-300 rounded-xl">
+              <div className="mt-8 pt-12 pb-10 px-6 border border-gray-300 rounded-xl">
                 <div className="flex flex-col">
                   {stakingInfo && (
                     <TokenInput
                       tokenName={stakingInfo.tokenName}
                       inputAmount={inputTokenAmount}
-                      balance={withdraw ? amountStaked : tokenBalance}
+                      balance={withdraw ? balances.staked : balances.wallet}
                       updateInputAmount={setInputTokenAmount}
                     />
                   )}
@@ -300,11 +314,11 @@ export default function stake(): JSX.Element {
                           <MainActionButton
                             label={`Withdraw ${stakingInfo.tokenName}`}
                             handleClick={withdrawStake}
-                            disabled={wait || amountStaked === 0}
+                            disabled={wait || balances.staked === 0}
                           />
                         ) : (
                           <>
-                            {approved >= inputTokenAmount ? (
+                            {balances.allowance >= inputTokenAmount ? (
                               <MainActionButton
                                 label={'Stake POP'}
                                 handleClick={stake}
@@ -330,7 +344,56 @@ export default function stake(): JSX.Element {
                 )}
               </div>
             </div>
+            <div className="w-2/3">
+              <div className="mt-36 space-y-4">
+                {balances && stakingInfo && (
+                  <>
+                    <div className="flex flex-row items-center">
+                      <div className="w-1/2 mr-2">
+                        <StatInfoCard
+                          title="Token Balance"
+                          content={`${balances.wallet.toLocaleString()} ${
+                            stakingInfo.tokenName
+                          }`}
+                          icon={{
+                            icon: 'Money',
+                            color: 'bg-yellow-200',
+                            iconColor: 'text-gray-800',
+                          }}
+                        />
+                      </div>
+                      <div className="w-1/2 ml-2">
+                        <StatInfoCard
+                          title="Amount Staked"
+                          content={`${balances.staked.toLocaleString()} ${
+                            stakingInfo.tokenName
+                          }`}
+                          icon={{
+                            icon: 'Money',
+                            color: 'bg-red-300',
+                            iconColor: 'text-gray-800',
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <StatInfoCard
+                      title="Amount Claimable"
+                      content={`${balances.earned.toLocaleString()} POP`}
+                      icon={{
+                        icon: 'Money',
+                        color: 'bg-green-300',
+                        iconColor: 'text-gray-800',
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
           </div>
+          <img
+            src="/images/stakingBG.png"
+            className="w-9/12 absolute bottom-0"
+          />
         </div>
       </div>
     </>

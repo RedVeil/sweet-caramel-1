@@ -121,7 +121,7 @@ export default function index(): JSX.Element {
             <div className="mt-28 flex flex-row items-center">
               {balances && (
                 <>
-                  <div className="w-1/2 mr-2">
+                  {/*<div className="w-1/2 mr-2">
                     <StatInfoCard
                       title="Staked Balance"
                       content={`${(
@@ -135,8 +135,8 @@ export default function index(): JSX.Element {
                         iconColor: 'text-gray-800',
                       }}
                     />
-                  </div>
-                  <div className="w-1/2 ml-2">
+                    </div>*/}
+                  <div className="w-full">
                     <StatInfoCard
                       title="Cumulative Rewards"
                       content={`${(
