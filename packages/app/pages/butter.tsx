@@ -1,24 +1,21 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { parseEther } from '@ethersproject/units';
-import {
-  AccountBatch,
-  BatchType,
-} from '@popcorn/contracts/adapters/HYSIBatchInteraction/HYSIBatchInteractionAdapter';
 import { useWeb3React } from '@web3-react/core';
-import BatchProcessingInfo from 'components/BatchHysi/BatchProcessingInfo';
-import ClaimableBatches from 'components/BatchHysi/ClaimableBatches';
-import MintRedeemInterface from 'components/BatchHysi/MintRedeemInterface';
+import BatchProcessingInfo from 'components/BatchButter/BatchProcessingInfo';
+import ClaimableBatches from 'components/BatchButter/ClaimableBatches';
+import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
 import Navbar from 'components/NavBar/NavBar';
 import { ContractsContext } from 'context/Web3/contracts';
 import { BigNumber, Contract, utils } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
+  AccountBatch,
+  BatchType,
   ComponentMap,
-  HYSIBatchInteractionAdapter,
   TimeTillBatchProcessing,
-} from '../../../contracts';
-
+} from '../../hardhat/lib/adapters';
+import ButterBatchAdapter from '../../hardhat/lib/adapters/ButterBatchAdapter';
 interface HotSwapParameter {
   batchIds: String[];
   amounts: BigNumber[];
@@ -62,8 +59,8 @@ export default function Butter(): JSX.Element {
   const [useUnclaimedDeposits, setUseUnclaimedDeposits] =
     useState<Boolean>(false);
   const [wait, setWait] = useState<Boolean>(false);
-  const [batchHysiAdapter, setBatchHysiAdapter] =
-    useState<HYSIBatchInteractionAdapter>();
+  const [butterBatchAdapter, setButterBatchAdapter] =
+    useState<ButterBatchAdapter>();
   const [batches, setBatches] = useState<AccountBatch[]>();
   const [timeTillBatchProcessing, setTimeTillBatchProcessing] =
     useState<TimeTillBatchProcessing[]>();
@@ -101,9 +98,9 @@ export default function Butter(): JSX.Element {
     if (!library || !contracts) {
       return;
     }
-    setBatchHysiAdapter(new HYSIBatchInteractionAdapter(contracts.batchHysi));
+    setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
     if (account) {
-      contracts.hysi.balanceOf(account).then((res) => setHysiBalance(res));
+      contracts.butter.balanceOf(account).then((res) => setHysiBalance(res));
       contracts.threeCrv
         .balanceOf(account)
         .then((res) => setThreeCrvBalance(res));
@@ -111,10 +108,10 @@ export default function Butter(): JSX.Element {
   }, [library, account]);
 
   useEffect(() => {
-    if (!batchHysiAdapter) {
+    if (!butterBatchAdapter) {
       return;
     }
-    batchHysiAdapter
+    butterBatchAdapter
       .getHysiPrice(hysiDependencyContracts.basicIssuanceModule, {
         [hysiDependencyContracts.yDUSD.address.toLowerCase()]: {
           metaPool: hysiDependencyContracts.dusdMetapool,
@@ -135,14 +132,14 @@ export default function Butter(): JSX.Element {
       } as ComponentMap)
       .then((res) => setHysiPrice(res));
 
-    batchHysiAdapter
+    butterBatchAdapter
       .getThreeCrvPrice(hysiDependencyContracts.triPool)
       .then((res) => setThreeCrvPrice(res));
-    batchHysiAdapter.getBatches(account).then((res) => setBatches(res));
-    batchHysiAdapter
+    butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
+    butterBatchAdapter
       .calcBatchTimes(library)
       .then((res) => setTimeTillBatchProcessing(res));
-  }, [batchHysiAdapter]);
+  }, [butterBatchAdapter]);
 
   useEffect(() => {
     if (!batches) {
@@ -176,7 +173,7 @@ export default function Butter(): JSX.Element {
       depositAmount,
     );
     toast.loading('Depositing Funds...');
-    const res = await contracts.batchHysi
+    const res = await contracts.butterBatch
       .connect(library.getSigner())
       .moveUnclaimedDepositsIntoCurrentBatch(
         hotSwapParameter.batchIds as string[],
@@ -187,7 +184,7 @@ export default function Butter(): JSX.Element {
         res.wait().then((res) => {
           toast.dismiss();
           toast.success('Funds deposited!');
-          batchHysiAdapter.getBatches(account).then((res) => setBatches(res));
+          butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
         });
       })
       .catch((err) => {
@@ -208,11 +205,11 @@ export default function Butter(): JSX.Element {
     if (batchType === BatchType.Mint) {
       const allowance = await contracts.threeCrv.allowance(
         account,
-        contracts.batchHysi.address,
+        contracts.butterBatch.address,
       );
       if (allowance >= depositAmount) {
         toast.loading('Depositing 3CRV...');
-        const res = await contracts.batchHysi
+        const res = await contracts.butterBatch
           .connect(library.getSigner())
           .depositForMint(depositAmount, account)
           .then((res) => {
@@ -233,21 +230,21 @@ export default function Butter(): JSX.Element {
         approve(contracts.threeCrv);
       }
     } else {
-      const allowance = await contracts.hysi.allowance(
+      const allowance = await contracts.butter.allowance(
         account,
-        contracts.batchHysi.address,
+        contracts.butterBatch.address,
       );
       console.log('redeem allowance', allowance.toString());
       if (allowance >= depositAmount) {
         toast.loading('Depositing HYSI...');
-        await contracts.batchHysi
+        await contracts.butterBatch
           .connect(library.getSigner())
           .depositForRedeem(depositAmount)
           .then((res) => {
             res.wait().then((res) => {
               toast.dismiss();
               toast.success('HYSI deposited!');
-              batchHysiAdapter
+              butterBatchAdapter
                 .getBatches(account)
                 .then((res) => setBatches(res));
             });
@@ -261,7 +258,7 @@ export default function Butter(): JSX.Element {
             }
           });
       } else {
-        approve(contracts.hysi);
+        approve(contracts.butter);
       }
     }
     setWait(false);
@@ -269,7 +266,7 @@ export default function Butter(): JSX.Element {
 
   async function claim(batchId: string): Promise<void> {
     toast.loading('Claiming Batch...');
-    await contracts.batchHysi
+    await contracts.butterBatch
       .connect(library.getSigner())
       .claim(batchId, account)
       .then((res) => {
@@ -277,7 +274,7 @@ export default function Butter(): JSX.Element {
           toast.dismiss();
           toast.success('Batch claimed!');
         });
-        batchHysiAdapter.getBatches(account).then((res) => setBatches(res));
+        butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
       })
       .catch((err) => {
         toast.dismiss();
@@ -291,7 +288,7 @@ export default function Butter(): JSX.Element {
 
   async function withdraw(batchId: string, amount: BigNumber): Promise<void> {
     toast.loading('Withdrawing from Batch...');
-    await contracts.batchHysi
+    await contracts.butterBatch
       .connect(library.getSigner())
       .withdrawFromBatch(batchId, amount, account)
       .then((res) => {
@@ -299,7 +296,7 @@ export default function Butter(): JSX.Element {
           toast.dismiss();
           toast.success('Funds withdrawn!');
         });
-        batchHysiAdapter.getBatches(account).then((res) => setBatches(res));
+        butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
       })
       .catch((err) => {
         toast.dismiss();
@@ -316,7 +313,7 @@ export default function Butter(): JSX.Element {
     toast.loading('Approving Token...');
     await contract
       .connect(library.getSigner())
-      .approve(contracts.batchHysi.address, utils.parseEther('100000000'))
+      .approve(contracts.butterBatch.address, utils.parseEther('100000000'))
       .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();
@@ -350,7 +347,7 @@ export default function Butter(): JSX.Element {
       </div>
       <main className="-mt-32">
         <div className="max-w-7xl mx-auto pb-12 px-4 sm:px-6 lg:px-8">
-          {batchHysiAdapter && (
+          {butterBatchAdapter && (
             <MintRedeemInterface
               threeCrvBalance={
                 useUnclaimedDeposits

@@ -27,8 +27,13 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer
   );
 
+  //Grant signer roles for later contract interactions
   await aclRegistry.grantRole(
     ethers.utils.id("DAO"),
+    await signer.getAddress()
+  );
+  await aclRegistry.grantRole(
+    ethers.utils.id("Keeper"),
     await signer.getAddress()
   );
 };

@@ -1,1 +1,1 @@
-export * from "./HYSIBatchInteraction/HYSIBatchInteractionAdapter";
+export * from "./ButterBatchAdapter";
