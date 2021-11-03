@@ -1,3 +1,4 @@
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 // setup public/external addresses here like DAI/USDC/ etc.
 
 export default function getNamedAccounts() {
@@ -14,9 +15,40 @@ export default function getNamedAccounts() {
       mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       rinkeby: "0xc0e334b5bc637eac105da3d84c7c1bd342ae8ae9",
     },
+    DAO_Treasury: {
+      rinkeby: "0xc0e334b5bc637eac105da3d84c7c1bd342ae8ae9",
+    },
     TokenManager: {
       mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
       rinkeby: "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
     },
+    BalancerVault: {
+      mainnet: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      polygon: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      arbitrum: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      kovan: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      rinkeby: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+    },
+    BalancerLBPFactory: {
+      mainnet: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      polygon: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      arbitrum: "0x142B9666a0a3A30477b052962ddA81547E7029ab",
+      kovan: "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
+      rinkeby: "0xdcdbf71A870cc60C6F9B621E28a7D3Ffd6Dd4965",
+    },
+    USDC: {
+      kovan: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
+    },
   };
 }
+
+export const getNamedAccountsFromNetwork = (hre: HardhatRuntimeEnvironment) => {
+  const accounts = getNamedAccounts();
+  return Object.keys(accounts).reduce((map, contract) => {
+    if (!accounts[contract][hre.network.name]) return map;
+    return {
+      ...map,
+      [contract]: accounts[contract][hre.network.name],
+    };
+  }, {} as any);
+};

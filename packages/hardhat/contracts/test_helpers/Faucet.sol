@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface Uniswap {
@@ -26,8 +26,7 @@ interface CurveDepositZap {
 }
 
 interface TriPool {
-  function add_liquidity(uint256[3] calldata amounts, uint256 min_mint_amounts)
-    external;
+  function add_liquidity(uint256[3] calldata amounts, uint256 min_mint_amounts) external;
 }
 
 interface CurveAddressProvider {
@@ -35,15 +34,10 @@ interface CurveAddressProvider {
 }
 
 interface CurveRegistry {
-  function get_pool_from_lp_token(address lp_token)
-    external
-    view
-    returns (address);
+  function get_pool_from_lp_token(address lp_token) external view returns (address);
 }
 
 contract Faucet {
-  using SafeERC20 for IERC20;
-
   Uniswap public uniswap;
   CurveDepositZap public curveDepositZap;
   CurveAddressProvider public curveAddressProvider;
@@ -61,6 +55,8 @@ contract Faucet {
     curveDepositZap = CurveDepositZap(curveDepositZap_);
     curveAddressProvider = CurveAddressProvider(curveAddressProvider_);
     curveRegistry = CurveRegistry(curveAddressProvider.get_registry());
+    dai.approve(address(triPool), type(uint256).max);
+    dai.approve(address(curveDepositZap), type(uint256).max);
   }
 
   function sendTokens(
@@ -71,12 +67,7 @@ contract Faucet {
     address[] memory path = new address[](2);
     path[0] = uniswap.WETH();
     path[1] = token;
-    uniswap.swapExactETHForTokens{value: amount * 1 ether}(
-      0,
-      path,
-      recipient,
-      block.timestamp
-    );
+    uniswap.swapExactETHForTokens{value: amount * 1 ether}(0, path, recipient, block.timestamp);
   }
 
   function sendCurveLPTokens(
@@ -87,33 +78,20 @@ contract Faucet {
     address[] memory path = new address[](2);
     path[0] = uniswap.WETH();
     path[1] = address(dai);
-    uint256 daiAmount = uniswap.swapExactETHForTokens{value: amount * 1 ether}(
-      0,
-      path,
-      address(this),
-      block.timestamp
-    )[1];
+    uint256 daiAmount = uniswap.swapExactETHForTokens{value: amount * 1 ether}(0, path, address(this), block.timestamp)[
+      1
+    ];
     address curvePool = curveRegistry.get_pool_from_lp_token(lpToken);
-    dai.safeIncreaseAllowance(address(curveDepositZap), daiAmount);
-    curveDepositZap.add_liquidity(
-      curvePool,
-      [0, daiAmount, 0, 0],
-      0,
-      recipient
-    );
+    curveDepositZap.add_liquidity(curvePool, [0, daiAmount, 0, 0], 0, recipient);
   }
 
   function sendThreeCrv(uint256 amount, address recipient) public {
     address[] memory path = new address[](2);
     path[0] = uniswap.WETH();
     path[1] = address(dai);
-    uint256 daiAmount = uniswap.swapExactETHForTokens{value: amount * 1 ether}(
-      0,
-      path,
-      address(this),
-      block.timestamp
-    )[1];
-    dai.safeIncreaseAllowance(address(triPool), daiAmount);
+    uint256 daiAmount = uniswap.swapExactETHForTokens{value: amount * 1 ether}(0, path, address(this), block.timestamp)[
+      1
+    ];
     TriPool(triPool).add_liquidity([daiAmount, 0, 0], 0);
     threeCrv.transfer(recipient, threeCrv.balanceOf(address(this)));
   }
