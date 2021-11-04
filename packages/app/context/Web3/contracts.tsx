@@ -5,6 +5,7 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import getContractAddresses from '../../../hardhat/lib/utils/getContractAddresses';
 import {
   BasicIssuanceModule,
   BasicIssuanceModule__factory,
@@ -13,16 +14,19 @@ import {
   CurveMetapool,
   CurveMetapool__factory,
   ERC20,
+  ERC20__factory,
   HysiBatchInteraction,
+  HysiBatchInteraction__factory,
   HysiBatchZapper,
+  HysiBatchZapper__factory,
   ISetToken,
+  ISetToken__factory,
   YearnVault,
   YearnVault__factory,
 } from '../../../hardhat/typechain';
 import { setSingleActionModal } from '../actions';
 import { store } from '../store';
 import { connectors, networkMap } from './connectors';
-
 export interface Contracts {
   threeCrv: ERC20;
   butter: ISetToken;
@@ -45,7 +49,9 @@ export interface hysiDependencyContracts {
 
 interface ContractsContext {
   contracts: Contracts;
+  hysiDependencyContracts: hysiDependencyContracts;
   setContracts: React.Dispatch<Contracts>;
+  setHysiDependencyContracts: React.Dispatch<hysiDependencyContracts>;
 }
 
 export const ContractsContext = createContext<ContractsContext>(null);
@@ -84,7 +90,10 @@ export default function ContractsWrapper({
     error,
   } = context;
   const [contracts, setContracts] = useState<Contracts>();
+  const [hysiDependencyContracts, setHysiDependencyContracts] =
+    useState<hysiDependencyContracts>();
   const { dispatch } = useContext(store);
+  const addresses = getContractAddresses();
 
   useEffect(() => {
     if (!active) {
@@ -113,33 +122,48 @@ export default function ContractsWrapper({
     if (!library) {
       return;
     }
-    setContracts({ threeCrv: ERC20__factory.connect() });
-    setHysiDependencyContracts({
-      basicIssuanceModule: BasicIssuanceModule__factory.connect(
-        process.env.ADDR_BASIC_ISSUANCE_MODULE,
+    setContracts({
+      threeCrv: ERC20__factory.connect(addresses.THREE_CRV.hardhat, library),
+      butter: ISetToken__factory.connect(addresses.BUTTER.hardhat, library),
+      butterBatch: HysiBatchInteraction__factory.connect(
+        addresses.BUTTER_BATCH.hardhat,
         library,
       ),
-      yDUSD: YearnVault__factory.connect(process.env.ADDR_YDUSD, library),
-      yFRAX: YearnVault__factory.connect(process.env.ADDR_YFRAX, library),
-      yUSDN: YearnVault__factory.connect(process.env.ADDR_YUSDN, library),
-      yUST: YearnVault__factory.connect(process.env.ADDR_YUST, library),
+      butterBatchZapper: HysiBatchZapper__factory.connect(
+        addresses.BUTTER_BATCH_ZAPPER.hardhat,
+        library,
+      ),
+    });
+
+    setHysiDependencyContracts({
+      basicIssuanceModule: BasicIssuanceModule__factory.connect(
+        addresses.SET_BASIC_ISSUANCE_MODULE_ADDRESS.hardhat,
+        library,
+      ),
+      yDUSD: YearnVault__factory.connect(addresses.YDUSD.hardhat, library),
+      yFRAX: YearnVault__factory.connect(addresses.YFRAX.hardhat, library),
+      yUSDN: YearnVault__factory.connect(addresses.YUSDN.hardhat, library),
+      yUST: YearnVault__factory.connect(addresses.YUST.hardhat, library),
       dusdMetapool: CurveMetapool__factory.connect(
-        process.env.ADDR_DUSD_METAPOOL,
+        addresses.DUSD_METAPOOL.hardhat,
         library,
       ),
       fraxMetapool: CurveMetapool__factory.connect(
-        process.env.ADDR_FRAX_METAPOOL,
+        addresses.FRAX_METAPOOL.hardhat,
         library,
       ),
       usdnMetapool: CurveMetapool__factory.connect(
-        process.env.ADDR_USDN_METAPOOL,
+        addresses.USDN_METAPOOL.hardhat,
         library,
       ),
       ustMetapool: CurveMetapool__factory.connect(
-        process.env.ADDR_UST_METAPOOL,
+        addresses.UST_METAPOOL.hardhat,
         library,
       ),
-      triPool: Curve3Pool__factory.connect(process.env.ADDR_TRI_POOL, library),
+      triPool: Curve3Pool__factory.connect(
+        addresses.THREE_POOL.hardhat,
+        library,
+      ),
     });
   }, [library, active]);
 
@@ -148,6 +172,8 @@ export default function ContractsWrapper({
       value={{
         contracts,
         setContracts,
+        hysiDependencyContracts,
+        setHysiDependencyContracts,
       }}
     >
       {children}

@@ -15,7 +15,7 @@ const DepositWithdrawToggle: React.FC<DepositWithdrawToggleProps> = ({
         className={`w-1/2 ${
           withdrawal
             ? 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
-            : 'border-b-2 border-gray-900'
+            : 'border-b-2 border-blue-600'
         }`}
         onClick={(e) => setwithdrawal(false)}
       >
@@ -23,7 +23,7 @@ const DepositWithdrawToggle: React.FC<DepositWithdrawToggleProps> = ({
           className={`text-center text-base mb-4 ${
             withdrawal
               ? 'text-gray-400 group-hover:text-gray-600'
-              : 'text-gray-900 font-semibold'
+              : 'text-blue-600 font-semibold'
           }`}
         >
           Deposit
@@ -32,7 +32,7 @@ const DepositWithdrawToggle: React.FC<DepositWithdrawToggleProps> = ({
       <div
         className={`w-1/2 ${
           withdrawal
-            ? 'border-b-2 border-gray-900'
+            ? 'border-b-2 border-blue-600'
             : 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
         }`}
         onClick={(e) => setwithdrawal(true)}
@@ -40,7 +40,7 @@ const DepositWithdrawToggle: React.FC<DepositWithdrawToggleProps> = ({
         <p
           className={`text-center text-base mb-4 ${
             withdrawal
-              ? 'text-gray-900 font-semibold'
+              ? 'text-blue-600 font-semibold'
               : 'text-gray-400 group-hover:text-gray-600'
           }`}
         >

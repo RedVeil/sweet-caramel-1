@@ -15,6 +15,7 @@ module.exports = {
         100: '25.5rem',
         104: '27rem',
         112: '30rem',
+        124: '33rem',
         128: '40rem',
         129: '52rem',
       },
@@ -27,7 +28,7 @@ module.exports = {
       },
       colors: {
         primary: '#F28705',
-        primaryLight: '#F29F05',
+        primaryLight: '#FDEAA7',
         primaryDark: '#BF4904',
 
         secondary: '#B72E73',

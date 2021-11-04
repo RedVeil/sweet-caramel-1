@@ -1,10 +1,12 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { parseEther } from '@ethersproject/units';
+import { bigNumberToNumber, formatAndRoundBigNumber } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import BatchProcessingInfo from 'components/BatchButter/BatchProcessingInfo';
 import ClaimableBatches from 'components/BatchButter/ClaimableBatches';
 import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
 import Navbar from 'components/NavBar/NavBar';
+import StatInfoCard from 'components/StatInfoCard';
 import { ContractsContext } from 'context/Web3/contracts';
 import { BigNumber, Contract, utils } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
@@ -333,81 +335,148 @@ export default function Butter(): JSX.Element {
   }
 
   return (
-    <div>
+    <div className="w-full h-screen">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="bg-gray-800 pb-32">
-        <header className="py-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl font-bold text-white text-center">
-              Popcorn Yield Optimizer
-            </h1>
+      <div className="">
+        <div className="w-9/12 mx-auto flex flex-row mt-14">
+          <div className="w-1/3">
+            <div className="">
+              <h1 className="text-3xl text-gray-800 font-medium">
+                Popcorn Yield Optimizer
+              </h1>
+              <p className="text-lg text-gray-500">
+                Deposit your stablecoins and watch your money grow
+              </p>
+            </div>
+            <div className="mt-12">
+              {butterBatchAdapter && (
+                <MintRedeemInterface
+                  threeCrvBalance={
+                    useUnclaimedDeposits
+                      ? claimableBatches[1].balance
+                      : threeCrvBalance
+                  }
+                  threeCrvPrice={threeCrvPrice}
+                  hysiBalance={
+                    useUnclaimedDeposits
+                      ? claimableBatches[0].balance
+                      : hysiBalance
+                  }
+                  hysiPrice={hysiPrice}
+                  withdrawal={withdrawal}
+                  setwithdrawal={setwithdrawal}
+                  depositAmount={depositAmount}
+                  setDepositAmount={setDepositAmount}
+                  deposit={useUnclaimedDeposits ? hotswap : deposit}
+                  depositDisabled={
+                    useUnclaimedDeposits
+                      ? isDepositDisabled(
+                          depositAmount,
+                          claimableBatches[0].balance,
+                          claimableBatches[1].balance,
+                          wait,
+                          withdrawal,
+                        )
+                      : isDepositDisabled(
+                          depositAmount,
+                          hysiBalance,
+                          threeCrvBalance,
+                          wait,
+                          withdrawal,
+                        )
+                  }
+                  useUnclaimedDeposits={useUnclaimedDeposits}
+                  setUseUnclaimedDeposits={setUseUnclaimedDeposits}
+                />
+              )}
+              <BatchProcessingInfo
+                timeTillBatchProcessing={timeTillBatchProcessing}
+              />
+            </div>
           </div>
-        </header>
-      </div>
-      <main className="-mt-32">
-        <div className="max-w-7xl mx-auto pb-12 px-4 sm:px-6 lg:px-8">
-          {butterBatchAdapter && (
-            <MintRedeemInterface
-              threeCrvBalance={
-                useUnclaimedDeposits
-                  ? claimableBatches[1].balance
-                  : threeCrvBalance
-              }
-              threeCrvPrice={threeCrvPrice}
-              hysiBalance={
-                useUnclaimedDeposits ? claimableBatches[0].balance : hysiBalance
-              }
-              hysiPrice={hysiPrice}
-              withdrawal={withdrawal}
-              setwithdrawal={setwithdrawal}
-              depositAmount={depositAmount}
-              setDepositAmount={setDepositAmount}
-              deposit={useUnclaimedDeposits ? hotswap : deposit}
-              depositDisabled={
-                useUnclaimedDeposits
-                  ? isDepositDisabled(
-                      depositAmount,
-                      claimableBatches[0].balance,
-                      claimableBatches[1].balance,
-                      wait,
-                      withdrawal,
-                    )
-                  : isDepositDisabled(
-                      depositAmount,
-                      hysiBalance,
-                      threeCrvBalance,
-                      wait,
-                      withdrawal,
-                    )
-              }
-              useUnclaimedDeposits={useUnclaimedDeposits}
-              setUseUnclaimedDeposits={setUseUnclaimedDeposits}
-            />
-          )}
-          <BatchProcessingInfo
-            timeTillBatchProcessing={timeTillBatchProcessing}
-          />
-          {batches?.length > 0 && (
-            <div className="mt-16">
-              <h2></h2>
-              <div className="flex flex-col">
-                <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                  <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                      <ClaimableBatches
-                        batches={batches}
-                        claim={claim}
-                        withdraw={withdraw}
-                      />
-                    </div>
+          <div className="w-2/3 mt-28">
+            <div className="flex flex-row items-center">
+              <div className="w-1/3 mr-2">
+                <StatInfoCard
+                  title="Butter Value"
+                  content={`${
+                    hysiPrice ? formatAndRoundBigNumber(hysiPrice) : '-'
+                  } $`}
+                  icon={{ icon: 'Money', color: 'bg-blue-300' }}
+                />
+              </div>
+              <div className="w-1/3 mx-2">
+                <StatInfoCard
+                  title="Claimable Butter"
+                  content={String(
+                    batches
+                      .filter((batch) => batch.batchType === BatchType.Mint)
+                      .reduce((total, batch) => {
+                        return (
+                          total +
+                          bigNumberToNumber(batch.accountClaimableTokenBalance)
+                        );
+                      }, 0),
+                  )}
+                  icon={{ icon: 'Key', color: 'bg-green-400' }}
+                />
+              </div>
+              <div className="w-1/3 ml-2">
+                <StatInfoCard
+                  title="Pending Withdraw"
+                  content={`${batches
+                    .filter((batch) => batch.batchType === BatchType.Redeem)
+                    .reduce((total, batch) => {
+                      return (
+                        total +
+                        bigNumberToNumber(batch.accountSuppliedTokenBalance)
+                      );
+                    }, 0)} BTR`}
+                  icon={{ icon: 'Wait', color: 'bg-yellow-500' }}
+                />
+              </div>
+            </div>
+            <div className="w-full h-min-content px-12 pt-12 pb-18 mt-8 rounded-lg bg-primaryLight">
+              <div className="z-10">
+                <h2 className="text-2xl font-medium w-1/4">
+                  We will bring the chart soon to you!
+                </h2>
+                <p className="text-base text-gray-700 w-1/3">
+                  Currently we are developing awesome chart for you that help to
+                  visualize how your HYSI growth
+                </p>
+              </div>
+              <div className="w-full flex justify-end -mt-40">
+                <img
+                  src="/images/chartPlaceholder.svg"
+                  alt="chartPlaceholder"
+                  className="h-112"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {batches?.length > 0 && (
+          <div className="mt-16">
+            <h2></h2>
+            <div className="flex flex-col">
+              <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                  <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                    <ClaimableBatches
+                      batches={batches}
+                      claim={claim}
+                      withdraw={withdraw}
+                    />
                   </div>
                 </div>
               </div>
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

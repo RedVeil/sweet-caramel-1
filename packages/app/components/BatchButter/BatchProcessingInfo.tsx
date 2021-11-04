@@ -9,8 +9,8 @@ const BatchProcessingInfo: React.FC<BatchProcessingInfoProps> = ({
   timeTillBatchProcessing,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow px-5 py-6 mt-16 flex flex-row">
-      <div className="w-2/3 flex flex-row">
+    <div className="bg-yellow-50 rounded-lg px-5 py-6 mt-8 mr-8 flex flex-row">
+      <div className="w-full flex flex-row">
         <div className="w-24 h-24 flex-shrink-0 flex-grow-0 mr-4">
           {timeTillBatchProcessing && (
             <CircularProgressbar
@@ -43,17 +43,15 @@ const BatchProcessingInfo: React.FC<BatchProcessingInfoProps> = ({
           )}
           <p>
             We reduce your gas fee/transaction with doing deposit in batch. This
-            batch will automatically submitted after reach our schedule. When
-            the batch is completed you can claim the HYSI token to be displayed
-            on your wallet
+            batch will automatically submitted after reach our schedule.
           </p>
         </div>
       </div>
-      <div className="w-1/3 flex justify-end">
+      {/* <div className="w-1/3 flex justify-end">
         <button className="px-3 h-12 rounded-lg font-semibold bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700">
           See History
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

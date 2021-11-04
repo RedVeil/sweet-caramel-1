@@ -39,9 +39,9 @@ const AccountValue: React.FC<AccountValueProps> = ({
           <div className="w-2/12">
             <div className="flex mt-5 mx-auto w-10 h-10 rounded-full border border-gray-200 items-center">
               <img
-                src="/images/waveEqual.svg"
+                src="/images/icons/waveEqual.svg"
                 alt="waveEqual"
-                className="mx-auto "
+                className="mx-auto"
               ></img>
             </div>
           </div>

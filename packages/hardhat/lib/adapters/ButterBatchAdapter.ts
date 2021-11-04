@@ -1,7 +1,8 @@
-import { BigNumber } from '@ethersproject/bignumber';
-import { Contract } from '@ethersproject/contracts';
-import { Web3Provider } from '@ethersproject/providers';
-import { parseEther } from '@ethersproject/units';
+import { BigNumber } from "@ethersproject/bignumber";
+import { Contract } from "@ethersproject/contracts";
+import { Web3Provider } from "@ethersproject/providers";
+import { parseEther } from "@ethersproject/units";
+import getContractAddresses from "../utils/getContractAddresses";
 
 export enum BatchType {
   Mint,
@@ -60,14 +61,14 @@ class ButterBatchAdapter {
     const claimableTokenBalance = batch.claimableTokenBalance;
     const accountBalance = await this.contract.accountBalances(
       batchId,
-      address,
+      address
     );
     if (
-      claimableTokenBalance === BigNumber.from('0') ||
-      accountBalance === BigNumber.from('0') ||
-      unclaimedShares === BigNumber.from('0')
+      claimableTokenBalance === BigNumber.from("0") ||
+      accountBalance === BigNumber.from("0") ||
+      unclaimedShares === BigNumber.from("0")
     ) {
-      return BigNumber.from('0');
+      return BigNumber.from("0");
     }
 
     return claimableTokenBalance.mul(accountBalance).div(unclaimedShares);
@@ -80,7 +81,7 @@ class ButterBatchAdapter {
       basicIssuanceModule: Contract;
       setToken: Contract;
     },
-    componentMap: ComponentMap,
+    componentMap: ComponentMap
   ): Promise<BigNumber> {
     const batchId = await contracts.hysiBatchInteraction.currentRedeemBatchId();
 
@@ -91,7 +92,7 @@ class ButterBatchAdapter {
     const components =
       await contracts.basicIssuanceModule.getRequiredComponentUnitsForIssue(
         contracts.setToken.address,
-        HYSIInBatch,
+        HYSIInBatch
       );
     const componentAddresses = components[0];
     const componentAmounts = components[1];
@@ -103,35 +104,36 @@ class ButterBatchAdapter {
         const yPool = componentMap[component.toLowerCase()].yPool as Contract;
         const yPoolPricePerShare = await yPool.pricePerShare();
         const metapoolPrice = await metapool.get_virtual_price();
-        return yPoolPricePerShare.mul(metapoolPrice).div(parseEther('1'));
-      }),
+        return yPoolPricePerShare.mul(metapoolPrice).div(parseEther("1"));
+      })
     );
 
     const componentValuesInUSD = componentVirtualPrices.reduce(
       (sum: BigNumber, componentPrice: BigNumber, i) => {
         return sum.add(
-          componentPrice.mul(componentAmounts[i]).div(parseEther('1')),
+          componentPrice.mul(componentAmounts[i]).div(parseEther("1"))
         );
       },
-      parseEther('0'),
+      parseEther("0")
     ) as BigNumber;
 
     // 50 bps slippage tolerance
     const slippageTolerance = 1 - Number(slippage);
     const minAmountToReceive = componentValuesInUSD
       .mul(parseEther(slippageTolerance.toString()))
-      .div(parseEther('1'));
+      .div(parseEther("1"));
 
     return minAmountToReceive;
   }
 
   public async getHysiPrice(
     contract: Contract,
-    componentMap: ComponentMap,
+    componentMap: ComponentMap
   ): Promise<BigNumber> {
+    const addresses = getContractAddresses();
     const components = await contract.getRequiredComponentUnitsForIssue(
-      process.env.ADDR_HYSI,
-      parseEther('1'),
+      addresses.BUTTER.hardhat,
+      parseEther("1")
     );
     const componentAddresses = components[0];
     const componentAmounts = components[1];
@@ -144,17 +146,17 @@ class ButterBatchAdapter {
         const metapoolPrice = await metapool.get_virtual_price();
         return yPoolPricePerShare
           .mul(metapoolPrice)
-          .div(parseEther('1')) as BigNumber;
-      }),
+          .div(parseEther("1")) as BigNumber;
+      })
     );
 
     const hysiPrice = componentVirtualPrices.reduce(
       (sum: BigNumber, componentPrice: BigNumber, i) => {
         return sum.add(
-          componentPrice.mul(componentAmounts[i]).div(parseEther('1')),
+          componentPrice.mul(componentAmounts[i]).div(parseEther("1"))
         );
       },
-      parseEther('0'),
+      parseEther("0")
     );
 
     return hysiPrice as BigNumber;
@@ -174,17 +176,17 @@ class ButterBatchAdapter {
           ...batch,
           accountSuppliedTokenBalance: shares,
           accountClaimableTokenBalance: batch.unclaimedShares.eq(
-            BigNumber.from('0'),
+            BigNumber.from("0")
           )
             ? 0
             : batch.claimableTokenBalance
                 .mul(shares)
                 .div(batch.unclaimedShares),
         };
-      }),
+      })
     );
     return (batches as AccountBatch[]).filter(
-      (batch) => batch.accountSuppliedTokenBalance > BigNumber.from('0'),
+      (batch) => batch.accountSuppliedTokenBalance > BigNumber.from("0")
     );
   }
 
@@ -196,15 +198,15 @@ class ButterBatchAdapter {
   }
 
   public async calcBatchTimes(
-    library: Web3Provider,
+    library: Web3Provider
   ): Promise<TimeTillBatchProcessing[]> {
     const cooldowns = await this.getBatchCooldowns();
-    const currentBlockTime = await (await library.getBlock('latest')).timestamp;
+    const currentBlockTime = await (await library.getBlock("latest")).timestamp;
     const secondsTillMint = new Date(
-      (currentBlockTime / Number(cooldowns[0].toString())) * 1000,
+      (currentBlockTime / Number(cooldowns[0].toString())) * 1000
     );
     const secondsTillRedeem = new Date(
-      (currentBlockTime / Number(cooldowns[1].toString())) * 1000,
+      (currentBlockTime / Number(cooldowns[1].toString())) * 1000
     );
     const percentageTillMint =
       currentBlockTime / Number(cooldowns[0].toString());

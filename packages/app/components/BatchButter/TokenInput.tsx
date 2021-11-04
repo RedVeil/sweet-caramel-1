@@ -132,14 +132,14 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
           <div className="w-full border-t border-gray-300" />
         </div>
-        <div className="relative flex justify-center my-8">
+        <div className="relative flex justify-center my-6">
           <div className="w-16 bg-white">
             <div
               className="flex mx-auto w-10 h-10 rounded-full border border-gray-200 items-center cursor-pointer hover:bg-gray-50 hover:border-gray-400"
               onClick={(e) => setwithdrawal(!withdrawal)}
             >
               <img
-                src="/images/exchangeIcon.svg"
+                src="/images/icons/exchangeIcon.svg"
                 alt="exchangeIcon"
                 className="mx-auto p-3"
               ></img>
