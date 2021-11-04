@@ -1,53 +1,53 @@
 import { Dispatch } from 'react';
 
-interface DepositWithdrawToggleProps {
-  withdrawal: Boolean;
-  setwithdrawal: Dispatch<Boolean>;
+interface MintRedeemToggleProps {
+  redeeming: Boolean;
+  setRedeeming: Dispatch<Boolean>;
 }
 
-const DepositWithdrawToggle: React.FC<DepositWithdrawToggleProps> = ({
-  withdrawal,
-  setwithdrawal,
+const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({
+  redeeming,
+  setRedeeming,
 }) => {
   return (
     <div className="flex flex-row">
       <div
         className={`w-1/2 ${
-          withdrawal
+          redeeming
             ? 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
             : 'border-b-2 border-blue-600'
         }`}
-        onClick={(e) => setwithdrawal(false)}
+        onClick={(e) => setRedeeming(false)}
       >
         <p
           className={`text-center text-base mb-4 ${
-            withdrawal
+            redeeming
               ? 'text-gray-400 group-hover:text-gray-600'
               : 'text-blue-600 font-semibold'
           }`}
         >
-          Deposit
+          Mint
         </p>
       </div>
       <div
         className={`w-1/2 ${
-          withdrawal
+          redeeming
             ? 'border-b-2 border-blue-600'
             : 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
         }`}
-        onClick={(e) => setwithdrawal(true)}
+        onClick={(e) => setRedeeming(true)}
       >
         <p
           className={`text-center text-base mb-4 ${
-            withdrawal
+            redeeming
               ? 'text-blue-600 font-semibold'
               : 'text-gray-400 group-hover:text-gray-600'
           }`}
         >
-          Withdraw
+          Redeem
         </p>
       </div>
     </div>
   );
 };
-export default DepositWithdrawToggle;
+export default MintRedeemToggle;

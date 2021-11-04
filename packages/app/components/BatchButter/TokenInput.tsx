@@ -7,8 +7,8 @@ export interface TokenInputProps {
   threeCrvPrice: BigNumber;
   hysiBalance: BigNumber;
   hysiPrice: BigNumber;
-  withdrawal: Boolean;
-  setwithdrawal: Dispatch<Boolean>;
+  redeeming: Boolean;
+  setRedeeming: Dispatch<Boolean>;
   depositAmount: BigNumber;
   setDepositAmount: Dispatch<BigNumber>;
   useUnclaimedDeposits: Boolean;
@@ -20,8 +20,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
   threeCrvPrice,
   hysiBalance,
   hysiPrice,
-  withdrawal,
-  setwithdrawal,
+  redeeming,
+  setRedeeming,
   depositAmount,
   setDepositAmount,
   useUnclaimedDeposits,
@@ -32,21 +32,21 @@ const TokenInput: React.FC<TokenInputProps> = ({
 
   useEffect(() => {
     if (depositAmount.toString() !== '0') {
-      calcOutputAmountsFromInput(depositAmount, withdrawal);
+      calcOutputAmountsFromInput(depositAmount, redeeming);
     }
   }, []);
 
   useEffect(() => {
     setValidInputAmount(
-      withdrawal
+      redeeming
         ? depositAmount <= hysiBalance
         : depositAmount <= threeCrvBalance,
     );
   }, [depositAmount]);
 
-  function updateWithOuputAmounts(value: number, withdrawal): void {
+  function updateWithOuputAmounts(value: number, redeeming): void {
     setEstimatedAmount(value);
-    if (withdrawal) {
+    if (redeeming) {
       setDepositAmount(
         scaleNumberToBigNumber(value).mul(threeCrvPrice).div(hysiPrice),
       );
@@ -57,17 +57,17 @@ const TokenInput: React.FC<TokenInputProps> = ({
     }
   }
 
-  function updateWithInputAmounts(value: number, withdrawal: Boolean): void {
+  function updateWithInputAmounts(value: number, redeeming: Boolean): void {
     const raisedValue = scaleNumberToBigNumber(value);
     setDepositAmount(raisedValue);
-    calcOutputAmountsFromInput(raisedValue, withdrawal);
+    calcOutputAmountsFromInput(raisedValue, redeeming);
   }
 
   function calcOutputAmountsFromInput(
     value: BigNumber,
-    withdrawal: Boolean,
+    redeeming: Boolean,
   ): void {
-    if (withdrawal) {
+    if (redeeming) {
       setEstimatedAmount(
         bigNumberToNumber(value.mul(hysiPrice).div(threeCrvPrice)),
       );
@@ -95,23 +95,23 @@ const TokenInput: React.FC<TokenInputProps> = ({
               placeholder="-"
               value={bigNumberToNumber(depositAmount)}
               onChange={(e) =>
-                updateWithInputAmounts(Number(e.target.value), withdrawal)
+                updateWithInputAmounts(Number(e.target.value), redeeming)
               }
             />
             <div className="flex flex-row items-center">
               <p
                 className="text-gray-400 mr-3 border border-gray-400 p-1 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 hover:text-gray-600"
                 onClick={(e) => {
-                  setDepositAmount(withdrawal ? hysiBalance : threeCrvBalance);
+                  setDepositAmount(redeeming ? hysiBalance : threeCrvBalance);
                   calcOutputAmountsFromInput(
-                    withdrawal ? hysiBalance : threeCrvBalance,
-                    withdrawal,
+                    redeeming ? hysiBalance : threeCrvBalance,
+                    redeeming,
                   );
                 }}
               >
                 MAX
               </p>
-              <p className="text-gray-700">{withdrawal ? 'HYSI' : '3CRV'}</p>
+              <p className="text-gray-700">{redeeming ? 'HYSI' : '3CRV'}</p>
             </div>
           </div>
         </div>
@@ -136,7 +136,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           <div className="w-16 bg-white">
             <div
               className="flex mx-auto w-10 h-10 rounded-full border border-gray-200 items-center cursor-pointer hover:bg-gray-50 hover:border-gray-400"
-              onClick={(e) => setwithdrawal(!withdrawal)}
+              onClick={(e) => setRedeeming(!redeeming)}
             >
               <img
                 src="/images/icons/exchangeIcon.svg"
@@ -149,7 +149,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
       </div>
       <div className="">
         <p className="font-semibold text-sm text-gray-900 mb-1">
-          {`Estimated ${withdrawal ? '3CRV' : 'HYSI'} Amount`}
+          {`Estimated ${redeeming ? '3CRV' : 'HYSI'} Amount`}
         </p>
         <div className="rounded-md border border-gray-200 px-2 py-4">
           <div className="flex flex-row justify-between">
@@ -158,10 +158,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
               placeholder="-"
               value={estimatedAmount}
               onChange={(e) =>
-                updateWithOuputAmounts(Number(e.target.value), withdrawal)
+                updateWithOuputAmounts(Number(e.target.value), redeeming)
               }
             />
-            <p className="text-gray-700">{withdrawal ? '3CRV' : 'HYSI'}</p>
+            <p className="text-gray-700">{redeeming ? '3CRV' : 'HYSI'}</p>
           </div>
         </div>
       </div>

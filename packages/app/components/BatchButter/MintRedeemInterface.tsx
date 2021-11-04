@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { BatchType } from '../../../hardhat/lib/adapters';
-import DepositWithdrawToggle from './DepositWithdrawToggle';
+import MintRedeemToggle from './MintRedeemToggle';
 import TokenInput, { TokenInputProps } from './TokenInput';
 
 interface MintRedeemInterfaceProps extends TokenInputProps {
@@ -13,8 +13,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   threeCrvPrice,
   hysiBalance,
   hysiPrice,
-  withdrawal,
-  setwithdrawal,
+  redeeming,
+  setRedeeming,
   depositAmount,
   setDepositAmount,
   deposit,
@@ -24,17 +24,14 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-lg px-5 py-6 mr-8 border border-gray-300">
-      <DepositWithdrawToggle
-        withdrawal={withdrawal}
-        setwithdrawal={setwithdrawal}
-      />
+      <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <TokenInput
         threeCrvBalance={threeCrvBalance}
         threeCrvPrice={threeCrvPrice}
         hysiBalance={hysiBalance}
         hysiPrice={hysiPrice}
-        withdrawal={withdrawal}
-        setwithdrawal={setwithdrawal}
+        redeeming={redeeming}
+        setRedeeming={setRedeeming}
         depositAmount={depositAmount}
         setDepositAmount={setDepositAmount}
         useUnclaimedDeposits={useUnclaimedDeposits}
@@ -48,7 +45,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           onClick={(e) =>
             deposit(
               depositAmount,
-              withdrawal ? BatchType.Redeem : BatchType.Mint,
+              redeeming ? BatchType.Redeem : BatchType.Mint,
             )
           }
           disabled={depositDisabled}

@@ -57,7 +57,7 @@ export default function Butter(): JSX.Element {
   const [depositAmount, setDepositAmount] = useState<BigNumber>(
     BigNumber.from('0'),
   );
-  const [withdrawal, setwithdrawal] = useState<Boolean>(false);
+  const [redeeming, setRedeeming] = useState<Boolean>(false);
   const [useUnclaimedDeposits, setUseUnclaimedDeposits] =
     useState<Boolean>(false);
   const [wait, setWait] = useState<Boolean>(false);
@@ -364,8 +364,8 @@ export default function Butter(): JSX.Element {
                       : hysiBalance
                   }
                   hysiPrice={hysiPrice}
-                  withdrawal={withdrawal}
-                  setwithdrawal={setwithdrawal}
+                  redeeming={redeeming}
+                  setRedeeming={setRedeeming}
                   depositAmount={depositAmount}
                   setDepositAmount={setDepositAmount}
                   deposit={useUnclaimedDeposits ? hotswap : deposit}
@@ -376,14 +376,14 @@ export default function Butter(): JSX.Element {
                           claimableBatches[0].balance,
                           claimableBatches[1].balance,
                           wait,
-                          withdrawal,
+                          redeeming,
                         )
                       : isDepositDisabled(
                           depositAmount,
                           hysiBalance,
                           threeCrvBalance,
                           wait,
-                          withdrawal,
+                          redeeming,
                         )
                   }
                   useUnclaimedDeposits={useUnclaimedDeposits}
@@ -409,30 +409,46 @@ export default function Butter(): JSX.Element {
               <div className="w-1/3 mx-2">
                 <StatInfoCard
                   title="Claimable Butter"
-                  content={String(
+                  content={
                     batches
-                      .filter((batch) => batch.batchType === BatchType.Mint)
-                      .reduce((total, batch) => {
-                        return (
-                          total +
-                          bigNumberToNumber(batch.accountClaimableTokenBalance)
-                        );
-                      }, 0),
-                  )}
+                      ? String(
+                          batches
+                            .filter(
+                              (batch) => batch.batchType === BatchType.Mint,
+                            )
+                            .reduce((total, batch) => {
+                              return (
+                                total +
+                                bigNumberToNumber(
+                                  batch.accountClaimableTokenBalance,
+                                )
+                              );
+                            }, 0),
+                        )
+                      : '-'
+                  }
                   icon={{ icon: 'Key', color: 'bg-green-400' }}
                 />
               </div>
               <div className="w-1/3 ml-2">
                 <StatInfoCard
                   title="Pending Withdraw"
-                  content={`${batches
-                    .filter((batch) => batch.batchType === BatchType.Redeem)
-                    .reduce((total, batch) => {
-                      return (
-                        total +
-                        bigNumberToNumber(batch.accountSuppliedTokenBalance)
-                      );
-                    }, 0)} BTR`}
+                  content={`${
+                    batches
+                      ? batches
+                          .filter(
+                            (batch) => batch.batchType === BatchType.Redeem,
+                          )
+                          .reduce((total, batch) => {
+                            return (
+                              total +
+                              bigNumberToNumber(
+                                batch.accountSuppliedTokenBalance,
+                              )
+                            );
+                          }, 0)
+                      : '-'
+                  } BTR`}
                   icon={{ icon: 'Wait', color: 'bg-yellow-500' }}
                 />
               </div>
