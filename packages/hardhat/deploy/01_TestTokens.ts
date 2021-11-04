@@ -6,9 +6,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("POP", {
+  await deploy("USDC", {
     from: deployer,
-    args: ["Test POP", "TPOP", 18],
+    args: ["Test USDC", "TUSDC", 6],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "MockERC20",
@@ -19,7 +19,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 export default main;
 main.tags = [];
 main.skip = async (hre: HardhatRuntimeEnvironment) => {
-  return ["mainnet", "polygon", "arbitrum", "rinkeby"].includes(
-    hre.network.name
-  );
+  return ["mainnet", "arbitrum", "polygon"].includes(hre.network.name);
 };
