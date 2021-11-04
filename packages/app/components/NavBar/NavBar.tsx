@@ -31,7 +31,7 @@ const Navbar: React.FC = () => {
           <Link href="/" passHref>
             <a>
               <img
-                src="/images/popcorn_v1_rainbow_bg.png"
+                src="/images/icons/popLogo.png"
                 alt="Logo"
                 className="w-8 h-8"
               />
