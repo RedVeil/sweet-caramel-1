@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { AccountBatch } from '@popcorn/contracts/adapters/HYSIBatchInteraction/HYSIBatchInteractionAdapter';
+import { AccountBatch } from '../../../hardhat/lib/adapters';
 import ClaimableBatch from './ClaimableBatch';
 
 interface ClaimableBatchesProps {

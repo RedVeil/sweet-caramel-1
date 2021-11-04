@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { bigNumberToNumber, scaleNumberToBigNumber } from '@popcorn/utils';
 import { Dispatch, useEffect, useState } from 'react';
+import { bigNumberToNumber, scaleNumberToBigNumber } from '../../../utils';
 
 export interface TokenInputProps {
   threeCrvBalance: BigNumber;

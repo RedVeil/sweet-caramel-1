@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { parseEther } from '@ethersproject/units';
-import { formatAndRoundBigNumber } from '@popcorn/utils';
+import { formatAndRoundBigNumber } from '../../../utils';
 
 interface AccountValueProps {
   hysiBalance: BigNumber;

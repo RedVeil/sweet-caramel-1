@@ -1,9 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import {
-  AccountBatch,
-  BatchType,
-} from '@popcorn/contracts/adapters/HYSIBatchInteraction/HYSIBatchInteractionAdapter';
-import { bigNumberToNumber } from '@popcorn/utils';
+import { AccountBatch, BatchType } from '../../../hardhat/lib/adapters';
+import { bigNumberToNumber } from '../../../utils';
 
 interface BatchProps {
   batch: AccountBatch;
