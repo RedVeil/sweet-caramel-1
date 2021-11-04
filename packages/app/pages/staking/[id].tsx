@@ -272,7 +272,7 @@ export default function stake(): JSX.Element {
                   </div>
                 </div>
               </div>
-              <div className="mt-8 pt-12 pb-10 px-6 border border-gray-300 rounded-xl">
+              <div className="mt-8 py-14 px-6 border border-gray-300 rounded-xl">
                 <div className="flex flex-col">
                   {stakingInfo && (
                     <TokenInput
@@ -310,7 +310,7 @@ export default function stake(): JSX.Element {
                   </Switch.Group>
                 </div>
                 {stakingInfo && (
-                  <div className="mt-12 w-96 mx-auto">
+                  <div className="mt-16 w-96 mx-auto">
                     {account ? (
                       <>
                         {withdraw ? (
@@ -379,17 +379,16 @@ export default function stake(): JSX.Element {
                         />
                       </div>
                     </div>
-                    <div className="bg-white rounded-md border border-gray-300 w-full px-4 py-5">
+                    <div className="bg-white rounded-md border border-gray-300 w-full">
                       <div className="flex flex-row items-center justify-between">
-                        <div className="flex flex-row items-center">
-                          <div className="ml-4">
-                            <p className="text-base text-gray-500">
-                              Amount Claimable
-                            </p>
-                            <h3 className="text-xl font-medium text-gray-800">
-                              {balances.earned.toLocaleString()} POP
-                            </h3>
-                          </div>
+                        <div className="relative h-60 w-full pt-4">
+                          <p className="text-xl font-medium ml-12 mt-4">
+                            Happy Staking
+                          </p>
+                          <img
+                            src="/images/catPopVault.png"
+                            className="absolute h-52 w-9/12 right-10 bottom-0"
+                          />
                         </div>
                         <div></div>
                       </div>
@@ -399,10 +398,6 @@ export default function stake(): JSX.Element {
               </div>
             </div>
           </div>
-          <img
-            src="/images/catPopVault.png"
-            className="w-9/12 absolute bottom-0 right-0"
-          />
         </div>
       </div>
     </>

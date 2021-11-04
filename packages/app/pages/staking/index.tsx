@@ -108,7 +108,7 @@ export default function index(): JSX.Element {
                 Earn more income staking your crypto with us
               </p>
             </div>
-            <div className="bg-primaryLight rounded-xl pt-12 mr-12 mt-12">
+            <div className="bg-primaryLight rounded-xl pt-10 mr-12 mt-12">
               <img
                 src="/images/farmerCat.svg"
                 alt="farmcerCat"

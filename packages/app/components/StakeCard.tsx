@@ -14,7 +14,7 @@ export default function StakeCard({
   url,
 }: StakeCardProps): JSX.Element {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-xl w-full mr-4 px-8 py-8">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-md w-full mr-4 px-8 py-8">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
           <TokenIcon token={tokenName} />
@@ -32,19 +32,25 @@ export default function StakeCard({
       </div>
       <div className="flex flex-row items-center mt-6 w-2/3 justify-between">
         <div>
-          <p className="text-gray-500 font-medium uppercase">Est. APY</p>
+          <p className="text-gray-500 text-base font-medium uppercase">
+            Est. APY
+          </p>
           <p className="text-green-600 text-xl font-medium">
             {stakingStats.apy.toLocaleString()} %
           </p>
         </div>
         <div>
-          <p className="text-gray-500 font-medium uppercase">Total Staked</p>
+          <p className="text-gray-500 text-base font-medium uppercase">
+            Total Staked
+          </p>
           <p className="text-gray-800 text-xl font-medium">
             {stakingStats.totalStake.toLocaleString()}
           </p>
         </div>
         <div>
-          <p className="text-gray-500 font-medium uppercase">Token Emissions</p>
+          <p className="text-gray-500 text-base font-medium uppercase">
+            Token Emissions
+          </p>
           <p className="text-gray-800 text-xl font-medium">
             {stakingStats.tokenEmission.toLocaleString()} POP / day
           </p>
