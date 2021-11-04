@@ -13,10 +13,10 @@ export default function getNamedAccounts() {
     },
     DAO_Agent: {
       mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
-      rinkeby: "0xc0e334b5bc637eac105da3d84c7c1bd342ae8ae9",
+      rinkeby: "0x6d8bd5d37461788182131bae19d03ff2b3c0687c",
     },
     DAO_Treasury: {
-      rinkeby: "0xc0e334b5bc637eac105da3d84c7c1bd342ae8ae9",
+      rinkeby: "0x6d8bd5d37461788182131bae19d03ff2b3c0687c",
     },
     TokenManager: {
       mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
@@ -37,6 +37,7 @@ export default function getNamedAccounts() {
       rinkeby: "0xdcdbf71A870cc60C6F9B621E28a7D3Ffd6Dd4965",
     },
     USDC: {
+      rinkeby: "0x649D645d1Ee2CA89a798B52Bbf7B5a3C27093b94",
       kovan: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
     },
   };

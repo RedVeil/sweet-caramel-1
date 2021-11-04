@@ -10,11 +10,6 @@ interface Args {
 }
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  if (hre.network.name !== "kovan") {
-    throw new Error(
-      `This task is only valid for Kovan. The selected network is: ${hre.network.name}`
-    );
-  }
   const { BalancerLBPFactory, USDC } = getNamedAccountsFromNetwork(hre);
 
   const signer = hre.askForSigner();
@@ -25,7 +20,8 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
     signer
   );
 
-  const tpopAddress = (await hre.deployments.get("TestPOP")).address;
+  const tpopAddress = (await hre.deployments.get("POP")).address;
+  console.log({ tpopAddress, USDC });
 
   console.log("deploying LBP");
   const tx = await deployedLbp.create(
@@ -35,7 +31,8 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
     [parseEther(".99"), parseEther(".01")],
     parseEther(".015"),
     signer.address,
-    false
+    false,
+    { gasLimit: 5000000 }
   );
 
   const receipt = await tx.wait(1);
