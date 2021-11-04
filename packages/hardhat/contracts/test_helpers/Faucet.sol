@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface Uniswap {
@@ -55,8 +54,8 @@ contract Faucet {
     curveDepositZap = CurveDepositZap(curveDepositZap_);
     curveAddressProvider = CurveAddressProvider(curveAddressProvider_);
     curveRegistry = CurveRegistry(curveAddressProvider.get_registry());
-    dai.approve(address(triPool), type(uint256).max);
     dai.approve(address(curveDepositZap), type(uint256).max);
+    dai.approve(address(triPool), type(uint256).max);
   }
 
   function sendTokens(
