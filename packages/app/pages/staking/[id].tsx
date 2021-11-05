@@ -379,15 +379,18 @@ export default function stake(): JSX.Element {
                         />
                       </div>
                     </div>
-                    <div className="bg-white rounded-md border border-gray-300 w-full">
+                    <div className="bg-primaryLight rounded-md border border-gray-300 w-full">
                       <div className="flex flex-row items-center justify-between">
                         <div className="relative h-60 w-full pt-4">
                           <p className="text-xl font-medium ml-12 mt-4">
                             Happy Staking
                           </p>
+                          <p className="ml-12 text-base font-light w-3/12">
+                            Enjoy more sweet POP in your wallet!
+                          </p>
                           <img
                             src="/images/catPopVault.png"
-                            className="absolute h-52 w-9/12 right-10 bottom-0"
+                            className="absolute h-52 w-9/12 right-20 bottom-0"
                           />
                         </div>
                         <div></div>
