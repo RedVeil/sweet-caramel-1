@@ -15,7 +15,7 @@ export default function StatInfoCard({
 }: StatInfoCardProps): JSX.Element {
   return (
     <div
-      className="bg-white rounded-md border border-gray-300 w-full px-4 py-5"
+      className="bg-white rounded-2xl border border-gray-300 w-full px-4 py-5"
       //style={{ filter: 'drop-shadow(0 8px 5px rgba(0, 0, 0, 0.04))' }}
     >
       <div className="flex flex-row items-center justify-between">

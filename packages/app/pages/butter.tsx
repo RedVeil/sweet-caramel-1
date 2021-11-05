@@ -453,7 +453,7 @@ export default function Butter(): JSX.Element {
                 />
               </div>
             </div>
-            <div className="w-full h-min-content px-12 pt-12 pb-18 mt-8 rounded-lg bg-primaryLight">
+            <div className="w-full h-min-content pl-10 pr-2 pt-12 pb-18 mt-8 rounded-4xl bg-primaryLight">
               <div className="z-10">
                 <h2 className="text-2xl font-medium w-1/4">
                   We will bring the chart soon to you!

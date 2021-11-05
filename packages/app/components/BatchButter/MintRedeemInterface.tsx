@@ -23,7 +23,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   setUseUnclaimedDeposits,
 }) => {
   return (
-    <div className="bg-white rounded-lg px-5 py-6 mr-8 border border-gray-300">
+    <div className="bg-white rounded-3xl px-5 py-6 mr-8 border border-gray-300">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <TokenInput
         threeCrvBalance={threeCrvBalance}
@@ -39,8 +39,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       />
       <div className="w-full text-center mt-8">
         <button
-          className={`bg-blue-600 px-12 py-3 text-white rounded-xl disabled:opacity-75 ${
-            depositDisabled ? 'hover:bg-blue-700' : ''
+          className={`bg-blue-600 px-24 py-3 text-white rounded-full disabled:bg-gray-300 ${
+            depositDisabled ? '' : 'hover:bg-blue-700'
           }`}
           onClick={(e) =>
             deposit(
