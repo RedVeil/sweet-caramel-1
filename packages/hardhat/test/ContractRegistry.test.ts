@@ -32,9 +32,9 @@ describe("ContractRegistry", () => {
     contractRegistry.deployed();
 
     const MockERC20 = await ethers.getContractFactory("MockERC20");
-    otherContract = await (await MockERC20.deploy("POP", "POP")).deployed();
+    otherContract = await (await MockERC20.deploy("POP", "POP", 18)).deployed();
     otherContractUpdated = await (
-      await MockERC20.deploy("POPV2", "POPV2")
+      await MockERC20.deploy("POPV2", "POPV2", 18)
     ).deployed();
 
     await aclRegistry
