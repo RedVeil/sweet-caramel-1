@@ -18,5 +18,8 @@ export default function getNamedAccounts() {
       mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
       rinkeby: "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
     },
+    MerkleOrchard: {
+      mainnet: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
+    },
   };
 }

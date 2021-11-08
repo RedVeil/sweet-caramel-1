@@ -21,7 +21,7 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   console.log("Minted", formatEther(mintAmount), "TPOP");
 }
 
-export default task("TPOP:mint", "burns TPOP")
+export default task("TPOP:mint", "mints TPOP")
   .addParam("to", "address to transfer to")
   .addParam("amount", "amount to mint")
   .setAction(main);
