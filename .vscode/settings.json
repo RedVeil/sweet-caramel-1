@@ -37,8 +37,8 @@
   "javascript.validate.enable": true,
   // "diffEditor.ignoreTrimWhitespace": true,
   "editor.rulers": [
-    80,
-    120
+    120,
+    160
   ],
   "cSpell.words": [
   ]
