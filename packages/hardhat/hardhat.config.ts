@@ -104,7 +104,7 @@ module.exports = {
         process.env.RPC_URL ||
         `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
-    arbitrumRinkeby: {
+    rinkarby: {
       url:
         process.env.RPC_URL ||
         `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
