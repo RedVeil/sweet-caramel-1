@@ -20,8 +20,19 @@ describe("XPop", () => {
 
     chainId = await getChainId();
 
-    xPop = await (await ethers.getContractFactory("XPop")).deploy();
+    xPop = await (
+      await ethers.getContractFactory("XPop")
+    ).deploy(parseEther("500000"));
     await xPop.deployed();
+  });
+
+  context("Constructor", async () => {
+    it("must be created with a nonzero mint cap", async () => {
+      await expectRevert(
+        (await ethers.getContractFactory("XPop")).deploy(0),
+        "Mint cap is 0"
+      );
+    });
   });
 
   context("Token parameters", async () => {
@@ -53,12 +64,12 @@ describe("XPop", () => {
     });
   });
 
-  context("Supply cap", async () => {
-    it("has a supply cap", async () => {
-      await expectValue(await xPop.cap(), parseEther("500000"));
+  context("Mint cap", async () => {
+    it("has a mint cap", async () => {
+      await expectValue(await xPop.mintCap(), parseEther("500000"));
     });
 
-    it("approver can mint up to supply cap", async () => {
+    it("approver can mint up to mint cap", async () => {
       await expectValue(await xPop.balanceOf(other.address), 0);
       await xPop.connect(admin).mint(other.address, parseEther("500000"));
       await expectValue(
@@ -67,41 +78,28 @@ describe("XPop", () => {
       );
     });
 
-    it("approver cannot mint above supply cap", async () => {
+    it("approver cannot mint above mint cap", async () => {
       await expectRevert(
         xPop.connect(admin).mint(other.address, parseEther("500001")),
-        "ERC20Capped: cap exceeded"
+        "Mint cap exceeded"
       );
     });
 
-    describe("burns + supply cap", async () => {
-      it("approver can mint up to supply cap after burns", async () => {
-        await expectValue(await xPop.balanceOf(other.address), 0);
+    it("approver cannot mint up to mint cap after burns", async () => {
+      await expectValue(await xPop.balanceOf(other.address), 0);
 
-        await xPop.connect(admin).mint(other.address, parseEther("500000"));
-        await expectValue(await xPop.totalSupply(), parseEther("500000"));
+      await xPop.connect(admin).mint(other.address, parseEther("500000"));
+      await expectValue(await xPop.totalSupply(), parseEther("500000"));
+      await expectValue(await xPop.totalMinted(), parseEther("500000"));
 
-        await xPop.connect(other).burn(parseEther("100"));
-        await expectValue(await xPop.totalSupply(), parseEther("499900"));
+      await xPop.connect(other).burn(parseEther("100"));
+      await expectValue(await xPop.totalSupply(), parseEther("499900"));
+      await expectValue(await xPop.totalMinted(), parseEther("500000"));
 
-        await xPop.connect(admin).mint(other.address, parseEther("100"));
-        await expectValue(await xPop.totalSupply(), parseEther("500000"));
-      });
-
-      it("approver cannot mint above supply cap after burns", async () => {
-        await expectValue(await xPop.balanceOf(other.address), 0);
-
-        await xPop.connect(admin).mint(other.address, parseEther("500000"));
-        await expectValue(await xPop.totalSupply(), parseEther("500000"));
-
-        await xPop.connect(other).burn(parseEther("100"));
-        await expectValue(await xPop.totalSupply(), parseEther("499900"));
-
-        await expectRevert(
-          xPop.connect(admin).mint(other.address, parseEther("101")),
-          "ERC20Capped: cap exceeded"
-        );
-      });
+      await expectRevert(
+        xPop.connect(admin).mint(other.address, parseEther("1")),
+        "Mint cap exceeded"
+      );
     });
   });
 
@@ -127,6 +125,12 @@ describe("XPop", () => {
       await expectValue(await xPop.totalSupply(), parseEther("100"));
       await xPop.connect(other).burn(parseEther("50"));
       await expectValue(await xPop.totalSupply(), parseEther("50"));
+    });
+
+    it("burns do not reduce totalMinted", async () => {
+      await expectValue(await xPop.totalSupply(), parseEther("100"));
+      await xPop.connect(other).burn(parseEther("50"));
+      await expectValue(await xPop.totalMinted(), parseEther("100"));
     });
   });
 
