@@ -69,7 +69,7 @@ describe("XPop", () => {
       await expectValue(await xPop.mintCap(), parseEther("500000"));
     });
 
-    it("approver can mint up to mint cap", async () => {
+    it("owner can mint up to mint cap", async () => {
       await expectValue(await xPop.balanceOf(other.address), 0);
       await xPop.connect(admin).mint(other.address, parseEther("500000"));
       await expectValue(
@@ -78,14 +78,14 @@ describe("XPop", () => {
       );
     });
 
-    it("approver cannot mint above mint cap", async () => {
+    it("owner cannot mint above mint cap", async () => {
       await expectRevert(
         xPop.connect(admin).mint(other.address, parseEther("500001")),
         "Mint cap exceeded"
       );
     });
 
-    it("approver cannot mint up to mint cap after burns", async () => {
+    it("owner cannot exceed mint cap after burns", async () => {
       await expectValue(await xPop.balanceOf(other.address), 0);
 
       await xPop.connect(admin).mint(other.address, parseEther("500000"));
