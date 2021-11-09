@@ -73,6 +73,61 @@ describe("XPop", () => {
         "ERC20Capped: cap exceeded"
       );
     });
+
+    describe("burns + supply cap", async () => {
+      it("approver can mint up to supply cap after burns", async () => {
+        await expectValue(await xPop.balanceOf(other.address), 0);
+
+        await xPop.connect(admin).mint(other.address, parseEther("500000"));
+        await expectValue(await xPop.totalSupply(), parseEther("500000"));
+
+        await xPop.connect(other).burn(parseEther("100"));
+        await expectValue(await xPop.totalSupply(), parseEther("499900"));
+
+        await xPop.connect(admin).mint(other.address, parseEther("100"));
+        await expectValue(await xPop.totalSupply(), parseEther("500000"));
+      });
+
+      it("approver cannot mint above supply cap after burns", async () => {
+        await expectValue(await xPop.balanceOf(other.address), 0);
+
+        await xPop.connect(admin).mint(other.address, parseEther("500000"));
+        await expectValue(await xPop.totalSupply(), parseEther("500000"));
+
+        await xPop.connect(other).burn(parseEther("100"));
+        await expectValue(await xPop.totalSupply(), parseEther("499900"));
+
+        await expectRevert(
+          xPop.connect(admin).mint(other.address, parseEther("101")),
+          "ERC20Capped: cap exceeded"
+        );
+      });
+    });
+  });
+
+  context("Burning", async () => {
+    beforeEach(async () => {
+      await xPop.connect(admin).mint(other.address, parseEther("100"));
+    });
+
+    it("token owner can burn owned tokens", async () => {
+      await expectValue(await xPop.balanceOf(other.address), parseEther("100"));
+      await xPop.connect(other).burn(parseEther("50"));
+      await expectValue(await xPop.balanceOf(other.address), parseEther("50"));
+    });
+
+    it("non-owner cannot burn others tokens", async () => {
+      await expectRevert(
+        xPop.connect(other).burnFrom(admin.address, parseEther("50")),
+        "ERC20: burn amount exceeds allowance"
+      );
+    });
+
+    it("burns reduce totalSupply", async () => {
+      await expectValue(await xPop.totalSupply(), parseEther("100"));
+      await xPop.connect(other).burn(parseEther("50"));
+      await expectValue(await xPop.totalSupply(), parseEther("50"));
+    });
   });
 
   context("Permit", async () => {
