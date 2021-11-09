@@ -19,7 +19,12 @@ export default function getNamedAccounts() {
       rinkeby: "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
     },
     MerkleOrchard: {
+      localhost: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
       mainnet: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
+      polygon: "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
+      arbitrum: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      kovan: "0xc33e0fE411322009947931c32d2273ee645cDb5B",
+      rinkeby: "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
     },
   };
 }

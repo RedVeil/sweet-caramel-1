@@ -16,7 +16,21 @@ interface Balances {
   [address: string]: string;
 }
 
+const SUPPORTED_NETWORKS = [
+  "localhost",
+  "mainnet",
+  "kovan",
+  "rinkeby",
+  "polygon",
+  "arbitrum",
+];
+
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
+  if (!SUPPORTED_NETWORKS.includes(hre.network.name)) {
+    throw new Error(
+      `Unsupported network. The selected network is: ${hre.network.name}`
+    );
+  }
   const signer = hre.askForSigner();
   const addresses = getNamedAccounts();
   const token = await hre.ethers.getContractAt(
@@ -26,7 +40,7 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   );
   const merkleOrchard = await hre.ethers.getContractAt(
     "IMerkleOrchard",
-    addresses.MerkleOrchard.mainnet,
+    addresses.MerkleOrchard[hre.network.name],
     signer
   );
   const balancesJSON = await fs.promises.readFile(args.balancesFile, "utf-8");
