@@ -89,6 +89,26 @@ module.exports = {
         process.env.RPC_URL ||
         `https://gorli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
+    polygon: {
+      url:
+        process.env.RPC_URL ||
+        `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+    },
+    mumbai: {
+      url:
+        process.env.RPC_URL ||
+        `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+    },
+    arbitrum: {
+      url:
+        process.env.RPC_URL ||
+        `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+    },
+    arbitrumRinkeby: {
+      url:
+        process.env.RPC_URL ||
+        `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+    },
   },
   gasReporter: {
     currency: "USD",

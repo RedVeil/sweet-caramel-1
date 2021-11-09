@@ -22,7 +22,9 @@ const SUPPORTED_NETWORKS = [
   "kovan",
   "rinkeby",
   "polygon",
+  "mumbai",
   "arbitrum",
+  "arbitrumRinkeby",
 ];
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
