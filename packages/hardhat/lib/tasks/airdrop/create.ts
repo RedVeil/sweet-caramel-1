@@ -81,7 +81,6 @@ export default task(
   "creates a Balancer MerkleOrchard airdrop distribution"
 )
   .addParam("token", "address of token to distribute")
-  .addParam("amount", "amount to distribute")
   .addParam("id", "distribution ID")
   .addParam("balancesFile", "JSON file containing address:amount balances")
   .setAction(main);
