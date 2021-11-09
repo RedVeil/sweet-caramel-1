@@ -16,23 +16,8 @@ interface Balances {
   [address: string]: string;
 }
 
-const SUPPORTED_NETWORKS = [
-  "localhost",
-  "mainnet",
-  "kovan",
-  "rinkeby",
-  "polygon",
-  "mumbai",
-  "arbitrum",
-  "rinkarby",
-];
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  if (!SUPPORTED_NETWORKS.includes(hre.network.name)) {
-    throw new Error(
-      `Unsupported network. The selected network is: ${hre.network.name}`
-    );
-  }
   const signer = hre.askForSigner();
   const addresses = getNamedAccounts();
   const token = await hre.ethers.getContractAt(
