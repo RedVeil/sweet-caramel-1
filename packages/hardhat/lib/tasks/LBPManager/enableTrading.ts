@@ -6,11 +6,6 @@ interface Args {
 }
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  if (hre.network.name !== "kovan") {
-    throw new Error(
-      `This task is only valid for Kovan. The selected network is: ${hre.network.name}`
-    );
-  }
   const signer = hre.askForSigner();
 
   const lbp = await hre.ethers.getContractAt(

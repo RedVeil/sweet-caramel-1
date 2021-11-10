@@ -10,7 +10,7 @@ interface Args {
 }
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  const { BalancerLBPFactory, USDC } = getNamedAccountsFromNetwork(hre);
+  const { BalancerLBPFactory, USDC, POP } = getNamedAccountsFromNetwork(hre);
 
   const signer = hre.askForSigner();
 
@@ -20,19 +20,18 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
     signer
   );
 
-  const tpopAddress = (await hre.deployments.get("POP")).address;
-  console.log({ tpopAddress, USDC });
+  console.log({ POP, USDC });
 
   console.log("deploying LBP");
   const tx = await deployedLbp.create(
     "Test TPOP LBP Copper Launch",
     "TPOP3_FLA",
-    [tpopAddress, USDC],
-    [parseEther(".99"), parseEther(".01")],
+    [USDC, POP],
+    [parseEther(".01"), parseEther(".99")],
     parseEther(".015"),
     signer.address,
-    false,
-    { gasLimit: 5000000 }
+    false
+    //{ gasLimit: 5000000 }
   );
 
   const receipt = await tx.wait(1);

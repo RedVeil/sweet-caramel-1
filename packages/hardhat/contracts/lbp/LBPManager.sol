@@ -17,7 +17,7 @@ contract LBPManager {
    * @title PoolConfiguration
    * @param name LBP pool token name
    * @param symbol LBP pool token symbol
-   * @param tokens the token pairs for the LBP (e.g. POP & USDC)
+   * @param tokens the token pairs for the LBP (e.g. POP & USDC - addresses must be listed in ascending order)
    * @param tokenAmounts the token amounts for the pair that will be transferred from the dao agent to this contract
    * @param startWeights the starting weights for the token pairs, e.g. 99 * 10**16 / 1 * 10**16 [.99 ether / .01 ether]
    * @param endWeights the ending weights for the token pairs, e.g. 50 * 10**16 / 50 * 10**16 [.5 ether / .5 ether]
@@ -112,6 +112,9 @@ contract LBPManager {
   ) {
     balancer = _balancer;
 
+    require(_durationInSeconds > 1 days && _durationInSeconds < 5 days, "duration is out of bounds");
+    require(_startTime > block.timestamp, "start time must be in future");
+
     dao = _dao;
 
     poolConfig = PoolConfiguration({
@@ -140,6 +143,9 @@ contract LBPManager {
    */
   function deployLBP() external {
     require(msg.sender == dao.agent, "Only DAO can call this");
+    require(poolConfig.deployed != true, "The pool has already been deployed");
+
+    poolConfig.deployed = true;
 
     lbp = ILBP(
       balancer.lbpFactory.create(
@@ -152,8 +158,6 @@ contract LBPManager {
         poolConfig.swapEnabledOnStart
       )
     );
-
-    poolConfig.deployed = true;
 
     emit CreatedPool(address(lbp));
 
@@ -180,7 +184,9 @@ contract LBPManager {
    * @notice The DAO.agent can call this function to shutdown and unwind the pool. The proceeds will be forwarded to the DAO.treasury
    */
   function withdrawFromPool() external {
+    require(poolConfig.deployed, "Pool has not been deployed yet");
     require(msg.sender == dao.agent, "not today, buddy");
+
     bytes32 poolId = lbp.getPoolId();
 
     uint256[] memory minAmountsOut = new uint256[](poolConfig.tokens.length);
@@ -242,10 +248,10 @@ contract LBPManager {
   }
 
   function _transferPoolTokensToSelf() internal {
-    (IERC20 pop, IERC20 usdc) = _getPoolTokens();
+    (IERC20 tokenA, IERC20 tokenB) = _getPoolTokens();
 
-    pop.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[0]);
-    usdc.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[1]);
+    tokenA.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[0]);
+    tokenB.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[1]);
   }
 
   /* ========== VIEW FUNCTIONS ========== */
