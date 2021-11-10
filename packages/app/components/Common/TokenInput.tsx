@@ -20,7 +20,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
               htmlFor="tokenInput"
               className="flex justify-between text-sm font-medium text-gray-700 text-center"
             >
-              <p>Amount to Stake</p>
+              <p>Stake Amount</p>
               <p className="text-gray-500 font-normal">
                 {balance} {tokenName}
               </p>
@@ -30,7 +30,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 type="text"
                 name="tokenInput"
                 id="tokenInput"
-                className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pr-12 py-5 sm:text-sm border-gray-300 rounded-md"
+                className="shadow-sm bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500 block w-full pr-12 py-5 sm:text-sm border-gray-300 rounded-md"
                 value={String(inputAmount)}
                 onChange={(e) => updateInputAmount(Number(e.target.value))}
               />
@@ -41,7 +41,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 >
                   MAX
                 </kbd>
-                <p className="inline-flex items-center border-gray-700text-gray-700 font-semibold text-xl ml-2">
+                <p className="inline-flex items-center text-gray-600 font-light text-xl mx-2">
                   {tokenName}
                 </p>
               </div>

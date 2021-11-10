@@ -1,11 +1,18 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Switch } from '@headlessui/react';
 import { ERC20, StakingRewards } from '@popcorn/hardhat/typechain';
-import { calculateAPY } from '@popcorn/utils';
+import {
+  bigNumberToNumber,
+  calculateAPY,
+  getSingleStakingStats,
+  SingleStakingStats,
+} from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import TokenInput from 'components/Common/TokenInput';
 import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
+import StatInfoCard from 'components/StatInfoCard';
+import TokenIcon from 'components/TokenIcon';
 import { connectors } from 'context/Web3/connectors';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import { utils } from 'ethers';
@@ -20,6 +27,13 @@ interface StakingInfo {
   tokenName: string;
 }
 
+interface Balances {
+  wallet: number;
+  staked: number;
+  allowance: number;
+  earned: number;
+}
+
 function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
   switch (id) {
     case 'pop':
@@ -32,13 +46,13 @@ function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
       return {
         inputToken: contracts.popEthLp,
         stakingContract: contracts.staking.popEthLp,
-        tokenName: 'POP-ETH LP',
+        tokenName: 'POP/ETH LP',
       };
     case 'butter':
       return {
         inputToken: contracts.butter,
         stakingContract: contracts.staking.butter,
-        tokenName: 'Butter',
+        tokenName: 'BUTTER',
       };
   }
 }
@@ -50,10 +64,14 @@ export default function stake(): JSX.Element {
   const { contracts } = useContext(ContractsContext);
   const { library, account, activate, active } = context;
   const [stakingInfo, setStakingInfo] = useState<StakingInfo>();
+  const [stakingStats, setStakingStats] = useState<SingleStakingStats>();
   const [inputTokenAmount, setInputTokenAmount] = useState<number>(0);
-  const [tokenBalance, setTokenBalance] = useState(0);
-  const [amountStaked, setAmountStaked] = useState(0);
-  const [approved, setApproval] = useState<number>(0);
+  const [balances, setBalances] = useState<Balances>({
+    wallet: 0,
+    staked: 0,
+    allowance: 0,
+    earned: 0,
+  });
   const [apy, setApy] = useState<number>(0);
   const [wait, setWait] = useState<boolean>(false);
   const [withdraw, setWithdraw] = useState<boolean>(false);
@@ -66,6 +84,15 @@ export default function stake(): JSX.Element {
   }, [id, contracts]);
 
   useEffect(() => {
+    if (!stakingInfo) {
+      return;
+    }
+    getSingleStakingStats(stakingInfo.stakingContract).then((res) =>
+      setStakingStats((prevState) => res),
+    );
+  }, [stakingInfo]);
+
+  useEffect(() => {
     if (!account || !stakingInfo || !contracts) {
       return;
     }
@@ -74,23 +101,29 @@ export default function stake(): JSX.Element {
 
   async function updateData(): Promise<void> {
     const inputBalance = await stakingInfo.inputToken.balanceOf(account);
-    console.log(inputBalance);
-    setTokenBalance((prevState) => Number(utils.formatEther(inputBalance)));
-
     const allowance = await stakingInfo.inputToken.allowance(
       account,
       stakingInfo.stakingContract.address,
     );
-    setApproval((prevState) => Number(utils.formatEther(allowance)));
-
     const stakedAmount = await stakingInfo.stakingContract.balanceOf(account);
-    setAmountStaked(Number(utils.formatEther(stakedAmount)));
+    const earned = await stakingInfo.stakingContract.earned(account);
+    setBalances({
+      wallet: bigNumberToNumber(inputBalance),
+      staked: bigNumberToNumber(stakedAmount),
+      allowance: bigNumberToNumber(allowance),
+      earned: bigNumberToNumber(earned),
+    });
 
     const apy = await calculateAPY(
       await stakingInfo.stakingContract.getRewardForDuration(),
       await stakingInfo.stakingContract.totalSupply(),
     );
     setApy((prevState) => apy);
+
+    const newStakingStats = await getSingleStakingStats(
+      stakingInfo.stakingContract,
+    );
+    setStakingStats((prevState) => newStakingStats);
   }
 
   async function stake(): Promise<void> {
@@ -110,7 +143,14 @@ export default function stake(): JSX.Element {
         }),
       )
       .catch((err) => {
-        toast.error(err.data.message.split("'")[1]);
+        if (
+          err.message ===
+          'MetaMask Tx Signature: User denied transaction signature.'
+        ) {
+          toast.error('Transaction was canceled');
+        } else {
+          toast.error(err.message.split("'")[1]);
+        }
       });
 
     await updateData();
@@ -135,7 +175,14 @@ export default function stake(): JSX.Element {
         }),
       )
       .catch((err) => {
-        toast.error(err.data.message.split("'")[1]);
+        if (
+          err.message ===
+          'MetaMask Tx Signature: User denied transaction signature.'
+        ) {
+          toast.error('Transaction was canceled');
+        } else {
+          toast.error(err.message.split("'")[1]);
+        }
       });
     await updateData();
     setWait(false);
@@ -159,127 +206,203 @@ export default function stake(): JSX.Element {
           toast.success(`${stakingInfo.tokenName} approved!`);
         }),
       )
-      .catch((err) => toast.error(err.data.message.split("'")[1]));
+      .catch((err) => {
+        if (
+          err.message ===
+          'MetaMask Tx Signature: User denied transaction signature.'
+        ) {
+          toast.error('Transaction was canceled');
+        } else {
+          toast.error(err.message.split("'")[1]);
+        }
+      });
     await updateData();
     setWait(false);
   }
 
   return (
-    <div className="w-full bg-gray-100 h-screen">
-      <Navbar />
-      <Toaster position="top-right" />
-      <div className="bg-gray-100">
-        <div className="pt-12 px-4 sm:px-6 lg:px-8 lg:pt-20">
-          <div className="text-center">
-            <h2 className="text-lg leading-6 font-semibold text-gray-300 uppercase tracking-wider"></h2>
-            <p className="mt-2 text-3xl font-extrabold text-gray-800 sm:text-4xl lg:text-5xl">
-              Stake {stakingInfo && stakingInfo.tokenName}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 pb-12 lg:mt-8 lg:pb-20">
-          <div className="relative z-0">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="relative lg:grid lg:grid-cols-7">
-                <div className="mt-10 max-w-lg mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-start-3 lg:col-end-6 lg:row-start-1 lg:row-end-4">
-                  <div className="relative z-10 rounded-lg shadow-xl">
-                    <div className="bg-white rounded-lg px-6 pt-12 pb-10">
-                      <div className="flex flex-col">
-                        <h3
-                          className="text-center text-3xl font-semibold text-gray-900 sm:-mx-6"
-                          id="tier-growth"
-                        >
-                          APY
-                        </h3>
-                        <p className="px-3 text-center my-4 text-4xl font-black tracking-tight text-gray-900 sm:text-6xl">
-                          {apy.toLocaleString()} %
-                        </p>
-                        <div className="w-10/12 mx-auto mt-4">
-                          {stakingInfo && (
-                            <TokenInput
-                              tokenName={stakingInfo.tokenName}
-                              inputAmount={inputTokenAmount}
-                              balance={withdraw ? amountStaked : tokenBalance}
-                              updateInputAmount={setInputTokenAmount}
-                            />
-                          )}
-                        </div>
-                        <Switch.Group
-                          as="div"
-                          className="flex items-center ml-10 mt-2"
-                        >
-                          <Switch
-                            checked={withdraw}
-                            onChange={setWithdraw}
-                            className={`
-                              ${withdraw ? 'bg-indigo-600' : 'bg-gray-200'}
-                              relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
-                          >
-                            <span
-                              aria-hidden="true"
-                              className={`${
-                                withdraw ? 'translate-x-5' : 'translate-x-0'
-                              }
-                                pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
-                            />
-                          </Switch>
-                          <Switch.Label as="span" className="ml-3">
-                            <span
-                              className={`text-sm font-medium ${
-                                withdraw ? 'text-gray-800' : 'text-gray-500'
-                              }`}
-                            >
-                              Withdraw Staked{' '}
-                              {stakingInfo && stakingInfo.tokenName}
-                            </span>
-                          </Switch.Label>
-                        </Switch.Group>
-                      </div>
-                      {stakingInfo && (
-                        <div className="rounded-lg shadow-md mt-12 w-96 mx-auto">
-                          {account ? (
-                            <>
-                              {withdraw ? (
-                                <MainActionButton
-                                  label={`Withdraw ${stakingInfo.tokenName}`}
-                                  handleClick={withdrawStake}
-                                  disabled={wait || amountStaked === 0}
-                                />
-                              ) : (
-                                <>
-                                  {approved >= inputTokenAmount ? (
-                                    <MainActionButton
-                                      label={'Stake POP'}
-                                      handleClick={stake}
-                                      disabled={wait || inputTokenAmount === 0}
-                                    />
-                                  ) : (
-                                    <MainActionButton
-                                      label={'Approve'}
-                                      handleClick={approve}
-                                      disabled={wait || inputTokenAmount === 0}
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <MainActionButton
-                              label={'Connect Wallet'}
-                              handleClick={() => activate(connectors.Injected)}
-                            />
-                          )}
-                        </div>
-                      )}
-                    </div>
+    <>
+      <div
+        className="overflow-hidden"
+        style={{ width: '100vw', height: '90vh' }}
+      >
+        <Navbar />
+        <Toaster position="top-right" />
+        <div className="w-9/12 mx-auto ">
+          <div className="flex flex-row mt-14">
+            <div className="w-1/3 mr-8">
+              <div className="">
+                {stakingInfo && (
+                  <span className="flex flex-row items-center">
+                    <TokenIcon token={stakingInfo.tokenName} />
+                    <h1 className="ml-3 text-4xl text-gray-800 font-bold">
+                      {stakingInfo.tokenName}
+                    </h1>
+                  </span>
+                )}
+                <div className="flex flex-row items-center mt-6 justify-between">
+                  <div className="pr-8 border-r-2 border-gray-300">
+                    <p className="text-gray-500 font-medium uppercase">
+                      Est. APY
+                    </p>
+                    <p className="text-green-600 text-xl font-medium">
+                      {stakingStats ? stakingStats.apy.toLocaleString() : 0} %
+                    </p>
+                  </div>
+                  <div className="pr-8 border-r-2 border-gray-300">
+                    <p className="text-gray-500 font-medium uppercase">
+                      Total Staked
+                    </p>
+                    <p className="text-gray-800 text-xl font-medium">
+                      {stakingStats
+                        ? stakingStats.totalStake.toLocaleString()
+                        : 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 font-medium uppercase">
+                      Token Emissions
+                    </p>
+                    <p className="text-gray-800 text-xl font-medium">
+                      {stakingStats
+                        ? stakingStats.tokenEmission.toLocaleString()
+                        : 0}{' '}
+                      POP / day
+                    </p>
                   </div>
                 </div>
+              </div>
+              <div className="mt-8 py-14 px-6 border border-gray-300 rounded-xl">
+                <div className="flex flex-col">
+                  {stakingInfo && (
+                    <TokenInput
+                      tokenName={stakingInfo.tokenName}
+                      inputAmount={inputTokenAmount}
+                      balance={withdraw ? balances.staked : balances.wallet}
+                      updateInputAmount={setInputTokenAmount}
+                    />
+                  )}
+                  <Switch.Group as="div" className="flex mt-2">
+                    <Switch
+                      checked={withdraw}
+                      onChange={setWithdraw}
+                      className={`
+                              ${withdraw ? 'bg-indigo-600' : 'bg-gray-200'}
+                              relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`${
+                          withdraw ? 'translate-x-5' : 'translate-x-0'
+                        }
+                                pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
+                      />
+                    </Switch>
+                    <Switch.Label as="span" className="ml-3">
+                      <span
+                        className={`text-sm font-medium ${
+                          withdraw ? 'text-gray-800' : 'text-gray-500'
+                        }`}
+                      >
+                        Withdraw Staked {stakingInfo && stakingInfo.tokenName}
+                      </span>
+                    </Switch.Label>
+                  </Switch.Group>
+                </div>
+                {stakingInfo && (
+                  <div className="mt-16 w-96 mx-auto">
+                    {account ? (
+                      <>
+                        {withdraw ? (
+                          <MainActionButton
+                            label={`Withdraw ${stakingInfo.tokenName}`}
+                            handleClick={withdrawStake}
+                            disabled={wait || balances.staked === 0}
+                          />
+                        ) : (
+                          <>
+                            {balances.allowance >= inputTokenAmount ? (
+                              <MainActionButton
+                                label={'Stake POP'}
+                                handleClick={stake}
+                                disabled={wait || inputTokenAmount === 0}
+                              />
+                            ) : (
+                              <MainActionButton
+                                label={'Approve'}
+                                handleClick={approve}
+                                disabled={wait || inputTokenAmount === 0}
+                              />
+                            )}
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <MainActionButton
+                        label={'Connect Wallet'}
+                        handleClick={() => activate(connectors.Injected)}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="w-2/3">
+              <div className="mt-36 space-y-4">
+                {balances && stakingInfo && (
+                  <>
+                    <div className="flex flex-row items-center">
+                      <div className="w-1/2 mr-2">
+                        <StatInfoCard
+                          title="Token Balance"
+                          content={`${balances.wallet.toLocaleString()} ${
+                            stakingInfo.tokenName
+                          }`}
+                          icon={{
+                            icon: 'Money',
+                            color: 'bg-yellow-200',
+                            iconColor: 'text-gray-800',
+                          }}
+                        />
+                      </div>
+                      <div className="w-1/2 ml-2">
+                        <StatInfoCard
+                          title="Amount Staked"
+                          content={`${balances.staked.toLocaleString()} ${
+                            stakingInfo.tokenName
+                          }`}
+                          icon={{
+                            icon: 'Money',
+                            color: 'bg-red-300',
+                            iconColor: 'text-gray-800',
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="bg-primaryLight rounded-md border border-gray-300 w-full">
+                      <div className="flex flex-row items-center justify-between">
+                        <div className="relative h-60 w-full pt-4">
+                          <p className="text-xl font-medium ml-12 mt-4">
+                            Happy Staking
+                          </p>
+                          <p className="ml-12 text-base font-light w-3/12">
+                            Enjoy more sweet POP in your wallet!
+                          </p>
+                          <img
+                            src="/images/catPopVault.png"
+                            className="absolute h-52 w-9/12 right-20 bottom-0"
+                          />
+                        </div>
+                        <div></div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

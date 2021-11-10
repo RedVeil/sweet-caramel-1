@@ -101,21 +101,33 @@ export default function ContractsWrapper({
     }
     const addresses = getContractAddresses();
     setContracts({
-      pop: ERC20__factory.connect(addresses.POP.hardhat, library),
-      threeCrv: ERC20__factory.connect(addresses.THREE_CRV.hardhat, library),
-      popEthLp: ERC20__factory.connect(addresses.POP_ETH_LP.hardhat, library),
-      butter: ERC20__factory.connect(addresses.BUTTER.hardhat, library),
+      pop: ERC20__factory.connect(
+        addresses.POP[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      threeCrv: ERC20__factory.connect(
+        addresses.THREE_CRV[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      popEthLp: ERC20__factory.connect(
+        addresses.POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      butter: ERC20__factory.connect(
+        addresses.BUTTER[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
       staking: {
         pop: StakingRewards__factory.connect(
-          addresses.STAKE_POP.hardhat,
+          addresses.STAKE_POP[networkMap[process.env.CHAIN_ID]],
           library,
         ),
         popEthLp: StakingRewards__factory.connect(
-          addresses.STAKE_POP_ETH_LP.hardhat,
+          addresses.STAKE_POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
           library,
         ),
         butter: StakingRewards__factory.connect(
-          addresses.STAKE_BUTTER.hardhat,
+          addresses.STAKE_BUTTER[networkMap[process.env.CHAIN_ID]],
           library,
         ),
       },
