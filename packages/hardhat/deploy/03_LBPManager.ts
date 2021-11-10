@@ -11,10 +11,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     BalancerLBPFactory,
     BalancerVault,
     DAO_Agent,
+    POP,
     DAO_Treasury,
   } = await getNamedAccounts();
-
-  const POP = (await hre.deployments.get("POP")).address;
 
   const {
     balancer,
@@ -64,12 +63,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "These addresses need to approve",
     deployed.address,
     "for spending:",
-    {
-      POP: tokens[0],
-      USDC: tokens[1],
-    }
+    tokens
   );
   // act/0x6d8bd5d37461788182131bae19d03ff2b3c0687c/0x649D645d1Ee2CA89a798B52Bbf7B5a3C27093b94/approve(address: 0xB84fed0Aa42A28E9F27E080eb0744Af44D9B7868, uint256: 1000000000000000000000000000)
+
+  console.log("--------------------------------");
   console.log(
     `act/${DAO_Agent}/${tokens[0]}/approve(address: ${deployed.address}, uint256: 1000000000000000000000000000)`
   );

@@ -5,6 +5,7 @@ import getNamedAccounts from "../lib/utils/getNamedAccounts";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const signer = hre.askForSigner();
 
+  console.log("network name", hre.network.name);
   hre.config.namedAccounts = {
     deployer: `privateKey://${signer.privateKey}`,
     ...getNamedAccounts(),
@@ -12,4 +13,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 module.exports = func;
-module.exports.tags = ["LBP", "CCA"];
+module.exports.tags = ["LBP", "CCA", "setup"];

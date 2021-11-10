@@ -17,9 +17,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.tags = [];
+main.tags = ["LBP"];
 main.skip = async (hre: HardhatRuntimeEnvironment) => {
-  return ["mainnet", "polygon", "arbitrum", "rinkeby"].includes(
+  return ["mainnet", "polygon", "arbitrum", "rinkeby", "hardhat"].includes(
     hre.network.name
   );
 };

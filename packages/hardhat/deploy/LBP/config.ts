@@ -1,4 +1,5 @@
 import { add, formatISO, parseISO } from "date-fns";
+import { BigNumber } from "ethers/lib/ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -28,14 +29,21 @@ export const getConstructorArgs = async (
     case "mainnet":
     case "arbitrum":
     case "polygon":
+      let [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
+        [POP, USDC],
+        [parseEther(".99"), parseEther(".01")], // start weights
+        [parseEther(".50"), parseEther(".50")], // end weights
+        [parseEther("1333333.33"), parseUnits("500000", 6)] // amounts
+      );
+
       return {
         balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
         name: "Popcorn.network (POP) Liquidity Bootstrapping Pool",
         symbol: "POP_LBP",
-        tokens: [POP, USDC],
-        tokenAmounts: [parseEther("1333333.33"), parseUnits("500000", 6)],
-        startWeights: [parseEther(".99"), parseEther(".01")],
-        endWeights: [parseEther(".5"), parseEther(".5")],
+        tokens: tokens,
+        tokenAmounts: amounts,
+        startWeights: startWeights,
+        endWeights: endWeights,
         swapFee: parseEther(".015"),
         durationInSeconds: 3 * DAYS,
         startTime: getDate("2021-11-29 08:00:00Z+00"),
@@ -44,15 +52,49 @@ export const getConstructorArgs = async (
           treasury: DAO_Treasury,
         },
       };
+    case "localhost": // fork test
+    case "hardhat": // fork test
+      console.log("localhost! test ============== ");
+      [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
+        [POP, USDC],
+        [parseEther(".99"), parseEther(".01")], // start weights
+        [parseEther(".50"), parseEther(".50")], // end weights
+        [parseEther("100"), parseUnits("500000", 6)] // amounts
+      );
+      console.log({ tokens });
+
+      return {
+        balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
+        name: "Popcorn.network (POP) Liquidity Bootstrapping Pool",
+        symbol: "POP_LBP",
+        tokens: tokens,
+        tokenAmounts: amounts,
+        startWeights: startWeights,
+        endWeights: endWeights,
+        swapFee: parseEther(".015"),
+        durationInSeconds: 3 * DAYS,
+        startTime: getDate("2021-11-29 08:00:00Z+00"),
+        dao: {
+          agent: deployer,
+          treasury: deployer,
+        },
+      };
     case "rinkeby":
+      [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
+        [POP, USDC],
+        [parseEther(".99"), parseEther(".01")], // start weights
+        [parseEther(".50"), parseEther(".50")], // end weights
+        [parseEther("100"), parseUnits("100", 6)] // amounts
+      );
+
       return {
         balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
         name: "TPOP Liquidity Bootstrapping Pool",
         symbol: "TPOP_LBP",
-        tokens: [POP, (await hre.deployments.get("USDC")).address],
-        tokenAmounts: [parseEther("13333.33"), parseUnits("5000", 6)],
-        startWeights: [parseEther(".99"), parseEther(".01")],
-        endWeights: [parseEther(".5"), parseEther(".5")],
+        tokens: tokens,
+        tokenAmounts: amounts,
+        startWeights: startWeights,
+        endWeights: endWeights,
         swapFee: parseEther(".015"),
         durationInSeconds: 2.5 * DAYS,
         startTime: getDate(formatISO(new Date()), { minutes: 5 }),
@@ -62,14 +104,21 @@ export const getConstructorArgs = async (
         },
       };
     default:
+      [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
+        [POP, USDC],
+        [parseEther(".99"), parseEther(".01")], // start weights
+        [parseEther(".50"), parseEther(".50")], // end weights
+        [parseEther("1333333.33"), parseUnits("500000", 6)] // amounts
+      );
+
       return {
         balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
         name: "TPOP Liquidity Bootstrapping Pool",
         symbol: "TPOP_LBP",
-        tokens: [POP, USDC],
-        tokenAmounts: [parseEther("13333.33"), parseUnits("5000", 6)],
-        startWeights: [parseEther(".99"), parseEther(".01")],
-        endWeights: [parseEther(".5"), parseEther(".5")],
+        tokens: tokens,
+        tokenAmounts: amounts,
+        startWeights: startWeights,
+        endWeights: endWeights,
         swapFee: parseEther(".015"),
         durationInSeconds: 2.5 * DAYS,
         startTime: getDate(formatISO(new Date()), { minutes: 5 }),
@@ -80,4 +129,30 @@ export const getConstructorArgs = async (
       };
   }
 };
+
+const sortTokensAndWeights = (
+  [pop, usdc],
+  [popStartWeight, usdcStartWeight],
+  [popEndWeight, usdcEndWeight],
+  [popAmount, usdcAmount]
+) => {
+  const sorted = [pop, usdc].sort((a, b) => {
+    return BigNumber.from(a).sub(BigNumber.from(b)) as unknown as number;
+  });
+  if (sorted[0] !== pop) {
+    return [
+      [usdc, pop],
+      [usdcStartWeight, popStartWeight],
+      [usdcEndWeight, popEndWeight],
+      [usdcAmount, popAmount],
+    ];
+  }
+  return [
+    [pop, usdc],
+    [popStartWeight, usdcStartWeight],
+    [popEndWeight, usdcEndWeight],
+    [popAmount, usdcAmount],
+  ];
+};
+
 module.exports.skip = () => true;

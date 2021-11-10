@@ -71,6 +71,11 @@ module.exports = {
     },
     hardhat: {
       initialBaseFeePerGas: 0,
+      forking: Boolean(parseInt(process.env.FORKING || "0"))
+        ? {
+            url: process.env.RPC_URL,
+          }
+        : undefined,
     },
     rinkeby: {
       url:
