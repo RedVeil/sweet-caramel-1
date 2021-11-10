@@ -26,7 +26,7 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   );
   const merkleOrchard = await hre.ethers.getContractAt(
     "IMerkleOrchard",
-    addresses.MerkleOrchard.mainnet,
+    addresses.MerkleOrchard[hre.network.name],
     signer
   );
   const balancesJSON = await fs.promises.readFile(args.balancesFile, "utf-8");
@@ -65,7 +65,6 @@ export default task(
   "creates a Balancer MerkleOrchard airdrop distribution"
 )
   .addParam("token", "address of token to distribute")
-  .addParam("amount", "amount to distribute")
   .addParam("id", "distribution ID")
   .addParam("balancesFile", "JSON file containing address:amount balances")
   .setAction(main);

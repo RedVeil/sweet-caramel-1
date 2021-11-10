@@ -5,11 +5,29 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import getContractAddresses from '../../../hardhat/lib/utils/getContractAddresses';
+import {
+  ERC20,
+  ERC20__factory,
+  StakingRewards,
+  StakingRewards__factory,
+} from '../../../hardhat/typechain';
 import { setSingleActionModal } from '../actions';
 import { store } from '../store';
 import { connectors, networkMap } from './connectors';
 
-export interface Contracts {}
+export interface StakingContracts {
+  pop: StakingRewards;
+  popEthLp: StakingRewards;
+  butter: StakingRewards;
+}
+export interface Contracts {
+  pop: ERC20;
+  threeCrv: ERC20;
+  popEthLp: ERC20;
+  butter: ERC20;
+  staking: StakingContracts;
+}
 
 interface ContractsContext {
   contracts: Contracts;
@@ -81,7 +99,39 @@ export default function ContractsWrapper({
     if (!library) {
       return;
     }
-    setContracts({});
+    const addresses = getContractAddresses();
+    setContracts({
+      pop: ERC20__factory.connect(
+        addresses.POP[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      threeCrv: ERC20__factory.connect(
+        addresses.THREE_CRV[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      popEthLp: ERC20__factory.connect(
+        addresses.POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      butter: ERC20__factory.connect(
+        addresses.BUTTER[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      staking: {
+        pop: StakingRewards__factory.connect(
+          addresses.STAKE_POP[networkMap[process.env.CHAIN_ID]],
+          library,
+        ),
+        popEthLp: StakingRewards__factory.connect(
+          addresses.STAKE_POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
+          library,
+        ),
+        butter: StakingRewards__factory.connect(
+          addresses.STAKE_BUTTER[networkMap[process.env.CHAIN_ID]],
+          library,
+        ),
+      },
+    });
   }, [library, active]);
 
   return (

@@ -9,14 +9,31 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return;
   }
   const { deployments, getNamedAccounts } = hre;
+  const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const signer = getSignerFrom(
+  await deploy("TestPOP", {
+    from: deployer,
+    args: ["Test POP", "TPOP", 18],
+    log: true,
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "MockERC20",
+    waitConfirmations: 1,
+  });
+
+  const signer = await getSignerFrom(
     hre.config.namedAccounts.deployer as string,
     hre
   );
 
-  await mintPOP((await deployments.get("POP")).address, signer, deployer, hre);
+  await mintPOP(
+    (
+      await deployments.get("TestPOP")
+    ).address,
+    signer,
+    await signer.getAddress(),
+    hre
+  );
 };
 
 const mintPOP = async (

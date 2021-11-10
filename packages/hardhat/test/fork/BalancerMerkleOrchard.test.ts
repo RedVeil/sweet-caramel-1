@@ -3,6 +3,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers, network } from "hardhat";
 import { soliditySha3, toWei } from "web3-utils";
 import { expectRevert, expectValue } from "../../lib/utils/expectValue";
+import getNamedAccounts from "../../lib/utils/getNamedAccounts";
 import { loadTree, MerkleTree } from "../../lib/utils/merkleTree";
 import { IMerkleOrchard, MockERC20 } from "../../typechain";
 
@@ -14,11 +15,6 @@ let admin: SignerWithAddress,
 
 let mockToken: MockERC20;
 let merkleOrchard: IMerkleOrchard;
-
-const ZERO_ROOT =
-  "0x0000000000000000000000000000000000000000000000000000000000000000";
-const BALANCER_MERKLE_ORCHARD_ADDRESS =
-  "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca";
 
 describe("Balancer Merkle Orchard", () => {
   beforeEach(async () => {
@@ -34,6 +30,8 @@ describe("Balancer Merkle Orchard", () => {
       ],
     });
 
+    const namedAccounts = getNamedAccounts();
+
     [admin, other, claimer, claimer0, claimer1] = await ethers.getSigners();
 
     mockToken = await (
@@ -43,7 +41,7 @@ describe("Balancer Merkle Orchard", () => {
 
     merkleOrchard = await ethers.getContractAt(
       "IMerkleOrchard",
-      BALANCER_MERKLE_ORCHARD_ADDRESS
+      namedAccounts.MerkleOrchard.mainnet
     );
   });
 
