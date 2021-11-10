@@ -18,4 +18,9 @@ interface Curve3Pool {
     returns (uint256);
 
   function coins(uint256 i) external view returns (address);
+
+  function calc_token_amount(uint256[3] calldata amounts, bool deposit)
+    external
+    view
+    returns (uint256);
 }

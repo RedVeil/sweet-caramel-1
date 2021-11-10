@@ -166,6 +166,18 @@ class ButterBatchAdapter {
     return await contract.get_virtual_price();
   }
 
+  public async getStableCoinPrice(
+    contract: Contract,
+    tokenAmount: BigNumber[]
+  ): Promise<BigNumber> {
+    const threeCrvPrice = await contract.get_virtual_price();
+    const threeCrvAmountforStable = await contract.calc_token_amount(
+      tokenAmount,
+      true
+    );
+    return threeCrvPrice.mul(threeCrvAmountforStable).div(parseEther("1"));
+  }
+
   public async getBatches(account: string): Promise<AccountBatch[]> {
     const batchIds = await this.contract.getAccountBatches(account);
     const batches = await Promise.all(

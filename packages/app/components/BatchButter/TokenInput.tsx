@@ -1,12 +1,19 @@
 import { BigNumber } from '@ethersproject/bignumber';
+import { BatchProcessTokens, SelectedToken } from 'pages/butter';
 import { Dispatch, useEffect, useState } from 'react';
 import { bigNumberToNumber, scaleNumberToBigNumber } from '../../../utils';
 
+export interface BatchProcessToken {
+  name: string;
+  balance: BigNumber;
+  claimableBalance?: BigNumber;
+  price: BigNumber;
+}
+
 export interface TokenInputProps {
-  threeCrvBalance: BigNumber;
-  threeCrvPrice: BigNumber;
-  hysiBalance: BigNumber;
-  hysiPrice: BigNumber;
+  token: BatchProcessTokens;
+  selectedToken: SelectedToken;
+  selectToken: Function;
   redeeming: Boolean;
   setRedeeming: Dispatch<Boolean>;
   depositAmount: BigNumber;
@@ -16,10 +23,9 @@ export interface TokenInputProps {
 }
 
 const TokenInput: React.FC<TokenInputProps> = ({
-  threeCrvBalance,
-  threeCrvPrice,
-  hysiBalance,
-  hysiPrice,
+  token,
+  selectedToken,
+  selectToken,
   redeeming,
   setRedeeming,
   depositAmount,
@@ -32,50 +38,35 @@ const TokenInput: React.FC<TokenInputProps> = ({
 
   useEffect(() => {
     if (depositAmount.toString() !== '0') {
-      calcOutputAmountsFromInput(depositAmount, redeeming);
+      calcOutputAmountsFromInput(depositAmount);
     }
   }, []);
 
   useEffect(() => {
-    setValidInputAmount(
-      redeeming
-        ? depositAmount <= hysiBalance
-        : depositAmount <= threeCrvBalance,
-    );
+    setValidInputAmount(depositAmount <= selectedToken.input.balance);
   }, [depositAmount]);
 
-  function updateWithOuputAmounts(value: number, redeeming): void {
+  function updateWithOuputAmounts(value: number): void {
     setEstimatedAmount(value);
-    if (redeeming) {
-      setDepositAmount(
-        scaleNumberToBigNumber(value).mul(threeCrvPrice).div(hysiPrice),
-      );
-    } else {
-      setDepositAmount(
-        scaleNumberToBigNumber(value).mul(hysiPrice).div(threeCrvPrice),
-      );
-    }
+    setDepositAmount(
+      scaleNumberToBigNumber(value)
+        .mul(selectedToken.output.price)
+        .div(selectedToken.input.price),
+    );
   }
 
-  function updateWithInputAmounts(value: number, redeeming: Boolean): void {
+  function updateWithInputAmounts(value: number): void {
     const raisedValue = scaleNumberToBigNumber(value);
     setDepositAmount(raisedValue);
-    calcOutputAmountsFromInput(raisedValue, redeeming);
+    calcOutputAmountsFromInput(raisedValue);
   }
 
-  function calcOutputAmountsFromInput(
-    value: BigNumber,
-    redeeming: Boolean,
-  ): void {
-    if (redeeming) {
-      setEstimatedAmount(
-        bigNumberToNumber(value.mul(hysiPrice).div(threeCrvPrice)),
-      );
-    } else {
-      setEstimatedAmount(
-        bigNumberToNumber(value.mul(threeCrvPrice).div(hysiPrice)),
-      );
-    }
+  function calcOutputAmountsFromInput(value: BigNumber): void {
+    setEstimatedAmount(
+      bigNumberToNumber(
+        value.mul(selectedToken.input.price).div(selectedToken.output.price),
+      ),
+    );
   }
 
   return (
@@ -94,24 +85,27 @@ const TokenInput: React.FC<TokenInputProps> = ({
               className="w-96"
               placeholder="-"
               value={bigNumberToNumber(depositAmount)}
-              onChange={(e) =>
-                updateWithInputAmounts(Number(e.target.value), redeeming)
-              }
+              onChange={(e) => updateWithInputAmounts(Number(e.target.value))}
             />
             <div className="flex flex-row items-center">
               <p
                 className="text-gray-400 mr-3 border border-gray-400 p-1 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 hover:text-gray-600"
                 onClick={(e) => {
-                  setDepositAmount(redeeming ? hysiBalance : threeCrvBalance);
+                  setDepositAmount(
+                    useUnclaimedDeposits
+                      ? selectedToken.input.claimableBalance
+                      : selectedToken.input.balance,
+                  );
                   calcOutputAmountsFromInput(
-                    redeeming ? hysiBalance : threeCrvBalance,
-                    redeeming,
+                    useUnclaimedDeposits
+                      ? selectedToken.input.claimableBalance
+                      : selectedToken.input.balance,
                   );
                 }}
               >
                 MAX
               </p>
-              <p className="text-gray-700">{redeeming ? 'HYSI' : '3CRV'}</p>
+              <p className="text-gray-700">{selectedToken.input.name}</p>
             </div>
           </div>
         </div>
@@ -149,7 +143,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
       </div>
       <div className="">
         <p className="font-semibold text-sm text-gray-900 mb-1">
-          {`Estimated ${redeeming ? '3CRV' : 'HYSI'} Amount`}
+          {`Estimated ${selectedToken.output.name} Amount`}
         </p>
         <div className="rounded-md border border-gray-200 px-2 py-4">
           <div className="flex flex-row justify-between">
@@ -157,11 +151,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
               className="w-96"
               placeholder="-"
               value={estimatedAmount}
-              onChange={(e) =>
-                updateWithOuputAmounts(Number(e.target.value), redeeming)
-              }
+              onChange={(e) => updateWithOuputAmounts(Number(e.target.value))}
             />
-            <p className="text-gray-700">{redeeming ? '3CRV' : 'HYSI'}</p>
+            <p className="text-gray-700">{selectedToken.output.name}</p>
           </div>
         </div>
       </div>

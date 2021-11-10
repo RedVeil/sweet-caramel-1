@@ -122,5 +122,20 @@ export default function getContractAddresses() {
       rinkeby: "",
       hardhat: "0x890f4e345B1dAED0367A877a1612f86A1f86985f",
     },
+    DAI: {
+      mainnet: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      rinkeby: "",
+      hardhat: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    },
+    USDC: {
+      mainnet: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      rinkeby: "",
+      hardhat: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    },
+    USDT: {
+      mainnet: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      rinkeby: "",
+      hardhat: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    },
   };
 }

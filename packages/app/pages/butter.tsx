@@ -5,9 +5,14 @@ import { useWeb3React } from '@web3-react/core';
 import BatchProcessingInfo from 'components/BatchButter/BatchProcessingInfo';
 import ClaimableBatches from 'components/BatchButter/ClaimableBatches';
 import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
+import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Navbar from 'components/NavBar/NavBar';
 import StatInfoCard from 'components/StatInfoCard';
-import { ContractsContext } from 'context/Web3/contracts';
+import {
+  Contracts,
+  ContractsContext,
+  HysiDependencyContracts,
+} from 'context/Web3/contracts';
 import { BigNumber, Contract, utils } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -23,8 +28,21 @@ interface HotSwapParameter {
   amounts: BigNumber[];
 }
 interface ClaimableBatches {
-  balance: BigNumber;
-  batches: AccountBatch[];
+  mint: AccountBatch[];
+  redeem: AccountBatch[];
+}
+
+export interface SelectedToken {
+  input: BatchProcessToken;
+  output: BatchProcessToken;
+}
+
+export interface BatchProcessTokens {
+  butter: BatchProcessToken;
+  threeCrv: BatchProcessToken;
+  dai: BatchProcessToken;
+  usdc: BatchProcessToken;
+  usdt: BatchProcessToken;
 }
 
 function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
@@ -37,23 +55,88 @@ function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
 
 function isDepositDisabled(
   depositAmount: BigNumber,
-  hysiBalance: BigNumber,
-  threeCrvBalance: BigNumber,
+  inputTokenBalance: BigNumber,
   wait: Boolean,
-  withdrawal: Boolean,
 ): boolean {
-  const balance = withdrawal ? hysiBalance : threeCrvBalance;
-  return depositAmount > balance && !wait;
+  return depositAmount > inputTokenBalance && !wait;
+}
+
+async function getBatchProcessToken(
+  butterBatchAdapter: ButterBatchAdapter,
+  contracts: Contracts,
+  hysiDependencyContracts: HysiDependencyContracts,
+  account: string,
+): Promise<BatchProcessTokens> {
+  const batchProcessTokens = {
+    butter: {
+      name: 'Butter',
+      balance: await contracts.butter.balanceOf(account),
+      claimableBalance: BigNumber.from('0'),
+      price: await butterBatchAdapter.getHysiPrice(
+        hysiDependencyContracts.basicIssuanceModule,
+        {
+          [hysiDependencyContracts.yDUSD.address.toLowerCase()]: {
+            metaPool: hysiDependencyContracts.dusdMetapool,
+            yPool: hysiDependencyContracts.yDUSD,
+          },
+          [hysiDependencyContracts.yFRAX.address.toLowerCase()]: {
+            metaPool: hysiDependencyContracts.fraxMetapool,
+            yPool: hysiDependencyContracts.yFRAX,
+          },
+          [hysiDependencyContracts.yUSDN.address.toLowerCase()]: {
+            metaPool: hysiDependencyContracts.usdnMetapool,
+            yPool: hysiDependencyContracts.yUSDN,
+          },
+          [hysiDependencyContracts.yUST.address.toLowerCase()]: {
+            metaPool: hysiDependencyContracts.ustMetapool,
+            yPool: hysiDependencyContracts.yUST,
+          },
+        } as ComponentMap,
+      ),
+    },
+    threeCrv: {
+      name: '3CRV',
+      balance: await contracts.threeCrv.balanceOf(account),
+      claimableBalance: BigNumber.from('0'),
+      price: await butterBatchAdapter.getThreeCrvPrice(
+        hysiDependencyContracts.triPool,
+      ),
+    },
+    dai: {
+      name: 'DAI',
+      balance: await contracts.stablecoins.dai.balanceOf(account),
+      price: await butterBatchAdapter.getStableCoinPrice(
+        hysiDependencyContracts.triPool,
+        [parseEther('1'), BigNumber.from('0'), BigNumber.from('0')],
+      ),
+    },
+    usdc: {
+      name: 'USDC',
+      balance: await contracts.stablecoins.usdc.balanceOf(account),
+      price: await butterBatchAdapter.getStableCoinPrice(
+        hysiDependencyContracts.triPool,
+        [parseEther('1'), BigNumber.from('1000000'), BigNumber.from('0')],
+      ),
+    },
+    usdt: {
+      name: 'USDT',
+      balance: await contracts.stablecoins.usdt.balanceOf(account),
+      price: await butterBatchAdapter.getStableCoinPrice(
+        hysiDependencyContracts.triPool,
+        [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('1000000')],
+      ),
+    },
+  };
+  return batchProcessTokens;
 }
 
 export default function Butter(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { library, account, activate } = context;
   const { contracts, hysiDependencyContracts } = useContext(ContractsContext);
-  const [hysiBalance, setHysiBalance] = useState<BigNumber>();
-  const [threeCrvBalance, setThreeCrvBalance] = useState<BigNumber>();
-  const [hysiPrice, setHysiPrice] = useState<BigNumber>();
-  const [threeCrvPrice, setThreeCrvPrice] = useState<BigNumber>();
+  const [batchProcessTokens, setBatchProcessTokens] =
+    useState<BatchProcessTokens>();
+  const [selectedToken, selectToken] = useState<SelectedToken>();
   const [depositAmount, setDepositAmount] = useState<BigNumber>(
     BigNumber.from('0'),
   );
@@ -66,8 +149,7 @@ export default function Butter(): JSX.Element {
   const [batches, setBatches] = useState<AccountBatch[]>();
   const [timeTillBatchProcessing, setTimeTillBatchProcessing] =
     useState<TimeTillBatchProcessing[]>();
-  const [claimableBatches, setClaimableBatches] =
-    useState<ClaimableBatches[]>();
+  const [claimableBatches, setClaimableBatches] = useState<ClaimableBatches>();
 
   function prepareHotSwap(
     batches: AccountBatch[],
@@ -101,50 +183,30 @@ export default function Butter(): JSX.Element {
       return;
     }
     setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
-    if (account) {
-      contracts.butter.balanceOf(account).then((res) => setHysiBalance(res));
-      contracts.threeCrv
-        .balanceOf(account)
-        .then((res) => setThreeCrvBalance(res));
-    }
   }, [library, account]);
 
   useEffect(() => {
-    if (!butterBatchAdapter) {
+    if (!butterBatchAdapter || !account) {
       return;
     }
-    butterBatchAdapter
-      .getHysiPrice(hysiDependencyContracts.basicIssuanceModule, {
-        [hysiDependencyContracts.yDUSD.address.toLowerCase()]: {
-          metaPool: hysiDependencyContracts.dusdMetapool,
-          yPool: hysiDependencyContracts.yDUSD,
-        },
-        [hysiDependencyContracts.yFRAX.address.toLowerCase()]: {
-          metaPool: hysiDependencyContracts.fraxMetapool,
-          yPool: hysiDependencyContracts.yFRAX,
-        },
-        [hysiDependencyContracts.yUSDN.address.toLowerCase()]: {
-          metaPool: hysiDependencyContracts.usdnMetapool,
-          yPool: hysiDependencyContracts.yUSDN,
-        },
-        [hysiDependencyContracts.yUST.address.toLowerCase()]: {
-          metaPool: hysiDependencyContracts.ustMetapool,
-          yPool: hysiDependencyContracts.yUST,
-        },
-      } as ComponentMap)
-      .then((res) => setHysiPrice(res));
+    getBatchProcessToken(
+      butterBatchAdapter,
+      contracts,
+      hysiDependencyContracts,
+      account,
+    ).then((res) => {
+      setBatchProcessTokens(res);
+      selectToken({ input: res.threeCrv, output: res.butter });
+    });
 
-    butterBatchAdapter
-      .getThreeCrvPrice(hysiDependencyContracts.triPool)
-      .then((res) => setThreeCrvPrice(res));
     butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
     butterBatchAdapter
       .calcBatchTimes(library)
       .then((res) => setTimeTillBatchProcessing(res));
-  }, [butterBatchAdapter]);
+  }, [butterBatchAdapter, account]);
 
   useEffect(() => {
-    if (!batches) {
+    if (!batches || !batchProcessTokens || claimableBatches) {
       return;
     }
     const claimableMintBatches = batches.filter(
@@ -153,25 +215,25 @@ export default function Butter(): JSX.Element {
     const claimableRedeemBatches = batches.filter(
       (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
     );
-
-    setClaimableBatches([
-      {
-        balance: getClaimableBalance(claimableMintBatches),
-        batches: claimableMintBatches,
-      },
-      {
-        balance: getClaimableBalance(claimableRedeemBatches),
-        batches: claimableRedeemBatches,
-      },
-    ]);
-  }, [batches]);
+    const newBatchProcessTokens = { ...batchProcessTokens };
+    newBatchProcessTokens.butter.claimableBalance =
+      getClaimableBalance(claimableMintBatches);
+    newBatchProcessTokens.threeCrv.claimableBalance = getClaimableBalance(
+      claimableRedeemBatches,
+    );
+    setBatchProcessTokens(newBatchProcessTokens);
+    setClaimableBatches({
+      mint: claimableMintBatches,
+      redeem: claimableRedeemBatches,
+    });
+  }, [batches, batchProcessTokens]);
 
   async function hotswap(
     depositAmount: BigNumber,
     batchType: BatchType,
   ): Promise<void> {
     const hotSwapParameter = prepareHotSwap(
-      claimableBatches[batchType === BatchType.Mint ? 1 : 0].batches,
+      claimableBatches[BatchType[batchType].toLowerCase()],
       depositAmount,
     );
     toast.loading('Depositing Funds...');
@@ -350,20 +412,11 @@ export default function Butter(): JSX.Element {
               </p>
             </div>
             <div className="mt-12">
-              {butterBatchAdapter && (
+              {claimableBatches && (
                 <MintRedeemInterface
-                  threeCrvBalance={
-                    useUnclaimedDeposits
-                      ? claimableBatches[1].balance
-                      : threeCrvBalance
-                  }
-                  threeCrvPrice={threeCrvPrice}
-                  hysiBalance={
-                    useUnclaimedDeposits
-                      ? claimableBatches[0].balance
-                      : hysiBalance
-                  }
-                  hysiPrice={hysiPrice}
+                  token={batchProcessTokens}
+                  selectedToken={selectedToken}
+                  selectToken={selectToken}
                   redeeming={redeeming}
                   setRedeeming={setRedeeming}
                   depositAmount={depositAmount}
@@ -373,17 +426,13 @@ export default function Butter(): JSX.Element {
                     useUnclaimedDeposits
                       ? isDepositDisabled(
                           depositAmount,
-                          claimableBatches[0].balance,
-                          claimableBatches[1].balance,
+                          selectedToken.input.claimableBalance,
                           wait,
-                          redeeming,
                         )
                       : isDepositDisabled(
                           depositAmount,
-                          hysiBalance,
-                          threeCrvBalance,
+                          selectedToken.input.balance,
                           wait,
-                          redeeming,
                         )
                   }
                   useUnclaimedDeposits={useUnclaimedDeposits}
@@ -401,7 +450,11 @@ export default function Butter(): JSX.Element {
                 <StatInfoCard
                   title="Butter Value"
                   content={`${
-                    hysiPrice ? formatAndRoundBigNumber(hysiPrice) : '-'
+                    batchProcessTokens?.butter
+                      ? formatAndRoundBigNumber(
+                          batchProcessTokens?.butter?.price,
+                        )
+                      : '-'
                   } $`}
                   icon={{ icon: 'Money', color: 'bg-blue-300' }}
                 />

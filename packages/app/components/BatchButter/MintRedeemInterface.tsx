@@ -9,10 +9,9 @@ interface MintRedeemInterfaceProps extends TokenInputProps {
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
-  threeCrvBalance,
-  threeCrvPrice,
-  hysiBalance,
-  hysiPrice,
+  token,
+  selectedToken,
+  selectToken,
   redeeming,
   setRedeeming,
   depositAmount,
@@ -26,10 +25,9 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
     <div className="bg-white rounded-3xl px-5 py-6 mr-8 border border-gray-300">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <TokenInput
-        threeCrvBalance={threeCrvBalance}
-        threeCrvPrice={threeCrvPrice}
-        hysiBalance={hysiBalance}
-        hysiPrice={hysiPrice}
+        token={token}
+        selectedToken={selectedToken}
+        selectToken={selectToken}
         redeeming={redeeming}
         setRedeeming={setRedeeming}
         depositAmount={depositAmount}

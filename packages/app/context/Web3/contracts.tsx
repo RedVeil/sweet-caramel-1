@@ -27,14 +27,21 @@ import {
 import { setSingleActionModal } from '../actions';
 import { store } from '../store';
 import { connectors, networkMap } from './connectors';
+
+export interface Stablecoins {
+  dai: ERC20;
+  usdc: ERC20;
+  usdt: ERC20;
+}
 export interface Contracts {
   threeCrv: ERC20;
   butter: ISetToken;
   butterBatch: HysiBatchInteraction;
   butterBatchZapper: HysiBatchZapper;
+  stablecoins: Stablecoins;
 }
 
-export interface hysiDependencyContracts {
+export interface HysiDependencyContracts {
   basicIssuanceModule: BasicIssuanceModule;
   yDUSD: YearnVault;
   yFRAX: YearnVault;
@@ -49,9 +56,9 @@ export interface hysiDependencyContracts {
 
 interface ContractsContext {
   contracts: Contracts;
-  hysiDependencyContracts: hysiDependencyContracts;
+  hysiDependencyContracts: HysiDependencyContracts;
   setContracts: React.Dispatch<Contracts>;
-  setHysiDependencyContracts: React.Dispatch<hysiDependencyContracts>;
+  setHysiDependencyContracts: React.Dispatch<HysiDependencyContracts>;
 }
 
 export const ContractsContext = createContext<ContractsContext>(null);
@@ -91,7 +98,7 @@ export default function ContractsWrapper({
   } = context;
   const [contracts, setContracts] = useState<Contracts>();
   const [hysiDependencyContracts, setHysiDependencyContracts] =
-    useState<hysiDependencyContracts>();
+    useState<HysiDependencyContracts>();
   const { dispatch } = useContext(store);
   const addresses = getContractAddresses();
 
@@ -133,6 +140,11 @@ export default function ContractsWrapper({
         addresses.BUTTER_BATCH_ZAPPER.hardhat,
         library,
       ),
+      stablecoins: {
+        dai: ERC20__factory.connect(addresses.DAI.hardhat, library),
+        usdc: ERC20__factory.connect(addresses.USDC.hardhat, library),
+        usdt: ERC20__factory.connect(addresses.USDT.hardhat, library),
+      },
     });
 
     setHysiDependencyContracts({
