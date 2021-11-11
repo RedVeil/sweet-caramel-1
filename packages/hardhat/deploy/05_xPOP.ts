@@ -51,3 +51,4 @@ async function transferOwner(xpop: XPop, newOwner: string) {
 
 module.exports = main;
 module.exports.tags = ["xpop"];
+module.exports.dependencies = ["setup"];
