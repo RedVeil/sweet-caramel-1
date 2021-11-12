@@ -6,6 +6,7 @@ import SelectToken from './SelectToken';
 
 export interface BatchProcessToken {
   name: string;
+  key: string;
   balance: BigNumber;
   claimableBalance?: BigNumber;
   price: BigNumber;
@@ -107,13 +108,11 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 MAX
               </p>
               <SelectToken
-                allowSelection={redeeming}
+                allowSelection={!redeeming}
                 selectedToken={selectedToken.input}
                 token={token}
                 notSelectable={[
-                  selectedToken.input.name === '3CRV'
-                    ? 'threeCrv'
-                    : selectedToken.input.name.toLowerCase(),
+                  selectedToken.input.key,
                   redeeming ? 'threeCrv' : 'butter',
                 ]}
                 selectToken={selectToken}
@@ -166,16 +165,14 @@ const TokenInput: React.FC<TokenInputProps> = ({
               onChange={(e) => updateWithOuputAmounts(Number(e.target.value))}
             />
             <SelectToken
-              allowSelection={!redeeming}
+              allowSelection={false}
               selectedToken={selectedToken.output}
               token={token}
               notSelectable={[
-                selectedToken.output.name === '3CRV'
-                  ? 'threeCrv'
-                  : selectedToken.output.name.toLowerCase(),
+                selectedToken.output.key,
                 redeeming ? 'butter' : 'threeCrv',
               ]}
-              selectToken={selectToken}
+              selectToken={() => {}}
             />
           </div>
         </div>

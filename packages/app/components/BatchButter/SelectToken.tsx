@@ -24,14 +24,14 @@ export default function SelectToken({
     <div className="relative w-16" onMouseLeave={() => setDropdown(false)}>
       <span
         className={`flex flex-row mx-auto ${
-          !allowSelection ? 'cursor-pointer group' : ''
+          allowSelection ? 'cursor-pointer group' : ''
         }`}
         onClick={() => setDropdown(!showDropdown)}
       >
         <p className="text-gray-700 group-hover:text-blue-700">
           {selectedToken.name}
         </p>
-        {!allowSelection && (
+        {allowSelection && (
           <>
             {showDropdown ? (
               <Icon.ChevronUp className="w-5 h-6 group-hover:text-blue-700" />
@@ -47,6 +47,7 @@ export default function SelectToken({
             .filter((key) => !notSelectable.includes(key))
             .map((selectableToken) => (
               <a
+                key={selectableToken}
                 className="cursor-pointer hover:text-blue-700"
                 onClick={() => selectToken(token[selectableToken])}
               >

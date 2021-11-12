@@ -28,17 +28,14 @@ import { setSingleActionModal } from '../actions';
 import { store } from '../store';
 import { connectors, networkMap } from './connectors';
 
-export interface Stablecoins {
-  dai: ERC20;
-  usdc: ERC20;
-  usdt: ERC20;
-}
 export interface Contracts {
   threeCrv: ERC20;
   butter: ISetToken;
   butterBatch: HysiBatchInteraction;
   butterBatchZapper: HysiBatchZapper;
-  stablecoins: Stablecoins;
+  dai: ERC20;
+  usdc: ERC20;
+  usdt: ERC20;
 }
 
 export interface HysiDependencyContracts {
@@ -140,11 +137,9 @@ export default function ContractsWrapper({
         addresses.BUTTER_BATCH_ZAPPER.hardhat,
         library,
       ),
-      stablecoins: {
-        dai: ERC20__factory.connect(addresses.DAI.hardhat, library),
-        usdc: ERC20__factory.connect(addresses.USDC.hardhat, library),
-        usdt: ERC20__factory.connect(addresses.USDT.hardhat, library),
-      },
+      dai: ERC20__factory.connect(addresses.DAI.hardhat, library),
+      usdc: ERC20__factory.connect(addresses.USDC.hardhat, library),
+      usdt: ERC20__factory.connect(addresses.USDT.hardhat, library),
     });
 
     setHysiDependencyContracts({

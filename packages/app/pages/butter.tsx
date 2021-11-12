@@ -70,6 +70,7 @@ async function getBatchProcessToken(
   const batchProcessTokens = {
     butter: {
       name: 'Butter',
+      key: 'butter',
       balance: await contracts.butter.balanceOf(account),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getHysiPrice(
@@ -96,6 +97,7 @@ async function getBatchProcessToken(
     },
     threeCrv: {
       name: '3CRV',
+      key: 'threeCrv',
       balance: await contracts.threeCrv.balanceOf(account),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getThreeCrvPrice(
@@ -104,7 +106,8 @@ async function getBatchProcessToken(
     },
     dai: {
       name: 'DAI',
-      balance: await contracts.stablecoins.dai.balanceOf(account),
+      key: 'dai',
+      balance: await contracts.dai.balanceOf(account),
       price: await butterBatchAdapter.getStableCoinPrice(
         hysiDependencyContracts.triPool,
         [parseEther('1'), BigNumber.from('0'), BigNumber.from('0')],
@@ -112,15 +115,17 @@ async function getBatchProcessToken(
     },
     usdc: {
       name: 'USDC',
-      balance: await contracts.stablecoins.usdc.balanceOf(account),
+      key: 'usdc',
+      balance: await contracts.usdc.balanceOf(account),
       price: await butterBatchAdapter.getStableCoinPrice(
         hysiDependencyContracts.triPool,
-        [parseEther('1'), BigNumber.from('1000000'), BigNumber.from('0')],
+        [BigNumber.from('0'), BigNumber.from('1000000'), BigNumber.from('0')],
       ),
     },
     usdt: {
       name: 'USDT',
-      balance: await contracts.stablecoins.usdt.balanceOf(account),
+      key: 'usdt',
+      balance: await contracts.usdt.balanceOf(account),
       price: await butterBatchAdapter.getStableCoinPrice(
         hysiDependencyContracts.triPool,
         [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('1000000')],
@@ -130,6 +135,35 @@ async function getBatchProcessToken(
   return batchProcessTokens;
 }
 
+function getZapDepositAmount(
+  depositAmount: BigNumber,
+  tokenKey: string,
+): [BigNumber, BigNumber, BigNumber] {
+  if (tokenKey === 'usdc' || tokenKey === 'usdt') {
+    depositAmount = depositAmount.div(BigNumber.from(1e12));
+  }
+  switch (tokenKey) {
+    case 'dai':
+      return [
+        depositAmount.mul(99).div(100),
+        BigNumber.from('0'),
+        BigNumber.from('0'),
+      ];
+    case 'usdc':
+      return [
+        BigNumber.from('0'),
+        depositAmount.mul(99).div(100),
+        BigNumber.from('0'),
+      ];
+    case 'usdc':
+      return [
+        BigNumber.from('0'),
+        BigNumber.from('0'),
+        depositAmount.mul(99).div(100),
+      ];
+  }
+}
+
 export default function Butter(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { library, account, activate } = context;
@@ -137,6 +171,7 @@ export default function Butter(): JSX.Element {
   const [batchProcessTokens, setBatchProcessTokens] =
     useState<BatchProcessTokens>();
   const [selectedToken, setSelectedToken] = useState<SelectedToken>();
+  const [useZap, setUseZap] = useState<Boolean>(false);
   const [depositAmount, setDepositAmount] = useState<BigNumber>(
     BigNumber.from('0'),
   );
@@ -216,14 +251,24 @@ export default function Butter(): JSX.Element {
         output: batchProcessTokens.butter,
       });
     }
+    setUseZap(false);
   }, [redeeming]);
 
   function selectToken(token: BatchProcessToken): void {
+    const zapToken = ['dai', 'usdc', 'usdt'];
     const newSelectedToken = { ...selectedToken };
     if (redeeming) {
       newSelectedToken.output = token;
     } else {
       newSelectedToken.input = token;
+    }
+    if (
+      zapToken.includes(newSelectedToken.output.key) ||
+      zapToken.includes(newSelectedToken.input.key)
+    ) {
+      setUseZap(true);
+    } else {
+      setUseZap(false);
     }
     setSelectedToken(newSelectedToken);
   }
@@ -294,19 +339,29 @@ export default function Butter(): JSX.Element {
   ): Promise<void> {
     setWait(true);
     if (batchType === BatchType.Mint) {
-      const allowance = await contracts.threeCrv.allowance(
+      const allowance = await contracts[selectedToken.input.key].allowance(
         account,
-        contracts.butterBatch.address,
+        useZap
+          ? contracts.butterBatchZapper.address
+          : contracts.butterBatch.address,
       );
       if (allowance >= depositAmount) {
-        toast.loading('Depositing 3CRV...');
-        const res = await contracts.butterBatch
-          .connect(library.getSigner())
-          .depositForMint(depositAmount, account)
+        toast.loading(`Depositing ${selectedToken.input.name}...`);
+        const mintCall = useZap
+          ? contracts.butterBatchZapper
+              .connect(library.getSigner())
+              .zapIntoBatch(
+                getZapDepositAmount(depositAmount, selectedToken.input.key),
+                account,
+              )
+          : contracts.butterBatch
+              .connect(library.getSigner())
+              .depositForMint(depositAmount, account);
+        const res = await mintCall
           .then((res) => {
             res.wait().then((res) => {
               toast.dismiss();
-              toast.success('3CRV deposited!');
+              toast.success(`${selectedToken.input.name} deposited!`);
             });
           })
           .catch((err) => {
@@ -318,23 +373,22 @@ export default function Butter(): JSX.Element {
             }
           });
       } else {
-        approve(contracts.threeCrv);
+        approve(contracts[selectedToken.input.key]);
       }
     } else {
       const allowance = await contracts.butter.allowance(
         account,
         contracts.butterBatch.address,
       );
-      console.log('redeem allowance', allowance.toString());
       if (allowance >= depositAmount) {
-        toast.loading('Depositing HYSI...');
+        toast.loading('Depositing Butter...');
         await contracts.butterBatch
           .connect(library.getSigner())
           .depositForRedeem(depositAmount)
           .then((res) => {
             res.wait().then((res) => {
               toast.dismiss();
-              toast.success('HYSI deposited!');
+              toast.success('Butter deposited!');
               butterBatchAdapter
                 .getBatches(account)
                 .then((res) => setBatches(res));
@@ -404,7 +458,12 @@ export default function Butter(): JSX.Element {
     toast.loading('Approving Token...');
     await contract
       .connect(library.getSigner())
-      .approve(contracts.butterBatch.address, utils.parseEther('100000000'))
+      .approve(
+        useZap
+          ? contracts.butterBatchZapper.address
+          : contracts.butterBatch.address,
+        utils.parseEther('100000000'),
+      )
       .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();
