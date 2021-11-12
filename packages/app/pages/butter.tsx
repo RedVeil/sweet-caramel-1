@@ -136,7 +136,7 @@ export default function Butter(): JSX.Element {
   const { contracts, hysiDependencyContracts } = useContext(ContractsContext);
   const [batchProcessTokens, setBatchProcessTokens] =
     useState<BatchProcessTokens>();
-  const [selectedToken, selectToken] = useState<SelectedToken>();
+  const [selectedToken, setSelectedToken] = useState<SelectedToken>();
   const [depositAmount, setDepositAmount] = useState<BigNumber>(
     BigNumber.from('0'),
   );
@@ -150,33 +150,6 @@ export default function Butter(): JSX.Element {
   const [timeTillBatchProcessing, setTimeTillBatchProcessing] =
     useState<TimeTillBatchProcessing[]>();
   const [claimableBatches, setClaimableBatches] = useState<ClaimableBatches>();
-
-  function prepareHotSwap(
-    batches: AccountBatch[],
-    depositAmount: BigNumber,
-  ): HotSwapParameter {
-    let cumulatedBatchAmounts = BigNumber.from('0');
-    const batchIds: String[] = [];
-    const amounts: BigNumber[] = [];
-    batches.forEach((batch) => {
-      if (cumulatedBatchAmounts < depositAmount) {
-        const missingAmount = depositAmount.sub(cumulatedBatchAmounts);
-        const amountOfBatch = batch.accountClaimableTokenBalance.gt(
-          missingAmount,
-        )
-          ? missingAmount
-          : batch.accountClaimableTokenBalance;
-        cumulatedBatchAmounts = cumulatedBatchAmounts.add(amountOfBatch);
-        const shareValue = batch.accountClaimableTokenBalance
-          .mul(parseEther('1'))
-          .div(batch.accountSuppliedTokenBalance);
-
-        batchIds.push(batch.batchId);
-        amounts.push(amountOfBatch.mul(parseEther('1')).div(shareValue));
-      }
-    });
-    return { batchIds: batchIds, amounts: amounts };
-  }
 
   useEffect(() => {
     if (!library || !contracts) {
@@ -196,7 +169,7 @@ export default function Butter(): JSX.Element {
       account,
     ).then((res) => {
       setBatchProcessTokens(res);
-      selectToken({ input: res.threeCrv, output: res.butter });
+      setSelectedToken({ input: res.threeCrv, output: res.butter });
     });
 
     butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
@@ -227,6 +200,60 @@ export default function Butter(): JSX.Element {
       redeem: claimableRedeemBatches,
     });
   }, [batches, batchProcessTokens]);
+
+  useEffect(() => {
+    if (!batchProcessTokens) {
+      return;
+    }
+    if (redeeming) {
+      setSelectedToken({
+        input: batchProcessTokens.butter,
+        output: batchProcessTokens.threeCrv,
+      });
+    } else {
+      setSelectedToken({
+        input: batchProcessTokens.threeCrv,
+        output: batchProcessTokens.butter,
+      });
+    }
+  }, [redeeming]);
+
+  function selectToken(token: BatchProcessToken): void {
+    const newSelectedToken = { ...selectedToken };
+    if (redeeming) {
+      newSelectedToken.output = token;
+    } else {
+      newSelectedToken.input = token;
+    }
+    setSelectedToken(newSelectedToken);
+  }
+
+  function prepareHotSwap(
+    batches: AccountBatch[],
+    depositAmount: BigNumber,
+  ): HotSwapParameter {
+    let cumulatedBatchAmounts = BigNumber.from('0');
+    const batchIds: String[] = [];
+    const amounts: BigNumber[] = [];
+    batches.forEach((batch) => {
+      if (cumulatedBatchAmounts < depositAmount) {
+        const missingAmount = depositAmount.sub(cumulatedBatchAmounts);
+        const amountOfBatch = batch.accountClaimableTokenBalance.gt(
+          missingAmount,
+        )
+          ? missingAmount
+          : batch.accountClaimableTokenBalance;
+        cumulatedBatchAmounts = cumulatedBatchAmounts.add(amountOfBatch);
+        const shareValue = batch.accountClaimableTokenBalance
+          .mul(parseEther('1'))
+          .div(batch.accountSuppliedTokenBalance);
+
+        batchIds.push(batch.batchId);
+        amounts.push(amountOfBatch.mul(parseEther('1')).div(shareValue));
+      }
+    });
+    return { batchIds: batchIds, amounts: amounts };
+  }
 
   async function hotswap(
     depositAmount: BigNumber,

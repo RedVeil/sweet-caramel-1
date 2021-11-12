@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber';
 import { BatchProcessTokens, SelectedToken } from 'pages/butter';
 import { Dispatch, useEffect, useState } from 'react';
 import { bigNumberToNumber, scaleNumberToBigNumber } from '../../../utils';
+import SelectToken from './SelectToken';
 
 export interface BatchProcessToken {
   name: string;
@@ -105,7 +106,18 @@ const TokenInput: React.FC<TokenInputProps> = ({
               >
                 MAX
               </p>
-              <p className="text-gray-700">{selectedToken.input.name}</p>
+              <SelectToken
+                allowSelection={redeeming}
+                selectedToken={selectedToken.input}
+                token={token}
+                notSelectable={[
+                  selectedToken.input.name === '3CRV'
+                    ? 'threeCrv'
+                    : selectedToken.input.name.toLowerCase(),
+                  redeeming ? 'threeCrv' : 'butter',
+                ]}
+                selectToken={selectToken}
+              />
             </div>
           </div>
         </div>
@@ -153,7 +165,18 @@ const TokenInput: React.FC<TokenInputProps> = ({
               value={estimatedAmount}
               onChange={(e) => updateWithOuputAmounts(Number(e.target.value))}
             />
-            <p className="text-gray-700">{selectedToken.output.name}</p>
+            <SelectToken
+              allowSelection={!redeeming}
+              selectedToken={selectedToken.output}
+              token={token}
+              notSelectable={[
+                selectedToken.output.name === '3CRV'
+                  ? 'threeCrv'
+                  : selectedToken.output.name.toLowerCase(),
+                redeeming ? 'butter' : 'threeCrv',
+              ]}
+              selectToken={selectToken}
+            />
           </div>
         </div>
       </div>
