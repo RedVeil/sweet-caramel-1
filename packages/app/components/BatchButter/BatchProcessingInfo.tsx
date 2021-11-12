@@ -9,7 +9,7 @@ const BatchProcessingInfo: React.FC<BatchProcessingInfoProps> = ({
   timeTillBatchProcessing,
 }) => {
   return (
-    <div className="bg-yellow-50 rounded-2xl px-5 py-6 mt-8 mr-8 flex flex-row">
+    <div className="bg-yellow-50 rounded-2xl px-5 pt-7 pb-6 mt-8 mr-8 flex flex-row">
       <div className="w-full flex flex-row">
         <div className="w-24 h-24 flex-shrink-0 flex-grow-0 mr-4">
           {timeTillBatchProcessing && (

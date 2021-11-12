@@ -26,7 +26,7 @@ export default function SelectToken({
         className={`flex flex-row mx-auto ${
           allowSelection ? 'cursor-pointer group' : ''
         }`}
-        onClick={() => setDropdown(!showDropdown)}
+        onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
         <p className="text-gray-700 group-hover:text-blue-700">
           {selectedToken.name}

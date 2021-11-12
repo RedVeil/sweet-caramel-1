@@ -35,12 +35,12 @@ export default function getContractAddresses() {
     BUTTER_BATCH: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
+      hardhat: "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
     },
     BUTTER_BATCH_ZAPPER: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
+      hardhat: "0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43",
     },
     SET_BASIC_ISSUANCE_MODULE_ADDRESS: {
       mainnet: "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",

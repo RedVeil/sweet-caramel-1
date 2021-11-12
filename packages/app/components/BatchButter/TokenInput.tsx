@@ -86,7 +86,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             <input
               className="w-96"
               placeholder="-"
-              value={bigNumberToNumber(depositAmount)}
+              value={bigNumberToNumber(depositAmount).toFixed(2)}
               onChange={(e) => updateWithInputAmounts(Number(e.target.value))}
             />
             <div className="flex flex-row items-center">
@@ -161,7 +161,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             <input
               className="w-96"
               placeholder="-"
-              value={estimatedAmount}
+              value={estimatedAmount.toFixed(2)}
               onChange={(e) => updateWithOuputAmounts(Number(e.target.value))}
             />
             <SelectToken

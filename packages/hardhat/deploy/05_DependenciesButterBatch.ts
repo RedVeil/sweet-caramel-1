@@ -1,9 +1,12 @@
+import { BigNumber } from "@ethersproject/bignumber";
 import { parseEther } from "@ethersproject/units";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
+import { HysiBatchInteraction } from "../typechain";
 
+const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const BUTTER_ADDRESS = "0x8d1621a27bb8c84e59ca339cf9b21e15b907e408";
 const SET_BASIC_ISSUANCE_MODULE_ADDRESS =
   "0xd8EF3cACe8b4907117a45B0b125c68560532F94D";
@@ -30,7 +33,7 @@ const CRV_DEPENDENCIES = [
   },
   {
     curveMetaPool: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
-    crvLPToken: "0xd632f22692fac7611d2aa1c0d552930d43caed3b",
+    crvLPToken: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
   },
   {
     curveMetaPool: "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1",
@@ -76,7 +79,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "0x152d02c7e14af6800000", // 100k ETH
   ]);
   console.log("sending 3crv...");
-  await faucet.sendThreeCrv(10000, signerAddress);
+  await faucet.sendThreeCrv(1000, signerAddress);
+  console.log("sending dai...");
+  await faucet.sendTokens(DAI_ADDRESS, 1000, signerAddress);
 
   //ContractRegistry
   const contractRegistryAddress = (await deployments.get("ContractRegistry"))
@@ -98,9 +103,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       SET_BASIC_ISSUANCE_MODULE_ADDRESS,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
-      60 * 60 * 24,
-      parseEther("100"),
+      1,
       parseEther("1"),
+      parseEther("0.1"),
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
@@ -131,5 +136,72 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ).address,
     ethers.utils.id("1")
   );
+
+  //Create Demo Data
+  console.log("creating demo data...");
+  const butterBatch = (await hre.ethers.getContractAt(
+    "HysiBatchInteraction",
+    (
+      await deployments.get("ButterBatch")
+    ).address,
+    signer
+  )) as HysiBatchInteraction;
+
+  const threeCrv = await hre.ethers.getContractAt(
+    "MockERC20",
+    THREE_CRV_ADDRESS,
+    signer
+  );
+  const dai = await hre.ethers.getContractAt("MockERC20", DAI_ADDRESS, signer);
+  const butter = await hre.ethers.getContractAt(
+    "MockERC20",
+    BUTTER_ADDRESS,
+    signer
+  );
+
+  const keeperIncentive = await hre.ethers.getContractAt(
+    "KeeperIncentive",
+    (
+      await deployments.get("KeeperIncentive")
+    ).address,
+    signer
+  );
+
+  await keeperIncentive.createIncentive(
+    utils.formatBytes32String("HysiBatchInteraction"),
+    0,
+    false,
+    true
+  );
+  await keeperIncentive.createIncentive(
+    utils.formatBytes32String("HysiBatchInteraction"),
+    0,
+    false,
+    true
+  );
+
+  await keeperIncentive.addControllerContract(
+    utils.formatBytes32String("HysiBatchInteraction"),
+    butterBatch.address
+  );
+
+  await threeCrv.approve(butterBatch.address, parseEther("1000000000000"));
+  await dai.approve(butterBatch.address, parseEther("1000000000000"));
+  await butter.approve(butterBatch.address, parseEther("1000000000000"));
+
+  console.log("first butter mint");
+  const mintId0 = await butterBatch.currentMintBatchId();
+  await butterBatch.depositForMint(parseEther("1200"), signerAddress);
+  await butterBatch.batchMint(BigNumber.from("0"));
+  await butterBatch.claim(mintId0, signerAddress);
+  console.log("second butter mint");
+  await butterBatch.depositForMint(parseEther("550"), signerAddress);
+  await butterBatch.batchMint(BigNumber.from("0"));
+  console.log("redeeming....");
+  await butterBatch.depositForRedeem(parseEther("1.5"));
+  await butterBatch.batchRedeem(BigNumber.from("0"));
+  console.log("create batch to be batched");
+  await butterBatch.depositForMint(parseEther("600"), signerAddress);
+  await butterBatch.depositForRedeem(parseEther("1.5"));
 };
 export default func;

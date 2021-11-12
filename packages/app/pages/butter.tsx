@@ -321,6 +321,12 @@ export default function Butter(): JSX.Element {
           toast.dismiss();
           toast.success('Funds deposited!');
           butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
+          getBatchProcessToken(
+            butterBatchAdapter,
+            contracts,
+            hysiDependencyContracts,
+            account,
+          ).then((res) => setBatchProcessTokens(res));
         });
       })
       .catch((err) => {
@@ -392,6 +398,12 @@ export default function Butter(): JSX.Element {
               butterBatchAdapter
                 .getBatches(account)
                 .then((res) => setBatches(res));
+              getBatchProcessToken(
+                butterBatchAdapter,
+                contracts,
+                hysiDependencyContracts,
+                account,
+              ).then((res) => setBatchProcessTokens(res));
             });
           })
           .catch((err) => {
@@ -420,6 +432,12 @@ export default function Butter(): JSX.Element {
           toast.success('Batch claimed!');
         });
         butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
+        getBatchProcessToken(
+          butterBatchAdapter,
+          contracts,
+          hysiDependencyContracts,
+          account,
+        ).then((res) => setBatchProcessTokens(res));
       })
       .catch((err) => {
         toast.dismiss();
@@ -440,8 +458,14 @@ export default function Butter(): JSX.Element {
         res.wait().then((res) => {
           toast.dismiss();
           toast.success('Funds withdrawn!');
+          butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
+          getBatchProcessToken(
+            butterBatchAdapter,
+            contracts,
+            hysiDependencyContracts,
+            account,
+          ).then((res) => setBatchProcessTokens(res));
         });
-        butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
       })
       .catch((err) => {
         toast.dismiss();
@@ -478,7 +502,6 @@ export default function Butter(): JSX.Element {
           toast.error(err.data.message.split("'")[1]);
         }
       });
-
     setWait(false);
   }
 
@@ -592,7 +615,7 @@ export default function Butter(): JSX.Element {
                 />
               </div>
             </div>
-            <div className="w-full h-min-content pl-10 pr-2 pt-12 pb-18 mt-8 rounded-4xl bg-primaryLight">
+            <div className="w-full h-min-content pl-10 pr-2 pt-12 pb-10 mt-8 rounded-4xl bg-primaryLight">
               <div className="z-10">
                 <h2 className="text-2xl font-medium w-1/4">
                   We will bring the chart soon to you!
@@ -602,7 +625,7 @@ export default function Butter(): JSX.Element {
                   visualize how your HYSI growth
                 </p>
               </div>
-              <div className="w-full flex justify-end -mt-40">
+              <div className="w-full flex justify-end -mt-36">
                 <img
                   src="/images/chartPlaceholder.svg"
                   alt="chartPlaceholder"
@@ -614,7 +637,7 @@ export default function Butter(): JSX.Element {
         </div>
 
         {batches?.length > 0 && (
-          <div className="mt-16">
+          <div className="mt-16 w-9/12 mx-auto pb-12">
             <h2></h2>
             <div className="flex flex-col">
               <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
