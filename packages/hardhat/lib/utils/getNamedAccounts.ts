@@ -11,8 +11,12 @@ export default function getNamedAccounts() {
       rinkeby: "0x7D9B21704B5311bB480f0109dFD5D84ed1207e11",
     },
     DAO_Agent: {
+      hardhat: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
+      localhost: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       rinkeby: "0xc0e334b5bc637eac105da3d84c7c1bd342ae8ae9",
+      arbitrum: "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
+      polygon: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
     },
     TokenManager: {
       mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
