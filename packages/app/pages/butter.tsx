@@ -8,6 +8,7 @@ import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
 import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Navbar from 'components/NavBar/NavBar';
 import StatInfoCard from 'components/StatInfoCard';
+import { store } from 'context/store';
 import {
   Contracts,
   ContractsContext,
@@ -168,6 +169,7 @@ export default function Butter(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { library, account, activate } = context;
   const { contracts, hysiDependencyContracts } = useContext(ContractsContext);
+  const { dispatch } = useContext(store);
   const [batchProcessTokens, setBatchProcessTokens] =
     useState<BatchProcessTokens>();
   const [selectedToken, setSelectedToken] = useState<SelectedToken>();
@@ -421,11 +423,24 @@ export default function Butter(): JSX.Element {
     setWait(false);
   }
 
-  async function claim(batchId: string): Promise<void> {
+  async function claim(
+    batchId: string,
+    useZap?: boolean,
+    stableIndex?: number,
+    minMintAmount?: BigNumber,
+  ): Promise<void> {
     toast.loading('Claiming Batch...');
-    await contracts.butterBatch
-      .connect(library.getSigner())
-      .claim(batchId, account)
+    let call;
+    if (useZap) {
+      call = contracts.butterBatchZapper
+        .connect(library.getSigner())
+        .claimAndSwapToStable(batchId, stableIndex, minMintAmount);
+    } else {
+      call = contracts.butterBatch
+        .connect(library.getSigner())
+        .claim(batchId, account);
+    }
+    await call
       .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();
@@ -449,11 +464,25 @@ export default function Butter(): JSX.Element {
       });
   }
 
-  async function withdraw(batchId: string, amount: BigNumber): Promise<void> {
+  async function withdraw(
+    batchId: string,
+    amount: BigNumber,
+    useZap?: boolean,
+    stableIndex?: number,
+    minMintAmount?: BigNumber,
+  ): Promise<void> {
     toast.loading('Withdrawing from Batch...');
-    await contracts.butterBatch
-      .connect(library.getSigner())
-      .withdrawFromBatch(batchId, amount, account)
+    let call;
+    if (useZap) {
+      call = contracts.butterBatchZapper
+        .connect(library.getSigner())
+        .zapOutOfBatch(batchId, amount, stableIndex, minMintAmount);
+    } else {
+      call = contracts.butterBatch
+        .connect(library.getSigner())
+        .withdrawFromBatch(batchId, amount, account);
+    }
+    await call
       .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();

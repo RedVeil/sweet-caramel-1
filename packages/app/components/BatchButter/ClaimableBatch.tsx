@@ -1,12 +1,11 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { AccountBatch, BatchType } from '../../../hardhat/lib/adapters';
 import { bigNumberToNumber } from '../../../utils';
 
 interface BatchProps {
   batch: AccountBatch;
   index: number;
-  claim: (batchId: string) => Promise<void>;
-  withdraw: (batchId: string, amount: BigNumber) => Promise<void>;
+  claim: Function;
+  withdraw: Function;
 }
 
 const ClaimableBatch: React.FC<BatchProps> = ({
