@@ -4,7 +4,6 @@ import { ethers, utils } from "ethers";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { HysiBatchInteraction } from "../typechain";
 
 const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const BUTTER_ADDRESS = "0x8d1621a27bb8c84e59ca339cf9b21e15b907e408";
@@ -139,13 +138,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   //Create Demo Data
   console.log("creating demo data...");
-  const butterBatch = (await hre.ethers.getContractAt(
+  const butterBatch = await hre.ethers.getContractAt(
     "HysiBatchInteraction",
     (
       await deployments.get("ButterBatch")
     ).address,
     signer
-  )) as HysiBatchInteraction;
+  );
 
   const threeCrv = await hre.ethers.getContractAt(
     "MockERC20",
@@ -185,6 +184,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     butterBatch.address
   );
 
+  const aclRegistry = await hre.ethers.getContractAt(
+    "ACLRegistry",
+    (
+      await deployments.get("ACLRegistry")
+    ).address,
+    signer
+  );
+  await aclRegistry.grantRole(
+    ethers.utils.id("HysiZapper"),
+    (
+      await deployments.get("ButterBatchZapper")
+    ).address
+  );
+
   await threeCrv.approve(butterBatch.address, parseEther("1000000000000"));
   await dai.approve(butterBatch.address, parseEther("1000000000000"));
   await butter.approve(butterBatch.address, parseEther("1000000000000"));
@@ -201,7 +214,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await butterBatch.depositForRedeem(parseEther("1.5"));
   await butterBatch.batchRedeem(BigNumber.from("0"));
   console.log("create batch to be batched");
-  await butterBatch.depositForMint(parseEther("600"), signerAddress);
+  //await butterBatch.depositForMint(parseEther("600"), signerAddress);
   await butterBatch.depositForRedeem(parseEther("1.5"));
 };
 export default func;

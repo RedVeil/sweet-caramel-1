@@ -46,6 +46,8 @@ export interface BatchProcessTokens {
   usdt: BatchProcessToken;
 }
 
+const TOKEN_INDEX = { dai: 0, usdc: 1, usdt: 2 };
+
 function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
   return claimableBatches.reduce(
     (acc: BigNumber, batch: AccountBatch) =>
@@ -117,51 +119,51 @@ async function getBatchProcessToken(
     usdc: {
       name: 'USDC',
       key: 'usdc',
-      balance: await contracts.usdc.balanceOf(account),
+      balance: (await contracts.usdc.balanceOf(account)).mul(
+        BigNumber.from(1e12),
+      ),
       price: await butterBatchAdapter.getStableCoinPrice(
         hysiDependencyContracts.triPool,
-        [BigNumber.from('0'), BigNumber.from('1000000'), BigNumber.from('0')],
+        [BigNumber.from('0'), BigNumber.from(1e6), BigNumber.from('0')],
       ),
     },
     usdt: {
       name: 'USDT',
       key: 'usdt',
-      balance: await contracts.usdt.balanceOf(account),
+      balance: (await contracts.usdt.balanceOf(account)).mul(
+        BigNumber.from(1e12),
+      ),
       price: await butterBatchAdapter.getStableCoinPrice(
         hysiDependencyContracts.triPool,
-        [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('1000000')],
+        [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from(1e6)],
       ),
     },
   };
   return batchProcessTokens;
 }
 
+function adjustDepositDecimals(
+  depositAmount: BigNumber,
+  tokenKey: string,
+): BigNumber {
+  if (tokenKey === 'usdc' || tokenKey === 'usdt') {
+    return depositAmount.div(BigNumber.from(1e12));
+  } else {
+    return depositAmount;
+  }
+}
+
 function getZapDepositAmount(
   depositAmount: BigNumber,
   tokenKey: string,
 ): [BigNumber, BigNumber, BigNumber] {
-  if (tokenKey === 'usdc' || tokenKey === 'usdt') {
-    depositAmount = depositAmount.div(BigNumber.from(1e12));
-  }
   switch (tokenKey) {
     case 'dai':
-      return [
-        depositAmount.mul(99).div(100),
-        BigNumber.from('0'),
-        BigNumber.from('0'),
-      ];
+      return [depositAmount, BigNumber.from('0'), BigNumber.from('0')];
     case 'usdc':
-      return [
-        BigNumber.from('0'),
-        depositAmount.mul(99).div(100),
-        BigNumber.from('0'),
-      ];
-    case 'usdc':
-      return [
-        BigNumber.from('0'),
-        BigNumber.from('0'),
-        depositAmount.mul(99).div(100),
-      ];
+      return [BigNumber.from('0'), depositAmount, BigNumber.from('0')];
+    case 'usdt':
+      return [BigNumber.from('0'), BigNumber.from('0'), depositAmount];
   }
 }
 
@@ -346,21 +348,29 @@ export default function Butter(): JSX.Element {
     batchType: BatchType,
   ): Promise<void> {
     setWait(true);
+    console.log(selectedToken.input.key);
+    depositAmount = adjustDepositDecimals(
+      depositAmount,
+      selectedToken.input.key,
+    );
     if (batchType === BatchType.Mint) {
+      console.log(useZap);
       const allowance = await contracts[selectedToken.input.key].allowance(
         account,
         useZap
           ? contracts.butterBatchZapper.address
           : contracts.butterBatch.address,
       );
-      if (allowance >= depositAmount) {
+      console.log(allowance.toString());
+      console.log(depositAmount.toString());
+      if (allowance.gt(depositAmount)) {
         toast.loading(`Depositing ${selectedToken.input.name}...`);
         const mintCall = useZap
           ? contracts.butterBatchZapper
               .connect(library.getSigner())
               .zapIntoBatch(
                 getZapDepositAmount(depositAmount, selectedToken.input.key),
-                account,
+                depositAmount.mul(97).div(100),
               )
           : contracts.butterBatch
               .connect(library.getSigner())
@@ -388,7 +398,7 @@ export default function Butter(): JSX.Element {
         account,
         contracts.butterBatch.address,
       );
-      if (allowance >= depositAmount) {
+      if (allowance.gt(depositAmount)) {
         toast.loading('Depositing Butter...');
         await contracts.butterBatch
           .connect(library.getSigner())
@@ -426,15 +436,39 @@ export default function Butter(): JSX.Element {
   async function claim(
     batchId: string,
     useZap?: boolean,
-    stableIndex?: number,
-    minMintAmount?: BigNumber,
+    outputToken?: string,
   ): Promise<void> {
     toast.loading('Claiming Batch...');
+    if (true) {
+      console.log(
+        adjustDepositDecimals(
+          batches
+            .find((batch) => batch.batchId === batchId)
+            .accountClaimableTokenBalance.mul(batchProcessTokens.threeCrv.price)
+            .div(batchProcessTokens[outputToken].price),
+          outputToken,
+        ).toString(),
+      );
+    }
     let call;
     if (useZap) {
       call = contracts.butterBatchZapper
         .connect(library.getSigner())
-        .claimAndSwapToStable(batchId, stableIndex, minMintAmount);
+        .claimAndSwapToStable(
+          batchId,
+          TOKEN_INDEX[outputToken],
+          adjustDepositDecimals(
+            batches
+              .find((batch) => batch.batchId === batchId)
+              .accountClaimableTokenBalance.mul(
+                batchProcessTokens.threeCrv.price,
+              )
+              .div(batchProcessTokens[outputToken].price),
+            outputToken,
+          )
+            .mul(97)
+            .div(100),
+        );
     } else {
       call = contracts.butterBatch
         .connect(library.getSigner())
