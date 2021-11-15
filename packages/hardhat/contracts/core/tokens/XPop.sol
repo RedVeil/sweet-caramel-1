@@ -7,11 +7,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 
-contract XPop is
+contract xPOP is
   Ownable,
-  ERC20("Popcorn (Redeemable POP)", "xPOP"),
+  ERC20("Popcorn.Network (Redeemable POP)", "xPOP"),
   ERC20Burnable,
-  ERC20Permit("Popcorn (Redeemable POP)")
+  ERC20Permit("Popcorn.Network (Redeemable POP)")
 {
   uint256 private immutable _mintCap;
   uint256 private _totalMinted;

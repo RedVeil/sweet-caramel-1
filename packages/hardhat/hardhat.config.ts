@@ -1,25 +1,13 @@
+import "@anthonymartin/hardhat-deploy";
 import "@float-capital/solidity-coverage";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@popcorn/utils/src/envLoader";
 import "@typechain/hardhat";
 import "hardhat-contract-sizer";
-import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import "hardhat-secure-signer";
-import { task } from "hardhat/config";
 import "./lib/tasks";
-
-task("accounts", "Prints the list of accounts", async (args, hre) => {
-  const accounts = await hre.ethers.getSigners();
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
-
-task("environment").setAction(async (args, hre) => {
-  console.log(process.env.ENV);
-});
 
 module.exports = {
   solidity: {
@@ -105,9 +93,8 @@ module.exports = {
         `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     rinkarby: {
-      url:
-        process.env.RPC_URL ||
-        `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || "https://rinkeby.arbitrum.io/rpc",
+      // `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
   },
   gasReporter: {
