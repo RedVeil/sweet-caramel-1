@@ -22,6 +22,7 @@ export interface TokenInputProps {
   setDepositAmount: Dispatch<BigNumber>;
   useUnclaimedDeposits: Boolean;
   setUseUnclaimedDeposits: Dispatch<Boolean>;
+  depositDisabled: boolean;
 }
 
 const TokenInput: React.FC<TokenInputProps> = ({
@@ -34,19 +35,15 @@ const TokenInput: React.FC<TokenInputProps> = ({
   setDepositAmount,
   useUnclaimedDeposits,
   setUseUnclaimedDeposits,
+  depositDisabled,
 }) => {
   const [estimatedAmount, setEstimatedAmount] = useState<number>(0);
-  const [validInputAmount, setValidInputAmount] = useState<Boolean>(true);
 
   useEffect(() => {
     if (depositAmount.toString() !== '0') {
       calcOutputAmountsFromInput(depositAmount);
     }
   }, []);
-
-  useEffect(() => {
-    setValidInputAmount(depositAmount <= selectedToken.input.balance);
-  }, [depositAmount]);
 
   function updateWithOuputAmounts(value: number): void {
     setEstimatedAmount(value);
@@ -79,12 +76,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
         </p>
         <div
           className={`rounded-md border  px-2 py-3 ${
-            validInputAmount ? 'border-gray-200' : 'border-red-600'
+            depositDisabled ? 'border-red-600' : 'border-gray-200'
           }`}
         >
           <div className="flex flex-row justify-between items-center">
             <input
-              className="w-96"
+              className="w-96 focus:outline-none"
               placeholder="-"
               value={bigNumberToNumber(depositAmount).toFixed(2)}
               onChange={(e) => updateWithInputAmounts(Number(e.target.value))}
@@ -129,7 +126,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           <p>Use unclaimed Balances</p>
         </label>
 
-        {!validInputAmount && (
+        {depositDisabled && (
           <p className="text-red-600">Insufficient Balance</p>
         )}
       </div>
@@ -159,7 +156,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <div className="rounded-md border border-gray-200 px-2 py-4">
           <div className="flex flex-row justify-between">
             <input
-              className="w-96"
+              className="w-96 focus:outline-none"
               placeholder="-"
               value={estimatedAmount.toFixed(2)}
               onChange={(e) => updateWithOuputAmounts(Number(e.target.value))}

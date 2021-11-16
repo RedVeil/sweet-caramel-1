@@ -5,7 +5,6 @@ import TokenInput, { TokenInputProps } from './TokenInput';
 
 interface MintRedeemInterfaceProps extends TokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
-  depositDisabled: boolean;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -34,6 +33,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         setDepositAmount={setDepositAmount}
         useUnclaimedDeposits={useUnclaimedDeposits}
         setUseUnclaimedDeposits={setUseUnclaimedDeposits}
+        depositDisabled={depositDisabled}
       />
       <div className="w-full text-center mt-8">
         <button

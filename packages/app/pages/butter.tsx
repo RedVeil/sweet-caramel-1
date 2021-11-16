@@ -59,9 +59,8 @@ function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
 function isDepositDisabled(
   depositAmount: BigNumber,
   inputTokenBalance: BigNumber,
-  wait: Boolean,
 ): boolean {
-  return depositAmount > inputTokenBalance && !wait;
+  return depositAmount.gt(inputTokenBalance);
 }
 
 async function getBatchProcessToken(
@@ -182,13 +181,13 @@ export default function Butter(): JSX.Element {
   const [redeeming, setRedeeming] = useState<Boolean>(false);
   const [useUnclaimedDeposits, setUseUnclaimedDeposits] =
     useState<Boolean>(false);
-  const [wait, setWait] = useState<Boolean>(false);
   const [butterBatchAdapter, setButterBatchAdapter] =
     useState<ButterBatchAdapter>();
   const [batches, setBatches] = useState<AccountBatch[]>();
   const [timeTillBatchProcessing, setTimeTillBatchProcessing] =
     useState<TimeTillBatchProcessing[]>();
   const [claimableBatches, setClaimableBatches] = useState<ClaimableBatches>();
+  const [slippage, setSlippage] = useState<number>(3);
 
   useEffect(() => {
     if (!library || !contracts) {
@@ -298,7 +297,11 @@ export default function Butter(): JSX.Element {
           .div(batch.accountSuppliedTokenBalance);
 
         batchIds.push(batch.batchId);
-        amounts.push(amountOfBatch.mul(parseEther('1')).div(shareValue));
+        amounts.push(
+          amountOfBatch.eq(batch.accountClaimableTokenBalance)
+            ? batch.accountSuppliedTokenBalance
+            : amountOfBatch.mul(parseEther('1')).div(shareValue),
+        );
       }
     });
     return { batchIds: batchIds, amounts: amounts };
@@ -308,17 +311,22 @@ export default function Butter(): JSX.Element {
     depositAmount: BigNumber,
     batchType: BatchType,
   ): Promise<void> {
+    if (batchType === BatchType.Mint) {
+      batchType = BatchType.Redeem;
+    } else {
+      batchType = BatchType.Mint;
+    }
     const hotSwapParameter = prepareHotSwap(
       claimableBatches[BatchType[batchType].toLowerCase()],
       depositAmount,
     );
     toast.loading('Depositing Funds...');
-    const res = await contracts.butterBatch
+    await contracts.butterBatch
       .connect(library.getSigner())
       .moveUnclaimedDepositsIntoCurrentBatch(
         hotSwapParameter.batchIds as string[],
         hotSwapParameter.amounts,
-        batchType === BatchType.Mint ? BatchType.Redeem : BatchType.Mint,
+        batchType,
       )
       .then((res) => {
         res.wait().then((res) => {
@@ -347,39 +355,47 @@ export default function Butter(): JSX.Element {
     depositAmount: BigNumber,
     batchType: BatchType,
   ): Promise<void> {
-    setWait(true);
-    console.log(selectedToken.input.key);
     depositAmount = adjustDepositDecimals(
       depositAmount,
       selectedToken.input.key,
     );
     if (batchType === BatchType.Mint) {
-      console.log(useZap);
       const allowance = await contracts[selectedToken.input.key].allowance(
         account,
         useZap
           ? contracts.butterBatchZapper.address
           : contracts.butterBatch.address,
       );
-      console.log(allowance.toString());
-      console.log(depositAmount.toString());
       if (allowance.gt(depositAmount)) {
         toast.loading(`Depositing ${selectedToken.input.name}...`);
-        const mintCall = useZap
-          ? contracts.butterBatchZapper
-              .connect(library.getSigner())
-              .zapIntoBatch(
-                getZapDepositAmount(depositAmount, selectedToken.input.key),
-                depositAmount.mul(97).div(100),
-              )
-          : contracts.butterBatch
-              .connect(library.getSigner())
-              .depositForMint(depositAmount, account);
-        const res = await mintCall
+        let mintCall;
+        if (useZap) {
+          mintCall = contracts.butterBatchZapper
+            .connect(library.getSigner())
+            .zapIntoBatch(
+              getZapDepositAmount(depositAmount, selectedToken.input.key),
+              depositAmount.mul(100 - slippage).div(100),
+            );
+        } else {
+          mintCall = contracts.butterBatch
+            .connect(library.getSigner())
+            .depositForMint(depositAmount, account);
+        }
+
+        await mintCall
           .then((res) => {
             res.wait().then((res) => {
               toast.dismiss();
               toast.success(`${selectedToken.input.name} deposited!`);
+              butterBatchAdapter
+                .getBatches(account)
+                .then((res) => setBatches(res));
+              getBatchProcessToken(
+                butterBatchAdapter,
+                contracts,
+                hysiDependencyContracts,
+                account,
+              ).then((res) => setBatchProcessTokens(res));
             });
           })
           .catch((err) => {
@@ -430,7 +446,6 @@ export default function Butter(): JSX.Element {
         approve(contracts.butter);
       }
     }
-    setWait(false);
   }
 
   async function claim(
@@ -439,17 +454,6 @@ export default function Butter(): JSX.Element {
     outputToken?: string,
   ): Promise<void> {
     toast.loading('Claiming Batch...');
-    if (true) {
-      console.log(
-        adjustDepositDecimals(
-          batches
-            .find((batch) => batch.batchId === batchId)
-            .accountClaimableTokenBalance.mul(batchProcessTokens.threeCrv.price)
-            .div(batchProcessTokens[outputToken].price),
-          outputToken,
-        ).toString(),
-      );
-    }
     let call;
     if (useZap) {
       call = contracts.butterBatchZapper
@@ -466,7 +470,7 @@ export default function Butter(): JSX.Element {
               .div(batchProcessTokens[outputToken].price),
             outputToken,
           )
-            .mul(97)
+            .mul(100 - slippage)
             .div(100),
         );
     } else {
@@ -502,15 +506,21 @@ export default function Butter(): JSX.Element {
     batchId: string,
     amount: BigNumber,
     useZap?: boolean,
-    stableIndex?: number,
-    minMintAmount?: BigNumber,
+    outputToken?: string,
   ): Promise<void> {
     toast.loading('Withdrawing from Batch...');
     let call;
     if (useZap) {
       call = contracts.butterBatchZapper
         .connect(library.getSigner())
-        .zapOutOfBatch(batchId, amount, stableIndex, minMintAmount);
+        .zapOutOfBatch(
+          batchId,
+          amount,
+          TOKEN_INDEX[outputToken],
+          adjustDepositDecimals(amount, outputToken)
+            .mul(100 - slippage)
+            .div(100),
+        );
     } else {
       call = contracts.butterBatch
         .connect(library.getSigner())
@@ -541,7 +551,6 @@ export default function Butter(): JSX.Element {
   }
 
   async function approve(contract: Contract): Promise<void> {
-    setWait(true);
     toast.loading('Approving Token...');
     await contract
       .connect(library.getSigner())
@@ -565,7 +574,6 @@ export default function Butter(): JSX.Element {
           toast.error(err.data.message.split("'")[1]);
         }
       });
-    setWait(false);
   }
 
   return (
@@ -599,12 +607,10 @@ export default function Butter(): JSX.Element {
                       ? isDepositDisabled(
                           depositAmount,
                           selectedToken.input.claimableBalance,
-                          wait,
                         )
                       : isDepositDisabled(
                           depositAmount,
                           selectedToken.input.balance,
-                          wait,
                         )
                   }
                   useUnclaimedDeposits={useUnclaimedDeposits}
@@ -648,7 +654,8 @@ export default function Butter(): JSX.Element {
                                   batch.accountClaimableTokenBalance,
                                 )
                               );
-                            }, 0),
+                            }, 0)
+                            .toPrecision(4),
                         )
                       : '-'
                   }
@@ -672,6 +679,7 @@ export default function Butter(): JSX.Element {
                               )
                             );
                           }, 0)
+                          .toPrecision(4)
                       : '-'
                   } BTR`}
                   icon={{ icon: 'Wait', color: 'bg-yellow-500' }}

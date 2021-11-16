@@ -27,7 +27,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   const { dispatch } = useContext(store);
 
   function handleClaim() {
-    let selectedOutputToken;
+    let selectedOutputToken = '3CRV';
     if (batch.batchType === BatchType.Redeem) {
       dispatch(
         setDualActionWideModal({
@@ -63,7 +63,6 @@ const ClaimableBatch: React.FC<BatchProps> = ({
           onConfirm: {
             label: 'Claim',
             onClick: () => {
-              console.log('selected: ', selectedOutputToken);
               claim(
                 batch.batchId,
                 selectedOutputToken !== '3CRV',
@@ -84,7 +83,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   }
 
   function handleWithdraw() {
-    let selectedOutputToken;
+    let selectedOutputToken = '3CRV';
 
     if (batch.batchType === BatchType.Mint) {
       dispatch(
@@ -121,9 +120,9 @@ const ClaimableBatch: React.FC<BatchProps> = ({
           onConfirm: {
             label: 'Withdraw',
             onClick: () => {
-              console.log('selected: ', selectedOutputToken);
               withdraw(
                 batch.batchId,
+                batch.accountSuppliedTokenBalance,
                 selectedOutputToken !== '3CRV',
                 selectedOutputToken.toLowerCase(),
               );

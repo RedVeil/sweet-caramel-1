@@ -71,12 +71,12 @@ contract HysiBatchZapper {
         IERC20(curve3Pool.coins(i)).safeTransferFrom(
           msg.sender,
           address(this),
-          _amounts[0]
+          _amounts[i]
         );
         //Allow Stables for user in curve three-pool
         IERC20(curve3Pool.coins(i)).safeIncreaseAllowance(
           address(curve3Pool),
-          _amounts[0]
+          _amounts[i]
         );
       }
     }
