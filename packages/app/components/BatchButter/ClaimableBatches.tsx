@@ -1,3 +1,4 @@
+import { Dispatch } from 'react';
 import { AccountBatch } from '../../../hardhat/lib/adapters';
 import ClaimableBatch from './ClaimableBatch';
 
@@ -5,12 +6,16 @@ interface ClaimableBatchesProps {
   batches: AccountBatch[];
   claim: Function;
   withdraw: Function;
+  slippage: number;
+  setSlippage: Dispatch<number>;
 }
 
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   batches,
   claim,
   withdraw,
+  slippage,
+  setSlippage,
 }) => {
   return (
     <table className="min-w-full divide-y divide-gray-200">
@@ -43,11 +48,13 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
       <tbody>
         {batches?.map((batch, i) => (
           <ClaimableBatch
+            key={batch.batchId}
             batch={batch}
             index={i}
             claim={claim}
             withdraw={withdraw}
-            key={batch.batchId}
+            slippage={slippage}
+            setSlippage={setSlippage}
           />
         ))}
       </tbody>

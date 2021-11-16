@@ -615,6 +615,8 @@ export default function Butter(): JSX.Element {
                   }
                   useUnclaimedDeposits={useUnclaimedDeposits}
                   setUseUnclaimedDeposits={setUseUnclaimedDeposits}
+                  slippage={slippage}
+                  setSlippage={setSlippage}
                 />
               )}
               <BatchProcessingInfo
@@ -718,6 +720,8 @@ export default function Butter(): JSX.Element {
                       batches={batches}
                       claim={claim}
                       withdraw={withdraw}
+                      slippage={slippage}
+                      setSlippage={setSlippage}
                     />
                   </div>
                 </div>

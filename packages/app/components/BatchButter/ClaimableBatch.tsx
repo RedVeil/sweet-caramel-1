@@ -1,8 +1,10 @@
 import { setDualActionWideModal } from 'context/actions';
 import { store } from 'context/store';
-import { useContext } from 'react';
+import { Dispatch, useContext, useState } from 'react';
 import { AccountBatch, BatchType } from '../../../hardhat/lib/adapters';
 import { bigNumberToNumber } from '../../../utils';
+import OutputToken from './OutputToken';
+import SlippageSettings from './SlippageSettings';
 
 interface OutputToken {
   name: string;
@@ -16,6 +18,8 @@ interface BatchProps {
   index: number;
   claim: Function;
   withdraw: Function;
+  slippage: number;
+  setSlippage: Dispatch<number>;
 }
 
 const ClaimableBatch: React.FC<BatchProps> = ({
@@ -23,41 +27,31 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   index,
   claim,
   withdraw,
+  slippage,
+  setSlippage,
 }) => {
   const { dispatch } = useContext(store);
+  const [selectedOutputToken, selectOutputToken] = useState<string>('3CRV');
+
+  console.log(slippage);
 
   function handleClaim() {
-    let selectedOutputToken = '3CRV';
     if (batch.batchType === BatchType.Redeem) {
       dispatch(
         setDualActionWideModal({
           title: 'Choose an Output Token',
           content: (
-            <div>
-              <fieldset className="mt-4">
-                <div className="flex justify-center">
-                  <div className="flex flex-row items-center space-x-4">
-                    {OUTPUT_TOKEN.map((outputToken) => (
-                      <div key={outputToken} className="flex items-center">
-                        <input
-                          id={outputToken}
-                          name="notification-method"
-                          type="radio"
-                          defaultChecked={outputToken === '3CRV'}
-                          className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
-                          onClick={() => (selectedOutputToken = outputToken)}
-                        />
-                        <label
-                          htmlFor={outputToken}
-                          className="ml-3 block text-sm font-medium text-gray-700"
-                        >
-                          {outputToken}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </fieldset>
+            <div className="flex flex-col mt-4">
+              <OutputToken
+                outputToken={OUTPUT_TOKEN}
+                selectOutputToken={selectOutputToken}
+              />
+              <div className="mt-4">
+                <SlippageSettings
+                  slippage={slippage}
+                  setSlippage={setSlippage}
+                />
+              </div>
             </div>
           ),
           onConfirm: {
@@ -69,11 +63,15 @@ const ClaimableBatch: React.FC<BatchProps> = ({
                 selectedOutputToken.toLowerCase(),
               );
               dispatch(setDualActionWideModal(false));
+              selectOutputToken('3CRV');
             },
           },
           onDismiss: {
             label: 'Cancel',
-            onClick: () => dispatch(setDualActionWideModal(false)),
+            onClick: () => {
+              dispatch(setDualActionWideModal(false));
+              selectOutputToken('3CRV');
+            },
           },
         }),
       );
@@ -83,38 +81,22 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   }
 
   function handleWithdraw() {
-    let selectedOutputToken = '3CRV';
-
     if (batch.batchType === BatchType.Mint) {
       dispatch(
         setDualActionWideModal({
           title: 'Choose an Output Token',
           content: (
-            <div>
-              <fieldset className="mt-4">
-                <div className="flex justify-center">
-                  <div className="flex flex-row items-center space-x-4">
-                    {OUTPUT_TOKEN.map((outputToken) => (
-                      <div key={outputToken} className="flex items-center">
-                        <input
-                          id={outputToken}
-                          name="notification-method"
-                          type="radio"
-                          defaultChecked={outputToken === '3CRV'}
-                          className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
-                          onClick={() => (selectedOutputToken = outputToken)}
-                        />
-                        <label
-                          htmlFor={outputToken}
-                          className="ml-3 block text-sm font-medium text-gray-700"
-                        >
-                          {outputToken}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </fieldset>
+            <div className="flex flex-col mt-4">
+              <OutputToken
+                outputToken={OUTPUT_TOKEN}
+                selectOutputToken={selectOutputToken}
+              />
+              <div className="mt-4">
+                <SlippageSettings
+                  slippage={slippage}
+                  setSlippage={setSlippage}
+                />
+              </div>
             </div>
           ),
           onConfirm: {
@@ -127,11 +109,15 @@ const ClaimableBatch: React.FC<BatchProps> = ({
                 selectedOutputToken.toLowerCase(),
               );
               dispatch(setDualActionWideModal(false));
+              selectOutputToken('3CRV');
             },
           },
           onDismiss: {
             label: 'Cancel',
-            onClick: () => dispatch(setDualActionWideModal(false)),
+            onClick: () => {
+              dispatch(setDualActionWideModal(false));
+              selectOutputToken('3CRV');
+            },
           },
         }),
       );
