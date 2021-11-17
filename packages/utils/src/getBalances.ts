@@ -1,5 +1,10 @@
 import { bigNumberToNumber } from '.';
-import { ERC20, MockERC20, StakingRewards } from '../../hardhat/typechain';
+import {
+  ERC20,
+  ISetToken,
+  MockERC20,
+  StakingRewards,
+} from '../../hardhat/typechain';
 
 export interface TokenBalances {
   pop: number;
@@ -10,7 +15,7 @@ export interface TokenBalances {
 export interface ContractsWithBalance {
   pop: ERC20 | MockERC20 | StakingRewards;
   popEthLp: ERC20 | MockERC20 | StakingRewards;
-  butter: ERC20 | MockERC20 | StakingRewards;
+  butter: ISetToken | MockERC20 | StakingRewards;
 }
 
 async function getBalances(
