@@ -5,8 +5,15 @@ export {
   numberToBigNumber,
   scaleNumberToBigNumber,
 } from './formatBigNumber';
-export { IpfsClient } from './IpfsClient/IpfsClient';
-export type { IIpfsClient, UploadResult } from './IpfsClient/IpfsClient';
+export { default as getBalances } from './getBalances';
+export type { ContractsWithBalance, TokenBalances } from './getBalances';
+export {
+  calculateAPY,
+  getEarned,
+  getSingleStakingStats,
+  getStakingStats,
+} from './getStakingStats';
+export type { SingleStakingStats, StakingStats } from './getStakingStats';
 export {
   getBytes32FromIpfsHash,
   getIpfsHashFromBytes32,

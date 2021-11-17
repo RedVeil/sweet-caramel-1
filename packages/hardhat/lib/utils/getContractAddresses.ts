@@ -7,6 +7,11 @@ export default function getContractAddresses() {
       rinkeby: "",
       hardhat: "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
     },
+    POP_ETH_LP: {
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
+    },
     THREE_CRV: {
       mainnet: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
       rinkeby: "",
@@ -35,12 +40,12 @@ export default function getContractAddresses() {
     BUTTER_BATCH: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
+      hardhat: "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
     },
     BUTTER_BATCH_ZAPPER: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43",
+      hardhat: "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
     },
     SET_BASIC_ISSUANCE_MODULE_ADDRESS: {
       mainnet: "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
@@ -136,6 +141,21 @@ export default function getContractAddresses() {
       mainnet: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
       rinkeby: "",
       hardhat: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    },
+    STAKE_POP: {
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
+    },
+    STAKE_POP_ETH_LP: {
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
+    },
+    STAKE_BUTTER: {
+      mainnet: "",
+      rinkeby: "",
+      hardhat: "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
     },
   };
 }

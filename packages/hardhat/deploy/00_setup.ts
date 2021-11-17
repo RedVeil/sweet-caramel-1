@@ -33,4 +33,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 module.exports = func;
-module.exports.tags = ["LBP"];
+module.exports.tags = ["setup"];

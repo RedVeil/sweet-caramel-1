@@ -21,6 +21,8 @@ import {
   HysiBatchZapper__factory,
   ISetToken,
   ISetToken__factory,
+  StakingRewards,
+  StakingRewards__factory,
   YearnVault,
   YearnVault__factory,
 } from '../../../hardhat/typechain';
@@ -29,6 +31,8 @@ import { store } from '../store';
 import { connectors, networkMap } from './connectors';
 
 export interface Contracts {
+  pop: ERC20;
+  popEthLp: ERC20;
   threeCrv: ERC20;
   butter: ISetToken;
   butterBatch: HysiBatchInteraction;
@@ -36,6 +40,7 @@ export interface Contracts {
   dai: ERC20;
   usdc: ERC20;
   usdt: ERC20;
+  staking: StakingContracts;
 }
 
 export interface HysiDependencyContracts {
@@ -49,6 +54,11 @@ export interface HysiDependencyContracts {
   usdnMetapool: CurveMetapool;
   ustMetapool: CurveMetapool;
   triPool: Curve3Pool;
+}
+export interface StakingContracts {
+  pop: StakingRewards;
+  popEthLp: StakingRewards;
+  butter: StakingRewards;
 }
 
 interface ContractsContext {
@@ -127,48 +137,99 @@ export default function ContractsWrapper({
       return;
     }
     setContracts({
-      threeCrv: ERC20__factory.connect(addresses.THREE_CRV.hardhat, library),
-      butter: ISetToken__factory.connect(addresses.BUTTER.hardhat, library),
+      pop: ERC20__factory.connect(
+        addresses.POP[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      popEthLp: ERC20__factory.connect(
+        addresses.POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      threeCrv: ERC20__factory.connect(
+        addresses.THREE_CRV[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      butter: ISetToken__factory.connect(
+        addresses.BUTTER[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
       butterBatch: HysiBatchInteraction__factory.connect(
-        addresses.BUTTER_BATCH.hardhat,
+        addresses.BUTTER_BATCH[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       butterBatchZapper: HysiBatchZapper__factory.connect(
-        addresses.BUTTER_BATCH_ZAPPER.hardhat,
+        addresses.BUTTER_BATCH_ZAPPER[networkMap[process.env.CHAIN_ID]],
         library,
       ),
-      dai: ERC20__factory.connect(addresses.DAI.hardhat, library),
-      usdc: ERC20__factory.connect(addresses.USDC.hardhat, library),
-      usdt: ERC20__factory.connect(addresses.USDT.hardhat, library),
+      dai: ERC20__factory.connect(
+        addresses.DAI[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      usdc: ERC20__factory.connect(
+        addresses.USDC[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      usdt: ERC20__factory.connect(
+        addresses.USDT[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      staking: {
+        pop: StakingRewards__factory.connect(
+          addresses.STAKE_POP[networkMap[process.env.CHAIN_ID]],
+          library,
+        ),
+        popEthLp: StakingRewards__factory.connect(
+          addresses.STAKE_POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
+          library,
+        ),
+        butter: StakingRewards__factory.connect(
+          addresses.STAKE_BUTTER[networkMap[process.env.CHAIN_ID]],
+          library,
+        ),
+      },
     });
 
     setHysiDependencyContracts({
       basicIssuanceModule: BasicIssuanceModule__factory.connect(
-        addresses.SET_BASIC_ISSUANCE_MODULE_ADDRESS.hardhat,
+        addresses.SET_BASIC_ISSUANCE_MODULE_ADDRESS[
+          networkMap[process.env.CHAIN_ID]
+        ],
         library,
       ),
-      yDUSD: YearnVault__factory.connect(addresses.YDUSD.hardhat, library),
-      yFRAX: YearnVault__factory.connect(addresses.YFRAX.hardhat, library),
-      yUSDN: YearnVault__factory.connect(addresses.YUSDN.hardhat, library),
-      yUST: YearnVault__factory.connect(addresses.YUST.hardhat, library),
+      yDUSD: YearnVault__factory.connect(
+        addresses.YDUSD[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      yFRAX: YearnVault__factory.connect(
+        addresses.YFRAX[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      yUSDN: YearnVault__factory.connect(
+        addresses.YUSDN[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
+      yUST: YearnVault__factory.connect(
+        addresses.YUST[networkMap[process.env.CHAIN_ID]],
+        library,
+      ),
       dusdMetapool: CurveMetapool__factory.connect(
-        addresses.DUSD_METAPOOL.hardhat,
+        addresses.DUSD_METAPOOL[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       fraxMetapool: CurveMetapool__factory.connect(
-        addresses.FRAX_METAPOOL.hardhat,
+        addresses.FRAX_METAPOOL[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       usdnMetapool: CurveMetapool__factory.connect(
-        addresses.USDN_METAPOOL.hardhat,
+        addresses.USDN_METAPOOL[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       ustMetapool: CurveMetapool__factory.connect(
-        addresses.UST_METAPOOL.hardhat,
+        addresses.UST_METAPOOL[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       triPool: Curve3Pool__factory.connect(
-        addresses.THREE_POOL.hardhat,
+        addresses.THREE_POOL[networkMap[process.env.CHAIN_ID]],
         library,
       ),
     });
