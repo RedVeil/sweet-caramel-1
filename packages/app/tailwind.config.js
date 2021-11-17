@@ -6,7 +6,29 @@ module.exports = {
   ],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    screens: {
+      sm: '640px',
+      // => @media (min-width: 640px) { ... }
+
+      md: '768px',
+      // => @media (min-width: 768px) { ... }
+
+      lg: '1024px',
+      // => @media (min-width: 1024px) { ... }
+
+      laptop: '1440px',
+      // => @media (min-width: 1440px) { ... }
+
+      xl: '1920px',
+      // => @media (min-width: 1920px) { ... }
+
+      '2xl': '2560px',
+      // => @media (min-width: 2560px) { ... }
+    },
     extend: {
+      dropShadow: {
+        '3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',
+      },
       spacing: {
         18: '4.5rem',
         72: '18rem',
@@ -36,6 +58,8 @@ module.exports = {
 
         ctaYellow: '#F6CB22',
         ctaYellowLight: '#FFD324',
+
+        light: '#FFF5D1',
       },
       backgroundImage: (theme) => ({
         'hero-pattern': "url('/images/popcorn_playing.gif')",
