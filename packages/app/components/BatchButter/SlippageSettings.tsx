@@ -14,6 +14,8 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
 }) => {
   const [visible, setVisibility] = useState<boolean>(false);
   const [activeButton, setActiveButton] = useState<number>(0);
+  const [value, setValue] = useState<number>(slippage);
+
   return (
     <>
       <div
@@ -26,7 +28,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
           }`}
         />
         <p
-          className={`text-sm ml-2 mb-1 group-hover:text-blue-600 ${
+          className={`text-sm ml-2 group-hover:text-blue-600 ${
             visible ? 'font-bold text-black' : 'text-gray-500'
           }`}
         >
@@ -48,6 +50,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
               label="0.1 %"
               isActive={activeButton === 0}
               handleClick={() => {
+                setValue(0.1);
                 setSlippage(0.1);
                 setActiveButton(0);
               }}
@@ -56,6 +59,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
               label="0.5 %"
               isActive={activeButton === 1}
               handleClick={() => {
+                setValue(0.5);
                 setSlippage(0.5);
                 setActiveButton(1);
               }}
@@ -64,6 +68,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
               label="1 %"
               isActive={activeButton === 2}
               handleClick={() => {
+                setValue(1);
                 setSlippage(1);
                 setActiveButton(2);
               }}
@@ -74,9 +79,14 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
             <div className="border border-gray-300 rounded-lg pr-4 w-60 flex flex-row items-center">
               <input
                 className="w-10/12 py-3 mx-auto border-none text-sm focus:outline-none"
-                type="text"
-                value={slippage.toPrecision(2)}
-                onChange={(e) => setSlippage(Number(e.target.value))}
+                type="number"
+                value={value}
+                onChange={(e) => {
+                  setValue(e.target.value === '' ? 0 : Number(e.target.value));
+                  setSlippage(
+                    e.target.value === '' ? 0 : Number(e.target.value),
+                  );
+                }}
                 onFocus={() => setActiveButton(3)}
               />
               <p className="text-sm">%</p>

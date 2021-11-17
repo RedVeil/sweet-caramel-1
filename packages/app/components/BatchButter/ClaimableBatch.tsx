@@ -33,8 +33,6 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   const { dispatch } = useContext(store);
   const [selectedOutputToken, selectOutputToken] = useState<string>('3CRV');
 
-  console.log(slippage);
-
   function handleClaim() {
     if (batch.batchType === BatchType.Redeem) {
       dispatch(

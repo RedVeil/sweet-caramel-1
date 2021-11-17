@@ -81,10 +81,14 @@ const TokenInput: React.FC<TokenInputProps> = ({
         >
           <div className="flex flex-row justify-between items-center">
             <input
-              className="w-96 focus:outline-none"
-              placeholder="-"
-              value={bigNumberToNumber(depositAmount).toFixed(2)}
-              onChange={(e) => updateWithInputAmounts(Number(e.target.value))}
+              className="w-56 border-none focus:outline-none"
+              type="number"
+              value={bigNumberToNumber(depositAmount)}
+              onChange={(e) =>
+                updateWithInputAmounts(
+                  e.target.value === '' ? 0 : Number(e.target.value),
+                )
+              }
             />
             <div className="flex flex-row items-center">
               <p
@@ -154,12 +158,16 @@ const TokenInput: React.FC<TokenInputProps> = ({
           {`Estimated ${selectedToken.output.name} Amount`}
         </p>
         <div className="rounded-md border border-gray-200 px-2 py-4">
-          <div className="flex flex-row justify-between">
+          <div className="flex flex-row items-center justify-between">
             <input
-              className="w-96 focus:outline-none"
-              placeholder="-"
-              value={estimatedAmount.toFixed(2)}
-              onChange={(e) => updateWithOuputAmounts(Number(e.target.value))}
+              className="w-64 border-none focus:outline-none"
+              type="number"
+              value={estimatedAmount}
+              onChange={(e) =>
+                updateWithOuputAmounts(
+                  e.target.value === '' ? 0 : Number(e.target.value),
+                )
+              }
             />
             <SelectToken
               allowSelection={false}
