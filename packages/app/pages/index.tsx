@@ -52,8 +52,6 @@ const IndexPage = () => {
             style={{
               height: 64,
               width: 240,
-              // paddingLeft: 0,
-              // paddingTop: 160,
               borderRadius: 30,
               paddingTop: 9,
               paddingBottom: 9,
@@ -75,8 +73,6 @@ const IndexPage = () => {
             borderStyle: 'solid',
             border: 1,
             borderColor: '#E5E7EB',
-            // paddingRight: 163,
-            // paddingLeft: 163,
             paddingTop: 114,
             paddingBottom: 96,
           }}
@@ -98,9 +94,6 @@ const IndexPage = () => {
             className="mx-auto"
             style={{ width: 544, height: 64, marginBottom: 32 }}
           >
-            {/* <p className="text-2xl font-thin text-center font-landing text-gray-600">
-              Earn compound interest on stablecoins.
-            </p> */}
             <p className="text-2xl font-thin text-center font-landing text-gray-600">
               Deposit stablecoins and earn by leveraging the power of compound
               interest.
@@ -111,8 +104,6 @@ const IndexPage = () => {
             style={{
               height: 64,
               width: 240,
-              // paddingLeft: 0,
-              // paddingTop: 160,
               borderRadius: 30,
               paddingTop: 9,
               paddingBottom: 9,
