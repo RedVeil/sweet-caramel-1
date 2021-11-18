@@ -1,4 +1,4 @@
-import { parseEther } from "@ethersproject/units";
+import { parseEther } from "ethers/lib/utils";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";

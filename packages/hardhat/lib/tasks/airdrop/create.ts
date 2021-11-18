@@ -1,4 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "ethers";
 import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 import fs from "fs";
 import { task } from "hardhat/config";

@@ -26,9 +26,9 @@ let aclRegistryHelper: ACLRegistryHelper;
 describe("ACLRegistry", () => {
   beforeEach(async () => {
     [admin, authorized, other, otherAdmin] = await ethers.getSigners();
-    aclRegistry = await (
+    aclRegistry = (await (
       await ethers.getContractFactory("ACLRegistry")
-    ).deploy();
+    ).deploy()) as unknown as ACLRegistry;
     aclRegistry.deployed();
     aclRegistryHelper = await (
       await ethers.getContractFactory("ACLRegistryHelper")

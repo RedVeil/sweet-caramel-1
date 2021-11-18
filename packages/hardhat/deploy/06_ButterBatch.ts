@@ -1,6 +1,5 @@
-import { BigNumber } from "@ethersproject/bignumber";
-import { parseEther } from "@ethersproject/units";
-import { ethers, utils } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";

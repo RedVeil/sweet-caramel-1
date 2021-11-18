@@ -1,7 +1,7 @@
-import { BigNumber } from "@ethersproject/bignumber";
 import { parseEther } from "@ethersproject/units";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { fromRpcSig } from "ethereumjs-util";
+import { BigNumber } from "ethers";
 import { ethers, getChainId } from "hardhat";
 import { MAX_UINT_256 } from "../lib/external/SetToken/utils/constants";
 import { expectRevert, expectValue } from "../lib/utils/expectValue";
