@@ -5,7 +5,7 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import getContractAddresses from '../../../hardhat/lib/utils/getContractAddresses';
+import getNamedAccounts from '../../../hardhat/lib/utils/getNamedAccounts';
 import {
   BasicIssuanceModule,
   BasicIssuanceModule__factory,
@@ -107,7 +107,7 @@ export default function ContractsWrapper({
   const [hysiDependencyContracts, setHysiDependencyContracts] =
     useState<HysiDependencyContracts>();
   const { dispatch } = useContext(store);
-  const addresses = getContractAddresses();
+  const addresses = getNamedAccounts();
 
   useEffect(() => {
     if (!active) {
