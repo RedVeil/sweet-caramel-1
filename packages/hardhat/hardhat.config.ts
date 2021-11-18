@@ -1,10 +1,10 @@
+import "@anthonymartin/hardhat-deploy";
 import "@float-capital/solidity-coverage";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@popcorn/utils/src/envLoader";
 import "@typechain/hardhat";
 import "hardhat-contract-sizer";
-import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import "hardhat-secure-signer";
 import { task } from "hardhat/config";
@@ -95,6 +95,11 @@ module.exports = {
         `https://gorli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     polygon: {
+      url:
+        process.env.RPC_URL ||
+        `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+    },
+    polygontest: {
       url:
         process.env.RPC_URL ||
         `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,

@@ -144,6 +144,7 @@ contract LBPManager {
   function deployLBP() external {
     require(msg.sender == dao.agent, "Only DAO can call this");
     require(poolConfig.deployed != true, "The pool has already been deployed");
+    require(_hasTokensForPool(), "Manager does not have enough pool tokens");
 
     poolConfig.deployed = true;
 
@@ -161,7 +162,6 @@ contract LBPManager {
 
     emit CreatedPool(address(lbp));
 
-    _transferPoolTokensToSelf();
     _joinPool();
   }
 
@@ -247,11 +247,12 @@ contract LBPManager {
     }
   }
 
-  function _transferPoolTokensToSelf() internal {
+  function _hasTokensForPool() internal view returns (bool) {
     (IERC20 tokenA, IERC20 tokenB) = _getPoolTokens();
 
-    tokenA.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[0]);
-    tokenB.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[1]);
+    return
+      tokenA.balanceOf(address(this)) >= poolConfig.tokenAmounts[0] &&
+      tokenB.balanceOf(address(this)) >= poolConfig.tokenAmounts[1];
   }
 
   /* ========== VIEW FUNCTIONS ========== */

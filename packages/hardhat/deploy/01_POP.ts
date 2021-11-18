@@ -1,4 +1,4 @@
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -17,9 +17,13 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.tags = ["LBP"];
 main.skip = async (hre: HardhatRuntimeEnvironment) => {
-  return ["mainnet", "polygon", "arbitrum", "rinkeby", "hardhat"].includes(
-    hre.network.name
-  );
+  return [
+    "mainnet",
+    "polygon",
+    "arbitrum",
+    "rinkeby",
+    "hardhat",
+    "polygontest",
+  ].includes(hre.network.name);
 };
