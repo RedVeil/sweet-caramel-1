@@ -1,6 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Switch } from '@headlessui/react';
-import { ERC20, ISetToken, StakingRewards } from '@popcorn/hardhat/typechain';
+import { ERC20, StakingRewards } from '@popcorn/hardhat/typechain';
 import {
   bigNumberToNumber,
   calculateAPY,
@@ -22,7 +22,7 @@ import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface StakingInfo {
-  inputToken: ERC20 | ISetToken;
+  inputToken: ERC20;
   stakingContract: StakingRewards;
   tokenName: string;
 }
@@ -50,7 +50,7 @@ function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
       };
     case 'butter':
       return {
-        inputToken: contracts.butter,
+        inputToken: contracts.butter as unknown as ERC20,
         stakingContract: contracts.staking.butter,
         tokenName: 'BUTTER',
       };

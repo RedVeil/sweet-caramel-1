@@ -1,5 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber';
-import { parseEther } from '@ethersproject/units';
+import { BigNumber, utils } from 'ethers';
 import { formatAndRoundBigNumber } from '../../../utils';
 
 interface AccountValueProps {
@@ -54,7 +53,7 @@ const AccountValue: React.FC<AccountValueProps> = ({
                 <p>
                   {hysiPrice && hysiBalance
                     ? formatAndRoundBigNumber(
-                        hysiBalance.mul(hysiPrice).div(parseEther('1')),
+                        hysiBalance.mul(hysiPrice).div(utils.parseEther('1')),
                       )
                     : '-'}
                 </p>

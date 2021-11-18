@@ -1,4 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers';
+import { SetToken__factory } from '@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory';
+import { SetToken } from '@setprotocol/set-protocol-v2/typechain/SetToken';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import {
   NoEthereumProviderError,
@@ -19,8 +21,6 @@ import {
   HysiBatchInteraction__factory,
   HysiBatchZapper,
   HysiBatchZapper__factory,
-  ISetToken,
-  ISetToken__factory,
   StakingRewards,
   StakingRewards__factory,
   YearnVault,
@@ -34,7 +34,7 @@ export interface Contracts {
   pop: ERC20;
   popEthLp: ERC20;
   threeCrv: ERC20;
-  butter: ISetToken;
+  butter: SetToken;
   butterBatch: HysiBatchInteraction;
   butterBatchZapper: HysiBatchZapper;
   dai: ERC20;
@@ -149,10 +149,10 @@ export default function ContractsWrapper({
         addresses.threeCrv[networkMap[process.env.CHAIN_ID]],
         library,
       ),
-      butter: ISetToken__factory.connect(
+      butter: SetToken__factory.connect(
         addresses.butter[networkMap[process.env.CHAIN_ID]],
         library,
-      ),
+      ) as SetToken,
       butterBatch: HysiBatchInteraction__factory.connect(
         addresses.butterBatch[networkMap[process.env.CHAIN_ID]],
         library,

@@ -1,4 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { Dispatch } from 'react';
 import { BatchType } from '../../../hardhat/lib/adapters';
 import MintRedeemToggle from './MintRedeemToggle';

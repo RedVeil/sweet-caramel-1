@@ -1,4 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { BatchProcessTokens, SelectedToken } from 'pages/butter';
 import { Dispatch, useEffect, useState } from 'react';
 import { bigNumberToNumber, scaleNumberToBigNumber } from '../../../utils';

@@ -1,4 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
+import { ERC20 } from '@popcorn/hardhat/typechain';
 import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
 import StakeCard from 'components/StakeCard';
@@ -33,7 +34,7 @@ async function getUserBalances(
     wallet: await getBalances(account, {
       pop: contracts.pop,
       popEthLp: contracts.popEthLp,
-      butter: contracts.butter,
+      butter: contracts.butter as unknown as ERC20,
     }),
     staked: await getBalances(account, {
       pop: contracts.staking.pop,

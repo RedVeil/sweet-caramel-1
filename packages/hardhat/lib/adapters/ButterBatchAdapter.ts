@@ -1,7 +1,6 @@
-import { BigNumber } from "@ethersproject/bignumber";
-import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
+import { BigNumber, Contract } from "ethers";
 import getNamedAccounts from "../utils/getNamedAccounts";
 
 export enum BatchType {
