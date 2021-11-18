@@ -191,9 +191,7 @@ export default function ContractsWrapper({
 
     setHysiDependencyContracts({
       basicIssuanceModule: BasicIssuanceModule__factory.connect(
-        addresses.SET_BASIC_ISSUANCE_MODULE_ADDRESS[
-          networkMap[process.env.CHAIN_ID]
-        ],
+        addresses.SET_BASIC_ISSUANCE_MODULE[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       yDUSD: YearnVault__factory.connect(

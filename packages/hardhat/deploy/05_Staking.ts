@@ -1,4 +1,5 @@
 import { parseEther } from "@ethersproject/units";
+import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
@@ -7,85 +8,35 @@ import { MockERC20 } from "../typechain";
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
-
-  const pop = await deployments.get("TestPOP");
-  const popEthLp = await deployments.get("POP_ETH_LP");
-  const butter = await deployments.get("BUTTER");
+  const addresses = await getNamedAccounts();
 
   await deploy("PopStaking", {
-    from: deployer,
-    args: [pop.address, pop.address],
+    from: addresses.deployer,
+    args: [addresses.POP, addresses.POP],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
     contract: "StakingRewards",
   });
 
   await deploy("popEthLPStaking", {
-    from: deployer,
-    args: [pop.address, popEthLp.address],
+    from: addresses.deployer,
+    args: [addresses.POP, addresses.POP_ETH_LP],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "StakingRewards",
   });
 
   await deploy("butterStaking", {
-    from: deployer,
-    args: [pop.address, butter.address],
+    from: addresses.deployer,
+    args: [addresses.POP, addresses.BUTTER],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "StakingRewards",
   });
 
-  const signer = getSignerFrom(
-    hre.config.namedAccounts.deployer as string,
-    hre
-  );
-
-  // fund pop staking rewards
-  const popToken = await connectAndMintToken(pop.address, signer, hre);
-
-  await prepareStakingContract(
-    popToken,
-    popToken,
-    (
-      await deployments.get("PopStaking")
-    ).address,
-    signer,
-    hre
-  );
-
-  const popEthLpToken = (await connectAndMintToken(
-    popEthLp.address,
-    signer,
-    hre
-  )) as MockERC20;
-
-  await prepareStakingContract(
-    popToken,
-    popEthLpToken,
-    (
-      await deployments.get("popEthLPStaking")
-    ).address,
-    signer,
-    hre
-  );
-
-  const butterToken = (await connectAndMintToken(
-    butter.address,
-    signer,
-    hre
-  )) as MockERC20;
-
-  await prepareStakingContract(
-    popToken,
-    butterToken,
-    (
-      await deployments.get("butterStaking")
-    ).address,
-    signer,
-    hre
-  );
+  if (["hardhat", "local"].includes(hre.network.name)) {
+    createDemoData(hre, deployments);
+  }
 };
 export default main;
 
@@ -123,4 +74,46 @@ async function connectAndMintToken(
     await token.mint(await signer.getAddress(), parseEther("1000000000"))
   ).wait(1);
   return token;
+}
+
+async function createDemoData(
+  hre: HardhatRuntimeEnvironment,
+  deployments: DeploymentsExtension
+): Promise<void> {
+  const pop = await deployments.get("TestPOP");
+  const popEthLp = await deployments.get("POP_ETH_LP");
+
+  const signer = getSignerFrom(
+    hre.config.namedAccounts.deployer as string,
+    hre
+  );
+
+  // fund pop staking rewards
+  const popToken = await connectAndMintToken(pop.address, signer, hre);
+
+  await prepareStakingContract(
+    popToken,
+    popToken,
+    (
+      await deployments.get("PopStaking")
+    ).address,
+    signer,
+    hre
+  );
+
+  const popEthLpToken = (await connectAndMintToken(
+    popEthLp.address,
+    signer,
+    hre
+  )) as MockERC20;
+
+  await prepareStakingContract(
+    popToken,
+    popEthLpToken,
+    (
+      await deployments.get("popEthLPStaking")
+    ).address,
+    signer,
+    hre
+  );
 }

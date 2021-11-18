@@ -29,12 +29,12 @@ export default function getNamedAccounts() {
     POP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
+      hardhat: "0x162A433068F51e18b7d13932F27e66a3f99E6890",
     },
     POP_ETH_LP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
+      hardhat: "0x922D6956C99E12DFeB3224DEA977D0939758A1Fe",
     },
     THREE_CRV: {
       mainnet: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
@@ -59,19 +59,19 @@ export default function getNamedAccounts() {
     CONTRACT_REGISTRY: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07",
+      hardhat: "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
     },
     BUTTER_BATCH: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
+      hardhat: "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
     },
     BUTTER_BATCH_ZAPPER: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
+      hardhat: "0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B",
     },
-    SET_BASIC_ISSUANCE_MODULE_ADDRESS: {
+    SET_BASIC_ISSUANCE_MODULE: {
       mainnet: "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
       rinkeby: "",
       hardhat: "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
@@ -169,17 +169,17 @@ export default function getNamedAccounts() {
     STAKE_POP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
+      hardhat: "0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d",
     },
     STAKE_POP_ETH_LP: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
+      hardhat: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
     },
     STAKE_BUTTER: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+      hardhat: "0x04C89607413713Ec9775E14b954286519d836FEf",
     },
   };
 }
