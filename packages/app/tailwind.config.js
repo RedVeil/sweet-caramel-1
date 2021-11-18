@@ -16,6 +16,9 @@ module.exports = {
       lg: '1024px',
       // => @media (min-width: 1024px) { ... }
 
+      smlaptop: '1200px',
+      // => @media (min-width: 1440px) { ... }
+
       laptop: '1440px',
       // => @media (min-width: 1440px) { ... }
 
@@ -27,7 +30,7 @@ module.exports = {
     },
     extend: {
       dropShadow: {
-        '3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',
+        '3xl': '0 25px 25px rgba(0, 0, 0, 0.25)',
       },
       spacing: {
         18: '4.5rem',
@@ -35,10 +38,12 @@ module.exports = {
         84: '21rem',
         96: '24rem',
         100: '25.5rem',
+        101: '600px',
         104: '27rem',
         112: '30rem',
         128: '40rem',
         129: '52rem',
+        130: '752px',
       },
       lineHeight: {
         button: '32px',
