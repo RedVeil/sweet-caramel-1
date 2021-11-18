@@ -44,7 +44,7 @@ const IndexPage = () => {
             style={{ width: 426, height: 64, marginBottom: 32 }}
           >
             <p className="text-2xl font-thin text-center font-landing text-gray-600">
-              Earn yield on your $POP.
+              Earn yield on your POP.
             </p>
           </div>
           <div
