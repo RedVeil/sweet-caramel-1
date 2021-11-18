@@ -138,52 +138,52 @@ export default function ContractsWrapper({
     }
     setContracts({
       pop: ERC20__factory.connect(
-        addresses.POP[networkMap[process.env.CHAIN_ID]],
+        addresses.pop[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       popEthLp: ERC20__factory.connect(
-        addresses.POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
+        addresses.popEthLp[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       threeCrv: ERC20__factory.connect(
-        addresses.THREE_CRV[networkMap[process.env.CHAIN_ID]],
+        addresses.threeCrv[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       butter: ISetToken__factory.connect(
-        addresses.BUTTER[networkMap[process.env.CHAIN_ID]],
+        addresses.butter[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       butterBatch: HysiBatchInteraction__factory.connect(
-        addresses.BUTTER_BATCH[networkMap[process.env.CHAIN_ID]],
+        addresses.butterBatch[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       butterBatchZapper: HysiBatchZapper__factory.connect(
-        addresses.BUTTER_BATCH_ZAPPER[networkMap[process.env.CHAIN_ID]],
+        addresses.butterBatchZapper[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       dai: ERC20__factory.connect(
-        addresses.DAI[networkMap[process.env.CHAIN_ID]],
+        addresses.dai[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       usdc: ERC20__factory.connect(
-        addresses.USDC[networkMap[process.env.CHAIN_ID]],
+        addresses.usdc[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       usdt: ERC20__factory.connect(
-        addresses.USDT[networkMap[process.env.CHAIN_ID]],
+        addresses.usdt[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       staking: {
         pop: StakingRewards__factory.connect(
-          addresses.STAKE_POP[networkMap[process.env.CHAIN_ID]],
+          addresses.popStaking[networkMap[process.env.CHAIN_ID]],
           library,
         ),
         popEthLp: StakingRewards__factory.connect(
-          addresses.STAKE_POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
+          addresses.popEthLpStaking[networkMap[process.env.CHAIN_ID]],
           library,
         ),
         butter: StakingRewards__factory.connect(
-          addresses.STAKE_BUTTER[networkMap[process.env.CHAIN_ID]],
+          addresses.butterStaking[networkMap[process.env.CHAIN_ID]],
           library,
         ),
       },
@@ -191,43 +191,43 @@ export default function ContractsWrapper({
 
     setHysiDependencyContracts({
       basicIssuanceModule: BasicIssuanceModule__factory.connect(
-        addresses.SET_BASIC_ISSUANCE_MODULE[networkMap[process.env.CHAIN_ID]],
+        addresses.setBasicIssuanceModule[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       yDUSD: YearnVault__factory.connect(
-        addresses.YDUSD[networkMap[process.env.CHAIN_ID]],
+        addresses.yDusd[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       yFRAX: YearnVault__factory.connect(
-        addresses.YFRAX[networkMap[process.env.CHAIN_ID]],
+        addresses.yFrax[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       yUSDN: YearnVault__factory.connect(
-        addresses.YUSDN[networkMap[process.env.CHAIN_ID]],
+        addresses.yUsdn[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       yUST: YearnVault__factory.connect(
-        addresses.YUST[networkMap[process.env.CHAIN_ID]],
+        addresses.yUst[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       dusdMetapool: CurveMetapool__factory.connect(
-        addresses.DUSD_METAPOOL[networkMap[process.env.CHAIN_ID]],
+        addresses.dusdMetapool[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       fraxMetapool: CurveMetapool__factory.connect(
-        addresses.FRAX_METAPOOL[networkMap[process.env.CHAIN_ID]],
+        addresses.fraxMetapool[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       usdnMetapool: CurveMetapool__factory.connect(
-        addresses.USDN_METAPOOL[networkMap[process.env.CHAIN_ID]],
+        addresses.usdnMetapool[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       ustMetapool: CurveMetapool__factory.connect(
-        addresses.UST_METAPOOL[networkMap[process.env.CHAIN_ID]],
+        addresses.ustMetapool[networkMap[process.env.CHAIN_ID]],
         library,
       ),
       triPool: Curve3Pool__factory.connect(
-        addresses.THREE_POOL[networkMap[process.env.CHAIN_ID]],
+        addresses.threePool[networkMap[process.env.CHAIN_ID]],
         library,
       ),
     });

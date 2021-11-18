@@ -12,7 +12,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("PopStaking", {
     from: addresses.deployer,
-    args: [addresses.POP, addresses.POP],
+    args: [addresses.pop, addresses.pop],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
     contract: "StakingRewards",
@@ -20,7 +20,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("popEthLPStaking", {
     from: addresses.deployer,
-    args: [addresses.POP, addresses.POP_ETH_LP],
+    args: [addresses.pop, addresses.popEthLp],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "StakingRewards",
@@ -28,7 +28,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("butterStaking", {
     from: addresses.deployer,
-    args: [addresses.POP, addresses.BUTTER],
+    args: [addresses.pop, addresses.butter],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "StakingRewards",

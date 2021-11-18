@@ -17,27 +17,27 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const signerAddress = await signer.getAddress();
 
   const YTOKEN_ADDRESSES = [
-    addresses.YDUSD,
-    addresses.YFRAX,
-    addresses.YUSDN,
-    addresses.YUST,
+    addresses.yDusd,
+    addresses.yFrax,
+    addresses.yUsdn,
+    addresses.yUst,
   ];
   const CRV_DEPENDENCIES = [
     {
-      curveMetaPool: addresses.DUSD_METAPOOL,
-      crvLPToken: addresses.CRV_DUSD,
+      curveMetaPool: addresses.dusdMetapool,
+      crvLPToken: addresses.crvDusd,
     },
     {
-      curveMetaPool: addresses.FRAX_METAPOOL,
-      crvLPToken: addresses.CRV_FRAX,
+      curveMetaPool: addresses.fraxMetapool,
+      crvLPToken: addresses.crvFrax,
     },
     {
-      curveMetaPool: addresses.USDN_METAPOOL,
-      crvLPToken: addresses.CRV_USDN,
+      curveMetaPool: addresses.usdnMetapool,
+      crvLPToken: addresses.crvUsdn,
     },
     {
-      curveMetaPool: addresses.UST_METAPOOL,
-      crvLPToken: addresses.CRV_UST,
+      curveMetaPool: addresses.ustMetapool,
+      crvLPToken: addresses.crvUst,
     },
   ];
 
@@ -56,9 +56,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: addresses.deployer,
     args: [
       contractRegistryAddress,
-      addresses.BUTTER,
-      addresses.THREE_CRV,
-      addresses.SET_BASIC_ISSUANCE_MODULE,
+      addresses.butter,
+      addresses.threeCrv,
+      addresses.setBasicIssuanceModule,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
       1,
@@ -82,7 +82,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("deploying butterBatchZapper...");
   await deploy("ButterBatchZapper", {
     from: addresses.deployer,
-    args: [contractRegistryAddress, addresses.THREE_POOL, addresses.THREE_CRV],
+    args: [contractRegistryAddress, addresses.threePool, addresses.threeCrv],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "HysiBatchZapper",
@@ -164,17 +164,17 @@ async function createDemoData(
 
   const threeCrv = await hre.ethers.getContractAt(
     "MockERC20",
-    addresses.THREE_CRV,
+    addresses.threeCrv,
     signer
   );
   const dai = await hre.ethers.getContractAt(
     "MockERC20",
-    addresses.DAI,
+    addresses.dai,
     signer
   );
   const butter = await hre.ethers.getContractAt(
     "MockERC20",
-    addresses.BUTTER,
+    addresses.butter,
     signer
   );
 
@@ -182,9 +182,9 @@ async function createDemoData(
   await deploy("Faucet", {
     from: addresses.deployer,
     args: [
-      addresses.UNISWAP_ROUTER,
-      addresses.CURVE_ADDRESS_PROVIDER,
-      addresses.CURVE_FACTORY_METAPOOL_DEPOSIT_ZAP,
+      addresses.uniswapRouter,
+      addresses.curveAddressProvider,
+      addresses.curveFactoryMetapoolDepositZap,
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
@@ -205,7 +205,7 @@ async function createDemoData(
   console.log("sending 3crv...");
   await faucet.sendThreeCrv(1000, signerAddress);
   console.log("sending dai...");
-  await faucet.sendTokens(addresses.DAI, 1000, signerAddress);
+  await faucet.sendTokens(addresses.dai, 1000, signerAddress);
 
   await threeCrv.approve(butterBatch.address, parseEther("1000000000000"));
   await dai.approve(butterBatch.address, parseEther("1000000000000"));

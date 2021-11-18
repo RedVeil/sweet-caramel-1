@@ -26,7 +26,7 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   );
   const merkleOrchard = await hre.ethers.getContractAt(
     "IMerkleOrchard",
-    addresses.MerkleOrchard[hre.network.name],
+    addresses.merkleOrchard[hre.network.name],
     signer
   );
   const balancesJSON = await fs.promises.readFile(args.balancesFile, "utf-8");
