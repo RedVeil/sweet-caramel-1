@@ -24,7 +24,7 @@ const IndexPage = () => {
             border: 1,
             borderColor: '#E5E7EB',
             paddingTop: 114,
-            paddingBottom: 96,
+            paddingBottom: 60,
           }}
         >
           <img src="images/farmer.svg" className="mx-auto flex-grow-0" />
@@ -80,7 +80,7 @@ const IndexPage = () => {
             border: 1,
             borderColor: '#E5E7EB',
             paddingTop: 114,
-            paddingBottom: 96,
+            paddingBottom: 60,
           }}
         >
           <img src="images/rocket.svg" className="mx-auto" />
