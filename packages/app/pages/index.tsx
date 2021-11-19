@@ -14,7 +14,7 @@ const IndexPage = () => {
   return (
     <div>
       <NavBar />
-      <div className="flex flex-col smlaptop:flex-row justify-center pl-12 pr-12 smlaptop:pl-12 smlaptop:pr-12 py-28 ">
+      <div className="flex flex-col smlaptop:flex-row justify-center pl-12 pr-12 smlaptop:pl-18 smlaptop:pr-18 py-28 ">
         <div
           className="bg-light flex flex-col items-start flex-grow-0 flex-shrink filter drop-shadow-3xl md:mx-auto smlaptop:mx-0 w-full md:w-9/12 smlaptop:w-130"
           style={{
