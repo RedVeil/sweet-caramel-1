@@ -7,7 +7,8 @@ import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import {
-  bigNumberToNumber,
+  getBalances,
+  getEarned,
   getStakingStats,
   StakingStats,
 } from '../../../utils';
@@ -24,52 +25,21 @@ interface Balances {
   earned: TokenBalances;
 }
 
-async function getWalletBalances(
-  account: string,
-  contracts: Contracts,
-): Promise<TokenBalances> {
-  return {
-    pop: bigNumberToNumber(await contracts.pop.balanceOf(account)),
-    popEthLp: bigNumberToNumber(await contracts.popEthLp.balanceOf(account)),
-    butter: bigNumberToNumber(await contracts.butter.balanceOf(account)),
-  };
-}
-
-async function getStakedBalances(
-  account: string,
-  contracts: Contracts,
-): Promise<TokenBalances> {
-  return {
-    pop: bigNumberToNumber(await contracts.staking.pop.balanceOf(account)),
-    popEthLp: bigNumberToNumber(
-      await contracts.staking.popEthLp.balanceOf(account),
-    ),
-    butter: bigNumberToNumber(
-      await contracts.staking.butter.balanceOf(account),
-    ),
-  };
-}
-
-async function getEarned(
-  account: string,
-  contracts: Contracts,
-): Promise<TokenBalances> {
-  return {
-    pop: bigNumberToNumber(await contracts.staking.pop.earned(account)),
-    popEthLp: bigNumberToNumber(
-      await contracts.staking.popEthLp.earned(account),
-    ),
-    butter: bigNumberToNumber(await contracts.staking.butter.earned(account)),
-  };
-}
-
-async function getBalances(
+async function getUserBalances(
   account: string,
   contracts: Contracts,
 ): Promise<Balances> {
   return {
-    wallet: await getWalletBalances(account, contracts),
-    staked: await getStakedBalances(account, contracts),
+    wallet: await getBalances(account, {
+      pop: contracts.pop,
+      popEthLp: contracts.popEthLp,
+      butter: contracts.butter,
+    }),
+    staked: await getBalances(account, {
+      pop: contracts.staking.pop,
+      popEthLp: contracts.staking.popEthLp,
+      butter: contracts.staking.butter,
+    }),
     earned: await getEarned(account, contracts),
   };
 }
@@ -92,7 +62,7 @@ export default function index(): JSX.Element {
     if (!account || !contracts) {
       return;
     }
-    getBalances(account, contracts).then((res) => setBalances(res));
+    getUserBalances(account, contracts).then((res) => setBalances(res));
   }, [account, contracts]);
 
   return (
