@@ -33,13 +33,13 @@ export const getConstructorArgs = async (
         [POP, USDC],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
-        [parseEther("1250000"), parseUnits("375000", 6)] // amounts
+        [parseEther("1250000"), parseUnits("750000", 6)] // amounts
       );
 
       return {
         balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
-        name: "Popcorn.network (POP) Liquidity Bootstrapping Pool",
-        symbol: "POP_LBP",
+        name: "Popcorn.network (POP) Token Launch Auction",
+        symbol: "POP_TLA",
         tokens: tokens,
         tokenAmounts: amounts,
         startWeights: startWeights,
@@ -130,11 +130,13 @@ export const getConstructorArgs = async (
         },
       };
     default:
+      POP = (await hre.deployments.get("POP")).address;
+      USDC = (await hre.deployments.get("USDC")).address;
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
         [POP, USDC],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
-        [parseEther("1333333.33"), parseUnits("500000", 6)] // amounts
+        [parseEther("1875000"), parseUnits("562500", 6)] // amounts
       );
 
       return {

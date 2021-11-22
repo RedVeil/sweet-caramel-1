@@ -1,5 +1,5 @@
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "@ethersproject/units";
-import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const XPOP_SUPPLY = parseEther("1000000");
