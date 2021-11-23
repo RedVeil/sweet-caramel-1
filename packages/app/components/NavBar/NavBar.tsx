@@ -1,28 +1,29 @@
 import { Web3Provider } from '@ethersproject/providers';
+import { Menu } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/solid';
+import { switchNetwork } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
+import useEagerConnect from 'hooks/useEagerConnect';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { connectors } from '../../context/Web3/connectors';
+import { connectors, networkMap } from '../../context/Web3/connectors';
 import { GrantsMenu } from './GrantsMenu';
 import NavbarLink from './NavbarLinks';
+import NetworkOptionsMenu from './NetworkOptionsMenu';
 import { ProposalsMenu } from './ProposalsMenu';
 
 const Navbar: React.FC = () => {
-  const context = useWeb3React<Web3Provider>();
-  const {
-    connector,
-    library,
-    chainId,
-    account,
-    activate,
-    deactivate,
-    active,
-    error,
-  } = context;
+  const { chainId, account, activate } = useWeb3React<Web3Provider>();
   const router = useRouter();
   const [showGrants, setShowGrants] = useState(false);
   const [showProposals, setShowProposals] = useState(false);
+  const [currentChainName, setCurrentChainName] = useState('trial');
+  const triedEagerConnect = useEagerConnect();
+
+  React.useEffect(() => {
+    setCurrentChainName(networkMap[chainId]);
+  }, [chainId]);
 
   return (
     <>
@@ -85,15 +86,34 @@ const Navbar: React.FC = () => {
             />
           </li>
         </ul>
-        <button
-          className="w-28 p-1 flex flex-row items-center justify-center border border-gray-400 rounded hover:bg-indigo-400 hover:text-white"
-          onClick={() => activate(connectors.Injected)}
-        >
-          <p>Connect{account && 'ed'}</p>
-          {account && (
-            <div className="w-2 h-2 bg-green-400 rounded-full ml-2" />
-          )}
-        </button>
+        <div className="flex flex-container flex-row w-fit-content">
+          <Menu>
+            <Menu.Button>
+              <div className="w-46 h-13 px-5 flex flex-row items-center justify-center border border-gray-400 rounded-3xl">
+                {/* get and show chain icon */}
+                <p>{currentChainName}</p>
+                <ChevronDownIcon className="w-4 h-4 ml-4" aria-hidden="true" />
+              </div>
+            </Menu.Button>
+            <NetworkOptionsMenu
+              currentChain={chainId}
+              switchNetwork={switchNetwork}
+            />
+          </Menu>
+
+          <button
+            className="w-28 p-1 flex flex-row items-center justify-center border border-gray-400 rounded hover:bg-indigo-400 hover:text-white"
+            onClick={() => {
+              activate(connectors.Injected);
+              localStorage.setItem('eager_connect', 'true');
+            }}
+          >
+            <p>Connect{account && 'ed'}</p>
+            {account && (
+              <div className="w-2 h-2 bg-green-400 rounded-full ml-2" />
+            )}
+          </button>
+        </div>
       </nav>
     </>
   );

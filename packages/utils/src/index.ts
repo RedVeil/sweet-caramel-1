@@ -7,12 +7,13 @@ export {
 } from './formatBigNumber';
 export {
   calculateAPY,
-  getSingleStakingStats,
-  getStakingStats,
+  getSingleStakingPoolInfo,
+  getStakingPoolsInfo,
 } from './getStakingStats';
-export type { SingleStakingStats, StakingStats } from './getStakingStats';
+export type { StakingPoolInfo } from './getStakingStats';
 export {
   getBytes32FromIpfsHash,
   getIpfsHashFromBytes32,
 } from './ipfsHashManipulation';
+export { switchNetwork } from './networkSwitch';
 export { default as useFetch } from './useFetch';

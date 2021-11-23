@@ -5,7 +5,7 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import getContractAddresses from '../../../hardhat/lib/utils/getContractAddresses';
+import { getChainRelevantContracts } from '../../../hardhat/lib/utils/getContractAddresses';
 import {
   ERC20,
   ERC20__factory,
@@ -16,17 +16,25 @@ import { setSingleActionModal } from '../actions';
 import { store } from '../store';
 import { connectors, networkMap } from './connectors';
 
-export interface StakingContracts {
-  pop: StakingRewards;
-  popEthLp: StakingRewards;
-  butter: StakingRewards;
+// TODO Move to Interface/Types
+type Address = string;
+interface ContractAddresses {
+  staking: Array<Address>;
+  // butter?: StakingRewards,
+  pop?: Address;
+  threeCrv?: Address;
+  popEthLp?: Address;
+  butter?: Address;
+  aclRegistry?: Address;
+  contractRegistry?: Address;
 }
+
 export interface Contracts {
-  pop: ERC20;
-  threeCrv: ERC20;
-  popEthLp: ERC20;
-  butter: ERC20;
-  staking: StakingContracts;
+  pop?: ERC20;
+  threeCrv?: ERC20;
+  popEthLp?: ERC20;
+  butter?: ERC20;
+  staking?: StakingRewards[];
 }
 
 interface ContractsContext {
@@ -54,6 +62,29 @@ function getErrorMessage(error: Error) {
     return 'An unknown error occurred. Check the console for more details.';
   }
 }
+
+const initializeContracts = (
+  contractAddresses: ContractAddresses,
+  library,
+): Contracts => {
+  const { pop, popEthLp, threeCrv, butter, staking } = { ...contractAddresses };
+  const contracts: Contracts = {
+    pop: pop ? ERC20__factory.connect(pop, library) : undefined,
+    popEthLp: popEthLp ? ERC20__factory.connect(popEthLp, library) : undefined,
+    threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
+    butter: butter ? ERC20__factory.connect(butter, library) : undefined,
+  };
+  contracts.staking = [];
+  if (staking.length > 0) {
+    for (var i = 0; i < contractAddresses.staking.length; i++) {
+      contracts.staking.push(
+        StakingRewards__factory.connect(contractAddresses.staking[i], library),
+      );
+    }
+  }
+
+  return contracts;
+};
 
 export default function ContractsWrapper({
   children,
@@ -99,40 +130,16 @@ export default function ContractsWrapper({
     if (!library) {
       return;
     }
-    const addresses = getContractAddresses();
-    setContracts({
-      pop: ERC20__factory.connect(
-        addresses.POP[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
-      threeCrv: ERC20__factory.connect(
-        addresses.THREE_CRV[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
-      popEthLp: ERC20__factory.connect(
-        addresses.POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
-      butter: ERC20__factory.connect(
-        addresses.BUTTER[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
-      staking: {
-        pop: StakingRewards__factory.connect(
-          addresses.STAKE_POP[networkMap[process.env.CHAIN_ID]],
-          library,
-        ),
-        popEthLp: StakingRewards__factory.connect(
-          addresses.STAKE_POP_ETH_LP[networkMap[process.env.CHAIN_ID]],
-          library,
-        ),
-        butter: StakingRewards__factory.connect(
-          addresses.STAKE_BUTTER[networkMap[process.env.CHAIN_ID]],
-          library,
-        ),
-      },
-    });
-  }, [library, active]);
+    const contractAddresses = getChainRelevantContracts(chainId);
+    const contracts: Contracts = initializeContracts(
+      contractAddresses,
+      library,
+    );
+    setContracts(contracts);
+    return () => {
+      setContracts({});
+    };
+  }, [library, active, chainId]);
 
   return (
     <ContractsContext.Provider

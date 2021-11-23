@@ -1,18 +1,49 @@
-import { SingleStakingStats } from '@popcorn/utils';
+import { Web3Provider } from '@ethersproject/providers';
+import { StakingPoolInfo } from '@popcorn/utils';
+import { useWeb3React } from '@web3-react/core';
+import { updateStakingPageInfo } from 'context/actions';
+import { store } from 'context/store';
 import router from 'next/router';
+import { useCallback, useContext } from 'react';
+import { ERC20, ERC20__factory, StakingRewards } from '../../hardhat/typechain';
 import TokenIcon from './TokenIcon';
 
 interface StakeCardProps {
   tokenName: string;
-  stakingStats: SingleStakingStats;
+  stakingPoolInfo: StakingPoolInfo;
   url: string;
+  stakingContract: StakingRewards | undefined;
 }
 
-export default function StakeCard({
+export default function ({
   tokenName,
-  stakingStats,
+  stakingPoolInfo,
   url,
+  stakingContract,
 }: StakeCardProps): JSX.Element {
+  const { library } = useWeb3React<Web3Provider>();
+  const { dispatch } = useContext(store);
+  const getERC20Contract = useCallback(async (): Promise<ERC20> => {
+    const contract: ERC20 = await ERC20__factory.connect(
+      stakingPoolInfo.stakedTokenAddress,
+      library,
+    );
+    return contract;
+  }, [stakingPoolInfo.stakedTokenAddress, library]);
+
+  const onSelectPool = useCallback(async () => {
+    const erc20 = await getERC20Contract();
+    dispatch(
+      updateStakingPageInfo({
+        inputToken: erc20,
+        stakingContract: stakingContract,
+        tokenName,
+        poolInfo: stakingPoolInfo,
+      }),
+    );
+    router.push(`staking/${url}`);
+  }, [router, getERC20Contract, stakingContract, tokenName]);
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-md w-full mr-4 px-8 py-8">
       <div className="flex flex-row items-center justify-between">
@@ -25,7 +56,7 @@ export default function StakeCard({
         <button
           className="button rounded-full py-1 px-5 text-white bg-blue-600 hover:bg-blue-700"
           type="button"
-          onClick={() => router.push(`staking/${url}`)}
+          onClick={async () => await onSelectPool()}
         >
           Stake
         </button>
@@ -36,7 +67,7 @@ export default function StakeCard({
             Est. APY
           </p>
           <p className="text-green-600 text-xl font-medium">
-            {stakingStats.apy.toLocaleString()} %
+            {stakingPoolInfo.apy.toLocaleString()} %
           </p>
         </div>
         <div>
@@ -44,7 +75,7 @@ export default function StakeCard({
             Total Staked
           </p>
           <p className="text-gray-800 text-xl font-medium">
-            {stakingStats.totalStake.toLocaleString()}
+            {stakingPoolInfo.totalStake.toLocaleString()}
           </p>
         </div>
         <div>
@@ -52,7 +83,7 @@ export default function StakeCard({
             Token Emissions
           </p>
           <p className="text-gray-800 text-xl font-medium">
-            {stakingStats.tokenEmission.toLocaleString()} POP / day
+            {stakingPoolInfo.tokenEmission.toLocaleString()} POP / day
           </p>
         </div>
       </div>

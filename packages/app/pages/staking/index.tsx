@@ -1,16 +1,12 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
-import StakeCard from 'components/StakeCard';
 import StatInfoCard from 'components/StatInfoCard';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import {
-  bigNumberToNumber,
-  getStakingStats,
-  StakingStats,
-} from '../../../utils';
+import { bigNumberToNumber, getStakingPoolsInfo } from '../../../utils';
+import StakingCardsList from './StakingCardsList';
 
 interface TokenBalances {
   pop: number;
@@ -20,8 +16,8 @@ interface TokenBalances {
 
 interface Balances {
   wallet: TokenBalances;
-  staked: TokenBalances;
-  earned: TokenBalances;
+  // staked: TokenBalances;
+  earned: number;
 }
 
 async function getWalletBalances(
@@ -29,38 +25,42 @@ async function getWalletBalances(
   contracts: Contracts,
 ): Promise<TokenBalances> {
   return {
-    pop: bigNumberToNumber(await contracts.pop.balanceOf(account)),
-    popEthLp: bigNumberToNumber(await contracts.popEthLp.balanceOf(account)),
-    butter: bigNumberToNumber(await contracts.butter.balanceOf(account)),
+    pop: contracts.pop
+      ? bigNumberToNumber(await contracts.pop.balanceOf(account))
+      : 0,
+    popEthLp: contracts.popEthLp
+      ? bigNumberToNumber(await contracts.popEthLp.balanceOf(account))
+      : 0,
+    butter: contracts.butter
+      ? bigNumberToNumber(await contracts.butter.balanceOf(account))
+      : 0,
   };
 }
 
-async function getStakedBalances(
-  account: string,
-  contracts: Contracts,
-): Promise<TokenBalances> {
-  return {
-    pop: bigNumberToNumber(await contracts.staking.pop.balanceOf(account)),
-    popEthLp: bigNumberToNumber(
-      await contracts.staking.popEthLp.balanceOf(account),
-    ),
-    butter: bigNumberToNumber(
-      await contracts.staking.butter.balanceOf(account),
-    ),
-  };
-}
+// async function getStakedBalances(
+//   account: string,
+//   contracts: Contracts,
+// ): Promise<TokenBalances> {
+//   return {
+//     pop: bigNumberToNumber(await contracts.staking.pop.balanceOf(account)),
+//     popEthLp: bigNumberToNumber(
+//       await contracts.staking.popEthLp.balanceOf(account),
+//     ),
+//     butter: bigNumberToNumber(
+//       await contracts.staking.butter.balanceOf(account),
+//     ),
+//   };
+// }
 
 async function getEarned(
   account: string,
   contracts: Contracts,
-): Promise<TokenBalances> {
-  return {
-    pop: bigNumberToNumber(await contracts.staking.pop.earned(account)),
-    popEthLp: bigNumberToNumber(
-      await contracts.staking.popEthLp.earned(account),
-    ),
-    butter: bigNumberToNumber(await contracts.staking.butter.earned(account)),
-  };
+): Promise<number> {
+  let earned = 0;
+  for (var i = 0; i < contracts.staking.length; i++) {
+    earned += bigNumberToNumber(await contracts.staking[i].earned(account));
+  }
+  return earned;
 }
 
 async function getBalances(
@@ -69,7 +69,7 @@ async function getBalances(
 ): Promise<Balances> {
   return {
     wallet: await getWalletBalances(account, contracts),
-    staked: await getStakedBalances(account, contracts),
+    // staked: await getStakedBalances(account, contracts),
     earned: await getEarned(account, contracts),
   };
 }
@@ -77,16 +77,18 @@ async function getBalances(
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
-  const { library, account, activate, active } = context;
+  const { library, account, activate, active, chainId } = context;
   const [balances, setBalances] = useState<Balances>();
-  const [stakingStats, setStakingStats] = useState<StakingStats>();
+  const [stakingPoolsInfo, setStakingPools] = useState<any>();
 
   useEffect(() => {
-    if (!contracts) {
+    if (!chainId) {
       return;
     }
-    getStakingStats(contracts).then((res) => setStakingStats(res));
-  }, [contracts]);
+    getStakingPoolsInfo(contracts, library).then((res) => {
+      setStakingPools(res);
+    });
+  }, [chainId, contracts]);
 
   useEffect(() => {
     if (!account || !contracts) {
@@ -139,11 +141,7 @@ export default function index(): JSX.Element {
                   <div className="w-full">
                     <StatInfoCard
                       title="Cumulative Rewards"
-                      content={`${(
-                        balances.earned.pop +
-                        balances.earned.popEthLp +
-                        balances.earned.butter
-                      ).toLocaleString()} POP`}
+                      content={`${balances.earned.toLocaleString()} POP`}
                       icon={{ icon: 'Money', color: 'bg-blue-300' }}
                     />
                   </div>
@@ -151,24 +149,10 @@ export default function index(): JSX.Element {
               )}
             </div>
             <div className={`${balances ? 'mt-8' : ''} space-y-4`}>
-              {stakingStats && (
-                <>
-                  <StakeCard
-                    tokenName="POP"
-                    stakingStats={stakingStats.pop}
-                    url="pop"
-                  />
-                  <StakeCard
-                    tokenName="POP/ETH LP"
-                    stakingStats={stakingStats.popEthLp}
-                    url="pop-eth-lp"
-                  />
-                  <StakeCard
-                    tokenName="BUTTER"
-                    stakingStats={stakingStats.butter}
-                    url="butter"
-                  />
-                </>
+              {stakingPoolsInfo ? (
+                <StakingCardsList stakingPoolsInfo={stakingPoolsInfo} />
+              ) : (
+                <></>
               )}
             </div>
           </div>

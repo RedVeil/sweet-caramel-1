@@ -71,6 +71,7 @@ module.exports = {
     },
     hardhat: {
       initialBaseFeePerGas: 0,
+      chainId: 1337,
     },
     rinkeby: {
       url:
