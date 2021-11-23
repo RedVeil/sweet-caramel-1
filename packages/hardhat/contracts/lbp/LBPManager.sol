@@ -27,6 +27,7 @@ contract LBPManager {
    * @param swapEnabledOnStart determines wether trading can commence after LBP is deployed. defaults to false
    * @param startTime the time that trading can commence for the LBP. the `enableTrading()` function will require that the start time is in the past before trading can be enabled
    * @param deployed boolean set when LBP is deployed
+   * @param pauser address that may pause trading
    */
   struct PoolConfiguration {
     string name;
@@ -41,6 +42,7 @@ contract LBPManager {
     bool swapEnabledOnStart;
     uint256 startTime;
     bool deployed;
+    address pauser;
   }
 
   /**
@@ -129,7 +131,8 @@ contract LBPManager {
       owner: address(this),
       swapEnabledOnStart: false,
       startTime: _startTime,
-      deployed: false
+      deployed: false,
+      pauser: msg.sender
     });
 
     _approveBalancerVaultAsSpender();
@@ -205,6 +208,26 @@ contract LBPManager {
 
     balancer.vault.exitPool(poolId, address(this), dao.treasury, request);
     emit ExitedPool(poolId);
+  }
+
+  /**
+   * @notice allows pauser to pause pool
+   */
+  function pause() external {
+    require(msg.sender == poolConfig.pauser, "not allowed to pause trading");
+    require(poolConfig.deployed, "pool not yet deployed");
+    require(lbp.getSwapEnabled() == true, "pool must be unpaused");
+    lbp.setSwapEnabled(false);
+  }
+
+  /**
+   * @notice allows pauser to unpause pool
+   */
+  function unpause() external {
+    require(msg.sender == poolConfig.pauser, "not allowed to unpause trading");
+    require(poolConfig.deployed, "pool hasn't been deployed yet");
+    require(lbp.getSwapEnabled() == false, "swap is already disabled");
+    lbp.setSwapEnabled(true);
   }
 
   /* ========== RESTRICTED FUNCTIONS ========== */

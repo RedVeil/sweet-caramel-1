@@ -33,7 +33,7 @@ export const getConstructorArgs = async (
         [POP, USDC],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
-        [parseEther("1250000"), parseUnits("750000", 6)] // amounts
+        [parseEther("1875000"), parseUnits("562500", 6)] // amounts
       );
 
       return {
