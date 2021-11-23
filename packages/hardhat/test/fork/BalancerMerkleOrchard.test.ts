@@ -23,7 +23,7 @@ describe("Balancer Merkle Orchard", () => {
       params: [
         {
           forking: {
-            jsonRpcUrl: process.env.FORKING_RPC_URL,
+            jsonRpcUrl: process.env.RPC_URL,
             blockNumber: 13450000,
           },
         },
