@@ -27,7 +27,6 @@ export const getConstructorArgs = async (
 ) => {
   switch (hre.network.name) {
     case "mainnet":
-    case "arbitrum":
     case "polygon":
       let [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
         [POP, USDC],

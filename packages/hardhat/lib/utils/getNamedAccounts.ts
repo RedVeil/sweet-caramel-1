@@ -30,6 +30,7 @@ export default function getNamedAccounts() {
       arbitrum: "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
       polygon: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
       polygontest: "0x196CF485b98fB95e27b13f40A43b59FA2570a16E",
+      mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
     },
     TokenManager: {
       mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
