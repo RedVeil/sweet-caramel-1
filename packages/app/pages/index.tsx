@@ -14,7 +14,132 @@ const IndexPage = () => {
   return (
     <div>
       <NavBar />
-      <div className="flex flex-col smlaptop:flex-row justify-center pl-12 pr-12 smlaptop:pl-18 smlaptop:pr-18 py-28 ">
+      {/* MEDIUM LAPTOP*/}
+      <div className=" lglaptop:hidden flex flex-col lg:flex-row justify-center pl-12 pr-12 smlaptop:pl-18 smlaptop:pr-18 py-28 ">
+        <div
+          className="bg-light flex flex-col items-start flex-grow-0 flex-shrink filter drop-shadow-3xl mx-auto w-11/12 smmd:w-105 lg:mr-4  mb-5"
+          style={{
+            height: 582.6225,
+            borderRadius: 40,
+            borderStyle: 'solid',
+            border: 1,
+            borderColor: '#E5E7EB',
+            paddingTop: 86,
+            paddingBottom: 60,
+          }}
+        >
+          <img
+            src="images/farmer.svg"
+            className="mx-auto flex-grow-0"
+            style={{ width: 321, height: 223 }}
+          />
+          <p
+            className=" mx-auto font-landing text-gray-900"
+            style={{
+              marginBottom: 12,
+              marginTop: 36,
+              fontStyle: 'normal',
+              fontWeight: 500,
+              fontSize: 36,
+            }}
+          >
+            Farming
+          </p>
+          <div
+            className="mx-auto w-4/5"
+            style={{ height: 60, marginBottom: 24 }}
+          >
+            <p className="h-full text-xl font-thin text-center font-landing text-gray-600">
+              Earn yield on your POP.
+            </p>
+          </div>
+          <Link href={'/staking'} passHref>
+            <div
+              className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
+              style={{
+                height: 48,
+                width: 180,
+                borderRadius: 30,
+                paddingTop: 7,
+                paddingBottom: 7,
+                paddingLeft: 17,
+                paddingRight: 17,
+              }}
+            >
+              <p
+                className="text-white mx-auto my-auto font-landing"
+                style={{ fontStyle: 'normal', fontWeight: 500, fontSize: 15 }}
+              >
+                Stake
+              </p>
+            </div>
+          </Link>
+        </div>
+
+        <div
+          className="bg-light flex flex-col items-start flex-grow-0 flex-shrink filter drop-shadow-3xl mx-auto w-11/12 smmd:w-105 lg:ml-4"
+          style={{
+            height: 582.6225,
+            borderRadius: 40,
+            borderStyle: 'solid',
+            border: 1,
+            borderColor: '#E5E7EB',
+            paddingTop: 86,
+            paddingBottom: 60,
+          }}
+        >
+          <img
+            src="images/rocket.svg"
+            className="mx-auto flex-grow-0"
+            style={{ width: 321, height: 223 }}
+          />
+          <p
+            className=" mx-auto font-landing text-gray-900"
+            style={{
+              marginBottom: 12,
+              marginTop: 36,
+              fontStyle: 'normal',
+              fontWeight: 500,
+              fontSize: 36,
+            }}
+          >
+            Yield Optimizer
+          </p>
+          <div
+            className="mx-auto w-4/5"
+            style={{ height: 60, marginBottom: 24 }}
+          >
+            <p className="h-full text-xl font-thin text-center font-landing text-gray-600">
+              Deposit stablecoins and earn by leveraging the power of compound
+              interest.
+            </p>
+          </div>
+          <Link href={'/deposit'} passHref>
+            <div
+              className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
+              style={{
+                height: 48,
+                width: 180,
+                borderRadius: 30,
+                paddingTop: 7,
+                paddingBottom: 7,
+                paddingLeft: 17,
+                paddingRight: 17,
+              }}
+            >
+              <p
+                className="text-white mx-auto my-auto font-landing "
+                style={{ fontStyle: 'normal', fontWeight: 500, fontSize: 15 }}
+              >
+                Deposit
+              </p>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* LARGE LAPTOP*/}
+      <div className="hidden lglaptop:flex flex-col smlaptop:flex-row justify-center pl-12 pr-12 smlaptop:pl-18 smlaptop:pr-18 py-28 ">
         <div
           className="bg-light flex flex-col items-start flex-grow-0 flex-shrink filter drop-shadow-3xl md:mx-auto smlaptop:mx-0 w-full md:w-9/12 smlaptop:w-130"
           style={{
