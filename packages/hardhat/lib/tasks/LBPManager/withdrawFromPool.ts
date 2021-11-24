@@ -6,11 +6,6 @@ interface Args {
 }
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  if (hre.network.name !== "kovan") {
-    throw new Error(
-      `This task is only valid for Kovan. The selected network is: ${hre.network.name}`
-    );
-  }
   const signer = hre.askForSigner();
 
   const lbp = await hre.ethers.getContractAt(
@@ -26,8 +21,8 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   const tx = await lbp.withdrawFromPool({ gasLimit: 2000000 });
 
   const receipt = await tx.wait(1);
-  console.log("Withdrew from pool");
   console.log(receipt);
+  console.log("Withdrew from pool");
 }
 
 export default task("LBPManager:withdrawFromPool", "exits LBP").setAction(main);
