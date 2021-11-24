@@ -77,7 +77,7 @@ const IndexPage = () => {
             </Link>
           </div>
         </Link>
-        <Link href={'/deposit'} passHref>
+        <Link href={'/butter'} passHref>
           <div
             className="bg-light flex flex-col items-start flex-grow-0 flex-shrink filter drop-shadow-3xl mx-auto w-11/12 smmd:w-105 lg:ml-4 transition duration-500 ease-in-out transform hover:scale-102 cursor-pointer"
             style={{
@@ -116,7 +116,7 @@ const IndexPage = () => {
                 interest.
               </p>
             </div>
-            <Link href={'/deposit'} passHref>
+            <Link href={'/butter'} passHref>
               <div
                 className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
                 style={{
@@ -200,7 +200,7 @@ const IndexPage = () => {
             </Link>
           </div>
         </Link>
-        <Link href={'/deposit'} passHref>
+        <Link href={'/butter'} passHref>
           <div
             className="bg-light flex flex-col items-start flex-grow-0 flex-shrink filter drop-shadow-3xl smlaptop:ml-8 mx-auto smlaptop:mx-0 mt-10 smlaptop:mt-0 w-full md:w-9/12  smlaptop:w-130 transition duration-500 ease-in-out transform hover:scale-102 cursor-pointer"
             style={{
@@ -235,7 +235,7 @@ const IndexPage = () => {
                 interest.
               </p>
             </div>
-            <Link href={'/deposit'} passHref>
+            <Link href={'/butter'} passHref>
               <div
                 className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
                 style={{
