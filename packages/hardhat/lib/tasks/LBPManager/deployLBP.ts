@@ -15,7 +15,7 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
     ).address,
     signer
   );
-  const tx = await lbp.deployLBP({ gasLimit: 12500000 });
+  const tx = await lbp.deployLBP({ gasLimit: 5000000 });
 
   const receipt = await tx.wait(1);
   console.log("LBP deployed");
