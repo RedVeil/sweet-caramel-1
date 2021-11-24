@@ -105,6 +105,9 @@ export const getConstructorArgs = async (
         },
       };
     case "rinkeby":
+      POP = (await hre.deployments.get("POP")).address;
+      USDC = (await hre.deployments.get("USDC")).address;
+
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
         [POP, USDC],
         [parseEther(".99"), parseEther(".01")], // start weights
