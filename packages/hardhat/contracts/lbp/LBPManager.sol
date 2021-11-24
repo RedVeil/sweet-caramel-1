@@ -114,7 +114,7 @@ contract LBPManager {
   ) {
     balancer = _balancer;
 
-    require(_durationInSeconds > 1 days && _durationInSeconds < 5 days, "duration is out of bounds");
+    require(_durationInSeconds > 1 hours && _durationInSeconds < 5 days, "duration is out of bounds");
     require(_startTime > block.timestamp, "start time must be in future");
 
     dao = _dao;
@@ -165,6 +165,10 @@ contract LBPManager {
 
     emit CreatedPool(address(lbp));
 
+    uint256 endtime = poolConfig.startTime + poolConfig.durationInSeconds;
+
+    lbp.updateWeightsGradually(poolConfig.startTime, endtime, poolConfig.endWeights);
+
     _joinPool();
   }
 
@@ -174,11 +178,6 @@ contract LBPManager {
   function enableTrading() external {
     require(poolConfig.deployed, "Pool has not been deployed yet");
     require(poolConfig.startTime <= block.timestamp, "Trading can not be enabled yet");
-
-    uint256 endtime = block.timestamp + poolConfig.durationInSeconds;
-
-    lbp.updateWeightsGradually(block.timestamp, endtime, poolConfig.endWeights);
-
     lbp.setSwapEnabled(true);
     emit SwapEnabled(true);
   }
