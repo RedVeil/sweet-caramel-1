@@ -58,6 +58,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     pre_eip1559: supportsEIP1559(hre),
+    gasLimit: 2500000,
     // gasPrice: parseUnits("150", "gwei"),
   });
 
