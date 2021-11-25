@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 interface ILBP {
   function setSwapEnabled(bool swapEnabled) external;
 
-  function getSwapEnabled() external returns (bool);
+  function getSwapEnabled() external view returns (bool);
 
   /**
    * @dev Schedule a gradual weight change, from the current weights to the given

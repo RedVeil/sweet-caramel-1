@@ -3,8 +3,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export default function getNamedAccounts() {
   return {
+    Voting: {
+      mainnet: "0xbb6ed6fdc4ddb0541b445e8560d9374e20d1fc1f",
+    },
     POP: {
       mainnet: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
+      mainnettest: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
       hardhat: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
       localhost: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
       rinkeby: "0xcc763df24b9b1d68194ba52e787b6760f04ffd72",
@@ -12,6 +16,7 @@ export default function getNamedAccounts() {
     },
     DAO: {
       mainnet: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
+      mainnettest: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
       hardhat: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
       localhost: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
       rinkeby: "0x7D9B21704B5311bB480f0109dFD5D84ed1207e11",
@@ -20,6 +25,7 @@ export default function getNamedAccounts() {
       hardhat: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       localhost: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
+      mainnettest: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       rinkeby: "0x6d8bd5d37461788182131bae19d03ff2b3c0687c",
       arbitrum: "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
       polygon: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
@@ -31,15 +37,18 @@ export default function getNamedAccounts() {
       polygon: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
       polygontest: "0x196CF485b98fB95e27b13f40A43b59FA2570a16E",
       mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
+      mainnettest: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
     },
     TokenManager: {
       mainnet: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
+      mainnettest: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
       hardhat: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
       localhost: "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
       rinkeby: "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
     },
     BalancerVault: {
       mainnet: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      mainnettest: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
       hardhat: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
       localhost: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
       polygon: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
@@ -50,6 +59,7 @@ export default function getNamedAccounts() {
     },
     BalancerLBPFactory: {
       mainnet: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      mainnettest: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
       hardhat: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
       localhost: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
       polygon: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
@@ -60,6 +70,7 @@ export default function getNamedAccounts() {
     },
     USDC: {
       mainnet: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      mainnettest: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       hardhat: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       localhost: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       polygon: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
