@@ -38,7 +38,7 @@ const IndexPage = () => {
               className=" mx-auto font-landing text-gray-900"
               style={{
                 marginBottom: 12,
-                marginTop: 36,
+                marginTop: 80,
                 fontStyle: 'normal',
                 fontWeight: 500,
                 fontSize: 36,
@@ -54,27 +54,6 @@ const IndexPage = () => {
                 Earn yield on your POP.
               </p>
             </div>
-            <Link href={'/staking'} passHref>
-              <div
-                className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
-                style={{
-                  height: 48,
-                  width: 180,
-                  borderRadius: 30,
-                  paddingTop: 7,
-                  paddingBottom: 7,
-                  paddingLeft: 17,
-                  paddingRight: 17,
-                }}
-              >
-                <p
-                  className="text-white mx-auto my-auto font-landing pt-1"
-                  style={{ fontStyle: 'normal', fontWeight: 500, fontSize: 15 }}
-                >
-                  Stake
-                </p>
-              </div>
-            </Link>
           </div>
         </Link>
         <Link href={'/butter'} passHref>
@@ -99,7 +78,7 @@ const IndexPage = () => {
               className=" mx-auto font-landing text-gray-900"
               style={{
                 marginBottom: 12,
-                marginTop: 36,
+                marginTop: 80,
                 fontStyle: 'normal',
                 fontWeight: 500,
                 fontSize: 36,
@@ -116,27 +95,6 @@ const IndexPage = () => {
                 interest.
               </p>
             </div>
-            <Link href={'/butter'} passHref>
-              <div
-                className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
-                style={{
-                  height: 48,
-                  width: 180,
-                  borderRadius: 30,
-                  paddingTop: 7,
-                  paddingBottom: 7,
-                  paddingLeft: 17,
-                  paddingRight: 17,
-                }}
-              >
-                <p
-                  className="text-white mx-auto my-auto font-landing pt-1"
-                  style={{ fontStyle: 'normal', fontWeight: 500, fontSize: 15 }}
-                >
-                  Deposit
-                </p>
-              </div>
-            </Link>
           </div>
         </Link>
       </div>
@@ -161,7 +119,7 @@ const IndexPage = () => {
               className=" mx-auto font-landing text-gray-900"
               style={{
                 marginBottom: 16,
-                marginTop: 48,
+                marginTop: 106,
                 fontStyle: 'normal',
                 fontWeight: 500,
                 fontSize: 48,
@@ -174,30 +132,9 @@ const IndexPage = () => {
               style={{ height: 80, marginBottom: 32 }}
             >
               <p className="h-full text-2xl font-thin text-center font-landing text-gray-600">
-                Earn yield on your POP.
+                Earn yield on your POP through staking.
               </p>
             </div>
-            <Link href={'/staking'} passHref>
-              <div
-                className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
-                style={{
-                  height: 64,
-                  width: 240,
-                  borderRadius: 30,
-                  paddingTop: 9,
-                  paddingBottom: 9,
-                  paddingLeft: 17,
-                  paddingRight: 17,
-                }}
-              >
-                <p
-                  className="text-white mx-auto my-auto font-landing"
-                  style={{ fontStyle: 'normal', fontWeight: 500, fontSize: 20 }}
-                >
-                  Stake
-                </p>
-              </div>
-            </Link>
           </div>
         </Link>
         <Link href={'/butter'} passHref>
@@ -218,7 +155,7 @@ const IndexPage = () => {
               className=" mx-auto font-landing text-gray-900"
               style={{
                 marginBottom: 16,
-                marginTop: 48,
+                marginTop: 106,
                 fontStyle: 'normal',
                 fontWeight: 500,
                 fontSize: 48,
@@ -235,27 +172,6 @@ const IndexPage = () => {
                 interest.
               </p>
             </div>
-            <Link href={'/butter'} passHref>
-              <div
-                className="bg-blue-600 hover:bg-blue-700  active:bg-blue-900 mx-auto flex items-center justify-items-center cursor-pointer"
-                style={{
-                  height: 64,
-                  width: 240,
-                  borderRadius: 30,
-                  paddingTop: 9,
-                  paddingBottom: 9,
-                  paddingLeft: 17,
-                  paddingRight: 17,
-                }}
-              >
-                <p
-                  className="text-white mx-auto my-auto font-landing "
-                  style={{ fontStyle: 'normal', fontWeight: 500, fontSize: 20 }}
-                >
-                  Deposit
-                </p>
-              </div>
-            </Link>
           </div>
         </Link>
       </div>
