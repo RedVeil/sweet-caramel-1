@@ -6,14 +6,14 @@ import { ethers, network } from "hardhat";
 import { expectRevert } from "../../lib/utils/expectValue";
 import getNamedAccounts from "../../lib/utils/getNamedAccounts";
 
-const LBP_MANAGER = "0xe7F0E61a07D540F6Ab3C3e81D87c6ed0F2C0244d";
-const USDC_WHALE = "0x6BE8ef6207b4114A52ae5011FE8846dA2Af8F281";
-const POP_WHALE = "0xF023E5eF2Eb3b8747cBaD5B3847813b66E9BFdD7";
+const LBP_MANAGER = "0x9F3EcFDCE702514Bf3dF6f2Dc3Aa8A6937F5dd91";
+const USDC_WHALE = "0x1d7d6598c766485dc89746fd9bda82c21df128a9";
+const POP_WHALE = "0xa49731448a1b25d92f3d80f3d3025e4f0fc8d776";
 const namedAccounts = getNamedAccounts();
 
 const DAYS = 86400;
-const timeTravel = async (time?: number) => {
-  ethers.provider.send("evm_increaseTime", [time || 1 * DAYS]);
+const timeTravel = async (timestamp: number) => {
+  ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
   ethers.provider.send("evm_mine", []);
 };
 
@@ -32,7 +32,7 @@ const prepareLbpManager = async () => {
       {
         forking: {
           jsonRpcUrl: process.env.RPC_URL,
-          blockNumber: 13677417,
+          blockNumber: 21727614,
         },
       },
     ],
@@ -41,12 +41,19 @@ const prepareLbpManager = async () => {
   /**
    * begin USDC transfer
    */
+  const [owner] = await ethers.getSigners();
+  console.log("balance is", formatEther(await owner.getBalance()));
+  await owner.sendTransaction({
+    to: USDC_WHALE,
+    value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
+  });
+
   await network.provider.request({
     method: "hardhat_impersonateAccount",
     params: [USDC_WHALE],
   });
   const usdcWhale = await ethers.getSigner(USDC_WHALE);
-  const usdc = await getErc20(namedAccounts.USDC.mainnet, usdcWhale);
+  const usdc = await getErc20(namedAccounts.USDC.polygon, usdcWhale);
 
   console.log("transferring 562,500 USDC to LBP manager");
   await usdc.transfer(LBP_MANAGER, parseUnits("562500", "6"));
@@ -54,95 +61,81 @@ const prepareLbpManager = async () => {
   /**
    * begin POP transfer
    */
+  await owner.sendTransaction({
+    to: POP_WHALE,
+    value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
+  });
   await network.provider.request({
     method: "hardhat_impersonateAccount",
     params: [POP_WHALE],
   });
   const popWhale = await ethers.getSigner(POP_WHALE);
-  const pop = await getErc20(namedAccounts.POP.mainnet, popWhale);
+  const pop = await getErc20(namedAccounts.POP.polygon, popWhale);
   console.log("transferring 1,875,000 POP to LBP manager");
   await pop.transfer(LBP_MANAGER, parseEther("1875000"));
 };
 
-const deployPoolByVote = async (): Promise<string> => {
+const deployPoolByImpersonation = async (): Promise<string> => {
   /**
-   * Voting for proposal to deployLBP
+   * send ETH to aragon dao agent address
    */
-  const voting = new ethers.Contract(
-    namedAccounts.Voting.mainnet,
-    require("./../../external/aragon/Voting.json"),
-    await ethers.getSigner(POP_WHALE)
+  const [owner] = await ethers.getSigners();
+  const transactionHash = await owner.sendTransaction({
+    to: namedAccounts.DAO_Agent.polygon,
+    value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
+  });
+
+  /**
+   * deploy LBP from aragon dao agent
+   */
+  await network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [namedAccounts.DAO_Agent.polygon],
+  });
+  const daoAgent = await ethers.getSigner(namedAccounts.DAO_Agent.polygon);
+  const lbpManager = await ethers.getContractAt(
+    "LBPManager",
+    LBP_MANAGER,
+    daoAgent
   );
-  const tx = await voting.vote(5, true, true);
-  console.log("lbp deployed");
-
-  const lbp = await ethers.getContractAt("LBPManager", LBP_MANAGER);
-  expect((await lbp.poolConfig()).deployed).to.be.true;
-  console.log("deployed pool", await lbp.lbp());
-
-  return lbp.lbp();
+  console.log("deploying lbpManager");
+  const tx = await lbpManager.deployLBP();
+  console.log("deployed");
+  return await lbpManager.lbp();
 };
 
 describe("LBP test", () => {
-  context("mainnet", () => {
+  context("polygon", () => {
     beforeEach(async () => {
+      console.log("prepping LBP");
       await prepareLbpManager();
-    });
-
-    it("has correct configuration for LBP", async () => {
-      const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER);
-      const config = await lbpManager.poolConfig();
-      const dao = await lbpManager.dao();
-      expect(config.startTime).to.equal(1638172800);
-      expect(config.swapEnabledOnStart).to.equal(false);
-      expect(config.durationInSeconds).to.equal(2.5 * DAYS);
-      expect(dao.treasury).to.equal(
-        "0x0Ec6290aBb4714ba5f1371647894Ce53c6dD673a"
-      );
-      expect(dao.agent).to.equal("0x0Ec6290aBb4714ba5f1371647894Ce53c6dD673a");
+      console.log("prepped LBP");
     });
 
     it("deploys LBP from aragon dao agent address when impersonating dao agent", async () => {
-      /**
-       * send ETH to aragon dao agent address
-       */
-      const [owner] = await ethers.getSigners();
-      const transactionHash = await owner.sendTransaction({
-        to: namedAccounts.DAO_Agent.mainnet,
-        value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
-      });
-
-      /**
-       * deploy LBP from aragon dao agent
-       */
-      await network.provider.request({
-        method: "hardhat_impersonateAccount",
-        params: [namedAccounts.DAO_Agent.mainnet],
-      });
-      const daoAgent = await ethers.getSigner(namedAccounts.DAO_Agent.mainnet);
-      const lbpManager = await ethers.getContractAt(
-        "LBPManager",
-        LBP_MANAGER,
-        daoAgent
-      );
-      console.log("deploying lbpManager");
-      const tx = await lbpManager.deployLBP();
-      console.log("deployed");
+      await deployPoolByImpersonation();
     });
 
-    it("deploys LBP from aragon dao agent address when voting", async () => {
-      const poolAddress = await deployPoolByVote();
+    it("has correct start time for pool", async () => {
+      await deployPoolByImpersonation();
+      const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER);
+      expect((await lbpManager.poolConfig()).startTime).to.equal(1638172800);
     });
 
     it("will allow trading to be enabled on the 29th", async () => {
-      const poolAddress = await deployPoolByVote();
-      await timeTravel(5 * DAYS);
+      const poolAddress = await deployPoolByImpersonation();
+
       const [anyone] = await ethers.getSigners();
       const lbpManager = await ethers.getContractAt(
         "LBPManager",
         LBP_MANAGER,
         anyone
       );
+
+      await timeTravel(
+        parseInt((await lbpManager.poolConfig()).startTime.toString())
+      );
+
       await lbpManager.enableTrading();
 
       const lbp = await ethers.getContractAt("ILBP", poolAddress);
@@ -151,8 +144,8 @@ describe("LBP test", () => {
     });
 
     it("will not allow trading to be enabled before the 29th", async () => {
-      const poolAddress = await deployPoolByVote();
-      await timeTravel(1 * DAYS);
+      const poolAddress = await deployPoolByImpersonation();
+      await timeTravel(1638172800 - 60);
       const [anyone] = await ethers.getSigners();
       const lbpManager = await ethers.getContractAt(
         "LBPManager",
@@ -165,59 +158,77 @@ describe("LBP test", () => {
       );
     });
     it("will move funds out of LBP manager when LBP is deployed", async () => {
-      const poolAddress = await deployPoolByVote();
-      const usdc = await getErc20(namedAccounts.USDC.mainnet);
+      const poolAddress = await deployPoolByImpersonation();
+      const usdc = await getErc20(namedAccounts.USDC.polygon);
       const balanceOfAfter = await usdc.balanceOf(LBP_MANAGER);
 
       expect(balanceOfAfter).to.equal(BigNumber.from("0"));
     });
     it("will move funds out of LBP manager when LBP is deployed", async () => {
-      const poolAddress = await deployPoolByVote();
-      const usdc = await getErc20(namedAccounts.USDC.mainnet);
+      const poolAddress = await deployPoolByImpersonation();
+      const usdc = await getErc20(namedAccounts.USDC.polygon);
       const balanceOfAfter = await usdc.balanceOf(LBP_MANAGER);
 
       expect(balanceOfAfter).to.equal(BigNumber.from("0"));
     });
-    it("will transfer funds back to DAO agent when pool is closed (impersonation)", async () => {
+    it("will transfer funds back to DAO agent when pool is closed", async () => {
+      const usdc = await getErc20(namedAccounts.USDC.polygon);
+      const pop = await getErc20(namedAccounts.POP.polygon);
       /**
        * send ETH to aragon dao agent address
        */
       const [owner] = await ethers.getSigners();
       const transactionHash = await owner.sendTransaction({
-        to: namedAccounts.DAO_Agent.mainnet,
+        to: namedAccounts.DAO_Agent.polygon,
         value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
       });
 
-      await deployPoolByVote();
-      await timeTravel(5 * DAYS);
+      await deployPoolByImpersonation();
+
+      const usdcBalanceBefore = await usdc.balanceOf(
+        namedAccounts.DAO_Treasury.polygon
+      );
+      const popBalanceBefore = await pop.balanceOf(
+        namedAccounts.DAO_Treasury.polygon
+      );
+
+      await timeTravel(1638172800);
 
       await network.provider.request({
         method: "hardhat_impersonateAccount",
-        params: [namedAccounts.DAO_Agent.mainnet],
+        params: [namedAccounts.DAO_Agent.polygon],
       });
       const lbpManager = await ethers.getContractAt(
         "LBPManager",
         LBP_MANAGER,
-        await ethers.getSigner(namedAccounts.DAO_Agent.mainnet)
+        await ethers.getSigner(namedAccounts.DAO_Agent.polygon)
       );
 
       await lbpManager.enableTrading();
 
       await lbpManager.withdrawFromPool();
-      const usdc = await getErc20(namedAccounts.USDC.mainnet);
-      const pop = await getErc20(namedAccounts.POP.mainnet);
+
+      const usdcBalanceAfter = await usdc.balanceOf(
+        namedAccounts.DAO_Treasury.polygon
+      );
+      const popBalanceAfter = await pop.balanceOf(
+        namedAccounts.DAO_Treasury.polygon
+      );
+
+      expect(usdcBalanceAfter.gt(usdcBalanceBefore));
+      expect(popBalanceAfter.gt(popBalanceBefore));
+
       console.log(
         "USDC balance (treasury)",
         formatUnits(
-          await usdc.balanceOf(namedAccounts.DAO_Treasury.mainnet),
+          await usdc.balanceOf(namedAccounts.DAO_Treasury.polygon),
           "6"
         )
       );
       console.log(
         "POP balance (treasury)",
-        formatEther(await pop.balanceOf(namedAccounts.DAO_Treasury.mainnet))
+        formatEther(await pop.balanceOf(namedAccounts.DAO_Treasury.polygon))
       );
     });
   });
-  it.skip("will transfer funds back to DAO agent when pool is closed (via vote)", async () => {});
 });
