@@ -24,7 +24,7 @@ const IndexPage = () => {
               borderRadius: 40,
               borderStyle: 'solid',
               borderWidth: 1,
-              borderColor: '#E5E7EB',
+              borderColor: '#f2edcc',
               paddingTop: 86,
               paddingBottom: 60,
             }}
@@ -64,7 +64,7 @@ const IndexPage = () => {
               borderRadius: 40,
               borderStyle: 'solid',
               borderWidth: 1,
-              borderColor: '#E5E7EB',
+              borderColor: '#f2edcc',
               paddingTop: 86,
               paddingBottom: 60,
             }}
@@ -109,7 +109,7 @@ const IndexPage = () => {
               borderRadius: 40,
               borderStyle: 'solid',
               borderWidth: 1,
-              borderColor: '#E5E7EB',
+              borderColor: '#f2edcc',
               paddingTop: 114,
               paddingBottom: 60,
             }}
@@ -145,7 +145,7 @@ const IndexPage = () => {
               borderRadius: 40,
               borderStyle: 'solid',
               borderWidth: 1,
-              borderColor: '#E5E7EB',
+              borderColor: '#f2edcc',
               paddingTop: 114,
               paddingBottom: 60,
             }}
