@@ -4,9 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { connectors } from '../../context/Web3/connectors';
-import { GrantsMenu } from './GrantsMenu';
 import NavbarLink from './NavbarLinks';
-import { ProposalsMenu } from './ProposalsMenu';
 
 const Navbar: React.FC = () => {
   const context = useWeb3React<Web3Provider>();
@@ -25,77 +23,60 @@ const Navbar: React.FC = () => {
   const [showProposals, setShowProposals] = useState(false);
 
   return (
-    <>
-      <nav className="flex shadow-md py-3 px-14 bg-white">
-        <div>
-          <Link href="/" passHref>
-            <a>
-              <img
-                src="/images/icons/popLogo.png"
-                alt="Logo"
-                className="w-8 h-8"
+    <nav className="flex pt-6 mx-20 bg-white">
+      <div className="flex flex-row items-center justify-between w-10/12 pb-6 mx-auto">
+        <div className="flex flex-row items-center">
+          <div>
+            <Link href="/" passHref>
+              <a>
+                <img
+                  src="/images/icons/popLogo.png"
+                  alt="Logo"
+                  className="w-10 h-10"
+                />
+              </a>
+            </Link>
+          </div>
+          <ul className="flex flex-row space-x-10 ml-16">
+            <li>
+              <NavbarLink
+                label="Yield Optimizer"
+                url="/butter"
+                isActive={router.pathname === '/butter'}
               />
-            </a>
-          </Link>
+            </li>
+            <li>
+              <NavbarLink
+                label="Staking"
+                url="/staking"
+                isActive={router.pathname === '/staking'}
+              />
+            </li>
+            <li>
+              <NavbarLink
+                label="Claims"
+                url="/rewards"
+                isActive={router.pathname === '/rewards'}
+              />
+            </li>
+          </ul>
         </div>
-        <ul className="flex flex-row items-center mx-auto space-x-16">
-          <li />
-          <li>
-            <NavbarLink
-              label="Staking"
-              url="/staking"
-              isActive={router.pathname === '/staking'}
-            />
-          </li>
-          <li>
-            <NavbarLink
-              label="Grant Elections"
-              onClick={() => setShowGrants(!showGrants)}
-              isActive={router.pathname === '/grant-elections/all'}
-            />
-            <GrantsMenu
-              visible={showGrants}
-              toggleSubMenu={() => setShowGrants(!showGrants)}
-            />
-          </li>
-          <li>
-            <NavbarLink
-              label="White Paper"
-              url="/docs/Popcorn_whitepaper_v1.pdf"
-              isActive={false}
-              target="_window"
-            />
-          </li>
-          <li>
-            <NavbarLink
-              label="Beneficiaries"
-              url="/beneficiaries"
-              isActive={router.pathname === '/beneficiaries'}
-            />
-          </li>
-          <li>
-            <NavbarLink
-              label="Proposals"
-              onClick={() => setShowProposals(!showProposals)}
-              isActive={router.pathname === '/proposals'}
-            />
-            <ProposalsMenu
-              visible={showProposals}
-              toggleSubMenu={() => setShowProposals(!showProposals)}
-            />
-          </li>
-        </ul>
-        <button
-          className="w-28 p-1 flex flex-row items-center justify-center border border-gray-400 rounded hover:bg-indigo-400 hover:text-white"
-          onClick={() => activate(connectors.Injected)}
-        >
-          <p>Connect{account && 'ed'}</p>
-          {account && (
-            <div className="w-2 h-2 bg-green-400 rounded-full ml-2" />
-          )}
-        </button>
-      </nav>
-    </>
+        <div className="">
+          <button
+            onClick={() =>
+              account ? deactivate() : activate(connectors.Injected)
+            }
+            className={`rounded-full py-3 w-44 group hover:bg-blue-500 ${
+              account ? 'bg-blue-50 border border-blue-700' : 'bg-blue-100'
+            }`}
+          >
+            <p className="text-blue-700 font-medium text-base group-hover:text-white">
+              {account ? 'Disconnect Wallet' : 'Connect Wallet'}
+            </p>
+          </button>
+        </div>
+      </div>
+    </nav>
   );
 };
 export default Navbar;

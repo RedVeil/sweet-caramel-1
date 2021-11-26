@@ -16,7 +16,6 @@ interface Balances {
   [address: string]: string;
 }
 
-
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   const signer = hre.askForSigner();
   const addresses = getNamedAccounts();

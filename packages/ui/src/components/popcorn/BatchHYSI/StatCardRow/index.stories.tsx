@@ -14,7 +14,7 @@ export default {
   component: StatCardRow,
   decorators: [
     (Story) => (
-      <div className="flex flex-row justify-center">
+      <div className="flex flex-row justify-center mt-10">
         <Story></Story>
       </div>
     ),
