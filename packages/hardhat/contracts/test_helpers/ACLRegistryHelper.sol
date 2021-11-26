@@ -10,9 +10,6 @@ contract ACLRegistryHelper {
   }
 
   function senderProtected(bytes32 role) public view {
-    require(
-      aclRegistry.hasRole(role, msg.sender),
-      "you dont have the required role"
-    );
+    require(aclRegistry.hasRole(role, msg.sender), "you dont have the required role");
   }
 }

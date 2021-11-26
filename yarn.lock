@@ -106,6 +106,34 @@
     ethers "~4.0.4"
     lodash "^4.17.11"
 
+"@anthonymartin/hardhat-deploy@^0.9.9":
+  version "0.9.9"
+  resolved "https://registry.yarnpkg.com/@anthonymartin/hardhat-deploy/-/hardhat-deploy-0.9.9.tgz#6879e5353c345befc47c348436f3cef049202090"
+  integrity sha512-eIgkaCH0FSDUk1wEDkCDhNpTM1tOOLLAsujUhvZwaUV736y2F7d2ddubETCKXpJaTgqiWNxxO/T+z2jrN5KFGA==
+  dependencies:
+    "@ethersproject/abi" "^5.4.0"
+    "@ethersproject/abstract-signer" "^5.4.1"
+    "@ethersproject/address" "^5.4.0"
+    "@ethersproject/bignumber" "^5.4.1"
+    "@ethersproject/bytes" "^5.4.0"
+    "@ethersproject/constants" "^5.4.0"
+    "@ethersproject/contracts" "^5.4.1"
+    "@ethersproject/providers" "^5.4.4"
+    "@ethersproject/solidity" "^5.4.0"
+    "@ethersproject/transactions" "^5.4.0"
+    "@ethersproject/wallet" "^5.4.0"
+    "@types/qs" "^6.9.7"
+    axios "^0.21.1"
+    chalk "^4.1.2"
+    chokidar "^3.5.2"
+    debug "^4.3.2"
+    enquirer "^2.3.6"
+    form-data "^4.0.0"
+    fs-extra "^10.0.0"
+    match-all "^1.2.6"
+    murmur-128 "^0.2.1"
+    qs "^6.9.4"
+
 "@anthonymartin/solidity-docgen@0.5.13":
   version "0.5.13"
   resolved "https://registry.yarnpkg.com/@anthonymartin/solidity-docgen/-/solidity-docgen-0.5.13.tgz#7950eb81fbc4ebbf28c12cea9534e1882fd0e505"
@@ -13077,34 +13105,6 @@ hardhat-contract-sizer@^2.0.3:
     cli-table3 "^0.6.0"
     colors "^1.4.0"
 
-hardhat-deploy@^0.9.4:
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/hardhat-deploy/-/hardhat-deploy-0.9.4.tgz#8039b6283e8adc8bc908a3af8079f0d4c9850387"
-  integrity sha512-0Zr8R5SAq6oK/gi170yCDqPTvKNPHdlm6wQe3ZQg/uiIDZxofpRM2frQVPUFlgdI2yUXtVcGBiPcC2r2fEockw==
-  dependencies:
-    "@ethersproject/abi" "^5.4.0"
-    "@ethersproject/abstract-signer" "^5.4.1"
-    "@ethersproject/address" "^5.4.0"
-    "@ethersproject/bignumber" "^5.4.1"
-    "@ethersproject/bytes" "^5.4.0"
-    "@ethersproject/constants" "^5.4.0"
-    "@ethersproject/contracts" "^5.4.1"
-    "@ethersproject/providers" "^5.4.4"
-    "@ethersproject/solidity" "^5.4.0"
-    "@ethersproject/transactions" "^5.4.0"
-    "@ethersproject/wallet" "^5.4.0"
-    "@types/qs" "^6.9.7"
-    axios "^0.21.1"
-    chalk "^4.1.2"
-    chokidar "^3.5.2"
-    debug "^4.3.2"
-    enquirer "^2.3.6"
-    form-data "^4.0.0"
-    fs-extra "^10.0.0"
-    match-all "^1.2.6"
-    murmur-128 "^0.2.1"
-    qs "^6.9.4"
-
 hardhat-gas-reporter@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/hardhat-gas-reporter/-/hardhat-gas-reporter-1.0.4.tgz#59e3137e38e0dfeac2e4f90d5c74160b50ad4829"
@@ -13121,10 +13121,10 @@ hardhat-secure-signer@^0.0.8:
     "@types/readline-sync" "^1.4.4"
     readline-sync "^1.4.10"
 
-hardhat@^2.4.3:
-  version "2.6.7"
-  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.6.7.tgz#f9949e58f019439f0c5299b24e7f91d6c6a5ff29"
-  integrity sha512-Mua01f6ZN1feQLktHSH2p5A5LCdA+Wf7+O2lJDH6wClvWPtI2eqKNNY2gxBwYXoQ28GZrT3K6mqQOZeRWAca6Q==
+hardhat@^2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.7.0.tgz#d8f01bc07bdd88ccaa00719ddb18618bc59a73b5"
+  integrity sha512-DqweY3KH5gwExoZ8EtsAfioj0Hk0NBXWXT3fMXWkiQNfyYBoZLrqdPNkbJ/E2LD4mZ+BKF7v/1chYR9ZCn2Z+g==
   dependencies:
     "@ethereumjs/block" "^3.4.0"
     "@ethereumjs/blockchain" "^5.4.0"
@@ -13171,7 +13171,7 @@ hardhat@^2.4.3:
     stacktrace-parser "^0.1.10"
     "true-case-path" "^2.2.1"
     tsort "0.0.1"
-    uuid "^3.3.2"
+    uuid "^8.3.2"
     ws "^7.4.6"
 
 has-ansi@^2.0.0:
@@ -23375,7 +23375,7 @@ uuid@^7.0.3:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.3.tgz#c5c9f2c8cf25dc0a372c4df1441c41f5bd0c680b"
   integrity sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
 
-uuid@^8.3.0:
+uuid@^8.3.0, uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
