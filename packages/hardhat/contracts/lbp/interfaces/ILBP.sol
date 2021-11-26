@@ -16,5 +16,5 @@ interface ILBP {
     uint256[] memory endWeights
   ) external;
 
-  function getPoolId() external returns (bytes32 poolID);
+  function getPoolId() external view returns (bytes32 poolID);
 }

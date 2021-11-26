@@ -1,5 +1,4 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { formatEther, formatUnits, parseEther } from "@ethersproject/units";
 import { expect } from "chai";
 import { parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
@@ -19,10 +18,34 @@ const timeTravel = async (timestamp: number) => {
 
 const getErc20 = async (address, signer?) => {
   return ethers.getContractAt(
-    "@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20",
+    "@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20",
     address,
     signer
   );
+};
+const getPoolTokenBalances = async (address) => {
+  const usdc = await getErc20(namedAccounts.USDC.polygon);
+  const pop = await getErc20(namedAccounts.POP.polygon);
+  const usdcBalance = await usdc.balanceOf(address);
+  const popBalance = await pop.balanceOf(address);
+  return [usdcBalance, popBalance];
+};
+
+const transferErc20 = async (token, from, to, amount) => {
+  const [owner] = await ethers.getSigners();
+  await owner.sendTransaction({
+    to: from,
+    value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
+  });
+
+  await network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [from],
+  });
+  const signer = await ethers.getSigner(from);
+  const erc20 = await getErc20(token, signer);
+
+  await erc20.transfer(to, parseUnits(amount, await erc20.decimals()));
 };
 
 const prepareLbpManager = async () => {
@@ -38,41 +61,19 @@ const prepareLbpManager = async () => {
     ],
   });
 
-  /**
-   * begin USDC transfer
-   */
-  const [owner] = await ethers.getSigners();
-  console.log("balance is", formatEther(await owner.getBalance()));
-  await owner.sendTransaction({
-    to: USDC_WHALE,
-    value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
-  });
+  await transferErc20(
+    namedAccounts.USDC.polygon,
+    USDC_WHALE,
+    LBP_MANAGER,
+    "562500"
+  );
 
-  await network.provider.request({
-    method: "hardhat_impersonateAccount",
-    params: [USDC_WHALE],
-  });
-  const usdcWhale = await ethers.getSigner(USDC_WHALE);
-  const usdc = await getErc20(namedAccounts.USDC.polygon, usdcWhale);
-
-  console.log("transferring 562,500 USDC to LBP manager");
-  await usdc.transfer(LBP_MANAGER, parseUnits("562500", "6"));
-
-  /**
-   * begin POP transfer
-   */
-  await owner.sendTransaction({
-    to: POP_WHALE,
-    value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
-  });
-  await network.provider.request({
-    method: "hardhat_impersonateAccount",
-    params: [POP_WHALE],
-  });
-  const popWhale = await ethers.getSigner(POP_WHALE);
-  const pop = await getErc20(namedAccounts.POP.polygon, popWhale);
-  console.log("transferring 1,875,000 POP to LBP manager");
-  await pop.transfer(LBP_MANAGER, parseEther("1875000"));
+  await transferErc20(
+    namedAccounts.POP.polygon,
+    POP_WHALE,
+    LBP_MANAGER,
+    "1875000"
+  );
 };
 
 const deployPoolByImpersonation = async (): Promise<string> => {
@@ -80,7 +81,7 @@ const deployPoolByImpersonation = async (): Promise<string> => {
    * send ETH to aragon dao agent address
    */
   const [owner] = await ethers.getSigners();
-  const transactionHash = await owner.sendTransaction({
+  await owner.sendTransaction({
     to: namedAccounts.DAO_Agent.polygon,
     value: ethers.utils.parseEther("5.0"), // Sends exactly 5.0 ether
   });
@@ -98,18 +99,14 @@ const deployPoolByImpersonation = async (): Promise<string> => {
     LBP_MANAGER,
     daoAgent
   );
-  console.log("deploying lbpManager");
   const tx = await lbpManager.deployLBP();
-  console.log("deployed");
   return await lbpManager.lbp();
 };
 
 describe("LBP test", () => {
   context("polygon", () => {
     beforeEach(async () => {
-      console.log("prepping LBP");
       await prepareLbpManager();
-      console.log("prepped LBP");
     });
 
     it("deploys LBP from aragon dao agent address when impersonating dao agent", async () => {
@@ -132,14 +129,11 @@ describe("LBP test", () => {
         anyone
       );
 
-      await timeTravel(
-        parseInt((await lbpManager.poolConfig()).startTime.toString())
-      );
+      await timeTravel((await lbpManager.poolConfig()).startTime.toNumber());
 
       await lbpManager.enableTrading();
 
       const lbp = await ethers.getContractAt("ILBP", poolAddress);
-      console.log("swap enabled", await lbp.getSwapEnabled());
       expect(await lbp.getSwapEnabled()).to.be.true;
     });
 
@@ -185,10 +179,7 @@ describe("LBP test", () => {
 
       await deployPoolByImpersonation();
 
-      const usdcBalanceBefore = await usdc.balanceOf(
-        namedAccounts.DAO_Treasury.polygon
-      );
-      const popBalanceBefore = await pop.balanceOf(
+      const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(
         namedAccounts.DAO_Treasury.polygon
       );
 
@@ -208,27 +199,24 @@ describe("LBP test", () => {
 
       await lbpManager.withdrawFromPool();
 
-      const usdcBalanceAfter = await usdc.balanceOf(
-        namedAccounts.DAO_Treasury.polygon
-      );
-      const popBalanceAfter = await pop.balanceOf(
+      const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(
         namedAccounts.DAO_Treasury.polygon
       );
 
       expect(usdcBalanceAfter.gt(usdcBalanceBefore));
       expect(popBalanceAfter.gt(popBalanceBefore));
 
-      console.log(
-        "USDC balance (treasury)",
-        formatUnits(
-          await usdc.balanceOf(namedAccounts.DAO_Treasury.polygon),
-          "6"
-        )
-      );
-      console.log(
-        "POP balance (treasury)",
-        formatEther(await pop.balanceOf(namedAccounts.DAO_Treasury.polygon))
-      );
+      // console.log(
+      //   "USDC balance (treasury)",
+      //   formatUnits(
+      //     await usdc.balanceOf(namedAccounts.DAO_Treasury.polygon),
+      //     "6"
+      //   )
+      // );
+      // console.log(
+      //   "POP balance (treasury)",
+      //   formatEther(await pop.balanceOf(namedAccounts.DAO_Treasury.polygon))
+      // );
     });
   });
 });
