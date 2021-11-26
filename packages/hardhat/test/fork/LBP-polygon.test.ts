@@ -1,6 +1,6 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
-import { parseUnits } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
 import { expectRevert } from "../../lib/utils/expectValue";
 import getNamedAccounts from "../../lib/utils/getNamedAccounts";
@@ -8,6 +8,7 @@ import getNamedAccounts from "../../lib/utils/getNamedAccounts";
 const LBP_MANAGER = "0x9F3EcFDCE702514Bf3dF6f2Dc3Aa8A6937F5dd91";
 const USDC_WHALE = "0x1d7d6598c766485dc89746fd9bda82c21df128a9";
 const POP_WHALE = "0xa49731448a1b25d92f3d80f3d3025e4f0fc8d776";
+const START_TIME = 1638172800;
 const namedAccounts = getNamedAccounts();
 
 const DAYS = 86400;
@@ -54,7 +55,7 @@ const prepareLbpManager = async () => {
     params: [
       {
         forking: {
-          jsonRpcUrl: process.env.RPC_URL,
+          jsonRpcUrl: process.env.RPC_URL_POLYGON || process.env.RPC_URL,
           blockNumber: 21727614,
         },
       },
@@ -111,12 +112,29 @@ describe("LBP test", () => {
 
     it("deploys LBP from aragon dao agent address when impersonating dao agent", async () => {
       await deployPoolByImpersonation();
+      const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER);
+      const config = await lbpManager.poolConfig();
+      expect(config.deployed).to.be.true;
     });
 
     it("has correct start time for pool", async () => {
       await deployPoolByImpersonation();
       const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER);
-      expect((await lbpManager.poolConfig()).startTime).to.equal(1638172800);
+      expect((await lbpManager.poolConfig()).startTime).to.equal(START_TIME);
+    });
+
+    it("has correct configuration for LBP", async () => {
+      const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER);
+      const config = await lbpManager.poolConfig();
+      const dao = await lbpManager.dao();
+      expect(config.deployed).to.be.false;
+      expect(config.startTime).to.equal(START_TIME);
+      expect(config.swapEnabledOnStart).to.equal(false);
+      expect(config.durationInSeconds).to.equal(2.5 * DAYS);
+      expect(dao.treasury).to.equal(
+        "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776"
+      );
+      expect(dao.agent).to.equal("0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776");
     });
 
     it("will allow trading to be enabled on the 29th", async () => {
@@ -128,8 +146,10 @@ describe("LBP test", () => {
         LBP_MANAGER,
         anyone
       );
+      const startTime = (await lbpManager.poolConfig()).startTime.toNumber();
+      expect(startTime).to.equal(START_TIME);
 
-      await timeTravel((await lbpManager.poolConfig()).startTime.toNumber());
+      await timeTravel(startTime);
 
       await lbpManager.enableTrading();
 
@@ -138,7 +158,7 @@ describe("LBP test", () => {
     });
 
     it("will not allow trading to be enabled before the 29th", async () => {
-      const poolAddress = await deployPoolByImpersonation();
+      await deployPoolByImpersonation();
       await timeTravel(1638172800 - 60);
       const [anyone] = await ethers.getSigners();
       const lbpManager = await ethers.getContractAt(
@@ -151,18 +171,35 @@ describe("LBP test", () => {
         "Trading can not be enabled yet"
       );
     });
-    it("will move funds out of LBP manager when LBP is deployed", async () => {
-      const poolAddress = await deployPoolByImpersonation();
-      const usdc = await getErc20(namedAccounts.USDC.polygon);
-      const balanceOfAfter = await usdc.balanceOf(LBP_MANAGER);
-
-      expect(balanceOfAfter).to.equal(BigNumber.from("0"));
+    it("will transfer funds from LBP manager to Pool when LBP is deployed", async () => {
+      await deployPoolByImpersonation();
+      const [usdcBalancerAfter, popBalanceAfter] = await getPoolTokenBalances(
+        LBP_MANAGER
+      );
+      expect(usdcBalancerAfter).to.equal(BigNumber.from("0"));
+      expect(popBalanceAfter).to.equal(BigNumber.from("0"));
     });
+
+    it("has correctly defined tokens and amounts", async () => {
+      const poolAddress = await deployPoolByImpersonation();
+      const vault = await ethers.getContractAt(
+        "IVault",
+        namedAccounts.BalancerVault.polygon
+      );
+
+      const lbp = await ethers.getContractAt("ILBP", poolAddress);
+      const tokens = await vault.getPoolTokens(await lbp.getPoolId());
+      expect(tokens[0].map((token) => token.toLowerCase())).to.eql([
+        namedAccounts.USDC.polygon.toLowerCase(),
+        namedAccounts.POP.polygon.toLowerCase(),
+      ]);
+      expect(tokens[1][0]).equal(parseUnits("562500", "6"));
+      expect(tokens[1][1]).equal(parseEther("1875000"));
+    });
+
     it("will transfer funds back to DAO agent when pool is closed", async () => {
-      const usdc = await getErc20(namedAccounts.USDC.polygon);
-      const pop = await getErc20(namedAccounts.POP.polygon);
       /**
-       * send ETH to aragon dao agent address
+       * send ETH to dao agent address
        */
       const [owner] = await ethers.getSigners();
       const transactionHash = await owner.sendTransaction({
@@ -189,6 +226,8 @@ describe("LBP test", () => {
       );
 
       await lbpManager.enableTrading();
+
+      await timeTravel(1638172800 + 100 * DAYS);
 
       await lbpManager.withdrawFromPool();
 
