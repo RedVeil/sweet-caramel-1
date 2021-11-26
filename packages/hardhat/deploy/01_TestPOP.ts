@@ -11,7 +11,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("TestPOP", {
     from: deployer,
-    args: ["Test POP", "TPOP",18],
+    args: ["Test POP", "TPOP", 18],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "MockERC20",

@@ -30,15 +30,15 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
     case 4:
       contracts = {
         staking: [
-          "0xF57c2b473D3347A9B7B79B3EC4A6250721bFbDA7",
-          "0xd3bf1996e982509326e77b66f9eb66f9d05f3cda",
+          "0x6D4870349dfd8109d3Ea67AC516204358cF30AC2",
+          "0xAE5dA2a2d85Ce27e89AbC9f44d1d4986728BD182",
         ],
-        pop: "0xE02e7744f83Fe0397096e2e46b968d9E2e7dA37F",
-        threeCrv: "0xe65e69d194fd0c0aadb33b48bfa75d8110065c7f",
-        popEthLp: "0x68397D77c9d7180D8EE3bAA1F1741CfC3647B988",
-        butter: "0x8F8BA4A0E8b201f3966558BD53B44E229275a4b4",
-        aclRegistry: "0x8E7836f37b35ad1BA7321c26cf8fd22A4e7DdDc3",
-        contractRegistry: "0xaA7B112A522Fbb3A85E0705eBeE59586fbB262C4",
+        pop: "0x7Aa2F180845B77A1744715315841F9C748BE581B",
+        threeCrv: "0xcFE7993F611D4058F47b102384D6d4C140ABA5Dd",
+        popEthLp: "0x0bE1B6f20045751375b058c299F7F4eb1656CBCC",
+        butter: "0xe1455D92fE717C0A165dAA17a0428838cDBd95d8",
+        aclRegistry: "0x16A65a5176755A9775e17401A1c2a5A2302A91cA",
+        contractRegistry: "0xbd7e0663cF85a3BC0D9e7A908c9cf8A3b4900439",
       };
       break;
     case 137:
@@ -76,8 +76,8 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
           "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
         ],
         pop: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-        threeCrv: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-        popEthLp: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+        threeCrv: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+        popEthLp: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
         butter: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       };
       break;
@@ -89,11 +89,10 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
           "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
         ],
         pop: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-        threeCrv: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-        popEthLp: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+        threeCrv: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+        popEthLp: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
         butter: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       };
-      break;
   }
   return contracts;
 }

@@ -91,3 +91,18 @@ export const switchNetwork = (chainId: number) => {
     console.error('Error while changing network', e);
   }
 };
+
+export const getChainLogo = (chainId: number) => {
+  switch (chainId) {
+    case 1:
+      return "/images/icons/ethLogo.png"
+    case 4:
+      return "/images/icons/ethLogo.png"
+    case 137:
+      return "/images/icons/polygonLogo.png"
+    case 80001:
+      return "/images/icons/polygonLogo.png"
+    case 42161:
+      return "/images/icons/arbLogo.png"
+  }
+}

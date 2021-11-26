@@ -5,6 +5,7 @@ import {
   bigNumberToNumber,
   getSingleStakingPoolInfo,
   StakingPoolInfo,
+  getERC20Contract
 } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import TokenInput from 'components/Common/TokenInput';
@@ -66,9 +67,7 @@ export default function stake(): JSX.Element {
   const { id } = router.query;
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
-  const { library, account, activate, chainId } = context;
-  // const [state.stakingPageInfo, setStakingInfo] = useState<StakingInfo>();
-  // const [stakingStats, setStakingStats] = useState<StakingPoolInfo>();
+  const { library, account, activate } = context;
   const [inputTokenAmount, setInputTokenAmount] = useState<number>(0);
   const [balances, setBalances] = useState<Balances>({
     wallet: 0,
@@ -80,18 +79,59 @@ export default function stake(): JSX.Element {
   const [wait, setWait] = useState<boolean>(false);
   const [withdraw, setWithdraw] = useState<boolean>(false);
   const { state, dispatch } = useContext(store);
-  // useEffect(() => {
-  //   if (!state.stakingPageInfo) {
-  //     return;
-  //   }
 
-  // }, [state.stakingPageInfo]);
 
   useEffect(() => {
-    if (true) {
-      // check here if the page reload would work or not and send the user back if not.
+    const stakingPoolAddress = sessionStorage.getItem('stakingPoolAddress')
+    const stakingPoolIndex = parseInt(sessionStorage.getItem('stakingPoolIndex'))
+    async function getPageInfo() {
+      if (!stakingPoolAddress) {
+        router.push(`/staking`)
+      }
+      else {
+        if (contracts && contracts.staking.length > 0) {
+          const stakingContract: StakingRewards = contracts.staking[stakingPoolIndex]
+          const stakingPoolInfo: StakingPoolInfo = await getSingleStakingPoolInfo(
+            stakingContract, library
+          );
+          const erc20 = await getERC20Contract(stakingPoolInfo.stakedTokenAddress, library);
+          const tokenName = await erc20.name()
+          dispatch(
+            updateStakingPageInfo({
+              inputToken: erc20,
+              stakingContract: stakingContract,
+              tokenName,
+              poolInfo: stakingPoolInfo,
+            }),
+          );
+          await updateDataOnRefresh();
+        }
+      }
     }
-  }, []);
+    if (!state.stakingPageInfo && stakingPoolIndex != null) {
+      getPageInfo();
+    }
+  }, [state.stakingPageInfo, contracts, library]);
+
+  const updateDataOnRefresh = async () => {
+    const inputBalance = await state.stakingPageInfo?.inputToken.balanceOf(
+      account,
+    );
+    const allowance = await state.stakingPageInfo?.inputToken.allowance(
+      account,
+      state.stakingPageInfo?.stakingContract.address,
+    );
+    const stakedAmount = await state.stakingPageInfo?.stakingContract.balanceOf(
+      account,
+    );
+    const earned = await state.stakingPageInfo?.stakingContract.earned(account);
+    setBalances({
+      wallet: bigNumberToNumber(inputBalance),
+      staked: bigNumberToNumber(stakedAmount),
+      allowance: bigNumberToNumber(allowance),
+      earned: bigNumberToNumber(earned),
+    });
+  }
 
   // useEffect(() => {
   //   router.back()
@@ -99,24 +139,25 @@ export default function stake(): JSX.Element {
 
   // useEffect(() => {
   //   updateData()
-  // }, [state.stakingPageInfo.poolInfo.stakedTokenAddress])
+  // }, [state.stakingPageInfo?.poolInfo.stakedTokenAddress])
 
   async function updateData(): Promise<void> {
-    const inputBalance = await state.stakingPageInfo.inputToken.balanceOf(
+    const inputBalance = await state.stakingPageInfo?.inputToken.balanceOf(
       account,
     );
-    const allowance = await state.stakingPageInfo.inputToken.allowance(
+    const allowance = await state.stakingPageInfo?.inputToken.allowance(
       account,
-      state.stakingPageInfo.stakingContract.address,
+      state.stakingPageInfo?.stakingContract.address,
     );
-    const stakedAmount = await state.stakingPageInfo.stakingContract.balanceOf(
+    const stakedAmount = await state.stakingPageInfo?.stakingContract.balanceOf(
       account,
     );
-    const earned = await state.stakingPageInfo.stakingContract.earned(account);
+    const earned = await state.stakingPageInfo?.stakingContract.earned(account);
     getSingleStakingPoolInfo(
-      state.stakingPageInfo.stakingContract,
-      state.stakingPageInfo.poolInfo.stakedTokenAddress,
-      state.stakingPageInfo.poolInfo.stakedTokenName,
+      state.stakingPageInfo?.stakingContract,
+      library,
+      state.stakingPageInfo?.poolInfo.stakedTokenAddress,
+      state.stakingPageInfo?.poolInfo.stakedTokenName,
     )
       .then((res: StakingPoolInfo) => {
         setBalances({
@@ -126,7 +167,7 @@ export default function stake(): JSX.Element {
           earned: bigNumberToNumber(earned),
         });
 
-        const poolInfo = { ...state.stakingPageInfo.poolInfo, res };
+        const poolInfo = { ...state.stakingPageInfo?.poolInfo, res };
 
         const newStakingPageInfo = {
           ...state.stakingPageInfo,
@@ -134,28 +175,28 @@ export default function stake(): JSX.Element {
         };
         dispatch(updateStakingPageInfo(newStakingPageInfo));
       })
-      .catch(() => {});
+      .catch(() => { });
   }
 
   // const apy = await calculateAPY(
-  //   await state.stakingPageInfo.stakingContract.getRewardForDuration(),
-  //   await state.stakingPageInfo.stakingContract.totalSupply(),
+  //   await state.stakingPageInfo?.stakingContract.getRewardForDuration(),
+  //   await state.stakingPageInfo?.stakingContract.totalSupply(),
   // );
 
   async function stake(): Promise<void> {
     setWait(true);
-    toast.loading(`Staking ${state.stakingPageInfo.tokenName}...`);
+    toast.loading(`Staking ${state.stakingPageInfo?.tokenName}...`);
     const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
     const signer = library.getSigner();
     const connectedStaking =
-      await state.stakingPageInfo.stakingContract.connect(signer);
+      await state.stakingPageInfo?.stakingContract.connect(signer);
     await connectedStaking
       .stake(lockedPopInEth)
       .then((res) =>
         res.wait().then((res) => {
           {
             toast.dismiss();
-            toast.success(`${state.stakingPageInfo.tokenName} staked!`);
+            toast.success(`${state.stakingPageInfo?.tokenName} staked!`);
           }
         }),
       )
@@ -177,18 +218,18 @@ export default function stake(): JSX.Element {
 
   async function withdrawStake(): Promise<void> {
     setWait(true);
-    toast.loading(`Withdrawing ${state.stakingPageInfo.tokenName}...`);
+    toast.loading(`Withdrawing ${state.stakingPageInfo?.tokenName}...`);
     const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
     const signer = library.getSigner();
     const connectedStaking =
-      await state.stakingPageInfo.stakingContract.connect(signer);
+      await state.stakingPageInfo?.stakingContract.connect(signer);
     await connectedStaking
       .withdraw(lockedPopInEth)
       .then((res) =>
         res.wait().then((res) => {
           {
             toast.dismiss();
-            toast.success(`${state.stakingPageInfo.tokenName} withdrawn!`);
+            toast.success(`${state.stakingPageInfo?.tokenName} withdrawn!`);
           }
         }),
       )
@@ -210,7 +251,7 @@ export default function stake(): JSX.Element {
   async function approve(): Promise<void> {
     setWait(true);
     toast.loading(
-      `Approving ${state.stakingPageInfo.tokenName} for staking...`,
+      `Approving ${state.stakingPageInfo?.tokenName} for staking...`,
     );
 
     // Ensure that inputTokenAmount is in the format 10000000... instead of 10e+5
@@ -219,11 +260,11 @@ export default function stake(): JSX.Element {
     const lockedTokenInEth = utils.parseEther(formattedToken);
     const connected = await contracts.pop.connect(library.getSigner());
     await connected
-      .approve(state.stakingPageInfo.stakingContract.address, lockedTokenInEth)
+      .approve(state.stakingPageInfo?.stakingContract.address, lockedTokenInEth)
       .then((res) =>
         res.wait().then((res) => {
           toast.dismiss();
-          toast.success(`${state.stakingPageInfo.tokenName} approved!`);
+          toast.success(`${state.stakingPageInfo?.tokenName} approved!`);
         }),
       )
       .catch((err) => {
@@ -254,9 +295,9 @@ export default function stake(): JSX.Element {
               <div className="">
                 {state.stakingPageInfo && (
                   <span className="flex flex-row items-center">
-                    <TokenIcon token={state.stakingPageInfo.tokenName} />
+                    <TokenIcon token={state.stakingPageInfo?.tokenName} />
                     <h1 className="ml-3 text-4xl text-gray-800 font-bold">
-                      {state.stakingPageInfo.tokenName}
+                      {state.stakingPageInfo?.tokenName}
                     </h1>
                   </span>
                 )}
@@ -266,8 +307,8 @@ export default function stake(): JSX.Element {
                       Est. APY
                     </p>
                     <p className="text-green-600 text-xl font-medium">
-                      {state.stakingPageInfo.poolInfo
-                        ? state.stakingPageInfo.poolInfo.apy.toLocaleString()
+                      {state.stakingPageInfo?.poolInfo
+                        ? state.stakingPageInfo?.poolInfo.apy.toLocaleString()
                         : 0}{' '}
                       %
                     </p>
@@ -277,8 +318,8 @@ export default function stake(): JSX.Element {
                       Total Staked
                     </p>
                     <p className="text-gray-800 text-xl font-medium">
-                      {state.stakingPageInfo.poolInfo
-                        ? state.stakingPageInfo.poolInfo.totalStake.toLocaleString()
+                      {state.stakingPageInfo?.poolInfo
+                        ? state.stakingPageInfo?.poolInfo.totalStake.toLocaleString()
                         : 0}
                     </p>
                   </div>
@@ -287,8 +328,8 @@ export default function stake(): JSX.Element {
                       Token Emissions
                     </p>
                     <p className="text-gray-800 text-xl font-medium">
-                      {state.stakingPageInfo.poolInfo
-                        ? state.stakingPageInfo.poolInfo.tokenEmission.toLocaleString()
+                      {state.stakingPageInfo?.poolInfo
+                        ? state.stakingPageInfo?.poolInfo.tokenEmission.toLocaleString()
                         : 0}{' '}
                       POP / day
                     </p>
@@ -299,7 +340,7 @@ export default function stake(): JSX.Element {
                 <div className="flex flex-col">
                   {state.stakingPageInfo && (
                     <TokenInput
-                      tokenName={state.stakingPageInfo.tokenName}
+                      tokenName={state.stakingPageInfo?.tokenName}
                       inputAmount={inputTokenAmount}
                       balance={withdraw ? balances.staked : balances.wallet}
                       updateInputAmount={setInputTokenAmount}
@@ -315,21 +356,19 @@ export default function stake(): JSX.Element {
                     >
                       <span
                         aria-hidden="true"
-                        className={`${
-                          withdraw ? 'translate-x-5' : 'translate-x-0'
-                        }
+                        className={`${withdraw ? 'translate-x-5' : 'translate-x-0'
+                          }
                                 pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
                       />
                     </Switch>
                     <Switch.Label as="span" className="ml-3">
                       <span
-                        className={`text-sm font-medium ${
-                          withdraw ? 'text-gray-800' : 'text-gray-500'
-                        }`}
+                        className={`text-sm font-medium ${withdraw ? 'text-gray-800' : 'text-gray-500'
+                          }`}
                       >
                         Withdraw Staked{' '}
                         {state.stakingPageInfo &&
-                          state.stakingPageInfo.tokenName}
+                          state.stakingPageInfo?.tokenName}
                       </span>
                     </Switch.Label>
                   </Switch.Group>
@@ -340,7 +379,7 @@ export default function stake(): JSX.Element {
                       <>
                         {withdraw ? (
                           <MainActionButton
-                            label={`Withdraw ${state.stakingPageInfo.tokenName}`}
+                            label={`Withdraw ${state.stakingPageInfo?.tokenName}`}
                             handleClick={withdrawStake}
                             disabled={wait || balances.staked === 0}
                           />
@@ -380,9 +419,8 @@ export default function stake(): JSX.Element {
                       <div className="w-1/2 mr-2">
                         <StatInfoCard
                           title="Token Balance"
-                          content={`${balances.wallet.toLocaleString()} ${
-                            state.stakingPageInfo.tokenName
-                          }`}
+                          content={`${balances.wallet.toLocaleString()} ${state.stakingPageInfo?.tokenName
+                            }`}
                           icon={{
                             icon: 'Money',
                             color: 'bg-yellow-200',
@@ -393,9 +431,8 @@ export default function stake(): JSX.Element {
                       <div className="w-1/2 ml-2">
                         <StatInfoCard
                           title="Amount Staked"
-                          content={`${balances.staked.toLocaleString()} ${
-                            state.stakingPageInfo.tokenName
-                          }`}
+                          content={`${balances.staked.toLocaleString()} ${state.stakingPageInfo?.tokenName
+                            }`}
                           icon={{
                             icon: 'Money',
                             color: 'bg-red-300',

@@ -4,6 +4,7 @@ import { BigNumber } from 'ethers';
 import { ERC20, ERC20__factory, StakingRewards } from '../../hardhat/typechain';
 import { bigNumberToNumber } from './formatBigNumber';
 import { Address } from './types';
+import { TokenBalances } from './getBalances';
 
 export interface StakingPoolInfo {
   stakedTokenAddress: string;
@@ -34,7 +35,8 @@ export async function calculateAPY(
 
 export async function getSingleStakingPoolInfo(
   stakingContract: StakingRewards,
-  stakedTokenAddress: Address,
+  library: any,
+  stakedTokenAddress?: Address,
   stakedTokenName?: string,
 ): Promise<StakingPoolInfo> {
   const tokenPerWeek = await stakingContract.getRewardForDuration({
@@ -43,9 +45,20 @@ export async function getSingleStakingPoolInfo(
   const totalStaked = await stakingContract.totalSupply({
     gasLimit: '2000000',
   });
+  if (!stakedTokenAddress) {
+    stakedTokenAddress = await stakingContract.stakingToken({
+      gasLimit: 2000000,
+    });
+  }
+  if (!stakedTokenName) {
+    stakedTokenName = await getStakedTokenName(
+      stakedTokenAddress,
+      library,
+    );
+  }
   return {
     stakedTokenAddress,
-    stakedTokenName: stakedTokenName ? stakedTokenName : 'NA',
+    stakedTokenName,
     apy: await calculateAPY(tokenPerWeek, totalStaked),
     totalStake: bigNumberToNumber(totalStaked),
     tokenEmission: bigNumberToNumber(tokenPerWeek),
@@ -53,16 +66,17 @@ export async function getSingleStakingPoolInfo(
 }
 
 export async function getStakedTokenName(
-  stakingContractAddress: Address,
+  stakedTokenAddress: Address,
   library: any,
 ): Promise<string> {
-  let result: string = '';
-  const contract: ERC20 = await ERC20__factory.connect(
-    stakingContractAddress,
-    library,
-  );
-  result = await contract.name();
-  return result;
+  if (stakedTokenAddress && stakedTokenAddress.length > 1) {
+    const contract: ERC20 = await ERC20__factory.connect(
+      stakedTokenAddress,
+      library,
+    );
+    const result = contract ? await contract.name() : '';
+    return result;
+  }
 }
 
 export async function getStakingPoolsInfo(
@@ -86,7 +100,8 @@ export async function getStakingPoolsInfo(
       const apy = await calculateAPY(tokenPerWeek, totalStaked);
       const totalStake = await bigNumberToNumber(totalStaked);
       const tokenEmission = await bigNumberToNumber(tokenPerWeek);
-      const stakedTokenName = await getStakedTokenName(
+      let stakedTokenName = 'unnamed';
+      stakedTokenName = await getStakedTokenName(
         stakedTokenAddress,
         library,
       );
@@ -97,9 +112,24 @@ export async function getStakingPoolsInfo(
         totalStake,
         tokenEmission,
       };
-      stakingPools.push(stakingInfo);
+      stakingPools[i] = (stakingInfo);
     }
     return stakingPools;
   }
   return stakingPools;
+}
+
+export async function getEarned(
+  account: string,
+  contracts: Contracts,
+): Promise<number[]> {
+  const { staking: stakingContracts } = contracts;
+  console.log(contracts)
+  const result: number[] = []
+  if (!stakingContracts || stakingContracts.length === 0) { console.log("returning"); return result }
+  for (let i = 0; i < stakingContracts.length; i++) {
+    result[i] = bigNumberToNumber(await contracts.staking[i].earned(account))
+    console.log(`earned for ${i} - ` + result[i])
+  }
+  return result
 }

@@ -16,7 +16,7 @@ interface TokenBalances {
 
 interface Balances {
   wallet: TokenBalances;
-  // staked: TokenBalances;
+  staked?: TokenBalances;
   earned: number;
 }
 
@@ -57,7 +57,7 @@ async function getEarned(
   contracts: Contracts,
 ): Promise<number> {
   let earned = 0;
-  for (var i = 0; i < contracts.staking.length; i++) {
+  for (var i = 0; i < contracts.staking?.length; i++) {
     earned += bigNumberToNumber(await contracts.staking[i].earned(account));
   }
   return earned;

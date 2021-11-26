@@ -1,11 +1,13 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { StakingPoolInfo } from '@popcorn/utils';
+import { StakingPoolInfo, getERC20Contract } from '@popcorn/utils';
+import {
+  StakingRewards,
+} from '@popcorn/hardhat/typechain';
 import { useWeb3React } from '@web3-react/core';
 import { updateStakingPageInfo } from 'context/actions';
 import { store } from 'context/store';
 import router from 'next/router';
 import { useCallback, useContext } from 'react';
-import { ERC20, ERC20__factory, StakingRewards } from '../../hardhat/typechain';
 import TokenIcon from './TokenIcon';
 
 interface StakeCardProps {
@@ -13,6 +15,8 @@ interface StakeCardProps {
   stakingPoolInfo: StakingPoolInfo;
   url: string;
   stakingContract: StakingRewards | undefined;
+  stakedTokenAddress: string;
+  index: number;
 }
 
 export default function ({
@@ -20,19 +24,13 @@ export default function ({
   stakingPoolInfo,
   url,
   stakingContract,
+  index, stakedTokenAddress
 }: StakeCardProps): JSX.Element {
   const { library } = useWeb3React<Web3Provider>();
   const { dispatch } = useContext(store);
-  const getERC20Contract = useCallback(async (): Promise<ERC20> => {
-    const contract: ERC20 = await ERC20__factory.connect(
-      stakingPoolInfo.stakedTokenAddress,
-      library,
-    );
-    return contract;
-  }, [stakingPoolInfo.stakedTokenAddress, library]);
 
   const onSelectPool = useCallback(async () => {
-    const erc20 = await getERC20Contract();
+    const erc20 = await getERC20Contract(stakingPoolInfo.stakedTokenAddress, library);
     dispatch(
       updateStakingPageInfo({
         inputToken: erc20,
@@ -41,8 +39,10 @@ export default function ({
         poolInfo: stakingPoolInfo,
       }),
     );
+    sessionStorage.setItem('stakingPoolAddress', stakedTokenAddress)
+    sessionStorage.setItem('stakingPoolIndex', index.toString())
     router.push(`staking/${url}`);
-  }, [router, getERC20Contract, stakingContract, tokenName]);
+  }, [router, getERC20Contract, stakingContract, tokenName, stakingPoolInfo.stakedTokenAddress, library]);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-md w-full mr-4 px-8 py-8">

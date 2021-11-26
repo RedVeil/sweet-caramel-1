@@ -1,17 +1,16 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/solid';
-import { switchNetwork } from '@popcorn/utils';
+import { switchNetwork, getChainLogo } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import useEagerConnect from 'hooks/useEagerConnect';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { connectors, networkMap } from '../../context/Web3/connectors';
-import { GrantsMenu } from './GrantsMenu';
 import NavbarLink from './NavbarLinks';
 import NetworkOptionsMenu from './NetworkOptionsMenu';
-import { ProposalsMenu } from './ProposalsMenu';
+
 
 const Navbar: React.FC = () => {
   const { chainId, account, activate } = useWeb3React<Web3Provider>();
@@ -19,10 +18,13 @@ const Navbar: React.FC = () => {
   const [showGrants, setShowGrants] = useState(false);
   const [showProposals, setShowProposals] = useState(false);
   const [currentChainName, setCurrentChainName] = useState('trial');
+  const [currentChainIcon, setCurrentChainIcon] = useState('');
   const triedEagerConnect = useEagerConnect();
 
   React.useEffect(() => {
     setCurrentChainName(networkMap[chainId]);
+    let newChainLogo = getChainLogo(chainId);
+    setCurrentChainIcon(newChainLogo)
   }, [chainId]);
 
   return (
@@ -50,13 +52,9 @@ const Navbar: React.FC = () => {
           </li>
           <li>
             <NavbarLink
-              label="Grant Elections"
-              onClick={() => setShowGrants(!showGrants)}
-              isActive={router.pathname === '/grant-elections/all'}
-            />
-            <GrantsMenu
-              visible={showGrants}
-              toggleSubMenu={() => setShowGrants(!showGrants)}
+              label="Rewards"
+              url="/rewards"
+              isActive={router.pathname === '/rewards'}
             />
           </li>
           <li>
@@ -67,32 +65,14 @@ const Navbar: React.FC = () => {
               target="_window"
             />
           </li>
-          <li>
-            <NavbarLink
-              label="Beneficiaries"
-              url="/beneficiaries"
-              isActive={router.pathname === '/beneficiaries'}
-            />
-          </li>
-          <li>
-            <NavbarLink
-              label="Proposals"
-              onClick={() => setShowProposals(!showProposals)}
-              isActive={router.pathname === '/proposals'}
-            />
-            <ProposalsMenu
-              visible={showProposals}
-              toggleSubMenu={() => setShowProposals(!showProposals)}
-            />
-          </li>
         </ul>
         <div className="flex flex-container flex-row w-fit-content">
           <Menu>
             <Menu.Button>
-              <div className="w-46 h-13 px-5 flex flex-row items-center justify-center border border-gray-400 rounded-3xl">
-                {/* get and show chain icon */}
+              <div className="w-44 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-sm rounded-3xl">
+                <img src={currentChainIcon} alt={""} className='w-4.5 h-4 mr-4' />
                 <p>{currentChainName}</p>
-                <ChevronDownIcon className="w-4 h-4 ml-4" aria-hidden="true" />
+                <ChevronDownIcon className="w-5 h-5 ml-4 pt-0.5" aria-hidden="true" />
               </div>
             </Menu.Button>
             <NetworkOptionsMenu
@@ -102,7 +82,7 @@ const Navbar: React.FC = () => {
           </Menu>
 
           <button
-            className="w-28 p-1 flex flex-row items-center justify-center border border-gray-400 rounded hover:bg-indigo-400 hover:text-white"
+            className="ml-10 w-28 p-1 flex flex-row items-center justify-center border border-gray-400 rounded hover:bg-indigo-400 hover:text-white"
             onClick={() => {
               activate(connectors.Injected);
               localStorage.setItem('eager_connect', 'true');

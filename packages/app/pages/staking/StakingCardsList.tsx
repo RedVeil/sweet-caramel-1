@@ -13,16 +13,18 @@ export default function StakingCardsList({
   const { contracts } = React.useContext(ContractsContext);
   return (
     <>
-      {stakingPoolsInfo && stakingPoolsInfo.length > 0 ? (
+      {contracts && stakingPoolsInfo && stakingPoolsInfo.length > 0 && contracts.staking && contracts.staking.length > 0 ? (
         stakingPoolsInfo.map((poolInfo, index) => (
           <div key={poolInfo.stakedTokenName + poolInfo.stakedTokenAddress}>
             <StakeCard
+              stakedTokenAddress={poolInfo.stakedTokenAddress}
               tokenName={poolInfo.stakedTokenName}
               stakingPoolInfo={poolInfo}
               url={poolInfo.stakedTokenName.toLowerCase().replace(' ', '-')}
               stakingContract={
                 contracts.staking[index] ? contracts.staking[index] : undefined
               }
+              index={index}
             />
           </div>
         ))

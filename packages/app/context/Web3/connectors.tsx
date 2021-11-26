@@ -2,7 +2,7 @@ import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 
 export const networkMap = {
-  1: 'mainnet',
+  1: 'Ethereum',
   4: 'rinkeby',
   42161: 'arbitrum one',
   80001: 'polygon_mumbai',
