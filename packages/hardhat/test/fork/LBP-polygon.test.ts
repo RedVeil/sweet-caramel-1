@@ -158,13 +158,6 @@ describe("LBP test", () => {
 
       expect(balanceOfAfter).to.equal(BigNumber.from("0"));
     });
-    it("will move funds out of LBP manager when LBP is deployed", async () => {
-      const poolAddress = await deployPoolByImpersonation();
-      const usdc = await getErc20(namedAccounts.USDC.polygon);
-      const balanceOfAfter = await usdc.balanceOf(LBP_MANAGER);
-
-      expect(balanceOfAfter).to.equal(BigNumber.from("0"));
-    });
     it("will transfer funds back to DAO agent when pool is closed", async () => {
       const usdc = await getErc20(namedAccounts.USDC.polygon);
       const pop = await getErc20(namedAccounts.POP.polygon);
@@ -203,8 +196,8 @@ describe("LBP test", () => {
         namedAccounts.DAO_Treasury.polygon
       );
 
-      expect(usdcBalanceAfter.gt(usdcBalanceBefore));
-      expect(popBalanceAfter.gt(popBalanceBefore));
+      expect(usdcBalanceAfter.gt(usdcBalanceBefore)).to.be.true;
+      expect(popBalanceAfter.gt(popBalanceBefore)).to.be.true;
 
       // console.log(
       //   "USDC balance (treasury)",
