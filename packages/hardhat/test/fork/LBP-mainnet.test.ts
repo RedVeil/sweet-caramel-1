@@ -3,7 +3,7 @@ import { parseEther } from "@ethersproject/units";
 import { expect } from "chai";
 import { parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
-import { encodeCallScript } from "../../lib/utils/callscript";
+import { encodeCallScript } from "../../lib/utils/aragon/callscript";
 import { expectRevert } from "../../lib/utils/expectValue";
 import getNamedAccounts from "../../lib/utils/getNamedAccounts";
 import {
@@ -115,7 +115,6 @@ describe("LBP test", () => {
        */
       await sendEth(namedAccounts.DAO_Agent.mainnet, "1");
 
-      const daoAgent = await ethers.getSigner(namedAccounts.DAO_Agent.mainnet);
       const lbpManager = await ethers.getContractAt(
         "LBPManager",
         LBP_MANAGER,
