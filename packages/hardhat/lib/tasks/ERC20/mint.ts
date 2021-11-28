@@ -1,4 +1,5 @@
-import { parseEther, parseUnits } from "ethers/lib/utils";
+import { LedgerSigner } from "@ethersproject/hardware-wallets";
+import { parseUnits } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 interface Args {
@@ -8,13 +9,18 @@ interface Args {
 }
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  const signer = hre.askForSigner();
+  const signer = await getSigner(hre);
 
-  const erc20 = await hre.ethers.getContractAt("MockERC20", args.token, signer);
+  const erc20 = await hre.ethers.getContractAt(
+    "@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20",
+    args.token,
+    signer
+  );
 
   console.log(
     "Transfering ",
-    parseEther(args.amount).toString(),
+    parseUnits(args.amount, await erc20.decimals()).toString(),
+    erc20.symbol(),
     "to",
     args.recipient
   );
@@ -24,6 +30,25 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
     parseUnits(args.amount, await erc20.decimals())
   );
 }
+
+const getSigner = async (hre: HardhatRuntimeEnvironment) => {
+  let signer;
+  if (["hardhat", "local", "localhost"].includes(hre.network.name)) {
+    return (signer = (await hre.ethers.getSigners())[0]);
+  }
+  if (Boolean(parseInt(process.env.HARDWARE_WALLET || "0"))) {
+    const ledger = await new LedgerSigner(
+      hre.ethers.provider,
+      "hid",
+      "44'/60'/0'/0/0"
+    );
+    signer = ledger;
+    return signer;
+  } else {
+    signer = hre.askForSigner();
+  }
+  return signer;
+};
 
 export default task("ERC20:mint", "transfers tokens to recipient")
   .addParam("token", "token address")
