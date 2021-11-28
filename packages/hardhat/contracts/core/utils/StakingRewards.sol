@@ -57,20 +57,13 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
     }
     return
       rewardPerTokenStored.add(
-        lastTimeRewardApplicable()
-          .sub(lastUpdateTime)
-          .mul(rewardRate)
-          .mul(1e18)
-          .div(_totalSupply)
+        lastTimeRewardApplicable().sub(lastUpdateTime).mul(rewardRate).mul(1e18).div(_totalSupply)
       );
   }
 
   function earned(address account) public view override returns (uint256) {
     return
-      _balances[account]
-        .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
-        .div(1e18)
-        .add(rewards[account]);
+      _balances[account].mul(rewardPerToken().sub(userRewardPerTokenPaid[account])).div(1e18).add(rewards[account]);
   }
 
   function getRewardForDuration() external view override returns (uint256) {
@@ -79,13 +72,7 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
 
   /* ========== MUTATIVE FUNCTIONS ========== */
 
-  function stake(uint256 amount)
-    external
-    override
-    nonReentrant
-    whenNotPaused
-    updateReward(msg.sender)
-  {
+  function stake(uint256 amount) external override nonReentrant whenNotPaused updateReward(msg.sender) {
     require(amount > 0, "Cannot stake 0");
     _totalSupply = _totalSupply.add(amount);
     _balances[msg.sender] = _balances[msg.sender].add(amount);
@@ -93,12 +80,7 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
     emit Staked(msg.sender, amount);
   }
 
-  function withdraw(uint256 amount)
-    public
-    override
-    nonReentrant
-    updateReward(msg.sender)
-  {
+  function withdraw(uint256 amount) public override nonReentrant updateReward(msg.sender) {
     require(amount > 0, "Cannot withdraw 0");
     _totalSupply = _totalSupply.sub(amount);
     _balances[msg.sender] = _balances[msg.sender].sub(amount);
@@ -122,12 +104,7 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
 
   /* ========== RESTRICTED FUNCTIONS ========== */
 
-  function notifyRewardAmount(uint256 reward)
-    external
-    override
-    onlyOwner
-    updateReward(address(0))
-  {
+  function notifyRewardAmount(uint256 reward) external override onlyOwner updateReward(address(0)) {
     if (block.timestamp >= periodFinish) {
       rewardRate = reward.div(rewardsDuration);
     } else {
@@ -141,10 +118,7 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
     // very high values of rewardRate in the earned and rewardsPerToken functions;
     // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
     uint256 balance = rewardsToken.balanceOf(address(this));
-    require(
-      rewardRate <= balance.div(rewardsDuration),
-      "Provided reward too high"
-    );
+    require(rewardRate <= balance.div(rewardsDuration), "Provided reward too high");
 
     lastUpdateTime = block.timestamp;
     periodFinish = block.timestamp.add(rewardsDuration);
@@ -152,14 +126,8 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
   }
 
   // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
-  function recoverERC20(address tokenAddress, uint256 tokenAmount)
-    external
-    onlyOwner
-  {
-    require(
-      tokenAddress != address(stakingToken),
-      "Cannot withdraw the staking token"
-    );
+  function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
+    require(tokenAddress != address(stakingToken), "Cannot withdraw the staking token");
     IERC20(tokenAddress).safeTransfer(owner(), tokenAmount);
     emit Recovered(tokenAddress, tokenAmount);
   }

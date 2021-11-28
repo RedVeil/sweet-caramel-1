@@ -1,5 +1,5 @@
 import { LedgerSigner } from "@ethersproject/hardware-wallets";
-import { parseEther } from "ethers/lib/utils";
+import { parseUnits } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 interface Args {
@@ -11,18 +11,24 @@ interface Args {
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   const signer = await getSigner(hre);
 
-  const erc20 = await hre.ethers.getContractAt("MockERC20", args.token, signer);
+  const erc20 = await hre.ethers.getContractAt(
+    "@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20",
+    args.token,
+    signer
+  );
 
   console.log(
     "Transfering ",
-    parseEther(args.amount).toString(),
+    parseUnits(args.amount, await erc20.decimals()).toString(),
+    erc20.symbol(),
     "to",
     args.recipient
   );
 
-  await erc20.mint(args.recipient, parseEther(args.amount), {
-    gasLimit: 5000000,
-  });
+  await erc20.mint(
+    args.recipient,
+    parseUnits(args.amount, await erc20.decimals())
+  );
 }
 
 const getSigner = async (hre: HardhatRuntimeEnvironment) => {

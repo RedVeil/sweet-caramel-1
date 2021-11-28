@@ -5,9 +5,7 @@ pragma solidity ^0.8.0;
 interface IPool {
   function token() external view returns (address);
 
-  function depositFor(uint256 amount, address recipient)
-    external
-    returns (uint256);
+  function depositFor(uint256 amount, address recipient) external returns (uint256);
 
   function transferFrom(
     address sender,
