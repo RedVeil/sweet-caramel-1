@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import LBPFactoryAbi from "../../../contracts/external/abis/LBPFactory.json";
+import LBPFactoryAbi from "../../../lib/external/balancer/LBPFactory.json";
 import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
 interface Args {
   to: string;
