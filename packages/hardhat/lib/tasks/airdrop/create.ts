@@ -1,4 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "ethers";
 import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 import fs from "fs";
 import { task } from "hardhat/config";
@@ -26,7 +26,7 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   );
   const merkleOrchard = await hre.ethers.getContractAt(
     "IMerkleOrchard",
-    addresses.MerkleOrchard[hre.network.name],
+    addresses.merkleOrchard[hre.network.name],
     signer
   );
   const balancesJSON = await fs.promises.readFile(args.balancesFile, "utf-8");
