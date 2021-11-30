@@ -1,5 +1,5 @@
 {
-  "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+  "address": "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
   "abi": [
     {
       "inputs": [
@@ -228,18 +228,18 @@
       "type": "function"
     }
   ],
-  "transactionHash": "0x0cf235275701a89b20889fa341292656da42757621a6c45b961857804697819c",
+  "transactionHash": "0x2a46e027eae8636dc8618de0cd7b22b73ddfd1fefcc2265b14ddcb27c074e044",
   "receipt": {
     "to": null,
     "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "contractAddress": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    "contractAddress": "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
     "transactionIndex": 0,
     "gasUsed": "647103",
     "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0xeae91d417f3a2e6f90eee433cbaf811b2125f9b84de328c3b2006261264d8b1f",
-    "transactionHash": "0x0cf235275701a89b20889fa341292656da42757621a6c45b961857804697819c",
+    "blockHash": "0x5585210a2d55fde5b97f81f5db934e7349e22be961a0b2aed8d791686554876d",
+    "transactionHash": "0x2a46e027eae8636dc8618de0cd7b22b73ddfd1fefcc2265b14ddcb27c074e044",
     "logs": [],
-    "blockNumber": 6,
+    "blockNumber": 13206606,
     "cumulativeGasUsed": "647103",
     "status": 1,
     "byzantium": true
@@ -263,23 +263,23 @@
   "storageLayout": {
     "storage": [
       {
-        "astId": 600,
+        "astId": 5893,
         "contract": "contracts/core/utils/ContractRegistry.sol:ContractRegistry",
         "label": "aclRegistry",
         "offset": 0,
         "slot": "0",
-        "type": "t_contract(IACLRegistry)127"
+        "type": "t_contract(IACLRegistry)5141"
       },
       {
-        "astId": 605,
+        "astId": 5898,
         "contract": "contracts/core/utils/ContractRegistry.sol:ContractRegistry",
         "label": "contracts",
         "offset": 0,
         "slot": "1",
-        "type": "t_mapping(t_bytes32,t_struct(Contract)597_storage)"
+        "type": "t_mapping(t_bytes32,t_struct(Contract)5890_storage)"
       },
       {
-        "astId": 608,
+        "astId": 5901,
         "contract": "contracts/core/utils/ContractRegistry.sol:ContractRegistry",
         "label": "contractNames",
         "offset": 0,
@@ -304,24 +304,24 @@
         "label": "bytes32",
         "numberOfBytes": "32"
       },
-      "t_contract(IACLRegistry)127": {
+      "t_contract(IACLRegistry)5141": {
         "encoding": "inplace",
         "label": "contract IACLRegistry",
         "numberOfBytes": "20"
       },
-      "t_mapping(t_bytes32,t_struct(Contract)597_storage)": {
+      "t_mapping(t_bytes32,t_struct(Contract)5890_storage)": {
         "encoding": "mapping",
         "key": "t_bytes32",
         "label": "mapping(bytes32 => struct ContractRegistry.Contract)",
         "numberOfBytes": "32",
-        "value": "t_struct(Contract)597_storage"
+        "value": "t_struct(Contract)5890_storage"
       },
-      "t_struct(Contract)597_storage": {
+      "t_struct(Contract)5890_storage": {
         "encoding": "inplace",
         "label": "struct ContractRegistry.Contract",
         "members": [
           {
-            "astId": 594,
+            "astId": 5887,
             "contract": "contracts/core/utils/ContractRegistry.sol:ContractRegistry",
             "label": "contractAddress",
             "offset": 0,
@@ -329,7 +329,7 @@
             "type": "t_address"
           },
           {
-            "astId": 596,
+            "astId": 5889,
             "contract": "contracts/core/utils/ContractRegistry.sol:ContractRegistry",
             "label": "version",
             "offset": 0,

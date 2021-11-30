@@ -50,7 +50,7 @@ function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
       };
     case 'butter':
       return {
-        inputToken: contracts.butter,
+        inputToken: contracts.butter as unknown as ERC20,
         stakingContract: contracts.staking.butter,
         tokenName: 'BUTTER',
       };

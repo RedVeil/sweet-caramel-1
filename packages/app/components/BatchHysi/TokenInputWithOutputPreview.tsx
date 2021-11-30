@@ -1,5 +1,5 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { bigNumberToNumber, scaleNumberToBigNumber } from '@popcorn/utils';
+import { BigNumber } from 'ethers';
 import { Dispatch, useEffect, useState } from 'react';
 
 export interface TokenInputWithOutputPreviewProps {

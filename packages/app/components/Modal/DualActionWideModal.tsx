@@ -99,7 +99,11 @@ const Example: React.FC<DualActionWideModalProps> = ({
                     {title}
                   </Dialog.Title>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500">{content}</p>
+                    {typeof content === 'string' ? (
+                      <p className="text-sm text-gray-500">{content}</p>
+                    ) : (
+                      <>{content}</>
+                    )}
                   </div>
                 </div>
               </div>

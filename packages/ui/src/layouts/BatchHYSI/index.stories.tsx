@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import {
   CashIcon,
   HandIcon,
@@ -6,6 +5,7 @@ import {
   SparklesIcon,
 } from '@heroicons/react/outline';
 import { Meta, Story } from '@storybook/react/types-6-0';
+import { BigNumber } from 'ethers';
 import React from 'react';
 import { DepositRequestTable } from '../../components/popcorn/BatchHYSI/DepositRequestTable';
 import { ErrorBadge } from '../../components/popcorn/BatchHYSI/ErrorBadge';

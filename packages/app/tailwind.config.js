@@ -47,6 +47,7 @@ module.exports = {
         104: '27rem',
         105: '564px',
         112: '30rem',
+        124: '33rem',
         128: '40rem',
         129: '52rem',
         130: '752px',
@@ -58,6 +59,7 @@ module.exports = {
         101: '1.01',
         102: '1.02',
       },
+      borderRadius: { '4xl': '2rem' },
       colors: {
         primary: '#F28705',
         primaryLight: '#FDEAA7',
@@ -81,7 +83,7 @@ module.exports = {
     },
   },
   variants: {
-    extend: { opacity: ['disabled'] },
+    extend: { opacity: ['disabled'], backgroundColor: ['disabled'] },
   },
   plugins: [require('@tailwindcss/forms')],
 };

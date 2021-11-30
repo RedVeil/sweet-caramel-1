@@ -1,5 +1,5 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { numberToBigNumber } from '@popcorn/utils/src';
+import { BigNumber } from 'ethers';
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 import { BatchType } from '../../../../interfaces/popcorn/BatchHYSI';

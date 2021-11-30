@@ -1,7 +1,7 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { BatchType } from '@popcorn/ui/src/interfaces/popcorn/BatchHYSI';
 import { numberToBigNumber } from '@popcorn/utils/';
 import { Meta, Story } from '@storybook/react/types-6-0';
+import { BigNumber } from 'ethers';
 import React from 'react';
 import { DespositWithdrawInterface } from './index';
 
