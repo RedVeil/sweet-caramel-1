@@ -37,7 +37,7 @@ describe("XPop", () => {
 
   context("Token parameters", async () => {
     it("has a name", async () => {
-      await expectValue(await xPop.name(), "Popcorn (Redeemable POP)");
+      await expectValue(await xPop.name(), "Popcorn.Network (Redeemable POP)");
     });
 
     it("has a symbol", async () => {
@@ -155,7 +155,7 @@ describe("XPop", () => {
     ) => ({
       types: { Permit },
       domain: {
-        name: "Popcorn (Redeemable POP)",
+        name: "Popcorn.Network (Redeemable POP)",
         version: "1",
         chainId,
         verifyingContract,

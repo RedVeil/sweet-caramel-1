@@ -39,3 +39,4 @@ jobs:
         env:
           FORKING_ENABLED: true
           RPC_URL: ${{secrets.RPC_URL}}
+          RPC_URL_POLYGON: ${{secrets.RPC_URL_POLYGON}}

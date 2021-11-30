@@ -1,6 +1,6 @@
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "ethers/lib/utils";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
-import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { MockERC20 } from "../typechain";

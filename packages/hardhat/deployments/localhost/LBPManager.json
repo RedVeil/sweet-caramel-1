@@ -1,0 +1,623 @@
+{
+  "address": "0x9A82B860244B0e41Ca1Eeb6614774D14ed31b76d",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "contract ILBPFactory",
+              "name": "lbpFactory",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IVault",
+              "name": "vault",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct LBPManager.Balancer",
+          "name": "_balancer",
+          "type": "tuple"
+        },
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_symbol",
+          "type": "string"
+        },
+        {
+          "internalType": "contract IERC20[]",
+          "name": "_tokens",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_tokenAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_startWeights",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_endWeights",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_swapFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_durationInSeconds",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_startTime",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "agent",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "treasury",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct LBPManager.DAO",
+          "name": "_dao",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "poolAddress",
+          "type": "address"
+        }
+      ],
+      "name": "CreatedPool",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "poolID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ExitedPool",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "poolID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "JoinedPool",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "enabled",
+          "type": "bool"
+        }
+      ],
+      "name": "SwapEnabled",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "balancer",
+      "outputs": [
+        {
+          "internalType": "contract ILBPFactory",
+          "name": "lbpFactory",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IVault",
+          "name": "vault",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dao",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "agent",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "treasury",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "deployLBP",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "enableTrading",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lbp",
+      "outputs": [
+        {
+          "internalType": "contract ILBP",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "poolConfig",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "durationInSeconds",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "swapFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "swapEnabledOnStart",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "deployed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawFromPool",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x4dc26d3bfb465b54474900450b012ba3e1a4d5bcc22348b3356dbf41a5bfdb11",
+  "receipt": {
+    "to": null,
+    "from": "0xF023E5eF2Eb3b8747cBaD5B3847813b66E9BFdD7",
+    "contractAddress": "0x9A82B860244B0e41Ca1Eeb6614774D14ed31b76d",
+    "transactionIndex": 0,
+    "gasUsed": "1923247",
+    "logsBloom": "0x00040000000000000000000000000000000000000000040000000000000000000000000000040000000000000000000000000000000000000000000000200000000000000000000008000000000000000000000000000000000000000000000000000000008000000000100000000000000000000000000000000000002000000000000000000000000000000000000000000000010000000000000000000000020000000000300000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000001000000010000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x168dceac781425e6f13ebe0d04d0f0950531b6e0bc7e84a165865452b29407df",
+    "transactionHash": "0x4dc26d3bfb465b54474900450b012ba3e1a4d5bcc22348b3356dbf41a5bfdb11",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 13553183,
+        "transactionHash": "0x4dc26d3bfb465b54474900450b012ba3e1a4d5bcc22348b3356dbf41a5bfdb11",
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x0000000000000000000000009a82b860244b0e41ca1eeb6614774d14ed31b76d",
+          "0x000000000000000000000000ba12222222228d8ba445958a75a0704d566bf2c8"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 0,
+        "blockHash": "0x168dceac781425e6f13ebe0d04d0f0950531b6e0bc7e84a165865452b29407df"
+      },
+      {
+        "transactionIndex": 0,
+        "blockNumber": 13553183,
+        "transactionHash": "0x4dc26d3bfb465b54474900450b012ba3e1a4d5bcc22348b3356dbf41a5bfdb11",
+        "address": "0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x0000000000000000000000009a82b860244b0e41ca1eeb6614774d14ed31b76d",
+          "0x000000000000000000000000ba12222222228d8ba445958a75a0704d566bf2c8"
+        ],
+        "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "logIndex": 1,
+        "blockHash": "0x168dceac781425e6f13ebe0d04d0f0950531b6e0bc7e84a165865452b29407df"
+      }
+    ],
+    "blockNumber": 13553183,
+    "cumulativeGasUsed": "1923247",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    {
+      "lbpFactory": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      "vault": "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+    },
+    "Popcorn.network (POP) Liquidity Bootstrapping Pool",
+    "POP_LBP",
+    [
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4"
+    ],
+    [
+      "500000000000",
+      "100000000000000000000"
+    ],
+    [
+      "10000000000000000",
+      "990000000000000000"
+    ],
+    [
+      "500000000000000000",
+      "500000000000000000"
+    ],
+    "15000000000000000",
+    259200,
+    1638172800,
+    {
+      "agent": "0xF023E5eF2Eb3b8747cBaD5B3847813b66E9BFdD7",
+      "treasury": "0xF023E5eF2Eb3b8747cBaD5B3847813b66E9BFdD7"
+    }
+  ],
+  "solcInputHash": "4abf004db63d3e8c1c6d1e2e91f21868",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.0+commit.c7dfd78e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"components\":[{\"internalType\":\"contract ILBPFactory\",\"name\":\"lbpFactory\",\"type\":\"address\"},{\"internalType\":\"contract IVault\",\"name\":\"vault\",\"type\":\"address\"}],\"internalType\":\"struct LBPManager.Balancer\",\"name\":\"_balancer\",\"type\":\"tuple\"},{\"internalType\":\"string\",\"name\":\"_name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_symbol\",\"type\":\"string\"},{\"internalType\":\"contract IERC20[]\",\"name\":\"_tokens\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_tokenAmounts\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_startWeights\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_endWeights\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256\",\"name\":\"_swapFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_durationInSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_startTime\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"treasury\",\"type\":\"address\"}],\"internalType\":\"struct LBPManager.DAO\",\"name\":\"_dao\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"poolAddress\",\"type\":\"address\"}],\"name\":\"CreatedPool\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"poolID\",\"type\":\"bytes32\"}],\"name\":\"ExitedPool\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"poolID\",\"type\":\"bytes32\"}],\"name\":\"JoinedPool\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"SwapEnabled\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"balancer\",\"outputs\":[{\"internalType\":\"contract ILBPFactory\",\"name\":\"lbpFactory\",\"type\":\"address\"},{\"internalType\":\"contract IVault\",\"name\":\"vault\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"dao\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"treasury\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deployLBP\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"enableTrading\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lbp\",\"outputs\":[{\"internalType\":\"contract ILBP\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"poolConfig\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"durationInSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"swapFee\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"swapEnabledOnStart\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"deployed\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawFromPool\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_balancer\":\"see struct Balancer - balancer contract addresses\",\"_dao\":\"see struct DAO - DAO addresses\",\"_durationInSeconds\":\"PoolConfiguration.durationInSeconds\",\"_endWeights\":\"PoolConfiguration.endWeights\",\"_name\":\"PoolConfiguration.name\",\"_startTime\":\"PoolConfiguration.startTime\",\"_startWeights\":\"PoolConfiguration.startWeights\",\"_swapFee\":\"PoolConfiguration.swapFee\",\"_symbol\":\"PoolConfiguration.symbol\",\"_tokenAmounts\":\"PoolConfiguration.tokenAmounts\",\"_tokens\":\"PoolConfiguration.tokens\"}},\"deployLBP()\":{\"details\":\"Will deploy a balancer LBP. Can only be called by DAO.agent address\"}},\"title\":\"LBP Manager\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"deployLBP()\":{\"notice\":\"This function requires that the DAO.agent has approved this address for spending pool tokens (e.g. POP & USDC). It will revert if the DAO.agent has not approved this contract for spending those tokens. The PoolConfiguration.tokenAmounts for the pool tokens will be transferred from the DAO.agent to this contract and forwarded to the LBP\"},\"enableTrading()\":{\"notice\":\"Anyone can enable trading after the LBP has been deployed and the start time has been reached. Trading must be enabled for the pool to work.\"},\"lbp()\":{\"notice\":\"lbp deployed LBP address\"},\"withdrawFromPool()\":{\"notice\":\"The DAO.agent can call this function to shutdown and unwind the pool. The proceeds will be forwarded to the DAO.treasury\"}},\"notice\":\"This contract manages a Balancer Liquidity Bootstrapping Pool (LBP) so that only a DAO can deploy and shutdown an LBP. After the LBP is deployed, trading must be enabled. While only the DAO has permission to deploy, shutdown and unwind the LBP, anyone can permissionlessly enable trading after the configured start time. When the LBP is completed (via `withdrawFromPool()`), the total balance of the LBP tokens will be sent to the DAO treasury.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/lbp/LBPManager.sol\":\"LBPManager\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `recipient`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `sender` to `recipient` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address sender,\\n        address recipient,\\n        uint256 amount\\n    ) external returns (bool);\\n\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n}\\n\",\"keccak256\":\"0x027b891937d20ccf213fdb9c31531574256de774bda99d3a70ecef6e1913ed2a\",\"license\":\"MIT\"},\"contracts/lbp/LBPManager.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\npragma solidity ^0.8.0;\\n\\nimport {IERC20} from \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport {ILBPFactory} from \\\"./interfaces/ILBPFactory.sol\\\";\\nimport {ILBP} from \\\"./interfaces/ILBP.sol\\\";\\nimport {IVault, JoinPoolRequest, IAsset, WeightedPoolExitKind, WeightedPoolJoinKind, ExitPoolRequest} from \\\"./interfaces/IVault.sol\\\";\\n\\n/**\\n * @title LBP Manager\\n * @notice This contract manages a Balancer Liquidity Bootstrapping Pool (LBP) so that only a DAO can deploy and shutdown an LBP. After the LBP is deployed, trading must be enabled. While only the DAO has permission to deploy, shutdown and unwind the LBP, anyone can permissionlessly enable trading after the configured start time. When the LBP is completed (via `withdrawFromPool()`), the total balance of the LBP tokens will be sent to the DAO treasury.\\n */\\ncontract LBPManager {\\n  /* ========== STRUCTS ========== */\\n\\n  /**\\n   * @title PoolConfiguration\\n   * @param name LBP pool token name\\n   * @param symbol LBP pool token symbol\\n   * @param tokens the token pairs for the LBP (e.g. POP & USDC - addresses must be listed in ascending order)\\n   * @param tokenAmounts the token amounts for the pair that will be transferred from the dao agent to this contract\\n   * @param startWeights the starting weights for the token pairs, e.g. 99 * 10**16 / 1 * 10**16 [.99 ether / .01 ether]\\n   * @param endWeights the ending weights for the token pairs, e.g. 50 * 10**16 / 50 * 10**16 [.5 ether / .5 ether]\\n   * @param durationInSeconds how long the LBP should last in seconds. this determines how long it takes for the weights to reach the end weight\\n   * @param swapFee fee to charge per trade. this fee is collected as part of the LBP proceeds\\n   * @param owner address that is allowed to manage the LBP. it defaults to the deployed address of this contract\\n   * @param swapEnabledOnStart determines wether trading can commence after LBP is deployed. defaults to false\\n   * @param startTime the time that trading can commence for the LBP. the `enableTrading()` function will require that the start time is in the past before trading can be enabled\\n   * @param deployed boolean set when LBP is deployed\\n   */\\n  struct PoolConfiguration {\\n    string name;\\n    string symbol;\\n    IERC20[] tokens;\\n    uint256[] tokenAmounts;\\n    uint256[] startWeights;\\n    uint256[] endWeights;\\n    uint256 durationInSeconds;\\n    uint256 swapFee;\\n    address owner;\\n    bool swapEnabledOnStart;\\n    uint256 startTime;\\n    bool deployed;\\n  }\\n\\n  /**\\n   * @title Balancer\\n   * @dev addresses to deployed balancer contracts\\n   * @param lbpFactory LiquidityBootstrapFactory address\\n   * @param vault Balancer Vault address\\n   */\\n  struct Balancer {\\n    ILBPFactory lbpFactory;\\n    IVault vault;\\n  }\\n\\n  /**\\n   * @title DAO\\n   * @dev DAO addresses\\n   * @param agent the dao address that can interact with the contract\\n   * @param treasury the dao treasury address where LBP proceeds will be sent\\n   */\\n  struct DAO {\\n    address agent;\\n    address treasury;\\n  }\\n\\n  /* ========== STATE VARIABLES ========== */\\n\\n  /**\\n   * @notice lbp deployed LBP address\\n   */\\n  ILBP public lbp;\\n  Balancer public balancer;\\n  PoolConfiguration public poolConfig;\\n  DAO public dao;\\n\\n  /* ========== EVENTS ========== */\\n\\n  event SwapEnabled(bool enabled);\\n  event CreatedPool(address poolAddress);\\n  event JoinedPool(bytes32 poolID);\\n  event ExitedPool(bytes32 poolID);\\n\\n  /* ========== CONSTRUCTOR ========== */\\n\\n  /**\\n   * @param _balancer see struct Balancer - balancer contract addresses\\n   * @param _name PoolConfiguration.name\\n   * @param _symbol PoolConfiguration.symbol\\n   * @param _tokens PoolConfiguration.tokens\\n   * @param _tokenAmounts PoolConfiguration.tokenAmounts\\n   * @param _startWeights PoolConfiguration.startWeights\\n   * @param _endWeights PoolConfiguration.endWeights\\n   * @param _swapFee PoolConfiguration.swapFee\\n   * @param _durationInSeconds PoolConfiguration.durationInSeconds\\n   * @param _startTime PoolConfiguration.startTime\\n   * @param _dao see struct DAO - DAO addresses\\n   */\\n  constructor(\\n    Balancer memory _balancer,\\n    string memory _name,\\n    string memory _symbol,\\n    IERC20[] memory _tokens,\\n    uint256[] memory _tokenAmounts,\\n    uint256[] memory _startWeights,\\n    uint256[] memory _endWeights,\\n    uint256 _swapFee,\\n    uint256 _durationInSeconds,\\n    uint256 _startTime,\\n    DAO memory _dao\\n  ) {\\n    balancer = _balancer;\\n\\n    require(_durationInSeconds > 1 days && _durationInSeconds < 5 days, \\\"duration is out of bounds\\\");\\n    require(_startTime > block.timestamp, \\\"start time must be in future\\\");\\n\\n    dao = _dao;\\n\\n    poolConfig = PoolConfiguration({\\n      name: _name,\\n      symbol: _symbol,\\n      tokens: _tokens,\\n      tokenAmounts: _tokenAmounts,\\n      startWeights: _startWeights,\\n      endWeights: _endWeights,\\n      durationInSeconds: _durationInSeconds,\\n      swapFee: _swapFee,\\n      owner: address(this),\\n      swapEnabledOnStart: false,\\n      startTime: _startTime,\\n      deployed: false\\n    });\\n\\n    _approveBalancerVaultAsSpender();\\n  }\\n\\n  /* ========== MUTATIVE FUNCTIONS ========== */\\n\\n  /**\\n   * @dev Will deploy a balancer LBP. Can only be called by DAO.agent address\\n   * @notice This function requires that the DAO.agent has approved this address for spending pool tokens (e.g. POP & USDC). It will revert if the DAO.agent has not approved this contract for spending those tokens. The PoolConfiguration.tokenAmounts for the pool tokens will be transferred from the DAO.agent to this contract and forwarded to the LBP\\n   */\\n  function deployLBP() external {\\n    require(msg.sender == dao.agent, \\\"Only DAO can call this\\\");\\n\\n    poolConfig.deployed = true;\\n\\n    lbp = ILBP(\\n      balancer.lbpFactory.create(\\n        poolConfig.name,\\n        poolConfig.symbol,\\n        poolConfig.tokens,\\n        poolConfig.startWeights,\\n        poolConfig.swapFee,\\n        poolConfig.owner,\\n        poolConfig.swapEnabledOnStart\\n      )\\n    );\\n\\n    emit CreatedPool(address(lbp));\\n\\n    _transferPoolTokensToSelf();\\n    _joinPool();\\n  }\\n\\n  /**\\n   * @notice Anyone can enable trading after the LBP has been deployed and the start time has been reached. Trading must be enabled for the pool to work.\\n   */\\n  function enableTrading() external {\\n    require(poolConfig.deployed, \\\"Pool has not been deployed yet\\\");\\n    require(poolConfig.startTime <= block.timestamp, \\\"Trading can not be enabled yet\\\");\\n\\n    uint256 endtime = block.timestamp + poolConfig.durationInSeconds;\\n\\n    lbp.updateWeightsGradually(block.timestamp, endtime, poolConfig.endWeights);\\n\\n    lbp.setSwapEnabled(true);\\n    emit SwapEnabled(true);\\n  }\\n\\n  /**\\n   * @notice The DAO.agent can call this function to shutdown and unwind the pool. The proceeds will be forwarded to the DAO.treasury\\n   */\\n  function withdrawFromPool() external {\\n    require(poolConfig.deployed, \\\"Pool has not been deployed yet\\\");\\n    require(msg.sender == dao.agent, \\\"not today, buddy\\\");\\n\\n    bytes32 poolId = lbp.getPoolId();\\n\\n    uint256[] memory minAmountsOut = new uint256[](poolConfig.tokens.length);\\n    for (uint256 i; i < poolConfig.tokens.length; i++) {\\n      minAmountsOut[i] = uint256(0);\\n    }\\n\\n    lbp.setSwapEnabled(false);\\n\\n    ExitPoolRequest memory request = ExitPoolRequest({\\n      assets: _convertERC20sToAssets(poolConfig.tokens),\\n      minAmountsOut: minAmountsOut,\\n      userData: abi.encode(uint256(WeightedPoolExitKind.EXACT_BPT_IN_FOR_TOKENS_OUT), _getLPTokenBalance(poolId)),\\n      toInternalBalance: false\\n    });\\n\\n    balancer.vault.exitPool(poolId, address(this), dao.treasury, request);\\n    emit ExitedPool(poolId);\\n  }\\n\\n  /* ========== RESTRICTED FUNCTIONS ========== */\\n  function _joinPool() internal {\\n    uint256[] memory maxAmountsIn = new uint256[](poolConfig.tokens.length);\\n    for (uint256 i; i < poolConfig.tokens.length; i++) {\\n      maxAmountsIn[i] = type(uint256).max;\\n    }\\n\\n    JoinPoolRequest memory request = JoinPoolRequest({\\n      assets: _convertERC20sToAssets(poolConfig.tokens),\\n      maxAmountsIn: maxAmountsIn,\\n      userData: abi.encode(uint256(WeightedPoolJoinKind.INIT), poolConfig.tokenAmounts),\\n      fromInternalBalance: false\\n    });\\n\\n    balancer.vault.joinPool(lbp.getPoolId(), address(this), address(this), request);\\n    emit JoinedPool(lbp.getPoolId());\\n  }\\n\\n  function _approveBalancerVaultAsSpender() internal {\\n    (IERC20 pop, IERC20 usdc) = _getPoolTokens();\\n    pop.approve(address(balancer.vault), type(uint256).max);\\n    usdc.approve(address(balancer.vault), type(uint256).max);\\n  }\\n\\n  function _getLPTokenBalance(bytes32 poolId) internal returns (uint256) {\\n    (address poolAddress, ) = balancer.vault.getPool(poolId);\\n    IERC20 poolToken = IERC20(poolAddress);\\n    return poolToken.balanceOf(address(this));\\n  }\\n\\n  /**\\n   * @dev This helper function is a fast and cheap way to convert between IERC20[] and IAsset[] types.\\n   */\\n  function _convertERC20sToAssets(IERC20[] memory tokens) internal pure returns (IAsset[] memory assets) {\\n    // solhint-disable-next-line no-inline-assembly\\n    assembly {\\n      assets := tokens\\n    }\\n  }\\n\\n  function _transferPoolTokensToSelf() internal {\\n    (IERC20 tokenA, IERC20 tokenB) = _getPoolTokens();\\n\\n    tokenA.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[0]);\\n    tokenB.transferFrom(dao.agent, address(this), poolConfig.tokenAmounts[1]);\\n  }\\n\\n  /* ========== VIEW FUNCTIONS ========== */\\n  function _getPoolTokens() internal view returns (IERC20, IERC20) {\\n    return (poolConfig.tokens[0], poolConfig.tokens[1]);\\n  }\\n}\\n\",\"keccak256\":\"0x22d80b660d30c28fbb4e638f6ede4357f5c83dcda299f91d8281272f811daf87\",\"license\":\"GPL-3.0\"},\"contracts/lbp/interfaces/ILBP.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface ILBP {\\n  function setSwapEnabled(bool swapEnabled) external;\\n\\n  /**\\n   * @dev Schedule a gradual weight change, from the current weights to the given\\n   * endWeights, over startTime to endTime\\n   */\\n  function updateWeightsGradually(\\n    uint256 startTime,\\n    uint256 endTime,\\n    uint256[] memory endWeights\\n  ) external;\\n\\n  function getPoolId() external returns (bytes32 poolID);\\n}\\n\",\"keccak256\":\"0xa455d25ad4a7739e3c97566e5039fc24e2dd23bf783e5145627751f23cf103cc\",\"license\":\"MIT\"},\"contracts/lbp/interfaces/ILBPFactory.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\nimport {IERC20} from \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\n\\ninterface ILBPFactory {\\n  function create(\\n    string memory name,\\n    string memory symbol,\\n    IERC20[] memory tokens,\\n    uint256[] memory weights,\\n    uint256 swapFeePercentage,\\n    address owner,\\n    bool swapEnabledOnStart\\n  ) external returns (address);\\n}\\n\",\"keccak256\":\"0x7df84b6d0b4180da98e8fc2aff3fd33eb83df7f81c28f2ba673a426155aa860a\",\"license\":\"MIT\"},\"contracts/lbp/interfaces/IVault.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\nimport {IERC20} from \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\n\\n/**\\n * @dev This is an empty interface used to represent either ERC20-conforming token contracts or ETH (using the zero\\n * address sentinel value). We're just relying on the fact that `interface` can be used to declare new address-like\\n * types.\\n *\\n * This concept is unrelated to a Pool's Asset Managers.\\n */\\ninterface IAsset {\\n  // solhint-disable-previous-line no-empty-blocks\\n}\\n\\nenum PoolSpecialization {\\n  GENERAL,\\n  MINIMAL_SWAP_INFO,\\n  TWO_TOKEN\\n}\\n\\nenum WeightedPoolJoinKind {\\n  INIT,\\n  EXACT_TOKENS_IN_FOR_BPT_OUT,\\n  TOKEN_IN_FOR_EXACT_BPT_OUT,\\n  ALL_TOKENS_IN_FOR_EXACT_BPT_OUT\\n}\\n\\nenum WeightedPoolExitKind {\\n  EXACT_BPT_IN_FOR_ONE_TOKEN_OUT,\\n  EXACT_BPT_IN_FOR_TOKENS_OUT,\\n  BPT_IN_FOR_EXACT_TOKENS_OUT,\\n  MANAGEMENT_FEE_TOKENS_OUT\\n}\\n\\nstruct JoinPoolRequest {\\n  IAsset[] assets;\\n  uint256[] maxAmountsIn;\\n  bytes userData;\\n  bool fromInternalBalance;\\n}\\nstruct ExitPoolRequest {\\n  IAsset[] assets;\\n  uint256[] minAmountsOut;\\n  bytes userData;\\n  bool toInternalBalance;\\n}\\n\\ninterface IVault {\\n  function setPaused(bool paused) external;\\n\\n  function getPool(bytes32 poolId) external returns (address, PoolSpecialization);\\n\\n  function joinPool(\\n    bytes32 poolId,\\n    address sender,\\n    address recipient,\\n    JoinPoolRequest memory request\\n  ) external payable;\\n\\n  function exitPool(\\n    bytes32 poolId,\\n    address sender,\\n    address recipient,\\n    ExitPoolRequest memory request\\n  ) external payable;\\n\\n  function getPoolTokens(bytes32 poolId)\\n    external\\n    returns (\\n      IERC20[] memory tokens,\\n      uint256[] memory balances,\\n      uint256 maxBlockNumber\\n    );\\n}\\n\",\"keccak256\":\"0x173438d89cf2d8ea328f5be2622ebdd1a29ff5fd522df342ec718f3b5732817e\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60806040523480156200001157600080fd5b5060405162001fd038038062001fd0833981016040819052620000349162000795565b8a51600180546001600160a01b039283166001600160a01b03199182161790915560208d01516002805491909316911617905562015180831180156200007c57506206978083105b620000a45760405162461bcd60e51b81526004016200009b9062000956565b60405180910390fd5b428211620000c65760405162461bcd60e51b81526004016200009b906200091f565b8051600e80546001600160a01b03199081166001600160a01b0393841617909155602080840151600f8054909316931692909217905560408051610180810182528c81528083018c90529081018a9052606081018990526080810188905260a0810187905260c0810185905260e08101869052306101008201526000610120820181905261014082018590526101608201528b51909160039162000170918391908f019062000455565b5060208281015180516200018b926001850192019062000455565b5060408201518051620001a9916002840191602090910190620004e4565b5060608201518051620001c79160038401916020909101906200053c565b5060808201518051620001e59160048401916020909101906200053c565b5060a08201518051620002039160058401916020909101906200053c565b5060c0820151600682015560e082015160078201556101008201516008820180546101208501516001600160a01b03199091166001600160a01b039093169290921760ff60a01b1916600160a01b92151592909202919091179055610140820151600982015561016090910151600a909101805460ff19169115159190911790556200028e6200029f565b505050505050505050505062000a4b565b600080620002ac620003d2565b60025460405163095ea7b360e01b81529294509092506001600160a01b038085169263095ea7b392620002e89216906000199060040162000906565b602060405180830381600087803b1580156200030357600080fd5b505af115801562000318573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906200033e91906200076c565b5060025460405163095ea7b360e01b81526001600160a01b038381169263095ea7b3926200037792909116906000199060040162000906565b602060405180830381600087803b1580156200039257600080fd5b505af1158015620003a7573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620003cd91906200076c565b505050565b6000806003600201600081548110620003fb57634e487b7160e01b600052603260045260246000fd5b600091825260209091200154600580546001600160a01b039092169160019081106200043757634e487b7160e01b600052603260045260246000fd5b6000918252602090912001549092506001600160a01b031690509091565b8280546200046390620009df565b90600052602060002090601f016020900481019282620004875760008555620004d2565b82601f10620004a257805160ff1916838001178555620004d2565b82800160010185558215620004d2579182015b82811115620004d2578251825591602001919060010190620004b5565b50620004e092915062000579565b5090565b828054828255906000526020600020908101928215620004d2579160200282015b82811115620004d257825182546001600160a01b0319166001600160a01b0390911617825560209092019160019091019062000505565b828054828255906000526020600020908101928215620004d25791602002820182811115620004d2578251825591602001919060010190620004b5565b5b80821115620004e057600081556001016200057a565b600082601f830112620005a1578081fd5b81516020620005ba620005b483620009b9565b6200098d565b8281528181019085830183850287018401881015620005d7578586fd5b855b8581101562000602578151620005ef8162000a32565b84529284019290840190600101620005d9565b5090979650505050505050565b600082601f83011262000620578081fd5b8151602062000633620005b483620009b9565b828152818101908583018385028701840188101562000650578586fd5b855b85811015620006025781518452928401929084019060010162000652565b600082601f83011262000681578081fd5b81516001600160401b038111156200069d576200069d62000a1c565b6020620006b3601f8301601f191682016200098d565b8281528582848701011115620006c7578384fd5b835b83811015620006e6578581018301518282018401528201620006c9565b83811115620006f757848385840101525b5095945050505050565b60006040828403121562000713578081fd5b604080519081016001600160401b038111828210171562000738576200073862000a1c565b806040525080915082516200074d8162000a32565b815260208301516200075f8162000a32565b6020919091015292915050565b6000602082840312156200077e578081fd5b815180151581146200078e578182fd5b9392505050565b60008060008060008060008060008060006101a08c8e031215620007b7578687fd5b620007c38d8d62000701565b60408d0151909b506001600160401b03811115620007df578788fd5b620007ed8e828f0162000670565b60608e0151909b5090506001600160401b038111156200080b578788fd5b620008198e828f0162000670565b60808e0151909a5090506001600160401b0381111562000837578788fd5b620008458e828f0162000590565b60a08e015190995090506001600160401b0381111562000863578788fd5b620008718e828f016200060f565b60c08e015190985090506001600160401b038111156200088f578687fd5b6200089d8e828f016200060f565b60e08e015190975090506001600160401b03811115620008bb578586fd5b620008c98e828f016200060f565b9550506101008c015193506101208c015192506101408c01519150620008f48d6101608e0162000701565b90509295989b509295989b9093969950565b6001600160a01b03929092168252602082015260400190565b6020808252601c908201527f73746172742074696d65206d75737420626520696e2066757475726500000000604082015260600190565b60208082526019908201527f6475726174696f6e206973206f7574206f6620626f756e647300000000000000604082015260600190565b6040518181016001600160401b0381118282101715620009b157620009b162000a1c565b604052919050565b60006001600160401b03821115620009d557620009d562000a1c565b5060209081020190565b600281046001821680620009f457607f821691505b6020821081141562000a1657634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052604160045260246000fd5b6001600160a01b038116811462000a4857600080fd5b50565b6115758062000a5b6000396000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c80638a8c523c1161005b5780638a8c523c146100c05780639695e195146100c8578063d8519dda146100e4578063e563037e146100ec5761007d565b8063092f7de71461008257806326c0e5c5146100a05780634162169f146100aa575b600080fd5b61008a6100f4565b60405161009791906111c9565b60405180910390f35b6100a8610103565b005b6100b2610463565b6040516100979291906111dd565b6100a8610479565b6100d06105ec565b60405161009798979695949392919061126b565b6100a8610744565b6100b26108b8565b6000546001600160a01b031681565b600d5460ff1661012e5760405162461bcd60e51b815260040161012590611421565b60405180910390fd5b600e546001600160a01b031633146101585760405162461bcd60e51b8152600401610125906113b3565b60008060009054906101000a90046001600160a01b03166001600160a01b03166338fff2d06040518163ffffffff1660e01b8152600401602060405180830381600087803b1580156101a957600080fd5b505af11580156101bd573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101e19190610fb0565b60055490915060009067ffffffffffffffff81111561021057634e487b7160e01b600052604160045260246000fd5b604051908082528060200260200182016040528015610239578160200160208202803683370190505b50905060005b60055481101561028857600082828151811061026b57634e487b7160e01b600052603260045260246000fd5b6020908102919091010152806102808161150e565b91505061023f565b5060008054604051633806be4b60e21b81526001600160a01b039091169163e01af92c916102b9919060040161121b565b600060405180830381600087803b1580156102d357600080fd5b505af11580156102e7573d6000803e3d6000fd5b5050604080516005805460a06020820284018101909452608083018181526000965092945084936103589392919085018282801561034e57602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311610330575b50505050506108ce565b815260208101849052604001600161036f866108d1565b604051602001610380929190611479565b60408051601f19818403018152918152908252600060209290920191909152600254600f5491517f8bdb39130000000000000000000000000000000000000000000000000000000081529293506001600160a01b0390811692638bdb3913926103f5928892309290911690879060040161122f565b600060405180830381600087803b15801561040f57600080fd5b505af1158015610423573d6000803e3d6000fd5b505050507f0139ec377d0a521e725f8ccba653dd7cea5bbc10c1f284590ee683c86fb5397e836040516104569190611226565b60405180910390a1505050565b600e54600f546001600160a01b03918216911682565b600d5460ff1661049b5760405162461bcd60e51b815260040161012590611421565b600c544210156104bd5760405162461bcd60e51b8152600401610125906113ea565b6009546000906104cd90426114bb565b6000546040517f3e5692050000000000000000000000000000000000000000000000000000000081529192506001600160a01b031690633e5692059061051c9042908590600890600401611487565b600060405180830381600087803b15801561053657600080fd5b505af115801561054a573d6000803e3d6000fd5b5050600054604051633806be4b60e21b81526001600160a01b03909116925063e01af92c915061057f9060019060040161121b565b600060405180830381600087803b15801561059957600080fd5b505af11580156105ad573d6000803e3d6000fd5b505050507fb9bbb15e341600c8d067a0cadeba219905d5ba6d422b193c9c32265d26fc51c860016040516105e1919061121b565b60405180910390a150565b6003805481906105fb906114d3565b80601f0160208091040260200160405190810160405280929190818152602001828054610627906114d3565b80156106745780601f1061064957610100808354040283529160200191610674565b820191906000526020600020905b81548152906001019060200180831161065757829003601f168201915b505050505090806001018054610689906114d3565b80601f01602080910402602001604051908101604052809291908181526020018280546106b5906114d3565b80156107025780601f106106d757610100808354040283529160200191610702565b820191906000526020600020905b8154815290600101906020018083116106e557829003601f168201915b5050506006840154600785015460088601546009870154600a90970154959692959194506001600160a01b038116935060ff600160a01b909104811692911688565b600e546001600160a01b0316331461076e5760405162461bcd60e51b81526004016101259061137c565b600d805460ff1916600190811790915554600a54600b546040517f236797190000000000000000000000000000000000000000000000000000000081526001600160a01b03938416936323679719936107e693600393600493600593600793909291811691600160a01b90910460ff169086016112d1565b602060405180830381600087803b15801561080057600080fd5b505af1158015610814573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108389190610f36565b600080547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0392831617908190556040517f862036d3286b6c0c3d81e0731e5523949a342fd1b5090ca0703aaba60f23869a9261089e9216906111c9565b60405180910390a16108ae610a15565b6108b6610b9d565b565b6001546002546001600160a01b03918216911682565b90565b6002546040517ff6c0092700000000000000000000000000000000000000000000000000000000815260009182916001600160a01b039091169063f6c009279061091f908690600401611226565b6040805180830381600087803b15801561093857600080fd5b505af115801561094c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109709190610f57565b506040517f70a0823100000000000000000000000000000000000000000000000000000000815290915081906001600160a01b038216906370a08231906109bb9030906004016111c9565b60206040518083038186803b1580156109d357600080fd5b505afa1580156109e7573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a0b9190610fb0565b925050505b919050565b600080610a20610e9e565b600e54600680549395509193506001600160a01b03808616936323b872dd9392909116913091600090610a6357634e487b7160e01b600052603260045260246000fd5b90600052602060002001546040518463ffffffff1660e01b8152600401610a8c939291906111f7565b602060405180830381600087803b158015610aa657600080fd5b505af1158015610aba573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610ade9190610f90565b50600e54600680546001600160a01b03808516936323b872dd939116913091906001908110610b1d57634e487b7160e01b600052603260045260246000fd5b90600052602060002001546040518463ffffffff1660e01b8152600401610b46939291906111f7565b602060405180830381600087803b158015610b6057600080fd5b505af1158015610b74573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b989190610f90565b505050565b60055460009067ffffffffffffffff811115610bc957634e487b7160e01b600052604160045260246000fd5b604051908082528060200260200182016040528015610bf2578160200160208202803683370190505b50905060005b600554811015610c4257600019828281518110610c2557634e487b7160e01b600052603260045260246000fd5b602090810291909101015280610c3a8161150e565b915050610bf8565b50604080516005805460a06020820284018101909452608083018181526000948493610cab93909185018282801561034e576020028201919060005260206000209081546001600160a01b031681526001909101906020018083116103305750505050506108ce565b8152602081018490526040016000604051610ccc9190600690602001611458565b60408051601f1981840301815291815290825260006020928301819052600254815483517f38fff2d000000000000000000000000000000000000000000000000000000000815293519596506001600160a01b039182169563b95cac289591909216936338fff2d093600480830194928390030190829087803b158015610d5257600080fd5b505af1158015610d66573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d8a9190610fb0565b3030856040518563ffffffff1660e01b8152600401610dac949392919061122f565b600060405180830381600087803b158015610dc657600080fd5b505af1158015610dda573d6000803e3d6000fd5b505050507f3ab359279172d20fb74f51c485585571b77bb1dc3b6b1430ecd2bf80543148bb60008054906101000a90046001600160a01b03166001600160a01b03166338fff2d06040518163ffffffff1660e01b8152600401602060405180830381600087803b158015610e4d57600080fd5b505af1158015610e61573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610e859190610fb0565b604051610e929190611226565b60405180910390a15050565b6000806003600201600081548110610ec657634e487b7160e01b600052603260045260246000fd5b600091825260209091200154600580546001600160a01b03909216916001908110610f0157634e487b7160e01b600052603260045260246000fd5b6000918252602090912001549092506001600160a01b031690509091565b80516001600160a01b0381168114610a1057600080fd5b600060208284031215610f47578081fd5b610f5082610f1f565b9392505050565b60008060408385031215610f69578081fd5b610f7283610f1f565b9150602083015160038110610f85578182fd5b809150509250929050565b600060208284031215610fa1578081fd5b81518015158114610f50578182fd5b600060208284031215610fc1578081fd5b5051919050565b6001600160a01b03169052565b6000815180845260208085019450808401835b8381101561100457815187529582019590820190600101610fe8565b509495945050505050565b6000815480845260208085019450838352808320835b8381101561100457815487529582019560019182019101611025565b15159052565b60008151808452815b8181101561106c57602081850181015186830182015201611050565b8181111561107d5782602083870101525b50601f01601f19169290920160200192915050565b8054600090600281046001808316806110ac57607f831692505b60208084108214156110cc57634e487b7160e01b86526022600452602486fd5b6110d68489611226565b8280156110ea57600181146110fb57611126565b60ff19871682528282019750611126565b611104896114af565b60005b8781101561112057815484820152908601908401611107565b83019850505b5050505050505092915050565b8051608080845281519084018190526000916020919082019060a0860190845b818110156111785783516001600160a01b031683529284019291840191600101611153565b5050828501519150858103838701526111918183610fd5565b92505050604083015184820360408601526111ac8282611047565b91505060608301516111c16060860182611041565b509392505050565b6001600160a01b0391909116815260200190565b6001600160a01b0392831681529116602082015260400190565b6001600160a01b039384168152919092166020820152604081019190915260600190565b901515815260200190565b90815260200190565b60008582526001600160a01b038086166020840152808516604084015250608060608301526112616080830184611133565b9695505050505050565b600061010080835261127f8184018c611047565b90508281036020840152611293818b611047565b6040840199909952505060608101959095526001600160a01b0393909316608085015290151560a084015260c0830152151560e09091015292915050565b600060e082526112e460e083018a611092565b6020838203818501526112f7828b611092565b848103604086015289548082528a8552828520935090820190845b818110156113375784546001600160a01b031683526001948501949284019201611312565b5050848103606086015261134b818a61100f565b935050505084608083015261136360a0830185610fc8565b61137060c0830184611041565b98975050505050505050565b60208082526016908201527f4f6e6c792044414f2063616e2063616c6c207468697300000000000000000000604082015260600190565b60208082526010908201527f6e6f7420746f6461792c20627564647900000000000000000000000000000000604082015260600190565b6020808252601e908201527f54726164696e672063616e206e6f7420626520656e61626c6564207965740000604082015260600190565b6020808252601e908201527f506f6f6c20686173206e6f74206265656e206465706c6f796564207965740000604082015260600190565b600083825260406020830152611471604083018461100f565b949350505050565b918252602082015260400190565b6000848252836020830152606060408301526114a6606083018461100f565b95945050505050565b60009081526020902090565b600082198211156114ce576114ce611529565b500190565b6002810460018216806114e757607f821691505b6020821081141561150857634e487b7160e01b600052602260045260246000fd5b50919050565b600060001982141561152257611522611529565b5060010190565b634e487b7160e01b600052601160045260246000fdfea264697066735822122073bce1b6651e1fe7e7633fd8d975351abeb39fdec1ab27f5a2b837ecf1508af664736f6c63430008000033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061007d5760003560e01c80638a8c523c1161005b5780638a8c523c146100c05780639695e195146100c8578063d8519dda146100e4578063e563037e146100ec5761007d565b8063092f7de71461008257806326c0e5c5146100a05780634162169f146100aa575b600080fd5b61008a6100f4565b60405161009791906111c9565b60405180910390f35b6100a8610103565b005b6100b2610463565b6040516100979291906111dd565b6100a8610479565b6100d06105ec565b60405161009798979695949392919061126b565b6100a8610744565b6100b26108b8565b6000546001600160a01b031681565b600d5460ff1661012e5760405162461bcd60e51b815260040161012590611421565b60405180910390fd5b600e546001600160a01b031633146101585760405162461bcd60e51b8152600401610125906113b3565b60008060009054906101000a90046001600160a01b03166001600160a01b03166338fff2d06040518163ffffffff1660e01b8152600401602060405180830381600087803b1580156101a957600080fd5b505af11580156101bd573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101e19190610fb0565b60055490915060009067ffffffffffffffff81111561021057634e487b7160e01b600052604160045260246000fd5b604051908082528060200260200182016040528015610239578160200160208202803683370190505b50905060005b60055481101561028857600082828151811061026b57634e487b7160e01b600052603260045260246000fd5b6020908102919091010152806102808161150e565b91505061023f565b5060008054604051633806be4b60e21b81526001600160a01b039091169163e01af92c916102b9919060040161121b565b600060405180830381600087803b1580156102d357600080fd5b505af11580156102e7573d6000803e3d6000fd5b5050604080516005805460a06020820284018101909452608083018181526000965092945084936103589392919085018282801561034e57602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311610330575b50505050506108ce565b815260208101849052604001600161036f866108d1565b604051602001610380929190611479565b60408051601f19818403018152918152908252600060209290920191909152600254600f5491517f8bdb39130000000000000000000000000000000000000000000000000000000081529293506001600160a01b0390811692638bdb3913926103f5928892309290911690879060040161122f565b600060405180830381600087803b15801561040f57600080fd5b505af1158015610423573d6000803e3d6000fd5b505050507f0139ec377d0a521e725f8ccba653dd7cea5bbc10c1f284590ee683c86fb5397e836040516104569190611226565b60405180910390a1505050565b600e54600f546001600160a01b03918216911682565b600d5460ff1661049b5760405162461bcd60e51b815260040161012590611421565b600c544210156104bd5760405162461bcd60e51b8152600401610125906113ea565b6009546000906104cd90426114bb565b6000546040517f3e5692050000000000000000000000000000000000000000000000000000000081529192506001600160a01b031690633e5692059061051c9042908590600890600401611487565b600060405180830381600087803b15801561053657600080fd5b505af115801561054a573d6000803e3d6000fd5b5050600054604051633806be4b60e21b81526001600160a01b03909116925063e01af92c915061057f9060019060040161121b565b600060405180830381600087803b15801561059957600080fd5b505af11580156105ad573d6000803e3d6000fd5b505050507fb9bbb15e341600c8d067a0cadeba219905d5ba6d422b193c9c32265d26fc51c860016040516105e1919061121b565b60405180910390a150565b6003805481906105fb906114d3565b80601f0160208091040260200160405190810160405280929190818152602001828054610627906114d3565b80156106745780601f1061064957610100808354040283529160200191610674565b820191906000526020600020905b81548152906001019060200180831161065757829003601f168201915b505050505090806001018054610689906114d3565b80601f01602080910402602001604051908101604052809291908181526020018280546106b5906114d3565b80156107025780601f106106d757610100808354040283529160200191610702565b820191906000526020600020905b8154815290600101906020018083116106e557829003601f168201915b5050506006840154600785015460088601546009870154600a90970154959692959194506001600160a01b038116935060ff600160a01b909104811692911688565b600e546001600160a01b0316331461076e5760405162461bcd60e51b81526004016101259061137c565b600d805460ff1916600190811790915554600a54600b546040517f236797190000000000000000000000000000000000000000000000000000000081526001600160a01b03938416936323679719936107e693600393600493600593600793909291811691600160a01b90910460ff169086016112d1565b602060405180830381600087803b15801561080057600080fd5b505af1158015610814573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108389190610f36565b600080547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0392831617908190556040517f862036d3286b6c0c3d81e0731e5523949a342fd1b5090ca0703aaba60f23869a9261089e9216906111c9565b60405180910390a16108ae610a15565b6108b6610b9d565b565b6001546002546001600160a01b03918216911682565b90565b6002546040517ff6c0092700000000000000000000000000000000000000000000000000000000815260009182916001600160a01b039091169063f6c009279061091f908690600401611226565b6040805180830381600087803b15801561093857600080fd5b505af115801561094c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109709190610f57565b506040517f70a0823100000000000000000000000000000000000000000000000000000000815290915081906001600160a01b038216906370a08231906109bb9030906004016111c9565b60206040518083038186803b1580156109d357600080fd5b505afa1580156109e7573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a0b9190610fb0565b925050505b919050565b600080610a20610e9e565b600e54600680549395509193506001600160a01b03808616936323b872dd9392909116913091600090610a6357634e487b7160e01b600052603260045260246000fd5b90600052602060002001546040518463ffffffff1660e01b8152600401610a8c939291906111f7565b602060405180830381600087803b158015610aa657600080fd5b505af1158015610aba573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610ade9190610f90565b50600e54600680546001600160a01b03808516936323b872dd939116913091906001908110610b1d57634e487b7160e01b600052603260045260246000fd5b90600052602060002001546040518463ffffffff1660e01b8152600401610b46939291906111f7565b602060405180830381600087803b158015610b6057600080fd5b505af1158015610b74573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b989190610f90565b505050565b60055460009067ffffffffffffffff811115610bc957634e487b7160e01b600052604160045260246000fd5b604051908082528060200260200182016040528015610bf2578160200160208202803683370190505b50905060005b600554811015610c4257600019828281518110610c2557634e487b7160e01b600052603260045260246000fd5b602090810291909101015280610c3a8161150e565b915050610bf8565b50604080516005805460a06020820284018101909452608083018181526000948493610cab93909185018282801561034e576020028201919060005260206000209081546001600160a01b031681526001909101906020018083116103305750505050506108ce565b8152602081018490526040016000604051610ccc9190600690602001611458565b60408051601f1981840301815291815290825260006020928301819052600254815483517f38fff2d000000000000000000000000000000000000000000000000000000000815293519596506001600160a01b039182169563b95cac289591909216936338fff2d093600480830194928390030190829087803b158015610d5257600080fd5b505af1158015610d66573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d8a9190610fb0565b3030856040518563ffffffff1660e01b8152600401610dac949392919061122f565b600060405180830381600087803b158015610dc657600080fd5b505af1158015610dda573d6000803e3d6000fd5b505050507f3ab359279172d20fb74f51c485585571b77bb1dc3b6b1430ecd2bf80543148bb60008054906101000a90046001600160a01b03166001600160a01b03166338fff2d06040518163ffffffff1660e01b8152600401602060405180830381600087803b158015610e4d57600080fd5b505af1158015610e61573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610e859190610fb0565b604051610e929190611226565b60405180910390a15050565b6000806003600201600081548110610ec657634e487b7160e01b600052603260045260246000fd5b600091825260209091200154600580546001600160a01b03909216916001908110610f0157634e487b7160e01b600052603260045260246000fd5b6000918252602090912001549092506001600160a01b031690509091565b80516001600160a01b0381168114610a1057600080fd5b600060208284031215610f47578081fd5b610f5082610f1f565b9392505050565b60008060408385031215610f69578081fd5b610f7283610f1f565b9150602083015160038110610f85578182fd5b809150509250929050565b600060208284031215610fa1578081fd5b81518015158114610f50578182fd5b600060208284031215610fc1578081fd5b5051919050565b6001600160a01b03169052565b6000815180845260208085019450808401835b8381101561100457815187529582019590820190600101610fe8565b509495945050505050565b6000815480845260208085019450838352808320835b8381101561100457815487529582019560019182019101611025565b15159052565b60008151808452815b8181101561106c57602081850181015186830182015201611050565b8181111561107d5782602083870101525b50601f01601f19169290920160200192915050565b8054600090600281046001808316806110ac57607f831692505b60208084108214156110cc57634e487b7160e01b86526022600452602486fd5b6110d68489611226565b8280156110ea57600181146110fb57611126565b60ff19871682528282019750611126565b611104896114af565b60005b8781101561112057815484820152908601908401611107565b83019850505b5050505050505092915050565b8051608080845281519084018190526000916020919082019060a0860190845b818110156111785783516001600160a01b031683529284019291840191600101611153565b5050828501519150858103838701526111918183610fd5565b92505050604083015184820360408601526111ac8282611047565b91505060608301516111c16060860182611041565b509392505050565b6001600160a01b0391909116815260200190565b6001600160a01b0392831681529116602082015260400190565b6001600160a01b039384168152919092166020820152604081019190915260600190565b901515815260200190565b90815260200190565b60008582526001600160a01b038086166020840152808516604084015250608060608301526112616080830184611133565b9695505050505050565b600061010080835261127f8184018c611047565b90508281036020840152611293818b611047565b6040840199909952505060608101959095526001600160a01b0393909316608085015290151560a084015260c0830152151560e09091015292915050565b600060e082526112e460e083018a611092565b6020838203818501526112f7828b611092565b848103604086015289548082528a8552828520935090820190845b818110156113375784546001600160a01b031683526001948501949284019201611312565b5050848103606086015261134b818a61100f565b935050505084608083015261136360a0830185610fc8565b61137060c0830184611041565b98975050505050505050565b60208082526016908201527f4f6e6c792044414f2063616e2063616c6c207468697300000000000000000000604082015260600190565b60208082526010908201527f6e6f7420746f6461792c20627564647900000000000000000000000000000000604082015260600190565b6020808252601e908201527f54726164696e672063616e206e6f7420626520656e61626c6564207965740000604082015260600190565b6020808252601e908201527f506f6f6c20686173206e6f74206265656e206465706c6f796564207965740000604082015260600190565b600083825260406020830152611471604083018461100f565b949350505050565b918252602082015260400190565b6000848252836020830152606060408301526114a6606083018461100f565b95945050505050565b60009081526020902090565b600082198211156114ce576114ce611529565b500190565b6002810460018216806114e757607f821691505b6020821081141561150857634e487b7160e01b600052602260045260246000fd5b50919050565b600060001982141561152257611522611529565b5060010190565b634e487b7160e01b600052601160045260246000fdfea264697066735822122073bce1b6651e1fe7e7633fd8d975351abeb39fdec1ab27f5a2b837ecf1508af664736f6c63430008000033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "params": {
+          "_balancer": "see struct Balancer - balancer contract addresses",
+          "_dao": "see struct DAO - DAO addresses",
+          "_durationInSeconds": "PoolConfiguration.durationInSeconds",
+          "_endWeights": "PoolConfiguration.endWeights",
+          "_name": "PoolConfiguration.name",
+          "_startTime": "PoolConfiguration.startTime",
+          "_startWeights": "PoolConfiguration.startWeights",
+          "_swapFee": "PoolConfiguration.swapFee",
+          "_symbol": "PoolConfiguration.symbol",
+          "_tokenAmounts": "PoolConfiguration.tokenAmounts",
+          "_tokens": "PoolConfiguration.tokens"
+        }
+      },
+      "deployLBP()": {
+        "details": "Will deploy a balancer LBP. Can only be called by DAO.agent address"
+      }
+    },
+    "title": "LBP Manager",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "deployLBP()": {
+        "notice": "This function requires that the DAO.agent has approved this address for spending pool tokens (e.g. POP & USDC). It will revert if the DAO.agent has not approved this contract for spending those tokens. The PoolConfiguration.tokenAmounts for the pool tokens will be transferred from the DAO.agent to this contract and forwarded to the LBP"
+      },
+      "enableTrading()": {
+        "notice": "Anyone can enable trading after the LBP has been deployed and the start time has been reached. Trading must be enabled for the pool to work."
+      },
+      "lbp()": {
+        "notice": "lbp deployed LBP address"
+      },
+      "withdrawFromPool()": {
+        "notice": "The DAO.agent can call this function to shutdown and unwind the pool. The proceeds will be forwarded to the DAO.treasury"
+      }
+    },
+    "notice": "This contract manages a Balancer Liquidity Bootstrapping Pool (LBP) so that only a DAO can deploy and shutdown an LBP. After the LBP is deployed, trading must be enabled. While only the DAO has permission to deploy, shutdown and unwind the LBP, anyone can permissionlessly enable trading after the configured start time. When the LBP is completed (via `withdrawFromPool()`), the total balance of the LBP tokens will be sent to the DAO treasury.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 753,
+        "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+        "label": "lbp",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_contract(ILBP)1338"
+      },
+      {
+        "astId": 756,
+        "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+        "label": "balancer",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_struct(Balancer)744_storage"
+      },
+      {
+        "astId": 759,
+        "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+        "label": "poolConfig",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_struct(PoolConfiguration)737_storage"
+      },
+      {
+        "astId": 762,
+        "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+        "label": "dao",
+        "offset": 0,
+        "slot": "14",
+        "type": "t_struct(DAO)749_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_contract(IERC20)623)dyn_storage": {
+        "base": "t_contract(IERC20)623",
+        "encoding": "dynamic_array",
+        "label": "contract IERC20[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_contract(IERC20)623": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_contract(ILBP)1338": {
+        "encoding": "inplace",
+        "label": "contract ILBP",
+        "numberOfBytes": "20"
+      },
+      "t_contract(ILBPFactory)1365": {
+        "encoding": "inplace",
+        "label": "contract ILBPFactory",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IVault)1463": {
+        "encoding": "inplace",
+        "label": "contract IVault",
+        "numberOfBytes": "20"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Balancer)744_storage": {
+        "encoding": "inplace",
+        "label": "struct LBPManager.Balancer",
+        "members": [
+          {
+            "astId": 740,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "lbpFactory",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(ILBPFactory)1365"
+          },
+          {
+            "astId": 743,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "vault",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IVault)1463"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_struct(DAO)749_storage": {
+        "encoding": "inplace",
+        "label": "struct LBPManager.DAO",
+        "members": [
+          {
+            "astId": 746,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "agent",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 748,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "treasury",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_struct(PoolConfiguration)737_storage": {
+        "encoding": "inplace",
+        "label": "struct LBPManager.PoolConfiguration",
+        "members": [
+          {
+            "astId": 709,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "name",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 711,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "symbol",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 715,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "tokens",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_contract(IERC20)623)dyn_storage"
+          },
+          {
+            "astId": 718,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "tokenAmounts",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_uint256)dyn_storage"
+          },
+          {
+            "astId": 721,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "startWeights",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_array(t_uint256)dyn_storage"
+          },
+          {
+            "astId": 724,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "endWeights",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_array(t_uint256)dyn_storage"
+          },
+          {
+            "astId": 726,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "durationInSeconds",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 728,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "swapFee",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 730,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "owner",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_address"
+          },
+          {
+            "astId": 732,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "swapEnabledOnStart",
+            "offset": 20,
+            "slot": "8",
+            "type": "t_bool"
+          },
+          {
+            "astId": 734,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "startTime",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 736,
+            "contract": "contracts/lbp/LBPManager.sol:LBPManager",
+            "label": "deployed",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "352"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

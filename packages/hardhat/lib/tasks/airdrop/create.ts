@@ -20,7 +20,7 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   const signer = hre.askForSigner();
   const addresses = getNamedAccounts();
   const token = await hre.ethers.getContractAt(
-    "contracts/core/interfaces/IERC20Metadata.sol:IERC20Metadata",
+    "@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20",
     args.token,
     signer
   );
