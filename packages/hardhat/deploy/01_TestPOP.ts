@@ -1,6 +1,6 @@
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "@ethersproject/units";
 import { formatEther } from "ethers/lib/utils";
-import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 
