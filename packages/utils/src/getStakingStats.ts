@@ -38,7 +38,7 @@ export async function getSingleStakingPoolInfo(
   stakedTokenAddress?: Address,
   stakedTokenName?: string,
 ): Promise<StakingPoolInfo> {
-  const tokenPerWeek = await stakingContract.getRewardForDuration({
+  const tokenPerWeek = await stakingContract?.getRewardForDuration({
     gasLimit: '2000000',
   });
   const totalStaked = await stakingContract.totalSupply({
@@ -89,7 +89,7 @@ export async function getStakingPoolsInfo(
   if (contracts && stakingContracts && stakingContracts.length > 0) {
     for (let i = 0; i < stakingContracts.length; i++) {
       const stakingContract = stakingContracts[i];
-      const tokenPerWeek = await stakingContract.getRewardForDuration({
+      const tokenPerWeek = await stakingContract?.getRewardForDuration({
         gasLimit: 2000000,
       });
       const totalStaked = await stakingContract.totalSupply({

@@ -85,9 +85,13 @@ export default function index(): JSX.Element {
     if (!chainId) {
       return;
     }
-    getStakingPoolsInfo(contracts, library).then((res) => {
-      setStakingPools(res);
-    });
+    getStakingPoolsInfo(contracts, library)
+      .then((res) => {
+        setStakingPools(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, [chainId, contracts]);
 
   useEffect(() => {
@@ -141,7 +145,7 @@ export default function index(): JSX.Element {
                   <div className="w-full">
                     <StatInfoCard
                       title="Cumulative Rewards"
-                      content={`${balances.earned.toLocaleString()} POP`}
+                      content={`${balances?.earned?.toLocaleString()} POP`}
                       icon={{ icon: 'Money', color: 'bg-blue-300' }}
                     />
                   </div>
@@ -149,7 +153,7 @@ export default function index(): JSX.Element {
               )}
             </div>
             <div className={`${balances ? 'mt-8' : ''} space-y-4`}>
-              {stakingPoolsInfo ? (
+              {stakingPoolsInfo !== undefined ? (
                 <StakingCardsList stakingPoolsInfo={stakingPoolsInfo} />
               ) : (
                 <></>

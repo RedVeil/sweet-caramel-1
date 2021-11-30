@@ -1,7 +1,10 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { StakingRewards } from '@popcorn/hardhat/typechain';
-import { getEarned, getStakingPoolsInfo, StakingPoolInfo } from '@popcorn/utils';
-import { TokenBalances } from '@popcorn/utils/getBalances';
+import {
+  getEarned,
+  getStakingPoolsInfo,
+  StakingPoolInfo,
+} from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import ClaimCard from 'components/ClaimCard';
 import Navbar from 'components/NavBar/NavBar';
@@ -23,19 +26,22 @@ export default function index(): JSX.Element {
       return;
     }
     async function getData() {
-      const earned = await getEarned(account, contracts)
+      const earned = await getEarned(account, contracts);
       setEarned(earned);
-      const stakingPoolsInfo = await getStakingPoolsInfo(contracts, library)
+      const stakingPoolsInfo = await getStakingPoolsInfo(contracts, library);
       setStakingPoolsInfo(stakingPoolsInfo);
     }
-    getData()
+    getData().catch((err) => console.log(err));
   }, [account, contracts, library]);
 
   useEffect(() => {
     if (!earned) {
       return;
     }
-    const totalEarned = earned.reduce((totalSum, currentValue) => totalSum + currentValue, 0)
+    const totalEarned = earned.reduce(
+      (totalSum, currentValue) => totalSum + currentValue,
+      0,
+    );
     setTotalEarned(totalEarned);
   }, [earned]);
 
@@ -98,16 +104,17 @@ export default function index(): JSX.Element {
             <div className="flex flex-row items-center mt-8">
               {stakingPoolsInfo && stakingPoolsInfo.length > 0 && earned && (
                 <>
-                  {
-                    earned && stakingPoolsInfo?.map((poolInfo, index) =>
+                  {earned &&
+                    stakingPoolsInfo?.map((poolInfo, index) => (
                       <ClaimCard
                         tokenName="POP Rewards"
                         apy={poolInfo.apy}
                         claimable={earned[index] ? earned[index] : 0}
-                        handleClick={() => claimReward(contracts.staking[index])}
+                        handleClick={() =>
+                          claimReward(contracts.staking[index])
+                        }
                       />
-                    )
-                  }
+                    ))}
                 </>
               )}
             </div>
