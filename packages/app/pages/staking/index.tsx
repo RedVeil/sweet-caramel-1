@@ -1,12 +1,11 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
-import StatInfoCard from 'components/StatInfoCard';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { bigNumberToNumber, getStakingPoolsInfo } from '../../../utils';
-import StakingCardsList from './StakingCardsList';
+import StakingCardsList from '../../components/StakingCardsList';
 
 interface TokenBalances {
   pop: number;
@@ -37,6 +36,7 @@ async function getWalletBalances(
   };
 }
 
+// TODO get oracles for popETH-LP and butter price to display the joined value of all staked tokens
 // async function getStakedBalances(
 //   account: string,
 //   contracts: Contracts,
@@ -106,53 +106,23 @@ export default function index(): JSX.Element {
           <div className="w-1/3">
             <div className="">
               <h1 className="text-3xl text-gray-800 font-medium">Staking</h1>
-              <p className="text-lg text-gray-500">
+              <p className="text-lg text-gray-500 mt-2">
                 Earn more income staking your crypto with us
               </p>
             </div>
-            <div className="bg-primaryLight rounded-xl pt-10 mr-12 mt-12">
+            <div className="bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mt-10 shadow-custom">
               <img
                 src="/images/farmerCat.svg"
                 alt="farmcerCat"
-                className="mx-auto"
+                className="mx-auto transform scale-101 py-1"
               />
             </div>
           </div>
 
-          <div className="w-2/3">
-            <div className="mt-28 flex flex-row items-center">
-              {balances && (
-                <>
-                  {/*<div className="w-1/2 mr-2">
-                    <StatInfoCard
-                      title="Staked Balance"
-                      content={`${(
-                        balances.staked.butter +
-                        balances.staked.pop +
-                        balances.staked.popEthLp
-                      ).toLocaleString()} Token`}
-                      icon={{
-                        icon: 'Money',
-                        color: 'bg-green-200',
-                        iconColor: 'text-gray-800',
-                      }}
-                    />
-                    </div>*/}
-                  <div className="w-full">
-                    <StatInfoCard
-                      title="Cumulative Rewards"
-                      content={`${balances.earned.toLocaleString()} POP`}
-                      icon={{ icon: 'Money', color: 'bg-blue-300' }}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-            <div className={`${balances ? 'mt-8' : ''} space-y-4`}>
-              {stakingPoolsInfo ? (
+          <div className="w-2/3 mt-28">
+            <div className={`space-y-6`}>
+              {stakingPoolsInfo && (
                 <StakingCardsList stakingPoolsInfo={stakingPoolsInfo} />
-              ) : (
-                <></>
               )}
             </div>
           </div>

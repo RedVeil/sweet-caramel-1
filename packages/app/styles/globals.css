@@ -51,7 +51,7 @@ p {
 
 @layer components {
   .button {
-    @apply flex-shrink-0 block px-4 py-2 text-base font-medium rounded-md border border-transparent text-base align-middle text-center leading-button shadow-sm;
+    @apply flex-shrink-0 block px-3 py-1 font-medium rounded-full border border-transparent text-base align-middle text-center leading-button shadow-sm;
   }
 
   .button:disabled {
@@ -63,7 +63,7 @@ p {
   }
 
   .button-primary {
-    @apply bg-blue-600 text-white transition duration-150 ease-in-out;
+    @apply bg-blue-600 text-white;
   }
 
   .button-seconday {
@@ -75,7 +75,7 @@ p {
   }
 
   .button-primary:hover {
-    @apply bg-blue-700 font-bold shadow-md transform scale-101;
+    @apply bg-blue-700;
   }
 
   .button-secondary {

@@ -7,6 +7,14 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+      boxShadow: {
+        custom: '0 4px 14px rgba(101, 135, 169, 0.11)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+        '6xl': '3rem',
+      },
       spacing: {
         18: '4.5rem',
         72: '18rem',
@@ -46,7 +54,7 @@ module.exports = {
     },
   },
   variants: {
-    extend: { opacity: ['disabled'] },
+    extend: { opacity: ['disabled'], backgroundColor: ['disabled'] },
   },
   plugins: [require('@tailwindcss/forms')],
 };

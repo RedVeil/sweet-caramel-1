@@ -4,7 +4,6 @@ import { BigNumber } from 'ethers';
 import { ERC20, ERC20__factory, StakingRewards } from '../../hardhat/typechain';
 import { bigNumberToNumber } from './formatBigNumber';
 import { Address } from './types';
-import { TokenBalances } from './getBalances';
 
 export interface StakingPoolInfo {
   stakedTokenAddress: string;
@@ -51,10 +50,7 @@ export async function getSingleStakingPoolInfo(
     });
   }
   if (!stakedTokenName) {
-    stakedTokenName = await getStakedTokenName(
-      stakedTokenAddress,
-      library,
-    );
+    stakedTokenName = await getStakedTokenName(stakedTokenAddress, library);
   }
   return {
     stakedTokenAddress,
@@ -101,10 +97,7 @@ export async function getStakingPoolsInfo(
       const totalStake = await bigNumberToNumber(totalStaked);
       const tokenEmission = await bigNumberToNumber(tokenPerWeek);
       let stakedTokenName = 'unnamed';
-      stakedTokenName = await getStakedTokenName(
-        stakedTokenAddress,
-        library,
-      );
+      stakedTokenName = await getStakedTokenName(stakedTokenAddress, library);
       const stakingInfo = {
         stakedTokenAddress: stakedTokenAddress,
         stakedTokenName: stakedTokenName,
@@ -112,7 +105,7 @@ export async function getStakingPoolsInfo(
         totalStake,
         tokenEmission,
       };
-      stakingPools[i] = (stakingInfo);
+      stakingPools[i] = stakingInfo;
     }
     return stakingPools;
   }
@@ -124,12 +117,12 @@ export async function getEarned(
   contracts: Contracts,
 ): Promise<number[]> {
   const { staking: stakingContracts } = contracts;
-  console.log(contracts)
-  const result: number[] = []
-  if (!stakingContracts || stakingContracts.length === 0) { console.log("returning"); return result }
-  for (let i = 0; i < stakingContracts.length; i++) {
-    result[i] = bigNumberToNumber(await contracts.staking[i].earned(account))
-    console.log(`earned for ${i} - ` + result[i])
+  const result: number[] = [];
+  if (!stakingContracts || stakingContracts.length === 0) {
+    return result;
   }
-  return result
+  for (let i = 0; i < stakingContracts.length; i++) {
+    result[i] = bigNumberToNumber(await contracts.staking[i].earned(account));
+  }
+  return result;
 }

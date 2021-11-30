@@ -1,13 +1,12 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { StakingPoolInfo, getERC20Contract } from '@popcorn/utils';
-import {
-  StakingRewards,
-} from '@popcorn/hardhat/typechain';
+import { StakingRewards } from '@popcorn/hardhat/typechain';
+import { getERC20Contract, StakingPoolInfo } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import { updateStakingPageInfo } from 'context/actions';
 import { store } from 'context/store';
 import router from 'next/router';
 import { useCallback, useContext } from 'react';
+import MainActionButton from './MainActionButton';
 import TokenIcon from './TokenIcon';
 
 interface StakeCardProps {
@@ -24,13 +23,17 @@ export default function ({
   stakingPoolInfo,
   url,
   stakingContract,
-  index, stakedTokenAddress
+  index,
+  stakedTokenAddress,
 }: StakeCardProps): JSX.Element {
   const { library } = useWeb3React<Web3Provider>();
   const { dispatch } = useContext(store);
 
   const onSelectPool = useCallback(async () => {
-    const erc20 = await getERC20Contract(stakingPoolInfo.stakedTokenAddress, library);
+    const erc20 = await getERC20Contract(
+      stakingPoolInfo.stakedTokenAddress,
+      library,
+    );
     dispatch(
       updateStakingPageInfo({
         inputToken: erc20,
@@ -39,50 +42,53 @@ export default function ({
         poolInfo: stakingPoolInfo,
       }),
     );
-    sessionStorage.setItem('stakingPoolAddress', stakedTokenAddress)
-    sessionStorage.setItem('stakingPoolIndex', index.toString())
+    sessionStorage.setItem('stakingPoolAddress', stakedTokenAddress);
+    sessionStorage.setItem('stakingPoolIndex', index.toString());
     router.push(`staking/${url}`);
-  }, [router, getERC20Contract, stakingContract, tokenName, stakingPoolInfo.stakedTokenAddress, library]);
+  }, [
+    router,
+    getERC20Contract,
+    stakingContract,
+    tokenName,
+    stakingPoolInfo.stakedTokenAddress,
+    library,
+  ]);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-md w-full mr-4 px-8 py-8">
+    <div
+      className="bg-white rounded-3xl border border-gray-200 shadow-custom w-full mr-4 p-8 cursor-pointer transform transition duration-150 ease-in-out hover:scale-101"
+      onClick={async () => await onSelectPool()}
+    >
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
           <TokenIcon token={tokenName} />
-          <h3 className="ml-6 text-xl font-medium text-gray-800">
+          <h3 className="text-2xl font-medium ml-4 text-gray-800">
             {tokenName}
           </h3>
         </div>
-        <button
-          className="button rounded-full py-1 px-5 text-white bg-blue-600 hover:bg-blue-700"
-          type="button"
-          onClick={async () => await onSelectPool()}
-        >
-          Stake
-        </button>
+        <div className="w-24">
+          <MainActionButton
+            label="Stake"
+            handleClick={async () => await onSelectPool()}
+          />
+        </div>
       </div>
-      <div className="flex flex-row items-center mt-6 w-2/3 justify-between">
+      <div className="flex flex-row items-center mt-10 w-2/3 justify-between">
         <div>
-          <p className="text-gray-500 text-base font-medium uppercase">
-            Est. APY
-          </p>
-          <p className="text-green-600 text-xl font-medium">
+          <p className="text-gray-500 font-light uppercase">Est. APY</p>
+          <p className="text-green-600 text-2xl font-medium mt-1">
             {stakingPoolInfo.apy.toLocaleString()} %
           </p>
         </div>
         <div>
-          <p className="text-gray-500 text-base font-medium uppercase">
-            Total Staked
-          </p>
-          <p className="text-gray-800 text-xl font-medium">
+          <p className="text-gray-500 font-light uppercase">Total Staked</p>
+          <p className="text-gray-800 text-2xl font-medium mt-1">
             {stakingPoolInfo.totalStake.toLocaleString()}
           </p>
         </div>
         <div>
-          <p className="text-gray-500 text-base font-medium uppercase">
-            Token Emissions
-          </p>
-          <p className="text-gray-800 text-xl font-medium">
+          <p className="text-gray-500 font-light uppercase">Token Emissions</p>
+          <p className="text-gray-800 text-2xl font-medium mt-1">
             {stakingPoolInfo.tokenEmission.toLocaleString()} POP / day
           </p>
         </div>

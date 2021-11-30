@@ -1,7 +1,7 @@
-import StakeCard from 'components/StakeCard';
 import { ContractsContext } from 'context/Web3/contracts';
 import React from 'react';
-import { StakingPoolInfo } from '../../../utils';
+import { StakingPoolInfo } from '../../utils';
+import StakeCard from './StakeCard';
 
 export type StakingCardsListProps = {
   stakingPoolsInfo: StakingPoolInfo[];
@@ -13,7 +13,11 @@ export default function StakingCardsList({
   const { contracts } = React.useContext(ContractsContext);
   return (
     <>
-      {contracts && stakingPoolsInfo && stakingPoolsInfo.length > 0 && contracts.staking && contracts.staking.length > 0 ? (
+      {contracts &&
+      stakingPoolsInfo &&
+      stakingPoolsInfo.length > 0 &&
+      contracts.staking &&
+      contracts.staking.length > 0 ? (
         stakingPoolsInfo.map((poolInfo, index) => (
           <div key={poolInfo.stakedTokenName + poolInfo.stakedTokenAddress}>
             <StakeCard
