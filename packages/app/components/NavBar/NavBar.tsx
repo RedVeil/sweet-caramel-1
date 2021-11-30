@@ -1,16 +1,14 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/solid';
-import { switchNetwork, getChainLogo } from '@popcorn/utils';
+import { getChainLogo, switchNetwork } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
-import useEagerConnect from 'hooks/useEagerConnect';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { connectors, networkMap } from '../../context/Web3/connectors';
 import NavbarLink from './NavbarLinks';
 import NetworkOptionsMenu from './NetworkOptionsMenu';
-
 
 const Navbar: React.FC = () => {
   const { chainId, account, activate } = useWeb3React<Web3Provider>();
@@ -19,12 +17,11 @@ const Navbar: React.FC = () => {
   const [showProposals, setShowProposals] = useState(false);
   const [currentChainName, setCurrentChainName] = useState('trial');
   const [currentChainIcon, setCurrentChainIcon] = useState('');
-  const triedEagerConnect = useEagerConnect();
 
   React.useEffect(() => {
     setCurrentChainName(networkMap[chainId]);
     let newChainLogo = getChainLogo(chainId);
-    setCurrentChainIcon(newChainLogo)
+    setCurrentChainIcon(newChainLogo);
   }, [chainId]);
 
   return (
@@ -70,9 +67,16 @@ const Navbar: React.FC = () => {
           <Menu>
             <Menu.Button>
               <div className="w-44 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-sm rounded-3xl">
-                <img src={currentChainIcon} alt={""} className='w-4.5 h-4 mr-4' />
+                <img
+                  src={currentChainIcon}
+                  alt={''}
+                  className="w-4.5 h-4 mr-4"
+                />
                 <p>{currentChainName}</p>
-                <ChevronDownIcon className="w-5 h-5 ml-4 pt-0.5" aria-hidden="true" />
+                <ChevronDownIcon
+                  className="w-5 h-5 ml-4 pt-0.5"
+                  aria-hidden="true"
+                />
               </div>
             </Menu.Button>
             <NetworkOptionsMenu
