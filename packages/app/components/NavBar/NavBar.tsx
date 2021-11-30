@@ -8,7 +8,8 @@ import { connectors, networkMap } from '../../context/Web3/connectors';
 import NavbarLink from './NavbarLinks';
 
 const Navbar: React.FC = () => {
-  const { chainId, account, activate } = useWeb3React<Web3Provider>();
+  const { chainId, account, activate, deactivate } =
+    useWeb3React<Web3Provider>();
   const router = useRouter();
   const [showGrants, setShowGrants] = useState(false);
   const [showProposals, setShowProposals] = useState(false);
