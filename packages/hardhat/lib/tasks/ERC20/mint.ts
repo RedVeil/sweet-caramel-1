@@ -11,11 +11,7 @@ interface Args {
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   const signer = await getSigner(hre);
 
-  const erc20 = await hre.ethers.getContractAt(
-    "@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20",
-    args.token,
-    signer
-  );
+  const erc20 = await hre.ethers.getContractAt("MockERC20", args.token, signer);
 
   console.log(
     "Transfering ",
