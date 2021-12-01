@@ -13,10 +13,10 @@ export interface ContractAddresses {
   usdt?: Address;
   aclRegistry?: Address;
   contractRegistry?: Address;
-  hysiDependency?: HysiDependencyAddresses;
+  hysiDependency?: ButterDependencyAddresses;
 }
 
-export interface HysiDependencyAddresses {
+export interface ButterDependencyAddresses {
   basicIssuanceModule: Address;
   yDusd: Address;
   yFrax: Address;

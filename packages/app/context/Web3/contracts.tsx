@@ -1,7 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers';
 import {
+  ButterDependencyAddresses,
   ContractAddresses,
-  HysiDependencyAddresses,
 } from '@popcorn/utils/types';
 import { SetToken__factory } from '@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory';
 import { SetToken } from '@setprotocol/set-protocol-v2/typechain/SetToken';
@@ -47,7 +47,7 @@ export interface Contracts {
   staking?: StakingRewards[];
 }
 
-export interface HysiDependencyContracts {
+export interface ButterDependencyContracts {
   basicIssuanceModule?: BasicIssuanceModule;
   yDusd?: YearnVault;
   yFrax?: YearnVault;
@@ -67,9 +67,9 @@ export interface StakingContracts {
 
 interface ContractsContext {
   contracts: Contracts;
-  butterDependencyContracts: HysiDependencyContracts;
+  butterDependencyContracts: ButterDependencyContracts;
   setContracts: React.Dispatch<Contracts>;
-  setButterDependencyContracts: React.Dispatch<HysiDependencyContracts>;
+  setButterDependencyContracts: React.Dispatch<ButterDependencyContracts>;
 }
 
 export const ContractsContext = createContext<ContractsContext>(null);
@@ -139,10 +139,10 @@ const initializeContracts = (
 };
 
 const initializeButterDependencyContracts = (
-  contractAddresses: HysiDependencyAddresses | undefined,
+  contractAddresses: ButterDependencyAddresses | undefined,
   chainId: number,
   library,
-): HysiDependencyContracts => {
+): ButterDependencyContracts => {
   if (chainId === 1 || chainId === 1337) {
     return {
       basicIssuanceModule: BasicIssuanceModule__factory.connect(
@@ -191,7 +191,7 @@ export default function ContractsWrapper({
   } = context;
   const [contracts, setContracts] = useState<Contracts>();
   const [butterDependencyContracts, setButterDependencyContracts] =
-    useState<HysiDependencyContracts>();
+    useState<ButterDependencyContracts>();
   const { dispatch } = useContext(store);
 
   useEffect(() => {
@@ -232,6 +232,7 @@ export default function ContractsWrapper({
     setButterDependencyContracts(butterDependencyContracts);
     return () => {
       setContracts({});
+      setButterDependencyContracts({});
     };
   }, [library, active, chainId]);
 

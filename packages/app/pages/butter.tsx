@@ -10,9 +10,9 @@ import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Navbar from 'components/NavBar/NavBar';
 import { store } from 'context/store';
 import {
+  ButterDependencyContracts,
   Contracts,
   ContractsContext,
-  HysiDependencyContracts,
 } from 'context/Web3/contracts';
 import { BigNumber, Contract, utils } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
@@ -66,7 +66,7 @@ function isDepositDisabled(
 async function getBatchProcessToken(
   butterBatchAdapter: ButterBatchAdapter,
   contracts: Contracts,
-  butterDependencyContracts: HysiDependencyContracts,
+  butterDependencyContracts: ButterDependencyContracts,
   account: string,
 ): Promise<BatchProcessTokens> {
   const batchProcessTokens = {
@@ -193,6 +193,7 @@ export default function Butter(): JSX.Element {
     if (!library || !contracts) {
       return;
     }
+    console.log(contracts);
     setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
   }, [library, account]);
 
