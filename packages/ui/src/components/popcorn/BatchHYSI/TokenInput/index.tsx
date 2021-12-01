@@ -1,6 +1,6 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { SwitchVerticalIcon } from '@heroicons/react/outline';
 import { bigNumberToNumber, scaleNumberToBigNumber } from '@popcorn/utils';
+import { BigNumber } from 'ethers';
 import React, { Dispatch, useEffect, useState } from 'react';
 
 function classNames(...classes) {

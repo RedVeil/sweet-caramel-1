@@ -41,7 +41,7 @@ describe("Balancer Merkle Orchard", () => {
 
     merkleOrchard = await ethers.getContractAt(
       "IMerkleOrchard",
-      namedAccounts.MerkleOrchard.mainnet
+      namedAccounts.merkleOrchard.mainnet
     );
   });
 

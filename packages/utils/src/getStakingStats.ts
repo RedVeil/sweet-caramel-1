@@ -12,9 +12,6 @@ export interface StakingPoolInfo {
   totalStake: number;
   tokenEmission: number;
 }
-// export interface StakingStats {
-//   stats: Array<StakingPoolInfo>
-// }
 
 export async function calculateAPY(
   tokenPerWeek: BigNumber,

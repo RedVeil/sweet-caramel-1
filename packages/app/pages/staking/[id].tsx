@@ -3,9 +3,9 @@ import { Switch } from '@headlessui/react';
 import { ERC20, StakingRewards } from '@popcorn/hardhat/typechain';
 import {
   bigNumberToNumber,
+  getERC20Contract,
   getSingleStakingPoolInfo,
   StakingPoolInfo,
-  getERC20Contract
 } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import TokenInput from 'components/Common/TokenInput';
@@ -37,31 +37,6 @@ interface Balances {
   earned: number;
 }
 
-// function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
-//   switch (id) {
-
-//     //TODO - change here to get the data correctly.
-//     case 'pop':
-//       return {
-//         inputToken: contracts.pop,
-//         stakingContract: contracts.staking.pop,
-//         tokenName: 'POP',
-//       };
-//     case 'pop-eth-lp':
-//       return {
-//         inputToken: contracts.popEthLp,
-//         stakingContract: contracts.staking.popEthLp,
-//         tokenName: 'POP/ETH LP',
-//       };
-//     case 'butter':
-//       return {
-//         inputToken: contracts.butter,
-//         stakingContract: contracts.staking.butter,
-//         tokenName: 'BUTTER',
-//       };
-//   }
-// }
-
 export default function stake(): JSX.Element {
   const router = useRouter();
   const { id } = router.query;
@@ -80,22 +55,25 @@ export default function stake(): JSX.Element {
   const [withdraw, setWithdraw] = useState<boolean>(false);
   const { state, dispatch } = useContext(store);
 
-
   useEffect(() => {
-    const stakingPoolAddress = sessionStorage.getItem('stakingPoolAddress')
-    const stakingPoolIndex = parseInt(sessionStorage.getItem('stakingPoolIndex'))
+    const stakingPoolAddress = sessionStorage.getItem('stakingPoolAddress');
+    const stakingPoolIndex = parseInt(
+      sessionStorage.getItem('stakingPoolIndex'),
+    );
     async function getPageInfo() {
       if (!stakingPoolAddress) {
-        router.push(`/staking`)
-      }
-      else {
+        router.push(`/staking`);
+      } else {
         if (contracts && contracts.staking.length > 0) {
-          const stakingContract: StakingRewards = contracts.staking[stakingPoolIndex]
-          const stakingPoolInfo: StakingPoolInfo = await getSingleStakingPoolInfo(
-            stakingContract, library
+          const stakingContract: StakingRewards =
+            contracts.staking[stakingPoolIndex];
+          const stakingPoolInfo: StakingPoolInfo =
+            await getSingleStakingPoolInfo(stakingContract, library);
+          const erc20 = await getERC20Contract(
+            stakingPoolInfo.stakedTokenAddress,
+            library,
           );
-          const erc20 = await getERC20Contract(stakingPoolInfo.stakedTokenAddress, library);
-          const tokenName = await erc20.name()
+          const tokenName = await erc20.name();
           dispatch(
             updateStakingPageInfo({
               inputToken: erc20,
@@ -131,15 +109,7 @@ export default function stake(): JSX.Element {
       allowance: bigNumberToNumber(allowance),
       earned: bigNumberToNumber(earned),
     });
-  }
-
-  // useEffect(() => {
-  //   router.back()
-  // }, [chainId])
-
-  // useEffect(() => {
-  //   updateData()
-  // }, [state.stakingPageInfo?.poolInfo.stakedTokenAddress])
+  };
 
   async function updateData(): Promise<void> {
     const inputBalance = await state.stakingPageInfo?.inputToken.balanceOf(
@@ -175,13 +145,8 @@ export default function stake(): JSX.Element {
         };
         dispatch(updateStakingPageInfo(newStakingPageInfo));
       })
-      .catch(() => { });
+      .catch(() => {});
   }
-
-  // const apy = await calculateAPY(
-  //   await state.stakingPageInfo?.stakingContract.getRewardForDuration(),
-  //   await state.stakingPageInfo?.stakingContract.totalSupply(),
-  // );
 
   async function stake(): Promise<void> {
     setWait(true);
@@ -356,15 +321,17 @@ export default function stake(): JSX.Element {
                     >
                       <span
                         aria-hidden="true"
-                        className={`${withdraw ? 'translate-x-5' : 'translate-x-0'
-                          }
+                        className={`${
+                          withdraw ? 'translate-x-5' : 'translate-x-0'
+                        }
                                 pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
                       />
                     </Switch>
                     <Switch.Label as="span" className="ml-3">
                       <span
-                        className={`text-sm font-medium ${withdraw ? 'text-gray-800' : 'text-gray-500'
-                          }`}
+                        className={`text-sm font-medium ${
+                          withdraw ? 'text-gray-800' : 'text-gray-500'
+                        }`}
                       >
                         Withdraw Staked{' '}
                         {state.stakingPageInfo &&
@@ -419,8 +386,9 @@ export default function stake(): JSX.Element {
                       <div className="w-1/2 mr-2">
                         <StatInfoCard
                           title="Token Balance"
-                          content={`${balances.wallet.toLocaleString()} ${state.stakingPageInfo?.tokenName
-                            }`}
+                          content={`${balances.wallet.toLocaleString()} ${
+                            state.stakingPageInfo?.tokenName
+                          }`}
                           icon={{
                             icon: 'Money',
                             color: 'bg-yellow-200',
@@ -431,8 +399,9 @@ export default function stake(): JSX.Element {
                       <div className="w-1/2 ml-2">
                         <StatInfoCard
                           title="Amount Staked"
-                          content={`${balances.staked.toLocaleString()} ${state.stakingPageInfo?.tokenName
-                            }`}
+                          content={`${balances.staked.toLocaleString()} ${
+                            state.stakingPageInfo?.tokenName
+                          }`}
                           icon={{
                             icon: 'Money',
                             color: 'bg-red-300',

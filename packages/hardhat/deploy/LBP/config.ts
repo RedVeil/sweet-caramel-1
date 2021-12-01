@@ -15,12 +15,12 @@ const DAYS = 60 * 60 * 24;
 
 export const getConstructorArgs = async (
   {
-    BalancerLBPFactory,
-    BalancerVault,
-    POP,
-    USDC,
-    DAO_Agent,
-    DAO_Treasury,
+    balancerLBPFactory,
+    balancerVault,
+    pop,
+    usdc,
+    daoAgent,
+    daoTreasury,
     deployer,
   },
   hre: HardhatRuntimeEnvironment
@@ -29,14 +29,14 @@ export const getConstructorArgs = async (
     case "mainnet":
     case "polygon":
       let [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
-        [POP, USDC],
+        [pop, usdc],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
         [parseEther("1875000"), parseUnits("562500", 6)] // amounts
       );
 
       return {
-        balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
+        balancer: { lbpFactory: balancerLBPFactory, vault: balancerVault },
         name: "Popcorn.network (POP) Token Launch Auction",
         symbol: "POP_TLA",
         tokens: tokens,
@@ -47,22 +47,22 @@ export const getConstructorArgs = async (
         durationInSeconds: 2.5 * DAYS,
         startTime: getDate("2021-11-29 08:00:00Z+00"),
         dao: {
-          agent: DAO_Agent,
-          treasury: DAO_Treasury,
+          agent: daoAgent,
+          treasury: daoTreasury,
         },
       };
     case "polygontest":
-      POP = (await hre.deployments.get("POP")).address;
-      USDC = (await hre.deployments.get("USDC")).address;
+      pop = (await hre.deployments.get("POP")).address;
+      usdc = (await hre.deployments.get("USDC")).address;
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
-        [POP, USDC],
+        [pop, usdc],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
         [parseEther("1250000"), parseUnits("375000", 6)] // amounts
       );
 
       return {
-        balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
+        balancer: { lbpFactory: balancerLBPFactory, vault: balancerVault },
         name: "Foobar Liquidity Bootstrapping Pool",
         symbol: "FOO_LBP",
         tokens: tokens,
@@ -73,15 +73,15 @@ export const getConstructorArgs = async (
         durationInSeconds: 2.5 * DAYS,
         startTime: getDate(formatISO(new Date()), { minutes: 5 }),
         dao: {
-          agent: DAO_Agent,
-          treasury: DAO_Treasury,
+          agent: daoAgent,
+          treasury: daoTreasury,
         },
       };
     case "localhost": // fork test
     case "hardhat": // fork test
       console.log("localhost! test ============== ");
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
-        [POP, USDC],
+        [pop, usdc],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
         [parseEther("100"), parseUnits("500000", 6)] // amounts
@@ -89,7 +89,7 @@ export const getConstructorArgs = async (
       console.log({ tokens });
 
       return {
-        balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
+        balancer: { lbpFactory: balancerLBPFactory, vault: balancerVault },
         name: "Popcorn.network (POP) Liquidity Bootstrapping Pool",
         symbol: "POP_LBP",
         tokens: tokens,
@@ -105,18 +105,18 @@ export const getConstructorArgs = async (
         },
       };
     case "rinkeby":
-      POP = (await hre.deployments.get("POP")).address;
-      USDC = (await hre.deployments.get("USDC")).address;
+      pop = (await hre.deployments.get("POP")).address;
+      usdc = (await hre.deployments.get("USDC")).address;
 
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
-        [POP, USDC],
+        [pop, usdc],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
         [parseEther("100"), parseUnits("100", 6)] // amounts
       );
 
       return {
-        balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
+        balancer: { lbpFactory: balancerLBPFactory, vault: balancerVault },
         name: "TPOP Liquidity Bootstrapping Pool",
         symbol: "TPOP_LBP",
         tokens: tokens,
@@ -127,21 +127,21 @@ export const getConstructorArgs = async (
         durationInSeconds: 2.5 * DAYS,
         startTime: getDate(formatISO(new Date()), { minutes: 5 }),
         dao: {
-          agent: DAO_Agent,
-          treasury: DAO_Treasury,
+          agent: daoAgent,
+          treasury: daoTreasury,
         },
       };
     default:
-      POP = (await hre.deployments.get("POP")).address;
+      pop = (await hre.deployments.get("POP")).address;
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
-        [POP, USDC],
+        [pop, usdc],
         [parseEther(".99"), parseEther(".01")], // start weights
         [parseEther(".50"), parseEther(".50")], // end weights
         [parseEther("1875000"), parseUnits("562500", 6)] // amounts
       );
 
       return {
-        balancer: { lbpFactory: BalancerLBPFactory, vault: BalancerVault },
+        balancer: { lbpFactory: balancerLBPFactory, vault: balancerVault },
         name: "TPOP Liquidity Bootstrapping Pool",
         symbol: "TPOP_LBP",
         tokens: tokens,

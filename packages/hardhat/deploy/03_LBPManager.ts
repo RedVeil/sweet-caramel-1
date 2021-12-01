@@ -7,12 +7,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const {
     deployer,
-    USDC,
-    BalancerLBPFactory,
-    BalancerVault,
-    DAO_Agent,
-    POP,
-    DAO_Treasury,
+    usdc,
+    balancerLBPFactory,
+    balancerVault,
+    daoAgent,
+    pop,
+    daoTreasury,
   } = await getNamedAccounts();
 
   const {
@@ -29,12 +29,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     dao,
   } = await getConstructorArgs(
     {
-      BalancerLBPFactory,
-      BalancerVault,
-      USDC,
-      POP,
-      DAO_Agent,
-      DAO_Treasury,
+      balancerLBPFactory,
+      balancerVault,
+      usdc,
+      pop,
+      daoAgent,
+      daoTreasury,
       deployer,
     },
     hre
@@ -67,7 +67,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // act/0x6d8bd5d37461788182131bae19d03ff2b3c0687c/0x649D645d1Ee2CA89a798B52Bbf7B5a3C27093b94/approve(address: 0xB84fed0Aa42A28E9F27E080eb0744Af44D9B7868, uint256: 1000000000000000000000000000)
 
   console.log("--------------------------------");
-  console.log(`act/${DAO_Agent}/${deployed.address}/deployLBP()`);
+  console.log(`act/${daoAgent}/${deployed.address}/deployLBP()`);
 };
 export default func;
 func.dependencies = ["setup"];
