@@ -34,8 +34,13 @@ module.exports = {
       // => @media (min-width: 2560px) { ... }
     },
     extend: {
-      dropShadow: {
-        '3xl': '0 0 5px rgba(0, 0, 0, 0.1)',
+      boxShadow: {
+        custom: '0 4px 14px rgba(101, 135, 169, 0.11)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+        '6xl': '3rem',
       },
       spacing: {
         18: '4.5rem',

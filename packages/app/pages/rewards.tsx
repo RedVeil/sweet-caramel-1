@@ -8,7 +8,6 @@ import {
 import { useWeb3React } from '@web3-react/core';
 import ClaimCard from 'components/ClaimCard';
 import Navbar from 'components/NavBar/NavBar';
-import StatInfoCard from 'components/StatInfoCard';
 import { ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -70,45 +69,26 @@ export default function index(): JSX.Element {
       <Toaster position="top-right" />
       <div className="">
         <div className="w-9/12 mx-auto mt-14">
-          <h1 className="text-3xl text-gray-800 font-medium">Staking</h1>
-          <p className="text-lg text-gray-500">
-            Earn more income staking your crypto with us
+          <h1 className="text-3xl text-gray-800 font-medium">Claim</h1>
+          <p className="text-lg text-gray-500 mt-2">
+            Claim your rewards or restake them to earn more
           </p>
         </div>
-        <div className="w-9/12 mx-auto flex flex-row mt-14">
-          <div className="w-2/12 space-y-4 mr-20">
-            <p className="text-lg font-medium text-gray-800 pl-3 py-3 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-900">
-              Staking
-            </p>
-            <p className="text-lg font-medium text-gray-500 pl-3 py-3 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-700">
-              Coming soon...
-            </p>
-            <p className="text-lg font-medium text-gray-500 pl-3 py-3 rounded-md cursor-pointer hover:bg-gray-100 hover:text-gray-700">
-              Coming soon...
-            </p>
-          </div>
+        <div className="w-9/12 h-full mx-auto flex flex-row mt-10">
+          <img
+            src="/images/claimCat.svg"
+            alt="claimCat"
+            className="w-4/12 h-full shadow-custom rounded-5xl object-cover transform scale-101"
+          />
 
           <div className="w-9/12">
-            <img src="/images/claimCat.svg" alt="claimCat" />
-            {totalEarned && (
-              <div className="mt-8 flex flex-row items-center">
-                <div className="w-1/2">
-                  <StatInfoCard
-                    title="Cumulative Rewards"
-                    content={`${totalEarned.toLocaleString()} POP`}
-                    icon={{ icon: 'Money', color: 'bg-blue-300' }}
-                  />
-                </div>
-              </div>
-            )}
-            <div className="flex flex-row items-center mt-8">
+            <div className="flex flex-col space-y-6 ml-8">
               {stakingPoolsInfo && stakingPoolsInfo.length > 0 && earned && (
                 <>
                   {earned &&
                     stakingPoolsInfo?.map((poolInfo, index) => (
                       <ClaimCard
-                        tokenName="POP Rewards"
-                        apy={poolInfo.apy}
+                        tokenName={poolInfo.stakedTokenName}
                         claimable={earned[index] ? earned[index] : 0}
                         handleClick={() =>
                           claimReward(contracts.staking[index])

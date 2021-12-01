@@ -5,7 +5,7 @@ import { ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
-import StakingCardsList from './StakingCardsList';
+import StakingCardsList from '../../components/StakingCardsList';
 
 interface TokenBalances {
   pop: number;
@@ -48,25 +48,23 @@ export default function index(): JSX.Element {
           <div className="w-1/3">
             <div className="">
               <h1 className="text-3xl text-gray-800 font-medium">Staking</h1>
-              <p className="text-lg text-gray-500">
+              <p className="text-lg text-gray-500 mt-2">
                 Earn more income staking your crypto with us
               </p>
             </div>
-            <div className="bg-primaryLight rounded-xl pt-10 mr-12 mt-12">
+            <div className="bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mt-10 shadow-custom">
               <img
                 src="/images/farmerCat.svg"
                 alt="farmcerCat"
-                className="mx-auto"
+                className="mx-auto transform scale-101 py-1"
               />
             </div>
           </div>
 
-          <div className="w-2/3">
-            <div className="space-y-4">
-              {stakingPoolsInfo !== undefined ? (
+          <div className="w-2/3 mt-28">
+            <div className="space-y-6">
+              {stakingPoolsInfo && (
                 <StakingCardsList stakingPoolsInfo={stakingPoolsInfo} />
-              ) : (
-                <></>
               )}
             </div>
           </div>

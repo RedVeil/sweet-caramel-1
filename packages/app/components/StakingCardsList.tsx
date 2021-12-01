@@ -1,7 +1,7 @@
-import StakeCard from 'components/StakeCard';
 import { ContractsContext } from 'context/Web3/contracts';
 import React from 'react';
-import { StakingPoolInfo } from '../../../utils';
+import { StakingPoolInfo } from '../../utils';
+import StakeCard from './StakeCard';
 
 export type StakingCardsListProps = {
   stakingPoolsInfo: StakingPoolInfo[];
