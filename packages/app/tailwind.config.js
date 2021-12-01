@@ -63,8 +63,8 @@ module.exports = {
       scale: {
         101: '1.01',
         102: '1.02',
+        103: '1.03',
       },
-      borderRadius: { '4xl': '2rem' },
       colors: {
         primary: '#F28705',
         primaryLight: '#FDEAA7',

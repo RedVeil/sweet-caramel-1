@@ -101,9 +101,9 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
     case 1337:
       contracts = {
         staking: [
-          "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-          "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-          "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+          "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
+          "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+          "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
         ],
         pop: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
         threeCrv: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
@@ -133,9 +133,9 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
     case 31337:
       contracts = {
         staking: [
-          "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-          "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-          "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+          "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
+          "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+          "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
         ],
         pop: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
         threeCrv: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",

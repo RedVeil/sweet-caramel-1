@@ -5,9 +5,9 @@ import { useWeb3React } from '@web3-react/core';
 import BatchProcessingInfo from 'components/BatchButter/BatchProcessingInfo';
 import ClaimableBatches from 'components/BatchButter/ClaimableBatches';
 import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
+import StatInfoCard from 'components/BatchButter/StatInfoCard';
 import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Navbar from 'components/NavBar/NavBar';
-import StatInfoCard from 'components/StatInfoCard';
 import { store } from 'context/store';
 import {
   Contracts,

@@ -90,7 +90,7 @@ export default function getNamedAccounts() {
       hardhat: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
     },
     butter: {
-      hardhat: "0x04C89607413713Ec9775E14b954286519d836FEf",
+      hardhat: "0x8d1621a27bb8c84e59ca339cf9b21e15b907e408",
     },
     threeCrv: {
       mainnet: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
@@ -215,17 +215,17 @@ export default function getNamedAccounts() {
     popStaking: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d",
+      hardhat: "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
     },
     popEthLpStaking: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
+      hardhat: "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
     },
     butterStaking: {
       mainnet: "",
       rinkeby: "",
-      hardhat: "0x04C89607413713Ec9775E14b954286519d836FEf",
+      hardhat: "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
     },
   };
 }

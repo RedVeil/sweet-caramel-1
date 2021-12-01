@@ -1,5 +1,8 @@
-import CardIcon, { CardIconProps } from './CardIcon';
-import { InfoIconWithModal, InfoIconWithModalProps } from './InfoIconWithModal';
+import CardIcon, { CardIconProps } from '../CardIcon';
+import {
+  InfoIconWithModal,
+  InfoIconWithModalProps,
+} from '../InfoIconWithModal';
 
 interface StatInfoCardProps {
   title: string;

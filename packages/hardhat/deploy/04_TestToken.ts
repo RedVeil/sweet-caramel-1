@@ -25,14 +25,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "MockERC20",
   });
 
-  await deploy("Butter", {
-    from: deployer,
-    args: ["Butter", "BUTTER", 18],
-    log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "MockERC20",
-  });
-
   const signer = await getSignerFrom(
     hre.config.namedAccounts.deployer as string,
     hre

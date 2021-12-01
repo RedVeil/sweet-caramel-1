@@ -56,7 +56,7 @@ export default function index(): JSX.Element {
               <img
                 src="/images/farmerCat.svg"
                 alt="farmcerCat"
-                className="mx-auto transform scale-101 py-1"
+                className="mx-auto transform scale-101 py-1.5"
               />
             </div>
           </div>

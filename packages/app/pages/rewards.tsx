@@ -74,13 +74,14 @@ export default function index(): JSX.Element {
             Claim your rewards or restake them to earn more
           </p>
         </div>
-        <div className="w-9/12 h-full mx-auto flex flex-row mt-10">
-          <img
-            src="/images/claimCat.svg"
-            alt="claimCat"
-            className="w-4/12 h-full shadow-custom rounded-5xl object-cover transform scale-101"
-          />
-
+        <div className="w-9/12 h-full mx-auto flex flex-row mt-10 mb-24">
+          <div className="w-4/12 h-full shadow-custom rounded-5xl mt-1.5">
+            <img
+              src="/images/claimCat.svg"
+              alt="claimCat"
+              className="w-full h-full object-cover transform scale-y-103"
+            />
+          </div>
           <div className="w-9/12">
             <div className="flex flex-col space-y-6 ml-8">
               {stakingPoolsInfo && stakingPoolsInfo.length > 0 && earned && (
