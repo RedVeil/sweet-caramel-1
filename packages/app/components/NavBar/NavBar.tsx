@@ -67,17 +67,16 @@ const Navbar: React.FC = () => {
         <div className="flex flex-container flex-row w-fit-content">
           <Menu>
             <Menu.Button>
-              <div className="w-44 mr-10 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-sm rounded-3xl">
+              <div className="w-44 mr-10 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl">
                 <img
                   src={currentChainIcon}
                   alt={''}
                   className="w-4.5 h-4 mr-4"
                 />
-                <p>{currentChainName}</p>
-                <ChevronDownIcon
-                  className="w-5 h-5 ml-4 pt-0.5"
-                  aria-hidden="true"
-                />
+                <p className="leading-none font-semibold text-blue-700 mt-0.5">
+                  {currentChainName}
+                </p>
+                <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
               </div>
             </Menu.Button>
             <NetworkOptionsMenu
@@ -89,11 +88,11 @@ const Navbar: React.FC = () => {
             onClick={() =>
               account ? deactivate() : activate(connectors.Injected)
             }
-            className={`rounded-full py-3 w-44 group hover:bg-blue-500 ${
+            className={`rounded-full py-3 w-44 shadow-custom group hover:bg-blue-500 ${
               account ? 'bg-blue-50 border border-blue-700' : 'bg-blue-100'
             }`}
           >
-            <p className="text-blue-700 font-medium text-base group-hover:text-white ">
+            <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
               {account ? 'Disconnect Wallet' : 'Connect Wallet'}
             </p>
           </button>

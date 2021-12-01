@@ -95,14 +95,16 @@ export const switchNetwork = (chainId: number) => {
 export const getChainLogo = (chainId: number) => {
   switch (chainId) {
     case 1:
-      return "/images/icons/ethLogo.png"
+      return '/images/icons/ethLogo.png';
     case 4:
-      return "/images/icons/ethLogo.png"
+      return '/images/icons/ethLogo.png';
     case 137:
-      return "/images/icons/polygonLogo.png"
+      return '/images/icons/polygonLogo.png';
     case 80001:
-      return "/images/icons/polygonLogo.png"
+      return '/images/icons/polygonLogo.png';
     case 42161:
-      return "/images/icons/arbLogo.png"
+      return '/images/icons/arbLogo.png';
+    default:
+      return '/images/icons/ethLogo.png';
   }
-}
+};

@@ -40,22 +40,17 @@ input[type='number'] {
   }
   @font-face {
     font-family: 'Avenir LT Pro';
-    font-weight: 400;
-    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Book.woff) format('woff');
-  }
-  @font-face {
-    font-family: 'Avenir LT Pro';
     font-weight: 300;
     src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Light.woff) format('woff');
   }
   @font-face {
     font-family: 'Avenir LT Pro';
-    font-weight: 500;
-    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Roman.woff) format('woff');
+    font-weight: 400;
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Book.woff) format('woff');
   }
   @font-face {
     font-family: 'Avenir LT Pro';
-    font-weight: 600;
+    font-weight: 500;
     src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Medium.woff) format('woff');
   }
   @font-face {
