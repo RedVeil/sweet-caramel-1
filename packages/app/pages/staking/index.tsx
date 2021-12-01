@@ -92,7 +92,7 @@ export default function index(): JSX.Element {
       .catch((error) => {
         console.log(error);
       });
-  }, [chainId, contracts]);
+  }, [contracts]);
 
   useEffect(() => {
     if (!account || !contracts) {

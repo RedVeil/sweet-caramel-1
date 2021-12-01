@@ -1,11 +1,14 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { getChainLogo } from '@popcorn/utils';
+import { Menu } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/solid';
+import { getChainLogo, switchNetwork } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { connectors, networkMap } from '../../context/Web3/connectors';
 import NavbarLink from './NavbarLinks';
+import NetworkOptionsMenu from './NetworkOptionsMenu';
 
 const Navbar: React.FC = () => {
   const { chainId, account, activate, deactivate } =
@@ -23,7 +26,7 @@ const Navbar: React.FC = () => {
   }, [chainId]);
 
   return (
-    <nav className="flex pt-6 mx-20 bg-white">
+    <nav className="flex pt-9 mx-20 bg-white">
       <div className="flex flex-row items-center justify-between w-10/12 pb-6 mx-auto">
         <div className="flex flex-row items-center">
           <div>
@@ -61,7 +64,27 @@ const Navbar: React.FC = () => {
             </li>
           </ul>
         </div>
-        <div className="">
+        <div className="flex flex-container flex-row w-fit-content">
+          <Menu>
+            <Menu.Button>
+              <div className="w-44 mr-10 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-sm rounded-3xl">
+                <img
+                  src={currentChainIcon}
+                  alt={''}
+                  className="w-4.5 h-4 mr-4"
+                />
+                <p>{currentChainName}</p>
+                <ChevronDownIcon
+                  className="w-5 h-5 ml-4 pt-0.5"
+                  aria-hidden="true"
+                />
+              </div>
+            </Menu.Button>
+            <NetworkOptionsMenu
+              currentChain={chainId}
+              switchNetwork={switchNetwork}
+            />
+          </Menu>
           <button
             onClick={() =>
               account ? deactivate() : activate(connectors.Injected)
@@ -70,7 +93,7 @@ const Navbar: React.FC = () => {
               account ? 'bg-blue-50 border border-blue-700' : 'bg-blue-100'
             }`}
           >
-            <p className="text-blue-700 font-medium text-base group-hover:text-white">
+            <p className="text-blue-700 font-medium text-base group-hover:text-white font-landing">
               {account ? 'Disconnect Wallet' : 'Connect Wallet'}
             </p>
           </button>
