@@ -83,7 +83,7 @@ module.exports = {
         'hero-pattern': "url('/images/popcorn_playing.gif')",
       }),
       fontFamily: {
-        landing: ['Avenir Next LT Pro', 'sans-serif'],
+        avenir: ["'Avenir LT Pro'", 'sans-serif'],
       },
     },
   },

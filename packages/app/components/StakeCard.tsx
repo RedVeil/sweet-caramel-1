@@ -62,9 +62,7 @@ export default function ({
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
           <TokenIcon token={tokenName} />
-          <h3 className="text-2xl font-medium ml-4 text-gray-800">
-            {tokenName}
-          </h3>
+          <h3 className="text-2xl font-medium ml-4 ">{tokenName}</h3>
         </div>
         <div className="w-24">
           <MainActionButton
@@ -82,13 +80,13 @@ export default function ({
         </div>
         <div>
           <p className="text-gray-500 font-light uppercase">Total Staked</p>
-          <p className="text-gray-800 text-2xl font-medium mt-1">
+          <p className=" text-2xl font-medium mt-1">
             {stakingPoolInfo.totalStake.toLocaleString()}
           </p>
         </div>
         <div>
           <p className="text-gray-500 font-light uppercase">Token Emissions</p>
-          <p className="text-gray-800 text-2xl font-medium mt-1">
+          <p className=" text-2xl font-medium mt-1">
             {stakingPoolInfo.tokenEmission.toLocaleString()} POP / day
           </p>
         </div>

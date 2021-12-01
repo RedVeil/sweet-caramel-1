@@ -47,7 +47,7 @@ export default function index(): JSX.Element {
         <div className="w-9/12 mx-auto flex flex-row mt-14">
           <div className="w-1/3">
             <div className="">
-              <h1 className="text-3xl text-gray-800 font-medium">Staking</h1>
+              <h1 className="text-3xl  font-medium">Staking</h1>
               <p className="text-lg text-gray-500 mt-2">
                 Earn more income staking your crypto with us
               </p>

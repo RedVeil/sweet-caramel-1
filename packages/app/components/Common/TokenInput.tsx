@@ -22,7 +22,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
               htmlFor="tokenInput"
               className="flex justify-between text-sm font-medium text-gray-700 text-center"
             >
-              <p className="mb-2 text-gray-800 text-base">{label}</p>
+              <p className="mb-2  text-base">{label}</p>
               <p className="text-gray-500 font-normal text-base">
                 {balance} {tokenName}
               </p>
@@ -43,7 +43,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 >
                   MAX
                 </kbd>
-                <p className="inline-flex items-center text-gray-800 font-medium text-lg mx-3">
+                <p className="inline-flex items-center  font-medium text-lg mx-3">
                   {tokenName}
                 </p>
               </div>

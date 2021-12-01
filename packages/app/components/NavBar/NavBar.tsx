@@ -93,7 +93,7 @@ const Navbar: React.FC = () => {
               account ? 'bg-blue-50 border border-blue-700' : 'bg-blue-100'
             }`}
           >
-            <p className="text-blue-700 font-medium text-base group-hover:text-white font-landing">
+            <p className="text-blue-700 font-medium text-base group-hover:text-white ">
               {account ? 'Disconnect Wallet' : 'Connect Wallet'}
             </p>
           </button>

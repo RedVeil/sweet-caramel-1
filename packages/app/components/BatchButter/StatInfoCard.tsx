@@ -30,7 +30,7 @@ export default function StatInfoCard({
           />
           <div className="ml-4">
             <p className="text-base text-gray-500">{title}</p>
-            <h3 className="text-xl font-medium text-gray-800">{content}</h3>
+            <h3 className="text-xl font-medium ">{content}</h3>
           </div>
         </div>
         <div>

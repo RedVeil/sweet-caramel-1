@@ -260,7 +260,7 @@ export default function stake(): JSX.Element {
                 {state.stakingPageInfo && (
                   <span className="flex flex-row items-center">
                     <TokenIcon token={state.stakingPageInfo?.tokenName} />
-                    <h1 className="ml-3 text-4xl text-gray-800 font-bold">
+                    <h1 className="ml-3 text-4xl  font-bold">
                       {state.stakingPageInfo?.tokenName}
                     </h1>
                   </span>
@@ -281,7 +281,7 @@ export default function stake(): JSX.Element {
                     <p className="text-gray-500 font-light text-base uppercase">
                       Total Staked
                     </p>
-                    <p className="text-gray-800 text-xl font-medium">
+                    <p className=" text-xl font-medium">
                       {state.stakingPageInfo?.poolInfo
                         ? state.stakingPageInfo?.poolInfo.totalStake.toLocaleString()
                         : 0}
@@ -291,7 +291,7 @@ export default function stake(): JSX.Element {
                     <p className="text-gray-500 font-light text-base uppercase">
                       Emission Rate
                     </p>
-                    <p className="text-gray-800 text-xl font-medium">
+                    <p className=" text-xl font-medium">
                       {state.stakingPageInfo?.poolInfo
                         ? state.stakingPageInfo?.poolInfo.tokenEmission.toLocaleString()
                         : 0}{' '}
@@ -369,10 +369,10 @@ export default function stake(): JSX.Element {
                               Your Staked Balance
                             </h2>
                             <div className="flex flex-row items-center mt-1">
-                              <p className="text-2xl font-medium text-gray-800 mr-2">
+                              <p className="text-2xl font-medium  mr-2">
                                 {balances.staked}
                               </p>
-                              <p className="text-2xl font-medium text-gray-800">
+                              <p className="text-2xl font-medium ">
                                 {state.stakingPageInfo?.tokenName}
                               </p>
                             </div>
@@ -396,12 +396,10 @@ export default function stake(): JSX.Element {
                               Your Staking Rewards
                             </h2>
                             <div className="flex flex-row items-center mt-1">
-                              <p className="text-2xl font-medium text-gray-800 mr-2">
+                              <p className="text-2xl font-medium  mr-2">
                                 {balances.earned}
                               </p>
-                              <p className="text-2xl font-medium text-gray-800">
-                                POP
-                              </p>
+                              <p className="text-2xl font-medium ">POP</p>
                             </div>
                           </div>
                           <div>

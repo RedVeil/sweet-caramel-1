@@ -35,29 +35,38 @@ input[type='number'] {
 }
 
 @layer base {
+  body {
+    @apply font-avenir tracking-wide text-gray-800;
+  }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: 'Avenir LT Pro';
     font-weight: 400;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-It.woff) format('woff');
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Book.woff) format('woff');
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
-    font-weight: 200;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format('woff');
+    font-family: 'Avenir LT Pro';
+    font-weight: 300;
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Light.woff) format('woff');
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: 'Avenir LT Pro';
     font-weight: 500;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format('woff');
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Roman.woff) format('woff');
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: 'Avenir LT Pro';
+    font-weight: 600;
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Medium.woff) format('woff');
+  }
+  @font-face {
+    font-family: 'Avenir LT Pro';
     font-weight: 700;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Bold.woff) format('woff');
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Heavy.woff) format('woff');
+  }
+  @font-face {
+    font-family: 'Avenir LT Pro';
+    font-weight: 900;
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Black.woff) format('woff');
   }
 }
 

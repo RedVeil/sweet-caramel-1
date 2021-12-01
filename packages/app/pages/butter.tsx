@@ -585,14 +585,14 @@ export default function Butter(): JSX.Element {
         <div className="w-9/12 mx-auto flex flex-row mt-14">
           <div className="w-1/3">
             <div className="">
-              <h1 className="text-3xl text-gray-800 font-medium">
+              <h1 className="text-3xl  font-semibold">
                 Popcorn Yield Optimizer
               </h1>
-              <p className="text-lg text-gray-500">
+              <p className="text-lg text-gray-500 mt-2">
                 Deposit your stablecoins and watch your money grow
               </p>
             </div>
-            <div className="mt-12">
+            <div className="mt-10">
               {claimableBatches && (
                 <MintRedeemInterface
                   token={batchProcessTokens}

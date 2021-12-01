@@ -40,7 +40,7 @@ const IndexPage = () => {
               style={{ width: 321, height: 223 }}
             />
             <p
-              className=" mx-auto font-landing text-gray-900"
+              className=" mx-auto  text-gray-900"
               style={{
                 marginBottom: 12,
                 marginTop: 80,
@@ -55,7 +55,7 @@ const IndexPage = () => {
               className="mx-auto w-4/5"
               style={{ height: 60, marginBottom: 24 }}
             >
-              <p className="h-full text-xl font-thin text-center font-landing text-gray-600">
+              <p className="h-full text-xl font-thin text-center  text-gray-600">
                 Earn yield on your POP.
               </p>
             </div>
@@ -80,7 +80,7 @@ const IndexPage = () => {
               style={{ width: 321, height: 223 }}
             />
             <p
-              className=" mx-auto font-landing text-gray-900"
+              className=" mx-auto  text-gray-900"
               style={{
                 marginBottom: 12,
                 marginTop: 80,
@@ -95,7 +95,7 @@ const IndexPage = () => {
               className="mx-auto w-4/5"
               style={{ height: 60, marginBottom: 24 }}
             >
-              <p className="h-full text-xl font-thin text-center font-landing text-gray-600">
+              <p className="h-full text-xl font-thin text-center  text-gray-600">
                 Deposit stablecoins and earn by leveraging the power of compound
                 interest.
               </p>
@@ -121,7 +121,7 @@ const IndexPage = () => {
           >
             <img src="images/farmer.svg" className="mx-auto flex-grow-0" />
             <p
-              className=" mx-auto font-landing text-gray-900"
+              className=" mx-auto  text-gray-900"
               style={{
                 marginBottom: 16,
                 marginTop: 106,
@@ -136,7 +136,7 @@ const IndexPage = () => {
               className="mx-auto w-4/5"
               style={{ height: 80, marginBottom: 32 }}
             >
-              <p className="h-full text-2xl font-thin text-center font-landing text-gray-600">
+              <p className="h-full text-2xl font-thin text-center  text-gray-600">
                 Earn yield on your POP through staking.
               </p>
             </div>
@@ -157,7 +157,7 @@ const IndexPage = () => {
           >
             <img src="images/rocket.svg" className="mx-auto" />
             <p
-              className=" mx-auto font-landing text-gray-900"
+              className=" mx-auto  text-gray-900"
               style={{
                 marginBottom: 16,
                 marginTop: 106,
@@ -172,7 +172,7 @@ const IndexPage = () => {
               className="mx-auto w-4/5"
               style={{ height: 80, marginBottom: 32 }}
             >
-              <p className="h-full text-2xl font-thin text-center font-landing text-gray-600">
+              <p className="h-full text-2xl font-thin text-center  text-gray-600">
                 Deposit stablecoins and earn by leveraging the power of compound
                 interest.
               </p>
