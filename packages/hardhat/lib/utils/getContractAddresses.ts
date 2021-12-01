@@ -1,4 +1,4 @@
-import { ContractAddresses } from "packages/utils/src/types";
+import { ContractAddresses } from "../../../utils/src/types";
 
 export function getChainRelevantContracts(chainId): ContractAddresses {
   let contracts: ContractAddresses;

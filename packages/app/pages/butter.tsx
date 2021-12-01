@@ -66,7 +66,7 @@ function isDepositDisabled(
 async function getBatchProcessToken(
   butterBatchAdapter: ButterBatchAdapter,
   contracts: Contracts,
-  hysiDependencyContracts: HysiDependencyContracts,
+  butterDependencyContracts: HysiDependencyContracts,
   account: string,
 ): Promise<BatchProcessTokens> {
   const batchProcessTokens = {
@@ -76,23 +76,23 @@ async function getBatchProcessToken(
       balance: await contracts.butter.balanceOf(account),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getHysiPrice(
-        hysiDependencyContracts.basicIssuanceModule,
+        butterDependencyContracts.basicIssuanceModule,
         {
-          [hysiDependencyContracts.yDUSD.address.toLowerCase()]: {
-            metaPool: hysiDependencyContracts.dusdMetapool,
-            yPool: hysiDependencyContracts.yDUSD,
+          [butterDependencyContracts.yDusd.address.toLowerCase()]: {
+            metaPool: butterDependencyContracts.dusdMetapool,
+            yPool: butterDependencyContracts.yDusd,
           },
-          [hysiDependencyContracts.yFRAX.address.toLowerCase()]: {
-            metaPool: hysiDependencyContracts.fraxMetapool,
-            yPool: hysiDependencyContracts.yFRAX,
+          [butterDependencyContracts.yFrax.address.toLowerCase()]: {
+            metaPool: butterDependencyContracts.fraxMetapool,
+            yPool: butterDependencyContracts.yFrax,
           },
-          [hysiDependencyContracts.yUSDN.address.toLowerCase()]: {
-            metaPool: hysiDependencyContracts.usdnMetapool,
-            yPool: hysiDependencyContracts.yUSDN,
+          [butterDependencyContracts.yUsdn.address.toLowerCase()]: {
+            metaPool: butterDependencyContracts.usdnMetapool,
+            yPool: butterDependencyContracts.yUsdn,
           },
-          [hysiDependencyContracts.yUST.address.toLowerCase()]: {
-            metaPool: hysiDependencyContracts.ustMetapool,
-            yPool: hysiDependencyContracts.yUST,
+          [butterDependencyContracts.yUst.address.toLowerCase()]: {
+            metaPool: butterDependencyContracts.ustMetapool,
+            yPool: butterDependencyContracts.yUst,
           },
         } as ComponentMap,
       ),
@@ -103,7 +103,7 @@ async function getBatchProcessToken(
       balance: await contracts.threeCrv.balanceOf(account),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getThreeCrvPrice(
-        hysiDependencyContracts.triPool,
+        butterDependencyContracts.triPool,
       ),
     },
     dai: {
@@ -111,7 +111,7 @@ async function getBatchProcessToken(
       key: 'dai',
       balance: await contracts.dai.balanceOf(account),
       price: await butterBatchAdapter.getStableCoinPrice(
-        hysiDependencyContracts.triPool,
+        butterDependencyContracts.triPool,
         [parseEther('1'), BigNumber.from('0'), BigNumber.from('0')],
       ),
     },
@@ -122,7 +122,7 @@ async function getBatchProcessToken(
         BigNumber.from(1e12),
       ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        hysiDependencyContracts.triPool,
+        butterDependencyContracts.triPool,
         [BigNumber.from('0'), BigNumber.from(1e6), BigNumber.from('0')],
       ),
     },
@@ -133,7 +133,7 @@ async function getBatchProcessToken(
         BigNumber.from(1e12),
       ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        hysiDependencyContracts.triPool,
+        butterDependencyContracts.triPool,
         [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from(1e6)],
       ),
     },
@@ -169,7 +169,7 @@ function getZapDepositAmount(
 export default function Butter(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { library, account, activate } = context;
-  const { contracts, hysiDependencyContracts } = useContext(ContractsContext);
+  const { contracts, butterDependencyContracts } = useContext(ContractsContext);
   const { dispatch } = useContext(store);
   const [batchProcessTokens, setBatchProcessTokens] =
     useState<BatchProcessTokens>();
@@ -203,7 +203,7 @@ export default function Butter(): JSX.Element {
     getBatchProcessToken(
       butterBatchAdapter,
       contracts,
-      hysiDependencyContracts,
+      butterDependencyContracts,
       account,
     ).then((res) => {
       setBatchProcessTokens(res);
@@ -336,7 +336,7 @@ export default function Butter(): JSX.Element {
           getBatchProcessToken(
             butterBatchAdapter,
             contracts,
-            hysiDependencyContracts,
+            butterDependencyContracts,
             account,
           ).then((res) => setBatchProcessTokens(res));
         });
@@ -393,7 +393,7 @@ export default function Butter(): JSX.Element {
               getBatchProcessToken(
                 butterBatchAdapter,
                 contracts,
-                hysiDependencyContracts,
+                butterDependencyContracts,
                 account,
               ).then((res) => setBatchProcessTokens(res));
             });
@@ -429,7 +429,7 @@ export default function Butter(): JSX.Element {
               getBatchProcessToken(
                 butterBatchAdapter,
                 contracts,
-                hysiDependencyContracts,
+                butterDependencyContracts,
                 account,
               ).then((res) => setBatchProcessTokens(res));
             });
@@ -488,7 +488,7 @@ export default function Butter(): JSX.Element {
         getBatchProcessToken(
           butterBatchAdapter,
           contracts,
-          hysiDependencyContracts,
+          butterDependencyContracts,
           account,
         ).then((res) => setBatchProcessTokens(res));
       })
@@ -535,7 +535,7 @@ export default function Butter(): JSX.Element {
           getBatchProcessToken(
             butterBatchAdapter,
             contracts,
-            hysiDependencyContracts,
+            butterDependencyContracts,
             account,
           ).then((res) => setBatchProcessTokens(res));
         });
