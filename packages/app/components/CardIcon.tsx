@@ -8,6 +8,10 @@ function getIcon(icon: string): JSX.Element {
       return <Icon.Gift />;
     case 'Money':
       return <Icon.DollarSign />;
+    case 'Key':
+      return <Icon.Key />;
+    case 'Wait':
+      return <Icon.Clock />;
   }
 }
 

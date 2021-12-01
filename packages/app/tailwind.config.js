@@ -34,8 +34,13 @@ module.exports = {
       // => @media (min-width: 2560px) { ... }
     },
     extend: {
-      dropShadow: {
-        '3xl': '0 0 5px rgba(0, 0, 0, 0.1)',
+      boxShadow: {
+        custom: '0 4px 14px rgba(101, 135, 169, 0.11)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+        '6xl': '3rem',
       },
       spacing: {
         18: '4.5rem',
@@ -47,6 +52,7 @@ module.exports = {
         104: '27rem',
         105: '564px',
         112: '30rem',
+        124: '33rem',
         128: '40rem',
         129: '52rem',
         130: '752px',
@@ -58,6 +64,7 @@ module.exports = {
         101: '1.01',
         102: '1.02',
       },
+      borderRadius: { '4xl': '2rem' },
       colors: {
         primary: '#F28705',
         primaryLight: '#FDEAA7',
@@ -81,7 +88,7 @@ module.exports = {
     },
   },
   variants: {
-    extend: { opacity: ['disabled'] },
+    extend: { opacity: ['disabled'], backgroundColor: ['disabled'] },
   },
   plugins: [require('@tailwindcss/forms')],
 };

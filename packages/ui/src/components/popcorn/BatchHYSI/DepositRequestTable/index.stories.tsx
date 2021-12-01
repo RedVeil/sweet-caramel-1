@@ -1,5 +1,5 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { Meta, Story } from '@storybook/react/types-6-0';
+import { BigNumber } from 'ethers';
 import React from 'react';
 import { DepositRequest } from '../../../../interfaces/popcorn/BatchHYSI';
 import { DepositRequestTable } from './index';

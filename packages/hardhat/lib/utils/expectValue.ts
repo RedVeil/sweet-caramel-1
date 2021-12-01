@@ -1,5 +1,5 @@
-import { Contract, ContractTransaction } from "@ethersproject/contracts";
 import { expect } from "chai";
+import { Contract, ContractTransaction } from "ethers";
 
 export async function expectRevert(
   call: any,

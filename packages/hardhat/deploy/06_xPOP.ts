@@ -14,7 +14,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [XPOP_SUPPLY],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
-    contract: "xPOP",
+    contract: "XPop",
     pre_eip1559: supportsEIP1559(hre),
   });
 };

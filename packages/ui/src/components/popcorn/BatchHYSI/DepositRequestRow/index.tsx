@@ -1,6 +1,6 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { numberToBigNumber } from '@popcorn/utils';
 import { formatDate } from '@popcorn/utils/src/DateTime';
+import { BigNumber } from 'ethers';
 import { DepositRequest } from '../../../../interfaces/popcorn/BatchHYSI';
 
 interface DepositRequestRowProps {

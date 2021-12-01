@@ -3,6 +3,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 
+enum Test {
+  First,
+  Second,
+}
+
 const IndexPage = () => {
   const router = useRouter();
   useEffect(() => {

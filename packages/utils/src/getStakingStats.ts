@@ -12,9 +12,6 @@ export interface StakingPoolInfo {
   totalStake: number;
   tokenEmission: number;
 }
-// export interface StakingStats {
-//   stats: Array<StakingPoolInfo>
-// }
 
 export async function calculateAPY(
   tokenPerWeek: BigNumber,
@@ -122,15 +119,12 @@ export async function getEarned(
   contracts: Contracts,
 ): Promise<number[]> {
   const { staking: stakingContracts } = contracts;
-  console.log(contracts);
   const result: number[] = [];
   if (!stakingContracts || stakingContracts.length === 0) {
-    console.log('returning');
     return result;
   }
   for (let i = 0; i < stakingContracts.length; i++) {
     result[i] = bigNumberToNumber(await contracts.staking[i].earned(account));
-    console.log(`earned for ${i} - ` + result[i]);
   }
   return result;
 }

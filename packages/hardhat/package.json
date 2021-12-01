@@ -12,7 +12,6 @@
     "test": "yarn hardhat test test/*.test.ts",
     "test:fork": "yarn hardhat test test/fork/*.test.ts",
     "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
-    "postinstall": "yarn compile",
     "prettify": "yarn lint-staged --allow-empty"
   },
   "lint-staged": {
@@ -37,7 +36,6 @@
     "@ethersproject/hardware-wallets": "^5.5.0",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@openzeppelin/contracts": "^4.3.2",
     "@popcorn/utils": "*",
     "@setprotocol/set-protocol-v2": "^0.0.45",
     "@typechain/ethers-v5": "^7.0.0",
