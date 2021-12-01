@@ -139,7 +139,7 @@ const initializeContracts = (
 };
 
 const initializeButterDependencyContracts = (
-  contractAddresses: HysiDependencyAddresses,
+  contractAddresses: HysiDependencyAddresses | undefined,
   chainId: number,
   library,
 ): HysiDependencyContracts => {
@@ -225,7 +225,7 @@ export default function ContractsWrapper({
     const contracts = initializeContracts(contractAddresses, library);
     setContracts(contracts);
     const butterDependencyContracts = initializeButterDependencyContracts(
-      contractAddresses,
+      contractAddresses.hysiDependency,
       chainId,
       library,
     );
