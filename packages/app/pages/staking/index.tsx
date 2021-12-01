@@ -1,10 +1,10 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
-import { Contracts, ContractsContext } from 'context/Web3/contracts';
+import { ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { bigNumberToNumber, getStakingPoolsInfo } from '../../../utils';
+import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
 import StakingCardsList from '../../components/StakingCardsList';
 
 interface TokenBalances {
@@ -19,83 +19,25 @@ interface Balances {
   earned: number;
 }
 
-async function getWalletBalances(
-  account: string,
-  contracts: Contracts,
-): Promise<TokenBalances> {
-  return {
-    pop: contracts.pop
-      ? bigNumberToNumber(await contracts.pop.balanceOf(account))
-      : 0,
-    popEthLp: contracts.popEthLp
-      ? bigNumberToNumber(await contracts.popEthLp.balanceOf(account))
-      : 0,
-    butter: contracts.butter
-      ? bigNumberToNumber(await contracts.butter.balanceOf(account))
-      : 0,
-  };
-}
-
-// TODO get oracles for popETH-LP and butter price to display the joined value of all staked tokens
-// async function getStakedBalances(
-//   account: string,
-//   contracts: Contracts,
-// ): Promise<TokenBalances> {
-//   return {
-//     pop: bigNumberToNumber(await contracts.staking.pop.balanceOf(account)),
-//     popEthLp: bigNumberToNumber(
-//       await contracts.staking.popEthLp.balanceOf(account),
-//     ),
-//     butter: bigNumberToNumber(
-//       await contracts.staking.butter.balanceOf(account),
-//     ),
-//   };
-// }
-
-async function getEarned(
-  account: string,
-  contracts: Contracts,
-): Promise<number> {
-  let earned = 0;
-  for (var i = 0; i < contracts.staking?.length; i++) {
-    earned += bigNumberToNumber(await contracts.staking[i].earned(account));
-  }
-  return earned;
-}
-
-async function getBalances(
-  account: string,
-  contracts: Contracts,
-): Promise<Balances> {
-  return {
-    wallet: await getWalletBalances(account, contracts),
-    // staked: await getStakedBalances(account, contracts),
-    earned: await getEarned(account, contracts),
-  };
-}
-
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
   const { library, account, activate, active, chainId } = context;
   const [balances, setBalances] = useState<Balances>();
-  const [stakingPoolsInfo, setStakingPools] = useState<any>();
+  const [stakingPoolsInfo, setStakingPools] = useState<StakingPoolInfo[]>();
 
   useEffect(() => {
     if (!chainId) {
       return;
     }
-    getStakingPoolsInfo(contracts, library).then((res) => {
-      setStakingPools(res);
-    });
+    getStakingPoolsInfo(contracts, library)
+      .then((res) => {
+        setStakingPools(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, [chainId, contracts]);
-
-  useEffect(() => {
-    if (!account || !contracts) {
-      return;
-    }
-    getBalances(account, contracts).then((res) => setBalances(res));
-  }, [account, contracts]);
 
   return (
     <div className="w-full h-screen">
@@ -120,7 +62,7 @@ export default function index(): JSX.Element {
           </div>
 
           <div className="w-2/3 mt-28">
-            <div className={`space-y-6`}>
+            <div className="space-y-6">
               {stakingPoolsInfo && (
                 <StakingCardsList stakingPoolsInfo={stakingPoolsInfo} />
               )}

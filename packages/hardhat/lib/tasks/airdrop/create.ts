@@ -1,4 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "ethers";
 import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 import fs from "fs";
 import { task } from "hardhat/config";
@@ -20,13 +20,13 @@ async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   const signer = hre.askForSigner();
   const addresses = getNamedAccounts();
   const token = await hre.ethers.getContractAt(
-    "contracts/core/interfaces/IERC20Metadata.sol:IERC20Metadata",
+    "@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20",
     args.token,
     signer
   );
   const merkleOrchard = await hre.ethers.getContractAt(
     "IMerkleOrchard",
-    addresses.MerkleOrchard[hre.network.name],
+    addresses.merkleOrchard[hre.network.name],
     signer
   );
   const balancesJSON = await fs.promises.readFile(args.balancesFile, "utf-8");

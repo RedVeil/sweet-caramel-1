@@ -12,9 +12,6 @@ export interface StakingPoolInfo {
   totalStake: number;
   tokenEmission: number;
 }
-// export interface StakingStats {
-//   stats: Array<StakingPoolInfo>
-// }
 
 export async function calculateAPY(
   tokenPerWeek: BigNumber,
@@ -38,7 +35,7 @@ export async function getSingleStakingPoolInfo(
   stakedTokenAddress?: Address,
   stakedTokenName?: string,
 ): Promise<StakingPoolInfo> {
-  const tokenPerWeek = await stakingContract.getRewardForDuration({
+  const tokenPerWeek = await stakingContract?.getRewardForDuration({
     gasLimit: '2000000',
   });
   const totalStaked = await stakingContract.totalSupply({
@@ -65,13 +62,18 @@ export async function getStakedTokenName(
   stakedTokenAddress: Address,
   library: any,
 ): Promise<string> {
-  if (stakedTokenAddress && stakedTokenAddress.length > 1) {
-    const contract: ERC20 = await ERC20__factory.connect(
-      stakedTokenAddress,
-      library,
-    );
-    const result = contract ? await contract.name() : '';
-    return result;
+  try {
+    if (stakedTokenAddress && stakedTokenAddress.length > 1) {
+      const contract: ERC20 = await ERC20__factory.connect(
+        stakedTokenAddress,
+        library,
+      );
+      console.log(contract);
+      const result = contract ? await contract.name() : '';
+      return result;
+    }
+  } catch (ex) {
+    console.log(ex);
   }
 }
 
@@ -84,7 +86,7 @@ export async function getStakingPoolsInfo(
   if (contracts && stakingContracts && stakingContracts.length > 0) {
     for (let i = 0; i < stakingContracts.length; i++) {
       const stakingContract = stakingContracts[i];
-      const tokenPerWeek = await stakingContract.getRewardForDuration({
+      const tokenPerWeek = await stakingContract?.getRewardForDuration({
         gasLimit: 2000000,
       });
       const totalStaked = await stakingContract.totalSupply({

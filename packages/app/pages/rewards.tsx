@@ -30,7 +30,7 @@ export default function index(): JSX.Element {
       const stakingPoolsInfo = await getStakingPoolsInfo(contracts, library);
       setStakingPoolsInfo(stakingPoolsInfo);
     }
-    getData();
+    getData().catch((err) => console.log(err));
   }, [account, contracts, library]);
 
   useEffect(() => {

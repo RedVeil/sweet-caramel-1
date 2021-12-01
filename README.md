@@ -6,12 +6,11 @@
   - [Technology Used](#technology-used)
   - [Directory structure](#directory-structure)
   - [Prerequisites](#prerequisites)
-  - [Getting started with Development](#getting-started-with-development)
+  - [Getting started with development](#getting-started-with-development)
   - [Getting started with Frontend](#getting-started-with-frontend)
   - [Getting started with Contracts](#getting-started-with-contracts)
   - [Default Service Locations](#default-service-locations)
   - [Useful Commands](#useful-commands)
-  - [Useful Hardhat Commands](#useful-hardhat-commands)
   - [Contributing](#contributing)
 
 ## Technology Used
@@ -31,7 +30,6 @@
 packages
 ├── app            [@popcorn/app]          [next.js]
 ├── hardhat        [@popcorn/hardhat]      [solidity contracts & typechain]
-├── scripts        [@popcorn/scripts]      [deploy scripts, etc]
 ├── utils          [@popcorn/utils]        [generic utils]
 ├── ui             [@popcorn/ui]           [ui components + storybook]
 └── ... etc
@@ -44,56 +42,43 @@ packages
 
 ## Getting started with development
 
-1. To start the nextjs app and a local hardhat node run:
+1. To start a local ethereum environment and deploy all required contracts with demo data navigate into `packages/hardhat` and run:
 
 ```
-yarn lerna run dev  --parallel
+yarn hardhat node --network hardhat
 ```
 
-2. Then in another terminal you can deploy the contracts with some fixtures.
+2. Then in another terminal go into `packages/app` and start the app with
 
 ```
-yarn hardhat dev:deploy --network localhost
+yarn run dev
 ```
 
-This will deploy all contracts and create 3 elections with pre-registered beneficiaries with the following attributes:
-
-1. Monthly (Accelerated Voting Enabled)
-2. Quarterly (Accelerated Voting Enabled)
-3. Yearly (Default Configuration)
-
-> To update the election state (for instance, to change from registration period to voting period for the elections with accelerated voting enabled), you can run this command:
->
-> ```
-> yarn hardhat elections:refreshElectionState --term 1 --network localhost
-> ```
-
-3. copy `.env.example` to `.env` and update it with the contract addresses output in the previous command.
 
 ## Getting started with Frontend
 
+Go to `packages/app`
 1. Install packages
 
    - `yarn install`
 
 2. Run dev (watch files and start up frontend)
 
-   - `yarn lerna run dev --parallel`
+   - `yarn run dev`
 
 3. Start storybook (optional):
-   - `yarn lerna run story --parallel`
+   - `yarn run story`
 
 ## Getting started with Contracts
 
 To run tests:
-go to `packages/contracts`
+go to `packages/hardhat` and run
 `yarn hardhat test`
 
-Deploy from `packages/contracts`:
+Deploy from `packages/hardhat`:
 
-1. compile: `yarn hardhat compile`
-2. in one terminal: `yarn hardhat node`
-3. in another terminal: `yarn hardhat dev:deploy`
+1. compile: `yarn compile`
+2. and run : `yarn hardhat node --network [network]`
 
 ## Default Service Locations
 
@@ -109,19 +94,6 @@ Deploy from `packages/contracts`:
 | `yarn install`                       | equivalent to `npm install`                                          |
 | `yarn add @org/packagename`          | equivalent to `npm install` - will add to dependencies               |
 | `yarn add @org/packagename -D`       | equivalent to `npm install --save-dev` - will add to devDependencies |
-| `lerna dev --parallel`               | run package.json "dev" script on all projects                        |
-| `lerna run dev --scope=@popcorn/app` | run package.json "dev" script only on frontend package               |
-| `lerna run story`                    | start storybook                                                      |
-| `lerna run test --parallel`          | run tests                                                            |
-
-## Useful Hardhat Commands
-
-| Command                                                                    | Description                      |
-| -------------------------------------------------------------------------- | -------------------------------- |
-| `yarn hardhat dev:deploy`                              | deploy contracts for development |
-| `yarn hardhat elections:refreshElectionState --term 1 --network localhost` | refresh election state           |
-| `yarn hardhat elections:getElectionMetadata --term 1 --network localhost`  | get metadata for election term   |
-| `yarn lerna run --scope @popcorn/hardhat docify` | generate documentation for contracts (found in packages/contracts/docgen/docs)|
 
 ## Contributing
 

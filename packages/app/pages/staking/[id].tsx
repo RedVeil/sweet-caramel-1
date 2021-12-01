@@ -36,31 +36,6 @@ interface Balances {
   earned: number;
 }
 
-// function getStakingInfo(id: string, contracts: Contracts): StakingInfo {
-//   switch (id) {
-
-//     //TODO - change here to get the data correctly.
-//     case 'pop':
-//       return {
-//         inputToken: contracts.pop,
-//         stakingContract: contracts.staking.pop,
-//         tokenName: 'POP',
-//       };
-//     case 'pop-eth-lp':
-//       return {
-//         inputToken: contracts.popEthLp,
-//         stakingContract: contracts.staking.popEthLp,
-//         tokenName: 'POP/ETH LP',
-//       };
-//     case 'butter':
-//       return {
-//         inputToken: contracts.butter,
-//         stakingContract: contracts.staking.butter,
-//         tokenName: 'BUTTER',
-//       };
-//   }
-// }
-
 export default function stake(): JSX.Element {
   const router = useRouter();
   const { id } = router.query;
@@ -135,14 +110,6 @@ export default function stake(): JSX.Element {
     });
   };
 
-  // useEffect(() => {
-  //   router.back()
-  // }, [chainId])
-
-  // useEffect(() => {
-  //   updateData()
-  // }, [state.stakingPageInfo?.poolInfo.stakedTokenAddress])
-
   async function updateData(): Promise<void> {
     const inputBalance = await state.stakingPageInfo?.inputToken.balanceOf(
       account,
@@ -179,11 +146,6 @@ export default function stake(): JSX.Element {
       })
       .catch(() => {});
   }
-
-  // const apy = await calculateAPY(
-  //   await state.stakingPageInfo?.stakingContract.getRewardForDuration(),
-  //   await state.stakingPageInfo?.stakingContract.totalSupply(),
-  // );
 
   async function stake(): Promise<void> {
     setWait(true);

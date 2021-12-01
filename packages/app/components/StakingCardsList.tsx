@@ -21,10 +21,10 @@ export default function StakingCardsList({
         stakingPoolsInfo.map((poolInfo, index) => (
           <div key={poolInfo.stakedTokenName + poolInfo.stakedTokenAddress}>
             <StakeCard
-              stakedTokenAddress={poolInfo.stakedTokenAddress}
-              tokenName={poolInfo.stakedTokenName}
+              stakedTokenAddress={poolInfo?.stakedTokenAddress}
+              tokenName={poolInfo?.stakedTokenName}
               stakingPoolInfo={poolInfo}
-              url={poolInfo.stakedTokenName.toLowerCase().replace(' ', '-')}
+              url={poolInfo?.stakedTokenName?.toLowerCase().replace(' ', '-')}
               stakingContract={
                 contracts.staking[index] ? contracts.staking[index] : undefined
               }

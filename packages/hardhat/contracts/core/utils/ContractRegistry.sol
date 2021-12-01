@@ -33,10 +33,7 @@ contract ContractRegistry is IContractRegistry {
 
   constructor(IACLRegistry _aclRegistry) {
     aclRegistry = _aclRegistry;
-    contracts[keccak256("ACLRegistry")] = Contract({
-      contractAddress: address(_aclRegistry),
-      version: keccak256("1")
-    });
+    contracts[keccak256("ACLRegistry")] = Contract({contractAddress: address(_aclRegistry), version: keccak256("1")});
     contractNames.push(keccak256("ACLRegistry"));
   }
 
@@ -58,10 +55,7 @@ contract ContractRegistry is IContractRegistry {
     bytes32 _version
   ) external {
     aclRegistry.requireRole(keccak256("DAO"), msg.sender);
-    require(
-      contracts[_name].contractAddress == address(0),
-      "contract already exists"
-    );
+    require(contracts[_name].contractAddress == address(0), "contract already exists");
     contracts[_name] = Contract({contractAddress: _address, version: _version});
     contractNames.push(_name);
     emit ContractAdded(_name, _address, _version);
@@ -73,27 +67,15 @@ contract ContractRegistry is IContractRegistry {
     bytes32 _version
   ) external {
     aclRegistry.requireRole(keccak256("DAO"), msg.sender);
-    require(
-      contracts[_name].contractAddress != address(0),
-      "contract doesnt exist"
-    );
-    contracts[_name] = Contract({
-      contractAddress: _newAddress,
-      version: _version
-    });
+    require(contracts[_name].contractAddress != address(0), "contract doesnt exist");
+    contracts[_name] = Contract({contractAddress: _newAddress, version: _version});
     emit ContractUpdated(_name, _newAddress, _version);
   }
 
   function deleteContract(bytes32 _name, uint256 _contractIndex) external {
     aclRegistry.requireRole(keccak256("DAO"), msg.sender);
-    require(
-      contracts[_name].contractAddress != address(0),
-      "contract doesnt exist"
-    );
-    require(
-      contractNames[_contractIndex] == _name,
-      "this is not the contract you are looking for"
-    );
+    require(contracts[_name].contractAddress != address(0), "contract doesnt exist");
+    require(contractNames[_contractIndex] == _name, "this is not the contract you are looking for");
     delete contracts[_name];
     delete contractNames[_contractIndex];
     emit ContractDeleted(_name);
