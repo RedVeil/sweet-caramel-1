@@ -49,43 +49,41 @@ export default function stake(): JSX.Element {
     allowance: 0,
     earned: 0,
   });
-  const [apy, setApy] = useState<number>(0);
   const [wait, setWait] = useState<boolean>(false);
   const [withdraw, setWithdraw] = useState<boolean>(false);
   const { state, dispatch } = useContext(store);
 
   useEffect(() => {
-    const stakingPoolAddress = sessionStorage.getItem('stakingPoolAddress');
-    const stakingPoolIndex = parseInt(
-      sessionStorage.getItem('stakingPoolIndex'),
-    );
     async function getPageInfo() {
-      if (!stakingPoolAddress) {
-        router.push(`/staking`);
-      } else {
-        if (contracts && contracts.staking.length > 0) {
-          const stakingContract: StakingRewards =
-            contracts.staking[stakingPoolIndex];
-          const stakingPoolInfo: StakingPoolInfo =
-            await getSingleStakingPoolInfo(stakingContract, library);
-          const erc20 = await getERC20Contract(
-            stakingPoolInfo.stakedTokenAddress,
-            library,
-          );
-          const tokenName = await erc20.name();
-          dispatch(
-            updateStakingPageInfo({
-              inputToken: erc20,
-              stakingContract: stakingContract,
-              tokenName,
-              poolInfo: stakingPoolInfo,
-            }),
-          );
-          await updateDataOnRefresh();
+      if (contracts && contracts.staking.length > 0) {
+        const stakingContract: StakingRewards = contracts.staking.find(
+          (contract) => contract.address === id,
+        );
+        if (stakingContract === undefined) {
+          router.push('/staking');
+          return;
         }
+        const stakingPoolInfo: StakingPoolInfo = await getSingleStakingPoolInfo(
+          stakingContract,
+          library,
+        );
+        const erc20 = await getERC20Contract(
+          stakingPoolInfo.stakedTokenAddress,
+          library,
+        );
+        const tokenName = await erc20.name();
+        dispatch(
+          updateStakingPageInfo({
+            inputToken: erc20,
+            stakingContract: stakingContract,
+            tokenName,
+            poolInfo: stakingPoolInfo,
+          }),
+        );
+        await updateDataOnRefresh();
       }
     }
-    if (!state.stakingPageInfo && stakingPoolIndex != null) {
+    if (!state.stakingPageInfo) {
       getPageInfo();
     }
   }, [state.stakingPageInfo, contracts, library]);
@@ -378,14 +376,14 @@ export default function stake(): JSX.Element {
                             </div>
                           </div>
                           <div>
-                            <Link href="#" passHref>
+                            {/* <Link href="#" passHref>
                               <a
                                 target="_blank"
                                 className="text-lg text-blue-600 font-medium bg-white px-6 py-3 border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
                               >
                                 Get Token
                               </a>
-                            </Link>
+                            </Link> */}
                           </div>
                         </div>
                       </div>
@@ -403,11 +401,8 @@ export default function stake(): JSX.Element {
                             </div>
                           </div>
                           <div>
-                            <Link href="#" passHref>
-                              <a
-                                target="_blank"
-                                className="text-lg text-blue-600 font-medium bg-white px-6 py-3 border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
-                              >
+                            <Link href="/rewards" passHref>
+                              <a className="text-lg text-blue-600 font-medium bg-white px-6 py-3 border border-gray-200 rounded-full hover:text-white hover:bg-blue-500">
                                 Go to Claim Page
                               </a>
                             </Link>
