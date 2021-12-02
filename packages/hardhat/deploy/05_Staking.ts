@@ -1,43 +1,53 @@
-import {
-  DeployFunction,
-  DeploymentsExtension,
-} from "@anthonymartin/hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { MockERC20 } from "../typechain";
+
+type Pool = {
+  poolName: string;
+  contract: string;
+  inputToken: string;
+  inputTokenDeploymentName: string;
+  rewardsToken: string;
+  rewardTokenDeploymentName: string;
+};
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const addresses = await getNamedAccounts();
 
-  await deploy("PopStaking", {
-    from: addresses.deployer,
-    args: [addresses.pop, addresses.pop],
-    log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
-    contract: "StakingRewards",
-  });
+  const stakingPools: Pool[] = [
+    {
+      poolName: "PopStaking",
+      contract: "StakingRewards",
+      inputToken: addresses.pop,
+      inputTokenDeploymentName: "TestPOP",
+      rewardsToken: addresses.pop,
+      rewardTokenDeploymentName: "TestPOP",
+    },
+    {
+      poolName: "popEthLPStaking",
+      contract: "StakingRewards",
+      inputToken: addresses.popEthLp,
+      inputTokenDeploymentName: "POP_ETH_LP",
+      rewardsToken: addresses.pop,
+      rewardTokenDeploymentName: "TestPOP",
+    },
+  ];
 
-  await deploy("popEthLPStaking", {
-    from: addresses.deployer,
-    args: [addresses.pop, addresses.popEthLp],
-    log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "StakingRewards",
-  });
-
-  await deploy("butterStaking", {
-    from: addresses.deployer,
-    args: [addresses.pop, addresses.butter],
-    log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "StakingRewards",
-  });
-
-  if (["hardhat", "local"].includes(hre.network.name)) {
-    createDemoData(hre, deployments);
+  for (var i = 0; i < stakingPools.length; i++) {
+    await deploy(stakingPools[i].poolName, {
+      from: addresses.deployer,
+      args: [stakingPools[i].rewardsToken, stakingPools[i].inputToken],
+      log: true,
+      autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
+      contract: stakingPools[i].contract,
+    });
+    if (["hardhat", "local"].includes(hre.network.name)) {
+      createDemoData(hre, stakingPools[i]);
+    }
   }
 };
 export default main;
@@ -80,42 +90,39 @@ async function connectAndMintToken(
 
 async function createDemoData(
   hre: HardhatRuntimeEnvironment,
-  deployments: DeploymentsExtension
+  pool: Pool
 ): Promise<void> {
-  const pop = await deployments.get("TestPOP");
-  const popEthLp = await deployments.get("POP_ETH_LP");
+  try {
+    const { deployments } = hre;
+    const inputToken = await deployments.get(pool.inputTokenDeploymentName);
+    const rewardsToken = await deployments.get(pool.rewardTokenDeploymentName);
 
-  const signer = getSignerFrom(
-    hre.config.namedAccounts.deployer as string,
-    hre
-  );
-
-  // fund pop staking rewards
-  const popToken = await connectAndMintToken(pop.address, signer, hre);
-
-  await prepareStakingContract(
-    popToken,
-    popToken,
-    (
-      await deployments.get("PopStaking")
-    ).address,
-    signer,
-    hre
-  );
-
-  const popEthLpToken = (await connectAndMintToken(
-    popEthLp.address,
-    signer,
-    hre
-  )) as MockERC20;
-
-  await prepareStakingContract(
-    popToken,
-    popEthLpToken,
-    (
-      await deployments.get("popEthLPStaking")
-    ).address,
-    signer,
-    hre
-  );
+    const signer = getSignerFrom(
+      hre.config.namedAccounts.deployer as string,
+      hre
+    );
+    // fund Pool staking rewards
+    const poolInputTokens = await connectAndMintToken(
+      pool.inputToken,
+      signer,
+      hre
+    );
+    const poolRewardTokens = await connectAndMintToken(
+      pool.rewardsToken,
+      signer,
+      hre
+    );
+    await prepareStakingContract(
+      poolRewardTokens,
+      poolInputTokens,
+      (
+        await deployments.get(pool.poolName)
+      ).address,
+      signer,
+      hre
+    );
+  } catch (ex) {
+    console.log(ex.toString());
+    process.exit(1);
+  }
 }
