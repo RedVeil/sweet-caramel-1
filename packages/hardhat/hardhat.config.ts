@@ -103,7 +103,7 @@ module.exports = {
         `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     bsc: {
-      url: process.env.RPC_URL,
+      url: process.env.RPC_URL || "https://undefined",
     },
     rinkarby: {
       url: process.env.RPC_URL || "https://rinkeby.arbitrum.io/rpc",

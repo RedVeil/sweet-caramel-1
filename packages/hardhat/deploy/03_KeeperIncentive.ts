@@ -1,6 +1,6 @@
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { BigNumber } from "@ethersproject/bignumber";
 import { ethers } from "ethers";
-import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 
