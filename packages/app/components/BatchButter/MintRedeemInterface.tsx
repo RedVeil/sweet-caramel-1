@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers';
 import { Dispatch } from 'react';
 import { BatchType } from '../../../hardhat/lib/adapters';
+import MainActionButton from '../MainActionButton';
 import MintRedeemToggle from './MintRedeemToggle';
 import SlippageSettings from './SlippageSettings';
 import TokenInput, { TokenInputProps } from './TokenInput';
@@ -26,7 +27,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   setSlippage,
 }) => {
   return (
-    <div className="bg-white rounded-3xl px-5 py-6 mr-8 border border-gray-300">
+    <div className="bg-white rounded-3xl px-5 pt-6 pb-10 mr-8 border border-gray-200 shadow-custom">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <TokenInput
         token={token}
@@ -43,21 +44,17 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       <div>
         <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
       </div>
-      <div className="w-full text-center mt-6">
-        <button
-          className={`bg-blue-600 px-24 py-3 text-white rounded-full disabled:bg-gray-300 ${
-            depositDisabled ? '' : 'hover:bg-blue-700'
-          }`}
-          onClick={(e) =>
+      <div className="w-full text-center mt-8">
+        <MainActionButton
+          label={redeeming ? 'Redeem' : 'Mint'}
+          handleClick={(e) =>
             deposit(
               depositAmount,
               redeeming ? BatchType.Redeem : BatchType.Mint,
             )
           }
           disabled={depositDisabled}
-        >
-          Deposit
-        </button>
+        />
       </div>
     </div>
   );

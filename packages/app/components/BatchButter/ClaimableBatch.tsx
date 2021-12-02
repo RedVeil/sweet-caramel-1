@@ -1,3 +1,4 @@
+import MainActionButton from 'components/MainActionButton';
 import { setDualActionWideModal } from 'context/actions';
 import { store } from 'context/store';
 import { Dispatch, useContext, useState } from 'react';
@@ -129,27 +130,25 @@ const ClaimableBatch: React.FC<BatchProps> = ({
       key={batch.batchId}
       className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
     >
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
+      <td className="px-6 py-5 whitespace-nowrap">
         {`${bigNumberToNumber(batch.accountSuppliedTokenBalance)} ${
           batch.batchType === BatchType.Mint ? '3CRV' : 'HYSI'
         }`}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+      <td className="px-6 py-5 whitespace-nowrap font-medium">
         {`${bigNumberToNumber(batch.accountClaimableTokenBalance)} ${
           batch.batchType === BatchType.Mint ? 'HYSI' : '3CRV'
         }`}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
-        {batch.claimable ? 'Claimable' : 'Not Claimable'}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <a
-          href="#"
-          className="font-semibold text-indigo-600 hover:text-indigo-900"
-          onClick={(e) => (batch.claimable ? handleClaim() : handleWithdraw())}
-        >
-          {batch.claimable ? 'Claim' : 'Withdraw'}
-        </a>
+      <td className="px-6 py-5 flex justify-end">
+        <div className="w-36">
+          <MainActionButton
+            label={batch.claimable ? 'Claim' : 'Withdraw'}
+            handleClick={(e) =>
+              batch.claimable ? handleClaim() : handleWithdraw()
+            }
+          />
+        </div>
       </td>
     </tr>
   );

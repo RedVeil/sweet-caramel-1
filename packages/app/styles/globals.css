@@ -36,7 +36,7 @@ input[type='number'] {
 
 @layer base {
   body {
-    @apply font-avenir tracking-wide text-gray-800;
+    @apply font-avenir text-base font-normal tracking-wide text-gray-800;
   }
   @font-face {
     font-family: 'Avenir LT Pro';

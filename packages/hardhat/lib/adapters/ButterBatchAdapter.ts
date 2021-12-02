@@ -8,6 +8,11 @@ export enum BatchType {
   Redeem,
 }
 
+export interface CurrentBatches {
+  mint: Batch;
+  redeem: Batch;
+}
+
 export interface TimeTillBatchProcessing {
   timeTillProcessing: Date;
   progressPercentage: number;
@@ -177,6 +182,10 @@ class ButterBatchAdapter {
     return threeCrvPrice.mul(threeCrvAmountforStable).div(parseEther("1"));
   }
 
+  public async getTokenSupply(contract: Contract): Promise<BigNumber> {
+    return await contract.totalSupply();
+  }
+
   public async getBatches(account: string): Promise<AccountBatch[]> {
     const batchIds = await this.contract.getAccountBatches(account);
     const batches = await Promise.all(
@@ -233,6 +242,16 @@ class ButterBatchAdapter {
         progressPercentage: percentageTillRedeem,
       },
     ];
+  }
+
+  public async getCurrentBatches(): Promise<CurrentBatches> {
+    const mintId = await this.contract.currentMintBatchId();
+    const redeemId = await this.contract.currentRedeemBatchId();
+
+    const mintBatch = await this.getBatch(mintId);
+    const redeemBatch = await this.getBatch(redeemId);
+
+    return { mint: mintBatch, redeem: redeemBatch };
   }
 }
 
