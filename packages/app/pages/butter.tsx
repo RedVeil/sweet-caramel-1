@@ -708,7 +708,7 @@ export default function Butter(): JSX.Element {
                 />
               ) : (
                 <div className="bg-white rounded-3xl px-5 pt-6 pb-10 mr-8 border border-gray-200 shadow-custom">
-                  <div className="w-full py-48 my-1">
+                  <div className="w-full py-64 mt-1.5 mb-2">
                     <MainActionButton
                       label="Connect Wallet"
                       handleClick={activate}
