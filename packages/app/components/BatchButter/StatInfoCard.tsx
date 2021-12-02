@@ -17,17 +17,17 @@ export default function StatInfoCard({
   info,
 }: StatInfoCardProps): JSX.Element {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 shadow-custom w-full px-4 py-5">
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center">
+    <div className="bg-white rounded-3xl border border-gray-200 shadow-custom w-full px-6 pt-5 pb-7">
+      <div className="flex flex-row items-center justify-between mt-0.5">
+        <div className="flex flex-row">
           <CardIcon
             icon={icon.icon}
             color={icon.color}
             iconColor={icon.iconColor}
           />
           <div className="ml-4">
-            <p className="text-base text-gray-500">{title}</p>
-            <h3 className="text-xl font-medium ">{content}</h3>
+            <p className="font-semibold leading-none mt-1">{title}</p>
+            <h3 className="text-3xl font-medium mt-2">{content}</h3>
           </div>
         </div>
         <div>

@@ -650,13 +650,13 @@ export default function Butter(): JSX.Element {
                 Deposit your stablecoins and watch your money grow
               </p>
               <div className="flex flex-row items-center mt-2">
-                <div className="pr-8 border-r-2 border-gray-200">
+                <div className="pr-6 border-r-2 border-gray-200">
                   <p className="text-gray-500 font-light text-base uppercase">
                     Est. APY
                   </p>
                   <p className="text-green-600 text-xl font-medium">20 %</p>
                 </div>
-                <div className="pl-8">
+                <div className="px-6 border-r-2 border-gray-200">
                   <p className="text-gray-500 font-light text-base uppercase">
                     Total Staked
                   </p>
@@ -670,6 +670,12 @@ export default function Butter(): JSX.Element {
                       : '-'}{' '}
                     $
                   </p>
+                </div>
+                <div className="pl-6">
+                  <p className="text-gray-500 font-light text-base uppercase">
+                    Social Impact
+                  </p>
+                  <p className="text-xl font-medium">Coming Soon</p>
                 </div>
               </div>
             </div>
@@ -710,24 +716,6 @@ export default function Butter(): JSX.Element {
                   </div>
                 </div>
               )}
-              <BatchProgress
-                batchAmount={
-                  currentBatches?.mint && batchProcessTokens?.butter
-                    ? redeeming
-                      ? bigNumberToNumber(
-                          currentBatches.redeem.suppliedTokenBalance
-                            .div(parseEther('1'))
-                            .mul(batchProcessTokens?.butter.price),
-                        )
-                      : bigNumberToNumber(
-                          currentBatches.mint.suppliedTokenBalance
-                            .div(parseEther('1'))
-                            .mul(batchProcessTokens?.threeCrv.price),
-                        )
-                    : 0
-                }
-                threshold={100000}
-              />
             </div>
           </div>
           <div className="w-2/3 mt-40 pt-3">
@@ -746,23 +734,23 @@ export default function Butter(): JSX.Element {
                 />
               </div>
               <div className="w-1/2 ml-2">
-                <StatInfoCard
-                  title="Claimable Token"
-                  content={
-                    batches
-                      ? batches.reduce((total, batch) => {
-                          return (
-                            total +
-                            bigNumberToNumber(
-                              batch.accountClaimableTokenBalance,
-                            )
-                          );
-                        }, 0) > 0
-                        ? 'Ready'
-                        : 'No Ready Yet'
-                      : 'Not Ready Yet'
+                <BatchProgress
+                  batchAmount={
+                    currentBatches?.mint && batchProcessTokens?.butter
+                      ? redeeming
+                        ? bigNumberToNumber(
+                            currentBatches.redeem.suppliedTokenBalance
+                              .div(parseEther('1'))
+                              .mul(batchProcessTokens?.butter.price),
+                          )
+                        : bigNumberToNumber(
+                            currentBatches.mint.suppliedTokenBalance
+                              .div(parseEther('1'))
+                              .mul(batchProcessTokens?.threeCrv.price),
+                          )
+                      : 0
                   }
-                  icon={{ icon: 'Wait', color: 'bg-yellow-500' }}
+                  threshold={100000}
                 />
               </div>
             </div>

@@ -75,7 +75,7 @@ export default function index(): JSX.Element {
           </p>
         </div>
         <div className="w-9/12 h-full mx-auto flex flex-row mt-10 mb-24">
-          <div className="w-4/12 h-full shadow-custom rounded-5xl mt-1.5">
+          <div className="w-4/12 h-full shadow-custom rounded-5xl mt-2 -top-0.5">
             <img
               src="/images/claimCat.svg"
               alt="claimCat"

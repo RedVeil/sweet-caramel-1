@@ -44,7 +44,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       <div>
         <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
       </div>
-      <div className="w-full text-center mt-8">
+      <div className="w-full text-center mt-16 mb-1">
         <MainActionButton
           label={redeeming ? 'Redeem' : 'Mint'}
           handleClick={(e) =>

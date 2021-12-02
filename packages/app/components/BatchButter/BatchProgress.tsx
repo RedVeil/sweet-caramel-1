@@ -10,10 +10,10 @@ const BatchProgress: React.FC<BatchProgressProps> = ({
   threshold,
 }) => {
   return (
-    <div className="bg-white border border-gray-200 shadow-custom rounded-3xl mt-8 mr-8">
-      <div className="w-full flex flex-row pt-8 pb-6 px-6">
-        <div className="w-20 h-20 flex-shrink-0 flex-grow-0 mr-4 rounded-full bg-gray-100 flex flex-row items-center justify-center">
-          <p className="text-2xl font-semibold leading-none mt-1 text-gray-700">
+    <div className="bg-white border border-gray-200 shadow-custom rounded-3xl">
+      <div className="w-full flex flex-row pt-5 pb-2 px-6">
+        <div className="w-16 h-16 flex-shrink-0 flex-grow-0 mr-4 rounded-full bg-gray-100 flex flex-row items-center justify-center">
+          <p className="text-2xl font-semibold leading-none text-gray-700">
             {(batchAmount / 1000).toFixed(0)}k
           </p>
         </div>
@@ -23,8 +23,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({
             <InfoIconWithModal title="Batch Processing" />
           </div>
           <p className="text-gray-500 leading-snug">
-            We reduce your gas fee/transaction with doing deposit in batch. This
-            batch will automatically submitted after reach our schedule.
+            Your funds will be processed after the batch is full.
           </p>
         </div>
       </div>
