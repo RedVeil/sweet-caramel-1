@@ -1,7 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
 import { BigNumber, Contract } from "ethers";
-import getNamedAccounts from "../utils/getNamedAccounts";
+import { getNamedAccountsFromNetwork } from "../utils/getContractAddresses";
 
 export enum BatchType {
   Mint,
@@ -132,9 +132,10 @@ class ButterBatchAdapter {
 
   public async getHysiPrice(
     contract: Contract,
-    componentMap: ComponentMap
+    componentMap: ComponentMap,
+    chainId: number
   ): Promise<BigNumber> {
-    const addresses = getNamedAccounts();
+    const addresses = getNamedAccountsFromNetwork(chainId);
     const components = await contract.getRequiredComponentUnitsForIssue(
       addresses.butter.hardhat,
       parseEther("1")

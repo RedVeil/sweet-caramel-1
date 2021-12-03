@@ -79,6 +79,7 @@ async function getBatchProcessToken(
   contracts: Contracts,
   butterDependencyContracts: ButterDependencyContracts,
   account: string,
+  chainId: number,
 ): Promise<BatchProcessTokens> {
   const batchProcessTokens = {
     butter: {
@@ -110,6 +111,7 @@ async function getBatchProcessToken(
             yPool: butterDependencyContracts.yUst,
           },
         } as ComponentMap,
+        chainId,
       ),
     },
     threeCrv: {
@@ -261,6 +263,7 @@ export default function Butter(): JSX.Element {
       contracts,
       butterDependencyContracts,
       account,
+      chainId,
     ).then((res) => {
       setBatchProcessTokens(res);
       setSelectedToken({ input: res.threeCrv, output: res.butter });
@@ -399,6 +402,7 @@ export default function Butter(): JSX.Element {
             contracts,
             butterDependencyContracts,
             account,
+            chainId,
           ).then((res) => setBatchProcessTokens(res));
         });
       })
@@ -456,6 +460,7 @@ export default function Butter(): JSX.Element {
                 contracts,
                 butterDependencyContracts,
                 account,
+                chainId,
               ).then((res) => setBatchProcessTokens(res));
             });
           })
@@ -492,6 +497,7 @@ export default function Butter(): JSX.Element {
                 contracts,
                 butterDependencyContracts,
                 account,
+                chainId,
               ).then((res) => setBatchProcessTokens(res));
             });
           })
@@ -551,6 +557,7 @@ export default function Butter(): JSX.Element {
           contracts,
           butterDependencyContracts,
           account,
+          chainId,
         ).then((res) => setBatchProcessTokens(res));
       })
       .catch((err) => {
@@ -598,6 +605,7 @@ export default function Butter(): JSX.Element {
             contracts,
             butterDependencyContracts,
             account,
+            chainId,
           ).then((res) => setBatchProcessTokens(res));
         });
       })
