@@ -25,7 +25,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer = hre.askForSigner();
     deployer = `privateKey://${signer.privateKey}`;
   }
-  console.log("network name", hre.network.name);
   hre.config.namedAccounts = {
     deployer: deployer,
     ...getNamedAccountsFromNetwork(hre.network.config.chainId),

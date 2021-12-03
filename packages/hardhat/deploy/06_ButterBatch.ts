@@ -59,7 +59,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       contractRegistryAddress,
       addresses.butter,
       addresses.threeCrv,
-      addresses.setBasicIssuanceModule,
+      addresses.basicIssuanceModule,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
       1,

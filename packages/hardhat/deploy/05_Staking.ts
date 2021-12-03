@@ -8,34 +8,91 @@ type Pool = {
   poolName: string;
   contract: string;
   inputToken: string;
-  inputTokenDeploymentName: string;
   rewardsToken: string;
-  rewardTokenDeploymentName: string;
 };
+
+async function getStakingPools(
+  chainId: number,
+  addresses,
+  deployments
+): Promise<Pool[]> {
+  switch (chainId) {
+    case 1:
+      return [
+        {
+          poolName: "PopStaking",
+          contract: "StakingRewards",
+          inputToken: addresses.pop,
+          rewardsToken: addresses.pop,
+        },
+        {
+          poolName: "popEthLPStaking",
+          contract: "StakingRewards",
+          inputToken: addresses.popEthLp,
+          rewardsToken: addresses.pop,
+        },
+        {
+          poolName: "butterStaking",
+          contract: "StakingRewards",
+          inputToken: addresses.butter,
+          rewardsToken: addresses.pop,
+        },
+      ];
+    case 1337:
+      return [
+        {
+          poolName: "PopStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("TestPOP")).address,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "popEthLPStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("POP_ETH_LP")).address,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "butterStaking",
+          contract: "StakingRewards",
+          inputToken: addresses.butter,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+      ];
+    case 31337:
+      [
+        {
+          poolName: "PopStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("TestPOP")).address,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "popEthLPStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("POP_ETH_LP")).address,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "butterStaking",
+          contract: "StakingRewards",
+          inputToken: addresses.butter,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+      ];
+  }
+}
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const addresses = await getNamedAccounts();
 
-  const stakingPools: Pool[] = [
-    {
-      poolName: "PopStaking",
-      contract: "StakingRewards",
-      inputToken: addresses.pop,
-      inputTokenDeploymentName: "TestPOP",
-      rewardsToken: addresses.pop,
-      rewardTokenDeploymentName: "TestPOP",
-    },
-    {
-      poolName: "popEthLPStaking",
-      contract: "StakingRewards",
-      inputToken: addresses.popEthLp,
-      inputTokenDeploymentName: "POP_ETH_LP",
-      rewardsToken: addresses.pop,
-      rewardTokenDeploymentName: "TestPOP",
-    },
-  ];
+  const stakingPools = await getStakingPools(
+    hre.network.config.chainId,
+    addresses,
+    deployments
+  );
 
   for (var i = 0; i < stakingPools.length; i++) {
     await deploy(stakingPools[i].poolName, {
@@ -45,9 +102,10 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: stakingPools[i].contract,
     });
-    if (["hardhat", "local"].includes(hre.network.name)) {
-      createDemoData(hre, stakingPools[i]);
-    }
+  }
+  if (["hardhat", "local"].includes(hre.network.name)) {
+    createDemoData(hre, stakingPools[0]);
+    createDemoData(hre, stakingPools[1]);
   }
 };
 export default main;
@@ -94,8 +152,6 @@ async function createDemoData(
 ): Promise<void> {
   try {
     const { deployments } = hre;
-    const inputToken = await deployments.get(pool.inputTokenDeploymentName);
-    const rewardsToken = await deployments.get(pool.rewardTokenDeploymentName);
 
     const signer = getSignerFrom(
       hre.config.namedAccounts.deployer as string,

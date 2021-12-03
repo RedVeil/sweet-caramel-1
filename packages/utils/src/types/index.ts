@@ -3,17 +3,17 @@ export type Address = string;
 export interface ContractAddresses {
   staking?: Array<Address>;
   pop?: Address;
+  dai?: Address;
+  usdc?: Address;
+  usdt?: Address;
   threeCrv?: Address;
   popEthLp?: Address;
   butter?: Address;
   butterBatch?: Address;
   butterBatchZapper?: Address;
-  dai?: Address;
-  usdc?: Address;
-  usdt?: Address;
+  butterDependency?: ButterDependencyAddresses;
   aclRegistry?: Address;
   contractRegistry?: Address;
-  hysiDependency?: ButterDependencyAddresses;
   // dao: DAO;
   voting?: Address;
   dao?: Address;
@@ -24,15 +24,6 @@ export interface ContractAddresses {
   balancerVault?: Address;
   balancerLBPFactory?: Address;
   merkleOrchard?: Address;
-  threePool?: Address;
-  setBasicIssuanceModule?: Address;
-  uniswapRouter?: Address;
-  curveAddressProvider?: Address;
-  curveFactoryMetapoolDepositZap?: Address;
-  crvDusd?: Address;
-  crvFrax?: Address;
-  crvUsdn?: Address;
-  crvUst?: Address;
 }
 
 export interface ERC20Contracts {
@@ -48,14 +39,21 @@ export interface DAO {
 }
 
 export interface ButterDependencyAddresses {
-  basicIssuanceModule?: Address;
   yDusd?: Address;
   yFrax?: Address;
   yUsdn?: Address;
   yUst?: Address;
+  crvDusd?: Address;
+  crvFrax?: Address;
+  crvUsdn?: Address;
+  crvUst?: Address;
   dusdMetapool?: Address;
   fraxMetapool?: Address;
   usdnMetapool?: Address;
   ustMetapool?: Address;
-  triPool?: Address;
+  threePool?: Address;
+  curveAddressProvider?: Address;
+  curveFactoryMetapoolDepositZap?: Address;
+  uniswapRouter?: Address;
+  basicIssuanceModule?: Address;
 }

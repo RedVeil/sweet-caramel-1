@@ -122,7 +122,7 @@ async function getBatchProcessToken(
       ),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getThreeCrvPrice(
-        butterDependencyContracts.triPool,
+        butterDependencyContracts.threePool,
       ),
     },
     dai: {
@@ -134,7 +134,7 @@ async function getBatchProcessToken(
         contracts.butterBatchZapper.address,
       ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        butterDependencyContracts.triPool,
+        butterDependencyContracts.threePool,
         [parseEther('1'), BigNumber.from('0'), BigNumber.from('0')],
       ),
     },
@@ -149,7 +149,7 @@ async function getBatchProcessToken(
         contracts.butterBatchZapper.address,
       ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        butterDependencyContracts.triPool,
+        butterDependencyContracts.threePool,
         [BigNumber.from('0'), BigNumber.from(1e6), BigNumber.from('0')],
       ),
     },
@@ -164,7 +164,7 @@ async function getBatchProcessToken(
         contracts.butterBatchZapper.address,
       ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        butterDependencyContracts.triPool,
+        butterDependencyContracts.threePool,
         [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from(1e6)],
       ),
     },
@@ -226,7 +226,7 @@ export default function Butter(): JSX.Element {
     if (!library || !contracts) {
       return;
     }
-    if (![1337, 31337].includes(chainId)) {
+    if (![1, 1337, 31337].includes(chainId)) {
       dispatch(
         setDualActionWideModal({
           title: 'Coming Soon',

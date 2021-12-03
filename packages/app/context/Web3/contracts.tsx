@@ -35,20 +35,19 @@ import { store } from '../store';
 import { connectors, networkMap } from './connectors';
 
 export interface Contracts {
+  staking?: StakingRewards[];
   pop?: ERC20;
+  dai?: ERC20;
+  usdc?: ERC20;
+  usdt?: ERC20;
   threeCrv?: ERC20;
   popEthLp?: ERC20;
   butter?: SetToken;
   butterBatch?: HysiBatchInteraction;
   butterBatchZapper?: HysiBatchZapper;
-  dai?: ERC20;
-  usdc?: ERC20;
-  usdt?: ERC20;
-  staking?: StakingRewards[];
 }
 
 export interface ButterDependencyContracts {
-  basicIssuanceModule?: BasicIssuanceModule;
   yDusd?: YearnVault;
   yFrax?: YearnVault;
   yUsdn?: YearnVault;
@@ -57,12 +56,8 @@ export interface ButterDependencyContracts {
   fraxMetapool?: CurveMetapool;
   usdnMetapool?: CurveMetapool;
   ustMetapool?: CurveMetapool;
-  triPool?: Curve3Pool;
-}
-export interface StakingContracts {
-  pop: StakingRewards;
-  popEthLp: StakingRewards;
-  butter: StakingRewards;
+  threePool?: Curve3Pool;
+  basicIssuanceModule?: BasicIssuanceModule;
 }
 
 interface ContractsContext {
@@ -98,23 +93,26 @@ const initializeContracts = (
   library,
 ): Contracts => {
   const {
-    pop,
-    popEthLp,
-    threeCrv,
-    butter,
     staking,
-    butterBatch,
-    butterBatchZapper,
+    pop,
     dai,
     usdc,
     usdt,
+    threeCrv,
+    popEthLp,
+    butter,
+    butterBatch,
+    butterBatchZapper,
   } = {
     ...contractAddresses,
   };
   const contracts: Contracts = {
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
-    popEthLp: popEthLp ? ERC20__factory.connect(popEthLp, library) : undefined,
+    dai: dai ? ERC20__factory.connect(dai, library) : undefined,
+    usdc: usdc ? ERC20__factory.connect(usdc, library) : undefined,
+    usdt: usdt ? ERC20__factory.connect(usdt, library) : undefined,
     threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
+    popEthLp: popEthLp ? ERC20__factory.connect(popEthLp, library) : undefined,
     butter: butter ? SetToken__factory.connect(butter, library) : undefined,
     butterBatch: butterBatch
       ? HysiBatchInteraction__factory.connect(butterBatch, library)
@@ -122,9 +120,6 @@ const initializeContracts = (
     butterBatchZapper: butterBatchZapper
       ? HysiBatchZapper__factory.connect(butterBatch, library)
       : undefined,
-    dai: dai ? ERC20__factory.connect(dai, library) : undefined,
-    usdc: usdc ? ERC20__factory.connect(usdc, library) : undefined,
-    usdt: usdt ? ERC20__factory.connect(usdt, library) : undefined,
   };
   contracts.staking = [];
   if (staking.length > 0) {
@@ -143,12 +138,8 @@ const initializeButterDependencyContracts = (
   chainId: number,
   library,
 ): ButterDependencyContracts => {
-  if (chainId === 1 || chainId === 1337) {
+  if ([1, 31337, 1337].includes(chainId)) {
     return {
-      basicIssuanceModule: BasicIssuanceModule__factory.connect(
-        contractAddresses.basicIssuanceModule,
-        library,
-      ),
       yDusd: YearnVault__factory.connect(contractAddresses.yDusd, library),
       yFrax: YearnVault__factory.connect(contractAddresses.yFrax, library),
       yUsdn: YearnVault__factory.connect(contractAddresses.yUsdn, library),
@@ -169,7 +160,14 @@ const initializeButterDependencyContracts = (
         contractAddresses.ustMetapool,
         library,
       ),
-      triPool: Curve3Pool__factory.connect(contractAddresses.triPool, library),
+      threePool: Curve3Pool__factory.connect(
+        contractAddresses.threePool,
+        library,
+      ),
+      basicIssuanceModule: BasicIssuanceModule__factory.connect(
+        contractAddresses.basicIssuanceModule,
+        library,
+      ),
     };
   }
   return {};
@@ -193,6 +191,8 @@ export default function ContractsWrapper({
   const [butterDependencyContracts, setButterDependencyContracts] =
     useState<ButterDependencyContracts>();
   const { dispatch } = useContext(store);
+
+  console.log(chainId);
 
   useEffect(() => {
     if (!active) {
@@ -218,14 +218,14 @@ export default function ContractsWrapper({
   }, [error]);
 
   useEffect(() => {
-    if (!library) {
+    if (!library || !chainId) {
       return;
     }
     const contractAddresses = getChainRelevantContracts(chainId);
     const contracts = initializeContracts(contractAddresses, library);
     setContracts(contracts);
     const butterDependencyContracts = initializeButterDependencyContracts(
-      contractAddresses.hysiDependency,
+      contractAddresses.butterDependency,
       chainId,
       library,
     );
