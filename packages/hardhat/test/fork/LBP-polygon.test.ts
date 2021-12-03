@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
 import { expectRevert } from "../../lib/utils/expectValue";
-import getNamedAccounts from "../../lib/utils/getNamedAccounts";
+import { getNamedAccountsFromNetwork } from "../../lib/utils/getContractAddresses";
 import {
   DAYS,
   getErc20,
@@ -17,7 +17,7 @@ const LBP_MANAGER = "0x9F3EcFDCE702514Bf3dF6f2Dc3Aa8A6937F5dd91";
 const USDC_WHALE = "0x1d7d6598c766485dc89746fd9bda82c21df128a9";
 const POP_WHALE = "0xa49731448a1b25d92f3d80f3d3025e4f0fc8d776";
 const START_TIME = 1638172800;
-const namedAccounts = getNamedAccounts();
+const namedAccounts = getNamedAccountsFromNetwork(1337);
 
 const getPoolTokenBalances = async (address) => {
   const usdc = await getErc20(namedAccounts.usdc.polygon);
