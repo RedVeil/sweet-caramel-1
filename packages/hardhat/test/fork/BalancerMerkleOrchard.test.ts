@@ -30,7 +30,7 @@ describe("Balancer Merkle Orchard", () => {
       ],
     });
 
-    const namedAccounts = getNamedAccountsFromNetwork(1337);
+    const namedAccounts = getNamedAccountsFromNetwork(1);
 
     [admin, other, claimer, claimer0, claimer1] = await ethers.getSigners();
 
@@ -41,7 +41,7 @@ describe("Balancer Merkle Orchard", () => {
 
     merkleOrchard = await ethers.getContractAt(
       "IMerkleOrchard",
-      namedAccounts.merkleOrchard.mainnet
+      namedAccounts.merkleOrchard
     );
   });
 

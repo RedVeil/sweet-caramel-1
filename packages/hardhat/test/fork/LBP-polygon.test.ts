@@ -17,11 +17,11 @@ const LBP_MANAGER = "0x9F3EcFDCE702514Bf3dF6f2Dc3Aa8A6937F5dd91";
 const USDC_WHALE = "0x1d7d6598c766485dc89746fd9bda82c21df128a9";
 const POP_WHALE = "0xa49731448a1b25d92f3d80f3d3025e4f0fc8d776";
 const START_TIME = 1638172800;
-const namedAccounts = getNamedAccountsFromNetwork(1337);
+const namedAccounts = getNamedAccountsFromNetwork(137);
 
 const getPoolTokenBalances = async (address) => {
-  const usdc = await getErc20(namedAccounts.usdc.polygon);
-  const pop = await getErc20(namedAccounts.pop.polygon);
+  const usdc = await getErc20(namedAccounts.usdc);
+  const pop = await getErc20(namedAccounts.pop);
   return [await usdc.balanceOf(address), await pop.balanceOf(address)];
 };
 
@@ -38,28 +38,18 @@ const prepareLbpManager = async () => {
     ],
   });
 
-  await transferErc20(
-    namedAccounts.usdc.polygon,
-    USDC_WHALE,
-    LBP_MANAGER,
-    "562500"
-  );
+  await transferErc20(namedAccounts.usdc, USDC_WHALE, LBP_MANAGER, "562500");
 
-  await transferErc20(
-    namedAccounts.pop.polygon,
-    POP_WHALE,
-    LBP_MANAGER,
-    "1875000"
-  );
+  await transferErc20(namedAccounts.pop, POP_WHALE, LBP_MANAGER, "1875000");
 };
 
 const deployPoolByImpersonation = async (): Promise<string> => {
-  await sendEth(namedAccounts.daoAgent.polygon, "1");
+  await sendEth(namedAccounts.daoAgent, "1");
 
   const lbpManager = await ethers.getContractAt(
     "LBPManager",
     LBP_MANAGER,
-    await impersonateSigner(namedAccounts.daoAgent.polygon)
+    await impersonateSigner(namedAccounts.daoAgent)
   );
   await lbpManager.deployLBP();
   return await lbpManager.lbp();
@@ -145,14 +135,14 @@ describe("LBP test", () => {
       const poolAddress = await deployPoolByImpersonation();
       const vault = await ethers.getContractAt(
         "IVault",
-        namedAccounts.balancerVault.polygon
+        namedAccounts.balancerVault
       );
 
       const lbp = await ethers.getContractAt("ILBP", poolAddress);
       const tokens = await vault.getPoolTokens(await lbp.getPoolId());
       expect(tokens[0].map((token) => token.toLowerCase())).to.eql([
-        namedAccounts.usdc.polygon.toLowerCase(),
-        namedAccounts.pop.polygon.toLowerCase(),
+        namedAccounts.usdc.toLowerCase(),
+        namedAccounts.pop.toLowerCase(),
       ]);
       expect(tokens[1][0]).equal(parseUnits("562500", "6"));
       expect(tokens[1][1]).equal(parseEther("1875000"));
@@ -162,12 +152,12 @@ describe("LBP test", () => {
       /**
        * send ETH to dao agent address
        */
-      await sendEth(namedAccounts.daoAgent.polygon, "1");
+      await sendEth(namedAccounts.daoAgent, "1");
 
       await deployPoolByImpersonation();
 
       const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury.polygon
+        namedAccounts.daoTreasury
       );
 
       await setTimestamp(START_TIME);
@@ -175,7 +165,7 @@ describe("LBP test", () => {
       const lbpManager = await ethers.getContractAt(
         "LBPManager",
         LBP_MANAGER,
-        await impersonateSigner(namedAccounts.daoAgent.polygon)
+        await impersonateSigner(namedAccounts.daoAgent)
       );
 
       await lbpManager.enableTrading();
@@ -185,7 +175,7 @@ describe("LBP test", () => {
       await lbpManager.withdrawFromPool();
 
       const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury.polygon
+        namedAccounts.daoTreasury
       );
 
       expect(usdcBalanceAfter.gt(usdcBalanceBefore)).to.be.true;
