@@ -137,7 +137,7 @@ class ButterBatchAdapter {
   ): Promise<BigNumber> {
     const addresses = getNamedAccountsFromNetwork(chainId);
     const components = await contract.getRequiredComponentUnitsForIssue(
-      addresses.butter.hardhat,
+      addresses.butter,
       parseEther("1")
     );
     const componentAddresses = components[0];
