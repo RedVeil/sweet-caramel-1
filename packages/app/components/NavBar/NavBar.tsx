@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
   }, [chainId]);
 
   return (
-    <nav className="flex pt-9 mx-20 bg-white">
+    <nav className="flex pt-9 mx-20 bg-white z-20">
       <div className="flex flex-row items-center justify-between w-10/12 pb-6 mx-auto">
         <div className="flex flex-row items-center">
           <div>
@@ -64,7 +64,7 @@ const Navbar: React.FC = () => {
             </li>
           </ul>
         </div>
-        <div className="flex flex-container flex-row w-fit-content">
+        <div className="relative flex flex-container flex-row w-fit-content z-20">
           <Menu>
             <Menu.Button>
               <div className="w-44 mr-10 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl">
@@ -88,8 +88,8 @@ const Navbar: React.FC = () => {
             onClick={() =>
               account ? deactivate() : activate(connectors.Injected)
             }
-            className={`rounded-full py-3 w-44 shadow-custom group hover:bg-blue-500 ${
-              account ? 'bg-blue-50 border border-blue-700' : 'bg-blue-100'
+            className={`rounded-full py-3 w-44 border border-transparent shadow-custom group hover:bg-blue-500 ${
+              account ? 'bg-blue-50 border-blue-700' : 'bg-blue-100'
             }`}
           >
             <p className="text-blue-700 font-semibold text-base group-hover:text-white ">

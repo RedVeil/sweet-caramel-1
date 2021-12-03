@@ -192,8 +192,6 @@ export default function ContractsWrapper({
     useState<ButterDependencyContracts>();
   const { dispatch } = useContext(store);
 
-  console.log(chainId);
-
   useEffect(() => {
     if (!active) {
       activate(connectors.Network);
