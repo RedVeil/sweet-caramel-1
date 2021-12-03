@@ -52,8 +52,8 @@ export const getConstructorArgs = async (
         },
       };
     case "polygontest":
-      pop = (await hre.deployments.get("POP")).address;
-      usdc = (await hre.deployments.get("USDC")).address;
+      pop = (await hre.deployments.get("pop")).address;
+      usdc = (await hre.deployments.get("usdc")).address;
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
         [pop, usdc],
         [parseEther(".99"), parseEther(".01")], // start weights
@@ -105,8 +105,8 @@ export const getConstructorArgs = async (
         },
       };
     case "rinkeby":
-      pop = (await hre.deployments.get("POP")).address;
-      usdc = (await hre.deployments.get("USDC")).address;
+      pop = (await hre.deployments.get("pop")).address;
+      usdc = (await hre.deployments.get("usdc")).address;
 
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
         [pop, usdc],
@@ -117,7 +117,7 @@ export const getConstructorArgs = async (
 
       return {
         balancer: { lbpFactory: balancerLBPFactory, vault: balancerVault },
-        name: "TPOP Liquidity Bootstrapping Pool",
+        name: "Tpop Liquidity Bootstrapping Pool",
         symbol: "TPOP_LBP",
         tokens: tokens,
         tokenAmounts: amounts,
@@ -132,7 +132,7 @@ export const getConstructorArgs = async (
         },
       };
     default:
-      pop = (await hre.deployments.get("POP")).address;
+      pop = (await hre.deployments.get("pop")).address;
       [tokens, startWeights, endWeights, amounts] = sortTokensAndWeights(
         [pop, usdc],
         [parseEther(".99"), parseEther(".01")], // start weights
@@ -142,7 +142,7 @@ export const getConstructorArgs = async (
 
       return {
         balancer: { lbpFactory: balancerLBPFactory, vault: balancerVault },
-        name: "TPOP Liquidity Bootstrapping Pool",
+        name: "Tpop Liquidity Bootstrapping Pool",
         symbol: "TPOP_LBP",
         tokens: tokens,
         tokenAmounts: amounts,

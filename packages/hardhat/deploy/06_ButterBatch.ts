@@ -1,7 +1,5 @@
-import {
-  DeployFunction,
-  DeploymentsExtension,
-} from "@anthonymartin/hardhat-deploy/types";
+import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { BigNumber, ethers, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";

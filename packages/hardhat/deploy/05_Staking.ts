@@ -1,3 +1,4 @@
+import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
