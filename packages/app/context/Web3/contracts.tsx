@@ -45,14 +45,10 @@ export interface Contracts {
 
 export interface HysiDependencyContracts {
   basicIssuanceModule: BasicIssuanceModule;
-  yDUSD: YearnVault;
+  yMIM: YearnVault;
   yFRAX: YearnVault;
-  yUSDN: YearnVault;
-  yUST: YearnVault;
-  dusdMetapool: CurveMetapool;
   fraxMetapool: CurveMetapool;
-  usdnMetapool: CurveMetapool;
-  ustMetapool: CurveMetapool;
+  mimMetapool: CurveMetapool;
   triPool: Curve3Pool;
 }
 export interface StakingContracts {
@@ -194,38 +190,23 @@ export default function ContractsWrapper({
         addresses.setBasicIssuanceModule[networkMap[process.env.CHAIN_ID]],
         library,
       ),
-      yDUSD: YearnVault__factory.connect(
-        addresses.yDusd[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
       yFRAX: YearnVault__factory.connect(
         addresses.yFrax[networkMap[process.env.CHAIN_ID]],
         library,
       ),
-      yUSDN: YearnVault__factory.connect(
-        addresses.yUsdn[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
-      yUST: YearnVault__factory.connect(
-        addresses.yUst[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
-      dusdMetapool: CurveMetapool__factory.connect(
-        addresses.dusdMetapool[networkMap[process.env.CHAIN_ID]],
-        library,
-      ),
       fraxMetapool: CurveMetapool__factory.connect(
-        addresses.fraxMetapool[networkMap[process.env.CHAIN_ID]],
+        addresses.crvFraxMetapool[networkMap[process.env.CHAIN_ID]],
         library,
       ),
-      usdnMetapool: CurveMetapool__factory.connect(
-        addresses.usdnMetapool[networkMap[process.env.CHAIN_ID]],
+      yMIM: YearnVault__factory.connect(
+        addresses.yMim[networkMap[process.env.CHAIN_ID]],
         library,
       ),
-      ustMetapool: CurveMetapool__factory.connect(
-        addresses.ustMetapool[networkMap[process.env.CHAIN_ID]],
+      mimMetapool: CurveMetapool__factory.connect(
+        addresses.crvMimMetapool[networkMap[process.env.CHAIN_ID]],
         library,
       ),
+
       triPool: Curve3Pool__factory.connect(
         addresses.threePool[networkMap[process.env.CHAIN_ID]],
         library,
