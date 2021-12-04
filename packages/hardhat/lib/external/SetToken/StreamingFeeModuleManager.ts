@@ -1,3 +1,4 @@
+import { Signer } from "@ethersproject/abstract-signer";
 import {
   StreamingFeeModule,
   StreamingFeeModule__factory,
@@ -8,10 +9,10 @@ import { Configuration } from "./Configuration";
 export default class StreamingFeeModuleManager {
   private contract: StreamingFeeModule;
 
-  constructor(private configuration: Configuration) {
+  constructor(private configuration: Configuration, private signer: Signer) {
     this.contract = StreamingFeeModule__factory.connect(
       this.configuration.core.modules.StreamingFeeModule.address,
-      this.configuration.manager
+      this.signer
     );
   }
 

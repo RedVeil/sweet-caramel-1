@@ -98,7 +98,7 @@ export const getConstructorArgs = async (
         endWeights: endWeights,
         swapFee: parseEther(".015"),
         durationInSeconds: 3 * DAYS,
-        startTime: getDate("2021-11-29 08:00:00Z+00"),
+        startTime: getDate(formatISO(new Date()), { minutes: 5 }),
         dao: {
           agent: deployer,
           treasury: deployer,
