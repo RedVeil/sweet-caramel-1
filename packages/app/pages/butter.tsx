@@ -78,21 +78,13 @@ async function getBatchProcessToken(
       price: await butterBatchAdapter.getHysiPrice(
         hysiDependencyContracts.basicIssuanceModule,
         {
-          [hysiDependencyContracts.yDUSD.address.toLowerCase()]: {
-            metaPool: hysiDependencyContracts.dusdMetapool,
-            yPool: hysiDependencyContracts.yDUSD,
-          },
           [hysiDependencyContracts.yFRAX.address.toLowerCase()]: {
             metaPool: hysiDependencyContracts.fraxMetapool,
             yPool: hysiDependencyContracts.yFRAX,
           },
-          [hysiDependencyContracts.yUSDN.address.toLowerCase()]: {
-            metaPool: hysiDependencyContracts.usdnMetapool,
-            yPool: hysiDependencyContracts.yUSDN,
-          },
-          [hysiDependencyContracts.yUST.address.toLowerCase()]: {
-            metaPool: hysiDependencyContracts.ustMetapool,
-            yPool: hysiDependencyContracts.yUST,
+          [hysiDependencyContracts.yMIM.address.toLowerCase()]: {
+            metaPool: hysiDependencyContracts.mimMetapool,
+            yPool: hysiDependencyContracts.yMIM,
           },
         } as ComponentMap,
       ),

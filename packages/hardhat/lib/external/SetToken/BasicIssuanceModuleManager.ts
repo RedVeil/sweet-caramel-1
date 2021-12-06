@@ -1,3 +1,4 @@
+import { Signer } from "@ethersproject/abstract-signer";
 import { Address } from "@popcorn/utils/src/types";
 import {
   BasicIssuanceModule,
@@ -9,10 +10,10 @@ import { ADDRESS_ZERO } from "./utils/constants";
 export default class BasicIssuanceModuleManager {
   private contract: BasicIssuanceModule;
 
-  constructor(private configuration: Configuration) {
+  constructor(private configuration: Configuration, private signer: Signer) {
     this.contract = BasicIssuanceModule__factory.connect(
       this.configuration.core.modules.BasicIssuanceModule.address,
-      this.configuration.manager
+      this.signer
     );
   }
 
