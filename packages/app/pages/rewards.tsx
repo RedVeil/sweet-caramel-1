@@ -68,7 +68,7 @@ export default function index(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="w-9/12 mx-auto mt-14">
+        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14">
           <h1 className="text-3xl  font-medium">Claim</h1>
           <p className="text-lg text-gray-500 mt-2">
             Claim your rewards or restake them to earn more

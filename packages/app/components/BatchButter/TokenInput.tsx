@@ -82,7 +82,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         >
           <div className="flex flex-row justify-between items-center">
             <input
-              className="w-56 border-none leading-none font-semibold text-gray-500 focus:text-gray-800 focus:outline-none"
+              className="w-8/12 mr-4 border-none leading-none font-semibold text-gray-500 focus:text-gray-800 focus:outline-none"
               type="number"
               value={bigNumberToNumber(depositAmount)}
               onChange={(e) =>

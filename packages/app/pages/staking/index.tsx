@@ -37,7 +37,7 @@ export default function index(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="w-9/12 mx-auto flex flex-row mt-14">
+        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto flex flex-row mt-14">
           <div className="w-1/3">
             <div className="">
               <h1 className="text-3xl  font-medium">Staking</h1>
@@ -45,7 +45,7 @@ export default function index(): JSX.Element {
                 Earn more income staking your crypto with us
               </p>
             </div>
-            <div className="bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mt-10 shadow-custom">
+            <div className="bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mt-10 mb-24 shadow-custom">
               <img
                 src="/images/farmerCat.svg"
                 alt="farmcerCat"

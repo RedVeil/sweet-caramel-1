@@ -30,7 +30,6 @@ import {
   BatchType,
   ComponentMap,
   CurrentBatches,
-  TimeTillBatchProcessing,
 } from '../../hardhat/lib/adapters';
 import ButterBatchAdapter from '../../hardhat/lib/adapters/ButterBatchAdapter';
 
@@ -217,8 +216,6 @@ export default function Butter(): JSX.Element {
   const [butterBatchAdapter, setButterBatchAdapter] =
     useState<ButterBatchAdapter>();
   const [batches, setBatches] = useState<AccountBatch[]>();
-  const [timeTillBatchProcessing, setTimeTillBatchProcessing] =
-    useState<TimeTillBatchProcessing[]>();
   const [claimableBatches, setClaimableBatches] = useState<ClaimableBatches>();
   const [slippage, setSlippage] = useState<number>(3);
   const [currentBatches, setCurrentBatches] = useState<CurrentBatches>();
@@ -269,9 +266,6 @@ export default function Butter(): JSX.Element {
       setSelectedToken({ input: res.threeCrv, output: res.butter });
     });
     butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
-    butterBatchAdapter
-      .calcBatchTimes(library)
-      .then((res) => setTimeTillBatchProcessing(res));
     butterBatchAdapter
       .getCurrentBatches()
       .then((res) => setCurrentBatches(res));
@@ -404,6 +398,9 @@ export default function Butter(): JSX.Element {
             account,
             chainId,
           ).then((res) => setBatchProcessTokens(res));
+          butterBatchAdapter
+            .getCurrentBatches()
+            .then((res) => setCurrentBatches(res));
         });
       })
       .catch((err) => {
@@ -462,6 +459,9 @@ export default function Butter(): JSX.Element {
                 account,
                 chainId,
               ).then((res) => setBatchProcessTokens(res));
+              butterBatchAdapter
+                .getCurrentBatches()
+                .then((res) => setCurrentBatches(res));
             });
           })
           .catch((err) => {
@@ -499,6 +499,9 @@ export default function Butter(): JSX.Element {
                 account,
                 chainId,
               ).then((res) => setBatchProcessTokens(res));
+              butterBatchAdapter
+                .getCurrentBatches()
+                .then((res) => setCurrentBatches(res));
             });
           })
           .catch((err) => {
@@ -607,6 +610,9 @@ export default function Butter(): JSX.Element {
             account,
             chainId,
           ).then((res) => setBatchProcessTokens(res));
+          butterBatchAdapter
+            .getCurrentBatches()
+            .then((res) => setCurrentBatches(res));
         });
       })
       .catch((err) => {
@@ -650,7 +656,7 @@ export default function Butter(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="w-9/12 mx-auto flex flex-row mt-14">
+        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto flex flex-row mt-14">
           <div className="w-1/3">
             <div className="">
               <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
@@ -670,7 +676,7 @@ export default function Butter(): JSX.Element {
                   </p>
                   <p className=" text-xl font-medium">
                     {batchProcessTokens?.butter && butterSupply
-                      ? bigNumberToNumber(
+                      ? formatAndRoundBigNumber(
                           butterSupply
                             .div(parseEther('1'))
                             .mul(batchProcessTokens?.butter.price),
@@ -726,7 +732,7 @@ export default function Butter(): JSX.Element {
               )}
             </div>
           </div>
-          <div className="w-2/3 mt-40 pt-3">
+          <div className="w-2/3 mt-60 pt-3 laptop:mt-44 laptop:pt-6 lglaptop:mt-40 lglaptop:pt-3 2xl:mt-48 2xl:pt-2">
             <div className="flex flex-row items-center">
               <div className="w-1/2 mr-2">
                 <StatInfoCard
@@ -769,7 +775,7 @@ export default function Butter(): JSX.Element {
         </div>
 
         {batches?.length > 0 && (
-          <div className="mt-10 w-9/12 mx-auto pb-12">
+          <div className="mt-10 lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-12">
             <div className="shadow-custom overflow-hidden border border-gray-200 rounded-3xl p-2">
               <ClaimableBatches
                 batches={batches}

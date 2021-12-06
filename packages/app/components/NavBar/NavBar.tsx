@@ -26,8 +26,8 @@ const Navbar: React.FC = () => {
   }, [chainId]);
 
   return (
-    <nav className="flex pt-9 mx-20 bg-white z-20">
-      <div className="flex flex-row items-center justify-between w-10/12 pb-6 mx-auto">
+    <nav className="flex pt-9 bg-white z-20">
+      <div className="flex flex-row items-center justify-between lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto">
         <div className="flex flex-row items-center">
           <div>
             <Link href="/" passHref>

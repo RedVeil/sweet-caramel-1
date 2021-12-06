@@ -251,7 +251,7 @@ export default function stake(): JSX.Element {
       >
         <Navbar />
         <Toaster position="top-right" />
-        <div className="w-9/12 mx-auto ">
+        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto ">
           <div className="flex flex-row mt-14">
             <div className="w-1/3 mr-8">
               <div className="">
