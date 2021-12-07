@@ -132,12 +132,12 @@ const ClaimableBatch: React.FC<BatchProps> = ({
     >
       <td className="px-6 py-5 whitespace-nowrap">
         {`${bigNumberToNumber(batch.accountSuppliedTokenBalance)} ${
-          batch.batchType === BatchType.Mint ? '3CRV' : 'HYSI'
+          batch.batchType === BatchType.Mint ? '3CRV' : 'BTR'
         }`}
       </td>
       <td className="px-6 py-5 whitespace-nowrap font-medium">
         {`${bigNumberToNumber(batch.accountClaimableTokenBalance)} ${
-          batch.batchType === BatchType.Mint ? 'HYSI' : '3CRV'
+          batch.batchType === BatchType.Mint ? 'BTR' : '3CRV'
         }`}
       </td>
       <td className="px-6 py-5 flex justify-end">

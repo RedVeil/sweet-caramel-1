@@ -5,12 +5,13 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
   switch (chainId) {
     case 1:
       contracts = {
+        staking: [],
         pop: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
         dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
         usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         threeCrv: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-        butter: "0x8d1621A27BB8c84e59ca339Cf9B21e15b907e408",
+        butter: "0x3b0967B0710a22c1a5CEB6Ae649B5819Cb8bb999",
         butterDependency: {
           yFrax: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
           yMim: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
@@ -102,19 +103,19 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
     case 1337:
       contracts = {
         staking: [
-          "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
-          "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
-          "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+          "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
+          "0xe8D2A1E88c91DCd5433208d4152Cc4F399a7e91d",
+          "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD",
         ],
         pop: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
         dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
         usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         threeCrv: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-        popEthLp: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
-        butter: "0x8d1621A27BB8c84e59ca339Cf9B21e15b907e408",
-        butterBatch: "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
-        butterBatchZapper: "0xC9a43158891282A2B1475592D5719c001986Aaec",
+        popEthLp: "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
+        butter: "0x3b0967B0710a22c1a5CEB6Ae649B5819Cb8bb999",
+        butterBatch: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A",
+        butterBatchZapper: "0x3aAde2dCD2Df6a8cAc689EE797591b2913658659",
         butterDependency: {
           yFrax: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
           yMim: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
@@ -155,9 +156,9 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         threeCrv: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
         popEthLp: "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
-        butter: "0x8d1621A27BB8c84e59ca339Cf9B21e15b907e408",
-        butterBatch: "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
-        butterBatchZapper: "0xC9a43158891282A2B1475592D5719c001986Aaec",
+        butter: "0x3b0967B0710a22c1a5CEB6Ae649B5819Cb8bb999",
+        butterBatch: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A",
+        butterBatchZapper: "0x3aAde2dCD2Df6a8cAc689EE797591b2913658659",
         butterDependency: {
           yFrax: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
           yMim: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
