@@ -220,21 +220,18 @@ async function createDemoData(
 
   console.log("first butter mint");
   const mintId0 = await butterBatch.currentMintBatchId();
-  await butterBatch.depositForMint(parseEther("1200"), signerAddress);
+  await butterBatch.depositForMint(parseEther("12000"), signerAddress);
   await butterBatch.batchMint(BigNumber.from("0"));
   await butterBatch.claim(mintId0, signerAddress);
-  console.log("second butter mint");
 
-  await butterBatch.depositForMint(parseEther("550"), signerAddress);
+  console.log("second butter mint");
+  await butterBatch.depositForMint(parseEther("1000"), signerAddress);
   await butterBatch.batchMint(BigNumber.from("0"));
 
   console.log("redeeming....");
-
-  const balance = butter.balanceOf(await signer.getAddress());
-  await butterBatch.depositForRedeem((await balance).div(3));
-
+  await butterBatch.depositForRedeem(parseEther("1"));
   await butterBatch.batchRedeem(BigNumber.from("0"));
+
   console.log("create batch to be batched");
-  //await butterBatch.depositForMint(parseEther("600"), signerAddress);
-  await butterBatch.depositForRedeem((await balance).div(3));
+  await butterBatch.depositForRedeem(parseEther("1"));
 }

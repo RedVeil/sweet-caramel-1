@@ -16,6 +16,7 @@ import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
 import { setDualActionWideModal } from 'context/actions';
 import { store } from 'context/store';
+import { connectors } from 'context/Web3/connectors';
 import {
   ButterDependencyContracts,
   Contracts,
@@ -82,7 +83,7 @@ async function getBatchProcessToken(
 ): Promise<BatchProcessTokens> {
   const batchProcessTokens = {
     butter: {
-      name: 'Butter',
+      name: 'BTR',
       key: 'butter',
       balance: await contracts.butter.balanceOf(account),
       allowance: await contracts.butter.allowance(
@@ -664,14 +665,14 @@ export default function Butter(): JSX.Element {
                 </div>
                 <div className="px-6 border-r-2 border-gray-200">
                   <p className="text-gray-500 font-light text-base uppercase">
-                    Total Staked
+                    TVL
                   </p>
                   <p className=" text-xl font-medium">
                     {batchProcessTokens?.butter && butterSupply
                       ? formatAndRoundBigNumber(
                           butterSupply
-                            .div(parseEther('1'))
-                            .mul(batchProcessTokens?.butter.price),
+                            .mul(batchProcessTokens?.butter.price)
+                            .div(parseEther('1')),
                         ).toLocaleString()
                       : '-'}{' '}
                     $
@@ -717,7 +718,7 @@ export default function Butter(): JSX.Element {
                   <div className="w-full py-64 mt-1.5 mb-2">
                     <MainActionButton
                       label="Connect Wallet"
-                      handleClick={activate}
+                      handleClick={() => activate(connectors.Injected)}
                     />
                   </div>
                 </div>
