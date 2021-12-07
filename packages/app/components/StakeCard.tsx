@@ -2,7 +2,6 @@ import { Web3Provider } from '@ethersproject/providers';
 import { StakingRewards } from '@popcorn/hardhat/typechain';
 import { getERC20Contract, StakingPoolInfo } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
-import { updateStakingPageInfo } from 'context/actions';
 import { store } from 'context/store';
 import router from 'next/router';
 import { useCallback, useContext } from 'react';
@@ -34,16 +33,7 @@ export default function ({
       stakingPoolInfo.stakedTokenAddress,
       library,
     );
-    dispatch(
-      updateStakingPageInfo({
-        inputToken: erc20,
-        stakingContract: stakingContract,
-        tokenName,
-        poolInfo: stakingPoolInfo,
-      }),
-    );
-    sessionStorage.setItem('stakingPoolAddress', stakedTokenAddress);
-    sessionStorage.setItem('stakingPoolIndex', index.toString());
+
     router.push(`staking/${url}`);
   }, [
     router,

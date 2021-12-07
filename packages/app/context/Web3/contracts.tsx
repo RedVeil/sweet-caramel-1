@@ -118,7 +118,7 @@ const initializeContracts = (
       : undefined,
   };
   contracts.staking = [];
-  if (staking.length > 0) {
+  if (staking && staking.length > 0) {
     for (var i = 0; i < contractAddresses.staking.length; i++) {
       contracts.staking.push(
         StakingRewards__factory.connect(contractAddresses.staking[i], library),

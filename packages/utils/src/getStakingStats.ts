@@ -39,11 +39,11 @@ export async function getSingleStakingPoolInfo(
   const tokenPerWeek = await stakingContract?.getRewardForDuration({
     gasLimit: '2000000',
   });
-  const totalStaked = await stakingContract.totalSupply({
+  const totalStaked = await stakingContract?.totalSupply({
     gasLimit: '2000000',
   });
   if (!stakedTokenAddress) {
-    stakedTokenAddress = await stakingContract.stakingToken({
+    stakedTokenAddress = await stakingContract?.stakingToken({
       gasLimit: 2000000,
     });
   }
@@ -51,7 +51,7 @@ export async function getSingleStakingPoolInfo(
     stakedTokenName = await getStakedTokenName(stakedTokenAddress, library);
   }
   return {
-    stakingContractAddress: stakingContract.address,
+    stakingContractAddress: stakingContract?.address,
     stakedTokenAddress,
     stakedTokenName,
     apy: await calculateAPY(tokenPerWeek, totalStaked),
@@ -91,10 +91,10 @@ export async function getStakingPoolsInfo(
       const tokenPerWeek = await stakingContract?.getRewardForDuration({
         gasLimit: 2000000,
       });
-      const totalStaked = await stakingContract.totalSupply({
+      const totalStaked = await stakingContract?.totalSupply({
         gasLimit: 2000000,
       });
-      const stakedTokenAddress: string = await stakingContract.stakingToken({
+      const stakedTokenAddress: string = await stakingContract?.stakingToken({
         gasLimit: 2000000,
       });
       const apy = await calculateAPY(tokenPerWeek, totalStaked);
@@ -103,7 +103,7 @@ export async function getStakingPoolsInfo(
       let stakedTokenName = 'unnamed';
       stakedTokenName = await getStakedTokenName(stakedTokenAddress, library);
       const stakingInfo = {
-        stakingContractAddress: stakingContract.address,
+        stakingContractAddress: stakingContract?.address,
         stakedTokenAddress: stakedTokenAddress,
         stakedTokenName: stakedTokenName,
         apy,

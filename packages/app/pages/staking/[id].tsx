@@ -41,7 +41,7 @@ export default function stake(): JSX.Element {
   const { id } = router.query;
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
-  const { library, account, activate } = context;
+  const { library, account, activate, chainId } = context;
   const [inputTokenAmount, setInputTokenAmount] = useState<number>(0);
   const [balances, setBalances] = useState<Balances>({
     wallet: 0,
@@ -52,16 +52,29 @@ export default function stake(): JSX.Element {
   const [wait, setWait] = useState<boolean>(false);
   const [withdraw, setWithdraw] = useState<boolean>(false);
   const { state, dispatch } = useContext(store);
+  const prevChainId = React.useRef<number>(null);
 
+  useEffect(() => {
+    if (prevChainId.current && chainId !== prevChainId.current) {
+      router.push('/staking');
+    }
+    prevChainId.current = chainId;
+  }, [chainId]);
+  useEffect(() => {
+    return () => {
+      dispatch(updateStakingPageInfo(undefined));
+    };
+  }, []);
   useEffect(() => {
     async function getPageInfo() {
       if (contracts && contracts.staking.length > 0) {
         const stakingContract: StakingRewards = contracts.staking.find(
           (contract) => contract.address === id,
         );
+        // This would never get called as the getPageInfo function wont get triggered properly on changing the chain when on stake/id page as the stakingPoolInfo variable would still exist.
+        // This also cannot be conditional as the pool on differect chains might be very different from each other in future.
         if (stakingContract === undefined) {
           router.push('/staking');
-          return;
         }
         const stakingPoolInfo: StakingPoolInfo = await getSingleStakingPoolInfo(
           stakingContract,
@@ -83,7 +96,10 @@ export default function stake(): JSX.Element {
         await updateDataOnRefresh(erc20, stakingContract);
       }
     }
-    if (!state.stakingPageInfo) {
+    if (
+      !state.stakingPageInfo ||
+      state.stakingPageInfo?.poolInfo?.stakingContractAddress !== id
+    ) {
       getPageInfo();
     }
   }, [state.stakingPageInfo, contracts, library]);
@@ -92,10 +108,11 @@ export default function stake(): JSX.Element {
     const inputBalance = await stakedToken.balanceOf(account);
     const allowance = await stakedToken.allowance(
       account,
-      stakingContract.address,
+      stakingContract?.address,
     );
-    const stakedAmount = await stakingContract.balanceOf(account);
-    const earned = await stakingContract.earned(account);
+    const stakedAmount = await stakingContract?.balanceOf(account);
+    const earned = await stakingContract?.earned(account);
+
     setBalances({
       wallet: bigNumberToNumber(inputBalance),
       staked: bigNumberToNumber(stakedAmount),
@@ -110,12 +127,13 @@ export default function stake(): JSX.Element {
     );
     const allowance = await state.stakingPageInfo?.inputToken.allowance(
       account,
-      state.stakingPageInfo?.stakingContract.address,
+      state.stakingPageInfo?.stakingContract?.address,
     );
-    const stakedAmount = await state.stakingPageInfo?.stakingContract.balanceOf(
+    const stakedAmount =
+      await state.stakingPageInfo?.stakingContract?.balanceOf(account);
+    const earned = await state.stakingPageInfo?.stakingContract?.earned(
       account,
     );
-    const earned = await state.stakingPageInfo?.stakingContract.earned(account);
     getSingleStakingPoolInfo(
       state.stakingPageInfo?.stakingContract,
       library,
@@ -147,7 +165,7 @@ export default function stake(): JSX.Element {
     const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
     const signer = library.getSigner();
     const connectedStaking =
-      await state.stakingPageInfo?.stakingContract.connect(signer);
+      await state.stakingPageInfo?.stakingContract?.connect(signer);
     await connectedStaking
       .stake(lockedPopInEth)
       .then((res) =>
@@ -180,7 +198,7 @@ export default function stake(): JSX.Element {
     const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
     const signer = library.getSigner();
     const connectedStaking =
-      await state.stakingPageInfo?.stakingContract.connect(signer);
+      await state.stakingPageInfo?.stakingContract?.connect(signer);
     await connectedStaking
       .withdraw(lockedPopInEth)
       .then((res) =>
@@ -218,7 +236,10 @@ export default function stake(): JSX.Element {
     const lockedTokenInEth = utils.parseEther(formattedToken);
     const connected = await contracts.pop.connect(library.getSigner());
     await connected
-      .approve(state.stakingPageInfo?.stakingContract.address, lockedTokenInEth)
+      .approve(
+        state.stakingPageInfo?.stakingContract?.address,
+        lockedTokenInEth,
+      )
       .then((res) =>
         res.wait().then((res) => {
           toast.dismiss();
@@ -238,6 +259,8 @@ export default function stake(): JSX.Element {
     await updateData();
     setWait(false);
   }
+
+  console.log(balances);
 
   return (
     <>

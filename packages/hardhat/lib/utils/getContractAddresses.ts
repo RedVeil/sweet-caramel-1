@@ -68,14 +68,14 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
       break;
     case 137:
       contracts = {
-        voting: "",
-        pop: "0xC5B57e9a1E7914FDA753A88f24E5703e617Ee50c",
-        daoAgent: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
-        daoTreasury: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
-        balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-        balancerLBPFactory: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
-        usdc: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-        merkleOrchard: "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
+        staking: [
+          "0x6D4870349dfd8109d3Ea67AC516204358cF30AC2",
+          "0xAE5dA2a2d85Ce27e89AbC9f44d1d4986728BD182",
+        ],
+        pop: "0xd68d416353b25995F716c2f60ea8171f4Ed6d835",
+        popEthLp: "0xFfb0CBBBeC1682aCfeA50eED9C2E9ADC90390564",
+        aclRegistry: "0x8E7836f37b35ad1BA7321c26cf8fd22A4e7DdDc3",
+        contractRegistry: "0x0c5b24d1dcBff87491eA61995BF141727346127f",
       };
       break;
     case 80001:
@@ -102,16 +102,16 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
     case 1337:
       contracts = {
         staking: [
-          "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
-          "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
-          "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+          "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
+          "0xe8D2A1E88c91DCd5433208d4152Cc4F399a7e91d",
+          "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD",
         ],
-        pop: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
+        pop: "0xf953b3A269d80e3eB0F2947630Da976B896A8C5b",
         dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
         usdc: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         threeCrv: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-        popEthLp: "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
+        popEthLp: "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
         butter: "0x8d1621A27BB8c84e59ca339Cf9B21e15b907e408",
         butterBatch: "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
         butterBatchZapper: "0xC9a43158891282A2B1475592D5719c001986Aaec",
@@ -131,8 +131,8 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
           setTokenCreator: "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
           setStreamingFeeModule: "0x08f866c74205617B6F3903EF481798EcED10cDEC",
         },
-        aclRegistry: "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650",
-        contractRegistry: "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
+        aclRegistry: "0xC9a43158891282A2B1475592D5719c001986Aaec",
+        contractRegistry: "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
         dao: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
         daoAgent: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
         daoTreasury: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
@@ -141,7 +141,6 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         balancerLBPFactory: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
         merkleOrchard: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
       };
-      break;
     case 31337:
       contracts = {
         staking: [
