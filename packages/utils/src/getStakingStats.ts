@@ -6,6 +6,7 @@ import { bigNumberToNumber } from './formatBigNumber';
 import { Address } from './types';
 
 export interface StakingPoolInfo {
+  stakingContractAddress: string;
   stakedTokenAddress: string;
   stakedTokenName?: string;
   apy: number;
@@ -50,6 +51,7 @@ export async function getSingleStakingPoolInfo(
     stakedTokenName = await getStakedTokenName(stakedTokenAddress, library);
   }
   return {
+    stakingContractAddress: stakingContract.address,
     stakedTokenAddress,
     stakedTokenName,
     apy: await calculateAPY(tokenPerWeek, totalStaked),
@@ -101,6 +103,7 @@ export async function getStakingPoolsInfo(
       let stakedTokenName = 'unnamed';
       stakedTokenName = await getStakedTokenName(stakedTokenAddress, library);
       const stakingInfo = {
+        stakingContractAddress: stakingContract.address,
         stakedTokenAddress: stakedTokenAddress,
         stakedTokenName: stakedTokenName,
         apy,

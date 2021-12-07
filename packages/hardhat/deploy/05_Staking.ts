@@ -60,7 +60,7 @@ async function getStakingPools(
         },
       ];
     case 31337:
-      [
+      return [
         {
           poolName: "PopStaking",
           contract: "StakingRewards",
@@ -77,6 +77,36 @@ async function getStakingPools(
           poolName: "butterStaking",
           contract: "StakingRewards",
           inputToken: addresses.butter,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+      ];
+    case 137:
+      return [
+        {
+          poolName: "PopStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("TestPOP")).address,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "popEthLPStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("POP_ETH_LP")).address,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+      ];
+    default:
+      return [
+        {
+          poolName: "PopStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("TestPOP")).address,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "popEthLPStaking",
+          contract: "StakingRewards",
+          inputToken: (await deployments.get("POP_ETH_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
       ];
