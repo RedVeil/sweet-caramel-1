@@ -66,7 +66,7 @@ export default function index(): JSX.Element {
                       stakedTokenAddress={poolInfo?.stakedTokenAddress}
                       tokenName={poolInfo?.stakedTokenName}
                       stakingPoolInfo={poolInfo}
-                      url={poolInfo?.stakedTokenAddress}
+                      url={poolInfo.stakingContractAddress}
                       stakingContract={
                         contracts.staking[index]
                           ? contracts.staking[index]

@@ -80,7 +80,7 @@ export default function stake(): JSX.Element {
             poolInfo: stakingPoolInfo,
           }),
         );
-        await updateDataOnRefresh();
+        await updateDataOnRefresh(erc20, stakingContract);
       }
     }
     if (!state.stakingPageInfo) {
@@ -88,18 +88,14 @@ export default function stake(): JSX.Element {
     }
   }, [state.stakingPageInfo, contracts, library]);
 
-  const updateDataOnRefresh = async () => {
-    const inputBalance = await state.stakingPageInfo?.inputToken.balanceOf(
+  const updateDataOnRefresh = async (stakedToken, stakingContract) => {
+    const inputBalance = await stakedToken.balanceOf(account);
+    const allowance = await stakedToken.allowance(
       account,
+      stakingContract.address,
     );
-    const allowance = await state.stakingPageInfo?.inputToken.allowance(
-      account,
-      state.stakingPageInfo?.stakingContract.address,
-    );
-    const stakedAmount = await state.stakingPageInfo?.stakingContract.balanceOf(
-      account,
-    );
-    const earned = await state.stakingPageInfo?.stakingContract.earned(account);
+    const stakedAmount = await stakingContract.balanceOf(account);
+    const earned = await stakingContract.earned(account);
     setBalances({
       wallet: bigNumberToNumber(inputBalance),
       staked: bigNumberToNumber(stakedAmount),
