@@ -15,30 +15,28 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
   const signerAddress = await signer.getAddress();
 
-  const YTOKEN_ADDRESSES = [
-    addresses.yDusd,
-    addresses.yFrax,
-    addresses.yUsdn,
-    addresses.yUst,
-  ];
+  const YTOKEN_ADDRESSES = [addresses.yFrax, addresses.yMim];
   const CRV_DEPENDENCIES = [
-    {
-      curveMetaPool: addresses.dusdMetapool,
-      crvLPToken: addresses.crvDusd,
-    },
     {
       curveMetaPool: addresses.fraxMetapool,
       crvLPToken: addresses.crvFrax,
     },
     {
-      curveMetaPool: addresses.usdnMetapool,
-      crvLPToken: addresses.crvUsdn,
-    },
-    {
-      curveMetaPool: addresses.ustMetapool,
-      crvLPToken: addresses.crvUst,
+      curveMetaPool: addresses.mimMetapool,
+      crvLPToken: addresses.crvMim,
     },
   ];
+
+  console.log(
+    JSON.stringify(
+      {
+        YTOKEN_ADDRESSES,
+        CRV_DEPENDENCIES,
+      },
+      null,
+      2
+    )
+  );
 
   //ContractRegistry
   const contractRegistryAddress = (await deployments.get("ContractRegistry"))
@@ -49,6 +47,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer
   );
 
+  if (["hardhat", "local"].includes(hre.network.name)) {
+    addresses.butter = await hre.tasks["set-token:create"].action(
+      {},
+      hre,
+      //@ts-expect-error
+      () => {}
+    );
+  }
+
   //Butter Batch
   console.log("deploying butterBatch...");
   await deploy("ButterBatch", {
@@ -57,7 +64,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       contractRegistryAddress,
       addresses.butter,
       addresses.threeCrv,
-      addresses.basicIssuanceModule,
+      addresses.setBasicIssuanceModule,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
       1,
@@ -153,6 +160,7 @@ async function createDemoData(
   addresses: any
 ): Promise<void> {
   console.log("creating demo data...");
+
   const butterBatch = await hre.ethers.getContractAt(
     "HysiBatchInteraction",
     (
@@ -216,12 +224,17 @@ async function createDemoData(
   await butterBatch.batchMint(BigNumber.from("0"));
   await butterBatch.claim(mintId0, signerAddress);
   console.log("second butter mint");
+
   await butterBatch.depositForMint(parseEther("550"), signerAddress);
   await butterBatch.batchMint(BigNumber.from("0"));
+
   console.log("redeeming....");
-  await butterBatch.depositForRedeem(parseEther("1.5"));
+
+  const balance = butter.balanceOf(await signer.getAddress());
+  await butterBatch.depositForRedeem((await balance).div(3));
+
   await butterBatch.batchRedeem(BigNumber.from("0"));
   console.log("create batch to be batched");
   //await butterBatch.depositForMint(parseEther("600"), signerAddress);
-  await butterBatch.depositForRedeem(parseEther("1.5"));
+  await butterBatch.depositForRedeem((await balance).div(3));
 }

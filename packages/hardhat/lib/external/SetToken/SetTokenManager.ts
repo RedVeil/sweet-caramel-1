@@ -1,3 +1,4 @@
+import { Signer } from "@ethersproject/abstract-signer";
 import Bluebird from "bluebird";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { Address } from "packages/utils/src/types";
@@ -6,14 +7,14 @@ import { Configuration } from "./Configuration";
 import SetTokenCreator from "./SetTokenCreator";
 import StreamingFeeModuleManager from "./StreamingFeeModuleManager";
 import getCreatedSetTokenAddress from "./utils/getCreatedSetTokenAddress";
-
 export class SetTokenManager {
   constructor(
     private configuration: Configuration,
-    private hre: HardhatRuntimeEnvironment
+    private hre: HardhatRuntimeEnvironment,
+    private signer: Signer
   ) {}
 
-  async createSet({ args }: { args: any }): Promise<void> {
+  async createSet({ args }: { args: any }): Promise<string> {
     console.log("creating set ... ");
 
     const creator = SetTokenCreator({
@@ -21,7 +22,8 @@ export class SetTokenManager {
       debug: args.debug,
       configuration: this.configuration,
     });
-    const receipt = await creator.create();
+    console.log("creating");
+    const receipt = await creator.create(this.signer);
 
     console.log("getting newly created token set address ...");
 
@@ -29,11 +31,13 @@ export class SetTokenManager {
       receipt.transactionHash,
       this.hre.ethers.provider
     );
+
     console.log("token set address: ", tokenAddress);
 
     console.log("initializing modules ...");
     await this.initializeModules(tokenAddress);
     console.log("Done! Created token set:", tokenAddress);
+    return tokenAddress;
   }
 
   async initializeModules(setToken: Address): Promise<void> {
@@ -42,14 +46,16 @@ export class SetTokenManager {
       async (moduleName) => {
         switch (moduleName) {
           case "BasicIssuanceModule":
-            await new BasicIssuanceModuleManager(this.configuration).initialize(
-              setToken
-            );
+            await new BasicIssuanceModuleManager(
+              this.configuration,
+              this.signer
+            ).initialize(setToken);
             break;
           case "StreamingFeeModule":
-            await new StreamingFeeModuleManager(this.configuration).initialize(
-              setToken
-            );
+            await new StreamingFeeModuleManager(
+              this.configuration,
+              this.signer
+            ).initialize(setToken);
             break;
         }
       },

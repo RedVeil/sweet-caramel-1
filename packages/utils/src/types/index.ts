@@ -39,21 +39,17 @@ export interface DAO {
 }
 
 export interface ButterDependencyAddresses {
-  yDusd?: Address;
   yFrax?: Address;
-  yUsdn?: Address;
-  yUst?: Address;
-  crvDusd?: Address;
+  yMim?: Address;
   crvFrax?: Address;
-  crvUsdn?: Address;
-  crvUst?: Address;
-  dusdMetapool?: Address;
+  crvMim?: Address;
   fraxMetapool?: Address;
-  usdnMetapool?: Address;
-  ustMetapool?: Address;
+  mimMetapool?: Address;
   threePool?: Address;
   curveAddressProvider?: Address;
   curveFactoryMetapoolDepositZap?: Address;
   uniswapRouter?: Address;
-  basicIssuanceModule?: Address;
+  setBasicIssuanceModule?: Address;
+  setTokenCreator?: Address;
+  setStreamingFeeModule?: Address;
 }

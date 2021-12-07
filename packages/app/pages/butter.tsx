@@ -91,23 +91,15 @@ async function getBatchProcessToken(
       ),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getHysiPrice(
-        butterDependencyContracts.basicIssuanceModule,
+        butterDependencyContracts.setBasicIssuanceModule,
         {
-          [butterDependencyContracts.yDusd.address.toLowerCase()]: {
-            metaPool: butterDependencyContracts.dusdMetapool,
-            yPool: butterDependencyContracts.yDusd,
+          [butterDependencyContracts.yMim.address.toLowerCase()]: {
+            metaPool: butterDependencyContracts.mimMetapool,
+            yPool: butterDependencyContracts.yMim,
           },
           [butterDependencyContracts.yFrax.address.toLowerCase()]: {
             metaPool: butterDependencyContracts.fraxMetapool,
             yPool: butterDependencyContracts.yFrax,
-          },
-          [butterDependencyContracts.yUsdn.address.toLowerCase()]: {
-            metaPool: butterDependencyContracts.usdnMetapool,
-            yPool: butterDependencyContracts.yUsdn,
-          },
-          [butterDependencyContracts.yUst.address.toLowerCase()]: {
-            metaPool: butterDependencyContracts.ustMetapool,
-            yPool: butterDependencyContracts.yUst,
           },
         } as ComponentMap,
         chainId,

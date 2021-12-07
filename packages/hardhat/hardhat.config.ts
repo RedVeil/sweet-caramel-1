@@ -66,6 +66,9 @@ module.exports = {
           }
         : undefined,
     },
+    localhost: {
+      url: "http://localhost:8545",
+    },
     rinkeby: {
       url:
         process.env.RPC_URL ||

@@ -48,16 +48,12 @@ export interface Contracts {
 }
 
 export interface ButterDependencyContracts {
-  yDusd?: YearnVault;
   yFrax?: YearnVault;
-  yUsdn?: YearnVault;
-  yUst?: YearnVault;
-  dusdMetapool?: CurveMetapool;
+  yMim?: YearnVault;
   fraxMetapool?: CurveMetapool;
-  usdnMetapool?: CurveMetapool;
-  ustMetapool?: CurveMetapool;
+  mimMetapool?: CurveMetapool;
   threePool?: Curve3Pool;
-  basicIssuanceModule?: BasicIssuanceModule;
+  setBasicIssuanceModule?: BasicIssuanceModule;
 }
 
 interface ContractsContext {
@@ -140,32 +136,22 @@ const initializeButterDependencyContracts = (
 ): ButterDependencyContracts => {
   if ([1, 31337, 1337].includes(chainId)) {
     return {
-      yDusd: YearnVault__factory.connect(contractAddresses.yDusd, library),
       yFrax: YearnVault__factory.connect(contractAddresses.yFrax, library),
-      yUsdn: YearnVault__factory.connect(contractAddresses.yUsdn, library),
-      yUst: YearnVault__factory.connect(contractAddresses.yUst, library),
-      dusdMetapool: CurveMetapool__factory.connect(
-        contractAddresses.dusdMetapool,
-        library,
-      ),
+      yMim: YearnVault__factory.connect(contractAddresses.yMim, library),
       fraxMetapool: CurveMetapool__factory.connect(
         contractAddresses.fraxMetapool,
         library,
       ),
-      usdnMetapool: CurveMetapool__factory.connect(
-        contractAddresses.usdnMetapool,
-        library,
-      ),
-      ustMetapool: CurveMetapool__factory.connect(
-        contractAddresses.ustMetapool,
+      mimMetapool: CurveMetapool__factory.connect(
+        contractAddresses.mimMetapool,
         library,
       ),
       threePool: Curve3Pool__factory.connect(
         contractAddresses.threePool,
         library,
       ),
-      basicIssuanceModule: BasicIssuanceModule__factory.connect(
-        contractAddresses.basicIssuanceModule,
+      setBasicIssuanceModule: BasicIssuanceModule__factory.connect(
+        contractAddresses.setBasicIssuanceModule,
         library,
       ),
     };

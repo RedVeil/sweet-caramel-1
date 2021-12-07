@@ -1,12 +1,24 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumberish } from "@setprotocol/set-protocol-v2/node_modules/ethers";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import { getNamedAccountsFromNetwork } from "../../utils/getContractAddresses";
 import { ZERO } from "./utils/constants";
+
+const {
+  yMim,
+  mimMetapool,
+  yFrax,
+  fraxMetapool,
+  setTokenCreator,
+  setBasicIssuanceModule,
+  setStreamingFeeModule,
+  daoTreasury,
+  daoAgent,
+} = getNamedAccountsFromNetwork(1);
 
 export interface Configuration {
   targetNAV: BigNumber;
-  manager?: SignerWithAddress;
+  manager?: string;
   core: {
     SetTokenCreator: {
       address: string;
@@ -39,46 +51,37 @@ export interface Configuration {
 }
 
 export const DefaultConfiguration: Configuration = {
-  targetNAV: parseEther("250"),
+  targetNAV: parseEther("1000"),
+  manager: daoAgent,
   core: {
     SetTokenCreator: {
-      address: process.env.ADDR_SET_SET_TOKEN_CREATOR,
+      address: setTokenCreator,
     },
     modules: {
       BasicIssuanceModule: {
-        address: process.env.ADDR_SET_BASIC_ISSUANCE_MODULE,
+        address: setBasicIssuanceModule,
       },
       StreamingFeeModule: {
-        address: process.env.ADDR_SET_STREAMING_FEE_MODULE,
+        address: setStreamingFeeModule,
         config: {
-          feeRecipient: process.env.ADDR_SET_STREAMING_FEE_MODULE_FEE_RECIPIENT,
-          maxStreamingFeePercentage: parseEther(".03") as BigNumberish,
-          streamingFeePercentage: parseEther(".01") as BigNumberish,
+          feeRecipient: daoTreasury,
+          maxStreamingFeePercentage: parseEther(".05") as BigNumberish,
+          streamingFeePercentage: parseEther(".0272") as BigNumberish,
           lastStreamingFeeTimestamp: ZERO as BigNumberish,
         },
       },
     },
   },
   components: {
-    ycrvDUSD: {
-      ratio: 25,
-      address: process.env.ADDR_YEARN_CRVDUSD,
-      oracle: process.env.ADDR_CURVE_CRVDUSD,
-    },
     ycrvFRAX: {
-      ratio: 25,
-      address: process.env.ADDR_YEARN_CRVFRAX,
-      oracle: process.env.ADDR_CURVE_CRVFRAX,
+      ratio: 50,
+      address: yFrax,
+      oracle: fraxMetapool,
     },
-    ycrvUSDN: {
-      ratio: 25,
-      address: process.env.ADDR_YEARN_CRVUSDN,
-      oracle: process.env.ADDR_CURVE_CRVUSDN,
-    },
-    ycrvUST: {
-      ratio: 25,
-      address: process.env.ADDR_YEARN_CRVUST,
-      oracle: process.env.ADDR_CURVE_CRVUST,
+    ycrvMIM: {
+      ratio: 50,
+      address: yMim,
+      oracle: mimMetapool,
     },
   },
 };

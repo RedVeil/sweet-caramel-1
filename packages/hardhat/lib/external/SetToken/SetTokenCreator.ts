@@ -1,7 +1,9 @@
 import { SetTokenCreator__factory } from "@setprotocol/set-protocol-v2/dist/typechain";
-import { BigNumber, ContractReceipt } from "ethers";
+import { BigNumber, ContractReceipt, Signer } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import FactoryMetapoolABI from "../curve/FactoryMetapool.json";
+import YearnV2VaultABI from "../yearn/V2Vault.json";
 import { Configuration, DefaultConfiguration } from "./Configuration";
 import { getComponents } from "./utils/getComponents";
 import { getModules } from "./utils/getModules";
@@ -10,7 +12,7 @@ interface SetTokenCreator {
   _calculateUnits(
     component: Configuration["components"][0]
   ): Promise<BigNumber>;
-  create: () => Promise<ContractReceipt>;
+  create: (signer: Signer) => Promise<ContractReceipt>;
 }
 
 interface Args {
@@ -31,12 +33,12 @@ export default function SetTokenCreator({
       component: Configuration["components"][0]
     ): Promise<BigNumber> {
       const yVault = await hre.ethers.getContractAt(
-        "MockYearnV2Vault",
+        YearnV2VaultABI,
         component.address
       );
 
       const curveLP = await hre.ethers.getContractAt(
-        "MockCurveMetapool",
+        FactoryMetapoolABI,
         component.oracle
       );
 
@@ -44,7 +46,9 @@ export default function SetTokenCreator({
         .mul(parseEther(component.ratio.toString()))
         .div(parseEther("100"));
 
+      console.log("getting price per share of", component);
       const pricePerShare = (await yVault.pricePerShare()) as BigNumber;
+      console.log("got price per share", formatEther(pricePerShare));
       const virtualPrice = (await curveLP.get_virtual_price()) as BigNumber;
 
       const targetCrvLPUnits = targetComponentValue
@@ -69,23 +73,24 @@ export default function SetTokenCreator({
       return targetComponentUnits;
     },
 
-    create: async function (): Promise<ContractReceipt> {
+    create: async function (signer: Signer): Promise<ContractReceipt> {
       const creator = SetTokenCreator__factory.connect(
         configuration.core.SetTokenCreator.address,
-        configuration.manager
+        signer
       );
 
+      console.log("components");
       const setComponents = getComponents(configuration);
-
+      console.log("setComponents", setComponents);
       const setModules = getModules(configuration);
-
+      console.log("setModules", setModules);
       const tx = await creator.create(
         setComponents.map((component) => component.address),
         setComponents.map((component) => this._calculateUnits(component)),
         setModules.map((module) => module.address),
-        configuration.manager.address,
-        "High-Yield Small Cap Stablecoin Index",
-        "HYSI"
+        configuration.manager,
+        "Butter",
+        "BUTTER"
       );
 
       console.log("waiting for block confirmation");
