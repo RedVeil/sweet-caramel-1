@@ -1,20 +1,20 @@
 import { BigNumberish } from "@setprotocol/set-protocol-v2/node_modules/ethers";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { getNamedAccountsWithNetwork } from "../../utils/getNamedAccounts";
+import { getNamedAccountsFromNetwork } from "../../utils/getContractAddresses";
 import { ZERO } from "./utils/constants";
 
 const {
   yMim,
-  crvMimMetapool,
+  mimMetapool,
   yFrax,
-  crvFraxMetapool,
+  fraxMetapool,
   setTokenCreator,
   setBasicIssuanceModule,
   setStreamingFeeModule,
   daoTreasury,
   daoAgent,
-} = getNamedAccountsWithNetwork("mainnet");
+} = getNamedAccountsFromNetwork(1);
 
 export interface Configuration {
   targetNAV: BigNumber;
@@ -76,12 +76,12 @@ export const DefaultConfiguration: Configuration = {
     ycrvFRAX: {
       ratio: 50,
       address: yFrax,
-      oracle: crvFraxMetapool,
+      oracle: fraxMetapool,
     },
     ycrvMIM: {
       ratio: 50,
       address: yMim,
-      oracle: crvMimMetapool,
+      oracle: mimMetapool,
     },
   },
 };

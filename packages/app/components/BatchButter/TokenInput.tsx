@@ -8,6 +8,7 @@ export interface BatchProcessToken {
   name: string;
   key: string;
   balance: BigNumber;
+  allowance: BigNumber;
   claimableBalance?: BigNumber;
   price: BigNumber;
 }
@@ -70,18 +71,18 @@ const TokenInput: React.FC<TokenInputProps> = ({
 
   return (
     <>
-      <div className="mt-6">
+      <div className="mt-10">
         <p className="font-semibold text-sm text-gray-900 mb-1">
           Deposit Amount
         </p>
         <div
-          className={`rounded-md border  px-2 py-3 ${
+          className={`rounded-md border p-2 ${
             depositDisabled ? 'border-red-600' : 'border-gray-200'
           }`}
         >
           <div className="flex flex-row justify-between items-center">
             <input
-              className="w-56 border-none focus:outline-none"
+              className="w-8/12 mr-4 border-none leading-none font-semibold text-gray-500 focus:text-gray-800 focus:outline-none"
               type="number"
               value={bigNumberToNumber(depositAmount)}
               onChange={(e) =>
@@ -92,7 +93,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             />
             <div className="flex flex-row items-center">
               <p
-                className="text-gray-400 mr-3 border border-gray-400 p-1 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 hover:text-gray-600"
+                className="text-gray-400 mr-3 border leading-none border-gray-400 px-2 py-2 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 hover:text-gray-600"
                 onClick={(e) => {
                   setDepositAmount(
                     useUnclaimedDeposits
@@ -121,13 +122,15 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </div>
           </div>
         </div>
-        <label className="flex flex-row items-center mt-2">
+        <label className="w-7/12 flex flex-row items-center mt-3 cursor-pointer group">
           <input
             type="checkbox"
             className="mr-2 rounded-sm"
             onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
           />
-          <p>Use unclaimed Balances</p>
+          <p className="text-base mt-0.5 text-gray-600 leading-none group-hover:text-blue-700">
+            Use unclaimed Balances
+          </p>
         </label>
 
         {depositDisabled && (
@@ -138,7 +141,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
           <div className="w-full border-t border-gray-300" />
         </div>
-        <div className="relative flex justify-center my-6">
+        <div className="relative flex justify-center my-16">
           <div className="w-16 bg-white">
             <div
               className="flex mx-auto w-10 h-10 rounded-full border border-gray-200 items-center cursor-pointer hover:bg-gray-50 hover:border-gray-400"
@@ -157,10 +160,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <p className="font-semibold text-sm text-gray-900 mb-1">
           {`Estimated ${selectedToken.output.name} Amount`}
         </p>
-        <div className="rounded-md border border-gray-200 px-2 py-4">
+        <div className="rounded-md border border-gray-200 p-2">
           <div className="flex flex-row items-center justify-between">
             <input
-              className="w-64 border-none focus:outline-none"
+              className="w-64 border-none leading-none font-semibold text-gray-500 focus:outline-none focus:text-gray-800"
               type="number"
               value={estimatedAmount}
               onChange={(e) =>
