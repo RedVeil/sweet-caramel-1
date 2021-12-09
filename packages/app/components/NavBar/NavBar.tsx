@@ -14,8 +14,6 @@ const Navbar: React.FC = () => {
   const { chainId, account, activate, deactivate } =
     useWeb3React<Web3Provider>();
   const router = useRouter();
-  const [showGrants, setShowGrants] = useState(false);
-  const [showProposals, setShowProposals] = useState(false);
   const [currentChainName, setCurrentChainName] = useState('trial');
   const [currentChainIcon, setCurrentChainIcon] = useState('');
 
@@ -64,26 +62,54 @@ const Navbar: React.FC = () => {
             </li>
           </ul>
         </div>
-        <div className="relative flex flex-container flex-row w-fit-content z-20">
-          <Menu>
-            <Menu.Button>
-              <div className="w-44 mr-10 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl">
-                <img
-                  src={currentChainIcon}
-                  alt={''}
-                  className="w-4.5 h-4 mr-4"
-                />
-                <p className="leading-none font-semibold text-blue-700 mt-0.5">
-                  {currentChainName}
-                </p>
-                <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
-              </div>
-            </Menu.Button>
-            <NetworkOptionsMenu
-              currentChain={chainId}
-              switchNetwork={switchNetwork}
-            />
-          </Menu>
+        <div className="flex flex-container flex-row w-fit-content">
+          <a
+            onClick={async () =>
+              await window.ethereum.request({
+                method: 'wallet_watchAsset',
+                params: {
+                  type: 'ERC20',
+                  options: {
+                    address:
+                      chainId === 137
+                        ? '0xC5B57e9a1E7914FDA753A88f24E5703e617Ee50c'
+                        : '0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4',
+                    symbol: 'POP',
+                    decimals: 18,
+                    image:
+                      'https://etherscan.io/token/images/popcornpop_32.png',
+                  },
+                },
+              })
+            }
+            className="cursor-pointer h-full p-3 pflex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl mr-5"
+          >
+            <img src="/images/icons/popLogo.png" className="w-5 h-5" />
+          </a>
+          <div className="relative flex flex-container flex-row w-fit-content z-10">
+            <Menu>
+              <Menu.Button>
+                <div className="w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl">
+                  <img
+                    src={currentChainIcon}
+                    alt={''}
+                    className="w-4.5 h-4 mr-4"
+                  />
+                  <p className="leading-none font-semibold text-blue-700 mt-0.5">
+                    {currentChainName}
+                  </p>
+                  <ChevronDownIcon
+                    className="w-5 h-5 ml-4"
+                    aria-hidden="true"
+                  />
+                </div>
+              </Menu.Button>
+              <NetworkOptionsMenu
+                currentChain={chainId}
+                switchNetwork={switchNetwork}
+              />
+            </Menu>
+          </div>
           <button
             onClick={() =>
               account ? deactivate() : activate(connectors.Injected)

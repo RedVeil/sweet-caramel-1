@@ -14,7 +14,7 @@ import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Tutorial from 'components/BatchButter/Tutorial';
 import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
-import { setDualActionWideModal } from 'context/actions';
+import { setDualActionWideModal, setSingleActionModal } from 'context/actions';
 import { store } from 'context/store';
 import { connectors } from 'context/Web3/connectors';
 import {
@@ -226,7 +226,7 @@ export default function Butter(): JSX.Element {
           onConfirm: {
             label: 'Switch Network',
             onClick: () => {
-              switchNetwork(1);
+              switchNetwork(1337);
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -455,6 +455,23 @@ export default function Butter(): JSX.Element {
               butterBatchAdapter
                 .getCurrentBatches()
                 .then((res) => setCurrentBatches(res));
+              if (!localStorage.getItem('mintModal')) {
+                dispatch(
+                  setSingleActionModal({
+                    title: 'Your first mint',
+                    content:
+                      'You have successfully added your fund into the current batch cycle. Check-in on the Batch module under the Mint & Redeem panel for the latest batch progress.',
+                    image: (
+                      <img src="images/butter/modal-1.png" className="px-6" />
+                    ),
+                    onConfirm: {
+                      label: 'Close',
+                      onClick: () => dispatch(setSingleActionModal(false)),
+                    },
+                  }),
+                );
+                localStorage.setItem('mintModal', 'true');
+              }
             });
           })
           .catch((err) => {
@@ -495,6 +512,23 @@ export default function Butter(): JSX.Element {
               butterBatchAdapter
                 .getCurrentBatches()
                 .then((res) => setCurrentBatches(res));
+              if (!localStorage.getItem('mintModal')) {
+                dispatch(
+                  setSingleActionModal({
+                    title: 'Your first mint',
+                    content:
+                      'You have successfully added your fund into the current batch cycle. Check-in on the Batch module under the Mint & Redeem panel for the latest batch progress.',
+                    image: (
+                      <img src="images/butter/modal-1.png" className="px-6" />
+                    ),
+                    onConfirm: {
+                      label: 'Close',
+                      onClick: () => dispatch(setSingleActionModal(false)),
+                    },
+                  }),
+                );
+                localStorage.setItem('mintModal', 'true');
+              }
             });
           })
           .catch((err) => {
@@ -555,6 +589,45 @@ export default function Butter(): JSX.Element {
           account,
           chainId,
         ).then((res) => setBatchProcessTokens(res));
+        if (!localStorage.getItem('claimModal')) {
+          dispatch(
+            setSingleActionModal({
+              title: 'You claimed your Butter',
+              children: (
+                <p className="text-sm text-gray-500">
+                  Your tokens are now in your wallet. To see them make sure to
+                  import butter into your Metamask.
+                  <br />
+                  <a
+                    onClick={async () =>
+                      await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                          type: 'ERC20',
+                          options: {
+                            address:
+                              '0x8d1621A27BB8c84e59ca339Cf9B21e15b907e408',
+                            symbol: 'HYSI',
+                            decimals: 18,
+                          },
+                        },
+                      })
+                    }
+                    className="cursor-pointer text-blue-600"
+                  >
+                    Add Butter to your Wallet
+                  </a>
+                </p>
+              ),
+              image: <img src="images/butter/modal-2.png" className="px-6" />,
+              onConfirm: {
+                label: 'Close',
+                onClick: () => dispatch(setSingleActionModal(false)),
+              },
+            }),
+          );
+          localStorage.setItem('claimModal', 'true');
+        }
       })
       .catch((err) => {
         toast.dismiss();

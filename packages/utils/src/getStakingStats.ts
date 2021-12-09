@@ -70,7 +70,6 @@ export async function getStakedTokenName(
         stakedTokenAddress,
         library,
       );
-      console.log(contract);
       const result = contract ? await contract.name() : '';
       return result;
     }

@@ -163,16 +163,7 @@ export default function ContractsWrapper({
   children,
 }: ContractsWrapperProps): JSX.Element {
   const context = useWeb3React<Web3Provider>();
-  const {
-    connector,
-    library,
-    chainId,
-    account,
-    activate,
-    deactivate,
-    active,
-    error,
-  } = context;
+  const { library, chainId, activate, active, error } = context;
   const [contracts, setContracts] = useState<Contracts>();
   const [butterDependencyContracts, setButterDependencyContracts] =
     useState<ButterDependencyContracts>();

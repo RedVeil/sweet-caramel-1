@@ -260,8 +260,6 @@ export default function stake(): JSX.Element {
     setWait(false);
   }
 
-  console.log(balances);
-
   return (
     <>
       <div

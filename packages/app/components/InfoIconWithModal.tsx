@@ -23,7 +23,8 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
         dispatch(
           setSingleActionModal({
             title,
-            content: content || children,
+            children: children,
+            content: content,
             onConfirm: {
               label: 'OK',
               onClick: () => {
