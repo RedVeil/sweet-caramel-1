@@ -3,16 +3,14 @@ import { parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import LBPFactoryAbi from "../../../lib/external/balancer/LBPFactory.json";
-import { getNamedAccountsFromNetwork } from "../../utils/getContractAddresses";
+import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
 interface Args {
   to: string;
   amount: string;
 }
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  const { BalancerLBPFactory, USDC, POP } = getNamedAccountsFromNetwork(
-    hre.network.config.chainId
-  );
+  const { BalancerLBPFactory, USDC, POP } = getNamedAccountsFromNetwork(hre);
 
   const signer = hre.askForSigner();
 

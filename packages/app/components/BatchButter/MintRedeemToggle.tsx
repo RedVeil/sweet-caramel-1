@@ -10,19 +10,19 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({
   setRedeeming,
 }) => {
   return (
-    <div className="flex flex-row mt-0.5">
+    <div className="flex flex-row">
       <div
         className={`w-1/2 ${
           redeeming
-            ? 'border-b border-gray-400 cursor-pointer group hover:border-gray-800'
+            ? 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
             : 'border-b-2 border-blue-600'
         }`}
         onClick={(e) => setRedeeming(false)}
       >
         <p
-          className={`text-center leading-none text-base mb-4 ${
+          className={`text-center text-base mb-4 ${
             redeeming
-              ? 'text-gray-400 font-semibold group-hover:text-gray-800'
+              ? 'text-gray-400 group-hover:text-gray-600'
               : 'text-blue-600 font-semibold'
           }`}
         >
@@ -33,15 +33,15 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({
         className={`w-1/2 ${
           redeeming
             ? 'border-b-2 border-blue-600'
-            : 'border-b border-gray-400 cursor-pointer group hover:border-gray-800'
+            : 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
         }`}
         onClick={(e) => setRedeeming(true)}
       >
         <p
-          className={`text-center leading-none text-base mb-4 ${
+          className={`text-center text-base mb-4 ${
             redeeming
               ? 'text-blue-600 font-semibold'
-              : 'text-gray-400 font-semibold group-hover:text-gray-800'
+              : 'text-gray-400 group-hover:text-gray-600'
           }`}
         >
           Redeem

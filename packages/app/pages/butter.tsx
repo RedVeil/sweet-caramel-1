@@ -1,44 +1,33 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { parseEther } from '@ethersproject/units';
-import {
-  bigNumberToNumber,
-  formatAndRoundBigNumber,
-  switchNetwork,
-} from '@popcorn/utils';
+import { bigNumberToNumber, formatAndRoundBigNumber } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
-import BatchProgress from 'components/BatchButter/BatchProgress';
+import BatchProcessingInfo from 'components/BatchButter/BatchProcessingInfo';
 import ClaimableBatches from 'components/BatchButter/ClaimableBatches';
 import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
-import StatInfoCard from 'components/BatchButter/StatInfoCard';
 import { BatchProcessToken } from 'components/BatchButter/TokenInput';
-import Tutorial from 'components/BatchButter/Tutorial';
-import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
-import { setDualActionWideModal } from 'context/actions';
+import StatInfoCard from 'components/StatInfoCard';
 import { store } from 'context/store';
-import { connectors } from 'context/Web3/connectors';
 import {
-  ButterDependencyContracts,
   Contracts,
   ContractsContext,
+  HysiDependencyContracts,
 } from 'context/Web3/contracts';
 import { BigNumber, Contract, utils } from 'ethers';
-import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   AccountBatch,
   BatchType,
   ComponentMap,
-  CurrentBatches,
+  TimeTillBatchProcessing,
 } from '../../hardhat/lib/adapters';
 import ButterBatchAdapter from '../../hardhat/lib/adapters/ButterBatchAdapter';
-
 interface HotSwapParameter {
   batchIds: String[];
   amounts: BigNumber[];
 }
-
 interface ClaimableBatches {
   mint: AccountBatch[];
   redeem: AccountBatch[];
@@ -77,58 +66,44 @@ function isDepositDisabled(
 async function getBatchProcessToken(
   butterBatchAdapter: ButterBatchAdapter,
   contracts: Contracts,
-  butterDependencyContracts: ButterDependencyContracts,
+  hysiDependencyContracts: HysiDependencyContracts,
   account: string,
-  chainId: number,
 ): Promise<BatchProcessTokens> {
   const batchProcessTokens = {
     butter: {
-      name: 'BTR',
+      name: 'Butter',
       key: 'butter',
       balance: await contracts.butter.balanceOf(account),
-      allowance: await contracts.butter.allowance(
-        account,
-        contracts.butterBatch.address,
-      ),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getHysiPrice(
-        butterDependencyContracts.setBasicIssuanceModule,
+        hysiDependencyContracts.basicIssuanceModule,
         {
-          [butterDependencyContracts.yMim.address.toLowerCase()]: {
-            metaPool: butterDependencyContracts.mimMetapool,
-            yPool: butterDependencyContracts.yMim,
+          [hysiDependencyContracts.yFRAX.address.toLowerCase()]: {
+            metaPool: hysiDependencyContracts.fraxMetapool,
+            yPool: hysiDependencyContracts.yFRAX,
           },
-          [butterDependencyContracts.yFrax.address.toLowerCase()]: {
-            metaPool: butterDependencyContracts.fraxMetapool,
-            yPool: butterDependencyContracts.yFrax,
+          [hysiDependencyContracts.yMIM.address.toLowerCase()]: {
+            metaPool: hysiDependencyContracts.mimMetapool,
+            yPool: hysiDependencyContracts.yMIM,
           },
         } as ComponentMap,
-        chainId,
       ),
     },
     threeCrv: {
       name: '3CRV',
       key: 'threeCrv',
       balance: await contracts.threeCrv.balanceOf(account),
-      allowance: await contracts.threeCrv.allowance(
-        account,
-        contracts.butterBatch.address,
-      ),
       claimableBalance: BigNumber.from('0'),
       price: await butterBatchAdapter.getThreeCrvPrice(
-        butterDependencyContracts.threePool,
+        hysiDependencyContracts.triPool,
       ),
     },
     dai: {
       name: 'DAI',
       key: 'dai',
       balance: await contracts.dai.balanceOf(account),
-      allowance: await contracts.dai.allowance(
-        account,
-        contracts.butterBatchZapper.address,
-      ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        butterDependencyContracts.threePool,
+        hysiDependencyContracts.triPool,
         [parseEther('1'), BigNumber.from('0'), BigNumber.from('0')],
       ),
     },
@@ -138,12 +113,8 @@ async function getBatchProcessToken(
       balance: (await contracts.usdc.balanceOf(account)).mul(
         BigNumber.from(1e12),
       ),
-      allowance: await contracts.usdc.allowance(
-        account,
-        contracts.butterBatchZapper.address,
-      ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        butterDependencyContracts.threePool,
+        hysiDependencyContracts.triPool,
         [BigNumber.from('0'), BigNumber.from(1e6), BigNumber.from('0')],
       ),
     },
@@ -153,12 +124,8 @@ async function getBatchProcessToken(
       balance: (await contracts.usdt.balanceOf(account)).mul(
         BigNumber.from(1e12),
       ),
-      allowance: await contracts.usdt.allowance(
-        account,
-        contracts.butterBatchZapper.address,
-      ),
       price: await butterBatchAdapter.getStableCoinPrice(
-        butterDependencyContracts.threePool,
+        hysiDependencyContracts.triPool,
         [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from(1e6)],
       ),
     },
@@ -193,8 +160,8 @@ function getZapDepositAmount(
 
 export default function Butter(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
-  const { library, account, activate, chainId } = context;
-  const { contracts, butterDependencyContracts } = useContext(ContractsContext);
+  const { library, account, activate } = context;
+  const { contracts, hysiDependencyContracts } = useContext(ContractsContext);
   const { dispatch } = useContext(store);
   const [batchProcessTokens, setBatchProcessTokens] =
     useState<BatchProcessTokens>();
@@ -209,36 +176,13 @@ export default function Butter(): JSX.Element {
   const [butterBatchAdapter, setButterBatchAdapter] =
     useState<ButterBatchAdapter>();
   const [batches, setBatches] = useState<AccountBatch[]>();
+  const [timeTillBatchProcessing, setTimeTillBatchProcessing] =
+    useState<TimeTillBatchProcessing[]>();
   const [claimableBatches, setClaimableBatches] = useState<ClaimableBatches>();
   const [slippage, setSlippage] = useState<number>(3);
-  const [currentBatches, setCurrentBatches] = useState<CurrentBatches>();
-  const [butterSupply, setButterSupply] = useState<BigNumber>();
 
   useEffect(() => {
     if (!library || !contracts) {
-      return;
-    }
-    if (![1, 1337, 31337].includes(chainId)) {
-      dispatch(
-        setDualActionWideModal({
-          title: 'Coming Soon',
-          content: 'Switch to Ethereum to use Butter.',
-          onConfirm: {
-            label: 'Switch Network',
-            onClick: () => {
-              switchNetwork(1);
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-          onDismiss: {
-            label: 'Go Back',
-            onClick: () => {
-              router.push('/');
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-        }),
-      );
       return;
     }
     setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
@@ -251,20 +195,17 @@ export default function Butter(): JSX.Element {
     getBatchProcessToken(
       butterBatchAdapter,
       contracts,
-      butterDependencyContracts,
+      hysiDependencyContracts,
       account,
-      chainId,
     ).then((res) => {
       setBatchProcessTokens(res);
       setSelectedToken({ input: res.threeCrv, output: res.butter });
     });
+
     butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
     butterBatchAdapter
-      .getCurrentBatches()
-      .then((res) => setCurrentBatches(res));
-    butterBatchAdapter
-      .getTokenSupply(contracts.butter)
-      .then((res) => setButterSupply(res));
+      .calcBatchTimes(library)
+      .then((res) => setTimeTillBatchProcessing(res));
   }, [butterBatchAdapter, account]);
 
   useEffect(() => {
@@ -387,13 +328,9 @@ export default function Butter(): JSX.Element {
           getBatchProcessToken(
             butterBatchAdapter,
             contracts,
-            butterDependencyContracts,
+            hysiDependencyContracts,
             account,
-            chainId,
           ).then((res) => setBatchProcessTokens(res));
-          butterBatchAdapter
-            .getCurrentBatches()
-            .then((res) => setCurrentBatches(res));
         });
       })
       .catch((err) => {
@@ -448,13 +385,9 @@ export default function Butter(): JSX.Element {
               getBatchProcessToken(
                 butterBatchAdapter,
                 contracts,
-                butterDependencyContracts,
+                hysiDependencyContracts,
                 account,
-                chainId,
               ).then((res) => setBatchProcessTokens(res));
-              butterBatchAdapter
-                .getCurrentBatches()
-                .then((res) => setCurrentBatches(res));
             });
           })
           .catch((err) => {
@@ -488,13 +421,9 @@ export default function Butter(): JSX.Element {
               getBatchProcessToken(
                 butterBatchAdapter,
                 contracts,
-                butterDependencyContracts,
+                hysiDependencyContracts,
                 account,
-                chainId,
               ).then((res) => setBatchProcessTokens(res));
-              butterBatchAdapter
-                .getCurrentBatches()
-                .then((res) => setCurrentBatches(res));
             });
           })
           .catch((err) => {
@@ -551,9 +480,8 @@ export default function Butter(): JSX.Element {
         getBatchProcessToken(
           butterBatchAdapter,
           contracts,
-          butterDependencyContracts,
+          hysiDependencyContracts,
           account,
-          chainId,
         ).then((res) => setBatchProcessTokens(res));
       })
       .catch((err) => {
@@ -599,13 +527,9 @@ export default function Butter(): JSX.Element {
           getBatchProcessToken(
             butterBatchAdapter,
             contracts,
-            butterDependencyContracts,
+            hysiDependencyContracts,
             account,
-            chainId,
           ).then((res) => setBatchProcessTokens(res));
-          butterBatchAdapter
-            .getCurrentBatches()
-            .then((res) => setCurrentBatches(res));
         });
       })
       .catch((err) => {
@@ -649,45 +573,18 @@ export default function Butter(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto flex flex-row mt-14">
+        <div className="w-9/12 mx-auto flex flex-row mt-14">
           <div className="w-1/3">
             <div className="">
-              <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
-              <p className="text-lg text-gray-500 mt-2">
+              <h1 className="text-3xl text-gray-800 font-medium">
+                Popcorn Yield Optimizer
+              </h1>
+              <p className="text-lg text-gray-500">
                 Deposit your stablecoins and watch your money grow
               </p>
-              <div className="flex flex-row items-center mt-2">
-                <div className="pr-6 border-r-2 border-gray-200">
-                  <p className="text-gray-500 font-light text-base uppercase">
-                    Est. APY
-                  </p>
-                  <p className="text-green-600 text-xl font-medium">20 %</p>
-                </div>
-                <div className="px-6 border-r-2 border-gray-200">
-                  <p className="text-gray-500 font-light text-base uppercase">
-                    TVL
-                  </p>
-                  <p className=" text-xl font-medium">
-                    {batchProcessTokens?.butter && butterSupply
-                      ? formatAndRoundBigNumber(
-                          butterSupply
-                            .mul(batchProcessTokens?.butter.price)
-                            .div(parseEther('1')),
-                        ).toLocaleString()
-                      : '-'}{' '}
-                    $
-                  </p>
-                </div>
-                <div className="pl-6">
-                  <p className="text-gray-500 font-light text-base uppercase">
-                    Social Impact
-                  </p>
-                  <p className="text-xl font-medium">Coming Soon</p>
-                </div>
-              </div>
             </div>
-            <div className="mt-10">
-              {claimableBatches ? (
+            <div className="mt-12">
+              {claimableBatches && (
                 <MintRedeemInterface
                   token={batchProcessTokens}
                   selectedToken={selectedToken}
@@ -713,21 +610,15 @@ export default function Butter(): JSX.Element {
                   slippage={slippage}
                   setSlippage={setSlippage}
                 />
-              ) : (
-                <div className="bg-white rounded-3xl px-5 pt-6 pb-10 mr-8 border border-gray-200 shadow-custom">
-                  <div className="w-full py-64 mt-1.5 mb-2">
-                    <MainActionButton
-                      label="Connect Wallet"
-                      handleClick={() => activate(connectors.Injected)}
-                    />
-                  </div>
-                </div>
               )}
+              <BatchProcessingInfo
+                timeTillBatchProcessing={timeTillBatchProcessing}
+              />
             </div>
           </div>
-          <div className="w-2/3 mt-60 pt-3 laptop:mt-44 laptop:pt-6 lglaptop:mt-40 lglaptop:pt-3 2xl:mt-48 2xl:pt-2">
+          <div className="w-2/3 mt-28">
             <div className="flex flex-row items-center">
-              <div className="w-1/2 mr-2">
+              <div className="w-1/3 mr-2">
                 <StatInfoCard
                   title="Butter Value"
                   content={`${
@@ -740,43 +631,93 @@ export default function Butter(): JSX.Element {
                   icon={{ icon: 'Money', color: 'bg-blue-300' }}
                 />
               </div>
-              <div className="w-1/2 ml-2">
-                <BatchProgress
-                  batchAmount={
-                    currentBatches?.mint && batchProcessTokens?.butter
-                      ? redeeming
-                        ? bigNumberToNumber(
-                            currentBatches.redeem.suppliedTokenBalance
-                              .div(parseEther('1'))
-                              .mul(batchProcessTokens?.butter.price),
-                          )
-                        : bigNumberToNumber(
-                            currentBatches.mint.suppliedTokenBalance
-                              .div(parseEther('1'))
-                              .mul(batchProcessTokens?.threeCrv.price),
-                          )
-                      : 0
+              <div className="w-1/3 mx-2">
+                <StatInfoCard
+                  title="Claimable Butter"
+                  content={
+                    batches
+                      ? String(
+                          batches
+                            .filter(
+                              (batch) => batch.batchType === BatchType.Mint,
+                            )
+                            .reduce((total, batch) => {
+                              return (
+                                total +
+                                bigNumberToNumber(
+                                  batch.accountClaimableTokenBalance,
+                                )
+                              );
+                            }, 0)
+                            .toPrecision(4),
+                        )
+                      : '-'
                   }
-                  threshold={100000}
+                  icon={{ icon: 'Key', color: 'bg-green-400' }}
+                />
+              </div>
+              <div className="w-1/3 ml-2">
+                <StatInfoCard
+                  title="Pending Withdraw"
+                  content={`${
+                    batches
+                      ? batches
+                          .filter(
+                            (batch) => batch.batchType === BatchType.Redeem,
+                          )
+                          .reduce((total, batch) => {
+                            return (
+                              total +
+                              bigNumberToNumber(
+                                batch.accountSuppliedTokenBalance,
+                              )
+                            );
+                          }, 0)
+                          .toPrecision(4)
+                      : '-'
+                  } BTR`}
+                  icon={{ icon: 'Wait', color: 'bg-yellow-500' }}
                 />
               </div>
             </div>
-            <div className="w-full h-min-content pl-10 pr-2 pt-16 pb-12 mt-8 rounded-4xl shadow-custom border border-gray-200 bg-primaryLight">
-              <Tutorial />
+            <div className="w-full h-min-content pl-10 pr-2 pt-16 pb-16 mt-8 rounded-4xl bg-primaryLight">
+              <div className="z-10">
+                <h2 className="text-2xl font-medium w-1/4">
+                  We will bring the chart soon to you!
+                </h2>
+                <p className="text-base text-gray-700 w-1/3">
+                  Currently we are developing awesome chart for you that help to
+                  visualize how your HYSI growth
+                </p>
+              </div>
+              <div className="w-full flex justify-end -mt-36">
+                <img
+                  src="/images/chartPlaceholder.svg"
+                  alt="chartPlaceholder"
+                  className="h-112"
+                />
+              </div>
             </div>
           </div>
         </div>
 
         {batches?.length > 0 && (
-          <div className="mt-10 lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-12">
-            <div className="shadow-custom overflow-hidden border border-gray-200 rounded-3xl p-2">
-              <ClaimableBatches
-                batches={batches}
-                claim={claim}
-                withdraw={withdraw}
-                slippage={slippage}
-                setSlippage={setSlippage}
-              />
+          <div className="mt-16 w-9/12 mx-auto pb-12">
+            <h2></h2>
+            <div className="flex flex-col">
+              <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                  <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                    <ClaimableBatches
+                      batches={batches}
+                      claim={claim}
+                      withdraw={withdraw}
+                      slippage={slippage}
+                      setSlippage={setSlippage}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

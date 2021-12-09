@@ -1,33 +1,30 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { Menu } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/solid';
-import { getChainLogo, switchNetwork } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { connectors, networkMap } from '../../context/Web3/connectors';
+import { connectors } from '../../context/Web3/connectors';
 import NavbarLink from './NavbarLinks';
-import NetworkOptionsMenu from './NetworkOptionsMenu';
 
 const Navbar: React.FC = () => {
-  const { chainId, account, activate, deactivate } =
-    useWeb3React<Web3Provider>();
+  const context = useWeb3React<Web3Provider>();
+  const {
+    connector,
+    library,
+    chainId,
+    account,
+    activate,
+    deactivate,
+    active,
+    error,
+  } = context;
   const router = useRouter();
   const [showGrants, setShowGrants] = useState(false);
   const [showProposals, setShowProposals] = useState(false);
-  const [currentChainName, setCurrentChainName] = useState('trial');
-  const [currentChainIcon, setCurrentChainIcon] = useState('');
-
-  React.useEffect(() => {
-    setCurrentChainName(networkMap[chainId]);
-    let newChainLogo = getChainLogo(chainId);
-    setCurrentChainIcon(newChainLogo);
-  }, [chainId]);
 
   return (
-    <nav className="flex pt-9 bg-white z-20">
-      <div className="flex flex-row items-center justify-between lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto">
+    <nav className="flex pt-6 mx-20 bg-white">
+      <div className="flex flex-row items-center justify-between w-10/12 pb-6 mx-auto">
         <div className="flex flex-row items-center">
           <div>
             <Link href="/" passHref>
@@ -64,35 +61,16 @@ const Navbar: React.FC = () => {
             </li>
           </ul>
         </div>
-        <div className="relative flex flex-container flex-row w-fit-content z-20">
-          <Menu>
-            <Menu.Button>
-              <div className="w-44 mr-10 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl">
-                <img
-                  src={currentChainIcon}
-                  alt={''}
-                  className="w-4.5 h-4 mr-4"
-                />
-                <p className="leading-none font-semibold text-blue-700 mt-0.5">
-                  {currentChainName}
-                </p>
-                <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
-              </div>
-            </Menu.Button>
-            <NetworkOptionsMenu
-              currentChain={chainId}
-              switchNetwork={switchNetwork}
-            />
-          </Menu>
+        <div className="">
           <button
             onClick={() =>
               account ? deactivate() : activate(connectors.Injected)
             }
-            className={`rounded-full py-3 w-44 border border-transparent shadow-custom group hover:bg-blue-500 ${
-              account ? 'bg-blue-50 border-blue-700' : 'bg-blue-100'
+            className={`rounded-full py-3 w-44 group hover:bg-blue-500 ${
+              account ? 'bg-blue-50 border border-blue-700' : 'bg-blue-100'
             }`}
           >
-            <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
+            <p className="text-blue-700 font-medium text-base group-hover:text-white">
               {account ? 'Disconnect Wallet' : 'Connect Wallet'}
             </p>
           </button>

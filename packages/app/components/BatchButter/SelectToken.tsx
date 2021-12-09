@@ -21,22 +21,22 @@ export default function SelectToken({
   const [showDropdown, setDropdown] = useState<Boolean>(false);
 
   return (
-    <div className="relative w-16 mt-1" onMouseLeave={() => setDropdown(false)}>
+    <div className="relative w-16" onMouseLeave={() => setDropdown(false)}>
       <span
-        className={`flex flex-row mx-auto items-center ${
+        className={`flex flex-row mx-auto ${
           allowSelection ? 'cursor-pointer group' : ''
         }`}
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
-        <p className="text-gray-700 font-semibold leading-none group-hover:text-blue-700">
+        <p className="text-gray-700 group-hover:text-blue-700">
           {selectedToken.name}
         </p>
         {allowSelection && (
           <>
             {showDropdown ? (
-              <Icon.ChevronUp className="w-5 h-6 mb-1 group-hover:text-blue-700" />
+              <Icon.ChevronUp className="w-5 h-6 group-hover:text-blue-700" />
             ) : (
-              <Icon.ChevronDown className="w-5 h-6 mb-1 group-hover:text-blue-700" />
+              <Icon.ChevronDown className="w-5 h-6 group-hover:text-blue-700" />
             )}
           </>
         )}
@@ -48,7 +48,7 @@ export default function SelectToken({
             .map((selectableToken) => (
               <a
                 key={selectableToken}
-                className="cursor-pointer font-semibold hover:text-blue-700"
+                className="cursor-pointer hover:text-blue-700"
                 onClick={() => selectToken(token[selectableToken])}
               >
                 {token[selectableToken].name}

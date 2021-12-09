@@ -59,7 +59,6 @@ module.exports = {
     },
     hardhat: {
       initialBaseFeePerGas: 0,
-      chainId: 1337,
       forking: Boolean(parseInt(process.env.FORKING || "0"))
         ? {
             url: process.env.RPC_URL,
