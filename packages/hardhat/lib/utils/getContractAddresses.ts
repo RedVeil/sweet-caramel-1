@@ -73,10 +73,11 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
           "0x6D4870349dfd8109d3Ea67AC516204358cF30AC2",
           "0xAE5dA2a2d85Ce27e89AbC9f44d1d4986728BD182",
         ],
-        pop: "0xd68d416353b25995F716c2f60ea8171f4Ed6d835",
         popEthLp: "0xFfb0CBBBeC1682aCfeA50eED9C2E9ADC90390564",
         aclRegistry: "0x8E7836f37b35ad1BA7321c26cf8fd22A4e7DdDc3",
         contractRegistry: "0x0c5b24d1dcBff87491eA61995BF141727346127f",
+        usdc: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        pop: "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
       };
       break;
     case 80001:
