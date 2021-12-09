@@ -1,31 +1,34 @@
-import { DefaultSingleActionModalProps } from 'components/Modal/SingleActionModal';
-import React, { createContext, useReducer } from 'react';
-import { SingleActionModalProps } from '../components/Modal/SingleActionModal';
-import {
-  DefaultDualActionModalProps,
-  DualActionModalProps,
-} from '../components/Modal/DualActionModal';
-import {
-  AppActions,
-  PUSH_NOTIFICATION,
-  UNSET_NOTIFICATION,
-  HIDE_NOTIFICATION,
-  CLEAR_NOTIFICATIONS,
-  SINGLE_ACTION_MODAL,
-  DUAL_ACTION_MODAL,
-  DUAL_ACTION_WIDE_MODAL,
-} from './actions';
 import {
   DefaultDualActionWideModalProps,
   DualActionWideModalProps,
 } from 'components/Modal/DualActionWideModal';
+import { DefaultSingleActionModalProps } from 'components/Modal/SingleActionModal';
 import { NotificationProps } from 'components/Notifications/NotificationProps';
+import { StakingPageInfo } from 'pages/staking/[id]';
+import React, { createContext, useReducer } from 'react';
+import {
+  DefaultDualActionModalProps,
+  DualActionModalProps,
+} from '../components/Modal/DualActionModal';
+import { SingleActionModalProps } from '../components/Modal/SingleActionModal';
+import {
+  AppActions,
+  CLEAR_NOTIFICATIONS,
+  DUAL_ACTION_MODAL,
+  DUAL_ACTION_WIDE_MODAL,
+  HIDE_NOTIFICATION,
+  PUSH_NOTIFICATION,
+  SINGLE_ACTION_MODAL,
+  UNSET_NOTIFICATION,
+  UPDATE_STAKING_PAGE_INFO,
+} from './actions';
 
 interface DefaultState {
   notifications: NotificationProps[];
   singleActionModal: SingleActionModalProps;
   dualActionModal: DualActionModalProps;
   dualActionWideModal: DualActionWideModalProps;
+  stakingPageInfo?: StakingPageInfo;
 }
 
 const initialState: DefaultState = {
@@ -39,10 +42,11 @@ const initialState: DefaultState = {
   dualActionWideModal: {
     ...DefaultDualActionWideModalProps,
   },
+  stakingPageInfo: undefined,
 };
 
 const store = createContext(
-  (initialState as unknown) as {
+  initialState as unknown as {
     state: DefaultState;
     dispatch: React.Dispatch<any>;
   },
@@ -107,6 +111,13 @@ const StateProvider = ({ children }) => {
           return {
             ...state,
             dualActionWideModal: {
+              ...action.payload,
+            },
+          };
+        case UPDATE_STAKING_PAGE_INFO:
+          return {
+            ...state,
+            stakingPageInfo: {
               ...action.payload,
             },
           };

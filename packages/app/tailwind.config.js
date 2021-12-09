@@ -34,8 +34,13 @@ module.exports = {
       // => @media (min-width: 2560px) { ... }
     },
     extend: {
-      dropShadow: {
-        '3xl': '0 0 5px rgba(0, 0, 0, 0.1)',
+      boxShadow: {
+        custom: '0 4px 14px rgba(101, 135, 169, 0.11)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+        '6xl': '3rem',
       },
       spacing: {
         18: '4.5rem',
@@ -58,8 +63,8 @@ module.exports = {
       scale: {
         101: '1.01',
         102: '1.02',
+        103: '1.03',
       },
-      borderRadius: { '4xl': '2rem' },
       colors: {
         primary: '#F28705',
         primaryLight: '#FDEAA7',
@@ -78,7 +83,7 @@ module.exports = {
         'hero-pattern': "url('/images/popcorn_playing.gif')",
       }),
       fontFamily: {
-        landing: ['Avenir Next LT Pro', 'sans-serif'],
+        avenir: ["'Avenir LT Pro'", 'sans-serif'],
       },
     },
   },

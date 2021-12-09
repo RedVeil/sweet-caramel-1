@@ -9,6 +9,7 @@ module.exports = {
   env: {
     RPC_URL: process.env.RPC_URL,
     CHAIN_ID: process.env.CHAIN_ID,
+    INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID
   },
   poweredByHeader: false,
   webpack: (config, options) => {

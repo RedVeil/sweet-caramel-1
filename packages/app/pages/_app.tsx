@@ -14,7 +14,15 @@ import ContractsWrapper from '../context/Web3/contracts';
 import '../styles/globals.css';
 
 function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider);
+  const library = new Web3Provider(provider, 'any');
+  library.on('network', (newNetwork, oldNetwork) => {
+    // When a Provider makes its initial connection, it emits a "network"
+    // event with a null oldNetwork along with the newNetwork. So, if the
+    // oldNetwork exists, it represents a changing network
+    // if (oldNetwork) {
+    //   window.location.reload();
+    // }
+  });
   library.pollingInterval = 12000;
   return library;
 }

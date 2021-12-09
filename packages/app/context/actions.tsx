@@ -1,14 +1,15 @@
-import {
-  SingleActionModalProps,
-  DefaultSingleActionModalProps,
-} from 'components/Modal/SingleActionModal';
 import { DualActionModalProps } from 'components/Modal/DualActionModal';
-import { DefaultDualActionModalProps } from '../components/Modal/DualActionModal';
-import { NotificationProps } from '../components/Notifications/NotificationProps';
 import {
   DefaultDualActionWideModalProps,
   DualActionWideModalProps,
 } from 'components/Modal/DualActionWideModal';
+import {
+  DefaultSingleActionModalProps,
+  SingleActionModalProps,
+} from 'components/Modal/SingleActionModal';
+import { StakingPageInfo } from 'pages/staking/[id]';
+import { DefaultDualActionModalProps } from '../components/Modal/DualActionModal';
+import { NotificationProps } from '../components/Notifications/NotificationProps';
 
 export const PUSH_NOTIFICATION = 'notifications/PUSH_NOTIFICATION';
 export const UNSET_NOTIFICATION = 'notifications/UNSET_NOTIFICATION';
@@ -18,6 +19,8 @@ export const SINGLE_ACTION_MODAL = 'modals/SINGLE_ACTION_MODAL';
 export const DUAL_ACTION_MODAL = 'modals/DUAL_ACTION_MODAL';
 export const DUAL_ACTION_WIDE_MODAL = 'modals/DUAL_ACTION_WIDE_MODAL';
 
+export const UPDATE_STAKING_PAGE_INFO = 'staking/UPDATE_STAKING_PAGE_INFO';
+
 export type AppActions =
   | PushNotificationAction
   | UnsetNotificationAction
@@ -25,7 +28,22 @@ export type AppActions =
   | ClearNotificationsAction
   | SetSingleActionModalAction
   | SetDualActionModalAction
-  | SetDualActionWideModalAction;
+  | SetDualActionWideModalAction
+  | UpdateStakingInfoAction;
+
+export interface UpdateStakingInfoAction {
+  type: typeof UPDATE_STAKING_PAGE_INFO;
+  payload: StakingPageInfo;
+}
+
+export const updateStakingPageInfo = (
+  stakingInfo: StakingPageInfo | undefined,
+): UpdateStakingInfoAction => {
+  return {
+    type: UPDATE_STAKING_PAGE_INFO,
+    payload: stakingInfo,
+  };
+};
 
 export interface PushNotificationAction {
   type: typeof PUSH_NOTIFICATION;

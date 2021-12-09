@@ -35,35 +35,39 @@ input[type='number'] {
 }
 
 @layer base {
+  body {
+    @apply font-avenir text-base font-normal tracking-wide text-gray-800;
+  }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: 'Avenir LT Pro';
+    font-weight: 300;
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Light.woff) format('woff');
+  }
+  @font-face {
+    font-family: 'Avenir LT Pro';
     font-weight: 400;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-It.woff) format('woff');
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Book.woff) format('woff');
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
-    font-weight: 200;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format('woff');
-  }
-  @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: 'Avenir LT Pro';
     font-weight: 500;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format('woff');
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Medium.woff) format('woff');
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: 'Avenir LT Pro';
     font-weight: 700;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Bold.woff) format('woff');
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Heavy.woff) format('woff');
+  }
+  @font-face {
+    font-family: 'Avenir LT Pro';
+    font-weight: 900;
+    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Black.woff) format('woff');
   }
 }
 
 @layer components {
   .button {
-    @apply flex-shrink-0 block px-4 py-2 text-base font-medium rounded-md border border-transparent text-base align-middle text-center leading-button shadow-sm;
+    @apply flex-shrink-0 block px-3 py-1 font-medium rounded-full border border-transparent text-base align-middle text-center leading-button shadow-sm;
   }
 
   .button:disabled {
@@ -75,7 +79,7 @@ input[type='number'] {
   }
 
   .button-primary {
-    @apply bg-blue-600 text-white transition duration-150 ease-in-out;
+    @apply bg-blue-600 text-white;
   }
 
   .button-seconday {
@@ -87,7 +91,7 @@ input[type='number'] {
   }
 
   .button-primary:hover {
-    @apply bg-blue-700 font-bold shadow-md transform scale-101;
+    @apply bg-blue-700;
   }
 
   .button-secondary {

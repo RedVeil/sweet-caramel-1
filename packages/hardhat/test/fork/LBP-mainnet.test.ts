@@ -5,7 +5,7 @@ import { parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
 import { encodeCallScript } from "../../lib/utils/aragon/callscript";
 import { expectRevert } from "../../lib/utils/expectValue";
-import getNamedAccounts from "../../lib/utils/getNamedAccounts";
+import { getNamedAccountsFromNetwork } from "../../lib/utils/getContractAddresses";
 import {
   DAYS,
   getErc20,
@@ -20,7 +20,7 @@ const LBP_MANAGER = "0xe7F0E61a07D540F6Ab3C3e81D87c6ed0F2C0244d";
 const USDC_WHALE = "0x6BE8ef6207b4114A52ae5011FE8846dA2Af8F281";
 const POP_WHALE = "0xF023E5eF2Eb3b8747cBaD5B3847813b66E9BFdD7";
 const POP_GUPPY = "0x084e8A8cF1C38dEF1D6dB8542a73aa0d54284F8D";
-const namedAccounts = getNamedAccounts();
+const namedAccounts = getNamedAccountsFromNetwork(1);
 const START_TIME = 1638172800;
 
 const prepareLbpManager = async () => {
@@ -35,19 +35,9 @@ const prepareLbpManager = async () => {
       },
     ],
   });
-  await transferErc20(
-    namedAccounts.usdc.mainnet,
-    USDC_WHALE,
-    LBP_MANAGER,
-    "562500"
-  );
+  await transferErc20(namedAccounts.usdc, USDC_WHALE, LBP_MANAGER, "562500");
 
-  await transferErc20(
-    namedAccounts.pop.mainnet,
-    POP_WHALE,
-    LBP_MANAGER,
-    "1875000"
-  );
+  await transferErc20(namedAccounts.pop, POP_WHALE, LBP_MANAGER, "1875000");
 };
 
 const deployPoolByVote = async (): Promise<string> => {
@@ -55,7 +45,7 @@ const deployPoolByVote = async (): Promise<string> => {
    * Voting for proposal to deployLBP
    */
   const voting = new ethers.Contract(
-    namedAccounts.voting.mainnet,
+    namedAccounts.voting,
     require("../../lib/external/aragon/Voting.json"),
     await impersonateSigner(POP_WHALE)
   );
@@ -72,7 +62,7 @@ const deployPoolByVoteWithoutMajority = async (): Promise<string> => {
    */
 
   const voting = new ethers.Contract(
-    namedAccounts.voting.mainnet,
+    namedAccounts.voting,
     require("../../lib/external/aragon/Voting.json"),
     await impersonateSigner(POP_GUPPY)
   );
@@ -85,8 +75,8 @@ const deployPoolByVoteWithoutMajority = async (): Promise<string> => {
 };
 
 const getPoolTokenBalances = async (address) => {
-  const usdc = await getErc20(namedAccounts.usdc.mainnet);
-  const pop = await getErc20(namedAccounts.pop.mainnet);
+  const usdc = await getErc20(namedAccounts.usdc);
+  const pop = await getErc20(namedAccounts.pop);
   return [await usdc.balanceOf(address), await pop.balanceOf(address)];
 };
 
@@ -113,12 +103,12 @@ describe("LBP test", () => {
       /**
        * deploy LBP from aragon dao agent
        */
-      await sendEth(namedAccounts.daoAgent.mainnet, "1");
+      await sendEth(namedAccounts.daoAgent, "1");
 
       const lbpManager = await ethers.getContractAt(
         "LBPManager",
         LBP_MANAGER,
-        await impersonateSigner(namedAccounts.daoAgent.mainnet)
+        await impersonateSigner(namedAccounts.daoAgent)
       );
       const tx = await lbpManager.deployLBP();
       const lbp = await lbpManager.lbp();
@@ -184,15 +174,15 @@ describe("LBP test", () => {
       );
       const vault = await ethers.getContractAt(
         "IVault",
-        namedAccounts.balancerVault.mainnet
+        namedAccounts.balancerVault
       );
 
       const lbp = await ethers.getContractAt("ILBP", poolAddress);
       const tokens = await vault.getPoolTokens(await lbp.getPoolId());
 
       expect(tokens[0].map((token) => token.toLowerCase())).to.eql([
-        namedAccounts.usdc.mainnet.toLowerCase(),
-        namedAccounts.pop.mainnet.toLowerCase(),
+        namedAccounts.usdc.toLowerCase(),
+        namedAccounts.pop.toLowerCase(),
       ]);
       expect(tokens[1][0]).equal(parseUnits("562500", "6"));
       expect(tokens[1][1]).equal(parseEther("1875000"));
@@ -204,7 +194,7 @@ describe("LBP test", () => {
       /**
        * send ETH to aragon dao agent address
        */
-      await sendEth(namedAccounts.daoAgent.mainnet, "1");
+      await sendEth(namedAccounts.daoAgent, "1");
 
       await deployPoolByVote();
       await timeTravel(5 * DAYS);
@@ -212,19 +202,19 @@ describe("LBP test", () => {
       const lbpManager = await ethers.getContractAt(
         "LBPManager",
         LBP_MANAGER,
-        await impersonateSigner(namedAccounts.daoAgent.mainnet)
+        await impersonateSigner(namedAccounts.daoAgent)
       );
 
       await lbpManager.enableTrading();
 
       const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury.mainnet
+        namedAccounts.daoTreasury
       );
 
       await lbpManager.withdrawFromPool();
 
       const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury.mainnet
+        namedAccounts.daoTreasury
       );
 
       expect(usdcBalanceAfter.gt(usdcBalanceBefore)).to.be.true;
@@ -251,25 +241,25 @@ describe("LBP test", () => {
       const signer = await impersonateSigner(POP_WHALE);
 
       const voting = new ethers.Contract(
-        namedAccounts.voting.mainnet,
+        namedAccounts.voting,
         require("../../lib/external/aragon/Voting.json"),
         signer
       );
 
       const agent = new ethers.Contract(
-        namedAccounts.daoAgent.mainnet,
+        namedAccounts.daoAgent,
         require("../../lib/external/aragon/Agent.json")
       );
 
       const tokens = new ethers.Contract(
-        namedAccounts.tokenManager.mainnet,
+        namedAccounts.tokenManager,
         require("../../lib/external/aragon/TokenManager.json"),
         signer
       );
 
       const evmScript = encodeCallScript([
         {
-          to: namedAccounts.daoAgent.mainnet,
+          to: namedAccounts.daoAgent,
           data: agent.interface.encodeFunctionData(
             "execute(address,uint256,bytes)",
             [
@@ -283,7 +273,7 @@ describe("LBP test", () => {
 
       const voteEvmScript = encodeCallScript([
         {
-          to: namedAccounts.voting.mainnet,
+          to: namedAccounts.voting,
           data: voting.interface.encodeFunctionData("newVote(bytes,string)", [
             evmScript,
             "",
@@ -294,13 +284,13 @@ describe("LBP test", () => {
       await tokens.forward(voteEvmScript);
 
       const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury.mainnet
+        namedAccounts.daoTreasury
       );
 
       await voting.vote(6, true, true);
 
       const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury.mainnet
+        namedAccounts.daoTreasury
       );
 
       expect(usdcBalanceAfter.gt(usdcBalanceBefore)).to.be.true;
@@ -314,7 +304,7 @@ describe("LBP test", () => {
       const signer = await ethers.getSigners();
 
       const voting = new ethers.Contract(
-        namedAccounts.voting.mainnet,
+        namedAccounts.voting,
         require("../../lib/external/aragon/Voting.json"),
         signer[0]
       );
@@ -344,7 +334,7 @@ describe("LBP test", () => {
       await timeTravel(5 * DAYS);
 
       const voting = new ethers.Contract(
-        namedAccounts.voting.mainnet,
+        namedAccounts.voting,
         require("../../lib/external/aragon/Voting.json"),
         await impersonateSigner(POP_WHALE)
       );

@@ -19,17 +19,17 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
   return (
     <>
       <div
-        className="flex flex-row items-center mt-2 group cursor-pointer"
+        className="flex flex-row items-center mt-3 group cursor-pointer"
         onClick={() => setVisibility(!visible)}
       >
         <Icon.Settings
           className={`w-4 h-4  group-hover:text-blue-600 ${
-            visible ? 'text-black' : 'text-gray-500'
+            visible ? '' : 'text-gray-500'
           }`}
         />
         <p
-          className={`text-sm ml-2 group-hover:text-blue-600 ${
-            visible ? 'font-bold text-black' : 'text-gray-500'
+          className={`text-base leading-none mt-0.5 ml-2 group-hover:text-blue-600 ${
+            visible ? 'font-bold' : 'text-gray-500'
           }`}
         >
           Adjust slippage
