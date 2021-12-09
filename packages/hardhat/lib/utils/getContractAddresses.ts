@@ -78,6 +78,8 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         contractRegistry: "0x0c5b24d1dcBff87491eA61995BF141727346127f",
         usdc: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         pop: "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
+        daoAgent: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
+        daoTreasury: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
       };
       break;
     case 80001:
