@@ -1,11 +1,18 @@
 import { Web3Provider } from '@ethersproject/providers';
+import { ERC20 } from '@popcorn/hardhat/typechain';
 import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
 import StakeCard from 'components/StakeCard';
-import { ContractsContext } from 'context/Web3/contracts';
+import StatInfoCard from 'components/StatInfoCard';
+import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
+import {
+  getBalances,
+  getEarned,
+  getStakingStats,
+  StakingStats,
+} from '../../../utils';
 
 interface TokenBalances {
   pop: number;
@@ -13,69 +20,127 @@ interface TokenBalances {
   butter: number;
 }
 
+interface Balances {
+  wallet: TokenBalances;
+  staked: TokenBalances;
+  earned: TokenBalances;
+}
+
+async function getUserBalances(
+  account: string,
+  contracts: Contracts,
+): Promise<Balances> {
+  return {
+    wallet: await getBalances(account, {
+      pop: contracts.pop,
+      popEthLp: contracts.popEthLp,
+      butter: contracts.butter as unknown as ERC20,
+    }),
+    staked: await getBalances(account, {
+      pop: contracts.staking.pop,
+      popEthLp: contracts.staking.popEthLp,
+      butter: contracts.staking.butter,
+    }),
+    earned: await getEarned(account, contracts),
+  };
+}
+
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
-  const { library, chainId } = context;
-  const [stakingPoolsInfo, setStakingPools] = useState<StakingPoolInfo[]>();
+  const { library, account, activate, active } = context;
+  const [balances, setBalances] = useState<Balances>();
+  const [stakingStats, setStakingStats] = useState<StakingStats>();
 
   useEffect(() => {
-    if (!library || !contracts || !chainId) {
+    if (!contracts) {
       return;
     }
-    getStakingPoolsInfo(contracts, library)
-      .then((res) => {
-        setStakingPools(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    getStakingStats(contracts).then((res) => setStakingStats(res));
   }, [contracts]);
+
+  useEffect(() => {
+    if (!account || !contracts) {
+      return;
+    }
+    getUserBalances(account, contracts).then((res) => setBalances(res));
+  }, [account, contracts]);
 
   return (
     <div className="w-full h-screen">
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto flex flex-row mt-14">
+        <div className="w-9/12 mx-auto flex flex-row mt-14">
           <div className="w-1/3">
             <div className="">
-              <h1 className="text-3xl  font-medium">Staking</h1>
-              <p className="text-lg text-gray-500 mt-2">
+              <h1 className="text-3xl text-gray-800 font-medium">Staking</h1>
+              <p className="text-lg text-gray-500">
                 Earn more income staking your crypto with us
               </p>
             </div>
-            <div className="bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mt-10 mb-24 shadow-custom">
+            <div className="bg-primaryLight rounded-xl pt-10 mr-12 mt-12">
               <img
                 src="/images/farmerCat.svg"
                 alt="farmcerCat"
-                className="mx-auto transform scale-101 py-2"
+                className="mx-auto"
               />
             </div>
           </div>
 
-          <div className="w-2/3 mt-28">
-            <div className="space-y-6">
-              {stakingPoolsInfo &&
-                stakingPoolsInfo.length > 0 &&
-                stakingPoolsInfo.map((poolInfo, index) => (
-                  <div
-                    key={poolInfo.stakedTokenName + poolInfo.stakedTokenAddress}
-                  >
-                    <StakeCard
-                      stakedTokenAddress={poolInfo?.stakedTokenAddress}
-                      tokenName={poolInfo?.stakedTokenName}
-                      stakingPoolInfo={poolInfo}
-                      url={poolInfo.stakingContractAddress}
-                      stakingContract={
-                        contracts.staking[index]
-                          ? contracts.staking[index]
-                          : undefined
-                      }
-                      index={index}
+          <div className="w-2/3">
+            <div className="mt-28 flex flex-row items-center">
+              {balances && (
+                <>
+                  {/*<div className="w-1/2 mr-2">
+                    <StatInfoCard
+                      title="Staked Balance"
+                      content={`${(
+                        balances.staked.butter +
+                        balances.staked.pop +
+                        balances.staked.popEthLp
+                      ).toLocaleString()} Token`}
+                      icon={{
+                        icon: 'Money',
+                        color: 'bg-green-200',
+                        iconColor: 'text-gray-800',
+                      }}
+                    />
+                    </div>*/}
+                  <div className="w-full">
+                    <StatInfoCard
+                      title="Cumulative Rewards"
+                      content={`${(
+                        balances.earned.pop +
+                        balances.earned.popEthLp +
+                        balances.earned.butter
+                      ).toLocaleString()} POP`}
+                      icon={{ icon: 'Money', color: 'bg-blue-300' }}
                     />
                   </div>
-                ))}
+                </>
+              )}
+            </div>
+            <div className={`${balances ? 'mt-8' : ''} space-y-4`}>
+              {stakingStats && (
+                <>
+                  <StakeCard
+                    tokenName="POP"
+                    stakingStats={stakingStats.pop}
+                    url="pop"
+                  />
+                  <StakeCard
+                    tokenName="POP/ETH LP"
+                    stakingStats={stakingStats.popEthLp}
+                    url="pop-eth-lp"
+                  />
+                  <StakeCard
+                    tokenName="BUTTER"
+                    stakingStats={stakingStats.butter}
+                    url="butter"
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -1,16 +1,11 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
 import { BigNumber, Contract } from "ethers";
-import { getNamedAccountsFromNetwork } from "../utils/getContractAddresses";
+import getNamedAccounts from "../utils/getNamedAccounts";
 
 export enum BatchType {
   Mint,
   Redeem,
-}
-
-export interface CurrentBatches {
-  mint: Batch;
-  redeem: Batch;
 }
 
 export interface TimeTillBatchProcessing {
@@ -132,12 +127,11 @@ class ButterBatchAdapter {
 
   public async getHysiPrice(
     contract: Contract,
-    componentMap: ComponentMap,
-    chainId: number
+    componentMap: ComponentMap
   ): Promise<BigNumber> {
-    const addresses = getNamedAccountsFromNetwork(chainId);
+    const addresses = getNamedAccounts();
     const components = await contract.getRequiredComponentUnitsForIssue(
-      addresses.butter,
+      addresses.butter.hardhat,
       parseEther("1")
     );
     const componentAddresses = components[0];
@@ -181,10 +175,6 @@ class ButterBatchAdapter {
       true
     );
     return threeCrvPrice.mul(threeCrvAmountforStable).div(parseEther("1"));
-  }
-
-  public async getTokenSupply(contract: Contract): Promise<BigNumber> {
-    return await contract.totalSupply();
   }
 
   public async getBatches(account: string): Promise<AccountBatch[]> {
@@ -243,16 +233,6 @@ class ButterBatchAdapter {
         progressPercentage: percentageTillRedeem,
       },
     ];
-  }
-
-  public async getCurrentBatches(): Promise<CurrentBatches> {
-    const mintId = await this.contract.currentMintBatchId();
-    const redeemId = await this.contract.currentRedeemBatchId();
-
-    const mintBatch = await this.getBatch(mintId);
-    const redeemBatch = await this.getBatch(redeemId);
-
-    return { mint: mintBatch, redeem: redeemBatch };
   }
 }
 

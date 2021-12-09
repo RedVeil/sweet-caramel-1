@@ -27,10 +27,10 @@ export default function CardIcon({
   iconColor,
 }: CardIconProps): JSX.Element {
   return (
-    <div
-      className={`w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 flex-grow-0 ${color}`}
-    >
-      <div className={`w-6 h-6 ${iconColor ? iconColor : 'text-white'}`}>
+    <div className={`w-12 h-12 rounded-full flex ${color}`}>
+      <div
+        className={`ml-3 mt-3 w-4 h-4 ${iconColor ? iconColor : 'text-white'}`}
+      >
         {getIcon(icon)}
       </div>
     </div>

@@ -81,9 +81,9 @@ export default function SetTokenCreator({
 
       console.log("components");
       const setComponents = getComponents(configuration);
-      console.log("setComponents", setComponents);
+
       const setModules = getModules(configuration);
-      console.log("setModules", setModules);
+
       const tx = await creator.create(
         setComponents.map((component) => component.address),
         setComponents.map((component) => this._calculateUnits(component)),

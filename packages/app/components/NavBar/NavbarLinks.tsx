@@ -16,8 +16,8 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({
   target,
 }) => {
   const className = `
-    font-base font-semibold
-    text-base ${isActive ? 'text-gray-800 font-medium' : 'text-gray-500'} 
+    font-base 
+    text-base ${isActive ? 'text-gray-900 font-medium' : 'text-gray-500'} 
     hover:text-gray-900 cursor-pointer
   `;
 

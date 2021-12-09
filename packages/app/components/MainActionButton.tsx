@@ -12,11 +12,11 @@ const MainActionButton: React.FC<MainActionButtonProps> = ({
   return (
     <button
       type="button"
-      className="w-full h-hull py-3 flex flex-row items-center justify-center bg-blue-600 rounded-full hover:bg-blue-700 disabled:bg-gray-300"
+      className="button button-primary w-full"
       onClick={handleClick}
       disabled={disabled}
     >
-      <p className="text-base text-white font-medium">{label}</p>
+      {label}
     </button>
   );
 };
