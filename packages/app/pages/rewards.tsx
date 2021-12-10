@@ -7,7 +7,9 @@ import {
 } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import ClaimCard from 'components/ClaimCard';
+import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
+import { connectors } from 'context/Web3/connectors';
 import { ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -75,31 +77,51 @@ export default function index(): JSX.Element {
           </p>
         </div>
         <div className="w-9/12 h-full mx-auto flex flex-row mt-10 mb-24">
-          <div className="w-4/12 h-full shadow-custom rounded-5xl mt-2 -top-0.5">
-            <img
-              src="/images/claimCat.svg"
-              alt="claimCat"
-              className="w-full h-full object-cover transform scale-y-103"
-            />
-          </div>
-          <div className="w-9/12">
-            <div className="flex flex-col space-y-6 ml-8">
-              {stakingPoolsInfo && stakingPoolsInfo.length > 0 && earned && (
-                <>
-                  {earned &&
-                    stakingPoolsInfo?.map((poolInfo, index) => (
-                      <ClaimCard
-                        tokenName={poolInfo.stakedTokenName}
-                        claimable={earned[index] ? earned[index] : 0}
-                        handleClick={() =>
-                          claimReward(contracts.staking[index])
-                        }
-                      />
-                    ))}
-                </>
-              )}
+          {account ? (
+            <>
+              <div className="w-1/3 bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mb-24 shadow-custom">
+                <img
+                  src="/images/claimCat.png"
+                  alt="claimCat"
+                  className="mx-auto transform scale-101 py-2"
+                />
+              </div>
+              <div className="w-9/12">
+                <div className="flex flex-col space-y-6 ml-8">
+                  {stakingPoolsInfo &&
+                    stakingPoolsInfo.length > 0 &&
+                    earned && (
+                      <>
+                        {earned &&
+                          stakingPoolsInfo?.map((poolInfo, index) => (
+                            <ClaimCard
+                              tokenName={poolInfo.stakedTokenName}
+                              claimable={earned[index] ? earned[index] : 0}
+                              handleClick={() =>
+                                claimReward(contracts.staking[index])
+                              }
+                            />
+                          ))}
+                      </>
+                    )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="w-full bg-primaryLight rounded-5xl pt-36 pb-36 mb-24 shadow-custom">
+              <img
+                src="/images/claimCat.png"
+                alt="claimCat"
+                className="mx-auto transform scale-101 py-2"
+              />
+              <div className="w-80 mx-auto mt-8">
+                <MainActionButton
+                  label="Connect Wallet"
+                  handleClick={() => activate(connectors.Injected)}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
