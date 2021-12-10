@@ -7,12 +7,6 @@ import { useContext, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
 
-interface TokenBalances {
-  pop: number;
-  popEthLp: number;
-  butter: number;
-}
-
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
@@ -31,6 +25,12 @@ export default function index(): JSX.Element {
         console.log(error);
       });
   }, [contracts]);
+
+  useEffect(() => {
+    return () => {
+      setStakingPools(undefined);
+    };
+  }, []);
 
   return (
     <div className="w-full h-screen">
@@ -56,7 +56,8 @@ export default function index(): JSX.Element {
 
           <div className="w-2/3 mt-28">
             <div className="space-y-6">
-              {stakingPoolsInfo &&
+              {contracts?.staking &&
+                stakingPoolsInfo &&
                 stakingPoolsInfo.length > 0 &&
                 stakingPoolsInfo.map((poolInfo, index) => (
                   <div
@@ -68,8 +69,8 @@ export default function index(): JSX.Element {
                       stakingPoolInfo={poolInfo}
                       url={poolInfo.stakingContractAddress}
                       stakingContract={
-                        contracts.staking[index]
-                          ? contracts.staking[index]
+                        contracts?.staking[index]
+                          ? contracts?.staking[index]
                           : undefined
                       }
                       index={index}

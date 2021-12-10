@@ -10,7 +10,7 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { getChainRelevantContracts } from '../../../hardhat/lib/utils/getContractAddresses';
 import {
   BasicIssuanceModule,
@@ -30,8 +30,6 @@ import {
   YearnVault,
   YearnVault__factory,
 } from '../../../hardhat/typechain';
-import { setSingleActionModal } from '../actions';
-import { store } from '../store';
 import { connectors, networkMap } from './connectors';
 
 export interface Contracts {
@@ -163,11 +161,10 @@ export default function ContractsWrapper({
   children,
 }: ContractsWrapperProps): JSX.Element {
   const context = useWeb3React<Web3Provider>();
-  const { library, chainId, activate, active, error } = context;
+  const { library, chainId, activate, active } = context;
   const [contracts, setContracts] = useState<Contracts>();
   const [butterDependencyContracts, setButterDependencyContracts] =
     useState<ButterDependencyContracts>();
-  const { dispatch } = useContext(store);
 
   useEffect(() => {
     if (!active) {
@@ -176,25 +173,11 @@ export default function ContractsWrapper({
   }, [active]);
 
   useEffect(() => {
-    if (error) {
-      dispatch(
-        setSingleActionModal({
-          content: getErrorMessage(error),
-          title: 'Wallet Error',
-          visible: true,
-          type: 'error',
-          onConfirm: {
-            label: 'Close',
-            onClick: () => dispatch(setSingleActionModal(false)),
-          },
-        }),
-      );
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (!library || !chainId) {
-      return;
+    if (!library || !chainId || chainId === undefined) {
+      return () => {
+        setContracts({});
+        setButterDependencyContracts({});
+      };
     }
     const contractAddresses = getChainRelevantContracts(chainId);
     const contracts = initializeContracts(contractAddresses, library);
@@ -205,10 +188,6 @@ export default function ContractsWrapper({
       library,
     );
     setButterDependencyContracts(butterDependencyContracts);
-    return () => {
-      setContracts({});
-      setButterDependencyContracts({});
-    };
   }, [library, active, chainId]);
 
   return (

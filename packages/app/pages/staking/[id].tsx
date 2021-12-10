@@ -60,12 +60,17 @@ export default function stake(): JSX.Element {
     }
     prevChainId.current = chainId;
   }, [chainId]);
+
   useEffect(() => {
     return () => {
       dispatch(updateStakingPageInfo(undefined));
     };
   }, []);
+
   useEffect(() => {
+    if (!library || !contracts || !chainId) {
+      return;
+    }
     async function getPageInfo() {
       if (contracts && contracts.staking.length > 0) {
         const stakingContract: StakingRewards = contracts.staking.find(
@@ -75,6 +80,7 @@ export default function stake(): JSX.Element {
         // This also cannot be conditional as the pool on differect chains might be very different from each other in future.
         if (stakingContract === undefined) {
           router.push('/staking');
+          return;
         }
         const stakingPoolInfo: StakingPoolInfo = await getSingleStakingPoolInfo(
           stakingContract,
@@ -93,7 +99,9 @@ export default function stake(): JSX.Element {
             poolInfo: stakingPoolInfo,
           }),
         );
-        await updateDataOnRefresh(erc20, stakingContract);
+        if (account) {
+          await updateDataOnRefresh(erc20, stakingContract);
+        }
       }
     }
     if (
@@ -102,7 +110,7 @@ export default function stake(): JSX.Element {
     ) {
       getPageInfo();
     }
-  }, [state.stakingPageInfo, contracts, library]);
+  }, [state.stakingPageInfo, contracts, library, account]);
 
   const updateDataOnRefresh = async (stakedToken, stakingContract) => {
     const inputBalance = await stakedToken.balanceOf(account);

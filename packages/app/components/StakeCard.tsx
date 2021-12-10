@@ -2,9 +2,8 @@ import { Web3Provider } from '@ethersproject/providers';
 import { StakingRewards } from '@popcorn/hardhat/typechain';
 import { getERC20Contract, StakingPoolInfo } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
-import { store } from 'context/store';
 import router from 'next/router';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import MainActionButton from './MainActionButton';
 import TokenIcon from './TokenIcon';
 
@@ -17,16 +16,15 @@ interface StakeCardProps {
   index: number;
 }
 
-export default function ({
+const StakeCard: React.FC<StakeCardProps> = ({
   tokenName,
   stakingPoolInfo,
   url,
   stakingContract,
   index,
   stakedTokenAddress,
-}: StakeCardProps): JSX.Element {
+}) => {
   const { library } = useWeb3React<Web3Provider>();
-  const { dispatch } = useContext(store);
 
   const onSelectPool = useCallback(async () => {
     const erc20 = await getERC20Contract(
@@ -83,4 +81,6 @@ export default function ({
       </div>
     </div>
   );
-}
+};
+
+export default StakeCard;

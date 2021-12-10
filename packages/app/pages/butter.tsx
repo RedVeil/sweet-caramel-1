@@ -218,7 +218,7 @@ export default function Butter(): JSX.Element {
     if (!library || !contracts) {
       return;
     }
-    if (![1, 1337, 31337].includes(chainId)) {
+    if (![1337, 31337].includes(chainId)) {
       dispatch(
         setDualActionWideModal({
           title: 'Coming Soon',
