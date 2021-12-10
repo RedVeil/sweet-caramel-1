@@ -89,7 +89,11 @@ const Navbar: React.FC = () => {
           <div className="relative flex flex-container flex-row w-fit-content z-10">
             <Menu>
               <Menu.Button>
-                <div className="w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl">
+                <div
+                  className={`w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl ${
+                    account ? 'cursor-pointer' : 'cursor-default'
+                  }`}
+                >
                   <img
                     src={currentChainIcon}
                     alt={''}
@@ -98,16 +102,22 @@ const Navbar: React.FC = () => {
                   <p className="leading-none font-semibold text-blue-700 mt-0.5">
                     {currentChainName}
                   </p>
-                  <ChevronDownIcon
-                    className="w-5 h-5 ml-4"
-                    aria-hidden="true"
-                  />
+                  {account ? (
+                    <ChevronDownIcon
+                      className="w-5 h-5 ml-4"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <div></div>
+                  )}
                 </div>
               </Menu.Button>
-              <NetworkOptionsMenu
-                currentChain={chainId}
-                switchNetwork={switchNetwork}
-              />
+              {account && (
+                <NetworkOptionsMenu
+                  currentChain={chainId}
+                  switchNetwork={switchNetwork}
+                />
+              )}
             </Menu>
           </div>
           <button
