@@ -69,17 +69,17 @@ export default function index(): JSX.Element {
     <div className="w-full bg-white h-screen">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="">
-        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14">
-          <h1 className="text-3xl  font-medium">Claim</h1>
+      <div className="w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14">
+        <div className="">
+          <h1 className="text-3xl font-bold">Claim</h1>
           <p className="text-lg text-gray-500 mt-2">
             Claim your rewards or restake them to earn more
           </p>
         </div>
-        <div className="w-9/12 h-full mx-auto flex flex-row mt-10 mb-24">
+        <div className="w-full h-full mx-auto flex flex-row mt-10 mb-24">
           {account ? (
             <>
-              <div className="w-1/3 bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mb-24 shadow-custom">
+              <div className="w-1/3 bg-primaryLight rounded-5xl pt-44 pb-44 mb-24 shadow-custom">
                 <img
                   src="/images/claimCat.png"
                   alt="claimCat"

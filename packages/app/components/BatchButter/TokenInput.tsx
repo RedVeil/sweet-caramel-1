@@ -163,7 +163,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <div className="rounded-md border border-gray-200 p-2">
           <div className="flex flex-row items-center justify-between">
             <input
-              className="w-64 border-none leading-none font-semibold text-gray-500 focus:outline-none focus:text-gray-800"
+              className="w-36 smlaptop:w-64 mr-1 smlaptop:mr-0 border-none leading-none font-semibold text-gray-500 focus:outline-none focus:text-gray-800"
               type="number"
               value={estimatedAmount}
               onChange={(e) =>

@@ -722,44 +722,44 @@ export default function Butter(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto flex flex-row mt-14">
+        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14">
           <div className="w-1/3">
-            <div className="">
-              <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
-              <p className="text-lg text-gray-500 mt-2">
-                Deposit your stablecoins and watch your money grow
-              </p>
-              <div className="flex flex-row items-center mt-2">
-                <div className="pr-6 border-r-2 border-gray-200">
-                  <p className="text-gray-500 font-light text-base uppercase">
-                    Est. APY
-                  </p>
-                  <p className="text-green-600 text-xl font-medium">20 %</p>
-                </div>
-                <div className="px-6 border-r-2 border-gray-200">
-                  <p className="text-gray-500 font-light text-base uppercase">
-                    TVL
-                  </p>
-                  <p className=" text-xl font-medium">
-                    {batchProcessTokens?.butter && butterSupply
-                      ? formatAndRoundBigNumber(
-                          butterSupply
-                            .mul(batchProcessTokens?.butter.price)
-                            .div(parseEther('1')),
-                        ).toLocaleString()
-                      : '-'}{' '}
-                    $
-                  </p>
-                </div>
-                <div className="pl-6">
-                  <p className="text-gray-500 font-light text-base uppercase">
-                    Social Impact
-                  </p>
-                  <p className="text-xl font-medium">Coming Soon</p>
-                </div>
+            <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
+            <p className="text-lg text-gray-500 mt-2">
+              Deposit your stablecoins and watch your money grow
+            </p>
+            <div className="flex flex-row items-center mt-2">
+              <div className="pr-6 border-r-2 border-gray-200">
+                <p className="text-gray-500 font-light text-base uppercase">
+                  Est. APY
+                </p>
+                <p className="text-green-600 text-xl font-medium">20 %</p>
+              </div>
+              <div className="px-6 border-r-2 border-gray-200">
+                <p className="text-gray-500 font-light text-base uppercase">
+                  TVL
+                </p>
+                <p className=" text-xl font-medium">
+                  {batchProcessTokens?.butter && butterSupply
+                    ? formatAndRoundBigNumber(
+                        butterSupply
+                          .mul(batchProcessTokens?.butter.price)
+                          .div(parseEther('1')),
+                      ).toLocaleString()
+                    : '-'}{' '}
+                  $
+                </p>
+              </div>
+              <div className="pl-6">
+                <p className="text-gray-500 font-light text-base uppercase">
+                  Social Impact
+                </p>
+                <p className="text-xl font-medium">Coming Soon</p>
               </div>
             </div>
-            <div className="mt-10">
+          </div>
+          <div className="mt-10 flex flex-row">
+            <div className="w-1/3">
               {claimableBatches ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
@@ -787,8 +787,8 @@ export default function Butter(): JSX.Element {
                   setSlippage={setSlippage}
                 />
               ) : (
-                <div className="bg-white rounded-3xl px-5 pt-6 pb-10 mr-8 border border-gray-200 shadow-custom">
-                  <div className="w-full py-64 mt-1.5 mb-2">
+                <div className="bg-white rounded-3xl px-5 pt-6 pb-14 laptop:pb-10 mr-8 border border-gray-200 shadow-custom">
+                  <div className="w-full py-64 mt-1 smlaptop:mt-2 mb-2">
                     <MainActionButton
                       label="Connect Wallet"
                       handleClick={() => activate(connectors.Injected)}
@@ -797,62 +797,63 @@ export default function Butter(): JSX.Element {
                 </div>
               )}
             </div>
-          </div>
-          <div className="w-2/3 mt-60 pt-3 laptop:mt-44 laptop:pt-6 lglaptop:mt-40 lglaptop:pt-3 2xl:mt-48 2xl:pt-2">
-            <div className="flex flex-row items-center">
-              <div className="w-1/2 mr-2">
-                <StatInfoCard
-                  title="Butter Value"
-                  content={`${
-                    batchProcessTokens?.butter
-                      ? formatAndRoundBigNumber(
-                          batchProcessTokens?.butter?.price,
-                        )
-                      : '-'
-                  } $`}
-                  icon={{ icon: 'Money', color: 'bg-blue-300' }}
-                />
-              </div>
-              <div className="w-1/2 ml-2">
-                <BatchProgress
-                  batchAmount={
-                    currentBatches?.mint && batchProcessTokens?.butter
-                      ? redeeming
-                        ? bigNumberToNumber(
-                            currentBatches.redeem.suppliedTokenBalance
-                              .div(parseEther('1'))
-                              .mul(batchProcessTokens?.butter.price),
-                          )
-                        : bigNumberToNumber(
-                            currentBatches.mint.suppliedTokenBalance
-                              .div(parseEther('1'))
-                              .mul(batchProcessTokens?.threeCrv.price),
-                          )
-                      : 0
-                  }
-                  threshold={100000}
-                />
-              </div>
-            </div>
-            <div className="w-full h-min-content pl-10 pr-2 pt-16 pb-12 mt-8 rounded-4xl shadow-custom border border-gray-200 bg-primaryLight">
-              <Tutorial />
-            </div>
-          </div>
-        </div>
 
-        {batches?.length > 0 && (
-          <div className="mt-10 lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-12">
-            <div className="shadow-custom overflow-hidden border border-gray-200 rounded-3xl p-2">
-              <ClaimableBatches
-                batches={batches}
-                claim={claim}
-                withdraw={withdraw}
-                slippage={slippage}
-                setSlippage={setSlippage}
-              />
+            <div className="w-2/3">
+              <div className="flex flex-row">
+                <div className="w-1/2 mr-2">
+                  <StatInfoCard
+                    title="Butter Value"
+                    content={`${
+                      batchProcessTokens?.butter
+                        ? formatAndRoundBigNumber(
+                            batchProcessTokens?.butter?.price,
+                          )
+                        : '-'
+                    } $`}
+                    icon={{ icon: 'Money', color: 'bg-blue-300' }}
+                  />
+                </div>
+                <div className="w-1/2 ml-2">
+                  <BatchProgress
+                    batchAmount={
+                      currentBatches?.mint && batchProcessTokens?.butter
+                        ? redeeming
+                          ? bigNumberToNumber(
+                              currentBatches.redeem.suppliedTokenBalance
+                                .div(parseEther('1'))
+                                .mul(batchProcessTokens?.butter.price),
+                            )
+                          : bigNumberToNumber(
+                              currentBatches.mint.suppliedTokenBalance
+                                .div(parseEther('1'))
+                                .mul(batchProcessTokens?.threeCrv.price),
+                            )
+                        : 0
+                    }
+                    threshold={100000}
+                  />
+                </div>
+              </div>
+
+              <div className="w-full h-min-content pl-10 pr-2 pt-8 smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 pb-6 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 mt-8 rounded-4xl shadow-custom border border-gray-200 bg-primaryLight">
+                <Tutorial />
+              </div>
             </div>
           </div>
-        )}
+          {batches?.length > 0 && (
+            <div className="mt-10 lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-12">
+              <div className="shadow-custom overflow-hidden border border-gray-200 rounded-3xl p-2">
+                <ClaimableBatches
+                  batches={batches}
+                  claim={claim}
+                  withdraw={withdraw}
+                  slippage={slippage}
+                  setSlippage={setSlippage}
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
