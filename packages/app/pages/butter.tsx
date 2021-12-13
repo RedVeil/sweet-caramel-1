@@ -841,7 +841,7 @@ export default function Butter(): JSX.Element {
             </div>
           </div>
           {batches?.length > 0 && (
-            <div className="mt-10 lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-12">
+            <div className="mt-10 w-full mx-auto pb-12">
               <div className="shadow-custom overflow-hidden border border-gray-200 rounded-3xl p-2">
                 <ClaimableBatches
                   batches={batches}

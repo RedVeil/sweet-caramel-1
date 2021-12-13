@@ -19,7 +19,7 @@ export async function calculateAPY(
   totalStaked: BigNumber,
 ): Promise<number> {
   //Prevents `div by 0` errors
-  if (totalStaked.eq(BigNumber.from('0'))) {
+  if (!totalStaked || totalStaked.eq(BigNumber.from('0'))) {
     return Infinity;
   }
 
