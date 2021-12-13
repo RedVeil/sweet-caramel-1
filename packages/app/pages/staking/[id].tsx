@@ -55,7 +55,7 @@ export default function stake(): JSX.Element {
   const prevChainId = React.useRef<number>(null);
 
   useEffect(() => {
-    if (prevChainId.current && chainId !== prevChainId.current) {
+    if (prevChainId.current && chainId !== prevChainId.current && chainId) {
       router.push('/staking');
     }
     prevChainId.current = chainId;
@@ -243,15 +243,17 @@ export default function stake(): JSX.Element {
     const formattedToken = inputTokenAmount.toLocaleString().replace(/,/gi, '');
     const lockedTokenInEth = utils.parseEther(formattedToken);
     const connected = await contracts.pop.connect(library.getSigner());
-    await connected
+    connected
       .approve(
         state.stakingPageInfo?.stakingContract?.address,
         lockedTokenInEth,
       )
       .then((res) =>
-        res.wait().then((res) => {
+        res.wait().then(async (res) => {
           toast.dismiss();
           toast.success(`${state.stakingPageInfo?.tokenName} approved!`);
+          await updateData();
+          setWait(false);
         }),
       )
       .catch((err) => {
@@ -264,8 +266,6 @@ export default function stake(): JSX.Element {
           toast.error(err.message.split("'")[1]);
         }
       });
-    await updateData();
-    setWait(false);
   }
 
   return (

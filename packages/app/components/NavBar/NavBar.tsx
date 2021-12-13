@@ -10,6 +10,11 @@ import { connectors, networkMap } from '../../context/Web3/connectors';
 import NavbarLink from './NavbarLinks';
 import NetworkOptionsMenu from './NetworkOptionsMenu';
 
+const disconnectInjectedAndActivateRPCConnector = (deactivate, activate) => {
+  deactivate(connectors.Injected);
+  activate(connectors.Network);
+};
+
 const Navbar: React.FC = () => {
   const { chainId, account, activate, deactivate } =
     useWeb3React<Web3Provider>();
@@ -122,7 +127,12 @@ const Navbar: React.FC = () => {
           </div>
           <button
             onClick={() =>
-              account ? deactivate() : activate(connectors.Injected)
+              account
+                ? disconnectInjectedAndActivateRPCConnector(
+                    deactivate,
+                    activate,
+                  )
+                : activate(connectors.Injected)
             }
             className={`rounded-full py-3 w-44 border border-transparent shadow-custom group hover:bg-blue-500 ${
               account ? 'bg-blue-50 border-blue-700' : 'bg-blue-100'
