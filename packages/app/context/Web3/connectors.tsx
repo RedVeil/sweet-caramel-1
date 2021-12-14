@@ -1,40 +1,61 @@
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 
+export enum ChainId {
+  Ethereum = 1,
+  Rinkeby = 4,
+  Arbitrum = 42161,
+  Mumbai = 80001,
+  Polygon = 137,
+  Localhost = 1337,
+  Hardhat = 31337,
+}
+
 export const networkMap = {
-  1: 'Ethereum',
-  4: 'rinkeby',
-  42161: 'arbitrum one',
-  80001: 'polygon_mumbai',
-  137: 'polygon',
-  1337: 'localhost',
-  31337: 'hardhat',
+  [ChainId.Ethereum]: 'Ethereum',
+  [ChainId.Rinkeby]: 'Rinkeby',
+  [ChainId.Arbitrum]: 'Arbitrum',
+  [ChainId.Mumbai]: 'polygon_mumbai',
+  [ChainId.Polygon]: 'Polygon',
+  [ChainId.Hardhat]: 'Hardhat',
+  [ChainId.Localhost]: 'Localhost',
+};
+
+export const logos = {
+  [ChainId.Ethereum]: '/images/icons/ethLogo.png',
+  [ChainId.Rinkeby]: '/images/icons/ethLogo.png',
+  [ChainId.Polygon]: '/images/icons/polygonLogo.png',
+  [ChainId.Arbitrum]: '/images/icons/arbitrum.png',
+  [ChainId.Hardhat]: '/images/icons/ethLogo.png',
+  [ChainId.Localhost]: '/images/icons/ethLogo.png',
 };
 
 const RPC_URLS = {
-  1: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  4: `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  42161: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  137: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  80001: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  31337: `http://localhost:8545`,
-  1337: `http://localhost:8545`,
+  [ChainId.Ethereum]: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.Rinkeby]: `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.Arbitrum]: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.Polygon]: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.Localhost]: `http://localhost:8545`,
+  [ChainId.Hardhat]: `http://localhost:8545`,
 };
 
+export const supportedChainIds = [
+  ChainId.Ethereum,
+  ChainId.Rinkeby,
+  ChainId.Arbitrum,
+  ChainId.Polygon,
+  ChainId.Mumbai,
+  ChainId.Localhost,
+  ChainId.Hardhat,
+];
+
 const Injected = new InjectedConnector({
-  supportedChainIds: [1, 4, 42161, 80001, 137, 31337, 1337],
+  supportedChainIds,
 });
 
 const Network = new NetworkConnector({
-  urls: {
-    1: RPC_URLS[1],
-    4: RPC_URLS[4],
-    42161: RPC_URLS[42161],
-    80001: RPC_URLS[80001],
-    137: RPC_URLS[137],
-    31337: RPC_URLS[31337],
-    1337: RPC_URLS[1337],
-  },
+  urls: RPC_URLS,
   defaultChainId: +process.env.CHAIN_ID,
 });
 

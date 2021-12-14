@@ -1,7 +1,10 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/outline';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import MainActionButton from 'components/MainActionButton';
+import TertiaryActionButton from 'components/TertiaryActionButton';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+
 export interface DualActionWideModalProps {
   title: string;
   content: React.ReactElement | string;
@@ -9,6 +12,7 @@ export interface DualActionWideModalProps {
   progress?: boolean;
   onDismiss?: { label: string; onClick: Function };
   onConfirm: { label: string; onClick: Function };
+  icon?: 'check';
 }
 
 export const DefaultDualActionWideModalProps = {
@@ -26,6 +30,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
   progress,
   onConfirm,
   onDismiss,
+  icon,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
@@ -36,7 +41,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
 
   const dismiss = () => {
     setOpen(false);
-    setTimeout(onDismiss?.onClick && onDismiss.onClick(), 1000);
+    setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
   };
 
   const confirm = () => {
@@ -64,7 +69,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-filter backdrop-blur" />
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
@@ -85,12 +90,14 @@ const Example: React.FC<DualActionWideModalProps> = ({
           >
             <div className="inline-block align-bottom bg-white rounded-4xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
               <div>
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                  <CheckIcon
-                    className="h-6 w-6 text-green-600"
-                    aria-hidden="true"
-                  />
-                </div>
+                {icon == 'check' && (
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                    <CheckIcon
+                      className="h-6 w-6 text-green-600"
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
                 <div className="mt-3 text-center sm:mt-5">
                   <Dialog.Title
                     as="h3"
@@ -100,33 +107,27 @@ const Example: React.FC<DualActionWideModalProps> = ({
                   </Dialog.Title>
                   <div className="mt-2">
                     {typeof content === 'string' ? (
-                      <p className="text-sm text-gray-500">{content}</p>
+                      <p className="text-lg text-gray-500 py-6">{content}</p>
                     ) : (
                       <>{content}</>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                {onConfirm && (
-                  <button
-                    type="button"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-                    onClick={() => confirm()}
-                  >
-                    {onConfirm.label}
-                  </button>
-                )}
-
+              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-4 sm:grid-flow-row-dense">
                 {onDismiss && (
-                  <button
-                    type="button"
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
-                    ref={cancelButtonRef}
-                    onClick={() => dismiss()}
-                  >
-                    {onDismiss.label}
-                  </button>
+                  <TertiaryActionButton
+                    disabled={progress}
+                    label={onDismiss.label}
+                    handleClick={() => dismiss()}
+                  ></TertiaryActionButton>
+                )}
+                {onConfirm && (
+                  <MainActionButton
+                    disabled={progress}
+                    label={onConfirm.label}
+                    handleClick={() => confirm()}
+                  ></MainActionButton>
                 )}
               </div>
             </div>

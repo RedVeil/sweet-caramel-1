@@ -16,8 +16,10 @@ import {
   CLEAR_NOTIFICATIONS,
   DUAL_ACTION_MODAL,
   DUAL_ACTION_WIDE_MODAL,
+  HIDE_GLOBAL_LOADER,
   HIDE_NOTIFICATION,
   PUSH_NOTIFICATION,
+  SHOW_GLOBAL_LOADER,
   SINGLE_ACTION_MODAL,
   UNSET_NOTIFICATION,
   UPDATE_STAKING_PAGE_INFO,
@@ -29,6 +31,7 @@ interface DefaultState {
   dualActionModal: DualActionModalProps;
   dualActionWideModal: DualActionWideModalProps;
   stakingPageInfo?: StakingPageInfo;
+  globalLoaderVisible?: boolean;
 }
 
 const initialState: DefaultState = {
@@ -120,6 +123,19 @@ const StateProvider = ({ children }) => {
             stakingPageInfo: {
               ...action.payload,
             },
+          };
+        case UPDATE_STAKING_PAGE_INFO:
+          return {
+            ...state,
+            stakingPageInfo: {
+              ...action.payload,
+            },
+          };
+        case SHOW_GLOBAL_LOADER:
+        case HIDE_GLOBAL_LOADER:
+          return {
+            ...state,
+            globalLoaderVisible: action.payload,
           };
         default:
           return {

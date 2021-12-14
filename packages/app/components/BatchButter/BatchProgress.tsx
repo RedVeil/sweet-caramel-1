@@ -20,10 +20,16 @@ const BatchProgress: React.FC<BatchProgressProps> = ({
         <div>
           <div className="flex flex-row items-center">
             <p className="font-semibold leading-none">Batch Processing</p>
-            <InfoIconWithModal title="Batch Processing" />
+            <InfoIconWithModal title="Batch Processing">
+              <div>
+                Your mint/redeem request will be processed after the current
+                batch is ready to be processed. The expected wait time is about
+                24 hours.
+              </div>
+            </InfoIconWithModal>
           </div>
           <p className="text-gray-500 leading-snug">
-            Your funds will be processed after the batch is full.
+            Your request will be processed with the next batch.
           </p>
         </div>
       </div>

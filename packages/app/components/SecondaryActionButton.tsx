@@ -1,10 +1,10 @@
-interface MainActionButtonProps {
+interface SecondaryActionButtonProps {
   label: string;
   handleClick: any;
   disabled?: boolean;
 }
 
-const MainActionButton: React.FC<MainActionButtonProps> = ({
+const SecondaryActionButton: React.FC<SecondaryActionButtonProps> = ({
   label,
   handleClick,
   disabled = false,
@@ -13,7 +13,7 @@ const MainActionButton: React.FC<MainActionButtonProps> = ({
   return (
     <button
       type="button"
-      className="w-full h-hull py-3 flex flex-row items-center justify-center bg-blue-600 rounded-full hover:bg-blue-700 disabled:bg-gray-300"
+      className="w-full h-hull py-3 flex flex-row items-center justify-center bg-blue-400 rounded-full hover:bg-blue-500 disabled:bg-gray-300"
       onClick={handleClick}
       disabled={disabled}
     >
@@ -21,4 +21,4 @@ const MainActionButton: React.FC<MainActionButtonProps> = ({
     </button>
   );
 };
-export default MainActionButton;
+export default SecondaryActionButton;

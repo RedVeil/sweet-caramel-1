@@ -3,7 +3,8 @@ import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
 import StakeCard from 'components/StakeCard';
 import { ContractsContext } from 'context/Web3/contracts';
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import ContentLoader from 'react-content-loader';
 import { Toaster } from 'react-hot-toast';
 import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
 
@@ -12,6 +13,7 @@ export default function index(): JSX.Element {
   const { contracts } = useContext(ContractsContext);
   const { library, chainId } = context;
   const [stakingPoolsInfo, setStakingPools] = useState<StakingPoolInfo[]>();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!library || !contracts || !chainId) {
@@ -25,6 +27,14 @@ export default function index(): JSX.Element {
         console.log(error);
       });
   }, [contracts]);
+
+  useEffect(() => {
+    if (stakingPoolsInfo?.length) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [stakingPoolsInfo]);
 
   useEffect(() => {
     return () => {
@@ -58,6 +68,7 @@ export default function index(): JSX.Element {
             </div>
             <div className="w-2/3">
               <div className="space-y-6">
+                {loading && <ContentLoader title="Loading ..." />}
                 {contracts?.staking &&
                   stakingPoolsInfo &&
                   stakingPoolsInfo.length > 0 &&

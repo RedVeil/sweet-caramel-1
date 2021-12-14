@@ -3,26 +3,15 @@ import { useWeb3React } from '@web3-react/core';
 import { useContext, useEffect } from 'react';
 import { setSingleActionModal } from '../context/actions';
 import { store } from '../context/store';
-import { networkMap } from '../context/Web3/connectors';
+import { networkMap, supportedChainIds } from '../context/Web3/connectors';
 
 const SwapChainModal: React.FC = () => {
   const context = useWeb3React<Web3Provider>();
   const { account, chainId } = context;
   const { dispatch } = useContext(store);
 
-  const supportedChains: Array<number> = [
-    Number(process.env.CHAIN_ID),
-    31337,
-    1337,
-    80001,
-    1,
-    4,
-    137,
-    42161,
-  ];
-
   useEffect(() => {
-    if (account && !supportedChains.includes(chainId)) {
+    if (account && !supportedChainIds.includes(chainId)) {
       dispatch(
         setSingleActionModal({
           content: `The network selected in your wallet is not supported. Please switch to ${

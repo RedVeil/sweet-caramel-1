@@ -26,7 +26,7 @@ export default function StatInfoCard({
             iconColor={icon.iconColor}
           />
           <div className="ml-4">
-            <p className="font-semibold leading-none mt-1">{title}</p>
+            <p className="font-light leading-none mt-1">{title}</p>
             <h3 className="text-3xl font-medium mt-2">{content}</h3>
           </div>
         </div>

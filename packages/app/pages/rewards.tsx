@@ -12,6 +12,7 @@ import Navbar from 'components/NavBar/NavBar';
 import { connectors } from 'context/Web3/connectors';
 import { ContractsContext } from 'context/Web3/contracts';
 import { useContext, useEffect, useState } from 'react';
+import ContentLoader from 'react-content-loader';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function index(): JSX.Element {
@@ -20,6 +21,7 @@ export default function index(): JSX.Element {
   const { library, account, activate, active, chainId } = context;
   const [earned, setEarned] = useState<number[]>();
   const [totalEarned, setTotalEarned] = useState<number>();
+  const [loading, setLoading] = useState(false);
   const [stakingPoolsInfo, setStakingPoolsInfo] = useState<StakingPoolInfo[]>();
 
   useEffect(() => {
@@ -34,6 +36,14 @@ export default function index(): JSX.Element {
     }
     getData().catch((err) => console.log(err));
   }, [account, contracts, library]);
+
+  useEffect(() => {
+    if (earned?.length && stakingPoolsInfo?.length) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [earned, stakingPoolsInfo]);
 
   useEffect(() => {
     if (!earned) {
@@ -88,6 +98,7 @@ export default function index(): JSX.Element {
               </div>
               <div className="w-9/12">
                 <div className="flex flex-col space-y-6 ml-8">
+                  {loading && <ContentLoader title="Loading ..." />}
                   {stakingPoolsInfo &&
                     stakingPoolsInfo.length > 0 &&
                     earned && (
@@ -97,6 +108,7 @@ export default function index(): JSX.Element {
                             <ClaimCard
                               tokenName={poolInfo.stakedTokenName}
                               claimable={earned[index] ? earned[index] : 0}
+                              key={poolInfo.stakingContractAddress}
                               handleClick={() =>
                                 claimReward(contracts.staking[index])
                               }

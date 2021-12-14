@@ -1,12 +1,16 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/solid';
-import { getChainLogo, switchNetwork } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
+import { store } from 'context/store';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import { connectors, networkMap } from '../../context/Web3/connectors';
+import React, { useContext, useState } from 'react';
+import { ChainId, connectors, networkMap } from '../../context/Web3/connectors';
+import {
+  getChainLogo,
+  switchNetwork,
+} from './../../context/Web3/networkSwitch';
 import NavbarLink from './NavbarLinks';
 import NetworkOptionsMenu from './NetworkOptionsMenu';
 
@@ -21,11 +25,11 @@ const Navbar: React.FC = () => {
   const router = useRouter();
   const [currentChainName, setCurrentChainName] = useState('trial');
   const [currentChainIcon, setCurrentChainIcon] = useState('');
+  const { dispatch } = useContext(store);
 
   React.useEffect(() => {
     setCurrentChainName(networkMap[chainId]);
-    let newChainLogo = getChainLogo(chainId);
-    setCurrentChainIcon(newChainLogo);
+    setCurrentChainIcon(getChainLogo(chainId));
   }, [chainId]);
 
   return (
@@ -75,14 +79,10 @@ const Navbar: React.FC = () => {
                 params: {
                   type: 'ERC20',
                   options: {
-                    address:
-                      chainId === 137
-                        ? '0xC5B57e9a1E7914FDA753A88f24E5703e617Ee50c'
-                        : '0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4',
+                    address: getPopAddress(chainId),
                     symbol: 'POP',
                     decimals: 18,
-                    image:
-                      'https://etherscan.io/token/images/popcornpop_32.png',
+                    image: 'https://popcorn.network/images/icons/pop_64x64.png',
                   },
                 },
               })
@@ -104,7 +104,7 @@ const Navbar: React.FC = () => {
                     alt={''}
                     className="w-4.5 h-4 mr-4"
                   />
-                  <p className="leading-none font-semibold text-blue-700 mt-0.5">
+                  <p className="leading-none font-medium text-gray-600 mt-0.5">
                     {currentChainName}
                   </p>
                   {account ? (
@@ -120,7 +120,9 @@ const Navbar: React.FC = () => {
               {account && (
                 <NetworkOptionsMenu
                   currentChain={chainId}
-                  switchNetwork={switchNetwork}
+                  switchNetwork={(chainId) => {
+                    switchNetwork(chainId, dispatch);
+                  }}
                 />
               )}
             </Menu>
@@ -146,5 +148,18 @@ const Navbar: React.FC = () => {
       </div>
     </nav>
   );
+};
+
+const getPopAddress = (chainid) => {
+  switch (chainid) {
+    case ChainId.Polygon:
+      return '0xC5B57e9a1E7914FDA753A88f24E5703e617Ee50c';
+    case ChainId.Arbitrum:
+      return '0x68ead55c258d6fa5e46d67fc90f53211eab885be';
+    case ChainId.Ethereum:
+      return '0xd0cd466b34a24fcb2f87676278af2005ca8a78c4';
+    default:
+      return '0xd0cd466b34a24fcb2f87676278af2005ca8a78c4';
+  }
 };
 export default Navbar;

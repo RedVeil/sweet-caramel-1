@@ -14,6 +14,7 @@ export const SingleActionModalContainer: React.FC = () => {
       children={singleActionModal.children}
       image={singleActionModal.image}
       type={singleActionModal.type}
+      onDismiss={singleActionModal.onDismiss}
       onConfirm={singleActionModal.onConfirm}
     />
   );

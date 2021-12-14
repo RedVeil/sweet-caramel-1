@@ -1,8 +1,40 @@
+import { hideGlobalLoader, showGlobalLoader } from '../actions';
+import { ChainId, logos } from './connectors';
+
 declare global {
   interface Window {
     ethereum: any;
   }
 }
+
+export const switchNetwork = async (
+  chainId: number,
+  dispatch: React.Dispatch<any>,
+) => {
+  dispatch(showGlobalLoader());
+  await (async (chainId) => {
+    try {
+      switch (chainId) {
+        case ChainId.Ethereum:
+          return connectToEthereumMainnet();
+        case ChainId.Rinkeby:
+          return connectToEthereumRinkeby();
+        case ChainId.Polygon:
+          return connectToMaticMainnet();
+        case ChainId.Arbitrum:
+          return connectToArbitrum();
+        case ChainId.Localhost:
+          return connectToLocalhost();
+        case ChainId.Hardhat:
+          return connectToHardhat();
+      }
+    } catch (e) {
+      console.error('Error while changing network', e);
+      dispatch(hideGlobalLoader());
+    }
+  })(chainId);
+  dispatch(hideGlobalLoader());
+};
 
 export const connectToEthereumMainnet = async () => {
   await window.ethereum?.request({
@@ -10,6 +42,21 @@ export const connectToEthereumMainnet = async () => {
     params: [{ chainId: '0x1' }],
   });
 };
+
+export const connectToLocalhost = async () => {
+  await window.ethereum?.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId: '0x7a69' }],
+  });
+};
+
+export const connectToHardhat = async () => {
+  await window.ethereum?.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId: '0x7a69' }],
+  });
+};
+
 export const connectToEthereumRinkeby = async () => {
   await window.ethereum?.request({
     method: 'wallet_switchEthereumChain',
@@ -71,40 +118,7 @@ export const connectToArbitrum = async () => {
     ],
   });
 };
-export const switchNetwork = (chainId: number) => {
-  try {
-    switch (chainId) {
-      case 1:
-        connectToEthereumMainnet();
-        break;
-      case 4:
-        connectToEthereumRinkeby();
-        break;
-      case 137:
-        connectToMaticMainnet();
-        break;
-      case 42161:
-        connectToArbitrum();
-        break;
-    }
-  } catch (e) {
-    console.error('Error while changing network', e);
-  }
-};
 
 export const getChainLogo = (chainId: number) => {
-  switch (chainId) {
-    case 1:
-      return '/images/icons/ethLogo.png';
-    case 4:
-      return '/images/icons/ethLogo.png';
-    case 137:
-      return '/images/icons/polygonLogo.png';
-    case 80001:
-      return '/images/icons/polygonLogo.png';
-    case 42161:
-      return '/images/icons/arbLogo.png';
-    default:
-      return '/images/icons/ethLogo.png';
-  }
+  return logos[chainId];
 };

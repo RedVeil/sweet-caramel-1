@@ -18,6 +18,8 @@ export const CLEAR_NOTIFICATIONS = 'notifications/CLEAR_NOTIFICATIONS';
 export const SINGLE_ACTION_MODAL = 'modals/SINGLE_ACTION_MODAL';
 export const DUAL_ACTION_MODAL = 'modals/DUAL_ACTION_MODAL';
 export const DUAL_ACTION_WIDE_MODAL = 'modals/DUAL_ACTION_WIDE_MODAL';
+export const SHOW_GLOBAL_LOADER = 'ui/SHOW_GLOBAL_LOADER';
+export const HIDE_GLOBAL_LOADER = 'ui/HIDE_GLOBAL_LOADER';
 
 export const UPDATE_STAKING_PAGE_INFO = 'staking/UPDATE_STAKING_PAGE_INFO';
 
@@ -29,6 +31,7 @@ export type AppActions =
   | SetSingleActionModalAction
   | SetDualActionModalAction
   | SetDualActionWideModalAction
+  | ShowGlobalLoaderAction
   | UpdateStakingInfoAction;
 
 export interface UpdateStakingInfoAction {
@@ -42,6 +45,25 @@ export const updateStakingPageInfo = (
   return {
     type: UPDATE_STAKING_PAGE_INFO,
     payload: stakingInfo,
+  };
+};
+
+export interface ShowGlobalLoaderAction {
+  type: typeof SHOW_GLOBAL_LOADER | typeof HIDE_GLOBAL_LOADER;
+  payload: boolean;
+}
+
+export const showGlobalLoader = (): ShowGlobalLoaderAction => {
+  return {
+    type: SHOW_GLOBAL_LOADER,
+    payload: true,
+  };
+};
+
+export const hideGlobalLoader = (): ShowGlobalLoaderAction => {
+  return {
+    type: HIDE_GLOBAL_LOADER,
+    payload: false,
   };
 };
 

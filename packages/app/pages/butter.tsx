@@ -1,10 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { parseEther } from '@ethersproject/units';
-import {
-  bigNumberToNumber,
-  formatAndRoundBigNumber,
-  switchNetwork,
-} from '@popcorn/utils';
+import { bigNumberToNumber, formatAndRoundBigNumber } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import BatchProgress from 'components/BatchButter/BatchProgress';
 import ClaimableBatches from 'components/BatchButter/ClaimableBatches';
@@ -16,12 +12,13 @@ import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
 import { setDualActionWideModal, setSingleActionModal } from 'context/actions';
 import { store } from 'context/store';
-import { connectors } from 'context/Web3/connectors';
+import { ChainId, connectors } from 'context/Web3/connectors';
 import {
   ButterDependencyContracts,
   Contracts,
   ContractsContext,
 } from 'context/Web3/contracts';
+import { switchNetwork } from 'context/Web3/networkSwitch';
 import { BigNumber, Contract, utils } from 'ethers';
 import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -218,22 +215,37 @@ export default function Butter(): JSX.Element {
     if (!library || !contracts) {
       return;
     }
-    if (![1337, 31337].includes(chainId)) {
+    if (
+      ![ChainId.Hardhat, ChainId.Localhost, ChainId.Ethereum].includes(chainId)
+    ) {
       dispatch(
         setDualActionWideModal({
           title: 'Coming Soon',
-          content: 'Switch to Ethereum to use Butter.',
+          content:
+            'Currently, Butter is only on Ethereum. Please switch to Ethereum to use Butter.',
           onConfirm: {
             label: 'Switch Network',
             onClick: () => {
-              switchNetwork(1337);
+              if (
+                [ChainId.Hardhat, ChainId.Localhost].includes(
+                  parseInt(process.env.CHAIN_ID),
+                )
+              ) {
+                console.log(
+                  'switching network ',
+                  parseInt(process.env.CHAIN_ID),
+                );
+                switchNetwork(parseInt(process.env.CHAIN_ID), dispatch);
+              } else {
+                switchNetwork(ChainId.Ethereum, dispatch);
+              }
               dispatch(setDualActionWideModal(false));
             },
           },
           onDismiss: {
             label: 'Go Back',
             onClick: () => {
-              router.push('/');
+              router.back();
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -242,7 +254,7 @@ export default function Butter(): JSX.Element {
       return;
     }
     setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
-  }, [library, account]);
+  }, [library, account, chainId]);
 
   useEffect(() => {
     if (!butterBatchAdapter || !account) {
@@ -517,7 +529,7 @@ export default function Butter(): JSX.Element {
                   setSingleActionModal({
                     title: 'Your first mint',
                     content:
-                      'You have successfully added your fund into the current batch cycle. Check-in on the Batch module under the Mint & Redeem panel for the latest batch progress.',
+                      'You have successfully deposited into the current batch cycle. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
                     image: (
                       <img src="images/butter/modal-1.png" className="px-6" />
                     ),
@@ -723,10 +735,10 @@ export default function Butter(): JSX.Element {
       <Toaster position="top-right" />
       <div className="">
         <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14">
-          <div className="w-1/3">
+          <div className="w-6/12">
             <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
             <p className="text-lg text-gray-500 mt-2">
-              Deposit your stablecoins and watch your money grow
+              Deposit your stablecoins to earn yield
             </p>
             <div className="flex flex-row items-center mt-2">
               <div className="pr-6 border-r-2 border-gray-200">
@@ -740,21 +752,21 @@ export default function Butter(): JSX.Element {
                   TVL
                 </p>
                 <p className=" text-xl font-medium">
+                  $
                   {batchProcessTokens?.butter && butterSupply
                     ? formatAndRoundBigNumber(
                         butterSupply
                           .mul(batchProcessTokens?.butter.price)
                           .div(parseEther('1')),
                       ).toLocaleString()
-                    : '-'}{' '}
-                  $
+                    : ' -'}{' '}
                 </p>
               </div>
               <div className="pl-6">
                 <p className="text-gray-500 font-light text-base uppercase">
                   Social Impact
                 </p>
-                <p className="text-xl font-medium">Coming Soon</p>
+                <p className="text-lg text-gray-300 font-medium">Coming Soon</p>
               </div>
             </div>
           </div>
@@ -803,13 +815,13 @@ export default function Butter(): JSX.Element {
                 <div className="w-1/2 mr-2">
                   <StatInfoCard
                     title="Butter Value"
-                    content={`${
+                    content={`$ ${
                       batchProcessTokens?.butter
                         ? formatAndRoundBigNumber(
                             batchProcessTokens?.butter?.price,
                           )
                         : '-'
-                    } $`}
+                    }`}
                     icon={{ icon: 'Money', color: 'bg-blue-300' }}
                   />
                 </div>

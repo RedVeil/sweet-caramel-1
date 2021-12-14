@@ -9,6 +9,7 @@ export interface InfoIconWithModalProps {
   children?: React.ReactElement;
   size?: string;
 }
+
 export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
   title,
   content,
@@ -25,8 +26,8 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
             title,
             children: children,
             content: content,
-            onConfirm: {
-              label: 'OK',
+            onDismiss: {
+              label: 'Dismiss',
               onClick: () => {
                 dispatch(setSingleActionModal(false));
               },

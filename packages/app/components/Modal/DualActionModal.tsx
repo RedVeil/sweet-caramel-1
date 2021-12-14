@@ -1,5 +1,7 @@
 import { CircularProgress } from '@material-ui/core';
-import React from 'react';
+import MainActionButton from 'components/MainActionButton';
+import SecondaryActionButton from 'components/SecondaryActionButton';
+import React, { useEffect, useRef, useState } from 'react';
 
 export interface DualActionModalProps {
   title: string;
@@ -27,6 +29,23 @@ export const DualActionModal: React.FC<DualActionModalProps> = ({
   progress,
   onConfirm,
 }) => {
+  const [open, setOpen] = useState(visible);
+  const cancelButtonRef = useRef();
+
+  useEffect(() => {
+    if (visible !== open) setOpen(visible);
+  }, [visible]);
+
+  const dismiss = () => {
+    setOpen(false);
+    setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
+  };
+
+  const confirm = () => {
+    setOpen(false);
+    setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
+  };
+
   if (!visible) return <></>;
   return (
     <div
@@ -86,22 +105,20 @@ export const DualActionModal: React.FC<DualActionModalProps> = ({
             </div>
           )) || (
             <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-              <button
-                type="button"
-                disabled={progress}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-                onClick={() => onConfirm.onClick && onConfirm.onClick()}
-              >
-                {onConfirm.label}
-              </button>
-              <button
-                type="button"
-                disabled={progress}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
-                onClick={() => onDismiss.onClick && onDismiss.onClick()}
-              >
-                {onDismiss.label}
-              </button>
+              {onConfirm && (
+                <MainActionButton
+                  disabled={progress}
+                  label={onConfirm.label}
+                  handleClick={() => confirm()}
+                ></MainActionButton>
+              )}
+              {onDismiss && (
+                <SecondaryActionButton
+                  disabled={progress}
+                  label={onDismiss.label}
+                  handleClick={() => dismiss()}
+                ></SecondaryActionButton>
+              )}
             </div>
           )}
         </div>
