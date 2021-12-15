@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { ERC20, StakingRewards } from '@popcorn/hardhat/typechain';
+import { ERC20, LockStaking, Staking } from '@popcorn/hardhat/typechain';
 import {
   bigNumberToNumber,
   getERC20Contract,
@@ -24,7 +24,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 export interface StakingPageInfo {
   inputToken: ERC20;
-  stakingContract: StakingRewards;
+  stakingContract: Staking | LockStaking;
   tokenName: string;
   poolInfo: StakingPoolInfo;
 }
@@ -73,7 +73,7 @@ export default function stake(): JSX.Element {
     }
     async function getPageInfo() {
       if (contracts && contracts.staking.length > 0) {
-        const stakingContract: StakingRewards = contracts.staking.find(
+        const stakingContract: Staking | LockStaking = contracts.staking.find(
           (contract) => contract.address === id,
         );
         // This would never get called as the getPageInfo function wont get triggered properly on changing the chain when on stake/id page as the stakingPoolInfo variable would still exist.
@@ -173,9 +173,12 @@ export default function stake(): JSX.Element {
     const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
     const signer = library.getSigner();
     const connectedStaking =
-      await state.stakingPageInfo?.stakingContract?.connect(signer);
-    await connectedStaking
-      .stake(lockedPopInEth)
+      await state.stakingPageInfo.stakingContract.connect(signer);
+    const stakeCall =
+      id === contracts.popStaking.address
+        ? (connectedStaking as LockStaking).stake(lockedPopInEth, 7257600)
+        : (connectedStaking as Staking).stake(lockedPopInEth);
+    stakeCall
       .then((res) =>
         res.wait().then((res) => {
           {

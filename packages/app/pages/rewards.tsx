@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { StakingRewards } from '@popcorn/hardhat/typechain';
+import { LockStaking, Staking } from '@popcorn/hardhat/typechain';
 import {
   getEarned,
   getStakingPoolsInfo,
@@ -56,7 +56,9 @@ export default function index(): JSX.Element {
     setTotalEarned(totalEarned);
   }, [earned]);
 
-  async function claimReward(stakingContract: StakingRewards): Promise<void> {
+  async function claimReward(
+    stakingContract: Staking | LockStaking,
+  ): Promise<void> {
     toast.loading(`Claiming POP Rewards...`);
     await stakingContract
       .connect(library.getSigner())

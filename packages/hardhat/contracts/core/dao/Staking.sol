@@ -8,9 +8,10 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../interfaces/IStakingRewards.sol";
+import "../interfaces/IRewardsEscrow.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
+contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -18,6 +19,7 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
 
   IERC20 public rewardsToken;
   IERC20 public stakingToken;
+  IRewardsEscrow public rewardsEscrow;
   uint256 public periodFinish = 0;
   uint256 public rewardRate = 0;
   uint256 public rewardsDuration = 7 days;
@@ -32,9 +34,16 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
 
   /* ========== CONSTRUCTOR ========== */
 
-  constructor(IERC20 _rewardsToken, IERC20 _stakingToken) {
+  constructor(
+    IERC20 _rewardsToken,
+    IERC20 _stakingToken,
+    IRewardsEscrow _rewardsEscrow
+  ) {
     rewardsToken = _rewardsToken;
     stakingToken = _stakingToken;
+    rewardsEscrow = _rewardsEscrow;
+
+    _rewardsToken.safeIncreaseAllowance(address(_rewardsEscrow), type(uint256).max);
   }
 
   /* ========== VIEWS ========== */
@@ -92,7 +101,11 @@ contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
     uint256 reward = rewards[msg.sender];
     if (reward > 0) {
       rewards[msg.sender] = 0;
-      rewardsToken.safeTransfer(msg.sender, reward);
+      uint256 payout = reward / uint256(10);
+      uint256 escrowed = payout * uint256(9);
+
+      rewardsToken.safeTransfer(msg.sender, payout);
+      rewardsEscrow.lock(msg.sender, escrowed);
       emit RewardPaid(msg.sender, reward);
     }
   }

@@ -2,6 +2,7 @@ export type Address = string;
 
 export interface ContractAddresses {
   staking?: Array<Address>;
+  popStaking?: Address;
   pop?: Address;
   dai?: Address;
   usdc?: Address;

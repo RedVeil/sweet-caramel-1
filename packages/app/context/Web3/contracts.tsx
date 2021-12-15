@@ -25,15 +25,18 @@ import {
   HysiBatchInteraction__factory,
   HysiBatchZapper,
   HysiBatchZapper__factory,
-  StakingRewards,
-  StakingRewards__factory,
+  LockStaking,
+  LockStaking__factory,
+  Staking,
+  Staking__factory,
   YearnVault,
   YearnVault__factory,
 } from '../../../hardhat/typechain';
 import { connectors, networkMap } from './connectors';
 
 export interface Contracts {
-  staking?: StakingRewards[];
+  staking?: Staking[];
+  popStaking?: LockStaking;
   pop?: ERC20;
   dai?: ERC20;
   usdc?: ERC20;
@@ -88,6 +91,7 @@ const initializeContracts = (
 ): Contracts => {
   const {
     staking,
+    popStaking,
     pop,
     dai,
     usdc,
@@ -101,6 +105,9 @@ const initializeContracts = (
     ...contractAddresses,
   };
   const contracts: Contracts = {
+    popStaking: popStaking
+      ? LockStaking__factory.connect(popStaking, library)
+      : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
     dai: dai ? ERC20__factory.connect(dai, library) : undefined,
     usdc: usdc ? ERC20__factory.connect(usdc, library) : undefined,
@@ -119,7 +126,7 @@ const initializeContracts = (
   if (staking && staking.length > 0) {
     for (var i = 0; i < contractAddresses.staking.length; i++) {
       contracts.staking.push(
-        StakingRewards__factory.connect(contractAddresses.staking[i], library),
+        Staking__factory.connect(contractAddresses.staking[i], library),
       );
     }
   }

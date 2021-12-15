@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { StakingRewards } from '@popcorn/hardhat/typechain';
+import { LockStaking, Staking } from '@popcorn/hardhat/typechain';
 import { getERC20Contract, StakingPoolInfo } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import router from 'next/router';
@@ -11,7 +11,7 @@ interface StakeCardProps {
   tokenName: string;
   stakingPoolInfo: StakingPoolInfo;
   url: string;
-  stakingContract: StakingRewards | undefined;
+  stakingContract: Staking | LockStaking | undefined;
   stakedTokenAddress: string;
   index: number;
 }
