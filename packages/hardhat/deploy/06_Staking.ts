@@ -8,7 +8,7 @@ type Pool = {
   poolName: string;
   contract: string;
   inputToken: string;
-  rewardsToken: string;
+  rewardsToken?: string;
 };
 
 async function getStakingPools(
@@ -21,9 +21,8 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "Staking",
+          contract: "LockStaking",
           inputToken: addresses.pop,
-          rewardsToken: addresses.pop,
         },
         {
           poolName: "popEthLPStaking",
@@ -42,9 +41,8 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "Staking",
+          contract: "LockStaking",
           inputToken: (await deployments.get("TestPOP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
@@ -63,9 +61,8 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "Staking",
+          contract: "LockStaking",
           inputToken: (await deployments.get("TestPOP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
@@ -84,9 +81,8 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "Staking",
+          contract: "LockStaking",
           inputToken: (await deployments.get("TestPOP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
@@ -99,9 +95,8 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "Staking",
+          contract: "LockStaking",
           inputToken: (await deployments.get("TestPOP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
@@ -127,18 +122,22 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   for (var i = 0; i < stakingPools.length; i++) {
     await deploy(stakingPools[i].poolName, {
       from: addresses.deployer,
-      args: [
-        stakingPools[i].rewardsToken,
-        stakingPools[i].inputToken,
-        (await deployments.get("RewardsEscrow")).address,
-      ],
+      args: stakingPools[i].rewardsToken
+        ? [
+            stakingPools[i].rewardsToken,
+            stakingPools[i].inputToken,
+            (await deployments.get("RewardsEscrow")).address,
+          ]
+        : [
+            stakingPools[i].inputToken,
+            (await deployments.get("RewardsEscrow")).address,
+          ],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: stakingPools[i].contract,
     });
   }
   if (["hardhat", "local"].includes(hre.network.name)) {
-    createDemoData(hre, stakingPools[0]);
     createDemoData(hre, stakingPools[1]);
   }
 };
@@ -157,7 +156,7 @@ async function prepareStakingContract(
     contractAddress,
     signer
   );
-  console.log("Adding POP rewards to staking at:", stakingContract.address);
+  console.log("Adding POP rewards to staking at:", contractAddress);
   await (await stakingContract.notifyRewardAmount(parseEther("1000"))).wait(1);
   console.log("Staking some Token...");
   await inputToken.approve(contractAddress, parseEther("1000"));
