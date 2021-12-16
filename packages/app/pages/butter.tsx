@@ -210,6 +210,7 @@ export default function Butter(): JSX.Element {
   const [slippage, setSlippage] = useState<number>(3);
   const [currentBatches, setCurrentBatches] = useState<CurrentBatches>();
   const [butterSupply, setButterSupply] = useState<BigNumber>();
+  const [apy, setApy] = useState<number>();
 
   useEffect(() => {
     if (!library || !contracts) {
@@ -254,6 +255,24 @@ export default function Butter(): JSX.Element {
       return;
     }
     setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
+    fetch('https://api.yearn.finance/v1/chains/1/vaults/all')
+      .then((res) => res.json())
+      .then((res) =>
+        setApy(
+          ((res.find(
+            (vault) =>
+              vault.token.address ===
+              '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B', // crvFRAX
+          ).apy.net_apy +
+            res.find(
+              (vault) =>
+                vault.token.address ===
+                '0x5a6A4D54456819380173272A5E8E9B9904BdF41B', // crvMIM
+            ).apy.net_apy) /
+            2) *
+            100,
+        ),
+      );
   }, [library, account, chainId]);
 
   useEffect(() => {
@@ -745,7 +764,9 @@ export default function Butter(): JSX.Element {
                 <p className="text-gray-500 font-light text-base uppercase">
                   Est. APY
                 </p>
-                <p className="text-green-600 text-xl font-medium">20 %</p>
+                <p className="text-green-600 text-xl font-medium">
+                  {apy ? apy.toLocaleString() : '-'} %
+                </p>
               </div>
               <div className="px-6 border-r-2 border-gray-200">
                 <p className="text-gray-500 font-light text-base uppercase">
