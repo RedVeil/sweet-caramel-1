@@ -21,19 +21,19 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: addresses.pop,
           rewardsToken: addresses.pop,
         },
         {
           poolName: "popEthLPStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: addresses.popEthLp,
           rewardsToken: addresses.pop,
         },
         {
           poolName: "butterStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: addresses.butter,
           rewardsToken: addresses.pop,
         },
@@ -42,19 +42,19 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("TestPOP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("POP_ETH_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "butterStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: addresses.butter,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
@@ -63,19 +63,19 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("TestPOP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("POP_ETH_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "butterStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: addresses.butter,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
@@ -84,13 +84,13 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("TestPOP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("POP_ETH_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
@@ -99,13 +99,13 @@ async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("TestPOP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popEthLPStaking",
-          contract: "StakingRewards",
+          contract: "Staking",
           inputToken: (await deployments.get("POP_ETH_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
@@ -127,7 +127,11 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   for (var i = 0; i < stakingPools.length; i++) {
     await deploy(stakingPools[i].poolName, {
       from: addresses.deployer,
-      args: [stakingPools[i].rewardsToken, stakingPools[i].inputToken],
+      args: [
+        stakingPools[i].rewardsToken,
+        stakingPools[i].inputToken,
+        (await deployments.get("RewardsEscrow")).address,
+      ],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: stakingPools[i].contract,
@@ -149,7 +153,7 @@ async function prepareStakingContract(
 ): Promise<void> {
   await (await POP.mint(contractAddress, parseEther("1000000000"))).wait(1);
   const stakingContract = await hre.ethers.getContractAt(
-    "StakingRewards",
+    "Staking",
     contractAddress,
     signer
   );

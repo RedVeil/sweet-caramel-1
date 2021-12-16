@@ -25,6 +25,7 @@ export interface ContractAddresses {
   balancerVault?: Address;
   balancerLBPFactory?: Address;
   merkleOrchard?: Address;
+  rewardsEscrow?: Address;
 }
 
 export interface ERC20Contracts {

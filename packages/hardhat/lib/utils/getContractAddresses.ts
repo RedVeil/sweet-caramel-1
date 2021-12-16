@@ -36,6 +36,7 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         balancerLBPFactory: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
         merkleOrchard: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
+        rewardsEscrow: "",
       };
       break;
     case 4:
@@ -145,6 +146,7 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         balancerLBPFactory: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
         merkleOrchard: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
+        rewardsEscrow: "",
       };
     case 31337:
       contracts = {
@@ -187,6 +189,7 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         balancerLBPFactory: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
         merkleOrchard: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
+        rewardsEscrow: "",
       };
   }
   return contracts;
