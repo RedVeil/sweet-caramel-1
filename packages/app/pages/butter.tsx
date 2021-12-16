@@ -261,14 +261,14 @@ export default function Butter(): JSX.Element {
         setApy(
           ((res.find(
             (vault) =>
-              vault.token.address ===
+              vault?.token?.address ===
               '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B', // crvFRAX
-          ).apy.net_apy +
+          )?.apy?.net_apy +
             res.find(
               (vault) =>
-                vault.token.address ===
+                vault?.token?.address ===
                 '0x5a6A4D54456819380173272A5E8E9B9904BdF41B', // crvMIM
-            ).apy.net_apy) /
+            )?.apy?.net_apy) /
             2) *
             100,
         ),
