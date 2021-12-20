@@ -119,8 +119,8 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         threeCrv: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
         popEthLp: "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
         butter: "0x3b0967B0710a22c1a5CEB6Ae649B5819Cb8bb999",
-        butterBatch: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A",
-        butterBatchZapper: "0x3aAde2dCD2Df6a8cAc689EE797591b2913658659",
+        butterBatch: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+        butterBatchZapper: "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
         butterDependency: {
           yFrax: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
           yMim: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
@@ -162,8 +162,8 @@ export function getChainRelevantContracts(chainId): ContractAddresses {
         threeCrv: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
         popEthLp: "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
         butter: "0x3b0967B0710a22c1a5CEB6Ae649B5819Cb8bb999",
-        butterBatch: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A",
-        butterBatchZapper: "0x3aAde2dCD2Df6a8cAc689EE797591b2913658659",
+        butterBatch: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+        butterBatchZapper: "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
         butterDependency: {
           yFrax: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
           yMim: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
