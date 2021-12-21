@@ -31,7 +31,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.tags = ["test-tokens"];
+main.tags = ["test-tokens", "frontend"];
 main.dependencies = ["setup"];
 main.skip = async (hre: HardhatRuntimeEnvironment) => {
   return ["mainnet", "arbitrum", "polygon"].includes(hre.network.name);

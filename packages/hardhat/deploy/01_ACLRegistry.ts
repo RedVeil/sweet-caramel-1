@@ -38,3 +38,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 };
 export default main;
+main.tags = ["frontend"];
+main.dependencies = ["setup"];

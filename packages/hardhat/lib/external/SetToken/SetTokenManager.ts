@@ -27,10 +27,7 @@ export class SetTokenManager {
 
     console.log("getting newly created token set address ...");
 
-    const tokenAddress = await getCreatedSetTokenAddress(
-      receipt.transactionHash,
-      this.hre.ethers.provider
-    );
+    const tokenAddress = await getCreatedSetTokenAddress(receipt);
 
     console.log("token set address: ", tokenAddress);
 

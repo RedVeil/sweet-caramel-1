@@ -53,4 +53,4 @@ const mintPOP = async (
 };
 
 module.exports = main;
-module.exports.tags = ["LBP"];
+module.exports.tags = ["LBP", "frontend"];
