@@ -1,6 +1,6 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getNamedAccountsFromNetwork } from "../lib/utils/getContractAddresses";
+import { getNamedAccountsFromNetwork } from "../lib/utils/getNamedAccounts";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let signer;
@@ -27,7 +27,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
   hre.config.namedAccounts = {
     deployer: deployer,
-    ...getNamedAccountsFromNetwork(hre.network.config.chainId),
+    ...getNamedAccountsFromNetwork(hre),
   };
 };
 

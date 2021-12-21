@@ -1,5 +1,6 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getNamedAccountsByChainId } from "../lib/utils/getNamedAccounts";
 import { getConstructorArgs } from "./LBP/config";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -11,9 +12,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     balancerLBPFactory,
     balancerVault,
     daoAgent,
-    pop,
     daoTreasury,
   } = await getNamedAccounts();
+
+  const { pop } = getNamedAccountsByChainId(1);
 
   const {
     balancer,

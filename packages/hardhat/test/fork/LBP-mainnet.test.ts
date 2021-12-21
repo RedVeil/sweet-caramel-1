@@ -5,7 +5,7 @@ import { parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
 import { encodeCallScript } from "../../lib/utils/aragon/callscript";
 import { expectRevert } from "../../lib/utils/expectValue";
-import { getNamedAccountsFromNetwork } from "../../lib/utils/getContractAddresses";
+import { getNamedAccountsByChainId } from "../../lib/utils/getNamedAccounts";
 import {
   DAYS,
   getErc20,
@@ -20,7 +20,7 @@ const LBP_MANAGER = "0xe7F0E61a07D540F6Ab3C3e81D87c6ed0F2C0244d";
 const USDC_WHALE = "0x6BE8ef6207b4114A52ae5011FE8846dA2Af8F281";
 const POP_WHALE = "0xF023E5eF2Eb3b8747cBaD5B3847813b66E9BFdD7";
 const POP_GUPPY = "0x084e8A8cF1C38dEF1D6dB8542a73aa0d54284F8D";
-const namedAccounts = getNamedAccountsFromNetwork(1);
+const namedAccounts = getNamedAccountsByChainId(1);
 const START_TIME = 1638172800;
 
 const prepareLbpManager = async () => {

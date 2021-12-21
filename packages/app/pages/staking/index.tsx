@@ -2,11 +2,32 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import Navbar from 'components/NavBar/NavBar';
 import StakeCard from 'components/StakeCard';
-import { ContractsContext } from 'context/Web3/contracts';
+import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import React, { useContext, useEffect, useState } from 'react';
 import ContentLoader from 'react-content-loader';
 import { Toaster } from 'react-hot-toast';
-import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
+import {
+  getSingleStakingPoolInfo,
+  getStakingPoolsInfo,
+  StakingPoolInfo,
+} from '../../../utils';
+
+async function getStakingPools(
+  contracts: Contracts,
+  library,
+): Promise<StakingPoolInfo[]> {
+  const stakingPools = await getStakingPoolsInfo(contracts, library);
+  if (contracts.popStaking) {
+    const popStakingPool = await getSingleStakingPoolInfo(
+      contracts.popStaking,
+      library,
+      contracts.pop.address,
+      'POP',
+    );
+    return [popStakingPool, ...stakingPools];
+  }
+  return stakingPools;
+}
 
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
@@ -19,7 +40,7 @@ export default function index(): JSX.Element {
     if (!library || !contracts || !chainId) {
       return;
     }
-    getStakingPoolsInfo(contracts, library)
+    getStakingPools(contracts, library)
       .then((res) => {
         setStakingPools(res);
       })
@@ -73,13 +94,8 @@ export default function index(): JSX.Element {
                   stakingPoolsInfo &&
                   stakingPoolsInfo.length > 0 &&
                   stakingPoolsInfo.map((poolInfo, index) => (
-                    <div
-                      key={
-                        poolInfo.stakedTokenName + poolInfo.stakedTokenAddress
-                      }
-                    >
+                    <div key={poolInfo.stakedTokenName}>
                       <StakeCard
-                        stakedTokenAddress={poolInfo?.stakedTokenAddress}
                         tokenName={poolInfo?.stakedTokenName}
                         stakingPoolInfo={poolInfo}
                         url={poolInfo.stakingContractAddress}
@@ -88,7 +104,6 @@ export default function index(): JSX.Element {
                             ? contracts?.staking[index]
                             : undefined
                         }
-                        index={index}
                       />
                     </div>
                   ))}

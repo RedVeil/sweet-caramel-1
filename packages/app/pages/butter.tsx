@@ -92,11 +92,11 @@ async function getBatchProcessToken(
         butterDependencyContracts.setBasicIssuanceModule,
         {
           [butterDependencyContracts.yMim.address.toLowerCase()]: {
-            metaPool: butterDependencyContracts.mimMetapool,
+            metaPool: butterDependencyContracts.crvMimMetapool,
             yPool: butterDependencyContracts.yMim,
           },
           [butterDependencyContracts.yFrax.address.toLowerCase()]: {
-            metaPool: butterDependencyContracts.fraxMetapool,
+            metaPool: butterDependencyContracts.crvFraxMetapool,
             yPool: butterDependencyContracts.yFrax,
           },
         } as ComponentMap,

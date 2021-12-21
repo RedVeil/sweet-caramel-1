@@ -45,8 +45,8 @@ export interface ButterDependencyAddresses {
   yMim?: Address;
   crvFrax?: Address;
   crvMim?: Address;
-  fraxMetapool?: Address;
-  mimMetapool?: Address;
+  crvFraxMetapool?: Address;
+  crvMimMetapool?: Address;
   threePool?: Address;
   curveAddressProvider?: Address;
   curveFactoryMetapoolDepositZap?: Address;

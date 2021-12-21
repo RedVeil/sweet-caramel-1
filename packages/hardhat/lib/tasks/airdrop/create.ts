@@ -3,7 +3,7 @@ import { formatEther, parseEther, parseUnits } from "ethers/lib/utils";
 import fs from "fs";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getNamedAccountsFromNetwork } from "../../utils/getContractAddresses";
+import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
 import { loadTree } from "../../utils/merkleTree";
 
 interface Args {
@@ -18,7 +18,7 @@ interface Balances {
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
   const signer = hre.askForSigner();
-  const addresses = getNamedAccountsFromNetwork(hre.network.config.chainId);
+  const addresses = getNamedAccountsFromNetwork(hre);
   const token = await hre.ethers.getContractAt(
     "@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20",
     args.token,

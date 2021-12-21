@@ -23,7 +23,6 @@ export async function calculateAPY(
   if (!totalStaked || totalStaked.eq(BigNumber.from('0'))) {
     return Infinity;
   }
-
   const tokenPerWeekPerShare = tokenPerWeek
     .mul(parseEther('1'))
     .div(totalStaked);
@@ -53,8 +52,8 @@ export async function getSingleStakingPoolInfo(
   }
   return {
     stakingContractAddress: stakingContract?.address,
-    stakedTokenAddress,
-    stakedTokenName,
+    stakedTokenAddress: stakedTokenAddress,
+    stakedTokenName: stakedTokenName,
     apy: await calculateAPY(tokenPerWeek, totalStaked),
     totalStake: bigNumberToNumber(totalStaked),
     tokenEmission: bigNumberToNumber(tokenPerWeek),
@@ -87,7 +86,7 @@ export async function getStakingPoolsInfo(
   const stakingContracts = contracts ? contracts.staking : [];
   if (contracts && stakingContracts && stakingContracts.length > 0) {
     for (let i = 0; i < stakingContracts.length; i++) {
-      const stakingContract = stakingContracts[i];
+      const stakingContract = stakingContracts[i] as Staking;
       const tokenPerWeek = await stakingContract?.getRewardForDuration({
         gasLimit: 2000000,
       });

@@ -1,7 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
 import { BigNumber, Contract } from "ethers";
-import { getNamedAccountsFromNetwork } from "../utils/getContractAddresses";
+import { getNamedAccountsByChainId } from "../utils/getNamedAccounts";
 
 export enum BatchType {
   Mint,
@@ -135,7 +135,7 @@ class ButterBatchAdapter {
     componentMap: ComponentMap,
     chainId: number
   ): Promise<BigNumber> {
-    const addresses = getNamedAccountsFromNetwork(chainId);
+    const addresses = getNamedAccountsByChainId(chainId);
     const components = await contract.getRequiredComponentUnitsForIssue(
       addresses.butter,
       parseEther("1")

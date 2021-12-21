@@ -12,8 +12,6 @@ interface StakeCardProps {
   stakingPoolInfo: StakingPoolInfo;
   url: string;
   stakingContract: Staking | LockStaking | undefined;
-  stakedTokenAddress: string;
-  index: number;
 }
 
 const StakeCard: React.FC<StakeCardProps> = ({
@@ -21,8 +19,6 @@ const StakeCard: React.FC<StakeCardProps> = ({
   stakingPoolInfo,
   url,
   stakingContract,
-  index,
-  stakedTokenAddress,
 }) => {
   const { library } = useWeb3React<Web3Provider>();
 

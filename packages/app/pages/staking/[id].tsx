@@ -22,6 +22,7 @@ import { useRouter } from 'next/router';
 import 'rc-slider/assets/index.css';
 import React, { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+
 export interface StakingPageInfo {
   inputToken: ERC20;
   stakingContract: Staking | LockStaking;
@@ -73,9 +74,10 @@ export default function stake(): JSX.Element {
     }
     async function getPageInfo() {
       if (contracts && contracts.staking.length > 0) {
-        const stakingContract: Staking | LockStaking = contracts.staking.find(
-          (contract) => contract.address === id,
-        );
+        const stakingContract: Staking | LockStaking = [
+          contracts.popStaking,
+          ...contracts.staking,
+        ].find((contract) => contract.address === id);
         // This would never get called as the getPageInfo function wont get triggered properly on changing the chain when on stake/id page as the stakingPoolInfo variable would still exist.
         // This also cannot be conditional as the pool on differect chains might be very different from each other in future.
         if (stakingContract === undefined) {
@@ -85,6 +87,7 @@ export default function stake(): JSX.Element {
         const stakingPoolInfo: StakingPoolInfo = await getSingleStakingPoolInfo(
           stakingContract,
           library,
+          id === contracts.popStaking.address ? contracts.pop.address : null,
         );
         const erc20 = await getERC20Contract(
           stakingPoolInfo.stakedTokenAddress,

@@ -29,7 +29,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </label>
             <div className="mt-1 relative flex items-center">
               <input
-                type="text"
+                type="number"
                 name="tokenInput"
                 id="tokenInput"
                 className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 pr-16 py-4 text-lg border-gray-300 rounded-xl"

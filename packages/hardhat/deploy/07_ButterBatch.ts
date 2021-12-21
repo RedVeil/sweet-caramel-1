@@ -18,11 +18,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const YTOKEN_ADDRESSES = [addresses.yFrax, addresses.yMim];
   const CRV_DEPENDENCIES = [
     {
-      curveMetaPool: addresses.fraxMetapool,
+      curveMetaPool: addresses.crvFraxMetapool,
       crvLPToken: addresses.crvFrax,
     },
     {
-      curveMetaPool: addresses.mimMetapool,
+      curveMetaPool: addresses.crvMimMetapool,
       crvLPToken: addresses.crvMim,
     },
   ];
