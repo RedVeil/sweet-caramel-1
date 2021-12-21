@@ -94,6 +94,7 @@ export default function stake(): JSX.Element {
           library,
         );
         const tokenName = await erc20.name();
+
         dispatch(
           updateStakingPageInfo({
             inputToken: erc20,
