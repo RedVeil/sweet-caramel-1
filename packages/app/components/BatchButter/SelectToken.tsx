@@ -21,16 +21,24 @@ export default function SelectToken({
   const [showDropdown, setDropdown] = useState<Boolean>(false);
 
   return (
-    <div className="relative w-16 mt-1" onMouseLeave={() => setDropdown(false)}>
+    <div
+      className="relative w-24 mt-1 "
+      onMouseLeave={() => setDropdown(false)}
+    >
       <span
         className={`flex flex-row mx-auto items-center ${
           allowSelection ? 'cursor-pointer group' : ''
         }`}
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
-        <p className="text-gray-700 font-semibold leading-none group-hover:text-blue-700">
+        <img
+          className="w-4 h-4 mx-2 mb-1"
+          src={`images/tokens/${selectedToken.img}`}
+        ></img>
+        <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700">
           {selectedToken.name}
         </p>
+
         {allowSelection && (
           <>
             {showDropdown ? (
@@ -42,16 +50,22 @@ export default function SelectToken({
         )}
       </span>
       {showDropdown && (
-        <div className="absolute w-full h-24 bg-white shadow-md rounded-b-md z-20 top-6 flex flex-col space-y-1 px-2 pt-2">
+        <div className="absolute z-20 flex flex-col w-full h-24 px-2 pt-2 space-y-1 bg-white shadow-md rounded-b-md top-6">
           {Object.keys(token)
             .filter((key) => !notSelectable.includes(key))
             .map((selectableToken) => (
               <a
                 key={selectableToken}
-                className="cursor-pointer font-semibold hover:text-blue-700"
+                className="cursor-pointer group flex flex-row items-center"
                 onClick={() => selectToken(token[selectableToken])}
               >
-                {token[selectableToken].name}
+                <img
+                  className="w-4 h-4 mx-2 mb-1"
+                  src={`images/tokens/${token[selectableToken].img}`}
+                ></img>
+                <p className="font-semibold group-hover:text-blue-700">
+                  {token[selectableToken].name}
+                </p>
               </a>
             ))}
         </div>

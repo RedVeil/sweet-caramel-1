@@ -11,6 +11,7 @@ export interface BatchProcessToken {
   allowance: BigNumber;
   claimableBalance?: BigNumber;
   price: BigNumber;
+  img?: string;
 }
 
 export interface TokenInputProps {
@@ -72,7 +73,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
   return (
     <>
       <div className="mt-10">
-        <p className="font-semibold text-sm text-gray-900 mb-1">
+        <p className="mb-1 text-sm font-semibold text-gray-900">
           Deposit Amount
         </p>
         <div
@@ -80,9 +81,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
             depositDisabled ? 'border-red-600' : 'border-gray-200'
           }`}
         >
-          <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-row items-center justify-between">
             <input
-              className="w-8/12 mr-4 border-none leading-none font-semibold text-gray-500 focus:text-gray-800 focus:outline-none"
+              className="w-8/12 mr-4 font-semibold leading-none text-gray-500 border-none focus:text-gray-800 focus:outline-none"
               type="number"
               value={bigNumberToNumber(depositAmount)}
               onChange={(e) =>
@@ -93,7 +94,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             />
             <div className="flex flex-row items-center">
               <p
-                className="text-gray-400 mr-3 border leading-none border-gray-400 px-2 py-2 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 hover:text-gray-600"
+                className="px-2 py-2 mr-3 leading-none text-gray-400 border border-gray-400 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 hover:text-gray-600"
                 onClick={(e) => {
                   setDepositAmount(
                     useUnclaimedDeposits
@@ -122,7 +123,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </div>
           </div>
         </div>
-        <label className="w-7/12 flex flex-row items-center mt-3 cursor-pointer group">
+        <label className="flex flex-row items-center w-7/12 mt-3 cursor-pointer group">
           <input
             type="checkbox"
             className="mr-2 rounded-sm"
@@ -144,26 +145,26 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <div className="relative flex justify-center my-16">
           <div className="w-16 bg-white">
             <div
-              className="flex mx-auto w-10 h-10 rounded-full border border-gray-200 items-center cursor-pointer hover:bg-gray-50 hover:border-gray-400"
+              className="flex items-center w-10 h-10 mx-auto border border-gray-200 rounded-full cursor-pointer hover:bg-gray-50 hover:border-gray-400"
               onClick={(e) => setRedeeming(!redeeming)}
             >
               <img
                 src="/images/icons/exchangeIcon.svg"
                 alt="exchangeIcon"
-                className="mx-auto p-3"
+                className="p-3 mx-auto"
               ></img>
             </div>
           </div>
         </div>
       </div>
       <div className="">
-        <p className="font-semibold text-sm text-gray-900 mb-1">
+        <p className="mb-1 text-sm font-semibold text-gray-900">
           {`Estimated ${selectedToken.output.name} Amount`}
         </p>
-        <div className="rounded-md border border-gray-200 p-2">
+        <div className="p-2 border border-gray-200 rounded-md">
           <div className="flex flex-row items-center justify-between">
             <input
-              className="w-36 smlaptop:w-64 mr-1 smlaptop:mr-0 border-none leading-none font-semibold text-gray-500 focus:outline-none focus:text-gray-800"
+              className="mr-1 font-semibold leading-none text-gray-500 border-none w-36 smlaptop:w-64 smlaptop:mr-0 focus:outline-none focus:text-gray-800"
               type="number"
               value={estimatedAmount}
               onChange={(e) =>

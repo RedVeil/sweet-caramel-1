@@ -102,6 +102,7 @@ async function getBatchProcessToken(
         } as ComponentMap,
         chainId,
       ),
+      img: 'butter.png',
     },
     threeCrv: {
       name: '3CRV',
@@ -115,6 +116,7 @@ async function getBatchProcessToken(
       price: await butterBatchAdapter.getThreeCrvPrice(
         butterDependencyContracts.threePool,
       ),
+      img: '3crv.png',
     },
     dai: {
       name: 'DAI',
@@ -128,6 +130,7 @@ async function getBatchProcessToken(
         butterDependencyContracts.threePool,
         [parseEther('1'), BigNumber.from('0'), BigNumber.from('0')],
       ),
+      img: 'dai.webp',
     },
     usdc: {
       name: 'USDC',
@@ -143,6 +146,7 @@ async function getBatchProcessToken(
         butterDependencyContracts.threePool,
         [BigNumber.from('0'), BigNumber.from(1e6), BigNumber.from('0')],
       ),
+      img: 'usdc.webp',
     },
     usdt: {
       name: 'USDT',
@@ -158,6 +162,7 @@ async function getBatchProcessToken(
         butterDependencyContracts.threePool,
         [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from(1e6)],
       ),
+      img: 'usdt.webp',
     },
   };
   return batchProcessTokens;
@@ -254,7 +259,7 @@ export default function Butter(): JSX.Element {
       );
       return;
     }
-    setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
+    setButterBatchAdapter(new ButterBatchAdapter(contracts?.butterBatch));
     fetch('https://api.yearn.finance/v1/chains/1/vaults/all')
       .then((res) => res.json())
       .then((res) =>
@@ -276,7 +281,7 @@ export default function Butter(): JSX.Element {
   }, [library, account, chainId]);
 
   useEffect(() => {
-    if (!butterBatchAdapter || !account) {
+    if (!contracts || !butterBatchAdapter || !account) {
       return;
     }
     getBatchProcessToken(
@@ -644,7 +649,7 @@ export default function Butter(): JSX.Element {
                         },
                       })
                     }
-                    className="cursor-pointer text-blue-600"
+                    className="text-blue-600 cursor-pointer"
                   >
                     Add Butter to your Wallet
                   </a>
@@ -753,26 +758,26 @@ export default function Butter(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14">
+        <div className="mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="w-6/12">
             <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
-            <p className="text-lg text-gray-500 mt-2">
+            <p className="mt-2 text-lg text-gray-500">
               Deposit your stablecoins to earn yield
             </p>
             <div className="flex flex-row items-center mt-2">
               <div className="pr-6 border-r-2 border-gray-200">
-                <p className="text-gray-500 font-light text-base uppercase">
+                <p className="text-base font-light text-gray-500 uppercase">
                   Est. APY
                 </p>
-                <p className="text-green-600 text-xl font-medium">
+                <p className="text-xl font-medium text-green-600">
                   {apy ? apy.toLocaleString() : '-'} %
                 </p>
               </div>
               <div className="px-6 border-r-2 border-gray-200">
-                <p className="text-gray-500 font-light text-base uppercase">
+                <p className="text-base font-light text-gray-500 uppercase">
                   TVL
                 </p>
-                <p className=" text-xl font-medium">
+                <p className="text-xl font-medium ">
                   $
                   {batchProcessTokens?.butter && butterSupply
                     ? formatAndRoundBigNumber(
@@ -784,14 +789,14 @@ export default function Butter(): JSX.Element {
                 </p>
               </div>
               <div className="pl-6">
-                <p className="text-gray-500 font-light text-base uppercase">
+                <p className="text-base font-light text-gray-500 uppercase">
                   Social Impact
                 </p>
-                <p className="text-lg text-gray-300 font-medium">Coming Soon</p>
+                <p className="text-lg font-medium text-gray-300">Coming Soon</p>
               </div>
             </div>
           </div>
-          <div className="mt-10 flex flex-row">
+          <div className="flex flex-row mt-10">
             <div className="w-1/3">
               {claimableBatches ? (
                 <MintRedeemInterface
@@ -820,8 +825,8 @@ export default function Butter(): JSX.Element {
                   setSlippage={setSlippage}
                 />
               ) : (
-                <div className="bg-white rounded-3xl px-5 pt-6 pb-14 laptop:pb-10 mr-8 border border-gray-200 shadow-custom">
-                  <div className="w-full py-64 mt-1 smlaptop:mt-2 mb-2">
+                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-10 shadow-custom">
+                  <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
                     <MainActionButton
                       label="Connect Wallet"
                       handleClick={() => activate(connectors.Injected)}
@@ -868,14 +873,14 @@ export default function Butter(): JSX.Element {
                 </div>
               </div>
 
-              <div className="w-full h-min-content pl-10 pr-2 pt-8 smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 pb-6 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 mt-8 rounded-4xl shadow-custom border border-gray-200 bg-primaryLight">
+              <div className="w-full pt-8 pb-6 pl-10 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
                 <Tutorial />
               </div>
             </div>
           </div>
           {batches?.length > 0 && (
-            <div className="mt-10 w-full mx-auto pb-12">
-              <div className="shadow-custom overflow-hidden border border-gray-200 rounded-3xl p-2">
+            <div className="w-full pb-12 mx-auto mt-10">
+              <div className="p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
                 <ClaimableBatches
                   batches={batches}
                   claim={claim}
