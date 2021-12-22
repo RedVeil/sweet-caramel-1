@@ -19,7 +19,7 @@ struct Batch {
   address claimableTokenAddress;
 }
 
-interface IHysiBatchInteraction {
+interface IButterBatchProcessing {
   function batches(bytes32 batchId) external view returns (Batch memory);
 
   function depositForMint(uint256 amount_, address account_) external;

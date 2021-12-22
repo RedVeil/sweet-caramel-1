@@ -15,16 +15,16 @@ import { getChainRelevantContracts } from '../../../hardhat/lib/utils/getContrac
 import {
   BasicIssuanceModule,
   BasicIssuanceModule__factory,
+  ButterBatchProcessing,
+  ButterBatchProcessingZapper,
+  ButterBatchProcessingZapper__factory,
+  ButterBatchProcessing__factory,
   Curve3Pool,
   Curve3Pool__factory,
   CurveMetapool,
   CurveMetapool__factory,
   ERC20,
   ERC20__factory,
-  HysiBatchInteraction,
-  HysiBatchInteraction__factory,
-  HysiBatchZapper,
-  HysiBatchZapper__factory,
   LockStaking,
   LockStaking__factory,
   Staking,
@@ -44,8 +44,8 @@ export interface Contracts {
   threeCrv?: ERC20;
   popEthLp?: ERC20;
   butter?: SetToken;
-  butterBatch?: HysiBatchInteraction;
-  butterBatchZapper?: HysiBatchZapper;
+  butterBatch?: ButterBatchProcessing;
+  butterBatchZapper?: ButterBatchProcessingZapper;
 }
 
 export interface ButterDependencyContracts {
@@ -116,10 +116,10 @@ const initializeContracts = (
     popEthLp: popEthLp ? ERC20__factory.connect(popEthLp, library) : undefined,
     butter: butter ? SetToken__factory.connect(butter, library) : undefined,
     butterBatch: butterBatch
-      ? HysiBatchInteraction__factory.connect(butterBatch, library)
+      ? ButterBatchProcessing__factory.connect(butterBatch, library)
       : undefined,
     butterBatchZapper: butterBatchZapper
-      ? HysiBatchZapper__factory.connect(butterBatch, library)
+      ? ButterBatchProcessingZapper__factory.connect(butterBatch, library)
       : undefined,
   };
   contracts.staking = [];

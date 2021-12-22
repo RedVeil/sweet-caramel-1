@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {BatchType, Batch, IHysiBatchInteraction} from "../../interfaces/IHysiBatchInteraction.sol";
+import {BatchType, Batch, IButterBatchProcessing} from "../../interfaces/IButterBatchProcessing.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
 import "../../interfaces/IContractRegistry.sol";
 
@@ -12,7 +12,7 @@ import "../../interfaces/IContractRegistry.sol";
 This Contract allows user to use and receive stablecoins directly when interacting with HysiBatchInteraction.
 This contract mainly takes stablecoins swaps them into 3CRV and deposits them or the other way around.
  */
-contract HysiBatchZapper {
+contract ButterBatchProcessingZapper {
   using SafeERC20 for IERC20;
 
   /* ========== STATE VARIABLES ========== */
@@ -59,25 +59,14 @@ contract HysiBatchZapper {
    * @param _min_mint_amounts The min amount of 3CRV which should be minted by the curve three-pool (slippage control)
    * @dev The amounts in _amounts must align with their index in the curve three-pool
    */
-  function zapIntoBatch(uint256[3] memory _amounts, uint256 _min_mint_amounts)
-    external
-  {
-    address hysiBatchInteraction = contractRegistry.getContract(
-      keccak256("HysiBatchInteraction")
-    );
+  function zapIntoBatch(uint256[3] memory _amounts, uint256 _min_mint_amounts) external {
+    address butterBatchProcessing = contractRegistry.getContract(keccak256("ButterBatchProcessing"));
     for (uint8 i; i < _amounts.length; i++) {
       if (_amounts[i] > 0) {
         //Deposit Stables
-        IERC20(curve3Pool.coins(i)).safeTransferFrom(
-          msg.sender,
-          address(this),
-          _amounts[i]
-        );
+        IERC20(curve3Pool.coins(i)).safeTransferFrom(msg.sender, address(this), _amounts[i]);
         //Allow Stables for user in curve three-pool
-        IERC20(curve3Pool.coins(i)).safeIncreaseAllowance(
-          address(curve3Pool),
-          _amounts[i]
-        );
+        IERC20(curve3Pool.coins(i)).safeIncreaseAllowance(address(curve3Pool), _amounts[i]);
       }
     }
     //Deposit stables to receive 3CRV
@@ -91,13 +80,10 @@ contract HysiBatchZapper {
     uint256 threeCrvAmount = threeCrv.balanceOf(address(this));
 
     //Allow hysiBatchInteraction to use 3CRV
-    threeCrv.safeIncreaseAllowance(hysiBatchInteraction, threeCrvAmount);
+    threeCrv.safeIncreaseAllowance(butterBatchProcessing, threeCrvAmount);
 
     //Deposit 3CRV in current mint batch
-    IHysiBatchInteraction(hysiBatchInteraction).depositForMint(
-      threeCrvAmount,
-      msg.sender
-    );
+    IButterBatchProcessing(butterBatchProcessing).depositForMint(threeCrvAmount, msg.sender);
     emit ZappedIntoBatch(threeCrvAmount, msg.sender);
   }
 
@@ -116,25 +102,17 @@ contract HysiBatchZapper {
     uint256 _min_amount
   ) external {
     // Allows the zapepr to withdraw 3CRV from batch for the user
-    IHysiBatchInteraction(
-      contractRegistry.getContract(keccak256("HysiBatchInteraction"))
-    ).withdrawFromBatch(_batchId, _amountToWithdraw, msg.sender);
+    IButterBatchProcessing(contractRegistry.getContract(keccak256("ButterBatchProcessing"))).withdrawFromBatch(
+      _batchId,
+      _amountToWithdraw,
+      msg.sender
+    );
 
     //Burns 3CRV for stables and sends them to the user
     //stableBalance is only returned for the event
-    uint256 stableBalance = _swapAndTransfer3Crv(
-      _amountToWithdraw,
-      _stableCoinIndex,
-      _min_amount
-    );
+    uint256 stableBalance = _swapAndTransfer3Crv(_amountToWithdraw, _stableCoinIndex, _min_amount);
 
-    emit ZappedOutOfBatch(
-      _batchId,
-      _stableCoinIndex,
-      _amountToWithdraw,
-      stableBalance,
-      msg.sender
-    );
+    emit ZappedOutOfBatch(_batchId, _stableCoinIndex, _amountToWithdraw, stableBalance, msg.sender);
   }
 
   /**
@@ -150,32 +128,19 @@ contract HysiBatchZapper {
     uint256 _min_amount
   ) external {
     //We can only deposit 3CRV which come from mintBatches otherwise this could claim HYSI which we cant process here
-    IHysiBatchInteraction hysiBatchInteraction = IHysiBatchInteraction(
-      contractRegistry.getContract(keccak256("HysiBatchInteraction"))
+    IButterBatchProcessing butterBatchProcessing = IButterBatchProcessing(
+      contractRegistry.getContract(keccak256("ButterBatchProcessing"))
     );
-    require(
-      hysiBatchInteraction.batches(_batchId).batchType == BatchType.Redeem,
-      "needs to return 3crv"
-    );
+    require(butterBatchProcessing.batches(_batchId).batchType == BatchType.Redeem, "needs to return 3crv");
 
     //Zapper claims 3CRV for the user
-    uint256 threeCurveAmount = hysiBatchInteraction.claim(_batchId, msg.sender);
+    uint256 threeCurveAmount = butterBatchProcessing.claim(_batchId, msg.sender);
 
     //Burns 3CRV for stables and sends them to the user
     //stableBalance is only returned for the event
-    uint256 stableBalance = _swapAndTransfer3Crv(
-      threeCurveAmount,
-      _stableCoinIndex,
-      _min_amount
-    );
+    uint256 stableBalance = _swapAndTransfer3Crv(threeCurveAmount, _stableCoinIndex, _min_amount);
 
-    emit ClaimedIntoStable(
-      _batchId,
-      _stableCoinIndex,
-      threeCurveAmount,
-      stableBalance,
-      msg.sender
-    );
+    emit ClaimedIntoStable(_batchId, _stableCoinIndex, threeCurveAmount, stableBalance, msg.sender);
   }
 
   /**
@@ -194,24 +159,16 @@ contract HysiBatchZapper {
     threeCrv.safeIncreaseAllowance(address(curve3Pool), _threeCurveAmount);
 
     //Burn 3CRV to receive stables
-    curve3Pool.remove_liquidity_one_coin(
-      _threeCurveAmount,
-      _stableCoinIndex,
-      _min_amount
-    );
+    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, _stableCoinIndex, _min_amount);
 
     //Check the amount of returned stables
     /*
     If a user sends Stables to this contract by accident (Which cant be retrieved anyway) they will be used aswell.
     */
-    uint256 stableBalance = IERC20(curve3Pool.coins(_stableCoinIndex))
-      .balanceOf(address(this));
+    uint256 stableBalance = IERC20(curve3Pool.coins(_stableCoinIndex)).balanceOf(address(this));
 
     //Transfer stables to user
-    IERC20(curve3Pool.coins(_stableCoinIndex)).safeTransfer(
-      msg.sender,
-      stableBalance
-    );
+    IERC20(curve3Pool.coins(_stableCoinIndex)).safeTransfer(msg.sender, stableBalance);
 
     //Return stablebalance for event
     return stableBalance;

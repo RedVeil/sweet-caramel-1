@@ -23,17 +23,12 @@ contract KeeperIncentive {
   mapping(bytes32 => Incentive[]) public incentives;
   mapping(bytes32 => address) public controllerContracts;
   uint256 public burnRate;
-  address internal immutable burnAddress =
-    0x00000000219ab540356cBB839Cbe05303d7705Fa; //ETH2.0 Staking Contract
+  address internal immutable burnAddress = 0x000000000000000000000000000000000000dEaD; // Burn Address
   uint256 public requiredKeeperStake;
 
   /* ========== EVENTS ========== */
 
-  event IncentiveCreated(
-    bytes32 contractName,
-    uint256 reward,
-    bool openToEveryone
-  );
+  event IncentiveCreated(bytes32 contractName, uint256 reward, bool openToEveryone);
   event IncentiveChanged(
     bytes32 contractName,
     uint256 oldReward,
@@ -47,10 +42,7 @@ contract KeeperIncentive {
   event ControllerContractAdded(bytes32 contractName, address contractAddress);
   event Burned(uint256 amount);
   event BurnRateChanged(uint256 oldRate, uint256 newRate);
-  event RequiredKeeperStakeChanged(
-    uint256 oldRequirement,
-    uint256 newRequirement
-  );
+  event RequiredKeeperStakeChanged(uint256 oldRequirement, uint256 newRequirement);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -71,31 +63,22 @@ contract KeeperIncentive {
     uint8 _i,
     address _keeper
   ) external {
-    require(
-      msg.sender == controllerContracts[_contractName],
-      "Can only be called by the controlling contract"
-    );
+    require(msg.sender == controllerContracts[_contractName], "Can only be called by the controlling contract");
 
     Incentive memory incentive = incentives[_contractName][_i];
 
     if (!incentive.openToEveryone) {
-      IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-        .requireRole(keccak256("Keeper"), _keeper);
+      IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("Keeper"), _keeper);
       require(
-        IStaking(contractRegistry.getContract(keccak256("Staking"))).balanceOf(
-          _keeper
-        ) >= requiredKeeperStake,
+        IStaking(contractRegistry.getContract(keccak256("Staking"))).balanceOf(_keeper) >= requiredKeeperStake,
         "not enough pop at stake"
       );
     }
-    if (incentive.enabled && incentive.reward <= incentiveBudget) {
+    if (incentive.enabled && incentive.reward <= incentiveBudget && incentive.reward > 0) {
       incentiveBudget = incentiveBudget - incentive.reward;
       uint256 amountToBurn = (incentive.reward * burnRate) / 1e18;
       uint256 incentivePayout = incentive.reward - amountToBurn;
-      IERC20(contractRegistry.getContract(keccak256("POP"))).safeTransfer(
-        _keeper,
-        incentivePayout
-      );
+      IERC20(contractRegistry.getContract(keccak256("POP"))).safeTransfer(_keeper, incentivePayout);
       _burn(amountToBurn);
     }
   }
@@ -117,15 +100,8 @@ contract KeeperIncentive {
     bool _enabled,
     bool _openToEveryone
   ) public {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-      .requireRole(keccak256("DAO"), msg.sender);
-    incentives[_contractName].push(
-      Incentive({
-        reward: _reward,
-        enabled: _enabled,
-        openToEveryone: _openToEveryone
-      })
-    );
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+    incentives[_contractName].push(Incentive({reward: _reward, enabled: _enabled, openToEveryone: _openToEveryone}));
     emit IncentiveCreated(_contractName, _reward, _openToEveryone);
   }
 
@@ -138,45 +114,32 @@ contract KeeperIncentive {
     bool _enabled,
     bool _openToEveryone
   ) external {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-      .requireRole(keccak256("DAO"), msg.sender);
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     Incentive storage incentive = incentives[_contractName][_i];
     uint256 oldReward = incentive.reward;
     bool oldOpenToEveryone = incentive.openToEveryone;
     incentive.reward = _reward;
     incentive.enabled = _enabled;
     incentive.openToEveryone = _openToEveryone;
-    emit IncentiveChanged(
-      _contractName,
-      oldReward,
-      _reward,
-      oldOpenToEveryone,
-      _openToEveryone
-    );
+    emit IncentiveChanged(_contractName, oldReward, _reward, oldOpenToEveryone, _openToEveryone);
   }
 
   function toggleApproval(bytes32 _contractName, uint8 _i) external {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-      .requireRole(keccak256("DAO"), msg.sender);
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     Incentive storage incentive = incentives[_contractName][_i];
     incentive.openToEveryone = !incentive.openToEveryone;
     emit ApprovalToggled(_contractName, incentive.openToEveryone);
   }
 
   function toggleIncentive(bytes32 _contractName, uint8 _i) external {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-      .requireRole(keccak256("DAO"), msg.sender);
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     Incentive storage incentive = incentives[_contractName][_i];
     incentive.enabled = !incentive.enabled;
     emit IncentiveToggled(_contractName, incentive.enabled);
   }
 
   function fundIncentive(uint256 _amount) external {
-    IERC20(contractRegistry.getContract(keccak256("POP"))).safeTransferFrom(
-      msg.sender,
-      address(this),
-      _amount
-    );
+    IERC20(contractRegistry.getContract(keccak256("POP"))).safeTransferFrom(msg.sender, address(this), _amount);
     incentiveBudget = incentiveBudget + _amount;
     emit IncentiveFunded(_amount);
   }
@@ -187,11 +150,8 @@ contract KeeperIncentive {
    * @param contract_ the address of the controller contract
    * @dev all critical functions to init/open vaults and add shares to them can only be called by controller contracts
    */
-  function addControllerContract(bytes32 _contractName, address contract_)
-    external
-  {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-      .requireRole(keccak256("DAO"), msg.sender);
+  function addControllerContract(bytes32 _contractName, address contract_) external {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     controllerContracts[_contractName] = contract_;
     emit ControllerContractAdded(_contractName, contract_);
   }
@@ -201,17 +161,13 @@ contract KeeperIncentive {
    * @param _burnRate Percentage in Mantissa. (1e14 = 1 Basis Point)
    */
   function updateBurnRate(uint256 _burnRate) external {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-      .requireRole(keccak256("DAO"), msg.sender);
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     emit BurnRateChanged(burnRate, _burnRate);
     burnRate = _burnRate;
   }
 
   function _burn(uint256 _amount) internal {
-    IERC20(contractRegistry.getContract(keccak256("POP"))).transfer(
-      burnAddress,
-      _amount
-    );
+    IERC20(contractRegistry.getContract(keccak256("POP"))).transfer(burnAddress, _amount);
     emit Burned(_amount);
   }
 
@@ -220,8 +176,7 @@ contract KeeperIncentive {
    * @param _amount Amount of POP a keeper needs to stake
    */
   function updateRequiredKeeperStake(uint256 _amount) external {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry")))
-      .requireRole(keccak256("DAO"), msg.sender);
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     emit RequiredKeeperStakeChanged(requiredKeeperStake, _amount);
     requiredKeeperStake = _amount;
   }

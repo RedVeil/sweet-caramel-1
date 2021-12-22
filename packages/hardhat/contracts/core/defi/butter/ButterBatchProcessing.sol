@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../../interfaces/IACLRegistry.sol";
 import "../../../externals/interfaces/YearnVault.sol";
 import "../../../externals/interfaces/BasicIssuanceModule.sol";
@@ -22,7 +24,7 @@ The HYSI is created from 4 different yToken which in turn need each a deposit of
 This means 12 approvals and 9 deposits are necessary to mint one HYSI.
 We Batch this process and allow users to pool their funds. Than we pay keeper to Mint or Redeem HYSI regularly.
 */
-contract HysiBatchInteraction {
+contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   using SafeERC20 for YearnVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
@@ -69,7 +71,7 @@ contract HysiBatchInteraction {
 
   /* ========== STATE VARIABLES ========== */
 
-  bytes32 public immutable contractName = "HysiBatchInteraction";
+  bytes32 public immutable contractName = "ButterBatchProcessing";
 
   IContractRegistry public contractRegistry;
   ISetToken public setToken;
@@ -103,6 +105,10 @@ contract HysiBatchInteraction {
   event TokenSetAdded(ISetToken setToken);
   event WithdrawnFromBatch(bytes32 batchId, uint256 amount, address to);
   event MovedUnclaimedDepositsIntoCurrentBatch(uint256 amount, BatchType batchType, address account);
+  event RedeemThresholdUpdated(uint256 previousThreshold, uint256 newThreshold);
+  event MintThresholdUpdated(uint256 previousThreshold, uint256 newThreshold);
+  event BatchCooldownUpdated(uint256 previousCooldown, uint256 newCooldown);
+  event CurveTokenPairsUpdated(address[] yTokenAddresses, CurvePoolTokenPair[] curveTokenPairs);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -149,12 +155,11 @@ contract HysiBatchInteraction {
    * @notice Deposits funds in the current mint batch
    * @param _amount Amount of 3cr3CRV to use for minting
    * @param _depositFor User that gets the shares attributed to (for use in zapper contract)
-   * @dev Should this be secured we nonReentrant?
    */
-  function depositForMint(uint256 _amount, address _depositFor) external {
+  function depositForMint(uint256 _amount, address _depositFor) external nonReentrant whenNotPaused {
     require(
       IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).hasRole(
-        keccak256("HysiZapper"),
+        keccak256("ButterZapper"),
         msg.sender
       ) || msg.sender == _depositFor,
       "you cant transfer other funds"
@@ -167,9 +172,8 @@ contract HysiBatchInteraction {
   /**
    * @notice deposits funds in the current redeem batch
    * @param _amount amount of HYSI to be redeemed
-   * @dev Should this be secured we nonReentrant?
    */
-  function depositForRedeem(uint256 _amount) external {
+  function depositForRedeem(uint256 _amount) external nonReentrant whenNotPaused {
     require(setToken.balanceOf(msg.sender) >= _amount, "insufficient balance");
     setToken.transferFrom(msg.sender, address(this), _amount);
     _deposit(_amount, currentRedeemBatchId, msg.sender);
@@ -250,7 +254,7 @@ contract HysiBatchInteraction {
     bytes32[] calldata _batchIds,
     uint256[] calldata _shares,
     BatchType _batchType
-  ) external {
+  ) external whenNotPaused {
     require(_batchIds.length == _shares.length, "array lengths must match");
 
     uint256 totalAmount;
@@ -293,7 +297,7 @@ contract HysiBatchInteraction {
    * @dev In order to get 3CRV we can implement a zap to move stables into the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchMint(uint256 _minAmountToMint) external {
+  function batchMint(uint256 _minAmountToMint) external whenNotPaused {
     KeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
       contractName,
       0,
@@ -354,7 +358,7 @@ contract HysiBatchInteraction {
 
     for (uint256 i; i < tokenAddresses.length; i++) {
       //Calculate the pool allocation by dividing the suppliedTokenBalance by 4 and take leftovers into account
-      uint256 poolAllocation = suppliedTokenBalancePlusLeftovers / 4 - leftoversIn3Crv[i];
+      uint256 poolAllocation = suppliedTokenBalancePlusLeftovers / tokenAddresses.length - leftoversIn3Crv[i];
 
       //Pool 3CRV to get crvLPToken
       _sendToCurve(poolAllocation, curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool);
@@ -410,7 +414,7 @@ contract HysiBatchInteraction {
    * @dev In order to get stablecoins from 3CRV we can use a zap to redeem 3CRV for stables in the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchRedeem(uint256 _min3crvToReceive) external {
+  function batchRedeem(uint256 _min3crvToReceive) external whenNotPaused {
     KeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
       contractName,
       1,
@@ -491,7 +495,7 @@ contract HysiBatchInteraction {
     //Make sure that only zapper can withdraw from someone else
     require(
       IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).hasRole(
-        keccak256("HysiZapper"),
+        keccak256("ButterZapper"),
         msg.sender
       ) || msg.sender == _account,
       "you cant transfer other funds"
@@ -502,7 +506,10 @@ contract HysiBatchInteraction {
 
     //set the recipient to zapper if its called by the zapper
     if (
-      IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).hasRole(keccak256("HysiZapper"), msg.sender)
+      IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).hasRole(
+        keccak256("ButterZapper"),
+        msg.sender
+      )
     ) {
       recipient = msg.sender;
     }
@@ -642,7 +649,7 @@ contract HysiBatchInteraction {
     return keccak256(abi.encodePacked(block.timestamp, _currentBatchId));
   }
 
-  /* ========== SETTER ========== */
+  /* ========== ADMIN ========== */
 
   /**
    * @notice This function allows the owner to change the composition of underlying token of the HYSI
@@ -669,6 +676,7 @@ contract HysiBatchInteraction {
     for (uint256 i; i < _yTokenAddresses.length; i++) {
       curvePoolTokenPairs[_yTokenAddresses[i]] = _curvePoolTokenPairs[i];
     }
+    emit CurveTokenPairsUpdated(_yTokenAddresses, _curvePoolTokenPairs);
   }
 
   /**
@@ -697,5 +705,14 @@ contract HysiBatchInteraction {
   function setRedeemThreshold(uint256 _threshold) external {
     IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     redeemThreshold = _threshold;
+  }
+
+  /**
+   * @notice Pauses the contract.
+   * @dev All function with the modifer `whenNotPaused` cant be called anymore. Namly deposits and mint/redeem
+   */
+  function pause() external {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+    _pause();
   }
 }

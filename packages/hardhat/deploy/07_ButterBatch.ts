@@ -73,11 +73,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "HysiBatchInteraction",
+    contract: "ButterBatchProcessing",
   });
   console.log("adding butterBatch to contract registry...");
   await contractRegistry.addContract(
-    ethers.utils.id("HysiBatchInteraction"),
+    ethers.utils.id("ButterBatchProcessing"),
     (
       await deployments.get("ButterBatch")
     ).address,
@@ -91,11 +91,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [contractRegistryAddress, addresses.threePool, addresses.threeCrv],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "HysiBatchZapper",
+    contract: "ButterBatchProcessingZapper",
   });
 
   await contractRegistry.addContract(
-    ethers.utils.id("HysiBatchZapper"),
+    ethers.utils.id("ButterBatchProcessingZapper"),
     (
       await deployments.get("ButterBatchZapper")
     ).address,
@@ -112,20 +112,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   await keeperIncentive.createIncentive(
-    utils.formatBytes32String("HysiBatchInteraction"),
+    utils.formatBytes32String("ButterBatchProcessing"),
     0,
     false,
     true
   );
   await keeperIncentive.createIncentive(
-    utils.formatBytes32String("HysiBatchInteraction"),
+    utils.formatBytes32String("ButterBatchProcessing"),
     0,
     false,
     true
   );
 
   await keeperIncentive.addControllerContract(
-    utils.formatBytes32String("HysiBatchInteraction"),
+    utils.formatBytes32String("ButterBatchProcessing"),
     (
       await deployments.get("ButterBatch")
     ).address
@@ -139,7 +139,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer
   );
   await aclRegistry.grantRole(
-    ethers.utils.id("HysiZapper"),
+    ethers.utils.id("ButterZapper"),
     (
       await deployments.get("ButterBatchZapper")
     ).address
@@ -163,7 +163,7 @@ async function createDemoData(
   console.log("creating demo data...");
 
   const butterBatch = await hre.ethers.getContractAt(
-    "HysiBatchInteraction",
+    "ButterBatchProcessing",
     (
       await deployments.get("ButterBatch")
     ).address,
