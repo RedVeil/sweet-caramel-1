@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Contract, ContractTransaction } from "ethers";
+import { BigNumber, Contract, ContractTransaction } from "ethers";
 
 export async function expectRevert(
   call: any,
@@ -32,6 +32,21 @@ export async function expectValue(
   expectedValue: any
 ): Promise<Chai.AsyncAssertion> {
   expect(value).to.equal(expectedValue);
+}
+
+export async function expectBigNumberCloseTo(
+  value: BigNumber,
+  expectedValue: BigNumber,
+  delta: BigNumber
+): Promise<Chai.AsyncAssertion> {
+  const difference = expectedValue.sub(value);
+  if (difference.abs() > delta) {
+    expect.fail(
+      difference,
+      delta,
+      `Expected ${value} to be within ${delta} of ${expectedValue}`
+    );
+  }
 }
 
 export async function expectDeepValue(

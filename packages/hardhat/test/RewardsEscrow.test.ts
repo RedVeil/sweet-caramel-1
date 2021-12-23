@@ -7,6 +7,7 @@ import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import {
+  expectBigNumberCloseTo,
   expectDeepValue,
   expectRevert,
   expectValue,
@@ -239,12 +240,16 @@ describe("RewardsEscrow", function () {
 
       await contracts.staking.connect(owner).getReward();
 
-      expect(
-        await contracts.mockPop.balanceOf(contracts.rewardsEscrow.address)
-      ).to.equal(LOCKED_AMOUNT);
-      expect(
-        await contracts.mockPop.balanceOf(contracts.staking.address)
-      ).to.equal(parseEther("5.999983465608627210"));
+      await expectBigNumberCloseTo(
+        await contracts.mockPop.balanceOf(contracts.rewardsEscrow.address),
+        LOCKED_AMOUNT,
+        parseEther("0.00001")
+      );
+      await expectBigNumberCloseTo(
+        await contracts.mockPop.balanceOf(contracts.staking.address),
+        parseEther("5.999983465608627210"),
+        parseEther("0.00001")
+      );
     });
 
     it("emits event on lock", async function () {
@@ -267,8 +272,16 @@ describe("RewardsEscrow", function () {
 
       const escrow1 = await contracts.rewardsEscrow.escrows(escrowIds[0]);
       const escrow2 = await contracts.rewardsEscrow.escrows(escrowIds[1]);
-      expect(escrow1.balance).to.be.equal(LOCKED_AMOUNT);
-      expect(escrow2.balance).to.be.equal(parseEther("4.499970238095092649"));
+      await expectBigNumberCloseTo(
+        escrow1.balance,
+        LOCKED_AMOUNT,
+        parseEther("0.00001")
+      );
+      await expectBigNumberCloseTo(
+        escrow2.balance,
+        parseEther("4.499970238095092649"),
+        parseEther("0.00001")
+      );
     });
   });
 
