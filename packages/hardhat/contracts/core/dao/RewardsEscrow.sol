@@ -64,8 +64,6 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    * @dev there is no check to ensure that all escrows are owned by the same account. Make sure to account for this either by only sending ids for a specific account or by filtering the Escrows by account later on.
    */
   function getEscrows(bytes32[] calldata _escrowIds) external view returns (Escrow[] memory) {
-    require(_escrowIds.length <= 20, "too many ids");
-
     Escrow[] memory selectedEscrows = new Escrow[](_escrowIds.length);
     for (uint256 i = 0; i < _escrowIds.length; i++) {
       selectedEscrows[i] = escrows[_escrowIds[i]];
@@ -118,11 +116,9 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    * @notice Claim rewards for multiple escrows
    * @dev Uses the vaultIds at the specified indices of escrowIdsByAddress.
    * @dev This function is used when a user wants to claim multiple escrowVaults at once (probably most of the time)
-   * @dev The array of indices is limited to 20 as we want to prevent gas overflow of looping through too many vaults
-   * TODO the upper bound of indices that can be used should be calculated with a simulation
+   * @dev prevention for gas overflow should be handled in the frontend
    */
   function claimRewards(bytes32[] calldata _escrowIdsByAddress) external nonReentrant {
-    require(_escrowIdsByAddress.length <= 20, "claiming too many escrows");
     uint256 total;
 
     for (uint256 i = 0; i < _escrowIdsByAddress.length; i++) {

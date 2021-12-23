@@ -421,25 +421,6 @@ describe("RewardsEscrow", function () {
         await increaseTime(304800);
       });
 
-      it("reverts when trying to claim too many escrows", async function () {
-        await bluebird.map(
-          new Array(30).fill(0),
-          async (_x, _i) => {
-            await contracts.staking.connect(owner).getReward();
-          },
-          { concurrency: 1 }
-        );
-        await increaseTime(366 * DAY);
-        const escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
-          owner.address
-        );
-        await expect(
-          contracts.rewardsEscrow
-            .connect(owner)
-            .claimRewards(escrowIds.slice(0, 21))
-        ).to.be.revertedWith("claiming too many escrows");
-      });
-
       it("cannot claim escrows twice", async function () {
         await bluebird.map(
           new Array(30).fill(0),
