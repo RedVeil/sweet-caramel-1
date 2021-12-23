@@ -243,12 +243,12 @@ describe("RewardsEscrow", function () {
       await expectBigNumberCloseTo(
         await contracts.mockPop.balanceOf(contracts.rewardsEscrow.address),
         LOCKED_AMOUNT,
-        parseEther("0.00001")
+        parseEther("0.00015")
       );
       await expectBigNumberCloseTo(
         await contracts.mockPop.balanceOf(contracts.staking.address),
         parseEther("5.999983465608627210"),
-        parseEther("0.00001")
+        parseEther("0.00015")
       );
     });
 
@@ -275,12 +275,12 @@ describe("RewardsEscrow", function () {
       await expectBigNumberCloseTo(
         escrow1.balance,
         LOCKED_AMOUNT,
-        parseEther("0.00001")
+        parseEther("0.00015")
       );
       await expectBigNumberCloseTo(
         escrow2.balance,
         parseEther("4.499970238095092649"),
-        parseEther("0.00001")
+        parseEther("0.00015")
       );
     });
   });
