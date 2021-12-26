@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { ERC20, LockStaking, Staking } from '@popcorn/hardhat/typechain';
+import { ERC20, PopLocker, Staking } from '@popcorn/hardhat/typechain';
 import {
   bigNumberToNumber,
   getERC20Contract,
@@ -16,7 +16,7 @@ import { updateStakingPageInfo } from 'context/actions';
 import { store } from 'context/store';
 import { connectors } from 'context/Web3/connectors';
 import { ContractsContext } from 'context/Web3/contracts';
-import { utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import 'rc-slider/assets/index.css';
@@ -25,7 +25,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 export interface StakingPageInfo {
   inputToken: ERC20;
-  stakingContract: Staking | LockStaking;
+  stakingContract: Staking | PopLocker;
   tokenName: string;
   poolInfo: StakingPoolInfo;
 }
@@ -35,6 +35,21 @@ interface Balances {
   staked: number;
   allowance: number;
   earned: number;
+}
+
+async function getEarned(state, account, isPopStaking): Promise<BigNumber> {
+  if (isPopStaking) {
+    const rewardRes = await (
+      state?.stakingPageInfo?.stakingContract as PopLocker
+    )?.claimableRewards(account);
+    if (rewardRes === undefined || rewardRes?.length === 0) {
+      return BigNumber.from('0');
+    }
+    return rewardRes[0].amount;
+  }
+  return await (state?.stakingPageInfo?.stakingContract as Staking)?.earned(
+    account,
+  );
 }
 
 export default function stake(): JSX.Element {
@@ -74,7 +89,7 @@ export default function stake(): JSX.Element {
     }
     async function getPageInfo() {
       if (contracts && contracts.staking.length > 0) {
-        const stakingContract: Staking | LockStaking = [
+        const stakingContract: Staking | PopLocker = [
           contracts.popStaking,
           ...contracts.staking,
         ].find((contract) => contract.address === id);
@@ -88,6 +103,7 @@ export default function stake(): JSX.Element {
           stakingContract,
           library,
           id === contracts.popStaking.address ? contracts.pop.address : null,
+          id === contracts.popStaking.address ? 'POP' : null,
         );
         const erc20 = await getERC20Contract(
           stakingPoolInfo.stakedTokenAddress,
@@ -123,7 +139,11 @@ export default function stake(): JSX.Element {
       stakingContract?.address,
     );
     const stakedAmount = await stakingContract?.balanceOf(account);
-    const earned = await stakingContract?.earned(account);
+    const earned = await getEarned(
+      state,
+      account,
+      id === contracts.popStaking.address,
+    );
 
     setBalances({
       wallet: bigNumberToNumber(inputBalance),
@@ -143,9 +163,12 @@ export default function stake(): JSX.Element {
     );
     const stakedAmount =
       await state.stakingPageInfo?.stakingContract?.balanceOf(account);
-    const earned = await state.stakingPageInfo?.stakingContract?.earned(
+    const earned = await getEarned(
+      state,
       account,
+      id === contracts.popStaking.address,
     );
+
     getSingleStakingPoolInfo(
       state.stakingPageInfo?.stakingContract,
       library,
@@ -180,9 +203,9 @@ export default function stake(): JSX.Element {
       await state.stakingPageInfo.stakingContract.connect(signer);
     const stakeCall =
       id === contracts.popStaking.address
-        ? (connectedStaking as LockStaking).stake(lockedPopInEth, 7257600)
+        ? (connectedStaking as PopLocker).lock(account, lockedPopInEth, 0)
         : (connectedStaking as Staking).stake(lockedPopInEth);
-    stakeCall
+    await stakeCall
       .then((res) =>
         res.wait().then((res) => {
           {
@@ -213,9 +236,14 @@ export default function stake(): JSX.Element {
     const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
     const signer = library.getSigner();
     const connectedStaking =
-      await state.stakingPageInfo?.stakingContract?.connect(signer);
-    await connectedStaking
-      .withdraw(lockedPopInEth)
+      await state.stakingPageInfo.stakingContract.connect(signer);
+
+    const call =
+      id === contracts.popStaking.address
+        ? (connectedStaking as PopLocker)['processExpiredLocks(bool)'](false)
+        : (connectedStaking as Staking).withdraw(lockedPopInEth);
+
+    await call
       .then((res) =>
         res.wait().then((res) => {
           {
@@ -250,7 +278,7 @@ export default function stake(): JSX.Element {
     const formattedToken = inputTokenAmount.toLocaleString().replace(/,/gi, '');
     const lockedTokenInEth = utils.parseEther(formattedToken);
     const connected = await contracts.pop.connect(library.getSigner());
-    connected
+    await connected
       .approve(
         state.stakingPageInfo?.stakingContract?.address,
         lockedTokenInEth,
@@ -259,8 +287,6 @@ export default function stake(): JSX.Element {
         res.wait().then(async (res) => {
           toast.dismiss();
           toast.success(`${state.stakingPageInfo?.tokenName} approved!`);
-          await updateData();
-          setWait(false);
         }),
       )
       .catch((err) => {
@@ -270,9 +296,13 @@ export default function stake(): JSX.Element {
         ) {
           toast.error('Transaction was canceled');
         } else {
+          console.log(err);
+          console.log(err.message);
           toast.error(err.message.split("'")[1]);
         }
       });
+    await updateData();
+    setWait(false);
   }
 
   return (

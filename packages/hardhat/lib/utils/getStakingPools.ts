@@ -16,7 +16,7 @@ export async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "LockStaking",
+          contract: "PopLocker",
           inputToken: addresses.pop,
         },
         {
@@ -36,7 +36,7 @@ export async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "LockStaking",
+          contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
@@ -56,7 +56,7 @@ export async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "LockStaking",
+          contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
@@ -76,7 +76,7 @@ export async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "LockStaking",
+          contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
@@ -90,7 +90,7 @@ export async function getStakingPools(
       return [
         {
           poolName: "PopStaking",
-          contract: "LockStaking",
+          contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {

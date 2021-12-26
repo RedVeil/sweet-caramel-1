@@ -1,6 +1,6 @@
 import { parseEther } from '@ethersproject/units';
 import { Contracts } from '@popcorn/app/context/Web3/contracts';
-import { LockStaking, Staking } from '@popcorn/hardhat/typechain';
+import { PopLocker, Staking } from '@popcorn/hardhat/typechain';
 import { BigNumber } from 'ethers';
 import { ERC20, ERC20__factory } from '../../hardhat/typechain';
 import { bigNumberToNumber } from './formatBigNumber';
@@ -31,14 +31,19 @@ export async function calculateAPY(
 }
 
 export async function getSingleStakingPoolInfo(
-  stakingContract: Staking | LockStaking,
+  stakingContract: Staking | PopLocker,
   library: any,
   stakedTokenAddress?: Address,
   stakedTokenName?: string,
 ): Promise<StakingPoolInfo> {
-  const tokenPerWeek = await stakingContract?.getRewardForDuration({
-    gasLimit: '2000000',
-  });
+  const tokenPerWeek =
+    stakedTokenName === 'POP'
+      ? await (stakingContract as PopLocker).getRewardForDuration(
+          stakedTokenAddress,
+        )
+      : await (stakingContract as Staking)?.getRewardForDuration({
+          gasLimit: '2000000',
+        });
   const totalStaked = await stakingContract?.totalSupply({
     gasLimit: '2000000',
   });

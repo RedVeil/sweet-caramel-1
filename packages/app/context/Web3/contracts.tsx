@@ -25,8 +25,8 @@ import {
   CurveMetapool__factory,
   ERC20,
   ERC20__factory,
-  LockStaking,
-  LockStaking__factory,
+  PopLocker,
+  PopLocker__factory,
   Staking,
   Staking__factory,
   YearnVault,
@@ -36,7 +36,7 @@ import { connectors, networkMap } from './connectors';
 
 export interface Contracts {
   staking?: Staking[];
-  popStaking?: LockStaking;
+  popStaking?: PopLocker;
   pop?: ERC20;
   dai?: ERC20;
   usdc?: ERC20;
@@ -106,7 +106,7 @@ const initializeContracts = (
   };
   const contracts: Contracts = {
     popStaking: popStaking
-      ? LockStaking__factory.connect(popStaking, library)
+      ? PopLocker__factory.connect(popStaking, library)
       : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
     dai: dai ? ERC20__factory.connect(dai, library) : undefined,

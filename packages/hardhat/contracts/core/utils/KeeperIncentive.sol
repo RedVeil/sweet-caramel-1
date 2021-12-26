@@ -50,7 +50,7 @@ contract KeeperIncentive {
     IContractRegistry _contractRegistry,
     uint256 _burnRate,
     uint256 _requiredKeeperStake
-  ) public {
+  ) {
     contractRegistry = _contractRegistry;
     burnRate = _burnRate; //25e16
     requiredKeeperStake = _requiredKeeperStake; // 2000 ether

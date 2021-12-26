@@ -19,16 +19,17 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   for (var i = 0; i < stakingPools.length; i++) {
     await deploy(stakingPools[i].poolName, {
       from: addresses.deployer,
-      args: stakingPools[i].rewardsToken
-        ? [
-            stakingPools[i].rewardsToken,
-            stakingPools[i].inputToken,
-            (await deployments.get("RewardsEscrow")).address,
-          ]
-        : [
-            stakingPools[i].inputToken,
-            (await deployments.get("RewardsEscrow")).address,
-          ],
+      args:
+        stakingPools[i].contract === "PopLocker"
+          ? [
+              stakingPools[i].inputToken,
+              (await deployments.get("RewardsEscrow")).address,
+            ]
+          : [
+              stakingPools[i].rewardsToken,
+              stakingPools[i].inputToken,
+              (await deployments.get("RewardsEscrow")).address,
+            ],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: stakingPools[i].contract,

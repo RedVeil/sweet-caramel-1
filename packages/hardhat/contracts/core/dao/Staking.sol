@@ -26,6 +26,9 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
   uint256 public lastUpdateTime;
   uint256 public rewardPerTokenStored;
 
+  // duration in seconds for rewards to be held in escrow
+  uint256 public escrowDuration;
+
   mapping(address => uint256) public userRewardPerTokenPaid;
   mapping(address => uint256) public rewards;
 
@@ -105,7 +108,7 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
       uint256 escrowed = payout * uint256(9);
 
       rewardsToken.safeTransfer(msg.sender, payout);
-      rewardsEscrow.lock(msg.sender, escrowed);
+      rewardsEscrow.lock(msg.sender, escrowed, escrowDuration);
       emit RewardPaid(msg.sender, reward);
     }
   }
@@ -116,6 +119,11 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
   }
 
   /* ========== RESTRICTED FUNCTIONS ========== */
+
+  function setEscrowDuration(uint256 duration) external onlyOwner {
+    emit EscrowDurationUpdated(escrowDuration, duration);
+    escrowDuration = duration;
+  }
 
   function notifyRewardAmount(uint256 reward) external override onlyOwner updateReward(address(0)) {
     if (block.timestamp >= periodFinish) {
@@ -173,5 +181,6 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
   event Withdrawn(address indexed user, uint256 amount);
   event RewardPaid(address indexed user, uint256 reward);
   event RewardsDurationUpdated(uint256 newDuration);
+  event EscrowDurationUpdated(uint256 _previousDuration, uint256 _newDuration);
   event Recovered(address token, uint256 amount);
 }

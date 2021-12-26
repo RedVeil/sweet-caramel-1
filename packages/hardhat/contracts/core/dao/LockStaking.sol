@@ -32,6 +32,10 @@ contract LockStaking is IStaking, Ownable, ReentrancyGuard, Pausable {
   uint256 public rewardPerTokenStored;
   uint256 public totalLocked;
   uint256 public totalVoiceCredits;
+
+  // duration in seconds for rewards to be held in escrow
+  uint256 public escrowDuration;
+
   mapping(address => uint256) public voiceCredits;
   mapping(address => uint256) public userRewardPerTokenPaid;
   mapping(address => uint256) public rewards;
@@ -43,6 +47,7 @@ contract LockStaking is IStaking, Ownable, ReentrancyGuard, Pausable {
   event StakingWithdrawn(address _address, uint256 amount);
   event RewardPaid(address _address, uint256 reward);
   event RewardAdded(uint256 reward);
+  event EscrowDurationUpdated(uint256 _previousDuration, uint256 _newDuration);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -166,7 +171,7 @@ contract LockStaking is IStaking, Ownable, ReentrancyGuard, Pausable {
       uint256 escrowed = payout * uint256(9);
 
       token.safeTransfer(msg.sender, payout);
-      rewardsEscrow.lock(msg.sender, escrowed);
+      rewardsEscrow.lock(msg.sender, escrowed, escrowDuration);
 
       emit RewardPaid(msg.sender, payout);
     }
@@ -184,6 +189,11 @@ contract LockStaking is IStaking, Ownable, ReentrancyGuard, Pausable {
     totalVoiceCredits = totalVoiceCredits - previousVoiceCredits;
     voiceCredits[_address] = getVoiceCredits(_address);
     totalVoiceCredits = totalVoiceCredits + voiceCredits[_address];
+  }
+
+  function setEscrowDuration(uint256 duration) external onlyOwner {
+    emit EscrowDurationUpdated(escrowDuration, duration);
+    escrowDuration = duration;
   }
 
   function _stake(

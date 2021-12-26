@@ -12,14 +12,15 @@ import {
   expectRevert,
   expectValue,
 } from "../lib/utils/expectValue";
+import { DAYS } from "../lib/utils/test";
 import { MockERC20 } from "../typechain";
-import { LockStaking } from "../typechain/LockStaking";
+import { PopLocker } from "../typechain/PopLocker";
 import { RewardsEscrow } from "../typechain/RewardsEscrow";
 
 interface Contracts {
   mockPop: MockERC20;
   mockToken: MockERC20;
-  staking: LockStaking;
+  staking: PopLocker;
   rewardsEscrow: RewardsEscrow;
 }
 
@@ -72,17 +73,19 @@ async function deployContracts(): Promise<Contracts> {
 
   const staking = (await (
     await (
-      await ethers.getContractFactory("LockStaking")
+      await ethers.getContractFactory("PopLocker")
     ).deploy(mockPop.address, rewardsEscrow.address)
-  ).deployed()) as LockStaking;
+  ).deployed()) as PopLocker;
 
-  await rewardsEscrow.addStakingContract(staking.address);
+  await rewardsEscrow.addAuthorizedContract(staking.address);
 
   await mockPop.transfer(staking.address, STAKING_FUND);
   await mockPop.connect(owner).approve(staking.address, parseEther("100000"));
 
-  await staking.notifyRewardAmount(STAKING_FUND);
-  await staking.connect(owner).stake(parseEther("1"), 12 * WEEK);
+  await staking.addReward(mockPop.address, owner.address, false);
+
+  await staking.notifyRewardAmount(mockPop.address, STAKING_FUND);
+  await staking.connect(owner).lock(owner.address, parseEther("1"), 0);
 
   return { mockPop, mockToken, staking, rewardsEscrow };
 }
@@ -122,7 +125,7 @@ describe("RewardsEscrow", function () {
     });
 
     it("returns escrow IDs when they exist", async function () {
-      await contracts.staking.connect(owner).getReward();
+      await contracts.staking.connect(owner).getReward(owner.address);
       await expectValue(
         (
           await contracts.rewardsEscrow.getEscrowIdsByUser(owner.address)
@@ -134,9 +137,9 @@ describe("RewardsEscrow", function () {
 
   describe("getEscrows", function () {
     it("returns array of Escrows for provided ids", async function () {
-      await contracts.staking.connect(owner).getReward();
-      await contracts.staking.connect(owner).getReward();
-      await contracts.staking.connect(owner).getReward();
+      await contracts.staking.connect(owner).getReward(owner.address);
+      await contracts.staking.connect(owner).getReward(owner.address);
+      await contracts.staking.connect(owner).getReward(owner.address);
       let escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
         owner.address
       );
@@ -154,11 +157,14 @@ describe("RewardsEscrow", function () {
       it("Reverts on unset staking address", async function () {
         await contracts.rewardsEscrow
           .connect(owner)
-          .addStakingContract(ethers.constants.AddressZero);
+          .addAuthorizedContract(owner.address);
+        await contracts.rewardsEscrow
+          .connect(owner)
+          .removeAuthorizedContract(owner.address);
         await expectRevert(
           contracts.rewardsEscrow
             .connect(owner)
-            .lock(owner.address, parseEther("1")),
+            .lock(owner.address, parseEther("1"), 365 * DAYS),
           "unauthorized"
         );
       });
@@ -166,11 +172,11 @@ describe("RewardsEscrow", function () {
       it("Reverts on unauthorized caller address", async function () {
         await contracts.rewardsEscrow
           .connect(owner)
-          .addStakingContract(nonOwner.address);
+          .addAuthorizedContract(nonOwner.address);
         await expectRevert(
           contracts.rewardsEscrow
             .connect(owner)
-            .lock(owner.address, parseEther("1")),
+            .lock(owner.address, parseEther("1"), 365 * DAYS),
           "unauthorized"
         );
       });
@@ -178,9 +184,11 @@ describe("RewardsEscrow", function () {
       it("Reverts on zero amount", async function () {
         await contracts.rewardsEscrow
           .connect(owner)
-          .addStakingContract(owner.address);
+          .addAuthorizedContract(owner.address);
         await expectRevert(
-          contracts.rewardsEscrow.connect(owner).lock(owner.address, 0),
+          contracts.rewardsEscrow
+            .connect(owner)
+            .lock(owner.address, 0, 365 * DAYS),
           "amount must be greater than 0"
         );
       });
@@ -188,11 +196,11 @@ describe("RewardsEscrow", function () {
       it("Reverts on insufficient balance from caller", async function () {
         await contracts.rewardsEscrow
           .connect(owner)
-          .addStakingContract(owner.address);
+          .addAuthorizedContract(owner.address);
         await expectRevert(
           contracts.rewardsEscrow
             .connect(owner)
-            .lock(owner.address, parseEther("1000000000")),
+            .lock(owner.address, parseEther("1000000000"), 365 * DAYS),
           "insufficient balance"
         );
       });
@@ -205,7 +213,7 @@ describe("RewardsEscrow", function () {
       beforeEach(async function () {
         const currentBlockNumber = await ethers.provider.getBlockNumber();
         currentBlock = await ethers.provider._getBlock(currentBlockNumber);
-        await contracts.staking.connect(owner).getReward();
+        await contracts.staking.connect(owner).getReward(owner.address);
 
         const escrowId = await contracts.rewardsEscrow.getEscrowIdsByUser(
           owner.address
@@ -218,7 +226,7 @@ describe("RewardsEscrow", function () {
       });
 
       it("stores escrow end", async function () {
-        await expectValue(escrow.end, escrow.start.add(365 * DAY));
+        await expectValue(escrow.end, escrow.start.add(365 * DAYS));
       });
 
       it("stores escrow balance", async function () {
@@ -236,9 +244,9 @@ describe("RewardsEscrow", function () {
       ).to.equal(0);
       expect(
         await contracts.mockPop.balanceOf(contracts.staking.address)
-      ).to.equal(parseEther("11"));
+      ).to.equal(parseEther("21"));
 
-      await contracts.staking.connect(owner).getReward();
+      await contracts.staking.connect(owner).getReward(owner.address);
 
       await expectBigNumberCloseTo(
         await contracts.mockPop.balanceOf(contracts.rewardsEscrow.address),
@@ -253,16 +261,18 @@ describe("RewardsEscrow", function () {
     });
 
     it("emits event on lock", async function () {
-      const result = await contracts.staking.connect(owner).getReward();
+      const result = await contracts.staking
+        .connect(owner)
+        .getReward(owner.address);
       expect(result)
         .to.emit(contracts.rewardsEscrow, "Locked")
         .withArgs(owner.address, LOCKED_AMOUNT);
     });
 
     it("creates new Escrow when locking again", async function () {
-      await contracts.staking.connect(owner).getReward();
+      await contracts.staking.connect(owner).getReward(owner.address);
       await increaseTime(3.5 * DAY);
-      await contracts.staking.connect(owner).getReward();
+      await contracts.staking.connect(owner).getReward(owner.address);
 
       const escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
         owner.address
@@ -291,7 +301,7 @@ describe("RewardsEscrow", function () {
       let escrowIds: string[];
       beforeEach(async function () {
         await increaseTime(304800);
-        await contracts.staking.connect(owner).getReward();
+        await contracts.staking.connect(owner).getReward(owner.address);
         escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
           owner.address
         );
@@ -393,7 +403,7 @@ describe("RewardsEscrow", function () {
         await bluebird.map(
           new Array(50).fill(0),
           async (_x, _i) => {
-            await contracts.staking.connect(owner).getReward();
+            await contracts.staking.connect(owner).getReward(owner.address);
           },
           { concurrency: 1 }
         );
@@ -425,7 +435,7 @@ describe("RewardsEscrow", function () {
         await bluebird.map(
           new Array(30).fill(0),
           async (_x, _i) => {
-            await contracts.staking.connect(owner).getReward();
+            await contracts.staking.connect(owner).getReward(owner.address);
           },
           { concurrency: 1 }
         );
@@ -446,7 +456,7 @@ describe("RewardsEscrow", function () {
       });
 
       it("reverts if caller is not escrow account for any included escrow", async function () {
-        await contracts.staking.connect(owner).getReward();
+        await contracts.staking.connect(owner).getReward(owner.address);
         const escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
           owner.address
         );
@@ -457,7 +467,7 @@ describe("RewardsEscrow", function () {
       });
 
       it("claims full rewards successfully after vesting period", async function () {
-        await contracts.staking.connect(owner).getReward();
+        await contracts.staking.connect(owner).getReward(owner.address);
         const escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
           owner.address
         );
@@ -476,7 +486,7 @@ describe("RewardsEscrow", function () {
       });
 
       it("claims partial rewards successfully during the vesting period", async function () {
-        await contracts.staking.connect(owner).getReward();
+        await contracts.staking.connect(owner).getReward(owner.address);
         const escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
           owner.address
         );
@@ -508,7 +518,7 @@ describe("RewardsEscrow", function () {
         await bluebird.map(
           new Array(50).fill(0),
           async (x, i) => {
-            await contracts.staking.connect(owner).getReward();
+            await contracts.staking.connect(owner).getReward(owner.address);
           },
           { concurrency: 1 }
         );
@@ -530,9 +540,9 @@ describe("RewardsEscrow", function () {
       });
 
       it("should allow to claim one escrow balance fully while claiming another one partially", async function () {
-        await contracts.staking.connect(owner).getReward();
+        await contracts.staking.connect(owner).getReward(owner.address);
         await increaseTime(1 * DAY);
-        await contracts.staking.connect(owner).getReward();
+        await contracts.staking.connect(owner).getReward(owner.address);
         const escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(
           owner.address
         );
@@ -579,86 +589,66 @@ describe("RewardsEscrow", function () {
   });
 
   describe("restricted functions", function () {
-    it("should revert updateEscrowDuration if not owner", async function () {
-      await expectRevert(
-        contracts.rewardsEscrow.connect(nonOwner).updateEscrowDuration(0),
-        "Ownable: caller is not the owner"
-      );
-    });
-
-    it("owner can update escrow duration", async function () {
-      await contracts.rewardsEscrow.connect(owner).updateEscrowDuration(604800);
-      await expectValue(await contracts.rewardsEscrow.escrowDuration(), 604800);
-    });
-
-    it("updating duration emits an event", async function () {
-      await expect(
-        contracts.rewardsEscrow.connect(owner).updateEscrowDuration(604800)
-      )
-        .to.emit(contracts.rewardsEscrow, "EscrowDurationChanged")
-        .withArgs(604800);
-    });
-
-    it("adds a staking contract address", async function () {
+    it("adds a authorized staking contract address", async function () {
       await expectValue(
-        await contracts.rewardsEscrow.staking(staking1.address),
+        await contracts.rewardsEscrow.authorized(staking1.address),
         false
       );
       await contracts.rewardsEscrow
         .connect(owner)
-        .addStakingContract(staking1.address);
+        .addAuthorizedContract(staking1.address);
       await expectValue(
-        await contracts.rewardsEscrow.staking(staking1.address),
+        await contracts.rewardsEscrow.authorized(staking1.address),
         true
       );
     });
 
-    it("emits AddStaking when staking address is added", async function () {
+    it("emits AddAuthorizedContract when authorized staking address is added", async function () {
       expect(
         contracts.rewardsEscrow
           .connect(owner)
-          .addStakingContract(staking1.address)
+          .addAuthorizedContract(staking1.address)
       )
-        .to.emit(contracts.rewardsEscrow, "AddStaking")
+        .to.emit(contracts.rewardsEscrow, "AddAuthorizedContract")
         .withArgs(staking1.address);
     });
 
     it("removes staking contract address", async function () {
       await expectValue(
-        await contracts.rewardsEscrow.staking(staking1.address),
+        await contracts.rewardsEscrow.authorized(staking1.address),
         false
       );
       await contracts.rewardsEscrow
         .connect(owner)
-        .addStakingContract(staking1.address);
+        .addAuthorizedContract(staking1.address);
       await expectValue(
-        await contracts.rewardsEscrow.staking(staking1.address),
+        await contracts.rewardsEscrow.authorized(staking1.address),
         true
       );
       await contracts.rewardsEscrow
         .connect(owner)
-        .removeStakingContract(staking1.address);
+        .removeAuthorizedContract(staking1.address);
       await expectValue(
-        await contracts.rewardsEscrow.staking(staking1.address),
+        await contracts.rewardsEscrow.authorized(staking1.address),
         false
       );
     });
 
-    it("emits RemoveStaking when staking address is removed", async function () {
+    it("emits RemoveAuthorizedContract when authorized staking address is removed", async function () {
       expect(
         contracts.rewardsEscrow
           .connect(owner)
-          .removeStakingContract(staking1.address)
+          .removeAuthorizedContract(staking1.address)
       )
-        .to.emit(contracts.rewardsEscrow, "RemoveStaking")
+        .to.emit(contracts.rewardsEscrow, "RemoveAuthorizedContract")
         .withArgs(staking1.address);
     });
 
-    it("should revert addStakingContract if not owner", async function () {
+    it("should revert addAuthorizedContract if not owner", async function () {
       await expectRevert(
         contracts.rewardsEscrow
           .connect(nonOwner)
-          .addStakingContract(nonOwner.address),
+          .addAuthorizedContract(nonOwner.address),
         "Ownable: caller is not the owner"
       );
     });

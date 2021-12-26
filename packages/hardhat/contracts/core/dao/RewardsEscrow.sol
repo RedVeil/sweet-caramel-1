@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
@@ -20,19 +21,20 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
   }
 
   IERC20 public immutable POP;
-  mapping(address => bool) public staking;
+
+  // addresses that are authorized to create locks
+  mapping(address => bool) public authorized;
+
   mapping(bytes32 => Escrow) public escrows;
   mapping(address => bytes32[]) public escrowIdsByAddress;
-  uint256 public escrowDuration = 365 days;
   uint256 internal nonce;
 
   /* ========== EVENTS ========== */
   event Locked(address account, uint256 amount);
   event RewardsClaimed(address account, uint256 amount);
-  event EscrowDurationChanged(uint256 escrowDuration);
   event TokenAdded(address token, uint256 index);
-  event AddStaking(address _contract);
-  event RemoveStaking(address _contract);
+  event AddAuthorizedContract(address _contract);
+  event RemoveAuthorizedContract(address _contract);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -77,14 +79,18 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    * @notice Locks funds for escrow
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds
    */
-  function lock(address _account, uint256 _amount) external override nonReentrant {
-    require(staking[msg.sender], "unauthorized");
+  function lock(
+    address _account,
+    uint256 _amount,
+    uint256 duration
+  ) external override nonReentrant {
+    require(authorized[msg.sender], "unauthorized");
     require(_amount > 0, "amount must be greater than 0");
     require(POP.balanceOf(msg.sender) >= _amount, "insufficient balance");
 
     nonce++;
     uint256 start = block.timestamp;
-    uint256 end = start + escrowDuration;
+    uint256 end = start + duration;
     bytes32 id = keccak256(abi.encodePacked(_account, _amount, start, nonce));
 
     escrows[id] = Escrow({start: start, end: end, balance: _amount, account: _account});
@@ -137,19 +143,14 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
 
   /* ========== RESTRICTED FUNCTIONS ========== */
 
-  function updateEscrowDuration(uint256 _escrowDuration) external onlyOwner {
-    escrowDuration = _escrowDuration;
-    emit EscrowDurationChanged(_escrowDuration);
+  function addAuthorizedContract(address _staking) external onlyOwner {
+    authorized[_staking] = true;
+    emit AddAuthorizedContract(_staking);
   }
 
-  function addStakingContract(address _staking) external onlyOwner {
-    staking[_staking] = true;
-    emit AddStaking(_staking);
-  }
-
-  function removeStakingContract(address _staking) external onlyOwner {
-    delete staking[_staking];
-    emit RemoveStaking(_staking);
+  function removeAuthorizedContract(address _staking) external onlyOwner {
+    delete authorized[_staking];
+    emit RemoveAuthorizedContract(_staking);
   }
 
   /**

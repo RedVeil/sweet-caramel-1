@@ -46,7 +46,7 @@ describe("LockStaking", function () {
     )) as LockStaking;
     await staking.deployed();
 
-    await rewardsEscrow.addStakingContract(staking.address);
+    await rewardsEscrow.addAuthorizedContract(staking.address);
 
     stakingFund = parseEther("10");
     await mockPop.transfer(staking.address, stakingFund);
