@@ -18,7 +18,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   setSlippage,
 }) => {
   return (
-    <table className="min-w-full divide-y divide-gray-200">
+    <table className="min-w-full">
       <thead>
         <tr>
           <th

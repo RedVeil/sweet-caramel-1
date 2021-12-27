@@ -33,7 +33,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({
           </p>
         </div>
       </div>
-      <div className="h-4 w-full bg-blue-200 rounded-b-2xl mask overflow-hidden">
+      <div className="h-4 bg-blue-200 rounded-b-2xl mask overflow-hidden">
         <div
           className={`h-4 bg-blue-800 rounded-bl-2xl ${
             batchAmount === threshold ? 'rounded-br-2xl' : 'rounded-r-2xl'

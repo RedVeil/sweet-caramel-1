@@ -56,19 +56,19 @@ const StakeCard: React.FC<StakeCardProps> = ({
         </div>
       </div>
       <div className="flex flex-row items-center mt-10 w-10/12 smlaptop:w-2/3 justify-between">
-        <div>
+        <div className="w-1/3">
           <p className="text-gray-500 font-light uppercase">Est. APY</p>
           <p className="text-green-600 text-2xl font-medium mt-1">
             {stakingPoolInfo.apy.toLocaleString()} %
           </p>
         </div>
-        <div>
+        <div className="w-1/3">
           <p className="text-gray-500 font-light uppercase">Total Staked</p>
           <p className=" text-2xl font-medium mt-1">
             {stakingPoolInfo.totalStake.toLocaleString()}
           </p>
         </div>
-        <div>
+        <div className="w-1/3">
           <p className="text-gray-500 font-light uppercase">Token Emissions</p>
           <p className=" text-2xl font-medium mt-1">
             {stakingPoolInfo.tokenEmission.toLocaleString()} POP / day

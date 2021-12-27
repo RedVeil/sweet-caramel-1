@@ -1,6 +1,5 @@
 import { InfoIconWithModal } from 'components/InfoIconWithModal';
 import { Dispatch, useState } from 'react';
-import * as Icon from 'react-feather';
 import PseudoRadioButton from './PseudoRadioButton';
 
 interface SlippageSettingsProps {
@@ -22,10 +21,11 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
         className="flex flex-row items-center mt-3 group cursor-pointer"
         onClick={() => setVisibility(!visible)}
       >
-        <Icon.Settings
-          className={`w-4 h-4  group-hover:text-blue-600 ${
+        <img
+          className={`w-5 h-5  group-hover:text-blue-600 ${
             visible ? '' : 'text-gray-500'
           }`}
+          src="/images/icons/slippage.png"
         />
         <p
           className={`text-base leading-none mt-0.5 ml-2 group-hover:text-blue-600 ${

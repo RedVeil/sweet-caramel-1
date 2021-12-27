@@ -77,7 +77,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           Deposit Amount
         </p>
         <div
-          className={`rounded-md border p-2 ${
+          className={`rounded-md border py-2 pl-2 pr-4 ${
             depositDisabled ? 'border-red-600' : 'border-gray-200'
           }`}
         >
@@ -94,7 +94,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             />
             <div className="flex flex-row items-center">
               <p
-                className="px-2 py-2 mr-3 leading-none text-gray-400 border border-gray-400 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 hover:text-gray-600"
+                className="px-2 pb-1 pt-1.5 leading-none text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700"
                 onClick={(e) => {
                   setDepositAmount(
                     useUnclaimedDeposits
@@ -143,9 +143,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center my-16">
-          <div className="w-16 bg-white">
+          <div className="w-20 bg-white">
             <div
-              className="flex items-center w-10 h-10 mx-auto border border-gray-200 rounded-full cursor-pointer hover:bg-gray-50 hover:border-gray-400"
+              className="flex items-center w-14 h-14 mx-auto border border-gray-200 rounded-full cursor-pointer hover:bg-gray-50 hover:border-gray-400"
               onClick={(e) => setRedeeming(!redeeming)}
             >
               <img
@@ -161,7 +161,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <p className="mb-1 text-sm font-semibold text-gray-900">
           {`Estimated ${selectedToken.output.name} Amount`}
         </p>
-        <div className="p-2 border border-gray-200 rounded-md">
+        <div className="py-2 pl-2 pr-5 border border-gray-200 rounded-md">
           <div className="flex flex-row items-center justify-between">
             <input
               className="mr-1 font-semibold leading-none text-gray-500 border-none w-36 smlaptop:w-64 smlaptop:mr-0 focus:outline-none focus:text-gray-800"

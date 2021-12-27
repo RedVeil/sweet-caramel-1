@@ -22,17 +22,17 @@ export default function SelectToken({
 
   return (
     <div
-      className="relative w-24 mt-1 "
+      className="relative w-28 mt-1 justify-end"
       onMouseLeave={() => setDropdown(false)}
     >
       <span
-        className={`flex flex-row mx-auto items-center ${
+        className={`flex flex-row items-center justify-end ${
           allowSelection ? 'cursor-pointer group' : ''
         }`}
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
         <img
-          className="w-4 h-4 mx-2 mb-1"
+          className="w-5 mr-2 mb-1.5"
           src={`images/tokens/${selectedToken.img}`}
         ></img>
         <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700">
@@ -42,9 +42,9 @@ export default function SelectToken({
         {allowSelection && (
           <>
             {showDropdown ? (
-              <Icon.ChevronUp className="w-5 h-6 mb-1 group-hover:text-blue-700" />
+              <Icon.ChevronUp className="w-5 h-6 mb-1 ml-2 group-hover:text-blue-700" />
             ) : (
-              <Icon.ChevronDown className="w-5 h-6 mb-1 group-hover:text-blue-700" />
+              <Icon.ChevronDown className="w-5 h-6 mb-1 ml-2 group-hover:text-blue-700" />
             )}
           </>
         )}
@@ -60,7 +60,7 @@ export default function SelectToken({
                 onClick={() => selectToken(token[selectableToken])}
               >
                 <img
-                  className="w-4 h-4 mx-2 mb-1"
+                  className="w-5 h-5 mx-2 mb-1"
                   src={`images/tokens/${token[selectableToken].img}`}
                 ></img>
                 <p className="font-semibold group-hover:text-blue-700">

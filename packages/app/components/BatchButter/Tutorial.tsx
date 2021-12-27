@@ -4,22 +4,22 @@ import * as Icon from 'react-feather';
 function title(step: number): string {
   switch (step) {
     case 1:
-      return 'Step 1 - Mint your Butter';
+      return 'Step 1 - Begin the Minting Process';
     case 2:
-      return 'Step 2 – Wait for the batch progression';
+      return 'Step 2 – Wait for the batch to process';
     case 3:
-      return 'Step 3 – Mint Executed';
+      return 'Step 3 – Claim your minted Butter!';
   }
 }
 
 function text(step: number): string {
   switch (step) {
     case 1:
-      return 'Connect Metamask, approve the contract as a first-time user and you are ready to mint Butter. Each time you mint, your asset is put in a batch with other users. This helps you to reduce your gas cost.';
+      return 'First connect your wallet (If you’re depositing for the first time, you’ll need to approve the contract). Then select the token you would like to deposit from the dropdown, enter the deposit amount and click ‘Mint’.';
     case 2:
-      return 'The batch will automatically be processed when it reaches $100k of deposits. You can cancel anytime before the batch was processed.';
+      return 'Your deposits will be held in Butter’s batch processing queue. Note: To minimise gas fees, deposits are processed when accumulated deposits reach $100k. You are able to withdraw your deposits during this phase.';
     case 3:
-      return 'The mint record module will appear when you have successfully added funds for the batch. You can cancel a batch when it is still in progress. Once the batch is completed, you can claim your Butter.';
+      return 'Once the batch has been processed, you will be able to claim the new minted Butter tokens!';
   }
 }
 
@@ -48,7 +48,7 @@ function tutorialContent(step: number): JSX.Element {
         <div className="w-full h-56 flex flex-row items-center justify-center">
           <img
             src={`/images/butter/Step-${step}.png`}
-            className="w-9/12 smlaptop:w-8/12 laptop:w-7/12 xl:w-5/12 2xl:w-8/12"
+            className="w-10/12 smlaptop:w-9/12 xl:w-7/12 2xl:w-9/12"
           />
         </div>
       );
