@@ -479,7 +479,7 @@ export default function stake(): JSX.Element {
                         </div>
                         <img
                           src="/images/catPopVault.png"
-                          className="absolute h-52 w-9/12 right-20 bottom-0"
+                          className="absolute h-52 w-6/12 right-40 bottom-0"
                         />
                       </div>
                       <div></div>
