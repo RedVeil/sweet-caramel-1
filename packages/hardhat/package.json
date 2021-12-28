@@ -27,9 +27,11 @@
     "@types/node": "^14.14.41",
     "hardhat-contract-sizer": "^2.0.3",
     "hardhat-gas-reporter": "^1.0.4",
+    "openzeppelin-v3": "npm:@openzeppelin/contracts@3.4.2",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
+    "@anthonymartin/hardhat-deploy": "0.9.9",
     "@anthonymartin/solidity-docgen": "0.5.13",
     "@balancer-labs/v2-solidity-utils": "^2.0.0",
     "@chainlink/contracts": "^0.1.7",
@@ -50,7 +52,6 @@
     "ethereum-waffle": "^3.2.2",
     "ethers": "^5.5.1",
     "hardhat": "^2.6.8",
-    "@anthonymartin/hardhat-deploy": "0.9.9",
     "hardhat-secure-signer": "^0.0.8",
     "merkle-tree-solidity": "^1.0.8",
     "mocha": "^8.4.0",
