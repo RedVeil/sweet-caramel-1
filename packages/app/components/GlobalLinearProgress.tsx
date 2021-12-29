@@ -5,7 +5,7 @@ import { useContext, useEffect } from 'react';
 
 const ColorLinearProgress = withStyles({
   colorPrimary: {
-    backgroundColor: '#323131',
+    backgroundColor: '#5CC1EE',
   },
   barColorPrimary: {
     backgroundColor: 'rgb(225 225 225)',

@@ -4,12 +4,13 @@ import { BigNumber, ethers, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
+import { addContractToRegistry } from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const addresses = await getNamedAccounts();
-  const signer = getSignerFrom(
+  const signer = await getSignerFrom(
     hre.config.namedAccounts.deployer as string,
     hre
   );
@@ -41,24 +42,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //ContractRegistry
   const contractRegistryAddress = (await deployments.get("ContractRegistry"))
     .address;
-  const contractRegistry = await hre.ethers.getContractAt(
-    "ContractRegistry",
-    contractRegistryAddress,
-    signer
-  );
-
-  if (["hardhat", "local"].includes(hre.network.name)) {
-    addresses.butter = await hre.tasks["set-token:create"].action(
-      {},
-      hre,
-      //@ts-expect-error
-      () => {}
-    );
-  }
 
   //Butter Batch
   console.log("deploying butterBatch...");
-  await deploy("ButterBatch", {
+  await deploy("ButterBatchProcessing", {
     from: addresses.deployer,
     args: [
       contractRegistryAddress,
@@ -76,12 +63,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "ButterBatchProcessing",
   });
   console.log("adding butterBatch to contract registry...");
-  await contractRegistry.addContract(
-    ethers.utils.id("ButterBatchProcessing"),
-    (
-      await deployments.get("ButterBatch")
-    ).address,
-    ethers.utils.id("1")
+  await addContractToRegistry(
+    "ButterBatchProcessing",
+    deployments,
+    signer,
+    hre
   );
 
   //Butter Batch Zapper
@@ -94,13 +80,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "ButterBatchProcessingZapper",
   });
 
-  await contractRegistry.addContract(
-    ethers.utils.id("ButterBatchProcessingZapper"),
-    (
-      await deployments.get("ButterBatchZapper")
-    ).address,
-    ethers.utils.id("1")
-  );
+  await addContractToRegistry("ButterBatchZapper", deployments, signer, hre);
 
   //Adding permissions and other maintance
   const keeperIncentive = await hre.ethers.getContractAt(
@@ -115,19 +95,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     utils.formatBytes32String("ButterBatchProcessing"),
     0,
     false,
-    true
+    false
   );
+
   await keeperIncentive.createIncentive(
     utils.formatBytes32String("ButterBatchProcessing"),
     0,
     false,
-    true
+    false
   );
 
   await keeperIncentive.addControllerContract(
     utils.formatBytes32String("ButterBatchProcessing"),
     (
-      await deployments.get("ButterBatch")
+      await deployments.get("ButterBatchProcessing")
     ).address
   );
 
@@ -138,6 +119,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ).address,
     signer
   );
+
   await aclRegistry.grantRole(
     ethers.utils.id("ButterZapper"),
     (
@@ -149,8 +131,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     createDemoData(hre, deployments, signer, signerAddress, deploy, addresses);
   }
 };
-export default func;
-func.tags = ["frontend"];
 
 async function createDemoData(
   hre: HardhatRuntimeEnvironment,
@@ -165,7 +145,7 @@ async function createDemoData(
   const butterBatch = await hre.ethers.getContractAt(
     "ButterBatchProcessing",
     (
-      await deployments.get("ButterBatch")
+      await deployments.get("ButterBatchProcessing")
     ).address,
     signer
   );
@@ -236,3 +216,10 @@ async function createDemoData(
   console.log("create batch to be batched");
   await butterBatch.depositForRedeem(parseEther("1"));
 }
+
+export default func;
+//func.skip = async (hre: HardhatRuntimeEnvironment) => {
+//  return !["mainnet", "hardhat", "local"].includes(hre.network.name);
+//};
+func.dependencies = ["setup"];
+func.tags = ["core", "frontend", "butter"];

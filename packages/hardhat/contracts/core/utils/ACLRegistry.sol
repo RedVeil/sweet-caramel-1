@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.0
 
 pragma solidity ^0.8.0;
 
@@ -54,6 +55,9 @@ contract ACLRegistry is IACLRegistry {
   mapping(bytes32 => address) private _permissions;
 
   bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+  bytes32 public constant KEEPER_ROLE = keccak256("Keeper");
+  bytes32 public constant DAO_ROLE = keccak256("DAO");
+  bytes32 public constant APPROVED_CONTRACT_ROLE = keccak256("ApprovedContract");
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -100,7 +104,7 @@ contract ACLRegistry is IACLRegistry {
   }
 
   function requireApprovedContractOrEOA(address account) public view override {
-    require(hasRole(keccak256("ApprovedContract"), account) || account == tx.origin, "Access denied for caller");
+    require(hasRole(APPROVED_CONTRACT_ROLE, account) || account == tx.origin, "Access denied for caller");
   }
 
   /* ========== MUTATIVE FUNCTIONS ========== */

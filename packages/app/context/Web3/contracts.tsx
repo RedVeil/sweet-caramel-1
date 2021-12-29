@@ -42,7 +42,7 @@ export interface Contracts {
   usdc?: ERC20;
   usdt?: ERC20;
   threeCrv?: ERC20;
-  popEthLp?: ERC20;
+  popUsdcLp?: ERC20;
   butter?: SetToken;
   butterBatch?: ButterBatchProcessing;
   butterBatchZapper?: ButterBatchProcessingZapper;
@@ -97,7 +97,7 @@ const initializeContracts = (
     usdc,
     usdt,
     threeCrv,
-    popEthLp,
+    popUsdcLp,
     butter,
     butterBatch,
     butterBatchZapper,
@@ -113,7 +113,9 @@ const initializeContracts = (
     usdc: usdc ? ERC20__factory.connect(usdc, library) : undefined,
     usdt: usdt ? ERC20__factory.connect(usdt, library) : undefined,
     threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
-    popEthLp: popEthLp ? ERC20__factory.connect(popEthLp, library) : undefined,
+    popUsdcLp: popUsdcLp
+      ? ERC20__factory.connect(popUsdcLp, library)
+      : undefined,
     butter: butter ? SetToken__factory.connect(butter, library) : undefined,
     butterBatch: butterBatch
       ? ButterBatchProcessing__factory.connect(butterBatch, library)

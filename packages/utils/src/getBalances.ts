@@ -3,7 +3,7 @@ import { bigNumberToNumber } from '.';
 
 export interface TokenBalances {
   pop: number;
-  popEthLp: number;
+  popUsdcLp: number;
   butter: number;
 }
 export interface BalanceOf {
@@ -12,7 +12,7 @@ export interface BalanceOf {
 
 export interface ContractsWithBalance {
   pop: BalanceOf;
-  popEthLp: BalanceOf;
+  popUsdcLp: BalanceOf;
   butter: BalanceOf;
 }
 
@@ -22,7 +22,7 @@ async function getBalances(
 ): Promise<TokenBalances> {
   return {
     pop: bigNumberToNumber(await contracts.pop.balanceOf(account)),
-    popEthLp: bigNumberToNumber(await contracts.popEthLp.balanceOf(account)),
+    popUsdcLp: bigNumberToNumber(await contracts.popUsdcLp.balanceOf(account)),
     butter: bigNumberToNumber(await contracts.butter.balanceOf(account)),
   };
 }

@@ -14,4 +14,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 export default func;
-func.tags = ["frontend"];
+func.dependencies = ["setup"];
+func.tags = ["core", "frontend"];

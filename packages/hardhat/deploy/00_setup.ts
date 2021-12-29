@@ -16,11 +16,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         {
           forking: {
             jsonRpcUrl: process.env.FORKING_RPC_URL,
-            blockNumber: 13739661,
+            blockNumber: 13858141,
           },
         },
       ],
     });
+  } else if (Boolean(parseInt(process.env.HARDWARE_WALLET || "0"))) {
+    deployer = process.env.HARDWARE_WALLET;
   } else {
     signer = hre.askForSigner();
     deployer = `privateKey://${signer.privateKey}`;
@@ -31,5 +33,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   };
 };
 
-module.exports = func;
-module.exports.tags = ["setup"];
+export default func;
+func.tags = ["setup"];

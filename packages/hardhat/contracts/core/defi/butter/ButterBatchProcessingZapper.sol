@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.0
 
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
@@ -9,8 +10,8 @@ import "../../../externals/interfaces/Curve3Pool.sol";
 import "../../interfaces/IContractRegistry.sol";
 
 /*
-This Contract allows user to use and receive stablecoins directly when interacting with HysiBatchInteraction.
-This contract mainly takes stablecoins swaps them into 3CRV and deposits them or the other way around.
+ * This Contract allows user to use and receive stablecoins directly when interacting with ButterBatchProcessing.
+ * This contract mainly takes stablecoins swaps them into 3CRV and deposits them or the other way around.
  */
 contract ButterBatchProcessingZapper {
   using SafeERC20 for IERC20;
@@ -127,7 +128,7 @@ contract ButterBatchProcessingZapper {
     uint8 _stableCoinIndex,
     uint256 _min_amount
   ) external {
-    //We can only deposit 3CRV which come from mintBatches otherwise this could claim HYSI which we cant process here
+    //We can only deposit 3CRV which come from mintBatches otherwise this could claim Butter which we cant process here
     IButterBatchProcessing butterBatchProcessing = IButterBatchProcessing(
       contractRegistry.getContract(keccak256("ButterBatchProcessing"))
     );

@@ -11,92 +11,93 @@ export async function getStakingPools(
   addresses,
   deployments
 ): Promise<Pool[]> {
+  const { pop, popUsdcLp, butter } = addresses;
   switch (chainId) {
     case 1:
       return [
         {
-          poolName: "PopStaking",
+          poolName: "Staking",
           contract: "PopLocker",
-          inputToken: addresses.pop,
+          inputToken: pop,
         },
         {
-          poolName: "popEthLPStaking",
+          poolName: "popUsdcLPStaking",
           contract: "Staking",
-          inputToken: addresses.popEthLp,
-          rewardsToken: addresses.pop,
+          inputToken: popUsdcLp,
+          rewardsToken: pop,
         },
         {
           poolName: "butterStaking",
           contract: "Staking",
-          inputToken: addresses.butter,
-          rewardsToken: addresses.pop,
+          inputToken: butter,
+          rewardsToken: pop,
         },
       ];
     case 1337:
       return [
         {
-          poolName: "PopStaking",
+          poolName: "Staking",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
-          poolName: "popEthLPStaking",
+          poolName: "popUsdcLPStaking",
           contract: "Staking",
-          inputToken: (await deployments.get("POP_ETH_LP")).address,
+          inputToken: (await deployments.get("POP_USDC_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "butterStaking",
           contract: "Staking",
-          inputToken: addresses.butter,
+          inputToken: butter,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
       ];
     case 31337:
       return [
         {
-          poolName: "PopStaking",
+          poolName: "Staking",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
-          poolName: "popEthLPStaking",
+          poolName: "popUsdcLPStaking",
           contract: "Staking",
-          inputToken: (await deployments.get("POP_ETH_LP")).address,
+          inputToken: (await deployments.get("POP_USDC_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "butterStaking",
           contract: "Staking",
-          inputToken: addresses.butter,
+          inputToken: butter,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
       ];
     case 137:
       return [
         {
-          poolName: "PopStaking",
+          poolName: "Staking",
           contract: "PopLocker",
-          inputToken: (await deployments.get("TestPOP")).address,
+          inputToken: pop,
         },
         {
-          poolName: "popEthLPStaking",
+          poolName: "popUsdcLPStaking",
           contract: "Staking",
-          inputToken: (await deployments.get("POP_ETH_LP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
+          inputToken: popUsdcLp,
+          rewardsToken: pop,
         },
       ];
     default:
       return [
         {
-          poolName: "PopStaking",
+          poolName: "Staking",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
-          poolName: "popEthLPStaking",
+          poolName: "popUsdcLPStaking",
           contract: "Staking",
-          inputToken: (await deployments.get("POP_ETH_LP")).address,
+          inputToken: (await deployments.get("POP_USDC_LP")).address,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
       ];

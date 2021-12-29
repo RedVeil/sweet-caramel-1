@@ -1,4 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.0
+
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -14,7 +16,7 @@ contract KeeperIncentiveHelper {
 
   event FunctionCalled(address account);
 
-  constructor(KeeperIncentive keeperIncentive_) public {
+  constructor(KeeperIncentive keeperIncentive_) {
     keeperIncentive = keeperIncentive_;
   }
 

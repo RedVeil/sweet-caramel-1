@@ -46,7 +46,7 @@ describe("PopLocker", function () {
     )) as PopLocker;
     await staking.deployed();
 
-    await staking.addReward(mockPop.address, owner.address, false);
+    await staking.addReward(mockPop.address, owner.address, true);
 
     await rewardsEscrow.addAuthorizedContract(staking.address);
 
@@ -123,11 +123,24 @@ describe("PopLocker", function () {
       expect(await mockPop.balanceOf(owner.address)).to.equal(
         currentBalance.sub(amount)
       );
-      timeTravel(7 * DAYS);
-      await staking.checkpointEpoch();
+      expect(await staking.lockedBalanceOf(owner.address)).to.equal(
+        parseEther("10000")
+      );
+    });
+
+    it("balanceOf updates on next epoch", async function () {
+      const amount = parseEther("10000");
+      const currentBalance = await mockPop.balanceOf(owner.address);
+      await staking.connect(owner).lock(owner.address, amount, 0);
+      await timeTravel(7 * DAYS);
       expect(await staking.balanceOf(owner.address)).to.equal(
         parseEther("10000")
       );
+    });
+
+    it("balanceOf will not update in same epoch when locking tokens", async function () {
+      await staking.connect(owner).lock(owner.address, parseEther("10000"), 0);
+      expect(await staking.balanceOf(owner.address)).to.equal(parseEther("0"));
     });
 
     it("should update locked balances when staking", async () => {

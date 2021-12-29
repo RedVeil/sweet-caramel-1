@@ -1,10 +1,10 @@
 import { Signer, Wallet } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-export function getSignerFrom(
+export async function getSignerFrom(
   from: string,
   hre: HardhatRuntimeEnvironment
-): Signer {
+): Promise<Signer> {
   if (from.startsWith("privateKey://")) {
     return new Wallet(from.substr(13), hre.ethers.provider);
   }

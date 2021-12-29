@@ -52,6 +52,7 @@ module.exports = {
   },
   networks: {
     mainnet: {
+      timeout: 60000,
       chainId: 1,
       url:
         process.env.RPC_URL ||
@@ -70,6 +71,7 @@ module.exports = {
       url: "http://localhost:8545",
     },
     rinkeby: {
+      timeout: 60000,
       url:
         process.env.RPC_URL ||
         `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -87,6 +89,7 @@ module.exports = {
         `https://gorli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     polygon: {
+      timeout: 60000,
       url:
         process.env.RPC_URL ||
         `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,

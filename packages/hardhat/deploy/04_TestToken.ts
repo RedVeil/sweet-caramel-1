@@ -17,9 +17,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   //Temp solution for local deployment
-  await deploy("POP_ETH_LP", {
+  await deploy("POP_USDC_LP", {
     from: deployer,
-    args: ["POP/ETH LP", "POPETH", 18],
+    args: ["POP/USDC LP", "POPUSDC", 18],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "MockERC20",
@@ -53,4 +53,6 @@ const mintPOP = async (
 };
 
 module.exports = main;
-module.exports.tags = ["LBP", "frontend"];
+export default main;
+main.dependencies = ["setup"];
+main.tags = ["LBP", "frontend", "test-tokens"];

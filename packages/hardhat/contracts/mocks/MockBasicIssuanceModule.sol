@@ -1,4 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.0
+
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -26,10 +28,7 @@ contract MockBasicIssuanceModule {
   ) external {
     for (uint256 i; i < underlying.length; i++) {
       uint256 amount = _quantity * quantities[i];
-      require(
-        MockERC20(underlying[i]).balanceOf(msg.sender) >= amount,
-        "not enough underlying token"
-      );
+      require(MockERC20(underlying[i]).balanceOf(msg.sender) >= amount, "not enough underlying token");
       MockERC20(underlying[i]).transferFrom(msg.sender, address(this), amount);
     }
     MockERC20(_setToken).mint(_to, _quantity);
@@ -51,10 +50,12 @@ contract MockBasicIssuanceModule {
     emit SetRedeemed(_setToken, _quantity, msg.sender);
   }
 
-  function getRequiredComponentUnitsForIssue(
-    address _setToken,
-    uint256 _quantity
-  ) public view returns (address[] memory, uint256[] memory) {
+  function getRequiredComponentUnitsForIssue(address _setToken, uint256 _quantity)
+    public
+    view
+    returns (address[] memory, uint256[] memory)
+  {
+    _setToken;
     uint256[] memory notionalUnits = new uint256[](underlying.length);
 
     for (uint256 i = 0; i < underlying.length; i++) {

@@ -9,7 +9,7 @@ export default function getNamedAccounts() {
       polygon: "0x6D4870349dfd8109d3Ea67AC516204358cF30AC2",
       hardhat: "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD",
     },
-    popEthLpStaking: {
+    popUsdcLpStaking: {
       rinkeby: "0xAE5dA2a2d85Ce27e89AbC9f44d1d4986728BD182",
       polygon: "0xAE5dA2a2d85Ce27e89AbC9f44d1d4986728BD182",
       hardhat: "0x18E317A7D70d8fBf8e6E893616b52390EbBdb629",
@@ -19,50 +19,62 @@ export default function getNamedAccounts() {
     },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
+      rinkeby: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
       hardhat: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
     },
     yMim: {
       mainnet: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+      rinkeby: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
       hardhat: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
     },
     crvFrax: {
       mainnet: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+      rinkeby: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       hardhat: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
     },
     crvMim: {
       mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
       hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
     },
     crvFraxMetapool: {
       mainnet: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+      rinkeby: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       hardhat: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
     },
     crvMimMetapool: {
       mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
       hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
     },
     threePool: {
       mainnet: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
+      rinkeby: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
       hardhat: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
     },
     curveAddressProvider: {
       mainnet: "0x0000000022D53366457F9d5E68Ec105046FC4383",
+      rinkeby: "0x0000000022D53366457F9d5E68Ec105046FC4383",
       hardhat: "0x0000000022D53366457F9d5E68Ec105046FC4383",
     },
     curveFactoryMetapoolDepositZap: {
       mainnet: "0xA79828DF1850E8a3A3064576f380D90aECDD3359",
+      rinkeby: "0xA79828DF1850E8a3A3064576f380D90aECDD3359",
       hardhat: "0xA79828DF1850E8a3A3064576f380D90aECDD3359",
     },
     uniswapRouter: {
       mainnet: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      rinkeby: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
       hardhat: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
     },
     setBasicIssuanceModule: {
       mainnet: "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
+      rinkeby: "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
       hardhat: "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
     },
     setTokenCreator: {
       mainnet: "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
+      rinkeby: "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
       hardhat: "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
     },
     pop: {
@@ -73,6 +85,7 @@ export default function getNamedAccounts() {
     },
     dai: {
       mainnet: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      rinkeby: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       hardhat: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     },
     usdc: {
@@ -89,11 +102,13 @@ export default function getNamedAccounts() {
     },
     threeCrv: {
       mainnet: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+      rinkeby: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
       hardhat: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
     },
     butter: {
-      mainnet: "0x3b0967B0710a22c1a5CEB6Ae649B5819Cb8bb999",
-      hardhat: "0x3b0967B0710a22c1a5CEB6Ae649B5819Cb8bb999",
+      mainnet: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
+      rinkeby: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
+      hardhat: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
     },
     setStreamingFeeModule: {
       mainnet: "0x08f866c74205617B6F3903EF481798EcED10cDEC",
@@ -156,8 +171,9 @@ export default function getNamedAccounts() {
       hardhat: "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
       arbitrum: "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
     },
-    popEthLp: {
+    popUsdcLp: {
       polygon: "0xFfb0CBBBeC1682aCfeA50eED9C2E9ADC90390564",
+      mainnet: "0xBBA11b41407dF8793A89b44ee4b50AfAD4508555",
       hardhat: "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
     },
     aclRegistry: {
@@ -169,10 +185,10 @@ export default function getNamedAccounts() {
       hardhat: "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
     },
     butterBatch: {
-      hardhat: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      hardhat: "0x525c7063e7c20997baae9bda922159152d0e8417",
     },
     butterBatchZapper: {
-      hardhat: "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
+      hardhat: "0x5fc748f1FEb28d7b76fa1c6B07D8ba2d5535177c",
     },
   };
 }

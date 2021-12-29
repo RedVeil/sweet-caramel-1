@@ -4,11 +4,17 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getStakingPools, Pool } from "../lib/utils/getStakingPools";
 import { MockERC20 } from "../typechain";
+import { addContractToRegistry } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const addresses = await getNamedAccounts();
+
+  const signer = await getSignerFrom(
+    hre.config.namedAccounts.deployer as string,
+    hre
+  );
 
   const stakingPools = await getStakingPools(
     hre.network.config.chainId,
@@ -17,7 +23,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   for (var i = 0; i < stakingPools.length; i++) {
-    await deploy(stakingPools[i].poolName, {
+    const { poolName, rewardsToken, inputToken, contract } = stakingPools[i];
+    const deployed = await deploy(poolName, {
       from: addresses.deployer,
       args:
         stakingPools[i].contract === "PopLocker"
@@ -32,15 +39,18 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             ],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
-      contract: stakingPools[i].contract,
+      contract: contract,
     });
+
+    await addContractToRegistry(poolName, deployments, signer, hre);
   }
   if (["hardhat", "local"].includes(hre.network.name)) {
     createDemoData(hre, stakingPools[1]);
   }
 };
 export default main;
-main.tags = ["frontend"];
+main.dependencies = ["setup"];
+main.tags = ["core", "frontend"];
 
 async function prepareStakingContract(
   POP: MockERC20,
@@ -85,7 +95,7 @@ async function createDemoData(
   try {
     const { deployments } = hre;
 
-    const signer = getSignerFrom(
+    const signer = await getSignerFrom(
       hre.config.namedAccounts.deployer as string,
       hre
     );

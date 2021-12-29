@@ -17,6 +17,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    gasLimit: 2000000,
   });
 
   const aclRegistry = await hre.ethers.getContractAt(
@@ -37,6 +38,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await signer.getAddress()
   );
 };
+
 export default main;
-main.tags = ["frontend"];
 main.dependencies = ["setup"];
+main.tags = ["core", "frontend"];

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Docgen-SOLC: 0.8.0
+
 /*
     Copyright 2020 Set Labs Inc.
 
@@ -13,7 +16,6 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    SPDX-License-Identifier: Apache License, Version 2.0
 */
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
@@ -90,18 +92,11 @@ interface ISetToken is IERC20 {
 
   function removeComponent(address _component) external;
 
-  function editDefaultPositionUnit(address _component, int256 _realUnit)
-    external;
+  function editDefaultPositionUnit(address _component, int256 _realUnit) external;
 
-  function addExternalPositionModule(
-    address _component,
-    address _positionModule
-  ) external;
+  function addExternalPositionModule(address _component, address _positionModule) external;
 
-  function removeExternalPositionModule(
-    address _component,
-    address _positionModule
-  ) external;
+  function removeExternalPositionModule(address _component, address _positionModule) external;
 
   function editExternalPositionUnit(
     address _component,
@@ -145,32 +140,17 @@ interface ISetToken is IERC20 {
 
   function getModules() external view returns (address[] memory);
 
-  function getDefaultPositionRealUnit(address _component)
-    external
-    view
-    returns (int256);
+  function getDefaultPositionRealUnit(address _component) external view returns (int256);
 
-  function getExternalPositionRealUnit(
-    address _component,
-    address _positionModule
-  ) external view returns (int256);
+  function getExternalPositionRealUnit(address _component, address _positionModule) external view returns (int256);
 
   function getComponents() external view returns (address[] memory);
 
-  function getExternalPositionModules(address _component)
-    external
-    view
-    returns (address[] memory);
+  function getExternalPositionModules(address _component) external view returns (address[] memory);
 
-  function getExternalPositionData(address _component, address _positionModule)
-    external
-    view
-    returns (bytes memory);
+  function getExternalPositionData(address _component, address _positionModule) external view returns (bytes memory);
 
-  function isExternalPositionModule(address _component, address _module)
-    external
-    view
-    returns (bool);
+  function isExternalPositionModule(address _component, address _module) external view returns (bool);
 
   function isComponent(address _component) external view returns (bool);
 
@@ -178,10 +158,7 @@ interface ISetToken is IERC20 {
 
   function getPositions() external view returns (Position[] memory);
 
-  function getTotalComponentRealUnits(address _component)
-    external
-    view
-    returns (int256);
+  function getTotalComponentRealUnits(address _component) external view returns (int256);
 
   function isInitializedModule(address _module) external view returns (bool);
 
