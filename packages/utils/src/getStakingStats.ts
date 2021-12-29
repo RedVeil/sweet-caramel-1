@@ -44,9 +44,12 @@ export async function getSingleStakingPoolInfo(
       : await (stakingContract as Staking)?.getRewardForDuration({
           gasLimit: '2000000',
         });
-  const totalStaked = await stakingContract?.totalSupply({
-    gasLimit: '2000000',
-  });
+  const totalStaked =
+    stakedTokenName === 'POP'
+      ? await (stakingContract as PopLocker)?.lockedSupply()
+      : await (stakingContract as Staking)?.totalSupply({
+          gasLimit: '2000000',
+        });
   if (!stakedTokenAddress) {
     stakedTokenAddress = await (stakingContract as Staking)?.stakingToken({
       gasLimit: 2000000,

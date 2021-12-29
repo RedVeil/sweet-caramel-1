@@ -230,7 +230,11 @@ describe("RewardsEscrow", function () {
       });
 
       it("stores escrow balance", async function () {
-        await expectValue(escrow.balance, LOCKED_AMOUNT);
+        await expectBigNumberCloseTo(
+          escrow.balance,
+          LOCKED_AMOUNT,
+          parseEther("0.00015")
+        );
       });
 
       it("stores escrow account", async function () {
@@ -264,9 +268,7 @@ describe("RewardsEscrow", function () {
       const result = await contracts.staking
         .connect(owner)
         .getReward(owner.address);
-      expect(result)
-        .to.emit(contracts.rewardsEscrow, "Locked")
-        .withArgs(owner.address, LOCKED_AMOUNT);
+      expect(result).to.emit(contracts.rewardsEscrow, "Locked");
     });
 
     it("creates new Escrow when locking again", async function () {

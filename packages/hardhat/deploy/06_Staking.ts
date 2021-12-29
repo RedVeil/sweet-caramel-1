@@ -3,6 +3,7 @@ import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getStakingPools, Pool } from "../lib/utils/getStakingPools";
+import { DAYS } from "../lib/utils/test";
 import { MockERC20 } from "../typechain";
 import { addContractToRegistry } from "./utils";
 
@@ -24,17 +25,14 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   for (var i = 0; i < stakingPools.length; i++) {
     const { poolName, rewardsToken, inputToken, contract } = stakingPools[i];
-    const deployed = await deploy(poolName, {
+    await deploy(poolName, {
       from: addresses.deployer,
       args:
-        stakingPools[i].contract === "PopLocker"
-          ? [
-              stakingPools[i].inputToken,
-              (await deployments.get("RewardsEscrow")).address,
-            ]
+        contract === "PopLocker"
+          ? [inputToken, (await deployments.get("RewardsEscrow")).address]
           : [
-              stakingPools[i].rewardsToken,
-              stakingPools[i].inputToken,
+              rewardsToken,
+              inputToken,
               (await deployments.get("RewardsEscrow")).address,
             ],
       log: true,
@@ -46,6 +44,37 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
   if (["hardhat", "local"].includes(hre.network.name)) {
     createDemoData(hre, stakingPools[1]);
+    const stakingContract = await hre.ethers.getContractAt(
+      "PopLocker",
+      addresses.popStaking
+    );
+    const token = await hre.ethers.getContractAt(
+      "MockERC20",
+      addresses.pop,
+      signer
+    );
+    await token
+      .connect(signer)
+      .approve(stakingContract.address, parseEther("100000"));
+    await stakingContract
+      .connect(signer)
+      .addReward(
+        addresses.pop,
+        hre.config.namedAccounts.deployer as string,
+        false
+      );
+    //Create withdrawable balance
+
+    await stakingContract
+      .connect(signer)
+      .lock(hre.config.namedAccounts.deployer as string, parseEther("10"), 0);
+
+    hre.network.provider.send("evm_increaseTime", [85 * DAYS]);
+    hre.network.provider.send("evm_mine", []);
+
+    await await stakingContract
+      .connect(signer)
+      .notifyRewardAmount(addresses.pop, parseEther("1000"));
   }
 };
 export default main;

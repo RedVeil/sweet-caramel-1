@@ -14,14 +14,14 @@ export default function TokenIcon({ token }: TokenIconProps): JSX.Element {
           />
         </div>
       );
-    case 'POP/ETH LP':
+    case 'POP/USDC LP':
       return (
         <div className="flex flex-row">
           <div className="flex items-center rounded-full bg-white border border-gray-300 w-12 h-12">
             <img
-              src="/images/icons/ethLogo.png"
+              src="/images/tokens/usdc.webp"
               alt="eth"
-              className="w-4 h-7 mx-auto"
+              className="w-7 h-7 mx-auto"
             />
           </div>
           <div className="flex items-center rounded-full bg-white border border-gray-300 w-12 h-12 -ml-3">
