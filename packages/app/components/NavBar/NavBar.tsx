@@ -64,7 +64,7 @@ const Navbar: React.FC = () => {
             </li>
             <li>
               <NavbarLink
-                label="Claims"
+                label="Rewards"
                 url="/rewards"
                 isActive={router.pathname === '/rewards'}
               />

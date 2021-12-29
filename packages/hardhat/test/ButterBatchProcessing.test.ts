@@ -124,8 +124,8 @@ async function deployContracts(): Promise<Contracts> {
 
   const staking = await (
     await (
-      await ethers.getContractFactory("Staking")
-    ).deploy(mockPop.address, mockPop.address, mockBasicCoin.address)
+      await ethers.getContractFactory("PopLocker")
+    ).deploy(mockPop.address, mockPop.address)
   ).deployed();
 
   const butterBatchProcessing = (await (
@@ -169,7 +169,7 @@ async function deployContracts(): Promise<Contracts> {
   await contractRegistry
     .connect(owner)
     .addContract(
-      ethers.utils.id("Staking"),
+      ethers.utils.id("PopLocker"),
       staking.address,
       ethers.utils.id("1")
     );

@@ -16,7 +16,7 @@ export async function getStakingPools(
     case 1:
       return [
         {
-          poolName: "Staking",
+          poolName: "PopLocker",
           contract: "PopLocker",
           inputToken: pop,
         },
@@ -36,7 +36,7 @@ export async function getStakingPools(
     case 1337:
       return [
         {
-          poolName: "Staking",
+          poolName: "PopLocker",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
@@ -56,7 +56,7 @@ export async function getStakingPools(
     case 31337:
       return [
         {
-          poolName: "Staking",
+          poolName: "PopLocker",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
@@ -76,9 +76,9 @@ export async function getStakingPools(
     case 137:
       return [
         {
-          poolName: "Staking",
+          poolName: "PopLocker",
           contract: "PopLocker",
-          inputToken: pop,
+          inputToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "popUsdcLPStaking",
@@ -90,7 +90,7 @@ export async function getStakingPools(
     default:
       return [
         {
-          poolName: "Staking",
+          poolName: "PopLocker",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },

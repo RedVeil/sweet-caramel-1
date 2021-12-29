@@ -3,13 +3,13 @@ import { expect } from "chai";
 import { utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
-import { DAYS } from "../lib/utils/test";
+import { DAYS, timeTravel } from "../lib/utils/test";
 import {
   ContractRegistry,
   KeeperIncentive,
   KeeperIncentiveHelper,
-  LockStaking,
   MockERC20,
+  PopLocker,
   RewardsEscrow,
 } from "../typechain";
 
@@ -21,7 +21,7 @@ let deployTimestamp,
   keeperIncentive: KeeperIncentive,
   keeperIncentiveHelper: KeeperIncentiveHelper,
   rewardsEscrow: RewardsEscrow,
-  staking: LockStaking;
+  staking: PopLocker;
 const incentive = parseEther("10");
 
 describe("Keeper incentives", function () {
@@ -33,7 +33,7 @@ describe("Keeper incentives", function () {
     ).deployed()) as MockERC20;
     await mockPop.mint(owner.address, parseEther("2100"));
     await mockPop.mint(nonOwner.address, parseEther("10"));
-    const lockStakingFactory = await ethers.getContractFactory("LockStaking");
+    const popLockerFactory = await ethers.getContractFactory("PopLocker");
     rewardsEscrow = (await (
       await (
         await ethers.getContractFactory("RewardsEscrow")
@@ -56,10 +56,10 @@ describe("Keeper incentives", function () {
       ).deploy(contractRegistry.address, parseEther("0.25"), parseEther("2000"))
     ).deployed();
 
-    staking = (await lockStakingFactory.deploy(
+    staking = (await popLockerFactory.deploy(
       mockPop.address,
       rewardsEscrow.address
-    )) as LockStaking;
+    )) as PopLocker;
     await staking.deployed();
 
     deployTimestamp = (await waffle.provider.getBlock("latest")).timestamp + 1;
@@ -86,7 +86,7 @@ describe("Keeper incentives", function () {
     await contractRegistry
       .connect(owner)
       .addContract(
-        ethers.utils.id("Staking"),
+        ethers.utils.id("PopLocker"),
         staking.address,
         ethers.utils.id("1")
       );
@@ -121,7 +121,8 @@ describe("Keeper incentives", function () {
       .connect(owner)
       .approve(keeperIncentiveHelper.address, parseEther("100000"));
     await mockPop.connect(owner).approve(staking.address, parseEther("100000"));
-    await staking.connect(owner).stake(parseEther("2000"), 7 * DAYS * 12);
+    await staking.connect(owner).lock(owner.address, parseEther("2000"), 0);
+    await timeTravel(7 * DAYS);
   });
   it("functions should only be available for Governance", async function () {
     await expect(
@@ -328,9 +329,7 @@ describe("Keeper incentives", function () {
     });
     it("should not pay out rewards if the incentive budget is not high enough", async function () {
       const oldBalance = await mockPop.balanceOf(owner.address);
-      const result = await keeperIncentiveHelper
-        .connect(owner)
-        .incentivisedFunction();
+      await keeperIncentiveHelper.connect(owner).incentivisedFunction();
       const newBalance = await mockPop.balanceOf(owner.address);
       expect(newBalance).to.equal(oldBalance);
     });

@@ -265,7 +265,6 @@ export default function stake(): JSX.Element {
   async function restake(): Promise<void> {
     setWait(true);
     toast.loading(`Restaking POP...`);
-    const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
     const signer = library.getSigner();
     const connectedStaking =
       await state.stakingPageInfo.stakingContract.connect(signer);

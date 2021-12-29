@@ -1,143 +1,339 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { PopLocker, Staking } from '@popcorn/hardhat/typechain';
 import {
+  bigNumberToNumber,
   getEarned,
-  getStakingPoolsInfo,
+  getSingleStakingPoolInfo,
   StakingPoolInfo,
 } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
-import ClaimCard from 'components/ClaimCard';
-import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
-import { connectors } from 'context/Web3/connectors';
+import ClaimCard from 'components/Rewards/ClaimCard';
+import VestingRecordComponent from 'components/Rewards/VestingRecord';
+import TokenInputToggle from 'components/TokenInputToggle';
+import { setSingleActionModal } from 'context/actions';
+import { store } from 'context/store';
 import { ContractsContext } from 'context/Web3/contracts';
-import { useContext, useEffect, useState } from 'react';
-import ContentLoader from 'react-content-loader';
-import toast, { Toaster } from 'react-hot-toast';
+import { BigNumber } from 'ethers';
+import useClaimEscrows from 'hooks/useClaimEscrows';
+import useClaimStakingReward from 'hooks/useClaimStakingReward';
+import useGetUserEscrows, { Escrow } from 'hooks/useGetUserEscrows';
+import React, { useContext, useEffect, useState } from 'react';
+import { ChevronDown } from 'react-feather';
+import { toast, Toaster } from 'react-hot-toast';
+import { SWRResponse } from 'swr';
+import { connectors } from '../context/Web3/connectors';
 
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
-  const { library, account, activate, active, chainId } = context;
-  const [earned, setEarned] = useState<number[]>();
-  const [totalEarned, setTotalEarned] = useState<number>();
-  const [loading, setLoading] = useState(false);
+  const { account, library, chainId, activate, deactivate } = context;
+  const { dispatch } = useContext(store);
+  const [showEscrows, setShowEscrows] = useState<boolean>(false);
   const [stakingPoolsInfo, setStakingPoolsInfo] = useState<StakingPoolInfo[]>();
+  const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
+
+  const claimStakingReward = useClaimStakingReward();
+  const claimVestedPopFromEscrows = useClaimEscrows();
 
   useEffect(() => {
     if (!account || !contracts) {
       return;
     }
-    async function getData() {
-      const earned = await getEarned(account, contracts);
-      setEarned(earned);
-      const stakingPoolsInfo = await getStakingPoolsInfo(contracts, library);
-      setStakingPoolsInfo(stakingPoolsInfo);
-    }
-    getData().catch((err) => console.log(err));
+    getData();
   }, [account, contracts, library]);
 
-  useEffect(() => {
-    if (earned?.length && stakingPoolsInfo?.length) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
-  }, [earned, stakingPoolsInfo]);
+  const userEscrowsFetchResult: SWRResponse<
+    { escrows: Escrow[]; totalClaimablePop: BigNumber },
+    any
+  > = useGetUserEscrows();
 
-  useEffect(() => {
-    if (!earned) {
-      return;
-    }
-    const totalEarned = earned.reduce(
-      (totalSum, currentValue) => totalSum + currentValue,
-      0,
+  async function getData() {
+    let newStakingPoolsInfo: StakingPoolInfo[] = [];
+    const popStakingInfo = await getSingleStakingPoolInfo(
+      contracts.popStaking,
+      library,
+      contracts.pop.address,
+      'POP',
     );
-    setTotalEarned(totalEarned);
-  }, [earned]);
+    popStakingInfo.earned = bigNumberToNumber(
+      await getEarned(contracts.popStaking, account, true),
+    );
+    newStakingPoolsInfo.push(popStakingInfo);
 
-  async function claimReward(
-    stakingContract: Staking | PopLocker,
-  ): Promise<void> {
-    toast.loading(`Claiming POP Rewards...`);
-    const call =
-      stakingContract.address === contracts.popStaking.address
-        ? (stakingContract as PopLocker)
-            .connect(library.getSigner())
-            .getReward(account)
-        : (stakingContract as Staking).connect(library.getSigner()).getReward();
+    if (contracts.staking.length > 0) {
+      await Promise.all(
+        contracts.staking.map(async (stakingContract) => {
+          const poolInfo = await getSingleStakingPoolInfo(
+            stakingContract,
+            library,
+          );
+          const earnedRewards = await getEarned(
+            stakingContract,
+            account,
+            false,
+          );
+          poolInfo.earned = bigNumberToNumber(earnedRewards);
+          newStakingPoolsInfo.push(poolInfo);
+        }),
+      );
+    }
+    setStakingPoolsInfo(newStakingPoolsInfo);
+  }
 
-    call
-      .then((res) =>
+  const poolClaimHandler = async (
+    pool: Staking | PopLocker,
+    isPopLocker: boolean,
+  ) => {
+    toast.loading('Claiming Rewards...');
+    await claimStakingReward(pool, isPopLocker)
+      .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();
-          toast.success(`POP Rewards claimed!`);
-        }),
-      )
-      .catch((err) => toast.error(err.data.message.split("'")[1]));
+          toast.success('Rewards Claimed!');
+          getData();
+          if (!localStorage.getItem('hideClaimModal')) {
+            dispatch(
+              setSingleActionModal({
+                image: <img src="images/claim/popover.svg" className="px-6" />,
+                title:
+                  'Everytime you claim rewards, a vesting record is created.',
+                children: (
+                  <p className="text-sm text-gray-500">
+                    You have just claimed 10% of your earned rewards. The rest
+                    of the rewards will be claimable over the next 365 days.
+                  </p>
+                ),
+                onConfirm: {
+                  label: 'Close',
+                  onClick: () => {
+                    localStorage.setItem('hideClaimModal', 'true');
+                    dispatch(setSingleActionModal(false));
+                  },
+                },
+              }),
+            );
+          }
+        });
+      })
+      .catch((err) => {
+        toast.dismiss();
+        if (err.data === undefined) {
+          toast.error('An error occured');
+        } else {
+          toast.error(err.data.message.split("'")[1]);
+        }
+      });
+  };
 
-    const newEarned = await getEarned(account, contracts);
-    setEarned(newEarned);
+  const claimSingleEscrow = async (escrow: Escrow) => {
+    toast.loading('Claiming Escrow...');
+    await claimVestedPopFromEscrows([escrow.id])
+      .then((res) => {
+        res.wait().then((res) => {
+          toast.dismiss();
+          toast.success('Claimed Escrow!');
+        });
+      })
+      .catch((err) => {
+        toast.dismiss();
+        if (err.data === undefined) {
+          toast.error('An error occured');
+        } else {
+          toast.error(err.data.message.split("'")[1]);
+        }
+      });
+  };
 
-    const newStakingStats = await getStakingPoolsInfo(contracts, library);
-    setStakingPoolsInfo(newStakingStats);
+  const claimAllEscrows = async () => {
+    toast.loading('Claiming Escrows...');
+    const escrowsIds = userEscrowsFetchResult?.data?.escrows.map(
+      (escrow) => escrow.id,
+    );
+    const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
+    if (numberOfEscrows && numberOfEscrows > 0) {
+      await claimVestedPopFromEscrows(escrowsIds)
+        .then((res) =>
+          res.wait().then((res) => {
+            toast.dismiss();
+            toast.success('Claimed Escrows!');
+          }),
+        )
+        .catch((err) => {
+          toast.dismiss();
+          if (err.data === undefined) {
+            toast.error('An error occured');
+          } else {
+            toast.error(err.data.message.split("'")[1]);
+          }
+        });
+    }
+  };
+
+  function incrementVisibleEscrows(visibleEscrows: number, escrowLength): void {
+    let newVisibleEscrows = visibleEscrows + 5;
+    if (newVisibleEscrows > escrowLength) {
+      newVisibleEscrows = escrowLength;
+    }
+    setVisibleEscrows(newVisibleEscrows);
   }
+
   return (
-    <div className="w-full bg-white h-screen">
+    <div className="w-full h-screen">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14">
-        <div className="">
-          <h1 className="text-3xl font-bold">Claim</h1>
-          <p className="text-lg text-gray-500 mt-2">
-            Claim your rewards or restake them to earn more
-          </p>
-        </div>
-        <div className="w-full h-full mx-auto flex flex-row mt-10 mb-24">
-          {account ? (
-            <>
-              <div className="w-1/3 bg-primaryLight rounded-5xl pt-44 pb-44 mb-24 shadow-custom">
+      <div className="">
+        <div className="flex flex-col mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
+          <div className="w-1/3">
+            <div className="">
+              <h1 className="text-3xl font-medium">Claim</h1>
+              <p className="mt-2 text-lg text-gray-500">
+                Claim your rewards and track your vesting records.
+              </p>
+            </div>
+          </div>
+          {!account && (
+            <div className="w-full">
+              <div className="w-full mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl pt-44 pb-44 shadow-custom">
                 <img
-                  src="/images/claimCat.png"
-                  alt="claimCat"
-                  className="mx-auto transform scale-101 py-2"
+                  src="/images/claims-cat.svg"
+                  alt="cat holding popcorn"
+                  className="py-2 mx-auto transform scale-101"
                 />
-              </div>
-              <div className="w-9/12">
-                <div className="flex flex-col space-y-6 ml-8">
-                  {loading && <ContentLoader title="Loading ..." />}
-                  {stakingPoolsInfo &&
-                    stakingPoolsInfo.length > 0 &&
-                    earned && (
-                      <>
-                        {earned &&
-                          stakingPoolsInfo?.map((poolInfo, index) => (
-                            <ClaimCard
-                              tokenName={poolInfo.stakedTokenName}
-                              claimable={earned[index] ? earned[index] : 0}
-                              key={poolInfo.stakingContractAddress}
-                              handleClick={() =>
-                                claimReward(contracts.staking[index])
-                              }
-                            />
-                          ))}
-                      </>
-                    )}
+                <div className="grid justify-items-stretch">
+                  <button
+                    onClick={() => activate(connectors.Injected)}
+                    className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
+                    style={{ width: '368px', height: '60px' }}
+                  >
+                    <p className="font-bold text-white">Connect Wallet</p>
+                  </button>
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="w-full bg-primaryLight rounded-5xl pt-36 pb-36 mb-24 shadow-custom">
-              <img
-                src="/images/claimCat.png"
-                alt="claimCat"
-                className="mx-auto transform scale-101 py-2"
-              />
-              <div className="w-80 mx-auto mt-8">
-                <MainActionButton
-                  label="Connect Wallet"
-                  handleClick={() => activate(connectors.Injected)}
-                />
+            </div>
+          )}
+          {account && (
+            <div className="flex flex-row">
+              <div className="w-1/3">
+                <div
+                  className="flex items-stretch mt-10 mb-8 mr-12 bg-primaryLight rounded-5xl shadow-custom"
+                  style={{ height: '87%' }}
+                >
+                  <img
+                    src="/images/claims-cat.svg"
+                    alt="cat holding popcorn"
+                    className="self-center w-1/2 py-2 mx-auto transform scale-101"
+                  />
+                </div>
+              </div>
+
+              <div className="w-2/3 h-full mt-10 mb-8">
+                <div className="mb-8">
+                  <TokenInputToggle
+                    toggled={showEscrows}
+                    toggle={setShowEscrows}
+                    labels={['Claim', 'Reward']}
+                  />
+                </div>
+                {!showEscrows &&
+                  stakingPoolsInfo &&
+                  stakingPoolsInfo.length > 0 &&
+                  stakingPoolsInfo?.map((poolInfo, index) => (
+                    <ClaimCard
+                      tokenName={poolInfo.stakedTokenName}
+                      claimAmount={poolInfo.earned}
+                      key={poolInfo.stakingContractAddress}
+                      handler={poolClaimHandler}
+                      pool={
+                        poolInfo.stakedTokenName === 'POP'
+                          ? contracts.popStaking
+                          : contracts.staking.find(
+                              (stakingContract) =>
+                                stakingContract.address ===
+                                poolInfo.stakingContractAddress,
+                            )
+                      }
+                      disabled={poolInfo.earned === 0}
+                      isPopLocker={poolInfo.stakedTokenName === 'POP'}
+                    />
+                  ))}
+                {showEscrows && userEscrowsFetchResult ? (
+                  !userEscrowsFetchResult?.data &&
+                  !userEscrowsFetchResult?.error ? (
+                    'Show Loader....'
+                  ) : (
+                    <div>
+                      <div
+                        className={`flex flex-row justify-between px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
+                      >
+                        <div className="flex flex-row">
+                          <h1
+                            className={`text-3xl font-bold text-gray-500 my-auto`}
+                          >
+                            Vesting Records
+                          </h1>
+                        </div>
+                        <div className="flex flex-row my-auto">
+                          <h1
+                            className={`text-3xl font-bold text-gray-900 my-auto mr-8`}
+                          >
+                            {bigNumberToNumber(
+                              userEscrowsFetchResult?.data?.totalClaimablePop,
+                            ).toLocaleString(undefined, {
+                              maximumFractionDigits: 2,
+                            })}{' '}
+                            POP
+                          </h1>
+                          <button
+                            onClick={() => claimAllEscrows()}
+                            className="mx-auto my-auto bg-blue-600 border border-transparent rounded-full justify-self-center shadow-custom py-3 px-10"
+                          >
+                            <p className="font-bold text-white">Claim All</p>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        {userEscrowsFetchResult?.data?.escrows
+                          .slice(0, visibleEscrows)
+                          .map((vestingEscrow, index) => {
+                            return (
+                              <VestingRecordComponent
+                                vestingEscrow={vestingEscrow}
+                                index={index}
+                                claim={claimSingleEscrow}
+                                key={vestingEscrow.end.toString()}
+                              />
+                            );
+                          })}
+                      </div>
+
+                      <div
+                        className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}
+                      >
+                        {userEscrowsFetchResult?.data?.escrows?.length > 0 &&
+                          userEscrowsFetchResult?.data?.escrows?.length >
+                            visibleEscrows && (
+                            <div
+                              className="flex flex-row items-center justify-center cursor-pointer group"
+                              onClick={() =>
+                                incrementVisibleEscrows(
+                                  visibleEscrows,
+                                  userEscrowsFetchResult?.data?.escrows?.length,
+                                )
+                              }
+                            >
+                              <h1 className="text-base font-semibold group-hover:text-blue-600">
+                                Load more
+                              </h1>
+                              <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
           )}

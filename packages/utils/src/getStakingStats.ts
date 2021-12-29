@@ -13,6 +13,7 @@ export interface StakingPoolInfo {
   apy: number;
   totalStake: number;
   tokenEmission: number;
+  earned?: number;
 }
 
 export async function calculateAPY(
@@ -125,16 +126,16 @@ export async function getStakingPoolsInfo(
 }
 
 export async function getEarned(
+  staking: Staking | PopLocker,
   account: string,
-  contracts: Contracts,
-): Promise<number[]> {
-  const { staking: stakingContracts } = contracts;
-  const result: number[] = [];
-  if (!stakingContracts || stakingContracts.length === 0) {
-    return result;
+  isPopLocker: boolean,
+): Promise<BigNumber> {
+  if (isPopLocker) {
+    const rewardRes = await (staking as PopLocker)?.claimableRewards(account);
+    if (rewardRes === undefined || rewardRes?.length === 0) {
+      return BigNumber.from('0');
+    }
+    return rewardRes[0].amount;
   }
-  for (let i = 0; i < stakingContracts.length; i++) {
-    result[i] = bigNumberToNumber(await contracts.staking[i].earned(account));
-  }
-  return result;
+  return await (staking as Staking)?.earned(account);
 }

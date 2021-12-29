@@ -676,6 +676,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     for (uint256 i; i < _yTokenAddresses.length; i++) {
       curvePoolTokenPairs[_yTokenAddresses[i]] = _curvePoolTokenPairs[i];
     }
+    emit CurveTokenPairsUpdated(_yTokenAddresses, _curvePoolTokenPairs);
   }
 
   /**

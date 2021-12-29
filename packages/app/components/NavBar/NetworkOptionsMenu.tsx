@@ -47,10 +47,10 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
           parseInt(process.env.CHAIN_ID),
         ) && [
           <NetworkOptionsMenuItem
-            chainId={ChainId.Hardhat}
+            chainId={ChainId.Localhost}
             switchNetwork={(chainId) => switchNetwork(chainId, dispatch)}
             currentChainId={currentChain}
-            key={ChainId.Hardhat}
+            key={ChainId.Localhost}
           />,
           <NetworkOptionsMenuItem
             chainId={ChainId.Rinkeby}

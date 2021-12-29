@@ -12,10 +12,10 @@ export default function getNamedAccounts() {
     popUsdcLpStaking: {
       rinkeby: "0xAE5dA2a2d85Ce27e89AbC9f44d1d4986728BD182",
       polygon: "0xAE5dA2a2d85Ce27e89AbC9f44d1d4986728BD182",
-      hardhat: "0xA7c59f010700930003b33aB25a7a0679C860f29c",
+      hardhat: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
     },
     butterStaking: {
-      hardhat: "0x276C216D241856199A83bf27b2286659e5b877D3",
+      hardhat: "0x3155755b79aA083bd953911C92705B7aA82a18F9",
     },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
@@ -174,21 +174,24 @@ export default function getNamedAccounts() {
     popUsdcLp: {
       polygon: "0xFfb0CBBBeC1682aCfeA50eED9C2E9ADC90390564",
       mainnet: "0xBBA11b41407dF8793A89b44ee4b50AfAD4508555",
-      hardhat: "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
+      hardhat: "0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397",
     },
     aclRegistry: {
       polygon: "0x8E7836f37b35ad1BA7321c26cf8fd22A4e7DdDc3",
-      hardhat: "0xC9a43158891282A2B1475592D5719c001986Aaec",
+      hardhat: "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
     },
     contractRegistry: {
       polygon: "0x0c5b24d1dcBff87491eA61995BF141727346127f",
-      hardhat: "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
+      hardhat: "0x18E317A7D70d8fBf8e6E893616b52390EbBdb629",
     },
     butterBatch: {
-      hardhat: "0x525c7063e7c20997baae9bda922159152d0e8417",
+      hardhat: "0x5fc748f1feb28d7b76fa1c6b07d8ba2d5535177c",
     },
     butterBatchZapper: {
-      hardhat: "0x5fc748f1FEb28d7b76fa1c6B07D8ba2d5535177c",
+      hardhat: "0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f",
+    },
+    rewardsEscrow: {
+      hardhat: "0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75",
     },
   };
 }

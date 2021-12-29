@@ -81,6 +81,10 @@ module.exports = {
         ctaYellowLight: '#FFD324',
 
         light: '#FFF5D1',
+        cardBg: '#F3F8FF',
+
+        rewardsBg: '#FFF5CF',
+        rewardsBg2: '#F9EEC8',
       },
       backgroundImage: (theme) => ({
         'hero-pattern': "url('/images/popcorn_playing.gif')",
@@ -91,8 +95,12 @@ module.exports = {
     },
   },
   variants: {
+    extend: {
+      opacity: ['disabled'],
+      backgroundColor: ['disabled'],
+      cursor: ['disabled'],
+    },
     backdropBlur: ['hover', 'focus'],
-    extend: { opacity: ['disabled'], backgroundColor: ['disabled'] },
   },
   plugins: [require('@tailwindcss/forms')],
 };

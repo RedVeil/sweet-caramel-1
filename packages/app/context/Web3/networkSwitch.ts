@@ -25,8 +25,6 @@ export const switchNetwork = async (
           return connectToArbitrum();
         case ChainId.Localhost:
           return connectToLocalhost();
-        case ChainId.Hardhat:
-          return connectToHardhat();
       }
     } catch (e) {
       console.error('Error while changing network', e);
@@ -46,14 +44,7 @@ export const connectToEthereumMainnet = async () => {
 export const connectToLocalhost = async () => {
   await window.ethereum?.request({
     method: 'wallet_switchEthereumChain',
-    params: [{ chainId: '0x7a69' }],
-  });
-};
-
-export const connectToHardhat = async () => {
-  await window.ethereum?.request({
-    method: 'wallet_switchEthereumChain',
-    params: [{ chainId: '0x7a69' }],
+    params: [{ chainId: '0x539' }],
   });
 };
 

@@ -1,4 +1,5 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import bluebird from "bluebird";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
@@ -39,9 +40,17 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: contract,
     });
+    await prepareRewardsEscrow(
+      (
+        await deployments.get(poolName)
+      ).address,
+      signer,
+      hre
+    );
 
     await addContractToRegistry(poolName, deployments, signer, hre);
   }
+
   if (["hardhat", "local"].includes(hre.network.name)) {
     createDemoData(hre, stakingPools[1]);
     const stakingContract = await hre.ethers.getContractAt(
@@ -81,6 +90,22 @@ export default main;
 main.dependencies = ["setup"];
 main.tags = ["core", "frontend"];
 
+async function prepareRewardsEscrow(
+  stakingAddress: string,
+  signer: any,
+  hre: HardhatRuntimeEnvironment
+) {
+  const { deployments, getNamedAccounts } = hre;
+  const rewardsEscrow = await hre.ethers.getContractAt(
+    "RewardsEscrow",
+    await (
+      await deployments.get("RewardsEscrow")
+    ).address,
+    signer
+  );
+  await rewardsEscrow.addAuthorizedContract(stakingAddress);
+}
+
 async function prepareStakingContract(
   POP: MockERC20,
   inputToken: MockERC20,
@@ -88,17 +113,32 @@ async function prepareStakingContract(
   signer: any,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-  await (await POP.mint(contractAddress, parseEther("1000000000"))).wait(1);
+  console.log("pop transfer:", POP.address);
+  console.log("contract: ", contractAddress);
+  await POP.transfer(contractAddress, parseEther("1000"));
+  console.log("balance: ", (await POP.balanceOf(contractAddress)).toString());
   const stakingContract = await hre.ethers.getContractAt(
     "Staking",
     contractAddress,
     signer
   );
+  await stakingContract.setEscrowDuration(7 * DAYS);
   console.log("Adding POP rewards to staking at:", contractAddress);
   await (await stakingContract.notifyRewardAmount(parseEther("1000"))).wait(1);
   console.log("Staking some Token...");
   await inputToken.approve(contractAddress, parseEther("1000"));
   await stakingContract.connect(signer).stake(parseEther("100"));
+  await bluebird.map(
+    new Array(2).fill(0),
+    async (_x, _i) => {
+      await hre.network.provider.send("evm_increaseTime", [3600]);
+      await hre.network.provider.send("evm_mine", []);
+      await stakingContract.connect(signer).getReward();
+    },
+    { concurrency: 1 }
+  );
+  await hre.network.provider.send("evm_increaseTime", [3600]);
+  await hre.network.provider.send("evm_mine", []);
 }
 
 async function connectAndMintToken(

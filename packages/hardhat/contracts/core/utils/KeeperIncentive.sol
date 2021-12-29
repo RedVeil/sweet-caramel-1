@@ -73,7 +73,7 @@ contract KeeperIncentive {
     if (!incentive.openToEveryone) {
       IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("Keeper"), _keeper);
       require(
-        IStaking(contractRegistry.getContract(keccak256("Staking"))).balanceOf(_keeper) >= requiredKeeperStake,
+        IStaking(contractRegistry.getContract(keccak256("PopLocker"))).balanceOf(_keeper) >= requiredKeeperStake,
         "not enough pop at stake"
       );
     }

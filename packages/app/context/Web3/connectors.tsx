@@ -26,7 +26,6 @@ export const logos = {
   [ChainId.Rinkeby]: '/images/icons/ethLogo.png',
   [ChainId.Polygon]: '/images/icons/polygonLogo.png',
   [ChainId.Arbitrum]: '/images/icons/arbitrum.png',
-  [ChainId.Hardhat]: '/images/icons/ethLogo.png',
   [ChainId.Localhost]: '/images/icons/ethLogo.png',
 };
 
@@ -37,7 +36,6 @@ const RPC_URLS = {
   [ChainId.Polygon]: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Localhost]: `http://localhost:8545`,
-  [ChainId.Hardhat]: `http://localhost:8545`,
 };
 
 export const supportedChainIds = [
@@ -47,7 +45,6 @@ export const supportedChainIds = [
   ChainId.Polygon,
   ChainId.Mumbai,
   ChainId.Localhost,
-  ChainId.Hardhat,
 ];
 
 const Injected = new InjectedConnector({

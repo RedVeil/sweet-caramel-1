@@ -55,3 +55,9 @@ export interface ButterDependencyAddresses {
   setTokenCreator?: Address;
   setStreamingFeeModule?: Address;
 }
+
+export interface VestingRecord {
+  unlockDate: string;
+  vested: number;
+  claimable: number;
+}
