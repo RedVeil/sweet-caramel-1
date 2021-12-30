@@ -165,6 +165,9 @@ async function deployContracts(): Promise<Contracts> {
       parseEther("200")
     )
   ).deployed()) as ButterBatchProcessing;
+  await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
+  await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+  await butterBatchProcessing.setApprovals();
 
   const butterBatchProcessingZapper = (await (
     await (
@@ -202,8 +205,6 @@ async function deployContracts(): Promise<Contracts> {
     .connect(depositor)
     .approve(butterBatchProcessing.address, DepositorInitial);
 
-  await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
-  await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
   await aclRegistry.grantRole(
     ethers.utils.id("ButterZapper"),
     butterBatchProcessingZapper.address
@@ -258,6 +259,8 @@ async function deployContracts(): Promise<Contracts> {
       butterBatchProcessing.address
     );
 
+  await butterBatchProcessingZapper.setApprovals();
+
   return {
     mock3Crv,
     mockDAI,
@@ -294,6 +297,39 @@ const timeTravel = async (time: number) => {
 describe("ButterBatchProcessingZapper", function () {
   beforeEach(async function () {
     await deployAndAssignContracts();
+  });
+  describe("setApprovals", async () => {
+    it("sets approvals idempotently", async () => {
+      //  run setApproval multiple times to assert idempotency
+      await contracts.butterBatchProcessingZapper.setApprovals();
+      await contracts.butterBatchProcessingZapper.setApprovals();
+      await contracts.butterBatchProcessingZapper.setApprovals();
+
+      const dai3PoolAllowance = await contracts.mockDAI.allowance(
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockCurveThreePool.address
+      );
+      const usdc3PoolAllowance = await contracts.mockUSDC.allowance(
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockCurveThreePool.address
+      );
+      const usdt3PoolAllowance = await contracts.mockUSDT.allowance(
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockCurveThreePool.address
+      );
+
+      const threeCrvButterBatchAllowance = await contracts.mock3Crv.allowance(
+        contracts.butterBatchProcessingZapper.address,
+        contracts.butterBatchProcessing.address
+      );
+
+      expect(dai3PoolAllowance).to.equal(ethers.constants.MaxUint256);
+      expect(usdc3PoolAllowance).to.equal(ethers.constants.MaxUint256);
+      expect(usdt3PoolAllowance).to.equal(ethers.constants.MaxUint256);
+      expect(threeCrvButterBatchAllowance).to.equal(
+        ethers.constants.MaxUint256
+      );
+    });
   });
   describe("zapIntoBatch", function () {
     it("zaps into a mint queue with one stablecoin", async function () {

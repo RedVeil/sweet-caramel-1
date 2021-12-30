@@ -45,7 +45,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   //Butter Batch
   console.log("deploying butterBatch...");
-  await deploy("ButterBatchProcessing", {
+  const deployed = await deploy("ButterBatchProcessing", {
     from: addresses.deployer,
     args: [
       contractRegistryAddress,
@@ -69,10 +69,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer,
     hre
   );
+  const butterBatchProcessing = await hre.ethers.getContractAt(
+    "ButterBatchProcessing",
+    deployed.address
+  );
+  await butterBatchProcessing.setApprovals();
 
   //Butter Batch Zapper
   console.log("deploying butterBatchZapper...");
-  await deploy("ButterBatchZapper", {
+  const zapper = await deploy("ButterBatchZapper", {
     from: addresses.deployer,
     args: [contractRegistryAddress, addresses.threePool, addresses.threeCrv],
     log: true,
@@ -81,6 +86,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   await addContractToRegistry("ButterBatchZapper", deployments, signer, hre);
+
+  console.log("setting approvals for ButterBatchZapper");
+  const zapperContract = await hre.ethers.getContractAt(
+    "ButterBatchProcessingZapper",
+    zapper.address
+  );
+  await zapperContract.setApprovals();
 
   //Adding permissions and other maintance
   const keeperIncentive = await hre.ethers.getContractAt(
@@ -213,7 +225,7 @@ async function createDemoData(
   await butterBatch.depositForRedeem(parseEther("1"));
   await butterBatch.batchRedeem(BigNumber.from("0"));
 
-  console.log("create batch to be batched");
+  console.log("create batch to be redeemed");
   await butterBatch.depositForRedeem(parseEther("1"));
 }
 

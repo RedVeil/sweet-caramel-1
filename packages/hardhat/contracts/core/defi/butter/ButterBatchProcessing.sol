@@ -366,7 +366,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
       //Deposit crvLPToken to get yToken
       _sendToYearn(
         curvePoolTokenPairs[tokenAddresses[i]].crvLPToken.balanceOf(address(this)),
-        curvePoolTokenPairs[tokenAddresses[i]].crvLPToken,
         YearnVault(tokenAddresses[i])
       );
 
@@ -442,8 +441,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     (address[] memory tokenAddresses, ) = setBasicIssuanceModule.getRequiredComponentUnitsForIssue(setToken, 1e18);
 
     //Allow setBasicIssuanceModule to use Butter
-    setToken.safeIncreaseAllowance(address(setBasicIssuanceModule), batch.suppliedTokenBalance);
-
+    _setBasicIssuanceModuleAllowance(batch.suppliedTokenBalance);
     //Redeem Butter for yToken
     setBasicIssuanceModule.redeem(setToken, batch.suppliedTokenBalance, address(this));
 
@@ -457,11 +455,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
       uint256 crvLPTokenBalance = curvePoolTokenPairs[tokenAddresses[i]].crvLPToken.balanceOf(address(this));
 
       //Deposit crvLPToken to receive 3CRV
-      _withdrawFromCurve(
-        crvLPTokenBalance,
-        curvePoolTokenPairs[tokenAddresses[i]].crvLPToken,
-        curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool
-      );
+      _withdrawFromCurve(crvLPTokenBalance, curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool);
     }
 
     //Save the redeemed amount of 3CRV as claimable token for the batch
@@ -481,7 +475,38 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     _generateNextBatch(currentRedeemBatchId, BatchType.Redeem);
   }
 
+  /**
+   * @notice sets approval for contracts that require access to assets held by this contract
+   */
+  function setApprovals() external {
+    (address[] memory tokenAddresses, ) = setBasicIssuanceModule.getRequiredComponentUnitsForIssue(setToken, 1e18);
+
+    for (uint256 i; i < tokenAddresses.length; i++) {
+      IERC20 curveLpToken = curvePoolTokenPairs[tokenAddresses[i]].crvLPToken;
+      CurveMetapool curveMetapool = curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool;
+      YearnVault yearnVault = YearnVault(tokenAddresses[i]);
+
+      threeCrv.safeApprove(address(curveMetapool), 0);
+      threeCrv.safeApprove(address(curveMetapool), type(uint256).max);
+
+      curveLpToken.safeApprove(address(yearnVault), 0);
+      curveLpToken.safeApprove(address(yearnVault), type(uint256).max);
+
+      curveLpToken.safeApprove(address(curveMetapool), 0);
+      curveLpToken.safeApprove(address(curveMetapool), type(uint256).max);
+    }
+  }
+
   /* ========== RESTRICTED FUNCTIONS ========== */
+
+  /**
+   * @notice sets allowance for basic issuance module
+   * @param _amount amount to approve
+   */
+  function _setBasicIssuanceModuleAllowance(uint256 _amount) internal {
+    setToken.safeApprove(address(setBasicIssuanceModule), 0);
+    setToken.safeApprove(address(setBasicIssuanceModule), _amount);
+  }
 
   /**
    * @notice makes sure only zapper or user can withdraw from accout_ and returns the recipient of the withdrawn token
@@ -576,10 +601,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @param _curveMetapool The metapool where we want to provide liquidity
    */
   function _sendToCurve(uint256 _amount, CurveMetapool _curveMetapool) internal {
-    uint256 allowanceAmount = threeCrv.allowance(address(this), address(_curveMetapool));
-    threeCrv.safeDecreaseAllowance(address(_curveMetapool), allowanceAmount);
-    threeCrv.safeIncreaseAllowance(address(_curveMetapool), type(uint256).max);
-
     //Takes 3CRV and sends lpToken to this contract
     //Metapools take an array of amounts with the exoctic stablecoin at the first spot and 3CRV at the second.
     //The second variable determines the min amount of LP-Token we want to receive (slippage control)
@@ -589,18 +610,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   /**
    * @notice Withdraws 3CRV for deposited crvLPToken
    * @param _amount The amount of crvLPToken that get deposited
-   * @param _lpToken Which crvLPToken we deposit
    * @param _curveMetapool The metapool where we want to provide liquidity
    */
-  function _withdrawFromCurve(
-    uint256 _amount,
-    IERC20 _lpToken,
-    CurveMetapool _curveMetapool
-  ) internal {
-    uint256 allowanceAmount = _lpToken.allowance(address(this), address(_curveMetapool));
-    _lpToken.safeDecreaseAllowance(address(_curveMetapool), allowanceAmount);
-    _lpToken.safeIncreaseAllowance(address(_curveMetapool), type(uint256).max);
-
+  function _withdrawFromCurve(uint256 _amount, CurveMetapool _curveMetapool) internal {
     //Takes lp Token and sends 3CRV to this contract
     //The second variable is the index for the token we want to receive (0 = exotic stablecoin, 1 = 3CRV)
     //The third variable determines min amount of token we want to receive (slippage control)
@@ -610,18 +622,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   /**
    * @notice Deposits crvLPToken for yToken
    * @param _amount The amount of crvLPToken that get deposited
-   * @param _crvLPToken The crvLPToken which we deposit
    * @param _yearnVault The yearn Vault in which we deposit
    */
-  function _sendToYearn(
-    uint256 _amount,
-    IERC20 _crvLPToken,
-    YearnVault _yearnVault
-  ) internal {
-    uint256 allowanceAmount = _crvLPToken.allowance(address(this), address(_yearnVault));
-    _crvLPToken.safeDecreaseAllowance(address(_yearnVault), allowanceAmount);
-    _crvLPToken.safeIncreaseAllowance(address(_yearnVault), type(uint256).max);
-
+  function _sendToYearn(uint256 _amount, YearnVault _yearnVault) internal {
     //Mints yToken and sends them to msg.sender (this contract)
     _yearnVault.deposit(_amount);
   }
@@ -632,10 +635,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @param _yearnVault The yearn Vault in which we deposit
    */
   function _withdrawFromYearn(uint256 _amount, YearnVault _yearnVault) internal {
-    uint256 allowanceAmount = _yearnVault.allowance(address(this), address(_yearnVault));
-    _yearnVault.safeDecreaseAllowance(address(_yearnVault), allowanceAmount);
-    _yearnVault.safeIncreaseAllowance(address(_yearnVault), type(uint256).max);
-
     //Takes yToken and sends crvLPToken to this contract
     _yearnVault.withdraw(_amount);
   }

@@ -66,8 +66,6 @@ contract ButterBatchProcessingZapper {
       if (_amounts[i] > 0) {
         //Deposit Stables
         IERC20(curve3Pool.coins(i)).safeTransferFrom(msg.sender, address(this), _amounts[i]);
-        //Allow Stables for user in curve three-pool
-        IERC20(curve3Pool.coins(i)).safeIncreaseAllowance(address(curve3Pool), _amounts[i]);
       }
     }
     //Deposit stables to receive 3CRV
@@ -79,9 +77,6 @@ contract ButterBatchProcessingZapper {
     If a user sends 3CRV to this contract by accident (Which cant be retrieved anyway) they will be used aswell.
     */
     uint256 threeCrvAmount = threeCrv.balanceOf(address(this));
-
-    //Allow hysiBatchInteraction to use 3CRV
-    threeCrv.safeIncreaseAllowance(butterBatchProcessing, threeCrvAmount);
 
     //Deposit 3CRV in current mint batch
     IButterBatchProcessing(butterBatchProcessing).depositForMint(threeCrvAmount, msg.sender);
@@ -156,9 +151,6 @@ contract ButterBatchProcessingZapper {
     uint8 _stableCoinIndex,
     uint256 _min_amount
   ) internal returns (uint256) {
-    //Allow curve three-pool to use 3CRV
-    threeCrv.safeIncreaseAllowance(address(curve3Pool), _threeCurveAmount);
-
     //Burn 3CRV to receive stables
     curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, _stableCoinIndex, _min_amount);
 
@@ -173,5 +165,26 @@ contract ButterBatchProcessingZapper {
 
     //Return stablebalance for event
     return stableBalance;
+  }
+
+  /**
+   * @notice set idempotent approvals for 3pool and butter batch processing
+   */
+  function setApprovals() external {
+    IERC20(curve3Pool.coins(0)).safeApprove(address(curve3Pool), 0);
+    IERC20(curve3Pool.coins(0)).safeApprove(address(curve3Pool), type(uint256).max);
+
+    IERC20(curve3Pool.coins(1)).safeApprove(address(curve3Pool), 0);
+    IERC20(curve3Pool.coins(1)).safeApprove(address(curve3Pool), type(uint256).max);
+
+    IERC20(curve3Pool.coins(2)).safeApprove(address(curve3Pool), 0);
+    IERC20(curve3Pool.coins(2)).safeApprove(address(curve3Pool), type(uint256).max);
+
+    address butterBatchProcessing = contractRegistry.getContract(keccak256("ButterBatchProcessing"));
+    threeCrv.safeApprove(butterBatchProcessing, 0);
+    threeCrv.safeApprove(butterBatchProcessing, type(uint256).max);
+
+    threeCrv.safeApprove(address(curve3Pool), 0);
+    threeCrv.safeApprove(address(curve3Pool), type(uint256).max);
   }
 }

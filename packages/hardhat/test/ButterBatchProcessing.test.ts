@@ -156,6 +156,8 @@ async function deployContracts(): Promise<Contracts> {
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
 
+  await butterBatchProcessing.setApprovals();
+
   await contractRegistry
     .connect(owner)
     .addContract(ethers.utils.id("POP"), mockPop.address, ethers.utils.id("1"));
@@ -233,6 +235,54 @@ describe("ButterBatchProcessing", function () {
     await deployAndAssignContracts();
   });
   context("setters and getters", () => {
+    describe("setApprovals", async () => {
+      it("sets approvals idempotently", async () => {
+        //  run setApproval multiple times to assert idempotency
+        await contracts.butterBatchProcessing.setApprovals();
+        await contracts.butterBatchProcessing.setApprovals();
+        await contracts.butterBatchProcessing.setApprovals();
+
+        const threeCrvMetapoolAllowance_0 = await contracts.mock3Crv.allowance(
+          contracts.butterBatchProcessing.address,
+          contracts.mockCurveMetapoolUSDX.address
+        );
+        const yearnAllowance_0 = await contracts.mockCrvUSDX.allowance(
+          contracts.butterBatchProcessing.address,
+          contracts.mockYearnVaultUSDX.address
+        );
+
+        const lpMetapoolAllowance_0 = await contracts.mockCrvUSDX.allowance(
+          contracts.butterBatchProcessing.address,
+          contracts.mockCurveMetapoolUSDX.address
+        );
+
+        expect(threeCrvMetapoolAllowance_0).to.equal(
+          ethers.constants.MaxUint256
+        );
+        expect(yearnAllowance_0).to.equal(ethers.constants.MaxUint256);
+        expect(lpMetapoolAllowance_0).to.equal(ethers.constants.MaxUint256);
+
+        const threeCrvMetapoolAllowance_1 = await contracts.mock3Crv.allowance(
+          contracts.butterBatchProcessing.address,
+          contracts.mockCurveMetapoolUST.address
+        );
+        const yearnAllowance_1 = await contracts.mockCrvUST.allowance(
+          contracts.butterBatchProcessing.address,
+          contracts.mockYearnVaultUST.address
+        );
+
+        const lpMetapoolAllowance_1 = await contracts.mockCrvUST.allowance(
+          contracts.butterBatchProcessing.address,
+          contracts.mockCurveMetapoolUST.address
+        );
+
+        expect(threeCrvMetapoolAllowance_1).to.equal(
+          ethers.constants.MaxUint256
+        );
+        expect(yearnAllowance_1).to.equal(ethers.constants.MaxUint256);
+        expect(lpMetapoolAllowance_1).to.equal(ethers.constants.MaxUint256);
+      });
+    });
     describe("setCurvePoolTokenPairs", () => {
       it("sets curve pool token pairs", async () => {
         const YUST_TOKEN_ADDRESS = "0x1c6a9783f812b3af3abbf7de64c3cd7cc7d1af44";

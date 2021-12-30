@@ -20,6 +20,7 @@ export const addContractToRegistry = async (
   );
 
   if (contract === ethers.constants.AddressZero) {
+    console.log(`Adding contract ${contractName} to registry`);
     await contractRegistry.addContract(
       ethers.utils.id(contractName),
       (
@@ -27,6 +28,10 @@ export const addContractToRegistry = async (
       ).address,
       ethers.utils.id("1"),
       { gasLimit: 1000000 }
+    );
+  } else {
+    console.log(
+      `${contractName} already exists in registry, it must be updated manually`
     );
   }
 };
