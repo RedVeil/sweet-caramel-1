@@ -16,6 +16,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
   struct Escrow {
     uint256 start;
     uint256 end;
+    uint256 initialBalance;
     uint256 balance;
     address account;
   }
@@ -30,8 +31,8 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
   uint256 internal nonce;
 
   /* ========== EVENTS ========== */
-  event Locked(address account, uint256 amount);
-  event RewardsClaimed(address account, uint256 amount);
+  event Locked(address indexed account, uint256 amount);
+  event RewardsClaimed(address indexed account, uint256 amount);
   event TokenAdded(address token, uint256 index);
   event AddAuthorizedContract(address _contract);
   event RemoveAuthorizedContract(address _contract);
@@ -50,6 +51,14 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    */
   function isClaimable(bytes32 _escrowId) external view returns (bool) {
     return escrows[_escrowId].start != 0 && escrows[_escrowId].balance > 0;
+  }
+
+  /**
+   * @notice Returns claimable amount for a given escrow
+   * @param _escrowId Bytes32 escrow ID
+   */
+  function getClaimableAmount(bytes32 _escrowId) external view returns (uint256) {
+    return _getClaimableAmount(escrows[_escrowId]);
   }
 
   /**
@@ -93,7 +102,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
     uint256 end = start + duration;
     bytes32 id = keccak256(abi.encodePacked(_account, _amount, start, nonce));
 
-    escrows[id] = Escrow({start: start, end: end, balance: _amount, account: _account});
+    escrows[id] = Escrow({start: start, end: end, initialBalance: _amount, balance: _amount, account: _account});
     escrowIdsByAddress[_account].push(id);
 
     POP.safeTransferFrom(msg.sender, address(this), _amount);
@@ -155,7 +164,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
 
   /**
    * @notice Underlying function to calculate the rewards that a user gets
-   * @dev We dont want it to error when a vault is empty for the user as this would terminate the entire loop when used in claimRewards()
+   * @dev We don't want it to error when a vault is empty for the user as this would terminate the entire loop when used in claimRewards()
    */
   function _claimReward(bytes32 _escrowId) internal returns (uint256) {
     Escrow storage escrow = escrows[_escrowId];
