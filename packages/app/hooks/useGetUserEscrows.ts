@@ -57,7 +57,10 @@ const getUserEscrows =
       return { escrows: new Array(0), totalClaimablePop: BigNumber.from('0') };
     }
     let totalClaimablePop: BigNumber = BigNumber.from('0');
-    const escrows = await getEscrowsByIds(vestingEscrow, escrowIds);
+    let escrows = await getEscrowsByIds(vestingEscrow, escrowIds);
+    escrows = escrows.filter((escrow) =>
+      escrow.balance.gt(BigNumber.from('0')),
+    );
     const blockTime = await (await library.getBlock('latest')).timestamp;
     for (let i = 0; i < escrows.length; i++) {
       escrows[i].claimableAmount = await getClaimableAmountForEscrow(
