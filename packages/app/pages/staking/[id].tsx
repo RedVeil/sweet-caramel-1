@@ -2,6 +2,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { ERC20, PopLocker, Staking } from '@popcorn/hardhat/typechain';
 import {
   bigNumberToNumber,
+  getEarned,
   getERC20Contract,
   getSingleStakingPoolInfo,
   StakingPoolInfo,
@@ -17,7 +18,7 @@ import { updateStakingPageInfo } from 'context/actions';
 import { store } from 'context/store';
 import { connectors } from 'context/Web3/connectors';
 import { ContractsContext } from 'context/Web3/contracts';
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import 'rc-slider/assets/index.css';
@@ -37,21 +38,6 @@ interface Balances {
   allowance: number;
   earned: number;
   withdrawable: number;
-}
-
-async function getEarned(state, account, isPopStaking): Promise<BigNumber> {
-  if (isPopStaking) {
-    const rewardRes = await (
-      state?.stakingPageInfo?.stakingContract as PopLocker
-    )?.claimableRewards(account);
-    if (rewardRes === undefined || rewardRes?.length === 0) {
-      return BigNumber.from('0');
-    }
-    return rewardRes[0].amount;
-  }
-  return await (state?.stakingPageInfo?.stakingContract as Staking)?.earned(
-    account,
-  );
 }
 
 export default function stake(): JSX.Element {
@@ -147,7 +133,7 @@ export default function stake(): JSX.Element {
         ? await (stakingContract as PopLocker)?.lockedBalanceOf(account)
         : await (stakingContract as Staking)?.balanceOf(account);
     const earned = await getEarned(
-      state,
+      stakingContract,
       account,
       id === contracts.popStaking.address,
     );
@@ -567,7 +553,7 @@ export default function stake(): JSX.Element {
                             </h2>
                             <div className="flex flex-row items-center mt-1">
                               <p className="text-2xl font-medium  mr-2">
-                                {balances.staked}
+                                {balances.staked.toLocaleString()}
                               </p>
                               <p className="text-2xl font-medium ">
                                 {state.stakingPageInfo?.tokenName}
@@ -594,7 +580,7 @@ export default function stake(): JSX.Element {
                             </h2>
                             <div className="flex flex-row items-center mt-1">
                               <p className="text-2xl font-medium  mr-2">
-                                {balances.earned}
+                                {balances.earned.toLocaleString()}
                               </p>
                               <p className="text-2xl font-medium ">POP</p>
                             </div>

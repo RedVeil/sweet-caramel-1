@@ -61,7 +61,7 @@ const TermsAndConditions = ({
             >
               A third of the staking rewards will be claimable at the end of the
               lock period. The remaining two thirds will be linearly vested over
-              a 6 month period.
+              one year.
             </li>
           </ul>
         </div>

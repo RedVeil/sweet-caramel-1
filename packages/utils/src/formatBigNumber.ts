@@ -1,9 +1,12 @@
 import { BigNumber, utils } from 'ethers';
 
-export function formatAndRoundBigNumber(value: BigNumber): string {
+export function formatAndRoundBigNumber(
+  value: BigNumber,
+  digits?: number,
+): string {
   if (BigNumber.isBigNumber(value)) {
     return Number(utils.formatEther(value)).toLocaleString(undefined, {
-      maximumFractionDigits: 0,
+      maximumFractionDigits: digits ? digits : 0,
     });
   }
   return `Invalid val: ${value}`;
