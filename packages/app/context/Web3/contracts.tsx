@@ -74,8 +74,9 @@ function getErrorMessage(error: Error) {
   if (error instanceof NoEthereumProviderError) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
   } else if (error instanceof UnsupportedChainIdError) {
-    return `You're connected to an unsupported network. Please connect to ${networkMap[Number(process.env.CHAIN_ID)]
-      }.`;
+    return `You're connected to an unsupported network. Please connect to ${
+      networkMap[Number(process.env.CHAIN_ID)]
+    }.`;
   } else if (error instanceof UserRejectedRequestErrorInjected) {
     return 'Please authorize this website to access your Ethereum account.';
   } else {
@@ -103,6 +104,7 @@ const initializeContracts = (
   } = {
     ...contractAddresses,
   };
+  console.log(contractAddresses.staking);
   const contracts: Contracts = {
     popStaking: popStaking
       ? PopLocker__factory.connect(popStaking, library)
@@ -120,7 +122,7 @@ const initializeContracts = (
       ? ButterBatchProcessing__factory.connect(butterBatch, library)
       : undefined,
     butterBatchZapper: butterBatchZapper
-      ? ButterBatchProcessingZapper__factory.connect(butterBatch, library)
+      ? ButterBatchProcessingZapper__factory.connect(butterBatchZapper, library)
       : undefined,
   };
   contracts.staking = [];

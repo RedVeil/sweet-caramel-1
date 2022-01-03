@@ -185,10 +185,10 @@ export default function getNamedAccounts() {
       hardhat: "0x18E317A7D70d8fBf8e6E893616b52390EbBdb629",
     },
     butterBatch: {
-      hardhat: "0x5fc748f1feb28d7b76fa1c6b07d8ba2d5535177c",
+      hardhat: "0x5fc748f1FEb28d7b76fa1c6B07D8ba2d5535177c",
     },
     butterBatchZapper: {
-      hardhat: "0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f",
+      hardhat: "0x6F6f570F45833E249e27022648a26F4076F48f78",
     },
     rewardsEscrow: {
       hardhat: "0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75",

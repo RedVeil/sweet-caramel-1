@@ -446,6 +446,7 @@ export default function Butter(): JSX.Element {
     depositAmount: BigNumber,
     batchType: BatchType,
   ): Promise<void> {
+    console.log(contracts.butterBatchZapper.address);
     depositAmount = adjustDepositDecimals(
       depositAmount,
       selectedToken.input.key,
