@@ -1,7 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { parseEther } from "@ethersproject/units";
+import { formatEther, parseEther } from "@ethersproject/units";
 import { BigNumber, Contract } from "ethers";
-import { getNamedAccountsByChainId } from "../utils/getNamedAccounts";
 
 export enum BatchType {
   Mint,
@@ -79,67 +78,116 @@ class ButterBatchAdapter {
   }
 
   static async getMinAmountOf3CrvToReceiveForBatchRedeem(
-    slippage: number = 0.005,
+    slippage: number = 50, //in bps
     contracts: {
       hysiBatchInteraction: Contract;
       basicIssuanceModule: Contract;
-      setToken: Contract;
+      threePool: Contract;
     },
+    setTokenAddress: string,
     componentMap: ComponentMap
   ): Promise<BigNumber> {
     const batchId = await contracts.hysiBatchInteraction.currentRedeemBatchId();
 
     // get expected units of HYSI given 3crv amount:
-    const HYSIInBatch = (await contracts.hysiBatchInteraction.batches(batchId))
-      .suppliedTokenBalance;
+    const butterInBatch = (
+      await contracts.hysiBatchInteraction.batches(batchId)
+    ).suppliedTokenBalance;
 
-    const components =
-      await contracts.basicIssuanceModule.getRequiredComponentUnitsForIssue(
-        contracts.setToken.address,
-        HYSIInBatch
-      );
-    const componentAddresses = components[0];
-    const componentAmounts = components[1];
-
-    const componentVirtualPrices = await Promise.all(
-      componentAddresses.map(async (component) => {
-        const metapool = componentMap[component.toLowerCase()]
-          .metaPool as Contract;
-        const yPool = componentMap[component.toLowerCase()].yPool as Contract;
-        const yPoolPricePerShare = await yPool.pricePerShare();
-        const metapoolPrice = await metapool.get_virtual_price();
-        return yPoolPricePerShare.mul(metapoolPrice).div(parseEther("1"));
-      })
+    const butterBatchValue = await ButterBatchAdapter.getButterValue(
+      contracts.basicIssuanceModule,
+      componentMap,
+      setTokenAddress,
+      butterInBatch
     );
 
-    const componentValuesInUSD = componentVirtualPrices.reduce(
-      (sum: BigNumber, componentPrice: BigNumber, i) => {
-        return sum.add(
-          componentPrice.mul(componentAmounts[i]).div(parseEther("1"))
-        );
-      },
-      parseEther("0")
-    ) as BigNumber;
+    const threeCrvVirtualPrice =
+      (await contracts.threePool.get_virtual_price()) as BigNumber;
 
-    // 50 bps slippage tolerance
-    const slippageTolerance = 1 - Number(slippage);
-    const minAmountToReceive = componentValuesInUSD
-      .mul(parseEther(slippageTolerance.toString()))
-      .div(parseEther("1"));
+    const batchThreeCrvValue = butterBatchValue
+      .div(threeCrvVirtualPrice)
+      .mul(parseEther("1"));
 
-    return minAmountToReceive;
+    const denominator = 10000;
+    const delta = batchThreeCrvValue.mul(slippage).div(denominator);
+    const minAmountToMint = batchThreeCrvValue.sub(delta);
+
+    console.log({
+      batchId,
+      slippage,
+      butterInBatch: formatEther(butterInBatch),
+      threeCrvVirtualPrice: formatEther(threeCrvVirtualPrice),
+      batchThreeCrvValue: formatEther(batchThreeCrvValue),
+      butterBatchValue: formatEther(butterBatchValue),
+      delta: formatEther(delta),
+      minAmountToMint: formatEther(minAmountToMint),
+    });
+
+    return minAmountToMint;
   }
 
-  public async getHysiPrice(
-    contract: Contract,
-    componentMap: ComponentMap,
-    chainId: number
+  static async getMinAmountOfButterToReceiveForBatchMint(
+    slippage: number = 50, // in bps
+    contracts: {
+      hysiBatchInteraction: Contract;
+      basicIssuanceModule: Contract;
+      threePool: Contract;
+    },
+    setTokenAddress: string,
+    componentMap: ComponentMap
   ): Promise<BigNumber> {
-    const addresses = getNamedAccountsByChainId(chainId);
-    const components = await contract.getRequiredComponentUnitsForIssue(
-      addresses.butter,
-      parseEther("1")
+    const batchId = await contracts.hysiBatchInteraction.currentMintBatchId();
+
+    const threeCrvInBatch = (
+      await contracts.hysiBatchInteraction.batches(batchId)
+    ).suppliedTokenBalance;
+
+    const threeCrvVirtualPrice =
+      (await contracts.threePool.get_virtual_price()) as BigNumber;
+
+    const threeCrvUsdValue = threeCrvInBatch
+      .mul(threeCrvVirtualPrice)
+      .div(parseEther("1"));
+
+    const butterPrice = await ButterBatchAdapter.getButterValue(
+      contracts.basicIssuanceModule,
+      componentMap,
+      setTokenAddress
     );
+
+    const totalToMint = threeCrvUsdValue.mul(parseEther("1")).div(butterPrice);
+    console.log({ totalToMint: formatEther(totalToMint) });
+
+    const denominator = 10000;
+    const delta = totalToMint.mul(slippage).div(denominator);
+    const minAmountToMint = totalToMint.sub(delta);
+
+    console.log({
+      batchId,
+      slippage,
+      threeCrvInBatch: formatEther(threeCrvInBatch),
+      threeCrvVirtualPrice: formatEther(threeCrvVirtualPrice),
+      threeCrvUsdValue: formatEther(threeCrvUsdValue),
+      butterPrice: formatEther(butterPrice),
+      delta: formatEther(delta),
+      minAmountToMint: formatEther(minAmountToMint),
+    });
+
+    return minAmountToMint;
+  }
+
+  static async getButterValue(
+    basicIssuanceModule: Contract,
+    componentMap: ComponentMap,
+    butterAddress: string,
+    units?: BigNumber
+  ): Promise<BigNumber> {
+    const components =
+      await basicIssuanceModule.getRequiredComponentUnitsForIssue(
+        butterAddress,
+        units ? units : parseEther("1")
+      );
+
     const componentAddresses = components[0];
     const componentAmounts = components[1];
 
@@ -155,7 +203,7 @@ class ButterBatchAdapter {
       })
     );
 
-    const hysiPrice = componentVirtualPrices.reduce(
+    const butterValue = componentVirtualPrices.reduce(
       (sum: BigNumber, componentPrice: BigNumber, i) => {
         return sum.add(
           componentPrice.mul(componentAmounts[i]).div(parseEther("1"))
@@ -164,7 +212,7 @@ class ButterBatchAdapter {
       parseEther("0")
     );
 
-    return hysiPrice as BigNumber;
+    return butterValue as BigNumber;
   }
 
   public async getThreeCrvPrice(contract: Contract): Promise<BigNumber> {

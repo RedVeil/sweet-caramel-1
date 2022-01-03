@@ -6,7 +6,8 @@ import { store } from 'context/store';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
-import { ChainId, connectors, networkMap } from '../../context/Web3/connectors';
+import { getNamedAccountsByChainId } from '../../../hardhat/lib/utils/getNamedAccounts';
+import { connectors, networkMap } from '../../context/Web3/connectors';
 import {
   getChainLogo,
   switchNetwork,
@@ -150,16 +151,8 @@ const Navbar: React.FC = () => {
   );
 };
 
-const getPopAddress = (chainid) => {
-  switch (chainid) {
-    case ChainId.Polygon:
-      return '0xC5B57e9a1E7914FDA753A88f24E5703e617Ee50c';
-    case ChainId.Arbitrum:
-      return '0x68ead55c258d6fa5e46d67fc90f53211eab885be';
-    case ChainId.Ethereum:
-      return '0xd0cd466b34a24fcb2f87676278af2005ca8a78c4';
-    default:
-      return '0xd0cd466b34a24fcb2f87676278af2005ca8a78c4';
-  }
+const getPopAddress = (chainId) => {
+  const { pop } = getNamedAccountsByChainId(chainId);
+  return pop;
 };
 export default Navbar;

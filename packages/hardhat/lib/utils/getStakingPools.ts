@@ -78,7 +78,7 @@ export async function getStakingPools(
         {
           poolName: "PopLocker",
           contract: "PopLocker",
-          inputToken: (await deployments.get("TestPOP")).address,
+          inputToken: pop,
         },
         {
           poolName: "popUsdcLPStaking",

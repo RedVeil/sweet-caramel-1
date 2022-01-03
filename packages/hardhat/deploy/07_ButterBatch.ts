@@ -69,11 +69,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer,
     hre
   );
-  const butterBatchProcessing = await hre.ethers.getContractAt(
-    "ButterBatchProcessing",
-    deployed.address
-  );
-  await butterBatchProcessing.setApprovals();
+
+  if (["mainnet", "hardhat", "local"].includes(hre.network.name)) {
+    console.log("setting approvals for ButterBatchProcessing");
+    const butterBatchProcessing = await hre.ethers.getContractAt(
+      "ButterBatchProcessing",
+      deployed.address
+    );
+    await butterBatchProcessing.setApprovals();
+  }
 
   //Butter Batch Zapper
   console.log("deploying butterBatchZapper...");
@@ -87,12 +91,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await addContractToRegistry("ButterBatchZapper", deployments, signer, hre);
 
-  console.log("setting approvals for ButterBatchZapper");
-  const zapperContract = await hre.ethers.getContractAt(
-    "ButterBatchProcessingZapper",
-    zapper.address
-  );
-  await zapperContract.setApprovals();
+  if (["mainnet", "hardhat", "local"].includes(hre.network.name)) {
+    console.log("setting approvals for ButterBatchZapper");
+    const zapperContract = await hre.ethers.getContractAt(
+      "ButterBatchProcessingZapper",
+      zapper.address
+    );
+    await zapperContract.setApprovals();
+  }
 
   //Adding permissions and other maintance
   const keeperIncentive = await hre.ethers.getContractAt(
@@ -234,4 +240,4 @@ export default func;
 //  return !["mainnet", "hardhat", "local"].includes(hre.network.name);
 //};
 func.dependencies = ["setup"];
-func.tags = ["core", "frontend", "butter"];
+func.tags = ["frontend", "butter"];

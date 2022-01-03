@@ -39,6 +39,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: contract,
+      pre_eip1559: supportsEIP1559(hre),
     });
     await prepareRewardsEscrow(
       (
@@ -193,3 +194,8 @@ async function createDemoData(
     process.exit(1);
   }
 }
+
+const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
+  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum"];
+  return !NOT_EIP1559Compatible.includes(hre.network.name);
+};

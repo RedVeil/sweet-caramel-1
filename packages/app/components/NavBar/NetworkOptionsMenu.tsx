@@ -43,7 +43,7 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
           currentChainId={currentChain}
         />
 
-        {[ChainId.Hardhat, ChainId.Localhost].includes(
+        {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(
           parseInt(process.env.CHAIN_ID),
         ) && [
           <NetworkOptionsMenuItem

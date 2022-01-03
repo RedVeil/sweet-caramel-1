@@ -8,6 +8,7 @@ export interface ContractAddresses {
   usdc?: Address;
   usdt?: Address;
   threeCrv?: Address;
+  threePool?: Address;
   popUsdcLp?: Address;
   butter?: Address;
   butterBatch?: Address;

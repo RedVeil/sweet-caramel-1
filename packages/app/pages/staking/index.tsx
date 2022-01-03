@@ -73,7 +73,7 @@ export default function index(): JSX.Element {
             <div className="">
               <h1 className="text-3xl font-bold">Staking</h1>
               <p className="text-lg text-gray-500 mt-2">
-                Earn more income staking your crypto with us
+                Earn more by staking your tokens
               </p>
             </div>
           </div>

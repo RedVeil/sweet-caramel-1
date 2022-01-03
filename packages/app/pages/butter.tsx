@@ -20,6 +20,7 @@ import {
 } from 'context/Web3/contracts';
 import { switchNetwork } from 'context/Web3/networkSwitch';
 import { BigNumber, Contract, utils } from 'ethers';
+import useThreeCurveVirtualPrice from 'hooks/useThreeCurveVirtualPrice';
 import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -76,7 +77,6 @@ async function getBatchProcessToken(
   contracts: Contracts,
   butterDependencyContracts: ButterDependencyContracts,
   account: string,
-  chainId: number,
 ): Promise<BatchProcessTokens> {
   const batchProcessTokens = {
     butter: {
@@ -88,7 +88,7 @@ async function getBatchProcessToken(
         contracts.butterBatch.address,
       ),
       claimableBalance: BigNumber.from('0'),
-      price: await butterBatchAdapter.getHysiPrice(
+      price: await ButterBatchAdapter.getButterValue(
         butterDependencyContracts.setBasicIssuanceModule,
         {
           [butterDependencyContracts.yMim.address.toLowerCase()]: {
@@ -100,7 +100,7 @@ async function getBatchProcessToken(
             yPool: butterDependencyContracts.yFrax,
           },
         } as ComponentMap,
-        chainId,
+        contracts.butter?.address,
       ),
       img: 'butter.png',
     },
@@ -216,6 +216,15 @@ export default function Butter(): JSX.Element {
   const [currentBatches, setCurrentBatches] = useState<CurrentBatches>();
   const [butterSupply, setButterSupply] = useState<BigNumber>();
   const [apy, setApy] = useState<number>();
+  const virtualPrice = useThreeCurveVirtualPrice(
+    butterDependencyContracts?.threePool?.address,
+  );
+
+  useEffect(() => {
+    if (contracts?.butterBatch && !butterBatchAdapter) {
+      setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
+    }
+  }, [contracts]);
 
   useEffect(() => {
     if (!library || !contracts) {
@@ -259,7 +268,6 @@ export default function Butter(): JSX.Element {
       );
       return;
     }
-    setButterBatchAdapter(new ButterBatchAdapter(contracts?.butterBatch));
     fetch('https://api.yearn.finance/v1/chains/1/vaults/all')
       .then((res) => res.json())
       .then((res) =>
@@ -289,7 +297,6 @@ export default function Butter(): JSX.Element {
       contracts,
       butterDependencyContracts,
       account,
-      chainId,
     ).then((res) => {
       setBatchProcessTokens(res);
       setSelectedToken({ input: res.threeCrv, output: res.butter });
@@ -302,6 +309,29 @@ export default function Butter(): JSX.Element {
       .getTokenSupply(contracts.butter)
       .then((res) => setButterSupply(res));
   }, [butterBatchAdapter, account]);
+
+  const getMinMintAmount = async (
+    depositAmount: BigNumber,
+    tokenKey: string,
+    slippage: number,
+  ) => {
+    slippage = slippage * 100;
+    const denominator = 10000;
+
+    const virtual_price = await virtualPrice();
+
+    const normalizedTokenUnits = ['usdc', 'usdt'].includes(tokenKey)
+      ? depositAmount.mul(BigNumber.from(1e12))
+      : depositAmount;
+
+    const lpTokenAmount = normalizedTokenUnits
+      .mul(parseEther('1'))
+      .div(virtual_price);
+
+    const delta = lpTokenAmount.mul(slippage).div(denominator);
+
+    return lpTokenAmount.sub(delta);
+  };
 
   useEffect(() => {
     if (!batches || !batchProcessTokens || claimableBatches) {
@@ -425,7 +455,6 @@ export default function Butter(): JSX.Element {
             contracts,
             butterDependencyContracts,
             account,
-            chainId,
           ).then((res) => setBatchProcessTokens(res));
           butterBatchAdapter
             .getCurrentBatches()
@@ -446,27 +475,48 @@ export default function Butter(): JSX.Element {
     depositAmount: BigNumber,
     batchType: BatchType,
   ): Promise<void> {
-    console.log(contracts.butterBatchZapper.address);
     depositAmount = adjustDepositDecimals(
       depositAmount,
       selectedToken.input.key,
     );
+
+    console.log('adjusted deposit decimals', depositAmount);
+    console.log('depositAmount', depositAmount);
     if (batchType === BatchType.Mint) {
+      console.log(
+        'useZap?',
+        useZap,
+        useZap
+          ? contracts.butterBatchZapper.address
+          : contracts.butterBatch.address,
+      );
       const allowance = await contracts[selectedToken.input.key].allowance(
         account,
         useZap
           ? contracts.butterBatchZapper.address
           : contracts.butterBatch.address,
       );
-      if (allowance.gt(depositAmount)) {
-        toast.loading(`Depositing ${selectedToken.input.name}...`);
+      console.log('allowance is', useZap, allowance);
+      if (allowance.lt(depositAmount)) {
+        approve(contracts[selectedToken.input.key]);
+      } else {
+        toast.loading(`Depositing ${selectedToken.input.name} ...`);
         let mintCall;
         if (useZap) {
+          const minMintAmount = await getMinMintAmount(
+            depositAmount,
+            selectedToken.input.key,
+            slippage,
+          );
+          console.log(
+            'zapDepositAmount',
+            getZapDepositAmount(depositAmount, selectedToken.input.key),
+          );
           mintCall = contracts.butterBatchZapper
             .connect(library.getSigner())
             .zapIntoBatch(
               getZapDepositAmount(depositAmount, selectedToken.input.key),
-              depositAmount.mul(100 - slippage).div(100),
+              minMintAmount,
             );
         } else {
           mintCall = contracts.butterBatch
@@ -487,7 +537,6 @@ export default function Butter(): JSX.Element {
                 contracts,
                 butterDependencyContracts,
                 account,
-                chainId,
               ).then((res) => setBatchProcessTokens(res));
               butterBatchAdapter
                 .getCurrentBatches()
@@ -519,8 +568,6 @@ export default function Butter(): JSX.Element {
               toast.error(err.data.message.split("'")[1]);
             }
           });
-      } else {
-        approve(contracts[selectedToken.input.key]);
       }
     } else {
       const allowance = await contracts.butter.allowance(
@@ -544,7 +591,6 @@ export default function Butter(): JSX.Element {
                 contracts,
                 butterDependencyContracts,
                 account,
-                chainId,
               ).then((res) => setBatchProcessTokens(res));
               butterBatchAdapter
                 .getCurrentBatches()
@@ -552,7 +598,7 @@ export default function Butter(): JSX.Element {
               if (!localStorage.getItem('mintModal')) {
                 dispatch(
                   setSingleActionModal({
-                    title: 'Your first mint',
+                    title: 'Your first redemption',
                     content:
                       'You have successfully deposited into the current batch cycle. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
                     image: (
@@ -624,7 +670,6 @@ export default function Butter(): JSX.Element {
           contracts,
           butterDependencyContracts,
           account,
-          chainId,
         ).then((res) => setBatchProcessTokens(res));
         if (!localStorage.getItem('claimModal')) {
           dispatch(
@@ -633,7 +678,7 @@ export default function Butter(): JSX.Element {
               children: (
                 <p className="text-sm text-gray-500">
                   Your tokens are now in your wallet. To see them make sure to
-                  import butter into your Metamask.
+                  import Butter into your wallet.
                   <br />
                   <a
                     onClick={async () =>
@@ -642,9 +687,8 @@ export default function Butter(): JSX.Element {
                         params: {
                           type: 'ERC20',
                           options: {
-                            address:
-                              '0x8d1621A27BB8c84e59ca339Cf9B21e15b907e408',
-                            symbol: 'HYSI',
+                            address: contracts.butter?.address,
+                            symbol: 'BTR',
                             decimals: 18,
                           },
                         },
@@ -711,7 +755,6 @@ export default function Butter(): JSX.Element {
             contracts,
             butterDependencyContracts,
             account,
-            chainId,
           ).then((res) => setBatchProcessTokens(res));
           butterBatchAdapter
             .getCurrentBatches()

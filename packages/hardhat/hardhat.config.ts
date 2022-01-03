@@ -63,15 +63,13 @@ module.exports = {
       chainId: 1337,
       forking: Boolean(parseInt(process.env.FORKING || "0"))
         ? {
-          url: process.env.RPC_URL,
-        }
+            url: process.env.RPC_URL,
+          }
         : undefined,
-
     },
     localhost: {
       chainId: 1337,
       url: "http://localhost:8545",
-
     },
     rinkeby: {
       timeout: 60000,
@@ -92,6 +90,8 @@ module.exports = {
         `https://gorli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     polygon: {
+      chainId: 137,
+      gasPrice: 50,
       timeout: 60000,
       url:
         process.env.RPC_URL ||
