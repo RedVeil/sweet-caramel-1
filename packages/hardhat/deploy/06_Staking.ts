@@ -53,38 +53,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   if (["hardhat", "local"].includes(hre.network.name)) {
-    createDemoData(hre, stakingPools[1]);
-    const stakingContract = await hre.ethers.getContractAt(
-      "PopLocker",
-      addresses.popStaking
-    );
-    const token = await hre.ethers.getContractAt(
-      "MockERC20",
-      addresses.pop,
-      signer
-    );
-    await token
-      .connect(signer)
-      .approve(stakingContract.address, parseEther("100000"));
-    await stakingContract
-      .connect(signer)
-      .addReward(
-        addresses.pop,
-        hre.config.namedAccounts.deployer as string,
-        false
-      );
-    //Create withdrawable balance
-
-    await stakingContract
-      .connect(signer)
-      .lock(hre.config.namedAccounts.deployer as string, parseEther("10"), 0);
-
-    hre.network.provider.send("evm_increaseTime", [85 * DAYS]);
-    hre.network.provider.send("evm_mine", []);
-
-    await await stakingContract
-      .connect(signer)
-      .notifyRewardAmount(addresses.pop, parseEther("1000"));
+    await createDemoData(hre, stakingPools[1]);
+    await createPopLockerData(hre, addresses, signer);
   }
 };
 export default main;
@@ -125,7 +95,8 @@ async function prepareStakingContract(
   );
   await stakingContract.setEscrowDuration(7 * DAYS);
   console.log("Adding POP rewards to staking at:", contractAddress);
-  await (await stakingContract.notifyRewardAmount(parseEther("1000"))).wait(1);
+  await POP.approve(contractAddress, parseEther("1000"));
+  await stakingContract.notifyRewardAmount(parseEther("1000"));
   console.log("Staking some Token...");
   await inputToken.approve(contractAddress, parseEther("1000"));
   await stakingContract.connect(signer).stake(parseEther("100"));
@@ -193,6 +164,35 @@ async function createDemoData(
     console.log(ex.toString());
     process.exit(1);
   }
+}
+
+async function createPopLockerData(hre, addresses, signer): Promise<void> {
+  const stakingContract = await hre.ethers.getContractAt(
+    "PopLocker",
+    addresses.popStaking
+  );
+  const pop = await hre.ethers.getContractAt("MockERC20", addresses.pop);
+  await pop
+    .connect(signer)
+    .approve(stakingContract.address, parseEther("100000"));
+  await stakingContract
+    .connect(signer)
+    .addReward(
+      addresses.pop,
+      hre.config.namedAccounts.deployer as string,
+      false
+    );
+  //Create withdrawable balance
+  await stakingContract
+    .connect(signer)
+    .lock(hre.config.namedAccounts.deployer as string, parseEther("10"), 0);
+
+  hre.network.provider.send("evm_increaseTime", [85 * DAYS]);
+  hre.network.provider.send("evm_mine", []);
+
+  await stakingContract
+    .connect(signer)
+    .notifyRewardAmount(addresses.pop, parseEther("1000"));
 }
 
 const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
