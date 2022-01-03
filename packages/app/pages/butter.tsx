@@ -260,7 +260,7 @@ export default function Butter(): JSX.Element {
           onDismiss: {
             label: 'Go Back',
             onClick: () => {
-              router.back();
+              router.push('/');
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -869,7 +869,7 @@ export default function Butter(): JSX.Element {
                   setSlippage={setSlippage}
                 />
               ) : (
-                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-10 shadow-custom">
+                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                   <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
                     <MainActionButton
                       label="Connect Wallet"
