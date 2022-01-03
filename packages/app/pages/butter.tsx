@@ -237,7 +237,7 @@ export default function Butter(): JSX.Element {
         setDualActionWideModal({
           title: 'Coming Soon',
           content:
-            'Currently, Butter is only on Ethereum. Please switch to Ethereum to use Butter.',
+            'Currently, Butter exists only on Ethereum. Please switch to Ethereum to use Butter.',
           onConfirm: {
             label: 'Switch Network',
             onClick: () => {
