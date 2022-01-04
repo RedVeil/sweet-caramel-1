@@ -29,6 +29,7 @@ export interface StakingPageInfo {
   inputToken: ERC20;
   stakingContract: Staking | PopLocker;
   tokenName: string;
+  symbol: string;
   poolInfo: StakingPoolInfo;
 }
 
@@ -99,13 +100,12 @@ export default function stake(): JSX.Element {
           stakingPoolInfo.stakedTokenAddress,
           library,
         );
-        const tokenName = await erc20.name();
-
         dispatch(
           updateStakingPageInfo({
             inputToken: erc20,
             stakingContract: stakingContract,
-            tokenName,
+            tokenName: await erc20.name(),
+            symbol: await erc20.symbol(),
             poolInfo: stakingPoolInfo,
           }),
         );
@@ -170,6 +170,7 @@ export default function stake(): JSX.Element {
         inputToken: state.stakingPageInfo.inputToken,
         stakingContract: state.stakingPageInfo.stakingContract,
         tokenName: state.stakingPageInfo.tokenName,
+        symbol: state.stakingPageInfo.symbol,
         poolInfo: stakingPoolInfo,
       }),
     );
@@ -324,53 +325,55 @@ export default function stake(): JSX.Element {
         <Navbar />
         <Toaster position="top-right" />
         <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
-          <div className="flex flex-row mt-14">
-            <div className="w-1/3 mr-8">
-              <div className="">
-                {state.stakingPageInfo && (
-                  <span className="flex flex-row items-center">
-                    <TokenIcon token={state.stakingPageInfo?.tokenName} />
-                    <h1 className="ml-3 text-4xl  font-bold">
-                      {state.stakingPageInfo?.tokenName}
-                    </h1>
-                  </span>
-                )}
-                <div className="flex flex-row items-center mt-6 justify-between">
-                  <div className="pr-8 border-r-2 border-gray-200">
-                    <p className="text-gray-500 font-light text-base uppercase">
-                      Est. APY
-                    </p>
-                    <p className="text-green-600 text-xl font-medium">
-                      {state.stakingPageInfo?.poolInfo
-                        ? state.stakingPageInfo?.poolInfo.apy.toLocaleString()
-                        : 0}{' '}
-                      %
-                    </p>
-                  </div>
-                  <div className="pr-8 border-r-2 border-gray-200">
-                    <p className="text-gray-500 font-light text-base uppercase">
-                      Total Staked
-                    </p>
-                    <p className=" text-xl font-medium">
-                      {state.stakingPageInfo?.poolInfo
-                        ? state.stakingPageInfo?.poolInfo.totalStake.toLocaleString()
-                        : 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500 font-light text-base uppercase">
-                      Emission Rate
-                    </p>
-                    <p className=" text-xl font-medium">
-                      {state.stakingPageInfo?.poolInfo
-                        ? state.stakingPageInfo?.poolInfo.tokenEmission.toLocaleString()
-                        : 0}{' '}
-                      POP / day
-                    </p>
-                  </div>
+          <div className="w-2/3 mt-14">
+            <div className="">
+              {state.stakingPageInfo && (
+                <span className="flex flex-row items-center">
+                  <TokenIcon token={state.stakingPageInfo?.tokenName} />
+                  <h1 className="ml-3 text-4xl font-bold">
+                    {state.stakingPageInfo?.tokenName}
+                  </h1>
+                </span>
+              )}
+              <div className="w-1/2 flex flex-row items-center mt-6 justify-between">
+                <div className="pr-8 border-r-2 border-gray-200">
+                  <p className="text-gray-500 font-light text-base uppercase">
+                    Est. APY
+                  </p>
+                  <p className="text-green-600 text-xl font-medium">
+                    {state.stakingPageInfo?.poolInfo
+                      ? state.stakingPageInfo?.poolInfo.apy.toLocaleString()
+                      : 0}{' '}
+                    %
+                  </p>
+                </div>
+                <div className="pr-8 border-r-2 border-gray-200">
+                  <p className="text-gray-500 font-light text-base uppercase">
+                    Total Staked
+                  </p>
+                  <p className=" text-xl font-medium">
+                    {state.stakingPageInfo?.poolInfo
+                      ? state.stakingPageInfo?.poolInfo.totalStake.toLocaleString()
+                      : 0}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500 font-light text-base uppercase">
+                    Emission Rate
+                  </p>
+                  <p className=" text-xl font-medium">
+                    {state.stakingPageInfo?.poolInfo
+                      ? state.stakingPageInfo?.poolInfo.tokenEmission.toLocaleString()
+                      : 0}{' '}
+                    POP / day
+                  </p>
                 </div>
               </div>
-              <div className="mt-10 pt-8 pb-14 px-6 border border-gray-200 rounded-3xl shadow-custom">
+            </div>
+          </div>
+          <div className="flex flex-row mt-10">
+            <div className="w-1/3">
+              <div className="pt-8 pb-14 px-6 border border-gray-200 rounded-3xl shadow-custom">
                 <div className="pt-2">
                   <TokenInputToggle
                     toggled={withdraw}
@@ -378,11 +381,10 @@ export default function stake(): JSX.Element {
                     labels={['Stake', 'Unstake']}
                   />
                 </div>
-                <div className="pt-24 pb-10">
+                <div className="pt-16 pb-10">
                   {state.stakingPageInfo && (
                     <>
-                      {state?.stakingPageInfo?.tokenName === 'POP' &&
-                      withdraw ? (
+                      {state?.stakingPageInfo?.symbol === 'POP' && withdraw ? (
                         <div className="w-96 mx-auto">
                           <div className="w-full mb-10">
                             <span className="flex flex-col justify-between">
@@ -424,7 +426,7 @@ export default function stake(): JSX.Element {
                               }
                             />
                             <MainActionButton
-                              label={`Withdraw ${state.stakingPageInfo?.tokenName}`}
+                              label={`Withdraw ${state.stakingPageInfo?.symbol}`}
                               handleClick={withdrawStake}
                               disabled={wait || balances.withdrawable === 0}
                             />
@@ -433,7 +435,7 @@ export default function stake(): JSX.Element {
                       ) : (
                         <TokenInput
                           label={withdraw ? 'Unstake Amount' : 'Stake Amount'}
-                          tokenName={state.stakingPageInfo?.tokenName}
+                          tokenName={state.stakingPageInfo?.symbol}
                           inputAmount={inputTokenAmount}
                           balance={withdraw ? balances.staked : balances.wallet}
                           updateInputAmount={setInputTokenAmount}
@@ -457,7 +459,7 @@ export default function stake(): JSX.Element {
                                 termsAccepted={termsAccepted}
                                 setTermsAccepted={setTermsAccepted}
                                 showLockTerms={
-                                  state?.stakingPageInfo?.tokenName === 'POP'
+                                  state?.stakingPageInfo?.symbol === 'POP'
                                 }
                               />
                             ) : (
@@ -466,7 +468,7 @@ export default function stake(): JSX.Element {
                                 termsAccepted={termsAccepted}
                                 setTermsAccepted={setTermsAccepted}
                                 showLockTerms={
-                                  state?.stakingPageInfo?.tokenName === 'POP'
+                                  state?.stakingPageInfo?.symbol === 'POP'
                                 }
                               />
                             )}
@@ -483,7 +485,7 @@ export default function stake(): JSX.Element {
                             termsAccepted={termsAccepted}
                             setTermsAccepted={setTermsAccepted}
                             showLockTerms={
-                              state?.stakingPageInfo?.tokenName === 'POP'
+                              state?.stakingPageInfo?.symbol === 'POP'
                             }
                           />
                         )}
@@ -493,16 +495,16 @@ export default function stake(): JSX.Element {
                 )}
 
                 {state.stakingPageInfo && (
-                  <div className="w-96 mx-auto pb-1">
+                  <div className="w-96 mx-auto pt-4 pb-4">
                     {account ? (
                       <>
                         {withdraw ? (
                           <>
-                            {state?.stakingPageInfo?.tokenName === 'POP' ? (
+                            {state?.stakingPageInfo?.symbol === 'POP' ? (
                               <></>
                             ) : (
                               <MainActionButton
-                                label={`Withdraw ${state.stakingPageInfo?.tokenName}`}
+                                label={`Withdraw ${state.stakingPageInfo?.symbol}`}
                                 handleClick={withdrawStake}
                                 disabled={wait || balances.withdrawable === 0}
                               />
@@ -512,7 +514,7 @@ export default function stake(): JSX.Element {
                           <>
                             {balances.allowance >= inputTokenAmount ? (
                               <MainActionButton
-                                label={`Stake ${state.stakingPageInfo?.tokenName}`}
+                                label={`Stake ${state.stakingPageInfo?.symbol}`}
                                 handleClick={stake}
                                 disabled={
                                   !termsAccepted ||
@@ -540,8 +542,8 @@ export default function stake(): JSX.Element {
                 )}
               </div>
             </div>
-            <div className="w-2/3">
-              <div className="mt-36 pt-5">
+            <div className="w-2/3 ml-12">
+              <div className="">
                 {balances && state.stakingPageInfo && (
                   <>
                     <div className="rounded-3xl shadow-custom border border-gray-200 w-full">
@@ -556,7 +558,7 @@ export default function stake(): JSX.Element {
                                 {balances.staked.toLocaleString()}
                               </p>
                               <p className="text-2xl font-medium ">
-                                {state.stakingPageInfo?.tokenName}
+                                {state.stakingPageInfo?.symbol}
                               </p>
                             </div>
                           </div>
@@ -596,38 +598,25 @@ export default function stake(): JSX.Element {
                       </div>
                     </div>
                     <div
-                      className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 w-full mt-8 ${
-                        state?.stakingPageInfo.tokenName === 'POP'
-                          ? 'pt-0'
-                          : 'pt-1'
+                      className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${
+                        state?.stakingPageInfo?.symbol === 'POP'
+                          ? 'h-110'
+                          : 'h-88'
                       }`}
                     >
-                      <div className="flex flex-row items-center justify-between">
-                        <div
-                          className={`relative mt-4 w-full ${
-                            state?.stakingPageInfo.tokenName === 'POP'
-                              ? 'h-104'
-                              : 'h-84'
-                          }`}
-                        >
-                          <div className="mt-12 ml-8">
-                            <p className="text-2xl font-medium">
-                              Happy Staking
-                            </p>
-                            <p className="text-lg font-light w-3/12 mt-1">
+                      <div className="flex flex-row h-full items-center justify-between">
+                        <div className="relative h-full w-full">
+                          <div className="mt-8 ml-8">
+                            <p className="text-xl font-medium">Happy Staking</p>
+                            <p className="text-base font-light w-3/12 mt-1">
                               Enjoy more sweet POP in your wallet!
                             </p>
                           </div>
                           <img
                             src="/images/catPopVault.png"
-                            className={`absolute right-20 bottom-0 ${
-                              state?.stakingPageInfo.tokenName === 'POP'
-                                ? 'w-11/12 h-72'
-                                : 'w-10/12 h-64'
-                            }`}
+                            className="absolute max-h-80 w-3/4 right-10 bottom-4"
                           />
                         </div>
-                        <div></div>
                       </div>
                     </div>
                   </>
