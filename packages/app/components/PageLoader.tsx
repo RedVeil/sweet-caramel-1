@@ -6,7 +6,7 @@ interface divProps {
 }
 
 const DisappearingDiv = styled.div<divProps>`
-  background: #fff5d1;
+  background: #fff;
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -21,7 +21,7 @@ const DisappearingDiv = styled.div<divProps>`
   z-index: ${(props) => (props.loading ? 49 : -10)};
 `;
 
-export default function LoadingPage({ loading }: { loading: boolean }) {
+export default function PageLoader({ loading }: { loading: boolean }) {
   return (
     <DisappearingDiv loading={loading}>
       <div

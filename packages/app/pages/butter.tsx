@@ -8,6 +8,7 @@ import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
 import StatInfoCard from 'components/BatchButter/StatInfoCard';
 import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Tutorial from 'components/BatchButter/Tutorial';
+import LoadingSpinner from 'components/LoadingSpinner';
 import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
 import { setDualActionWideModal, setSingleActionModal } from 'context/actions';
@@ -216,6 +217,7 @@ export default function Butter(): JSX.Element {
   const [currentBatches, setCurrentBatches] = useState<CurrentBatches>();
   const [butterSupply, setButterSupply] = useState<BigNumber>();
   const [apy, setApy] = useState<number>();
+  const [loading, setLoading] = useState<boolean>(false);
   const virtualPrice = useThreeCurveVirtualPrice(
     butterDependencyContracts?.threePool?.address,
   );
@@ -292,23 +294,74 @@ export default function Butter(): JSX.Element {
     if (!contracts || !butterBatchAdapter || !account) {
       return;
     }
-    getBatchProcessToken(
+    getData();
+  }, [butterBatchAdapter, account]);
+
+  useEffect(() => {
+    if (!batchProcessTokens) {
+      return;
+    }
+    if (redeeming) {
+      setSelectedToken({
+        input: batchProcessTokens.butter,
+        output: batchProcessTokens.threeCrv,
+      });
+    } else {
+      setSelectedToken({
+        input: batchProcessTokens.threeCrv,
+        output: batchProcessTokens.butter,
+      });
+    }
+    setUseZap(false);
+  }, [redeeming]);
+
+  async function getData(): Promise<void> {
+    setLoading(true);
+
+    const currentBatchRes = await butterBatchAdapter.getCurrentBatches();
+    setCurrentBatches(currentBatchRes);
+
+    const tokenSupplyRes = await butterBatchAdapter.getTokenSupply(
+      contracts.butter,
+    );
+    setButterSupply(tokenSupplyRes);
+
+    const batchProcessTokenRes = await getBatchProcessToken(
       butterBatchAdapter,
       contracts,
       butterDependencyContracts,
       account,
-    ).then((res) => {
-      setBatchProcessTokens(res);
-      setSelectedToken({ input: res.threeCrv, output: res.butter });
+    );
+    setSelectedToken({
+      input: batchProcessTokenRes.threeCrv,
+      output: batchProcessTokenRes.butter,
     });
-    butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
-    butterBatchAdapter
-      .getCurrentBatches()
-      .then((res) => setCurrentBatches(res));
-    butterBatchAdapter
-      .getTokenSupply(contracts.butter)
-      .then((res) => setButterSupply(res));
-  }, [butterBatchAdapter, account]);
+
+    const batchRes = await butterBatchAdapter.getBatches(account);
+    setBatches(batchRes);
+
+    const claimableMintBatches = batchRes.filter(
+      (batch) => batch.batchType == BatchType.Mint && batch.claimable,
+    );
+    const claimableRedeemBatches = batchRes.filter(
+      (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
+    );
+
+    const newBatchProcessTokens = { ...batchProcessTokenRes };
+    newBatchProcessTokens.butter.claimableBalance =
+      getClaimableBalance(claimableMintBatches);
+    newBatchProcessTokens.threeCrv.claimableBalance = getClaimableBalance(
+      claimableRedeemBatches,
+    );
+
+    setBatchProcessTokens(newBatchProcessTokens);
+    setClaimableBatches({
+      mint: claimableMintBatches,
+      redeem: claimableRedeemBatches,
+    });
+
+    setLoading(false);
+  }
 
   const getMinMintAmount = async (
     depositAmount: BigNumber,
@@ -332,47 +385,6 @@ export default function Butter(): JSX.Element {
 
     return lpTokenAmount.sub(delta);
   };
-
-  useEffect(() => {
-    if (!batches || !batchProcessTokens || claimableBatches) {
-      return;
-    }
-    const claimableMintBatches = batches.filter(
-      (batch) => batch.batchType == BatchType.Mint && batch.claimable,
-    );
-    const claimableRedeemBatches = batches.filter(
-      (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
-    );
-    const newBatchProcessTokens = { ...batchProcessTokens };
-    newBatchProcessTokens.butter.claimableBalance =
-      getClaimableBalance(claimableMintBatches);
-    newBatchProcessTokens.threeCrv.claimableBalance = getClaimableBalance(
-      claimableRedeemBatches,
-    );
-    setBatchProcessTokens(newBatchProcessTokens);
-    setClaimableBatches({
-      mint: claimableMintBatches,
-      redeem: claimableRedeemBatches,
-    });
-  }, [batches, batchProcessTokens]);
-
-  useEffect(() => {
-    if (!batchProcessTokens) {
-      return;
-    }
-    if (redeeming) {
-      setSelectedToken({
-        input: batchProcessTokens.butter,
-        output: batchProcessTokens.threeCrv,
-      });
-    } else {
-      setSelectedToken({
-        input: batchProcessTokens.threeCrv,
-        output: batchProcessTokens.butter,
-      });
-    }
-    setUseZap(false);
-  }, [redeeming]);
 
   function selectToken(token: BatchProcessToken): void {
     const zapToken = ['dai', 'usdc', 'usdt'];
@@ -449,16 +461,7 @@ export default function Butter(): JSX.Element {
         res.wait().then((res) => {
           toast.dismiss();
           toast.success('Funds deposited!');
-          butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
-          getBatchProcessToken(
-            butterBatchAdapter,
-            contracts,
-            butterDependencyContracts,
-            account,
-          ).then((res) => setBatchProcessTokens(res));
-          butterBatchAdapter
-            .getCurrentBatches()
-            .then((res) => setCurrentBatches(res));
+          getData();
         });
       })
       .catch((err) => {
@@ -509,18 +512,7 @@ export default function Butter(): JSX.Element {
           res.wait().then((res) => {
             toast.dismiss();
             toast.success(`${selectedToken.input.name} deposited!`);
-            butterBatchAdapter
-              .getBatches(account)
-              .then((res) => setBatches(res));
-            getBatchProcessToken(
-              butterBatchAdapter,
-              contracts,
-              butterDependencyContracts,
-              account,
-            ).then((res) => setBatchProcessTokens(res));
-            butterBatchAdapter
-              .getCurrentBatches()
-              .then((res) => setCurrentBatches(res));
+            getData();
             if (!localStorage.getItem('mintModal')) {
               dispatch(
                 setSingleActionModal({
@@ -557,18 +549,7 @@ export default function Butter(): JSX.Element {
           res.wait().then((res) => {
             toast.dismiss();
             toast.success('Butter deposited!');
-            butterBatchAdapter
-              .getBatches(account)
-              .then((res) => setBatches(res));
-            getBatchProcessToken(
-              butterBatchAdapter,
-              contracts,
-              butterDependencyContracts,
-              account,
-            ).then((res) => setBatchProcessTokens(res));
-            butterBatchAdapter
-              .getCurrentBatches()
-              .then((res) => setCurrentBatches(res));
+            getData();
             if (!localStorage.getItem('mintModal')) {
               dispatch(
                 setSingleActionModal({
@@ -635,13 +616,7 @@ export default function Butter(): JSX.Element {
           toast.dismiss();
           toast.success('Batch claimed!');
         });
-        butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
-        getBatchProcessToken(
-          butterBatchAdapter,
-          contracts,
-          butterDependencyContracts,
-          account,
-        ).then((res) => setBatchProcessTokens(res));
+        getData();
         if (!localStorage.getItem('claimModal')) {
           dispatch(
             setSingleActionModal({
@@ -720,16 +695,7 @@ export default function Butter(): JSX.Element {
         res.wait().then((res) => {
           toast.dismiss();
           toast.success('Funds withdrawn!');
-          butterBatchAdapter.getBatches(account).then((res) => setBatches(res));
-          getBatchProcessToken(
-            butterBatchAdapter,
-            contracts,
-            butterDependencyContracts,
-            account,
-          ).then((res) => setBatchProcessTokens(res));
-          butterBatchAdapter
-            .getCurrentBatches()
-            .then((res) => setCurrentBatches(res));
+          getData();
         });
       })
       .catch((err) => {
@@ -756,12 +722,7 @@ export default function Butter(): JSX.Element {
         res.wait().then((res) => {
           toast.dismiss();
           toast.success('Token approved!');
-          getBatchProcessToken(
-            butterBatchAdapter,
-            contracts,
-            butterDependencyContracts,
-            account,
-          ).then((res) => setBatchProcessTokens(res));
+          getData();
         });
       })
       .catch((err) => {
@@ -819,7 +780,7 @@ export default function Butter(): JSX.Element {
           </div>
           <div className="flex flex-row mt-10">
             <div className="w-1/3">
-              {claimableBatches ? (
+              {claimableBatches && (
                 <MintRedeemInterface
                   token={batchProcessTokens}
                   selectedToken={selectedToken}
@@ -846,13 +807,21 @@ export default function Butter(): JSX.Element {
                   slippage={slippage}
                   setSlippage={setSlippage}
                 />
-              ) : (
+              )}
+              {!account && (
                 <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                   <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
                     <MainActionButton
                       label="Connect Wallet"
                       handleClick={() => activate(connectors.Injected)}
                     />
+                  </div>
+                </div>
+              )}
+              {loading && (
+                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                  <div className="w-full py-60 mt-1 mb-2 smlaptop:mt-2 mx-auto flex flex-row items-center justify-center">
+                    <LoadingSpinner size="h-20 w-20" />
                   </div>
                 </div>
               )}

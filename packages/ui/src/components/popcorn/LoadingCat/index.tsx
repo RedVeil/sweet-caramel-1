@@ -9,7 +9,7 @@ const rotate = keyframes`
 
 const StyledLoading = styled(LoadingCat)`
   position: relative;
-  background: #fff5d1;
+  background: none;
   body {
     text-align: center;
   }

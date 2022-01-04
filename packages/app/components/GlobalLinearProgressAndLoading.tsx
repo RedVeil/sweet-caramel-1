@@ -1,8 +1,9 @@
 import { LinearProgress } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import Loading from 'components/Loading';
 import { store } from 'context/store';
 import { useContext, useEffect } from 'react';
+import PageLoader from './PageLoader';
+
 const ColorLinearProgress = withStyles({
   colorPrimary: {
     backgroundColor: '#5CC1EE',
@@ -33,9 +34,8 @@ export function GlobalLinearProgressAndLoading({ state }) {
   return (
     (loading && (
       <div className={'fixed top-0 left-0 right-0 z-50'}>
-        {' '}
         <ColorLinearProgress />
-        <Loading loading={loading} />
+        <PageLoader loading={loading} />
       </div>
     )) || <></>
   );

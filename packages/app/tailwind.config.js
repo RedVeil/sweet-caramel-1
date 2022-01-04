@@ -92,6 +92,7 @@ module.exports = {
       backgroundImage: (theme) => ({
         'hero-pattern': "url('/images/popcorn_playing.gif')",
       }),
+      animation: { 'spin-slow': 'spin 3s linear infinite' },
       fontFamily: {
         avenir: ["'Avenir LT Pro'", 'sans-serif'],
       },
