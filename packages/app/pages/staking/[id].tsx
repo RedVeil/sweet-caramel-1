@@ -495,7 +495,7 @@ export default function stake(): JSX.Element {
                 )}
 
                 {state.stakingPageInfo && (
-                  <div className="w-96 mx-auto pt-4 pb-4">
+                  <div className="w-96 mx-auto pt-4 pb-1">
                     {account ? (
                       <>
                         {withdraw ? (
@@ -600,8 +600,8 @@ export default function stake(): JSX.Element {
                     <div
                       className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${
                         state?.stakingPageInfo?.symbol === 'POP'
-                          ? 'h-110'
-                          : 'h-88'
+                          ? 'h-114'
+                          : 'h-92'
                       }`}
                     >
                       <div className="flex flex-row h-full items-center justify-between">
@@ -614,7 +614,11 @@ export default function stake(): JSX.Element {
                           </div>
                           <img
                             src="/images/catPopVault.png"
-                            className="absolute max-h-80 w-3/4 right-10 bottom-4"
+                            className={`absolute max-h-80 w-3/4 right-10  ${
+                              state?.stakingPageInfo?.symbol === 'POP'
+                                ? 'bottom-16'
+                                : 'bottom-4'
+                            }`}
                           />
                         </div>
                       </div>
