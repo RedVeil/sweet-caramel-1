@@ -213,9 +213,8 @@ async function createDemoData(
   console.log("sending dai...");
   await faucet.sendTokens(addresses.dai, 1000, signerAddress);
 
-  await threeCrv.approve(butterBatch.address, parseEther("1000000000000"));
-  await dai.approve(butterBatch.address, parseEther("1000000000000"));
-  await butter.approve(butterBatch.address, parseEther("1000000000000"));
+  await threeCrv.approve(butterBatch.address, parseEther("13000"));
+  await butter.approve(butterBatch.address, parseEther("2"));
 
   console.log("first butter mint");
   const mintId0 = await butterBatch.currentMintBatchId();

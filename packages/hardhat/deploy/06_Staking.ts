@@ -98,7 +98,7 @@ async function prepareStakingContract(
   await POP.approve(contractAddress, parseEther("1000"));
   await stakingContract.notifyRewardAmount(parseEther("1000"));
   console.log("Staking some Token...");
-  await inputToken.approve(contractAddress, parseEther("1000"));
+  await inputToken.approve(contractAddress, parseEther("100"));
   await stakingContract.connect(signer).stake(parseEther("100"));
   await bluebird.map(
     new Array(2).fill(0),
@@ -174,7 +174,7 @@ async function createPopLockerData(hre, addresses, signer): Promise<void> {
   const pop = await hre.ethers.getContractAt("MockERC20", addresses.pop);
   await pop
     .connect(signer)
-    .approve(stakingContract.address, parseEther("100000"));
+    .approve(stakingContract.address, parseEther("1010"));
   await stakingContract
     .connect(signer)
     .addReward(
