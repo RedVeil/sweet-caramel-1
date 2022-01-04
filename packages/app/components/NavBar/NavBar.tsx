@@ -6,12 +6,12 @@ import { store } from 'context/store';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
-import { getNamedAccountsByChainId } from '../../../hardhat/lib/utils/getNamedAccounts';
 import { connectors, networkMap } from '../../context/Web3/connectors';
 import {
   getChainLogo,
   switchNetwork,
 } from './../../context/Web3/networkSwitch';
+import GetPopMenu from './GetPopMenu';
 import NavbarLink from './NavbarLinks';
 import NetworkOptionsMenu from './NetworkOptionsMenu';
 
@@ -73,25 +73,17 @@ const Navbar: React.FC = () => {
           </ul>
         </div>
         <div className="flex flex-container flex-row w-fit-content">
-          <a
-            onClick={async () =>
-              await window.ethereum.request({
-                method: 'wallet_watchAsset',
-                params: {
-                  type: 'ERC20',
-                  options: {
-                    address: getPopAddress(chainId),
-                    symbol: 'POP',
-                    decimals: 18,
-                    image: 'https://popcorn.network/images/icons/pop_64x64.png',
-                  },
-                },
-              })
-            }
-            className="cursor-pointer h-full p-3 pflex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl mr-5"
-          >
-            <img src="/images/icons/popLogo.png" className="w-5 h-5" />
-          </a>
+          <div className="relative flex flex-container flex-row w-fit-content z-10">
+            <Menu>
+              <Menu.Button>
+                <div className="w-28 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl mr-5">
+                  <img src="/images/icons/popLogo.png" className="w-5 h-5" />
+                  <p className="font-medium ml-3">POP</p>
+                </div>
+                <GetPopMenu chainId={chainId} />
+              </Menu.Button>
+            </Menu>
+          </div>
           <div className="relative flex flex-container flex-row w-fit-content z-10">
             <Menu>
               <Menu.Button>
@@ -151,8 +143,4 @@ const Navbar: React.FC = () => {
   );
 };
 
-const getPopAddress = (chainId) => {
-  const { pop } = getNamedAccountsByChainId(chainId);
-  return pop;
-};
 export default Navbar;
