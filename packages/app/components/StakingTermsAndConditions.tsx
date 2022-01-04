@@ -59,9 +59,9 @@ const TermsAndConditions = ({
                 isDisabled ? 'text-gray-300' : 'text-gray-600'
               }`}
             >
-              A third of the staking rewards will be claimable at the end of the
-              lock period. The remaining two thirds will be linearly vested over
-              one year.
+              After rewards are earned and claimed, 10% is immediately
+              transferred, and the rest of the earned amount is unlocked
+              linearly over the following 365 day period.
             </li>
           </ul>
         </div>
