@@ -1,17 +1,17 @@
-import { useState } from 'react';
+import { Dispatch } from 'react';
 import PseudoRadioButton from './PseudoRadioButton';
 
 interface OutputTokenProps {
   outputToken: string[];
-  selectOutputToken: Function;
+  selectToken: Dispatch<string>;
+  selectedToken: string;
 }
 
 const OutputToken: React.FC<OutputTokenProps> = ({
   outputToken,
-  selectOutputToken,
+  selectToken,
+  selectedToken,
 }) => {
-  const [selectedToken, selectToken] = useState<string>('3CRV');
-
   return (
     <div className="flex justify-center">
       <div className="flex flex-row items-center space-x-4 justify-start">
@@ -22,7 +22,6 @@ const OutputToken: React.FC<OutputTokenProps> = ({
             isActive={selectedToken === token}
             handleClick={() => {
               selectToken(token);
-              selectOutputToken(token);
             }}
           />
         ))}

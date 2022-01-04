@@ -697,6 +697,7 @@ export default function Butter(): JSX.Element {
     useZap?: boolean,
     outputToken?: string,
   ): Promise<void> {
+    console.log(useZap, outputToken);
     toast.loading('Withdrawing from Batch...');
     let call;
     if (useZap) {

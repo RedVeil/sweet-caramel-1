@@ -1,18 +1,10 @@
 import MainActionButton from 'components/MainActionButton';
 import { setDualActionWideModal } from 'context/actions';
 import { store } from 'context/store';
-import { Dispatch, useContext, useState } from 'react';
+import { Dispatch, useContext } from 'react';
 import { AccountBatch, BatchType } from '../../../hardhat/lib/adapters';
 import { bigNumberToNumber } from '../../../utils';
-import OutputToken from './OutputToken';
-import SlippageSettings from './SlippageSettings';
-
-interface OutputToken {
-  name: string;
-  stableIndex?: number;
-}
-
-const OUTPUT_TOKEN = ['3CRV', 'DAI', 'USDC', 'USDT'];
+import ZapModal from './ZapModal';
 
 interface BatchProps {
   batch: AccountBatch;
@@ -32,7 +24,6 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   setSlippage,
 }) => {
   const { dispatch } = useContext(store);
-  const [selectedOutputToken, selectOutputToken] = useState<string>('3CRV');
 
   function handleClaim() {
     if (batch.batchType === BatchType.Redeem) {
@@ -40,38 +31,16 @@ const ClaimableBatch: React.FC<BatchProps> = ({
         setDualActionWideModal({
           title: 'Choose an Output Token',
           content: (
-            <div className="flex flex-col mt-4">
-              <OutputToken
-                outputToken={OUTPUT_TOKEN}
-                selectOutputToken={selectOutputToken}
-              />
-              <div className="mt-4">
-                <SlippageSettings
-                  slippage={slippage}
-                  setSlippage={setSlippage}
-                />
-              </div>
-            </div>
+            <ZapModal
+              slippage={slippage}
+              setSlippage={setSlippage}
+              closeModal={() => dispatch(setDualActionWideModal(false))}
+              withdraw={withdraw}
+              claim={claim}
+              batchId={batch.batchId}
+              withdrawAmount={batch.accountSuppliedTokenBalance}
+            />
           ),
-          onConfirm: {
-            label: 'Claim',
-            onClick: () => {
-              claim(
-                batch.batchId,
-                selectedOutputToken !== '3CRV',
-                selectedOutputToken.toLowerCase(),
-              );
-              dispatch(setDualActionWideModal(false));
-              selectOutputToken('3CRV');
-            },
-          },
-          onDismiss: {
-            label: 'Cancel',
-            onClick: () => {
-              dispatch(setDualActionWideModal(false));
-              selectOutputToken('3CRV');
-            },
-          },
         }),
       );
     } else {
@@ -85,39 +54,17 @@ const ClaimableBatch: React.FC<BatchProps> = ({
         setDualActionWideModal({
           title: 'Choose an Output Token',
           content: (
-            <div className="flex flex-col mt-4">
-              <OutputToken
-                outputToken={OUTPUT_TOKEN}
-                selectOutputToken={selectOutputToken}
-              />
-              <div className="mt-4">
-                <SlippageSettings
-                  slippage={slippage}
-                  setSlippage={setSlippage}
-                />
-              </div>
-            </div>
+            <ZapModal
+              slippage={slippage}
+              setSlippage={setSlippage}
+              closeModal={() => dispatch(setDualActionWideModal(false))}
+              withdraw={withdraw}
+              claim={claim}
+              batchId={batch.batchId}
+              withdrawAmount={batch.accountSuppliedTokenBalance}
+              isWithdraw
+            />
           ),
-          onConfirm: {
-            label: 'Withdraw',
-            onClick: () => {
-              withdraw(
-                batch.batchId,
-                batch.accountSuppliedTokenBalance,
-                selectedOutputToken !== '3CRV',
-                selectedOutputToken.toLowerCase(),
-              );
-              dispatch(setDualActionWideModal(false));
-              selectOutputToken('3CRV');
-            },
-          },
-          onDismiss: {
-            label: 'Cancel',
-            onClick: () => {
-              dispatch(setDualActionWideModal(false));
-              selectOutputToken('3CRV');
-            },
-          },
         }),
       );
     } else {

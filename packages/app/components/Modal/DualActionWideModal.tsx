@@ -11,7 +11,7 @@ export interface DualActionWideModalProps {
   visible: boolean;
   progress?: boolean;
   onDismiss?: { label: string; onClick: Function };
-  onConfirm: { label: string; onClick: Function };
+  onConfirm?: { label: string; onClick: Function };
   icon?: 'check';
 }
 
@@ -20,7 +20,6 @@ export const DefaultDualActionWideModalProps = {
   title: '',
   visible: false,
   progress: false,
-  onConfirm: { label: '', onClick: () => {} },
 };
 
 const Example: React.FC<DualActionWideModalProps> = ({
