@@ -9,7 +9,7 @@ import SwapChainModal from 'components/SwapChainModal';
 import Head from 'next/head';
 import Router from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { GlobalLinearProgress } from '../components/GlobalLinearProgress';
+import { GlobalLinearProgressAndLoading } from '../components/GlobalLinearProgressAndLoading';
 import { StateProvider } from '../context/store';
 import ContractsWrapper from '../context/Web3/contracts';
 import '../styles/globals.css';
@@ -60,7 +60,7 @@ export default function MyApp(props) {
         ></link>
       </Head>
       <StateProvider>
-        <GlobalLinearProgress state={[loading, setLoading]} />
+        <GlobalLinearProgressAndLoading state={[loading, setLoading]} />
         <Web3ReactProvider getLibrary={getLibrary}>
           <ContractsWrapper>
             <SingleActionModalContainer />

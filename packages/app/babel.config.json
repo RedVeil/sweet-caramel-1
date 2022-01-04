@@ -12,6 +12,7 @@
           "app": "./app"
         }
       }
-    ]
+    ],
+    ["styled-components", { "ssr": true }]
   ]
 }
