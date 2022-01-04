@@ -7,6 +7,7 @@ import SlippageSettings from './SlippageSettings';
 import TokenInput, { TokenInputProps } from './TokenInput';
 interface MintRedeemInterfaceProps extends TokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
+  approve: (contractKey: string) => Promise<void>;
   slippage: number;
   setSlippage: Dispatch<number>;
 }
@@ -20,6 +21,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   depositAmount,
   setDepositAmount,
   deposit,
+  approve,
   depositDisabled,
   useUnclaimedDeposits,
   setUseUnclaimedDeposits,
@@ -45,16 +47,24 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
       </div>
       <div className="w-full text-center lg:mt-18 lglaptop:mt-20 xl:mt-28 2xl:mt-24 smlaptop:mb-1 lglaptop:mb-1 xl:mb-3.5 2xl:mb-1.5">
-        <MainActionButton
-          label={redeeming ? 'Redeem' : 'Mint'}
-          handleClick={(e) =>
-            deposit(
-              depositAmount,
-              redeeming ? BatchType.Redeem : BatchType.Mint,
-            )
-          }
-          disabled={depositDisabled}
-        />
+        {depositAmount.gt(selectedToken.input.allowance) ? (
+          <MainActionButton
+            label={`Approve ${selectedToken.input.name}`}
+            handleClick={(e) => approve(selectedToken.input.key)}
+            disabled={depositDisabled}
+          />
+        ) : (
+          <MainActionButton
+            label={redeeming ? 'Redeem' : 'Mint'}
+            handleClick={(e) =>
+              deposit(
+                depositAmount,
+                redeeming ? BatchType.Redeem : BatchType.Mint,
+              )
+            }
+            disabled={depositDisabled}
+          />
+        )}
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ import {
   ContractsContext,
 } from 'context/Web3/contracts';
 import { switchNetwork } from 'context/Web3/networkSwitch';
-import { BigNumber, Contract, utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import useThreeCurveVirtualPrice from 'hooks/useThreeCurveVirtualPrice';
 import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -479,152 +479,123 @@ export default function Butter(): JSX.Element {
       depositAmount,
       selectedToken.input.key,
     );
-
-    console.log('adjusted deposit decimals', depositAmount);
-    console.log('depositAmount', depositAmount);
     if (batchType === BatchType.Mint) {
-      console.log(
-        'useZap?',
-        useZap,
-        useZap
-          ? contracts.butterBatchZapper.address
-          : contracts.butterBatch.address,
-      );
-      const allowance = await contracts[selectedToken.input.key].allowance(
-        account,
-        useZap
-          ? contracts.butterBatchZapper.address
-          : contracts.butterBatch.address,
-      );
-      console.log('allowance is', useZap, allowance);
-      if (allowance.lt(depositAmount)) {
-        approve(contracts[selectedToken.input.key]);
-      } else {
-        toast.loading(`Depositing ${selectedToken.input.name} ...`);
-        let mintCall;
-        if (useZap) {
-          const minMintAmount = await getMinMintAmount(
-            depositAmount,
-            selectedToken.input.key,
-            slippage,
-          );
-          console.log(
-            'zapDepositAmount',
-            getZapDepositAmount(depositAmount, selectedToken.input.key),
-          );
-          mintCall = contracts.butterBatchZapper
-            .connect(library.getSigner())
-            .zapIntoBatch(
-              getZapDepositAmount(depositAmount, selectedToken.input.key),
-              minMintAmount,
-            );
-        } else {
-          mintCall = contracts.butterBatch
-            .connect(library.getSigner())
-            .depositForMint(depositAmount, account);
-        }
-
-        await mintCall
-          .then((res) => {
-            res.wait().then((res) => {
-              toast.dismiss();
-              toast.success(`${selectedToken.input.name} deposited!`);
-              butterBatchAdapter
-                .getBatches(account)
-                .then((res) => setBatches(res));
-              getBatchProcessToken(
-                butterBatchAdapter,
-                contracts,
-                butterDependencyContracts,
-                account,
-              ).then((res) => setBatchProcessTokens(res));
-              butterBatchAdapter
-                .getCurrentBatches()
-                .then((res) => setCurrentBatches(res));
-              if (!localStorage.getItem('mintModal')) {
-                dispatch(
-                  setSingleActionModal({
-                    title: 'Your first mint',
-                    content:
-                      'You have successfully added your fund into the current batch cycle. Check-in on the Batch module under the Mint & Redeem panel for the latest batch progress.',
-                    image: (
-                      <img src="images/butter/modal-1.png" className="px-6" />
-                    ),
-                    onConfirm: {
-                      label: 'Close',
-                      onClick: () => dispatch(setSingleActionModal(false)),
-                    },
-                  }),
-                );
-                localStorage.setItem('mintModal', 'true');
-              }
-            });
-          })
-          .catch((err) => {
-            toast.dismiss();
-            if (err.data === undefined) {
-              toast.error('An error occured');
-            } else {
-              toast.error(err.data.message.split("'")[1]);
-            }
-          });
-      }
-    } else {
-      const allowance = await contracts.butter.allowance(
-        account,
-        contracts.butterBatch.address,
-      );
-      if (allowance.gt(depositAmount)) {
-        toast.loading('Depositing Butter...');
-        await contracts.butterBatch
+      toast.loading(`Depositing ${selectedToken.input.name} ...`);
+      let mintCall;
+      if (useZap) {
+        const minMintAmount = await getMinMintAmount(
+          depositAmount,
+          selectedToken.input.key,
+          slippage,
+        );
+        console.log(
+          'zapDepositAmount',
+          getZapDepositAmount(depositAmount, selectedToken.input.key),
+        );
+        mintCall = contracts.butterBatchZapper
           .connect(library.getSigner())
-          .depositForRedeem(depositAmount)
-          .then((res) => {
-            res.wait().then((res) => {
-              toast.dismiss();
-              toast.success('Butter deposited!');
-              butterBatchAdapter
-                .getBatches(account)
-                .then((res) => setBatches(res));
-              getBatchProcessToken(
-                butterBatchAdapter,
-                contracts,
-                butterDependencyContracts,
-                account,
-              ).then((res) => setBatchProcessTokens(res));
-              butterBatchAdapter
-                .getCurrentBatches()
-                .then((res) => setCurrentBatches(res));
-              if (!localStorage.getItem('mintModal')) {
-                dispatch(
-                  setSingleActionModal({
-                    title: 'Your first redemption',
-                    content:
-                      'You have successfully deposited into the current batch cycle. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
-                    image: (
-                      <img src="images/butter/modal-1.png" className="px-6" />
-                    ),
-                    onConfirm: {
-                      label: 'Close',
-                      onClick: () => dispatch(setSingleActionModal(false)),
-                    },
-                  }),
-                );
-                localStorage.setItem('mintModal', 'true');
-              }
-            });
-          })
-          .catch((err) => {
+          .zapIntoBatch(
+            getZapDepositAmount(depositAmount, selectedToken.input.key),
+            minMintAmount,
+          );
+      } else {
+        mintCall = contracts.butterBatch
+          .connect(library.getSigner())
+          .depositForMint(depositAmount, account);
+      }
+
+      await mintCall
+        .then((res) => {
+          res.wait().then((res) => {
             toast.dismiss();
-            if (err.data === undefined) {
-              toast.error('An error occured');
-            } else {
-              toast.error(err.data.message.split("'")[1]);
+            toast.success(`${selectedToken.input.name} deposited!`);
+            butterBatchAdapter
+              .getBatches(account)
+              .then((res) => setBatches(res));
+            getBatchProcessToken(
+              butterBatchAdapter,
+              contracts,
+              butterDependencyContracts,
+              account,
+            ).then((res) => setBatchProcessTokens(res));
+            butterBatchAdapter
+              .getCurrentBatches()
+              .then((res) => setCurrentBatches(res));
+            if (!localStorage.getItem('mintModal')) {
+              dispatch(
+                setSingleActionModal({
+                  title: 'Your first mint',
+                  content:
+                    'You have successfully added your fund into the current batch cycle. Check-in on the Batch module under the Mint & Redeem panel for the latest batch progress.',
+                  image: (
+                    <img src="images/butter/modal-1.png" className="px-6" />
+                  ),
+                  onConfirm: {
+                    label: 'Close',
+                    onClick: () => dispatch(setSingleActionModal(false)),
+                  },
+                }),
+              );
+              localStorage.setItem('mintModal', 'true');
             }
           });
-      } else {
-        approve(contracts.butter);
-      }
+        })
+        .catch((err) => {
+          toast.dismiss();
+          if (err.data === undefined) {
+            toast.error('An error occured');
+          } else {
+            toast.error(err.data.message.split("'")[1]);
+          }
+        });
+    } else {
+      toast.loading('Depositing Butter...');
+      await contracts.butterBatch
+        .connect(library.getSigner())
+        .depositForRedeem(depositAmount)
+        .then((res) => {
+          res.wait().then((res) => {
+            toast.dismiss();
+            toast.success('Butter deposited!');
+            butterBatchAdapter
+              .getBatches(account)
+              .then((res) => setBatches(res));
+            getBatchProcessToken(
+              butterBatchAdapter,
+              contracts,
+              butterDependencyContracts,
+              account,
+            ).then((res) => setBatchProcessTokens(res));
+            butterBatchAdapter
+              .getCurrentBatches()
+              .then((res) => setCurrentBatches(res));
+            if (!localStorage.getItem('mintModal')) {
+              dispatch(
+                setSingleActionModal({
+                  title: 'Your first redemption',
+                  content:
+                    'You have successfully deposited into the current batch cycle. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
+                  image: (
+                    <img src="images/butter/modal-1.png" className="px-6" />
+                  ),
+                  onConfirm: {
+                    label: 'Close',
+                    onClick: () => dispatch(setSingleActionModal(false)),
+                  },
+                }),
+              );
+              localStorage.setItem('mintModal', 'true');
+            }
+          });
+        })
+        .catch((err) => {
+          toast.dismiss();
+          if (err.data === undefined) {
+            toast.error('An error occured');
+          } else {
+            toast.error(err.data.message.split("'")[1]);
+          }
+        });
     }
   }
 
@@ -771,9 +742,9 @@ export default function Butter(): JSX.Element {
       });
   }
 
-  async function approve(contract: Contract): Promise<void> {
+  async function approve(contractKey: string): Promise<void> {
     toast.loading('Approving Token...');
-    await contract
+    await contracts[contractKey]
       .connect(library.getSigner())
       .approve(
         useZap
@@ -785,6 +756,12 @@ export default function Butter(): JSX.Element {
         res.wait().then((res) => {
           toast.dismiss();
           toast.success('Token approved!');
+          getBatchProcessToken(
+            butterBatchAdapter,
+            contracts,
+            butterDependencyContracts,
+            account,
+          ).then((res) => setBatchProcessTokens(res));
         });
       })
       .catch((err) => {
@@ -852,6 +829,7 @@ export default function Butter(): JSX.Element {
                   depositAmount={depositAmount}
                   setDepositAmount={setDepositAmount}
                   deposit={useUnclaimedDeposits ? hotswap : deposit}
+                  approve={approve}
                   depositDisabled={
                     useUnclaimedDeposits
                       ? isDepositDisabled(
