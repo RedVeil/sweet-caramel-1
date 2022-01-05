@@ -21,7 +21,7 @@ const DisappearingDiv = styled.div<divProps>`
   z-index: ${(props) => (props.loading ? 49 : -10)};
 `;
 
-export default function PageLoader({ loading }: { loading: boolean }) {
+const PageLoader = (loading: boolean): JSX.Element => {
   return (
     <DisappearingDiv loading={loading}>
       <div
@@ -35,4 +35,5 @@ export default function PageLoader({ loading }: { loading: boolean }) {
       </div>
     </DisappearingDiv>
   );
-}
+};
+export default PageLoader;

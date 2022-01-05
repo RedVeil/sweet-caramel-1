@@ -60,7 +60,10 @@ export default function MyApp(props) {
         ></link>
       </Head>
       <StateProvider>
-        <GlobalLinearProgressAndLoading state={[loading, setLoading]} />
+        <GlobalLinearProgressAndLoading
+          loading={loading}
+          setLoading={setLoading}
+        />
         <Web3ReactProvider getLibrary={getLibrary}>
           <ContractsWrapper>
             <SingleActionModalContainer />

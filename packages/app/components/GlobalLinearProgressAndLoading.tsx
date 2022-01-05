@@ -1,7 +1,7 @@
 import { LinearProgress } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { store } from 'context/store';
-import { useContext, useEffect } from 'react';
+import { Dispatch, useContext, useEffect } from 'react';
 import PageLoader from './PageLoader';
 
 const ColorLinearProgress = withStyles({
@@ -12,10 +12,15 @@ const ColorLinearProgress = withStyles({
     backgroundColor: 'rgb(225 225 225)',
   },
 })(LinearProgress);
+interface GlobalLinearProgressAndLoadingProps {
+  loading: boolean;
+  setLoading: Dispatch<boolean>;
+}
 
-export function GlobalLinearProgressAndLoading({ state }) {
-  const [loading, setLoading] = state;
-
+export function GlobalLinearProgressAndLoading({
+  loading,
+  setLoading,
+}: GlobalLinearProgressAndLoadingProps): JSX.Element {
   const {
     state: { globalLoaderVisible },
   } = useContext(store);
