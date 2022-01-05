@@ -197,6 +197,57 @@ describe("Staking", function () {
     });
   });
 
+  describe("stakeFor", function () {
+    context("require statements", function () {
+      it("reverts on zero amount", async function () {
+        await expectRevert(
+          staking.connect(nonOwner).stakeFor(0, staker.address),
+          "Cannot stake 0"
+        );
+      });
+    });
+
+    context("successful stake", function () {
+      let stakeTx;
+
+      beforeEach(async function () {
+        await stakingToken
+          .connect(nonOwner)
+          .increaseAllowance(staking.address, STAKE_AMOUNT);
+        stakeTx = staking
+          .connect(nonOwner)
+          .stakeFor(STAKE_AMOUNT, staker.address);
+        await stakeTx;
+      });
+
+      it("increases total supply", async function () {
+        await expectValue(await staking.totalSupply(), STAKE_AMOUNT);
+      });
+
+      it("creates a balance for staker", async function () {
+        await expectValue(
+          await staking.balanceOf(staker.address),
+          STAKE_AMOUNT
+        );
+      });
+
+      it("transfers staking token", async function () {
+        await expectValue(await stakingToken.balanceOf(nonOwner.address), 0);
+        await expectValue(
+          await stakingToken.balanceOf(staking.address),
+          STAKE_AMOUNT
+        );
+      });
+
+      it("emits Staked event", async function () {
+        await expectEvent(stakeTx, staking, "Staked", [
+          staker.address,
+          STAKE_AMOUNT,
+        ]);
+      });
+    });
+  });
+
   describe("withdraw", function () {
     context("require statements", function () {
       it("reverts on zero amount", async function () {

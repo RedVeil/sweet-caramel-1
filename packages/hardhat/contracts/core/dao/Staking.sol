@@ -89,12 +89,20 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
 
   /* ========== MUTATIVE FUNCTIONS ========== */
 
-  function stake(uint256 amount) external override nonReentrant whenNotPaused updateReward(msg.sender) {
+  function stakeFor(uint256 amount, address account) external {
+    _stake(amount, account);
+  }
+
+  function stake(uint256 amount) external override {
+    _stake(amount, msg.sender);
+  }
+
+  function _stake(uint256 amount, address account) internal nonReentrant whenNotPaused updateReward(account) {
     require(amount > 0, "Cannot stake 0");
     _totalSupply = _totalSupply.add(amount);
-    _balances[msg.sender] = _balances[msg.sender].add(amount);
+    _balances[account] = _balances[account].add(amount);
     stakingToken.safeTransferFrom(msg.sender, address(this), amount);
-    emit Staked(msg.sender, amount);
+    emit Staked(account, amount);
   }
 
   function withdraw(uint256 amount) public override nonReentrant updateReward(msg.sender) {
