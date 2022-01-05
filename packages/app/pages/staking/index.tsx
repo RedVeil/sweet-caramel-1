@@ -1,10 +1,10 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
+import LoadingSpinner from 'components/LoadingSpinner';
 import Navbar from 'components/NavBar/NavBar';
 import StakeCard from 'components/StakeCard';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import React, { useContext, useEffect, useState } from 'react';
-import ContentLoader from 'react-content-loader';
 import { Toaster } from 'react-hot-toast';
 import {
   getSingleStakingPoolInfo,
@@ -89,7 +89,11 @@ export default function index(): JSX.Element {
             </div>
             <div className="w-2/3">
               <div className="space-y-6">
-                {loading && <ContentLoader title="Loading ..." />}
+                {loading && (
+                  <div className="w-full h-full flex justify-center mt-24">
+                    <LoadingSpinner size="h-96 w-96" cat />
+                  </div>
+                )}
                 {contracts?.staking &&
                   stakingPoolsInfo &&
                   stakingPoolsInfo.length > 0 &&

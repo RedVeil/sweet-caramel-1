@@ -7,6 +7,7 @@ import {
   StakingPoolInfo,
 } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
+import LoadingSpinner from 'components/LoadingSpinner';
 import Navbar from 'components/NavBar/NavBar';
 import ClaimCard from 'components/Rewards/ClaimCard';
 import VestingRecordComponent from 'components/Rewards/VestingRecord';
@@ -32,6 +33,7 @@ export default function index(): JSX.Element {
   const [showEscrows, setShowEscrows] = useState<boolean>(false);
   const [stakingPoolsInfo, setStakingPoolsInfo] = useState<StakingPoolInfo[]>();
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows();
@@ -40,7 +42,8 @@ export default function index(): JSX.Element {
     if (!account || !contracts) {
       return;
     }
-    getData();
+    setLoading(true);
+    getData().then((res) => setLoading(false));
   }, [account, contracts, library]);
 
   const userEscrowsFetchResult: SWRResponse<
@@ -48,7 +51,7 @@ export default function index(): JSX.Element {
     any
   > = useGetUserEscrows();
 
-  async function getData() {
+  async function getData(): Promise<void> {
     let newStakingPoolsInfo: StakingPoolInfo[] = [];
     const popStakingInfo = await getSingleStakingPoolInfo(
       contracts.popStaking,
@@ -254,11 +257,10 @@ export default function index(): JSX.Element {
                       isPopLocker={poolInfo.stakedTokenName === 'POP'}
                     />
                   ))}
-                {showEscrows && userEscrowsFetchResult ? (
-                  !userEscrowsFetchResult?.data &&
-                  !userEscrowsFetchResult?.error ? (
-                    'Show Loader....'
-                  ) : (
+                {showEscrows &&
+                  userEscrowsFetchResult &&
+                  userEscrowsFetchResult?.data &&
+                  !userEscrowsFetchResult?.error && (
                     <div>
                       <div
                         className={`flex flex-row justify-between px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
@@ -327,9 +329,11 @@ export default function index(): JSX.Element {
                           )}
                       </div>
                     </div>
-                  )
-                ) : (
-                  <></>
+                  )}
+                {loading && (
+                  <div className="w-full h-full flex justify-center mt-24">
+                    <LoadingSpinner size="w-96 h-96" cat />
+                  </div>
                 )}
               </div>
             </div>

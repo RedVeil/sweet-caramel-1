@@ -294,7 +294,8 @@ export default function Butter(): JSX.Element {
     if (!contracts || !butterBatchAdapter || !account) {
       return;
     }
-    getData();
+    setLoading(true);
+    getData().then((res) => setLoading(false));
   }, [butterBatchAdapter, account]);
 
   useEffect(() => {
@@ -316,8 +317,6 @@ export default function Butter(): JSX.Element {
   }, [redeeming]);
 
   async function getData(): Promise<void> {
-    setLoading(true);
-
     const currentBatchRes = await butterBatchAdapter.getCurrentBatches();
     setCurrentBatches(currentBatchRes);
 
@@ -359,8 +358,6 @@ export default function Butter(): JSX.Element {
       mint: claimableMintBatches,
       redeem: claimableRedeemBatches,
     });
-
-    setLoading(false);
   }
 
   const getMinMintAmount = async (
