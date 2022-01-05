@@ -101,7 +101,7 @@ async function prepareStakingContract(
   await inputToken.approve(contractAddress, parseEther("100"));
   await stakingContract.connect(signer).stake(parseEther("100"));
   await bluebird.map(
-    new Array(2).fill(0),
+    new Array(31).fill(0),
     async (_x, _i) => {
       await hre.network.provider.send("evm_increaseTime", [3600]);
       await hre.network.provider.send("evm_mine", []);

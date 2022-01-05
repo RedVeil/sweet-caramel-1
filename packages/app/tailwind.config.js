@@ -8,30 +8,30 @@ module.exports = {
   theme: {
     screens: {
       sm: '640px',
-      // => @media (min-width: 640px) { ... }
+      // => @media (min-"640px) { ... }
 
       smmd: '700px',
 
       md: '768px',
-      // => @media (min-width: 768px) { ... }
+      // => @media (min-"768px) { ... }
 
       lg: '1024px',
-      // => @media (min-width: 1024px) { ... }
+      // => @media (min-"1024px) { ... }
 
       smlaptop: '1200px',
-      // => @media (min-width: 1440px) { ... }
+      // => @media (min-"1440px) { ... }
 
       laptop: '1440px',
-      // => @media (min-width: 1440px) { ... }
+      // => @media (min-"1440px) { ... }
 
       lglaptop: '1680px',
-      // => @media (min-width: 1440px) { ... }
+      // => @media (min-"1440px) { ... }
 
       xl: '1920px',
-      // => @media (min-width: 1920px) { ... }
+      // => @media (min-"1920px) { ... }
 
       '2xl': '2560px',
-      // => @media (min-width: 2560px) { ... }
+      // => @media (min-"2560px) { ... }
     },
     extend: {
       boxShadow: {
@@ -42,7 +42,7 @@ module.exports = {
         '5xl': '2.5rem',
         '6xl': '3rem',
       },
-      borderWidth: {
+      border: {
         3: '3px',
       },
       spacing: {
@@ -63,6 +63,20 @@ module.exports = {
         124: '33rem',
         128: '34rem',
       },
+      height: {
+        '1/12': '8.333333%',
+        '2/12': '16.666667%',
+        '3/12': '25%',
+        '4/12': '33.333333%',
+        '5/12': '41.666667%',
+        '6/12': '50%',
+        '7/12': '58.333333%',
+        '8/12': '66.666667',
+        '9/12': '75%',
+        '10/12': '83.333333%',
+        '11/12': '91.666667%',
+      },
+      minHeight: { 128: '34rem' },
       lineHeight: {
         button: '32px',
       },

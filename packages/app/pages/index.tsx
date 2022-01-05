@@ -109,7 +109,7 @@ const IndexPage = () => {
                 fontSize: 48,
               }}
             >
-              Farming
+              Staking
             </p>
             <div className="mx-auto w-4/5" style={{ height: 80 }}>
               <p className="h-full text-2xl font-thin text-center  text-gray-600">

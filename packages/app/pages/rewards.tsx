@@ -186,7 +186,7 @@ export default function index(): JSX.Element {
         <div className="flex flex-col mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="w-1/3">
             <div className="">
-              <h1 className="text-3xl font-medium">Claim</h1>
+              <h1 className="text-3xl font-medium">Rewards</h1>
               <p className="mt-2 text-lg text-gray-500">
                 Claim your rewards and track your vesting records.
               </p>
@@ -215,10 +215,7 @@ export default function index(): JSX.Element {
           {account && (
             <div className="flex flex-row">
               <div className="w-1/3">
-                <div
-                  className="flex items-stretch mt-10 mb-8 mr-12 bg-primaryLight rounded-5xl shadow-custom"
-                  style={{ height: '87%' }}
-                >
+                <div className="flex items-stretch mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl shadow-custom min-h-128 h-11/12 max-h-screen">
                   <img
                     src="/images/claims-cat.svg"
                     alt="cat holding popcorn"

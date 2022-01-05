@@ -82,7 +82,7 @@ export default function index(): JSX.Element {
               <div className="bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mb-24 shadow-custom">
                 <img
                   src="/images/farmerCat.svg"
-                  alt="farmcerCat"
+                  alt="farmerCat"
                   className="mx-auto transform scale-101 py-2"
                 />
               </div>
