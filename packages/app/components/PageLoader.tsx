@@ -1,11 +1,11 @@
 import LoadingCat from '@popcorn/ui/components/popcorn/LoadingCat';
 import styled from 'styled-components';
 
-interface divProps {
+interface PageLoaderProps {
   loading: boolean;
 }
 
-const DisappearingDiv = styled.div<divProps>`
+const DisappearingDiv = styled.div<PageLoaderProps>`
   background: #fff;
   width: 100vw;
   height: 100vh;
@@ -21,7 +21,7 @@ const DisappearingDiv = styled.div<divProps>`
   z-index: ${(props) => (props.loading ? 49 : -10)};
 `;
 
-const PageLoader = (loading: boolean): JSX.Element => {
+const PageLoader: React.FC<PageLoaderProps> = ({ loading }) => {
   return (
     <DisappearingDiv loading={loading}>
       <div
