@@ -343,11 +343,27 @@ describe("Keeper incentives", function () {
     });
     context("approval", function () {
       it("should not be callable for non approved addresses", async function () {
+        await mockPop.connect(owner).mint(nonOwner.address, parseEther("1990"));
+        await mockPop
+          .connect(nonOwner)
+          .approve(staking.address, parseEther("2000"));
+        await staking
+          .connect(nonOwner)
+          .lock(nonOwner.address, parseEther("2000"), 0);
+        await timeTravel(7 * DAYS);
         await expect(
           keeperIncentiveHelper.connect(nonOwner).incentivisedFunction()
         ).to.revertedWith("you dont have the right role");
       });
       it("should be callable for non approved addresses if the incentive is open to everyone", async function () {
+        await mockPop.connect(owner).mint(nonOwner.address, parseEther("1990"));
+        await mockPop
+          .connect(nonOwner)
+          .approve(staking.address, parseEther("2000"));
+        await staking
+          .connect(nonOwner)
+          .lock(nonOwner.address, parseEther("2000"), 0);
+        await timeTravel(7 * DAYS);
         await keeperIncentive
           .connect(owner)
           .toggleApproval(

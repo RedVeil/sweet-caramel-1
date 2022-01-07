@@ -732,6 +732,8 @@ export default function Butter(): JSX.Element {
       });
   }
 
+  console.log(contracts?.butter?.address);
+
   return (
     <div className="w-full h-screen">
       <Navbar />

@@ -67,15 +67,15 @@ contract KeeperIncentive {
     address _keeper
   ) external {
     require(msg.sender == controllerContracts[_contractName], "Can only be called by the controlling contract");
+    require(
+      IStaking(contractRegistry.getContract(keccak256("PopLocker"))).balanceOf(_keeper) >= requiredKeeperStake,
+      "not enough pop at stake"
+    );
 
     Incentive memory incentive = incentives[_contractName][_i];
 
     if (!incentive.openToEveryone) {
       IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("Keeper"), _keeper);
-      require(
-        IStaking(contractRegistry.getContract(keccak256("PopLocker"))).balanceOf(_keeper) >= requiredKeeperStake,
-        "not enough pop at stake"
-      );
     }
     if (incentive.enabled && incentive.reward <= incentiveBudget && incentive.reward > 0) {
       incentiveBudget = incentiveBudget - incentive.reward;
