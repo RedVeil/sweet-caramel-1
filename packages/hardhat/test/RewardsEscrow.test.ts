@@ -345,7 +345,7 @@ describe("RewardsEscrow", function () {
       );
       await expectBigNumberCloseTo(
         await contracts.mockPop.balanceOf(contracts.staking.address),
-        parseEther("5.999983465608627210"),
+        parseEther("15.999983465608627210"),
         parseEther("0.00015")
       );
     });

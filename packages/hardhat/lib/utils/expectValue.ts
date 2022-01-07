@@ -40,7 +40,7 @@ export async function expectBigNumberCloseTo(
   delta: BigNumber
 ): Promise<Chai.AsyncAssertion> {
   const difference = expectedValue.sub(value);
-  if (difference.abs() > delta) {
+  if (difference.abs().gt(delta)) {
     expect.fail(
       difference,
       delta,
