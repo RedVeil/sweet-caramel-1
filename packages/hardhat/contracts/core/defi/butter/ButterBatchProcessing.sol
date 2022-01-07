@@ -6,17 +6,16 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "../../interfaces/IACLRegistry.sol";
 import "../../../externals/interfaces/YearnVault.sol";
 import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
+import "../../interfaces/IACLRegistry.sol";
 import "../../interfaces/IContractRegistry.sol";
-import "../../utils/KeeperIncentive.sol";
+import "../../interfaces/IKeeperIncentive.sol";
 
 /*
  * @notice This Contract allows smaller depositors to mint and redeem Butter (formerly known as HYSI) without needing to through all the steps necessary on their own,
@@ -298,7 +297,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
   function batchMint(uint256 _minAmountToMint) external whenNotPaused {
-    KeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
+    IKeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
       contractName,
       0,
       msg.sender
@@ -414,7 +413,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
   function batchRedeem(uint256 _min3crvToReceive) external whenNotPaused {
-    KeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
+    IKeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
       contractName,
       1,
       msg.sender
