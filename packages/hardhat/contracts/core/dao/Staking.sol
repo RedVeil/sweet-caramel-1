@@ -168,6 +168,7 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
 
   // Modify approval for an address to call notifyRewardAmount
   function approveRewardDistributor(address _distributor, bool _approved) external onlyOwner {
+    emit RewardDistributorUpdated(_distributor, _approved);
     rewardDistributors[_distributor] = _approved;
   }
 
@@ -209,4 +210,5 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
   event RewardsDurationUpdated(uint256 newDuration);
   event EscrowDurationUpdated(uint256 _previousDuration, uint256 _newDuration);
   event Recovered(address token, uint256 amount);
+  event RewardDistributorUpdated(address indexed distributor, bool approved);
 }

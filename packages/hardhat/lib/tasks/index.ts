@@ -1,6 +1,7 @@
 export * from "./acl";
 export * from "./airdrop";
 export * from "./butter";
+export * from "./contract-registry";
 export * from "./ERC20";
 export * from "./keeper-incentive";
 export * from "./LBP";

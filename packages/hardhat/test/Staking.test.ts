@@ -16,6 +16,7 @@ let stakingFund: BigNumber;
 let owner: SignerWithAddress,
   nonOwner: SignerWithAddress,
   staker: SignerWithAddress,
+  rewardsDistributor: SignerWithAddress,
   treasury: SignerWithAddress;
 
 let mockERC20Factory;
@@ -30,7 +31,8 @@ const STAKING_FUND = parseEther("10");
 
 describe("Staking", function () {
   beforeEach(async function () {
-    [owner, nonOwner, staker, treasury] = await ethers.getSigners();
+    [owner, nonOwner, staker, treasury, rewardsDistributor] =
+      await ethers.getSigners();
     mockERC20Factory = await ethers.getContractFactory("MockERC20");
     mockPop = (await mockERC20Factory.deploy(
       "TestPOP",
@@ -442,6 +444,37 @@ describe("Staking", function () {
     });
   });
 
+  describe("approveRewardDistributor", async () => {
+    it("should allow owner to add an address as an approved reward distributor", async () => {
+      await staking
+        .connect(owner)
+        .approveRewardDistributor(rewardsDistributor.address, true);
+      await expectValue(
+        await staking.rewardDistributors(rewardsDistributor.address),
+        true
+      );
+    });
+    it("should allow owner to remove an address as an approved reward distributor", async () => {
+      await staking
+        .connect(owner)
+        .approveRewardDistributor(rewardsDistributor.address, false);
+      await expectValue(
+        await staking.rewardDistributors(rewardsDistributor.address),
+        false
+      );
+    });
+    it("should emit RewardDistributorUpdated event", async () => {
+      await expectEvent(
+        await staking
+          .connect(owner)
+          .approveRewardDistributor(rewardsDistributor.address, false),
+        staking,
+        "RewardDistributorUpdated",
+        [rewardsDistributor.address, false]
+      );
+    });
+  });
+
   describe("notifyRewardAmount", function () {
     const REWARD_AMOUNT = parseEther("10");
 
@@ -502,6 +535,13 @@ describe("Staking", function () {
         await staking.periodFinish(),
         rewardsDuration.add(notifyTxBlock.timestamp)
       );
+    });
+
+    it("transfers rewards token from msg.sender when called", async () => {
+      const balBefore = await mockPop.balanceOf(owner.address);
+      await staking.connect(owner).notifyRewardAmount(REWARD_AMOUNT);
+      const balAfter = await mockPop.balanceOf(owner.address);
+      await expectValue(balBefore.sub(balAfter), REWARD_AMOUNT);
     });
   });
 
