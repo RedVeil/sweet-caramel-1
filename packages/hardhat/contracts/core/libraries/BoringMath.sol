@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// Docgen-SOLC: 0.6.12
+
 pragma solidity 0.6.12;
 
 /// @notice A library for performing overflow-/underflow-safe math,
