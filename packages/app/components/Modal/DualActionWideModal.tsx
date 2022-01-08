@@ -53,7 +53,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
       <Dialog
         as="div"
         static
-        className="fixed z-10 inset-0 overflow-y-auto"
+        className="fixed z-50 inset-0 overflow-y-auto"
         initialFocus={cancelButtonRef}
         open={open}
         onClose={() => setOpen(false)}
