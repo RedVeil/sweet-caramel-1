@@ -15,7 +15,7 @@ function title(step: number): string {
 function text(step: number): string {
   switch (step) {
     case 1:
-      return 'First connect your wallet (If you’re depositing for the first time, you’ll need to approve the contract). Then select the token you would like to deposit from the dropdown, enter the deposit amount and click ‘Mint’.';
+      return 'First connect your wallet. Then select the token you would like to deposit from the dropdown, enter the deposit amount and click ‘Mint’. (If you’re depositing for the first time, you’ll need to approve the contract)';
     case 2:
       return 'Your deposits will be held in Butter’s batch processing queue. Note: To minimise gas fees, deposits are processed when accumulated deposits reach $100k. You are able to withdraw your deposits during this phase.';
     case 3:

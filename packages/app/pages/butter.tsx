@@ -515,7 +515,7 @@ export default function Butter(): JSX.Element {
                 setSingleActionModal({
                   title: 'Your first mint',
                   content:
-                    'You have successfully added your fund into the current batch cycle. Check-in on the Batch module under the Mint & Redeem panel for the latest batch progress.',
+                    'You have successfully deposited into the current batch. Check the table at the bottom of this page to claim the tokens when they are ready.',
                   image: (
                     <img src="images/butter/modal-1.png" className="px-6" />
                   ),
