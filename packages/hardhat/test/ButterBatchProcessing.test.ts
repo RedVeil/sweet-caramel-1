@@ -6,7 +6,7 @@ import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert } from "../lib/utils/expectValue";
-import { MockERC20 } from "../typechain";
+import { MockERC20, RewardsEscrow, Staking } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
 import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
@@ -26,6 +26,7 @@ interface Contracts {
   mockCurveMetapoolUST: MockCurveMetapool;
   mockBasicIssuanceModule: MockBasicIssuanceModule;
   butterBatchProcessing: ButterBatchProcessing;
+  staking: Staking;
 }
 
 enum BatchType {
@@ -122,10 +123,22 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(contractRegistry.address, 0, 0)
   ).deployed();
 
-  const staking = await (
+  const popStaking = await (
     await (
       await ethers.getContractFactory("PopLocker")
     ).deploy(mockPop.address, mockPop.address)
+  ).deployed();
+
+  const rewardsEscrow = (await (
+    await (
+      await ethers.getContractFactory("RewardsEscrow")
+    ).deploy(mockPop.address)
+  ).deployed()) as RewardsEscrow;
+
+  const staking = await (
+    await (
+      await ethers.getContractFactory("Staking")
+    ).deploy(mockPop.address, mockSetToken.address, rewardsEscrow.address)
   ).deployed();
 
   const butterBatchProcessing = (await (
@@ -133,6 +146,7 @@ async function deployContracts(): Promise<Contracts> {
       await ethers.getContractFactory("ButterBatchProcessing")
     ).deploy(
       contractRegistry.address,
+      staking.address,
       mockSetToken.address,
       mock3Crv.address,
       mockBasicIssuanceModule.address,
@@ -172,7 +186,7 @@ async function deployContracts(): Promise<Contracts> {
     .connect(owner)
     .addContract(
       ethers.utils.id("PopLocker"),
-      staking.address,
+      popStaking.address,
       ethers.utils.id("1")
     );
 
@@ -213,6 +227,7 @@ async function deployContracts(): Promise<Contracts> {
     mockCurveMetapoolUST,
     mockBasicIssuanceModule,
     butterBatchProcessing,
+    staking,
   };
 }
 
@@ -797,6 +812,83 @@ describe("ButterBatchProcessing", function () {
         const batch = await contracts.butterBatchProcessing.batches(batchId);
         expect(batch.unclaimedShares).to.equal(parseEther("30000"));
         expect(batch.claimableTokenBalance).to.equal(parseEther("300"));
+      });
+      describe.only("claim and stake", () => {
+        it("reverts when batch is not yet claimable", async function () {
+          const batchId = await contracts.butterBatchProcessing.accountBatches(
+            depositor.address,
+            0
+          );
+          await expect(
+            contracts.butterBatchProcessing
+              .connect(depositor)
+              .claimAndStake(batchId, depositor.address)
+          ).to.be.revertedWith("not yet claimable");
+        });
+        it("reverts when the batchType is Redeem", async function () {
+          //Prepare claimable redeem batch
+          await contracts.mockCrvUSDX.mint(
+            contracts.mockYearnVaultUSDX.address,
+            parseEther("20000")
+          );
+          await contracts.mockCrvUST.mint(
+            contracts.mockYearnVaultUST.address,
+            parseEther("20000")
+          );
+          await contracts.mockYearnVaultUSDX.mint(
+            contracts.mockBasicIssuanceModule.address,
+            parseEther("20000")
+          );
+          await contracts.mockYearnVaultUST.mint(
+            contracts.mockBasicIssuanceModule.address,
+            parseEther("20000")
+          );
+          await contracts.mockSetToken.mint(
+            depositor.address,
+            parseEther("10")
+          );
+          await contracts.mockSetToken
+            .connect(depositor)
+            .approve(contracts.butterBatchProcessing.address, parseEther("10"));
+          await contracts.butterBatchProcessing
+            .connect(depositor)
+            .depositForRedeem(parseEther("10"));
+          await provider.send("evm_increaseTime", [1800]);
+          const batchId =
+            await contracts.butterBatchProcessing.currentRedeemBatchId();
+
+          await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+
+          //Actual Test
+          await expect(
+            contracts.butterBatchProcessing
+              .connect(depositor)
+              .claimAndStake(batchId, depositor.address)
+          ).to.be.revertedWith("Can only stake BTR");
+        });
+        it("claims and stakes batch successully", async function () {
+          await provider.send("evm_increaseTime", [1800]);
+          await provider.send("evm_mine", []);
+          const batchId =
+            await contracts.butterBatchProcessing.currentMintBatchId();
+          await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+
+          expect(
+            await contracts.butterBatchProcessing
+              .connect(depositor)
+              .claimAndStake(batchId, depositor.address)
+          )
+            .to.emit(contracts.butterBatchProcessing, "Claimed")
+            .withArgs(
+              depositor.address,
+              BatchType.Mint,
+              parseEther("10000"),
+              parseEther("100")
+            );
+          expect(await contracts.staking.balanceOf(depositor.address)).to.equal(
+            parseEther("100")
+          );
+        });
       });
     });
   });

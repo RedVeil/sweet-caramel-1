@@ -49,6 +49,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: addresses.deployer,
     args: [
       contractRegistryAddress,
+      addresses.popStaking,
       addresses.butter,
       addresses.threeCrv,
       addresses.setBasicIssuanceModule,

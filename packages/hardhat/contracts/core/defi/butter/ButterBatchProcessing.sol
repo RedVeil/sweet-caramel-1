@@ -15,6 +15,7 @@ import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
 import "../../interfaces/IACLRegistry.sol";
 import "../../interfaces/IContractRegistry.sol";
+import "../../interfaces/IStaking.sol";
 import "../../interfaces/IKeeperIncentive.sol";
 
 /*
@@ -74,6 +75,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   bytes32 public immutable contractName = "ButterBatchProcessing";
 
   IContractRegistry public contractRegistry;
+  IStaking public staking;
   ISetToken public setToken;
   IERC20 public threeCrv;
   BasicIssuanceModule public setBasicIssuanceModule;
@@ -120,6 +122,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
 
   constructor(
     IContractRegistry _contractRegistry,
+    IStaking _staking,
     ISetToken _setToken,
     IERC20 _threeCrv,
     BasicIssuanceModule _basicIssuanceModule,
@@ -130,6 +133,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     uint256 _redeemThreshold
   ) {
     contractRegistry = _contractRegistry;
+    staking = _staking;
     setToken = _setToken;
     threeCrv = _threeCrv;
     setBasicIssuanceModule = _basicIssuanceModule;
@@ -222,23 +226,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @param _claimFor User that gets the shares attributed to (for use in zapper contract)
    */
   function claim(bytes32 _batchId, address _claimFor) external returns (uint256) {
-    Batch storage batch = batches[_batchId];
-    require(batch.claimable, "not yet claimable");
-
-    address recipient = _getRecipient(_claimFor);
-    uint256 accountBalance = accountBalances[_batchId][_claimFor];
-    require(accountBalance <= batch.unclaimedShares, "claiming too many shares");
-
-    //Calculate how many token will be claimed
-    uint256 tokenAmountToClaim = (batch.claimableTokenBalance * accountBalance) / batch.unclaimedShares;
-
-    //Subtract the claimed token from the batch
-    batch.claimableTokenBalance = batch.claimableTokenBalance - tokenAmountToClaim;
-    batch.unclaimedShares = batch.unclaimedShares - accountBalance;
-    accountBalances[_batchId][_claimFor] = 0;
-
+    (address recipient, uint256 tokenAmountToClaim, BatchType batchType) = _prepareClaim(_batchId, _claimFor);
     //Transfer token
-    if (batch.batchType == BatchType.Mint) {
+    if (batchType == BatchType.Mint) {
       setToken.safeTransfer(recipient, tokenAmountToClaim);
     } else {
       //We only want to apply a fee on redemption of Butter
@@ -252,10 +242,20 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
       }
       threeCrv.safeTransfer(recipient, tokenAmountToClaim);
     }
-
-    emit Claimed(_claimFor, batch.batchType, accountBalance, tokenAmountToClaim);
-
     return tokenAmountToClaim;
+  }
+
+  /**
+   * @notice Claims BTR after batch has been processed and stakes it in Staking.sol
+   * @param _batchId Id of batch to claim from
+   * @param _claimFor User that gets the shares attributed to (for use in zapper contract)
+   */
+  function claimAndStake(bytes32 _batchId, address _claimFor) external {
+    (address recipient, uint256 tokenAmountToClaim, BatchType batchType) = _prepareClaim(_batchId, _claimFor);
+
+    //Transfer token
+    require(batchType == BatchType.Mint, "Can only stake BTR");
+    staking.stakeFor(tokenAmountToClaim, recipient);
   }
 
   /**
@@ -504,6 +504,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
       curveLpToken.safeApprove(address(curveMetapool), 0);
       curveLpToken.safeApprove(address(curveMetapool), type(uint256).max);
     }
+
+    setToken.safeApprove(address(staking), 0);
+    setToken.safeApprove(address(staking), type(uint256).max);
   }
 
   /* ========== RESTRICTED FUNCTIONS ========== */
@@ -602,6 +605,39 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     }
 
     emit Deposit(_depositFor, _amount);
+  }
+
+  /**
+   * @notice This function checks all requirements for claiming, updates batches and balances and returns the values needed for the final transfer of tokens
+   * @param _batchId Id of batch to claim from
+   * @param _claimFor User that gets the shares attributed to (for use in zapper contract)
+   */
+  function _prepareClaim(bytes32 _batchId, address _claimFor)
+    internal
+    returns (
+      address,
+      uint256,
+      BatchType
+    )
+  {
+    Batch storage batch = batches[_batchId];
+    require(batch.claimable, "not yet claimable");
+
+    address recipient = _getRecipient(_claimFor);
+    uint256 accountBalance = accountBalances[_batchId][_claimFor];
+    require(accountBalance <= batch.unclaimedShares, "claiming too many shares");
+
+    //Calculate how many token will be claimed
+    uint256 tokenAmountToClaim = (batch.claimableTokenBalance * accountBalance) / batch.unclaimedShares;
+
+    //Subtract the claimed token from the batch
+    batch.claimableTokenBalance = batch.claimableTokenBalance - tokenAmountToClaim;
+    batch.unclaimedShares = batch.unclaimedShares - accountBalance;
+    accountBalances[_batchId][_claimFor] = 0;
+
+    emit Claimed(_claimFor, batch.batchType, accountBalance, tokenAmountToClaim);
+
+    return (recipient, tokenAmountToClaim, batch.batchType);
   }
 
   /**

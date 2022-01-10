@@ -5,7 +5,7 @@ import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import { BatchType } from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert } from "../lib/utils/expectValue";
-import { KeeperIncentive, MockERC20 } from "../typechain";
+import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { ButterBatchProcessingZapper } from "../typechain/ButterBatchProcessingZapper";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
@@ -141,11 +141,24 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(mockPop.address, mockPop.address)
   ).deployed();
 
+  const rewardsEscrow = (await (
+    await (
+      await ethers.getContractFactory("RewardsEscrow")
+    ).deploy(mockPop.address)
+  ).deployed()) as RewardsEscrow;
+
+  const butterStaking = await (
+    await (
+      await ethers.getContractFactory("Staking")
+    ).deploy(mockPop.address, mockSetToken.address, rewardsEscrow.address)
+  ).deployed();
+
   const butterBatchProcessing = (await (
     await (
       await ethers.getContractFactory("ButterBatchProcessing")
     ).deploy(
       contractRegistry.address,
+      butterStaking.address,
       mockSetToken.address,
       mock3Crv.address,
       mockBasicIssuanceModule.address,
