@@ -70,9 +70,7 @@ export default task(
 
     await (async () => {
       try {
-        const mintTx = await butterBatchProcessing.estimateGas.batchRedeem(
-          minAmountOf3Crv
-        );
+        const mintTx = await butterBatchProcessing.estimateGas.batchRedeem();
         console.log({ mintTxGas: formatUnits(mintTx, "gwei") });
         shouldSubmitTx = true;
       } catch (e) {
@@ -82,7 +80,7 @@ export default task(
 
     if (shouldSubmitTx && !Boolean(parseInt(args["dryRun"]))) {
       console.log("Submitting batch redeem tx");
-      const tx = await butterBatchProcessing.batchRedeem(minAmountOf3Crv);
+      const tx = await butterBatchProcessing.batchRedeem();
       const receipt = await tx.wait(1);
       console.log("Transaction confirmed: ", receipt.transactionHash);
     }

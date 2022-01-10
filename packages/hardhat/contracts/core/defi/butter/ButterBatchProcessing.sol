@@ -2,7 +2,6 @@
 // Docgen-SOLC: 0.8.0
 
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -78,6 +77,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   IStaking public staking;
   ISetToken public setToken;
   IERC20 public threeCrv;
+  CurveMetapool public threePool;
   BasicIssuanceModule public setBasicIssuanceModule;
   mapping(address => CurvePoolTokenPair) public curvePoolTokenPairs;
 
@@ -96,6 +96,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   uint256 public batchCooldown;
   uint256 public mintThreshold;
   uint256 public redeemThreshold;
+  uint256 public mintSlippage = 7; // in bps
+  uint256 public redeemSlippage = 7; // in bps
   uint256 public redemptionFees;
   uint256 public redemptionFeeRate;
   address public feeRecipient;
@@ -106,11 +108,13 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
 
   event Deposit(address indexed from, uint256 deposit);
   event Withdrawal(address indexed to, uint256 amount);
-  event BatchMinted(bytes32 indexed batchId, uint256 suppliedTokenAmount, uint256 hysiAmount);
-  event BatchRedeemed(bytes32 indexed batchId, uint256 suppliedTokenAmount, uint256 threeCrvAmount);
+  event MintSlippageUpdated(uint256 prev, uint256 current);
+  event RedeemSlippageUpdated(uint256 prev, uint256 current);
+  event BatchMinted(bytes32 batchId, uint256 suppliedTokenAmount, uint256 butterAmount);
+  event BatchRedeemed(bytes32 batchId, uint256 suppliedTokenAmount, uint256 threeCrvAmount);
   event Claimed(address indexed account, BatchType batchType, uint256 shares, uint256 claimedToken);
-  event WithdrawnFromBatch(bytes32 batchId, uint256 amount, address to);
-  event MovedUnclaimedDepositsIntoCurrentBatch(uint256 amount, BatchType batchType, address account);
+  event WithdrawnFromBatch(bytes32 batchId, uint256 amount, address indexed to);
+  event MovedUnclaimedDepositsIntoCurrentBatch(uint256 amount, BatchType batchType, address indexed account);
   event RedeemThresholdUpdated(uint256 previousThreshold, uint256 newThreshold);
   event MintThresholdUpdated(uint256 previousThreshold, uint256 newThreshold);
   event BatchCooldownUpdated(uint256 previousCooldown, uint256 newCooldown);
@@ -125,6 +129,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     IStaking _staking,
     ISetToken _setToken,
     IERC20 _threeCrv,
+    CurveMetapool _threePool,
     BasicIssuanceModule _basicIssuanceModule,
     address[] memory _yTokenAddresses,
     CurvePoolTokenPair[] memory _curvePoolTokenPairs,
@@ -136,6 +141,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     staking = _staking;
     setToken = _setToken;
     threeCrv = _threeCrv;
+    threePool = _threePool;
     setBasicIssuanceModule = _basicIssuanceModule;
 
     _setCurvePoolTokenPairs(_yTokenAddresses, _curvePoolTokenPairs);
@@ -167,6 +173,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @param _depositFor User that gets the shares attributed to (for use in zapper contract)
    */
   function depositForMint(uint256 _amount, address _depositFor) external nonReentrant whenNotPaused {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireApprovedContractOrEOA(msg.sender);
     require(
       IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).hasRole(
         keccak256("ButterZapper"),
@@ -184,6 +191,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @param _amount amount of Butter to be redeemed
    */
   function depositForRedeem(uint256 _amount) external nonReentrant whenNotPaused {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireApprovedContractOrEOA(msg.sender);
     require(setToken.balanceOf(msg.sender) >= _amount, "insufficient balance");
     setToken.transferFrom(msg.sender, address(this), _amount);
     _deposit(_amount, currentRedeemBatchId, msg.sender);
@@ -226,7 +234,10 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @param _claimFor User that gets the shares attributed to (for use in zapper contract)
    */
   function claim(bytes32 _batchId, address _claimFor) external returns (uint256) {
-    (address recipient, uint256 tokenAmountToClaim, BatchType batchType) = _prepareClaim(_batchId, _claimFor);
+    (address recipient, BatchType batchType, uint256 accountBalance, uint256 tokenAmountToClaim) = _prepareClaim(
+      _batchId,
+      _claimFor
+    );
     //Transfer token
     if (batchType == BatchType.Mint) {
       setToken.safeTransfer(recipient, tokenAmountToClaim);
@@ -242,6 +253,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
       }
       threeCrv.safeTransfer(recipient, tokenAmountToClaim);
     }
+    emit Claimed(recipient, batchType, accountBalance, tokenAmountToClaim);
+
     return tokenAmountToClaim;
   }
 
@@ -251,7 +264,11 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
    * @param _claimFor User that gets the shares attributed to (for use in zapper contract)
    */
   function claimAndStake(bytes32 _batchId, address _claimFor) external {
-    (address recipient, uint256 tokenAmountToClaim, BatchType batchType) = _prepareClaim(_batchId, _claimFor);
+    (address recipient, BatchType batchType, uint256 accountBalance, uint256 tokenAmountToClaim) = _prepareClaim(
+      _batchId,
+      _claimFor
+    );
+    emit Claimed(recipient, batchType, accountBalance, tokenAmountToClaim);
 
     //Transfer token
     require(batchType == BatchType.Mint, "Can only stake BTR");
@@ -259,8 +276,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   }
 
   /**
-   * @notice Moves unclaimed token (3crv or Hysi) from their respective Batches into a new redeemBatch / mintBatch without needing to claim them first. This will typically be used when hysi has already been minted and a user has never claimed / transfered the token to their address and they would like to convert it to stablecoin.
-   * @param _batchIds the ids of each batch where hysi should be moved from
+   * @notice Moves unclaimed token (3crv or butter) from their respective Batches into a new redeemBatch / mintBatch without needing to claim them first. This will typically be used when butter has already been minted and a user has never claimed / transfered the token to their address and they would like to convert it to stablecoin.
+   * @param _batchIds the ids of each batch where butter should be moved from
    * @param _shares how many shares should redeemed in each of the batches
    * @param _batchType the batchType where funds should be taken from (Mint -> Take Hysi and redeem then, Redeem -> Take 3Crv and Mint Butter)
    * @dev the indices of batchIds must match the amountsInHysi to work properly (This will be done by the frontend)
@@ -306,13 +323,13 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
 
   /**
    * @notice Mint Butter token with deposited 3CRV. This function goes through all the steps necessary to mint an optimal amount of Butter
-   * @param _minAmountToMint The expected min amount of hysi to mint. If hysiAmount is lower than minAmountToMint_ the transaction will revert.
    * @dev This function deposits 3CRV in the underlying Metapool and deposits these LP token to get yToken which in turn are used to mint Butter
    * @dev This process leaves some leftovers which are partially used in the next mint batches.
    * @dev In order to get 3CRV we can implement a zap to move stables into the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchMint(uint256 _minAmountToMint) external whenNotPaused {
+  function batchMint() external whenNotPaused {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireApprovedContractOrEOA(msg.sender);
     IKeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
       contractName,
       0,
@@ -325,7 +342,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     //This is to prevent excessive gas consumption and costs as we will pay keeper to call this function
     require(
       (block.timestamp - lastMintedAt) >= batchCooldown || (batch.suppliedTokenBalance >= mintThreshold),
-      "can not execute batch action yet"
+      "can not execute batch mint yet"
     );
 
     //Check if the Batch got already processed -- should technically not be possible
@@ -391,23 +408,31 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
       );
     }
 
-    //Get the minimum amount of hysi that we can mint with our balances of yToken
-    uint256 hysiAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
+    //Get the minimum amount of butter that we can mint with our balances of yToken
+    uint256 butterAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
 
     for (uint256 i = 1; i < tokenAddresses.length; i++) {
-      hysiAmount = Math.min(
-        hysiAmount,
+      butterAmount = Math.min(
+        butterAmount,
         (YearnVault(tokenAddresses[i]).balanceOf(address(this)) * 1e18) / quantities[i]
       );
     }
 
-    require(hysiAmount >= _minAmountToMint, "slippage too high");
+    require(
+      butterAmount >=
+        getMinAmountToMint(
+          valueOf3Crv(batch.suppliedTokenBalance),
+          valueOfComponents(tokenAddresses, quantities),
+          mintSlippage
+        ),
+      "slippage too high"
+    );
 
     //Mint Butter
-    setBasicIssuanceModule.issue(setToken, hysiAmount, address(this));
+    setBasicIssuanceModule.issue(setToken, butterAmount, address(this));
 
     //Save the minted amount Butter as claimable token for the batch
-    batch.claimableTokenBalance = hysiAmount;
+    batch.claimableTokenBalance = butterAmount;
 
     //Set claimable to true so users can claim their Butter
     batch.claimable = true;
@@ -415,7 +440,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     //Update lastMintedAt for cooldown calculations
     lastMintedAt = block.timestamp;
 
-    emit BatchMinted(currentMintBatchId, batch.suppliedTokenBalance, hysiAmount);
+    emit BatchMinted(currentMintBatchId, batch.suppliedTokenBalance, butterAmount);
 
     //Create the next mint batch
     _generateNextBatch(currentMintBatchId, BatchType.Mint);
@@ -423,12 +448,12 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
 
   /**
    * @notice Redeems Butter for 3CRV. This function goes through all the steps necessary to get 3CRV
-   * @param _min3crvToReceive sets minimum amount of 3crv to redeem Butter for, otherwise the transaction will revert
    * @dev This function reedeems Butter for the underlying yToken and deposits these yToken in curve Metapools for 3CRV
    * @dev In order to get stablecoins from 3CRV we can use a zap to redeem 3CRV for stables in the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchRedeem(uint256 _min3crvToReceive) external whenNotPaused {
+  function batchRedeem() external whenNotPaused {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireApprovedContractOrEOA(msg.sender);
     IKeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
       contractName,
       1,
@@ -441,16 +466,19 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     //This is to prevent excessive gas consumption and costs as we will pay keeper to call this function
     require(
       (block.timestamp - lastRedeemedAt >= batchCooldown) || (batch.suppliedTokenBalance >= redeemThreshold),
-      "can not execute batch action yet"
+      "can not execute batch redeem yet"
     );
-    //Check if the Batch got already processed -- should technically not be possible
+
+    //Check if the Batch got already processed
     require(batch.claimable == false, "already redeemed");
 
     //Get tokenAddresses for mapping of underlying
-    (address[] memory tokenAddresses, ) = setBasicIssuanceModule.getRequiredComponentUnitsForIssue(setToken, 1e18);
+    (address[] memory tokenAddresses, uint256[] memory quantities) = setBasicIssuanceModule
+      .getRequiredComponentUnitsForIssue(setToken, batch.suppliedTokenBalance);
 
     //Allow setBasicIssuanceModule to use Butter
     _setBasicIssuanceModuleAllowance(batch.suppliedTokenBalance);
+
     //Redeem Butter for yToken
     setBasicIssuanceModule.redeem(setToken, batch.suppliedTokenBalance, address(this));
 
@@ -470,7 +498,11 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     //Save the redeemed amount of 3CRV as claimable token for the batch
     batch.claimableTokenBalance = threeCrv.balanceOf(address(this)) - oldBalance;
 
-    require(batch.claimableTokenBalance >= _min3crvToReceive, "slippage too high");
+    require(
+      batch.claimableTokenBalance >=
+        getMinAmount3CrvFromRedeem(valueOfComponents(tokenAddresses, quantities), redeemSlippage),
+      "slippage too high"
+    );
 
     emit BatchRedeemed(currentRedeemBatchId, batch.suppliedTokenBalance, batch.claimableTokenBalance);
 
@@ -509,7 +541,64 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     setToken.safeApprove(address(staking), type(uint256).max);
   }
 
+  function getMinAmountToMint(
+    uint256 _valueOfBatch,
+    uint256 _valueOfComponentsPerUnit,
+    uint256 _slippage
+  ) public pure returns (uint256) {
+    uint256 _mintAmount = (_valueOfBatch * 1e18) / _valueOfComponentsPerUnit;
+    uint256 _delta = (_mintAmount * _slippage) / 10_000;
+    return _mintAmount - _delta;
+  }
+
+  function getMinAmount3CrvFromRedeem(uint256 _valueOfComponents, uint256 _slippage) public view returns (uint256) {
+    uint256 _threeCrvToReceive = (_valueOfComponents * 1e18) / threePool.get_virtual_price();
+    uint256 _delta = (_threeCrvToReceive * _slippage) / 10_000;
+    return _threeCrvToReceive - _delta;
+  }
+
+  function valueOfComponents(address[] memory _tokenAddresses, uint256[] memory _quantities)
+    public
+    view
+    returns (uint256)
+  {
+    uint256 value;
+    for (uint256 i = 0; i < _tokenAddresses.length; i++) {
+      value +=
+        (((YearnVault(_tokenAddresses[i]).pricePerShare() *
+          curvePoolTokenPairs[_tokenAddresses[i]].curveMetaPool.get_virtual_price()) / 1e18) * _quantities[i]) /
+        1e18;
+    }
+    return value;
+  }
+
+  function valueOf3Crv(uint256 _units) public view returns (uint256) {
+    return (_units * threePool.get_virtual_price()) / 1e18;
+  }
+
   /* ========== RESTRICTED FUNCTIONS ========== */
+
+  /**
+   * @notice sets slippage for minting
+   * @param _slippageAmount amount in bps (e.g. 50 = 0.5%)
+   */
+  function setMintSlippage(uint256 _slippageAmount) external {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+    require(_slippageAmount <= 200, "slippage too high");
+    emit MintSlippageUpdated(mintSlippage, _slippageAmount);
+    mintSlippage = _slippageAmount;
+  }
+
+  /**
+   * @notice sets slippage for redeeming
+   * @param _slippageAmount amount in bps (e.g. 50 = 0.5%)
+   */
+  function setRedeemSlippage(uint256 _slippageAmount) external {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+    require(_slippageAmount <= 200, "slippage too high");
+    emit RedeemSlippageUpdated(redeemSlippage, _slippageAmount);
+    redeemSlippage = _slippageAmount;
+  }
 
   /**
    * @notice sets allowance for basic issuance module
@@ -616,8 +705,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     internal
     returns (
       address,
+      BatchType,
       uint256,
-      BatchType
+      uint256
     )
   {
     Batch storage batch = batches[_batchId];
@@ -635,9 +725,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     batch.unclaimedShares = batch.unclaimedShares - accountBalance;
     accountBalances[_batchId][_claimFor] = 0;
 
-    emit Claimed(_claimFor, batch.batchType, accountBalance, tokenAmountToClaim);
-
-    return (recipient, tokenAmountToClaim, batch.batchType);
+    return (recipient, batch.batchType, accountBalance, tokenAmountToClaim);
   }
 
   /**
@@ -707,7 +795,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   }
 
   /**
-   * @notice This function defines which underlying token and pools are needed to mint a hysi token
+   * @notice This function defines which underlying token and pools are needed to mint a butter token
    * @param _yTokenAddresses An array of addresses for the yToken needed to mint Butter
    * @param _curvePoolTokenPairs An array structs describing underlying yToken, crvToken and curve metapool
    * @dev since our calculations for minting just iterate through the index and match it with the quantities given by Set
@@ -720,7 +808,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     for (uint256 i; i < _yTokenAddresses.length; i++) {
       curvePoolTokenPairs[_yTokenAddresses[i]] = _curvePoolTokenPairs[i];
     }
-    emit CurveTokenPairsUpdated(_yTokenAddresses, _curvePoolTokenPairs);
   }
 
   /**
@@ -793,5 +880,14 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   function pause() external {
     IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     _pause();
+  }
+
+  /**
+   * @notice Unpauses the contract.
+   * @dev All function with the modifer `whenNotPaused` cant be called anymore. Namly deposits and mint/redeem
+   */
+  function unpause() external {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+    _unpause();
   }
 }

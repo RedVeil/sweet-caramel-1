@@ -1,6 +1,6 @@
 import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
-import { BigNumber, ethers, utils } from "ethers";
+import { ethers, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
@@ -52,6 +52,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       addresses.popStaking,
       addresses.butter,
       addresses.threeCrv,
+      addresses.threePool,
       addresses.setBasicIssuanceModule,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
@@ -146,6 +147,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ).address
   );
 
+  await aclRegistry.grantRole(
+    ethers.utils.id("ApprovedContract"),
+    (
+      await deployments.get("ButterBatchZapper")
+    ).address
+  );
+
   if (["hardhat", "local"].includes(hre.network.name)) {
     createDemoData(hre, deployments, signer, signerAddress, deploy, addresses);
   }
@@ -220,16 +228,16 @@ async function createDemoData(
   console.log("first butter mint");
   const mintId0 = await butterBatch.currentMintBatchId();
   await butterBatch.depositForMint(parseEther("12000"), signerAddress);
-  await butterBatch.batchMint(BigNumber.from("0"));
+  await butterBatch.batchMint();
   await butterBatch.claim(mintId0, signerAddress);
 
   console.log("second butter mint");
   await butterBatch.depositForMint(parseEther("1000"), signerAddress);
-  await butterBatch.batchMint(BigNumber.from("0"));
+  await butterBatch.batchMint();
 
   console.log("redeeming....");
   await butterBatch.depositForRedeem(parseEther("1"));
-  await butterBatch.batchRedeem(BigNumber.from("0"));
+  await butterBatch.batchRedeem();
 
   console.log("create batch to be redeemed");
   await butterBatch.depositForRedeem(parseEther("1"));

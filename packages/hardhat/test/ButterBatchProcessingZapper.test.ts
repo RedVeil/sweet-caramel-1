@@ -161,6 +161,7 @@ async function deployContracts(): Promise<Contracts> {
       butterStaking.address,
       mockSetToken.address,
       mock3Crv.address,
+      mockCurveThreePool.address,
       mockBasicIssuanceModule.address,
       [mockYearnVaultUSDX.address, mockYearnVaultUST.address],
       [
@@ -180,6 +181,9 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed()) as ButterBatchProcessing;
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+
+  await butterBatchProcessing.connect(owner).setRedeemSlippage(100);
+  await butterBatchProcessing.connect(owner).setMintSlippage(100);
   await butterBatchProcessing.setApprovals();
 
   const butterBatchProcessingZapper = (await (
@@ -273,6 +277,10 @@ async function deployContracts(): Promise<Contracts> {
     );
 
   await butterBatchProcessingZapper.setApprovals();
+  await aclRegistry.grantRole(
+    ethers.utils.id("ApprovedContract"),
+    butterBatchProcessingZapper.address
+  );
 
   return {
     mock3Crv,
@@ -421,7 +429,7 @@ describe("ButterBatchProcessingZapper", function () {
         depositor.address
       );
       timeTravel(1800);
-      await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+      await contracts.butterBatchProcessing.connect(owner).batchMint();
 
       await expect(
         contracts.butterBatchProcessingZapper.claimAndSwapToStable(
@@ -442,7 +450,7 @@ describe("ButterBatchProcessingZapper", function () {
         depositor.address
       );
       timeTravel(1800);
-      await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+      await contracts.butterBatchProcessing.connect(owner).batchRedeem();
 
       //Actual Test
       const result = await contracts.butterBatchProcessingZapper
@@ -462,7 +470,7 @@ describe("ButterBatchProcessingZapper", function () {
       expect(result)
         .to.emit(contracts.butterBatchProcessing, "Claimed")
         .withArgs(
-          depositor.address,
+          contracts.butterBatchProcessingZapper.address,
           BatchType.Redeem,
           parseEther("10"),
           claimableAmount
@@ -495,7 +503,7 @@ describe("ButterBatchProcessingZapper", function () {
       await contracts.butterBatchProcessing
         .connect(depositor)
         .depositForRedeem(parseEther("200"));
-      await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+      await contracts.butterBatchProcessing.connect(owner).batchRedeem();
 
       //Pause Contract
       await contracts.butterBatchProcessing.connect(owner).pause();

@@ -475,6 +475,7 @@ export default function Butter(): JSX.Element {
     depositAmount: BigNumber,
     batchType: BatchType,
   ): Promise<void> {
+
     depositAmount = adjustDepositDecimals(
       depositAmount,
       selectedToken.input.key,
