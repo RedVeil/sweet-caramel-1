@@ -252,9 +252,9 @@ export default function Butter(): JSX.Element {
                   'switching network ',
                   parseInt(process.env.CHAIN_ID),
                 );
-                switchNetwork(parseInt(process.env.CHAIN_ID), dispatch);
+                switchNetwork(parseInt(process.env.CHAIN_ID));
               } else {
-                switchNetwork(ChainId.Ethereum, dispatch);
+                switchNetwork(ChainId.Ethereum);
               }
               dispatch(setDualActionWideModal(false));
             },

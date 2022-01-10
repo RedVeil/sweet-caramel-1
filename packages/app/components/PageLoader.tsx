@@ -1,5 +1,5 @@
-import LoadingCat from '@popcorn/ui/components/popcorn/LoadingCat';
 import styled from 'styled-components';
+import LoadingSpinner from './LoadingSpinner';
 
 interface PageLoaderProps {
   loading: boolean;
@@ -24,14 +24,11 @@ const DisappearingDiv = styled.div<PageLoaderProps>`
 const PageLoader: React.FC<PageLoaderProps> = ({ loading }) => {
   return (
     <DisappearingDiv loading={loading}>
-      <div
-        className="relative flex flex-col"
-        style={{ height: 450, width: 400 }}
-      >
-        <LoadingCat />
+      <div className="mx-auto">
+        <LoadingSpinner size="w-48 h-48" />
       </div>
-      <div>
-        <p className="font-bold text-2xl">Loading...</p>
+      <div className="mx-auto">
+        <p className="font-bold text-2xl mt-8">Loading...</p>
       </div>
     </DisappearingDiv>
   );

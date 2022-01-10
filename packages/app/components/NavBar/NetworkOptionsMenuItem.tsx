@@ -1,12 +1,11 @@
 import { Menu } from '@headlessui/react';
-import { store } from 'context/store';
-import React, { useContext } from 'react';
+import React from 'react';
 import { ChainId, logos, networkMap } from '../../context/Web3/connectors';
 
 interface NetworkOptionsMenuItemProps {
   chainId: ChainId;
   currentChainId: number;
-  switchNetwork: (chainId: number, dispatch: React.Dispatch<any>) => void;
+  switchNetwork: (chainId: number) => void;
   last?: boolean;
 }
 
@@ -17,7 +16,6 @@ const NetworkOptionsMenuItem: React.FC<NetworkOptionsMenuItemProps> = ({
   last,
   ...props
 }) => {
-  const { dispatch } = useContext(store);
   return (
     <Menu.Item>
       {({ active }) => (
@@ -27,7 +25,7 @@ const NetworkOptionsMenuItem: React.FC<NetworkOptionsMenuItemProps> = ({
           } group rounded-md items-center px-2 py-2 my-0 text-sm flex flex-row justify-between w-full h-12 cursor-pointer ${
             last ? 'rounded-b-3xl ' : ''
           }`}
-          onClick={() => switchNetwork(chainId, dispatch)}
+          onClick={() => switchNetwork(chainId)}
         >
           <div className="w-4.5 h-4 object-contain ml-3">
             <img src={logos[chainId]} alt={''} className="w-4.5 h-full" />

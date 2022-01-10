@@ -91,7 +91,7 @@ export default function index(): JSX.Element {
               <div className="space-y-6">
                 {loading && (
                   <div className="w-full h-full flex justify-center mt-24">
-                    <LoadingSpinner size="h-96 w-96" cat />
+                    <LoadingSpinner size="h-32 w-32" />
                   </div>
                 )}
                 {contracts?.staking &&

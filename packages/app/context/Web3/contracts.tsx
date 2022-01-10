@@ -10,6 +10,7 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector';
+import activateRPCNetwork from 'helper/activateRPCNetwork';
 import React, { createContext, useEffect, useState } from 'react';
 import { getChainRelevantContracts } from '../../../hardhat/lib/utils/getContractAddresses';
 import {
@@ -32,7 +33,7 @@ import {
   YearnVault,
   YearnVault__factory,
 } from '../../../hardhat/typechain';
-import { connectors, networkMap } from './connectors';
+import { networkMap } from './connectors';
 
 export interface Contracts {
   staking?: Staking[];
@@ -178,7 +179,7 @@ export default function ContractsWrapper({
 
   useEffect(() => {
     if (!active) {
-      activate(connectors.Network);
+      activateRPCNetwork(activate);
     }
   }, [active]);
 
@@ -189,6 +190,7 @@ export default function ContractsWrapper({
         setButterDependencyContracts({});
       };
     }
+
     const contractAddresses = getChainRelevantContracts(chainId);
     const contracts = initializeContracts(contractAddresses, library);
     setContracts(contracts);

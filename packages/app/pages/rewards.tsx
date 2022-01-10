@@ -56,7 +56,7 @@ export default function index(): JSX.Element {
     const popStakingInfo = await getSingleStakingPoolInfo(
       contracts.popStaking,
       library,
-      contracts.pop.address,
+      contracts.pop?.address,
       'POP',
     );
     popStakingInfo.earned = bigNumberToNumber(
@@ -332,7 +332,7 @@ export default function index(): JSX.Element {
                   )}
                 {loading && (
                   <div className="w-full h-full flex justify-center mt-24">
-                    <LoadingSpinner size="w-96 h-96" cat />
+                    <LoadingSpinner size="w-32 h-32" />
                   </div>
                 )}
               </div>

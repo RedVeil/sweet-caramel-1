@@ -59,14 +59,6 @@ export default function stake(): JSX.Element {
   const [withdraw, setWithdraw] = useState<boolean>(false);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const { state, dispatch } = useContext(store);
-  const prevChainId = React.useRef<number>(null);
-
-  useEffect(() => {
-    if (prevChainId.current && chainId !== prevChainId.current && chainId) {
-      router.push('/staking');
-    }
-    prevChainId.current = chainId;
-  }, [chainId]);
 
   useEffect(() => {
     return () => {
@@ -114,6 +106,7 @@ export default function stake(): JSX.Element {
         }
       }
     }
+    // To allow page refresh or Deep URL
     if (
       !state.stakingPageInfo ||
       state.stakingPageInfo?.poolInfo?.stakingContractAddress !== id
@@ -140,8 +133,8 @@ export default function stake(): JSX.Element {
     const withdrawable =
       id === contracts.popStaking.address
         ? await (
-            await (stakingContract as PopLocker).lockedBalances(account)
-          ).unlockable
+          await (stakingContract as PopLocker).lockedBalances(account)
+        ).unlockable
         : stakedAmount;
 
     setBalances({
@@ -257,7 +250,7 @@ export default function stake(): JSX.Element {
       await state.stakingPageInfo.stakingContract.connect(signer);
 
     await (connectedStaking as PopLocker)
-      ['processExpiredLocks(bool)'](true)
+    ['processExpiredLocks(bool)'](true)
       .then((res) =>
         res.wait().then((res) => {
           {
@@ -291,7 +284,9 @@ export default function stake(): JSX.Element {
     // because parseEther breaks with exponential String
     const formattedToken = inputTokenAmount.toLocaleString().replace(/,/gi, '');
     const lockedTokenInEth = utils.parseEther(formattedToken);
-    const connected = await contracts.pop.connect(library.getSigner());
+    const connected = await state?.stakingPageInfo?.inputToken.connect(
+      library.getSigner(),
+    );
     await connected
       .approve(
         state.stakingPageInfo?.stakingContract?.address,
@@ -598,11 +593,10 @@ export default function stake(): JSX.Element {
                       </div>
                     </div>
                     <div
-                      className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${
-                        state?.stakingPageInfo?.symbol === 'POP'
-                          ? 'h-114'
-                          : 'h-92'
-                      }`}
+                      className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${state?.stakingPageInfo?.symbol === 'POP'
+                        ? 'h-114'
+                        : 'h-92'
+                        }`}
                     >
                       <div className="flex flex-row h-full items-center justify-between">
                         <div className="relative h-full w-full">
@@ -614,11 +608,10 @@ export default function stake(): JSX.Element {
                           </div>
                           <img
                             src="/images/catPopVault.png"
-                            className={`absolute max-h-80 w-3/4 right-10  ${
-                              state?.stakingPageInfo?.symbol === 'POP'
-                                ? 'bottom-16'
-                                : 'bottom-4'
-                            }`}
+                            className={`absolute max-h-80 w-3/4 right-10  ${state?.stakingPageInfo?.symbol === 'POP'
+                              ? 'bottom-16'
+                              : 'bottom-4'
+                              }`}
                           />
                         </div>
                       </div>

@@ -51,9 +51,11 @@ const Injected = new InjectedConnector({
   supportedChainIds,
 });
 
-const Network = new NetworkConnector({
-  urls: RPC_URLS,
-  defaultChainId: +process.env.CHAIN_ID,
-});
+const Network = (chainId: number) => {
+  return new NetworkConnector({
+    urls: RPC_URLS,
+    defaultChainId: chainId,
+  });
+};
 
-export const connectors = { Injected, Network };
+export const connectors = { Injected, Network: Network };

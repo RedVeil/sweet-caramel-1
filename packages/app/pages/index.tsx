@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 
 const IndexPage = () => {
   const router = useRouter();
+
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.pathname !== '/') {
       router.replace(window.location.pathname);

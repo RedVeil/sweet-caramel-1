@@ -27,6 +27,7 @@ export function GlobalLinearProgressAndLoading({
 
   useEffect(() => {
     if (globalLoaderVisible) {
+      console.log('globalLoaderVisible');
       return setLoading(true);
     }
     setLoading(false);
