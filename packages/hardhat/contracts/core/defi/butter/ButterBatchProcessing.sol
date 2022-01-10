@@ -94,6 +94,11 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   uint256 public batchCooldown;
   uint256 public mintThreshold;
   uint256 public redeemThreshold;
+  uint256 public redemptionFees;
+  uint256 public redemptionFeeRate;
+  address public feeRecipient;
+
+  mapping(address => bool) public sweethearts;
 
   /* ========== EVENTS ========== */
 
@@ -108,6 +113,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
   event MintThresholdUpdated(uint256 previousThreshold, uint256 newThreshold);
   event BatchCooldownUpdated(uint256 previousCooldown, uint256 newCooldown);
   event CurveTokenPairsUpdated(address[] yTokenAddresses, CurvePoolTokenPair[] curveTokenPairs);
+  event RedemptionFeeUpdated(uint256 newRedemptionFee, address newFeeRecipient);
+  event SweetheartUpdated(address sweetheart, bool isSweeheart);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -234,6 +241,15 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     if (batch.batchType == BatchType.Mint) {
       setToken.safeTransfer(recipient, tokenAmountToClaim);
     } else {
+      //We only want to apply a fee on redemption of Butter
+      //Sweethearts are partner addresses that we want to exclude from this fee
+      if (!sweethearts[_claimFor]) {
+        //Fee is deducted from threeCrv -- This allows it to work with the Zapper
+        //Fes are denominated in BasisPoints
+        uint256 fee = (tokenAmountToClaim * redemptionFeeRate) / 10_000;
+        redemptionFees = redemptionFees + fee;
+        tokenAmountToClaim = tokenAmountToClaim - fee;
+      }
       threeCrv.safeTransfer(recipient, tokenAmountToClaim);
     }
 
@@ -429,12 +445,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     );
     //Check if the Batch got already processed -- should technically not be possible
     require(batch.claimable == false, "already redeemed");
-
-    //Check if this contract has enough Butter -- should technically not be necessary
-    require(
-      setToken.balanceOf(address(this)) >= batch.suppliedTokenBalance,
-      "contract has insufficient balance of token to redeem"
-    );
 
     //Get tokenAddresses for mapping of underlying
     (address[] memory tokenAddresses, ) = setBasicIssuanceModule.getRequiredComponentUnitsForIssue(setToken, 1e18);
@@ -706,6 +716,38 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard {
     IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     emit RedeemThresholdUpdated(redeemThreshold, _threshold);
     redeemThreshold = _threshold;
+  }
+
+  /**
+   * @notice Changes the redemption fee rate and the fee recipient
+   * @param _feeRate Redemption fee rate in basis points
+   * @param _recipient The recipient which receives these fees (Should be DAO treasury)
+   * @dev Per default both of these values are not set. Therefore a fee has to be explicitly be set with this function
+   */
+  function setRedemptionFee(uint256 _feeRate, address _recipient) external {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+    require(_feeRate <= 100, "dont get greedy");
+    redemptionFeeRate = _feeRate;
+    feeRecipient = _recipient;
+    emit RedemptionFeeUpdated(_feeRate, _recipient);
+  }
+
+  /**
+   * @notice Claims all accumulated redemption fees in 3CRV
+   */
+  function claimRedemptionFee() external {
+    threeCrv.safeTransfer(feeRecipient, redemptionFees);
+    redemptionFees = 0;
+  }
+
+  /**
+   * @notice Toggles an address as Sweetheart (partner addresses that don't pay a redemption fee)
+   * @param _sweetheart The address that shall become/lose their sweetheart status
+   */
+  function updateSweetheart(address _sweetheart, bool _enabled) external {
+    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+    sweethearts[_sweetheart] = _enabled;
+    emit SweetheartUpdated(_sweetheart, _enabled);
   }
 
   /**

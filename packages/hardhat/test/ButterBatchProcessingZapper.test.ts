@@ -525,5 +525,17 @@ describe("ButterBatchProcessingZapper", function () {
           depositor.address
         );
     });
+    it("takes a redemption fee", async () => {
+      await contracts.butterBatchProcessing.setRedemptionFee(
+        100,
+        owner.address
+      );
+      await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .claimAndSwapToStable(claimableRedeemId, 0, 0);
+      expect(await contracts.butterBatchProcessing.redemptionFees()).to.equal(
+        parseEther("199.8")
+      );
+    });
   });
 });

@@ -1823,4 +1823,190 @@ describe("ButterBatchProcessing", function () {
         );
     });
   });
+  describe("redemption fee", () => {
+    context("sets RedemptionFee", () => {
+      it("sets a redemptionRate when called with DAO role", async () => {
+        expect(
+          await contracts.butterBatchProcessing.setRedemptionFee(
+            100,
+            owner.address
+          )
+        )
+          .to.emit(contracts.butterBatchProcessing, "RedemptionFeeUpdated")
+          .withArgs(100, owner.address);
+        expect(
+          await contracts.butterBatchProcessing.redemptionFeeRate()
+        ).to.equal(100);
+        expect(await contracts.butterBatchProcessing.feeRecipient()).to.equal(
+          owner.address
+        );
+      });
+      it("reverts when setting redemptionRate without DAO role", async () => {
+        await expectRevert(
+          contracts.butterBatchProcessing
+            .connect(depositor)
+            .setRedemptionFee(100, owner.address),
+          "you dont have the right role"
+        );
+      });
+      it("reverts when setting a feeRate higher than 1%", async () => {
+        await expectRevert(
+          contracts.butterBatchProcessing.setRedemptionFee(1000, owner.address),
+          "dont get greedy"
+        );
+      });
+    });
+    context("with redemption fee", () => {
+      let batchId;
+      const depositAmount = parseEther("100");
+      const feeRate = 100;
+      beforeEach(async () => {
+        await contracts.butterBatchProcessing.setRedemptionFee(
+          feeRate,
+          owner.address
+        );
+        await contracts.mockSetToken.mint(depositor.address, depositAmount);
+        await contracts.mockSetToken
+          .connect(depositor)
+          .approve(contracts.butterBatchProcessing.address, depositAmount);
+        await contracts.butterBatchProcessing
+          .connect(depositor)
+          .depositForRedeem(depositAmount);
+        await contracts.mockYearnVaultUSDX.mint(
+          contracts.mockBasicIssuanceModule.address,
+          parseEther("20000")
+        );
+        await contracts.mockYearnVaultUST.mint(
+          contracts.mockBasicIssuanceModule.address,
+          parseEther("20000")
+        );
+        await contracts.mockCrvUSDX.mint(
+          contracts.mockYearnVaultUSDX.address,
+          parseEther("20000")
+        );
+        await contracts.mockCrvUST.mint(
+          contracts.mockYearnVaultUST.address,
+          parseEther("20000")
+        );
+        await provider.send("evm_increaseTime", [1800]);
+        await provider.send("evm_mine", []);
+        batchId = contracts.butterBatchProcessing.currentRedeemBatchId();
+        await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+      });
+      it("takes the fee", async () => {
+        const accountBalance =
+          await contracts.butterBatchProcessing.accountBalances(
+            batchId,
+            depositor.address
+          );
+        const batch = await contracts.butterBatchProcessing.batches(batchId);
+        const claimAmountWithoutFee = batch.claimableTokenBalance
+          .mul(accountBalance)
+          .div(batch.unclaimedShares);
+        const fee = claimAmountWithoutFee.mul(feeRate).div(10000);
+        const oldBal = await contracts.mock3Crv.balanceOf(depositor.address);
+
+        expect(
+          await contracts.butterBatchProcessing
+            .connect(depositor)
+            .claim(batchId, depositor.address)
+        )
+          .to.emit(contracts.butterBatchProcessing, "Claimed")
+          .withArgs(
+            depositor.address,
+            BatchType.Redeem,
+            depositAmount,
+            claimAmountWithoutFee.sub(fee)
+          );
+
+        const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
+        expect(newBal).to.equal(oldBal.add(claimAmountWithoutFee.sub(fee)));
+
+        expect(await contracts.butterBatchProcessing.redemptionFees()).to.equal(
+          fee
+        );
+      });
+      describe("sweethearts", () => {
+        it("sets a sweetheart when called with DAO role", async () => {
+          expect(
+            await contracts.butterBatchProcessing.updateSweetheart(
+              depositor.address,
+              true
+            )
+          )
+            .to.emit(contracts.butterBatchProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, true);
+          expect(
+            await contracts.butterBatchProcessing.sweethearts(depositor.address)
+          ).to.equal(true);
+        });
+        it("removes a sweetheart when called with DAO role", async () => {
+          await contracts.butterBatchProcessing.updateSweetheart(
+            depositor.address,
+            true
+          );
+          expect(
+            await contracts.butterBatchProcessing.updateSweetheart(
+              depositor.address,
+              false
+            )
+          )
+            .to.emit(contracts.butterBatchProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, false);
+          expect(
+            await contracts.butterBatchProcessing.sweethearts(depositor.address)
+          ).to.equal(false);
+        });
+        it("reverts when trying to set a sweetheart without DAO role", async () => {
+          expect(
+            await contracts.butterBatchProcessing.updateSweetheart(
+              depositor.address,
+              true
+            )
+          )
+            .to.emit(contracts.butterBatchProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, true);
+          expect(
+            await contracts.butterBatchProcessing.sweethearts(depositor.address)
+          ).to.equal(true);
+        });
+        it("doesnt apply the redemption fee as a sweetheart", async () => {
+          await contracts.butterBatchProcessing.updateSweetheart(
+            depositor.address,
+            true
+          );
+          const accountBalance =
+            await contracts.butterBatchProcessing.accountBalances(
+              batchId,
+              depositor.address
+            );
+          const batch = await contracts.butterBatchProcessing.batches(batchId);
+          const claimAmount = batch.claimableTokenBalance
+            .mul(accountBalance)
+            .div(batch.unclaimedShares);
+          const oldBal = await contracts.mock3Crv.balanceOf(depositor.address);
+
+          expect(
+            await contracts.butterBatchProcessing
+              .connect(depositor)
+              .claim(batchId, depositor.address)
+          )
+            .to.emit(contracts.butterBatchProcessing, "Claimed")
+            .withArgs(
+              depositor.address,
+              BatchType.Redeem,
+              depositAmount,
+              claimAmount
+            );
+
+          const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
+          expect(newBal).to.equal(oldBal.add(claimAmount));
+
+          expect(
+            await contracts.butterBatchProcessing.redemptionFees()
+          ).to.equal(BigNumber.from("0"));
+        });
+      });
+    });
+  });
 });
