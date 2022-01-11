@@ -1,3 +1,4 @@
+import { InfoIconWithModal } from 'components/InfoIconWithModal';
 import { BigNumber } from 'ethers';
 import { BatchProcessTokens, SelectedToken } from 'pages/butter';
 import { Dispatch, useEffect, useState } from 'react';
@@ -123,16 +124,30 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </div>
           </div>
         </div>
-        <label className="flex flex-row items-center w-7/12 mt-3 cursor-pointer group">
-          <input
-            type="checkbox"
-            className="mr-2 rounded-sm"
-            onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
-          />
-          <p className="text-base mt-0.5 text-gray-600 leading-none group-hover:text-blue-700">
-            Use unclaimed Balances
-          </p>
-        </label>
+        <div className="flex flex-row items-center mt-2">
+          <label className="flex flex-row items-center cursor-pointer group">
+            <input
+              type="checkbox"
+              className="mr-2 rounded-sm"
+              onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
+            />
+            <p className="text-base mt-0.5 text-gray-600 leading-none group-hover:text-blue-700">
+              Use unclaimed Balances
+            </p>
+          </label>
+          <div className="mt-1">
+            <InfoIconWithModal title="About Unclaimed Balances">
+              <p>
+                When a batch is minted but the Butter has not been claimed yet,
+                it can be redeemed without having to claim it first. By checking
+                “use unclaimed balances” you will be able to redeem unclaimed
+                balances of Butter. This process applies also for unclaimed
+                3CRV, which can be converted to Butter without having to claim
+                it.
+              </p>
+            </InfoIconWithModal>
+          </div>
+        </div>
 
         {depositDisabled && (
           <p className="text-red-600">Insufficient Balance</p>
