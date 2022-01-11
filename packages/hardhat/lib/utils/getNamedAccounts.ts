@@ -14,11 +14,11 @@ export default function getNamedAccounts() {
       rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
       hardhat: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
       polygon: "0x0b6eC0237A284438865EE892d0269ea8419C54f4",
-      mainnet: "0x2c52aD4E90580773DE5eaE27A6f11B52F161CfE1",
+      mainnet: "0x83f79bA9Df03aa56BB414DBeBFC86353377ffE6C",
     },
     butterStaking: {
       hardhat: "0x3155755b79aA083bd953911C92705B7aA82a18F9",
-      mainnet: "0x2f1DC7306cC5b09aFc85D8fadDf97b303d92f651",
+      mainnet: "0x978dB04870E771474d46E49C43738520C6d1BB23",
     },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
@@ -197,13 +197,13 @@ export default function getNamedAccounts() {
       rinkeby: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
     },
     butterBatch: {
-      mainnet: "0x22D9A85700510b46E908bdE4B274c1EaB1E2BB1b",
+      mainnet: "0xe20eE095759814203399716aA1D68D8771474EAa",
       hardhat: "0xd6e1afe5ca8d00a2efc01b89997abe2de47fdfaf",
       rinkeby: "0x06b90E97Cf4b64f338d1D2106329336897bb16F3",
     },
     butterBatchZapper: {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
-      hardhat: "0xCA8c8688914e0F7096c920146cd0Ad85cD7Ae8b9",
+      hardhat: "0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f",
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
     },
     rewardsEscrow: {

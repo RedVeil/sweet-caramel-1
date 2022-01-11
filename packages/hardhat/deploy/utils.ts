@@ -31,8 +31,18 @@ export const addContractToRegistry = async (
     );
   } else {
     console.log(
-      `${contractName} already exists in registry, it must be updated manually`
+      `${contractName} already exists in registry, updating entry ...`
     );
+
+    const tx = await contractRegistry.updateContract(
+      ethers.utils.id(contractName),
+      (
+        await deployments.get(contractName)
+      ).address,
+      ethers.utils.id("2" + new Date().getTime().toString()),
+      { gasLimit: 1000000 }
+    );
+    await tx.wait(1);
   }
 };
 module.exports.skip = () => true;
