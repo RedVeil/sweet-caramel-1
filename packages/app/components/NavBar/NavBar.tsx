@@ -36,7 +36,7 @@ const Navbar: FC = () => {
   }, [chainId]);
 
   return (
-    <nav className="flex pt-9 bg-white z-50">
+    <nav className="flex pt-9 bg-white z-10">
       <div className="flex flex-row items-center justify-between lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto z-50">
         <div className="flex flex-row items-center">
           <div>
