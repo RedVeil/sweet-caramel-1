@@ -777,7 +777,7 @@ export default function Butter(): JSX.Element {
           </div>
           <div className="flex flex-row mt-10">
             <div className="w-1/3">
-              {claimableBatches && (
+              {claimableBatches ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
                   selectedToken={selectedToken}
@@ -804,18 +804,21 @@ export default function Butter(): JSX.Element {
                   slippage={slippage}
                   setSlippage={setSlippage}
                 />
+              ) : (
+                <>
+                  {!account && (
+                    <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                      <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
+                        <MainActionButton
+                          label="Connect Wallet"
+                          handleClick={() => activate(connectors.Injected)}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
-              {!account && (
-                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                  <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                    <MainActionButton
-                      label="Connect Wallet"
-                      handleClick={() => activate(connectors.Injected)}
-                    />
-                  </div>
-                </div>
-              )}
-              {loading && (
+              {account && loading && (
                 <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                   <div className="w-full py-60 mt-1 mb-2 smlaptop:mt-2 mx-auto flex flex-row items-center justify-center">
                     <LoadingSpinner size="h-20 w-20" />
