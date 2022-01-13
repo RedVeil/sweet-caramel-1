@@ -358,6 +358,8 @@ export default function Butter(): JSX.Element {
       mint: claimableMintBatches,
       redeem: claimableRedeemBatches,
     });
+
+    setDepositAmount(BigNumber.from('0'));
   }
 
   const getMinMintAmount = async (
