@@ -16,7 +16,7 @@ let admin: SignerWithAddress,
 let mockToken: MockERC20;
 let merkleOrchard: IMerkleOrchard;
 
-describe("Balancer Merkle Orchard", () => {
+describe.skip("Balancer Merkle Orchard", () => {
   beforeEach(async () => {
     await network.provider.request({
       method: "hardhat_reset",
