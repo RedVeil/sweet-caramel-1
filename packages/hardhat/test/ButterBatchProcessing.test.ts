@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import bluebird from "bluebird";
 import { expect } from "chai";
-import { BigNumber, utils } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
@@ -263,6 +263,27 @@ const deployAndAssignContracts = async () => {
 describe("ButterBatchProcessing", function () {
   beforeEach(async function () {
     await deployAndAssignContracts();
+  });
+  describe("setStaking", () => {
+    const NEW_STAKING_ADDRESS = Wallet.createRandom().address;
+
+    it("should allow dao role to set staking", async () => {
+      await contracts.butterBatchProcessing
+        .connect(owner)
+        .setStaking(NEW_STAKING_ADDRESS);
+      await expectValue(
+        await contracts.butterBatchProcessing.staking(),
+        NEW_STAKING_ADDRESS
+      );
+    });
+    it("should allow not allow a non-dao role to set staking", async () => {
+      await expectRevert(
+        contracts.butterBatchProcessing
+          .connect(depositor)
+          .setStaking(NEW_STAKING_ADDRESS),
+        "you dont have the right role"
+      );
+    });
   });
   describe("EOA only flash loan defender", () => {
     it("does not allow interaction from unapproved contracts on depositForMint", async () => {
