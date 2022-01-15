@@ -19,8 +19,8 @@ export const addContractToRegistry = async (
     ethers.utils.id(contractName)
   );
 
+  console.log(`Adding contract ${contractName} to registry`);
   if (contract === ethers.constants.AddressZero) {
-    console.log(`Adding contract ${contractName} to registry`);
     await contractRegistry.addContract(
       ethers.utils.id(contractName),
       (
