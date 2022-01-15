@@ -1,3 +1,6 @@
+import { escapeRegExp, inputRegex } from 'helper/inputRegex';
+import { useState } from 'react';
+
 export interface TokenInputProps {
   label: string;
   tokenName: string;
@@ -13,6 +16,13 @@ const TokenInput: React.FC<TokenInputProps> = ({
   balance,
   updateInputAmount,
 }) => {
+  const [displayAmount, setDisplayAmount] = useState<string>('');
+  const enforcer = (nextUserInput: string) => {
+    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
+      updateInputAmount(Number(nextUserInput));
+      setDisplayAmount(nextUserInput);
+    }
+  };
   return (
     <div className="w-full">
       <span className="flex flex-col justify-between">
@@ -29,12 +39,23 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </label>
             <div className="mt-1 relative flex items-center">
               <input
-                type="number"
                 name="tokenInput"
                 id="tokenInput"
                 className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 pr-16 py-4 text-lg border-gray-300 rounded-xl"
-                value={String(inputAmount)}
-                onChange={(e) => updateInputAmount(Number(e.target.value))}
+                value={displayAmount}
+                onChange={(e) => {
+                  enforcer(e.target.value.replace(/,/g, '.'));
+                }}
+                inputMode="decimal"
+                autoComplete="off"
+                autoCorrect="off"
+                // text-specific options
+                type="text"
+                pattern="^[0-9]*[.,]?[0-9]*$"
+                placeholder={'0.0'}
+                minLength={1}
+                maxLength={79}
+                spellCheck="false"
               />
               <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
                 <kbd
