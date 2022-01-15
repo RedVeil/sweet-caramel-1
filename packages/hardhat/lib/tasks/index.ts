@@ -7,6 +7,7 @@ export * from "./keeper-incentive";
 export * from "./LBP";
 export * from "./LBPManager";
 export * from "./Ownable";
+export * from "./rewards-escrow";
 export * from "./set-token";
 export * from "./staking";
 export * from "./superseeder";
