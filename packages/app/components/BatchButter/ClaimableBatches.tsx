@@ -5,6 +5,7 @@ import ClaimableBatch from './ClaimableBatch';
 interface ClaimableBatchesProps {
   batches: AccountBatch[];
   claim: Function;
+  claimAndStake: Function;
   withdraw: Function;
   slippage: number;
   setSlippage: Dispatch<number>;
@@ -13,6 +14,7 @@ interface ClaimableBatchesProps {
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   batches,
   claim,
+  claimAndStake,
   withdraw,
   slippage,
   setSlippage,
@@ -48,6 +50,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
             batch={batch}
             index={i}
             claim={claim}
+            claimAndStake={claimAndStake}
             withdraw={withdraw}
             slippage={slippage}
             setSlippage={setSlippage}

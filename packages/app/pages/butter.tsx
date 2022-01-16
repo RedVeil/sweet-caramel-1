@@ -665,6 +665,28 @@ export default function Butter(): JSX.Element {
       });
   }
 
+  async function claimAndStake(batchId: string): Promise<void> {
+    toast.loading('Claiming and staking Butter...');
+    await contracts.butterBatch
+      .connect(library.getSigner())
+      .claimAndStake(batchId, account)
+      .then((res) => {
+        res.wait().then((res) => {
+          toast.dismiss();
+          toast.success('Staked claimed Butter');
+          getData();
+        });
+      })
+      .catch((err) => {
+        toast.dismiss();
+        if (err.data === undefined) {
+          toast.error('An error occured');
+        } else {
+          toast.error(err.data.message.split("'")[1]);
+        }
+      });
+  }
+
   async function withdraw(
     batchId: string,
     amount: BigNumber,
@@ -877,6 +899,7 @@ export default function Butter(): JSX.Element {
                 <ClaimableBatches
                   batches={batches}
                   claim={claim}
+                  claimAndStake={claimAndStake}
                   withdraw={withdraw}
                   slippage={slippage}
                   setSlippage={setSlippage}
