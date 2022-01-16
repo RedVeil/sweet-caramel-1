@@ -19,6 +19,7 @@ import { store } from 'context/store';
 import { connectors } from 'context/Web3/connectors';
 import { ContractsContext } from 'context/Web3/contracts';
 import { utils } from 'ethers';
+import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import 'rc-slider/assets/index.css';
@@ -41,7 +42,7 @@ interface Balances {
   withdrawable: number;
 }
 
-export default function stake(): JSX.Element {
+export default function StakingPage(): JSX.Element {
   const router = useRouter();
   const { id } = router.query;
   const context = useWeb3React<Web3Provider>();
@@ -86,7 +87,7 @@ export default function stake(): JSX.Element {
           stakingContract,
           library,
           id === contracts.popStaking.address ? contracts.pop.address : null,
-          id === contracts.popStaking.address ? 'POP' : null,
+          id === contracts.popStaking.address ? 'Popcorn' : null,
         );
         const erc20 = await getERC20Contract(
           stakingPoolInfo.stakedTokenAddress,
@@ -96,7 +97,7 @@ export default function stake(): JSX.Element {
           updateStakingPageInfo({
             inputToken: erc20,
             stakingContract: stakingContract,
-            tokenName: await erc20.name(),
+            tokenName: getSanitizedTokenDisplayName(await erc20.name()),
             symbol: await erc20.symbol(),
             poolInfo: stakingPoolInfo,
           }),
@@ -133,8 +134,8 @@ export default function stake(): JSX.Element {
     const withdrawable =
       id === contracts.popStaking.address
         ? await (
-          await (stakingContract as PopLocker).lockedBalances(account)
-        ).unlockable
+            await (stakingContract as PopLocker).lockedBalances(account)
+          ).unlockable
         : stakedAmount;
 
     setBalances({
@@ -250,7 +251,7 @@ export default function stake(): JSX.Element {
       await state.stakingPageInfo.stakingContract.connect(signer);
 
     await (connectedStaking as PopLocker)
-    ['processExpiredLocks(bool)'](true)
+      ['processExpiredLocks(bool)'](true)
       .then((res) =>
         res.wait().then((res) => {
           {
@@ -593,10 +594,11 @@ export default function stake(): JSX.Element {
                       </div>
                     </div>
                     <div
-                      className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${state?.stakingPageInfo?.symbol === 'POP'
-                        ? 'h-114'
-                        : 'h-92'
-                        }`}
+                      className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${
+                        state?.stakingPageInfo?.symbol === 'POP'
+                          ? 'h-114'
+                          : 'h-92'
+                      }`}
                     >
                       <div className="flex flex-row h-full items-center justify-between">
                         <div className="relative h-full w-full">
@@ -608,10 +610,11 @@ export default function stake(): JSX.Element {
                           </div>
                           <img
                             src="/images/catPopVault.png"
-                            className={`absolute max-h-80 w-3/4 right-10  ${state?.stakingPageInfo?.symbol === 'POP'
-                              ? 'bottom-16'
-                              : 'bottom-4'
-                              }`}
+                            className={`absolute max-h-80 w-3/4 right-10  ${
+                              state?.stakingPageInfo?.symbol === 'POP'
+                                ? 'bottom-16'
+                                : 'bottom-4'
+                            }`}
                           />
                         </div>
                       </div>

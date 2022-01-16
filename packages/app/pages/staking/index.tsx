@@ -22,7 +22,7 @@ async function getStakingPools(
       contracts.popStaking,
       library,
       contracts.pop.address,
-      'POP',
+      'Popcorn',
     );
     return [popStakingPool, ...stakingPools];
   }

@@ -38,7 +38,7 @@ export async function getSingleStakingPoolInfo(
   stakedTokenName?: string,
 ): Promise<StakingPoolInfo> {
   const tokenPerWeek =
-    stakedTokenName === 'POP'
+    stakedTokenName === 'Popcorn'
       ? await (stakingContract as PopLocker).getRewardForDuration(
           stakedTokenAddress,
         )
@@ -46,7 +46,7 @@ export async function getSingleStakingPoolInfo(
           gasLimit: '2000000',
         });
   const totalStaked =
-    stakedTokenName === 'POP'
+    stakedTokenName === 'Popcorn'
       ? await (stakingContract as PopLocker)?.lockedSupply()
       : await (stakingContract as Staking)?.totalSupply({
           gasLimit: '2000000',

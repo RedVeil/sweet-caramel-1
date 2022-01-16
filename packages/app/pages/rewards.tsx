@@ -57,7 +57,7 @@ export default function index(): JSX.Element {
       contracts.popStaking,
       library,
       contracts.pop?.address,
-      'POP',
+      'Popcorn',
     );
     popStakingInfo.earned = bigNumberToNumber(
       await getEarned(contracts.popStaking, account, true),
@@ -245,7 +245,7 @@ export default function index(): JSX.Element {
                       key={poolInfo.stakingContractAddress}
                       handler={poolClaimHandler}
                       pool={
-                        poolInfo.stakedTokenName === 'POP'
+                        poolInfo.stakedTokenName === 'Popcorn'
                           ? contracts.popStaking
                           : contracts.staking.find(
                               (stakingContract) =>
@@ -254,7 +254,7 @@ export default function index(): JSX.Element {
                             )
                       }
                       disabled={poolInfo.earned === 0}
-                      isPopLocker={poolInfo.stakedTokenName === 'POP'}
+                      isPopLocker={poolInfo.stakedTokenName === 'Popcorn'}
                     />
                   ))}
                 {showEscrows &&

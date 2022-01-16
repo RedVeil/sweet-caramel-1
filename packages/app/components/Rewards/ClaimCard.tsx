@@ -1,5 +1,6 @@
 import { PopLocker, Staking } from '@popcorn/hardhat/typechain';
 import TokenIcon from 'components/TokenIcon';
+import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
 
 interface ClaimCardProps {
   disabled: boolean;
@@ -33,7 +34,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
             disabled ? 'text-gray-400' : 'text-gray-800'
           }`}
         >
-          {tokenName}
+          {getSanitizedTokenDisplayName(tokenName)}
         </h1>
       </div>
       <div className="flex flex-row items-center my-auto">
