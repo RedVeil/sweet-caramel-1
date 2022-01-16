@@ -2,12 +2,11 @@ import { Web3Provider } from '@ethersproject/providers';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { useWeb3React } from '@web3-react/core';
-import { store } from 'context/store';
 import activateRPCNetwork from 'helper/activateRPCNetwork';
 import useEagerConnect from 'hooks/useEagerConnect';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { connectors, networkMap } from '../../context/Web3/connectors';
 import {
   getChainLogo,
@@ -28,7 +27,6 @@ const Navbar: FC = () => {
   const router = useRouter();
   const [currentChainName, setCurrentChainName] = useState('trial');
   const [currentChainIcon, setCurrentChainIcon] = useState('');
-  const { dispatch } = useContext(store);
   useEagerConnect();
   useEffect(() => {
     setCurrentChainName(networkMap[chainId]);

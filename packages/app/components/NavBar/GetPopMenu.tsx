@@ -33,7 +33,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
     >
-      <Menu.Items className="absolute top-14 w-28 bg-white rounded-2xl shadow-md border-gray-200 border focus:outline-none">
+      <Menu.Items className="absolute top-14 -right-4 w-44 bg-white rounded-2xl shadow-md border-gray-200 border focus:outline-none">
         <Menu.Item>
           {({ active }) => (
             <a
@@ -58,7 +58,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
             <div
               className={`${
                 active ? 'bg-gray-100' : 'bg-white'
-              } group text-center px-2 pt-2 w-full h-18 cursor-pointer rounded-b-2xl`}
+              } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-2xl`}
               onClick={async () =>
                 await window.ethereum.request({
                   method: 'wallet_watchAsset',
