@@ -20,7 +20,7 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({
         onClick={(e) => setRedeeming(false)}
       >
         <p
-          className={`text-center leading-none text-base mb-4 ${
+          className={`text-center mt-2 leading-none text-base mb-4 ${
             redeeming
               ? 'text-gray-400 font-semibold group-hover:text-gray-800'
               : 'text-blue-600 font-semibold'
@@ -38,7 +38,7 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({
         onClick={(e) => setRedeeming(true)}
       >
         <p
-          className={`text-center leading-none text-base mb-4 ${
+          className={`text-center mt-2 leading-none text-base mb-4 ${
             redeeming
               ? 'text-blue-600 font-semibold'
               : 'text-gray-400 font-semibold group-hover:text-gray-800'

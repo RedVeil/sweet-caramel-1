@@ -154,7 +154,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
               onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
             />
             <p className="text-base mt-0.5 text-gray-600 leading-none group-hover:text-blue-700">
-              Use unclaimed Balances
+              Use unclaimed balances
             </p>
           </label>
           <div className="mt-1">
