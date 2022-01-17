@@ -21,7 +21,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-row items-center justify-between px-8 w-full h-48 mb-8 shadow-custom rounded-3xl border border-gray-200 ${
+      className={`hover:scale-102 transition duration-500 ease-in-out transform flex flex-row items-center justify-between px-8 w-full h-48 mb-8 shadow-custom rounded-3xl border border-gray-200 ${
         disabled ? 'bg-gray-50' : 'bg-cardBg'
       }`}
     >
@@ -30,8 +30,8 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
           <TokenIcon token={tokenName} />
         </div>
         <h1
-          className={`text-3xl font-bold leading-none text-baseline mt-1 ml-8 ${
-            disabled ? 'text-gray-400' : 'text-gray-800'
+          className={`text-3xl font-medium leading-none text-baseline mt-1 ml-4 ${
+            disabled ? 'text-gray-400' : 'text-gray-900'
           }`}
         >
           {getSanitizedTokenDisplayName(tokenName)}
@@ -39,8 +39,8 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
       </div>
       <div className="flex flex-row items-center my-auto">
         <h1
-          className={`text-3xl font-bold leading-none mr-8 mt-1 ${
-            disabled ? 'text-gray-400' : 'text-gray-800'
+          className={`text-3xl font-medium leading-none mr-8 mt-1 ${
+            disabled ? 'text-gray-400' : 'text-gray-900'
           }`}
         >
           {claimAmount.toLocaleString()} POP
