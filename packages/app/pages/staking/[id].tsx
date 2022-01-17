@@ -280,18 +280,13 @@ export default function StakingPage(): JSX.Element {
     toast.loading(
       `Approving ${state.stakingPageInfo?.tokenName} for staking...`,
     );
-
-    // Ensure that inputTokenAmount is in the format 10000000... instead of 10e+5
-    // because parseEther breaks with exponential String
-    const formattedToken = inputTokenAmount.toLocaleString().replace(/,/gi, '');
-    const lockedTokenInEth = utils.parseEther(formattedToken);
     const connected = await state?.stakingPageInfo?.inputToken.connect(
       library.getSigner(),
     );
     await connected
       .approve(
         state.stakingPageInfo?.stakingContract?.address,
-        lockedTokenInEth,
+        utils.parseEther('100000000'),
       )
       .then((res) =>
         res.wait().then(async (res) => {
