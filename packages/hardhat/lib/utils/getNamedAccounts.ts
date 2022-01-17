@@ -14,7 +14,7 @@ export default function getNamedAccounts() {
       rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
       hardhat: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
       polygon: "0x0b6eC0237A284438865EE892d0269ea8419C54f4",
-      mainnet: "0x83f79bA9Df03aa56BB414DBeBFC86353377ffE6C",
+      mainnet: "0x8A3bC3867dB078Ee2742F063745A374eCC231131",
     },
     butterStaking: {
       hardhat: "0x3155755b79aA083bd953911C92705B7aA82a18F9",
@@ -176,7 +176,7 @@ export default function getNamedAccounts() {
     },
     popUsdcLp: {
       polygon: "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
-      mainnet: "0x8A3bC3867dB078Ee2742F063745A374eCC231131",
+      mainnet: "0xbba11b41407df8793a89b44ee4b50afad4508555",
       hardhat: "0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397",
       rinkeby: "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
     },
