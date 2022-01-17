@@ -13,7 +13,7 @@ export default function getNamedAccounts() {
     popUsdcLpStaking: {
       rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
       hardhat: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
-      polygon: "0x0b6eC0237A284438865EE892d0269ea8419C54f4",
+      polygon: "0x6da8005c4204553E596241F3cD561C7856857db1",
       mainnet: "0x8A3bC3867dB078Ee2742F063745A374eCC231131",
     },
     butterStaking: {
