@@ -45,6 +45,9 @@ module.exports = {
       borderWidth: {
         3: '3px',
       },
+      borderWidth: {
+        3: '3px',
+      },
       spacing: {
         18: '4.5rem',
         72: '18rem',
@@ -52,7 +55,7 @@ module.exports = {
         88: '22rem',
         92: '23rem',
         96: '24rem',
-        100: '25.5rem',
+        100: '25rem',
         104: '27rem',
         108: '28rem',
         110: '29.5rem',

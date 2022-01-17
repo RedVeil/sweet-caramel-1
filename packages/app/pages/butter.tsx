@@ -8,7 +8,6 @@ import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
 import StatInfoCard from 'components/BatchButter/StatInfoCard';
 import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Tutorial from 'components/BatchButter/Tutorial';
-import LoadingSpinner from 'components/LoadingSpinner';
 import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
 import { setDualActionWideModal, setSingleActionModal } from 'context/actions';
@@ -24,6 +23,7 @@ import { BigNumber, utils } from 'ethers';
 import useThreeCurveVirtualPrice from 'hooks/useThreeCurveVirtualPrice';
 import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import ContentLoader from 'react-content-loader';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   AccountBatch,
@@ -849,16 +849,10 @@ export default function Butter(): JSX.Element {
                   )}
                 </>
               )}
-              {account && loading && (
-                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                  <div className="w-full py-60 mt-1 mb-2 smlaptop:mt-2 mx-auto flex flex-row items-center justify-center">
-                    <LoadingSpinner size="h-20 w-20" />
-                  </div>
-                </div>
-              )}
+              {account && loading && <ContentLoader />}
             </div>
 
-            <div className="w-2/3">
+            <div className="w-2/3 flex flex-col">
               <div className="flex flex-row">
                 <div className="w-1/2 mr-2">
                   <StatInfoCard
@@ -895,7 +889,7 @@ export default function Butter(): JSX.Element {
                 </div>
               </div>
 
-              <div className="w-full pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+              <div className="w-full h-full items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
                 <Tutorial />
               </div>
             </div>

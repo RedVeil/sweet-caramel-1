@@ -59,7 +59,7 @@ const Tutorial: React.FC = () => {
   const [step, setStep] = useState<number>(1);
 
   return (
-    <div className="w-full h-full flex flex-row">
+    <div className="w-full h-full flex flex-row items-center">
       <div className="w-2/12 flex items-center justify-center">
         <button
           className="w-20 h-20 rounded-full bg-white opacity-50 flex justify-center items-center shadow-custom hover:opacity-70"

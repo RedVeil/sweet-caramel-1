@@ -80,7 +80,7 @@ const Navbar: FC = () => {
               <Menu.Button>
                 <div className="w-28 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl mr-5">
                   <img src="/images/icons/popLogo.png" className="w-5 h-5" />
-                  <p className="font-medium ml-3">POP</p>
+                  <p className="font-medium ml-3 leading-none mt-1">POP</p>
                 </div>
                 <GetPopMenu chainId={chainId} />
               </Menu.Button>

@@ -321,13 +321,13 @@ export default function StakingPage(): JSX.Element {
               {state.stakingPageInfo && (
                 <span className="flex flex-row items-center">
                   <TokenIcon token={state.stakingPageInfo?.tokenName} />
-                  <h1 className="ml-3 text-4xl font-bold">
+                  <h1 className="ml-3 text-4xl font-medium uppercase">
                     {state.stakingPageInfo?.tokenName}
                   </h1>
                 </span>
               )}
-              <div className="w-1/2 flex flex-row items-center mt-6 justify-between">
-                <div className="pr-8 border-r-2 border-gray-200">
+              <div className="flex flex-row items-center mt-6 justify-start">
+                <div className="pr-6 border-r-2 border-gray-200">
                   <p className="text-gray-500 font-light text-base uppercase">
                     Est. APY
                   </p>
@@ -338,7 +338,7 @@ export default function StakingPage(): JSX.Element {
                     %
                   </p>
                 </div>
-                <div className="pr-8 border-r-2 border-gray-200">
+                <div className="px-6 border-r-2 border-gray-200">
                   <p className="text-gray-500 font-light text-base uppercase">
                     Total Staked
                   </p>
@@ -348,7 +348,7 @@ export default function StakingPage(): JSX.Element {
                       : 0}
                   </p>
                 </div>
-                <div>
+                <div className="px-6">
                   <p className="text-gray-500 font-light text-base uppercase">
                     Emission Rate
                   </p>
@@ -486,7 +486,7 @@ export default function StakingPage(): JSX.Element {
                 )}
 
                 {state.stakingPageInfo && (
-                  <div className="w-96 mx-auto pt-4 pb-1">
+                  <div className="w-96 h-24 mx-auto pt-2 pb-1">
                     {account ? (
                       <>
                         {withdraw ? (
@@ -504,30 +504,41 @@ export default function StakingPage(): JSX.Element {
                         ) : (
                           <>
                             {balances.allowance >= inputTokenAmount ? (
-                              <MainActionButton
-                                label={`Stake ${state.stakingPageInfo?.symbol}`}
-                                handleClick={stake}
-                                disabled={
-                                  !termsAccepted ||
-                                  inputTokenAmount === 0 ||
-                                  wait
-                                }
-                              />
+                              <div className="mt-4">
+                                <MainActionButton
+                                  label={`Stake ${state.stakingPageInfo?.symbol}`}
+                                  handleClick={stake}
+                                  disabled={
+                                    !termsAccepted ||
+                                    inputTokenAmount === 0 ||
+                                    wait
+                                  }
+                                />
+                              </div>
                             ) : (
-                              <MainActionButton
-                                label={'Approve for Staking'}
-                                handleClick={approve}
-                                disabled={wait || inputTokenAmount === 0}
-                              />
+                              <div className="space-y-4">
+                                <MainActionButton
+                                  label={'Approve for Staking'}
+                                  handleClick={approve}
+                                  disabled={wait || inputTokenAmount === 0}
+                                />
+                                <MainActionButton
+                                  label={`Stake ${state.stakingPageInfo?.symbol}`}
+                                  handleClick={stake}
+                                  disabled={true}
+                                />
+                              </div>
                             )}
                           </>
                         )}
                       </>
                     ) : (
-                      <MainActionButton
-                        label={'Connect Wallet'}
-                        handleClick={() => activate(connectors.Injected)}
-                      />
+                      <div className="mt-4">
+                        <MainActionButton
+                          label={'Connect Wallet'}
+                          handleClick={() => activate(connectors.Injected)}
+                        />
+                      </div>
                     )}
                   </div>
                 )}
@@ -541,7 +552,7 @@ export default function StakingPage(): JSX.Element {
                       <div className="h-28 pt-8 px-8">
                         <div className="flex flex-row items-center justify-between">
                           <div>
-                            <h2 className="text-gray-500">
+                            <h2 className="text-gray-500 uppercase text-base">
                               Your Staked Balance
                             </h2>
                             <div className="flex flex-row items-center mt-1">
@@ -568,7 +579,7 @@ export default function StakingPage(): JSX.Element {
                       <div className="h-28 bg-blue-50 rounded-b-3xl py-8 px-8">
                         <div className="flex flex-row items-center justify-between">
                           <div>
-                            <h2 className="text-gray-500">
+                            <h2 className="text-gray-500 text-base uppercase">
                               Your Staking Rewards
                             </h2>
                             <div className="flex flex-row items-center mt-1">
@@ -599,7 +610,7 @@ export default function StakingPage(): JSX.Element {
                         <div className="relative h-full w-full">
                           <div className="mt-8 ml-8">
                             <p className="text-xl font-medium">Happy Staking</p>
-                            <p className="text-base font-light w-3/12 mt-1">
+                            <p className="text-base font-light mt-1">
                               Enjoy more sweet POP in your wallet!
                             </p>
                           </div>

@@ -7,7 +7,6 @@ import {
   StakingPoolInfo,
 } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
-import LoadingSpinner from 'components/LoadingSpinner';
 import Navbar from 'components/NavBar/NavBar';
 import ClaimCard from 'components/Rewards/ClaimCard';
 import VestingRecordComponent from 'components/Rewards/VestingRecord';
@@ -20,6 +19,7 @@ import useClaimEscrows from 'hooks/useClaimEscrows';
 import useClaimStakingReward from 'hooks/useClaimStakingReward';
 import useGetUserEscrows, { Escrow } from 'hooks/useGetUserEscrows';
 import React, { useContext, useEffect, useState } from 'react';
+import ContentLoader from 'react-content-loader';
 import { ChevronDown } from 'react-feather';
 import { toast, Toaster } from 'react-hot-toast';
 import { SWRResponse } from 'swr';
@@ -274,7 +274,7 @@ export default function index(): JSX.Element {
                             No records available
                           </p>
                           <p className="mt-1 text-gray-900">
-                            No vesting record has been created
+                            No vesting records found
                           </p>
                         </div>
                       ) : (
@@ -355,11 +355,7 @@ export default function index(): JSX.Element {
                       )}
                     </div>
                   )}
-                {loading && (
-                  <div className="w-full h-full flex justify-center mt-24">
-                    <LoadingSpinner size="w-32 h-32" />
-                  </div>
-                )}
+                {loading && <ContentLoader title="Loading ..." />}
               </div>
             </div>
           )}

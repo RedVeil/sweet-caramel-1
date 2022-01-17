@@ -110,7 +110,13 @@ const TokenInput: React.FC<TokenInputProps> = ({
         </div>
         <div
           className={`rounded-md border py-2 pl-2 pr-4 ${
-            depositDisabled ? 'border-red-600' : 'border-gray-200'
+            depositAmount.gt(
+              useUnclaimedDeposits
+                ? selectedToken.input.claimableBalance
+                : selectedToken.input.balance,
+            )
+              ? 'border-red-600'
+              : 'border-gray-200'
           }`}
         >
           <div className="flex flex-row items-center justify-between">
@@ -184,15 +190,21 @@ const TokenInput: React.FC<TokenInputProps> = ({
           </div>
         </div>
 
-        {depositDisabled && (
-          <p className="text-red-600">Insufficient Balance</p>
-        )}
+        {depositAmount.gt(
+          useUnclaimedDeposits
+            ? selectedToken.input.claimableBalance
+            : selectedToken.input.balance,
+        ) && <p className="text-red-600">Insufficient Balance</p>}
       </div>
       <div className="relative">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
           <div className="w-full border-t border-gray-300" />
         </div>
-        <div className="relative flex justify-center my-16">
+        <div
+          className={`relative flex justify-center ${
+            depositDisabled ? 'mb-16 mt-10' : 'my-16'
+          }`}
+        >
           <div className="w-20 bg-white">
             <div
               className="flex items-center w-14 h-14 mx-auto border border-gray-200 rounded-full cursor-pointer hover:bg-gray-50 hover:border-gray-400"
@@ -208,7 +220,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         </div>
       </div>
       <div className="">
-        <p className="mb-1 text-sm font-semibold text-gray-900">
+        <p className="mb-1 text-base font-medium text-gray-900">
           {`Estimated ${selectedToken.output.name} Amount`}
         </p>
         <div className="py-2 pl-2 pr-5 border border-gray-200 rounded-md">

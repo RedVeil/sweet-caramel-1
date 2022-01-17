@@ -29,7 +29,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   setSlippage,
 }) => {
   return (
-    <div className="bg-white rounded-3xl px-5 pt-3.5 pb-10 mr-8 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl px-5 pt-10 pb-10 mr-8 border border-gray-200 shadow-custom">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <TokenInput
         token={token}
@@ -48,24 +48,49 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
         )}
       </div>
-      <div className="w-full text-center lg:mt-18 lglaptop:mt-20 xl:mt-28 2xl:mt-24 smlaptop:mb-1 lglaptop:mb-1 xl:mb-3.5 2xl:mb-1.5">
+      {!depositDisabled && (
+        <div className="pt-20">
+          <div className="flex flex-row justify-between">
+            <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">
+              Slippage
+            </p>
+            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">
+              {slippage} %
+            </p>
+          </div>
+        </div>
+      )}
+      <div className="w-full h-24 text-center lg:mt-9 lglaptop:mt-10 xl:mt-14 2xl:mt-212 smlaptop:mb-1 lglaptop:mb-1 xl:mb-3.5 2xl:mb-1.5">
         {depositAmount.gt(selectedToken.input.allowance) ? (
-          <MainActionButton
-            label={`Approve ${selectedToken.input.name}`}
-            handleClick={(e) => approve(selectedToken.input.key)}
-            disabled={depositDisabled}
-          />
+          <div className="space-y-4">
+            <MainActionButton
+              label={`Allow Popcorn to use your ${selectedToken.input.name}`}
+              handleClick={(e) => approve(selectedToken.input.key)}
+            />
+            <MainActionButton
+              label={redeeming ? 'Redeem' : 'Mint'}
+              handleClick={(e) =>
+                deposit(
+                  depositAmount,
+                  redeeming ? BatchType.Redeem : BatchType.Mint,
+                )
+              }
+              disabled={true}
+            />
+          </div>
         ) : (
-          <MainActionButton
-            label={redeeming ? 'Redeem' : 'Mint'}
-            handleClick={(e) =>
-              deposit(
-                depositAmount,
-                redeeming ? BatchType.Redeem : BatchType.Mint,
-              )
-            }
-            disabled={depositDisabled}
-          />
+          <div className="pt-6">
+            <MainActionButton
+              label={redeeming ? 'Redeem' : 'Mint'}
+              handleClick={(e) =>
+                deposit(
+                  depositAmount,
+                  redeeming ? BatchType.Redeem : BatchType.Mint,
+                )
+              }
+              disabled={depositDisabled}
+            />
+          </div>
         )}
       </div>
     </div>

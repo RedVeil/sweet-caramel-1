@@ -1,7 +1,6 @@
 import { setSingleActionModal } from 'context/actions';
 import { store } from 'context/store';
 import React, { useContext } from 'react';
-import * as Icon from 'react-feather';
 
 export interface InfoIconWithModalProps {
   title: string;
@@ -19,7 +18,8 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
   const { dispatch } = useContext(store);
 
   return (
-    <Icon.Info
+    <img
+      src="/images/infoIcon.svg"
       onClick={() => {
         dispatch(
           setSingleActionModal({

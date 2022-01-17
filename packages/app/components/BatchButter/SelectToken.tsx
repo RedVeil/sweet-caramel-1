@@ -50,20 +50,20 @@ export default function SelectToken({
         )}
       </span>
       {showDropdown && (
-        <div className="absolute z-20 flex flex-col w-full h-24 px-2 pt-2 space-y-1 bg-white shadow-md rounded-b-md top-6">
+        <div className="absolute z-20 flex flex-col w-full h-28 px-2 pt-2 pb-2 space-y-1 bg-white shadow-md rounded-b-md top-6">
           {Object.keys(token)
             .filter((key) => !notSelectable.includes(key))
             .map((selectableToken) => (
               <a
                 key={selectableToken}
-                className="cursor-pointer group flex flex-row items-center"
+                className="cursor-pointer group h-full flex flex-row items-center hover:bg-gray-100 rounded-md"
                 onClick={() => selectToken(token[selectableToken])}
               >
                 <img
-                  className="w-5 h-5 mx-2 mb-1"
+                  className="w-5 h-5 mx-2"
                   src={`images/tokens/${token[selectableToken].img}`}
                 ></img>
-                <p className="font-semibold group-hover:text-blue-700">
+                <p className="font-semibold group-hover:text-blue-700 mt-1.5">
                   {token[selectableToken].name}
                 </p>
               </a>

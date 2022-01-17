@@ -64,11 +64,11 @@ export default function TokenIcon({ token }: TokenIconProps): JSX.Element {
       );
     default:
       return (
-        <div className="flex items-center rounded-full bg-white border border-gray-300 w-12 h-12">
+        <div className="flex items-center justify-center rounded-full bg-white border border-gray-300 w-12 h-12">
           <img
             src="/images/icons/popLogo.png"
             alt="pop"
-            className="w-7 h-7 ml-2.5"
+            className="w-7 h-7 ml-0.5 mt-1.15"
           />
         </div>
       );

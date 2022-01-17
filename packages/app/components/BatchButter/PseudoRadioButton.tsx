@@ -11,13 +11,19 @@ const PseudoRadioButton: React.FC<PseudoRadioButtonProps> = ({
 }) => {
   return (
     <button
-      className={`py-2 w-20 border-3 rounded-xl text-base font-semibold hover:bg-blue-600 hover:text-white hover:border-blue-600 ${
+      className={`py-2 w-32 h-12 border-3 rounded-xl text-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 ${
         isActive ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-200'
       }`}
       type="button"
       onClick={() => handleClick()}
     >
-      {label}
+      <p
+        className={`text-xl font-semibold text-sm hover:text-gray-100 ${
+          isActive ? 'text-gray-100' : 'border-gray-200'
+        }`}
+      >
+        {label}
+      </p>
     </button>
   );
 };
