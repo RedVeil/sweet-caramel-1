@@ -42,7 +42,7 @@ module.exports = {
         '5xl': '2.5rem',
         '6xl': '3rem',
       },
-      border: {
+      borderWidth: {
         3: '3px',
       },
       spacing: {

@@ -369,7 +369,7 @@ export default function StakingPage(): JSX.Element {
           </div>
           <div className="flex flex-row mt-10">
             <div className="w-1/3">
-              <div className="pt-8 pb-14 px-6 border border-gray-200 rounded-3xl shadow-custom">
+              <div className="pt-8 h-full px-6 border border-gray-200 rounded-3xl shadow-custom">
                 <div className="pt-2">
                   <TokenInputToggle
                     toggled={withdraw}
@@ -609,7 +609,7 @@ export default function StakingPage(): JSX.Element {
                             </p>
                           </div>
                           <img
-                            src="/images/catPopVault.png"
+                            src="/images/catPopVault.svg"
                             className={`absolute max-h-80 w-3/4 right-10  ${
                               state?.stakingPageInfo?.symbol === 'POP'
                                 ? 'bottom-16'
