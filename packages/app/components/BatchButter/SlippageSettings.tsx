@@ -18,7 +18,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
   return (
     <>
       <div
-        className="flex flex-row items-center mt-3 group cursor-pointer"
+        className="flex flex-row items-center group cursor-pointer"
         onClick={() => setVisibility(!visible)}
       >
         <img

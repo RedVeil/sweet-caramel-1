@@ -43,8 +43,10 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         setUseUnclaimedDeposits={setUseUnclaimedDeposits}
         depositDisabled={depositDisabled}
       />
-      <div>
-        <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
+      <div className="h-6 mt-3 w-full">
+        {!redeeming && (
+          <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
+        )}
       </div>
       <div className="w-full text-center lg:mt-18 lglaptop:mt-20 xl:mt-28 2xl:mt-24 smlaptop:mb-1 lglaptop:mb-1 xl:mb-3.5 2xl:mb-1.5">
         {depositAmount.gt(selectedToken.input.allowance) ? (
