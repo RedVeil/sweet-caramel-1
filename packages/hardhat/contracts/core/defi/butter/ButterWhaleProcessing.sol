@@ -2,14 +2,13 @@
 // Docgen-SOLC: 0.8.0
 
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "../../interfaces/IACLRegistry.sol";
+import "../../utils/ACLAuth.sol";
 import "../../../externals/interfaces/YearnVault.sol";
 import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
@@ -21,7 +20,7 @@ import "../../interfaces/IContractRegistry.sol";
  * @notice This contract allows users to mint and redeem Butter for using 3CRV, DAI, USDC, USDT
  * The Butter is created from several different yTokens which in turn need each a deposit of a crvLPToken.
  */
-contract ButterWhaleProcessing is Pausable, ReentrancyGuard {
+contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
   using SafeERC20 for YearnVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
@@ -64,7 +63,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard {
     BasicIssuanceModule _basicIssuanceModule,
     address[] memory _yTokenAddresses,
     CurvePoolTokenPair[] memory _curvePoolTokenPairs
-  ) {
+  ) ACLAuth(_contractRegistry) {
     contractRegistry = _contractRegistry;
     setToken = _setToken;
     threeCrv = _threeCrv;
@@ -378,8 +377,8 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard {
    */
   function setCurvePoolTokenPairs(address[] memory _yTokenAddresses, CurvePoolTokenPair[] calldata _curvePoolTokenPairs)
     public
+    onlyRole(DAO_ROLE)
   {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     _setCurvePoolTokenPairs(_yTokenAddresses, _curvePoolTokenPairs);
   }
 
@@ -404,8 +403,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard {
    * @notice Pauses the contract.
    * @dev All function with the modifer `whenNotPaused` cant be called anymore. Namly deposits and mint/redeem
    */
-  function pause() external {
-    IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
+  function pause() external onlyRole(DAO_ROLE) {
     _pause();
   }
 }
