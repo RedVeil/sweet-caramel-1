@@ -60,7 +60,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
               <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
                 <kbd
                   className="inline-flex items-center border-2 border-gray-200 rounded-lg px-2 h-8 mt-2 text-sm font-sans font-medium text-blue-600 cursor-pointer hover:text-indigo-500 hover:border-indigo-500"
-                  onClick={() => updateInputAmount(balance)}
+                  onClick={() => {
+                    updateInputAmount(balance);
+                    setDisplayAmount(String(balance));
+                  }}
                 >
                   MAX
                 </kbd>

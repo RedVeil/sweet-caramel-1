@@ -135,16 +135,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
               <p
                 className="px-2 pb-1 pt-1.5 leading-none text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700"
                 onClick={(e) => {
-                  setDepositAmount(
-                    useUnclaimedDeposits
-                      ? selectedToken.input.claimableBalance
-                      : selectedToken.input.balance,
-                  );
-                  calcOutputAmountsFromInput(
-                    useUnclaimedDeposits
-                      ? selectedToken.input.claimableBalance
-                      : selectedToken.input.balance,
-                  );
+                  const maxAmount = useUnclaimedDeposits
+                    ? selectedToken.input.claimableBalance
+                    : selectedToken.input.balance;
+                  setDepositAmount(maxAmount);
+                  setDisplayDepositAmount(String(bigNumberToNumber(maxAmount)));
+                  calcOutputAmountsFromInput(maxAmount);
                 }}
               >
                 MAX
