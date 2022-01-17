@@ -79,7 +79,7 @@ async function getBatchProcessToken(
   butterDependencyContracts: ButterDependencyContracts,
   account: string,
 ): Promise<BatchProcessTokens> {
-  const batchProcessTokens = {
+  return {
     butter: {
       name: 'BTR',
       key: 'butter',
@@ -166,7 +166,6 @@ async function getBatchProcessToken(
       img: 'usdt.webp',
     },
   };
-  return batchProcessTokens;
 }
 
 function adjustDepositDecimals(
@@ -295,8 +294,20 @@ export default function Butter(): JSX.Element {
       return;
     }
     setLoading(true);
-    getData().then((res) => setLoading(false));
+    getData().then((res) => {
+      setLoading(false);
+    });
   }, [butterBatchAdapter, account]);
+
+  useEffect(() => {
+    if (!batchProcessTokens || selectedToken) {
+      return;
+    }
+    setSelectedToken({
+      input: batchProcessTokens.threeCrv,
+      output: batchProcessTokens.butter,
+    });
+  }, [batchProcessTokens]);
 
   useEffect(() => {
     if (!batchProcessTokens) {
@@ -325,17 +336,6 @@ export default function Butter(): JSX.Element {
     );
     setButterSupply(tokenSupplyRes);
 
-    const batchProcessTokenRes = await getBatchProcessToken(
-      butterBatchAdapter,
-      contracts,
-      butterDependencyContracts,
-      account,
-    );
-    setSelectedToken({
-      input: batchProcessTokenRes.threeCrv,
-      output: batchProcessTokenRes.butter,
-    });
-
     const batchRes = await butterBatchAdapter.getBatches(account);
     setBatches(batchRes);
 
@@ -346,19 +346,24 @@ export default function Butter(): JSX.Element {
       (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
     );
 
-    const newBatchProcessTokens = { ...batchProcessTokenRes };
-    newBatchProcessTokens.butter.claimableBalance =
+    const batchProcessTokenRes = await getBatchProcessToken(
+      butterBatchAdapter,
+      contracts,
+      butterDependencyContracts,
+      account,
+    );
+
+    batchProcessTokenRes.butter.claimableBalance =
       getClaimableBalance(claimableMintBatches);
-    newBatchProcessTokens.threeCrv.claimableBalance = getClaimableBalance(
+    batchProcessTokenRes.threeCrv.claimableBalance = getClaimableBalance(
       claimableRedeemBatches,
     );
 
-    setBatchProcessTokens(newBatchProcessTokens);
+    setBatchProcessTokens(batchProcessTokenRes);
     setClaimableBatches({
       mint: claimableMintBatches,
       redeem: claimableRedeemBatches,
     });
-
     setDepositAmount(BigNumber.from('0'));
   }
 
@@ -801,7 +806,7 @@ export default function Butter(): JSX.Element {
           </div>
           <div className="flex flex-row mt-10">
             <div className="w-1/3">
-              {claimableBatches ? (
+              {claimableBatches && selectedToken ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
                   selectedToken={selectedToken}
