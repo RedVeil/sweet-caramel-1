@@ -325,6 +325,8 @@ export default function Butter(): JSX.Element {
       });
     }
     setUseZap(false);
+    setDepositAmount(BigNumber.from('0'));
+    setUseUnclaimedDeposits(false);
   }, [redeeming]);
 
   async function getData(): Promise<void> {

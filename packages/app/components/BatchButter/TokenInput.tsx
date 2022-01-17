@@ -2,7 +2,7 @@ import { InfoIconWithModal } from 'components/InfoIconWithModal';
 import { BigNumber } from 'ethers';
 import { escapeRegExp, inputRegex } from 'helper/inputRegex';
 import { BatchProcessTokens, SelectedToken } from 'pages/butter';
-import { Dispatch, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { bigNumberToNumber, scaleNumberToBigNumber } from '../../../utils';
 import SelectToken from './SelectToken';
 
@@ -44,13 +44,22 @@ const TokenInput: React.FC<TokenInputProps> = ({
   const [estimatedAmount, setEstimatedAmount] = useState<string>('');
   const [displayDepositAmount, setDisplayDepositAmount] = useState<string>('');
 
+  useEffect(() => {
+    if (depositAmount.eq(BigNumber.from('0'))) {
+      setDisplayDepositAmount('');
+      setEstimatedAmount('');
+    } else {
+      setDisplayDepositAmount(String(bigNumberToNumber(depositAmount)));
+      calcOutputAmountsFromInput(depositAmount);
+    }
+  }, [depositAmount]);
+
   function updateWithOuputAmounts(value: string): void {
     if (value !== '.') {
       const newDepositAmount = scaleNumberToBigNumber(Number(value))
         .mul(selectedToken.output.price)
         .div(selectedToken.input.price);
       setDepositAmount(newDepositAmount);
-      setDisplayDepositAmount(String(bigNumberToNumber(newDepositAmount)));
     } else {
       setDisplayDepositAmount('0');
     }
@@ -61,9 +70,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
     if (!['0.', '.'].includes(value)) {
       const raisedValue = scaleNumberToBigNumber(Number(value));
       setDepositAmount(raisedValue);
-      calcOutputAmountsFromInput(raisedValue);
+    } else {
+      setDisplayDepositAmount(value);
     }
-    setDisplayDepositAmount(value);
   }
 
   function calcOutputAmountsFromInput(value: BigNumber): void {
@@ -157,6 +166,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           <label className="flex flex-row items-center cursor-pointer group">
             <input
               type="checkbox"
+              checked={Boolean(useUnclaimedDeposits)}
               className="mr-2 rounded-sm"
               onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
             />
