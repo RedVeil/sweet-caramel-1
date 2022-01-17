@@ -4,6 +4,7 @@ import { Debug } from 'components/Debug';
 import { DualActionModalContainer } from 'components/Modal/DualActionModalContainer';
 import DualActionWideModalContainer from 'components/Modal/DualActionWideModalContainer';
 import { SingleActionModalContainer } from 'components/Modal/SingleActionModalContainer';
+import NetworkHandler from 'components/NetworkHandler';
 import NotificationsContainer from 'components/Notifications/NotificationsContainer';
 import SwapChainModal from 'components/SwapChainModal';
 import Head from 'next/head';
@@ -26,6 +27,7 @@ export default function MyApp(props) {
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
+      console.log('routeChangeStart');
       setLoading(true);
     });
     Router.events.on('routeChangeComplete', () => {
@@ -66,6 +68,7 @@ export default function MyApp(props) {
         />
         <Web3ReactProvider getLibrary={getLibrary}>
           <ContractsWrapper>
+            <NetworkHandler />
             <SingleActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />

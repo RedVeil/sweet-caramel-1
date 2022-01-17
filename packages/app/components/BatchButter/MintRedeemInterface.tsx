@@ -29,7 +29,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   setSlippage,
 }) => {
   return (
-    <div className="bg-white rounded-3xl px-5 pt-6 pb-10 mr-8 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl px-5 pt-3.5 pb-10 mr-8 border border-gray-200 shadow-custom">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <TokenInput
         token={token}

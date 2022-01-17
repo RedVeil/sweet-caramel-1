@@ -19,6 +19,7 @@ import { store } from 'context/store';
 import { connectors } from 'context/Web3/connectors';
 import { ContractsContext } from 'context/Web3/contracts';
 import { utils } from 'ethers';
+import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import 'rc-slider/assets/index.css';
@@ -41,7 +42,7 @@ interface Balances {
   withdrawable: number;
 }
 
-export default function stake(): JSX.Element {
+export default function StakingPage(): JSX.Element {
   const router = useRouter();
   const { id } = router.query;
   const context = useWeb3React<Web3Provider>();
@@ -59,14 +60,6 @@ export default function stake(): JSX.Element {
   const [withdraw, setWithdraw] = useState<boolean>(false);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const { state, dispatch } = useContext(store);
-  const prevChainId = React.useRef<number>(null);
-
-  useEffect(() => {
-    if (prevChainId.current && chainId !== prevChainId.current && chainId) {
-      router.push('/staking');
-    }
-    prevChainId.current = chainId;
-  }, [chainId]);
 
   useEffect(() => {
     return () => {
@@ -94,7 +87,7 @@ export default function stake(): JSX.Element {
           stakingContract,
           library,
           id === contracts.popStaking.address ? contracts.pop.address : null,
-          id === contracts.popStaking.address ? 'POP' : null,
+          id === contracts.popStaking.address ? 'Popcorn' : null,
         );
         const erc20 = await getERC20Contract(
           stakingPoolInfo.stakedTokenAddress,
@@ -104,7 +97,7 @@ export default function stake(): JSX.Element {
           updateStakingPageInfo({
             inputToken: erc20,
             stakingContract: stakingContract,
-            tokenName: await erc20.name(),
+            tokenName: getSanitizedTokenDisplayName(await erc20.name()),
             symbol: await erc20.symbol(),
             poolInfo: stakingPoolInfo,
           }),
@@ -114,6 +107,7 @@ export default function stake(): JSX.Element {
         }
       }
     }
+    // To allow page refresh or Deep URL
     if (
       !state.stakingPageInfo ||
       state.stakingPageInfo?.poolInfo?.stakingContractAddress !== id
@@ -291,7 +285,9 @@ export default function stake(): JSX.Element {
     // because parseEther breaks with exponential String
     const formattedToken = inputTokenAmount.toLocaleString().replace(/,/gi, '');
     const lockedTokenInEth = utils.parseEther(formattedToken);
-    const connected = await contracts.pop.connect(library.getSigner());
+    const connected = await state?.stakingPageInfo?.inputToken.connect(
+      library.getSigner(),
+    );
     await connected
       .approve(
         state.stakingPageInfo?.stakingContract?.address,

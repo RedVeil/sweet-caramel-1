@@ -339,14 +339,21 @@ describe("PopLocker", function () {
   });
 
   describe("stakeFor", function () {
-    it("should lock funds successfully", async function () {
+    it("should emit an event on lock", async () => {
+      const amount = parseEther("10000");
+      await expectEvent(
+        await staking.connect(owner).lock(staker.address, amount, 0),
+        staking,
+        "Staked",
+        [staker.address, amount, amount, amount]
+      );
+    });
+    it("should lock funds successfully and update balances", async function () {
       const amount = parseEther("10000");
       const currentBalance = await mockPop.balanceOf(owner.address);
-      await expect(staking.lock(staker.address, amount, 0))
-        .to.emit(staking, "Staked")
-        .withArgs(staker.address, amount, amount, amount);
-      await timeTravel(6 * DAYS);
-      await staking.checkpointEpoch();
+      await staking.connect(owner).lock(staker.address, amount, 0);
+      await timeTravel(7 * DAYS);
+
       expect(await mockPop.balanceOf(staking.address)).to.equal(
         stakingFund.add(amount)
       );

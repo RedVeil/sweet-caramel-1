@@ -1,21 +1,24 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import bluebird from "bluebird";
 import { expect } from "chai";
-import { BigNumber, utils } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
-import { expectRevert } from "../lib/utils/expectValue";
-import { MockERC20 } from "../typechain";
+import { expectRevert, expectValue } from "../lib/utils/expectValue";
+import { DAYS } from "../lib/utils/test/constants";
+import { MockERC20, RewardsEscrow, Staking } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
 import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
+import { MockCurveThreepool } from "../typechain/MockCurveThreepool";
 import { MockYearnV2Vault } from "../typechain/MockYearnV2Vault";
 
 const provider = waffle.provider;
 
 interface Contracts {
   mock3Crv: MockERC20;
+  mockThreePool: MockCurveThreepool;
   mockPop: MockERC20;
   mockCrvUSDX: MockERC20;
   mockCrvUST: MockERC20;
@@ -26,6 +29,7 @@ interface Contracts {
   mockCurveMetapoolUST: MockCurveMetapool;
   mockBasicIssuanceModule: MockBasicIssuanceModule;
   butterBatchProcessing: ButterBatchProcessing;
+  staking: Staking;
 }
 
 enum BatchType {
@@ -122,10 +126,31 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(contractRegistry.address, 0, 0)
   ).deployed();
 
-  const staking = await (
+  const popStaking = await (
     await (
       await ethers.getContractFactory("PopLocker")
     ).deploy(mockPop.address, mockPop.address)
+  ).deployed();
+
+  const mockThreePoolContract = await ethers.getContractFactory(
+    "MockCurveThreepool"
+  );
+  const mockThreePool = await mockThreePoolContract.deploy(
+    mock3Crv.address,
+    mockCrvUSDX.address,
+    mockCrvUSDX.address,
+    mockCrvUSDX.address
+  );
+  const rewardsEscrow = (await (
+    await (
+      await ethers.getContractFactory("RewardsEscrow")
+    ).deploy(mockPop.address)
+  ).deployed()) as RewardsEscrow;
+
+  const staking = await (
+    await (
+      await ethers.getContractFactory("Staking")
+    ).deploy(mockPop.address, mockSetToken.address, rewardsEscrow.address)
   ).deployed();
 
   const butterBatchProcessing = (await (
@@ -133,8 +158,10 @@ async function deployContracts(): Promise<Contracts> {
       await ethers.getContractFactory("ButterBatchProcessing")
     ).deploy(
       contractRegistry.address,
+      staking.address,
       mockSetToken.address,
       mock3Crv.address,
+      mockThreePool.address,
       mockBasicIssuanceModule.address,
       [mockYearnVaultUSDX.address, mockYearnVaultUST.address],
       [
@@ -155,6 +182,7 @@ async function deployContracts(): Promise<Contracts> {
 
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+  await butterBatchProcessing.connect(owner).setRedeemSlippage(200);
 
   await butterBatchProcessing.setApprovals();
 
@@ -172,7 +200,7 @@ async function deployContracts(): Promise<Contracts> {
     .connect(owner)
     .addContract(
       ethers.utils.id("PopLocker"),
-      staking.address,
+      popStaking.address,
       ethers.utils.id("1")
     );
 
@@ -206,6 +234,7 @@ async function deployContracts(): Promise<Contracts> {
     mockPop,
     mockCrvUSDX,
     mockCrvUST,
+    mockThreePool,
     mockSetToken,
     mockYearnVaultUSDX,
     mockYearnVaultUST,
@@ -213,6 +242,7 @@ async function deployContracts(): Promise<Contracts> {
     mockCurveMetapoolUST,
     mockBasicIssuanceModule,
     butterBatchProcessing,
+    staking,
   };
 }
 
@@ -234,7 +264,92 @@ describe("ButterBatchProcessing", function () {
   beforeEach(async function () {
     await deployAndAssignContracts();
   });
+  describe("setStaking", () => {
+    const NEW_STAKING_ADDRESS = Wallet.createRandom().address;
+
+    it("should allow dao role to set staking", async () => {
+      await contracts.butterBatchProcessing
+        .connect(owner)
+        .setStaking(NEW_STAKING_ADDRESS);
+      await expectValue(
+        await contracts.butterBatchProcessing.staking(),
+        NEW_STAKING_ADDRESS
+      );
+    });
+    it("should allow not allow a non-dao role to set staking", async () => {
+      await expectRevert(
+        contracts.butterBatchProcessing
+          .connect(depositor)
+          .setStaking(NEW_STAKING_ADDRESS),
+        "you dont have the right role"
+      );
+    });
+  });
+  describe("EOA only flash loan defender", () => {
+    it("does not allow interaction from unapproved contracts on depositForMint", async () => {
+      const defendedContract = await ethers.getContractFactory(
+        "ButterBatchProcessingDefendedHelper"
+      );
+      const deployed = await defendedContract.deploy(
+        contracts.butterBatchProcessing.address
+      );
+      await expectRevert(
+        deployed.connect(depositor).depositMint(),
+        "Access denied for caller"
+      );
+    });
+    it("does not allow interaction from unapproved contracts on depositForRedeem", async () => {
+      const defendedContract = await ethers.getContractFactory(
+        "ButterBatchProcessingDefendedHelper"
+      );
+      const deployed = await defendedContract.deploy(
+        contracts.butterBatchProcessing.address
+      );
+      await expectRevert(
+        deployed.connect(depositor).depositRedeem(),
+        "Access denied for caller"
+      );
+    });
+  });
   context("setters and getters", () => {
+    describe("set slippage", async () => {
+      const SLIPPAGE = 54;
+      it("sets redeem slippage value with correct permissions", async () => {
+        await contracts.butterBatchProcessing
+          .connect(owner)
+          .setRedeemSlippage(SLIPPAGE);
+        expectValue(
+          await contracts.butterBatchProcessing.redeemSlippage(),
+          SLIPPAGE
+        );
+      });
+      it("does not allow unauthenticated address to set redeem slippage", async () => {
+        await expectRevert(
+          contracts.butterBatchProcessing
+            .connect(depositor)
+            .setRedeemSlippage(SLIPPAGE),
+          "you dont have the right role"
+        );
+      });
+      it("sets mint slippage value with correct permissions", async () => {
+        await contracts.butterBatchProcessing
+          .connect(owner)
+          .setMintSlippage(SLIPPAGE);
+        expectValue(
+          await contracts.butterBatchProcessing.mintSlippage(),
+          SLIPPAGE
+        );
+      });
+      it("does not allow unauthenticated address to set mint slippage", async () => {
+        await expectRevert(
+          contracts.butterBatchProcessing
+            .connect(depositor)
+            .setMintSlippage(SLIPPAGE),
+          "you dont have the right role"
+        );
+      });
+    });
+
     describe("setApprovals", async () => {
       it("sets approvals idempotently", async () => {
         //  run setApproval multiple times to assert idempotency
@@ -475,7 +590,7 @@ describe("ButterBatchProcessing", function () {
             await contracts.butterBatchProcessing.currentMintBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to mint batch
-          await contracts.butterBatchProcessing.batchMint(0);
+          await contracts.butterBatchProcessing.batchMint();
           const batchHysiOwned = await contracts.mockSetToken.balanceOf(
             contracts.butterBatchProcessing.address
           );
@@ -490,7 +605,7 @@ describe("ButterBatchProcessing", function () {
             await contracts.butterBatchProcessing.currentMintBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to mint batch
-          await contracts.butterBatchProcessing.batchMint(0);
+          await contracts.butterBatchProcessing.batchMint();
           expect(await subject(batchId)).to.deep.contain({
             claimable: true,
           });
@@ -500,7 +615,7 @@ describe("ButterBatchProcessing", function () {
             await contracts.butterBatchProcessing.currentMintBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to mint batch
-          await contracts.butterBatchProcessing.batchMint(0);
+          await contracts.butterBatchProcessing.batchMint();
           await contracts.butterBatchProcessing
             .connect(depositor)
             .claim(batchId, depositor.address);
@@ -624,8 +739,8 @@ describe("ButterBatchProcessing", function () {
             .connect(depositor)
             .depositForMint(parseEther("10000"), depositor.address);
           await expect(
-            contracts.butterBatchProcessing.connect(owner).batchMint(0)
-          ).to.be.revertedWith("can not execute batch action yet");
+            contracts.butterBatchProcessing.connect(owner).batchMint()
+          ).to.be.revertedWith("can not execute batch mint yet");
         });
         it("reverts when called by someone other the keeper", async function () {
           await contracts.mock3Crv
@@ -640,8 +755,29 @@ describe("ButterBatchProcessing", function () {
           await provider.send("evm_increaseTime", [1800]);
 
           await expect(
-            contracts.butterBatchProcessing.connect(depositor).batchMint(0)
+            contracts.butterBatchProcessing.connect(depositor).batchMint()
           ).to.be.revertedWith("you dont have the right role");
+        });
+        it("reverts when slippage is too high", async () => {
+          await contracts.mockThreePool.setVirtualPrice(parseEther("2"));
+          await contracts.butterBatchProcessing
+            .connect(owner)
+            .setMintSlippage(0);
+          await contracts.mock3Crv
+            .connect(depositor)
+            .approve(
+              contracts.butterBatchProcessing.address,
+              parseEther("10000")
+            );
+          await contracts.butterBatchProcessing
+            .connect(depositor)
+            .depositForMint(parseEther("10000"), depositor.address);
+
+          await timeTravel(1 * DAYS);
+
+          await expect(
+            contracts.butterBatchProcessing.connect(owner).batchMint()
+          ).to.be.revertedWith("slippage too high");
         });
       });
       context("success", function () {
@@ -661,7 +797,7 @@ describe("ButterBatchProcessing", function () {
           await provider.send("evm_increaseTime", [1800]);
           const result = await contracts.butterBatchProcessing
             .connect(owner)
-            .batchMint(0);
+            .batchMint();
           expect(result)
             .to.emit(contracts.butterBatchProcessing, "BatchMinted")
             .withArgs(batchId, parseEther("10000"), parseEther("100"));
@@ -691,7 +827,7 @@ describe("ButterBatchProcessing", function () {
             .connect(depositor1)
             .depositForMint(parseEther("10000"), depositor1.address);
           await expect(
-            contracts.butterBatchProcessing.connect(owner).batchMint(0)
+            contracts.butterBatchProcessing.connect(owner).batchMint()
           ).to.emit(contracts.butterBatchProcessing, "BatchMinted");
         });
         it("advances to the next batch", async function () {
@@ -708,7 +844,7 @@ describe("ButterBatchProcessing", function () {
 
           const previousMintBatchId =
             await contracts.butterBatchProcessing.currentMintBatchId();
-          await contracts.butterBatchProcessing.batchMint(0);
+          await contracts.butterBatchProcessing.batchMint();
 
           const previousBatch = await contracts.butterBatchProcessing.batches(
             previousMintBatchId
@@ -774,7 +910,7 @@ describe("ButterBatchProcessing", function () {
       it("claims batch successfully", async function () {
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+        await contracts.butterBatchProcessing.connect(owner).batchMint();
         const batchId = await contracts.butterBatchProcessing.accountBatches(
           depositor.address,
           0
@@ -797,6 +933,83 @@ describe("ButterBatchProcessing", function () {
         const batch = await contracts.butterBatchProcessing.batches(batchId);
         expect(batch.unclaimedShares).to.equal(parseEther("30000"));
         expect(batch.claimableTokenBalance).to.equal(parseEther("300"));
+      });
+      describe("claim and stake", () => {
+        it("reverts when batch is not yet claimable", async function () {
+          const batchId = await contracts.butterBatchProcessing.accountBatches(
+            depositor.address,
+            0
+          );
+          await expect(
+            contracts.butterBatchProcessing
+              .connect(depositor)
+              .claimAndStake(batchId, depositor.address)
+          ).to.be.revertedWith("not yet claimable");
+        });
+        it("reverts when the batchType is Redeem", async function () {
+          //Prepare claimable redeem batch
+          await contracts.mockCrvUSDX.mint(
+            contracts.mockYearnVaultUSDX.address,
+            parseEther("20000")
+          );
+          await contracts.mockCrvUST.mint(
+            contracts.mockYearnVaultUST.address,
+            parseEther("20000")
+          );
+          await contracts.mockYearnVaultUSDX.mint(
+            contracts.mockBasicIssuanceModule.address,
+            parseEther("20000")
+          );
+          await contracts.mockYearnVaultUST.mint(
+            contracts.mockBasicIssuanceModule.address,
+            parseEther("20000")
+          );
+          await contracts.mockSetToken.mint(
+            depositor.address,
+            parseEther("10")
+          );
+          await contracts.mockSetToken
+            .connect(depositor)
+            .approve(contracts.butterBatchProcessing.address, parseEther("10"));
+          await contracts.butterBatchProcessing
+            .connect(depositor)
+            .depositForRedeem(parseEther("10"));
+          await provider.send("evm_increaseTime", [1800]);
+          const batchId =
+            await contracts.butterBatchProcessing.currentRedeemBatchId();
+
+          await contracts.butterBatchProcessing.connect(owner).batchRedeem();
+
+          //Actual Test
+          await expect(
+            contracts.butterBatchProcessing
+              .connect(depositor)
+              .claimAndStake(batchId, depositor.address)
+          ).to.be.revertedWith("Can only stake BTR");
+        });
+        it("claims and stakes batch successully", async function () {
+          await provider.send("evm_increaseTime", [1800]);
+          await provider.send("evm_mine", []);
+          const batchId =
+            await contracts.butterBatchProcessing.currentMintBatchId();
+          await contracts.butterBatchProcessing.connect(owner).batchMint();
+
+          expect(
+            await contracts.butterBatchProcessing
+              .connect(depositor)
+              .claimAndStake(batchId, depositor.address)
+          )
+            .to.emit(contracts.butterBatchProcessing, "Claimed")
+            .withArgs(
+              depositor.address,
+              BatchType.Mint,
+              parseEther("10000"),
+              parseEther("100")
+            );
+          expect(await contracts.staking.balanceOf(depositor.address)).to.equal(
+            parseEther("100")
+          );
+        });
       });
     });
   });
@@ -867,7 +1080,7 @@ describe("ButterBatchProcessing", function () {
             await contracts.butterBatchProcessing.currentRedeemBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to redeem batch
-          await contracts.butterBatchProcessing.batchRedeem(0);
+          await contracts.butterBatchProcessing.batchRedeem();
 
           expect(await subject(batchId)).to.deep.contain({
             suppliedTokenBalance: parseEther("10"),
@@ -880,7 +1093,7 @@ describe("ButterBatchProcessing", function () {
             await contracts.butterBatchProcessing.currentRedeemBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to redeem batch
-          await contracts.butterBatchProcessing.batchRedeem(0);
+          await contracts.butterBatchProcessing.batchRedeem();
           await contracts.butterBatchProcessing
             .connect(depositor)
             .claim(batchId, depositor.address);
@@ -1018,8 +1231,31 @@ describe("ButterBatchProcessing", function () {
             .connect(depositor)
             .depositForRedeem(parseEther("100"));
           await expect(
-            contracts.butterBatchProcessing.connect(owner).batchRedeem(0)
-          ).to.be.revertedWith("can not execute batch action yet");
+            contracts.butterBatchProcessing.connect(owner).batchRedeem()
+          ).to.be.revertedWith("can not execute batch redeem yet");
+        });
+        it("reverts when slippage too high", async function () {
+          await contracts.butterBatchProcessing
+            .connect(owner)
+            .setRedeemSlippage(1);
+
+          await contracts.mockThreePool.setVirtualPrice(parseEther("1"));
+
+          await contracts.mockSetToken
+            .connect(depositor)
+            .approve(
+              contracts.butterBatchProcessing.address,
+              parseEther("100")
+            );
+          await contracts.butterBatchProcessing
+            .connect(depositor)
+            .depositForRedeem(parseEther("100"));
+
+          await timeTravel(1 * DAYS);
+
+          await expect(
+            contracts.butterBatchProcessing.connect(owner).batchRedeem()
+          ).to.be.revertedWith("slippage too high");
         });
         it("reverts when called by someone other the keeper", async function () {
           await contracts.mockSetToken
@@ -1034,7 +1270,7 @@ describe("ButterBatchProcessing", function () {
           await provider.send("evm_increaseTime", [1800]);
 
           await expect(
-            contracts.butterBatchProcessing.connect(depositor).batchRedeem(0)
+            contracts.butterBatchProcessing.connect(depositor).batchRedeem()
           ).to.be.revertedWith("you dont have the right role");
         });
       });
@@ -1056,7 +1292,7 @@ describe("ButterBatchProcessing", function () {
 
           const result = await contracts.butterBatchProcessing
             .connect(owner)
-            .batchRedeem(0);
+            .batchRedeem();
           expect(result)
             .to.emit(contracts.butterBatchProcessing, "BatchRedeemed")
             .withArgs(batchId, parseEther("100"), parseEther("9990"));
@@ -1087,7 +1323,7 @@ describe("ButterBatchProcessing", function () {
             .depositForRedeem(parseEther("100"));
           const result = await contracts.butterBatchProcessing
             .connect(owner)
-            .batchRedeem(0);
+            .batchRedeem();
           expect(result).to.emit(
             contracts.butterBatchProcessing,
             "BatchRedeemed"
@@ -1107,7 +1343,7 @@ describe("ButterBatchProcessing", function () {
 
           const previousRedeemBatchId =
             await contracts.butterBatchProcessing.currentRedeemBatchId();
-          await contracts.butterBatchProcessing.batchRedeem(0);
+          await contracts.butterBatchProcessing.batchRedeem();
 
           const previousBatch = await contracts.butterBatchProcessing.batches(
             previousRedeemBatchId
@@ -1166,7 +1402,7 @@ describe("ButterBatchProcessing", function () {
       });
       it("claim batch successfully", async function () {
         await provider.send("evm_increaseTime", [1800]);
-        await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+        await contracts.butterBatchProcessing.connect(owner).batchRedeem();
         const batchId = await contracts.butterBatchProcessing.accountBatches(
           depositor.address,
           0
@@ -1308,7 +1544,7 @@ describe("ButterBatchProcessing", function () {
             0
           );
           await timeTravel(1 * DAY);
-          await contracts.butterBatchProcessing.batchRedeem(0);
+          await contracts.butterBatchProcessing.batchRedeem();
           await expect(withdraw(batchId)).to.be.revertedWith(
             "already processed"
           );
@@ -1378,7 +1614,7 @@ describe("ButterBatchProcessing", function () {
             0
           );
           await timeTravel(1 * DAY);
-          await contracts.butterBatchProcessing.batchMint(0);
+          await contracts.butterBatchProcessing.batchMint();
           await expect(withdraw(batchId)).to.be.revertedWith(
             "already processed"
           );
@@ -1414,7 +1650,7 @@ describe("ButterBatchProcessing", function () {
 
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+        await contracts.butterBatchProcessing.connect(owner).batchMint();
         const batchId = await contracts.butterBatchProcessing.accountBatches(
           depositor.address,
           0
@@ -1465,7 +1701,7 @@ describe("ButterBatchProcessing", function () {
         );
         await provider.send("evm_increaseTime", [2500]);
         await provider.send("evm_mine", []);
-        await contracts.butterBatchProcessing.batchMint(0);
+        await contracts.butterBatchProcessing.batchMint();
         await expect(
           contracts.butterBatchProcessing.moveUnclaimedDepositsIntoCurrentBatch(
             [batchId],
@@ -1492,7 +1728,7 @@ describe("ButterBatchProcessing", function () {
         );
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+        await contracts.butterBatchProcessing.connect(owner).batchMint();
         const mintedHYSI = await contracts.mockSetToken.balanceOf(
           contracts.butterBatchProcessing.address
         );
@@ -1547,7 +1783,7 @@ describe("ButterBatchProcessing", function () {
         );
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+        await contracts.butterBatchProcessing.connect(owner).batchRedeem();
         const redeemed3CRV = await contracts.mock3Crv.balanceOf(
           contracts.butterBatchProcessing.address
         );
@@ -1588,7 +1824,7 @@ describe("ButterBatchProcessing", function () {
         );
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+        await contracts.butterBatchProcessing.connect(owner).batchMint();
         const mintedHYSI = await contracts.mockSetToken.balanceOf(
           contracts.butterBatchProcessing.address
         );
@@ -1647,7 +1883,7 @@ describe("ButterBatchProcessing", function () {
               .depositForMint(parseEther("100"), depositor.address);
             await provider.send("evm_increaseTime", [1800]);
             await provider.send("evm_mine", []);
-            await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+            await contracts.butterBatchProcessing.connect(owner).batchMint();
           },
           { concurrency: 1 }
         );
@@ -1691,11 +1927,14 @@ describe("ButterBatchProcessing", function () {
       //Prepare MintBatches
       claimableMintId =
         await contracts.butterBatchProcessing.currentMintBatchId();
+      await contracts.butterBatchProcessing
+        .connect(owner)
+        .setRedeemThreshold(0);
       await contracts.mock3Crv.mint(depositor.address, parseEther("40000"));
       await contracts.butterBatchProcessing
         .connect(depositor)
         .depositForMint(parseEther("20000"), depositor.address);
-      await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+      await contracts.butterBatchProcessing.connect(owner).batchMint();
       currentMintId =
         await contracts.butterBatchProcessing.currentMintBatchId();
       await contracts.butterBatchProcessing
@@ -1719,13 +1958,13 @@ describe("ButterBatchProcessing", function () {
         await contracts.butterBatchProcessing.currentRedeemBatchId();
       await contracts.butterBatchProcessing
         .connect(depositor)
-        .depositForRedeem(parseEther("200"));
-      await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+        .depositForRedeem(parseEther("100"));
+      await contracts.butterBatchProcessing.connect(owner).batchRedeem();
       currentRedeemId =
         await contracts.butterBatchProcessing.currentRedeemBatchId();
       await contracts.butterBatchProcessing
         .connect(depositor)
-        .depositForRedeem(parseEther("200"));
+        .depositForRedeem(parseEther("100"));
 
       //Pause Contract
       await contracts.butterBatchProcessing.connect(owner).pause();
@@ -1748,13 +1987,13 @@ describe("ButterBatchProcessing", function () {
     });
     it("prevents mint", async function () {
       await expectRevert(
-        contracts.butterBatchProcessing.connect(owner).batchMint(0),
+        contracts.butterBatchProcessing.connect(owner).batchMint(),
         "Pausable: paused"
       );
     });
     it("prevents redeem", async function () {
       await expectRevert(
-        contracts.butterBatchProcessing.connect(owner).batchRedeem(0),
+        contracts.butterBatchProcessing.connect(owner).batchRedeem(),
         "Pausable: paused"
       );
     });
@@ -1773,8 +2012,8 @@ describe("ButterBatchProcessing", function () {
       );
     });
     it("still allows to withdraw from mint batch", async function () {
-      expect(
-        await contracts.butterBatchProcessing
+      await expect(
+        contracts.butterBatchProcessing
           .connect(depositor)
           .withdrawFromBatch(currentMintId, parseEther("10"), depositor.address)
       )
@@ -1782,8 +2021,8 @@ describe("ButterBatchProcessing", function () {
         .withArgs(currentMintId, parseEther("10"), depositor.address);
     });
     it("still allows to withdraw from redeem batch", async function () {
-      expect(
-        await contracts.butterBatchProcessing
+      await expect(
+        contracts.butterBatchProcessing
           .connect(depositor)
           .withdrawFromBatch(
             currentRedeemId,
@@ -1795,8 +2034,8 @@ describe("ButterBatchProcessing", function () {
         .withArgs(currentRedeemId, parseEther("1"), depositor.address);
     });
     it("still allows to claim minted butter", async function () {
-      expect(
-        await contracts.butterBatchProcessing
+      await expect(
+        contracts.butterBatchProcessing
           .connect(depositor)
           .claim(claimableMintId, depositor.address)
       )
@@ -1809,8 +2048,8 @@ describe("ButterBatchProcessing", function () {
         );
     });
     it("still allows to claim redemeed 3crv", async function () {
-      expect(
-        await contracts.butterBatchProcessing
+      await expect(
+        contracts.butterBatchProcessing
           .connect(depositor)
           .claim(claimableRedeemId, depositor.address)
       )
@@ -1818,9 +2057,217 @@ describe("ButterBatchProcessing", function () {
         .withArgs(
           depositor.address,
           BatchType.Redeem,
-          parseEther("200"),
-          parseEther("951.428571428571428572")
+          parseEther("100"),
+          parseEther("475.714285714285714286")
         );
+    });
+    it("allows deposits for minting after unpausing", async function () {
+      await contracts.butterBatchProcessing.unpause();
+
+      await expect(
+        contracts.butterBatchProcessing
+          .connect(depositor)
+          .depositForMint(parseEther("1"), depositor.address)
+      )
+        .to.emit(contracts.butterBatchProcessing, "Deposit")
+        .withArgs(depositor.address, parseEther("1"));
+    });
+    it("allows deposits for redeeming after unpausing", async function () {
+      await contracts.butterBatchProcessing.unpause();
+
+      await expect(
+        contracts.butterBatchProcessing
+          .connect(depositor)
+          .depositForRedeem(parseEther("1"))
+      )
+        .to.emit(contracts.butterBatchProcessing, "Deposit")
+        .withArgs(depositor.address, parseEther("1"));
+    });
+  });
+  describe("redemption fee", () => {
+    context("sets RedemptionFee", () => {
+      it("sets a redemptionRate when called with DAO role", async () => {
+        expect(
+          await contracts.butterBatchProcessing.setRedemptionFee(
+            100,
+            owner.address
+          )
+        )
+          .to.emit(contracts.butterBatchProcessing, "RedemptionFeeUpdated")
+          .withArgs(100, owner.address);
+        expect(
+          await contracts.butterBatchProcessing.redemptionFeeRate()
+        ).to.equal(100);
+        expect(await contracts.butterBatchProcessing.feeRecipient()).to.equal(
+          owner.address
+        );
+      });
+      it("reverts when setting redemptionRate without DAO role", async () => {
+        await expectRevert(
+          contracts.butterBatchProcessing
+            .connect(depositor)
+            .setRedemptionFee(100, owner.address),
+          "you dont have the right role"
+        );
+      });
+      it("reverts when setting a feeRate higher than 1%", async () => {
+        await expectRevert(
+          contracts.butterBatchProcessing.setRedemptionFee(1000, owner.address),
+          "dont get greedy"
+        );
+      });
+    });
+    context("with redemption fee", () => {
+      let batchId;
+      const depositAmount = parseEther("100");
+      const feeRate = 100;
+      beforeEach(async () => {
+        await contracts.butterBatchProcessing.setRedemptionFee(
+          feeRate,
+          owner.address
+        );
+        await contracts.mockSetToken.mint(depositor.address, depositAmount);
+        await contracts.mockSetToken
+          .connect(depositor)
+          .approve(contracts.butterBatchProcessing.address, depositAmount);
+        await contracts.butterBatchProcessing
+          .connect(depositor)
+          .depositForRedeem(depositAmount);
+        await contracts.mockYearnVaultUSDX.mint(
+          contracts.mockBasicIssuanceModule.address,
+          parseEther("20000")
+        );
+        await contracts.mockYearnVaultUST.mint(
+          contracts.mockBasicIssuanceModule.address,
+          parseEther("20000")
+        );
+        await contracts.mockCrvUSDX.mint(
+          contracts.mockYearnVaultUSDX.address,
+          parseEther("20000")
+        );
+        await contracts.mockCrvUST.mint(
+          contracts.mockYearnVaultUST.address,
+          parseEther("20000")
+        );
+        await provider.send("evm_increaseTime", [1800]);
+        await provider.send("evm_mine", []);
+        batchId = contracts.butterBatchProcessing.currentRedeemBatchId();
+        await contracts.butterBatchProcessing.connect(owner).batchRedeem();
+      });
+      it("takes the fee", async () => {
+        const accountBalance =
+          await contracts.butterBatchProcessing.accountBalances(
+            batchId,
+            depositor.address
+          );
+        const batch = await contracts.butterBatchProcessing.batches(batchId);
+        const claimAmountWithoutFee = batch.claimableTokenBalance
+          .mul(accountBalance)
+          .div(batch.unclaimedShares);
+        const fee = claimAmountWithoutFee.mul(feeRate).div(10000);
+        const oldBal = await contracts.mock3Crv.balanceOf(depositor.address);
+
+        expect(
+          await contracts.butterBatchProcessing
+            .connect(depositor)
+            .claim(batchId, depositor.address)
+        )
+          .to.emit(contracts.butterBatchProcessing, "Claimed")
+          .withArgs(
+            depositor.address,
+            BatchType.Redeem,
+            depositAmount,
+            claimAmountWithoutFee.sub(fee)
+          );
+
+        const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
+        expect(newBal).to.equal(oldBal.add(claimAmountWithoutFee.sub(fee)));
+
+        expect(await contracts.butterBatchProcessing.redemptionFees()).to.equal(
+          fee
+        );
+      });
+      describe("sweethearts", () => {
+        it("sets a sweetheart when called with DAO role", async () => {
+          expect(
+            await contracts.butterBatchProcessing.updateSweetheart(
+              depositor.address,
+              true
+            )
+          )
+            .to.emit(contracts.butterBatchProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, true);
+          expect(
+            await contracts.butterBatchProcessing.sweethearts(depositor.address)
+          ).to.equal(true);
+        });
+        it("removes a sweetheart when called with DAO role", async () => {
+          await contracts.butterBatchProcessing.updateSweetheart(
+            depositor.address,
+            true
+          );
+          expect(
+            await contracts.butterBatchProcessing.updateSweetheart(
+              depositor.address,
+              false
+            )
+          )
+            .to.emit(contracts.butterBatchProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, false);
+          expect(
+            await contracts.butterBatchProcessing.sweethearts(depositor.address)
+          ).to.equal(false);
+        });
+        it("reverts when trying to set a sweetheart without DAO role", async () => {
+          expect(
+            await contracts.butterBatchProcessing.updateSweetheart(
+              depositor.address,
+              true
+            )
+          )
+            .to.emit(contracts.butterBatchProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, true);
+          expect(
+            await contracts.butterBatchProcessing.sweethearts(depositor.address)
+          ).to.equal(true);
+        });
+        it("doesnt apply the redemption fee as a sweetheart", async () => {
+          await contracts.butterBatchProcessing.updateSweetheart(
+            depositor.address,
+            true
+          );
+          const accountBalance =
+            await contracts.butterBatchProcessing.accountBalances(
+              batchId,
+              depositor.address
+            );
+          const batch = await contracts.butterBatchProcessing.batches(batchId);
+          const claimAmount = batch.claimableTokenBalance
+            .mul(accountBalance)
+            .div(batch.unclaimedShares);
+          const oldBal = await contracts.mock3Crv.balanceOf(depositor.address);
+
+          expect(
+            await contracts.butterBatchProcessing
+              .connect(depositor)
+              .claim(batchId, depositor.address)
+          )
+            .to.emit(contracts.butterBatchProcessing, "Claimed")
+            .withArgs(
+              depositor.address,
+              BatchType.Redeem,
+              depositAmount,
+              claimAmount
+            );
+
+          const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
+          expect(newBal).to.equal(oldBal.add(claimAmount));
+
+          expect(
+            await contracts.butterBatchProcessing.redemptionFees()
+          ).to.equal(BigNumber.from("0"));
+        });
+      });
     });
   });
 });

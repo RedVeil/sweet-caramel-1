@@ -21,43 +21,41 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({
         index % 2 === 0 ? 'bg-rewardsBg2' : 'bg-rewardsBg'
       } w-full h-36`}
     >
-      <div className="flex flex-col my-auto w-1/4">
-        <p className={`text-base font-bold text-gray-500 my-auto mb-2`}>
-          Unlock Ends
-        </p>
-        <h1 className={`text-2xl font-bold text-gray-900 my-auto mr-8`}>
-          {formattedEndDate}
-        </h1>
-      </div>
+      <div className="flex flex-row justify-between w-full">
+        <div className="flex flex-col my-auto">
+          <p className={`text-base text-gray-500 my-auto`}>UNLOCK ENDS</p>
+          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
+            {formattedEndDate}
+          </h1>
+        </div>
 
-      <div className="flex flex-col my-auto w-1/4">
-        <p className={`text-base font-bold text-gray-500 my-auto mb-2`}>
-          Total Vested Tokens
-        </p>
-        <h1 className={`text-2xl font-bold text-gray-900 my-auto mr-8`}>
-          <span className="text-gray-500">
-            {bigNumberToNumber(vestingEscrow.balance).toLocaleString(
-              undefined,
-              { maximumFractionDigits: 2 },
-            )}
-          </span>{' '}
-          POP
-        </h1>
-      </div>
+        <div className="flex flex-col my-auto">
+          <p className={`text-base text-gray-500 my-auto`}>
+            TOTAL VESTED TOKENS
+          </p>
+          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
+            <span className="text-gray-900">
+              {bigNumberToNumber(vestingEscrow.balance).toLocaleString(
+                undefined,
+                { maximumFractionDigits: 2 },
+              )}
+            </span>{' '}
+            POP
+          </h1>
+        </div>
 
-      <div className="flex flex-col my-auto w-1/4">
-        <p className={`text-base font-bold text-gray-500 my-auto mb-2`}>
-          Claimable Tokens
-        </p>
-        <h1 className={`text-2xl font-bold text-gray-900 my-auto mr-8`}>
-          <span className="text-gray-500">
-            {bigNumberToNumber(vestingEscrow.claimableAmount).toLocaleString(
-              undefined,
-              { maximumFractionDigits: 2 },
-            )}
-          </span>{' '}
-          POP
-        </h1>
+        <div className="flex flex-col my-auto">
+          <p className={`text-base text-gray-500 my-auto`}>CLAIMABLE TOKENS</p>
+          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
+            <span className="text-gray-900">
+              {bigNumberToNumber(vestingEscrow.claimableAmount).toLocaleString(
+                undefined,
+                { maximumFractionDigits: 2 },
+              )}
+            </span>{' '}
+            POP
+          </h1>
+        </div>
       </div>
       <div className="w-1/4 my-auto flex flex-row justify-end">
         <button

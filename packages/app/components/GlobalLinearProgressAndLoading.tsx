@@ -36,12 +36,12 @@ export function GlobalLinearProgressAndLoading({
     };
   }, [globalLoaderVisible]);
 
-  return (
-    (loading && (
-      <div className={'fixed top-0 left-0 right-0 z-50'}>
-        <ColorLinearProgress />
-        <PageLoader loading={loading} />
-      </div>
-    )) || <></>
+  return loading ? (
+    <div className={'fixed top-0 left-0 w-screen h-screen z-50 bg-white'}>
+      <ColorLinearProgress />
+      <PageLoader />
+    </div>
+  ) : (
+    <></>
   );
 }

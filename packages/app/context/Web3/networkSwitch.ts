@@ -1,4 +1,3 @@
-import { hideGlobalLoader, showGlobalLoader } from '../actions';
 import { ChainId, logos } from './connectors';
 
 declare global {
@@ -7,11 +6,7 @@ declare global {
   }
 }
 
-export const switchNetwork = async (
-  chainId: number,
-  dispatch: React.Dispatch<any>,
-) => {
-  dispatch(showGlobalLoader());
+export const switchNetwork = async (chainId: number) => {
   await (async (chainId) => {
     try {
       switch (chainId) {
@@ -28,10 +23,8 @@ export const switchNetwork = async (
       }
     } catch (e) {
       console.error('Error while changing network', e);
-      dispatch(hideGlobalLoader());
     }
   })(chainId);
-  dispatch(hideGlobalLoader());
 };
 
 export const connectToEthereumMainnet = async () => {

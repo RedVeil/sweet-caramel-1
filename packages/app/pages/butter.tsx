@@ -252,9 +252,9 @@ export default function Butter(): JSX.Element {
                   'switching network ',
                   parseInt(process.env.CHAIN_ID),
                 );
-                switchNetwork(parseInt(process.env.CHAIN_ID), dispatch);
+                switchNetwork(parseInt(process.env.CHAIN_ID));
               } else {
-                switchNetwork(ChainId.Ethereum, dispatch);
+                switchNetwork(ChainId.Ethereum);
               }
               dispatch(setDualActionWideModal(false));
             },
@@ -358,6 +358,8 @@ export default function Butter(): JSX.Element {
       mint: claimableMintBatches,
       redeem: claimableRedeemBatches,
     });
+
+    setDepositAmount(BigNumber.from('0'));
   }
 
   const getMinMintAmount = async (
@@ -515,7 +517,7 @@ export default function Butter(): JSX.Element {
                 setSingleActionModal({
                   title: 'Your first mint',
                   content:
-                    'You have successfully added your fund into the current batch cycle. Check-in on the Batch module under the Mint & Redeem panel for the latest batch progress.',
+                    'You have successfully deposited into the current batch. Check the table at the bottom of this page to claim the tokens when they are ready.',
                   image: (
                     <img src="images/butter/modal-1.png" className="px-6" />
                   ),
@@ -663,6 +665,28 @@ export default function Butter(): JSX.Element {
       });
   }
 
+  async function claimAndStake(batchId: string): Promise<void> {
+    toast.loading('Claiming and staking Butter...');
+    await contracts.butterBatch
+      .connect(library.getSigner())
+      .claimAndStake(batchId, account)
+      .then((res) => {
+        res.wait().then((res) => {
+          toast.dismiss();
+          toast.success('Staked claimed Butter');
+          getData();
+        });
+      })
+      .catch((err) => {
+        toast.dismiss();
+        if (err.data === undefined) {
+          toast.error('An error occured');
+        } else {
+          toast.error(err.data.message.split("'")[1]);
+        }
+      });
+  }
+
   async function withdraw(
     batchId: string,
     amount: BigNumber,
@@ -777,7 +801,7 @@ export default function Butter(): JSX.Element {
           </div>
           <div className="flex flex-row mt-10">
             <div className="w-1/3">
-              {claimableBatches && (
+              {claimableBatches ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
                   selectedToken={selectedToken}
@@ -804,18 +828,21 @@ export default function Butter(): JSX.Element {
                   slippage={slippage}
                   setSlippage={setSlippage}
                 />
+              ) : (
+                <>
+                  {!account && (
+                    <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                      <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
+                        <MainActionButton
+                          label="Connect Wallet"
+                          handleClick={() => activate(connectors.Injected)}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
-              {!account && (
-                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                  <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                    <MainActionButton
-                      label="Connect Wallet"
-                      handleClick={() => activate(connectors.Injected)}
-                    />
-                  </div>
-                </div>
-              )}
-              {loading && (
+              {account && loading && (
                 <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                   <div className="w-full py-60 mt-1 mb-2 smlaptop:mt-2 mx-auto flex flex-row items-center justify-center">
                     <LoadingSpinner size="h-20 w-20" />
@@ -872,6 +899,7 @@ export default function Butter(): JSX.Element {
                 <ClaimableBatches
                   batches={batches}
                   claim={claim}
+                  claimAndStake={claimAndStake}
                   withdraw={withdraw}
                   slippage={slippage}
                   setSlippage={setSlippage}

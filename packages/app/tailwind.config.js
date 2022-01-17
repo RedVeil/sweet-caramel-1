@@ -100,8 +100,8 @@ module.exports = {
         light: '#FFF5D1',
         cardBg: '#F3F8FF',
 
-        rewardsBg: '#FFF5CF',
-        rewardsBg2: '#F9EEC8',
+        rewardsBg: '#FFFBEA',
+        rewardsBg2: '#FFF6CF',
       },
       backgroundImage: (theme) => ({
         'hero-pattern': "url('/images/popcorn_playing.gif')",

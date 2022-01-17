@@ -55,7 +55,7 @@ const deployPoolByImpersonation = async (): Promise<string> => {
   return await lbpManager.lbp();
 };
 
-describe("LBP test", () => {
+describe.skip("LBP test", () => {
   context("polygon", () => {
     beforeEach(async () => {
       await prepareLbpManager();

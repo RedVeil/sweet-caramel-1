@@ -1,12 +1,11 @@
 import { Menu, Transition } from '@headlessui/react';
-import { store } from 'context/store';
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment } from 'react';
 import { ChainId } from '../../context/Web3/connectors';
 import NetworkOptionsMenuItem from './NetworkOptionsMenuItem';
 
 interface NetworkOptionsMenuProps {
   currentChain: number;
-  switchNetwork: (chainId: number, dispatch: React.Dispatch<any>) => void;
+  switchNetwork: (chainId: number) => void;
 }
 
 const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
@@ -14,8 +13,6 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
   switchNetwork,
   ...props
 }) => {
-  const { dispatch } = useContext(store);
-
   return (
     <Transition
       as={Fragment}
@@ -33,13 +30,13 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
 
         <NetworkOptionsMenuItem
           chainId={ChainId.Ethereum}
-          switchNetwork={(chainId) => switchNetwork(chainId, dispatch)}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
           currentChainId={currentChain}
         />
 
         <NetworkOptionsMenuItem
           chainId={ChainId.Polygon}
-          switchNetwork={(chainId) => switchNetwork(chainId, dispatch)}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
           currentChainId={currentChain}
         />
 
@@ -48,13 +45,13 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
         ) && [
           <NetworkOptionsMenuItem
             chainId={ChainId.Localhost}
-            switchNetwork={(chainId) => switchNetwork(chainId, dispatch)}
+            switchNetwork={(chainId) => switchNetwork(chainId)}
             currentChainId={currentChain}
             key={ChainId.Localhost}
           />,
           <NetworkOptionsMenuItem
             chainId={ChainId.Rinkeby}
-            switchNetwork={(chainId) => switchNetwork(chainId, dispatch)}
+            switchNetwork={(chainId) => switchNetwork(chainId)}
             currentChainId={currentChain}
             key={ChainId.Rinkeby}
           />,
@@ -62,7 +59,7 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
 
         <NetworkOptionsMenuItem
           chainId={ChainId.Arbitrum}
-          switchNetwork={(chainId) => switchNetwork(chainId, dispatch)}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
           currentChainId={currentChain}
           last={true}
         />

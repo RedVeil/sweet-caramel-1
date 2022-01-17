@@ -2,6 +2,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { PopLocker, Staking } from '@popcorn/hardhat/typechain';
 import { getERC20Contract, StakingPoolInfo } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
+import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
 import router from 'next/router';
 import { useCallback } from 'react';
 import MainActionButton from './MainActionButton';
@@ -23,11 +24,6 @@ const StakeCard: React.FC<StakeCardProps> = ({
   const { library } = useWeb3React<Web3Provider>();
 
   const onSelectPool = useCallback(async () => {
-    const erc20 = await getERC20Contract(
-      stakingPoolInfo.stakedTokenAddress,
-      library,
-    );
-
     router.push(`staking/${url}`);
   }, [
     router,
@@ -45,8 +41,10 @@ const StakeCard: React.FC<StakeCardProps> = ({
     >
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
-          <TokenIcon token={tokenName} />
-          <h3 className="text-2xl font-medium ml-4 ">{tokenName}</h3>
+          <TokenIcon token={getSanitizedTokenDisplayName(tokenName)} />
+          <h3 className="text-2xl font-medium ml-4 ">
+            {getSanitizedTokenDisplayName(tokenName)}
+          </h3>
         </div>
         <div className="w-24">
           <MainActionButton

@@ -1,6 +1,6 @@
 import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
-import { BigNumber, ethers, utils } from "ethers";
+import { ethers, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
@@ -49,8 +49,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: addresses.deployer,
     args: [
       contractRegistryAddress,
+      addresses.butterStaking,
       addresses.butter,
       addresses.threeCrv,
+      addresses.threePool,
       addresses.setBasicIssuanceModule,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
@@ -62,6 +64,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "ButterBatchProcessing",
   });
+
   console.log("adding butterBatch to contract registry...");
   await addContractToRegistry(
     "ButterBatchProcessing",
@@ -74,28 +77,31 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log("setting approvals for ButterBatchProcessing");
     const butterBatchProcessing = await hre.ethers.getContractAt(
       "ButterBatchProcessing",
-      deployed.address
+      (
+        await deployments.get("ButterBatchProcessing")
+      ).address
     );
     await butterBatchProcessing.setApprovals();
   }
 
   //Butter Batch Zapper
   console.log("deploying butterBatchZapper...");
-  const zapper = await deploy("ButterBatchZapper", {
+  await deploy("ButterBatchZapper", {
     from: addresses.deployer,
     args: [contractRegistryAddress, addresses.threePool, addresses.threeCrv],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "ButterBatchProcessingZapper",
   });
-
   await addContractToRegistry("ButterBatchZapper", deployments, signer, hre);
 
   if (["mainnet", "hardhat", "local"].includes(hre.network.name)) {
-    console.log("setting approvals for ButterBatchZapper");
+    console.log("setting approvals for ButterBatchZapper ...");
     const zapperContract = await hre.ethers.getContractAt(
       "ButterBatchProcessingZapper",
-      zapper.address
+      (
+        await deployments.get("ButterBatchZapper")
+      ).address
     );
     await zapperContract.setApprovals();
   }
@@ -109,39 +115,55 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer
   );
 
-  await keeperIncentive.createIncentive(
-    utils.formatBytes32String("ButterBatchProcessing"),
-    0,
-    false,
-    false
-  );
+  if (!Boolean(parseInt(process.env.UPDATE_ONLY || "0"))) {
+    console.log("creating incentive 1 ...");
+    await keeperIncentive.createIncentive(
+      utils.formatBytes32String("ButterBatchProcessing"),
+      0,
+      false,
+      false
+    );
 
-  await keeperIncentive.createIncentive(
-    utils.formatBytes32String("ButterBatchProcessing"),
-    0,
-    false,
-    false
-  );
+    console.log("creating incentive 2 ...");
+    await keeperIncentive.createIncentive(
+      utils.formatBytes32String("ButterBatchProcessing"),
+      0,
+      false,
+      false
+    );
 
+    const aclRegistry = await hre.ethers.getContractAt(
+      "ACLRegistry",
+      (
+        await deployments.get("ACLRegistry")
+      ).address,
+      signer
+    );
+
+    console.log("granting ButterZapper role to ButterBatchZapper");
+    await aclRegistry.grantRole(
+      ethers.utils.id("ButterZapper"),
+      (
+        await deployments.get("ButterBatchZapper")
+      ).address
+    );
+
+    console.log("granting ApprovedContract role to ButterBatchZapper");
+    await aclRegistry.grantRole(
+      ethers.utils.id("ApprovedContract"),
+      (
+        await deployments.get("ButterBatchZapper")
+      ).address
+    );
+  }
+
+  console.log(
+    "setting ButterBatchProcessing as controller contract for keeper incentive"
+  );
   await keeperIncentive.addControllerContract(
     utils.formatBytes32String("ButterBatchProcessing"),
     (
       await deployments.get("ButterBatchProcessing")
-    ).address
-  );
-
-  const aclRegistry = await hre.ethers.getContractAt(
-    "ACLRegistry",
-    (
-      await deployments.get("ACLRegistry")
-    ).address,
-    signer
-  );
-
-  await aclRegistry.grantRole(
-    ethers.utils.id("ButterZapper"),
-    (
-      await deployments.get("ButterBatchZapper")
     ).address
   );
 
@@ -219,16 +241,16 @@ async function createDemoData(
   console.log("first butter mint");
   const mintId0 = await butterBatch.currentMintBatchId();
   await butterBatch.depositForMint(parseEther("12000"), signerAddress);
-  await butterBatch.batchMint(BigNumber.from("0"));
+  await butterBatch.batchMint();
   await butterBatch.claim(mintId0, signerAddress);
 
   console.log("second butter mint");
   await butterBatch.depositForMint(parseEther("1000"), signerAddress);
-  await butterBatch.batchMint(BigNumber.from("0"));
+  await butterBatch.batchMint();
 
   console.log("redeeming....");
   await butterBatch.depositForRedeem(parseEther("1"));
-  await butterBatch.batchRedeem(BigNumber.from("0"));
+  await butterBatch.batchRedeem();
 
   console.log("create batch to be redeemed");
   await butterBatch.depositForRedeem(parseEther("1"));

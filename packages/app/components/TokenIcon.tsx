@@ -4,7 +4,7 @@ interface TokenIconProps {
 
 export default function TokenIcon({ token }: TokenIconProps): JSX.Element {
   switch (token) {
-    case 'POP':
+    case 'Popcorn':
       return (
         <div className="flex items-center rounded-full bg-white border border-gray-300 w-12 h-12 flex-shrink-0 flex-grow-0">
           <img
@@ -14,7 +14,7 @@ export default function TokenIcon({ token }: TokenIconProps): JSX.Element {
           />
         </div>
       );
-    case 'Gelato Uniswap USDC/POP LP':
+    case 'G-UNI USDC/POP LP':
       return (
         <div className="flex flex-row flex-shrink-0 flex-grow-0">
           <div className="flex items-center rounded-full bg-white border border-gray-300 w-12 h-12">

@@ -67,9 +67,7 @@ export default task("butter:batch-mint", "process current batch for minting")
 
     await (async () => {
       try {
-        const mintTx = await butterBatchProcessing.estimateGas.batchMint(
-          minAmountOfButter
-        );
+        const mintTx = await butterBatchProcessing.estimateGas.batchMint();
         console.log({ mintTxGas: formatUnits(mintTx, "gwei") });
         shouldSubmitTx = true;
       } catch (e) {
@@ -79,7 +77,7 @@ export default task("butter:batch-mint", "process current batch for minting")
 
     if (shouldSubmitTx && !Boolean(parseInt(args["dryRun"]))) {
       console.log("Submitting batch mint tx");
-      const tx = await butterBatchProcessing.batchMint(minAmountOfButter);
+      const tx = await butterBatchProcessing.batchMint();
       const receipt = await tx.wait(1);
       console.log("Transaction confirmed: ", receipt.transactionHash);
     }

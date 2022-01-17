@@ -1,11 +1,12 @@
 import { useWeb3React } from '@web3-react/core';
 import { connectors } from 'context/Web3/connectors';
+import activateRPCNetwork from 'helper/activateRPCNetwork';
 import { useEffect, useState } from 'react';
 
 export default function useEagerConnect() {
   const { activate, active } = useWeb3React();
 
-  const [tried, setTried] = useState(false);
+  const [triedButFailed, setTried] = useState(false);
 
   useEffect(() => {
     async function handleEagerConnect() {
@@ -13,13 +14,11 @@ export default function useEagerConnect() {
 
       const isAuthorized = await connectors.Injected.isAuthorized();
       if (isAuthorized && eagerConnect === 'true') {
-        activate(connectors.Injected, undefined, true).catch(() => {
+        activate(connectors.Injected).catch(() => {
           setTried(true);
         });
       } else {
-        activate(connectors.Network, undefined, true).catch(() => {
-          setTried(true);
-        });
+        activateRPCNetwork(activate);
       }
     }
 
@@ -28,10 +27,10 @@ export default function useEagerConnect() {
 
   // if the connection worked, wait until we get confirmation of that to flip the flag
   useEffect(() => {
-    if (!tried && active) {
+    if (!triedButFailed && active) {
       setTried(true);
     }
-  }, [tried, active]);
+  }, [triedButFailed, active]);
 
-  return tried;
+  return triedButFailed;
 }

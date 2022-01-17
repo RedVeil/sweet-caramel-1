@@ -19,7 +19,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //Temp solution for local deployment
   await deploy("POP_USDC_LP", {
     from: deployer,
-    args: ["POP/USDC LP", "POPUSDC", 18],
+    args: ["G-UNI USDC/POP LP", "G-UNI", 18],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "MockERC20",

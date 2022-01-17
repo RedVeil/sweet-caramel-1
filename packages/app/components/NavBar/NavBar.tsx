@@ -2,10 +2,11 @@ import { Web3Provider } from '@ethersproject/providers';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/solid';
 import { useWeb3React } from '@web3-react/core';
-import { store } from 'context/store';
+import activateRPCNetwork from 'helper/activateRPCNetwork';
+import useEagerConnect from 'hooks/useEagerConnect';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useContext, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { connectors, networkMap } from '../../context/Web3/connectors';
 import {
   getChainLogo,
@@ -17,24 +18,23 @@ import NetworkOptionsMenu from './NetworkOptionsMenu';
 
 const disconnectInjectedAndActivateRPCConnector = (deactivate, activate) => {
   deactivate(connectors.Injected);
-  activate(connectors.Network);
+  activateRPCNetwork(activate);
 };
 
-const Navbar: React.FC = () => {
+const Navbar: FC = () => {
   const { chainId, account, activate, deactivate } =
     useWeb3React<Web3Provider>();
   const router = useRouter();
   const [currentChainName, setCurrentChainName] = useState('trial');
   const [currentChainIcon, setCurrentChainIcon] = useState('');
-  const { dispatch } = useContext(store);
-
-  React.useEffect(() => {
+  useEagerConnect();
+  useEffect(() => {
     setCurrentChainName(networkMap[chainId]);
     setCurrentChainIcon(getChainLogo(chainId));
   }, [chainId]);
 
   return (
-    <nav className="flex pt-9 bg-white z-50">
+    <nav className="flex pt-9 bg-white z-10">
       <div className="flex flex-row items-center justify-between lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto z-50">
         <div className="flex flex-row items-center">
           <div>
@@ -114,21 +114,21 @@ const Navbar: React.FC = () => {
                 <NetworkOptionsMenu
                   currentChain={chainId}
                   switchNetwork={(chainId) => {
-                    switchNetwork(chainId, dispatch);
+                    switchNetwork(chainId);
                   }}
                 />
               )}
             </Menu>
           </div>
           <button
-            onClick={() =>
-              account
-                ? disconnectInjectedAndActivateRPCConnector(
-                    deactivate,
-                    activate,
-                  )
-                : activate(connectors.Injected)
-            }
+            onClick={() => {
+              if (account) {
+                disconnectInjectedAndActivateRPCConnector(deactivate, activate);
+              } else {
+                localStorage.setItem('eager_connect', 'true');
+                activate(connectors.Injected);
+              }
+            }}
             className={`rounded-full py-3 w-44 border border-transparent shadow-custom group hover:bg-blue-500 ${
               account ? 'bg-blue-50 border-blue-700' : 'bg-blue-100'
             }`}

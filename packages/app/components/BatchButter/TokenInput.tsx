@@ -1,6 +1,8 @@
+import { InfoIconWithModal } from 'components/InfoIconWithModal';
 import { BigNumber } from 'ethers';
+import { escapeRegExp, inputRegex } from 'helper/inputRegex';
 import { BatchProcessTokens, SelectedToken } from 'pages/butter';
-import { Dispatch, useEffect, useState } from 'react';
+import { Dispatch, useState } from 'react';
 import { bigNumberToNumber, scaleNumberToBigNumber } from '../../../utils';
 import SelectToken from './SelectToken';
 
@@ -39,36 +41,50 @@ const TokenInput: React.FC<TokenInputProps> = ({
   setUseUnclaimedDeposits,
   depositDisabled,
 }) => {
-  const [estimatedAmount, setEstimatedAmount] = useState<number>(0);
+  const [estimatedAmount, setEstimatedAmount] = useState<string>('');
+  const [displayDepositAmount, setDisplayDepositAmount] = useState<string>('');
 
-  useEffect(() => {
-    if (depositAmount.toString() !== '0') {
-      calcOutputAmountsFromInput(depositAmount);
-    }
-  }, []);
-
-  function updateWithOuputAmounts(value: number): void {
-    setEstimatedAmount(value);
-    setDepositAmount(
-      scaleNumberToBigNumber(value)
+  function updateWithOuputAmounts(value: string): void {
+    if (value !== '.') {
+      const newDepositAmount = scaleNumberToBigNumber(Number(value))
         .mul(selectedToken.output.price)
-        .div(selectedToken.input.price),
-    );
+        .div(selectedToken.input.price);
+      setDepositAmount(newDepositAmount);
+      setDisplayDepositAmount(String(bigNumberToNumber(newDepositAmount)));
+    } else {
+      setDisplayDepositAmount('0');
+    }
+    setEstimatedAmount(value);
   }
 
-  function updateWithInputAmounts(value: number): void {
-    const raisedValue = scaleNumberToBigNumber(value);
-    setDepositAmount(raisedValue);
-    calcOutputAmountsFromInput(raisedValue);
+  function updateWithInputAmounts(value: string): void {
+    if (!['0.', '.'].includes(value)) {
+      const raisedValue = scaleNumberToBigNumber(Number(value));
+      setDepositAmount(raisedValue);
+      calcOutputAmountsFromInput(raisedValue);
+    }
+    setDisplayDepositAmount(value);
   }
 
   function calcOutputAmountsFromInput(value: BigNumber): void {
     setEstimatedAmount(
-      bigNumberToNumber(
-        value.mul(selectedToken.input.price).div(selectedToken.output.price),
+      String(
+        bigNumberToNumber(
+          value.mul(selectedToken.input.price).div(selectedToken.output.price),
+        ),
       ),
     );
   }
+
+  const enforcer = (nextUserInput: string, useOutput: boolean) => {
+    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
+      if (useOutput) {
+        updateWithOuputAmounts(nextUserInput);
+      } else {
+        updateWithInputAmounts(nextUserInput);
+      }
+    }
+  };
 
   return (
     <>
@@ -84,13 +100,20 @@ const TokenInput: React.FC<TokenInputProps> = ({
           <div className="flex flex-row items-center justify-between">
             <input
               className="w-8/12 mr-4 font-semibold leading-none text-gray-500 border-none focus:text-gray-800 focus:outline-none"
-              type="number"
-              value={bigNumberToNumber(depositAmount)}
-              onChange={(e) =>
-                updateWithInputAmounts(
-                  e.target.value === '' ? 0 : Number(e.target.value),
-                )
-              }
+              value={displayDepositAmount}
+              onChange={(e) => {
+                enforcer(e.target.value.replace(/,/g, '.'), false);
+              }}
+              inputMode="decimal"
+              autoComplete="off"
+              autoCorrect="off"
+              // text-specific options
+              type="text"
+              pattern="^[0-9]*[.,]?[0-9]*$"
+              placeholder={'0.0'}
+              minLength={1}
+              maxLength={79}
+              spellCheck="false"
             />
             <div className="flex flex-row items-center">
               <p
@@ -123,16 +146,30 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </div>
           </div>
         </div>
-        <label className="flex flex-row items-center w-7/12 mt-3 cursor-pointer group">
-          <input
-            type="checkbox"
-            className="mr-2 rounded-sm"
-            onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
-          />
-          <p className="text-base mt-0.5 text-gray-600 leading-none group-hover:text-blue-700">
-            Use unclaimed Balances
-          </p>
-        </label>
+        <div className="flex flex-row items-center mt-2">
+          <label className="flex flex-row items-center cursor-pointer group">
+            <input
+              type="checkbox"
+              className="mr-2 rounded-sm"
+              onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
+            />
+            <p className="text-base mt-0.5 text-gray-600 leading-none group-hover:text-blue-700">
+              Use unclaimed Balances
+            </p>
+          </label>
+          <div className="mt-1">
+            <InfoIconWithModal title="About Unclaimed Balances">
+              <p>
+                When a batch is minted but the Butter has not been claimed yet,
+                it can be redeemed without having to claim it first. By checking
+                “use unclaimed balances” you will be able to redeem unclaimed
+                balances of Butter. This process applies also for unclaimed
+                3CRV, which can be converted to Butter without having to claim
+                it.
+              </p>
+            </InfoIconWithModal>
+          </div>
+        </div>
 
         {depositDisabled && (
           <p className="text-red-600">Insufficient Balance</p>
@@ -165,13 +202,20 @@ const TokenInput: React.FC<TokenInputProps> = ({
           <div className="flex flex-row items-center justify-between">
             <input
               className="mr-1 font-semibold leading-none text-gray-500 border-none w-36 smlaptop:w-64 smlaptop:mr-0 focus:outline-none focus:text-gray-800"
-              type="number"
               value={estimatedAmount}
               onChange={(e) =>
-                updateWithOuputAmounts(
-                  e.target.value === '' ? 0 : Number(e.target.value),
-                )
+                enforcer(e.target.value.replace(/,/g, '.'), true)
               }
+              inputMode="decimal"
+              autoComplete="off"
+              autoCorrect="off"
+              // text-specific options
+              type="text"
+              pattern="^[0-9]*[.,]?[0-9]*$"
+              placeholder={'0.0'}
+              minLength={1}
+              maxLength={79}
+              spellCheck="false"
             />
             <SelectToken
               allowSelection={false}

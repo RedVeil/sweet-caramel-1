@@ -80,7 +80,7 @@ const getPoolTokenBalances = async (address) => {
   return [await usdc.balanceOf(address), await pop.balanceOf(address)];
 };
 
-describe("LBP test", () => {
+describe.skip("LBP test", () => {
   context("LBPManager has funds on mainnet", () => {
     beforeEach(async () => {
       await prepareLbpManager();

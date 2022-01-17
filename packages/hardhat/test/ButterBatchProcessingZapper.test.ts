@@ -5,7 +5,7 @@ import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import { BatchType } from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert } from "../lib/utils/expectValue";
-import { KeeperIncentive, MockERC20 } from "../typechain";
+import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { ButterBatchProcessingZapper } from "../typechain/ButterBatchProcessingZapper";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
@@ -141,13 +141,27 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(mockPop.address, mockPop.address)
   ).deployed();
 
+  const rewardsEscrow = (await (
+    await (
+      await ethers.getContractFactory("RewardsEscrow")
+    ).deploy(mockPop.address)
+  ).deployed()) as RewardsEscrow;
+
+  const butterStaking = await (
+    await (
+      await ethers.getContractFactory("Staking")
+    ).deploy(mockPop.address, mockSetToken.address, rewardsEscrow.address)
+  ).deployed();
+
   const butterBatchProcessing = (await (
     await (
       await ethers.getContractFactory("ButterBatchProcessing")
     ).deploy(
       contractRegistry.address,
+      butterStaking.address,
       mockSetToken.address,
       mock3Crv.address,
+      mockCurveThreePool.address,
       mockBasicIssuanceModule.address,
       [mockYearnVaultUSDX.address, mockYearnVaultUST.address],
       [
@@ -167,6 +181,9 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed()) as ButterBatchProcessing;
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+
+  await butterBatchProcessing.connect(owner).setRedeemSlippage(100);
+  await butterBatchProcessing.connect(owner).setMintSlippage(100);
   await butterBatchProcessing.setApprovals();
 
   const butterBatchProcessingZapper = (await (
@@ -260,6 +277,10 @@ async function deployContracts(): Promise<Contracts> {
     );
 
   await butterBatchProcessingZapper.setApprovals();
+  await aclRegistry.grantRole(
+    ethers.utils.id("ApprovedContract"),
+    butterBatchProcessingZapper.address
+  );
 
   return {
     mock3Crv,
@@ -408,7 +429,7 @@ describe("ButterBatchProcessingZapper", function () {
         depositor.address
       );
       timeTravel(1800);
-      await contracts.butterBatchProcessing.connect(owner).batchMint(0);
+      await contracts.butterBatchProcessing.connect(owner).batchMint();
 
       await expect(
         contracts.butterBatchProcessingZapper.claimAndSwapToStable(
@@ -429,7 +450,7 @@ describe("ButterBatchProcessingZapper", function () {
         depositor.address
       );
       timeTravel(1800);
-      await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+      await contracts.butterBatchProcessing.connect(owner).batchRedeem();
 
       //Actual Test
       const result = await contracts.butterBatchProcessingZapper
@@ -449,7 +470,7 @@ describe("ButterBatchProcessingZapper", function () {
       expect(result)
         .to.emit(contracts.butterBatchProcessing, "Claimed")
         .withArgs(
-          depositor.address,
+          contracts.butterBatchProcessingZapper.address,
           BatchType.Redeem,
           parseEther("10"),
           claimableAmount
@@ -482,7 +503,7 @@ describe("ButterBatchProcessingZapper", function () {
       await contracts.butterBatchProcessing
         .connect(depositor)
         .depositForRedeem(parseEther("200"));
-      await contracts.butterBatchProcessing.connect(owner).batchRedeem(0);
+      await contracts.butterBatchProcessing.connect(owner).batchRedeem();
 
       //Pause Contract
       await contracts.butterBatchProcessing.connect(owner).pause();
@@ -524,6 +545,18 @@ describe("ButterBatchProcessingZapper", function () {
           parseEther("19960.02"),
           depositor.address
         );
+    });
+    it("takes a redemption fee", async () => {
+      await contracts.butterBatchProcessing.setRedemptionFee(
+        100,
+        owner.address
+      );
+      await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .claimAndSwapToStable(claimableRedeemId, 0, 0);
+      expect(await contracts.butterBatchProcessing.redemptionFees()).to.equal(
+        parseEther("199.8")
+      );
     });
   });
 });

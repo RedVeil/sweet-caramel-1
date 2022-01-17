@@ -10,6 +10,7 @@ interface BatchProps {
   batch: AccountBatch;
   index: number;
   claim: Function;
+  claimAndStake: Function;
   withdraw: Function;
   slippage: number;
   setSlippage: Dispatch<number>;
@@ -19,6 +20,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   batch,
   index,
   claim,
+  claimAndStake,
   withdraw,
   slippage,
   setSlippage,
@@ -72,6 +74,10 @@ const ClaimableBatch: React.FC<BatchProps> = ({
     }
   }
 
+  function handleClaimAndStake() {
+    claimAndStake(batch.batchId);
+  }
+
   return (
     <tr
       key={batch.batchId}
@@ -89,12 +95,25 @@ const ClaimableBatch: React.FC<BatchProps> = ({
       </td>
       <td className="px-6 py-5 flex justify-end">
         <div className="w-36">
-          <MainActionButton
-            label={batch.claimable ? 'Claim' : 'Withdraw'}
-            handleClick={(e) =>
-              batch.claimable ? handleClaim() : handleWithdraw()
-            }
-          />
+          {batch.claimable && batch.batchType === BatchType.Mint ? (
+            <div className="space-y-4">
+              <MainActionButton
+                label="Claim and Stake"
+                handleClick={(e) => handleClaimAndStake()}
+              />
+              <MainActionButton
+                label="Claim"
+                handleClick={(e) => handleClaim()}
+              />
+            </div>
+          ) : (
+            <MainActionButton
+              label={batch.claimable ? 'Claim' : 'Withdraw'}
+              handleClick={(e) =>
+                batch.claimable ? handleClaim() : handleWithdraw()
+              }
+            />
+          )}
         </div>
       </td>
     </tr>
