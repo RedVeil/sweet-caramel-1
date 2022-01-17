@@ -25,8 +25,10 @@ const Navbar: FC = () => {
   const { chainId, account, activate, deactivate } =
     useWeb3React<Web3Provider>();
   const router = useRouter();
-  const [currentChainName, setCurrentChainName] = useState('trial');
-  const [currentChainIcon, setCurrentChainIcon] = useState('');
+  const [currentChainName, setCurrentChainName] = useState(networkMap[chainId]);
+  const [currentChainIcon, setCurrentChainIcon] = useState(
+    getChainLogo(chainId),
+  );
   useEagerConnect();
   useEffect(() => {
     setCurrentChainName(networkMap[chainId]);
