@@ -89,9 +89,16 @@ const TokenInput: React.FC<TokenInputProps> = ({
   return (
     <>
       <div className="mt-10">
-        <p className="mb-1 text-sm font-semibold text-gray-900">
-          Deposit Amount
-        </p>
+        <div className="flex flex-row items-center justify-between mb-1">
+          <p className="text-sm font-semibold text-gray-900">Deposit Amount</p>
+          <p className="text-gray-500 font-medium text-sm">
+            {`${bigNumberToNumber(
+              useUnclaimedDeposits
+                ? selectedToken.input.claimableBalance
+                : selectedToken.input.balance,
+            ).toFixed(3)} ${selectedToken.input.name}`}
+          </p>
+        </div>
         <div
           className={`rounded-md border py-2 pl-2 pr-4 ${
             depositDisabled ? 'border-red-600' : 'border-gray-200'
