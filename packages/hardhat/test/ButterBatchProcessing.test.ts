@@ -4,6 +4,7 @@ import { expect } from "chai";
 import { BigNumber, utils, Wallet } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
+import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert, expectValue } from "../lib/utils/expectValue";
 import { DAYS } from "../lib/utils/test/constants";
@@ -180,8 +181,8 @@ async function deployContracts(): Promise<Contracts> {
     )
   ).deployed()) as ButterBatchProcessing;
 
-  await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
-  await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+  await aclRegistry.grantRole(DAO_ROLE, owner.address);
+  await aclRegistry.grantRole(KEEPER_ROLE, owner.address);
   await butterBatchProcessing.connect(owner).setRedeemSlippage(200);
 
   await butterBatchProcessing.setApprovals();

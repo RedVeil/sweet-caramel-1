@@ -2,6 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
+import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { expectRevert } from "../lib/utils/expectValue";
 import { MockCurveThreepool, MockERC20 } from "../typechain";
 import { ButterWhaleProcessing } from "../typechain/ButterWhaleProcessing";
@@ -145,8 +146,8 @@ async function deployContracts(): Promise<Contracts> {
     )
   ).deployed()) as ButterWhaleProcessing;
 
-  await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
-  await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+  await aclRegistry.grantRole(DAO_ROLE, owner.address);
+  await aclRegistry.grantRole(KEEPER_ROLE, owner.address);
 
   await butterWhaleProcessing.setApprovals();
 
