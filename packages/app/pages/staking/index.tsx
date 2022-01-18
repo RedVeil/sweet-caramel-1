@@ -6,27 +6,13 @@ import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import React, { useContext, useEffect, useState } from 'react';
 import ContentLoader from 'react-content-loader';
 import { Toaster } from 'react-hot-toast';
-import {
-  getSingleStakingPoolInfo,
-  getStakingPoolsInfo,
-  StakingPoolInfo,
-} from '../../../utils';
+import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
 
 async function getStakingPools(
   contracts: Contracts,
   library,
 ): Promise<StakingPoolInfo[]> {
-  const stakingPools = await getStakingPoolsInfo(contracts, library);
-  if (contracts.popStaking) {
-    const popStakingPool = await getSingleStakingPoolInfo(
-      contracts.popStaking,
-      library,
-      contracts.pop.address,
-      'Popcorn',
-    );
-    return [popStakingPool, ...stakingPools];
-  }
-  return stakingPools;
+  return getStakingPoolsInfo(contracts, library);
 }
 
 export default function index(): JSX.Element {
@@ -90,11 +76,8 @@ export default function index(): JSX.Element {
             <div className="w-2/3">
               <div className="space-y-6">
                 {loading && (
-                  <ContentLoader
-                    viewBox="0 0 450 400"
-                    backgroundColor="#f0f0f0"
-                    foregroundColor="#dedede"
-                  >
+                  <ContentLoader viewBox="0 0 450 400">
+                    {/*eslint-disable */}
                     <rect
                       x="0"
                       y="0"
@@ -119,6 +102,7 @@ export default function index(): JSX.Element {
                       width="450"
                       height="108"
                     />
+                    {/*eslint-enable */}
                   </ContentLoader>
                 )}
                 {contracts?.staking &&

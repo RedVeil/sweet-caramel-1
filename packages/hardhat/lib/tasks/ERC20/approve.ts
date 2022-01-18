@@ -8,9 +8,7 @@ interface Args {
 }
 
 async function main(args: Args, hre: HardhatRuntimeEnvironment) {
-  const signer = hre.askForSigner();
-
-  const erc20 = await hre.ethers.getContractAt("MockERC20", args.token, signer);
+  const erc20 = await hre.ethers.getContractAt("MockERC20", args.token);
 
   console.log(
     "Approving ",

@@ -65,7 +65,7 @@ export async function getSingleStakingPoolInfo(
     stakedTokenName: stakedTokenName,
     apy: await calculateAPY(tokenPerWeek, totalStaked),
     totalStake: bigNumberToNumber(totalStaked),
-    tokenEmission: bigNumberToNumber(tokenPerWeek),
+    tokenEmission: bigNumberToNumber(tokenPerWeek?.div(7) || BigNumber.from(0)),
   };
 }
 
@@ -92,33 +92,24 @@ export async function getStakingPoolsInfo(
   library: any,
 ): Promise<StakingPoolInfo[]> {
   let stakingPools: StakingPoolInfo[] = [];
-  const stakingContracts = contracts ? contracts.staking : [];
+  const stakingContracts = contracts
+    ? [contracts.popStaking, ...contracts.staking]
+    : [];
   if (contracts && stakingContracts && stakingContracts.length > 0) {
     for (let i = 0; i < stakingContracts.length; i++) {
-      const stakingContract = stakingContracts[i] as Staking;
-      const tokenPerWeek = await stakingContract?.getRewardForDuration({
-        gasLimit: 2000000,
-      });
-      const totalStaked = await stakingContract?.totalSupply({
-        gasLimit: 2000000,
-      });
-      const stakedTokenAddress: string = await stakingContract?.stakingToken({
-        gasLimit: 2000000,
-      });
-      const apy = await calculateAPY(tokenPerWeek, totalStaked);
-      const totalStake = await bigNumberToNumber(totalStaked);
-      const tokenEmission = await bigNumberToNumber(tokenPerWeek);
-      let stakedTokenName = 'unnamed';
-      stakedTokenName = await getStakedTokenName(stakedTokenAddress, library);
-      const stakingInfo = {
-        stakingContractAddress: stakingContract?.address,
-        stakedTokenAddress: stakedTokenAddress,
-        stakedTokenName: stakedTokenName,
-        apy,
-        totalStake,
-        tokenEmission,
-      };
-      stakingPools[i] = stakingInfo;
+      const stakingContract = stakingContracts[i];
+
+      stakingPools[i] = await getSingleStakingPoolInfo(
+        stakingContract,
+        library,
+        stakingContract.address.toLowerCase() ===
+          contracts.popStaking?.address.toLowerCase()
+          ? contracts.pop.address
+          : undefined,
+        stakingContract.address === contracts.popStaking?.address
+          ? 'Popcorn'
+          : undefined,
+      );
     }
     return stakingPools;
   }

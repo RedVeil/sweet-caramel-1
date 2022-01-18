@@ -63,10 +63,7 @@ export default function StakingPage(): JSX.Element {
     dispatch,
   } = useContext(store);
   const [loading, setLoading] = useState(false);
-  let stakedToken;
-  if (stakingPageInfo) {
-    stakedToken = stakingPageInfo.stakedToken;
-  }
+  const stakedToken = stakingPageInfo ? stakingPageInfo.stakedToken : undefined;
 
   useEffect(() => {
     return () => {
@@ -326,17 +323,12 @@ export default function StakingPage(): JSX.Element {
           <div className="w-2/3 mt-14">
             {(loading && (
               <div>
-                <ContentLoader
-                  speed={1}
-                  viewBox="0 0 500 84"
-                  backgroundColor="#f6f6ef"
-                  foregroundColor="#e8e8e3"
-                >
-                  <rect x="9" y="4" rx="0" ry="0" width="320" height="22" />
-                  <rect x="18" y="14" rx="0" ry="0" width="303" height="6" />
-                  <rect x="11" y="33" rx="0" ry="0" width="108" height="13" />
-                  <rect x="129" y="33" rx="0" ry="0" width="60" height="13" />
-                  <rect x="196" y="33" rx="0" ry="0" width="60" height="13" />
+                <ContentLoader speed={1} viewBox="0 0 500 84">
+                  <rect x="9" y="4" rx="10" ry="10" width="320" height="22" />
+                  <rect x="18" y="14" rx="10" ry="10" width="303" height="6" />
+                  <rect x="11" y="33" rx="10" ry="10" width="108" height="13" />
+                  <rect x="129" y="33" rx="10" ry="10" width="60" height="13" />
+                  <rect x="196" y="33" rx="10" ry="10" width="60" height="13" />
                 </ContentLoader>
               </div>
             )) || (
@@ -392,11 +384,10 @@ export default function StakingPage(): JSX.Element {
             <div className="w-1/3">
               {(loading && (
                 <ContentLoader viewBox="0 0 450 600">
-                  <rect x="0" y="0" rx="15" ry="15" width="400" height="600" />
+                  <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
                 </ContentLoader>
               )) || (
                 <div className="pt-4 h-full px-6 border border-gray-200 rounded-3xl shadow-custom">
-
                   <div className="pt-2">
                     <TokenInputToggle
                       toggled={withdraw}

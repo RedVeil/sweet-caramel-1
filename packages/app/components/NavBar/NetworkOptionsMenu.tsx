@@ -34,12 +34,6 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
           currentChainId={currentChain}
         />
 
-        <NetworkOptionsMenuItem
-          chainId={ChainId.Polygon}
-          switchNetwork={(chainId) => switchNetwork(chainId)}
-          currentChainId={currentChain}
-        />
-
         {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(
           parseInt(process.env.CHAIN_ID),
         ) && [
@@ -55,10 +49,14 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({
             currentChainId={currentChain}
             key={ChainId.Rinkeby}
           />,
+          <NetworkOptionsMenuItem
+            chainId={ChainId.Arbitrum}
+            switchNetwork={(chainId) => switchNetwork(chainId)}
+            currentChainId={currentChain}
+          />,
         ]}
-
         <NetworkOptionsMenuItem
-          chainId={ChainId.Arbitrum}
+          chainId={ChainId.Polygon}
           switchNetwork={(chainId) => switchNetwork(chainId)}
           currentChainId={currentChain}
           last={true}

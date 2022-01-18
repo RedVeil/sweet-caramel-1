@@ -1,5 +1,6 @@
 import { bigNumberToNumber } from '@popcorn/utils';
 import { format } from 'date-fns';
+import { formatStakedAmount } from 'helper/formatStakedAmount';
 import { Escrow } from 'hooks/useGetUserEscrows';
 
 interface VestingRecordProps {
@@ -30,9 +31,7 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({
         </div>
 
         <div className="flex flex-col my-auto">
-          <p className={`text-base text-gray-500 my-auto`}>
-            TOTAL VESTED TOKENS
-          </p>
+          <p className={`text-base text-gray-500 my-auto`}>TOTAL TOKENS</p>
           <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
             <span className="text-gray-900">
               {bigNumberToNumber(vestingEscrow.balance).toLocaleString(
@@ -48,9 +47,8 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({
           <p className={`text-base text-gray-500 my-auto`}>CLAIMABLE TOKENS</p>
           <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
             <span className="text-gray-900">
-              {bigNumberToNumber(vestingEscrow.claimableAmount).toLocaleString(
-                undefined,
-                { maximumFractionDigits: 2 },
+              {formatStakedAmount(
+                bigNumberToNumber(vestingEscrow.claimableAmount),
               )}
             </span>{' '}
             POP
