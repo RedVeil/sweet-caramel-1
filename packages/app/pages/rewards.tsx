@@ -15,6 +15,7 @@ import { setSingleActionModal } from 'context/actions';
 import { store } from 'context/store';
 import { ContractsContext } from 'context/Web3/contracts';
 import { BigNumber } from 'ethers';
+import { formatStakedAmount } from 'helper/formatStakedAmount';
 import useClaimEscrows from 'hooks/useClaimEscrows';
 import useClaimStakingReward from 'hooks/useClaimStakingReward';
 import useGetUserEscrows, { Escrow } from 'hooks/useGetUserEscrows';
@@ -294,12 +295,12 @@ export default function index(): JSX.Element {
                                 <h1
                                   className={`text-3xl font-medium text-gray-900 my-auto mr-8`}
                                 >
-                                  {bigNumberToNumber(
-                                    userEscrowsFetchResult?.data
-                                      ?.totalClaimablePop,
-                                  ).toLocaleString(undefined, {
-                                    maximumFractionDigits: 2,
-                                  })}{' '}
+                                  {formatStakedAmount(
+                                    bigNumberToNumber(
+                                      userEscrowsFetchResult?.data
+                                        ?.totalClaimablePop,
+                                    ),
+                                  )}{' '}
                                   POP
                                 </h1>
                                 <button
@@ -355,7 +356,36 @@ export default function index(): JSX.Element {
                       )}
                     </div>
                   )}
-                {loading && <ContentLoader title="Loading ..." />}
+                {loading && (
+                  <ContentLoader viewBox="0 0 450 400">
+                    {/* eslint-disable */}
+                    <rect
+                      x="0"
+                      y="0"
+                      rx="15"
+                      ry="15"
+                      width="450"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="115"
+                      rx="15"
+                      ry="15"
+                      width="450"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="230"
+                      rx="15"
+                      ry="15"
+                      width="450"
+                      height="108"
+                    />
+                    {/* eslint-enable */}
+                  </ContentLoader>
+                )}
               </div>
             </div>
           )}

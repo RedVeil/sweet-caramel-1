@@ -2,7 +2,6 @@ import { RewardsEscrow } from '@popcorn/hardhat/typechain';
 import { useWeb3React } from '@web3-react/core';
 import {} from 'ethereumjs-util';
 import { BigNumber } from 'ethers';
-// import { formatEther } from 'ethers/utils';
 import useSWR from 'swr';
 import { getChainRelevantContracts } from '../../hardhat/lib/utils/getContractAddresses';
 import useVestingEscrow from './useVestingEscrow';
@@ -23,30 +22,15 @@ const getEscrowsByIds = async (
   const result = [];
   const escrows = await vestingEscrow.getEscrows(escrowIds);
   escrows.forEach((escrow, index) => {
-    const escrowObject = {
+    result.push({
       start: escrow.start.mul(1000),
       end: escrow.end.mul(1000),
       balance: escrow.balance,
       account: escrow.account,
       id: escrowIds[index],
-    };
-    result.push(escrowObject as Escrow);
+    });
   });
   return result;
-};
-
-const getClaimableAmountForEscrow = async (
-  escrow: Escrow,
-  blockTime: number,
-): Promise<BigNumber> => {
-  const escrowDuration = escrow.end.sub(escrow.start);
-  const passedTime = BigNumber.from(String(blockTime * 1000)).sub(escrow.start);
-  const claimableAmount = escrow.balance.mul(passedTime).div(escrowDuration);
-  if (escrow.balance.gt(claimableAmount)) {
-    return claimableAmount;
-  } else {
-    return escrow.balance;
-  }
 };
 
 const getUserEscrows =
@@ -57,16 +41,21 @@ const getUserEscrows =
       return { escrows: new Array(0), totalClaimablePop: BigNumber.from('0') };
     }
     let totalClaimablePop: BigNumber = BigNumber.from('0');
-    let escrows = await getEscrowsByIds(vestingEscrow, escrowIds);
-    escrows = escrows.filter((escrow) =>
-      escrow.balance.gt(BigNumber.from('0')),
-    );
-    const blockTime = await (await library.getBlock('latest')).timestamp;
+    const escrows = (await getEscrowsByIds(vestingEscrow, escrowIds))
+      .filter((escrow) => escrow.balance.gt(BigNumber.from('0')))
+      .filter((escrow) => !BAD_ESCROW_IDS.includes(escrow.id));
+
     for (let i = 0; i < escrows.length; i++) {
-      escrows[i].claimableAmount = await getClaimableAmountForEscrow(
-        escrows[i],
-        blockTime,
-      );
+      escrows[i].claimableAmount = await (async () => {
+        let claimable;
+        try {
+          claimable = await vestingEscrow.getClaimableAmount(escrows[i].id);
+        } catch (e) {
+          claimable = BigNumber.from(0);
+        }
+        return claimable;
+      })();
+
       totalClaimablePop = totalClaimablePop.add(escrows[i].claimableAmount);
     }
     escrows.sort((a, b) => a.end.toNumber() - b.end.toNumber());
@@ -89,3 +78,7 @@ export default function useGetUserEscrows() {
     },
   );
 }
+
+const BAD_ESCROW_IDS = [
+  '0xb5e39b26e424fc1affd47eaa035ac492b765b6dae4985c2762d829f986b43418',
+];
