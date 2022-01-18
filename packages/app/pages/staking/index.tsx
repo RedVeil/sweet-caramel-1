@@ -1,10 +1,10 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
-import LoadingSpinner from 'components/LoadingSpinner';
 import Navbar from 'components/NavBar/NavBar';
 import StakeCard from 'components/StakeCard';
 import { Contracts, ContractsContext } from 'context/Web3/contracts';
 import React, { useContext, useEffect, useState } from 'react';
+import ContentLoader from 'react-content-loader';
 import { Toaster } from 'react-hot-toast';
 import {
   getSingleStakingPoolInfo,
@@ -79,7 +79,7 @@ export default function index(): JSX.Element {
           </div>
           <div className="flex flex-row mt-10">
             <div className="w-1/3">
-              <div className="bg-primaryLight rounded-5xl pt-44 pb-44 mr-12 mb-24 shadow-custom">
+              <div className="bg-primaryLight rounded-5xl p-10 pt-44 pb-44 mr-12 mb-24 shadow-custom">
                 <img
                   src="/images/farmerCat.svg"
                   alt="farmerCat"
@@ -90,9 +90,36 @@ export default function index(): JSX.Element {
             <div className="w-2/3">
               <div className="space-y-6">
                 {loading && (
-                  <div className="w-full h-full flex justify-center mt-24">
-                    <LoadingSpinner size="h-32 w-32" />
-                  </div>
+                  <ContentLoader
+                    viewBox="0 0 450 400"
+                    backgroundColor="#f0f0f0"
+                    foregroundColor="#dedede"
+                  >
+                    <rect
+                      x="0"
+                      y="0"
+                      rx="15"
+                      ry="15"
+                      width="388"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="115"
+                      rx="15"
+                      ry="15"
+                      width="388"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="230"
+                      rx="15"
+                      ry="15"
+                      width="388"
+                      height="108"
+                    />
+                  </ContentLoader>
                 )}
                 {contracts?.staking &&
                   stakingPoolsInfo &&

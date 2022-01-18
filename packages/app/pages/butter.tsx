@@ -8,7 +8,6 @@ import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
 import StatInfoCard from 'components/BatchButter/StatInfoCard';
 import { BatchProcessToken } from 'components/BatchButter/TokenInput';
 import Tutorial from 'components/BatchButter/Tutorial';
-import LoadingSpinner from 'components/LoadingSpinner';
 import MainActionButton from 'components/MainActionButton';
 import Navbar from 'components/NavBar/NavBar';
 import { setDualActionWideModal, setSingleActionModal } from 'context/actions';
@@ -24,6 +23,7 @@ import { BigNumber, utils } from 'ethers';
 import useThreeCurveVirtualPrice from 'hooks/useThreeCurveVirtualPrice';
 import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import ContentLoader from 'react-content-loader';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   AccountBatch,
@@ -36,11 +36,6 @@ import ButterBatchAdapter from '../../hardhat/lib/adapters/ButterBatchAdapter';
 interface HotSwapParameter {
   batchIds: String[];
   amounts: BigNumber[];
-}
-
-interface ClaimableBatches {
-  mint: AccountBatch[];
-  redeem: AccountBatch[];
 }
 
 export interface SelectedToken {
@@ -79,7 +74,7 @@ async function getBatchProcessToken(
   butterDependencyContracts: ButterDependencyContracts,
   account: string,
 ): Promise<BatchProcessTokens> {
-  const batchProcessTokens = {
+  return {
     butter: {
       name: 'BTR',
       key: 'butter',
@@ -166,7 +161,6 @@ async function getBatchProcessToken(
       img: 'usdt.webp',
     },
   };
-  return batchProcessTokens;
 }
 
 function adjustDepositDecimals(
@@ -194,6 +188,11 @@ function getZapDepositAmount(
   }
 }
 
+interface ClaimableBatchesStruct {
+  mint: AccountBatch[];
+  redeem: AccountBatch[];
+}
+
 export default function Butter(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { library, account, activate, chainId } = context;
@@ -212,7 +211,8 @@ export default function Butter(): JSX.Element {
   const [butterBatchAdapter, setButterBatchAdapter] =
     useState<ButterBatchAdapter>();
   const [batches, setBatches] = useState<AccountBatch[]>();
-  const [claimableBatches, setClaimableBatches] = useState<ClaimableBatches>();
+  const [claimableBatches, setClaimableBatches] =
+    useState<ClaimableBatchesStruct>({ mint: [], redeem: [] });
   const [slippage, setSlippage] = useState<number>(3);
   const [currentBatches, setCurrentBatches] = useState<CurrentBatches>();
   const [butterSupply, setButterSupply] = useState<BigNumber>();
@@ -285,7 +285,8 @@ export default function Butter(): JSX.Element {
                 '0x5a6A4D54456819380173272A5E8E9B9904BdF41B', // crvMIM
             )?.apy?.net_apy) /
             2) *
-            100,
+            100 *
+            (98.5 / 100),
         ),
       );
   }, [library, account, chainId]);
@@ -295,8 +296,20 @@ export default function Butter(): JSX.Element {
       return;
     }
     setLoading(true);
-    getData().then((res) => setLoading(false));
+    getData().then((res) => {
+      setLoading(false);
+    });
   }, [butterBatchAdapter, account]);
+
+  useEffect(() => {
+    if (!batchProcessTokens || selectedToken) {
+      return;
+    }
+    setSelectedToken({
+      input: batchProcessTokens.threeCrv,
+      output: batchProcessTokens.butter,
+    });
+  }, [batchProcessTokens]);
 
   useEffect(() => {
     if (!batchProcessTokens) {
@@ -314,6 +327,8 @@ export default function Butter(): JSX.Element {
       });
     }
     setUseZap(false);
+    setDepositAmount(BigNumber.from('0'));
+    setUseUnclaimedDeposits(false);
   }, [redeeming]);
 
   async function getData(): Promise<void> {
@@ -325,17 +340,6 @@ export default function Butter(): JSX.Element {
     );
     setButterSupply(tokenSupplyRes);
 
-    const batchProcessTokenRes = await getBatchProcessToken(
-      butterBatchAdapter,
-      contracts,
-      butterDependencyContracts,
-      account,
-    );
-    setSelectedToken({
-      input: batchProcessTokenRes.threeCrv,
-      output: batchProcessTokenRes.butter,
-    });
-
     const batchRes = await butterBatchAdapter.getBatches(account);
     setBatches(batchRes);
 
@@ -346,21 +350,32 @@ export default function Butter(): JSX.Element {
       (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
     );
 
-    const newBatchProcessTokens = { ...batchProcessTokenRes };
-    newBatchProcessTokens.butter.claimableBalance =
+    const batchProcessTokenRes = await getBatchProcessToken(
+      butterBatchAdapter,
+      contracts,
+      butterDependencyContracts,
+      account,
+    );
+
+    batchProcessTokenRes.butter.claimableBalance =
       getClaimableBalance(claimableMintBatches);
-    newBatchProcessTokens.threeCrv.claimableBalance = getClaimableBalance(
+    batchProcessTokenRes.threeCrv.claimableBalance = getClaimableBalance(
       claimableRedeemBatches,
     );
 
-    setBatchProcessTokens(newBatchProcessTokens);
+    setBatchProcessTokens(batchProcessTokenRes);
     setClaimableBatches({
       mint: claimableMintBatches,
       redeem: claimableRedeemBatches,
     });
-
     setDepositAmount(BigNumber.from('0'));
   }
+  const hasClaimableBalances = () => {
+    if (redeeming) {
+      return claimableBatches.mint.length > 0;
+    }
+    return claimableBatches.redeem.length > 0;
+  };
 
   const getMinMintAmount = async (
     depositAmount: BigNumber,
@@ -554,7 +569,7 @@ export default function Butter(): JSX.Element {
                 setSingleActionModal({
                   title: 'Your first redemption',
                   content:
-                    'You have successfully deposited into the current batch cycle. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
+                    'You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
                   image: (
                     <img src="images/butter/modal-1.png" className="px-6" />
                   ),
@@ -765,7 +780,7 @@ export default function Butter(): JSX.Element {
           <div className="w-6/12">
             <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
             <p className="mt-2 text-lg text-gray-500">
-              Deposit your stablecoins to earn yield
+              Deposit stablecoins to mint Butter and earn yield
             </p>
             <div className="flex flex-row items-center mt-2">
               <div className="pr-6 border-r-2 border-gray-200">
@@ -801,7 +816,7 @@ export default function Butter(): JSX.Element {
           </div>
           <div className="flex flex-row mt-10">
             <div className="w-1/3">
-              {claimableBatches ? (
+              {claimableBatches && selectedToken ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
                   selectedToken={selectedToken}
@@ -825,6 +840,7 @@ export default function Butter(): JSX.Element {
                   }
                   useUnclaimedDeposits={useUnclaimedDeposits}
                   setUseUnclaimedDeposits={setUseUnclaimedDeposits}
+                  hasUnclaimedBalances={hasClaimableBalances()}
                   slippage={slippage}
                   setSlippage={setSlippage}
                 />
@@ -843,15 +859,13 @@ export default function Butter(): JSX.Element {
                 </>
               )}
               {account && loading && (
-                <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                  <div className="w-full py-60 mt-1 mb-2 smlaptop:mt-2 mx-auto flex flex-row items-center justify-center">
-                    <LoadingSpinner size="h-20 w-20" />
-                  </div>
-                </div>
+                <ContentLoader viewBox="0 0 450 600">
+                  <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
+                </ContentLoader>
               )}
             </div>
 
-            <div className="w-2/3">
+            <div className="w-2/3 flex flex-col">
               <div className="flex flex-row">
                 <div className="w-1/2 mr-2">
                   <StatInfoCard
@@ -888,7 +902,7 @@ export default function Butter(): JSX.Element {
                 </div>
               </div>
 
-              <div className="w-full pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+              <div className="w-full  items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
                 <Tutorial />
               </div>
             </div>

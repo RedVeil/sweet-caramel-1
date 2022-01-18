@@ -18,11 +18,11 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
   return (
     <>
       <div
-        className="flex flex-row items-center mt-3 group cursor-pointer"
+        className="flex flex-row items-center group cursor-pointer mt-6"
         onClick={() => setVisibility(!visible)}
       >
         <img
-          className={`w-5 h-5  group-hover:text-blue-600 ${
+          className={`w-3 h-3  group-hover:text-blue-600 ${
             visible ? '' : 'text-gray-500'
           }`}
           src="/images/icons/slippage.png"
@@ -36,16 +36,20 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
         </p>
       </div>
       {visible && (
-        <div className="mt-2 border border-gray-200 px-6 pt-2 pb-4 rounded-lg">
-          <div className="flex flex-row items-center">
-            <p className="text-left">Slippage Tolerance</p>
-            <InfoIconWithModal
-              title="Slippage Tolerance"
-              content="Your transaction will revert if the price changes unfavorable by more than this percentage"
-              size="h-6 w-6"
-            />
+        <div className="mt-8 border border-gray-200 px-8 py-8 rounded-lg relative">
+          <div className="flex flex-col">
+            <div className="flex flex-row">
+              <p className="text-left font-semibold mb-4">Slippage Tolerance</p>
+              <div className="-mt-1 ml-1">
+                <InfoIconWithModal
+                  title="Slippage Tolerance"
+                  content="Your transaction will revert if the price changes unfavorable by more than this percentage"
+                  size="h-6 w-6"
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex flex-row items-center mt-2 space-x-4">
+          <div className="flex flex-row justify-between items-center mt-2 space-x-4">
             <PseudoRadioButton
               label="0.1 %"
               isActive={activeButton === 0}
@@ -74,22 +78,40 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
               }}
             />
           </div>
-          <div className="mt-4">
-            <p className="mb-1 text-left">Custom Adjustments</p>
-            <div className="border border-gray-300 rounded-lg pr-4 w-60 flex flex-row items-center">
-              <input
-                className="w-10/12 py-3 mx-auto border-none text-sm focus:outline-none"
-                type="number"
-                value={value}
-                onChange={(e) => {
-                  setValue(e.target.value === '' ? 0 : Number(e.target.value));
-                  setSlippage(
-                    e.target.value === '' ? 0 : Number(e.target.value),
-                  );
-                }}
-                onFocus={() => setActiveButton(3)}
-              />
-              <p className="text-sm">%</p>
+          <div className="mt-8">
+            <div className="flex flex-row">
+              <p className="mb-1 text-left font-semibold">Custom Adjustments</p>
+              <div className="-mt-1 ml-1">
+                <InfoIconWithModal
+                  title="Custom Adjustments"
+                  content="input a custom slippage tolerance amount"
+                  size="h-6 w-6"
+                />
+              </div>
+            </div>
+
+            <div className={`rounded-md border py-2 pl-2 pr-4 border-gray-200`}>
+              <div className="flex flex-row items-center justify-between">
+                <input
+                  className="w-8/12 mr-4 font-semibold leading-none text-gray-500 border-none focus:text-gray-800 focus:outline-none"
+                  type="number"
+                  value={value}
+                  onChange={(e) => {
+                    setValue(
+                      e.target.value === '' ? 0 : Number(e.target.value),
+                    );
+                    setSlippage(
+                      e.target.value === '' ? 0 : Number(e.target.value),
+                    );
+                  }}
+                  onFocus={() => setActiveButton(3)}
+                />
+                <div className="flex flex-row items-center">
+                  <p className="px-2 pb-1 pt-1.5 leading-none text-gray-500 font-semibold rounded-lg">
+                    %
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

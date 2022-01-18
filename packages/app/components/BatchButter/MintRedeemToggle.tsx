@@ -10,7 +10,7 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({
   setRedeeming,
 }) => {
   return (
-    <div className="flex flex-row mt-0.5">
+    <div className="flex flex-row">
       <div
         className={`w-1/2 ${
           redeeming
