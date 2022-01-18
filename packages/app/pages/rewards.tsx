@@ -258,104 +258,103 @@ export default function index(): JSX.Element {
                       isPopLocker={poolInfo.stakedTokenName === 'Popcorn'}
                     />
                   ))}
-                {showEscrows &&
-                  userEscrowsFetchResult &&
-                  userEscrowsFetchResult?.data &&
-                  !userEscrowsFetchResult?.error && (
-                    <div className="flex flex-col h-full">
-                      {bigNumberToNumber(
-                        userEscrowsFetchResult?.data?.totalClaimablePop,
-                      ) === 0 ? (
-                        <div className="border-1 border-gray-200 rounded-5xl w-full h-full flex flex-col justify-center items-center bg-gray-50">
-                          <img
-                            src="/images/emptyPopcorn.svg"
-                            className="h-1/2 w-1/2"
-                          />
-                          <p className="mt-12 font-semibold text-2xl text-gray-900">
-                            No records available
-                          </p>
-                          <p className="mt-1 text-gray-900">
-                            No vesting records found
-                          </p>
-                        </div>
-                      ) : (
-                        <>
-                          <div>
-                            <div
-                              className={`flex flex-row justify-between px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
-                            >
-                              <div className="flex flex-row">
-                                <h1
-                                  className={`text-3xl font-medium text-gray-900 my-auto`}
-                                >
-                                  Vesting Records
-                                </h1>
-                              </div>
-                              <div className="flex flex-row my-auto">
-                                <h1
-                                  className={`text-3xl font-medium text-gray-900 my-auto mr-8`}
-                                >
-                                  {formatStakedAmount(
-                                    bigNumberToNumber(
-                                      userEscrowsFetchResult?.data
-                                        ?.totalClaimablePop,
-                                    ),
-                                  )}{' '}
-                                  POP
-                                </h1>
-                                <button
-                                  onClick={() => claimAllEscrows()}
-                                  className="mx-auto my-auto bg-blue-600 border border-transparent rounded-full justify-self-center shadow-custom py-3 px-10"
-                                >
-                                  <p className="font-semibold text-lg text-white">
-                                    Claim All
-                                  </p>
-                                </button>
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              {userEscrowsFetchResult?.data?.escrows
-                                .slice(0, visibleEscrows)
-                                .map((vestingEscrow, index) => {
-                                  return (
-                                    <VestingRecordComponent
-                                      vestingEscrow={vestingEscrow}
-                                      index={index}
-                                      claim={claimSingleEscrow}
-                                      key={vestingEscrow.end.toString()}
-                                    />
-                                  );
-                                })}
-                            </div>
-                          </div>
+                {showEscrows && (
+                  <div className="flex flex-col h-full">
+                    {!userEscrowsFetchResult ||
+                    !userEscrowsFetchResult?.data ||
+                    userEscrowsFetchResult?.error ||
+                    bigNumberToNumber(
+                      userEscrowsFetchResult?.data?.totalClaimablePop,
+                    ) === 0 ? (
+                      <div className="border-1 border-gray-200 rounded-5xl w-full h-full flex flex-col justify-center items-center bg-gray-50">
+                        <img
+                          src="/images/emptyPopcorn.svg"
+                          className="h-1/2 w-1/2"
+                        />
+                        <p className="mt-12 font-semibold text-2xl text-gray-900">
+                          No records available
+                        </p>
+                        <p className="mt-1 text-gray-900">
+                          No vesting records found
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
                           <div
-                            className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}
+                            className={`flex flex-row justify-between px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
                           >
-                            {userEscrowsFetchResult?.data?.escrows?.length >
-                              0 &&
-                              userEscrowsFetchResult?.data?.escrows?.length >
-                                visibleEscrows && (
-                                <div
-                                  className="flex flex-row items-center justify-center cursor-pointer group"
-                                  onClick={() =>
-                                    incrementVisibleEscrows(
-                                      visibleEscrows,
-                                      userEscrowsFetchResult?.data?.escrows
-                                        ?.length,
-                                    )
-                                  }
-                                >
-                                  <h1 className="text-base font-medium group-hover:text-blue-600">
-                                    Load more
-                                  </h1>
-                                  <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
-                                </div>
-                              )}
+                            <div className="flex flex-row">
+                              <h1
+                                className={`text-3xl font-medium text-gray-900 my-auto`}
+                              >
+                                Vesting Records
+                              </h1>
+                            </div>
+                            <div className="flex flex-row my-auto">
+                              <h1
+                                className={`text-3xl font-medium text-gray-900 my-auto mr-8`}
+                              >
+                                {formatStakedAmount(
+                                  bigNumberToNumber(
+                                    userEscrowsFetchResult?.data
+                                      ?.totalClaimablePop,
+                                  ),
+                                )}{' '}
+                                POP
+                              </h1>
+                              <button
+                                onClick={() => claimAllEscrows()}
+                                className="mx-auto my-auto bg-blue-600 border border-transparent rounded-full justify-self-center shadow-custom py-3 px-10"
+                              >
+                                <p className="font-semibold text-lg text-white">
+                                  Claim All
+                                </p>
+                              </button>
+                            </div>
                           </div>
-                        </>
-                      )}
-                    </div>
-                  )}
+                          <div className="flex flex-col">
+                            {userEscrowsFetchResult?.data?.escrows
+                              .slice(0, visibleEscrows)
+                              .map((vestingEscrow, index) => {
+                                return (
+                                  <VestingRecordComponent
+                                    vestingEscrow={vestingEscrow}
+                                    index={index}
+                                    claim={claimSingleEscrow}
+                                    key={vestingEscrow.end.toString()}
+                                  />
+                                );
+                              })}
+                          </div>
+                        </div>
+                        <div
+                          className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}
+                        >
+                          {userEscrowsFetchResult?.data?.escrows?.length > 0 &&
+                            userEscrowsFetchResult?.data?.escrows?.length >
+                              visibleEscrows && (
+                              <div
+                                className="flex flex-row items-center justify-center cursor-pointer group"
+                                onClick={() =>
+                                  incrementVisibleEscrows(
+                                    visibleEscrows,
+                                    userEscrowsFetchResult?.data?.escrows
+                                      ?.length,
+                                  )
+                                }
+                              >
+                                <h1 className="text-base font-medium group-hover:text-blue-600">
+                                  Load more
+                                </h1>
+                                <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
+                              </div>
+                            )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
                 {loading && (
                   <ContentLoader viewBox="0 0 450 400">
                     {/* eslint-disable */}
