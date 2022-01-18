@@ -89,7 +89,38 @@ export default function index(): JSX.Element {
             </div>
             <div className="w-2/3">
               <div className="space-y-6">
-                {loading && <ContentLoader title="Loading ..." />}
+                {loading && (
+                  <ContentLoader
+                    viewBox="0 0 450 400"
+                    backgroundColor="#f0f0f0"
+                    foregroundColor="#dedede"
+                  >
+                    <rect
+                      x="0"
+                      y="0"
+                      rx="15"
+                      ry="15"
+                      width="388"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="115"
+                      rx="15"
+                      ry="15"
+                      width="388"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="230"
+                      rx="15"
+                      ry="15"
+                      width="388"
+                      height="108"
+                    />
+                  </ContentLoader>
+                )}
                 {contracts?.staking &&
                   stakingPoolsInfo &&
                   stakingPoolsInfo.length > 0 &&

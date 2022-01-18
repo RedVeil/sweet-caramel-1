@@ -3,6 +3,7 @@ import { PopLocker, Staking } from '@popcorn/hardhat/typechain';
 import { getERC20Contract, StakingPoolInfo } from '@popcorn/utils';
 import { useWeb3React } from '@web3-react/core';
 import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
+import { formatStakedAmount } from 'helper/formatStakedAmount';
 import router from 'next/router';
 import { useCallback } from 'react';
 import MainActionButton from './MainActionButton';
@@ -63,7 +64,7 @@ const StakeCard: React.FC<StakeCardProps> = ({
         <div className="w-1/4">
           <p className="text-gray-500 font-light uppercase">Total Staked</p>
           <p className=" text-2xl text-gray-900 font-medium mt-1">
-            {stakingPoolInfo.totalStake.toLocaleString()}
+            {formatStakedAmount(stakingPoolInfo.totalStake)}
           </p>
         </div>
         <div className="w-1/2">
