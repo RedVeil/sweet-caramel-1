@@ -355,7 +355,38 @@ export default function index(): JSX.Element {
                       )}
                     </div>
                   )}
-                {loading && <ContentLoader title="Loading ..." />}
+                {loading && (
+                  <ContentLoader
+                    viewBox="0 0 450 400"
+                    backgroundColor="#f0f0f0"
+                    foregroundColor="#dedede"
+                  >
+                    <rect
+                      x="0"
+                      y="0"
+                      rx="15"
+                      ry="15"
+                      width="450"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="115"
+                      rx="15"
+                      ry="15"
+                      width="450"
+                      height="108"
+                    />
+                    <rect
+                      x="0"
+                      y="230"
+                      rx="15"
+                      ry="15"
+                      width="450"
+                      height="108"
+                    />
+                  </ContentLoader>
+                )}
               </div>
             </div>
           )}

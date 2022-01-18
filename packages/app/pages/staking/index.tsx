@@ -100,7 +100,7 @@ export default function index(): JSX.Element {
                       y="0"
                       rx="15"
                       ry="15"
-                      width="388"
+                      width="450"
                       height="108"
                     />
                     <rect
@@ -108,7 +108,7 @@ export default function index(): JSX.Element {
                       y="115"
                       rx="15"
                       ry="15"
-                      width="388"
+                      width="450"
                       height="108"
                     />
                     <rect
@@ -116,7 +116,7 @@ export default function index(): JSX.Element {
                       y="230"
                       rx="15"
                       ry="15"
-                      width="388"
+                      width="450"
                       height="108"
                     />
                   </ContentLoader>
