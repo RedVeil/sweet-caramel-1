@@ -79,7 +79,7 @@ module.exports = {
         '10/12': '83.333333%',
         '11/12': '91.666667%',
       },
-      minHeight: { 128: '34rem' },
+      minHeight: { 128: '34rem', 256: '68rem' },
       lineHeight: {
         button: '32px',
       },

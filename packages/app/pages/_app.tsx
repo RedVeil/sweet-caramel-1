@@ -1,6 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { Web3ReactProvider } from '@web3-react/core';
 import { Debug } from 'components/Debug';
+import MobileExcuseAlert from 'components/MobileExcuseAlert';
 import { DualActionModalContainer } from 'components/Modal/DualActionModalContainer';
 import DualActionWideModalContainer from 'components/Modal/DualActionWideModalContainer';
 import { SingleActionModalContainer } from 'components/Modal/SingleActionModalContainer';
@@ -72,7 +73,10 @@ export default function MyApp(props) {
             <SingleActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />
-            <Component {...pageProps} />
+            <div className="hidden lg:block">
+              <Component {...pageProps} />
+            </div>
+            <MobileExcuseAlert />
             <SwapChainModal />
             <NotificationsContainer />
             <Debug />
