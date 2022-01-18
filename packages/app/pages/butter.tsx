@@ -38,11 +38,6 @@ interface HotSwapParameter {
   amounts: BigNumber[];
 }
 
-interface ClaimableBatches {
-  mint: AccountBatch[];
-  redeem: AccountBatch[];
-}
-
 export interface SelectedToken {
   input: BatchProcessToken;
   output: BatchProcessToken;
@@ -193,6 +188,11 @@ function getZapDepositAmount(
   }
 }
 
+interface ClaimableBatchesStruct {
+  mint: AccountBatch[];
+  redeem: AccountBatch[];
+}
+
 export default function Butter(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { library, account, activate, chainId } = context;
@@ -211,7 +211,8 @@ export default function Butter(): JSX.Element {
   const [butterBatchAdapter, setButterBatchAdapter] =
     useState<ButterBatchAdapter>();
   const [batches, setBatches] = useState<AccountBatch[]>();
-  const [claimableBatches, setClaimableBatches] = useState<ClaimableBatches>();
+  const [claimableBatches, setClaimableBatches] =
+    useState<ClaimableBatchesStruct>({ mint: [], redeem: [] });
   const [slippage, setSlippage] = useState<number>(3);
   const [currentBatches, setCurrentBatches] = useState<CurrentBatches>();
   const [butterSupply, setButterSupply] = useState<BigNumber>();
@@ -284,7 +285,8 @@ export default function Butter(): JSX.Element {
                 '0x5a6A4D54456819380173272A5E8E9B9904BdF41B', // crvMIM
             )?.apy?.net_apy) /
             2) *
-            100,
+            100 *
+            (98.5 / 100),
         ),
       );
   }, [library, account, chainId]);
@@ -368,6 +370,12 @@ export default function Butter(): JSX.Element {
     });
     setDepositAmount(BigNumber.from('0'));
   }
+  const hasClaimableBalances = () => {
+    if (redeeming) {
+      return claimableBatches.mint.length > 0;
+    }
+    return claimableBatches.redeem.length > 0;
+  };
 
   const getMinMintAmount = async (
     depositAmount: BigNumber,
@@ -561,7 +569,7 @@ export default function Butter(): JSX.Element {
                 setSingleActionModal({
                   title: 'Your first redemption',
                   content:
-                    'You have successfully deposited into the current batch cycle. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
+                    'You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
                   image: (
                     <img src="images/butter/modal-1.png" className="px-6" />
                   ),
@@ -772,7 +780,7 @@ export default function Butter(): JSX.Element {
           <div className="w-6/12">
             <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
             <p className="mt-2 text-lg text-gray-500">
-              Deposit your stablecoins to earn yield
+              Deposit stablecoins to mint Butter and earn yield
             </p>
             <div className="flex flex-row items-center mt-2">
               <div className="pr-6 border-r-2 border-gray-200">
@@ -832,6 +840,7 @@ export default function Butter(): JSX.Element {
                   }
                   useUnclaimedDeposits={useUnclaimedDeposits}
                   setUseUnclaimedDeposits={setUseUnclaimedDeposits}
+                  hasUnclaimedBalances={hasClaimableBalances()}
                   slippage={slippage}
                   setSlippage={setSlippage}
                 />
@@ -849,7 +858,11 @@ export default function Butter(): JSX.Element {
                   )}
                 </>
               )}
-              {account && loading && <ContentLoader />}
+              {account && loading && (
+                <ContentLoader viewBox="0 0 450 600">
+                  <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
+                </ContentLoader>
+              )}
             </div>
 
             <div className="w-2/3 flex flex-col">
@@ -889,7 +902,7 @@ export default function Butter(): JSX.Element {
                 </div>
               </div>
 
-              <div className="w-full h-full items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+              <div className="w-full  items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
                 <Tutorial />
               </div>
             </div>

@@ -10,6 +10,7 @@ interface MintRedeemInterfaceProps extends TokenInputProps {
   approve: (contractKey: string) => Promise<void>;
   slippage: number;
   setSlippage: Dispatch<number>;
+  hasUnclaimedBalances: boolean;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -27,9 +28,10 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   setUseUnclaimedDeposits,
   slippage,
   setSlippage,
+  hasUnclaimedBalances,
 }) => {
   return (
-    <div className="bg-white rounded-3xl px-5 pt-10 pb-10 mr-8 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl px-5 pt-6 pb-10 mr-8 border border-gray-200 shadow-custom">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <TokenInput
         token={token}
@@ -42,14 +44,15 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         useUnclaimedDeposits={useUnclaimedDeposits}
         setUseUnclaimedDeposits={setUseUnclaimedDeposits}
         depositDisabled={depositDisabled}
+        hasUnclaimedBalances={hasUnclaimedBalances}
       />
-      <div className="h-6 mt-3 w-full">
+      <div className="w-full">
         {!redeeming && (
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
         )}
       </div>
-      {!depositDisabled && (
-        <div className="pt-20">
+      {!depositDisabled && !redeeming && (
+        <div className="pt-6">
           <div className="flex flex-row justify-between">
             <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">
               Slippage
@@ -60,7 +63,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           </div>
         </div>
       )}
-      <div className="w-full h-24 text-center lg:mt-9 lglaptop:mt-10 xl:mt-14 2xl:mt-212 smlaptop:mb-1 lglaptop:mb-1 xl:mb-3.5 2xl:mb-1.5">
+      <div className="w-full text-center lg:mt-9 lglaptop:mt-10 xl:mt-14 2xl:mt-212 smlaptop:mb-1 lglaptop:mb-1 xl:mb-3.5 2xl:mb-1.5">
         {depositAmount.gt(selectedToken.input.allowance) ? (
           <div className="space-y-4">
             <MainActionButton

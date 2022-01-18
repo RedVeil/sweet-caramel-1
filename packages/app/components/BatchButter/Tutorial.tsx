@@ -15,9 +15,9 @@ function title(step: number): string {
 function text(step: number): string {
   switch (step) {
     case 1:
-      return 'First connect your wallet. Then select the token you would like to deposit from the dropdown, enter the deposit amount and click ‘Mint’. (If you’re depositing for the first time, you’ll need to approve the contract)';
+      return 'First connect your wallet. Then select the token you would like to deposit from the dropdown, enter the deposit amount and click ‘Mint’. If you are depositing for the first time, you’ll need to approve the contract.';
     case 2:
-      return 'Your deposits will be held in Butter’s batch processing queue. Note: To minimise gas fees, deposits are processed when accumulated deposits reach $100k. You are able to withdraw your deposits during this phase.';
+      return 'Your deposits will be held in Butter’s batch processing queue. Note: To minimise gas fees, deposits are processed approximately every 24 hours. You are able to withdraw your deposits during this phase.';
     case 3:
       return 'Once the batch has been processed, you will be able to claim the new minted Butter tokens!';
   }
@@ -59,7 +59,7 @@ const Tutorial: React.FC = () => {
   const [step, setStep] = useState<number>(1);
 
   return (
-    <div className="w-full h-full flex flex-row items-center">
+    <div className="w-full flex flex-row items-center">
       <div className="w-2/12 flex items-center justify-center">
         <button
           className="w-20 h-20 rounded-full bg-white opacity-50 flex justify-center items-center shadow-custom hover:opacity-70"

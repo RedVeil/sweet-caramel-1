@@ -395,7 +395,8 @@ export default function StakingPage(): JSX.Element {
                   <rect x="0" y="0" rx="15" ry="15" width="400" height="600" />
                 </ContentLoader>
               )) || (
-                <div className="pt-8 h-full px-6 border border-gray-200 rounded-3xl shadow-custom">
+                <div className="pt-4 h-full px-6 border border-gray-200 rounded-3xl shadow-custom">
+
                   <div className="pt-2">
                     <TokenInputToggle
                       toggled={withdraw}

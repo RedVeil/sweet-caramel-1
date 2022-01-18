@@ -18,11 +18,11 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
   return (
     <>
       <div
-        className="flex flex-row items-center group cursor-pointer"
+        className="flex flex-row items-center group cursor-pointer mt-6"
         onClick={() => setVisibility(!visible)}
       >
         <img
-          className={`w-5 h-5  group-hover:text-blue-600 ${
+          className={`w-3 h-3  group-hover:text-blue-600 ${
             visible ? '' : 'text-gray-500'
           }`}
           src="/images/icons/slippage.png"

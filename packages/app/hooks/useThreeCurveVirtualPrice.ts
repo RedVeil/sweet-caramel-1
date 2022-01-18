@@ -10,6 +10,7 @@ export default function useThreeCurveVirtualPrice(
   const { library, account, chainId } = useWeb3React();
 
   const threePool = useThreeCurvePool(threePoolAddress);
+
   return useCallback(async (): Promise<BigNumber | null> => {
     if (!isAddress(threePoolAddress)) {
       return null;
