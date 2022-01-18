@@ -417,6 +417,7 @@ export default function Butter(): JSX.Element {
       setUseZap(false);
     }
     setSelectedToken(newSelectedToken);
+    setUseUnclaimedDeposits(false);
   }
 
   function prepareHotSwap(

@@ -166,17 +166,36 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </div>
           </div>
         </div>
-
-        {hasUnclaimedBalances && (
+        {!hasUnclaimedBalances && (
           <div className="flex flex-row items-center mt-2">
-            <label className="flex flex-row items-center cursor-pointer group">
+            <label
+              className={`flex flex-row items-center  group ${
+                ['threeCrv', 'butter'].includes(selectedToken.input.key)
+                  ? 'cursor-pointer'
+                  : 'cursor-default'
+              }`}
+            >
               <input
                 type="checkbox"
-                checked={Boolean(useUnclaimedDeposits)}
                 className="mr-2 rounded-sm"
-                onChange={(e) => setUseUnclaimedDeposits(!useUnclaimedDeposits)}
+                checked={Boolean(useUnclaimedDeposits)}
+                onChange={(e) => {
+                  setUseUnclaimedDeposits(!useUnclaimedDeposits);
+                  setDisplayDepositAmount('');
+                  setDepositAmount(BigNumber.from('0'));
+                  setEstimatedAmount('0');
+                }}
+                disabled={
+                  !['threeCrv', 'butter'].includes(selectedToken.input.key)
+                }
               />
-              <p className="text-base mt-0.5 text-gray-600 leading-none group-hover:text-blue-700">
+              <p
+                className={`text-base mt-0.5 leading-none ${
+                  ['threeCrv', 'butter'].includes(selectedToken.input.key)
+                    ? 'text-gray-600 group-hover:text-blue-700'
+                    : 'text-gray-400'
+                }`}
+              >
                 Use only unclaimed balances
               </p>
             </label>
