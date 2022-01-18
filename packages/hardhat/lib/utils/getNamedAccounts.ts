@@ -207,7 +207,7 @@ export default function getNamedAccounts() {
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
     },
     rewardsEscrow: {
-      hardhat: "0xcA9208D882955996a6f0BF8648e0A4AAa9f90b59",
+      hardhat: "0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75",
       rinkeby: "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa",
       polygon: "0xF70A6f16B894aA1DfdEe50656A476f2FbF4b6d60",
       mainnet: "0xcA9208D882955996a6f0BF8648e0A4AAa9f90b59",
