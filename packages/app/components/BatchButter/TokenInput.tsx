@@ -166,7 +166,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </div>
           </div>
         </div>
-        {!hasUnclaimedBalances && (
+        {hasUnclaimedBalances && (
           <div className="flex flex-row items-center mt-2">
             <label
               className={`flex flex-row items-center  group ${

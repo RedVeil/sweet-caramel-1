@@ -347,10 +347,9 @@ export default function StakingPage(): JSX.Element {
                       Est. APY
                     </p>
                     <p className="text-green-600 text-xl font-medium">
-                      {stakingPageInfo?.poolInfo
-                        ? stakingPageInfo?.poolInfo.apy.toLocaleString()
-                        : 0}{' '}
-                      %
+                      {stakingPageInfo?.stakedToken?.symbol === 'POP'
+                        ? stakingPageInfo?.poolInfo.apy.toLocaleString() + '%'
+                        : 'New 🍿✨'}
                     </p>
                   </div>
                   <div className="px-6 border-r-2 border-gray-200">
