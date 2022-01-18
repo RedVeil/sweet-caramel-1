@@ -201,8 +201,14 @@ async function deployContracts(): Promise<Contracts> {
       butterBatch.address
     );
 
-  const yMimVault = await ethers.getContractAt("YearnVault", yMim);
-  const yFraxVault = await ethers.getContractAt("YearnVault", yFrax);
+  const yMimVault = (await ethers.getContractAt(
+    "YearnVault",
+    yMim
+  )) as YearnVault;
+  const yFraxVault = (await ethers.getContractAt(
+    "YearnVault",
+    yFrax
+  )) as YearnVault;
 
   componentMap = await getComponentMap(
     [crvMimMetapoolContract, crvFraxMetapoolContract],
