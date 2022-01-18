@@ -118,11 +118,11 @@ async function connectAndMintToken(
   signer: any,
   hre: HardhatRuntimeEnvironment
 ): Promise<MockERC20> {
-  const token = await hre.ethers.getContractAt(
+  const token = (await hre.ethers.getContractAt(
     "MockERC20",
     tokenAddress,
     signer
-  );
+  )) as MockERC20;
   await (
     await token.mint(await signer.getAddress(), parseEther("1000000000"))
   ).wait(1);
