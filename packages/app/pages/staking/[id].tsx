@@ -190,14 +190,18 @@ export default function StakingPage(): JSX.Element {
         : (connectedStaking as Staking).stake(lockedPopInEth);
     await stakeCall
       .then((res) =>
-        res.wait().then((res) => {
+        res.wait().then(async (res) => {
           {
             toast.dismiss();
-            toast.success(`${stakedToken.tokenName} staked!`);
+            toast.success(`${stakedToken?.tokenName} staked!`);
+            await fetchPageInfo();
+            setWait(false);
+            setInputTokenAmount(0);
           }
         }),
       )
       .catch((err) => {
+        toast.dismiss();
         if (
           err.message ===
           'MetaMask Tx Signature: User denied transaction signature.'
@@ -206,11 +210,8 @@ export default function StakingPage(): JSX.Element {
         } else {
           toast.error(err.message.split("'")[1]);
         }
+        setWait(false);
       });
-
-    await fetchPageInfo();
-    setWait(false);
-    setInputTokenAmount(0);
   }
 
   async function withdrawStake(): Promise<void> {
@@ -229,14 +230,18 @@ export default function StakingPage(): JSX.Element {
 
     await call
       .then((res) =>
-        res.wait().then((res) => {
+        res.wait().then(async (res) => {
           {
             toast.dismiss();
             toast.success(`${stakedToken?.tokenName} withdrawn!`);
+            await fetchPageInfo();
+            setWait(false);
+            setInputTokenAmount(0);
           }
         }),
       )
       .catch((err) => {
+        toast.dismiss();
         if (
           err.message ===
           'MetaMask Tx Signature: User denied transaction signature.'
@@ -245,10 +250,8 @@ export default function StakingPage(): JSX.Element {
         } else {
           toast.error(err.message.split("'")[1]);
         }
+        setWait(false);
       });
-    await fetchPageInfo();
-    setWait(false);
-    setInputTokenAmount(0);
   }
 
   async function restake(): Promise<void> {
@@ -262,14 +265,18 @@ export default function StakingPage(): JSX.Element {
     await (connectedStaking as PopLocker)
       ['processExpiredLocks(bool)'](true)
       .then((res) =>
-        res.wait().then((res) => {
+        res.wait().then(async (res) => {
           {
             toast.dismiss();
             toast.success(`Restaked POP!`);
+            await fetchPageInfo();
+            setWait(false);
+            setInputTokenAmount(0);
           }
         }),
       )
       .catch((err) => {
+        toast.dismiss();
         if (
           err.message ===
           'MetaMask Tx Signature: User denied transaction signature.'
@@ -278,10 +285,8 @@ export default function StakingPage(): JSX.Element {
         } else {
           toast.error(err.message.split("'")[1]);
         }
+        setWait(false);
       });
-    await fetchPageInfo();
-    setWait(false);
-    setInputTokenAmount(0);
   }
 
   async function approve(): Promise<void> {
@@ -299,9 +304,12 @@ export default function StakingPage(): JSX.Element {
         res.wait().then(async (res) => {
           toast.dismiss();
           toast.success(`${stakingPageInfo?.stakedToken.tokenName} approved!`);
+          await fetchPageInfo();
+          setWait(false);
         }),
       )
       .catch((err) => {
+        toast.dismiss();
         if (
           err.message ===
           'MetaMask Tx Signature: User denied transaction signature.'
@@ -312,9 +320,8 @@ export default function StakingPage(): JSX.Element {
           console.log(err.message);
           toast.error(err.message.split("'")[1]);
         }
+        setWait(false);
       });
-    await fetchPageInfo();
-    setWait(false);
   }
 
   return (
