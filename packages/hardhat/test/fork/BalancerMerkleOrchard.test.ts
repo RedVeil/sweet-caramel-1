@@ -34,17 +34,15 @@ describe.skip("Balancer Merkle Orchard", () => {
 
     [admin, other, claimer, claimer0, claimer1] = await ethers.getSigners();
 
-    mockToken = await (await ethers.getContractFactory("MockERC20")).deploy(
-      "Mock xPOP",
-      "xPOP",
-      18
-    );
+    mockToken = await (
+      await ethers.getContractFactory("MockERC20")
+    ).deploy("Mock xPOP", "xPOP", 18);
     await mockToken.deployed();
 
-    merkleOrchard = (await ethers.getContractAt(
+    merkleOrchard = await ethers.getContractAt(
       "IMerkleOrchard",
       namedAccounts.merkleOrchard
-    )) as IMerkleOrchard;
+    );
   });
 
   describe("two account tree", async () => {
