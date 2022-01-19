@@ -87,13 +87,14 @@ export default function SoftLaunchCheck({
   const addressIsAllowed = (address) => {
     return allowedAccounts.includes(address?.toLocaleLowerCase());
   };
-  const checkDev = () => {
+  const isDev = () => {
     const isDev = sessionStorage.getItem('isDev');
     if (router.query.isDev || isDev) {
       console.log('IS DEV');
       sessionStorage.setItem('isDev', 'true');
-      return;
+      return true;
     }
+    return false;
   };
 
   useEffect(() => {
@@ -107,7 +108,9 @@ export default function SoftLaunchCheck({
     if (!account) {
       return;
     }
-    checkDev();
+    if (isDev()) {
+      return;
+    }
 
     if (account && !addressIsAllowed(account)) {
       return showAddressNotAllowedModal(deactivate);
