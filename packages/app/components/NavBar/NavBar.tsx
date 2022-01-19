@@ -17,6 +17,7 @@ import NavbarLink from './NavbarLinks';
 import NetworkOptionsMenu from './NetworkOptionsMenu';
 
 const disconnectInjectedAndActivateRPCConnector = (deactivate, activate) => {
+  localStorage.setItem('eager_connect', 'false');
   deactivate(connectors.Injected);
   activateRPCNetwork(activate);
 };
