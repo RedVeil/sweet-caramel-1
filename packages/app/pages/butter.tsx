@@ -19,7 +19,7 @@ import {
   ContractsContext,
 } from 'context/Web3/contracts';
 import { switchNetwork } from 'context/Web3/networkSwitch';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import useThreeCurveVirtualPrice from 'hooks/useThreeCurveVirtualPrice';
 import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -753,7 +753,7 @@ export default function Butter(): JSX.Element {
         useZap
           ? contracts.butterBatchZapper.address
           : contracts.butterBatch.address,
-        utils.parseEther('100000000'),
+        ethers.constants.MaxUint256,
       )
       .then((res) => {
         res.wait().then((res) => {

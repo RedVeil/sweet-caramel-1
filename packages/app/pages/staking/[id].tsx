@@ -18,7 +18,7 @@ import { updateStakingPageInfo } from 'context/actions';
 import { store } from 'context/store';
 import { connectors } from 'context/Web3/connectors';
 import { ContractsContext } from 'context/Web3/contracts';
-import { utils } from 'ethers';
+import { ethers, utils } from 'ethers';
 import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
 import { formatStakedAmount } from 'helper/formatStakedAmount';
 import { getStakingContractFromAddress } from 'helper/getStakingContractFromAddress';
@@ -293,7 +293,7 @@ export default function StakingPage(): JSX.Element {
     await connected
       .approve(
         stakingPageInfo?.stakingContract?.address,
-        utils.parseEther('100000000'),
+        ethers.constants.MaxUint256,
       )
       .then((res) =>
         res.wait().then(async (res) => {
