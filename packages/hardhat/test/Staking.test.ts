@@ -478,7 +478,7 @@ describe("Staking", function () {
   describe("notifyRewardAmount", function () {
     const REWARD_AMOUNT = parseEther("10");
 
-    it("reverts if called by non owner", async () => {
+    it("reverts if called by unauthorized distributor", async () => {
       await expectRevert(
         staking.connect(nonOwner).notifyRewardAmount(REWARD_AMOUNT),
         "not authorized"
