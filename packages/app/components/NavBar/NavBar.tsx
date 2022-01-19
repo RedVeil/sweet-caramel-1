@@ -54,7 +54,7 @@ const Navbar: FC = () => {
           <ul className="flex flex-row space-x-10 ml-16">
             <li>
               <NavbarLink
-                label="Yield Optimizer"
+                label="Butter"
                 url="/butter"
                 isActive={router.pathname === '/butter'}
               />

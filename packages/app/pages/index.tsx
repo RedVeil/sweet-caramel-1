@@ -34,12 +34,12 @@ const IndexPage = () => {
                 fontSize: 36,
               }}
             >
-              Yield Optimizer
+              Butter
             </p>
             <div className="mx-auto w-4/5" style={{ height: 60 }}>
               <p className="h-full text-xl font-thin text-center  text-gray-600">
-                Deposit stablecoins and earn by leveraging the power of compound
-                interest.
+                Our Yield Optimizer. Deposit stablecoins and earn by leveraging
+                the power of compound interest.
               </p>
             </div>
           </div>
@@ -65,7 +65,7 @@ const IndexPage = () => {
             </p>
             <div className="mx-auto w-4/5" style={{ height: 60 }}>
               <p className="h-full text-xl font-thin text-center  text-gray-600">
-                Earn yield on your POP.
+                Stake your token to earn more POP.
               </p>
             </div>
           </div>
@@ -87,12 +87,12 @@ const IndexPage = () => {
                 fontSize: 48,
               }}
             >
-              Yield Optimizer
+              Butter
             </p>
             <div className="mx-auto w-4/5" style={{ height: 80 }}>
               <p className="h-full text-2xl font-thin text-center text-gray-600">
-                Deposit stablecoins and earn by leveraging the power of compound
-                interest.
+                Our Yield Optimizer. Deposit stablecoins and earn by leveraging
+                the power of compound interest.
               </p>
             </div>
           </div>
@@ -114,7 +114,7 @@ const IndexPage = () => {
             </p>
             <div className="mx-auto w-4/5" style={{ height: 80 }}>
               <p className="h-full text-2xl font-thin text-center  text-gray-600">
-                Earn yield on your POP through staking.
+                Stake your token to earn more POP.
               </p>
             </div>
           </div>
