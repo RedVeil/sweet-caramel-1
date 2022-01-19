@@ -86,6 +86,9 @@ export default function StakingPage(): JSX.Element {
   }, [contracts, library, account]);
 
   const getBalances = async (stakedToken, stakingContract) => {
+    if (!account) {
+      return undefined;
+    }
     const inputBalance = await stakedToken.balanceOf(account);
     const allowance = await stakedToken.allowance(
       account,
@@ -650,34 +653,32 @@ export default function StakingPage(): JSX.Element {
                           </div>
                         </div>
                       </div>
-                      <div
-                        className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${
-                          stakedToken?.symbol === 'POP' ? 'h-114' : 'h-92'
-                        }`}
-                      >
-                        <div className="flex flex-row h-full items-center justify-between">
-                          <div className="relative h-full w-full">
-                            <div className="mt-8 ml-8">
-                              <p className="text-xl font-medium">
-                                Happy Staking
-                              </p>
-                              <p className="text-base font-light mt-1">
-                                Enjoy more sweet POP in your wallet!
-                              </p>
-                            </div>
-                            <img
-                              src="/images/catPopVault.svg"
-                              className={`absolute max-h-80 w-3/4 right-10  ${
-                                stakedToken?.symbol === 'POP'
-                                  ? 'bottom-16'
-                                  : 'bottom-4'
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </div>
                     </>
                   )}
+                  <div
+                    className={`bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full ${
+                      stakedToken?.symbol === 'POP' ? 'h-114' : 'h-92'
+                    }`}
+                  >
+                    <div className="flex flex-row h-full items-center justify-between">
+                      <div className="relative h-full w-full">
+                        <div className="mt-8 ml-8">
+                          <p className="text-xl font-medium">Happy Staking</p>
+                          <p className="text-base font-light mt-1">
+                            Enjoy more sweet POP in your wallet!
+                          </p>
+                        </div>
+                        <img
+                          src="/images/catPopVault.svg"
+                          className={`absolute max-h-80 w-3/4 right-10  ${
+                            stakedToken?.symbol === 'POP'
+                              ? 'bottom-16'
+                              : 'bottom-4'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

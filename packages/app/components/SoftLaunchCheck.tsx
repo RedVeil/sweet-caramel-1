@@ -8,26 +8,23 @@ import allowedAccounts from '../public/gql/allowedAccounts.json';
 
 const getTerms = (timestamp) => {
   return `
-  Popcorn Token Launch Auction Terms and Conditions
-  By signing this message related to the Popcorn Token Launch Auction ("Popcorn Token Launch Auction"), you represent and warrant to Popcorn Limited ("Popcorn Ltd") that you have read and agreed to the terms and conditions as follows:
+  Terms and Conditions
+
+  By signing this message, you represent and warrant to Popcorn Limited ("Popcorn Ltd") that you have read and agreed to the terms and conditions as follows:
+
+  1. The software on this website is to be considered EXPERIMENTAL ALPHA SOFTWARE. Using smart contracts come with risk including loss of funds. Use of the smart contracts contained herein is at your own risk. 
   
-  1. you are not a citizen or resident of a country the laws of which prohibit or conflict with the holding, sale, or trading of tokens; such countries to include (without limitation) THE UNITED STATES OF AMERICA, ITS TERRITORIES AND POSSESSIONS, ANY STATE OF THE UNITED STATES, AND THE DISTRICT OF COLUMBIA ("U.S."), CANADA, PEOPLE'S REPUBLIC OF CHINA, DEMOCRATIC PEOPLE'S REPUBLIC OF KOREA, CUBA, SYRIA, IRAN, SUDAN, PEOPLE'S REPUBLIC OF CRIMEA;
-  2. you agree and acknowledge that nothing in the Popcorn Token Launch Auction constitutes a prospectus or offer document of any sort nor is intended to constitute an offer of securities of any form, units in a business trust, units in a collective investment scheme, or any other form of capital markets product or investment in any jurisdiction, nor a solicitation for any form of investment;
-  3. you agree and acknowledge that no regulatory authority has examined or approved the information set out in the Popcorn Token Launch Auction and the publication, distribution, or dissemination of information under the Popcorn Token Launch Auction does not imply to you that the applicable laws, regulatory requirements, or rules have been complied with;
-  4. your access to, or use of, the Popcorn Token Launch Auction and the holding of POP tokens by you is not prohibited or restricted by any applicable laws, regulations, or rules in any jurisdiction to which you are subject, and where any restrictions are applicable, you have observed and complied with all such restrictions at your own expense and without liability to Popcorn Ltd;
-  5. you agree and acknowledge that Popcorn Ltd shall not be liable for any direct, indirect, special, incidental, consequential, or other losses of any kind (including but not limited to loss of revenue, income or profits, and loss of use or data), in tort (including negligence), contract or otherwise, arising out of or in connection with you accessing or using the Popcorn Token Launch Auction;
-  6. you waive the right to participate in a class-action lawsuit or a class-wide arbitration against Popcorn Ltd, any person involved in the Popcorn Token Launch Auction and/or with the creation and distribution of the POP tokens;
-  7. you are not a U.S. Person as defined in Regulation S under the Securities Act of 1933, as amended, which means that you are not a natural person resident in the United States of America, its territories and possessions, any State of the United States, and the District Of Columbia ("U.S."), an entity incorporated under the laws of the U.S., an estate/trust where the executor/administrator/trustee is a U.S. Person or a non-discretionary account held for a U.S. Person, an agency or branch of a foreign entity located in the U.S., or an entity incorporated outside the U.S. but formed by a U.S. Person principally for the purposes of investing in unregistered securities under the Securities Act (unless incorporated and owned by accredited investors who are not natural persons, estates or trusts), and you acknowledge, agree and represent as follows:
-      - any offer, sale, and trade of the POP tokens is being made in an offshore transaction, which means that the transaction was not effected in the U.S.;
-      - no directed selling efforts were made in the United States, which means that no marketing efforts were made to you in the U.S.;
-      - you are not acquiring POP tokens for the account or benefit of any U.S. Person; and
-      - you agree not to offer or sell the POP tokens (or create or maintain any derivative position equivalent thereto) in the U.S., to or for the account or benefit of a U.S. Person;
-  8. you have sufficient funds to fulfill the obligations of Popcorn Ltd within the Popcorn Token Launch Auction and are not bankrupt or insolvent;
-  9. you are acquiring POP tokens as principal and for your own benefit and you are not acting on the instructions of, or as nominee or agent for or on behalf of, any other person;
-  10. the POP tokens to be delivered to and received by you will not be used for any purpose in connection with money laundering, terrorism financing, or any other acts in breach or contravention of any applicable law, regulation, or rule;
-  11. you bear the sole responsibility to determine what tax implications your use of the Popcorn Token Launch Auction may have for you; and
-  12. you understand the POP governance token is currently used to create and vote on proposals which affect the parameters of smart contracts on multiple public blockchains. The user interfaces to participate in the governance processes can be found at https://client.aragon.org/#/popcorn and https://snapshot.org/#/popcorn-snapshot.eth. Additionally, more user interfaces and smart contracts which depend on the POP token can be found at https://github.com/popcorndao/workspace along with instructions on how to deploy such user interfaces and application programming interfaces; and
-  13. all of the above representations and warranties are and will continue to be, true, complete, accurate, and non-misleading from the time of your acceptance of this attestation and notwithstanding the receipt by you of any POP tokens.
+  2. you are not a citizen or resident of a country the laws of which prohibit or conflict with the holding, sale, or trading of tokens or using decentralized finance finance products; such countries to include (without limitation) THE UNITED STATES OF AMERICA, ITS TERRITORIES AND POSSESSIONS, ANY STATE OF THE UNITED STATES, AND THE DISTRICT OF COLUMBIA ("U.S."), CANADA, PEOPLE'S REPUBLIC OF CHINA, DEMOCRATIC PEOPLE'S REPUBLIC OF KOREA, CUBA, SYRIA, IRAN, SUDAN, PEOPLE'S REPUBLIC OF CRIMEA
+
+  3. you will not in the future access this site or use this dApp while located within the United States any Prohibited Localities stated above.
+  
+  4. you are not using, and will not in the future use, a VPN to mask my physical location from a restricted territory.
+
+  5. you are lawfully permitted to access this site and use 1inch dApp under the laws of the jurisdiction on which I reside and am located.
+
+  6. Popcorndao.finance has software and tools developed by Popcorn, Ltd. Popcorn, Ltd. is not a bank and does not offer any federal or state banking or depositary services to its customers. Popcorn, Ltd. offers a seamless connection between users and smart contracts on Ethereum, Polygon and Arbtitrum, which are decentralized blockchains. Popcorn, Ltd. does not generate yield (or any form of return) for its users. Yields are generated by the autonomous smart contracts powered by Set Protocol, Yearn and PopcornDAO. The currently displayed interest rates may be lower or higher than currently stated. Historical interest rates on supplying digital assets to the underlying protocols are not an indicator that these rates will be available in the future. Funds supplied through Popcorndao.finance software and tools are not insured by the Federal Deposit Insurance Corporation (FDIC) or any other federal, state, or local regulatory agency. Certain Popcorndao.finance product features listed are currently in development and are not available. Digital assets are NOT bank deposits, are NOT legal tender, are NOT backed by the government, and accounts and value balances are NOT subject to Federal Deposit Insurance Corporation or Securities Investor Protection Corporation or any other governmental or government-backed protections. Legislative and regulatory changes or actions at the State, Federal, or international level may adversely affect the use, transfer, exchange, and value of digital assets. Popcorn, Ltd. does not exchange any digital currencies on behalf of users. Exchange services are provided by a third party provider. There are risks involved with supplying funds or digital assets to smart contracts through Popcorndao.finance. Users may lose all funds.
+
+ 7. all of the above representations and warranties are and will continue to be, true, complete, accurate, and non-misleading from the time of your acceptance of this attestation and notwithstanding the receipt by you of any POP tokens.
   
   Accepted: ${timestamp}
   `;
@@ -90,13 +87,14 @@ export default function SoftLaunchCheck({
   const addressIsAllowed = (address) => {
     return allowedAccounts.includes(address?.toLocaleLowerCase());
   };
-  const checkDev = () => {
+  const isDev = () => {
     const isDev = sessionStorage.getItem('isDev');
     if (router.query.isDev || isDev) {
       console.log('IS DEV');
       sessionStorage.setItem('isDev', 'true');
-      return;
+      return true;
     }
+    return false;
   };
 
   useEffect(() => {
@@ -110,7 +108,9 @@ export default function SoftLaunchCheck({
     if (!account) {
       return;
     }
-    checkDev();
+    if (isDev()) {
+      return;
+    }
 
     if (account && !addressIsAllowed(account)) {
       return showAddressNotAllowedModal(deactivate);
