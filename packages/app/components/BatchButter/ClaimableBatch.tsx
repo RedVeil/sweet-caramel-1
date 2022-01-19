@@ -1,4 +1,5 @@
 import MainActionButton from 'components/MainActionButton';
+import SecondaryActionButton from 'components/SecondaryActionButton';
 import { setDualActionWideModal } from 'context/actions';
 import { store } from 'context/store';
 import { Dispatch, useContext } from 'react';
@@ -101,14 +102,14 @@ const ClaimableBatch: React.FC<BatchProps> = ({
                 label="Claim and Stake"
                 handleClick={(e) => handleClaimAndStake()}
               />
-              <MainActionButton
+              <SecondaryActionButton
                 label="Claim"
                 handleClick={(e) => handleClaim()}
               />
             </div>
           ) : (
             <MainActionButton
-              label={batch.claimable ? 'Claim' : 'Withdraw'}
+              label={batch.claimable ? 'Claim' : 'Cancel'}
               handleClick={(e) =>
                 batch.claimable ? handleClaim() : handleWithdraw()
               }
