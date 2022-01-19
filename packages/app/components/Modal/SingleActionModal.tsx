@@ -14,12 +14,14 @@ export interface SingleActionModalProps {
   image?: React.ReactElement;
   onConfirm?: { label: string; onClick: Function };
   onDismiss?: { label: string; onClick: Function };
+  keepOpen?: boolean;
 }
 export const DefaultSingleActionModalProps: SingleActionModalProps = {
   content: '',
   title: '',
   visible: false,
   type: 'info',
+  keepOpen: false,
 };
 
 export const SingleActionModal: React.FC<SingleActionModalProps> = ({
@@ -31,6 +33,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   image,
   onConfirm,
   onDismiss,
+  keepOpen,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
@@ -43,12 +46,12 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   }, [visible]);
 
   const dismiss = () => {
-    setOpen(false);
+    setOpen(keepOpen);
     setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
   };
 
   const confirm = () => {
-    setOpen(false);
+    setOpen(keepOpen);
     setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
   };
 

@@ -3,6 +3,7 @@ import { expect } from "chai";
 import { utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
+import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { DAYS, timeTravel } from "../lib/utils/test";
 import {
   ContractRegistry,
@@ -69,12 +70,8 @@ describe("Keeper incentives", function () {
       ).deploy(keeperIncentive.address)
     ).deployed();
 
-    await aclRegistry
-      .connect(owner)
-      .grantRole(ethers.utils.id("DAO"), owner.address);
-    await aclRegistry
-      .connect(owner)
-      .grantRole(ethers.utils.id("Keeper"), owner.address);
+    await aclRegistry.connect(owner).grantRole(DAO_ROLE, owner.address);
+    await aclRegistry.connect(owner).grantRole(KEEPER_ROLE, owner.address);
 
     await contractRegistry
       .connect(owner)

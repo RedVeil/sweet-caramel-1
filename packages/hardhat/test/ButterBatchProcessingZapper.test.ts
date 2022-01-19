@@ -3,6 +3,7 @@ import { expect } from "chai";
 import { utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
+import { BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { BatchType } from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert } from "../lib/utils/expectValue";
 import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";
@@ -179,8 +180,8 @@ async function deployContracts(): Promise<Contracts> {
       parseEther("200")
     )
   ).deployed()) as ButterBatchProcessing;
-  await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
-  await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+  await aclRegistry.grantRole(DAO_ROLE, owner.address);
+  await aclRegistry.grantRole(KEEPER_ROLE, owner.address);
 
   await butterBatchProcessing.connect(owner).setRedeemSlippage(100);
   await butterBatchProcessing.connect(owner).setMintSlippage(100);
@@ -223,7 +224,7 @@ async function deployContracts(): Promise<Contracts> {
     .approve(butterBatchProcessing.address, DepositorInitial);
 
   await aclRegistry.grantRole(
-    ethers.utils.id("ButterZapper"),
+    BUTTER_ZAPPER,
     butterBatchProcessingZapper.address
   );
 

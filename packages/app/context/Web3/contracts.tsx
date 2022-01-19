@@ -105,7 +105,7 @@ const initializeContracts = (
   } = {
     ...contractAddresses,
   };
-  console.log(contractAddresses.staking);
+
   const contracts: Contracts = {
     popStaking: popStaking
       ? PopLocker__factory.connect(popStaking, library)

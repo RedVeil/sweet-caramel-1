@@ -57,7 +57,10 @@ export default function SelectToken({
               <a
                 key={selectableToken}
                 className="cursor-pointer group h-full flex flex-row items-center hover:bg-gray-100 rounded-md"
-                onClick={() => selectToken(token[selectableToken])}
+                onClick={() => {
+                  selectToken(token[selectableToken]);
+                  setDropdown(false);
+                }}
               >
                 <img
                   className="w-5 h-5 mx-2"

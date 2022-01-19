@@ -1,6 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
+import { DAO_ROLE } from "../lib/acl/roles";
 import {
   expectDeepValue,
   expectEvent,
@@ -37,9 +38,7 @@ describe("ContractRegistry", () => {
       await MockERC20.deploy("POPV2", "POPV2", 18)
     ).deployed();
 
-    await aclRegistry
-      .connect(admin)
-      .grantRole(ethers.utils.id("DAO"), admin.address);
+    await aclRegistry.connect(admin).grantRole(DAO_ROLE, admin.address);
   });
   it("constructs with the right parameter", async () => {
     expectValue(await contractRegistry.aclRegistry(), aclRegistry.address);

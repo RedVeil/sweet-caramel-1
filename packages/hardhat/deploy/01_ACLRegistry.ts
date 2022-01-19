@@ -1,6 +1,6 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
-import { ethers } from "hardhat";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -30,14 +30,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   //Grant signer roles for later contract interactions
-  await aclRegistry.grantRole(
-    ethers.utils.id("DAO"),
-    await signer.getAddress()
-  );
-  await aclRegistry.grantRole(
-    ethers.utils.id("Keeper"),
-    await signer.getAddress()
-  );
+  await aclRegistry.grantRole(DAO_ROLE, await signer.getAddress());
+  await aclRegistry.grantRole(KEEPER_ROLE, await signer.getAddress());
 };
 
 export default main;

@@ -17,6 +17,7 @@ import NavbarLink from './NavbarLinks';
 import NetworkOptionsMenu from './NetworkOptionsMenu';
 
 const disconnectInjectedAndActivateRPCConnector = (deactivate, activate) => {
+  localStorage.setItem('eager_connect', 'false');
   deactivate(connectors.Injected);
   activateRPCNetwork(activate);
 };
@@ -78,9 +79,13 @@ const Navbar: FC = () => {
           <div className="relative flex flex-container flex-row w-fit-content z-10">
             <Menu>
               <Menu.Button>
-                <div className="w-28 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl mr-5">
+                <div className="w-36 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl mr-5">
                   <img src="/images/icons/popLogo.png" className="w-5 h-5" />
                   <p className="font-medium ml-3 leading-none mt-1">POP</p>
+                  <ChevronDownIcon
+                    className="w-5 h-5 ml-4"
+                    aria-hidden="true"
+                  />
                 </div>
                 <GetPopMenu chainId={chainId} />
               </Menu.Button>

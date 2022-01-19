@@ -58,7 +58,9 @@ const StakeCard: React.FC<StakeCardProps> = ({
         <div className="w-1/4">
           <p className="text-gray-500 font-light uppercase">Est. APY</p>
           <p className="text-green-600 text-2xl font-medium mt-1">
-            {stakingPoolInfo.apy.toLocaleString()} %
+            {stakingPoolInfo.stakedTokenName === 'Popcorn'
+              ? stakingPoolInfo.apy.toLocaleString() + '%'
+              : 'New 🍿✨'}
           </p>
         </div>
         <div className="w-1/4">
