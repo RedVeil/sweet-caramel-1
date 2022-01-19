@@ -1,3 +1,4 @@
+import { InfoIconWithModal } from 'components/InfoIconWithModal';
 import MainActionButton from 'components/MainActionButton';
 import SecondaryActionButton from 'components/SecondaryActionButton';
 import { setDualActionWideModal } from 'context/actions';
@@ -86,8 +87,16 @@ const ClaimableBatch: React.FC<BatchProps> = ({
     >
       <td className="px-6 py-5 whitespace-nowrap">
         {`${bigNumberToNumber(batch.accountSuppliedTokenBalance)} ${
-          batch.batchType === BatchType.Mint ? '3CRV' : 'BTR'
+          batch.batchType === BatchType.Mint ? '3CRV ' : 'BTR'
         }`}
+        {batch.batchType === BatchType.Mint && (
+          <InfoIconWithModal title="Why do I see 3CRV?">
+            <p>
+              Your stablecoins have been swapped into 3CRV in order to mint BTR.
+              For this reason you see a 3CRV balance here.
+            </p>
+          </InfoIconWithModal>
+        )}
       </td>
       <td className="px-6 py-5 whitespace-nowrap font-medium">
         {`${bigNumberToNumber(batch.accountClaimableTokenBalance)} ${

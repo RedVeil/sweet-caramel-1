@@ -47,7 +47,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         hasUnclaimedBalances={hasUnclaimedBalances}
       />
       <div className="w-full">
-        {!redeeming && (
+        {!redeeming && selectedToken.input.key !== 'threeCrv' && (
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
         )}
       </div>
