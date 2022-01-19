@@ -19,7 +19,7 @@ import {
   ContractsContext,
 } from 'context/Web3/contracts';
 import { switchNetwork } from 'context/Web3/networkSwitch';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import useThreeCurveVirtualPrice from 'hooks/useThreeCurveVirtualPrice';
 import router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -753,7 +753,7 @@ export default function Butter(): JSX.Element {
         useZap
           ? contracts.butterBatchZapper.address
           : contracts.butterBatch.address,
-        utils.parseEther('100000000'),
+        ethers.constants.MaxUint256,
       )
       .then((res) => {
         res.wait().then((res) => {
@@ -779,7 +779,7 @@ export default function Butter(): JSX.Element {
       <div className="">
         <div className="mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="w-6/12">
-            <h1 className="text-3xl font-bold">Popcorn Yield Optimizer</h1>
+            <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
             <p className="mt-2 text-lg text-gray-500">
               Deposit stablecoins to mint Butter and earn yield
             </p>

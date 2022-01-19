@@ -4,11 +4,13 @@ import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import {
+  expectBigNumberCloseTo,
+  expectDeepValue,
   expectEvent,
   expectRevert,
   expectValue,
 } from "../lib/utils/expectValue";
-import { DAYS } from "../lib/utils/test/constants";
+import { DAYS, WEEKS } from "../lib/utils/test/constants";
 import { timeTravel } from "../lib/utils/test/timeTravel";
 import { MockERC20, PopLocker } from "../typechain";
 import { RewardsEscrow } from "../typechain/RewardsEscrow";
@@ -19,7 +21,8 @@ let owner: SignerWithAddress,
   nonOwner: SignerWithAddress,
   staker: SignerWithAddress,
   treasury: SignerWithAddress,
-  distributor: SignerWithAddress;
+  distributor: SignerWithAddress,
+  kicker: SignerWithAddress;
 
 let mockERC20Factory;
 let mockPop: MockERC20;
@@ -29,7 +32,7 @@ let rewardsEscrow: RewardsEscrow;
 
 describe("PopLocker", function () {
   beforeEach(async function () {
-    [owner, nonOwner, staker, treasury, distributor] =
+    [owner, nonOwner, staker, treasury, distributor, kicker] =
       await ethers.getSigners();
     mockERC20Factory = await ethers.getContractFactory("MockERC20");
     mockPop = (await mockERC20Factory.deploy(
@@ -210,6 +213,25 @@ describe("PopLocker", function () {
     });
   });
 
+  describe("setBoost", function () {
+    const MAX_PAYMENT = 100;
+    const BOOST_RATE = 15000;
+
+    it("sets nextMaximumBoostPayment", async () => {
+      await staking
+        .connect(owner)
+        .setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
+      await expectValue(await staking.nextMaximumBoostPayment(), MAX_PAYMENT);
+    });
+
+    it("sets nextBoostRate", async () => {
+      await staking
+        .connect(owner)
+        .setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
+      await expectValue(await staking.nextBoostRate(), BOOST_RATE);
+    });
+  });
+
   describe("setKickIncentive", function () {
     const KICK_INCENTIVE_RATE = 100; // 1% per epoch
     const KICK_INCENTIVE_DELAY = 4; // 4 epoch grace period
@@ -254,6 +276,123 @@ describe("PopLocker", function () {
           .connect(nonOwner)
           .setKickIncentive(KICK_INCENTIVE_RATE, KICK_INCENTIVE_DELAY),
         "Ownable: caller is not the owner"
+      );
+    });
+  });
+
+  describe("lastTimeRewardApplicable", function () {
+    it("returns periodFinish for specified token", async function () {
+      let addRewardTx = await staking
+        .connect(owner)
+        .addReward(otherToken.address, owner.address, true);
+      const addRewardTxBlock = await ethers.provider.getBlock(
+        addRewardTx.blockNumber
+      );
+      await expectValue(
+        await staking.lastTimeRewardApplicable(otherToken.address),
+        addRewardTxBlock.timestamp
+      );
+    });
+  });
+
+  describe("rewardPerToken", function () {
+    it("returns rewards per token for specified token", async function () {
+      await staking
+        .connect(owner)
+        .notifyRewardAmount(mockPop.address, parseEther("10000"));
+      await staking.lock(staker.address, parseEther("1"), 0);
+      await timeTravel(7 * DAYS);
+      await staking.lock(staker.address, parseEther("1"), 0);
+      await expectBigNumberCloseTo(
+        await staking.rewardPerToken(mockPop.address),
+        parseEther("10000"),
+        parseEther("0.0175")
+      );
+    });
+  });
+
+  describe("rewardWeightOf", function () {
+    it("returns account's boosted balance", async function () {
+      const boostedBalance = parseEther("10000");
+      await staking.lock(staker.address, boostedBalance, 0);
+      await expectValue(
+        await staking.rewardWeightOf(staker.address),
+        boostedBalance
+      );
+    });
+  });
+
+  describe("balanceAtEpochOf", function () {
+    it("returns locked balance of account at specified epoch", async function () {
+      await staking.lock(staker.address, parseEther("5000"), 0);
+      timeTravel(7 * DAYS);
+      await staking.lock(staker.address, parseEther("7000"), 0);
+      timeTravel(7 * DAYS);
+
+      await expectValue(
+        await staking.balanceAtEpochOf(0, staker.address),
+        parseEther("5000")
+      );
+      await expectValue(
+        await staking.balanceAtEpochOf(1, staker.address),
+        parseEther("12000")
+      );
+    });
+  });
+
+  describe("epochCount", function () {
+    it("returns total number of epochs", async function () {
+      await expectValue(await staking.epochCount(), 1);
+      timeTravel(7 * DAYS);
+      await staking.checkpointEpoch();
+      await expectValue(await staking.epochCount(), 2);
+      timeTravel(7 * DAYS);
+      await staking.checkpointEpoch();
+      await expectValue(await staking.epochCount(), 3);
+    });
+  });
+
+  describe("findEpochId", function () {
+    it("returns epoch ID for a timestamp", async function () {
+      const epochCountTx = await staking.checkpointEpoch();
+      const epochCountTxBlock = await ethers.provider.getBlock(
+        epochCountTx.blockNumber
+      );
+      const timestamp = epochCountTxBlock.timestamp;
+      await expectValue(await staking.findEpochId(timestamp), 0);
+      timeTravel(7 * DAYS);
+      await staking.checkpointEpoch();
+      await expectValue(await staking.findEpochId(timestamp + 7 * DAYS), 1);
+      timeTravel(7 * DAYS);
+      await staking.checkpointEpoch();
+      await expectValue(await staking.findEpochId(timestamp + 14 * DAYS), 2);
+    });
+  });
+
+  describe("totalSupply", function () {
+    it("returns sum of all locked balances, excluding current epoch", async function () {
+      const boostedBalance = parseEther("10000");
+      await staking.lock(staker.address, boostedBalance, 0);
+      await expectValue(await staking.totalSupply(), 0);
+      timeTravel(8 * DAYS);
+      await expectValue(await staking.totalSupply(), boostedBalance);
+    });
+  });
+
+  describe("totalSupplyAtEpoch", function () {
+    it("returns total supply at a specific epoch", async function () {
+      await staking.lock(staker.address, parseEther("5000"), 0);
+      await expectValue(await staking.totalSupply(), 0);
+      timeTravel(7 * DAYS);
+      await staking.lock(staker.address, parseEther("5000"), 0);
+      timeTravel(7 * DAYS);
+      await expectValue(
+        await staking.totalSupplyAtEpoch(0),
+        parseEther("5000")
+      );
+      await expectValue(
+        await staking.totalSupplyAtEpoch(1),
+        parseEther("10000")
       );
     });
   });
@@ -339,31 +478,34 @@ describe("PopLocker", function () {
   });
 
   describe("stakeFor", function () {
-    it("should emit an event on lock", async () => {
-      const amount = parseEther("10000");
-      await expectEvent(
-        await staking.connect(owner).lock(staker.address, amount, 0),
-        staking,
-        "Staked",
-        [staker.address, amount, amount, amount]
-      );
-    });
-    it("should lock funds successfully and update balances", async function () {
+    it("emits a Staked event", async function () {
       const amount = parseEther("10000");
       const currentBalance = await mockPop.balanceOf(owner.address);
-      await staking.connect(owner).lock(staker.address, amount, 0);
-      await timeTravel(7 * DAYS);
+      await expect(staking.lock(staker.address, amount, 0))
+        .to.emit(staking, "Staked")
+        .withArgs(staker.address, amount, amount, amount);
+    });
 
-      expect(await mockPop.balanceOf(staking.address)).to.equal(
+    it("should lock funds successfully", async function () {
+      const amount = parseEther("10000");
+      const currentBalance = await mockPop.balanceOf(owner.address);
+      await staking.lock(staker.address, amount, 0);
+      await timeTravel(7 * DAYS);
+      await staking.checkpointEpoch();
+      await expectValue(
+        await mockPop.balanceOf(staking.address),
         stakingFund.add(amount)
       );
-      expect(await mockPop.balanceOf(owner.address)).to.equal(
+      await expectValue(
+        await mockPop.balanceOf(owner.address),
         currentBalance.sub(amount)
       );
-      expect(await staking.balanceOf(staker.address)).to.equal(
+      await expectValue(
+        await staking.balanceOf(staker.address),
         parseEther("10000")
       );
     });
+
     it("should update locked balances when staking", async () => {
       const amount = parseEther("10");
       await mockPop.connect(staker).approve(staking.address, amount);
@@ -517,6 +659,58 @@ describe("PopLocker", function () {
       await staking.checkpointEpoch();
       const voiceCredits = await staking.balanceOf(owner.address);
       expect(voiceCredits.toString()).to.equal("0");
+    });
+  });
+
+  describe("processExpiredLocks", function () {
+    const stakeAmount = parseEther("10000");
+    it("withdraws after lockDuration has passed", async function () {
+      const initialBalance = await mockPop.balanceOf(owner.address);
+      await staking.connect(owner).lock(owner.address, stakeAmount, 0);
+      await expectValue(
+        await mockPop.balanceOf(owner.address),
+        initialBalance.sub(stakeAmount)
+      );
+      await timeTravel(12 * WEEKS);
+      await staking
+        .connect(owner)
+        ["processExpiredLocks(bool,uint256,address)"](false, 0, owner.address);
+      await expectValue(await mockPop.balanceOf(owner.address), initialBalance);
+    });
+  });
+
+  describe("lockedBalances", function () {
+    const stakeAmount = parseEther("10000");
+
+    it("returns the locked balance data for the user", async function () {
+      await staking.connect(owner).lock(owner.address, stakeAmount, 0);
+      await timeTravel(6 * WEEKS);
+
+      await staking.connect(owner).lock(owner.address, stakeAmount, 0);
+      await timeTravel(6 * WEEKS);
+
+      const lockedBalances = await staking.lockedBalances(owner.address);
+      const lock1 = await staking.userLocks(owner.address, 0);
+      const lock2 = await staking.userLocks(owner.address, 1);
+
+      await expectValue(lockedBalances.total, stakeAmount.mul(2));
+      await expectValue(lockedBalances.unlockable, stakeAmount);
+      await expectValue(lockedBalances.locked, stakeAmount);
+      await expectDeepValue(lockedBalances.lockData, [lock2]);
+    });
+  });
+
+  describe("kickExpiredLocks", function () {
+    const stakeAmount = parseEther("10000");
+
+    it("pays kicker a 1% incentive to kick expired locks", async function () {
+      await staking.connect(owner).lock(owner.address, parseEther("10000"), 0);
+      await timeTravel(16 * WEEKS);
+      await staking.connect(kicker).kickExpiredLocks(owner.address);
+      await expectValue(
+        await mockPop.balanceOf(kicker.address),
+        parseEther("100")
+      );
     });
   });
 

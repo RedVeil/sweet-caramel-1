@@ -13,11 +13,11 @@ const SecondaryActionButton: React.FC<SecondaryActionButtonProps> = ({
   return (
     <button
       type="button"
-      className="w-full h-hull py-3 flex flex-row items-center justify-center bg-blue-400 rounded-full hover:bg-blue-500 disabled:bg-gray-300"
+      className="w-full h-hull py-3 flex flex-row items-center justify-center rounded-full bg-white border border-blue-600 text-blue-600 font-medium hover:bg-blue-600 hover:text-white disabled:bg-gray-300"
       onClick={handleClick}
       disabled={disabled}
     >
-      <p className="text-base text-white font-medium">{label}</p>
+      {label}
     </button>
   );
 };
