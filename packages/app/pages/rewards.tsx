@@ -137,6 +137,7 @@ export default function index(): JSX.Element {
         res.wait().then((res) => {
           toast.dismiss();
           toast.success('Claimed Escrow!');
+          getData();
         });
       })
       .catch((err) => {
@@ -161,6 +162,7 @@ export default function index(): JSX.Element {
           res.wait().then((res) => {
             toast.dismiss();
             toast.success('Claimed Escrows!');
+            getData();
           }),
         )
         .catch((err) => {
