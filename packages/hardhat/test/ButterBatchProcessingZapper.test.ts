@@ -6,6 +6,7 @@ import { ethers, waffle } from "hardhat";
 import { BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { BatchType } from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert } from "../lib/utils/expectValue";
+import { timeTravel } from "../lib/utils/test";
 import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { ButterBatchProcessingZapper } from "../typechain/ButterBatchProcessingZapper";
@@ -311,11 +312,6 @@ const deployAndAssignContracts = async () => {
     .approve(contracts.butterBatchProcessing.address, parseEther("100000000"));
 };
 
-const timeTravel = async (time: number) => {
-  await provider.send("evm_increaseTime", [time]);
-  await provider.send("evm_mine", []);
-};
-
 describe("ButterBatchProcessingZapper", function () {
   beforeEach(async function () {
     await deployAndAssignContracts();
@@ -429,7 +425,7 @@ describe("ButterBatchProcessingZapper", function () {
       const [batchId] = await contracts.butterBatchProcessing.getAccountBatches(
         depositor.address
       );
-      timeTravel(1800);
+      await timeTravel(1800);
       await contracts.butterBatchProcessing.connect(owner).batchMint();
 
       await expect(
@@ -450,7 +446,7 @@ describe("ButterBatchProcessingZapper", function () {
       const [batchId] = await contracts.butterBatchProcessing.getAccountBatches(
         depositor.address
       );
-      timeTravel(1800);
+      await timeTravel(1800);
       await contracts.butterBatchProcessing.connect(owner).batchRedeem();
 
       //Actual Test

@@ -7,6 +7,7 @@ import { ethers, waffle } from "hardhat";
 import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert, expectValue } from "../lib/utils/expectValue";
+import { timeTravel } from "../lib/utils/test";
 import { DAYS } from "../lib/utils/test/constants";
 import { MockERC20, RewardsEscrow, Staking } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
@@ -246,11 +247,6 @@ async function deployContracts(): Promise<Contracts> {
     staking,
   };
 }
-
-const timeTravel = async (time: number) => {
-  await provider.send("evm_increaseTime", [time]);
-  await provider.send("evm_mine", []);
-};
 
 const deployAndAssignContracts = async () => {
   [owner, depositor, depositor1, depositor2, depositor3, zapper] =

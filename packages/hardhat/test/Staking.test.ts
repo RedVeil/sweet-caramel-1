@@ -358,7 +358,7 @@ describe("Staking", function () {
     context("active rewards", function () {
       beforeEach(async function () {
         await staking.connect(owner).notifyRewardAmount(STAKING_FUND);
-        timeTravel(7 * DAYS);
+        await timeTravel(7 * DAYS);
       });
 
       it("transfers 10% of reward", async function () {
@@ -523,7 +523,7 @@ describe("Staking", function () {
 
     it("extends periodFinish when called again mid-period", async () => {
       await staking.connect(owner).notifyRewardAmount(REWARD_AMOUNT.div(2));
-      timeTravel(1 * DAYS);
+      await timeTravel(1 * DAYS);
       let notifyTx = await staking
         .connect(owner)
         .notifyRewardAmount(REWARD_AMOUNT.div(2));
