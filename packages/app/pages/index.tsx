@@ -65,7 +65,7 @@ const IndexPage = () => {
             </p>
             <div className="mx-auto w-4/5" style={{ height: 60 }}>
               <p className="h-full text-xl font-thin text-center  text-gray-600">
-                Stake your token to earn more POP.
+                Stake your tokens to earn more POP.
               </p>
             </div>
           </div>
@@ -114,7 +114,7 @@ const IndexPage = () => {
             </p>
             <div className="mx-auto w-4/5" style={{ height: 80 }}>
               <p className="h-full text-2xl font-thin text-center  text-gray-600">
-                Stake your token to earn more POP.
+                Stake your tokens to earn more POP.
               </p>
             </div>
           </div>
