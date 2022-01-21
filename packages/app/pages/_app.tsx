@@ -9,6 +9,7 @@ import NetworkHandler from 'components/NetworkHandler';
 import NotificationsContainer from 'components/Notifications/NotificationsContainer';
 import SoftLaunchCheck from 'components/SoftLaunchCheck';
 import SwapChainModal from 'components/SwapChainModal';
+import { ChainId } from 'context/Web3/connectors';
 import Head from 'next/head';
 import Router from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -74,10 +75,18 @@ export default function MyApp(props) {
             <SingleActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />
-            <div className="hidden lg:block">
+            {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(
+              parseInt(process.env.CHAIN_ID),
+            ) ? (
               <Component {...pageProps} />
-            </div>
-            <MobileExcuseAlert />
+            ) : (
+              <>
+                <div className="hidden lg:block">
+                  <Component {...pageProps} />
+                </div>
+                <MobileExcuseAlert />
+              </>
+            )}
             <SwapChainModal />
             <NotificationsContainer />
             <Debug />
