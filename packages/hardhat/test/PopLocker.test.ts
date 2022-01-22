@@ -325,9 +325,9 @@ describe("PopLocker", function () {
   describe("balanceAtEpochOf", function () {
     it("returns locked balance of account at specified epoch", async function () {
       await staking.lock(staker.address, parseEther("5000"), 0);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
       await staking.lock(staker.address, parseEther("7000"), 0);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
 
       await expectValue(
         await staking.balanceAtEpochOf(0, staker.address),
@@ -343,10 +343,10 @@ describe("PopLocker", function () {
   describe("epochCount", function () {
     it("returns total number of epochs", async function () {
       await expectValue(await staking.epochCount(), 1);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
       await expectValue(await staking.epochCount(), 2);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
       await expectValue(await staking.epochCount(), 3);
     });
@@ -360,10 +360,10 @@ describe("PopLocker", function () {
       );
       const timestamp = epochCountTxBlock.timestamp;
       await expectValue(await staking.findEpochId(timestamp), 0);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
       await expectValue(await staking.findEpochId(timestamp + 7 * DAYS), 1);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
       await expectValue(await staking.findEpochId(timestamp + 14 * DAYS), 2);
     });
@@ -374,7 +374,7 @@ describe("PopLocker", function () {
       const boostedBalance = parseEther("10000");
       await staking.lock(staker.address, boostedBalance, 0);
       await expectValue(await staking.totalSupply(), 0);
-      timeTravel(8 * DAYS);
+      await timeTravel(8 * DAYS);
       await expectValue(await staking.totalSupply(), boostedBalance);
     });
   });
@@ -383,9 +383,9 @@ describe("PopLocker", function () {
     it("returns total supply at a specific epoch", async function () {
       await staking.lock(staker.address, parseEther("5000"), 0);
       await expectValue(await staking.totalSupply(), 0);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
       await staking.lock(staker.address, parseEther("5000"), 0);
-      timeTravel(7 * DAYS);
+      await timeTravel(7 * DAYS);
       await expectValue(
         await staking.totalSupplyAtEpoch(0),
         parseEther("5000")
