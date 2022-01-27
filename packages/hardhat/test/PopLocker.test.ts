@@ -802,4 +802,26 @@ describe("PopLocker", function () {
       );
     });
   });
+
+  describe("claiming unearned rewards", () => {
+    it("doesn't allow a user to claim unearned rewards by calling process expired locks with a different _withdrawTo address", async () => {
+      const amount = parseEther("100");
+      await staking.connect(owner).notifyRewardAmount(mockPop.address, amount);
+      await staking.connect(owner).lock(owner.address, parseEther("100"), 0);
+      await timeTravel(13 * WEEKS);
+      await staking
+        .connect(owner)
+        ["processExpiredLocks(bool,uint256,address)"](
+          true,
+          0,
+          nonOwner.address
+        );
+      const earnedRewards = await staking.claimableRewards(owner.address);
+      expect(earnedRewards[0].amount).to.equal(
+        parseEther("99.999834656084448000")
+      );
+      const unEarnedRewards = await staking.claimableRewards(nonOwner.address);
+      expect(unEarnedRewards[0].amount).to.equal(0);
+    });
+  });
 });
