@@ -105,6 +105,15 @@ input[type='number'] {
   .button-secondary:hover {
     @apply bg-blue-300 font-bold shadow-md transform scale-101;
   }
+  .header-major {
+    @apply text-3xl md:text-4xl font-medium;
+  }
+  .header {
+    @apply text-2xl md:text-3xl font-medium;
+  }
+  .header-minor {
+    @apply text-xl md:text-2xl font-medium;
+  }
 }
 
 .button-custom {
