@@ -212,6 +212,12 @@ export default function getNamedAccounts() {
       polygon: "0xF70A6f16B894aA1DfdEe50656A476f2FbF4b6d60",
       mainnet: "0xcA9208D882955996a6f0BF8648e0A4AAa9f90b59",
     },
+    rewardsDistribution: {
+      hardhhat: "0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F",
+      rinkeby: "",
+      polygon: "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
+      mainnet: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+    },
   };
 }
 

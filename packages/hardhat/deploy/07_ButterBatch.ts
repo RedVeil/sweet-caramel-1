@@ -3,7 +3,6 @@ import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { ethers, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { BUTTER_ZAPPER } from "../lib/acl/roles";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { addContractToRegistry } from "./utils";
 
