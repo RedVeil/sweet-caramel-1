@@ -6,6 +6,7 @@ import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
 import { formatStakedAmount } from 'helper/formatStakedAmount';
 import router from 'next/router';
 import { useCallback } from 'react';
+import StatusWithLabel from './Common/StatusWithLabel';
 import MainActionButton from './MainActionButton';
 import TokenIcon from './TokenIcon';
 
@@ -37,43 +38,46 @@ const StakeCard: React.FC<StakeCardProps> = ({
 
   return (
     <div
-      className="bg-white rounded-3xl border border-gray-200 shadow-custom w-full mr-4 p-8 cursor-pointer transform transition duration-150 ease-in-out hover:scale-101"
+      className="bg-white rounded-3xl border border-gray-200 shadow-custom p-6 md:p-8 cursor-pointer transform transition duration-150 ease-in-out hover:scale-101"
       onClick={async () => await onSelectPool()}
     >
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
           <TokenIcon token={getSanitizedTokenDisplayName(tokenName)} />
-          <h3 className="text-2xl text-gray-900 font-medium ml-4 ">
+          <h3 className="header-minor ml-4 ">
             {getSanitizedTokenDisplayName(tokenName)}
           </h3>
         </div>
-        <div className="w-24">
+        <div className="w-24 flex-shrink-0">
           <MainActionButton
             label="Stake"
             handleClick={async () => await onSelectPool()}
           />
         </div>
       </div>
-      <div className="flex flex-row items-center mt-10 w-full justify-between">
-        <div className="w-1/4">
-          <p className="text-gray-500 font-light uppercase">Est. APY</p>
-          <p className="text-green-600 text-2xl font-medium mt-1">
-            {stakingPoolInfo.stakedTokenName === 'Popcorn'
-              ? stakingPoolInfo.apy.toLocaleString() + '%'
-              : 'New 🍿✨'}
-          </p>
+      <div className="flex flex-row flex-wrap items-center mt-6 justify-between">
+        <div className="w-1/2 md:w-1/4 mt-4">
+          <StatusWithLabel
+            content={
+              stakingPoolInfo.stakedTokenName === 'Popcorn'
+                ? stakingPoolInfo.apy.toLocaleString() + '%'
+                : 'New 🍿✨'
+            }
+            label="Est. APY"
+            green
+          />
         </div>
-        <div className="w-1/4">
-          <p className="text-gray-500 font-light uppercase">Total Staked</p>
-          <p className=" text-2xl text-gray-900 font-medium mt-1">
-            {formatStakedAmount(stakingPoolInfo.totalStake)}
-          </p>
+        <div className="w-1/2 md:w-1/4 mt-4">
+          <StatusWithLabel
+            content={formatStakedAmount(stakingPoolInfo.totalStake)}
+            label="Total Staked"
+          />
         </div>
-        <div className="w-1/2">
-          <p className="text-gray-500 font-light uppercase">Token Emissions</p>
-          <p className=" text-2xl text-gray-900 font-medium mt-1">
-            {stakingPoolInfo.tokenEmission.toLocaleString()} POP / day
-          </p>
+        <div className="w-full md:w-1/2 mt-4">
+          <StatusWithLabel
+            content={`${stakingPoolInfo.tokenEmission.toLocaleString()} POP / day`}
+            label="Token Emissions"
+          />
         </div>
       </div>
     </div>
