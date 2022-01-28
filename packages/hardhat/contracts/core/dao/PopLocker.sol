@@ -119,8 +119,6 @@ contract PopLocker is ReentrancyGuard, Ownable {
 
     uint256 currentEpoch = block.timestamp.div(rewardsDuration).mul(rewardsDuration);
     epochs.push(Epoch({supply: 0, date: uint32(currentEpoch)}));
-
-    IERC20(_stakingToken).safeIncreaseAllowance(address(rewardsEscrow), uint256(-1));
   }
 
   function decimals() public view returns (uint8) {
@@ -191,6 +189,12 @@ contract PopLocker is ReentrancyGuard, Ownable {
   //shutdown the contract.
   function shutdown() external onlyOwner {
     isShutdown = true;
+  }
+
+  //set approvals for rewards escrow
+  function setApprovals() external {
+    IERC20(stakingToken).safeApprove(address(rewardsEscrow), 0);
+    IERC20(stakingToken).safeApprove(address(rewardsEscrow), uint256(-1));
   }
 
   /* ========== VIEWS ========== */
