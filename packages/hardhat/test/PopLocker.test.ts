@@ -169,6 +169,21 @@ describe("PopLocker", function () {
     });
   });
 
+  describe("setBoost", function () {
+    const MAX_PAYMENT = 100;
+    const BOOST_RATE = 15000;
+
+    it("sets nextMaximumBoostPayment", async () => {
+      await staking.connect(owner).setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
+      await expectValue(await staking.nextMaximumBoostPayment(), MAX_PAYMENT);
+    });
+
+    it("sets nextBoostRate", async () => {
+      await staking.connect(owner).setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
+      await expectValue(await staking.nextBoostRate(), BOOST_RATE);
+    });
+  });
+
   describe("setKickIncentive", function () {
     const KICK_INCENTIVE_RATE = 100; // 1% per epoch
     const KICK_INCENTIVE_DELAY = 4; // 4 epoch grace period
