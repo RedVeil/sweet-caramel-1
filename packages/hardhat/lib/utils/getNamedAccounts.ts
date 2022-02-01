@@ -1,14 +1,14 @@
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {networkMap} from "./constants";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { networkMap } from "./constants";
 // setup public/external addresses here like DAI/USDC/ etc.
 
 export default function getNamedAccounts() {
   return {
     popStaking: {
       rinkeby: "0xbd085541Cf339a7B3a5112CeA9440542a02B29E5",
-      polygon: "0x3Aa796172b5dc51da02DC8F33E021719e9FF78b2",
+      polygon: "0xF61aEF5e7b1D93aDba3e21C030ACc6b63337Bb78",
       hardhat: "0xA7c59f010700930003b33aB25a7a0679C860f29c",
-      mainnet: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
+      mainnet: "0x429902c1F43B583E099A0AA5B5c8e0Fd40C54435",
     },
     popUsdcLpStaking: {
       rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
