@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.6.0
 pragma solidity ^0.6.12;
 
 import "openzeppelin-v3/math/SafeMath.sol";
