@@ -2,115 +2,81 @@ import { BigNumber } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
+
+const REWARDS_DESTINATION_MAP = {
+  "0x64337565e0Ce3E35fb7808C16807803a7540521C": "Butter", //eth
+  "0x8A3bC3867dB078Ee2742F063745A374eCC231131": "LP", // eth
+  "0x429902c1F43B583E099A0AA5B5c8e0Fd40C54435": "POP", // eth
+  "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3": "POP", // poly
+  "0x6da8005c4204553E596241F3cD561C7856857db1": "LP", //poly
+};
+
 interface Args {
-  dryRun?: string;
-  editOnly?: string;
+  dryRun?: boolean;
+  editOnly?: boolean;
   force?: boolean;
-  distributeOnly?: string;
+  distributeOnly?: boolean;
 }
 export default task(
   "rewards-distributor:distribute",
-  "edits reward distributions for current period and calls invokes reward distribution"
+  "edits reward distributions for current period and invokes reward distribution"
 )
-  .addOptionalParam(
-    "editOnly",
-    "will edit rewards for current period but not distribute rewards",
-    "0"
-  )
-  .addOptionalParam("dryRun", "will not submit any transactions", "0")
-  .addOptionalParam(
-    "distributeOnly",
-    "will only call distributeRewards function",
-    "0"
-  )
+  .addFlag("distributeOnly", "will only call distributeRewards function")
+  .addFlag("editOnly", "will edit rewards for current period but not distribute rewards")
+  .addFlag("dryRun", "will not submit any transactions")
   .addFlag(
     "force",
     "will force editing distribute rewards and calling distribution function regardless of rewards period"
   )
   .setAction(async (args: Args, hre) => {
-    const editOnly = Boolean(parseInt(args.editOnly));
-    const dryRun = Boolean(parseInt(args.dryRun));
-    const distributeOnly = Boolean(parseInt(args.distributeOnly));
+    const editOnly = args.editOnly;
+    const dryRun = args.dryRun;
+    const distributeOnly = args.distributeOnly;
     const force = args.force;
     const popLockerAddress = (await hre.deployments.get("PopLocker")).address;
     const { pop, rewardsDistribution } = getNamedAccountsFromNetwork(hre);
 
-    const popLocker = await hre.ethers.getContractAt(
-      "PopLocker",
-      popLockerAddress
-    );
+    const popLocker = await hre.ethers.getContractAt("PopLocker", popLockerAddress);
 
-    const rewardsDistributionContract = await hre.ethers.getContractAt(
-      "RewardsDistribution",
-      rewardsDistribution
-    );
+    const rewardsDistributionContract = await hre.ethers.getContractAt("RewardsDistribution", rewardsDistribution);
 
     const [butterRewards, lpRewards, popRewards] = [
       generateRewardPeriods(hre.network.name, butterTable),
       generateRewardPeriods(hre.network.name, lpTable),
-      generateRewardPeriods(hre.network.name, popLockerTable),
+      generateRewardPeriods(hre.network.name, hre.network.name !== "mainnet" ? popLockerTablePoly : popLockerTableEth),
     ];
 
     const rewardData = await popLocker.rewardData(pop);
-    const distributions = await getDistributions(
-      rewardsDistributionContract,
-      hre
-    );
+    const distributions = await getDistributions(rewardsDistributionContract, hre);
     const latestBlock = await hre.ethers.provider.getBlock("latest");
     console.log({ latestTimestamp: latestBlock.timestamp });
 
-    if (
-      !force &&
-      rewardData.periodFinish > latestBlock.timestamp &&
-      !editOnly &&
-      !distributeOnly
-    ) {
+    if (!force && rewardData.periodFinish > latestBlock.timestamp && !editOnly && !distributeOnly) {
       console.log("Nothing to do, exiting ...");
       process.exit();
     }
 
     const signer = hre.ethers.provider.getSigner();
 
-    if (
-      force ||
-      rewardData.periodFinish <= latestBlock.timestamp ||
-      editOnly ||
-      distributeOnly
-    ) {
-      console.log(
-        "Last period finish is in the past, editing new distributions for next reward period ..."
-      );
+    if (force || rewardData.periodFinish <= latestBlock.timestamp || editOnly || distributeOnly) {
+      console.log("Last period finish is in the past, editing new distributions for next reward period ...");
 
       const editRewardsTxs = [];
       const newRewardsData = [];
       distributions.forEach((distribution, i) => {
-        const rewardType = getRewardTypeFromDestination(
-          distribution.destination
-        );
+        const rewardType = getRewardTypeFromDestination(distribution.destination);
 
         console.log("getting reward table for ", rewardType);
         let period;
         switch (rewardType) {
           case "Butter":
-            period = getNextRewardPeriod(
-              latestBlock.timestamp,
-              butterRewards,
-              "Butter"
-            );
+            period = getNextRewardPeriod(latestBlock.timestamp, butterRewards, "Butter");
             break;
           case "LP":
-            period = getNextRewardPeriod(
-              latestBlock.timestamp,
-              lpRewards,
-              "LP"
-            );
+            period = getNextRewardPeriod(latestBlock.timestamp, lpRewards, "LP");
             break;
           case "POP":
-            period = getNextRewardPeriod(
-              latestBlock.timestamp,
-              popRewards,
-              "POP"
-            );
+            period = getNextRewardPeriod(latestBlock.timestamp, popRewards, "POP");
             break;
         }
         console.log({ period });
@@ -152,9 +118,7 @@ export default task(
 
       if (distributeOnly || (!dryRun && !editOnly)) {
         console.log("distributing rewards ... ");
-        const tx = await rewardsDistributionContract
-          .connect(signer)
-          .distributeRewards(periodTotalRewards);
+        const tx = await rewardsDistributionContract.connect(signer).distributeRewards(periodTotalRewards);
         const receipt = await tx.wait();
         console.log(receipt);
       } else {
@@ -165,9 +129,6 @@ export default task(
 
 const getDistributions = async (rewardsDistributionContract, hre) => {
   const distributions = [0, 1];
-  if (hre.network.name === "mainnet") {
-    distributions.push(2);
-  }
   return Promise.all(
     distributions.map((i) => {
       return rewardsDistributionContract.distributions(i);
@@ -179,13 +140,7 @@ const getRewardTypeFromDestination = (address) => {
   return getLowerCaseMap()[address.toLowerCase()];
 };
 const getLowerCaseMap = () => {
-  const map = {
-    "0x64337565e0Ce3E35fb7808C16807803a7540521C": "Butter", //eth
-    "0x8A3bC3867dB078Ee2742F063745A374eCC231131": "LP", // eth
-    "0xdF8bfB606ec657F0A1F7C3b56a1c867c197B21C0": "POP", // eth
-    "0x9D6210b1989ccd22c60556fCc175bc9d607F1F15": "POP", // poly
-    "0x6da8005c4204553E596241F3cD561C7856857db1": "LP", //poly
-  };
+  const map = REWARDS_DESTINATION_MAP;
   let lowerCaseMap = {};
   Object.keys(map).map((key) => {
     lowerCaseMap[key.toLowerCase()] = map[key];
@@ -238,24 +193,24 @@ const generateRewardPeriods = (network, table) => {
 };
 
 export const butterTable = [
-  49846.15385, 47852.30769, 45858.46154, 43864.61538, 41870.76923, 39876.92308,
-  37883.07692, 35889.23077, 33895.38462, 31901.53846, 29907.69231, 27913.84615,
-  25920, 23926.15385, 21932.30769, 19938.46154, 17944.61538, 15950.76923,
-  13956.92308, 11963.07692, 9969.230769, 7975.384615, 5981.538462, 3987.692308,
-  1993.846154,
+  49846.15385, 47852.30769, 45858.46154, 43864.61538, 41870.76923, 39876.92308, 37883.07692, 35889.23077, 33895.38462,
+  31901.53846, 29907.69231, 27913.84615, 25920, 23926.15385, 21932.30769, 19938.46154, 17944.61538, 15950.76923,
+  13956.92308, 11963.07692, 9969.230769, 7975.384615, 5981.538462, 3987.692308, 1993.846154,
 ];
 
-export const popLockerTable = [
-  27692.30769, 26584.61538, 25476.92308, 24369.23077, 23261.53846, 22153.84615,
-  21046.15385, 19938.46154, 18830.76923, 17723.07692, 16615.38462, 15507.69231,
-  14400, 13292.30769, 12184.61538, 11076.92308, 9969.230769, 8861.538462,
-  7753.846154, 6646.153846, 5538.461538, 4430.769231, 3323.076923, 2215.384615,
-  1107.692308,
+export const popLockerTablePoly = [
+  27692.30769, 26584.61538, 25476.92308, 24369.23077, 23261.53846, 22153.84615, 21046.15385, 19938.46154, 18830.76923,
+  17723.07692, 16615.38462, 15507.69231, 14400, 13292.30769, 12184.61538, 11076.92308, 9969.230769, 8861.538462,
+  7753.846154, 6646.153846, 5538.461538, 4430.769231, 3323.076923, 2215.384615, 1107.692308,
+];
+
+export const popLockerTableEth = [
+  77538.46154, 74436.92308, 71335.38462, 68233.84615, 65132.30769, 62030.76923, 58929.23077, 55827.69231, 52726.15385,
+  49624.61538, 46523.07692, 43421.53846, 40320, 37218.46154, 34116.92308, 31015.38462, 27913.84615, 24812.30769,
+  21710.76923, 18609.23077, 15507.69231, 12406.15385, 9304.615385, 6203.076923, 3101.538462,
 ];
 
 export const lpTable = [
-  16615.38, 15950.77, 15286.15, 14621.54, 13956.92, 13292.31, 12627.69,
-  11963.08, 11298.46, 10633.85, 9969.23, 9304.62, 8640.0, 7975.38, 7310.77,
-  6646.15, 5981.54, 5316.92, 4652.31, 3987.69, 3323.08, 2658.46, 1993.85,
-  1329.23, 664.62,
+  16615.38, 15950.77, 15286.15, 14621.54, 13956.92, 13292.31, 12627.69, 11963.08, 11298.46, 10633.85, 9969.23, 9304.62,
+  8640.0, 7975.38, 7310.77, 6646.15, 5981.54, 5316.92, 4652.31, 3987.69, 3323.08, 2658.46, 1993.85, 1329.23, 664.62,
 ];

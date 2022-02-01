@@ -165,8 +165,8 @@ contract PopLocker is ReentrancyGuard, Ownable {
     uint256 _rate,
     address _receivingAddress
   ) external onlyOwner {
-    require(maximumBoostPayment < 1500, "over max payment"); //max 15%
-    require(boostRate < 30000, "over max rate"); //max 3x
+    require(_max < 1500, "over max payment"); //max 15%
+    require(_rate < 30000, "over max rate"); //max 3x
     require(_receivingAddress != address(0), "invalid address"); //must point somewhere valid
     nextMaximumBoostPayment = _max;
     nextBoostRate = _rate;
