@@ -1,5 +1,5 @@
 import { escapeRegExp, inputRegex } from 'helper/inputRegex';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface TokenInputProps {
   label: string;
@@ -9,18 +9,27 @@ export interface TokenInputProps {
   updateInputAmount: Function;
 }
 
-const TokenInput: React.FC<TokenInputProps> = ({
-  label,
-  tokenName,
-  inputAmount,
-  balance,
-  updateInputAmount,
-}) => {
+const TokenInput: React.FC<TokenInputProps> = ({ label, tokenName, inputAmount, balance, updateInputAmount }) => {
   const [displayAmount, setDisplayAmount] = useState<string>('');
+
+  useEffect(() => {
+    if (inputAmount === undefined) {
+      setDisplayAmount('');
+    } else {
+      setDisplayAmount(String(inputAmount));
+    }
+  }, [inputAmount]);
+
   const enforcer = (nextUserInput: string) => {
-    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
-      updateInputAmount(Number(nextUserInput));
-      setDisplayAmount(nextUserInput);
+    if (nextUserInput === '') {
+      updateInputAmount(undefined);
+    } else if (inputRegex.test(escapeRegExp(nextUserInput))) {
+      console.log(nextUserInput);
+      if (!['0.', '.'].includes(nextUserInput)) {
+        updateInputAmount(Number(nextUserInput));
+      } else {
+        setDisplayAmount(nextUserInput);
+      }
     }
   };
   return (
@@ -28,10 +37,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
       <span className="flex flex-col justify-between">
         <div className="">
           <div>
-            <label
-              htmlFor="tokenInput"
-              className="flex justify-between text-sm font-medium text-gray-700 text-center"
-            >
+            <label htmlFor="tokenInput" className="flex justify-between text-sm font-medium text-gray-700 text-center">
               <p className="mb-2  text-base">{label}</p>
               <p className="text-gray-500 font-normal text-base">
                 {balance} {tokenName}
@@ -41,7 +47,11 @@ const TokenInput: React.FC<TokenInputProps> = ({
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 pr-16 py-4 text-lg border-gray-300 rounded-xl"
+                className={`shadow-sm  block w-full pl-4 pr-16 py-4 text-lg border-gray-300 rounded-xl ${
+                  inputAmount > balance
+                    ? 'focus:ring-red-600 focus:border-red-600'
+                    : 'focus:ring-indigo-500 focus:border-indigo-500'
+                }`}
                 value={displayAmount}
                 onChange={(e) => {
                   enforcer(e.target.value.replace(/,/g, '.'));
@@ -67,11 +77,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 >
                   MAX
                 </kbd>
-                <p className="inline-flex items-center  font-medium text-lg mx-3">
-                  {tokenName}
-                </p>
+                <p className="inline-flex items-center  font-medium text-lg mx-3">{tokenName}</p>
               </div>
             </div>
+            {inputAmount > balance && <p className="text-red-600">Insufficient Balance</p>}
           </div>
         </div>
       </span>
