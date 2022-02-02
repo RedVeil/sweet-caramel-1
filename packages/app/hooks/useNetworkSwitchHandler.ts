@@ -16,7 +16,9 @@ export default function useNetworkSwitchHandler() {
       localStorage.setItem('chainId', String(chainId));
 
       // For route staking/[id] we need to redirect the user back to the staking pools page.
-      if (routeName === '/staking/[id]') router.push('/staking');
+      if (routeName === '/staking/[id]') {
+        router.push('/staking');
+      }
       // For all routes except staking/[id]
       window.location.reload();
     }
