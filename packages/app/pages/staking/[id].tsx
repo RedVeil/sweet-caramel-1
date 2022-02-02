@@ -74,18 +74,17 @@ export default function StakingPage(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (getCurrentStakingContract() === undefined) {
+    if (typeof id === 'string' && contracts && !verifyStakingContract(id)) {
       router.push('/staking');
-      return;
     }
   }, [library, contracts, chainId]);
 
   useEffect(() => {
-    if (!library || !contracts || !chainId) {
+    if (typeof id !== 'string' || !library || !contracts || !chainId) {
       return;
     }
     fetchPageInfo();
-  }, [contracts, library, account]);
+  }, [contracts, library, account, id]);
 
   const getBalances = async (stakedToken, stakingContract) => {
     if (!account) {
@@ -114,22 +113,19 @@ export default function StakingPage(): JSX.Element {
     };
   };
 
-  function getCurrentStakingContract(): Staking | PopLocker | undefined {
-    if (!contracts || !contracts?.popStaking || (contracts?.staking?.length || 0) <= 0) {
-      return undefined;
-    }
-    const stakingContract: Staking | PopLocker = [contracts.popStaking, ...contracts.staking].find(
-      (contract) => contract.address === id,
+  function verifyStakingContract(addressToVerify: string): boolean {
+    return (
+      contracts.popStaking.address === addressToVerify ||
+      contracts.staking.some((contract) => contract.address === addressToVerify)
     );
-    return stakingContract;
   }
 
   async function fetchPageInfo(): Promise<void> {
     setLoading(true);
-    if (!contracts || (contracts?.staking?.length || 0) <= 0) {
+    if (typeof id !== 'string' || !contracts || (contracts?.staking?.length || 0) <= 0) {
       return;
     }
-    const stakingContract = await getStakingContractFromAddress(contracts, id as string);
+    const stakingContract = await getStakingContractFromAddress(contracts, id);
 
     const stakingPoolInfo: StakingPoolInfo = await getSingleStakingPoolInfo(
       stakingContract,
