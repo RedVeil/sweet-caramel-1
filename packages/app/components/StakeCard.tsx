@@ -40,7 +40,11 @@ const StakeCard: React.FC<StakeCardProps> = ({ tokenName, stakingPoolInfo, url, 
       </div>
       <div className="flex flex-row flex-wrap items-center mt-6 justify-between">
         <div className="w-1/2 md:w-1/4 mt-4">
-          <StatusWithLabel content={"New 🍿✨"} label="Est. APY" green />
+          <StatusWithLabel
+            content={stakingPoolInfo.stakedTokenName === "Popcorn" ? stakingPoolInfo.apy + "%" : "New 🍿✨"}
+            label="Est. APY"
+            green
+          />
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel content={formatStakedAmount(stakingPoolInfo.totalStake)} label="Total Staked" />

@@ -6,19 +6,19 @@ export default function getNamedAccounts() {
   return {
     popStaking: {
       rinkeby: "0xbd085541Cf339a7B3a5112CeA9440542a02B29E5",
-      polygon: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+      polygon: "0xF61aEF5e7b1D93aDba3e21C030ACc6b63337Bb78",
       hardhat: "0xA7c59f010700930003b33aB25a7a0679C860f29c",
-      mainnet: "0xeEE1d31297B042820349B03027aB3b13a9406184",
+      mainnet: "0x429902c1F43B583E099A0AA5B5c8e0Fd40C54435",
     },
     popUsdcLpStaking: {
       rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
       hardhat: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A",
-      polygon: "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
-      mainnet: "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
+      polygon: "0x6da8005c4204553E596241F3cD561C7856857db1",
+      mainnet: "0x8A3bC3867dB078Ee2742F063745A374eCC231131",
     },
     butterStaking: {
       hardhat: "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926",
-      //mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
+      mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
     },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
@@ -209,8 +209,8 @@ export default function getNamedAccounts() {
     rewardsEscrow: {
       hardhat: "0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75",
       rinkeby: "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa",
-      polygon: "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
-      mainnet: "0xb5cb5710044D1074097c17B7535a1cF99cBfb17F",
+      polygon: "0xF70A6f16B894aA1DfdEe50656A476f2FbF4b6d60",
+      mainnet: "0xcA9208D882955996a6f0BF8648e0A4AAa9f90b59",
     },
     rewardsDistribution: {
       hardhat: "0x07882Ae1ecB7429a84f1D53048d35c4bB2056877",

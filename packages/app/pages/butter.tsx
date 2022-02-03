@@ -680,7 +680,11 @@ export default function Butter(): JSX.Element {
                   setDepositAmount={setDepositAmount}
                   deposit={useUnclaimedDeposits ? hotswap : deposit}
                   approve={approve}
-                  depositDisabled={true}
+                  depositDisabled={
+                    useUnclaimedDeposits
+                      ? isDepositDisabled(depositAmount, selectedToken.input.claimableBalance)
+                      : isDepositDisabled(depositAmount, selectedToken.input.balance)
+                  }
                   useUnclaimedDeposits={useUnclaimedDeposits}
                   setUseUnclaimedDeposits={setUseUnclaimedDeposits}
                   hasUnclaimedBalances={hasClaimableBalances()}
