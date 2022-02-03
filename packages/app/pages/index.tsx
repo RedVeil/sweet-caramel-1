@@ -22,12 +22,7 @@ const IndexPage = () => {
           image="images/rocket.svg"
           link="/butter"
         />
-        <Hero
-          header="Farming"
-          content="Stake your token to earn more POP."
-          image="images/farmer.svg"
-          link="/staking"
-        />
+        <Hero header="Farming" content="Stake your token to earn more POP." image="images/farmer.svg" link="/staking" />
       </div>
     </div>
   );
