@@ -54,12 +54,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       {!depositDisabled && !redeeming && (
         <div className="pt-6">
           <div className="flex flex-row justify-between">
-            <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">
-              Slippage
-            </p>
-            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">
-              {slippage} %
-            </p>
+            <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>
+            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">{slippage} %</p>
           </div>
         </div>
       )}
@@ -69,15 +65,11 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
             <MainActionButton
               label={`Allow Popcorn to use your ${selectedToken.input.name}`}
               handleClick={(e) => approve(selectedToken.input.key)}
+              disabled={true}
             />
             <MainActionButton
               label={redeeming ? 'Redeem' : 'Mint'}
-              handleClick={(e) =>
-                deposit(
-                  depositAmount,
-                  redeeming ? BatchType.Redeem : BatchType.Mint,
-                )
-              }
+              handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
               disabled={true}
             />
           </div>
@@ -85,12 +77,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           <div className="pt-6">
             <MainActionButton
               label={redeeming ? 'Redeem' : 'Mint'}
-              handleClick={(e) =>
-                deposit(
-                  depositAmount,
-                  redeeming ? BatchType.Redeem : BatchType.Mint,
-                )
-              }
+              handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
               disabled={depositDisabled}
             />
           </div>

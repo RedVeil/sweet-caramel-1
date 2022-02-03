@@ -2,7 +2,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/outline';
 import MainActionButton from 'components/MainActionButton';
-import TertiaryActionButton from 'components/TertiaryActionButton';
+import SecondaryActionButton from 'components/SecondaryActionButton';
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 
 export interface DualActionWideModalProps {
@@ -13,6 +13,7 @@ export interface DualActionWideModalProps {
   onDismiss?: { label: string; onClick: Function };
   onConfirm?: { label: string; onClick: Function };
   icon?: 'check';
+  image?: any;
 }
 
 export const DefaultDualActionWideModalProps = {
@@ -30,6 +31,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
   onConfirm,
   onDismiss,
   icon,
+  image,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
@@ -72,10 +74,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
-          <span
-            className="hidden sm:inline-block sm:align-middle sm:h-screen"
-            aria-hidden="true"
-          >
+          <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
             &#8203;
           </span>
           <Transition.Child
@@ -89,19 +88,19 @@ const Example: React.FC<DualActionWideModalProps> = ({
           >
             <div className="inline-block align-bottom bg-white rounded-4xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
               <div>
-                {icon == 'check' && (
-                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                    <CheckIcon
-                      className="h-6 w-6 text-green-600"
-                      aria-hidden="true"
-                    />
-                  </div>
+                {image ? (
+                  <>{image}</>
+                ) : (
+                  <>
+                    {icon == 'check' && (
+                      <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+                      </div>
+                    )}
+                  </>
                 )}
                 <div className="mt-3 text-center sm:mt-5">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-2xl leading-6 font-semibold text-gray-900"
-                  >
+                  <Dialog.Title as="h3" className="text-2xl leading-6 font-semibold text-gray-900">
                     {title}
                   </Dialog.Title>
                   <div className="mt-2">
@@ -115,11 +114,11 @@ const Example: React.FC<DualActionWideModalProps> = ({
               </div>
               <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-4 sm:grid-flow-row-dense">
                 {onDismiss && (
-                  <TertiaryActionButton
+                  <SecondaryActionButton
                     disabled={progress}
                     label={onDismiss.label}
                     handleClick={() => dismiss()}
-                  ></TertiaryActionButton>
+                  ></SecondaryActionButton>
                 )}
                 {onConfirm && (
                   <MainActionButton
