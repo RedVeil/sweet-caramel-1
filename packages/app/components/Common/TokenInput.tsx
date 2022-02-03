@@ -1,8 +1,8 @@
 import { formatBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers";
+import { formatStakedAmount } from "helper/formatStakedAmount";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
 import { useState } from "react";
-import { formatAndRoundBigNumber } from "../../../utils/src/formatBigNumber";
 
 export interface TokenInputProps {
   label: string;
@@ -29,7 +29,7 @@ const TokenInput: React.FC<TokenInputProps> = ({ label, tokenName, inputAmount, 
             <label htmlFor="tokenInput" className="flex justify-between text-sm font-medium text-gray-700 text-center">
               <p className="mb-2  text-base">{label}</p>
               <p className="text-gray-500 font-normal text-base">
-                {formatAndRoundBigNumber(balance, 3)} {tokenName}
+                {formatStakedAmount(balance)} {tokenName}
               </p>
             </label>
             <div className="mt-1 relative flex items-center">
