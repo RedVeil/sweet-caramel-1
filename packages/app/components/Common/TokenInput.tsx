@@ -1,25 +1,23 @@
-import { escapeRegExp, inputRegex } from 'helper/inputRegex';
-import { useState } from 'react';
+import { formatBigNumber, numberToBigNumber } from "@popcorn/utils";
+import { BigNumber } from "ethers";
+import { escapeRegExp, inputRegex } from "helper/inputRegex";
+import { useState } from "react";
+import { formatAndRoundBigNumber } from "../../../utils/src/formatBigNumber";
 
 export interface TokenInputProps {
   label: string;
   tokenName: string;
-  inputAmount: number;
-  balance: number;
+  inputAmount: BigNumber;
+  balance: BigNumber;
   updateInputAmount: Function;
 }
 
-const TokenInput: React.FC<TokenInputProps> = ({
-  label,
-  tokenName,
-  inputAmount,
-  balance,
-  updateInputAmount,
-}) => {
-  const [displayAmount, setDisplayAmount] = useState<string>('');
+const TokenInput: React.FC<TokenInputProps> = ({ label, tokenName, inputAmount, balance, updateInputAmount }) => {
+  const [displayAmount, setDisplayAmount] = useState<string>("");
+
   const enforcer = (nextUserInput: string) => {
-    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
-      updateInputAmount(Number(nextUserInput));
+    if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
+      updateInputAmount(numberToBigNumber(Number(nextUserInput)));
       setDisplayAmount(nextUserInput);
     }
   };
@@ -28,23 +26,24 @@ const TokenInput: React.FC<TokenInputProps> = ({
       <span className="flex flex-col justify-between">
         <div className="">
           <div>
-            <label
-              htmlFor="tokenInput"
-              className="flex justify-between text-sm font-medium text-gray-700 text-center"
-            >
+            <label htmlFor="tokenInput" className="flex justify-between text-sm font-medium text-gray-700 text-center">
               <p className="mb-2  text-base">{label}</p>
               <p className="text-gray-500 font-normal text-base">
-                {balance} {tokenName}
+                {formatAndRoundBigNumber(balance, 3)} {tokenName}
               </p>
             </label>
             <div className="mt-1 relative flex items-center">
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 pr-16 py-4 text-lg border-gray-300 rounded-xl"
+                className={`shadow-sm  block w-full pl-4 pr-16 py-4 text-lg border-gray-300 rounded-xl ${
+                  inputAmount?.gt(balance)
+                    ? "focus:ring-red-600 focus:border-red-600"
+                    : "focus:ring-indigo-500 focus:border-indigo-500"
+                }`}
                 value={displayAmount}
                 onChange={(e) => {
-                  enforcer(e.target.value.replace(/,/g, '.'));
+                  enforcer(e.target.value.replace(/,/g, "."));
                 }}
                 inputMode="decimal"
                 autoComplete="off"
@@ -52,7 +51,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 // text-specific options
                 type="text"
                 pattern="^[0-9]*[.,]?[0-9]*$"
-                placeholder={'0.0'}
+                placeholder={"0.0"}
                 minLength={1}
                 maxLength={79}
                 spellCheck="false"
@@ -62,16 +61,15 @@ const TokenInput: React.FC<TokenInputProps> = ({
                   className="inline-flex items-center border-2 border-gray-200 rounded-lg px-2 h-8 mt-2 text-sm font-sans font-medium text-blue-600 cursor-pointer hover:text-indigo-500 hover:border-indigo-500"
                   onClick={() => {
                     updateInputAmount(balance);
-                    setDisplayAmount(String(balance));
+                    setDisplayAmount(formatBigNumber(balance));
                   }}
                 >
                   MAX
                 </kbd>
-                <p className="inline-flex items-center  font-medium text-lg mx-3">
-                  {tokenName}
-                </p>
+                <p className="inline-flex items-center  font-medium text-lg mx-3">{tokenName}</p>
               </div>
             </div>
+            {inputAmount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}
           </div>
         </div>
       </span>

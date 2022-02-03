@@ -198,12 +198,12 @@ export default function getNamedAccounts() {
     },
     butterBatch: {
       mainnet: "0xe1CaA1216B2D9Fd88EC700C66D8Bff36bAB4eb6F",
-      hardhat: "0xc582bc0317dbb0908203541971a358c44b1f3766",
+      hardhat: "0xefAB0Beb0A557E452b398035eA964948c750b2Fd",
       rinkeby: "0x06b90E97Cf4b64f338d1D2106329336897bb16F3",
     },
     butterBatchZapper: {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
-      hardhat: "0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f",
+      hardhat: "0x26B862f640357268Bd2d9E95bc81553a2Aa81D7E",
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
     },
     rewardsEscrow: {

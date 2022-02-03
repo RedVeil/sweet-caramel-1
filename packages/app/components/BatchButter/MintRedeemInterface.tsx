@@ -1,10 +1,10 @@
-import { BigNumber } from 'ethers';
-import { Dispatch } from 'react';
-import { BatchType } from '../../../hardhat/lib/adapters';
-import MainActionButton from '../MainActionButton';
-import MintRedeemToggle from './MintRedeemToggle';
-import SlippageSettings from './SlippageSettings';
-import TokenInput, { TokenInputProps } from './TokenInput';
+import { BigNumber } from "ethers";
+import { Dispatch } from "react";
+import { BatchType } from "../../../hardhat/lib/adapters";
+import MainActionButton from "../MainActionButton";
+import MintRedeemToggle from "./MintRedeemToggle";
+import SlippageSettings from "./SlippageSettings";
+import TokenInput, { TokenInputProps } from "./TokenInput";
 interface MintRedeemInterfaceProps extends TokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
@@ -47,7 +47,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         hasUnclaimedBalances={hasUnclaimedBalances}
       />
       <div className="w-full">
-        {!redeeming && selectedToken.input.key !== 'threeCrv' && (
+        {!redeeming && selectedToken.input.key !== "threeCrv" && (
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
         )}
       </div>
@@ -68,7 +68,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
               disabled={true}
             />
             <MainActionButton
-              label={redeeming ? 'Redeem' : 'Mint'}
+              label={redeeming ? "Redeem" : "Mint"}
               handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
               disabled={true}
             />
@@ -76,7 +76,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         ) : (
           <div className="pt-6">
             <MainActionButton
-              label={redeeming ? 'Redeem' : 'Mint'}
+              label={redeeming ? "Redeem" : "Mint"}
               handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
               disabled={depositDisabled}
             />

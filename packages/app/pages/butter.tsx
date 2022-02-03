@@ -1,28 +1,28 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { parseEther } from '@ethersproject/units';
-import { bigNumberToNumber, formatAndRoundBigNumber } from '@popcorn/utils';
-import { useWeb3React } from '@web3-react/core';
-import BatchProgress from 'components/BatchButter/BatchProgress';
-import ClaimableBatches from 'components/BatchButter/ClaimableBatches';
-import MintRedeemInterface from 'components/BatchButter/MintRedeemInterface';
-import StatInfoCard from 'components/BatchButter/StatInfoCard';
-import { BatchProcessToken } from 'components/BatchButter/TokenInput';
-import Tutorial from 'components/BatchButter/Tutorial';
-import MainActionButton from 'components/MainActionButton';
-import Navbar from 'components/NavBar/NavBar';
-import { setDualActionWideModal, setSingleActionModal } from 'context/actions';
-import { store } from 'context/store';
-import { ChainId, connectors } from 'context/Web3/connectors';
-import { ButterDependencyContracts, Contracts, ContractsContext } from 'context/Web3/contracts';
-import { switchNetwork } from 'context/Web3/networkSwitch';
-import { BigNumber, ethers } from 'ethers';
-import useThreeCurveVirtualPrice from 'hooks/useThreeCurveVirtualPrice';
-import router from 'next/router';
-import { useContext, useEffect, useState } from 'react';
-import ContentLoader from 'react-content-loader';
-import toast, { Toaster } from 'react-hot-toast';
-import { AccountBatch, BatchType, ComponentMap, CurrentBatches } from '../../hardhat/lib/adapters';
-import ButterBatchAdapter from '../../hardhat/lib/adapters/ButterBatchAdapter';
+import { Web3Provider } from "@ethersproject/providers";
+import { parseEther } from "@ethersproject/units";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { useWeb3React } from "@web3-react/core";
+import BatchProgress from "components/BatchButter/BatchProgress";
+import ClaimableBatches from "components/BatchButter/ClaimableBatches";
+import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
+import StatInfoCard from "components/BatchButter/StatInfoCard";
+import { BatchProcessToken } from "components/BatchButter/TokenInput";
+import Tutorial from "components/BatchButter/Tutorial";
+import MainActionButton from "components/MainActionButton";
+import Navbar from "components/NavBar/NavBar";
+import { setDualActionWideModal, setSingleActionModal } from "context/actions";
+import { store } from "context/store";
+import { ChainId, connectors } from "context/Web3/connectors";
+import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
+import { switchNetwork } from "context/Web3/networkSwitch";
+import { BigNumber, ethers } from "ethers";
+import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
+import router from "next/router";
+import { useContext, useEffect, useState } from "react";
+import ContentLoader from "react-content-loader";
+import toast, { Toaster } from "react-hot-toast";
+import { AccountBatch, BatchType, ComponentMap, CurrentBatches } from "../../hardhat/lib/adapters";
+import ButterBatchAdapter from "../../hardhat/lib/adapters/ButterBatchAdapter";
 
 interface HotSwapParameter {
   batchIds: String[];
@@ -47,7 +47,7 @@ const TOKEN_INDEX = { dai: 0, usdc: 1, usdt: 2 };
 function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
   return claimableBatches.reduce(
     (acc: BigNumber, batch: AccountBatch) => acc.add(batch.accountClaimableTokenBalance),
-    BigNumber.from('0'),
+    BigNumber.from("0"),
   );
 }
 
@@ -63,11 +63,11 @@ async function getBatchProcessToken(
 ): Promise<BatchProcessTokens> {
   return {
     butter: {
-      name: 'BTR',
-      key: 'butter',
+      name: "BTR",
+      key: "butter",
       balance: await contracts.butter.balanceOf(account),
       allowance: await contracts.butter.allowance(account, contracts.butterBatch.address),
-      claimableBalance: BigNumber.from('0'),
+      claimableBalance: BigNumber.from("0"),
       price: await ButterBatchAdapter.getButterValue(
         butterDependencyContracts.setBasicIssuanceModule,
         {
@@ -82,58 +82,58 @@ async function getBatchProcessToken(
         } as ComponentMap,
         contracts.butter?.address,
       ),
-      img: 'butter.png',
+      img: "butter.png",
     },
     threeCrv: {
-      name: '3CRV',
-      key: 'threeCrv',
+      name: "3CRV",
+      key: "threeCrv",
       balance: await contracts.threeCrv.balanceOf(account),
       allowance: await contracts.threeCrv.allowance(account, contracts.butterBatch.address),
-      claimableBalance: BigNumber.from('0'),
+      claimableBalance: BigNumber.from("0"),
       price: await butterBatchAdapter.getThreeCrvPrice(butterDependencyContracts.threePool),
-      img: '3crv.png',
+      img: "3crv.png",
     },
     dai: {
-      name: 'DAI',
-      key: 'dai',
+      name: "DAI",
+      key: "dai",
       balance: await contracts.dai.balanceOf(account),
       allowance: await contracts.dai.allowance(account, contracts.butterBatchZapper.address),
       price: await butterBatchAdapter.getStableCoinPrice(butterDependencyContracts.threePool, [
-        parseEther('1'),
-        BigNumber.from('0'),
-        BigNumber.from('0'),
+        parseEther("1"),
+        BigNumber.from("0"),
+        BigNumber.from("0"),
       ]),
-      img: 'dai.webp',
+      img: "dai.webp",
     },
     usdc: {
-      name: 'USDC',
-      key: 'usdc',
+      name: "USDC",
+      key: "usdc",
       balance: (await contracts.usdc.balanceOf(account)).mul(BigNumber.from(1e12)),
       allowance: await contracts.usdc.allowance(account, contracts.butterBatchZapper.address),
       price: await butterBatchAdapter.getStableCoinPrice(butterDependencyContracts.threePool, [
-        BigNumber.from('0'),
+        BigNumber.from("0"),
         BigNumber.from(1e6),
-        BigNumber.from('0'),
+        BigNumber.from("0"),
       ]),
-      img: 'usdc.webp',
+      img: "usdc.webp",
     },
     usdt: {
-      name: 'USDT',
-      key: 'usdt',
+      name: "USDT",
+      key: "usdt",
       balance: (await contracts.usdt.balanceOf(account)).mul(BigNumber.from(1e12)),
       allowance: await contracts.usdt.allowance(account, contracts.butterBatchZapper.address),
       price: await butterBatchAdapter.getStableCoinPrice(butterDependencyContracts.threePool, [
-        BigNumber.from('0'),
-        BigNumber.from('0'),
+        BigNumber.from("0"),
+        BigNumber.from("0"),
         BigNumber.from(1e6),
       ]),
-      img: 'usdt.webp',
+      img: "usdt.webp",
     },
   };
 }
 
 function adjustDepositDecimals(depositAmount: BigNumber, tokenKey: string): BigNumber {
-  if (tokenKey === 'usdc' || tokenKey === 'usdt') {
+  if (tokenKey === "usdc" || tokenKey === "usdt") {
     return depositAmount.div(BigNumber.from(1e12));
   } else {
     return depositAmount;
@@ -142,12 +142,12 @@ function adjustDepositDecimals(depositAmount: BigNumber, tokenKey: string): BigN
 
 function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string): [BigNumber, BigNumber, BigNumber] {
   switch (tokenKey) {
-    case 'dai':
-      return [depositAmount, BigNumber.from('0'), BigNumber.from('0')];
-    case 'usdc':
-      return [BigNumber.from('0'), depositAmount, BigNumber.from('0')];
-    case 'usdt':
-      return [BigNumber.from('0'), BigNumber.from('0'), depositAmount];
+    case "dai":
+      return [depositAmount, BigNumber.from("0"), BigNumber.from("0")];
+    case "usdc":
+      return [BigNumber.from("0"), depositAmount, BigNumber.from("0")];
+    case "usdt":
+      return [BigNumber.from("0"), BigNumber.from("0"), depositAmount];
   }
 }
 
@@ -164,7 +164,7 @@ export default function Butter(): JSX.Element {
   const [batchProcessTokens, setBatchProcessTokens] = useState<BatchProcessTokens>();
   const [selectedToken, setSelectedToken] = useState<SelectedToken>();
   const [useZap, setUseZap] = useState<Boolean>(false);
-  const [depositAmount, setDepositAmount] = useState<BigNumber>(BigNumber.from('0'));
+  const [depositAmount, setDepositAmount] = useState<BigNumber>(BigNumber.from("0"));
   const [redeeming, setRedeeming] = useState<Boolean>(false);
   const [useUnclaimedDeposits, setUseUnclaimedDeposits] = useState<Boolean>(false);
   const [butterBatchAdapter, setButterBatchAdapter] = useState<ButterBatchAdapter>();
@@ -190,13 +190,13 @@ export default function Butter(): JSX.Element {
     if (![ChainId.Hardhat, ChainId.Localhost, ChainId.Ethereum].includes(chainId)) {
       dispatch(
         setDualActionWideModal({
-          title: 'Coming Soon',
-          content: 'Currently, Butter exists only on Ethereum. Please switch to Ethereum to use Butter.',
+          title: "Coming Soon",
+          content: "Currently, Butter exists only on Ethereum. Please switch to Ethereum to use Butter.",
           onConfirm: {
-            label: 'Switch Network',
+            label: "Switch Network",
             onClick: () => {
               if ([ChainId.Hardhat, ChainId.Localhost].includes(parseInt(process.env.CHAIN_ID))) {
-                console.log('switching network ', parseInt(process.env.CHAIN_ID));
+                console.log("switching network ", parseInt(process.env.CHAIN_ID));
                 switchNetwork(parseInt(process.env.CHAIN_ID));
               } else {
                 switchNetwork(ChainId.Ethereum);
@@ -205,9 +205,9 @@ export default function Butter(): JSX.Element {
             },
           },
           onDismiss: {
-            label: 'Go Back',
+            label: "Go Back",
             onClick: () => {
-              router.push('/');
+              router.push("/");
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -215,15 +215,15 @@ export default function Butter(): JSX.Element {
       );
       return;
     }
-    fetch('https://api.yearn.finance/v1/chains/1/vaults/all')
+    fetch("https://api.yearn.finance/v1/chains/1/vaults/all")
       .then((res) => res.json())
       .then((res) =>
         setApy(
           ((res.find(
-            (vault) => vault?.token?.address === '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B', // crvFRAX
+            (vault) => vault?.token?.address === "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B", // crvFRAX
           )?.apy?.net_apy +
             res.find(
-              (vault) => vault?.token?.address === '0x5a6A4D54456819380173272A5E8E9B9904BdF41B', // crvMIM
+              (vault) => vault?.token?.address === "0x5a6A4D54456819380173272A5E8E9B9904BdF41B", // crvMIM
             )?.apy?.net_apy) /
             2) *
             100 *
@@ -268,7 +268,7 @@ export default function Butter(): JSX.Element {
       });
     }
     setUseZap(false);
-    setDepositAmount(BigNumber.from('0'));
+    setDepositAmount(BigNumber.from("0"));
     setUseUnclaimedDeposits(false);
   }, [redeeming]);
 
@@ -300,7 +300,7 @@ export default function Butter(): JSX.Element {
       mint: claimableMintBatches,
       redeem: claimableRedeemBatches,
     });
-    setDepositAmount(BigNumber.from('0'));
+    setDepositAmount(BigNumber.from("0"));
   }
   const hasClaimableBalances = () => {
     if (redeeming) {
@@ -315,11 +315,11 @@ export default function Butter(): JSX.Element {
 
     const virtual_price = await virtualPrice();
 
-    const normalizedTokenUnits = ['usdc', 'usdt'].includes(tokenKey)
+    const normalizedTokenUnits = ["usdc", "usdt"].includes(tokenKey)
       ? depositAmount.mul(BigNumber.from(1e12))
       : depositAmount;
 
-    const lpTokenAmount = normalizedTokenUnits.mul(parseEther('1')).div(virtual_price);
+    const lpTokenAmount = normalizedTokenUnits.mul(parseEther("1")).div(virtual_price);
 
     const delta = lpTokenAmount.mul(slippage).div(denominator);
 
@@ -327,7 +327,7 @@ export default function Butter(): JSX.Element {
   };
 
   function selectToken(token: BatchProcessToken): void {
-    const zapToken = ['dai', 'usdc', 'usdt'];
+    const zapToken = ["dai", "usdc", "usdt"];
     const newSelectedToken = { ...selectedToken };
     if (redeeming) {
       newSelectedToken.output = token;
@@ -344,7 +344,7 @@ export default function Butter(): JSX.Element {
   }
 
   function prepareHotSwap(batches: AccountBatch[], depositAmount: BigNumber): HotSwapParameter {
-    let cumulatedBatchAmounts = BigNumber.from('0');
+    let cumulatedBatchAmounts = BigNumber.from("0");
     const batchIds: String[] = [];
     const amounts: BigNumber[] = [];
     batches.forEach((batch) => {
@@ -355,14 +355,14 @@ export default function Butter(): JSX.Element {
           : batch.accountClaimableTokenBalance;
         cumulatedBatchAmounts = cumulatedBatchAmounts.add(amountOfBatch);
         const shareValue = batch.accountClaimableTokenBalance
-          .mul(parseEther('1'))
+          .mul(parseEther("1"))
           .div(batch.accountSuppliedTokenBalance);
 
         batchIds.push(batch.batchId);
         amounts.push(
           amountOfBatch.eq(batch.accountClaimableTokenBalance)
             ? batch.accountSuppliedTokenBalance
-            : amountOfBatch.mul(parseEther('1')).div(shareValue),
+            : amountOfBatch.mul(parseEther("1")).div(shareValue),
         );
       }
     });
@@ -376,21 +376,21 @@ export default function Butter(): JSX.Element {
       batchType = BatchType.Mint;
     }
     const hotSwapParameter = prepareHotSwap(claimableBatches[BatchType[batchType].toLowerCase()], depositAmount);
-    toast.loading('Depositing Funds...');
+    toast.loading("Depositing Funds...");
     await contracts.butterBatch
       .connect(library.getSigner())
       .moveUnclaimedDepositsIntoCurrentBatch(hotSwapParameter.batchIds as string[], hotSwapParameter.amounts, batchType)
       .then((res) => {
-        res.wait().then((res) => {
+        res.wait(2).then((res) => {
           toast.dismiss();
-          toast.success('Funds deposited!');
+          toast.success("Funds deposited!");
           getData();
         });
       })
       .catch((err) => {
         toast.dismiss();
         if (err.data === undefined) {
-          toast.error('An error occured');
+          toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
@@ -404,7 +404,7 @@ export default function Butter(): JSX.Element {
       let mintCall;
       if (useZap) {
         const minMintAmount = await getMinMintAmount(depositAmount, selectedToken.input.key, slippage);
-        console.log('zapDepositAmount', getZapDepositAmount(depositAmount, selectedToken.input.key));
+        console.log("zapDepositAmount", getZapDepositAmount(depositAmount, selectedToken.input.key));
         mintCall = contracts.butterBatchZapper
           .connect(library.getSigner())
           .zapIntoBatch(getZapDepositAmount(depositAmount, selectedToken.input.key), minMintAmount);
@@ -414,66 +414,66 @@ export default function Butter(): JSX.Element {
 
       await mintCall
         .then((res) => {
-          res.wait().then((res) => {
+          res.wait(2).then((res) => {
             toast.dismiss();
             toast.success(`${selectedToken.input.name} deposited!`);
             getData();
-            if (!localStorage.getItem('mintModal')) {
+            if (!localStorage.getItem("mintModal")) {
               dispatch(
                 setSingleActionModal({
-                  title: 'Your first mint',
+                  title: "Your first mint",
                   content:
-                    'You have successfully deposited into the current batch. Check the table at the bottom of this page to claim the tokens when they are ready.',
+                    "You have successfully deposited into the current batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
                   image: <img src="images/butter/modal-1.png" className="px-6" />,
                   onConfirm: {
-                    label: 'Close',
+                    label: "Close",
                     onClick: () => dispatch(setSingleActionModal(false)),
                   },
                 }),
               );
-              localStorage.setItem('mintModal', 'true');
+              localStorage.setItem("mintModal", "true");
             }
           });
         })
         .catch((err) => {
           toast.dismiss();
           if (err.data === undefined) {
-            toast.error('An error occured');
+            toast.error("An error occured");
           } else {
             toast.error(err.data.message.split("'")[1]);
           }
         });
     } else {
-      toast.loading('Depositing Butter...');
+      toast.loading("Depositing Butter...");
       await contracts.butterBatch
         .connect(library.getSigner())
         .depositForRedeem(depositAmount)
         .then((res) => {
-          res.wait().then((res) => {
+          res.wait(2).then((res) => {
             toast.dismiss();
-            toast.success('Butter deposited!');
+            toast.success("Butter deposited!");
             getData();
-            if (!localStorage.getItem('mintModal')) {
+            if (!localStorage.getItem("mintModal")) {
               dispatch(
                 setSingleActionModal({
-                  title: 'Your first redemption',
+                  title: "Your first redemption",
                   content:
-                    'You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.',
+                    "You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.",
                   image: <img src="images/butter/modal-1.png" className="px-6" />,
                   onConfirm: {
-                    label: 'Close',
+                    label: "Close",
                     onClick: () => dispatch(setSingleActionModal(false)),
                   },
                 }),
               );
-              localStorage.setItem('mintModal', 'true');
+              localStorage.setItem("mintModal", "true");
             }
           });
         })
         .catch((err) => {
           toast.dismiss();
           if (err.data === undefined) {
-            toast.error('An error occured');
+            toast.error("An error occured");
           } else {
             toast.error(err.data.message.split("'")[1]);
           }
@@ -482,7 +482,7 @@ export default function Butter(): JSX.Element {
   }
 
   async function claim(batchId: string, useZap?: boolean, outputToken?: string): Promise<void> {
-    toast.loading('Claiming Batch...');
+    toast.loading("Claiming Batch...");
     let call;
     if (useZap) {
       call = contracts.butterBatchZapper.connect(library.getSigner()).claimAndSwapToStable(
@@ -503,15 +503,15 @@ export default function Butter(): JSX.Element {
     }
     await call
       .then((res) => {
-        res.wait().then((res) => {
+        res.wait(2).then((res) => {
           toast.dismiss();
-          toast.success('Batch claimed!');
+          toast.success("Batch claimed!");
         });
         getData();
-        if (!localStorage.getItem('claimModal')) {
+        if (!localStorage.getItem("claimModal")) {
           dispatch(
             setSingleActionModal({
-              title: 'You claimed your Butter',
+              title: "You claimed your Butter",
               children: (
                 <p className="text-sm text-gray-500">
                   Your tokens are now in your wallet. To see them make sure to import Butter into your wallet.
@@ -519,12 +519,12 @@ export default function Butter(): JSX.Element {
                   <a
                     onClick={async () =>
                       await window.ethereum.request({
-                        method: 'wallet_watchAsset',
+                        method: "wallet_watchAsset",
                         params: {
-                          type: 'ERC20',
+                          type: "ERC20",
                           options: {
                             address: contracts.butter?.address,
-                            symbol: 'BTR',
+                            symbol: "BTR",
                             decimals: 18,
                           },
                         },
@@ -538,18 +538,18 @@ export default function Butter(): JSX.Element {
               ),
               image: <img src="images/butter/modal-2.png" className="px-6" />,
               onConfirm: {
-                label: 'Close',
+                label: "Close",
                 onClick: () => dispatch(setSingleActionModal(false)),
               },
             }),
           );
-          localStorage.setItem('claimModal', 'true');
+          localStorage.setItem("claimModal", "true");
         }
       })
       .catch((err) => {
         toast.dismiss();
         if (err.data === undefined) {
-          toast.error('An error occured');
+          toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
@@ -557,21 +557,21 @@ export default function Butter(): JSX.Element {
   }
 
   async function claimAndStake(batchId: string): Promise<void> {
-    toast.loading('Claiming and staking Butter...');
+    toast.loading("Claiming and staking Butter...");
     await contracts.butterBatch
       .connect(library.getSigner())
       .claimAndStake(batchId, account)
       .then((res) => {
-        res.wait().then((res) => {
+        res.wait(2).then((res) => {
           toast.dismiss();
-          toast.success('Staked claimed Butter');
+          toast.success("Staked claimed Butter");
           getData();
         });
       })
       .catch((err) => {
         toast.dismiss();
         if (err.data === undefined) {
-          toast.error('An error occured');
+          toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
@@ -579,7 +579,7 @@ export default function Butter(): JSX.Element {
   }
 
   async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: string): Promise<void> {
-    toast.loading('Withdrawing from Batch...');
+    toast.loading("Withdrawing from Batch...");
     let call;
     if (useZap) {
       call = contracts.butterBatchZapper.connect(library.getSigner()).zapOutOfBatch(
@@ -595,16 +595,16 @@ export default function Butter(): JSX.Element {
     }
     await call
       .then((res) => {
-        res.wait().then((res) => {
+        res.wait(2).then((res) => {
           toast.dismiss();
-          toast.success('Funds withdrawn!');
+          toast.success("Funds withdrawn!");
           getData();
         });
       })
       .catch((err) => {
         toast.dismiss();
         if (err.data === undefined) {
-          toast.error('An error occured');
+          toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
@@ -612,7 +612,7 @@ export default function Butter(): JSX.Element {
   }
 
   async function approve(contractKey: string): Promise<void> {
-    toast.loading('Approving Token...');
+    toast.loading("Approving Token...");
     await contracts[contractKey]
       .connect(library.getSigner())
       .approve(
@@ -620,16 +620,16 @@ export default function Butter(): JSX.Element {
         ethers.constants.MaxUint256,
       )
       .then((res) => {
-        res.wait().then((res) => {
+        res.wait(2).then((res) => {
           toast.dismiss();
-          toast.success('Token approved!');
+          toast.success("Token approved!");
           getData();
         });
       })
       .catch((err) => {
         toast.dismiss();
         if (err.data === undefined) {
-          toast.error('An error occured');
+          toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
@@ -648,7 +648,7 @@ export default function Butter(): JSX.Element {
             <div className="flex flex-row items-center mt-2">
               <div className="pr-6 border-r-2 border-gray-200">
                 <p className="text-base font-light text-gray-500 uppercase">Est. APY</p>
-                <p className="text-xl font-medium text-green-600">{apy ? apy.toLocaleString() : '-'} %</p>
+                <p className="text-xl font-medium text-green-600">{apy ? apy.toLocaleString() : "-"} %</p>
               </div>
               <div className="px-6 border-r-2 border-gray-200">
                 <p className="text-base font-light text-gray-500 uppercase">TVL</p>
@@ -656,9 +656,9 @@ export default function Butter(): JSX.Element {
                   $
                   {batchProcessTokens?.butter && butterSupply
                     ? formatAndRoundBigNumber(
-                        butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther('1')),
+                        butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther("1")),
                       ).toLocaleString()
-                    : ' -'}{' '}
+                    : " -"}{" "}
                 </p>
               </div>
               <div className="pl-6">
@@ -711,9 +711,9 @@ export default function Butter(): JSX.Element {
                   <StatInfoCard
                     title="Butter Value"
                     content={`$ ${
-                      batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : '-'
+                      batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : "-"
                     }`}
-                    icon={{ icon: 'Money', color: 'bg-blue-300' }}
+                    icon={{ icon: "Money", color: "bg-blue-300" }}
                   />
                 </div>
                 <div className="w-1/2 ml-2">
@@ -721,19 +721,15 @@ export default function Butter(): JSX.Element {
                     batchAmount={
                       currentBatches?.mint && batchProcessTokens?.butter
                         ? redeeming
-                          ? bigNumberToNumber(
-                              currentBatches.redeem.suppliedTokenBalance
-                                .div(parseEther('1'))
-                                .mul(batchProcessTokens?.butter.price),
-                            )
-                          : bigNumberToNumber(
-                              currentBatches.mint.suppliedTokenBalance
-                                .div(parseEther('1'))
-                                .mul(batchProcessTokens?.threeCrv.price),
-                            )
-                        : 0
+                          ? currentBatches.redeem.suppliedTokenBalance
+                              .div(parseEther("1"))
+                              .mul(batchProcessTokens?.butter.price)
+                          : currentBatches.mint.suppliedTokenBalance
+                              .div(parseEther("1"))
+                              .mul(batchProcessTokens?.threeCrv.price)
+                        : BigNumber.from("0")
                     }
-                    threshold={100000}
+                    threshold={parseEther("100000")}
                   />
                 </div>
               </div>

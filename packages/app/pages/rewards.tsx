@@ -1,30 +1,25 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { PopLocker, Staking } from '@popcorn/hardhat/typechain';
-import {
-  bigNumberToNumber,
-  getEarned,
-  getSingleStakingPoolInfo,
-  StakingPoolInfo,
-} from '@popcorn/utils';
-import { useWeb3React } from '@web3-react/core';
-import Navbar from 'components/NavBar/NavBar';
-import ClaimCard from 'components/Rewards/ClaimCard';
-import VestingRecordComponent from 'components/Rewards/VestingRecord';
-import TokenInputToggle from 'components/TokenInputToggle';
-import { setSingleActionModal } from 'context/actions';
-import { store } from 'context/store';
-import { ContractsContext } from 'context/Web3/contracts';
-import { BigNumber } from 'ethers';
-import { formatStakedAmount } from 'helper/formatStakedAmount';
-import useClaimEscrows from 'hooks/useClaimEscrows';
-import useClaimStakingReward from 'hooks/useClaimStakingReward';
-import useGetUserEscrows, { Escrow } from 'hooks/useGetUserEscrows';
-import React, { useContext, useEffect, useState } from 'react';
-import ContentLoader from 'react-content-loader';
-import { ChevronDown } from 'react-feather';
-import { toast, Toaster } from 'react-hot-toast';
-import { SWRResponse } from 'swr';
-import { connectors } from '../context/Web3/connectors';
+import { Web3Provider } from "@ethersproject/providers";
+import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
+import { getEarned, getSingleStakingPoolInfo, StakingPoolInfo } from "@popcorn/utils";
+import { useWeb3React } from "@web3-react/core";
+import Navbar from "components/NavBar/NavBar";
+import ClaimCard from "components/Rewards/ClaimCard";
+import VestingRecordComponent from "components/Rewards/VestingRecord";
+import TokenInputToggle from "components/TokenInputToggle";
+import { setSingleActionModal } from "context/actions";
+import { store } from "context/store";
+import { ContractsContext } from "context/Web3/contracts";
+import { BigNumber } from "ethers";
+import { formatStakedAmount } from "helper/formatStakedAmount";
+import useClaimEscrows from "hooks/useClaimEscrows";
+import useClaimStakingReward from "hooks/useClaimStakingReward";
+import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
+import React, { useContext, useEffect, useState } from "react";
+import ContentLoader from "react-content-loader";
+import { ChevronDown } from "react-feather";
+import { toast, Toaster } from "react-hot-toast";
+import { SWRResponse } from "swr";
+import { connectors } from "../context/Web3/connectors";
 
 export default function index(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
@@ -47,10 +42,8 @@ export default function index(): JSX.Element {
     getData().then((res) => setLoading(false));
   }, [account, contracts, library]);
 
-  const userEscrowsFetchResult: SWRResponse<
-    { escrows: Escrow[]; totalClaimablePop: BigNumber },
-    any
-  > = useGetUserEscrows();
+  const userEscrowsFetchResult: SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber }, any> =
+    useGetUserEscrows();
 
   async function getData(): Promise<void> {
     let newStakingPoolsInfo: StakingPoolInfo[] = [];
@@ -58,26 +51,17 @@ export default function index(): JSX.Element {
       contracts.popStaking,
       library,
       contracts.pop?.address,
-      'Popcorn',
+      "Popcorn",
     );
-    popStakingInfo.earned = bigNumberToNumber(
-      await getEarned(contracts.popStaking, account, true),
-    );
+    popStakingInfo.earned = await getEarned(contracts.popStaking, account, true);
     newStakingPoolsInfo.push(popStakingInfo);
 
     if (contracts.staking.length > 0) {
       await Promise.all(
         contracts.staking.map(async (stakingContract) => {
-          const poolInfo = await getSingleStakingPoolInfo(
-            stakingContract,
-            library,
-          );
-          const earnedRewards = await getEarned(
-            stakingContract,
-            account,
-            false,
-          );
-          poolInfo.earned = bigNumberToNumber(earnedRewards);
+          const poolInfo = await getSingleStakingPoolInfo(stakingContract, library);
+          const earnedRewards = await getEarned(stakingContract, account, false);
+          poolInfo.earned = earnedRewards;
           newStakingPoolsInfo.push(poolInfo);
         }),
       );
@@ -85,33 +69,29 @@ export default function index(): JSX.Element {
     setStakingPoolsInfo(newStakingPoolsInfo);
   }
 
-  const poolClaimHandler = async (
-    pool: Staking | PopLocker,
-    isPopLocker: boolean,
-  ) => {
-    toast.loading('Claiming Rewards...');
+  const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
+    toast.loading("Claiming Rewards...");
     await claimStakingReward(pool, isPopLocker)
       .then((res) => {
-        res.wait().then((res) => {
+        res.wait(2).then((res) => {
           toast.dismiss();
-          toast.success('Rewards Claimed!');
+          toast.success("Rewards Claimed!");
           getData();
-          if (!localStorage.getItem('hideClaimModal')) {
+          if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
               setSingleActionModal({
                 image: <img src="images/claim/popover.svg" className="px-6" />,
-                title:
-                  'Everytime you claim rewards, a vesting record is created.',
+                title: "Everytime you claim rewards, a vesting record is created.",
                 children: (
                   <p className="text-sm text-gray-500">
-                    You have just claimed 10% of your earned rewards. The rest
-                    of the rewards will be claimable over the next 365 days.
+                    You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the
+                    next 365 days.
                   </p>
                 ),
                 onConfirm: {
-                  label: 'Close',
+                  label: "Close",
                   onClick: () => {
-                    localStorage.setItem('hideClaimModal', 'true');
+                    localStorage.setItem("hideClaimModal", "true");
                     dispatch(setSingleActionModal(false));
                   },
                 },
@@ -123,7 +103,7 @@ export default function index(): JSX.Element {
       .catch((err) => {
         toast.dismiss();
         if (err.data === undefined) {
-          toast.error('An error occured');
+          toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
@@ -131,19 +111,19 @@ export default function index(): JSX.Element {
   };
 
   const claimSingleEscrow = async (escrow: Escrow) => {
-    toast.loading('Claiming Escrow...');
+    toast.loading("Claiming Escrow...");
     await claimVestedPopFromEscrows([escrow.id])
       .then((res) => {
-        res.wait().then((res) => {
+        res.wait(2).then((res) => {
           toast.dismiss();
-          toast.success('Claimed Escrow!');
+          toast.success("Claimed Escrow!");
           getData();
         });
       })
       .catch((err) => {
         toast.dismiss();
         if (err.data === undefined) {
-          toast.error('An error occured');
+          toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
@@ -151,24 +131,22 @@ export default function index(): JSX.Element {
   };
 
   const claimAllEscrows = async () => {
-    toast.loading('Claiming Escrows...');
-    const escrowsIds = userEscrowsFetchResult?.data?.escrows.map(
-      (escrow) => escrow.id,
-    );
+    toast.loading("Claiming Escrows...");
+    const escrowsIds = userEscrowsFetchResult?.data?.escrows.map((escrow) => escrow.id);
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
     if (numberOfEscrows && numberOfEscrows > 0) {
       await claimVestedPopFromEscrows(escrowsIds)
         .then((res) =>
-          res.wait().then((res) => {
+          res.wait(2).then((res) => {
             toast.dismiss();
-            toast.success('Claimed Escrows!');
+            toast.success("Claimed Escrows!");
             getData();
           }),
         )
         .catch((err) => {
           toast.dismiss();
           if (err.data === undefined) {
-            toast.error('An error occured');
+            toast.error("An error occured");
           } else {
             toast.error(err.data.message.split("'")[1]);
           }
@@ -193,9 +171,7 @@ export default function index(): JSX.Element {
           <div className="w-1/3">
             <div className="">
               <h1 className="text-3xl font-medium">Rewards</h1>
-              <p className="mt-2 text-lg text-gray-500">
-                Claim your rewards and track your vesting records.
-              </p>
+              <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
             </div>
           </div>
           {!account && (
@@ -210,7 +186,7 @@ export default function index(): JSX.Element {
                   <button
                     onClick={() => activate(connectors.Injected)}
                     className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
-                    style={{ width: '368px', height: '60px' }}
+                    style={{ width: "368px", height: "60px" }}
                   >
                     <p className="font-bold text-white">Connect Wallet</p>
                   </button>
@@ -232,11 +208,7 @@ export default function index(): JSX.Element {
 
               <div className="flex flex-col w-2/3 mt-10 mb-8">
                 <div className="mb-8">
-                  <TokenInputToggle
-                    toggled={showEscrows}
-                    toggle={setShowEscrows}
-                    labels={['Claim', 'Reward']}
-                  />
+                  <TokenInputToggle toggled={showEscrows} toggle={setShowEscrows} labels={["Claim", "Reward"]} />
                 </div>
                 {!showEscrows &&
                   stakingPoolsInfo &&
@@ -248,16 +220,14 @@ export default function index(): JSX.Element {
                       key={poolInfo.stakingContractAddress}
                       handler={poolClaimHandler}
                       pool={
-                        poolInfo.stakedTokenName === 'Popcorn'
+                        poolInfo.stakedTokenName === "Popcorn"
                           ? contracts.popStaking
                           : contracts.staking.find(
-                              (stakingContract) =>
-                                stakingContract.address ===
-                                poolInfo.stakingContractAddress,
+                              (stakingContract) => stakingContract.address === poolInfo.stakingContractAddress,
                             )
                       }
-                      disabled={poolInfo.earned === 0}
-                      isPopLocker={poolInfo.stakedTokenName === 'Popcorn'}
+                      disabled={poolInfo.earned.isZero()}
+                      isPopLocker={poolInfo.stakedTokenName === "Popcorn"}
                     />
                   ))}
                 {showEscrows && (
@@ -265,53 +235,28 @@ export default function index(): JSX.Element {
                     {!userEscrowsFetchResult ||
                     !userEscrowsFetchResult?.data ||
                     userEscrowsFetchResult?.error ||
-                    bigNumberToNumber(
-                      userEscrowsFetchResult?.data?.totalClaimablePop,
-                    ) === 0 ? (
+                    userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                       <div className="border-1 border-gray-200 rounded-5xl w-full h-full flex flex-col justify-center items-center bg-gray-50">
-                        <img
-                          src="/images/emptyPopcorn.svg"
-                          className="h-1/2 w-1/2"
-                        />
-                        <p className="mt-12 font-semibold text-2xl text-gray-900">
-                          No records available
-                        </p>
-                        <p className="mt-1 text-gray-900">
-                          No vesting records found
-                        </p>
+                        <img src="/images/emptyPopcorn.svg" className="h-1/2 w-1/2" />
+                        <p className="mt-12 font-semibold text-2xl text-gray-900">No records available</p>
+                        <p className="mt-1 text-gray-900">No vesting records found</p>
                       </div>
                     ) : (
                       <>
                         <div>
-                          <div
-                            className={`flex flex-row justify-between px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
-                          >
+                          <div className={`flex flex-row justify-between px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}>
                             <div className="flex flex-row">
-                              <h1
-                                className={`text-3xl font-medium text-gray-900 my-auto`}
-                              >
-                                Vesting Records
-                              </h1>
+                              <h1 className={`text-3xl font-medium text-gray-900 my-auto`}>Vesting Records</h1>
                             </div>
                             <div className="flex flex-row my-auto">
-                              <h1
-                                className={`text-3xl font-medium text-gray-900 my-auto mr-8`}
-                              >
-                                {formatStakedAmount(
-                                  bigNumberToNumber(
-                                    userEscrowsFetchResult?.data
-                                      ?.totalClaimablePop,
-                                  ),
-                                )}{' '}
-                                POP
+                              <h1 className={`text-3xl font-medium text-gray-900 my-auto mr-8`}>
+                                {formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP
                               </h1>
                               <button
                                 onClick={() => claimAllEscrows()}
                                 className="mx-auto my-auto bg-blue-600 border border-transparent rounded-full justify-self-center shadow-custom py-3 px-10"
                               >
-                                <p className="font-semibold text-lg text-white">
-                                  Claim All
-                                </p>
+                                <p className="font-semibold text-lg text-white">Claim All</p>
                               </button>
                             </div>
                           </div>
@@ -334,21 +279,14 @@ export default function index(): JSX.Element {
                           className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}
                         >
                           {userEscrowsFetchResult?.data?.escrows?.length > 0 &&
-                            userEscrowsFetchResult?.data?.escrows?.length >
-                              visibleEscrows && (
+                            userEscrowsFetchResult?.data?.escrows?.length > visibleEscrows && (
                               <div
                                 className="flex flex-row items-center justify-center cursor-pointer group"
                                 onClick={() =>
-                                  incrementVisibleEscrows(
-                                    visibleEscrows,
-                                    userEscrowsFetchResult?.data?.escrows
-                                      ?.length,
-                                  )
+                                  incrementVisibleEscrows(visibleEscrows, userEscrowsFetchResult?.data?.escrows?.length)
                                 }
                               >
-                                <h1 className="text-base font-medium group-hover:text-blue-600">
-                                  Load more
-                                </h1>
+                                <h1 className="text-base font-medium group-hover:text-blue-600">Load more</h1>
                                 <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
                               </div>
                             )}
@@ -360,30 +298,9 @@ export default function index(): JSX.Element {
                 {loading && (
                   <ContentLoader viewBox="0 0 450 400">
                     {/* eslint-disable */}
-                    <rect
-                      x="0"
-                      y="0"
-                      rx="15"
-                      ry="15"
-                      width="450"
-                      height="108"
-                    />
-                    <rect
-                      x="0"
-                      y="115"
-                      rx="15"
-                      ry="15"
-                      width="450"
-                      height="108"
-                    />
-                    <rect
-                      x="0"
-                      y="230"
-                      rx="15"
-                      ry="15"
-                      width="450"
-                      height="108"
-                    />
+                    <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />
+                    <rect x="0" y="115" rx="15" ry="15" width="450" height="108" />
+                    <rect x="0" y="230" rx="15" ry="15" width="450" height="108" />
                     {/* eslint-enable */}
                   </ContentLoader>
                 )}

@@ -1,22 +1,22 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { Menu } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/solid';
-import { useWeb3React } from '@web3-react/core';
-import { setDualActionWideModal } from 'context/actions';
-import { store } from 'context/store';
-import activateRPCNetwork from 'helper/activateRPCNetwork';
-import useEagerConnect from 'hooks/useEagerConnect';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import React, { FC, useContext, useEffect, useState } from 'react';
-import { connectors, networkMap } from '../../context/Web3/connectors';
-import { getChainLogo, switchNetwork } from './../../context/Web3/networkSwitch';
-import GetPopMenu from './GetPopMenu';
-import NavbarLink from './NavbarLinks';
-import NetworkOptionsMenu from './NetworkOptionsMenu';
+import { Web3Provider } from "@ethersproject/providers";
+import { Menu } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/solid";
+import { useWeb3React } from "@web3-react/core";
+import { setDualActionWideModal } from "context/actions";
+import { store } from "context/store";
+import activateRPCNetwork from "helper/activateRPCNetwork";
+import useEagerConnect from "hooks/useEagerConnect";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { FC, useContext, useEffect, useState } from "react";
+import { connectors, networkMap } from "../../context/Web3/connectors";
+import { getChainLogo, switchNetwork } from "./../../context/Web3/networkSwitch";
+import GetPopMenu from "./GetPopMenu";
+import NavbarLink from "./NavbarLinks";
+import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 const disconnectInjectedAndActivateRPCConnector = (deactivate, activate) => {
-  localStorage.setItem('eager_connect', 'false');
+  localStorage.setItem("eager_connect", "false");
   deactivate(connectors.Injected);
   activateRPCNetwork(activate);
 };
@@ -36,22 +36,22 @@ const Navbar: FC = () => {
   function showDelayInfo() {
     dispatch(
       setDualActionWideModal({
-        title: 'Coming Soon',
+        title: "Coming Soon",
         content:
           "The release of our yield optimizer, Butter, has been delayed due to recent events involving Abracadabra and MIM. We've decided to change Butter's underlying assets to address these concerns and offer the best product possible in today's DeFi landscape.",
         image: <img src="images/ComingSoonCat.svg" className="mx-auto pl-5 w-6/12" />,
         onConfirm: {
-          label: 'Learn More',
+          label: "Learn More",
           onClick: () => {
             window.open(
-              'https://www.notion.so/popcorn-network/Where-s-Butter-edb3b58f6e6541ea9b10242d0fe2df9c',
-              '_blank',
+              "https://www.notion.so/popcorn-network/Where-s-Butter-edb3b58f6e6541ea9b10242d0fe2df9c",
+              "_blank",
             );
             dispatch(setDualActionWideModal(false));
           },
         },
         onDismiss: {
-          label: 'Dismiss',
+          label: "Dismiss",
           onClick: () => {
             dispatch(setDualActionWideModal(false));
           },
@@ -76,10 +76,10 @@ const Navbar: FC = () => {
               <NavbarLink label="Butter" isActive={false} onClick={showDelayInfo} />
             </li>
             <li>
-              <NavbarLink label="Staking" url="/staking" isActive={router.pathname === '/staking'} />
+              <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />
             </li>
             <li>
-              <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === '/rewards'} />
+              <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/rewards"} />
             </li>
           </ul>
         </div>
@@ -101,10 +101,10 @@ const Navbar: FC = () => {
               <Menu.Button>
                 <div
                   className={`w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl ${
-                    account ? 'cursor-pointer' : 'cursor-default'
+                    account ? "cursor-pointer" : "cursor-default"
                   }`}
                 >
-                  <img src={currentChainIcon} alt={''} className="w-4.5 h-4 mr-4" />
+                  <img src={currentChainIcon} alt={""} className="w-4.5 h-4 mr-4" />
                   <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChainName}</p>
                   {account ? <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" /> : <div></div>}
                 </div>
@@ -124,16 +124,16 @@ const Navbar: FC = () => {
               if (account) {
                 disconnectInjectedAndActivateRPCConnector(deactivate, activate);
               } else {
-                localStorage.setItem('eager_connect', 'true');
+                localStorage.setItem("eager_connect", "true");
                 activate(connectors.Injected);
               }
             }}
             className={`rounded-full py-3 w-44 border border-transparent shadow-custom group hover:bg-blue-500 ${
-              account ? 'bg-blue-50 border-blue-700' : 'bg-blue-100'
+              account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
             }`}
           >
             <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
-              {account ? 'Disconnect Wallet' : 'Connect Wallet'}
+              {account ? "Disconnect Wallet" : "Connect Wallet"}
             </p>
           </button>
         </div>

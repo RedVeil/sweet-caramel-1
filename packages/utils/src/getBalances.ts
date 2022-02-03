@@ -1,5 +1,4 @@
-import { BigNumber } from 'ethers';
-import { bigNumberToNumber } from '.';
+import { BigNumber } from "ethers";
 
 export interface TokenBalances {
   pop: number;
@@ -15,15 +14,3 @@ export interface ContractsWithBalance {
   popUsdcLp: BalanceOf;
   butter: BalanceOf;
 }
-
-async function getBalances(
-  account: string,
-  contracts: ContractsWithBalance,
-): Promise<TokenBalances> {
-  return {
-    pop: bigNumberToNumber(await contracts.pop.balanceOf(account)),
-    popUsdcLp: bigNumberToNumber(await contracts.popUsdcLp.balanceOf(account)),
-    butter: bigNumberToNumber(await contracts.butter.balanceOf(account)),
-  };
-}
-export default getBalances;

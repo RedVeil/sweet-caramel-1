@@ -1,8 +1,8 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {expect} from "chai";
-import {BigNumber} from "ethers";
-import {parseEther} from "ethers/lib/utils";
-import {ethers} from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { expect } from "chai";
+import { BigNumber } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import { ethers } from "hardhat";
 import {
   expectBigNumberCloseTo,
   expectDeepValue,
@@ -10,10 +10,10 @@ import {
   expectRevert,
   expectValue,
 } from "../lib/utils/expectValue";
-import {DAYS, WEEKS} from "../lib/utils/test/constants";
-import {timeTravel} from "../lib/utils/test/timeTravel";
-import {MockERC20, PopLocker} from "../typechain";
-import {RewardsEscrow} from "../typechain/RewardsEscrow";
+import { DAYS, WEEKS } from "../lib/utils/test/constants";
+import { timeTravel } from "../lib/utils/test/timeTravel";
+import { MockERC20, PopLocker } from "../typechain";
+import { RewardsEscrow } from "../typechain/RewardsEscrow";
 
 let stakingFund: BigNumber;
 
@@ -29,10 +29,11 @@ let mockPop: MockERC20;
 let otherToken: MockERC20;
 let staking: PopLocker;
 let rewardsEscrow: RewardsEscrow;
+let rewardsEscrowAddress: SignerWithAddress;
 
 describe("PopLocker", function () {
   beforeEach(async function () {
-    [owner, nonOwner, staker, treasury, distributor, kicker] = await ethers.getSigners();
+    [owner, nonOwner, staker, treasury, distributor, kicker, rewardsEscrowAddress] = await ethers.getSigners();
     mockERC20Factory = await ethers.getContractFactory("MockERC20");
     mockPop = (await mockERC20Factory.deploy("TestPOP", "TPOP", 18)) as MockERC20;
     await mockPop.mint(owner.address, parseEther("1000000"));
@@ -92,6 +93,16 @@ describe("PopLocker", function () {
   describe("addReward", function () {
     it("cannot add same token twice", async function () {
       await expectRevert(staking.connect(owner).addReward(mockPop.address, owner.address, true), "");
+    });
+  });
+
+  describe("setRewardEscrow", function () {
+    it("allows owner to set  rewards escrow address", async () => {
+      await staking.connect(owner).setRewardsEscrow(rewardsEscrowAddress.address);
+      await expectValue(await staking.rewardsEscrow(), rewardsEscrowAddress.address);
+    });
+    it("disallows non-owner to set rewards escrow address", async () => {
+      await expectRevert(staking.connect(staker).setRewardsEscrow(rewardsEscrowAddress.address), "");
     });
   });
 
@@ -420,7 +431,7 @@ describe("PopLocker", function () {
     it("should set duration to 365 days when rewards are added to escrow", async () => {
       const [escrowId] = await rewardsEscrow.getEscrowIdsByUser(owner.address);
       const escrow = await rewardsEscrow.escrows(escrowId);
-      expect(escrow.end).to.equal(escrow.start.add(365 * DAYS));
+      expect(escrow.end).to.equal(escrow.lastUpdateTime.add(365 * DAYS));
     });
 
     it("should add 90% of claimable to escrow", async () => {

@@ -1,7 +1,11 @@
-export const formatStakedAmount = (num: number): string => {
-  if (num < 1 && num > 0) {
-    return num.toLocaleString(undefined, { minimumFractionDigits: 6 });
+import { BigNumber } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import { formatAndRoundBigNumber } from "../../utils/src/formatBigNumber";
+
+export const formatStakedAmount = (num: BigNumber): string => {
+  if (num.lte(parseEther("1")) && num.gt(BigNumber.from("0"))) {
+    return formatAndRoundBigNumber(num, 6);
   } else {
-    return num.toLocaleString();
+    return formatAndRoundBigNumber(num, 3);
   }
 };

@@ -1,14 +1,14 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { PopLocker, Staking } from '@popcorn/hardhat/typechain';
-import { getERC20Contract, StakingPoolInfo } from '@popcorn/utils';
-import { useWeb3React } from '@web3-react/core';
-import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
-import { formatStakedAmount } from 'helper/formatStakedAmount';
-import router from 'next/router';
-import { useCallback } from 'react';
-import StatusWithLabel from './Common/StatusWithLabel';
-import MainActionButton from './MainActionButton';
-import TokenIcon from './TokenIcon';
+import { Web3Provider } from "@ethersproject/providers";
+import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
+import { formatAndRoundBigNumber, getERC20Contract, StakingPoolInfo } from "@popcorn/utils";
+import { useWeb3React } from "@web3-react/core";
+import { getSanitizedTokenDisplayName } from "helper/displayHelper";
+import { formatStakedAmount } from "helper/formatStakedAmount";
+import router from "next/router";
+import { useCallback } from "react";
+import StatusWithLabel from "./Common/StatusWithLabel";
+import MainActionButton from "./MainActionButton";
+import TokenIcon from "./TokenIcon";
 
 interface StakeCardProps {
   tokenName: string;
@@ -40,14 +40,14 @@ const StakeCard: React.FC<StakeCardProps> = ({ tokenName, stakingPoolInfo, url, 
       </div>
       <div className="flex flex-row flex-wrap items-center mt-6 justify-between">
         <div className="w-1/2 md:w-1/4 mt-4">
-          <StatusWithLabel content={'New 🍿✨'} label="Est. APY" green />
+          <StatusWithLabel content={"New 🍿✨"} label="Est. APY" green />
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel content={formatStakedAmount(stakingPoolInfo.totalStake)} label="Total Staked" />
         </div>
         <div className="w-full md:w-1/2 mt-4">
           <StatusWithLabel
-            content={`${stakingPoolInfo.tokenEmission.toLocaleString()} POP / day`}
+            content={`${formatAndRoundBigNumber(stakingPoolInfo.tokenEmission, 3)} POP / day`}
             label="Token Emissions"
           />
         </div>

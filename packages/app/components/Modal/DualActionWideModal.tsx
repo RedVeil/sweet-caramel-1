@@ -1,9 +1,9 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Dialog, Transition } from '@headlessui/react';
-import { CheckIcon } from '@heroicons/react/outline';
-import MainActionButton from 'components/MainActionButton';
-import SecondaryActionButton from 'components/SecondaryActionButton';
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Dialog, Transition } from "@headlessui/react";
+import { CheckIcon } from "@heroicons/react/outline";
+import MainActionButton from "components/MainActionButton";
+import SecondaryActionButton from "components/SecondaryActionButton";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface DualActionWideModalProps {
   title: string;
@@ -12,13 +12,13 @@ export interface DualActionWideModalProps {
   progress?: boolean;
   onDismiss?: { label: string; onClick: Function };
   onConfirm?: { label: string; onClick: Function };
-  icon?: 'check';
+  icon?: "check";
   image?: any;
 }
 
 export const DefaultDualActionWideModalProps = {
-  content: '',
-  title: '',
+  content: "",
+  title: "",
   visible: false,
   progress: false,
 };
@@ -92,7 +92,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
                   <>{image}</>
                 ) : (
                   <>
-                    {icon == 'check' && (
+                    {icon == "check" && (
                       <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
                         <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
                       </div>
@@ -104,7 +104,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
                     {title}
                   </Dialog.Title>
                   <div className="mt-2">
-                    {typeof content === 'string' ? (
+                    {typeof content === "string" ? (
                       <p className="text-lg text-gray-500 py-6">{content}</p>
                     ) : (
                       <>{content}</>
