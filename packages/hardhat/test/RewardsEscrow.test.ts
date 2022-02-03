@@ -131,19 +131,26 @@ describe("RewardsEscrow", function () {
       );
     });
     it("calculates getClaimableAmount correctly and updates it after claim", async () => {
+      const getExpectedClaimable = async (escrow, tx) => {
+        const block = await waffle.provider.getBlock(tx.blockNumber);
+        return escrow.balance
+          .mul(BigNumber.from(block.timestamp).sub(escrow.lastUpdateTime))
+          .div(escrow.end.sub(escrow.lastUpdateTime));
+      };
       const lockTx = await contracts.rewardsEscrow.connect(owner).lock(staker.address, parseEther("100"), 100);
       const escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(staker.address);
       const escrowId = escrowIds[0];
       let escrow = await contracts.rewardsEscrow.escrows(escrowId);
       await timeTravel(10);
-      let claimable = await contracts.rewardsEscrow.getClaimableAmount(escrowId);
-      await expectValue(claimable, parseEther("10"));
+      let claimableTx = await contracts.rewardsEscrow.getClaimableAmount(escrowId);
+      await expectValue(await claimableTx, await getExpectedClaimable(escrow, claimableTx));
+
       let claimTx = await contracts.rewardsEscrow.connect(staker).claimReward(escrowId);
       escrow = await contracts.rewardsEscrow.escrows(escrowId);
       await expectValue(escrow.balance, parseEther("89"));
       await timeTravel(10);
-      claimable = await contracts.rewardsEscrow.getClaimableAmount(escrowId);
-      await expectBigNumberCloseTo(claimable, parseEther("10"), parseEther("1"));
+      claimableTx = await contracts.rewardsEscrow.getClaimableAmount(escrowId);
+      await expectValue(await claimableTx, await getExpectedClaimable(escrow, claimableTx));
       claimTx = await contracts.rewardsEscrow.connect(staker).claimReward(escrowId);
       escrow = await contracts.rewardsEscrow.escrows(escrowId);
       await expectValue(escrow.balance, parseEther("78"));
