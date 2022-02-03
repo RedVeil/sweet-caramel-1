@@ -5,7 +5,7 @@ import { setDualActionWideModal } from 'context/actions';
 import { store } from 'context/store';
 import { Dispatch, useContext } from 'react';
 import { AccountBatch, BatchType } from '../../../hardhat/lib/adapters';
-import { bigNumberToNumber } from '../../../utils';
+import { formatBigNumber } from '../../../utils';
 import ZapModal from './ZapModal';
 
 interface BatchProps {
@@ -86,9 +86,8 @@ const ClaimableBatch: React.FC<BatchProps> = ({
       className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
     >
       <td className="px-6 py-5 whitespace-nowrap">
-        {`${bigNumberToNumber(batch.accountSuppliedTokenBalance)} ${
-          batch.batchType === BatchType.Mint ? '3CRV ' : 'BTR'
-        }`}
+        {`${formatBigNumber(batch.accountSuppliedTokenBalance)} ${batch.batchType === BatchType.Mint ? '3CRV ' : 'BTR'
+          }`}
         {batch.batchType === BatchType.Mint && (
           <InfoIconWithModal title="Why do I see 3CRV?">
             <p>
@@ -99,9 +98,8 @@ const ClaimableBatch: React.FC<BatchProps> = ({
         )}
       </td>
       <td className="px-6 py-5 whitespace-nowrap font-medium">
-        {`${bigNumberToNumber(batch.accountClaimableTokenBalance)} ${
-          batch.batchType === BatchType.Mint ? 'BTR' : '3CRV'
-        }`}
+        {`${formatBigNumber(batch.accountClaimableTokenBalance)} ${batch.batchType === BatchType.Mint ? 'BTR' : '3CRV'
+          }`}
       </td>
       <td className="px-6 py-5 flex justify-end">
         <div className="w-36">

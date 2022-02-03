@@ -1,35 +1,35 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { ArrowCircleRightIcon } from '@heroicons/react/outline';
-import { ERC20, PopLocker, Staking } from '@popcorn/hardhat/typechain';
+import { Web3Provider } from "@ethersproject/providers";
+import { ArrowCircleRightIcon } from "@heroicons/react/outline";
+import { ERC20, PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import {
-  bigNumberToNumber,
+  formatAndRoundBigNumber,
   getEarned,
   getERC20Contract,
   getSingleStakingPoolInfo,
   StakingPoolInfo,
-} from '@popcorn/utils';
-import { useWeb3React } from '@web3-react/core';
-import StatusWithLabel from 'components/Common/StatusWithLabel';
-import TokenInput from 'components/Common/TokenInput';
-import MainActionButton from 'components/MainActionButton';
-import Navbar from 'components/NavBar/NavBar';
-import TermsAndConditions from 'components/StakingTermsAndConditions';
-import TokenIcon from 'components/TokenIcon';
-import TokenInputToggle from 'components/TokenInputToggle';
-import { updateStakingPageInfo } from 'context/actions';
-import { store } from 'context/store';
-import { connectors } from 'context/Web3/connectors';
-import { ContractsContext } from 'context/Web3/contracts';
-import { ethers, utils } from 'ethers';
-import { getSanitizedTokenDisplayName } from 'helper/displayHelper';
-import { formatStakedAmount } from 'helper/formatStakedAmount';
-import { getStakingContractFromAddress } from 'helper/getStakingContractFromAddress';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import 'rc-slider/assets/index.css';
-import React, { useContext, useEffect, useState } from 'react';
-import ContentLoader from 'react-content-loader';
-import toast, { Toaster } from 'react-hot-toast';
+} from "@popcorn/utils";
+import { useWeb3React } from "@web3-react/core";
+import StatusWithLabel from "components/Common/StatusWithLabel";
+import TokenInput from "components/Common/TokenInput";
+import MainActionButton from "components/MainActionButton";
+import Navbar from "components/NavBar/NavBar";
+import TermsAndConditions from "components/StakingTermsAndConditions";
+import TokenIcon from "components/TokenIcon";
+import TokenInputToggle from "components/TokenInputToggle";
+import { updateStakingPageInfo } from "context/actions";
+import { store } from "context/store";
+import { connectors } from "context/Web3/connectors";
+import { ContractsContext } from "context/Web3/contracts";
+import { BigNumber, ethers } from "ethers";
+import { getSanitizedTokenDisplayName } from "helper/displayHelper";
+import { formatStakedAmount } from "helper/formatStakedAmount";
+import { getStakingContractFromAddress } from "helper/getStakingContractFromAddress";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import "rc-slider/assets/index.css";
+import React, { useContext, useEffect, useState } from "react";
+import ContentLoader from "react-content-loader";
+import toast, { Toaster } from "react-hot-toast";
 
 export interface StakingPageInfo {
   stakedToken: StakedToken;
@@ -44,11 +44,11 @@ interface StakedToken {
   symbol: string;
 }
 interface Balances {
-  wallet: number;
-  staked: number;
-  allowance: number;
-  earned: number;
-  withdrawable: number;
+  wallet: BigNumber;
+  staked: BigNumber;
+  allowance: BigNumber;
+  earned: BigNumber;
+  withdrawable: BigNumber;
 }
 
 export default function StakingPage(): JSX.Element {
@@ -57,7 +57,7 @@ export default function StakingPage(): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
   const { library, account, activate, chainId } = context;
-  const [inputTokenAmount, setInputTokenAmount] = useState<number>();
+  const [inputTokenAmount, setInputTokenAmount] = useState<BigNumber>(BigNumber.from("0"));
   const [wait, setWait] = useState<boolean>(false);
   const [withdraw, setWithdraw] = useState<boolean>(false);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
@@ -66,6 +66,7 @@ export default function StakingPage(): JSX.Element {
     state: { stakingPageInfo },
     dispatch,
   } = useContext(store);
+  const { stakedToken } = stakingPageInfo || {};
 
   useEffect(() => {
     return () => {
@@ -74,13 +75,17 @@ export default function StakingPage(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (typeof id === 'string' && contracts && !verifyStakingContract(id)) {
-      router.push('/staking');
+    if (stakingPageInfo?.poolInfo) setLoading(false);
+  }, [stakingPageInfo]);
+
+  useEffect(() => {
+    if (typeof id === "string" && contracts && !verifyStakingContract(id)) {
+      router.push("/staking");
     }
   }, [library, contracts, chainId]);
 
   useEffect(() => {
-    if (typeof id !== 'string' || !library || !contracts || !chainId) {
+    if (typeof id !== "string" || !library || !contracts || !chainId) {
       return;
     }
     fetchPageInfo();
@@ -103,13 +108,12 @@ export default function StakingPage(): JSX.Element {
             await (stakingContract as PopLocker).lockedBalances(account)
           ).unlockable
         : stakedAmount;
-
     return {
-      wallet: bigNumberToNumber(inputBalance),
-      staked: bigNumberToNumber(stakedAmount),
-      allowance: bigNumberToNumber(allowance),
-      earned: bigNumberToNumber(earned),
-      withdrawable: bigNumberToNumber(withdrawable),
+      wallet: inputBalance,
+      staked: stakedAmount,
+      allowance: allowance,
+      earned: earned,
+      withdrawable: withdrawable,
     };
   };
 
@@ -121,7 +125,8 @@ export default function StakingPage(): JSX.Element {
   }
 
   async function fetchPageInfo(): Promise<void> {
-    if (typeof id !== 'string' || !contracts || (contracts?.staking?.length || 0) <= 0) {
+    setLoading(true);
+    if (typeof id !== "string" || !contracts || (contracts?.staking?.length || 0) <= 0) {
       return;
     }
     const stakingContract = await getStakingContractFromAddress(contracts, id);
@@ -130,7 +135,7 @@ export default function StakingPage(): JSX.Element {
       stakingContract,
       library,
       id === contracts.popStaking.address ? contracts.pop.address : null,
-      id === contracts.popStaking.address ? 'Popcorn' : null,
+      id === contracts.popStaking.address ? "Popcorn" : null,
     );
     if (!stakingPoolInfo.stakedTokenAddress) {
       return;
@@ -155,8 +160,9 @@ export default function StakingPage(): JSX.Element {
   }
 
   async function stake(): Promise<void> {
-    toast.loading(`Staking ${stakingPageInfo?.stakedToken.tokenName}...`);
-    const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
+    setWait(true);
+    toast.loading(`Staking ${stakedToken.tokenName}...`);
+    const lockedPopInEth = inputTokenAmount;
     const signer = library.getSigner();
     const connectedStaking = await stakingPageInfo?.stakingContract.connect(signer);
     const stakeCall =
@@ -164,18 +170,18 @@ export default function StakingPage(): JSX.Element {
         ? (connectedStaking as PopLocker).lock(account, lockedPopInEth, 0)
         : (connectedStaking as Staking).stake(lockedPopInEth);
     await stakeCall
-      .then((res) => {
-        setInputTokenAmount(0);
+      .then((res) =>
         res.wait(2).then(async (res) => {
+          setInputTokenAmount(BigNumber.from("0"));
           toast.dismiss();
-          toast.success(`${stakingPageInfo?.stakedToken?.tokenName} staked!`);
+          toast.success(`${stakedToken?.tokenName} staked!`);
           await fetchPageInfo();
-        });
-      })
+        }),
+      )
       .catch((err) => {
         toast.dismiss();
-        if (err.message === 'MetaMask Tx Signature: User denied transaction signature.') {
-          toast.error('Transaction was canceled');
+        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
+          toast.error("Transaction was canceled");
         } else {
           toast.error(err.message.split("'")[1]);
         }
@@ -185,30 +191,32 @@ export default function StakingPage(): JSX.Element {
 
   async function withdrawStake(): Promise<void> {
     setWait(true);
-    toast.loading(`Withdrawing ${stakingPageInfo?.stakedToken?.tokenName}...`);
-    const lockedPopInEth = utils.parseEther(inputTokenAmount.toString());
+    toast.loading(`Withdrawing ${stakedToken?.tokenName}...`);
+    const lockedPopInEth = inputTokenAmount;
     const signer = library.getSigner();
     const connectedStaking = await stakingPageInfo?.stakingContract.connect(signer);
 
     const call =
       id === contracts.popStaking.address
-        ? (connectedStaking as PopLocker)['processExpiredLocks(bool)'](false)
+        ? (connectedStaking as PopLocker)["processExpiredLocks(bool)"](false)
         : (connectedStaking as Staking).withdraw(lockedPopInEth);
 
     await call
       .then((res) =>
         res.wait(2).then(async (res) => {
-          toast.dismiss();
-          toast.success(`${stakingPageInfo?.stakedToken?.tokenName} withdrawn!`);
-          await fetchPageInfo();
-          setWait(false);
-          setInputTokenAmount(0);
+          {
+            toast.dismiss();
+            toast.success(`${stakedToken?.tokenName} withdrawn!`);
+            await fetchPageInfo();
+            setWait(false);
+            setInputTokenAmount(BigNumber.from("0"));
+          }
         }),
       )
       .catch((err) => {
         toast.dismiss();
-        if (err.message === 'MetaMask Tx Signature: User denied transaction signature.') {
-          toast.error('Transaction was canceled');
+        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
+          toast.error("Transaction was canceled");
         } else {
           toast.error(err.message.split("'")[1]);
         }
@@ -223,7 +231,7 @@ export default function StakingPage(): JSX.Element {
     const connectedStaking = await stakingPageInfo?.stakingContract.connect(signer);
 
     await (connectedStaking as PopLocker)
-      ['processExpiredLocks(bool)'](true)
+      ["processExpiredLocks(bool)"](true)
       .then((res) =>
         res.wait(2).then(async (res) => {
           {
@@ -231,14 +239,14 @@ export default function StakingPage(): JSX.Element {
             toast.success(`Restaked POP!`);
             await fetchPageInfo();
             setWait(false);
-            setInputTokenAmount(0);
+            setInputTokenAmount(BigNumber.from("0"));
           }
         }),
       )
       .catch((err) => {
         toast.dismiss();
-        if (err.message === 'MetaMask Tx Signature: User denied transaction signature.') {
-          toast.error('Transaction was canceled');
+        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
+          toast.error("Transaction was canceled");
         } else {
           toast.error(err.message.split("'")[1]);
         }
@@ -248,22 +256,23 @@ export default function StakingPage(): JSX.Element {
 
   async function approve(): Promise<void> {
     setWait(true);
-    toast.loading(`Approving ${stakingPageInfo?.stakedToken?.tokenName} for staking...`);
+
+    toast.loading(`Approving ${stakingPageInfo?.stakedToken?.symbol} for staking...`);
     const connected = await stakingPageInfo?.stakedToken.contract.connect(library.getSigner());
     await connected
       .approve(stakingPageInfo?.stakingContract?.address, ethers.constants.MaxUint256)
       .then((res) =>
         res.wait(2).then(async (res) => {
           toast.dismiss();
-          toast.success(`${stakingPageInfo?.stakedToken.tokenName} approved!`);
+          toast.success(`${stakedToken.tokenName} approved!`);
           await fetchPageInfo();
           setWait(false);
         }),
       )
       .catch((err) => {
         toast.dismiss();
-        if (err.message === 'MetaMask Tx Signature: User denied transaction signature.') {
-          toast.error('Transaction was canceled');
+        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
+          toast.error("Transaction was canceled");
         } else {
           console.log(err);
           console.log(err.message);
@@ -301,7 +310,7 @@ export default function StakingPage(): JSX.Element {
                 <div className="flex flex-row flex-wrap items-center mt-4 justify-center md:justify-start">
                   <div className="px-6 border-r-2 border-gray-200 mt-2">
                     <StatusWithLabel
-                      content={'New 🍿✨'}
+                      content={"New 🍿✨"}
                       //content={
                       //  stakingPageInfo?.stakedToken?.symbol === 'POP'
                       //    ? stakingPageInfo?.poolInfo.apy.toLocaleString() + '%'
@@ -314,7 +323,7 @@ export default function StakingPage(): JSX.Element {
                   <div className="px-6 md:border-r-2 border-gray-200 mt-2">
                     <StatusWithLabel
                       content={
-                        stakingPageInfo?.poolInfo ? formatStakedAmount(stakingPageInfo?.poolInfo.totalStake) : '0'
+                        stakingPageInfo?.poolInfo ? formatStakedAmount(stakingPageInfo?.poolInfo.totalStake) : "0"
                       }
                       label="Total Staked"
                     />
@@ -322,7 +331,7 @@ export default function StakingPage(): JSX.Element {
                   <div className="px-6 mt-2 text-center md:text-left">
                     <StatusWithLabel
                       content={`${
-                        stakingPageInfo?.poolInfo ? stakingPageInfo?.poolInfo.tokenEmission.toLocaleString() : 0
+                        stakingPageInfo?.poolInfo ? formatAndRoundBigNumber(stakingPageInfo?.poolInfo.tokenEmission) : 0
                       } POP / day`}
                       label="Emission Rate"
                     />
@@ -340,12 +349,12 @@ export default function StakingPage(): JSX.Element {
               )) || (
                 <div className="pt-4 h-full px-6 border border-gray-200 rounded-3xl shadow-custom mb-10">
                   <div className="pt-2">
-                    <TokenInputToggle toggled={withdraw} toggle={setWithdraw} labels={['Stake', 'Unstake']} />
+                    <TokenInputToggle toggled={withdraw} toggle={setWithdraw} labels={["Stake", "Unstake"]} />
                   </div>
                   <div className="pt-16 pb-10">
                     {stakingPageInfo && (
                       <>
-                        {stakingPageInfo?.stakedToken?.symbol === 'POP' && withdraw ? (
+                        {stakingPageInfo?.stakedToken?.symbol === "POP" && withdraw ? (
                           <div className="md:w-96 mx-auto">
                             <div className="w-full mb-10">
                               <label
@@ -356,11 +365,11 @@ export default function StakingPage(): JSX.Element {
                               </label>
                               <div className="mt-1 relative flex items-center">
                                 <input
-                                  type="number"
+                                  type="string"
                                   name="tokenInput"
                                   id="tokenInput"
                                   className="shadow-sm block w-full pl-4 pr-16 py-4 text-lg border-gray-300 bg-gray-100 rounded-xl"
-                                  value={stakingPageInfo?.balances?.withdrawable}
+                                  value={stakingPageInfo?.balances?.withdrawable.toString()}
                                   disabled
                                 />
                                 <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
@@ -370,23 +379,29 @@ export default function StakingPage(): JSX.Element {
                             </div>
                             <div className="flex flex-row items-center space-x-4">
                               <MainActionButton
-                                label={'Restake'}
+                                label={"Restake"}
                                 handleClick={() => restake()}
-                                disabled={wait || stakingPageInfo?.balances?.withdrawable === 0 || !account}
+                                disabled={
+                                  wait || stakingPageInfo?.balances?.withdrawable === BigNumber.from("0") || !account
+                                }
                               />
                               <MainActionButton
                                 label={`Withdraw ${stakingPageInfo?.stakedToken?.symbol}`}
                                 handleClick={withdrawStake}
-                                disabled={wait || stakingPageInfo?.balances?.withdrawable === 0}
+                                disabled={wait || stakingPageInfo?.balances?.withdrawable === BigNumber.from("0")}
                               />
                             </div>
                           </div>
                         ) : (
                           <TokenInput
-                            label={withdraw ? 'Unstake Amount' : 'Stake Amount'}
+                            label={withdraw ? "Unstake Amount" : "Stake Amount"}
                             tokenName={stakingPageInfo?.stakedToken?.symbol}
                             inputAmount={inputTokenAmount}
-                            balance={withdraw ? stakingPageInfo?.balances?.staked : stakingPageInfo?.balances?.wallet}
+                            balance={
+                              withdraw
+                                ? stakingPageInfo?.balances?.staked || BigNumber.from(0)
+                                : stakingPageInfo?.balances?.wallet || BigNumber.from("0")
+                            }
                             updateInputAmount={setInputTokenAmount}
                           />
                         )}
@@ -402,19 +417,19 @@ export default function StakingPage(): JSX.Element {
                             <div></div>
                           ) : (
                             <>
-                              {stakingPageInfo?.balances?.allowance >= inputTokenAmount ? (
+                              {stakingPageInfo?.balances?.allowance?.gte(inputTokenAmount || BigNumber.from("0")) ? (
                                 <TermsAndConditions
                                   isDisabled={false}
                                   termsAccepted={termsAccepted}
                                   setTermsAccepted={setTermsAccepted}
-                                  showLockTerms={stakingPageInfo?.stakedToken?.symbol === 'POP'}
+                                  showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
                                 />
                               ) : (
                                 <TermsAndConditions
                                   isDisabled={true}
                                   termsAccepted={termsAccepted}
                                   setTermsAccepted={setTermsAccepted}
-                                  showLockTerms={stakingPageInfo?.stakedToken?.symbol === 'POP'}
+                                  showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
                                 />
                               )}
                             </>
@@ -429,7 +444,7 @@ export default function StakingPage(): JSX.Element {
                               isDisabled={true}
                               termsAccepted={termsAccepted}
                               setTermsAccepted={setTermsAccepted}
-                              showLockTerms={stakingPageInfo?.stakedToken?.symbol === 'POP'}
+                              showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
                             />
                           )}
                         </>
@@ -443,24 +458,27 @@ export default function StakingPage(): JSX.Element {
                         <>
                           {withdraw ? (
                             <>
-                              {stakingPageInfo?.stakedToken?.symbol === 'POP' ? (
+                              {stakingPageInfo?.stakedToken?.symbol === "POP" ? (
                                 <></>
                               ) : (
                                 <MainActionButton
                                   label={`Withdraw ${stakingPageInfo?.stakedToken?.symbol}`}
                                   handleClick={withdrawStake}
-                                  disabled={wait || stakingPageInfo?.balances?.withdrawable === 0}
+                                  disabled={wait || stakingPageInfo?.balances?.withdrawable.isZero()}
                                 />
                               )}
                             </>
                           ) : (
                             <>
-                              {stakingPageInfo?.balances?.allowance < inputTokenAmount ? (
+                              {stakingPageInfo?.balances?.allowance &&
+                              BigNumber.from(stakingPageInfo?.balances?.allowance || "0").lt(
+                                inputTokenAmount || BigNumber.from("0"),
+                              ) ? (
                                 <div className="space-y-4">
                                   <MainActionButton
-                                    label={'Approve for Staking'}
+                                    label={"Approve for Staking"}
                                     handleClick={approve}
-                                    disabled={wait || inputTokenAmount === 0}
+                                    disabled={wait || inputTokenAmount.isZero()}
                                   />
                                   <MainActionButton
                                     label={`Stake ${stakingPageInfo?.stakedToken?.symbol}`}
@@ -475,9 +493,9 @@ export default function StakingPage(): JSX.Element {
                                     handleClick={stake}
                                     disabled={
                                       !termsAccepted ||
-                                      inputTokenAmount === 0 ||
+                                      inputTokenAmount.eq(0) ||
                                       wait ||
-                                      inputTokenAmount > stakingPageInfo?.balances?.wallet
+                                      inputTokenAmount.gt(stakingPageInfo?.balances?.wallet || BigNumber.from("0"))
                                     }
                                   />
                                 </div>
@@ -488,7 +506,7 @@ export default function StakingPage(): JSX.Element {
                       ) : (
                         <div className="mt-4">
                           <MainActionButton
-                            label={'Connect Wallet'}
+                            label={"Connect Wallet"}
                             handleClick={() => activate(connectors.Injected)}
                           />
                         </div>
@@ -538,7 +556,7 @@ export default function StakingPage(): JSX.Element {
                               <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
                               <div className="flex flex-row items-center mt-1">
                                 <p className="text-2xl font-medium  mr-2">
-                                  {stakingPageInfo?.balances?.earned.toLocaleString()}
+                                  {formatAndRoundBigNumber(stakingPageInfo?.balances?.earned)}
                                 </p>
                                 <p className="text-2xl font-medium ">POP</p>
                               </div>
@@ -562,7 +580,7 @@ export default function StakingPage(): JSX.Element {
                     </div>
                     <img
                       src="/images/catPopVault.svg"
-                      className={'absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16'}
+                      className={"absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"}
                     />
                   </div>
                 </div>

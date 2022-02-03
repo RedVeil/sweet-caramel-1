@@ -1,10 +1,10 @@
-import { SwitchVerticalIcon } from '@heroicons/react/outline';
-import { bigNumberToNumber, scaleNumberToBigNumber } from '@popcorn/utils';
-import { BigNumber } from 'ethers';
-import React, { Dispatch, useEffect, useState } from 'react';
+import { SwitchVerticalIcon } from "@heroicons/react/outline";
+import { formatBigNumber, scaleNumberToBigNumber } from "@popcorn/utils";
+import { BigNumber } from "ethers";
+import React, { Dispatch, useEffect, useState } from "react";
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 export interface TokenInputProps {
   threeCrvBalance: BigNumber;
@@ -19,7 +19,7 @@ export interface TokenInputProps {
   setUseUnclaimedDeposits: (boolean) => void;
 }
 
-type AvailableCcys = 'USDC' | 'FRAX' | 'UST' | 'USDN';
+type AvailableCcys = "USDC" | "FRAX" | "UST" | "USDN";
 
 const TokenInput: React.FC<TokenInputProps> = ({
   threeCrvBalance,
@@ -35,32 +35,24 @@ const TokenInput: React.FC<TokenInputProps> = ({
 }) => {
   const [estimatedAmount, setEstimatedAmount] = useState<number>(0);
   const [validInputAmount, setValidInputAmount] = useState<Boolean>(false);
-  const [ccy, setCcy] = useState<AvailableCcys>('USDC');
+  const [ccy, setCcy] = useState<AvailableCcys>("USDC");
 
   useEffect(() => {
-    if (depositAmount.toString() !== '0') {
+    if (depositAmount.toString() !== "0") {
       calcOutputAmountsFromInput(depositAmount, withdrawal);
     }
   }, []);
 
   useEffect(() => {
-    setValidInputAmount(
-      withdrawal
-        ? depositAmount <= hysiBalance
-        : depositAmount <= threeCrvBalance,
-    );
+    setValidInputAmount(withdrawal ? depositAmount <= hysiBalance : depositAmount <= threeCrvBalance);
   }, [depositAmount]);
 
   function updateWithOuputAmounts(value: number, withdrawal): void {
     setEstimatedAmount(value);
     if (withdrawal) {
-      setDepositAmount(
-        scaleNumberToBigNumber(value).mul(threeCrvPrice).div(hysiPrice),
-      );
+      setDepositAmount(scaleNumberToBigNumber(value).mul(threeCrvPrice).div(hysiPrice));
     } else {
-      setDepositAmount(
-        scaleNumberToBigNumber(value).mul(hysiPrice).div(threeCrvPrice),
-      );
+      setDepositAmount(scaleNumberToBigNumber(value).mul(hysiPrice).div(threeCrvPrice));
     }
   }
 
@@ -70,18 +62,11 @@ const TokenInput: React.FC<TokenInputProps> = ({
     calcOutputAmountsFromInput(raisedValue, withdrawal);
   }
 
-  function calcOutputAmountsFromInput(
-    value: BigNumber,
-    withdrawal: Boolean,
-  ): void {
+  function calcOutputAmountsFromInput(value: BigNumber, withdrawal: Boolean): void {
     if (withdrawal) {
-      setEstimatedAmount(
-        bigNumberToNumber(value.mul(hysiPrice).div(threeCrvPrice)),
-      );
+      setEstimatedAmount(formatBigNumber(value.mul(hysiPrice).div(threeCrvPrice)));
     } else {
-      setEstimatedAmount(
-        bigNumberToNumber(value.mul(threeCrvPrice).div(hysiPrice)),
-      );
+      setEstimatedAmount(formatBigNumber(value.mul(threeCrvPrice).div(hysiPrice)));
     }
   }
 
@@ -91,28 +76,23 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <>
           <div className="mt-6">
             <div>
-              <label
-                htmlFor="deposit"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="deposit" className="block text-sm font-medium text-gray-700">
                 Deposit Amount
               </label>
               <div
                 className={classNames(
-                  'mt-1 relative rounded-md shadow-sm border',
-                  validInputAmount ? 'border-gray-200' : 'border-red-600',
+                  "mt-1 relative rounded-md shadow-sm border",
+                  validInputAmount ? "border-gray-200" : "border-red-600",
                 )}
               >
                 <input
                   type="text"
                   name="deposit"
                   id="deposit"
-                  value={bigNumberToNumber(depositAmount)}
-                  onChange={(e) =>
-                    updateWithInputAmounts(Number(e.target.value), withdrawal)
-                  }
+                  value={formatBigNumber(depositAmount)}
+                  onChange={(e) => updateWithInputAmounts(Number(e.target.value), withdrawal)}
                   className={
-                    'focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm rounded-md pl-4 py-3'
+                    "focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm rounded-md pl-4 py-3"
                   }
                   placeholder="0.00"
                 />
@@ -134,11 +114,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 </div>
               </div>
             </div>
-            {!validInputAmount && (
-              <p className="mt-2 text-sm font-medium text-red-600">
-                Insufficient Balance
-              </p>
-            )}
+            {!validInputAmount && <p className="mt-2 text-sm font-medium text-red-600">Insufficient Balance</p>}
             <label className="flex flex-row items-center mt-1">
               <input
                 type="checkbox"
@@ -149,10 +125,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             </label>
           </div>
           <div className="relative">
-            <div
-              className="absolute inset-0 flex items-center"
-              aria-hidden="true"
-            >
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center my-8">
@@ -165,11 +138,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
           </div>
 
           <div className="mt-6">
-            <label
-              htmlFor="deposit-amount"
-              className="block text-sm font-medium text-gray-700"
-            >
-              {`Estimated ${withdrawal ? '3CRV' : 'HYSI'} Amount`}
+            <label htmlFor="deposit-amount" className="block text-sm font-medium text-gray-700">
+              {`Estimated ${withdrawal ? "3CRV" : "HYSI"} Amount`}
             </label>
             <div className="mt-1 relative rounded-md shadow-sm border">
               <input
@@ -179,14 +149,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 className="focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm border-gray-200 rounded-md pl-4 py-3 "
                 placeholder="-"
                 value={estimatedAmount}
-                onChange={(e) =>
-                  updateWithOuputAmounts(Number(e.target.value), withdrawal)
-                }
+                onChange={(e) => updateWithOuputAmounts(Number(e.target.value), withdrawal)}
                 aria-describedby="deposit-amount"
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <span className="text-gray-500 sm:text-sm" id="price-currency">
-                  {withdrawal ? '3CRV' : 'HYSI'}
+                  {withdrawal ? "3CRV" : "HYSI"}
                 </span>
               </div>
             </div>
@@ -198,10 +166,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <>
           <div className="mt-6">
             <div className="">
-              <label
-                htmlFor="withdrawal-amount"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="withdrawal-amount" className="block text-sm font-medium text-gray-700">
                 Withdrawal Amount
               </label>
               <div className="mt-1 relative rounded-md shadow-sm border">
@@ -212,17 +177,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
                   className="focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm border-gray-200 rounded-md pl-4 py-3 "
                   placeholder="-"
                   value={estimatedAmount}
-                  onChange={(e) =>
-                    updateWithOuputAmounts(Number(e.target.value), withdrawal)
-                  }
+                  onChange={(e) => updateWithOuputAmounts(Number(e.target.value), withdrawal)}
                   aria-describedby="withdrawal-amount"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span
-                    className="text-gray-500 sm:text-sm"
-                    id="price-currency"
-                  >
-                    {withdrawal ? '3CRV' : 'HYSI'}
+                  <span className="text-gray-500 sm:text-sm" id="price-currency">
+                    {withdrawal ? "3CRV" : "HYSI"}
                   </span>
                 </div>
               </div>
@@ -236,15 +196,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
               />
               <p className="text-sm font-medium text-gray-700">{`Withdraw entire USD balance`}</p>
             </label>
-            {!validInputAmount && (
-              <p className="text-red-600">Insufficient Balance</p>
-            )}
+            {!validInputAmount && <p className="text-red-600">Insufficient Balance</p>}
           </div>
           <div className="relative">
-            <div
-              className="absolute inset-0 flex items-center"
-              aria-hidden="true"
-            >
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center my-8">
@@ -258,10 +213,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
 
           <div className="mt-6">
             <div>
-              <label
-                htmlFor="withdrawal"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="withdrawal" className="block text-sm font-medium text-gray-700">
                 Estimated Stablecoin withdrawal
               </label>
               <div className="mt-1 relative rounded-md shadow-sm border">
@@ -269,13 +221,11 @@ const TokenInput: React.FC<TokenInputProps> = ({
                   type="text"
                   name="withdrawal"
                   id="withdrawal"
-                  value={bigNumberToNumber(depositAmount)}
-                  onChange={(e) =>
-                    updateWithInputAmounts(Number(e.target.value), withdrawal)
-                  }
+                  value={formatBigNumber(depositAmount)}
+                  onChange={(e) => updateWithInputAmounts(Number(e.target.value), withdrawal)}
                   className={classNames(
-                    'focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm border-gray-300 rounded-md pl-4 py-3',
-                    validInputAmount ? 'border-gray-200' : 'border-red-600',
+                    "focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm border-gray-300 rounded-md pl-4 py-3",
+                    validInputAmount ? "border-gray-200" : "border-red-600",
                   )}
                   placeholder="0.00"
                 />

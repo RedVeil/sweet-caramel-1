@@ -1,7 +1,7 @@
-import { bigNumberToNumber } from '@popcorn/utils';
-import { format } from 'date-fns';
-import { formatStakedAmount } from 'helper/formatStakedAmount';
-import { Escrow } from 'hooks/useGetUserEscrows';
+import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { format } from "date-fns";
+import { formatStakedAmount } from "helper/formatStakedAmount";
+import { Escrow } from "hooks/useGetUserEscrows";
 
 interface VestingRecordProps {
   vestingEscrow: Escrow;
@@ -9,49 +9,30 @@ interface VestingRecordProps {
   claim: (Escrow) => void;
 }
 
-const VestingRecordComponent: React.FC<VestingRecordProps> = ({
-  vestingEscrow,
-  index,
-  claim,
-}) => {
-  const formattedEndDate = format(vestingEscrow.end.toNumber(), 'MM.dd.yyyy');
+const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, index, claim }) => {
+  const formattedEndDate = format(vestingEscrow.end.toNumber(), "MM.dd.yyyy");
 
   return (
     <div
-      className={`flex flex-row justify-between px-8 ${
-        index % 2 === 0 ? 'bg-rewardsBg2' : 'bg-rewardsBg'
-      } w-full h-36`}
+      className={`flex flex-row justify-between px-8 ${index % 2 === 0 ? "bg-rewardsBg2" : "bg-rewardsBg"} w-full h-36`}
     >
       <div className="flex flex-row justify-between w-full">
         <div className="flex flex-col my-auto">
           <p className={`text-base text-gray-500 my-auto`}>UNLOCK ENDS</p>
-          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
-            {formattedEndDate}
-          </h1>
+          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>{formattedEndDate}</h1>
         </div>
 
         <div className="flex flex-col my-auto">
           <p className={`text-base text-gray-500 my-auto`}>TOTAL TOKENS</p>
           <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
-            <span className="text-gray-900">
-              {bigNumberToNumber(vestingEscrow.balance).toLocaleString(
-                undefined,
-                { maximumFractionDigits: 2 },
-              )}
-            </span>{' '}
-            POP
+            <span className="text-gray-900">{formatAndRoundBigNumber(vestingEscrow.balance, 3)}</span> POP
           </h1>
         </div>
 
         <div className="flex flex-col my-auto">
           <p className={`text-base text-gray-500 my-auto`}>CLAIMABLE TOKENS</p>
           <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
-            <span className="text-gray-900">
-              {formatStakedAmount(
-                bigNumberToNumber(vestingEscrow.claimableAmount),
-              )}
-            </span>{' '}
-            POP
+            <span className="text-gray-900">{formatStakedAmount(vestingEscrow.claimableAmount)}</span> POP
           </h1>
         </div>
       </div>
