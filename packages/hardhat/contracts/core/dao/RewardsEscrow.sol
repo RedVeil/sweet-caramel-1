@@ -15,6 +15,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
   /* ========== STATE VARIABLES ========== */
   struct Escrow {
     uint256 start;
+    uint256 lastUpdateTime;
     uint256 end;
     uint256 initialBalance;
     uint256 balance;
@@ -50,7 +51,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    * @param _escrowId Bytes32 escrow ID
    */
   function isClaimable(bytes32 _escrowId) external view returns (bool) {
-    return escrows[_escrowId].start != 0 && escrows[_escrowId].balance > 0;
+    return escrows[_escrowId].lastUpdateTime != 0 && escrows[_escrowId].balance > 0;
   }
 
   /**
@@ -91,18 +92,25 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
   function lock(
     address _account,
     uint256 _amount,
-    uint256 duration
+    uint256 _duration
   ) external override nonReentrant {
     require(authorized[msg.sender], "unauthorized");
     require(_amount > 0, "amount must be greater than 0");
     require(POP.balanceOf(msg.sender) >= _amount, "insufficient balance");
+    require(_duration > 0, "duration must be > 0");
 
     nonce++;
-    uint256 start = block.timestamp;
-    uint256 end = start + duration;
-    bytes32 id = keccak256(abi.encodePacked(_account, _amount, start, nonce));
+    bytes32 id = keccak256(abi.encodePacked(_account, _amount, block.timestamp, nonce));
 
-    escrows[id] = Escrow({start: start, end: end, initialBalance: _amount, balance: _amount, account: _account});
+    escrows[id] = Escrow({
+      start: block.timestamp,
+      lastUpdateTime: block.timestamp,
+      end: block.timestamp + _duration,
+      initialBalance: _amount,
+      balance: _amount,
+      account: _account
+    });
+
     escrowIdsByAddress[_account].push(id);
 
     POP.safeTransferFrom(msg.sender, address(this), _amount);
@@ -168,19 +176,23 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    */
   function _claimReward(bytes32 _escrowId) internal returns (uint256) {
     Escrow storage escrow = escrows[_escrowId];
-    if (escrow.start <= block.timestamp) {
+    if (escrow.lastUpdateTime <= block.timestamp) {
       uint256 claimable = _getClaimableAmount(escrow);
       escrow.balance -= claimable;
+      escrow.lastUpdateTime = block.timestamp;
       return claimable;
     }
     return 0;
   }
 
   function _getClaimableAmount(Escrow memory _escrow) internal view returns (uint256) {
-    if (_escrow.start == 0 || _escrow.end == 0) {
+    if (_escrow.lastUpdateTime == 0 || _escrow.end == 0 || _escrow.balance == 0) {
       return 0;
     }
     return
-      Math.min((_escrow.balance * (block.timestamp - _escrow.start)) / (_escrow.end - _escrow.start), _escrow.balance);
+      Math.min(
+        (_escrow.balance * (block.timestamp - _escrow.lastUpdateTime)) / (_escrow.end - _escrow.lastUpdateTime),
+        _escrow.balance
+      );
   }
 }

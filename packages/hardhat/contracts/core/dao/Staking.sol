@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+/// SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.0
 
 pragma solidity ^0.8.0;
@@ -50,6 +50,7 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
     stakingToken = _stakingToken;
     rewardsEscrow = _rewardsEscrow;
     rewardDistributors[msg.sender] = true;
+    escrowDuration = 365 days;
 
     _rewardsToken.safeIncreaseAllowance(address(_rewardsEscrow), type(uint256).max);
   }
@@ -189,6 +190,11 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
     emit RewardsDurationUpdated(rewardsDuration);
   }
 
+  function setRewardsEscrow(address _rewardsEscrow) external onlyOwner {
+    emit RewardsEscrowUpdated(address(rewardsEscrow), _rewardsEscrow);
+    rewardsEscrow = IRewardsEscrow(_rewardsEscrow);
+  }
+
   /* ========== MODIFIERS ========== */
 
   modifier updateReward(address account) {
@@ -205,6 +211,7 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable {
 
   event RewardAdded(uint256 reward);
   event Staked(address indexed user, uint256 amount);
+  event RewardsEscrowUpdated(address _previous, address _new);
   event Withdrawn(address indexed user, uint256 amount);
   event RewardPaid(address indexed user, uint256 reward);
   event RewardsDurationUpdated(uint256 newDuration);

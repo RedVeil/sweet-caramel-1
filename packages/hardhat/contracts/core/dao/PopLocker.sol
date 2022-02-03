@@ -118,7 +118,7 @@ contract PopLocker is ReentrancyGuard, Ownable {
     escrowDuration = 365 days;
 
     uint256 currentEpoch = block.timestamp.div(rewardsDuration).mul(rewardsDuration);
-    epochs.push(Epoch({supply: 0, date: uint32(currentEpoch)}));
+    epochs.push(Epoch({ supply: 0, date: uint32(currentEpoch) }));
   }
 
   function decimals() public view returns (uint8) {
@@ -447,7 +447,7 @@ contract PopLocker is ReentrancyGuard, Ownable {
       //fill any epoch gaps
       while (epochs[epochs.length - 1].date != currentEpoch) {
         uint256 nextEpochDate = uint256(epochs[epochs.length - 1].date).add(rewardsDuration);
-        epochs.push(Epoch({supply: 0, date: uint32(nextEpochDate)}));
+        epochs.push(Epoch({ supply: 0, date: uint32(nextEpochDate) }));
       }
 
       //update boost parameters on a new epoch
@@ -508,7 +508,7 @@ contract PopLocker is ReentrancyGuard, Ownable {
     uint256 idx = userLocks[_account].length;
     if (idx == 0 || userLocks[_account][idx - 1].unlockTime < unlockTime) {
       userLocks[_account].push(
-        LockedBalance({amount: lockAmount, boosted: boostedAmount, unlockTime: uint32(unlockTime)})
+        LockedBalance({ amount: lockAmount, boosted: boostedAmount, unlockTime: uint32(unlockTime) })
       );
     } else {
       LockedBalance storage userL = userLocks[_account][idx - 1];
@@ -689,6 +689,11 @@ contract PopLocker is ReentrancyGuard, Ownable {
     emit RewardAdded(_rewardsToken, _reward);
   }
 
+  function setRewardsEscrow(address _rewardsEscrow) external onlyOwner {
+    emit RewardsEscrowUpdated(address(rewardsEscrow), _rewardsEscrow);
+    rewardsEscrow = IRewardsEscrow(_rewardsEscrow);
+  }
+
   // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
   function recoverERC20(address _tokenAddress, uint256 _tokenAmount) external onlyOwner {
     require(_tokenAddress != address(stakingToken), "Cannot withdraw staking token");
@@ -724,6 +729,7 @@ contract PopLocker is ReentrancyGuard, Ownable {
 
   /* ========== EVENTS ========== */
   event RewardAdded(address indexed _token, uint256 _reward);
+  event RewardsEscrowUpdated(address _previous, address _new);
   event Staked(address indexed _user, uint256 _paidAmount, uint256 _lockedAmount, uint256 _boostedAmount);
   event Withdrawn(address indexed _user, uint256 _amount);
   event Relocked(address indexed _user, uint256 _amount);
