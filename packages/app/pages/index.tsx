@@ -21,7 +21,7 @@ const IndexPage = () => {
         title: "Coming Soon",
         content:
           "The release of our yield optimizer, Butter, has been delayed due to recent events involving Abracadabra and MIM. We've decided to change Butter's underlying assets to address these concerns and offer the best product possible in today's DeFi landscape.",
-        image: <img src="images/ComingSoonCat.svg" className="mx-auto pl-5 w-5/12" />,
+        image: <img src="/images/ComingSoonCat.svg" className="mx-auto pl-5 w-5/12" />,
         onConfirm: {
           label: "Learn More",
           onClick: () => {
