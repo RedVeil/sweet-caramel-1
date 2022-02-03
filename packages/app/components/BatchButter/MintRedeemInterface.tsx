@@ -1,10 +1,10 @@
-import { BigNumber } from 'ethers';
-import { Dispatch } from 'react';
-import { BatchType } from '../../../hardhat/lib/adapters';
-import MainActionButton from '../MainActionButton';
-import MintRedeemToggle from './MintRedeemToggle';
-import SlippageSettings from './SlippageSettings';
-import TokenInput, { TokenInputProps } from './TokenInput';
+import { BigNumber } from "ethers";
+import { Dispatch } from "react";
+import { BatchType } from "../../../hardhat/lib/adapters";
+import MainActionButton from "../MainActionButton";
+import MintRedeemToggle from "./MintRedeemToggle";
+import SlippageSettings from "./SlippageSettings";
+import TokenInput, { TokenInputProps } from "./TokenInput";
 interface MintRedeemInterfaceProps extends TokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
@@ -47,19 +47,15 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         hasUnclaimedBalances={hasUnclaimedBalances}
       />
       <div className="w-full">
-        {!redeeming && selectedToken.input.key !== 'threeCrv' && (
+        {!redeeming && selectedToken.input.key !== "threeCrv" && (
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
         )}
       </div>
       {!depositDisabled && !redeeming && (
         <div className="pt-6">
           <div className="flex flex-row justify-between">
-            <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">
-              Slippage
-            </p>
-            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">
-              {slippage} %
-            </p>
+            <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>
+            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">{slippage} %</p>
           </div>
         </div>
       )}
@@ -69,28 +65,19 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
             <MainActionButton
               label={`Allow Popcorn to use your ${selectedToken.input.name}`}
               handleClick={(e) => approve(selectedToken.input.key)}
+              disabled={true}
             />
             <MainActionButton
-              label={redeeming ? 'Redeem' : 'Mint'}
-              handleClick={(e) =>
-                deposit(
-                  depositAmount,
-                  redeeming ? BatchType.Redeem : BatchType.Mint,
-                )
-              }
+              label={redeeming ? "Redeem" : "Mint"}
+              handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
               disabled={true}
             />
           </div>
         ) : (
           <div className="pt-6">
             <MainActionButton
-              label={redeeming ? 'Redeem' : 'Mint'}
-              handleClick={(e) =>
-                deposit(
-                  depositAmount,
-                  redeeming ? BatchType.Redeem : BatchType.Mint,
-                )
-              }
+              label={redeeming ? "Redeem" : "Mint"}
+              handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
               disabled={depositDisabled}
             />
           </div>

@@ -8,14 +8,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer, pop } = await getNamedAccounts();
 
-  const signer = await getSignerFrom(
-    hre.config.namedAccounts.deployer as string,
-    hre
-  );
+  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
 
-  const popAddress = !["mainnet", "polygon", "arbitrum"].includes(
-    hre.network.name
-  )
+  const popAddress = !["mainnet", "polygon", "arbitrum"].includes(hre.network.name)
     ? (await deployments.get("TestPOP")).address
     : pop;
 
@@ -33,7 +28,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 export default main;
 
 main.dependencies = ["setup"];
-main.tags = ["core", "frontend"];
+main.tags = ["core", "frontend", "rewards-escrow"];
 
 const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
   const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum"];
