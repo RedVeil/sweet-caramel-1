@@ -11,6 +11,7 @@ import { store } from "context/store";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
+import useWeb3Callbacks from "helper/useWeb3Callbacks";
 import useClaimEscrows from "hooks/useClaimEscrows";
 import useClaimStakingReward from "hooks/useClaimStakingReward";
 import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
@@ -33,6 +34,7 @@ export default function index(): JSX.Element {
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows();
+  const { onSuccess, onError } = useWeb3Callbacks();
 
   useEffect(() => {
     if (!account || !contracts) {
@@ -71,11 +73,9 @@ export default function index(): JSX.Element {
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
     toast.loading("Claiming Rewards...");
-    await claimStakingReward(pool, isPopLocker)
-      .then((res) => {
-        res.wait(2).then((res) => {
-          toast.dismiss();
-          toast.success("Rewards Claimed!");
+    claimStakingReward(pool, isPopLocker).then(
+      (res) =>
+        onSuccess(res, "Rewards Claimed!", () => {
           getData();
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
@@ -98,36 +98,17 @@ export default function index(): JSX.Element {
               }),
             );
           }
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+        }),
+      (err) => onError(err),
+    );
   };
 
   const claimSingleEscrow = async (escrow: Escrow) => {
     toast.loading("Claiming Escrow...");
-    await claimVestedPopFromEscrows([escrow.id])
-      .then((res) => {
-        res.wait(2).then((res) => {
-          toast.dismiss();
-          toast.success("Claimed Escrow!");
-          getData();
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+    claimVestedPopFromEscrows([escrow.id]).then(
+      (res) => onSuccess(res, "Claimed Escrow!", getData),
+      (err) => onError(err),
+    );
   };
 
   const claimAllEscrows = async () => {
@@ -135,22 +116,10 @@ export default function index(): JSX.Element {
     const escrowsIds = userEscrowsFetchResult?.data?.escrows.map((escrow) => escrow.id);
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
     if (numberOfEscrows && numberOfEscrows > 0) {
-      await claimVestedPopFromEscrows(escrowsIds)
-        .then((res) =>
-          res.wait(2).then((res) => {
-            toast.dismiss();
-            toast.success("Claimed Escrows!");
-            getData();
-          }),
-        )
-        .catch((err) => {
-          toast.dismiss();
-          if (err.data === undefined) {
-            toast.error("An error occured");
-          } else {
-            toast.error(err.data.message.split("'")[1]);
-          }
-        });
+      claimVestedPopFromEscrows(escrowsIds).then(
+        (res) => onSuccess(res, "Claimed Escrows!", getData),
+        (err) => onError(err),
+      );
     }
   };
 

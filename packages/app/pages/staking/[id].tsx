@@ -24,6 +24,7 @@ import { BigNumber, ethers } from "ethers";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import { getStakingContractFromAddress } from "helper/getStakingContractFromAddress";
+import useWeb3Callbacks from "helper/useWeb3Callbacks";
 import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
@@ -66,6 +67,7 @@ export default function StakingPage(): JSX.Element {
     dispatch,
   } = useContext(store);
   const { stakedToken } = stakingPageInfo || {};
+  const { onSuccess, onError } = useWeb3Callbacks();
 
   useEffect(() => {
     return () => {
@@ -158,6 +160,11 @@ export default function StakingPage(): JSX.Element {
     );
   }
 
+  async function revalidatePageState(): Promise<void> {
+    setInputTokenAmount(BigNumber.from("0"));
+    fetchPageInfo();
+  }
+
   async function stake(): Promise<void> {
     setWait(true);
     toast.loading(`Staking ${stakedToken.tokenName}...`);
@@ -168,24 +175,11 @@ export default function StakingPage(): JSX.Element {
       id === contracts.popStaking.address
         ? (connectedStaking as PopLocker).lock(account, lockedPopInEth, 0)
         : (connectedStaking as Staking).stake(lockedPopInEth);
-    await stakeCall
-      .then((res) =>
-        res.wait(2).then(async (res) => {
-          setInputTokenAmount(BigNumber.from("0"));
-          toast.dismiss();
-          toast.success(`${stakedToken?.tokenName} staked!`);
-          await fetchPageInfo();
-        }),
-      )
-      .catch((err) => {
-        toast.dismiss();
-        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
-          toast.error("Transaction was canceled");
-        } else {
-          toast.error(err.message.split("'")[1]);
-        }
-        setWait(false);
-      });
+
+    stakeCall
+      .then((res) => onSuccess(res, `${stakedToken?.tokenName} staked!`, revalidatePageState))
+      .catch((err) => onError(err))
+      .finally(() => setWait(false));
   }
 
   async function withdrawStake(): Promise<void> {
@@ -200,27 +194,10 @@ export default function StakingPage(): JSX.Element {
         ? (connectedStaking as PopLocker)["processExpiredLocks(bool)"](false)
         : (connectedStaking as Staking).withdraw(lockedPopInEth);
 
-    await call
-      .then((res) =>
-        res.wait(2).then(async (res) => {
-          {
-            toast.dismiss();
-            toast.success(`${stakedToken?.tokenName} withdrawn!`);
-            await fetchPageInfo();
-            setWait(false);
-            setInputTokenAmount(BigNumber.from("0"));
-          }
-        }),
-      )
-      .catch((err) => {
-        toast.dismiss();
-        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
-          toast.error("Transaction was canceled");
-        } else {
-          toast.error(err.message.split("'")[1]);
-        }
-        setWait(false);
-      });
+    call
+      .then((res) => onSuccess(res, `${stakedToken?.tokenName} withdrawn!`, revalidatePageState))
+      .catch((err) => onError(err))
+      .finally(() => setWait(false));
   }
 
   async function restake(): Promise<void> {
@@ -228,57 +205,26 @@ export default function StakingPage(): JSX.Element {
     toast.loading(`Restaking POP...`);
     const signer = library.getSigner();
     const connectedStaking = await stakingPageInfo?.stakingContract.connect(signer);
-
-    await (connectedStaking as PopLocker)
+    (connectedStaking as PopLocker)
       ["processExpiredLocks(bool)"](true)
-      .then((res) =>
-        res.wait(2).then(async (res) => {
-          {
-            toast.dismiss();
-            toast.success(`Restaked POP!`);
-            await fetchPageInfo();
-            setWait(false);
-            setInputTokenAmount(BigNumber.from("0"));
-          }
-        }),
-      )
-      .catch((err) => {
-        toast.dismiss();
-        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
-          toast.error("Transaction was canceled");
-        } else {
-          toast.error(err.message.split("'")[1]);
-        }
-        setWait(false);
-      });
+      .then((res) => onSuccess(res, `Restaked POP!`, revalidatePageState))
+      .catch((err) => onError(err))
+      .finally(() => setWait(false));
   }
 
   async function approve(): Promise<void> {
     setWait(true);
-
     toast.loading(`Approving ${stakingPageInfo?.stakedToken?.symbol} for staking...`);
     const connected = await stakingPageInfo?.stakedToken.contract.connect(library.getSigner());
-    await connected
+    connected
       .approve(stakingPageInfo?.stakingContract?.address, ethers.constants.MaxUint256)
       .then((res) =>
-        res.wait(2).then(async (res) => {
-          toast.dismiss();
-          toast.success(`${stakedToken.tokenName} approved!`);
+        onSuccess(res, `${stakedToken.tokenName} approved!`, async () => {
           await fetchPageInfo();
-          setWait(false);
         }),
       )
-      .catch((err) => {
-        toast.dismiss();
-        if (err.message === "MetaMask Tx Signature: User denied transaction signature.") {
-          toast.error("Transaction was canceled");
-        } else {
-          console.log(err);
-          console.log(err.message);
-          toast.error(err.message.split("'")[1]);
-        }
-        setWait(false);
-      });
+      .catch((err) => onError(err))
+      .finally(() => setWait(false));
   }
 
   return (
