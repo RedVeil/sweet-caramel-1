@@ -1,5 +1,4 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { ArrowCircleRightIcon } from "@heroicons/react/solid";
 import { ERC20, PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import {
   formatAndRoundBigNumber,
@@ -25,7 +24,6 @@ import { BigNumber, ethers } from "ethers";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import { getStakingContractFromAddress } from "helper/getStakingContractFromAddress";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
@@ -530,50 +528,31 @@ export default function StakingPage(): JSX.Element {
               )) || (
                 <div className="">
                   <div className="rounded-3xl shadow-custom border border-gray-200 w-full">
-                    <div className="h-32 md:h-28 pt-8 px-8">
-                      <div className="flex flex-row items-center justify-between">
-                        <div>
-                          <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
-                          <div className="flex flex-row items-center mt-1">
-                            <p className="text-2xl font-medium  mr-2">
-                              {stakingPageInfo?.balances ? formatStakedAmount(stakingPageInfo?.balances?.staked) : "0"}
-                            </p>
-                            <p className="text-2xl font-medium ">{stakedToken?.symbol}</p>
-                          </div>
+                    <div className="flex flex-col items-center justify-between">
+                      <div className="h-32 md:h-28 py-8 px-8 w-full">
+                        <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
+                        <div className="flex flex-row items-center mt-1">
+                          <p className="text-2xl font-medium  mr-2">
+                            {stakingPageInfo?.balances ? formatStakedAmount(stakingPageInfo?.balances?.staked) : "0"}
+                          </p>
+                          <p className="text-2xl font-medium ">{stakedToken?.symbol}</p>
                         </div>
-                        <div>
-                          {/* <Link href="#" passHref>
-                              <a
-                                target="_blank"
-                                className="text-lg text-blue-600 font-medium bg-white px-6 py-3 border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
-                              >
-                                Get Token
-                              </a>
-                            </Link> */}
-                        </div>
-                        <div className="h-32 md:h-28 bg-blue-50 rounded-b-3xl py-8 px-8">
-                          <div className="flex flex-row justify-between items-end md:items-center ">
-                            <div>
-                              <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
-                              <div className="flex flex-row items-center mt-1">
-                                <p className="text-2xl font-medium  mr-2">
-                                  {stakingPageInfo?.balances
-                                    ? formatAndRoundBigNumber(stakingPageInfo?.balances?.earned)
-                                    : "0"}
-                                </p>
-                                <p className="text-2xl font-medium ">POP</p>
-                              </div>
+                      </div>
+                      <div className="h-32 md:h-28 bg-blue-50 rounded-b-3xl py-8 px-8 w-full">
+                        <div className="flex flex-row justify-between items-end md:items-center ">
+                          <div>
+                            <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
+                            <div className="flex flex-row items-center mt-1">
+                              <p className="text-2xl font-medium  mr-2">
+                                {stakingPageInfo?.balances
+                                  ? formatAndRoundBigNumber(stakingPageInfo?.balances?.earned)
+                                  : "0"}
+                              </p>
+                              <p className="text-2xl font-medium ">POP</p>
                             </div>
-                            <TextLink text="Claim Page" />
                           </div>
+                          <TextLink text="Claim Page" />
                         </div>
-                        <Link href="/rewards" passHref>
-                          <a className="flex flex-shrink-0 text-lg text-blue-600 font-medium py-3 hover:text-white whitespace-nowrap">
-                            <span className="hidden md:inline mr-1">Go to</span>
-                            Claim Page
-                            <ArrowCircleRightIcon height={18} className="inline self-center ml-2" />
-                          </a>
-                        </Link>
                       </div>
                     </div>
                   </div>
