@@ -11,6 +11,7 @@ import { store } from "context/store";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
+import useWeb3Callbacks from "helper/useWeb3Callbacks";
 import useClaimEscrows from "hooks/useClaimEscrows";
 import useClaimStakingReward from "hooks/useClaimStakingReward";
 import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
@@ -33,6 +34,7 @@ export default function index(): JSX.Element {
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows();
+  const { onSuccess, onError } = useWeb3Callbacks();
 
   useEffect(() => {
     if (!account || !contracts) {
@@ -49,6 +51,8 @@ export default function index(): JSX.Element {
     let newStakingPoolsInfo: StakingPoolInfo[] = [];
     const popStakingInfo = await getSingleStakingPoolInfo(
       contracts.popStaking,
+      contracts,
+      chainId,
       library,
       contracts.pop?.address,
       "Popcorn",
@@ -59,7 +63,7 @@ export default function index(): JSX.Element {
     if (contracts.staking.length > 0) {
       await Promise.all(
         contracts.staking.map(async (stakingContract) => {
-          const poolInfo = await getSingleStakingPoolInfo(stakingContract, library);
+          const poolInfo = await getSingleStakingPoolInfo(stakingContract, contracts, chainId, library);
           const earnedRewards = await getEarned(stakingContract, account, false);
           poolInfo.earned = earnedRewards;
           newStakingPoolsInfo.push(poolInfo);
@@ -71,11 +75,9 @@ export default function index(): JSX.Element {
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
     toast.loading("Claiming Rewards...");
-    await claimStakingReward(pool, isPopLocker)
-      .then((res) => {
-        res.wait(2).then((res) => {
-          toast.dismiss();
-          toast.success("Rewards Claimed!");
+    claimStakingReward(pool, isPopLocker).then(
+      (res) =>
+        onSuccess(res, "Rewards Claimed!", () => {
           getData();
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
@@ -98,36 +100,17 @@ export default function index(): JSX.Element {
               }),
             );
           }
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+        }),
+      (err) => onError(err),
+    );
   };
 
   const claimSingleEscrow = async (escrow: Escrow) => {
     toast.loading("Claiming Escrow...");
-    await claimVestedPopFromEscrows([escrow.id])
-      .then((res) => {
-        res.wait(2).then((res) => {
-          toast.dismiss();
-          toast.success("Claimed Escrow!");
-          getData();
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+    claimVestedPopFromEscrows([escrow.id]).then(
+      (res) => onSuccess(res, "Claimed Escrow!", getData),
+      (err) => onError(err),
+    );
   };
 
   const claimAllEscrows = async () => {
@@ -135,22 +118,10 @@ export default function index(): JSX.Element {
     const escrowsIds = userEscrowsFetchResult?.data?.escrows.map((escrow) => escrow.id);
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
     if (numberOfEscrows && numberOfEscrows > 0) {
-      await claimVestedPopFromEscrows(escrowsIds)
-        .then((res) =>
-          res.wait(2).then((res) => {
-            toast.dismiss();
-            toast.success("Claimed Escrows!");
-            getData();
-          }),
-        )
-        .catch((err) => {
-          toast.dismiss();
-          if (err.data === undefined) {
-            toast.error("An error occured");
-          } else {
-            toast.error(err.data.message.split("'")[1]);
-          }
-        });
+      claimVestedPopFromEscrows(escrowsIds).then(
+        (res) => onSuccess(res, "Claimed Escrows!", getData),
+        (err) => onError(err),
+      );
     }
   };
 
@@ -168,15 +139,13 @@ export default function index(): JSX.Element {
       <Toaster position="top-right" />
       <div className="">
         <div className="flex flex-col mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
-          <div className="w-1/3">
-            <div className="">
-              <h1 className="text-3xl font-medium">Rewards</h1>
-              <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
-            </div>
+          <div className="text-center md:text-left md:w-1/3 mx-6 md:mx-0">
+            <h1 className="page-title">Rewards</h1>
+            <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
           </div>
           {!account && (
             <div className="w-full">
-              <div className="w-full mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl pt-44 pb-44 shadow-custom">
+              <div className="hidden md:block w-full mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl pt-44 pb-44 shadow-custom">
                 <img
                   src="/images/claims-cat.svg"
                   alt="cat holding popcorn"
@@ -196,7 +165,7 @@ export default function index(): JSX.Element {
           )}
           {account && (
             <div className="flex flex-row">
-              <div className="w-1/3 flex flex-col">
+              <div className="hidden md:flex flex-col w-1/3">
                 <div className="flex justify-center items-center p-10 mt-10 mb-8 mr-12 bg-primaryLight rounded-5xl shadow-custom min-h-128 h-11/12 max-h-screen">
                   <img
                     src="/images/claims-cat.svg"
@@ -205,8 +174,7 @@ export default function index(): JSX.Element {
                   />
                 </div>
               </div>
-
-              <div className="flex flex-col w-2/3 mt-10 mb-8">
+              <div className="flex flex-col w-full md:w-2/3 px-6 md:mx-0 mt-10 mb-8">
                 <div className="mb-8">
                   <TokenInputToggle toggled={showEscrows} toggle={setShowEscrows} labels={["Claim", "Reward"]} />
                 </div>

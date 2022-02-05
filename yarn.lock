@@ -5790,7 +5790,7 @@
     base64-sol "1.0.1"
     hardhat-watcher "^2.1.1"
 
-"@uniswap/v3-sdk@^3.5.1":
+"@uniswap/v3-sdk@^3.5.1", "@uniswap/v3-sdk@^3.8.1":
   version "3.8.1"
   resolved "https://registry.yarnpkg.com/@uniswap/v3-sdk/-/v3-sdk-3.8.1.tgz#111f50a5da32ae3827d9ef500a29dcb38c7e2e43"
   integrity sha512-Fn+h9zNVzgX8DE0hTWqMyXNF1AhT1ovmzE2dpSsTZmJkxVbc70+DzENeuknTfA+nmemtB915mq4vHrJL3lZGjA==

@@ -1,18 +1,17 @@
-import { Web3Provider } from '@ethersproject/providers';
-import {
-  ButterDependencyAddresses,
-  ContractAddresses,
-} from '@popcorn/utils/types';
-import { SetToken__factory } from '@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory';
-import { SetToken } from '@setprotocol/set-protocol-v2/typechain/SetToken';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { Contract } from "@ethersproject/contracts";
+import { Web3Provider } from "@ethersproject/providers";
+import { ButterDependencyAddresses, ContractAddresses } from "@popcorn/utils/types";
+import { SetToken__factory } from "@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory";
+import { SetToken } from "@setprotocol/set-protocol-v2/typechain/SetToken";
+import { abi as IUniswapV3PoolABI } from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
+import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
-} from '@web3-react/injected-connector';
-import activateRPCNetwork from 'helper/activateRPCNetwork';
-import React, { createContext, useEffect, useState } from 'react';
-import { getChainRelevantContracts } from '../../../hardhat/lib/utils/getContractAddresses';
+} from "@web3-react/injected-connector";
+import activateRPCNetwork from "helper/activateRPCNetwork";
+import React, { createContext, useEffect, useState } from "react";
+import { getChainRelevantContracts } from "../../../hardhat/lib/utils/getContractAddresses";
 import {
   BasicIssuanceModule,
   BasicIssuanceModule__factory,
@@ -26,14 +25,16 @@ import {
   CurveMetapool__factory,
   ERC20,
   ERC20__factory,
+  IGUni,
+  IGUni__factory,
   PopLocker,
   PopLocker__factory,
   Staking,
   Staking__factory,
   YearnVault,
   YearnVault__factory,
-} from '../../../hardhat/typechain';
-import { networkMap } from './connectors';
+} from "../../../hardhat/typechain";
+import { networkMap } from "./connectors";
 
 export interface Contracts {
   staking?: Staking[];
@@ -43,7 +44,8 @@ export interface Contracts {
   usdc?: ERC20;
   usdt?: ERC20;
   threeCrv?: ERC20;
-  popUsdcLp?: ERC20;
+  popUsdcLp?: IGUni;
+  popUsdcUniV3Pool?: Contract;
   butter?: SetToken;
   butterBatch?: ButterBatchProcessing;
   butterBatchZapper?: ButterBatchProcessingZapper;
@@ -73,23 +75,18 @@ interface ContractsWrapperProps {
 
 function getErrorMessage(error: Error) {
   if (error instanceof NoEthereumProviderError) {
-    return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
+    return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
   } else if (error instanceof UnsupportedChainIdError) {
-    return `You're connected to an unsupported network. Please connect to ${
-      networkMap[Number(process.env.CHAIN_ID)]
-    }.`;
+    return `You're connected to an unsupported network. Please connect to ${networkMap[Number(process.env.CHAIN_ID)]}.`;
   } else if (error instanceof UserRejectedRequestErrorInjected) {
-    return 'Please authorize this website to access your Ethereum account.';
+    return "Please authorize this website to access your Ethereum account.";
   } else {
     console.error(error);
-    return 'An unknown error occurred. Check the console for more details.';
+    return "An unknown error occurred. Check the console for more details.";
   }
 }
 
-const initializeContracts = (
-  contractAddresses: ContractAddresses,
-  library,
-): Contracts => {
+const initializeContracts = (contractAddresses: ContractAddresses, library): Contracts => {
   const {
     staking,
     popStaking,
@@ -99,29 +96,24 @@ const initializeContracts = (
     usdt,
     threeCrv,
     popUsdcLp,
+    popUsdcUniV3Pool,
     butter,
     butterBatch,
     butterBatchZapper,
   } = {
     ...contractAddresses,
   };
-
   const contracts: Contracts = {
-    popStaking: popStaking
-      ? PopLocker__factory.connect(popStaking, library)
-      : undefined,
+    popStaking: popStaking ? PopLocker__factory.connect(popStaking, library) : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
     dai: dai ? ERC20__factory.connect(dai, library) : undefined,
     usdc: usdc ? ERC20__factory.connect(usdc, library) : undefined,
     usdt: usdt ? ERC20__factory.connect(usdt, library) : undefined,
     threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
-    popUsdcLp: popUsdcLp
-      ? ERC20__factory.connect(popUsdcLp, library)
-      : undefined,
+    popUsdcLp: popUsdcLp ? IGUni__factory.connect(popUsdcLp, library) : undefined,
+    popUsdcUniV3Pool: popUsdcUniV3Pool ? new Contract(popUsdcUniV3Pool, IUniswapV3PoolABI, library) : undefined,
     butter: butter ? SetToken__factory.connect(butter, library) : undefined,
-    butterBatch: butterBatch
-      ? ButterBatchProcessing__factory.connect(butterBatch, library)
-      : undefined,
+    butterBatch: butterBatch ? ButterBatchProcessing__factory.connect(butterBatch, library) : undefined,
     butterBatchZapper: butterBatchZapper
       ? ButterBatchProcessingZapper__factory.connect(butterBatchZapper, library)
       : undefined,
@@ -129,9 +121,7 @@ const initializeContracts = (
   contracts.staking = [];
   if (staking && staking.length > 0) {
     for (var i = 0; i < contractAddresses.staking.length; i++) {
-      contracts.staking.push(
-        Staking__factory.connect(contractAddresses.staking[i], library),
-      );
+      contracts.staking.push(Staking__factory.connect(contractAddresses.staking[i], library));
     }
   }
 
@@ -147,35 +137,20 @@ const initializeButterDependencyContracts = (
     return {
       yFrax: YearnVault__factory.connect(contractAddresses.yFrax, library),
       yMim: YearnVault__factory.connect(contractAddresses.yMim, library),
-      crvFraxMetapool: CurveMetapool__factory.connect(
-        contractAddresses.crvFraxMetapool,
-        library,
-      ),
-      crvMimMetapool: CurveMetapool__factory.connect(
-        contractAddresses.crvMimMetapool,
-        library,
-      ),
-      threePool: Curve3Pool__factory.connect(
-        contractAddresses.threePool,
-        library,
-      ),
-      setBasicIssuanceModule: BasicIssuanceModule__factory.connect(
-        contractAddresses.setBasicIssuanceModule,
-        library,
-      ),
+      crvFraxMetapool: CurveMetapool__factory.connect(contractAddresses.crvFraxMetapool, library),
+      crvMimMetapool: CurveMetapool__factory.connect(contractAddresses.crvMimMetapool, library),
+      threePool: Curve3Pool__factory.connect(contractAddresses.threePool, library),
+      setBasicIssuanceModule: BasicIssuanceModule__factory.connect(contractAddresses.setBasicIssuanceModule, library),
     };
   }
   return {};
 };
 
-export default function ContractsWrapper({
-  children,
-}: ContractsWrapperProps): JSX.Element {
+export default function ContractsWrapper({ children }: ContractsWrapperProps): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { library, chainId, activate, active } = context;
   const [contracts, setContracts] = useState<Contracts>();
-  const [butterDependencyContracts, setButterDependencyContracts] =
-    useState<ButterDependencyContracts>();
+  const [butterDependencyContracts, setButterDependencyContracts] = useState<ButterDependencyContracts>();
 
   useEffect(() => {
     if (!active) {

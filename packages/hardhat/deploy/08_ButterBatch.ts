@@ -10,10 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const addresses = await getNamedAccounts();
-  const signer = await getSignerFrom(
-    hre.config.namedAccounts.deployer as string,
-    hre
-  );
+  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
   const signerAddress = await signer.getAddress();
 
   const YTOKEN_ADDRESSES = [addresses.yFrax, addresses.yMim];
@@ -40,8 +37,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   //ContractRegistry
-  const contractRegistryAddress = (await deployments.get("ContractRegistry"))
-    .address;
+  const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
 
   //Butter Batch
   console.log("deploying butterBatch...");
@@ -66,12 +62,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   console.log("adding butterBatch to contract registry...");
-  await addContractToRegistry(
-    "ButterBatchProcessing",
-    deployments,
-    signer,
-    hre
-  );
+  await addContractToRegistry("ButterBatchProcessing", deployments, signer, hre);
 
   if (["mainnet", "hardhat", "local"].includes(hre.network.name)) {
     console.log("setting approvals for ButterBatchProcessing");
@@ -117,20 +108,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   if (!Boolean(parseInt(process.env.UPDATE_ONLY || "0"))) {
     console.log("creating incentive 1 ...");
-    await keeperIncentive.createIncentive(
-      utils.formatBytes32String("ButterBatchProcessing"),
-      0,
-      false,
-      false
-    );
+    await keeperIncentive.createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, false, false);
 
     console.log("creating incentive 2 ...");
-    await keeperIncentive.createIncentive(
-      utils.formatBytes32String("ButterBatchProcessing"),
-      0,
-      false,
-      false
-    );
+    await keeperIncentive.createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, false, false);
 
     const aclRegistry = await hre.ethers.getContractAt(
       "ACLRegistry",
@@ -141,12 +122,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
 
     console.log("granting ButterZapper role to ButterBatchZapper");
-    await aclRegistry.grantRole(
-      ethers.utils.id("ButterZapper"),
-      (
-        await deployments.get("ButterBatchZapper")
-      ).address
-    );
+    await aclRegistry.grantRole(ethers.utils.id("ButterZapper"), (await deployments.get("ButterBatchZapper")).address);
 
     console.log("granting ApprovedContract role to ButterBatchZapper");
     await aclRegistry.grantRole(
@@ -157,9 +133,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   }
 
-  console.log(
-    "setting ButterBatchProcessing as controller contract for keeper incentive"
-  );
+  console.log("setting ButterBatchProcessing as controller contract for keeper incentive");
   await keeperIncentive.addControllerContract(
     utils.formatBytes32String("ButterBatchProcessing"),
     (
@@ -190,41 +164,19 @@ async function createDemoData(
     signer
   );
 
-  const threeCrv = await hre.ethers.getContractAt(
-    "MockERC20",
-    addresses.threeCrv,
-    signer
-  );
-  const dai = await hre.ethers.getContractAt(
-    "MockERC20",
-    addresses.dai,
-    signer
-  );
-  const butter = await hre.ethers.getContractAt(
-    "MockERC20",
-    addresses.butter,
-    signer
-  );
+  const threeCrv = await hre.ethers.getContractAt("MockERC20", addresses.threeCrv, signer);
+  const dai = await hre.ethers.getContractAt("MockERC20", addresses.dai, signer);
+  const butter = await hre.ethers.getContractAt("MockERC20", addresses.butter, signer);
 
   //Faucet
   await deploy("Faucet", {
     from: addresses.deployer,
-    args: [
-      addresses.uniswapRouter,
-      addresses.curveAddressProvider,
-      addresses.curveFactoryMetapoolDepositZap,
-    ],
+    args: [addresses.uniswapRouter, addresses.curveAddressProvider, addresses.curveFactoryMetapoolDepositZap],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "Faucet",
   });
-  const faucet = await hre.ethers.getContractAt(
-    "Faucet",
-    (
-      await deployments.get("Faucet")
-    ).address,
-    signer
-  );
+  const faucet = await hre.ethers.getContractAt("Faucet", (await deployments.get("Faucet")).address, signer);
 
   await hre.network.provider.send("hardhat_setBalance", [
     faucet.address,
