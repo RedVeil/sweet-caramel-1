@@ -10,6 +10,7 @@ export interface ContractAddresses {
   threeCrv?: Address;
   threePool?: Address;
   popUsdcLp?: Address;
+  popUsdcUniV3Pool?: Address;
   butter?: Address;
   butterBatch?: Address;
   butterBatchZapper?: Address;

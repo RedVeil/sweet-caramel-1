@@ -16,6 +16,10 @@ export default function getNamedAccounts() {
       polygon: "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
       mainnet: "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
     },
+    popUsdcUniV3Pool: {
+      mainnet: "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
+      hardhat: "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
+    },
     butterStaking: {
       hardhat: "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926",
       mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
