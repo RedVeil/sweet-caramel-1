@@ -2,19 +2,26 @@ import { formatBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
-import { useState } from "react";
 
 export interface TokenInputProps {
   label: string;
   tokenName: string;
   inputAmount: BigNumber;
+  displayAmount: string;
+  setDisplayAmount: (displayAmount: string) => void;
   balance: BigNumber;
   updateInputAmount: Function;
 }
 
-const TokenInput: React.FC<TokenInputProps> = ({ label, tokenName, inputAmount, balance, updateInputAmount }) => {
-  const [displayAmount, setDisplayAmount] = useState<string>("");
-
+const TokenInput: React.FC<TokenInputProps> = ({
+  label,
+  tokenName,
+  inputAmount,
+  balance,
+  updateInputAmount,
+  displayAmount,
+  setDisplayAmount,
+}) => {
   const enforcer = (nextUserInput: string) => {
     if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
       updateInputAmount(numberToBigNumber(Number(nextUserInput)));
