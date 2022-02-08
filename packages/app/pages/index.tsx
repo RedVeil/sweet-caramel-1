@@ -15,7 +15,7 @@ const IndexPage = () => {
   return (
     <div>
       <NavBar />
-      <div className="flex mx-auto justify-center md:py-28 flex-col md:flex-row w-11/12 lglaptop:w-9/12 2xl:max-w-7xl">
+      <div className="flex mx-auto justify-center md:py-20 flex-col md:flex-row w-11/12 lglaptop:w-9/12 2xl:max-w-7xl">
         <Hero
           header="Butter"
           content="Our Yield Optimizer. Deposit stablecoins and earn by leveraging the power of compound interest."
