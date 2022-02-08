@@ -1,4 +1,3 @@
-import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from "@ethersproject/providers";
 import { ButterDependencyAddresses, ContractAddresses } from "@popcorn/utils/types";
 import { SetToken__factory } from "@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory";
@@ -9,7 +8,7 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from "@web3-react/injected-connector";
-import activateRPCNetwork from "helper/activateRPCNetwork";
+import { Contract } from "ethers";
 import React, { createContext, useEffect, useState } from "react";
 import { getChainRelevantContracts } from "../../../hardhat/lib/utils/getContractAddresses";
 import {
@@ -151,12 +150,6 @@ export default function ContractsWrapper({ children }: ContractsWrapperProps): J
   const { library, chainId, activate, active } = context;
   const [contracts, setContracts] = useState<Contracts>();
   const [butterDependencyContracts, setButterDependencyContracts] = useState<ButterDependencyContracts>();
-
-  useEffect(() => {
-    if (!active) {
-      activateRPCNetwork(activate);
-    }
-  }, [active]);
 
   useEffect(() => {
     if (!library || !chainId || chainId === undefined) {

@@ -1,9 +1,9 @@
 export { capitalize } from "./capitalize";
 export { getERC20Contract } from "./contractHelpers";
 export {
-  formatBigNumber,
-  formatAndRoundBigNumber,
   bigNumberToNumber,
+  formatAndRoundBigNumber,
+  formatBigNumber,
   numberToBigNumber,
   scaleNumberToBigNumber,
 } from "./formatBigNumber";

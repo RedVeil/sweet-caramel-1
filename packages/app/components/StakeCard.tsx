@@ -2,7 +2,6 @@ import { Web3Provider } from "@ethersproject/providers";
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { formatAndRoundBigNumber, getERC20Contract, StakingPoolInfo } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
-import { parseEther } from "ethers/lib/utils";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import router from "next/router";
@@ -39,9 +38,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ tokenName, stakingPoolInfo, url, 
       <div className="flex flex-row flex-wrap items-center mt-6 justify-between">
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel
-            content={stakingPoolInfo.apy === "∞"
-              ? 'New 🍿✨'
-              : stakingPoolInfo.apy.toLocaleString() + '%'}
+            content={stakingPoolInfo.apy === "∞" ? "New 🍿✨" : stakingPoolInfo.apy.toLocaleString() + "%"}
             label="Est. APY"
             green
           />

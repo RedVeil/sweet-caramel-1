@@ -14,8 +14,8 @@ import { setDualActionWideModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { ChainId, connectors } from "context/Web3/connectors";
 import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
-import { switchNetwork } from "context/Web3/networkSwitch";
 import { BigNumber, ethers } from "ethers";
+import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import router from "next/router";
 import { useContext, useEffect, useState } from "react";
@@ -176,6 +176,7 @@ export default function Butter(): JSX.Element {
   const [apy, setApy] = useState<number>();
   const [loading, setLoading] = useState<boolean>(false);
   const virtualPrice = useThreeCurveVirtualPrice(butterDependencyContracts?.threePool?.address);
+  const switchNetwork = useNetworkSwitch();
 
   useEffect(() => {
     if (contracts?.butterBatch && !butterBatchAdapter) {
@@ -197,7 +198,7 @@ export default function Butter(): JSX.Element {
             onClick: () => {
               if ([ChainId.Hardhat, ChainId.Localhost].includes(parseInt(process.env.CHAIN_ID))) {
                 console.log("switching network ", parseInt(process.env.CHAIN_ID));
-                switchNetwork(parseInt(process.env.CHAIN_ID));
+                switchNetwork(Number(process.env.CHAIN_ID));
               } else {
                 switchNetwork(ChainId.Ethereum);
               }

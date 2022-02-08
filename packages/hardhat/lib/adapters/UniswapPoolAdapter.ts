@@ -9,10 +9,7 @@ class UniswapPoolAdapter {
 
     //Amount of Token1 your get for Token0
     //E.G. 1 USDC = 0.95 POP
-    const price0 = slot[0]
-      .pow(2)
-      .div(BigNumber.from("2").pow(192))
-      .mul("1000000"); // raise to get to 1e18
+    const price0 = slot[0].pow(2).div(BigNumber.from("2").pow(192)).mul("1000000"); // raise to get to 1e18
     if (returnPrice0) {
       return price0;
     }

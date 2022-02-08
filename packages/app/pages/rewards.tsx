@@ -63,17 +63,8 @@ export default function index(): JSX.Element {
     if (contracts.staking.length > 0) {
       await Promise.all(
         contracts.staking.map(async (stakingContract) => {
-          const poolInfo = await getSingleStakingPoolInfo(
-            stakingContract,
-            contracts,
-            chainId,
-            library,
-          );
-          const earnedRewards = await getEarned(
-            stakingContract,
-            account,
-            false,
-          );
+          const poolInfo = await getSingleStakingPoolInfo(stakingContract, contracts, chainId, library);
+          const earnedRewards = await getEarned(stakingContract, account, false);
           poolInfo.earned = earnedRewards;
           newStakingPoolsInfo.push(poolInfo);
         }),
@@ -200,8 +191,8 @@ export default function index(): JSX.Element {
                         poolInfo.stakedTokenName === "Popcorn"
                           ? contracts.popStaking
                           : contracts.staking.find(
-                            (stakingContract) => stakingContract.address === poolInfo.stakingContractAddress,
-                          )
+                              (stakingContract) => stakingContract.address === poolInfo.stakingContractAddress,
+                            )
                       }
                       disabled={poolInfo.earned.isZero()}
                       isPopLocker={poolInfo.stakedTokenName === "Popcorn"}
@@ -210,9 +201,9 @@ export default function index(): JSX.Element {
                 {showEscrows && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
-                      !userEscrowsFetchResult?.data ||
-                      userEscrowsFetchResult?.error ||
-                      userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                    !userEscrowsFetchResult?.data ||
+                    userEscrowsFetchResult?.error ||
+                    userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                       <div className="border-1 border-gray-200 rounded-5xl w-full h-full flex flex-col justify-center items-center bg-gray-50">
                         <img src="/images/emptyPopcorn.svg" className="h-1/2 w-1/2" />
                         <p className="mt-12 font-semibold text-2xl text-gray-900">No records available</p>

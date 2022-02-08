@@ -1,17 +1,13 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
-import Navbar from 'components/NavBar/NavBar';
-import StakeCard from 'components/StakeCard';
-import { ChainId } from 'context/Web3/connectors';
-import {
-  ButterDependencyContracts,
-  Contracts,
-  ContractsContext,
-} from 'context/Web3/contracts';
-import React, { useContext, useEffect, useState } from 'react';
-import ContentLoader from 'react-content-loader';
-import { Toaster } from 'react-hot-toast';
-import { getStakingPoolsInfo, StakingPoolInfo } from '../../../utils';
+import { Web3Provider } from "@ethersproject/providers";
+import { useWeb3React } from "@web3-react/core";
+import Navbar from "components/NavBar/NavBar";
+import StakeCard from "components/StakeCard";
+import { ChainId } from "context/Web3/connectors";
+import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
+import React, { useContext, useEffect, useState } from "react";
+import ContentLoader from "react-content-loader";
+import { Toaster } from "react-hot-toast";
+import { getStakingPoolsInfo, StakingPoolInfo } from "../../../utils";
 
 async function getStakingPools(
   contracts: Contracts,
@@ -19,12 +15,7 @@ async function getStakingPools(
   library,
   butterDependencyContracts?: ButterDependencyContracts,
 ): Promise<StakingPoolInfo[]> {
-  return getStakingPoolsInfo(
-    contracts,
-    chainId,
-    library,
-    butterDependencyContracts,
-  );
+  return getStakingPoolsInfo(contracts, chainId, library, butterDependencyContracts);
 }
 
 export default function index(): JSX.Element {
@@ -42,9 +33,7 @@ export default function index(): JSX.Element {
       contracts,
       chainId,
       library,
-      [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost].includes(chainId)
-        ? butterDependencyContracts
-        : undefined,
+      [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost].includes(chainId) ? butterDependencyContracts : undefined,
     )
       .then((res) => {
         setStakingPools(res);
