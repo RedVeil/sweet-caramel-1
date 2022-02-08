@@ -3,13 +3,15 @@
 
 pragma solidity ^0.8.0;
 
+import "../core/interfaces/IContractRegistry.sol";
+import "../core/utils/ContractRegistryAccess.sol";
 import "../core/utils/ACLAuth.sol";
 
-contract ACLAuthHelper is ACLAuth {
+contract ACLAuthHelper is ACLAuth, ContractRegistryAccess {
   OtherContract public otherContract;
   bytes32 internal constant TEST_PERMISSION = keccak256("Test Permission");
 
-  constructor(IContractRegistry _contractRegistry) ACLAuth(_contractRegistry) {
+  constructor(IContractRegistry _contractRegistry) ContractRegistryAccess(_contractRegistry) {
     otherContract = new OtherContract(_contractRegistry);
   }
 
@@ -58,10 +60,14 @@ contract ACLAuthHelper is ACLAuth {
   function callOtherContractWithRequireApprovedContractOrEOAWithAddress(address account) public view {
     otherContract.testApprovedContractOrEOARequireWithAddress(account);
   }
+
+  function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
+    return super._getContract(_name);
+  }
 }
 
-contract OtherContract is ACLAuth {
-  constructor(IContractRegistry _contractRegistry) ACLAuth(_contractRegistry) {}
+contract OtherContract is ACLAuth, ContractRegistryAccess {
+  constructor(IContractRegistry _contractRegistry) ContractRegistryAccess(_contractRegistry) {}
 
   function testApprovedContractOrEOAModifier() public onlyApprovedContractOrEOA {}
 
@@ -71,5 +77,9 @@ contract OtherContract is ACLAuth {
 
   function testApprovedContractOrEOARequireWithAddress(address account) public view {
     _requireApprovedContractOrEOA(account);
+  }
+
+  function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
+    return super._getContract(_name);
   }
 }
