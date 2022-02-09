@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
 import { BatchProcessTokens, SelectedToken } from "pages/butter";
 import { Dispatch, useEffect, useState } from "react";
-import { formatBigNumber, scaleNumberToBigNumber } from "../../../utils";
+import { formatAndRoundBigNumber, formatBigNumber, scaleNumberToBigNumber } from "../../../utils";
 import SelectToken from "./SelectToken";
 
 export interface BatchProcessToken {
@@ -13,6 +13,7 @@ export interface BatchProcessToken {
   allowance: BigNumber;
   claimableBalance?: BigNumber;
   price: BigNumber;
+  decimals: number;
   img?: string;
 }
 
@@ -97,17 +98,19 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <div className="flex flex-row items-center justify-between mb-1">
           <p className="text-sm font-semibold text-gray-900">Deposit Amount</p>
           <p className="text-gray-500 font-medium text-sm">
-            {`${formatBigNumber(
+            {`${formatAndRoundBigNumber(
               useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance,
-              3,
+              1,
+              selectedToken.input.decimals,
             )} ${selectedToken.input.name}`}
           </p>
         </div>
         <div
-          className={`rounded-md border py-2 pl-2 pr-4 ${depositAmount.gt(useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance)
+          className={`rounded-md border py-2 pl-2 pr-4 ${
+            depositAmount.gt(useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance)
               ? "border-red-600"
               : "border-gray-200"
-            }`}
+          }`}
         >
           <div className="flex flex-row items-center justify-between">
             <input
@@ -155,8 +158,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
         {hasUnclaimedBalances && (
           <div className="flex flex-row items-center mt-2">
             <label
-              className={`flex flex-row items-center  group ${["threeCrv", "butter"].includes(selectedToken.input.key) ? "cursor-pointer" : "cursor-default"
-                }`}
+              className={`flex flex-row items-center  group ${
+                ["threeCrv", "butter"].includes(selectedToken.input.key) ? "cursor-pointer" : "cursor-default"
+              }`}
             >
               <input
                 type="checkbox"
@@ -171,10 +175,11 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 disabled={!["threeCrv", "butter"].includes(selectedToken.input.key)}
               />
               <p
-                className={`text-base mt-0.5 leading-none ${["threeCrv", "butter"].includes(selectedToken.input.key)
+                className={`text-base mt-0.5 leading-none ${
+                  ["threeCrv", "butter"].includes(selectedToken.input.key)
                     ? "text-gray-600 group-hover:text-blue-700"
                     : "text-gray-400"
-                  }`}
+                }`}
               >
                 Use only unclaimed balances
               </p>
@@ -235,7 +240,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
               selectedToken={selectedToken.output}
               token={token}
               notSelectable={[selectedToken.output.key, redeeming ? "butter" : "threeCrv"]}
-              selectToken={() => { }}
+              selectToken={() => {}}
             />
           </div>
         </div>

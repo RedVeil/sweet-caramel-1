@@ -82,6 +82,7 @@ async function getBatchProcessToken(
         } as ComponentMap,
         contracts.butter?.address,
       ),
+      decimals: 18,
       img: "butter.png",
     },
     threeCrv: {
@@ -91,6 +92,7 @@ async function getBatchProcessToken(
       allowance: await contracts.threeCrv.allowance(account, contracts.butterBatch.address),
       claimableBalance: BigNumber.from("0"),
       price: await butterBatchAdapter.getThreeCrvPrice(butterDependencyContracts.threePool),
+      decimals: 18,
       img: "3crv.png",
     },
     dai: {
@@ -103,6 +105,7 @@ async function getBatchProcessToken(
         BigNumber.from("0"),
         BigNumber.from("0"),
       ]),
+      decimals: 18,
       img: "dai.webp",
     },
     usdc: {
@@ -115,6 +118,7 @@ async function getBatchProcessToken(
         BigNumber.from(1e6),
         BigNumber.from("0"),
       ]),
+      decimals: 6,
       img: "usdc.webp",
     },
     usdt: {
@@ -127,6 +131,7 @@ async function getBatchProcessToken(
         BigNumber.from("0"),
         BigNumber.from(1e6),
       ]),
+      decimals: 6,
       img: "usdt.webp",
     },
   };
