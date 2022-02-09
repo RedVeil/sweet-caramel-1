@@ -2,7 +2,6 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useWeb3React } from "@web3-react/core";
-import activateRPCNetwork from "helper/activateRPCNetwork";
 import useEagerConnect from "hooks/useEagerConnect";
 import useNetworkSwitch from "hooks/useNetworkSwitch";
 import Link from "next/link";
@@ -14,11 +13,10 @@ import GetPopMenu from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
-const disconnectInjectedAndActivateRPCConnector = (deactivate: Function, activate: Function, chainId: number) => {
+const disconnectInjected = (deactivate: Function, chainId: number) => {
   localStorage.setItem("eager_connect", "false");
   localStorage.setItem("chainId", String(chainId));
   deactivate(connectors.Injected);
-  activateRPCNetwork(activate, chainId);
 };
 
 const Navbar: FC = () => {
@@ -90,7 +88,7 @@ const Navbar: FC = () => {
           <button
             onClick={() => {
               if (account) {
-                disconnectInjectedAndActivateRPCConnector(deactivate, activate, chainId);
+                disconnectInjected(deactivate, chainId);
               } else {
                 localStorage.setItem("eager_connect", "true");
                 activate(connectors.Injected);

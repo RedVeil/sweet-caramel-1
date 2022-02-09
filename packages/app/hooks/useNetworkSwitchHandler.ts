@@ -1,10 +1,17 @@
 import { useWeb3React } from "@web3-react/core";
+import activateRPCNetwork from "helper/activateRPCNetwork";
 import { useEffect } from "react";
 import useNetworkSwitch from "./useNetworkSwitch";
 
 export default function useNetworkSwitchHandler() {
-  const { chainId, account } = useWeb3React();
+  const { chainId, account, active, activate } = useWeb3React();
   const networkSwitch = useNetworkSwitch();
+
+  useEffect(() => {
+    if (!active && Number(localStorage.getItem("chainId"))) {
+      activateRPCNetwork(activate, Number(localStorage.getItem("chainId")));
+    }
+  }, [active]);
 
   useEffect(() => {
     if (!Number(localStorage.getItem("previousChainId"))) {
