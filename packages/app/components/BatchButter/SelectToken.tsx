@@ -22,13 +22,12 @@ export default function SelectToken({
 
   return (
     <div
-      className="relative w-28 mt-1 justify-end"
+      className="relative w-auto mt-1 justify-end"
       onMouseLeave={() => setDropdown(false)}
     >
       <span
-        className={`flex flex-row items-center justify-end ${
-          allowSelection ? 'cursor-pointer group' : ''
-        }`}
+        className={`flex flex-row items-center justify-end ${allowSelection ? 'cursor-pointer group' : 'mr-4'
+          }`}
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
         <img
@@ -42,9 +41,9 @@ export default function SelectToken({
         {allowSelection && (
           <>
             {showDropdown ? (
-              <Icon.ChevronUp className="w-5 h-6 mb-1 ml-2 group-hover:text-blue-700" />
+              <Icon.ChevronUp className="w-5 h-6 mb-1 ml-2 mr-4 group-hover:text-blue-700" />
             ) : (
-              <Icon.ChevronDown className="w-5 h-6 mb-1 ml-2 group-hover:text-blue-700" />
+              <Icon.ChevronDown className="w-5 h-6 mb-1 ml-2 mr-4 group-hover:text-blue-700" />
             )}
           </>
         )}

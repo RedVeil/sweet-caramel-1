@@ -96,7 +96,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
     <>
       <div className="mt-10">
         <div className="flex flex-row items-center justify-between mb-1">
-          <p className="text-sm font-semibold text-gray-900">Deposit Amount</p>
+          <p className="text-base font-semibold text-gray-900">Deposit Amount</p>
           <p className="text-gray-500 font-medium text-sm">
             {`${formatAndRoundBigNumber(
               useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance,
@@ -105,16 +105,13 @@ const TokenInput: React.FC<TokenInputProps> = ({
             )} ${selectedToken.input.name}`}
           </p>
         </div>
-        <div
-          className={`rounded-md border py-2 pl-2 pr-4 ${
-            depositAmount.gt(useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance)
-              ? "border-red-600"
-              : "border-gray-200"
-          }`}
-        >
-          <div className="flex flex-row items-center justify-between">
+        <div>
+          <div className="mt-1 relative flex items-center">
             <input
-              className="w-8/12 mr-4 font-semibold leading-none text-gray-500 border-none focus:text-gray-800 focus:outline-none"
+              className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${depositAmount.gt(useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance)
+                ? "focus:ring-red-600 focus:border-red-600"
+                : "focus:ring-indigo-500 focus:border-indigo-500"
+                }`}
               value={displayDepositAmount}
               onChange={(e) => {
                 enforcer(e.target.value.replace(/,/g, "."), false);
@@ -130,9 +127,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
               maxLength={79}
               spellCheck="false"
             />
-            <div className="flex flex-row items-center">
+            <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
               <p
-                className="px-2 pb-1 pt-1.5 leading-none text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700"
+                className="px-2 pb-1 pt-1.5 mr-4 leading-none text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 text-sm"
                 onClick={(e) => {
                   const maxAmount = useUnclaimedDeposits
                     ? selectedToken.input.claimableBalance
@@ -158,9 +155,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
         {hasUnclaimedBalances && (
           <div className="flex flex-row items-center mt-2">
             <label
-              className={`flex flex-row items-center  group ${
-                ["threeCrv", "butter"].includes(selectedToken.input.key) ? "cursor-pointer" : "cursor-default"
-              }`}
+              className={`flex flex-row items-center  group ${["threeCrv", "butter"].includes(selectedToken.input.key) ? "cursor-pointer" : "cursor-default"
+                }`}
             >
               <input
                 type="checkbox"
@@ -175,11 +171,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 disabled={!["threeCrv", "butter"].includes(selectedToken.input.key)}
               />
               <p
-                className={`text-base mt-0.5 leading-none ${
-                  ["threeCrv", "butter"].includes(selectedToken.input.key)
-                    ? "text-gray-600 group-hover:text-blue-700"
-                    : "text-gray-400"
-                }`}
+                className={`text-base mt-0.5 leading-none ${["threeCrv", "butter"].includes(selectedToken.input.key)
+                  ? "text-gray-600 group-hover:text-blue-700"
+                  : "text-gray-400"
+                  }`}
               >
                 Use only unclaimed balances
               </p>
@@ -216,12 +211,12 @@ const TokenInput: React.FC<TokenInputProps> = ({
           </div>
         </div>
       </div>
-      <div className="">
-        <p className="mb-1 text-base font-medium text-gray-900">{`Estimated ${selectedToken.output.name} Amount`}</p>
-        <div className="py-2 pl-2 pr-5 border border-gray-200 rounded-md">
-          <div className="flex flex-row items-center justify-between">
+      <div>
+        <p className="text-base font-semibold text-gray-900">{`Estimated ${selectedToken.output.name} Amount`}</p>
+        <div>
+          <div className="mt-1 relative flex items-center">
             <input
-              className="mr-1 font-semibold leading-none text-gray-500 border-none w-36 smlaptop:w-64 smlaptop:mr-0 focus:outline-none focus:text-gray-800"
+              className="block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 focus:ring-indigo-500 focus:border-indigo-500"
               value={estimatedAmount}
               onChange={(e) => enforcer(e.target.value.replace(/,/g, "."), true)}
               inputMode="decimal"
@@ -235,13 +230,15 @@ const TokenInput: React.FC<TokenInputProps> = ({
               maxLength={79}
               spellCheck="false"
             />
-            <SelectToken
-              allowSelection={false}
-              selectedToken={selectedToken.output}
-              token={token}
-              notSelectable={[selectedToken.output.key, redeeming ? "butter" : "threeCrv"]}
-              selectToken={() => {}}
-            />
+            <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
+              <SelectToken
+                allowSelection={false}
+                selectedToken={selectedToken.output}
+                token={token}
+                notSelectable={[selectedToken.output.key, redeeming ? "butter" : "threeCrv"]}
+                selectToken={() => { }}
+              />
+            </div>
           </div>
         </div>
       </div>

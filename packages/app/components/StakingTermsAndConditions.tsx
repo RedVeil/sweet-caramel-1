@@ -15,7 +15,7 @@ const TermsAndConditions = ({
 }: TermsAndConditionsProps) => {
   return (
     <div>
-      <div className="relative flex items-start pb-10 pr-2">
+      <div className="relative flex items-start pt-0 md:pt-10 lg:pt-0 pb-10 pr-2">
         <div className="flex items-center h-5 pt-2">
           {isDisabled ? (
             <input
@@ -37,27 +37,24 @@ const TermsAndConditions = ({
         </div>
         <div className="ml-2">
           <p
-            className={`text-lg font-semibold ${
-              isDisabled ? 'text-gray-300' : 'text-gray-900'
-            } pb-2`}
+            className={`text-lg font-semibold ${isDisabled ? 'text-gray-300' : 'text-gray-900'
+              } pb-2`}
           >
             Accept reward terms and conditions:
           </p>
           <ul className="list-inside">
             {showLockTerms && (
               <li
-                className={`text-lg pb-2 ${
-                  isDisabled ? 'text-gray-300' : 'text-gray-600'
-                }`}
+                className={`text-lg pb-2 ${isDisabled ? 'text-gray-300' : 'text-gray-600'
+                  }`}
               >
                 Your staked tokens will be locked for a period of 12 weeks. You
                 will be unable to access your tokens during this period.
               </li>
             )}
             <li
-              className={`text-lg ${
-                isDisabled ? 'text-gray-300' : 'text-gray-600'
-              }`}
+              className={`text-lg ${isDisabled ? 'text-gray-300' : 'text-gray-600'
+                }`}
             >
               After rewards are earned and claimed, 10% is immediately
               transferred, and the rest of the earned amount is unlocked

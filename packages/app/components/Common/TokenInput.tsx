@@ -33,9 +33,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
       <span className="flex flex-col justify-between">
         <div className="">
           <div>
-            <label htmlFor="tokenInput" className="flex justify-between text-sm font-medium text-gray-700 text-center">
-              <p className="mb-2  text-base">{label}</p>
-              <p className="text-gray-500 font-normal text-base">
+            <label htmlFor="tokenInput" className="flex justify-between items-center text-sm font-medium text-gray-700 text-center">
+              <p className="text-base font-semibold text-gray-900">{label}</p>
+              <p className="text-gray-500 font-medium text-sm">
                 {formatStakedAmount(balance)} {tokenName}
               </p>
             </label>
@@ -43,11 +43,10 @@ const TokenInput: React.FC<TokenInputProps> = ({
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className={`shadow-sm  block w-full pl-4 pr-16 py-4 text-lg border-gray-300 rounded-xl ${
-                  inputAmount?.gt(balance)
-                    ? "focus:ring-red-600 focus:border-red-600"
-                    : "focus:ring-indigo-500 focus:border-indigo-500"
-                }`}
+                className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${inputAmount?.gt(balance)
+                  ? "focus:ring-red-600 focus:border-red-600"
+                  : "focus:ring-indigo-500 focus:border-indigo-500"
+                  }`}
                 value={displayAmount}
                 onChange={(e) => {
                   enforcer(e.target.value.replace(/,/g, "."));
@@ -63,17 +62,17 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 maxLength={79}
                 spellCheck="false"
               />
-              <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
-                <kbd
-                  className="inline-flex items-center border-2 border-gray-200 rounded-lg px-2 h-8 mt-2 text-sm font-sans font-medium text-blue-600 cursor-pointer hover:text-indigo-500 hover:border-indigo-500"
+              <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
+                <p
+                  className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 leading-none cursor-pointer hover:text-indigo-500 hover:border-indigo-500 text-sm"
                   onClick={() => {
                     updateInputAmount(balance);
                     setDisplayAmount(formatBigNumber(balance));
                   }}
                 >
                   MAX
-                </kbd>
-                <p className="inline-flex items-center  font-medium text-lg mx-3">{tokenName}</p>
+                </p>
+                <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{tokenName}</p>
               </div>
             </div>
             {inputAmount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}

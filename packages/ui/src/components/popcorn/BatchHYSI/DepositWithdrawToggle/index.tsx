@@ -12,37 +12,33 @@ export const DepositWithdrawToggle: React.FC<DepositWithdrawToggleProps> = ({
   return (
     <div className="flex flex-row">
       <div
-        className={`w-1/2 ${
-          withdrawal
+        className={`w-1/2 ${withdrawal
             ? 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
             : 'border-b-2 border-gray-900'
-        }`}
+          }`}
         onClick={(e) => setwithdrawal(false)}
       >
         <p
-          className={`text-center text-base mb-4 ${
-            withdrawal
-              ? 'text-gray-400 group-hover:text-gray-600'
+          className={`text-center text-base mb-4 ${withdrawal
+              ? 'text-gray-400 group-hover:text-gray-600 font-semibold'
               : 'text-gray-900 font-semibold'
-          }`}
+            }`}
         >
           Deposit
         </p>
       </div>
       <div
-        className={`w-1/2 ${
-          withdrawal
+        className={`w-1/2 ${withdrawal
             ? 'border-b-2 border-gray-900'
             : 'border-b border-gray-400 cursor-pointer group hover:border-gray-600'
-        }`}
+          }`}
         onClick={(e) => setwithdrawal(true)}
       >
         <p
-          className={`text-center text-base mb-4 ${
-            withdrawal
+          className={`text-center text-base mb-4 ${withdrawal
               ? 'text-gray-900 font-semibold'
-              : 'text-gray-400 group-hover:text-gray-600'
-          }`}
+              : 'text-gray-400 group-hover:text-gray-600 font-semibold'
+            }`}
         >
           Withdraw
         </p>

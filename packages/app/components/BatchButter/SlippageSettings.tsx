@@ -18,25 +18,23 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
   return (
     <>
       <div
-        className="flex flex-row items-center group cursor-pointer mt-6"
+        className="flex flex-row items-center group cursor-pointer mt-2"
         onClick={() => setVisibility(!visible)}
       >
         <img
-          className={`w-3 h-3  group-hover:text-blue-600 ${
-            visible ? '' : 'text-gray-500'
-          }`}
+          className={`w-4 h-4  group-hover:text-blue-600 ${visible ? '' : 'text-gray-500'
+            }`}
           src="/images/icons/slippage.png"
         />
         <p
-          className={`text-base leading-none mt-0.5 ml-2 group-hover:text-blue-600 ${
-            visible ? 'font-bold' : 'text-gray-500'
-          }`}
+          className={`text-base leading-none mt-0.5 ml-2 group-hover:text-blue-600 ${visible ? 'font-bold' : 'text-gray-500'
+            }`}
         >
           Adjust slippage
         </p>
       </div>
       {visible && (
-        <div className="mt-8 border border-gray-200 px-8 py-8 rounded-lg relative">
+        <div className="mt-4 border border-gray-200 px-8 py-8 rounded-lg relative">
           <div className="flex flex-col">
             <div className="flex flex-row">
               <p className="text-left font-semibold mb-4">Slippage Tolerance</p>
@@ -90,10 +88,10 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
               </div>
             </div>
 
-            <div className={`rounded-md border py-2 pl-2 pr-4 border-gray-200`}>
-              <div className="flex flex-row items-center justify-between">
+            <div>
+              <div className="mt-1 relative flex items-center">
                 <input
-                  className="w-8/12 mr-4 font-semibold leading-none text-gray-500 border-none focus:text-gray-800 focus:outline-none"
+                  className="block w-full pl-5 pr-16 py-3.5 border-gray-200 font-semibold rounded-md leading-none text-gray-500 focus:text-gray-800 focus:outline-none"
                   type="number"
                   value={value}
                   onChange={(e) => {
@@ -106,7 +104,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
                   }}
                   onFocus={() => setActiveButton(3)}
                 />
-                <div className="flex flex-row items-center">
+                <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
                   <p className="px-2 pb-1 pt-1.5 leading-none text-gray-500 font-semibold rounded-lg">
                     %
                   </p>

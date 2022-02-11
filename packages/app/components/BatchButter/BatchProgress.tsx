@@ -18,7 +18,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
           </p>
         </div>
         <div className="w-full">
-          <div className="flex flex-row items-center w-full justify-between">
+          <div className="flex flex-row items-center w-full justify-between pt-1">
             <p className="font-normal leading-none text-gray-500 text-base uppercase">Batch</p>
             <InfoIconWithModal title="Batch Processing">
               <div>

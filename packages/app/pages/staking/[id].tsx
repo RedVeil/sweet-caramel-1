@@ -121,8 +121,8 @@ export default function StakingPage(): JSX.Element {
     const withdrawable =
       id === contracts.popStaking.address
         ? await (
-            await (stakingContract as PopLocker).lockedBalances(account)
-          ).unlockable
+          await (stakingContract as PopLocker).lockedBalances(account)
+        ).unlockable
         : stakedAmount;
     return {
       wallet: inputBalance,
@@ -227,7 +227,7 @@ export default function StakingPage(): JSX.Element {
     const signer = library.getSigner();
     const connectedStaking = await stakingPageInfo?.stakingContract.connect(signer);
     (connectedStaking as PopLocker)
-      ["processExpiredLocks(bool)"](true)
+    ["processExpiredLocks(bool)"](true)
       .then((res) => onSuccess(res, `Restaked POP!`, revalidatePageState))
       .catch((err) => onError(err))
       .finally(() => setWait(false));
@@ -266,83 +266,87 @@ export default function StakingPage(): JSX.Element {
                 </ContentLoader>
               </div>
             )) || (
-              <div className="">
-                {stakingPageInfo && (
-                  <span className="flex flex-row items-center justify-center md:justify-start">
-                    <TokenIcon token={stakingPageInfo?.stakedToken?.tokenName} />
-                    <h1 className="ml-3 page-title uppercase">{stakingPageInfo?.stakedToken?.tokenName}</h1>
-                  </span>
-                )}
-                <div className="flex flex-row flex-wrap items-center mt-4 justify-center md:justify-start">
-                  <div className="px-6 border-r-2 border-gray-200 mt-2">
-                    <StatusWithLabel
-                      content={
-                        stakingPageInfo?.poolInfo?.apy === "∞"
-                          ? "New 🍿✨"
-                          : stakingPageInfo?.poolInfo?.apy.toLocaleString() + "%"
-                      }
-                      label="Est. APY"
-                      green
-                    />
-                  </div>
-                  <div className="px-6 md:border-r-2 border-gray-200 mt-2">
-                    <StatusWithLabel
-                      content={
-                        stakingPageInfo?.poolInfo ? formatStakedAmount(stakingPageInfo?.poolInfo.totalStake) : "0"
-                      }
-                      label="Total Staked"
-                    />
-                  </div>
-                  <div className="px-6 mt-2 text-center md:text-left">
-                    <StatusWithLabel
-                      content={`${
-                        stakingPageInfo?.poolInfo
+                <div className="">
+                  {stakingPageInfo && (
+                    <span className="flex flex-row items-center justify-center mx-6 md:mx-0 md:justify-start">
+                      <TokenIcon token={stakingPageInfo?.stakedToken?.tokenName} />
+                      <h1 className="ml-3 page-title uppercase">{stakingPageInfo?.stakedToken?.tokenName}</h1>
+                    </span>
+                  )}
+                  <div className="flex flex-row flex-wrap items-center mt-4 justify-center md:justify-start">
+                    <div className="px-6 md:pl-0 md:pr-6 border-r-2 border-gray-200 mt-2">
+                      <StatusWithLabel
+                        content={
+                          stakingPageInfo?.poolInfo?.apy === "∞"
+                            ? "New 🍿✨"
+                            : stakingPageInfo?.poolInfo?.apy.toLocaleString() + "%"
+                        }
+                        label="Est. APY"
+                        green
+                      />
+                    </div>
+                    <div className="px-6 xs:border-r-2 border-gray-200 mt-2">
+                      <StatusWithLabel
+                        content={
+                          stakingPageInfo?.poolInfo ? formatStakedAmount(stakingPageInfo?.poolInfo.totalStake) : "0"
+                        }
+                        label="Total Staked"
+                      />
+                    </div>
+                    <div className="px-6 mt-2 text-center md:text-left">
+                      <StatusWithLabel
+                        content={`${stakingPageInfo?.poolInfo
                           ? formatAndRoundBigNumber(stakingPageInfo?.poolInfo.tokenEmission)
                           : "0"
-                      } POP / day`}
-                      label="Emission Rate"
-                    />
+                          } POP / day`}
+                        label="Emission Rate"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
-          <div className="flex flex-col md:flex-row mt-10 mx-4">
-            <div className="md:w-1/3">
+          <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
+            <div className="mb-8 md:mb-0 md:w-1/3 flex flex-col md:pr-8">
               {(loading && (
                 <ContentLoader viewBox="0 0 450 600">
                   <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
                 </ContentLoader>
               )) || (
-                <div className="pt-4 h-full px-6 border border-gray-200 rounded-3xl shadow-custom mb-10">
-                  <div className="pt-2">
-                    <TokenInputToggle toggled={withdraw} toggle={setWithdraw} labels={["Stake", "Unstake"]} />
-                  </div>
-                  <div className="pt-16 pb-10">
+                  <div className="bg-white rounded-3xl px-5 pt-6 pb-6 border border-gray-200 shadow-custom">
+                    <div>
+                      <TokenInputToggle toggled={withdraw} toggle={setWithdraw} labels={["Stake", "Unstake"]} />
+                    </div>
                     {stakingPageInfo && (
                       <>
                         {stakingPageInfo?.stakedToken?.symbol === "POP" && withdraw ? (
-                          <div className="md:w-96 mx-auto">
-                            <div className="w-full mb-10">
-                              <label
-                                htmlFor="tokenInput"
-                                className="flex justify-between text-sm font-medium text-gray-700 text-center"
-                              >
-                                <p className="mb-2  text-base">Withdrawable Amount</p>
-                              </label>
-                              <div className="mt-1 relative flex items-center">
-                                <input
-                                  type="string"
-                                  name="tokenInput"
-                                  id="tokenInput"
-                                  className="shadow-sm block w-full pl-4 pr-16 py-4 text-lg border-gray-300 bg-gray-100 rounded-xl"
-                                  value={formatAndRoundBigNumber(stakingPageInfo?.balances?.withdrawable)}
-                                  disabled
-                                />
-                                <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
-                                  <p className="inline-flex items-center  font-medium text-lg mx-3">POP</p>
+                          <div className="w-full flex flex-col justify-end">
+                            <div className="pt-8 w-full md:mt-36 mb-10 md:mb-64">
+                              <span className="flex flex-col justify-between">
+                                <div className="">
+                                  <div>
+                                    <label
+                                      htmlFor="tokenInput"
+                                      className="flex justify-between text-sm font-medium text-gray-700 text-center"
+                                    >
+                                      <p className="text-base font-semibold text-gray-900">Withdrawable Amount</p>
+                                    </label>
+                                    <div className="mt-1 relative flex items-center">
+                                      <input
+                                        type="string"
+                                        name="tokenInput"
+                                        id="tokenInput"
+                                        className="block w-full pl-5 pr-16 py-3.5 border-gray-200 bg-gray-100 rounded-md font-semibold text-gray-500 focus:text-gray-800"
+                                        value={formatAndRoundBigNumber(stakingPageInfo?.balances?.withdrawable)}
+                                        disabled
+                                      />
+                                      <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
+                                        <p className="inline-flex items-center font-semibold text-gray-700 mx-4">POP</p>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                              </span>
                             </div>
                             <div className="flex flex-row items-center space-x-4">
                               <MainActionButton
@@ -362,180 +366,186 @@ export default function StakingPage(): JSX.Element {
                             </div>
                           </div>
                         ) : (
-                          <TokenInput
-                            label={withdraw ? "Unstake Amount" : "Stake Amount"}
-                            tokenName={stakingPageInfo?.stakedToken?.symbol}
-                            inputAmount={inputTokenAmount}
-                            displayAmount={displayAmount}
-                            setDisplayAmount={setDisplayAmount}
-                            balance={
-                              withdraw
-                                ? stakingPageInfo?.balances?.staked || BigNumber.from(0)
-                                : stakingPageInfo?.balances?.wallet || BigNumber.from("0")
-                            }
-                            updateInputAmount={setInputTokenAmount}
-                          />
+                          <div className="mt-10 mb-9">
+                            <TokenInput
+                              label={withdraw ? "Unstake Amount" : "Stake Amount"}
+                              tokenName={stakingPageInfo?.stakedToken?.symbol}
+                              inputAmount={inputTokenAmount}
+                              displayAmount={displayAmount}
+                              setDisplayAmount={setDisplayAmount}
+                              balance={
+                                withdraw
+                                  ? stakingPageInfo?.balances?.staked || BigNumber.from(0)
+                                  : stakingPageInfo?.balances?.wallet || BigNumber.from("0")
+                              }
+                              updateInputAmount={setInputTokenAmount}
+                            />
+                          </div>
                         )}
                       </>
                     )}
-                  </div>
 
-                  {stakingPageInfo && (
-                    <div>
-                      {account ? (
-                        <>
-                          {withdraw ? (
-                            <div></div>
-                          ) : (
-                            <>
-                              {stakingPageInfo?.balances?.allowance?.gte(inputTokenAmount || BigNumber.from("0")) ? (
-                                <TermsAndConditions
-                                  isDisabled={false}
-                                  termsAccepted={termsAccepted}
-                                  setTermsAccepted={setTermsAccepted}
-                                  showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
-                                />
-                              ) : (
-                                <TermsAndConditions
-                                  isDisabled={true}
-                                  termsAccepted={termsAccepted}
-                                  setTermsAccepted={setTermsAccepted}
-                                  showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
-                                />
-                              )}
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          {withdraw ? (
-                            <div></div>
-                          ) : (
-                            <TermsAndConditions
-                              isDisabled={true}
-                              termsAccepted={termsAccepted}
-                              setTermsAccepted={setTermsAccepted}
-                              showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
+
+                    {stakingPageInfo && (
+                      <div>
+                        {account ? (
+                          <>
+                            {withdraw ? (
+                              <div></div>
+                            ) : (
+                              <>
+                                {stakingPageInfo?.balances?.allowance?.gte(inputTokenAmount || BigNumber.from("0")) ? (
+                                  <TermsAndConditions
+                                    isDisabled={false}
+                                    termsAccepted={termsAccepted}
+                                    setTermsAccepted={setTermsAccepted}
+                                    showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
+                                  />
+                                ) : (
+                                  <TermsAndConditions
+                                    isDisabled={true}
+                                    termsAccepted={termsAccepted}
+                                    setTermsAccepted={setTermsAccepted}
+                                    showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
+                                  />
+                                )}
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            {withdraw ? (
+                              <div></div>
+                            ) : (
+                              <TermsAndConditions
+                                isDisabled={true}
+                                termsAccepted={termsAccepted}
+                                setTermsAccepted={setTermsAccepted}
+                                showLockTerms={stakingPageInfo?.stakedToken?.symbol === "POP"}
+                              />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {stakingPageInfo && (
+                      <div>
+                        {account ? (
+                          <>
+                            {withdraw ? (
+                              <>
+                                {stakingPageInfo?.stakedToken?.symbol === "POP" ? (
+                                  <></>
+                                ) : (
+                                  <MainActionButton
+                                    label={`Withdraw ${stakingPageInfo?.stakedToken?.symbol}`}
+                                    handleClick={withdrawStake}
+                                    disabled={wait || stakingPageInfo?.balances?.withdrawable.isZero()}
+                                  />
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                {stakingPageInfo?.balances?.allowance &&
+                                  BigNumber.from(stakingPageInfo?.balances?.allowance || "0").lt(
+                                    inputTokenAmount || BigNumber.from("0"),
+                                  ) ? (
+                                  <div className="space-y-4">
+                                    <MainActionButton
+                                      label={"Approve for Staking"}
+                                      handleClick={approve}
+                                      disabled={wait || inputTokenAmount.isZero()}
+                                    />
+                                    <MainActionButton
+                                      label={`Stake ${stakingPageInfo?.stakedToken?.symbol}`}
+                                      handleClick={stake}
+                                      disabled={true}
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="mt-0 md:mt-4">
+                                    <MainActionButton
+                                      label={`Stake ${stakingPageInfo?.stakedToken?.symbol}`}
+                                      handleClick={stake}
+                                      disabled={
+                                        !termsAccepted ||
+                                        inputTokenAmount.eq(0) ||
+                                        wait ||
+                                        inputTokenAmount.gt(stakingPageInfo?.balances?.wallet || BigNumber.from("0"))
+                                      }
+                                    />
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <div className="mt-0 md:mt-4">
+                            <MainActionButton
+                              label={"Connect Wallet"}
+                              handleClick={() => activate(connectors.Injected)}
                             />
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {stakingPageInfo && (
-                    <div className="mx-auto pt-2 pb-6">
-                      {account ? (
-                        <>
-                          {withdraw ? (
-                            <>
-                              {stakingPageInfo?.stakedToken?.symbol === "POP" ? (
-                                <></>
-                              ) : (
-                                <MainActionButton
-                                  label={`Withdraw ${stakingPageInfo?.stakedToken?.symbol}`}
-                                  handleClick={withdrawStake}
-                                  disabled={wait || stakingPageInfo?.balances?.withdrawable.isZero()}
-                                />
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              {stakingPageInfo?.balances?.allowance &&
-                              BigNumber.from(stakingPageInfo?.balances?.allowance || "0").lt(
-                                inputTokenAmount || BigNumber.from("0"),
-                              ) ? (
-                                <div className="space-y-4">
-                                  <MainActionButton
-                                    label={"Approve for Staking"}
-                                    handleClick={approve}
-                                    disabled={wait || inputTokenAmount.isZero()}
-                                  />
-                                  <MainActionButton
-                                    label={`Stake ${stakingPageInfo?.stakedToken?.symbol}`}
-                                    handleClick={stake}
-                                    disabled={true}
-                                  />
-                                </div>
-                              ) : (
-                                <div className="mt-4">
-                                  <MainActionButton
-                                    label={`Stake ${stakingPageInfo?.stakedToken?.symbol}`}
-                                    handleClick={stake}
-                                    disabled={
-                                      !termsAccepted ||
-                                      inputTokenAmount.eq(0) ||
-                                      wait ||
-                                      inputTokenAmount.gt(stakingPageInfo?.balances?.wallet || BigNumber.from("0"))
-                                    }
-                                  />
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <div className="mt-4">
-                          <MainActionButton
-                            label={"Connect Wallet"}
-                            handleClick={() => activate(connectors.Injected)}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
-            <div className="md:w-2/3 md:ml-12">
+            <div className="md:w-2/3">
               {(loading && (
                 <ContentLoader viewBox="0 0 450 400">
                   <rect x="0" y="0" rx="15" ry="15" width="388" height="108" />
                   <rect x="0" y="115" rx="15" ry="15" width="388" height="216" />
                 </ContentLoader>
               )) || (
-                <div className="">
-                  <div className="rounded-3xl shadow-custom border border-gray-200 w-full">
-                    <div className="flex flex-col items-center justify-between">
-                      <div className="h-32 md:h-28 py-8 px-8 w-full">
-                        <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
-                        <div className="flex flex-row items-center mt-1">
-                          <p className="text-2xl font-medium  mr-2">
-                            {stakingPageInfo?.balances ? formatStakedAmount(stakingPageInfo?.balances?.staked) : "0"}
-                          </p>
-                          <p className="text-2xl font-medium ">{stakedToken?.symbol}</p>
-                        </div>
-                      </div>
-                      <div className="h-32 md:h-28 bg-blue-50 rounded-b-3xl py-8 px-8 w-full">
-                        <div className="flex flex-row justify-between items-end md:items-center ">
-                          <div>
-                            <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
-                            <div className="flex flex-row items-center mt-1">
-                              <p className="text-2xl font-medium  mr-2">
-                                {stakingPageInfo?.balances
-                                  ? formatAndRoundBigNumber(stakingPageInfo?.balances?.earned)
-                                  : "0"}
-                              </p>
-                              <p className="text-2xl font-medium ">POP</p>
-                            </div>
+                  <div className="">
+                    <div className="rounded-3xl shadow-custom border border-gray-200 w-full">
+                      <div className="flex flex-col items-center justify-between">
+                        <div className="h-32 md:h-28 py-8 px-8 w-full">
+                          <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
+                          <div className="flex flex-row items-center mt-1">
+                            <p className="text-xl md:text-2xl font-semibold md:font-medium mr-2">
+                              {stakingPageInfo?.balances ? formatStakedAmount(stakingPageInfo?.balances?.staked) : "0"}
+                            </p>
+                            <p className="text-2xl font-medium ">{stakedToken?.symbol}</p>
                           </div>
-                          <TextLink text="Claim Page" />
+                        </div>
+                        <div className="h-32 md:h-28 bg-blue-50 rounded-b-3xl py-8 px-8 w-full">
+                          <div className="flex flex-row justify-between items-end md:items-center ">
+                            <div>
+                              <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
+                              <div className="flex flex-row items-center mt-1">
+                                <p className="text-xl md:text-2xl font-semibold md:font-medium  mr-2">
+                                  {stakingPageInfo?.balances
+                                    ? formatAndRoundBigNumber(stakingPageInfo?.balances?.earned)
+                                    : "0"}
+                                </p>
+                                <p className="text-xl md:text-2xl font-semibold md:font-medium">POP</p>
+                              </div>
+                            </div>
+                            <TextLink text="Claim Page" />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 md:h-124">
-                    <div className="mt-8 ml-8">
-                      <p className="text-xl font-medium">Happy Staking</p>
-                      <p className="text-base font-light mt-1">Enjoy more sweet POP in your wallet!</p>
+                    <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 md:h-124">
+                      <div className="mt-8 ml-8">
+                        <p className="text-xl font-medium">Happy Staking</p>
+                        <p className="text-base font-light mt-1">Enjoy more sweet POP in your wallet!</p>
+                      </div>
+                      <img
+                        src="/images/catPopVault.svg"
+                        className={"hidden md:block absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"}
+                      />
+                      <img
+                        src="/images/catPopVaultMobile.png"
+                        className={"block md:hidden absolute max-h-80 w-3/4 right-10 bottom-0 md:bottom-16"}
+                      />
                     </div>
-                    <img
-                      src="/images/catPopVault.svg"
-                      className={"absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"}
-                    />
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         </div>

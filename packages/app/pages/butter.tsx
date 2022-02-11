@@ -232,8 +232,8 @@ export default function Butter(): JSX.Element {
               (vault) => vault?.token?.address === "0x5a6A4D54456819380173272A5E8E9B9904BdF41B", // crvMIM
             )?.apy?.net_apy) /
             2) *
-            100 *
-            (98.5 / 100),
+          100 *
+          (98.5 / 100),
         ),
       );
   }, [library, account, chainId]);
@@ -662,8 +662,8 @@ export default function Butter(): JSX.Element {
                   $
                   {batchProcessTokens?.butter && butterSupply
                     ? formatAndRoundBigNumber(
-                        butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther("1")),
-                      ).toLocaleString()
+                      butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther("1")),
+                    ).toLocaleString()
                     : " -"}{" "}
                 </p>
               </div>
@@ -674,7 +674,7 @@ export default function Butter(): JSX.Element {
             </div>
           </div>
           <div className="flex flex-row mt-10">
-            <div className="w-1/3">
+            <div className="w-1/3 mb-10">
               {claimableBatches && selectedToken ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
@@ -720,9 +720,8 @@ export default function Butter(): JSX.Element {
                 <div className="w-1/2 mr-2">
                   <StatInfoCard
                     title="Butter Value"
-                    content={`$ ${
-                      batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : "-"
-                    }`}
+                    content={`$ ${batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : "-"
+                      }`}
                     icon={{ icon: "Money", color: "bg-blue-300" }}
                   />
                 </div>
@@ -732,11 +731,11 @@ export default function Butter(): JSX.Element {
                       currentBatches?.mint && batchProcessTokens?.butter
                         ? redeeming
                           ? currentBatches.redeem.suppliedTokenBalance
-                              .div(parseEther("1"))
-                              .mul(batchProcessTokens?.butter.price)
+                            .div(parseEther("1"))
+                            .mul(batchProcessTokens?.butter.price)
                           : currentBatches.mint.suppliedTokenBalance
-                              .div(parseEther("1"))
-                              .mul(batchProcessTokens?.threeCrv.price)
+                            .div(parseEther("1"))
+                            .mul(batchProcessTokens?.threeCrv.price)
                         : BigNumber.from("0")
                     }
                     threshold={parseEther("100000")}

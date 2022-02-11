@@ -8,7 +8,7 @@ interface TextLinkProps {
 export default function TextLink({ text }: TextLinkProps) {
   return (
     <Link href="/rewards" passHref>
-      <a className="flex flex-shrink-0 text-lg text-blue-600 font-medium py-3 hover:text-white whitespace-nowrap">
+      <a className="flex flex-shrink-0 text-lg text-blue-600 font-medium py-3 hover:text-blue-900 whitespace-nowrap">
         {text}
         <ArrowCircleRightIcon height={18} className="inline self-center ml-2" />
       </a>
