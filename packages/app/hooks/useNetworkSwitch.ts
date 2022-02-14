@@ -24,6 +24,6 @@ export default function useNetworkSwitch() {
         }
       }
     },
-    [router],
+    [router, account],
   );
 }
