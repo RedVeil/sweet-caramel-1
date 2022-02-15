@@ -56,7 +56,7 @@ export async function calculateApy(
   if (stakedTokenAddress.toLowerCase() === contracts.popUsdcLp.address.toLowerCase()) {
     return await getLpTokenApy(contracts, chaindId, tokenPerWeek, totalStaked);
   }
-  if (stakedTokenAddress.toLowerCase() === contracts.butter.address.toLowerCase()) {
+  if (butterDependencyContracts && stakedTokenAddress.toLowerCase() === contracts.butter.address.toLowerCase()) {
     return await getButterApy(tokenPerWeek, totalStaked, contracts, butterDependencyContracts);
   }
   return "0";
@@ -170,14 +170,9 @@ export async function getSingleStakingPoolInfo(
 }
 
 export async function getStakedTokenName(stakedTokenAddress: Address, library: any): Promise<string> {
-  try {
-    if (stakedTokenAddress && stakedTokenAddress.length > 1) {
-      const contract: ERC20 = await ERC20__factory.connect(stakedTokenAddress, library);
-      const result = contract ? await contract.name() : "";
-      return result;
-    }
-  } catch (ex) {
-    console.log(ex);
+  if (stakedTokenAddress && stakedTokenAddress.length > 1) {
+    const contract: ERC20 = ERC20__factory.connect(stakedTokenAddress, library);
+    return contract ? contract.name() : "";
   }
 }
 

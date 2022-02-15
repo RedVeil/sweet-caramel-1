@@ -32,7 +32,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
             <TokenIcon token={tokenName} />
           </div>
           <h1
-            className={`text-xl md:text-3xl font-medium leading-none text-baseline mt-1 ml-4  ${
+            className={`uppercase text-xl md:text-3xl font-medium leading-none text-baseline mt-1 ml-4  ${
               disabled ? "text-gray-400" : "text-gray-900"
             }`}
           >

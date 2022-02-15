@@ -4,6 +4,8 @@ export interface ContractAddresses {
   staking?: Array<Address>;
   popStaking?: Address;
   pop?: Address;
+  xPop?: Address;
+  xPopRedemption?: Address;
   dai?: Address;
   usdc?: Address;
   usdt?: Address;

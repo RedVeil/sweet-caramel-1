@@ -1,5 +1,5 @@
-import { ArrowCircleRightIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
+import { ArrowCircleRightIcon } from "@heroicons/react/outline";
+import Link from "next/link";
 
 interface TextLinkProps {
   text: string;

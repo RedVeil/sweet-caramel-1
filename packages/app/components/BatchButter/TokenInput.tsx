@@ -108,10 +108,13 @@ const TokenInput: React.FC<TokenInputProps> = ({
         <div>
           <div className="mt-1 relative flex items-center">
             <input
-              className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${depositAmount.gt(useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance)
-                ? "focus:ring-red-600 focus:border-red-600"
-                : "focus:ring-indigo-500 focus:border-indigo-500"
-                }`}
+              className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
+                depositAmount.gt(
+                  useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance,
+                )
+                  ? "focus:ring-red-600 focus:border-red-600"
+                  : "focus:ring-indigo-500 focus:border-indigo-500"
+              }`}
               value={displayDepositAmount}
               onChange={(e) => {
                 enforcer(e.target.value.replace(/,/g, "."), false);
@@ -155,8 +158,9 @@ const TokenInput: React.FC<TokenInputProps> = ({
         {hasUnclaimedBalances && (
           <div className="flex flex-row items-center mt-2">
             <label
-              className={`flex flex-row items-center  group ${["threeCrv", "butter"].includes(selectedToken.input.key) ? "cursor-pointer" : "cursor-default"
-                }`}
+              className={`flex flex-row items-center  group ${
+                ["threeCrv", "butter"].includes(selectedToken.input.key) ? "cursor-pointer" : "cursor-default"
+              }`}
             >
               <input
                 type="checkbox"
@@ -171,10 +175,11 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 disabled={!["threeCrv", "butter"].includes(selectedToken.input.key)}
               />
               <p
-                className={`text-base mt-0.5 leading-none ${["threeCrv", "butter"].includes(selectedToken.input.key)
-                  ? "text-gray-600 group-hover:text-blue-700"
-                  : "text-gray-400"
-                  }`}
+                className={`text-base mt-0.5 leading-none ${
+                  ["threeCrv", "butter"].includes(selectedToken.input.key)
+                    ? "text-gray-600 group-hover:text-blue-700"
+                    : "text-gray-400"
+                }`}
               >
                 Use only unclaimed balances
               </p>
@@ -236,7 +241,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                 selectedToken={selectedToken.output}
                 token={token}
                 notSelectable={[selectedToken.output.key, redeeming ? "butter" : "threeCrv"]}
-                selectToken={() => { }}
+                selectToken={() => {}}
               />
             </div>
           </div>

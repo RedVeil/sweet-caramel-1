@@ -52,10 +52,7 @@ export default function MyApp(props) {
     <React.Fragment>
       <Head>
         <title>Popcorn - DeFi for the People</title>
-        <meta
-          name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width"
-        />
+        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
         <link
@@ -64,10 +61,7 @@ export default function MyApp(props) {
         ></link>
       </Head>
       <StateProvider>
-        <GlobalLinearProgressAndLoading
-          loading={loading}
-          setLoading={setLoading}
-        />
+        <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
         <Web3ReactProvider getLibrary={getLibrary}>
           <ContractsWrapper>
             <SoftLaunchCheck loading={loading} />
@@ -75,9 +69,7 @@ export default function MyApp(props) {
             <SingleActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />
-            {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(
-              parseInt(process.env.CHAIN_ID),
-            ) ? (
+            {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(parseInt(process.env.CHAIN_ID)) ? (
               <Component {...pageProps} />
             ) : (
               <>

@@ -1,34 +1,28 @@
-import { InfoIconWithModal } from 'components/InfoIconWithModal';
-import { Dispatch, useState } from 'react';
-import PseudoRadioButton from './PseudoRadioButton';
+import { InfoIconWithModal } from "components/InfoIconWithModal";
+import { Dispatch, useState } from "react";
+import PseudoRadioButton from "./PseudoRadioButton";
 
 interface SlippageSettingsProps {
   slippage: number;
   setSlippage: Dispatch<number>;
 }
 
-const SlippageSettings: React.FC<SlippageSettingsProps> = ({
-  slippage,
-  setSlippage,
-}) => {
+const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippage }) => {
   const [visible, setVisibility] = useState<boolean>(false);
   const [activeButton, setActiveButton] = useState<number>(0);
   const [value, setValue] = useState<number>(slippage);
 
   return (
     <>
-      <div
-        className="flex flex-row items-center group cursor-pointer mt-2"
-        onClick={() => setVisibility(!visible)}
-      >
+      <div className="flex flex-row items-center group cursor-pointer mt-2" onClick={() => setVisibility(!visible)}>
         <img
-          className={`w-4 h-4  group-hover:text-blue-600 ${visible ? '' : 'text-gray-500'
-            }`}
+          className={`w-4 h-4  group-hover:text-blue-600 ${visible ? "" : "text-gray-500"}`}
           src="/images/icons/slippage.png"
         />
         <p
-          className={`text-base leading-none mt-0.5 ml-2 group-hover:text-blue-600 ${visible ? 'font-bold' : 'text-gray-500'
-            }`}
+          className={`text-base leading-none mt-0.5 ml-2 group-hover:text-blue-600 ${
+            visible ? "font-bold" : "text-gray-500"
+          }`}
         >
           Adjust slippage
         </p>
@@ -95,19 +89,13 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({
                   type="number"
                   value={value}
                   onChange={(e) => {
-                    setValue(
-                      e.target.value === '' ? 0 : Number(e.target.value),
-                    );
-                    setSlippage(
-                      e.target.value === '' ? 0 : Number(e.target.value),
-                    );
+                    setValue(e.target.value === "" ? 0 : Number(e.target.value));
+                    setSlippage(e.target.value === "" ? 0 : Number(e.target.value));
                   }}
                   onFocus={() => setActiveButton(3)}
                 />
                 <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
-                  <p className="px-2 pb-1 pt-1.5 leading-none text-gray-500 font-semibold rounded-lg">
-                    %
-                  </p>
+                  <p className="px-2 pb-1 pt-1.5 leading-none text-gray-500 font-semibold rounded-lg">%</p>
                 </div>
               </div>
             </div>

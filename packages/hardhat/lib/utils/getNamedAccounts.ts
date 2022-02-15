@@ -90,6 +90,18 @@ export default function getNamedAccounts() {
       polygon: "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
       hardhat: "0xD5ac451B0c50B9476107823Af206eD814a2e2580",
     },
+    xPop: {
+      polygon: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      arbitrum: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      bsc: "0x5a35d30c8b23e571e4f7efc25f353c91fd12f8e8",
+      hardhat: "0x2b5A4e5493d4a54E717057B127cf0C000C876f9B",
+    },
+    xPopRedemption: {
+      bsc: "",
+      polygon: "", //TODO add Address
+      arbitrum: "", //TODO add Address
+      hardhat: "0x02df3a3F960393F5B349E40A599FEda91a7cc1A7",
+    },
     dai: {
       mainnet: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       rinkeby: "0x6B175474E89094C44Da98b954EedeAC495271d0F",

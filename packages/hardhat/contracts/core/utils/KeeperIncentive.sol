@@ -100,7 +100,7 @@ contract KeeperIncentive is ACLAuth, ContractRegistryAccess {
     bool _enabled,
     bool _openToEveryone
   ) public onlyRole(DAO_ROLE) {
-    incentives[_contractName].push(Incentive({reward: _reward, enabled: _enabled, openToEveryone: _openToEveryone}));
+    incentives[_contractName].push(Incentive({ reward: _reward, enabled: _enabled, openToEveryone: _openToEveryone }));
     emit IncentiveCreated(_contractName, _reward, _openToEveryone);
   }
 

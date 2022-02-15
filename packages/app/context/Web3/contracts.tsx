@@ -30,6 +30,8 @@ import {
   PopLocker__factory,
   Staking,
   Staking__factory,
+  XPopRedemption,
+  XPopRedemption__factory,
   YearnVault,
   YearnVault__factory,
 } from "../../../hardhat/typechain";
@@ -39,6 +41,8 @@ export interface Contracts {
   staking?: Staking[];
   popStaking?: PopLocker;
   pop?: ERC20;
+  xPop?: ERC20;
+  xPopRedemption?: XPopRedemption;
   dai?: ERC20;
   usdc?: ERC20;
   usdt?: ERC20;
@@ -90,6 +94,8 @@ const initializeContracts = (contractAddresses: ContractAddresses, library): Con
     staking,
     popStaking,
     pop,
+    xPop,
+    xPopRedemption,
     dai,
     usdc,
     usdt,
@@ -105,6 +111,8 @@ const initializeContracts = (contractAddresses: ContractAddresses, library): Con
   const contracts: Contracts = {
     popStaking: popStaking ? PopLocker__factory.connect(popStaking, library) : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
+    xPop: xPop ? ERC20__factory.connect(xPop, library) : undefined,
+    xPopRedemption: xPopRedemption ? XPopRedemption__factory.connect(xPopRedemption, library) : undefined,
     dai: dai ? ERC20__factory.connect(dai, library) : undefined,
     usdc: usdc ? ERC20__factory.connect(usdc, library) : undefined,
     usdt: usdt ? ERC20__factory.connect(usdt, library) : undefined,

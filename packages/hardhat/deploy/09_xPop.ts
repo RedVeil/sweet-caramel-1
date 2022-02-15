@@ -1,4 +1,5 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -6,19 +7,15 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("Superseeder", {
+  await deploy("XPop", {
     from: deployer,
+    args: [parseEther("10000000000")],
     log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
-    pre_eip1559: supportsEIP1559(hre),
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "XPop",
   });
 };
 
 export default main;
-
-const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
-  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum"];
-  return !NOT_EIP1559Compatible.includes(hre.network.name);
-};
-main.tags = ["superseeder"];
 main.dependencies = ["setup"];
+main.tags = ["frontend", "xpop"];

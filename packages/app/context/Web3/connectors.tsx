@@ -1,5 +1,5 @@
-import { InjectedConnector } from '@web3-react/injected-connector';
-import { NetworkConnector } from '@web3-react/network-connector';
+import { InjectedConnector } from "@web3-react/injected-connector";
+import { NetworkConnector } from "@web3-react/network-connector";
 
 export enum ChainId {
   Ethereum = 1,
@@ -12,21 +12,21 @@ export enum ChainId {
 }
 
 export const networkMap = {
-  [ChainId.Ethereum]: 'Ethereum',
-  [ChainId.Rinkeby]: 'Rinkeby',
-  [ChainId.Arbitrum]: 'Arbitrum',
-  [ChainId.Mumbai]: 'polygon_mumbai',
-  [ChainId.Polygon]: 'Polygon',
-  [ChainId.Hardhat]: 'Hardhat',
-  [ChainId.Localhost]: 'Localhost',
+  [ChainId.Ethereum]: "Ethereum",
+  [ChainId.Rinkeby]: "Rinkeby",
+  [ChainId.Arbitrum]: "Arbitrum",
+  [ChainId.Mumbai]: "polygon_mumbai",
+  [ChainId.Polygon]: "Polygon",
+  [ChainId.Hardhat]: "Hardhat",
+  [ChainId.Localhost]: "Localhost",
 };
 
 export const logos = {
-  [ChainId.Ethereum]: '/images/icons/ethLogo.png',
-  [ChainId.Rinkeby]: '/images/icons/ethLogo.png',
-  [ChainId.Polygon]: '/images/icons/polygonLogo.png',
-  [ChainId.Arbitrum]: '/images/icons/arbitrum.png',
-  [ChainId.Localhost]: '/images/icons/ethLogo.png',
+  [ChainId.Ethereum]: "/images/icons/ethLogo.png",
+  [ChainId.Rinkeby]: "/images/icons/ethLogo.png",
+  [ChainId.Polygon]: "/images/icons/polygonLogo.png",
+  [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
+  [ChainId.Localhost]: "/images/icons/ethLogo.png",
 };
 
 const RPC_URLS = {
