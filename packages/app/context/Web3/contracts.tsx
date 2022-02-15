@@ -1,3 +1,4 @@
+import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from "@ethersproject/providers";
 import { ButterDependencyAddresses, ContractAddresses } from "@popcorn/utils/types";
 import { SetToken__factory } from "@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory";
@@ -8,7 +9,6 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from "@web3-react/injected-connector";
-import { Contract } from "ethers";
 import React, { createContext, useEffect, useState } from "react";
 import { getChainRelevantContracts } from "../../../hardhat/lib/utils/getContractAddresses";
 import {

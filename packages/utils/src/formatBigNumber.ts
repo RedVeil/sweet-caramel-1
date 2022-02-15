@@ -1,9 +1,9 @@
 import { BigNumber, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
-export function formatAndRoundBigNumber(value: BigNumber, digits?: number, decimals?: number): string {
+export function formatAndRoundBigNumber(value: BigNumber, digits?: number, decimals = 18): string {
   if (BigNumber.isBigNumber(value)) {
-    return Number(utils.formatEther(value)).toLocaleString(undefined, {
+    return Number(utils.formatUnits(value, decimals)).toLocaleString(undefined, {
       maximumFractionDigits: digits ? digits : 0,
     });
   }

@@ -1,12 +1,6 @@
 export { capitalize } from "./capitalize";
 export { getERC20Contract } from "./contractHelpers";
-export {
-  bigNumberToNumber,
-  formatAndRoundBigNumber,
-  formatBigNumber,
-  numberToBigNumber,
-  scaleNumberToBigNumber,
-} from "./formatBigNumber";
+export { formatAndRoundBigNumber, formatBigNumber, numberToBigNumber, scaleNumberToBigNumber } from "./formatBigNumber";
 export type { ContractsWithBalance, TokenBalances } from "./getBalances";
 export { calculateApy, getEarned, getSingleStakingPoolInfo, getStakingPoolsInfo } from "./getStakingStats";
 export type { StakingPoolInfo } from "./getStakingStats";

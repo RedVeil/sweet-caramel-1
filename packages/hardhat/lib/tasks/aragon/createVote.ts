@@ -1,14 +1,14 @@
-import {parseEther} from "ethers/lib/utils";
-import {task} from "hardhat/config";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {encodeCallScript} from "../../utils/aragon/callscript";
-import {getNamedAccountsByChainId} from "../../utils/getNamedAccounts";
+import { parseEther } from "ethers/lib/utils";
+import { task } from "hardhat/config";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { encodeCallScript } from "../../utils/aragon/callscript";
+import { getNamedAccountsByChainId } from "../../utils/getNamedAccounts";
 
 interface Args {}
 
 export default task("aragon:create-vote", "creates an aragon vote").setAction(
   async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    const {pop, voting, daoAgent, tokenManager, rewardsDistribution} = getNamedAccountsByChainId(1);
+    const { pop, voting, daoAgent, tokenManager, rewardsDistribution } = getNamedAccountsByChainId(1);
     const [signer] = await hre.ethers.getSigners();
 
     const popContract = await hre.ethers.getContractAt("@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20", pop);
@@ -40,6 +40,6 @@ export default task("aragon:create-vote", "creates an aragon vote").setAction(
     console.log("forwarding vote ...");
     const tx = await tokens.forward(voteEvmScript);
     const receipt = await tx.wait();
-    console.log({receipt});
+    console.log({ receipt });
   }
 );

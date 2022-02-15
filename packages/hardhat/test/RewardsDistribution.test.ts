@@ -1,10 +1,10 @@
-import {parseEther} from "@ethersproject/units";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {expect} from "chai";
-import {ethers} from "hardhat";
-import {expectEvent, expectRevert, expectValue} from "../lib/utils/expectValue";
-import {MockERC20, PopLocker, RewardsEscrow, Staking} from "../typechain";
-import {RewardsDistribution} from "../typechain/RewardsDistribution";
+import { parseEther } from "@ethersproject/units";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { expectEvent, expectRevert, expectValue } from "../lib/utils/expectValue";
+import { MockERC20, PopLocker, RewardsEscrow, Staking } from "../typechain";
+import { RewardsDistribution } from "../typechain/RewardsDistribution";
 
 let owner: SignerWithAddress,
   nonOwner: SignerWithAddress,

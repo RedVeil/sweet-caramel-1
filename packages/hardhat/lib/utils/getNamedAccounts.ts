@@ -22,7 +22,7 @@ export default function getNamedAccounts() {
     },
     butterStaking: {
       hardhat: "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926",
-      mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
+      //mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
     },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",

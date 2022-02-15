@@ -67,6 +67,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
             <MainActionButton
               label={`Allow Popcorn to use your ${selectedToken.input.name}`}
               handleClick={(e) => approve(selectedToken.input.key)}
+              disabled={true}
             />
             <MainActionButton
               label={redeeming ? "Redeem" : "Mint"}

@@ -3,10 +3,10 @@ import { ChainId } from "@popcorn/app/context/Web3/connectors";
 import { ButterDependencyContracts, Contracts } from "@popcorn/app/context/Web3/contracts";
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { BigNumber } from "ethers";
-import { formatAndRoundBigNumber } from ".";
 import ButterBatchAdapter from "../../hardhat/lib/adapters/ButterBatchAdapter";
 import UniswapPoolAdapter from "../../hardhat/lib/adapters/UniswapPoolAdapter";
 import { ERC20, ERC20__factory } from "../../hardhat/typechain";
+import { formatAndRoundBigNumber } from ".";
 import { Address } from "./types";
 
 export interface StakingPoolInfo {
@@ -170,9 +170,14 @@ export async function getSingleStakingPoolInfo(
 }
 
 export async function getStakedTokenName(stakedTokenAddress: Address, library: any): Promise<string> {
-  if (stakedTokenAddress && stakedTokenAddress.length > 1) {
-    const contract: ERC20 = ERC20__factory.connect(stakedTokenAddress, library);
-    return contract ? contract.name() : "";
+  try {
+    if (stakedTokenAddress && stakedTokenAddress.length > 1) {
+      const contract: ERC20 = await ERC20__factory.connect(stakedTokenAddress, library);
+      const result = contract ? await contract.name() : "";
+      return result;
+    }
+  } catch (ex) {
+    console.log(ex);
   }
 }
 

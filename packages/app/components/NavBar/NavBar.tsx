@@ -2,11 +2,13 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useWeb3React } from "@web3-react/core";
+import { setDualActionWideModal } from "context/actions";
+import { store } from "context/store";
 import useEagerConnect from "hooks/useEagerConnect";
 import useNetworkSwitch from "hooks/useNetworkSwitch";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useContext, useEffect, useState } from "react";
 import { connectors, networkMap } from "../../context/Web3/connectors";
 import { getChainLogo } from "./../../context/Web3/networkSwitch";
 import GetPopMenu from "./GetPopMenu";
@@ -32,6 +34,34 @@ const Navbar: FC = () => {
       setCurrentChainIcon(getChainLogo(chainId));
     }
   }, [chainId]);
+  const { dispatch } = useContext(store);
+
+  function showDelayInfo() {
+    dispatch(
+      setDualActionWideModal({
+        title: "Coming Soon",
+        content:
+          "The release of our yield optimizer, Butter, has been delayed due to recent events involving Abracadabra and MIM. We've decided to change Butter's underlying assets to address these concerns and offer the best product possible in today's DeFi landscape.",
+        image: <img src="/images/ComingSoonCat.svg" className="mx-auto pl-5 w-6/12" />,
+        onConfirm: {
+          label: "Learn More",
+          onClick: () => {
+            window.open(
+              "https://www.notion.so/popcorn-network/Where-s-Butter-edb3b58f6e6541ea9b10242d0fe2df9c",
+              "_blank",
+            );
+            dispatch(setDualActionWideModal(false));
+          },
+        },
+        onDismiss: {
+          label: "Dismiss",
+          onClick: () => {
+            dispatch(setDualActionWideModal(false));
+          },
+        },
+      }),
+    );
+  }
 
   return (
     <nav className="flex pt-9 bg-white z-10">
@@ -46,7 +76,7 @@ const Navbar: FC = () => {
           </div>
           <ul className="flex flex-row space-x-10 ml-16">
             <li>
-              <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/butter"} />
+              <NavbarLink label="Butter" isActive={false} onClick={showDelayInfo} />
             </li>
             <li>
               <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />

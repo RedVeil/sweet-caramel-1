@@ -1,11 +1,11 @@
-import {parseEther} from "@ethersproject/units";
-import {ethers, network} from "hardhat";
-import {encodeCallScript} from "../../lib/utils/aragon/callscript";
-import {expectValue} from "../../lib/utils/expectValue";
-import {getNamedAccountsByChainId} from "../../lib/utils/getNamedAccounts";
-import {DAYS, getErc20, impersonateSigner, sendEth, timeTravel} from "../../lib/utils/test";
+import { parseEther } from "@ethersproject/units";
+import { ethers, network } from "hardhat";
+import { encodeCallScript } from "../../lib/utils/aragon/callscript";
+import { expectValue } from "../../lib/utils/expectValue";
+import { getNamedAccountsByChainId } from "../../lib/utils/getNamedAccounts";
+import { DAYS, getErc20, impersonateSigner, sendEth, timeTravel } from "../../lib/utils/test";
 
-const {pop, voting, daoAgent, tokenManager, rewardsDistribution} = getNamedAccountsByChainId(1);
+const { pop, voting, daoAgent, tokenManager, rewardsDistribution } = getNamedAccountsByChainId(1);
 
 describe.skip("aragon test", () => {
   context("create vote to transfer tokens from agent", () => {
