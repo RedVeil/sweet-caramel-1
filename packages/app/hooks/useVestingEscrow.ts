@@ -1,16 +1,14 @@
-import { isAddress } from '@ethersproject/address';
-import { useWeb3React } from '@web3-react/core';
-import { useMemo } from 'react';
-import { RewardsEscrow__factory } from '../../hardhat/typechain';
+import { isAddress } from "@ethersproject/address";
+import { RewardsEscrow, RewardsEscrow__factory } from "@popcorn/hardhat/typechain";
+import { useMemo } from "react";
+import useWeb3 from "./useWeb3";
 
-export default function useVestingEscrow(address: string | undefined) {
-  const { library, account, chainId } = useWeb3React();
+export default function useVestingEscrow(address: string): RewardsEscrow {
+  const { library, contractAddresses, account, chainId } = useWeb3();
 
-  return useMemo(
-    () =>
-      address && isAddress(address) && !!library
-        ? RewardsEscrow__factory.connect(address, library.getSigner())
-        : undefined,
-    [address, library, account, chainId],
-  );
+  const stakingContract = useMemo(() => {
+    if (isAddress(address) && contractAddresses.has(address))
+      return RewardsEscrow__factory.connect(address, account ? library.getSigner() : library);
+  }, [chainId, account, library]);
+  return stakingContract;
 }

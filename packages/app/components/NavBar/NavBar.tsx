@@ -15,7 +15,7 @@ import GetPopMenu from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
-const disconnectInjected = (deactivate: Function, chainId: number) => {
+const disconnectInjected = (deactivate: Function, activate: any, chainId: number) => {
   localStorage.setItem("eager_connect", "false");
   localStorage.setItem("chainId", String(chainId));
   deactivate(connectors.Injected);
@@ -118,7 +118,7 @@ const Navbar: FC = () => {
           <button
             onClick={() => {
               if (account) {
-                disconnectInjected(deactivate, chainId);
+                disconnectInjected(deactivate, activate, chainId);
               } else {
                 localStorage.setItem("eager_connect", "true");
                 activate(connectors.Injected);

@@ -1,8 +1,11 @@
+export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
 export { getERC20Contract } from "./contractHelpers";
 export { formatAndRoundBigNumber, formatBigNumber, numberToBigNumber, scaleNumberToBigNumber } from "./formatBigNumber";
 export type { ContractsWithBalance, TokenBalances } from "./getBalances";
-export { calculateApy, getEarned, getSingleStakingPoolInfo, getStakingPoolsInfo } from "./getStakingStats";
-export type { StakingPoolInfo } from "./getStakingStats";
+export { getPopLocker, getStakingPool } from "./getStakingPool";
+export { getEarnedLegacy, getSingleStakingPoolInfoLegacy } from "./getStakingStatsLegacy";
+export type { StakingPoolInfo } from "./getStakingStatsLegacy";
+export { default as getToken, getMultipleToken, getTokenFromAddress } from "./getToken";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
 export { default as useFetch } from "./useFetch";

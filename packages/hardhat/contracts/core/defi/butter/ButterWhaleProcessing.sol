@@ -110,10 +110,10 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
     uint256 _min_3crv_amount,
     uint256 _minAmountToMint
   ) external whenNotPaused {
-    for (uint8 i; i < _amounts.length; i++) {
+    for (uint256 i; i < _amounts.length; i++) {
       if (_amounts[i] > 0) {
         //Deposit Stables
-        IERC20(curve3Pool.coins(i)).safeTransferFrom(msg.sender, address(this), _amounts[i]);
+        IERC20(curve3Pool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);
       }
     }
     //Deposit stables to receive 3CRV
@@ -139,7 +139,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
    */
   function zapRedeem(
     uint256 _amount,
-    uint8 _stableCoinIndex,
+    uint256 _stableCoinIndex,
     uint256 _min_stable_amount,
     uint256 _min3crvToReceive
   ) external whenNotPaused {
@@ -296,11 +296,11 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
    */
   function _swapAndTransfer3Crv(
     uint256 _threeCurveAmount,
-    uint8 _stableCoinIndex,
+    uint256 _stableCoinIndex,
     uint256 _min_amount
   ) internal {
     //Burn 3CRV to receive stables
-    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, _stableCoinIndex, _min_amount);
+    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, int128(uint128(_stableCoinIndex)), _min_amount);
 
     //Check the amount of returned stables
     /*

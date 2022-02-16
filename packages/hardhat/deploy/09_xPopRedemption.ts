@@ -26,7 +26,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await authorizeXPopRedemption((await deployments.get("RewardsEscrow")).address, signer, hre);
   await approveRewardsEscrow((await deployments.get("xPopRedemption")).address, signer, hre);
 
-  if (["hardhat", "local"].includes(hre.network.name)) {
+  if (["hardhat", "local", "localhost"].includes(hre.network.name)) {
     await mintPOP(
       (
         await deployments.get("TestXPop")
@@ -62,7 +62,7 @@ async function approveRewardsEscrow(address: string, signer: any, hre: HardhatRu
 
 const mintPOP = async (address: string, signer: any, recipient: string, hre: HardhatRuntimeEnvironment) => {
   const POP = await hre.ethers.getContractAt("MockERC20", address, signer);
-  console.log("Minting POP for", recipient);
+  console.log(`Minting ${await POP.symbol()} for`, recipient);
   await (await POP.mint(recipient, parseEther("1000000000"))).wait(1);
   console.log("Total POP supply", formatEther(await POP.totalSupply()));
 };

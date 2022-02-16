@@ -13,6 +13,15 @@ module.exports = {
   solidity: {
     compilers: [
       {
+        version: "0.8.1",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      },
+      {
         version: "0.8.0",
         settings: {
           optimizer: {
@@ -63,9 +72,7 @@ module.exports = {
     mainnet: {
       timeout: 60000,
       chainId: 1,
-      url:
-        process.env.RPC_URL ||
-        `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     hardhat: {
       initialBaseFeePerGas: 0,
@@ -82,44 +89,30 @@ module.exports = {
     },
     rinkeby: {
       timeout: 60000,
-      url:
-        process.env.RPC_URL ||
-        `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
       tags: ["rinkeby"],
     },
     kovan: {
-      url:
-        process.env.RPC_URL ||
-        `https://kovan.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://kovan.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
       tags: ["LBP"],
     },
     gorli: {
-      url:
-        process.env.RPC_URL ||
-        `https://gorli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://gorli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     polygon: {
       chainId: 137,
       gasPrice: 50,
       timeout: 60000,
-      url:
-        process.env.RPC_URL ||
-        `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     polygontest: {
-      url:
-        process.env.RPC_URL ||
-        `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     mumbai: {
-      url:
-        process.env.RPC_URL ||
-        `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     arbitrum: {
-      url:
-        process.env.RPC_URL ||
-        `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      url: process.env.RPC_URL || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     bsc: {
       url: process.env.RPC_URL || "https://undefined",

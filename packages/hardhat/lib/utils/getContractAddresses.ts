@@ -30,18 +30,23 @@ export const mapAccountsFromNamedAccounts = (chainId): ContractAddresses => {
           : (result["staking"] = [contractsForSelectedNetwork[contract]]);
       } else if (butterDependencyContractNames.includes(contract)) {
         result["butterDependency"]
-          ? (result["butterDependency"][contract] =
-              contractsForSelectedNetwork[contract])
+          ? (result["butterDependency"][contract] = contractsForSelectedNetwork[contract])
           : (result["butterDependency"] = {
               [contract]: contractsForSelectedNetwork[contract],
             });
       } else {
         result[contract] = contractsForSelectedNetwork[contract];
       }
+      result.all.add(contractsForSelectedNetwork[contract].toLowerCase());
 
       return result;
     },
-    {} as ContractAddresses
+    {
+      all: new Set(),
+      has: function (contractAddress?: string) {
+        return this.all.has(contractAddress?.toLowerCase());
+      },
+    } as ContractAddresses
   );
   return contracts;
 };

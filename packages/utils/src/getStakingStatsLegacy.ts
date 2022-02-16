@@ -38,7 +38,7 @@ async function getLpTokenApy(
   }
 }
 
-export async function calculateApy(
+export async function calculateApyLegacy(
   stakedTokenAddress: Address,
   contracts: Contracts,
   chaindId: number,
@@ -123,7 +123,7 @@ async function getButterApy(
   return formatAndRoundBigNumber(apy.mul(100), 3);
 }
 
-export async function getSingleStakingPoolInfo(
+export async function getSingleStakingPoolInfoLegacy(
   stakingContract: Staking | PopLocker,
   contracts: Contracts,
   chainId: number,
@@ -156,7 +156,7 @@ export async function getSingleStakingPoolInfo(
     stakingContractAddress: stakingContract?.address,
     stakedTokenAddress: stakedTokenAddress,
     stakedTokenName: stakedTokenName,
-    apy: await calculateApy(
+    apy: await calculateApyLegacy(
       stakedTokenAddress,
       contracts,
       chainId,
@@ -181,7 +181,7 @@ export async function getStakedTokenName(stakedTokenAddress: Address, library: a
   }
 }
 
-export async function getStakingPoolsInfo(
+export async function getStakingPoolsInfoLegacy(
   contracts: Contracts,
   chainId: number,
   library: any,
@@ -193,7 +193,7 @@ export async function getStakingPoolsInfo(
     for (let i = 0; i < stakingContracts.length; i++) {
       const stakingContract = stakingContracts[i];
 
-      stakingPools[i] = await getSingleStakingPoolInfo(
+      stakingPools[i] = await getSingleStakingPoolInfoLegacy(
         stakingContract,
         contracts,
         chainId,
@@ -210,7 +210,7 @@ export async function getStakingPoolsInfo(
   return stakingPools;
 }
 
-export async function getEarned(
+export async function getEarnedLegacy(
   staking: Staking | PopLocker,
   account: string,
   isPopLocker: boolean,

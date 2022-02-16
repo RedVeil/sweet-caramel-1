@@ -1,10 +1,8 @@
-import { Web3Provider } from "@ethersproject/providers";
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
-import { getEarned, getSingleStakingPoolInfo, StakingPoolInfo } from "@popcorn/utils";
-import { useWeb3React } from "@web3-react/core";
 import Navbar from "components/NavBar/NavBar";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
+import { NotAvailable } from "components/Rewards/NotAvailable";
 import VestingRecordComponent from "components/Rewards/VestingRecord";
 import TabSelector from "components/TabSelector";
 import { setSingleActionModal } from "context/actions";
@@ -13,29 +11,34 @@ import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, ethers } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import useWeb3Callbacks from "helper/useWeb3Callbacks";
+import usePopLocker from "hooks/staking/usePopLocker";
+import useStakingPools from "hooks/staking/useStakingPools";
 import useClaimEscrows from "hooks/useClaimEscrows";
 import useClaimStakingReward from "hooks/useClaimStakingReward";
 import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
+import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { toast, Toaster } from "react-hot-toast";
 import { SWRResponse } from "swr";
 import { ChainId, connectors } from "../context/Web3/connectors";
+import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
+import useERC20 from "../hooks/tokens/useERC20";
 
 export default function index(): JSX.Element {
-  const context = useWeb3React<Web3Provider>();
-  const { contracts, butterDependencyContracts } = useContext(ContractsContext);
-  const { account, library, chainId, activate } = context;
+  const { account, library, chainId, activate, contractAddresses } = useWeb3();
+  const { contracts } = useContext(ContractsContext);
   const { dispatch } = useContext(store);
 
-  const [stakingPoolsInfo, setStakingPoolsInfo] = useState<StakingPoolInfo[]>();
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [balances, setBalances] = useState<{
-    wallet: BigNumber;
-    allowance: BigNumber;
-  }>();
+  const { data: pop } = useERC20(contractAddresses.pop);
+  const { data: xPop } = useERC20(contractAddresses.xPop);
+  const { data: popLocker, revalidate: revalidatePopLocker } = usePopLocker(contractAddresses.popStaking);
+  const { data: stakingPools, revalidate: revalidateStakingPools } = useStakingPools(contractAddresses.staking);
+  const balancesXPop = useBalanceAndAllowance(xPop, account, contracts?.xPopRedemption?.address);
+  const balancesPop = useBalanceAndAllowance(pop, account, contracts?.xPopRedemption?.address);
+
   const [tabSelected, setTabSelected] = useState<number>(0);
   const [availableTabs, setAvailableTabs] = useState([]);
 
@@ -43,24 +46,12 @@ export default function index(): JSX.Element {
   const claimVestedPopFromEscrows = useClaimEscrows();
   const { onSuccess, onError } = useWeb3Callbacks();
 
-  useEffect(() => {
-    // Fetch Data
-    if (account && contracts && contracts.xPop && contracts.xPopRedemption && shouldAirdropVisible(chainId)) {
-      getXpopBalance();
-    }
-    if (account && contracts) {
-      getData();
-    }
-  }, [account, contracts, chainId]);
-
-  useEffect(() => {
-    // Handle loading state
-    if (stakingPoolsInfo) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
-  }, [stakingPoolsInfo, balances]);
+  const revalidate = () => {
+    revalidatePopLocker();
+    revalidateStakingPools();
+    balancesXPop.revalidate();
+    balancesPop.revalidate();
+  };
 
   enum Tabs {
     Staking = "Staking Rewards",
@@ -82,54 +73,13 @@ export default function index(): JSX.Element {
   const userEscrowsFetchResult: SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber }, any> =
     useGetUserEscrows();
 
-  async function getData(): Promise<void> {
-    let newStakingPoolsInfo: StakingPoolInfo[] = [];
-    const popStakingInfo = await getSingleStakingPoolInfo(
-      contracts.popStaking,
-      contracts,
-      chainId,
-      library,
-      contracts.pop?.address,
-      "Popcorn",
-    );
-    popStakingInfo.earned = await getEarned(contracts.popStaking, account, true);
-    newStakingPoolsInfo.push(popStakingInfo);
-
-    if (contracts.staking.length > 0) {
-      await Promise.all(
-        contracts.staking.map(async (stakingContract) => {
-          newStakingPoolsInfo.push({
-            ...(await getSingleStakingPoolInfo(
-              stakingContract,
-              contracts,
-              chainId,
-              library,
-              null,
-              null,
-              butterDependencyContracts,
-            )),
-            earned: await getEarned(stakingContract, account, false),
-          });
-        }),
-      );
-    }
-
-    setStakingPoolsInfo(newStakingPoolsInfo);
-  }
-
-  async function getXpopBalance(): Promise<void> {
-    setBalances({
-      allowance: await contracts.xPop.allowance(account, contracts.xPopRedemption.address),
-      wallet: await contracts.xPop.balanceOf(account),
-    });
-  }
-
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
     toast.loading("Claiming Rewards...");
     claimStakingReward(pool, isPopLocker).then(
       (res) =>
         onSuccess(res, "Rewards Claimed!", () => {
-          getData();
+          revalidate();
+
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
               setSingleActionModal({
@@ -159,7 +109,7 @@ export default function index(): JSX.Element {
   const claimSingleEscrow = async (escrow: Escrow) => {
     toast.loading("Claiming Escrow...");
     claimVestedPopFromEscrows([escrow.id]).then(
-      (res) => onSuccess(res, "Claimed Escrow!", getData),
+      (res) => onSuccess(res, "Claimed Escrow!", revalidate),
       (err) => onError(err),
     );
   };
@@ -170,7 +120,7 @@ export default function index(): JSX.Element {
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
     if (numberOfEscrows && numberOfEscrows > 0) {
       claimVestedPopFromEscrows(escrowsIds).then(
-        (res) => onSuccess(res, "Claimed Escrows!", getData),
+        (res) => onSuccess(res, "Claimed Escrows!", revalidate),
         (err) => onError(err),
       );
     }
@@ -185,15 +135,15 @@ export default function index(): JSX.Element {
   }
 
   async function approveXpopRedemption(): Promise<void> {
-    toast.loading("Approving XPOP...");
+    toast.loading("Approving xPOP...");
     await contracts.xPop
       .connect(library.getSigner())
       .approve(contracts.xPopRedemption.address, ethers.constants.MaxUint256)
       .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();
-          toast.success("XPOP approved!");
-          getXpopBalance();
+          toast.success("xPOP approved!");
+          revalidate();
         });
       })
       .catch((err) => {
@@ -206,26 +156,29 @@ export default function index(): JSX.Element {
       });
   }
   async function redeemXpop(amount: BigNumber): Promise<void> {
-    toast.loading("Redeeming XPOP...");
+    toast.loading("Redeeming xPOP...");
     await contracts.xPopRedemption
       .connect(library.getSigner())
       .redeem(amount)
       .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();
-          toast.success("XPOP redeemed!");
-          getXpopBalance();
+          toast.success("xPOP redeemed!");
+          revalidate();
+          postRedeemSuccess();
         });
       })
       .catch((err) => {
         toast.dismiss();
+        revalidate();
         if (err.data === undefined) {
           toast.error("An error occured");
         } else {
           toast.error(err.data.message.split("'")[1]);
         }
       });
-
+  }
+  const postRedeemSuccess = () => {
     dispatch(
       setSingleActionModal({
         title: "You have just redeemed your POP",
@@ -252,7 +205,9 @@ export default function index(): JSX.Element {
         },
       }),
     );
-  }
+  };
+
+  const isSelected = (tab: Tabs) => availableTabs[tabSelected] === tab;
 
   return (
     <div className="w-full h-screen">
@@ -287,7 +242,10 @@ export default function index(): JSX.Element {
           {account && (
             <div className="flex flex-row">
               <div className="hidden md:flex flex-col w-1/3">
-                <div className="flex justify-center items-center p-10 mt-10 mb-8 mr-12 bg-primaryLight rounded-5xl shadow-custom min-h-128 h-11/12 max-h-screen">
+                <div
+                  className="flex justify-center items-center p-10 mt-10 mb-8 mr-12 bg-primaryLight rounded-5xl shadow-custom min-h-128 h-11/12 "
+                  style={{ maxHeight: "75vh", minHeight: "75vh" }}
+                >
                   <img
                     src="/images/claims-cat.svg"
                     alt="cat holding popcorn"
@@ -299,49 +257,61 @@ export default function index(): JSX.Element {
                 <div className="mb-8">
                   <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} labels={availableTabs} />
                 </div>
-                {!loading &&
-                  availableTabs[tabSelected] === Tabs.Airdrop &&
-                  (contracts?.xPopRedemption && balances ? (
-                    <AirDropClaim approve={approveXpopRedemption} redeem={redeemXpop} balances={balances} />
-                  ) : (
-                    <div className="border-1 border-gray-200 rounded-5xl w-full h-full flex flex-col justify-center items-center bg-gray-50">
-                      <img src="/images/emptyPopcorn.svg" className="h-1/2 w-1/2" />
-                      <p className="mt-12 font-semibold text-2xl text-gray-900">No Airdrops</p>
-                      <p className="mt-1 text-gray-900">No Airdrops found on this Network</p>
-                    </div>
-                  ))}
-                {!loading &&
-                  availableTabs[tabSelected] === Tabs.Staking &&
-                  stakingPoolsInfo &&
-                  stakingPoolsInfo.length > 0 &&
-                  stakingPoolsInfo?.map((poolInfo, index) => (
+                {isSelected(Tabs.Staking) && !!popLocker && (
+                  <ClaimCard
+                    tokenName={popLocker.stakingToken.name} //TODO
+                    claimAmount={popLocker.earned}
+                    key={popLocker.address}
+                    handler={poolClaimHandler}
+                    pool={popLocker.contract}
+                    disabled={popLocker.earned?.isZero()}
+                    isPopLocker={true}
+                  />
+                )}
+
+                {isSelected(Tabs.Airdrop) && xPop && pop ? (
+                  <AirDropClaim
+                    approve={approveXpopRedemption}
+                    redeem={redeemXpop}
+                    balances={[balancesXPop, balancesPop]}
+                    tokens={[xPop, pop]}
+                  />
+                ) : (
+                  <NotAvailable
+                    title="No airdrops"
+                    body="No airdrops found on this network"
+                    visible={isSelected(Tabs.Airdrop)}
+                  />
+                )}
+                {isSelected(Tabs.Staking) &&
+                  stakingPools &&
+                  stakingPools.length > 0 &&
+                  stakingPools?.map((poolInfo, index) => (
                     <ClaimCard
-                      tokenName={poolInfo.stakedTokenName}
+                      tokenName={poolInfo.stakingToken.name} //TODO
                       claimAmount={poolInfo.earned}
-                      key={poolInfo.stakingContractAddress}
+                      key={poolInfo.address}
                       handler={poolClaimHandler}
-                      pool={
-                        poolInfo.stakedTokenName === "Popcorn"
-                          ? contracts.popStaking
-                          : contracts.staking.find(
-                              (stakingContract) => stakingContract.address === poolInfo.stakingContractAddress,
-                            )
-                      }
-                      disabled={poolInfo.earned.isZero()}
-                      isPopLocker={poolInfo.stakedTokenName === "Popcorn"}
+                      pool={poolInfo.contract}
+                      disabled={poolInfo.earned?.isZero()}
+                      isPopLocker={poolInfo.stakingToken.address === contractAddresses.pop}
                     />
                   ))}
-                {!loading && availableTabs[tabSelected] === Tabs.Vesting && (
+
+                {isSelected(Tabs.Staking) && (stakingPools?.length || -1) >= 0 && !popLocker && (
+                  <NotAvailable
+                    title="No staking pools"
+                    body="There are no staking pools found on this network"
+                    visible={isSelected(Tabs.Staking)}
+                  />
+                )}
+                {availableTabs[tabSelected] === Tabs.Vesting && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
                     !userEscrowsFetchResult?.data ||
                     userEscrowsFetchResult?.error ||
                     userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
-                      <div className="border-1 border-gray-200 rounded-5xl w-full h-full flex flex-col justify-center items-center bg-gray-50">
-                        <img src="/images/emptyPopcorn.svg" className="h-1/2 w-1/2" />
-                        <p className="mt-12 font-semibold text-2xl text-gray-900">No records available</p>
-                        <p className="mt-1 text-gray-900">No vesting records found</p>
-                      </div>
+                      <NotAvailable title="No records available" body="No vesting records available" />
                     ) : (
                       <>
                         <div>
@@ -396,7 +366,7 @@ export default function index(): JSX.Element {
                     )}
                   </div>
                 )}
-                {loading && (
+                {!popLocker && (stakingPools?.length || -1) >= 0 && (
                   <ContentLoader viewBox="0 0 450 400">
                     {/* eslint-disable */}
                     <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />

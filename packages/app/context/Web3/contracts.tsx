@@ -3,7 +3,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { ButterDependencyAddresses, ContractAddresses } from "@popcorn/utils/types";
 import { SetToken__factory } from "@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory";
 import { SetToken } from "@setprotocol/set-protocol-v2/typechain/SetToken";
-import { abi as IUniswapV3PoolABI } from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
+import IUniswapV3PoolABI from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import {
   NoEthereumProviderError,
@@ -118,7 +118,7 @@ const initializeContracts = (contractAddresses: ContractAddresses, library): Con
     usdt: usdt ? ERC20__factory.connect(usdt, library) : undefined,
     threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
     popUsdcLp: popUsdcLp ? IGUni__factory.connect(popUsdcLp, library) : undefined,
-    popUsdcUniV3Pool: popUsdcUniV3Pool ? new Contract(popUsdcUniV3Pool, IUniswapV3PoolABI, library) : undefined,
+    popUsdcUniV3Pool: popUsdcUniV3Pool ? new Contract(popUsdcUniV3Pool, IUniswapV3PoolABI.abi, library) : undefined,
     butter: butter ? SetToken__factory.connect(butter, library) : undefined,
     butterBatch: butterBatch ? ButterBatchProcessing__factory.connect(butterBatch, library) : undefined,
     butterBatchZapper: butterBatchZapper

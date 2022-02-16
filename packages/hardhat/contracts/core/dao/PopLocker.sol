@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.6.0
+// Docgen-SOLC: 0.6.12
 
 import "openzeppelin-v3/token/ERC20/IERC20.sol";
 import "openzeppelin-v3/token/ERC20/SafeERC20.sol";

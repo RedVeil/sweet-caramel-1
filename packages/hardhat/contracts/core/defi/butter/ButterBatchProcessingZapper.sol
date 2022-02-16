@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {BatchType, Batch, IButterBatchProcessing} from "../../interfaces/IButterBatchProcessing.sol";
+import { BatchType, Batch, IButterBatchProcessing } from "../../interfaces/IButterBatchProcessing.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
 import "../../interfaces/IContractRegistry.sol";
 
@@ -27,14 +27,14 @@ contract ButterBatchProcessingZapper {
   event ZappedIntoBatch(uint256 threeCurveAmount, address account);
   event ZappedOutOfBatch(
     bytes32 batchId,
-    uint8 stableCoinIndex,
+    uint256 stableCoinIndex,
     uint256 threeCurveAmount,
     uint256 stableCoinAmount,
     address account
   );
   event ClaimedIntoStable(
     bytes32 batchId,
-    uint8 stableCoinIndex,
+    uint256 stableCoinIndex,
     uint256 threeCurveAmount,
     uint256 stableCoinAmount,
     address account
@@ -62,10 +62,10 @@ contract ButterBatchProcessingZapper {
    */
   function zapIntoBatch(uint256[3] memory _amounts, uint256 _min_mint_amounts) external {
     address butterBatchProcessing = contractRegistry.getContract(keccak256("ButterBatchProcessing"));
-    for (uint8 i; i < _amounts.length; i++) {
+    for (uint256 i; i < _amounts.length; i++) {
       if (_amounts[i] > 0) {
         //Deposit Stables
-        IERC20(curve3Pool.coins(i)).safeTransferFrom(msg.sender, address(this), _amounts[i]);
+        IERC20(curve3Pool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);
       }
     }
     //Deposit stables to receive 3CRV
@@ -94,7 +94,7 @@ contract ButterBatchProcessingZapper {
   function zapOutOfBatch(
     bytes32 _batchId,
     uint256 _amountToWithdraw,
-    uint8 _stableCoinIndex,
+    uint256 _stableCoinIndex,
     uint256 _min_amount
   ) external {
     // Allows the zapepr to withdraw 3CRV from batch for the user
@@ -120,7 +120,7 @@ contract ButterBatchProcessingZapper {
    */
   function claimAndSwapToStable(
     bytes32 _batchId,
-    uint8 _stableCoinIndex,
+    uint256 _stableCoinIndex,
     uint256 _min_amount
   ) external {
     //We can only deposit 3CRV which come from mintBatches otherwise this could claim Butter which we cant process here
@@ -148,11 +148,11 @@ contract ButterBatchProcessingZapper {
    */
   function _swapAndTransfer3Crv(
     uint256 _threeCurveAmount,
-    uint8 _stableCoinIndex,
+    uint256 _stableCoinIndex,
     uint256 _min_amount
   ) internal returns (uint256) {
     //Burn 3CRV to receive stables
-    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, _stableCoinIndex, _min_amount);
+    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, int128(uint128(_stableCoinIndex)), _min_amount);
 
     //Check the amount of returned stables
     /*
@@ -171,15 +171,10 @@ contract ButterBatchProcessingZapper {
    * @notice set idempotent approvals for 3pool and butter batch processing
    */
   function setApprovals() external {
-    IERC20(curve3Pool.coins(0)).safeApprove(address(curve3Pool), 0);
-    IERC20(curve3Pool.coins(0)).safeApprove(address(curve3Pool), type(uint256).max);
-
-    IERC20(curve3Pool.coins(1)).safeApprove(address(curve3Pool), 0);
-    IERC20(curve3Pool.coins(1)).safeApprove(address(curve3Pool), type(uint256).max);
-
-    IERC20(curve3Pool.coins(2)).safeApprove(address(curve3Pool), 0);
-    IERC20(curve3Pool.coins(2)).safeApprove(address(curve3Pool), type(uint256).max);
-
+    for (uint256 i; i < 3; i++) {
+      IERC20(curve3Pool.coins(i)).safeApprove(address(curve3Pool), 0);
+      IERC20(curve3Pool.coins(i)).safeApprove(address(curve3Pool), type(uint256).max);
+    }
     address butterBatchProcessing = contractRegistry.getContract(keccak256("ButterBatchProcessing"));
     threeCrv.safeApprove(butterBatchProcessing, 0);
     threeCrv.safeApprove(butterBatchProcessing, type(uint256).max);

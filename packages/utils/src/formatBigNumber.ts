@@ -28,6 +28,7 @@ export function numberToBigNumber(value: number | string, decimals: number = 18)
   if (typeof value === "number") {
     return BigNumber.from(parseEther(String(value)));
   } else if (typeof value === "string") {
+    if (value == "" || value == ".") value = "0";
     return BigNumber.from(parseEther(value));
   }
   return BigNumber.from("0");

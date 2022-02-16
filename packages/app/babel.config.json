@@ -7,7 +7,7 @@
         "alias": {
           "@popcorn/ui": "../ui/src",
           "@popcorn/utils": "../utils",
-          "@popcorn/hardhat": "../contracts",
+          "@popcorn/hardhat": "../hardhat",
           "containers": "./containers",
           "app": "./app"
         }

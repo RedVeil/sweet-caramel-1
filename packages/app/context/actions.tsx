@@ -7,7 +7,6 @@ import {
   DefaultSingleActionModalProps,
   SingleActionModalProps,
 } from 'components/Modal/SingleActionModal';
-import { StakingPageInfo } from 'pages/staking/[id]';
 import { DefaultDualActionModalProps } from '../components/Modal/DualActionModal';
 import { NotificationProps } from '../components/Notifications/NotificationProps';
 
@@ -31,22 +30,7 @@ export type AppActions =
   | SetSingleActionModalAction
   | SetDualActionModalAction
   | SetDualActionWideModalAction
-  | ShowGlobalLoaderAction
-  | UpdateStakingInfoAction;
-
-export interface UpdateStakingInfoAction {
-  type: typeof UPDATE_STAKING_PAGE_INFO;
-  payload: StakingPageInfo;
-}
-
-export const updateStakingPageInfo = (
-  stakingInfo: StakingPageInfo | undefined,
-): UpdateStakingInfoAction => {
-  return {
-    type: UPDATE_STAKING_PAGE_INFO,
-    payload: stakingInfo,
-  };
-};
+  | ShowGlobalLoaderAction;
 
 export interface ShowGlobalLoaderAction {
   type: typeof SHOW_GLOBAL_LOADER | typeof HIDE_GLOBAL_LOADER;

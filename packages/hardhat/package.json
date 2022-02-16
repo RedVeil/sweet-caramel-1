@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index",
   "scripts": {
-    "build": "yarn clean && hardhat compile",
+    "build": "yarn clean && yarn hardhat compile",
     "dev": "yarn hardhat node",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "clean": "rimraf ./cache & rimraf ./artifacts",

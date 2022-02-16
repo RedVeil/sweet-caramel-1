@@ -12,15 +12,13 @@ const TabSelector: React.FC<TabSelectorProps> = ({ activeTab, setActiveTab, labe
       {labels.map((label, i) => (
         <div
           key={i}
-          className={`w-1/2 ${
-            activeTab === i
-              ? "border-b-2 border-blue-600"
-              : "border-b border-gray-400 cursor-pointer group hover:border-gray-600"
+          className={`w-1/2 cursor-pointer ${
+            activeTab === i ? "border-b-2 border-blue-600" : "border-b border-gray-400  group hover:border-gray-600"
           }`}
           onClick={(e) => setActiveTab(i)}
         >
           <p
-            className={`text-center text-base mb-4 ${
+            className={`text-center text-base mb-4 cursor-pointer ${
               activeTab === i ? "text-blue-600 font-semibold" : "text-gray-400 group-hover:text-gray-600"
             }`}
           >

@@ -17,16 +17,16 @@
   ],
   "editor.formatOnSave": true,
   "[javascript]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": true
   },
   "[javascriptreact]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": true
   },
   "[typescript]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": true
   },
   "[typescriptreact]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": true
   },
   "[solidity]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -36,10 +36,9 @@
   "prettier.eslintIntegration": true,
   "javascript.validate.enable": true,
   // "diffEditor.ignoreTrimWhitespace": true,
-  "editor.rulers": [
-    120,
-    160
-  ],
-  "cSpell.words": [
-  ]
+  "editor.rulers": [120, 160],
+  "cSpell.words": [],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

@@ -10,10 +10,11 @@ export default function useNetworkSwitch() {
   return useCallback(
     (newChainId: number) => {
       if (typeof newChainId === "number") {
+        localStorage.setItem("chainId", String(newChainId));
+
         if (account) {
           switchNetwork(newChainId);
         } else {
-          localStorage.setItem("chainId", String(newChainId));
           // @Dev handle route specific behaviour here.
           // For route staking/[id] we need to redirect the user back to the staking pools page.
           if (router.pathname === "/staking/[id]") {
