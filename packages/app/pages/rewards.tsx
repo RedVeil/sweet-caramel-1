@@ -308,26 +308,29 @@ export default function index(): JSX.Element {
                 {availableTabs[tabSelected] === Tabs.Vesting && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
-                    !userEscrowsFetchResult?.data ||
-                    userEscrowsFetchResult?.error ||
-                    userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                      !userEscrowsFetchResult?.data ||
+                      userEscrowsFetchResult?.error ||
+                      userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                       <NotAvailable title="No records available" body="No vesting records available" />
                     ) : (
                       <>
                         <div>
-                          <div className={`flex flex-row justify-between px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}>
-                            <div className="flex flex-row">
-                              <h1 className={`text-3xl font-medium text-gray-900 my-auto`}>Vesting Records</h1>
+                          <div className={`flex flex-row justify-between px-6 md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}>
+                            <div className="flex flex-col md:flex-row">
+                              <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>Vesting Records</h1>
+                              <h1 className={`block md:hidden text-lg md:text-xl font-medium text-gray-900 my-auto mr-8`}>
+                                {formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP
+                              </h1>
                             </div>
                             <div className="flex flex-row my-auto">
-                              <h1 className={`text-3xl font-medium text-gray-900 my-auto mr-8`}>
+                              <h1 className={`hidden md:block text-3xl font-medium text-gray-900 my-auto mr-8`}>
                                 {formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP
                               </h1>
                               <button
                                 onClick={() => claimAllEscrows()}
-                                className="mx-auto my-auto bg-blue-600 border border-transparent rounded-full justify-self-center shadow-custom py-3 px-10"
+                                className="mx-auto my-auto bg-blue-600 border border-transparent rounded-full justify-self-center shadow-custom py-3 px-5 md:px-10"
                               >
-                                <p className="font-semibold text-lg text-white">Claim All</p>
+                                <p className="font-semibold text-base md:text-lg text-white">Claim All</p>
                               </button>
                             </div>
                           </div>

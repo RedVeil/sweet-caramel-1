@@ -9,8 +9,8 @@ export const NotAvailable: React.FC<{ title: string; body: string; visible?: boo
     return <></>;
   }
   return (
-    <div className="border-1 border-gray-200 rounded-5xl w-full h-full flex flex-col justify-center items-center bg-gray-50">
-      <img src="/images/emptyPopcorn.svg" className="h-1/2 w-1/2" />
+    <div className="border-1 border-gray-200 rounded-5xl w-full md:h-full flex flex-col justify-center items-center bg-gray-50 min-h-128 md:min-h-auto h-11/12 max-h-screen md:max-h-auto">
+      <img src="/images/emptyPopcorn.svg" className="h-auto md:h-1/2 w-1/2" />
       <p className="mt-12 font-semibold text-2xl text-gray-900">{title}</p>
       <p className="mt-1 text-gray-900">{body}</p>
     </div>

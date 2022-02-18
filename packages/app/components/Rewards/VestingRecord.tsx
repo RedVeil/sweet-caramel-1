@@ -1,4 +1,5 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
+import StatusWithLabel from "components/Common/StatusWithLabel";
+import MainActionButton from "components/MainActionButton";
 import { format } from "date-fns";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import { Escrow } from "hooks/useGetUserEscrows";
@@ -14,36 +15,43 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
 
   return (
     <div
-      className={`flex flex-row justify-between px-8 ${index % 2 === 0 ? "bg-rewardsBg2" : "bg-rewardsBg"} w-full h-36`}
+      className={`flex flex-col md:flex-row w-full p-6 md:py-0 md:px-8 md:h-36 ${
+        index % 2 === 0 ? "bg-rewardsBg2" : "bg-rewardsBg"
+      } `}
     >
-      <div className="flex flex-row justify-between w-full">
-        <div className="flex flex-col my-auto">
-          <p className={`text-base text-gray-500 my-auto`}>UNLOCK ENDS</p>
-          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>{formattedEndDate}</h1>
-        </div>
-
-        <div className="flex flex-col my-auto">
-          <p className={`text-base text-gray-500 my-auto`}>TOTAL TOKENS</p>
-          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
-            <span className="text-gray-900">{formatAndRoundBigNumber(vestingEscrow.balance, 3)}</span> POP
-          </h1>
-        </div>
-
-        <div className="flex flex-col my-auto">
-          <p className={`text-base text-gray-500 my-auto`}>CLAIMABLE TOKENS</p>
-          <h1 className={`text-2xl font-medium text-gray-900 my-auto`}>
-            <span className="text-gray-900">{formatStakedAmount(vestingEscrow.claimableAmount)}</span> POP
-          </h1>
+      <div className="hidden md:flex flex-row justify-between items-center w-full">
+        <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
+        <StatusWithLabel label="Total Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+        <StatusWithLabel
+          label="Claimable Tokens"
+          content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
+        />
+        <div className="w-2/12">
+          <MainActionButton
+            handleClick={() => claim(vestingEscrow)}
+            disabled={!vestingEscrow.claimableAmount.gte(0)}
+            label="Claim"
+          />
         </div>
       </div>
-      <div className="w-1/4 my-auto flex flex-row justify-end">
-        <button
-          onClick={() => claim(vestingEscrow)}
-          disabled={!vestingEscrow.claimableAmount.gte(0)}
-          className="my-auto bg-blue-600 rounded-full py-3 px-10 mb-1 leading-none cursor-pointer hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-default"
-        >
-          <p className="font-semibold text-lg text-white">Claim</p>
-        </button>
+      <div className="md:hidden w-full">
+        <div className="flex flex-row justify-between">
+          <StatusWithLabel
+            label="Claimable Tokens"
+            content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
+          />
+          <div className="w-1/3">
+            <MainActionButton
+              handleClick={() => claim(vestingEscrow)}
+              disabled={!vestingEscrow.claimableAmount.gte(0)}
+              label="Claim"
+            />
+          </div>
+        </div>
+        <div className="flex flex-row justify-between mt-10">
+          <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
+          <StatusWithLabel label="Total Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+        </div>
       </div>
     </div>
   );
