@@ -214,20 +214,20 @@ export default function index(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="flex flex-col mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
+        <div className="flex flex-col mx-auto w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="text-center md:text-left md:w-1/3 mx-6 md:mx-0">
             <h1 className="page-title">Rewards</h1>
             <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
           </div>
           {!account && (
             <div className="w-full">
-              <div className="hidden md:block w-full mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl pt-44 pb-44 shadow-custom">
+              <div className="block w-full mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl py-20 md:py-44 shadow-custom">
                 <img
                   src="/images/claims-cat.svg"
                   alt="cat holding popcorn"
-                  className="py-2 mx-auto transform scale-101"
+                  className="py-2 mx-auto px-10 transform scale-101"
                 />
-                <div className="grid justify-items-stretch">
+                <div className="flex mx-10 justify-items-stretch">
                   <button
                     onClick={() => activate(connectors.Injected)}
                     className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
@@ -308,17 +308,23 @@ export default function index(): JSX.Element {
                 {availableTabs[tabSelected] === Tabs.Vesting && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
-                      !userEscrowsFetchResult?.data ||
-                      userEscrowsFetchResult?.error ||
-                      userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                    !userEscrowsFetchResult?.data ||
+                    userEscrowsFetchResult?.error ||
+                    userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                       <NotAvailable title="No records available" body="No vesting records available" />
                     ) : (
                       <>
                         <div>
-                          <div className={`flex flex-row justify-between px-6 md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}>
+                          <div
+                            className={`flex flex-row justify-between px-6 md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
+                          >
                             <div className="flex flex-col md:flex-row">
-                              <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>Vesting Records</h1>
-                              <h1 className={`block md:hidden text-lg md:text-xl font-medium text-gray-900 my-auto mr-8`}>
+                              <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>
+                                Vesting Records
+                              </h1>
+                              <h1
+                                className={`block md:hidden text-lg md:text-xl font-medium text-gray-900 my-auto mr-8`}
+                              >
                                 {formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP
                               </h1>
                             </div>
