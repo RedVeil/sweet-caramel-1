@@ -35,8 +35,8 @@ export default function index(): JSX.Element {
   }, [chainId, account, library]);
   const { data: pop } = useERC20(contractAddresses.pop);
   const { data: xPop } = useERC20(contractAddresses.xPop);
-  const { data: popLocker, revalidate: revalidatePopLocker } = usePopLocker(contractAddresses.popStaking);
-  const { data: stakingPools, revalidate: revalidateStakingPools } = useStakingPools(contractAddresses.staking);
+  const { data: popLocker, mutate: revalidatePopLocker } = usePopLocker(contractAddresses.popStaking);
+  const { data: stakingPools, mutate: revalidateStakingPools } = useStakingPools(contractAddresses.staking);
   const balancesXPop = useBalanceAndAllowance(xPop, account, contractAddresses?.xPopRedemption);
   const balancesPop = useBalanceAndAllowance(pop, account, contractAddresses?.xPopRedemption);
 
