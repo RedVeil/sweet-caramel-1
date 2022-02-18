@@ -1,11 +1,10 @@
-import { ArrowCircleRightIcon } from "@heroicons/react/solid";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import StatusWithLabel from "components/Common/StatusWithLabel";
+import TextLink from "components/Common/TextLink";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
-import Link from "next/link";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
 
@@ -168,13 +167,7 @@ export default function StakeInterface({
                       <p className="text-2xl font-medium ">POP</p>
                     </div>
                   </div>
-                  <Link href="/rewards" passHref>
-                    <a className="flex flex-shrink-0 text-lg text-blue-600 font-medium py-3 hover:text-blue-700 whitespace-nowrap">
-                      <span className="hidden md:inline mr-1">Go to</span>
-                      Claim Page
-                      <ArrowCircleRightIcon height={18} className="inline self-center ml-2" />
-                    </a>
-                  </Link>
+                  <TextLink text="Claim Page" url="/rewards" />
                 </div>
               </div>
             </div>
