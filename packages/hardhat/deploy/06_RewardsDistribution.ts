@@ -1,11 +1,11 @@
-import {DeployFunction} from "@anthonymartin/hardhat-deploy/types";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSignerFrom} from "../lib/utils/getSignerFrom";
-import {addContractToRegistry} from "./utils";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getSignerFrom } from "../lib/utils/getSignerFrom";
+import { addContractToRegistry } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
-  const {deploy} = deployments;
+  const { deployments, getNamedAccounts } = hre;
+  const { deploy } = deployments;
   const addresses = await getNamedAccounts();
 
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
@@ -18,12 +18,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "RewardsDistribution",
   });
   await addContractToRegistry("RewardsDistribution", deployments, signer, hre);
-
-  /*
-  NOTICE: We could call addRewardDistribution() for the staking contracts here or add RewardsDistributors 
-  but i feel like neither rewardsAmount or the rewardsDistributor are that set in stone as to set them here. 
-  Instead we should probably do this later on etherscan.
-  */
 };
 export default main;
 main.dependencies = ["setup"];

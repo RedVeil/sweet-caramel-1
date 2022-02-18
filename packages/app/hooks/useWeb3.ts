@@ -1,7 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { useWeb3React } from "@web3-react/core";
-import activateRPCNetwork from "helper/activateRPCNetwork";
 import useWeb3Callbacks from "helper/useWeb3Callbacks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import useIsContractReady from "./useIsContractReady";
@@ -33,12 +32,6 @@ export default function useWeb3() {
       setChainId(_chainId);
     }
   }, [_chainId]);
-
-  useEffect(() => {
-    if (!library) {
-      activateRPCNetwork(activate, ref.current);
-    }
-  }, [library]);
 
   const signer = useMemo(() => (account ? library.getSigner(account) : null), [account, library]);
   const contractAddresses = useMemo(() => getChainRelevantContracts(chainId), [chainId]);

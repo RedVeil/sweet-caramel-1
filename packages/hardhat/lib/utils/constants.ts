@@ -5,4 +5,5 @@ export const networkMap = {
   80001: "mumbai",
   137: "polygon",
   1337: "hardhat",
+  56: "bsc",
 };

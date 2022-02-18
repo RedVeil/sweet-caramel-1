@@ -1,6 +1,7 @@
 import { Address } from "@popcorn/utils/types";
 import Navbar from "components/NavBar/NavBar";
 import StakeCard from "components/StakeCard";
+import { ChainId } from "context/Web3/connectors";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useStakingPools from "hooks/staking/useStakingPools";
 import useWeb3 from "hooks/useWeb3";
@@ -8,20 +9,28 @@ import { useRouter } from "next/router";
 import React from "react";
 import ContentLoader from "react-content-loader";
 import { Toaster } from "react-hot-toast";
+import { NotAvailable } from "../../components/Rewards/NotAvailable";
 
 export default function index(): JSX.Element {
-  const { contractAddresses } = useWeb3();
+  const {
+    contractAddresses: { popStaking, staking, pop },
+    chainId,
+  } = useWeb3();
   const router = useRouter();
 
-  const { data: popLocker } = usePopLocker(contractAddresses.popStaking);
-  const { data: stakingPools } = useStakingPools(contractAddresses.staking);
+  const { data: popLocker, isValidating: popLockerIsValidating } = usePopLocker(popStaking);
+  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useStakingPools(staking);
 
   const onSelectPool = (stakingContractAddress: Address, stakingTokenAddress: Address) => {
-    if (stakingTokenAddress?.toLowerCase() === contractAddresses.pop.toLowerCase()) {
+    if (stakingTokenAddress?.toLowerCase() === pop.toLowerCase()) {
       router.push("staking/pop");
     } else {
       router.push(`staking/${stakingContractAddress}`);
     }
+  };
+
+  const pageAvailable = () => {
+    return ![ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId);
   };
 
   return (
@@ -41,7 +50,18 @@ export default function index(): JSX.Element {
           </div>
           <div className="md:w-2/3 mx-auto">
             <div className="space-y-6 mx-4">
-              {!popLocker || !stakingPools ? (
+              {!pageAvailable() && (
+                <div className="flex flex-col w-full 3 px-6 md:mx-0 mt-10 mb-8">
+                  <div className="mb-8">
+                    <NotAvailable
+                      title="No staking, yet"
+                      body="No staking pools on this network"
+                      additionalStyles={"p-24"}
+                    ></NotAvailable>
+                  </div>
+                </div>
+              )}
+              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && (
                 <ContentLoader viewBox="0 0 450 400">
                   {/*eslint-disable */}
                   <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />
@@ -49,7 +69,8 @@ export default function index(): JSX.Element {
                   <rect x="0" y="230" rx="15" ry="15" width="450" height="108" />
                   {/*eslint-enable */}
                 </ContentLoader>
-              ) : (
+              )}
+              {pageAvailable() && !!popLocker && !!stakingPools && (
                 <>
                   <StakeCard
                     key={popLocker.address}
@@ -57,7 +78,7 @@ export default function index(): JSX.Element {
                     stakedToken={popLocker.stakingToken}
                     onSelectPool={onSelectPool}
                   />
-                  {stakingPools.map((stakingPool) => (
+                  {stakingPools?.map((stakingPool) => (
                     <div key={stakingPool.address}>
                       <StakeCard
                         stakingPool={stakingPool}

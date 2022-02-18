@@ -30,7 +30,25 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
           currentChainId={currentChain}
           key={ChainId.Ethereum}
         />
-
+        <NetworkOptionsMenuItem
+          chainId={ChainId.Arbitrum}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
+          currentChainId={currentChain}
+          key={ChainId.Arbitrum}
+        />
+        <NetworkOptionsMenuItem
+          chainId={ChainId.Polygon}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
+          currentChainId={currentChain}
+          key={ChainId.Polygon}
+          last={true}
+        />
+        <NetworkOptionsMenuItem
+          chainId={ChainId.BinanceSmartChain}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
+          currentChainId={currentChain}
+          key={ChainId.BinanceSmartChain}
+        />
         {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(parseInt(process.env.CHAIN_ID)) && [
           <NetworkOptionsMenuItem
             chainId={ChainId.Localhost}
@@ -44,20 +62,7 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
             currentChainId={currentChain}
             key={ChainId.Rinkeby}
           />,
-          <NetworkOptionsMenuItem
-            chainId={ChainId.Arbitrum}
-            switchNetwork={(chainId) => switchNetwork(chainId)}
-            currentChainId={currentChain}
-            key={ChainId.Arbitrum}
-          />,
         ]}
-        <NetworkOptionsMenuItem
-          chainId={ChainId.Polygon}
-          switchNetwork={(chainId) => switchNetwork(chainId)}
-          currentChainId={currentChain}
-          key={ChainId.Polygon}
-          last={true}
-        />
       </Menu.Items>
     </Transition>
   );

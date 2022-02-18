@@ -1,16 +1,16 @@
-import {DeployFunction} from "@anthonymartin/hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import bluebird from "bluebird";
-import {parseEther} from "ethers/lib/utils";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSignerFrom} from "../lib/utils/getSignerFrom";
-import {getStakingPools, Pool} from "../lib/utils/getStakingPools";
-import {DAYS} from "../lib/utils/test";
-import {MockERC20} from "../typechain";
-import {addContractToRegistry} from "./utils";
+import { parseEther } from "ethers/lib/utils";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getSignerFrom } from "../lib/utils/getSignerFrom";
+import { getStakingPools, Pool } from "../lib/utils/getStakingPools";
+import { DAYS } from "../lib/utils/test";
+import { MockERC20 } from "../typechain";
+import { addContractToRegistry } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
-  const {deploy} = deployments;
+  const { deployments, getNamedAccounts } = hre;
+  const { deploy } = deployments;
   const addresses = await getNamedAccounts();
   const pop = addresses.pop;
 
@@ -19,7 +19,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const stakingPools = await getStakingPools(hre.network.config.chainId, addresses, deployments);
 
   for (var i = 0; i < stakingPools.length; i++) {
-    const {poolName, rewardsToken, inputToken, contract} = stakingPools[i];
+    const { poolName, rewardsToken, inputToken, contract } = stakingPools[i];
     const deployed = await deploy(poolName, {
       from: addresses.deployer,
       args:
@@ -56,11 +56,11 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default main;
 main.dependencies = ["setup"];
-main.tags = ["core", "frontend", "staking"];
+main.tags = ["frontend", "staking"];
 
 async function prepareRewardsEscrow(stakingAddress: string, signer: any, hre: HardhatRuntimeEnvironment) {
   console.log("preparing rewards escrow ...");
-  const {deployments, getNamedAccounts} = hre;
+  const { deployments, getNamedAccounts } = hre;
   const rewardsEscrow = await hre.ethers.getContractAt(
     "RewardsEscrow",
     await (
@@ -97,7 +97,7 @@ async function prepareStakingContract(
       await hre.network.provider.send("evm_mine", []);
       await stakingContract.connect(signer).getReward();
     },
-    {concurrency: 1}
+    { concurrency: 1 }
   );
   await hre.network.provider.send("evm_increaseTime", [3600]);
   await hre.network.provider.send("evm_mine", []);
@@ -115,7 +115,7 @@ async function connectAndMintToken(
 
 async function createDemoData(hre: HardhatRuntimeEnvironment, pool: Pool): Promise<void> {
   try {
-    const {deployments} = hre;
+    const { deployments } = hre;
 
     const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
     // fund Pool staking rewards

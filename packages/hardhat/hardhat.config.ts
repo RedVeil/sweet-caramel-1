@@ -112,10 +112,13 @@ module.exports = {
       url: process.env.RPC_URL || `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     arbitrum: {
+      timeout: 60000,
       url: process.env.RPC_URL || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     bsc: {
+      timeout: 60000,
       url: process.env.RPC_URL || "https://undefined",
+      chainId: 56,
     },
     rinkarby: {
       url: process.env.RPC_URL || "https://rinkeby.arbitrum.io/rpc",

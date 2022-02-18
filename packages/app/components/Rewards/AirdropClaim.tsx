@@ -51,7 +51,7 @@ const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, 
       </div>
       <div className="w-full text-center mt-10 space-y-4">
         {(balances[0].allowance.lte(BigNumber.from(0)) || balances[0].allowance.lt(inputAmount)) && (
-          <MainActionButton label={`Approve XPOP`} handleClick={approve} />
+          <MainActionButton label={`Approve xPOP`} handleClick={approve} disabled={inputAmount.isZero()} />
         )}
         <MainActionButton
           label="Redeem"

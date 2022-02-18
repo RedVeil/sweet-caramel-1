@@ -18,6 +18,8 @@ export const switchNetwork = async (chainId: number) => {
           return connectToMaticMainnet();
         case ChainId.Arbitrum:
           return connectToArbitrum();
+        case ChainId.BinanceSmartChain:
+          return connectToBinanceSmartChain();
         case ChainId.Localhost:
           return connectToLocalhost();
       }
@@ -98,6 +100,25 @@ export const connectToArbitrum = async () => {
           decimals: 18,
         },
         blockExplorerUrls: ["https://arbiscan.io"],
+      },
+    ],
+  });
+};
+
+export const connectToBinanceSmartChain = async () => {
+  await window.ethereum?.request({
+    method: "wallet_addEthereumChain",
+    params: [
+      {
+        chainId: "0x38",
+        rpcUrls: ["https://bsc-dataseed1.binance.org"],
+        chainName: "Binance Smart Chain Mainnet",
+        nativeCurrency: {
+          name: "BNB",
+          symbol: "BNB",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://bscscan.com"],
       },
     ],
   });

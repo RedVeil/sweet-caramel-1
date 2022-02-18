@@ -1,4 +1,5 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
+import { CardLoader } from "components/CardLoader";
 import Navbar from "components/NavBar/NavBar";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
@@ -24,6 +25,12 @@ import { ChainId, connectors } from "../context/Web3/connectors";
 import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../hooks/tokens/useERC20";
 
+enum Tabs {
+  Staking = "Staking Rewards",
+  Airdrop = "Airdrop Redemption",
+  Vesting = "Vesting Records",
+}
+
 export default function index(): JSX.Element {
   const { account, library, chainId, activate, contractAddresses, onContractSuccess, onContractError } = useWeb3();
   const { dispatch } = useContext(store);
@@ -40,7 +47,7 @@ export default function index(): JSX.Element {
   const balancesXPop = useBalanceAndAllowance(xPop, account, contractAddresses?.xPopRedemption);
   const balancesPop = useBalanceAndAllowance(pop, account, contractAddresses?.xPopRedemption);
 
-  const [tabSelected, setTabSelected] = useState<number>(0);
+  const [tabSelected, setTabSelected] = useState(0);
   const [availableTabs, setAvailableTabs] = useState([]);
 
   const claimStakingReward = useClaimStakingReward();
@@ -53,11 +60,11 @@ export default function index(): JSX.Element {
     balancesPop.revalidate();
   };
 
-  enum Tabs {
-    Staking = "Staking Rewards",
-    Airdrop = "Airdrop Redemption",
-    Vesting = "Vesting Records",
-  }
+  useEffect(() => {
+    if (chainId === ChainId.BinanceSmartChain) {
+      setTabSelected(1);
+    }
+  }, []);
 
   useEffect(() => {
     if (shouldAirdropVisible(chainId)) {
@@ -68,7 +75,11 @@ export default function index(): JSX.Element {
   }, [chainId]);
 
   const shouldAirdropVisible = (chainId) =>
-    [ChainId.Arbitrum, ChainId.Polygon, ChainId.Hardhat, ChainId.Localhost].includes(chainId);
+    [ChainId.Arbitrum, ChainId.Polygon, ChainId.Hardhat, ChainId.BinanceSmartChain, ChainId.Localhost].includes(
+      chainId,
+    );
+
+  const stakingVisible = (chainId) => ![ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId);
 
   const userEscrowsFetchResult: SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber }, any> =
     useGetUserEscrows();
@@ -184,7 +195,7 @@ export default function index(): JSX.Element {
         title: "You have just redeemed your POP",
         children: (
           <p>
-            Your recently redeemed POP will be vested linearly over one year. Go to{" "}
+            Your recently redeemed POP will be vested linearly over 2 years. Go to{" "}
             <span
               className="text-blue-600 inline cursor-pointer"
               onClick={() => {
@@ -268,6 +279,15 @@ export default function index(): JSX.Element {
                     isPopLocker={true}
                   />
                 )}
+
+                {isSelected(Tabs.Staking) && !stakingVisible(chainId) && (
+                  <NotAvailable
+                    title="No staking rewards"
+                    body="Staking rewards are currently unavailable on this network"
+                  />
+                )}
+
+                {isSelected(Tabs.Staking) && stakingVisible(chainId) && !popLocker && !stakingPools && <CardLoader />}
 
                 {isSelected(Tabs.Airdrop) && xPop && pop ? (
                   <AirDropClaim

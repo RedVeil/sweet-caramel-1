@@ -42,7 +42,7 @@ contract RewardsDistribution is Owned, IRewardsDistribution {
     address _owner,
     address _pop,
     address _treasury
-  ) public Owned(_owner) {
+  ) Owned(_owner) {
     pop = _pop;
     treasury = _treasury;
   }

@@ -5,17 +5,26 @@ import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { ChainId } from "../../context/Web3/connectors";
 
 export default function PopStakingPage(): JSX.Element {
-  const { account, signer, contractAddresses, onContractSuccess, onContractError, isContractReady } = useWeb3();
+  const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId } = useWeb3();
+  const router = useRouter();
 
   const [form, setForm] = useState(defaultForm);
   const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
   const stakingToken = stakingPool?.stakingToken;
+
+  useEffect(() => {
+    if ([ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId)) {
+      router.push("/staking");
+    }
+  }, [stakingPool, chainId]);
 
   const approveToken = useApproveERC20();
 

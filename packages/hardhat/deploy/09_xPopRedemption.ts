@@ -18,6 +18,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    pre_eip1559: supportsEIP1559(hre),
     contract: "XPopRedemption",
   });
 
@@ -67,7 +68,12 @@ const mintPOP = async (address: string, signer: any, recipient: string, hre: Har
   console.log("Total POP supply", formatEther(await POP.totalSupply()));
 };
 
+const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
+  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum", "bsc"];
+  return !NOT_EIP1559Compatible.includes(hre.network.name);
+};
+
 module.exports = main;
 export default main;
-main.dependencies = ["setup", "rewards-escrow", "x-pop"];
+main.dependencies = ["setup"];
 main.tags = ["frontend", "xpop-redemption"];

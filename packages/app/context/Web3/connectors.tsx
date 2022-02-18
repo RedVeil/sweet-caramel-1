@@ -9,6 +9,7 @@ export enum ChainId {
   Polygon = 137,
   Localhost = 1337,
   Hardhat = 31337,
+  BinanceSmartChain = 56,
 }
 
 export const networkMap = {
@@ -19,6 +20,7 @@ export const networkMap = {
   [ChainId.Polygon]: "Polygon",
   [ChainId.Hardhat]: "Hardhat",
   [ChainId.Localhost]: "Localhost",
+  [ChainId.BinanceSmartChain]: "BSC",
 };
 
 export const logos = {
@@ -27,6 +29,7 @@ export const logos = {
   [ChainId.Polygon]: "/images/icons/polygonLogo.png",
   [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
   [ChainId.Localhost]: "/images/icons/ethLogo.png",
+  [ChainId.BinanceSmartChain]: "/images/icons/bsc-logo.png",
 };
 
 const RPC_URLS = {
@@ -35,6 +38,7 @@ const RPC_URLS = {
   [ChainId.Arbitrum]: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Polygon]: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.BinanceSmartChain]: `https://bsc-dataseed1.binance.org`,
   [ChainId.Localhost]: `http://localhost:8545`,
 };
 
@@ -45,6 +49,7 @@ export const supportedChainIds = [
   ChainId.Polygon,
   ChainId.Mumbai,
   ChainId.Localhost,
+  ChainId.BinanceSmartChain,
 ];
 
 const Injected = new InjectedConnector({
