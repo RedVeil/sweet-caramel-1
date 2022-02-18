@@ -53,7 +53,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
         )}
       </div>
-      {!depositDisabled && !redeeming && (
+      {!depositDisabled && !redeeming && selectedToken.input.key !== "threeCrv" && (
         <div className="pb-6">
           <div className="flex flex-row justify-between">
             <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>

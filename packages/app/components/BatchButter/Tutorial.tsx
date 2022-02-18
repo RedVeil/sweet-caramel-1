@@ -27,7 +27,7 @@ function tutorialContent(step: number): JSX.Element {
   switch (step) {
     case 1:
       return (
-        <div className="w-full h-56 flex flex-row items-center justify-center">
+        <div className="w-full h-auto flex flex-row items-center justify-center">
           <img
             src={`/images/butter/Step-${step}.png`}
             className="w-10/12 laptop:w-9/12 xl:w-7/12 2xl:w-9/12"
@@ -36,7 +36,7 @@ function tutorialContent(step: number): JSX.Element {
       );
     case 2:
       return (
-        <div className="w-full h-56 flex flex-row items-center justify-center">
+        <div className="w-full h-auto flex flex-row items-center justify-center">
           <img
             src={`/images/butter/Step-${step}.png`}
             className="w-10/12 smlaptop:w-9/12 xl:w-7/12 2xl:w-9/12"
@@ -45,7 +45,7 @@ function tutorialContent(step: number): JSX.Element {
       );
     case 3:
       return (
-        <div className="w-full h-56 flex flex-row items-center justify-center">
+        <div className="w-full h-auto flex flex-row items-center justify-center">
           <img
             src={`/images/butter/Step-${step}.png`}
             className="w-10/12 smlaptop:w-9/12 xl:w-7/12 2xl:w-9/12"
@@ -68,9 +68,9 @@ const Tutorial: React.FC = () => {
           <Icon.ChevronLeft className="text-primary h-14 w-14 mr-2 opacity-40" />
         </button>
       </div>
-      <div className="w-8/12 pt-2 h-104 smlaptop:h-100 xl:h-104">
+      <div className="w-8/12 pt-2 h-auto">
         {tutorialContent(step)}
-        <h2 className="font-semibold leading-none text-center text-gray-600 laptop:mt-8 xl:mt-12">
+        <h2 className="font-semibold leading-none text-center text-gray-600 mt-4">
           How it works
         </h2>
         <h1 className="font-bold leading-none text-center text-2xl mt-6">
