@@ -17,7 +17,7 @@ const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, 
 
   return (
     <div className="bg-white rounded-3xl px-5 pt-14 pb-6 border border-gray-200 shadow-custom">
-      <div className="flex flex-row justify-between items-start">
+      <div className="flex flex-col md:flex-row justify-between items-start">
         <TokenInput
           token={tokens[0]}
           label={"Redeem Amount"}
@@ -25,7 +25,22 @@ const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, 
           amount={inputAmount}
           setAmount={(n) => setInputAmount(n)}
         />
-        <div className="h-16 w-16 mx-8 flex justify-center items-center rounded-full border border-gray-400 bg-transparent border-width-1  mt-6">
+        <div className="block md:hidden w-full relative mt-10 mb-2">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className={`relative flex justify-center`}>
+            <div className="w-20 bg-white">
+              <div
+                className="flex items-center justify-center w-14 h-14 mx-auto border border-gray-300 rounded-full cursor-pointer"
+
+              >
+                <Icon.ArrowDown height={24} width={24} strokeWidth={1.5} color="gray" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="hidden md:flex h-16 w-16 mx-8 justify-center items-center rounded-full border border-gray-400 bg-transparent border-width-1  mt-6">
           <div className="w-16 h-16 flex justify-center items-center">
             <Icon.ArrowRight height={24} width={24} strokeWidth={1.5} color="gray" />
           </div>
