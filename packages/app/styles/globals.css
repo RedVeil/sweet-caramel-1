@@ -141,3 +141,15 @@ input[type="number"] {
   border-color: #636363;
   color: #636363;
 }
+
+.__react_component_tooltip.show {
+  opacity: 1 !important;
+}
+
+.__react_component_tooltip {
+  pointer-events: auto !important;
+  border-radius: .5rem;
+  background-color: '#c4c4c4';
+  font-weight: 400;
+  line-height: 20px;
+}
