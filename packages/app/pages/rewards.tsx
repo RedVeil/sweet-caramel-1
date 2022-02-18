@@ -1,4 +1,4 @@
-import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
+import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import Navbar from "components/NavBar/NavBar";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
@@ -7,17 +7,15 @@ import VestingRecordComponent from "components/Rewards/VestingRecord";
 import TabSelector from "components/TabSelector";
 import { setSingleActionModal } from "context/actions";
 import { store } from "context/store";
-import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, ethers } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
-import useWeb3Callbacks from "helper/useWeb3Callbacks";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useStakingPools from "hooks/staking/useStakingPools";
 import useClaimEscrows from "hooks/useClaimEscrows";
 import useClaimStakingReward from "hooks/useClaimStakingReward";
 import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
 import useWeb3 from "hooks/useWeb3";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { toast, Toaster } from "react-hot-toast";
@@ -27,24 +25,26 @@ import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../hooks/tokens/useERC20";
 
 export default function index(): JSX.Element {
-  const { account, library, chainId, activate, contractAddresses } = useWeb3();
-  const { contracts } = useContext(ContractsContext);
+  const { account, library, chainId, activate, contractAddresses, onContractSuccess, onContractError } = useWeb3();
   const { dispatch } = useContext(store);
-
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
+  const xPopRedemption = useMemo(() => {
+    if (contractAddresses.xPopRedemption) {
+      return XPopRedemption__factory.connect(contractAddresses.xPopRedemption, account ? library.getSigner() : library);
+    }
+  }, [chainId, account, library]);
   const { data: pop } = useERC20(contractAddresses.pop);
   const { data: xPop } = useERC20(contractAddresses.xPop);
   const { data: popLocker, revalidate: revalidatePopLocker } = usePopLocker(contractAddresses.popStaking);
   const { data: stakingPools, revalidate: revalidateStakingPools } = useStakingPools(contractAddresses.staking);
-  const balancesXPop = useBalanceAndAllowance(xPop, account, contracts?.xPopRedemption?.address);
-  const balancesPop = useBalanceAndAllowance(pop, account, contracts?.xPopRedemption?.address);
+  const balancesXPop = useBalanceAndAllowance(xPop, account, contractAddresses?.xPopRedemption);
+  const balancesPop = useBalanceAndAllowance(pop, account, contractAddresses?.xPopRedemption);
 
   const [tabSelected, setTabSelected] = useState<number>(0);
   const [availableTabs, setAvailableTabs] = useState([]);
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows();
-  const { onSuccess, onError } = useWeb3Callbacks();
 
   const revalidate = () => {
     revalidatePopLocker();
@@ -77,7 +77,7 @@ export default function index(): JSX.Element {
     toast.loading("Claiming Rewards...");
     claimStakingReward(pool, isPopLocker).then(
       (res) =>
-        onSuccess(res, "Rewards Claimed!", () => {
+        onContractSuccess(res, "Rewards Claimed!", () => {
           revalidate();
 
           if (!localStorage.getItem("hideClaimModal")) {
@@ -102,15 +102,15 @@ export default function index(): JSX.Element {
             );
           }
         }),
-      (err) => onError(err),
+      (err) => onContractError(err),
     );
   };
 
   const claimSingleEscrow = async (escrow: Escrow) => {
     toast.loading("Claiming Escrow...");
     claimVestedPopFromEscrows([escrow.id]).then(
-      (res) => onSuccess(res, "Claimed Escrow!", revalidate),
-      (err) => onError(err),
+      (res) => onContractSuccess(res, "Claimed Escrow!", revalidate),
+      (err) => onContractError(err),
     );
   };
 
@@ -120,8 +120,8 @@ export default function index(): JSX.Element {
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
     if (numberOfEscrows && numberOfEscrows > 0) {
       claimVestedPopFromEscrows(escrowsIds).then(
-        (res) => onSuccess(res, "Claimed Escrows!", revalidate),
-        (err) => onError(err),
+        (res) => onContractSuccess(res, "Claimed Escrows!", revalidate),
+        (err) => onContractError(err),
       );
     }
   };
@@ -136,9 +136,9 @@ export default function index(): JSX.Element {
 
   async function approveXpopRedemption(): Promise<void> {
     toast.loading("Approving xPOP...");
-    await contracts.xPop
+    await xPop.contract
       .connect(library.getSigner())
-      .approve(contracts.xPopRedemption.address, ethers.constants.MaxUint256)
+      .approve(contractAddresses.xPopRedemption, ethers.constants.MaxUint256)
       .then((res) => {
         res.wait().then((res) => {
           toast.dismiss();
@@ -157,7 +157,7 @@ export default function index(): JSX.Element {
   }
   async function redeemXpop(amount: BigNumber): Promise<void> {
     toast.loading("Redeeming xPOP...");
-    await contracts.xPopRedemption
+    await xPopRedemption
       .connect(library.getSigner())
       .redeem(amount)
       .then((res) => {
@@ -259,7 +259,7 @@ export default function index(): JSX.Element {
                 </div>
                 {isSelected(Tabs.Staking) && !!popLocker && (
                   <ClaimCard
-                    tokenName={popLocker.stakingToken.name} //TODO
+                    tokenName={popLocker.stakingToken.name}
                     claimAmount={popLocker.earned}
                     key={popLocker.address}
                     handler={poolClaimHandler}
@@ -288,7 +288,7 @@ export default function index(): JSX.Element {
                   stakingPools.length > 0 &&
                   stakingPools?.map((poolInfo, index) => (
                     <ClaimCard
-                      tokenName={poolInfo.stakingToken.name} //TODO
+                      tokenName={poolInfo.stakingToken.name}
                       claimAmount={poolInfo.earned}
                       key={poolInfo.address}
                       handler={poolClaimHandler}
