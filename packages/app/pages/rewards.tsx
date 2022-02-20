@@ -268,7 +268,7 @@ export default function index(): JSX.Element {
                 <div className="mb-8">
                   <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} labels={availableTabs} />
                 </div>
-                {isSelected(Tabs.Staking) && !!popLocker && (
+                {isSelected(Tabs.Staking) && stakingVisible(chainId) && !!popLocker && (
                   <ClaimCard
                     tokenName={popLocker.stakingToken.name}
                     claimAmount={popLocker.earned}
@@ -304,6 +304,7 @@ export default function index(): JSX.Element {
                   />
                 )}
                 {isSelected(Tabs.Staking) &&
+                  stakingVisible(chainId) &&
                   stakingPools &&
                   stakingPools.length > 0 &&
                   stakingPools?.map((poolInfo, index) => (
