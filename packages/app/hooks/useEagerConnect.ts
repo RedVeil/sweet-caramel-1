@@ -1,7 +1,7 @@
-import { useWeb3React } from '@web3-react/core';
-import { connectors } from 'context/Web3/connectors';
-import activateRPCNetwork from 'helper/activateRPCNetwork';
-import { useEffect, useState } from 'react';
+import { useWeb3React } from "@web3-react/core";
+import { connectors } from "context/Web3/connectors";
+import activateRPCNetwork from "helper/activateRPCNetwork";
+import { useEffect, useState } from "react";
 
 export default function useEagerConnect() {
   const { activate, active } = useWeb3React();
@@ -10,15 +10,15 @@ export default function useEagerConnect() {
 
   useEffect(() => {
     async function handleEagerConnect() {
-      const eagerConnect = localStorage.getItem('eager_connect');
+      const eagerConnect = localStorage.getItem("eager_connect");
 
       const isAuthorized = await connectors.Injected.isAuthorized();
-      if (isAuthorized && eagerConnect === 'true') {
+      if (isAuthorized && eagerConnect === "true") {
         activate(connectors.Injected).catch(() => {
           setTried(true);
         });
       } else {
-        activateRPCNetwork(activate);
+        activateRPCNetwork(activate, Number(localStorage.getItem("chainId")));
       }
     }
 

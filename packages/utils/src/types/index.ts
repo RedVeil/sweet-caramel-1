@@ -1,9 +1,13 @@
-export type Address = string;
+import { BigNumber } from "ethers";
+import { ERC20 } from "../../../hardhat/typechain";
 
+export type Address = string;
 export interface ContractAddresses {
   staking?: Array<Address>;
   popStaking?: Address;
   pop?: Address;
+  xPop?: Address;
+  xPopRedemption?: Address;
   dai?: Address;
   usdc?: Address;
   usdt?: Address;
@@ -28,6 +32,8 @@ export interface ContractAddresses {
   balancerLBPFactory?: Address;
   merkleOrchard?: Address;
   rewardsEscrow?: Address;
+  all: Set<Address>;
+  has: (contract: string) => boolean;
 }
 
 export interface ERC20Contracts {
@@ -63,3 +69,31 @@ export interface VestingRecord {
   vested: number;
   claimable: number;
 }
+
+export type Token = {
+  contract: ERC20;
+  address: Address;
+  name: string;
+  symbol: string;
+  decimals: number;
+  balance?: BigNumber;
+  allowance?: BigNumber;
+};
+
+export type StakingPool = {
+  address: string;
+  tokenAddress: string;
+  apy: string;
+  totalStake: BigNumber;
+  userStake: BigNumber;
+  tokenEmission: BigNumber;
+  earned?: BigNumber;
+  withdrawable?: BigNumber;
+  stakingToken: Token;
+};
+
+export type ToastConfig = {
+  successMessage: string;
+  errorMessage?: string;
+  id: string;
+};

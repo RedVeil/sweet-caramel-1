@@ -3,9 +3,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IACLRegistry.sol";
 
+/**
+ *  @notice Provides modifiers and internal functions for interacting with the `ACLRegistry`
+ *  @dev Derived contracts using `ACLAuth` must also inherit `ContractRegistryAccess`
+ *   and override `_getContract`.
+ */
 abstract contract ACLAuth {
   /**
    *  @dev Equal to keccak256("Keeper")
@@ -26,11 +30,6 @@ abstract contract ACLAuth {
    *  @dev Equal to keccak256("ACLRegistry")
    */
   bytes32 internal constant ACL_REGISTRY_ID = 0x15fa0125f52e5705da1148bfcf00974823c4381bee4314203ede255f9477b73e;
-  IContractRegistry internal _contractRegistry;
-
-  constructor(IContractRegistry contractRegistry_) {
-    _contractRegistry = contractRegistry_;
-  }
 
   /**
    *  @notice Require that `msg.sender` has given role
@@ -133,7 +132,20 @@ abstract contract ACLAuth {
     _aclRegistry().requireApprovedContractOrEOA(account);
   }
 
+  /**
+   *  @notice Return an IACLRegistry interface to the registered ACLRegistry contract
+   *  @return IACLRegistry interface to ACLRegistry contract
+   */
   function _aclRegistry() internal view returns (IACLRegistry) {
-    return IACLRegistry(_contractRegistry.getContract(ACL_REGISTRY_ID));
+    return IACLRegistry(_getContract(ACL_REGISTRY_ID));
   }
+
+  /**
+   *  @notice Get a contract address by name from the contract registry
+   *  @param _name bytes32 contract name
+   *  @return contract address
+   *  @dev Users of this abstract contract should also inherit from `ContractRegistryAccess`
+   *   and override `_getContract` in their implementation.
+   */
+  function _getContract(bytes32 _name) internal view virtual returns (address);
 }

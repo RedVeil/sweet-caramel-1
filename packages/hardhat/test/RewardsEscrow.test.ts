@@ -147,13 +147,13 @@ describe("RewardsEscrow", function () {
 
       let claimTx = await contracts.rewardsEscrow.connect(staker).claimReward(escrowId);
       escrow = await contracts.rewardsEscrow.escrows(escrowId);
-      await expectValue(escrow.balance, parseEther("89"));
+      await expectBigNumberCloseTo(escrow.balance, parseEther("89"), parseEther("1"));
       await timeTravel(10);
       claimableTx = await contracts.rewardsEscrow.getClaimableAmount(escrowId);
       await expectValue(await claimableTx, await getExpectedClaimable(escrow, claimableTx));
       claimTx = await contracts.rewardsEscrow.connect(staker).claimReward(escrowId);
       escrow = await contracts.rewardsEscrow.escrows(escrowId);
-      await expectValue(escrow.balance, parseEther("78"));
+      await expectBigNumberCloseTo(escrow.balance, parseEther("78"), parseEther("1"));
     });
   });
 

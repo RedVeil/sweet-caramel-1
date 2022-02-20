@@ -1,36 +1,51 @@
-import { Web3Provider } from "@ethersproject/providers";
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { useWeb3React } from "@web3-react/core";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
-import activateRPCNetwork from "helper/activateRPCNetwork";
 import useEagerConnect from "hooks/useEagerConnect";
+import useNetworkSwitch from "hooks/useNetworkSwitch";
+import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FC, useContext, useEffect, useState } from "react";
+import React, { FC, useCallback, useContext, useEffect, useState } from "react";
 import { connectors, networkMap } from "../../context/Web3/connectors";
-import { getChainLogo, switchNetwork } from "./../../context/Web3/networkSwitch";
+import { getChainLogo } from "./../../context/Web3/networkSwitch";
 import GetPopMenu from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
-const disconnectInjectedAndActivateRPCConnector = (deactivate, activate) => {
+const disconnectInjected = (deactivate: Function, activate: any, chainId: number) => {
   localStorage.setItem("eager_connect", "false");
+  localStorage.setItem("chainId", String(chainId));
   deactivate(connectors.Injected);
-  activateRPCNetwork(activate);
 };
 
 const Navbar: FC = () => {
-  const { chainId, account, activate, deactivate } = useWeb3React<Web3Provider>();
+  if (typeof window === "undefined") {
+    return <></>;
+  }
+  const { chainId, account, activate, deactivate, library } = useWeb3();
   const router = useRouter();
-  const [currentChainName, setCurrentChainName] = useState(networkMap[chainId]);
-  const [currentChainIcon, setCurrentChainIcon] = useState(getChainLogo(chainId));
+  const [currentChain, setCurrentChain] = useState({ name: networkMap[chainId], logo: getChainLogo(chainId), chainId });
+  const switchNetwork = useNetworkSwitch();
   useEagerConnect();
+
+  const getChain = useCallback(
+    (_chainId) => {
+      if (_chainId == "0xa4b1") {
+        _chainId = 42161;
+      }
+      return { name: networkMap[_chainId], logo: getChainLogo(_chainId), chainId: _chainId };
+    },
+    [chainId, library],
+  );
+
   useEffect(() => {
-    setCurrentChainName(networkMap[chainId]);
-    setCurrentChainIcon(getChainLogo(chainId));
+    if (typeof chainId == "number") {
+      setCurrentChain(getChain(chainId));
+    }
   }, [chainId]);
+
   const { dispatch } = useContext(store);
 
   function showDelayInfo() {
@@ -100,29 +115,20 @@ const Navbar: FC = () => {
             <Menu>
               <Menu.Button>
                 <div
-                  className={`w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl ${
-                    account ? "cursor-pointer" : "cursor-default"
-                  }`}
+                  className={`w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl cursor-pointer`}
                 >
-                  <img src={currentChainIcon} alt={""} className="w-4.5 h-4 mr-4" />
-                  <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChainName}</p>
-                  {account ? <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" /> : <div></div>}
+                  <img src={currentChain.logo} alt={""} className="w-4.5 h-4 mr-4" />
+                  <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChain.name}</p>
+                  <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
                 </div>
               </Menu.Button>
-              {account && (
-                <NetworkOptionsMenu
-                  currentChain={chainId}
-                  switchNetwork={(chainId) => {
-                    switchNetwork(chainId);
-                  }}
-                />
-              )}
+              <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => switchNetwork(newChainId)} />
             </Menu>
           </div>
           <button
             onClick={() => {
               if (account) {
-                disconnectInjectedAndActivateRPCConnector(deactivate, activate);
+                disconnectInjected(deactivate, activate, chainId);
               } else {
                 localStorage.setItem("eager_connect", "true");
                 activate(connectors.Injected);

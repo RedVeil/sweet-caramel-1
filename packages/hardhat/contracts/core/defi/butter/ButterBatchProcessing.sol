@@ -8,12 +8,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
+import "../../utils/KeeperIncentivized.sol";
 import "../../../externals/interfaces/YearnVault.sol";
 import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
-import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IStaking.sol";
 import "../../interfaces/IKeeperIncentive.sol";
 
@@ -24,7 +25,7 @@ import "../../interfaces/IKeeperIncentive.sol";
  * This means multiple approvals and deposits are necessary to mint one Butter.
  * We batch this process and allow users to pool their funds. Then we pay a keeper to mint or redeem Butter regularly.
  */
-contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth {
+contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperIncentivized, ContractRegistryAccess {
   using SafeERC20 for YearnVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
@@ -73,7 +74,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth {
 
   bytes32 public immutable contractName = "ButterBatchProcessing";
 
-  IContractRegistry public contractRegistry;
   IStaking public staking;
   ISetToken public setToken;
   IERC20 public threeCrv;
@@ -137,8 +137,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth {
     uint256 _batchCooldown,
     uint256 _mintThreshold,
     uint256 _redeemThreshold
-  ) ACLAuth(_contractRegistry) {
-    contractRegistry = _contractRegistry;
+  ) ContractRegistryAccess(_contractRegistry) {
     staking = _staking;
     setToken = _setToken;
     threeCrv = _threeCrv;
@@ -329,7 +328,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth {
    * @dev In order to get 3CRV we can implement a zap to move stables into the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchMint() external whenNotPaused keeper(0) {
+  function batchMint() external whenNotPaused keeperIncentive(contractName, 0) {
     Batch storage batch = batches[currentMintBatchId];
 
     //Check if there was enough time between the last batch minting and this attempt...
@@ -447,7 +446,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth {
    * @dev In order to get stablecoins from 3CRV we can use a zap to redeem 3CRV for stables in the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchRedeem() external whenNotPaused keeper(1) {
+  function batchRedeem() external whenNotPaused keeperIncentive(contractName, 1) {
     Batch storage batch = batches[currentRedeemBatchId];
 
     //Check if there was enough time between the last batch redemption and this attempt...
@@ -865,12 +864,12 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth {
     staking = IStaking(_staking);
   }
 
-  modifier keeper(uint8 _index) {
-    IKeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
-      contractName,
-      _index,
-      msg.sender
-    );
-    _;
+  function _getContract(bytes32 _name)
+    internal
+    view
+    override(ACLAuth, KeeperIncentivized, ContractRegistryAccess)
+    returns (address)
+  {
+    return super._getContract(_name);
   }
 }

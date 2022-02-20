@@ -1,16 +1,16 @@
 import { Contract } from "@ethersproject/contracts";
-import { Web3Provider } from "@ethersproject/providers";
 import { ButterDependencyAddresses, ContractAddresses } from "@popcorn/utils/types";
 import { SetToken__factory } from "@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory";
 import { SetToken } from "@setprotocol/set-protocol-v2/typechain/SetToken";
-import { abi as IUniswapV3PoolABI } from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
+import IUniswapV3PoolABI from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from "@web3-react/injected-connector";
 import activateRPCNetwork from "helper/activateRPCNetwork";
-import React, { createContext, useEffect, useState } from "react";
+import useWeb3 from "hooks/useWeb3";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import { getChainRelevantContracts } from "../../../hardhat/lib/utils/getContractAddresses";
 import {
   BasicIssuanceModule,
@@ -31,6 +31,8 @@ import {
   PopLocker__factory,
   Staking,
   Staking__factory,
+  XPopRedemption,
+  XPopRedemption__factory,
   YearnVault,
   YearnVault__factory,
 } from "../../../hardhat/typechain";
@@ -40,6 +42,8 @@ export interface Contracts {
   staking?: Staking[];
   popStaking?: PopLocker;
   pop?: ERC20;
+  xPop?: ERC20;
+  xPopRedemption?: XPopRedemption;
   dai?: ERC20;
   usdc?: ERC20;
   usdt?: ERC20;
@@ -91,6 +95,8 @@ const initializeContracts = (contractAddresses: ContractAddresses, library): Con
     staking,
     popStaking,
     pop,
+    xPop,
+    xPopRedemption,
     dai,
     usdc,
     usdt,
@@ -106,12 +112,14 @@ const initializeContracts = (contractAddresses: ContractAddresses, library): Con
   const contracts: Contracts = {
     popStaking: popStaking ? PopLocker__factory.connect(popStaking, library) : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
+    xPop: xPop ? ERC20__factory.connect(xPop, library) : undefined,
+    xPopRedemption: xPopRedemption ? XPopRedemption__factory.connect(xPopRedemption, library) : undefined,
     dai: dai ? ERC20__factory.connect(dai, library) : undefined,
     usdc: usdc ? ERC20__factory.connect(usdc, library) : undefined,
     usdt: usdt ? ERC20__factory.connect(usdt, library) : undefined,
     threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
     popUsdcLp: popUsdcLp ? IGUni__factory.connect(popUsdcLp, library) : undefined,
-    popUsdcUniV3Pool: popUsdcUniV3Pool ? new Contract(popUsdcUniV3Pool, IUniswapV3PoolABI, library) : undefined,
+    popUsdcUniV3Pool: popUsdcUniV3Pool ? new Contract(popUsdcUniV3Pool, IUniswapV3PoolABI.abi, library) : undefined,
     butter: butter ? SetToken__factory.connect(butter, library) : undefined,
     butterBatch: butterBatch ? ButterBatchProcessing__factory.connect(butterBatch, library) : undefined,
     butterBatchZapper: butterBatchZapper
@@ -147,16 +155,20 @@ const initializeButterDependencyContracts = (
 };
 
 export default function ContractsWrapper({ children }: ContractsWrapperProps): JSX.Element {
-  const context = useWeb3React<Web3Provider>();
-  const { library, chainId, activate, active } = context;
-  const [contracts, setContracts] = useState<Contracts>();
-  const [butterDependencyContracts, setButterDependencyContracts] = useState<ButterDependencyContracts>();
+  const { active } = useWeb3React();
+  const { library, chainId, activate } = useWeb3();
+
+  const ref = useRef(chainId);
+  ref.current = chainId;
 
   useEffect(() => {
-    if (!active) {
-      activateRPCNetwork(activate);
+    if (!library) {
+      activateRPCNetwork(activate, ref.current);
     }
-  }, [active]);
+  }, [library]);
+
+  const [contracts, setContracts] = useState<Contracts>();
+  const [butterDependencyContracts, setButterDependencyContracts] = useState<ButterDependencyContracts>();
 
   useEffect(() => {
     if (!library || !chainId || chainId === undefined) {

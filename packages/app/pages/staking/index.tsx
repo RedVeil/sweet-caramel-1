@@ -1,61 +1,37 @@
-import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
+import { Address } from "@popcorn/utils/types";
 import Navbar from "components/NavBar/NavBar";
 import StakeCard from "components/StakeCard";
 import { ChainId } from "context/Web3/connectors";
-import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
-import React, { useContext, useEffect, useState } from "react";
+import usePopLocker from "hooks/staking/usePopLocker";
+import useStakingPools from "hooks/staking/useStakingPools";
+import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
+import React from "react";
 import ContentLoader from "react-content-loader";
 import { Toaster } from "react-hot-toast";
-import { getStakingPoolsInfo, StakingPoolInfo } from "../../../utils";
-
-async function getStakingPools(
-  contracts: Contracts,
-  chainId: number,
-  library,
-  butterDependencyContracts?: ButterDependencyContracts,
-): Promise<StakingPoolInfo[]> {
-  return getStakingPoolsInfo(contracts, chainId, library, butterDependencyContracts);
-}
+import { NotAvailable } from "../../components/Rewards/NotAvailable";
 
 export default function index(): JSX.Element {
-  const context = useWeb3React<Web3Provider>();
-  const { contracts, butterDependencyContracts } = useContext(ContractsContext);
-  const { library, chainId } = context;
-  const [stakingPoolsInfo, setStakingPools] = useState<StakingPoolInfo[]>();
-  const [loading, setLoading] = useState(false);
+  const {
+    contractAddresses: { popStaking, staking, pop },
+    chainId,
+  } = useWeb3();
+  const router = useRouter();
 
-  useEffect(() => {
-    if (!library || !contracts || !chainId) {
-      return;
-    }
-    getStakingPools(
-      contracts,
-      chainId,
-      library,
-      [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost].includes(chainId) ? butterDependencyContracts : undefined,
-    )
-      .then((res) => {
-        setStakingPools(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [contracts]);
+  const { data: popLocker, isValidating: popLockerIsValidating } = usePopLocker(popStaking);
+  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useStakingPools(staking);
 
-  useEffect(() => {
-    if (stakingPoolsInfo?.length) {
-      setLoading(false);
+  const onSelectPool = (stakingContractAddress: Address, stakingTokenAddress: Address) => {
+    if (stakingTokenAddress?.toLowerCase() === pop.toLowerCase()) {
+      router.push("staking/pop");
     } else {
-      setLoading(true);
+      router.push(`staking/${stakingContractAddress}`);
     }
-  }, [stakingPoolsInfo]);
+  };
 
-  useEffect(() => {
-    return () => {
-      setStakingPools(undefined);
-    };
-  }, []);
+  const pageAvailable = () => {
+    return ![ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId);
+  };
 
   return (
     <div className="w-full h-screen">
@@ -74,7 +50,18 @@ export default function index(): JSX.Element {
           </div>
           <div className="md:w-2/3 mx-auto">
             <div className="space-y-6 mx-4">
-              {loading && (
+              {!pageAvailable() && (
+                <div className="flex flex-col w-full 3 px-6 md:mx-0 mt-10 mb-8">
+                  <div className="mb-8">
+                    <NotAvailable
+                      title="No staking, yet"
+                      body="No staking pools on this network"
+                      additionalStyles={"p-24"}
+                    ></NotAvailable>
+                  </div>
+                </div>
+              )}
+              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && (
                 <ContentLoader viewBox="0 0 450 400">
                   {/*eslint-disable */}
                   <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />
@@ -83,18 +70,25 @@ export default function index(): JSX.Element {
                   {/*eslint-enable */}
                 </ContentLoader>
               )}
-              {contracts?.staking &&
-                stakingPoolsInfo &&
-                stakingPoolsInfo.length > 0 &&
-                stakingPoolsInfo.map((poolInfo, index) => (
+              {pageAvailable() && !!popLocker && !!stakingPools && (
+                <>
                   <StakeCard
-                    key={poolInfo.stakedTokenName}
-                    tokenName={poolInfo?.stakedTokenName}
-                    stakingPoolInfo={poolInfo}
-                    url={poolInfo.stakingContractAddress}
-                    stakingContract={contracts?.staking[index] ? contracts?.staking[index] : undefined}
+                    key={popLocker.address}
+                    stakingPool={popLocker}
+                    stakedToken={popLocker.stakingToken}
+                    onSelectPool={onSelectPool}
                   />
-                ))}
+                  {stakingPools?.map((stakingPool) => (
+                    <div key={stakingPool.address}>
+                      <StakeCard
+                        stakingPool={stakingPool}
+                        stakedToken={stakingPool.stakingToken}
+                        onSelectPool={onSelectPool}
+                      />
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           </div>
         </div>

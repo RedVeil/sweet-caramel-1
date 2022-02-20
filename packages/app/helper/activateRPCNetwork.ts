@@ -1,13 +1,5 @@
-import { connectors } from 'context/Web3/connectors';
+import { connectors } from "context/Web3/connectors";
 
-export default function activateRPCNetwork(activate: Function): void {
-  let targetChainId: number;
-  let savedChainId = localStorage.getItem('chainId');
-  if (savedChainId) {
-    targetChainId = Number(savedChainId);
-    localStorage.removeItem('chainId');
-  } else {
-    targetChainId = +process.env.CHAIN_ID;
-  }
-  activate(connectors.Network(targetChainId));
+export default async function activateRPCNetwork(activate: (connector: any) => Promise<void>, chainID): Promise<void> {
+  activate(connectors.Network(chainID ? chainID : Number(process.env.CHAIN_ID)));
 }

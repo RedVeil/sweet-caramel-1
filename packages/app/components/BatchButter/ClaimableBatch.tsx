@@ -1,12 +1,12 @@
-import { InfoIconWithModal } from 'components/InfoIconWithModal';
-import MainActionButton from 'components/MainActionButton';
-import SecondaryActionButton from 'components/SecondaryActionButton';
-import { setDualActionWideModal } from 'context/actions';
-import { store } from 'context/store';
-import { Dispatch, useContext } from 'react';
-import { AccountBatch, BatchType } from '../../../hardhat/lib/adapters';
-import { formatBigNumber } from '../../../utils';
-import ZapModal from './ZapModal';
+import { InfoIconWithModal } from "components/InfoIconWithModal";
+import MainActionButton from "components/MainActionButton";
+import SecondaryActionButton from "components/SecondaryActionButton";
+import { setDualActionWideModal } from "context/actions";
+import { store } from "context/store";
+import { Dispatch, useContext } from "react";
+import { AccountBatch, BatchType } from "../../../hardhat/lib/adapters";
+import { formatBigNumber } from "../../../utils";
+import ZapModal from "./ZapModal";
 
 interface BatchProps {
   batch: AccountBatch;
@@ -33,7 +33,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({
     if (batch.batchType === BatchType.Redeem) {
       dispatch(
         setDualActionWideModal({
-          title: 'Choose an Output Token',
+          title: "Choose an Output Token",
           content: (
             <ZapModal
               slippage={slippage}
@@ -56,7 +56,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({
     if (batch.batchType === BatchType.Mint) {
       dispatch(
         setDualActionWideModal({
-          title: 'Choose an Output Token',
+          title: "Choose an Output Token",
           content: (
             <ZapModal
               slippage={slippage}
@@ -81,45 +81,36 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   }
 
   return (
-    <tr
-      key={batch.batchId}
-      className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-    >
+    <tr key={batch.batchId} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
       <td className="px-6 py-5 whitespace-nowrap">
-        {`${formatBigNumber(batch.accountSuppliedTokenBalance)} ${batch.batchType === BatchType.Mint ? '3CRV ' : 'BTR'
-          }`}
+        {`${formatBigNumber(batch.accountSuppliedTokenBalance)} ${
+          batch.batchType === BatchType.Mint ? "3CRV " : "BTR"
+        }`}
         {batch.batchType === BatchType.Mint && (
           <InfoIconWithModal title="Why do I see 3CRV?">
             <p>
-              Your stablecoins have been swapped into 3CRV in order to mint BTR.
-              For this reason you see a 3CRV balance here.
+              Your stablecoins have been swapped into 3CRV in order to mint BTR. For this reason you see a 3CRV balance
+              here.
             </p>
           </InfoIconWithModal>
         )}
       </td>
       <td className="px-6 py-5 whitespace-nowrap font-medium">
-        {`${formatBigNumber(batch.accountClaimableTokenBalance)} ${batch.batchType === BatchType.Mint ? 'BTR' : '3CRV'
-          }`}
+        {`${formatBigNumber(batch.accountClaimableTokenBalance)} ${
+          batch.batchType === BatchType.Mint ? "BTR" : "3CRV"
+        }`}
       </td>
       <td className="px-6 py-5 flex justify-end">
         <div className="w-36">
           {batch.claimable && batch.batchType === BatchType.Mint ? (
             <div className="space-y-4">
-              <MainActionButton
-                label="Claim and Stake"
-                handleClick={(e) => handleClaimAndStake()}
-              />
-              <SecondaryActionButton
-                label="Claim"
-                handleClick={(e) => handleClaim()}
-              />
+              <MainActionButton label="Claim and Stake" handleClick={(e) => handleClaimAndStake()} />
+              <SecondaryActionButton label="Claim" handleClick={(e) => handleClaim()} />
             </div>
           ) : (
             <MainActionButton
-              label={batch.claimable ? 'Claim' : 'Cancel'}
-              handleClick={(e) =>
-                batch.claimable ? handleClaim() : handleWithdraw()
-              }
+              label={batch.claimable ? "Claim" : "Cancel"}
+              handleClick={(e) => (batch.claimable ? handleClaim() : handleWithdraw())}
             />
           )}
         </div>

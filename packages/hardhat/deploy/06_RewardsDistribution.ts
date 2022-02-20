@@ -18,12 +18,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "RewardsDistribution",
   });
   await addContractToRegistry("RewardsDistribution", deployments, signer, hre);
-
-  /*
-  NOTICE: We could call addRewardDistribution() for the staking contracts here or add RewardsDistributors 
-  but i feel like neither rewardsAmount or the rewardsDistributor are that set in stone as to set them here. 
-  Instead we should probably do this later on etherscan.
-  */
 };
 export default main;
 main.dependencies = ["setup"];

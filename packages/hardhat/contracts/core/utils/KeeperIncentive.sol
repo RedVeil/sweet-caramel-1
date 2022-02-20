@@ -5,11 +5,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../utils/ContractRegistryAccess.sol";
 import "../utils/ACLAuth.sol";
-import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IStaking.sol";
 
-contract KeeperIncentive is ACLAuth {
+contract KeeperIncentive is ACLAuth, ContractRegistryAccess {
   using SafeERC20 for IERC20;
 
   struct Incentive {
@@ -19,8 +19,6 @@ contract KeeperIncentive is ACLAuth {
   }
 
   /* ========== STATE VARIABLES ========== */
-
-  IContractRegistry public contractRegistry;
 
   uint256 public incentiveBudget;
   mapping(bytes32 => Incentive[]) public incentives;
@@ -53,8 +51,7 @@ contract KeeperIncentive is ACLAuth {
     IContractRegistry _contractRegistry,
     uint256 _burnRate,
     uint256 _requiredKeeperStake
-  ) ACLAuth(_contractRegistry) {
-    contractRegistry = _contractRegistry;
+  ) ContractRegistryAccess(_contractRegistry) {
     burnRate = _burnRate; //25e16
     requiredKeeperStake = _requiredKeeperStake; // 2000 ether
   }
@@ -68,7 +65,7 @@ contract KeeperIncentive is ACLAuth {
   ) external {
     require(msg.sender == controllerContracts[_contractName], "Can only be called by the controlling contract");
     require(
-      IStaking(contractRegistry.getContract(keccak256("PopLocker"))).balanceOf(_keeper) >= requiredKeeperStake,
+      IStaking(_getContract(keccak256("PopLocker"))).balanceOf(_keeper) >= requiredKeeperStake,
       "not enough pop at stake"
     );
 
@@ -81,7 +78,7 @@ contract KeeperIncentive is ACLAuth {
       incentiveBudget = incentiveBudget - incentive.reward;
       uint256 amountToBurn = (incentive.reward * burnRate) / 1e18;
       uint256 incentivePayout = incentive.reward - amountToBurn;
-      IERC20(contractRegistry.getContract(keccak256("POP"))).safeTransfer(_keeper, incentivePayout);
+      IERC20(_getContract(keccak256("POP"))).safeTransfer(_keeper, incentivePayout);
       _burn(amountToBurn);
     }
   }
@@ -103,7 +100,7 @@ contract KeeperIncentive is ACLAuth {
     bool _enabled,
     bool _openToEveryone
   ) public onlyRole(DAO_ROLE) {
-    incentives[_contractName].push(Incentive({reward: _reward, enabled: _enabled, openToEveryone: _openToEveryone}));
+    incentives[_contractName].push(Incentive({ reward: _reward, enabled: _enabled, openToEveryone: _openToEveryone }));
     emit IncentiveCreated(_contractName, _reward, _openToEveryone);
   }
 
@@ -138,7 +135,7 @@ contract KeeperIncentive is ACLAuth {
   }
 
   function fundIncentive(uint256 _amount) external {
-    IERC20(contractRegistry.getContract(keccak256("POP"))).safeTransferFrom(msg.sender, address(this), _amount);
+    IERC20(_getContract(keccak256("POP"))).safeTransferFrom(msg.sender, address(this), _amount);
     incentiveBudget = incentiveBudget + _amount;
     emit IncentiveFunded(_amount);
   }
@@ -164,7 +161,7 @@ contract KeeperIncentive is ACLAuth {
   }
 
   function _burn(uint256 _amount) internal {
-    IERC20(contractRegistry.getContract(keccak256("POP"))).transfer(burnAddress, _amount);
+    IERC20(_getContract(keccak256("POP"))).transfer(burnAddress, _amount);
     emit Burned(_amount);
   }
 
@@ -175,5 +172,9 @@ contract KeeperIncentive is ACLAuth {
   function updateRequiredKeeperStake(uint256 _amount) external onlyRole(DAO_ROLE) {
     emit RequiredKeeperStakeChanged(requiredKeeperStake, _amount);
     requiredKeeperStake = _amount;
+  }
+
+  function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
+    return super._getContract(_name);
   }
 }

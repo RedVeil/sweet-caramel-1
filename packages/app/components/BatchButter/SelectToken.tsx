@@ -1,7 +1,7 @@
-import { BatchProcessTokens } from 'pages/butter';
-import { useState } from 'react';
-import * as Icon from 'react-feather';
-import { BatchProcessToken } from './TokenInput';
+import { BatchProcessTokens } from "pages/butter";
+import { useState } from "react";
+import * as Icon from "react-feather";
+import { BatchProcessToken } from "./TokenInput";
 
 interface SelectTokenProps {
   allowSelection: Boolean;
@@ -21,30 +21,20 @@ export default function SelectToken({
   const [showDropdown, setDropdown] = useState<Boolean>(false);
 
   return (
-    <div
-      className="relative w-28 mt-1 justify-end"
-      onMouseLeave={() => setDropdown(false)}
-    >
+    <div className="relative w-auto mt-1 justify-end" onMouseLeave={() => setDropdown(false)}>
       <span
-        className={`flex flex-row items-center justify-end ${
-          allowSelection ? 'cursor-pointer group' : ''
-        }`}
+        className={`flex flex-row items-center justify-end ${allowSelection ? "cursor-pointer group" : "mr-4"}`}
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
-        <img
-          className="w-5 mr-2 mb-1.5"
-          src={`images/tokens/${selectedToken.img}`}
-        ></img>
-        <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700">
-          {selectedToken.name}
-        </p>
+        <img className="w-5 mr-2 mb-1.5" src={`images/tokens/${selectedToken.img}`}></img>
+        <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700">{selectedToken.name}</p>
 
         {allowSelection && (
           <>
             {showDropdown ? (
-              <Icon.ChevronUp className="w-5 h-6 mb-1 ml-2 group-hover:text-blue-700" />
+              <Icon.ChevronUp className="w-5 h-6 mb-1 ml-2 mr-4 group-hover:text-blue-700" />
             ) : (
-              <Icon.ChevronDown className="w-5 h-6 mb-1 ml-2 group-hover:text-blue-700" />
+              <Icon.ChevronDown className="w-5 h-6 mb-1 ml-2 mr-4 group-hover:text-blue-700" />
             )}
           </>
         )}
@@ -62,13 +52,8 @@ export default function SelectToken({
                   setDropdown(false);
                 }}
               >
-                <img
-                  className="w-5 h-5 mx-2"
-                  src={`images/tokens/${token[selectableToken].img}`}
-                ></img>
-                <p className="font-semibold group-hover:text-blue-700 mt-1.5">
-                  {token[selectableToken].name}
-                </p>
+                <img className="w-5 h-5 mx-2" src={`images/tokens/${token[selectableToken].img}`}></img>
+                <p className="font-semibold group-hover:text-blue-700 mt-1.5">{token[selectableToken].name}</p>
               </a>
             ))}
         </div>

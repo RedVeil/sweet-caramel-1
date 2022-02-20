@@ -25,29 +25,23 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "MockERC20",
   });
 
-  const signer = await getSignerFrom(
-    hre.config.namedAccounts.deployer as string,
-    hre
-  );
+  await deploy("TestXPop", {
+    from: deployer,
+    args: [parseEther("10000000000")],
+    log: true,
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "XPop",
+  });
 
-  await mintPOP(
-    (
-      await deployments.get("TestPOP")
-    ).address,
-    signer,
-    hre.config.namedAccounts.deployer as string,
-    hre
-  );
+  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+
+  await mintPOP((await deployments.get("TestPOP")).address, signer, hre.config.namedAccounts.deployer as string, hre);
+  await mintPOP((await deployments.get("TestXPop")).address, signer, hre.config.namedAccounts.deployer as string, hre);
 };
 
-const mintPOP = async (
-  address: string,
-  signer: any,
-  recipient: string,
-  hre: HardhatRuntimeEnvironment
-) => {
+const mintPOP = async (address: string, signer: any, recipient: string, hre: HardhatRuntimeEnvironment) => {
   const POP = await hre.ethers.getContractAt("MockERC20", address, signer);
-  console.log("Minting POP for", recipient);
+  console.log(`Minting ${await POP.symbol()} for`, recipient, "at ", address);
   await (await POP.mint(recipient, parseEther("1000000000"))).wait(1);
   console.log("Total POP supply", formatEther(await POP.totalSupply()));
 };

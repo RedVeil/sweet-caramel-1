@@ -19,6 +19,6 @@ func.dependencies = ["setup"];
 func.tags = ["core", "frontend"];
 
 const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
-  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum"];
+  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum", "bsc"];
   return !NOT_EIP1559Compatible.includes(hre.network.name);
 };

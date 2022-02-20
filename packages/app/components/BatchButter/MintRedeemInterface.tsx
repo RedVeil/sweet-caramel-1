@@ -31,35 +31,37 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   hasUnclaimedBalances,
 }) => {
   return (
-    <div className="bg-white rounded-3xl px-5 pt-6 pb-10 mr-8 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl px-5 pt-6 pb-6 mr-8 border border-gray-200 shadow-custom">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
-      <TokenInput
-        token={token}
-        selectedToken={selectedToken}
-        selectToken={selectToken}
-        redeeming={redeeming}
-        setRedeeming={setRedeeming}
-        depositAmount={depositAmount}
-        setDepositAmount={setDepositAmount}
-        useUnclaimedDeposits={useUnclaimedDeposits}
-        setUseUnclaimedDeposits={setUseUnclaimedDeposits}
-        depositDisabled={depositDisabled}
-        hasUnclaimedBalances={hasUnclaimedBalances}
-      />
-      <div className="w-full">
+      <div>
+        <TokenInput
+          token={token}
+          selectedToken={selectedToken}
+          selectToken={selectToken}
+          redeeming={redeeming}
+          setRedeeming={setRedeeming}
+          depositAmount={depositAmount}
+          setDepositAmount={setDepositAmount}
+          useUnclaimedDeposits={useUnclaimedDeposits}
+          setUseUnclaimedDeposits={setUseUnclaimedDeposits}
+          depositDisabled={depositDisabled}
+          hasUnclaimedBalances={hasUnclaimedBalances}
+        />
+      </div>
+      <div className="w-full pb-16">
         {!redeeming && selectedToken.input.key !== "threeCrv" && (
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
         )}
       </div>
-      {!depositDisabled && !redeeming && (
-        <div className="pt-6">
+      {!depositDisabled && !redeeming && selectedToken.input.key !== "threeCrv" && (
+        <div className="pb-6">
           <div className="flex flex-row justify-between">
             <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>
             <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">{slippage} %</p>
           </div>
         </div>
       )}
-      <div className="w-full text-center lg:mt-9 lglaptop:mt-10 xl:mt-14 2xl:mt-212 smlaptop:mb-1 lglaptop:mb-1 xl:mb-3.5 2xl:mb-1.5">
+      <div className="w-full text-center">
         {depositAmount.gt(selectedToken.input.allowance) ? (
           <div className="space-y-4">
             <MainActionButton

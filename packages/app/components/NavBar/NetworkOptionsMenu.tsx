@@ -30,7 +30,18 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
           currentChainId={currentChain}
           key={ChainId.Ethereum}
         />
-
+        <NetworkOptionsMenuItem
+          chainId={ChainId.Arbitrum}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
+          currentChainId={currentChain}
+          key={ChainId.Arbitrum}
+        />
+        <NetworkOptionsMenuItem
+          chainId={ChainId.BinanceSmartChain}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
+          currentChainId={currentChain}
+          key={ChainId.BinanceSmartChain}
+        />
         {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(parseInt(process.env.CHAIN_ID)) && [
           <NetworkOptionsMenuItem
             chainId={ChainId.Localhost}
@@ -44,14 +55,8 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
             currentChainId={currentChain}
             key={ChainId.Rinkeby}
           />,
-          <NetworkOptionsMenuItem
-            chainId={ChainId.Arbitrum}
-            switchNetwork={(chainId) => switchNetwork(chainId)}
-            currentChainId={currentChain}
-            key={ChainId.Arbitrum}
-          />,
         ]}
-        <NetworkOptionsMenuItem
+        <NetworkOptionsMenuItem // this should be last otherwise the UI looks messed up. see last prop below:
           chainId={ChainId.Polygon}
           switchNetwork={(chainId) => switchNetwork(chainId)}
           currentChainId={currentChain}

@@ -16,7 +16,7 @@ contract MockCurveThreepool {
   uint256 withdrawalSlippageBps = 10;
 
   uint256 BPS_DENOMINATOR = 10000;
-  MockERC20[] tokens;
+  MockERC20[3] tokens;
 
   event LiquidityAdded(uint256 lpToken, address account);
   event EchoValues(uint256 amount);
@@ -35,7 +35,7 @@ contract MockCurveThreepool {
   }
 
   function coins(uint256 i) external view returns (address) {
-    return address(tokens[i]);
+    return address(tokens[uint256(i)]);
   }
 
   function get_virtual_price() external view returns (uint256) {

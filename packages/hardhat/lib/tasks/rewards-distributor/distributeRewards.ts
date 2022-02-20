@@ -1,14 +1,15 @@
 import { BigNumber } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
+import ask from "readline-sync";
 import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
 
 const REWARDS_DESTINATION_MAP = {
   "0x64337565e0Ce3E35fb7808C16807803a7540521C": "Butter", //eth
-  "0x8A3bC3867dB078Ee2742F063745A374eCC231131": "LP", // eth
-  "0x429902c1F43B583E099A0AA5B5c8e0Fd40C54435": "POP", // eth
-  "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3": "POP", // poly
-  "0x6da8005c4204553E596241F3cD561C7856857db1": "LP", //poly
+  "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45": "LP", // eth
+  "0xeEE1d31297B042820349B03027aB3b13a9406184": "POP", // eth
+  "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA": "POP", // poly
+  "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C": "LP", //poly
 };
 
 interface Args {
@@ -16,6 +17,7 @@ interface Args {
   editOnly?: boolean;
   force?: boolean;
   distributeOnly?: boolean;
+  firstRun?: boolean;
 }
 export default task(
   "rewards-distributor:distribute",
@@ -24,6 +26,7 @@ export default task(
   .addFlag("distributeOnly", "will only call distributeRewards function")
   .addFlag("editOnly", "will edit rewards for current period but not distribute rewards")
   .addFlag("dryRun", "will not submit any transactions")
+  .addFlag("firstRun", "used when it's the first reward distribution")
   .addFlag(
     "force",
     "will force editing distribute rewards and calling distribution function regardless of rewards period"
@@ -31,6 +34,7 @@ export default task(
   .setAction(async (args: Args, hre) => {
     const editOnly = args.editOnly;
     const dryRun = args.dryRun;
+    const firstRun = args.firstRun;
     const distributeOnly = args.distributeOnly;
     const force = args.force;
     const popLockerAddress = (await hre.deployments.get("PopLocker")).address;
@@ -51,14 +55,14 @@ export default task(
     const latestBlock = await hre.ethers.provider.getBlock("latest");
     console.log({ latestTimestamp: latestBlock.timestamp });
 
-    if (!force && rewardData.periodFinish > latestBlock.timestamp && !editOnly && !distributeOnly) {
+    if (!force && rewardData.periodFinish > latestBlock.timestamp && !editOnly && !distributeOnly && !firstRun) {
       console.log("Nothing to do, exiting ...");
       process.exit();
     }
 
     const signer = hre.ethers.provider.getSigner();
 
-    if (force || rewardData.periodFinish <= latestBlock.timestamp || editOnly || distributeOnly) {
+    if (force || rewardData.periodFinish <= latestBlock.timestamp || editOnly || distributeOnly || firstRun) {
       console.log("Last period finish is in the past, editing new distributions for next reward period ...");
 
       const editRewardsTxs = [];
@@ -70,16 +74,16 @@ export default task(
         let period;
         switch (rewardType) {
           case "Butter":
-            period = getNextRewardPeriod(latestBlock.timestamp, butterRewards, "Butter");
+            period = getNextRewardPeriod(latestBlock.timestamp, butterRewards, "Butter", firstRun);
             break;
           case "LP":
-            period = getNextRewardPeriod(latestBlock.timestamp, lpRewards, "LP");
+            period = getNextRewardPeriod(latestBlock.timestamp, lpRewards, "LP", firstRun);
             break;
           case "POP":
-            period = getNextRewardPeriod(latestBlock.timestamp, popRewards, "POP");
+            period = getNextRewardPeriod(latestBlock.timestamp, popRewards, "POP", firstRun);
             break;
         }
-        console.log({ period });
+        console.log({ period, rewardType, lastestBlockTimestamp: latestBlock.timestamp });
         const rewardData = {
           index: i,
           destination: distribution.destination,
@@ -114,13 +118,19 @@ export default task(
       const txs = await Promise.all(editRewardsTxs);
 
       console.log("awaiting confirmations for edit rewards ...");
-      await Promise.all(txs.map((tx) => tx.wait()));
+      await Promise.all(txs.map((tx) => tx.wait(2)));
 
       if (distributeOnly || (!dryRun && !editOnly)) {
         console.log("distributing rewards ... ");
-        const tx = await rewardsDistributionContract.connect(signer).distributeRewards(periodTotalRewards);
-        const receipt = await tx.wait();
-        console.log(receipt);
+        const yes = ask.keyInYN(`Are you sure you want to transfer ${formatEther(periodTotalRewards)} POP rewards?`);
+        if (!yes) {
+          process.exit();
+        }
+        const tx = await rewardsDistributionContract
+          .connect(signer)
+          .distributeRewards(periodTotalRewards, { gasLimit: 1000000 });
+        const receipt = await tx.wait(2);
+        console.log({ receipt });
       } else {
         console.log("not distributing rewards");
       }
@@ -148,15 +158,23 @@ const getLowerCaseMap = () => {
   return lowerCaseMap;
 };
 
-const getNextRewardPeriod = (timeNow: number, periodTable, type: string) => {
-  timeNow = 1643751003;
+const getNextRewardPeriod = (timeNow: number, periodTable, type: string, firstRun) => {
   let nextRewardPeriod = 0;
   let i = 0;
   let amount = 0;
   const periods = Object.keys(periodTable);
+  if (firstRun) {
+    nextRewardPeriod = Number(periods[0]);
+    amount = periodTable[nextRewardPeriod];
+    return {
+      nextRewardPeriod,
+      amount,
+      type,
+    };
+  }
   while (nextRewardPeriod == 0 && i < periods.length) {
     if (Number(periods[i]) > timeNow) {
-      nextRewardPeriod = Number(periods[i - 1]);
+      nextRewardPeriod = Number(periods[i]);
       amount = periodTable[nextRewardPeriod];
       break;
     }
@@ -172,9 +190,9 @@ const generateRewardPeriods = (network, table) => {
   const duration = 604800;
   let lastRewardFinish;
   if (network == "mainnet") {
-    lastRewardFinish = 1643751003;
+    lastRewardFinish = 1644516983;
   } else {
-    lastRewardFinish = 1643748460;
+    lastRewardFinish = 1644516470;
   }
 
   let periods = {};

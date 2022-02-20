@@ -1,27 +1,27 @@
-import { useWeb3React } from '@web3-react/core';
-import { useRouter } from 'next/router';
-import React, { useEffect } from 'react';
+import { useWeb3React } from "@web3-react/core";
+import { useEffect } from "react";
+import useNetworkSwitch from "./useNetworkSwitch";
 
 export default function useNetworkSwitchHandler() {
-  const { chainId } = useWeb3React();
-
-  const prevChainId = React.useRef<number>(null);
-  const router = useRouter();
-  const routeName = router.pathname;
+  const { chainId, account } = useWeb3React();
+  const networkSwitch = useNetworkSwitch();
 
   useEffect(() => {
-    if (prevChainId.current && chainId !== prevChainId.current && chainId) {
-      // @Dev handle route specific behaviour here.
-
-      localStorage.setItem('chainId', String(chainId));
-
-      // For route staking/[id] we need to redirect the user back to the staking pools page.
-      if (routeName === '/staking/[id]') {
-        router.push('/staking');
-      }
-      // For all routes except staking/[id]
-      window.location.reload();
+    if (!Number(localStorage.getItem("previousChainId"))) {
+      localStorage.setItem("previousChainId", process.env.CHAIN_ID);
     }
-    prevChainId.current = chainId;
-  }, [chainId]);
+  }, []);
+
+  useEffect(() => {
+    const previousChainId = Number(localStorage.getItem("previousChainId"));
+    // checking Account and ChainId for changes
+    if (chainId && !account) {
+      // ChainId was changed without wallet connected
+      localStorage.setItem("previousChainId", String(chainId));
+    } else if (previousChainId && account && chainId !== previousChainId) {
+      // ChainId was changed with walled connected
+      localStorage.setItem("previousChainId", String(chainId));
+      networkSwitch(chainId);
+    }
+  }, [chainId, account]);
 }

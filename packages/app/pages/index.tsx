@@ -65,8 +65,8 @@ const IndexPage = () => {
           </div>
         </div>
         <Hero
-          header="Farming"
-          content="Stake your tokens to earn more POP."
+          header="Staking"
+          content="Stake your tokens to participate and earn."
           image="images/farmer.svg"
           link="/staking"
         />

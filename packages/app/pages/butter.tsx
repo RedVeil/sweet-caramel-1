@@ -14,8 +14,8 @@ import { setDualActionWideModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { ChainId, connectors } from "context/Web3/connectors";
 import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
-import { switchNetwork } from "context/Web3/networkSwitch";
 import { BigNumber, ethers } from "ethers";
+import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import router from "next/router";
 import { useContext, useEffect, useState } from "react";
@@ -82,6 +82,7 @@ async function getBatchProcessToken(
         } as ComponentMap,
         contracts.butter?.address,
       ),
+      decimals: 18,
       img: "butter.png",
     },
     threeCrv: {
@@ -91,6 +92,7 @@ async function getBatchProcessToken(
       allowance: await contracts.threeCrv.allowance(account, contracts.butterBatch.address),
       claimableBalance: BigNumber.from("0"),
       price: await butterBatchAdapter.getThreeCrvPrice(butterDependencyContracts.threePool),
+      decimals: 18,
       img: "3crv.png",
     },
     dai: {
@@ -103,6 +105,7 @@ async function getBatchProcessToken(
         BigNumber.from("0"),
         BigNumber.from("0"),
       ]),
+      decimals: 18,
       img: "dai.webp",
     },
     usdc: {
@@ -115,6 +118,7 @@ async function getBatchProcessToken(
         BigNumber.from(1e6),
         BigNumber.from("0"),
       ]),
+      decimals: 6,
       img: "usdc.webp",
     },
     usdt: {
@@ -127,6 +131,7 @@ async function getBatchProcessToken(
         BigNumber.from("0"),
         BigNumber.from(1e6),
       ]),
+      decimals: 6,
       img: "usdt.webp",
     },
   };
@@ -176,6 +181,7 @@ export default function Butter(): JSX.Element {
   const [apy, setApy] = useState<number>();
   const [loading, setLoading] = useState<boolean>(false);
   const virtualPrice = useThreeCurveVirtualPrice(butterDependencyContracts?.threePool?.address);
+  const switchNetwork = useNetworkSwitch();
 
   useEffect(() => {
     if (contracts?.butterBatch && !butterBatchAdapter) {
@@ -197,7 +203,7 @@ export default function Butter(): JSX.Element {
             onClick: () => {
               if ([ChainId.Hardhat, ChainId.Localhost].includes(parseInt(process.env.CHAIN_ID))) {
                 console.log("switching network ", parseInt(process.env.CHAIN_ID));
-                switchNetwork(parseInt(process.env.CHAIN_ID));
+                switchNetwork(Number(process.env.CHAIN_ID));
               } else {
                 switchNetwork(ChainId.Ethereum);
               }
@@ -668,7 +674,7 @@ export default function Butter(): JSX.Element {
             </div>
           </div>
           <div className="flex flex-row mt-10">
-            <div className="w-1/3">
+            <div className="w-1/3 mb-10">
               {claimableBatches && selectedToken ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
@@ -680,7 +686,11 @@ export default function Butter(): JSX.Element {
                   setDepositAmount={setDepositAmount}
                   deposit={useUnclaimedDeposits ? hotswap : deposit}
                   approve={approve}
-                  depositDisabled={true}
+                  depositDisabled={
+                    useUnclaimedDeposits
+                      ? isDepositDisabled(depositAmount, selectedToken.input.claimableBalance)
+                      : isDepositDisabled(depositAmount, selectedToken.input.balance)
+                  }
                   useUnclaimedDeposits={useUnclaimedDeposits}
                   setUseUnclaimedDeposits={setUseUnclaimedDeposits}
                   hasUnclaimedBalances={hasClaimableBalances()}
@@ -734,7 +744,7 @@ export default function Butter(): JSX.Element {
                 </div>
               </div>
 
-              <div className="w-full  items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+              <div className="w-full h-4/5 flex flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
                 <Tutorial />
               </div>
             </div>

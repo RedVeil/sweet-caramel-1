@@ -1,14 +1,14 @@
-import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
-import { ethers, utils } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import {DeploymentsExtension} from "@anthonymartin/hardhat-deploy/dist/types";
+import {DeployFunction} from "@anthonymartin/hardhat-deploy/types";
+import {ethers, utils} from "ethers";
+import {parseEther} from "ethers/lib/utils";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {getSignerFrom} from "../lib/utils/getSignerFrom";
+import {addContractToRegistry} from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
+  const {deployments, getNamedAccounts} = hre;
+  const {deploy} = deployments;
   const addresses = await getNamedAccounts();
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
   const signerAddress = await signer.getAddress();

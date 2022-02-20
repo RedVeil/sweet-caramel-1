@@ -1,4 +1,4 @@
-import { ChainId, logos } from './connectors';
+import { ChainId, logos } from "./connectors";
 
 declare global {
   interface Window {
@@ -18,86 +18,107 @@ export const switchNetwork = async (chainId: number) => {
           return connectToMaticMainnet();
         case ChainId.Arbitrum:
           return connectToArbitrum();
+        case ChainId.BinanceSmartChain:
+          return connectToBinanceSmartChain();
         case ChainId.Localhost:
           return connectToLocalhost();
       }
     } catch (e) {
-      console.error('Error while changing network', e);
+      console.error("Error while changing network", e);
     }
   })(chainId);
 };
 
 export const connectToEthereumMainnet = async () => {
   await window.ethereum?.request({
-    method: 'wallet_switchEthereumChain',
-    params: [{ chainId: '0x1' }],
+    method: "wallet_switchEthereumChain",
+    params: [{ chainId: "0x1" }],
   });
 };
 
 export const connectToLocalhost = async () => {
   await window.ethereum?.request({
-    method: 'wallet_switchEthereumChain',
-    params: [{ chainId: '0x539' }],
+    method: "wallet_switchEthereumChain",
+    params: [{ chainId: "0x539" }],
   });
 };
 
 export const connectToEthereumRinkeby = async () => {
   await window.ethereum?.request({
-    method: 'wallet_switchEthereumChain',
-    params: [{ chainId: '0x4' }],
+    method: "wallet_switchEthereumChain",
+    params: [{ chainId: "0x4" }],
   });
 };
 
 export const connectToMaticMainnet = async () => {
   await window.ethereum?.request({
-    method: 'wallet_addEthereumChain',
+    method: "wallet_addEthereumChain",
     params: [
       {
-        chainId: '0x89',
-        rpcUrls: ['https://rpc-mainnet.matic.network'],
-        chainName: 'Matic(Polygon) Mainnet',
+        chainId: "0x89",
+        rpcUrls: ["https://rpc-mainnet.matic.network"],
+        chainName: "Matic(Polygon) Mainnet",
         nativeCurrency: {
-          name: 'Matic',
-          symbol: 'MATIC',
+          name: "Matic",
+          symbol: "MATIC",
           decimals: 18,
         },
-        blockExplorerUrls: ['https://polygonscan.com'],
+        blockExplorerUrls: ["https://polygonscan.com"],
       },
     ],
   });
 };
 export const connectToMaticMumbai = async () => {
   await window.ethereum?.request({
-    method: 'wallet_addEthereumChain',
+    method: "wallet_addEthereumChain",
     params: [
       {
-        chainId: '0x13881',
-        rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
-        chainName: 'Matic Mumbai',
+        chainId: "0x13881",
+        rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+        chainName: "Matic Mumbai",
         nativeCurrency: {
-          name: 'Matic',
-          symbol: 'MATIC',
+          name: "Matic",
+          symbol: "MATIC",
           decimals: 18,
         },
-        blockExplorerUrls: ['https://mumbai.polygonscan.com'],
+        blockExplorerUrls: ["https://mumbai.polygonscan.com"],
       },
     ],
   });
 };
 export const connectToArbitrum = async () => {
   await window.ethereum?.request({
-    method: 'wallet_addEthereumChain',
+    method: "wallet_addEthereumChain",
     params: [
       {
-        chainId: '0xA4B1',
-        rpcUrls: ['https://arb1.arbitrum.io/rpc'],
-        chainName: 'Arbitrum One',
+        chainId: "0xA4B1",
+        rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+        chainName: "Arbitrum One",
         nativeCurrency: {
-          name: 'AETH',
-          symbol: 'AETH',
+          name: "AETH",
+          symbol: "AETH",
           decimals: 18,
         },
-        blockExplorerUrls: ['https://arbiscan.io'],
+        blockExplorerUrls: ["https://arbiscan.io"],
+      },
+    ],
+  });
+};
+
+export const connectToBinanceSmartChain = async () => {
+  await window.ethereum?.request({
+    method: "wallet_addEthereumChain",
+    params: [
+      {
+        chainId: "0x38",
+        rpcUrls: ["https://bsc-dataseed1.binance.org"],
+        chainName: "Binance Smart Chain Mainnet",
+        nativeCurrency: {
+          name: "BNB",
+          symbol: "BNB",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://bscscan.com"],
       },
     ],
   });

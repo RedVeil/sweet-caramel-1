@@ -1,5 +1,5 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import { InfoIconWithModal } from "components/InfoIconWithModal";
+import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
@@ -18,14 +18,13 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
           </p>
         </div>
         <div className="w-full">
-          <div className="flex flex-row items-center w-full justify-between">
+          <div className="flex flex-row items-center w-full justify-between pt-1">
             <p className="font-normal leading-none text-gray-500 text-base uppercase">Batch</p>
-            <InfoIconWithModal title="Batch Processing">
-              <div>
-                Your mint/redeem request will be processed after the current batch is ready to be processed. The
-                expected wait time is about 24 hours.
-              </div>
-            </InfoIconWithModal>
+            <InfoIconWithTooltip
+              id="3"
+              title="Batch Processing"
+              content=" Your mint/redeem request will be processed after the current batch is ready to be processed. The expected wait time is about 24 hours."
+            />
           </div>
           <p className="text-gray-900 leading-snug mr-8">Your request will be processed with the next batch.</p>
         </div>

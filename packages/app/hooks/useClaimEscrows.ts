@@ -1,20 +1,18 @@
-import type { TransactionResponse } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
-import { isAddress } from 'ethers/lib/utils';
-import { useCallback } from 'react';
-import { getChainRelevantContracts } from '../../hardhat/lib/utils/getContractAddresses';
-// import ERC20ABI from "consts/abis/ERC20.json";
-import useVestingEscrow from './useVestingEscrow';
+import type { TransactionResponse } from "@ethersproject/providers";
+import { isAddress } from "ethers/lib/utils";
+import { useCallback } from "react";
+// import ERC20ABI from "abis/ERC20.json";
+import useVestingEscrow from "./useVestingEscrow";
+import useWeb3 from "./useWeb3";
 
 export default function useClaimEscrows() {
-  const { library, account, chainId } = useWeb3React();
-  const contractAddresses = getChainRelevantContracts(chainId);
+  const { library, account, chainId, contractAddresses } = useWeb3();
   const vestingEscrow = useVestingEscrow(contractAddresses.rewardsEscrow);
   return useCallback(
     async (escrowIds: string[]): Promise<TransactionResponse | null> => {
       if (
         !contractAddresses.rewardsEscrow ||
-        !escrowIds ||
+        !escrowIds.length ||
         !account ||
         !chainId ||
         !isAddress(contractAddresses.rewardsEscrow) ||

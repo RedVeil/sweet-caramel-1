@@ -4,7 +4,6 @@ import {
 } from 'components/Modal/DualActionWideModal';
 import { DefaultSingleActionModalProps } from 'components/Modal/SingleActionModal';
 import { NotificationProps } from 'components/Notifications/NotificationProps';
-import { StakingPageInfo } from 'pages/staking/[id]';
 import React, { createContext, useReducer } from 'react';
 import {
   DefaultDualActionModalProps,
@@ -22,7 +21,6 @@ import {
   SHOW_GLOBAL_LOADER,
   SINGLE_ACTION_MODAL,
   UNSET_NOTIFICATION,
-  UPDATE_STAKING_PAGE_INFO,
 } from './actions';
 
 interface DefaultState {
@@ -30,7 +28,6 @@ interface DefaultState {
   singleActionModal: SingleActionModalProps;
   dualActionModal: DualActionModalProps;
   dualActionWideModal: DualActionWideModalProps;
-  stakingPageInfo?: StakingPageInfo;
   globalLoaderVisible?: boolean;
 }
 
@@ -45,7 +42,6 @@ const initialState: DefaultState = {
   dualActionWideModal: {
     ...DefaultDualActionWideModalProps,
   },
-  stakingPageInfo: undefined,
 };
 
 const store = createContext(
@@ -114,20 +110,6 @@ const StateProvider = ({ children }) => {
           return {
             ...state,
             dualActionWideModal: {
-              ...action.payload,
-            },
-          };
-        case UPDATE_STAKING_PAGE_INFO:
-          return {
-            ...state,
-            stakingPageInfo: {
-              ...action.payload,
-            },
-          };
-        case UPDATE_STAKING_PAGE_INFO:
-          return {
-            ...state,
-            stakingPageInfo: {
               ...action.payload,
             },
           };

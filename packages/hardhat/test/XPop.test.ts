@@ -7,10 +7,7 @@ import { MAX_UINT_256 } from "../lib/external/SetToken/utils/constants";
 import { expectRevert, expectValue } from "../lib/utils/expectValue";
 import { XPop } from "../typechain";
 
-let admin: SignerWithAddress,
-  other: SignerWithAddress,
-  approver: SignerWithAddress,
-  spender: SignerWithAddress;
+let admin: SignerWithAddress, other: SignerWithAddress, approver: SignerWithAddress, spender: SignerWithAddress;
 let xPop: XPop;
 let chainId: string;
 
@@ -20,18 +17,13 @@ describe("XPop", () => {
 
     chainId = await getChainId();
 
-    xPop = await (
-      await ethers.getContractFactory("XPop")
-    ).deploy(parseEther("500000"));
+    xPop = await (await ethers.getContractFactory("XPop")).deploy(parseEther("500000"));
     await xPop.deployed();
   });
 
   context("Constructor", async () => {
     it("must be created with a nonzero mint cap", async () => {
-      await expectRevert(
-        (await ethers.getContractFactory("XPop")).deploy(0),
-        "Mint cap is 0"
-      );
+      await expectRevert((await ethers.getContractFactory("XPop")).deploy(0), "Mint cap is 0");
     });
   });
 
@@ -72,17 +64,11 @@ describe("XPop", () => {
     it("owner can mint up to mint cap", async () => {
       await expectValue(await xPop.balanceOf(other.address), 0);
       await xPop.connect(admin).mint(other.address, parseEther("500000"));
-      await expectValue(
-        await xPop.balanceOf(other.address),
-        parseEther("500000")
-      );
+      await expectValue(await xPop.balanceOf(other.address), parseEther("500000"));
     });
 
     it("owner cannot mint above mint cap", async () => {
-      await expectRevert(
-        xPop.connect(admin).mint(other.address, parseEther("500001")),
-        "Mint cap exceeded"
-      );
+      await expectRevert(xPop.connect(admin).mint(other.address, parseEther("500001")), "Mint cap exceeded");
     });
 
     it("owner cannot exceed mint cap after burns", async () => {
@@ -96,10 +82,7 @@ describe("XPop", () => {
       await expectValue(await xPop.totalSupply(), parseEther("499900"));
       await expectValue(await xPop.totalMinted(), parseEther("500000"));
 
-      await expectRevert(
-        xPop.connect(admin).mint(other.address, parseEther("1")),
-        "Mint cap exceeded"
-      );
+      await expectRevert(xPop.connect(admin).mint(other.address, parseEther("1")), "Mint cap exceeded");
     });
   });
 
@@ -145,14 +128,7 @@ describe("XPop", () => {
 
     const defaultDeadline = MAX_UINT_256;
 
-    const getTypedData = (
-      owner,
-      spender,
-      value,
-      chainId,
-      verifyingContract,
-      deadline = defaultDeadline
-    ) => ({
+    const getTypedData = (owner, spender, value, chainId, verifyingContract, deadline = defaultDeadline) => ({
       types: { Permit },
       domain: {
         name: "Popcorn.Network (Redeemable POP)",
@@ -170,101 +146,36 @@ describe("XPop", () => {
     });
 
     it("accepts approver signature", async () => {
-      const data = getTypedData(
-        approver.address,
-        spender.address,
-        amount,
-        chainId,
-        xPop.address
-      );
-      const signature = await approver._signTypedData(
-        data.domain,
-        data.types,
-        data.message
-      );
+      const data = getTypedData(approver.address, spender.address, amount, chainId, xPop.address);
+      const signature = await approver._signTypedData(data.domain, data.types, data.message);
       const { v, r, s } = fromRpcSig(signature);
 
-      await xPop.permit(
-        approver.address,
-        spender.address,
-        amount,
-        defaultDeadline,
-        v,
-        r,
-        s
-      );
+      await xPop.permit(approver.address, spender.address, amount, defaultDeadline, v, r, s);
 
       await expectValue(await xPop.nonces(approver.address), 1);
-      await expectValue(
-        await xPop.allowance(approver.address, spender.address),
-        amount
-      );
+      await expectValue(await xPop.allowance(approver.address, spender.address), amount);
     });
 
     it("rejects replayed signature", async () => {
-      const data = getTypedData(
-        approver.address,
-        spender.address,
-        amount,
-        chainId,
-        xPop.address
-      );
-      const signature = await approver._signTypedData(
-        data.domain,
-        data.types,
-        data.message
-      );
+      const data = getTypedData(approver.address, spender.address, amount, chainId, xPop.address);
+      const signature = await approver._signTypedData(data.domain, data.types, data.message);
       const { v, r, s } = fromRpcSig(signature);
 
-      await xPop.permit(
-        approver.address,
-        spender.address,
-        amount,
-        defaultDeadline,
-        v,
-        r,
-        s
-      );
+      await xPop.permit(approver.address, spender.address, amount, defaultDeadline, v, r, s);
 
       await expectRevert(
-        xPop.permit(
-          approver.address,
-          spender.address,
-          amount,
-          defaultDeadline,
-          v,
-          r,
-          s
-        ),
+        xPop.permit(approver.address, spender.address, amount, defaultDeadline, v, r, s),
         "ERC20Permit: invalid signature"
       );
     });
 
     it("rejects other account signature", async () => {
-      const data = getTypedData(
-        approver.address,
-        spender.address,
-        amount,
-        chainId,
-        xPop.address
-      );
-      const signature = await spender._signTypedData(
-        data.domain,
-        data.types,
-        data.message
-      );
+      const data = getTypedData(approver.address, spender.address, amount, chainId, xPop.address);
+      const signature = await spender._signTypedData(data.domain, data.types, data.message);
       const { v, r, s } = fromRpcSig(signature);
 
       await expectRevert(
-        xPop.permit(
-          approver.address,
-          spender.address,
-          amount,
-          defaultDeadline,
-          v,
-          r,
-          s
-        ),
+        xPop.permit(approver.address, spender.address, amount, defaultDeadline, v, r, s),
         "ERC20Permit: invalid signature"
       );
     });
@@ -274,31 +185,12 @@ describe("XPop", () => {
       const now = latestBlock.timestamp;
       const deadline = BigNumber.from(now - 1000);
 
-      const data = getTypedData(
-        approver.address,
-        spender.address,
-        amount,
-        chainId,
-        xPop.address,
-        deadline
-      );
-      const signature = await approver._signTypedData(
-        data.domain,
-        data.types,
-        data.message
-      );
+      const data = getTypedData(approver.address, spender.address, amount, chainId, xPop.address, deadline);
+      const signature = await approver._signTypedData(data.domain, data.types, data.message);
       const { v, r, s } = fromRpcSig(signature);
 
       await expectRevert(
-        xPop.permit(
-          approver.address,
-          spender.address,
-          amount,
-          deadline,
-          v,
-          r,
-          s
-        ),
+        xPop.permit(approver.address, spender.address, amount, deadline, v, r, s),
         "ERC20Permit: expired deadline"
       );
     });

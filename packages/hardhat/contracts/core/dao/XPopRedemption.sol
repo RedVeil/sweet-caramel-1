@@ -73,7 +73,7 @@ contract XPopRedemption is Ownable {
   function _redeem(uint256 amount) internal {
     require(POP.balanceOf(address(this)) >= amount, "Insufficient POP balance");
     xPOP.burnFrom(msg.sender, amount);
-    rewardsEscrow.lock(msg.sender, amount, 365 days);
+    rewardsEscrow.lock(msg.sender, amount, 365 days * 2);
     emit Redemption(msg.sender, amount);
   }
 }

@@ -8,19 +8,19 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../../externals/interfaces/YearnVault.sol";
 import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
-import "../../interfaces/IContractRegistry.sol";
 
 /*
  * @notice This contract allows users to mint and redeem Butter for using 3CRV, DAI, USDC, USDT
  * The Butter is created from several different yTokens which in turn need each a deposit of a crvLPToken.
  */
-contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
+contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRegistryAccess {
   using SafeERC20 for YearnVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
@@ -38,7 +38,6 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
 
   bytes32 public immutable contractName = "ButterWhaleProcessing";
 
-  IContractRegistry public contractRegistry;
   ISetToken public setToken;
   IERC20 public threeCrv;
   Curve3Pool private curve3Pool;
@@ -63,8 +62,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
     BasicIssuanceModule _basicIssuanceModule,
     address[] memory _yTokenAddresses,
     CurvePoolTokenPair[] memory _curvePoolTokenPairs
-  ) ACLAuth(_contractRegistry) {
-    contractRegistry = _contractRegistry;
+  ) ContractRegistryAccess(_contractRegistry) {
     setToken = _setToken;
     threeCrv = _threeCrv;
     curve3Pool = _curve3Pool;
@@ -112,11 +110,10 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
     uint256 _min_3crv_amount,
     uint256 _minAmountToMint
   ) external whenNotPaused {
-    address butterBatchProcessing = contractRegistry.getContract(keccak256("ButterBatchProcessing"));
-    for (uint8 i; i < _amounts.length; i++) {
+    for (uint256 i; i < _amounts.length; i++) {
       if (_amounts[i] > 0) {
         //Deposit Stables
-        IERC20(curve3Pool.coins(i)).safeTransferFrom(msg.sender, address(this), _amounts[i]);
+        IERC20(curve3Pool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);
       }
     }
     //Deposit stables to receive 3CRV
@@ -142,7 +139,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
    */
   function zapRedeem(
     uint256 _amount,
-    uint8 _stableCoinIndex,
+    uint256 _stableCoinIndex,
     uint256 _min_stable_amount,
     uint256 _min3crvToReceive
   ) external whenNotPaused {
@@ -299,11 +296,11 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
    */
   function _swapAndTransfer3Crv(
     uint256 _threeCurveAmount,
-    uint8 _stableCoinIndex,
+    uint256 _stableCoinIndex,
     uint256 _min_amount
   ) internal {
     //Burn 3CRV to receive stables
-    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, _stableCoinIndex, _min_amount);
+    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, int128(uint128(_stableCoinIndex)), _min_amount);
 
     //Check the amount of returned stables
     /*
@@ -405,5 +402,9 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth {
    */
   function pause() external onlyRole(DAO_ROLE) {
     _pause();
+  }
+
+  function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
+    return super._getContract(_name);
   }
 }
