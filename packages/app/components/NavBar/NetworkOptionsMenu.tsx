@@ -37,13 +37,6 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
           key={ChainId.Arbitrum}
         />
         <NetworkOptionsMenuItem
-          chainId={ChainId.Polygon}
-          switchNetwork={(chainId) => switchNetwork(chainId)}
-          currentChainId={currentChain}
-          key={ChainId.Polygon}
-          last={true}
-        />
-        <NetworkOptionsMenuItem
           chainId={ChainId.BinanceSmartChain}
           switchNetwork={(chainId) => switchNetwork(chainId)}
           currentChainId={currentChain}
@@ -63,6 +56,13 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
             key={ChainId.Rinkeby}
           />,
         ]}
+        <NetworkOptionsMenuItem // this should be last otherwise the UI looks messed up. see last prop below:
+          chainId={ChainId.Polygon}
+          switchNetwork={(chainId) => switchNetwork(chainId)}
+          currentChainId={currentChain}
+          key={ChainId.Polygon}
+          last={true}
+        />
       </Menu.Items>
     </Transition>
   );
