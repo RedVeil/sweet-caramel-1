@@ -64,26 +64,24 @@ export default function StakingPage(): JSX.Element {
   }
 
   return (
-    <>
-      <div className="overflow-hidden w-screen">
-        <Navbar />
-        <Toaster position="top-right" />
-        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
-          {isLoading ? (
-            <StakeInterfaceLoader />
-          ) : (
-            <StakeInterface
-              stakingPool={stakingPool}
-              user={balances}
-              form={[form, setForm]}
-              stake={stake}
-              withdraw={withdraw}
-              approve={approve}
-              onlyView={!account}
-            />
-          )}
-        </div>
+    <div className="overflow-x-hidden  w-full">
+      <Navbar />
+      <Toaster position="top-right" />
+      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
+        {isLoading ? (
+          <StakeInterfaceLoader />
+        ) : (
+          <StakeInterface
+            stakingPool={stakingPool}
+            user={balances}
+            form={[form, setForm]}
+            stake={stake}
+            withdraw={withdraw}
+            approve={approve}
+            onlyView={!account}
+          />
+        )}
       </div>
-    </>
+    </div>
   );
 }

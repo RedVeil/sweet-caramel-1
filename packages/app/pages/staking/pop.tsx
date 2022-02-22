@@ -78,28 +78,26 @@ export default function PopStakingPage(): JSX.Element {
   }
 
   return (
-    <>
-      <div className="overflow-hidden w-screen">
-        <Navbar />
-        <Toaster position="top-right" />
-        <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
-          {!stakingPool ? (
-            <StakeInterfaceLoader />
-          ) : (
-            <StakeInterface
-              stakingPool={stakingPool}
-              user={balances}
-              form={[form, setForm]}
-              stake={stake}
-              withdraw={withdraw}
-              approve={approve}
-              restake={restake}
-              onlyView={!account}
-              isPopLocker
-            />
-          )}
-        </div>
+    <div className="overflow-x-hidden w-full">
+      <Navbar />
+      <Toaster position="top-right" />
+      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
+        {!stakingPool ? (
+          <StakeInterfaceLoader />
+        ) : (
+          <StakeInterface
+            stakingPool={stakingPool}
+            user={balances}
+            form={[form, setForm]}
+            stake={stake}
+            withdraw={withdraw}
+            approve={approve}
+            restake={restake}
+            onlyView={!account}
+            isPopLocker
+          />
+        )}
       </div>
-    </>
+    </div>
   );
 }

@@ -108,7 +108,7 @@ export default function StakeInterface({
       </div>
       <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
         <div className="md:w-1/3">
-          <div className="p-6 h-full border border-gray-200 rounded-3xl shadow-custom mb-10">
+          <div className="p-6 border border-gray-200 rounded-3xl shadow-custom mb-10">
             <div className="pt-2">
               <TokenInputToggle
                 state={[state.type !== InteractionType.Deposit, toggleInterface]}
