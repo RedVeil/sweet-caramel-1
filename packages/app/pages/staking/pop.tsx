@@ -1,13 +1,16 @@
+import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
 import Navbar from "components/NavBar/NavBar";
 import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
 import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
+import { setMultiChoiceActionModal } from "context/actions";
+import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { ChainId } from "../../context/Web3/connectors";
 
@@ -19,6 +22,7 @@ export default function PopStakingPage(): JSX.Element {
   const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
   const stakingToken = stakingPool?.stakingToken;
+  const { dispatch } = useContext(store);
 
   useEffect(() => {
     if ([ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId)) {
@@ -37,6 +41,26 @@ export default function PopStakingPage(): JSX.Element {
         onContractSuccess(res, "POP staked!", () => {
           balances.revalidate();
           setForm(defaultForm);
+          if (!localStorage.getItem("hideStakeSuccessPopover")) {
+            dispatch(
+              setMultiChoiceActionModal({
+                title: "You have successfully staked your POP",
+                children: SuccessfulStakingModal,
+                image: <img src="/images/stake/stake-success-modal.png" className="px-6" />,
+                onConfirm: {
+                  label: "Close",
+                  onClick: () => dispatch(setMultiChoiceActionModal(false)),
+                },
+                onDismiss: {
+                  label: "Do not remind me again",
+                  onClick: () => {
+                    localStorage.setItem("hideStakeSuccessPopover", "true");
+                    dispatch(setMultiChoiceActionModal(false));
+                  },
+                },
+              }),
+            );
+          }
         }),
       )
       .catch((err) => onContractError(err));

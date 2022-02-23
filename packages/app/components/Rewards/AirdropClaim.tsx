@@ -31,10 +31,7 @@ const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, 
           </div>
           <div className={`relative flex justify-center`}>
             <div className="w-20 bg-white">
-              <div
-                className="flex items-center justify-center w-14 h-14 mx-auto border border-gray-300 rounded-full cursor-pointer"
-
-              >
+              <div className="flex items-center justify-center w-14 h-14 mx-auto border border-gray-300 rounded-full cursor-pointer">
                 <Icon.ArrowDown height={24} width={24} strokeWidth={1.5} color="gray" />
               </div>
             </div>

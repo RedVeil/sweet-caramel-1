@@ -1,19 +1,19 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {expect} from "chai";
-import {utils} from "ethers";
-import {parseEther} from "ethers/lib/utils";
-import {ethers, waffle} from "hardhat";
-import {BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE} from "../lib/acl/roles";
-import {BatchType} from "../lib/adapters/ButterBatchAdapter";
-import {expectRevert} from "../lib/utils/expectValue";
-import {timeTravel} from "../lib/utils/test";
-import {KeeperIncentive, MockERC20, RewardsEscrow} from "../typechain";
-import {ButterBatchProcessing} from "../typechain/ButterBatchProcessing";
-import {ButterBatchProcessingZapper} from "../typechain/ButterBatchProcessingZapper";
-import {MockBasicIssuanceModule} from "../typechain/MockBasicIssuanceModule";
-import {MockCurveMetapool} from "../typechain/MockCurveMetapool";
-import {MockCurveThreepool} from "../typechain/MockCurveThreepool";
-import {MockYearnV2Vault} from "../typechain/MockYearnV2Vault";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { expect } from "chai";
+import { utils } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import { ethers, waffle } from "hardhat";
+import { BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
+import { BatchType } from "../lib/adapters/ButterBatchAdapter";
+import { expectRevert } from "../lib/utils/expectValue";
+import { timeTravel } from "../lib/utils/test";
+import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";
+import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
+import { ButterBatchProcessingZapper } from "../typechain/ButterBatchProcessingZapper";
+import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
+import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
+import { MockCurveThreepool } from "../typechain/MockCurveThreepool";
+import { MockYearnV2Vault } from "../typechain/MockYearnV2Vault";
 
 const provider = waffle.provider;
 

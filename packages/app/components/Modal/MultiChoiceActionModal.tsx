@@ -1,30 +1,28 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Dialog, Transition } from '@headlessui/react';
-import MainActionButton from 'components/MainActionButton';
-import SecondaryActionButton from 'components/SecondaryActionButton';
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import * as Icon from 'react-feather';
+import { Dialog, Transition } from "@headlessui/react";
+import MainActionButton from "components/MainActionButton";
+import SecondaryActionButton from "components/SecondaryActionButton";
+import React, { Fragment, useEffect, useRef, useState } from "react";
+import * as Icon from "react-feather";
 
-export interface SingleActionModalProps {
+export interface MultiChoiceActionModalProps {
   title: string;
   children?: React.ReactElement;
   content?: string;
   visible: boolean;
-  type?: 'info' | 'error' | 'alert';
+  type?: "info" | "error" | "alert";
   image?: React.ReactElement;
   onConfirm?: { label: string; onClick: Function };
   onDismiss?: { label: string; onClick: Function };
-  keepOpen?: boolean;
 }
-export const DefaultSingleActionModalProps: SingleActionModalProps = {
-  content: '',
-  title: '',
+export const DefaultMultiChoiceActionModalProps: MultiChoiceActionModalProps = {
+  content: "",
+  title: "",
   visible: false,
-  type: 'info',
-  keepOpen: false,
+  type: "info",
 };
 
-export const SingleActionModal: React.FC<SingleActionModalProps> = ({
+export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
   title,
   type,
   visible,
@@ -33,7 +31,6 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   image,
   onConfirm,
   onDismiss,
-  keepOpen,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
@@ -46,12 +43,12 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   }, [visible]);
 
   const dismiss = () => {
-    setOpen(keepOpen);
+    setOpen(false);
     setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
   };
 
   const confirm = () => {
-    setOpen(keepOpen);
+    setOpen(false);
     setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
   };
 
@@ -84,25 +81,19 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
               aria-modal="true"
             >
               <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div
-                  className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-                  aria-hidden="true"
-                ></div>
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
-                <span
-                  className="hidden sm:inline-block sm:align-middle sm:h-screen"
-                  aria-hidden="true"
-                >
+                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
                   &#8203;
                 </span>
 
-                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
                   <div>
                     {image ? (
                       <>{image}</>
                     ) : (
                       <>
-                        {(type && type == 'error' && (
+                        {(type && type == "error" && (
                           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full  bg-red-100">
                             <svg
                               className="h-6 w-6 text-red-600"
@@ -121,7 +112,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                             </svg>
                           </div>
                         )) ||
-                          (type && type == 'alert' && (
+                          (type && type == "alert" && (
                             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-400">
                               <svg
                                 className="h-6 w-6 text-white"
@@ -137,19 +128,12 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                           ))}
                       </>
                     )}
-                    <div className="mt-3 text-center sm:mt-5">
-                      <h3
-                        className="text-2xl leading-6 font-semibold text-gray-900"
-                        id="modal-title"
-                      >
+                    <div className="mt-6 text-center sm:mt-8">
+                      <h3 className="text-2xl leading-8 font-medium text-gray-900 w-10/12 mx-auto" id="modal-title">
                         {title}
                       </h3>
-                      <div className="mt-2 py-6">
-                        {children ? (
-                          children
-                        ) : (
-                          <p className="text-sm text-gray-500">{content}</p>
-                        )}
+                      <div className="mt-2">
+                        {children ? children : <p className="text-base text-gray-600">{content}</p>}
                       </div>
                     </div>
                   </div>
@@ -157,19 +141,17 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                     <div>
                       {onConfirm && (
                         <>
-                          <MainActionButton
-                            label={onConfirm.label}
-                            handleClick={confirm}
-                          />
+                          <MainActionButton label={onConfirm.label} handleClick={confirm} />
                         </>
                       )}
                       {onDismiss && (
-                        <>
-                          <SecondaryActionButton
-                            label={onDismiss.label}
-                            handleClick={dismiss}
-                          />
-                        </>
+                        <div className="w-full">
+                          {/* or */}
+                          <div className="flex justify-center vertical-align h-6 my-7">
+                            <img src="/images/butter/primary-btn-divider.svg" />
+                          </div>
+                          <SecondaryActionButton label={onDismiss.label} handleClick={dismiss} />
+                        </div>
                       )}
                     </div>
                   </div>
@@ -182,4 +164,4 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
     </Transition.Root>
   );
 };
-export default SingleActionModal;
+export default MultiChoiceActionModal;

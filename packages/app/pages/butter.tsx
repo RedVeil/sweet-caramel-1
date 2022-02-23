@@ -10,7 +10,7 @@ import { BatchProcessToken } from "components/BatchButter/TokenInput";
 import Tutorial from "components/BatchButter/Tutorial";
 import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
-import { setDualActionWideModal, setSingleActionModal } from "context/actions";
+import { setDualActionWideModal, setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { ChainId, connectors } from "context/Web3/connectors";
 import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
@@ -459,20 +459,26 @@ export default function Butter(): JSX.Element {
             toast.dismiss();
             toast.success("Butter deposited!");
             getData();
-            if (!localStorage.getItem("mintModal")) {
+            if (!localStorage.getItem("hideBatchProcessingPopover")) {
               dispatch(
-                setSingleActionModal({
-                  title: "Your first redemption",
+                setMultiChoiceActionModal({
+                  title: "Batch process...",
                   content:
                     "You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.",
-                  image: <img src="images/butter/modal-1.png" className="px-6" />,
+                  image: <img src="images/butter/batch-popover.png" className="px-6" />,
                   onConfirm: {
                     label: "Close",
-                    onClick: () => dispatch(setSingleActionModal(false)),
+                    onClick: () => dispatch(setMultiChoiceActionModal(false)),
+                  },
+                  onDismiss: {
+                    label: "Do not remind me again",
+                    onClick: () => {
+                      localStorage.setItem("hideBatchProcessingPopover", "true");
+                      dispatch(setMultiChoiceActionModal(false));
+                    },
                   },
                 }),
               );
-              localStorage.setItem("mintModal", "true");
             }
           });
         })
@@ -514,13 +520,14 @@ export default function Butter(): JSX.Element {
           toast.success("Batch claimed!");
         });
         getData();
-        if (!localStorage.getItem("claimModal")) {
+        if (!localStorage.getItem("hideClaimSuccessPopover") && contracts) {
           dispatch(
-            setSingleActionModal({
-              title: "You claimed your Butter",
+            setMultiChoiceActionModal({
+              title: "You claimed your Token",
               children: (
                 <p className="text-sm text-gray-500">
-                  Your tokens are now in your wallet. To see them make sure to import Butter into your wallet.
+                  Your tokens should now be visible in your wallet. If you can’t see your BTR, import the following{" "}
+                  <br /> token address :
                   <br />
                   <a
                     onClick={async () =>
@@ -538,18 +545,24 @@ export default function Butter(): JSX.Element {
                     }
                     className="text-blue-600 cursor-pointer"
                   >
-                    Add Butter to your Wallet
+                    {contracts.butter?.address}
                   </a>
                 </p>
               ),
               image: <img src="images/butter/modal-2.png" className="px-6" />,
               onConfirm: {
                 label: "Close",
-                onClick: () => dispatch(setSingleActionModal(false)),
+                onClick: () => dispatch(setMultiChoiceActionModal(false)),
+              },
+              onDismiss: {
+                label: "Do not remind me again",
+                onClick: () => {
+                  localStorage.setItem("hideClaimSuccessPopover", "true");
+                  dispatch(setMultiChoiceActionModal(false));
+                },
               },
             }),
           );
-          localStorage.setItem("claimModal", "true");
         }
       })
       .catch((err) => {

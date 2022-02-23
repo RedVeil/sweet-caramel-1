@@ -57,7 +57,7 @@ export default function index(): JSX.Element {
                       title="No staking, yet"
                       body="No staking pools on this network"
                       additionalStyles={"p-24"}
-                    ></NotAvailable>
+                    />
                   </div>
                 </div>
               )}

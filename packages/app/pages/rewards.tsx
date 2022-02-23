@@ -6,7 +6,7 @@ import ClaimCard from "components/Rewards/ClaimCard";
 import { NotAvailable } from "components/Rewards/NotAvailable";
 import VestingRecordComponent from "components/Rewards/VestingRecord";
 import TabSelector from "components/TabSelector";
-import { setSingleActionModal } from "context/actions";
+import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, ethers } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
@@ -25,7 +25,7 @@ import { ChainId, connectors } from "../context/Web3/connectors";
 import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../hooks/tokens/useERC20";
 
-enum Tabs {
+export enum Tabs {
   Staking = "Staking Rewards",
   Airdrop = "Airdrop Redemption",
   Vesting = "Vesting Records",
@@ -47,8 +47,9 @@ export default function index(): JSX.Element {
   const balancesXPop = useBalanceAndAllowance(xPop, account, contractAddresses?.xPopRedemption);
   const balancesPop = useBalanceAndAllowance(pop, account, contractAddresses?.xPopRedemption);
 
-  const [tabSelected, setTabSelected] = useState(0);
-  const [availableTabs, setAvailableTabs] = useState([]);
+  const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
+  const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
+  const isSelected = (tab: Tabs) => tabSelected === tab;
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows();
@@ -62,7 +63,7 @@ export default function index(): JSX.Element {
 
   useEffect(() => {
     if (chainId === ChainId.BinanceSmartChain) {
-      setTabSelected(1);
+      setTabSelected(Tabs.Airdrop);
     }
   }, []);
 
@@ -93,8 +94,8 @@ export default function index(): JSX.Element {
 
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
-              setSingleActionModal({
-                image: <img src="images/claim/popover.svg" className="px-6" />,
+              setMultiChoiceActionModal({
+                image: <img src="images/claim/popover.png" className="px-6" />,
                 title: "Everytime you claim rewards, a vesting record is created.",
                 children: (
                   <p className="text-sm text-gray-500">
@@ -104,9 +105,13 @@ export default function index(): JSX.Element {
                 ),
                 onConfirm: {
                   label: "Close",
+                  onClick: () => dispatch(setMultiChoiceActionModal(false)),
+                },
+                onDismiss: {
+                  label: "Do not remind me again",
                   onClick: () => {
                     localStorage.setItem("hideClaimModal", "true");
-                    dispatch(setSingleActionModal(false));
+                    dispatch(setMultiChoiceActionModal(false));
                   },
                 },
               }),
@@ -199,7 +204,7 @@ export default function index(): JSX.Element {
             <span
               className="text-blue-600 inline cursor-pointer"
               onClick={() => {
-                setTabSelected(2);
+                setTabSelected(Tabs.Vesting);
                 dispatch(setSingleActionModal(false));
               }}
             >
@@ -217,8 +222,6 @@ export default function index(): JSX.Element {
       }),
     );
   };
-
-  const isSelected = (tab: Tabs) => availableTabs[tabSelected] === tab;
 
   return (
     <div className="w-full h-full">
@@ -266,7 +269,7 @@ export default function index(): JSX.Element {
               </div>
               <div className="flex flex-col w-full md:w-2/3 px-6 md:mx-0 mt-10 mb-8">
                 <div className="mb-8">
-                  <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} labels={availableTabs} />
+                  <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
                 </div>
                 {isSelected(Tabs.Staking) && stakingVisible(chainId) && !!popLocker && (
                   <ClaimCard
@@ -326,7 +329,7 @@ export default function index(): JSX.Element {
                     visible={isSelected(Tabs.Staking)}
                   />
                 )}
-                {availableTabs[tabSelected] === Tabs.Vesting && (
+                {isSelected(Tabs.Vesting) && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
                     !userEscrowsFetchResult?.data ||

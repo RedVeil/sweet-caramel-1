@@ -1,20 +1,20 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import bluebird from "bluebird";
-import {expect} from "chai";
-import {BigNumber, utils, Wallet} from "ethers";
-import {parseEther} from "ethers/lib/utils";
-import {ethers, waffle} from "hardhat";
-import {DAO_ROLE, KEEPER_ROLE} from "../lib/acl/roles";
+import { expect } from "chai";
+import { BigNumber, utils, Wallet } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import { ethers, waffle } from "hardhat";
+import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
-import {expectRevert, expectValue} from "../lib/utils/expectValue";
-import {timeTravel} from "../lib/utils/test";
-import {DAYS} from "../lib/utils/test/constants";
-import {MockERC20, RewardsEscrow, Staking} from "../typechain";
-import {ButterBatchProcessing} from "../typechain/ButterBatchProcessing";
-import {MockBasicIssuanceModule} from "../typechain/MockBasicIssuanceModule";
-import {MockCurveMetapool} from "../typechain/MockCurveMetapool";
-import {MockCurveThreepool} from "../typechain/MockCurveThreepool";
-import {MockYearnV2Vault} from "../typechain/MockYearnV2Vault";
+import { expectRevert, expectValue } from "../lib/utils/expectValue";
+import { timeTravel } from "../lib/utils/test";
+import { DAYS } from "../lib/utils/test/constants";
+import { MockERC20, RewardsEscrow, Staking } from "../typechain";
+import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
+import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
+import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
+import { MockCurveThreepool } from "../typechain/MockCurveThreepool";
+import { MockYearnV2Vault } from "../typechain/MockYearnV2Vault";
 
 const provider = waffle.provider;
 
@@ -1262,7 +1262,7 @@ describe("ButterBatchProcessing", function () {
             await provider.send("evm_mine", []);
             await contracts.butterBatchProcessing.connect(owner).batchMint();
           },
-          {concurrency: 1}
+          { concurrency: 1 }
         );
         const batchIds = await contracts.butterBatchProcessing.getAccountBatches(depositor.address);
         const mintedHYSI = await contracts.mockSetToken.balanceOf(contracts.butterBatchProcessing.address);
