@@ -52,7 +52,7 @@ export default function StakeInterface({
 
   return (
     <>
-      <div className="md:w-2/3 mt-14">
+      <div className="md:w-2/3 mx-4 md:mx-0 mt-14">
         <div className="">
           <span className="flex flex-row items-center justify-center md:justify-start">
             <TokenIcon token={stakingToken?.name} />

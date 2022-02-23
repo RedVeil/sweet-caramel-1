@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 interface NavbarLinkProps {
   label: string;
@@ -8,16 +8,10 @@ interface NavbarLinkProps {
   target?: string;
 }
 
-const NavbarLink: React.FC<NavbarLinkProps> = ({
-  label,
-  url,
-  isActive,
-  onClick,
-  target,
-}) => {
+const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, target }) => {
   const className = `
-    font-base font-semibold
-    text-base ${isActive ? 'text-gray-800 font-medium' : 'text-gray-500'} 
+  text-gray-500 text-xl leading-4 font-semibold font-base 
+  md:text-base ${isActive ? "text-gray-800 font-medium" : ""} 
     hover:text-gray-900 cursor-pointer
   `;
 
@@ -25,7 +19,7 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({
     return (
       <a
         className={className}
-        target={target || '_self'}
+        target={target || "_self"}
         onClick={(e) => {
           onClick && onClick();
         }}
@@ -36,10 +30,10 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({
   }
 
   return (
-    <Link href={url || ''} passHref>
+    <Link href={url || ""} passHref>
       <a
         className={className}
-        target={target || '_self'}
+        target={target || "_self"}
         onClick={(e) => {
           onClick && onClick();
         }}

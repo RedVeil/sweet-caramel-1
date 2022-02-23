@@ -221,7 +221,7 @@ export default function index(): JSX.Element {
   const isSelected = (tab: Tabs) => availableTabs[tabSelected] === tab;
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
       <div className="">

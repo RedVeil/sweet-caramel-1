@@ -43,9 +43,9 @@ const IndexPage = () => {
   }
 
   return (
-    <div>
+    <div className="h-full">
       <NavBar />
-      <div className="flex mx-auto justify-center md:py-20 flex-col md:flex-row w-11/12 lglaptop:w-9/12 2xl:max-w-7xl">
+      <div className="flex mx-auto justify-center h-full md:py-20 flex-col md:flex-row w-11/12 lglaptop:w-9/12 2xl:max-w-7xl">
         <div
           className="md:w-1/2 smlaptop:w-130 bg-light flex flex-col items-start self-stretch py-12 px-8 mb-4 mt-10 mx-4 smlaptop:py-20 filter shadow-custom transition duration-500 ease-in-out transform hover:scale-102 cursor-pointer rounded-4xl relative overflow-hidden"
           onClick={showDelayInfo}

@@ -64,7 +64,7 @@ export default function StakingPage(): JSX.Element {
   }
 
   return (
-    <div className="overflow-x-hidden  w-full">
+    <div className="overflow-x-hidden w-full">
       <Navbar />
       <Toaster position="top-right" />
       <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">

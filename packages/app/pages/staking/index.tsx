@@ -34,7 +34,7 @@ export default function index(): JSX.Element {
   };
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
       <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14 pb-6">
@@ -61,7 +61,7 @@ export default function index(): JSX.Element {
                   </div>
                 </div>
               )}
-              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && (
+              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && !popLocker && !stakingPools && (
                 <ContentLoader viewBox="0 0 450 400">
                   {/*eslint-disable */}
                   <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />
