@@ -118,6 +118,7 @@ export default function PopStakingPage(): JSX.Element {
             approve={approve}
             restake={restake}
             onlyView={!account}
+            chainId={chainId}
             isPopLocker
           />
         )}

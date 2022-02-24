@@ -1,14 +1,17 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
+import { formatAndRoundBigNumber, getTokenOnNetwork } from "@popcorn/utils";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import TextLink from "components/Common/TextLink";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
+import Link from "next/link";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
+  chainId: number;
   restake?: () => void;
   isPopLocker?: boolean;
 }
@@ -38,6 +41,7 @@ export default function StakeInterface({
   withdraw,
   approve,
   onlyView,
+  chainId,
   restake,
   isPopLocker,
 }: StakeInterfaceProps): JSX.Element {
@@ -141,43 +145,62 @@ export default function StakeInterface({
         </div>
 
         <div className="md:w-2/3 md:ml-12">
-          <div className="">
-            <div className="rounded-3xl shadow-custom border border-gray-200 w-full">
-              <div className="h-32 md:h-28 pt-8 px-8">
-                <div className="flex flex-row items-center justify-between">
-                  <div>
-                    <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
-                    <div className="flex flex-row items-center mt-1">
-                      <p className="text-2xl font-medium  mr-2">
-                        {stakingPool.userStake ? formatStakedAmount(stakingPool.userStake) : "0"}
-                      </p>
-                      <p className="text-2xl font-medium ">{stakingToken?.symbol}</p>
-                    </div>
+          <div className="rounded-3xl shadow-custom border border-gray-200 w-full">
+            <div className="flex flex-col items-center justify-between">
+              <div className="flex flex-row justify-between items-end md:items-center py-6 px-8 w-full">
+                <div>
+                  <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
+                  <div className="flex flex-row items-center mt-1">
+                    <p className="text-2xl font-medium  mr-2">
+                      {stakingPool.userStake ? formatStakedAmount(stakingPool.userStake) : "0"}
+                    </p>
+                    <p className="text-2xl font-medium ">{stakingToken?.symbol}</p>
                   </div>
                 </div>
+                {getTokenOnNetwork(
+                  stakingPool.tokenAddress?.toLowerCase(),
+                  chainId,
+                  getChainRelevantContracts(chainId),
+                ) && (
+                  <Link
+                    href={getTokenOnNetwork(
+                      stakingPool.tokenAddress?.toLowerCase(),
+                      chainId,
+                      getChainRelevantContracts(chainId),
+                    )}
+                    passHref
+                  >
+                    <a
+                      target="_blank"
+                      className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
+                    >
+                      Get Token
+                    </a>
+                  </Link>
+                )}
               </div>
-              <div className="h-32 md:h-28 bg-blue-50 rounded-b-3xl py-8 px-8">
-                <div className="flex flex-row justify-between items-end md:items-center ">
-                  <div>
-                    <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
-                    <div className="flex flex-row items-center mt-1">
-                      <p className="text-2xl font-medium  mr-2">
-                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned) : "0"}
-                      </p>
-                      <p className="text-2xl font-medium ">POP</p>
-                    </div>
+            </div>
+            <div className="bg-blue-50 rounded-b-3xl py-6 px-8">
+              <div className="flex flex-row justify-between items-end md:items-center ">
+                <div>
+                  <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
+                  <div className="flex flex-row items-center mt-1">
+                    <p className="text-2xl font-medium  mr-2">
+                      {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned) : "0"}
+                    </p>
+                    <p className="text-2xl font-medium ">POP</p>
                   </div>
-                  <TextLink text="Claim Page" url="/rewards" />
                 </div>
+                <TextLink text="Claim Page" url="/rewards" />
               </div>
             </div>
-            <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 md:h-124">
-              <div className="mt-8 ml-8">
-                <p className="text-xl font-medium">Happy Staking</p>
-                <p className="text-base font-light mt-1">Enjoy more sweet POP in your wallet!</p>
-              </div>
-              <img src="/images/catPopVault.svg" className={"absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"} />
+          </div>
+          <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 md:h-124">
+            <div className="mt-8 ml-8">
+              <p className="text-xl font-medium">Happy Staking</p>
+              <p className="text-base font-light mt-1">Enjoy more sweet POP in your wallet!</p>
             </div>
+            <img src="/images/catPopVault.svg" className={"absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"} />
           </div>
         </div>
       </div>

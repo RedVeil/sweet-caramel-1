@@ -13,7 +13,7 @@ import StakeInterface, { defaultForm, InteractionType } from "../../components/s
 import StakeInterfaceLoader from "../../components/staking/StakeInterfaceLoader";
 
 export default function StakingPage(): JSX.Element {
-  const { account, signer, contractAddresses, onContractSuccess, onContractError } = useWeb3();
+  const { account, chainId, signer, contractAddresses, onContractSuccess, onContractError } = useWeb3();
   const router = useRouter();
   const { dispatch } = useContext(store);
 
@@ -102,6 +102,7 @@ export default function StakingPage(): JSX.Element {
             withdraw={withdraw}
             approve={approve}
             onlyView={!account}
+            chainId={chainId}
           />
         )}
       </div>
