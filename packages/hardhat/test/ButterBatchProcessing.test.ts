@@ -9,7 +9,7 @@ import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert, expectValue } from "../lib/utils/expectValue";
 import { timeTravel } from "../lib/utils/test";
 import { DAYS } from "../lib/utils/test/constants";
-import { MockERC20, RewardsEscrow, Staking } from "../typechain";
+import { ContractRegistry, MockERC20, RewardsEscrow, Staking } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
 import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
@@ -32,6 +32,7 @@ interface Contracts {
   mockBasicIssuanceModule: MockBasicIssuanceModule;
   butterBatchProcessing: ButterBatchProcessing;
   staking: Staking;
+  contractRegistry: ContractRegistry;
 }
 
 enum BatchType {
@@ -47,7 +48,7 @@ let owner: SignerWithAddress,
   depositor1: SignerWithAddress,
   depositor2: SignerWithAddress,
   depositor3: SignerWithAddress,
-  zapper: SignerWithAddress;
+  treasury: SignerWithAddress;
 let contracts: Contracts;
 
 async function deployContracts(): Promise<Contracts> {
@@ -152,15 +153,17 @@ async function deployContracts(): Promise<Contracts> {
           crvLPToken: mockCrvUST.address,
         },
       ],
-      1800,
-      parseEther("20000"),
-      parseEther("200")
+      {
+        batchCooldown: 1800,
+        mintThreshold: parseEther("20000"),
+        redeemThreshold: parseEther("200"),
+      }
     )
   ).deployed()) as ButterBatchProcessing;
 
   await aclRegistry.grantRole(DAO_ROLE, owner.address);
   await aclRegistry.grantRole(KEEPER_ROLE, owner.address);
-  await butterBatchProcessing.connect(owner).setRedeemSlippage(200);
+  await butterBatchProcessing.connect(owner).setSlippage(7, 200);
 
   await butterBatchProcessing.setApprovals();
 
@@ -198,11 +201,12 @@ async function deployContracts(): Promise<Contracts> {
     mockBasicIssuanceModule,
     butterBatchProcessing,
     staking,
+    contractRegistry,
   };
 }
 
 const deployAndAssignContracts = async () => {
-  [owner, depositor, depositor1, depositor2, depositor3, zapper] = await ethers.getSigners();
+  [owner, depositor, depositor1, depositor2, depositor3, treasury] = await ethers.getSigners();
   contracts = await deployContracts();
   await contracts.mock3Crv.connect(depositor).approve(contracts.butterBatchProcessing.address, parseEther("100000000"));
 };
@@ -240,23 +244,15 @@ describe("ButterBatchProcessing", function () {
   context("setters and getters", () => {
     describe("set slippage", async () => {
       const SLIPPAGE = 54;
-      it("sets redeem slippage value with correct permissions", async () => {
-        await contracts.butterBatchProcessing.connect(owner).setRedeemSlippage(SLIPPAGE);
-        expectValue(await contracts.butterBatchProcessing.redeemSlippage(), SLIPPAGE);
+      it("sets slippage value with correct permissions", async () => {
+        await contracts.butterBatchProcessing.connect(owner).setSlippage(SLIPPAGE, SLIPPAGE);
+        const slippage = await contracts.butterBatchProcessing.slippage();
+        expectValue(slippage[0], SLIPPAGE);
+        expectValue(slippage[1], SLIPPAGE);
       });
       it("does not allow unauthenticated address to set redeem slippage", async () => {
         await expectRevert(
-          contracts.butterBatchProcessing.connect(depositor).setRedeemSlippage(SLIPPAGE),
-          "you dont have the right role"
-        );
-      });
-      it("sets mint slippage value with correct permissions", async () => {
-        await contracts.butterBatchProcessing.connect(owner).setMintSlippage(SLIPPAGE);
-        expectValue(await contracts.butterBatchProcessing.mintSlippage(), SLIPPAGE);
-      });
-      it("does not allow unauthenticated address to set mint slippage", async () => {
-        await expectRevert(
-          contracts.butterBatchProcessing.connect(depositor).setMintSlippage(SLIPPAGE),
+          contracts.butterBatchProcessing.connect(depositor).setSlippage(SLIPPAGE, SLIPPAGE),
           "you dont have the right role"
         );
       });
@@ -328,34 +324,47 @@ describe("ButterBatchProcessing", function () {
     });
     describe("setBatchCooldown", () => {
       it("sets batch cooldown period", async () => {
-        await contracts.butterBatchProcessing.setBatchCooldown(52414);
-        expect(await contracts.butterBatchProcessing.batchCooldown()).to.equal(BigNumber.from("52414"));
+        await contracts.butterBatchProcessing.setProcessingThreshold(52414, parseEther("20000"), parseEther("200"));
+        const processingThreshold = await contracts.butterBatchProcessing.processingThreshold();
+        expect(processingThreshold[0]).to.equal(BigNumber.from(52414));
       });
       it("should revert if not owner", async function () {
-        await expect(contracts.butterBatchProcessing.connect(depositor).setBatchCooldown(52414)).to.be.revertedWith(
-          "you dont have the right role"
-        );
+        await expect(
+          contracts.butterBatchProcessing
+            .connect(depositor)
+            .setProcessingThreshold(52414, parseEther("20000"), parseEther("200"))
+        ).to.be.revertedWith("you dont have the right role");
       });
     });
     describe("setMintThreshold", () => {
       it("sets mint threshold", async () => {
-        await contracts.butterBatchProcessing.setMintThreshold(parseEther("100342312"));
-        expect(await contracts.butterBatchProcessing.mintThreshold()).to.equal(parseEther("100342312"));
+        await contracts.butterBatchProcessing.setProcessingThreshold(1800, parseEther("100342312"), parseEther("200"));
+        const processingThreshold = await contracts.butterBatchProcessing.processingThreshold();
+        expect(processingThreshold[1]).to.equal(parseEther("100342312"));
       });
       it("should revert if not owner", async function () {
         await expect(
-          contracts.butterBatchProcessing.connect(depositor).setMintThreshold(parseEther("100342312"))
+          contracts.butterBatchProcessing
+            .connect(depositor)
+            .setProcessingThreshold(1800, parseEther("100342312"), parseEther("200"))
         ).to.be.revertedWith("you dont have the right role");
       });
     });
     describe("setRedeemThreshold", () => {
       it("sets redeem threshold", async () => {
-        await contracts.butterBatchProcessing.setRedeemThreshold(parseEther("100342312"));
-        expect(await contracts.butterBatchProcessing.redeemThreshold()).to.equal(parseEther("100342312"));
+        await contracts.butterBatchProcessing.setProcessingThreshold(
+          1800,
+          parseEther("20000"),
+          parseEther("100342312")
+        );
+        const processingThreshold = await contracts.butterBatchProcessing.processingThreshold();
+        expect(processingThreshold[2]).to.equal(parseEther("100342312"));
       });
       it("should revert if not owner", async function () {
         await expect(
-          contracts.butterBatchProcessing.connect(depositor).setRedeemThreshold(parseEther("100342312"))
+          contracts.butterBatchProcessing
+            .connect(depositor)
+            .setProcessingThreshold(1800, parseEther("20000"), parseEther("100342312"))
         ).to.be.revertedWith("you dont have the right role");
       });
     });
@@ -573,7 +582,7 @@ describe("ButterBatchProcessing", function () {
         });
         it("reverts when slippage is too high", async () => {
           await contracts.mockThreePool.setVirtualPrice(parseEther("2"));
-          await contracts.butterBatchProcessing.connect(owner).setMintSlippage(0);
+          await contracts.butterBatchProcessing.connect(owner).setSlippage(0, 7);
           await contracts.mock3Crv
             .connect(depositor)
             .approve(contracts.butterBatchProcessing.address, parseEther("10000"));
@@ -883,7 +892,7 @@ describe("ButterBatchProcessing", function () {
           );
         });
         it("reverts when slippage too high", async function () {
-          await contracts.butterBatchProcessing.connect(owner).setRedeemSlippage(1);
+          await contracts.butterBatchProcessing.connect(owner).setSlippage(7, 1);
 
           await contracts.mockThreePool.setVirtualPrice(parseEther("1"));
 
@@ -1288,7 +1297,7 @@ describe("ButterBatchProcessing", function () {
     beforeEach(async function () {
       //Prepare MintBatches
       claimableMintId = await contracts.butterBatchProcessing.currentMintBatchId();
-      await contracts.butterBatchProcessing.connect(owner).setRedeemThreshold(0);
+      await contracts.butterBatchProcessing.connect(owner).setProcessingThreshold(1800, parseEther("20000"), 0);
       await contracts.mock3Crv.mint(depositor.address, parseEther("40000"));
       await contracts.butterBatchProcessing.connect(depositor).depositForMint(parseEther("20000"), depositor.address);
       await contracts.butterBatchProcessing.connect(owner).batchMint();
@@ -1389,8 +1398,9 @@ describe("ButterBatchProcessing", function () {
         expect(await contracts.butterBatchProcessing.setRedemptionFee(100, owner.address))
           .to.emit(contracts.butterBatchProcessing, "RedemptionFeeUpdated")
           .withArgs(100, owner.address);
-        expect(await contracts.butterBatchProcessing.redemptionFeeRate()).to.equal(100);
-        expect(await contracts.butterBatchProcessing.feeRecipient()).to.equal(owner.address);
+        const redemptionFee = await contracts.butterBatchProcessing.redemptionFee();
+        expect(redemptionFee[1]).to.equal(100);
+        expect(redemptionFee[2]).to.equal(owner.address);
       });
       it("reverts when setting redemptionRate without DAO role", async () => {
         await expectRevert(
@@ -1433,8 +1443,8 @@ describe("ButterBatchProcessing", function () {
 
         const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
         expect(newBal).to.equal(oldBal.add(claimAmountWithoutFee.sub(fee)));
-
-        expect(await contracts.butterBatchProcessing.redemptionFees()).to.equal(fee);
+        const redemptionFee = await contracts.butterBatchProcessing.redemptionFee();
+        expect(redemptionFee[0]).to.equal(fee);
       });
       describe("sweethearts", () => {
         it("sets a sweetheart when called with DAO role", async () => {
@@ -1469,10 +1479,43 @@ describe("ButterBatchProcessing", function () {
 
           const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
           expect(newBal).to.equal(oldBal.add(claimAmount));
-
-          expect(await contracts.butterBatchProcessing.redemptionFees()).to.equal(BigNumber.from("0"));
+          const redemptionFee = await contracts.butterBatchProcessing.redemptionFee();
+          expect(redemptionFee[0]).to.equal(BigNumber.from("0"));
         });
       });
+    });
+  });
+  describe("recover yToken leftover", function () {
+    it("sends leftovers to the treasury", async () => {
+      //Preparation
+      await contracts.contractRegistry.addContract(ethers.utils.id("Treasury"), treasury.address, ethers.utils.id("1"));
+      await contracts.mockYearnVaultUSDX.mint(contracts.butterBatchProcessing.address, parseEther("200"));
+
+      //Actual Test
+      await contracts.butterBatchProcessing.recoverLeftover(contracts.mockYearnVaultUSDX.address, parseEther("100"));
+      expectValue(
+        await contracts.mockYearnVaultUSDX.balanceOf(contracts.butterBatchProcessing.address),
+        parseEther("100")
+      );
+      expectValue(await contracts.mockYearnVaultUSDX.balanceOf(treasury.address), parseEther("100"));
+    });
+    it("reverts if there is no balance of the specific yToken", async () => {
+      //Preparation
+      await contracts.contractRegistry.addContract(ethers.utils.id("Treasury"), treasury.address, ethers.utils.id("1"));
+      //Actual Test
+      await expectRevert(
+        contracts.butterBatchProcessing.recoverLeftover(treasury.address, parseEther("100")),
+        "yToken doesnt exist"
+      );
+    });
+    it("reverts if the balance of the yToken is too low", async () => {
+      //Preparation
+      await contracts.contractRegistry.addContract(ethers.utils.id("Treasury"), treasury.address, ethers.utils.id("1"));
+      //Actual Test
+      await expectRevert(
+        contracts.butterBatchProcessing.recoverLeftover(contracts.mockYearnVaultUSDX.address, parseEther("100")),
+        "ERC20: transfer amount exceeds balance"
+      );
     });
   });
 });
