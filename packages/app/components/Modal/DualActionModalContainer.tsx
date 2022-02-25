@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
-import { store } from '../../context/store';
-import DualActionModal from './DualActionModal';
+import React, { useContext } from "react";
+import { store } from "../../context/store";
+import DualActionModal from "./DualActionModal";
 
 export const DualActionModalContainer: React.FC = () => {
   const {
@@ -11,7 +11,6 @@ export const DualActionModalContainer: React.FC = () => {
       visible={dualActionModal.visible}
       title={dualActionModal.title}
       content={dualActionModal.content}
-      progress={dualActionModal.progress}
       onDismiss={dualActionModal.onDismiss}
       onConfirm={dualActionModal.onConfirm}
     />
