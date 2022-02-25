@@ -87,7 +87,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                   &#8203;
                 </span>
 
-                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
+                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-4 md:pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
                   <div>
                     {image ? (
                       <>{image}</>
@@ -128,7 +128,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                           ))}
                       </>
                     )}
-                    <div className="mt-6 text-center sm:mt-8">
+                    <div className="mt-2 md:mt-6 text-center">
                       <h3 className="text-2xl leading-8 font-medium text-gray-900 w-10/12 mx-auto" id="modal-title">
                         {title}
                       </h3>
@@ -137,7 +137,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                       </div>
                     </div>
                   </div>
-                  <div className="mt-8">
+                  <div className="mt-6 md:mt-8">
                     <div>
                       {onConfirm && (
                         <>
@@ -147,7 +147,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                       {onDismiss && (
                         <div className="w-full">
                           {/* or */}
-                          <div className="flex justify-center vertical-align h-6 my-7">
+                          <div className="flex justify-center vertical-align h-6 my-3 md:my-7">
                             <img src="/images/butter/primary-btn-divider.svg" />
                           </div>
                           <SecondaryActionButton label={onDismiss.label} handleClick={dismiss} />
