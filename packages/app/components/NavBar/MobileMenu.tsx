@@ -24,7 +24,7 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInject
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center px-8 py-6 border-b border-gray-400">
+      <div className="flex flex-row justify-between items-center px-8 py-6 border-b border-gray-100">
         <div>
           <Link href="/" passHref>
             <a>

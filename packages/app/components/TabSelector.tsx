@@ -9,19 +9,17 @@ interface TabSelectorProps {
 
 const TabSelector: React.FC<TabSelectorProps> = ({ activeTab, setActiveTab, availableTabs }) => {
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row overflow-x-auto justify-start flex-nowrap">
       {availableTabs.map((tab) => (
         <div
           key={tab}
-          className={`w-1/2 cursor-pointer ${
-            activeTab === tab ? "border-b-2 border-blue-600" : "border-b border-gray-400  group hover:border-gray-600"
-          }`}
+          className={`px-2 min-w-max md:px-0 md:min-w-min w-1/2 cursor-pointer ${activeTab === tab ? "border-b-2 border-blue-600" : "border-b border-gray-400  group hover:border-gray-600"
+            }`}
           onClick={(e) => setActiveTab(tab)}
         >
           <p
-            className={`text-center text-base mb-4 cursor-pointer ${
-              activeTab === tab ? "text-blue-600 font-semibold" : "text-gray-400 group-hover:text-gray-600"
-            }`}
+            className={`text-center text-base mb-4 cursor-pointer ${activeTab === tab ? "text-blue-600 font-semibold" : "text-gray-400 group-hover:text-gray-600"
+              }`}
           >
             {tab}
           </p>
