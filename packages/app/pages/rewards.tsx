@@ -228,7 +228,7 @@ export default function index(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
-        <div className="flex flex-col mx-auto w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
+        <div className="flex flex-col mx-auto w-full md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="text-center md:text-left md:w-1/3 mx-6 md:mx-0">
             <h1 className="page-title">Rewards</h1>
             <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
@@ -332,9 +332,9 @@ export default function index(): JSX.Element {
                 {isSelected(Tabs.Vesting) && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
-                    !userEscrowsFetchResult?.data ||
-                    userEscrowsFetchResult?.error ||
-                    userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                      !userEscrowsFetchResult?.data ||
+                      userEscrowsFetchResult?.error ||
+                      userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                       <NotAvailable title="No records available" body="No vesting records available" />
                     ) : (
                       <>
