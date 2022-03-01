@@ -232,8 +232,8 @@ export default function Butter(): JSX.Element {
               (vault) => vault?.token?.address === "0x5a6A4D54456819380173272A5E8E9B9904BdF41B", // crvMIM
             )?.apy?.net_apy) /
             2) *
-            100 *
-            (98.5 / 100),
+          100 *
+          (98.5 / 100),
         ),
       );
   }, [library, account, chainId]);
@@ -526,9 +526,7 @@ export default function Butter(): JSX.Element {
               title: "You claimed your Token",
               children: (
                 <p className="text-sm text-gray-500">
-                  Your tokens should now be visible in your wallet. If you can’t see your BTR, import the following{" "}
-                  <br /> token address :
-                  <br />
+                  Your tokens should now be visible in your wallet. If you can’t see your BTR, import it here:
                   <a
                     onClick={async () =>
                       await window.ethereum.request({
@@ -545,7 +543,7 @@ export default function Butter(): JSX.Element {
                     }
                     className="text-blue-600 cursor-pointer"
                   >
-                    {contracts.butter?.address}
+                    BTR
                   </a>
                 </p>
               ),
@@ -656,38 +654,38 @@ export default function Butter(): JSX.Element {
   }
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
       <div className="">
         <div className="mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
-          <div className="w-6/12">
+          <div className="md:w-6/12 mx-4 md:mx-0 text-center md:text-left">
             <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
             <p className="mt-2 text-lg text-gray-500">Deposit stablecoins to mint Butter and earn yield</p>
-            <div className="flex flex-row items-center mt-2">
+            <div className="flex flex-row items-center mt-2 justify-center md:justify-start">
               <div className="pr-6 border-r-2 border-gray-200">
                 <p className="text-base font-light text-gray-500 uppercase">Est. APY</p>
-                <p className="text-xl font-medium text-green-600">{apy ? apy.toLocaleString() : "-"} %</p>
+                <p className="text-base md:text-xl font-medium text-green-600">{apy ? apy.toLocaleString() : "-"} %</p>
               </div>
               <div className="px-6 border-r-2 border-gray-200">
                 <p className="text-base font-light text-gray-500 uppercase">TVL</p>
-                <p className="text-xl font-medium ">
+                <p className="text-base md:text-xl font-medium ">
                   $
                   {batchProcessTokens?.butter && butterSupply
                     ? formatAndRoundBigNumber(
-                        butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther("1")),
-                      ).toLocaleString()
+                      butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther("1")),
+                    ).toLocaleString()
                     : " -"}{" "}
                 </p>
               </div>
               <div className="pl-6">
                 <p className="text-base font-light text-gray-500 uppercase">Social Impact</p>
-                <p className="text-lg font-medium text-gray-300">Coming Soon</p>
+                <p className="text-base md:text-lg font-medium text-gray-300">Coming Soon</p>
               </div>
             </div>
           </div>
-          <div className="flex flex-row mt-10">
-            <div className="w-1/3 mb-10">
+          <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
+            <div className="order-2 md:order-1 md:w-1/3 mb-10">
               {claimableBatches && selectedToken ? (
                 <MintRedeemInterface
                   token={batchProcessTokens}
@@ -713,7 +711,7 @@ export default function Butter(): JSX.Element {
               ) : (
                 <>
                   {!account && (
-                    <div className="px-5 pt-6 mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                    <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                       <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
                         <MainActionButton label="Connect Wallet" handleClick={() => activate(connectors.Injected)} />
                       </div>
@@ -721,35 +719,68 @@ export default function Butter(): JSX.Element {
                   )}
                 </>
               )}
-              {account && loading && (
+              {account && loading && !claimableBatches && (
                 <ContentLoader viewBox="0 0 450 600">
                   <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
                 </ContentLoader>
               )}
             </div>
 
-            <div className="w-2/3 flex flex-col">
-              <div className="flex flex-row">
-                <div className="w-1/2 mr-2">
+            <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
+              <div className="flex flex-col md:flex-row">
+                <div className="block md:hidden md:w-1/2 md:mr-2 mb-4 md:mb-0">
+                  <div className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-primaryLight">
+                    <div className="flex flex-row items-center justify-end mt-0.5">
+                      <div className="w-full flex flex-row justify-center">
+                        <div className="ml-4">
+                          <h3 className="text-lg font-medium text-gray-900">Learn how it works</h3>
+                        </div>
+                      </div>
+                      <div className="flex flex-row">
+                        <div className="mr-2">
+                          <img title="play-icon" src="images/icons/IconPlay.svg" />
+                        </div>
+                      </div>
+                      <div></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="block md:hidden md:w-1/2 md:mr-2 mb-10 md:mb-0">
+                  <div className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-green-100">
+                    <div className="flex flex-row items-center justify-end mt-0.5">
+                      <div className="w-full flex flex-row justify-center">
+                        <div className="ml-4">
+                          <h3 className="text-lg font-medium text-gray-900">Learn About Mind & Redeem</h3>
+                        </div>
+                      </div>
+                      <div className="flex flex-row">
+                        <div className="mr-2">
+                          <img title="play-icon" src="images/icons/IconPlay.svg" />
+                        </div>
+                      </div>
+                      <div></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
                   <StatInfoCard
                     title="Butter Value"
-                    content={`$ ${
-                      batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : "-"
-                    }`}
+                    content={`$ ${batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : "-"
+                      }`}
                     icon={{ icon: "Money", color: "bg-blue-300" }}
                   />
                 </div>
-                <div className="w-1/2 ml-2">
+                <div className="md:w-1/2 md:ml-2 mb-8 md:mb-0">
                   <BatchProgress
                     batchAmount={
                       currentBatches?.mint && batchProcessTokens?.butter
                         ? redeeming
                           ? currentBatches.redeem.suppliedTokenBalance
-                              .div(parseEther("1"))
-                              .mul(batchProcessTokens?.butter.price)
+                            .div(parseEther("1"))
+                            .mul(batchProcessTokens?.butter.price)
                           : currentBatches.mint.suppliedTokenBalance
-                              .div(parseEther("1"))
-                              .mul(batchProcessTokens?.threeCrv.price)
+                            .div(parseEther("1"))
+                            .mul(batchProcessTokens?.threeCrv.price)
                         : BigNumber.from("0")
                     }
                     threshold={parseEther("100000")}
@@ -757,14 +788,14 @@ export default function Butter(): JSX.Element {
                 </div>
               </div>
 
-              <div className="w-full h-4/5 flex flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+              <div className="hidden md:flex w-full h-4/5 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
                 <Tutorial />
               </div>
             </div>
           </div>
           {batches?.length > 0 && (
             <div className="w-full pb-12 mx-auto mt-10">
-              <div className="p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
+              <div className="mx-4 md:mx-0 p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
                 <ClaimableBatches
                   batches={batches}
                   claim={claim}

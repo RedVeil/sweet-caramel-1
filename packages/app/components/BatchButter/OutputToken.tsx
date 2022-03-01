@@ -1,5 +1,5 @@
-import { Dispatch } from 'react';
-import PseudoRadioButton from './PseudoRadioButton';
+import { Dispatch } from "react";
+import PseudoRadioButton from "./PseudoRadioButton";
 
 interface OutputTokenProps {
   outputToken: string[];
@@ -7,14 +7,10 @@ interface OutputTokenProps {
   selectedToken: string;
 }
 
-const OutputToken: React.FC<OutputTokenProps> = ({
-  outputToken,
-  selectToken,
-  selectedToken,
-}) => {
+const OutputToken: React.FC<OutputTokenProps> = ({ outputToken, selectToken, selectedToken }) => {
   return (
     <div className="flex justify-center">
-      <div className="flex flex-row items-center space-x-4 justify-start">
+      <div className="flex flex-row flex-wrap justify-evenly content-between h-28 md:h-full md:items-center md:space-x-4 md:justify-start ">
         {outputToken.map((token) => (
           <PseudoRadioButton
             key={token}

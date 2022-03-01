@@ -11,7 +11,7 @@ interface BatchProgressProps {
 const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold }) => {
   return (
     <div className="bg-white border border-gray-200 shadow-custom rounded-2xl h-full flex flex-col">
-      <div className="w-full flex flex-row pt-5 pb-2 px-6 h-full">
+      <div className="w-full flex flex-row px-6 pt-6 pb-3 xs:pb-6 h-full items-center justify-center">
         <div className="w-16 h-16 flex-shrink-0 flex-grow-0 mr-4 rounded-full bg-gray-100 flex flex-row items-center justify-center">
           <p className="text-2xl font-semibold leading-none text-gray-700">
             {formatAndRoundBigNumber(batchAmount.div(1000), 0)}k
@@ -23,10 +23,10 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
             <InfoIconWithTooltip
               id="3"
               title="Batch Processing"
-              content=" Your mint/redeem request will be processed after the current batch is ready to be processed. The expected wait time is about 24 hours."
+              content="Your mint/redeem request will be processed after the current batch is ready to be processed. The expected wait time is about 24 hours."
             />
           </div>
-          <p className="text-gray-900 leading-snug mr-8">Your request will be processed with the next batch.</p>
+          <p className="text-gray-900 leading-snug break-words">The next batch will process your request.</p>
         </div>
       </div>
       <div className="h-3 bg-blue-200 rounded-b-2xl mask overflow-hidden">
