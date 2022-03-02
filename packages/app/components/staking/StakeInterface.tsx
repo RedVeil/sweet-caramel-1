@@ -92,7 +92,7 @@ export default function StakeInterface({
                 />
               </div>
             </div>
-            <div className="px-6 mt-2 text-center md:text-left">
+            <div className="pl-6 mt-2 text-center md:text-left">
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
