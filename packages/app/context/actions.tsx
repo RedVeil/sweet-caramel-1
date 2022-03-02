@@ -1,5 +1,6 @@
 import { DualActionModalProps } from "components/Modal/DualActionModal";
 import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "components/Modal/DualActionWideModal";
+import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "components/Modal/MobileFullScreenModal";
 import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
@@ -12,6 +13,7 @@ export const PUSH_NOTIFICATION = "notifications/PUSH_NOTIFICATION";
 export const UNSET_NOTIFICATION = "notifications/UNSET_NOTIFICATION";
 export const HIDE_NOTIFICATION = "notifications/HIDE_NOTIFICATION";
 export const CLEAR_NOTIFICATIONS = "notifications/CLEAR_NOTIFICATIONS";
+export const MOBILE_FULL_SCREEN_MODAL = "modals/MOBILE_FULL_SCREEN_MODAL";
 export const SINGLE_ACTION_MODAL = "modals/SINGLE_ACTION_MODAL";
 export const MULTI_CHOICE_ACTION_MODAL = "modals/MULTI_CHOICE_ACTION_MODAL";
 export const DUAL_ACTION_MODAL = "modals/DUAL_ACTION_MODAL";
@@ -26,6 +28,7 @@ export type AppActions =
   | UnsetNotificationAction
   | HideNotificationAction
   | ClearNotificationsAction
+  | SetMobileFullScreenModalAction
   | SetSingleActionModalAction
   | SetDualActionModalAction
   | SetDualActionWideModalAction
@@ -92,6 +95,33 @@ export interface ClearNotificationsAction {
 export const clearNotifications = (): ClearNotificationsAction => {
   return {
     type: CLEAR_NOTIFICATIONS,
+  };
+};
+
+export interface SetMobileFullScreenModalAction {
+  type: typeof MOBILE_FULL_SCREEN_MODAL;
+  payload: MobileFullScreenModalProps;
+}
+
+export const setMobileFullScreenModal = (
+  props: Partial<MobileFullScreenModalProps> | false,
+): SetMobileFullScreenModalAction => {
+  if (!props) {
+    return {
+      type: MOBILE_FULL_SCREEN_MODAL,
+      payload: {
+        ...DefaultMobileFullScreenModalProps,
+        visible: false,
+      },
+    };
+  }
+  return {
+    type: MOBILE_FULL_SCREEN_MODAL,
+    payload: {
+      ...DefaultMobileFullScreenModalProps,
+      visible: true,
+      ...props,
+    },
   };
 };
 

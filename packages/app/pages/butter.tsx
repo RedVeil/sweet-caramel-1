@@ -10,7 +10,12 @@ import { BatchProcessToken } from "components/BatchButter/TokenInput";
 import Tutorial from "components/BatchButter/Tutorial";
 import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
-import { setDualActionWideModal, setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
+import {
+  setDualActionWideModal,
+  setMobileFullScreenModal,
+  setMultiChoiceActionModal,
+  setSingleActionModal,
+} from "context/actions";
 import { store } from "context/store";
 import { ChainId, connectors } from "context/Web3/connectors";
 import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
@@ -232,8 +237,8 @@ export default function Butter(): JSX.Element {
               (vault) => vault?.token?.address === "0x5a6A4D54456819380173272A5E8E9B9904BdF41B", // crvMIM
             )?.apy?.net_apy) /
             2) *
-          100 *
-          (98.5 / 100),
+            100 *
+            (98.5 / 100),
         ),
       );
   }, [library, account, chainId]);
@@ -673,8 +678,8 @@ export default function Butter(): JSX.Element {
                   $
                   {batchProcessTokens?.butter && butterSupply
                     ? formatAndRoundBigNumber(
-                      butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther("1")),
-                    ).toLocaleString()
+                        butterSupply.mul(batchProcessTokens?.butter.price).div(parseEther("1")),
+                      ).toLocaleString()
                     : " -"}{" "}
                 </p>
               </div>
@@ -729,7 +734,18 @@ export default function Butter(): JSX.Element {
             <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
               <div className="flex flex-col md:flex-row">
                 <div className="block md:hidden md:w-1/2 md:mr-2 mb-4 md:mb-0">
-                  <div className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-primaryLight">
+                  <div
+                    className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-primaryLight"
+                    onClick={() => {
+                      dispatch(
+                        setMobileFullScreenModal({
+                          title: "",
+                          children: <Tutorial />,
+                          onDismiss: () => dispatch(setMobileFullScreenModal(false)),
+                        }),
+                      );
+                    }}
+                  >
                     <div className="flex flex-row items-center justify-end mt-0.5">
                       <div className="w-full flex flex-row justify-center">
                         <div className="ml-4">
@@ -746,11 +762,49 @@ export default function Butter(): JSX.Element {
                   </div>
                 </div>
                 <div className="block md:hidden md:w-1/2 md:mr-2 mb-10 md:mb-0">
-                  <div className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-green-100">
+                  <div
+                    className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-green-100"
+                    onClick={() => {
+                      dispatch(
+                        setMobileFullScreenModal({
+                          title: "",
+                          children: (
+                            <div className="flex flex-col px-8 text-left">
+                              <div className="">
+                                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                  Mint
+                                </h3>
+                                <div className="my-4">
+                                  <p className="text-lg text-gray-500">
+                                    Butter is a token that represents a yield accrual strategy. The minting process
+                                    involves converting deposited stablecoins into other stable assets that are
+                                    compatible with the yield accrual strategy. As the value of the underlying assets
+                                    increase, so does the redeemable value of Butter.
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="mt-14">
+                                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                  Redeem
+                                </h3>
+                                <div className="my-4">
+                                  <p className="text-lg text-gray-500">
+                                    The Butter redemption process involves unwrapping Butter's underlying assets into
+                                    stablecoins.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ),
+                          onDismiss: () => dispatch(setMobileFullScreenModal(false)),
+                        }),
+                      );
+                    }}
+                  >
                     <div className="flex flex-row items-center justify-end mt-0.5">
                       <div className="w-full flex flex-row justify-center">
                         <div className="ml-4">
-                          <h3 className="text-lg font-medium text-gray-900">Learn About Mind & Redeem</h3>
+                          <h3 className="text-lg font-medium text-gray-900">What is Mint & Redeem?</h3>
                         </div>
                       </div>
                       <div className="flex flex-row">
@@ -765,8 +819,9 @@ export default function Butter(): JSX.Element {
                 <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
                   <StatInfoCard
                     title="Butter Value"
-                    content={`$ ${batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : "-"
-                      }`}
+                    content={`$ ${
+                      batchProcessTokens?.butter ? formatAndRoundBigNumber(batchProcessTokens?.butter?.price) : "-"
+                    }`}
                     icon={{ icon: "Money", color: "bg-blue-300" }}
                   />
                 </div>
@@ -776,11 +831,11 @@ export default function Butter(): JSX.Element {
                       currentBatches?.mint && batchProcessTokens?.butter
                         ? redeeming
                           ? currentBatches.redeem.suppliedTokenBalance
-                            .div(parseEther("1"))
-                            .mul(batchProcessTokens?.butter.price)
+                              .div(parseEther("1"))
+                              .mul(batchProcessTokens?.butter.price)
                           : currentBatches.mint.suppliedTokenBalance
-                            .div(parseEther("1"))
-                            .mul(batchProcessTokens?.threeCrv.price)
+                              .div(parseEther("1"))
+                              .mul(batchProcessTokens?.threeCrv.price)
                         : BigNumber.from("0")
                     }
                     threshold={parseEther("100000")}

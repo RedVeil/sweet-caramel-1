@@ -4,6 +4,7 @@ import { Debug } from "components/Debug";
 import MobileExcuseAlert from "components/MobileExcuseAlert";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
+import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
 import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
 import NetworkHandler from "components/NetworkHandler";
@@ -67,6 +68,7 @@ export default function MyApp(props) {
           <ContractsWrapper>
             <SoftLaunchCheck loading={loading} />
             <NetworkHandler />
+            <MobileFullScreenModalContainer />
             <SingleActionModalContainer />
             <MultiChoiceActionModalContainer />
             <DualActionModalContainer />

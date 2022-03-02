@@ -1,4 +1,5 @@
 import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "components/Modal/DualActionWideModal";
+import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "components/Modal/MobileFullScreenModal";
 import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
@@ -15,6 +16,7 @@ import {
   DUAL_ACTION_WIDE_MODAL,
   HIDE_GLOBAL_LOADER,
   HIDE_NOTIFICATION,
+  MOBILE_FULL_SCREEN_MODAL,
   MULTI_CHOICE_ACTION_MODAL,
   PUSH_NOTIFICATION,
   SHOW_GLOBAL_LOADER,
@@ -24,6 +26,7 @@ import {
 
 interface DefaultState {
   notifications: NotificationProps[];
+  mobileFullScreenModal: MobileFullScreenModalProps;
   singleActionModal: SingleActionModalProps;
   multiChoiceActionModal: MultiChoiceActionModalProps;
   dualActionModal: DualActionModalProps;
@@ -33,6 +36,9 @@ interface DefaultState {
 
 const initialState: DefaultState = {
   notifications: [],
+  mobileFullScreenModal: {
+    ...DefaultMobileFullScreenModalProps,
+  },
   singleActionModal: {
     ...DefaultSingleActionModalProps,
   },
@@ -89,6 +95,13 @@ const StateProvider = ({ children }) => {
               return notification;
             }),
           ],
+        };
+      case MOBILE_FULL_SCREEN_MODAL:
+        return {
+          ...state,
+          mobileFullScreenModal: {
+            ...action.payload,
+          },
         };
       case SINGLE_ACTION_MODAL:
         return {
