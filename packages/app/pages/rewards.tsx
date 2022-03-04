@@ -227,29 +227,27 @@ export default function index(): JSX.Element {
     <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="">
+      <div className="px-6">
         <div className="flex flex-col mx-auto w-full md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="text-center md:text-left md:w-1/3 mx-6 md:mx-0">
             <h1 className="page-title">Rewards</h1>
             <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
           </div>
           {!account && (
-            <div className="w-full">
-              <div className="block w-full mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl py-20 md:py-44 shadow-custom">
-                <img
-                  src="/images/claims-cat.svg"
-                  alt="cat holding popcorn"
-                  className="py-2 mx-auto px-10 transform scale-101"
-                />
-                <div className="flex mx-10 justify-items-stretch">
-                  <button
-                    onClick={() => activate(connectors.Injected)}
-                    className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
-                    style={{ width: "368px", height: "60px" }}
-                  >
-                    <p className="font-bold text-white">Connect Wallet</p>
-                  </button>
-                </div>
+            <div className="w-full mt-10 mb-24 md:mr-12 md:ml-0 bg-primaryLight rounded-5xl py-20 md:py-44 shadow-custom">
+              <img
+                src="/images/claims-cat.svg"
+                alt="cat holding popcorn"
+                className="py-2 mx-auto px-10 transform scale-101"
+              />
+              <div className="flex mx-10 justify-items-stretch">
+                <button
+                  onClick={() => activate(connectors.Injected)}
+                  className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
+                  style={{ width: "368px", height: "60px" }}
+                >
+                  <p className="font-bold text-white">Connect Wallet</p>
+                </button>
               </div>
             </div>
           )}
@@ -332,9 +330,9 @@ export default function index(): JSX.Element {
                 {isSelected(Tabs.Vesting) && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
-                      !userEscrowsFetchResult?.data ||
-                      userEscrowsFetchResult?.error ||
-                      userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                    !userEscrowsFetchResult?.data ||
+                    userEscrowsFetchResult?.error ||
+                    userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                       <NotAvailable title="No records available" body="No vesting records available" />
                     ) : (
                       <>
