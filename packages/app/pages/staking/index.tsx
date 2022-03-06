@@ -49,16 +49,10 @@ export default function index(): JSX.Element {
             </div>
           </div>
           <div className="w-full md:w-2/3 mx-auto">
-            <div className="space-y-6">
+            <div className="space-y-6 h-full">
               {!pageAvailable() && (
-                <div className="flex flex-col w-full 3 px-6 md:mx-0 mt-10 mb-8">
-                  <div className="mb-8">
-                    <NotAvailable
-                      title="No staking, yet"
-                      body="No staking pools on this network"
-                      additionalStyles={"p-24"}
-                    />
-                  </div>
+                <div className="flex flex-col w-full 3 md:mx-0 mt-10 mb-8 h-full">
+                  <NotAvailable title="No staking, yet" body="No staking pools on this network" />
                 </div>
               )}
               {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && !popLocker && !stakingPools && (
