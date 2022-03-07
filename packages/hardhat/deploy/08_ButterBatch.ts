@@ -1,14 +1,14 @@
-import {DeploymentsExtension} from "@anthonymartin/hardhat-deploy/dist/types";
-import {DeployFunction} from "@anthonymartin/hardhat-deploy/types";
-import {ethers, utils} from "ethers";
-import {parseEther} from "ethers/lib/utils";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSignerFrom} from "../lib/utils/getSignerFrom";
-import {addContractToRegistry} from "./utils";
+import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { BigNumber, ethers, utils } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getSignerFrom } from "../lib/utils/getSignerFrom";
+import { addContractToRegistry } from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
-  const {deploy} = deployments;
+  const { deployments, getNamedAccounts } = hre;
+  const { deploy } = deployments;
   const addresses = await getNamedAccounts();
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
   const signerAddress = await signer.getAddress();
@@ -52,9 +52,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       addresses.setBasicIssuanceModule,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
-      1,
-      parseEther("1"),
-      parseEther("0.1"),
+      { batchCooldown: BigNumber.from("1"), mintThreshold: parseEther("1"), redeemThreshold: parseEther("0.1") },
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks

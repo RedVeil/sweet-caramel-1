@@ -28,7 +28,7 @@ export default function PopLockerInteraction({
   return (
     <>
       {withdrawal && (
-        <div className="pt-16 pb-10 mx-auto">
+        <div className="pt-16 mx-auto">
           <div className="w-full mb-10">
             <label htmlFor="tokenInput" className="flex justify-between text-sm font-medium text-gray-700 text-center">
               <p className="mb-2  text-base">Withdrawable Amount</p>

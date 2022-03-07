@@ -1,25 +1,25 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { Web3ReactProvider } from '@web3-react/core';
-import { Debug } from 'components/Debug';
-import MobileExcuseAlert from 'components/MobileExcuseAlert';
-import { DualActionModalContainer } from 'components/Modal/DualActionModalContainer';
-import DualActionWideModalContainer from 'components/Modal/DualActionWideModalContainer';
-import { SingleActionModalContainer } from 'components/Modal/SingleActionModalContainer';
-import NetworkHandler from 'components/NetworkHandler';
-import NotificationsContainer from 'components/Notifications/NotificationsContainer';
-import SoftLaunchCheck from 'components/SoftLaunchCheck';
-import SwapChainModal from 'components/SwapChainModal';
-import { ChainId } from 'context/Web3/connectors';
-import Head from 'next/head';
-import Router from 'next/router';
-import React, { useEffect, useState } from 'react';
-import { GlobalLinearProgressAndLoading } from '../components/GlobalLinearProgressAndLoading';
-import { StateProvider } from '../context/store';
-import ContractsWrapper from '../context/Web3/contracts';
-import '../styles/globals.css';
+import { Web3Provider } from "@ethersproject/providers";
+import { Web3ReactProvider } from "@web3-react/core";
+import { Debug } from "components/Debug";
+import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
+import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
+import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
+import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
+import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
+import NetworkHandler from "components/NetworkHandler";
+import NotificationsContainer from "components/Notifications/NotificationsContainer";
+import SoftLaunchCheck from "components/SoftLaunchCheck";
+import SwapChainModal from "components/SwapChainModal";
+import Head from "next/head";
+import Router from "next/router";
+import React, { useEffect, useState } from "react";
+import { GlobalLinearProgressAndLoading } from "../components/GlobalLinearProgressAndLoading";
+import { StateProvider } from "../context/store";
+import ContractsWrapper from "../context/Web3/contracts";
+import "../styles/globals.css";
 
 function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider, 'any');
+  const library = new Web3Provider(provider, "any");
   library.pollingInterval = 12000;
   return library;
 }
@@ -29,20 +29,20 @@ export default function MyApp(props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    Router.events.on('routeChangeStart', () => {
+    Router.events.on("routeChangeStart", () => {
       setLoading(true);
     });
-    Router.events.on('routeChangeComplete', () => {
+    Router.events.on("routeChangeComplete", () => {
       setLoading(false);
     });
-    Router.events.on('routeChangeError', () => {
+    Router.events.on("routeChangeError", () => {
       setLoading(false);
     });
   }, []);
 
   useEffect(() => {
     // Remove the server-side injected CSS.
-    const jssStyles = document.querySelector('#jss-server-side');
+    const jssStyles = document.querySelector("#jss-server-side");
     if (jssStyles) {
       jssStyles.parentElement.removeChild(jssStyles);
     }
@@ -66,19 +66,12 @@ export default function MyApp(props) {
           <ContractsWrapper>
             <SoftLaunchCheck loading={loading} />
             <NetworkHandler />
+            <MobileFullScreenModalContainer />
             <SingleActionModalContainer />
+            <MultiChoiceActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />
-            {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(parseInt(process.env.CHAIN_ID)) ? (
-              <Component {...pageProps} />
-            ) : (
-              <>
-                <div className="hidden lg:block">
-                  <Component {...pageProps} />
-                </div>
-                <MobileExcuseAlert />
-              </>
-            )}
+            <Component {...pageProps} />
             <SwapChainModal />
             <NotificationsContainer />
             <Debug />

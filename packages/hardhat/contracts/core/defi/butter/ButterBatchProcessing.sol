@@ -48,6 +48,23 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     IERC20 crvLPToken;
   }
 
+  struct ProcessingThreshold {
+    uint256 batchCooldown;
+    uint256 mintThreshold;
+    uint256 redeemThreshold;
+  }
+
+  struct RedemptionFee {
+    uint256 accumulated;
+    uint256 rate;
+    address recipient;
+  }
+
+  struct Slippage {
+    uint256 mintBps; // in bps
+    uint256 redeemBps; // in bps
+  }
+
   /**
    * @notice The Batch structure is used both for Batches of Minting and Redeeming
    * @param batchType Determines if this Batch is for Minting or Redeeming Butter
@@ -93,14 +110,11 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
   uint256 public lastRedeemedAt;
   bytes32 public currentMintBatchId;
   bytes32 public currentRedeemBatchId;
-  uint256 public batchCooldown;
-  uint256 public mintThreshold;
-  uint256 public redeemThreshold;
-  uint256 public mintSlippage = 7; // in bps
-  uint256 public redeemSlippage = 7; // in bps
-  uint256 public redemptionFees;
-  uint256 public redemptionFeeRate;
-  address public feeRecipient;
+
+  Slippage public slippage;
+  ProcessingThreshold public processingThreshold;
+
+  RedemptionFee public redemptionFee;
 
   mapping(address => bool) public sweethearts;
 
@@ -108,17 +122,14 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
 
   event Deposit(address indexed from, uint256 deposit);
   event Withdrawal(address indexed to, uint256 amount);
-  event MintSlippageUpdated(uint256 prev, uint256 current);
-  event RedeemSlippageUpdated(uint256 prev, uint256 current);
+  event SlippageUpdated(Slippage prev, Slippage current);
   event BatchMinted(bytes32 batchId, uint256 suppliedTokenAmount, uint256 butterAmount);
   event BatchRedeemed(bytes32 batchId, uint256 suppliedTokenAmount, uint256 threeCrvAmount);
   event Claimed(address indexed account, BatchType batchType, uint256 shares, uint256 claimedToken);
   event WithdrawnFromBatch(bytes32 batchId, uint256 amount, address indexed to);
   event MovedUnclaimedDepositsIntoCurrentBatch(uint256 amount, BatchType batchType, address indexed account);
-  event RedeemThresholdUpdated(uint256 previousThreshold, uint256 newThreshold);
-  event MintThresholdUpdated(uint256 previousThreshold, uint256 newThreshold);
-  event BatchCooldownUpdated(uint256 previousCooldown, uint256 newCooldown);
   event CurveTokenPairsUpdated(address[] yTokenAddresses, CurvePoolTokenPair[] curveTokenPairs);
+  event ProcessingThresholdUpdated(ProcessingThreshold previousThreshold, ProcessingThreshold newProcessingThreshold);
   event RedemptionFeeUpdated(uint256 newRedemptionFee, address newFeeRecipient);
   event SweetheartUpdated(address sweetheart, bool isSweeheart);
   event StakingUpdated(address beforeAddress, address afterAddress);
@@ -134,9 +145,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     BasicIssuanceModule _basicIssuanceModule,
     address[] memory _yTokenAddresses,
     CurvePoolTokenPair[] memory _curvePoolTokenPairs,
-    uint256 _batchCooldown,
-    uint256 _mintThreshold,
-    uint256 _redeemThreshold
+    ProcessingThreshold memory _processingThreshold
   ) ContractRegistryAccess(_contractRegistry) {
     staking = _staking;
     setToken = _setToken;
@@ -146,14 +155,16 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
 
     _setCurvePoolTokenPairs(_yTokenAddresses, _curvePoolTokenPairs);
 
-    batchCooldown = _batchCooldown;
-    mintThreshold = _mintThreshold;
-    redeemThreshold = _redeemThreshold;
+    processingThreshold = _processingThreshold;
+
     lastMintedAt = block.timestamp;
     lastRedeemedAt = block.timestamp;
 
     _generateNextBatch(bytes32("mint"), BatchType.Mint);
     _generateNextBatch(bytes32("redeem"), BatchType.Redeem);
+
+    slippage.mintBps = 7;
+    slippage.redeemBps = 7;
   }
 
   /* ========== VIEWS ========== */
@@ -247,8 +258,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
       if (!sweethearts[_claimFor]) {
         //Fee is deducted from threeCrv -- This allows it to work with the Zapper
         //Fes are denominated in BasisPoints
-        uint256 fee = (tokenAmountToClaim * redemptionFeeRate) / 10_000;
-        redemptionFees = redemptionFees + fee;
+        uint256 fee = (tokenAmountToClaim * redemptionFee.rate) / 10_000;
+        redemptionFee.accumulated += fee;
         tokenAmountToClaim = tokenAmountToClaim - fee;
       }
       threeCrv.safeTransfer(recipient, tokenAmountToClaim);
@@ -330,12 +341,12 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    */
   function batchMint() external whenNotPaused keeperIncentive(contractName, 0) {
     Batch storage batch = batches[currentMintBatchId];
-
     //Check if there was enough time between the last batch minting and this attempt...
     //...or if enough 3CRV was deposited to make the minting worthwhile
     //This is to prevent excessive gas consumption and costs as we will pay keeper to call this function
     require(
-      (block.timestamp - lastMintedAt) >= batchCooldown || (batch.suppliedTokenBalance >= mintThreshold),
+      (block.timestamp - lastMintedAt) >= processingThreshold.batchCooldown ||
+        (batch.suppliedTokenBalance >= processingThreshold.mintThreshold),
       "can not execute batch mint yet"
     );
 
@@ -348,46 +359,46 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
       "account has insufficient balance of token to mint"
     );
 
-    //Get the quantity of yToken for one Butter
+    //Get the quantities of yToken needed to mint 1 BTR (This should be an equal amount per Token)
     (address[] memory tokenAddresses, uint256[] memory quantities) = setBasicIssuanceModule
       .getRequiredComponentUnitsForIssue(setToken, 1e18);
 
-    //Total value of leftover yToken valued in 3CRV
-    uint256 totalLeftoverIn3Crv;
+    //The value of 1 BTR in virtual Price (`quantities` * `virtualPrice`)
+    uint256 setValue = valueOfComponents(tokenAddresses, quantities);
 
-    //Individual yToken leftovers valued in 3CRV
-    uint256[] memory leftoversIn3Crv = new uint256[](quantities.length);
+    uint256 threeCrvValue = threePool.get_virtual_price();
+
+    //Remaining amount of 3CRV in this batch which hasnt been allocated yet
+    uint256 remainingBatchBalanceValue = (batch.suppliedTokenBalance * threeCrvValue) / 1e18;
+
+    //Temporary allocation of 3CRV to be deployed in curveMetapools
+    uint256[] memory poolAllocations = new uint256[](quantities.length);
+
+    //Ratio of 3CRV needed to mint 1 BTR
+    uint256[] memory ratios = new uint256[](quantities.length);
 
     for (uint256 i; i < tokenAddresses.length; i++) {
-      //Check how many crvLPToken are needed to mint one yToken
-      uint256 yTokenInCrvToken = YearnVault(tokenAddresses[i]).pricePerShare();
-
-      //Check how many 3CRV are needed to mint one crvLPToken
-      uint256 crvLPTokenIn3Crv = uint256(2e18) -
-        curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool.calc_withdraw_one_coin(1e18, 1);
-
-      //Calculate how many 3CRV are needed to mint one yToken
-      uint256 yTokenIn3Crv = (yTokenInCrvToken * crvLPTokenIn3Crv) / 1e18;
-
-      //Calculate how much the yToken leftover are worth in 3CRV
-      uint256 leftoverIn3Crv = (YearnVault(tokenAddresses[i]).balanceOf(address(this)) * yTokenIn3Crv) / 1e18;
-
-      //Add the leftover value to the array of leftovers for later use
-      leftoversIn3Crv[i] = leftoverIn3Crv;
-
-      //Add the leftover value to the total leftover value
-      totalLeftoverIn3Crv = totalLeftoverIn3Crv + leftoverIn3Crv;
+      // prettier-ignore
+      (uint256 allocation, uint256 ratio) = _getPoolAllocationAndRatio(tokenAddresses[i], quantities[i], batch, setValue, threeCrvValue);
+      poolAllocations[i] = allocation;
+      ratios[i] = ratio;
+      remainingBatchBalanceValue -= allocation;
     }
 
-    //Calculate the total value of supplied token + leftovers in 3CRV
-    uint256 suppliedTokenBalancePlusLeftovers = batch.suppliedTokenBalance + totalLeftoverIn3Crv;
-
     for (uint256 i; i < tokenAddresses.length; i++) {
-      //Calculate the pool allocation by dividing the suppliedTokenBalance by number of token addresses and take leftovers into account
-      uint256 poolAllocation = suppliedTokenBalancePlusLeftovers / tokenAddresses.length - leftoversIn3Crv[i];
+      uint256 poolAllocation;
+
+      //RemainingLeftovers should only be 0 if there were no yToken leftover from previous batches
+      //since the first iteration of poolAllocation uses all 3CRV. Therefore we can only have `remainingBatchBalanceValue` from subtracted leftovers
+      if (remainingBatchBalanceValue > 0) {
+        poolAllocation = _getPoolAllocation(remainingBatchBalanceValue, ratios[i]);
+      }
 
       //Pool 3CRV to get crvLPToken
-      _sendToCurve(poolAllocation, curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool);
+      _sendToCurve(
+        ((poolAllocation + poolAllocations[i]) * 1e18) / threeCrvValue,
+        curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool
+      );
 
       //Deposit crvLPToken to get yToken
       _sendToYearn(
@@ -401,7 +412,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
         YearnVault(tokenAddresses[i]).balanceOf(address(this))
       );
     }
-
     //Get the minimum amount of butter that we can mint with our balances of yToken
     uint256 butterAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
 
@@ -414,11 +424,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
 
     require(
       butterAmount >=
-        getMinAmountToMint(
-          valueOf3Crv(batch.suppliedTokenBalance),
-          valueOfComponents(tokenAddresses, quantities),
-          mintSlippage
-        ),
+        getMinAmountToMint((batch.suppliedTokenBalance * threeCrvValue) / 1e18, setValue, slippage.mintBps),
       "slippage too high"
     );
 
@@ -440,6 +446,33 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     _generateNextBatch(currentMintBatchId, BatchType.Mint);
   }
 
+  function _getPoolAllocationAndRatio(
+    address _component,
+    uint256 _quantity,
+    Batch memory _batch,
+    uint256 _setValue,
+    uint256 _threePoolPrice
+  ) internal view returns (uint256 poolAllocation, uint256 ratio) {
+    //Calculate the virtualPrice of one yToken
+    uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() *
+      curvePoolTokenPairs[_component].curveMetaPool.get_virtual_price()) / 1e18;
+
+    //Calculate the value of quantity (of yToken) in virtualPrice
+    uint256 componentValuePerSet = (_quantity * componentValuePerShare) / 1e18;
+
+    //Calculate the value of leftover yToken in virtualPrice
+    uint256 componentValueHeldByContract = (YearnVault(_component).balanceOf(address(this)) * componentValuePerShare) /
+      1e18;
+
+    ratio = (componentValuePerSet * 1e18) / _setValue;
+
+    poolAllocation =
+      _getPoolAllocation((_batch.suppliedTokenBalance * _threePoolPrice) / 1e18, ratio) -
+      componentValueHeldByContract;
+
+    return (poolAllocation, ratio);
+  }
+
   /**
    * @notice Redeems Butter for 3CRV. This function goes through all the steps necessary to get 3CRV
    * @dev This function reedeems Butter for the underlying yToken and deposits these yToken in curve Metapools for 3CRV
@@ -453,7 +486,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     //...or if enough Butter was deposited to make the redemption worthwhile
     //This is to prevent excessive gas consumption and costs as we will pay keeper to call this function
     require(
-      (block.timestamp - lastRedeemedAt >= batchCooldown) || (batch.suppliedTokenBalance >= redeemThreshold),
+      (block.timestamp - lastRedeemedAt >= processingThreshold.batchCooldown) ||
+        (batch.suppliedTokenBalance >= processingThreshold.redeemThreshold),
       "can not execute batch redeem yet"
     );
 
@@ -488,7 +522,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
 
     require(
       batch.claimableTokenBalance >=
-        getMinAmount3CrvFromRedeem(valueOfComponents(tokenAddresses, quantities), redeemSlippage),
+        getMinAmount3CrvFromRedeem(valueOfComponents(tokenAddresses, quantities), slippage.redeemBps),
       "slippage too high"
     );
 
@@ -515,20 +549,17 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
       CurveMetapool curveMetapool = curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool;
       YearnVault yearnVault = YearnVault(tokenAddresses[i]);
 
-      threeCrv.safeApprove(address(curveMetapool), 0);
-      threeCrv.safeApprove(address(curveMetapool), type(uint256).max);
-
-      curveLpToken.safeApprove(address(yearnVault), 0);
-      curveLpToken.safeApprove(address(yearnVault), type(uint256).max);
-
-      curveLpToken.safeApprove(address(curveMetapool), 0);
-      curveLpToken.safeApprove(address(curveMetapool), type(uint256).max);
+      _maxApprove(curveLpToken, address(curveMetapool));
+      _maxApprove(curveLpToken, address(yearnVault));
+      _maxApprove(threeCrv, address(curveMetapool));
     }
-
-    setToken.safeApprove(address(staking), 0);
-    setToken.safeApprove(address(staking), type(uint256).max);
+    _maxApprove(IERC20(address(setToken)), address(staking));
   }
 
+  /**
+   * @notice returns the min amount of butter that should be minted given an amount of 3crv
+   * @dev this controls slippage in the minting process
+   */
   function getMinAmountToMint(
     uint256 _valueOfBatch,
     uint256 _valueOfComponentsPerUnit,
@@ -539,12 +570,19 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     return _mintAmount - _delta;
   }
 
+  /**
+   * @notice returns the min amount of 3crv that should be redeemed given an amount of butter
+   * @dev this controls slippage in the redeeming process
+   */
   function getMinAmount3CrvFromRedeem(uint256 _valueOfComponents, uint256 _slippage) public view returns (uint256) {
     uint256 _threeCrvToReceive = (_valueOfComponents * 1e18) / threePool.get_virtual_price();
     uint256 _delta = (_threeCrvToReceive * _slippage) / 10_000;
     return _threeCrvToReceive - _delta;
   }
 
+  /**
+   * @notice returns the value of butter in virtualPrice
+   */
   function valueOfComponents(address[] memory _tokenAddresses, uint256[] memory _quantities)
     public
     view
@@ -560,6 +598,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     return value;
   }
 
+  /**
+   * @notice returns the value of an amount of 3crv in virtualPrice
+   */
   function valueOf3Crv(uint256 _units) public view returns (uint256) {
     return (_units * threePool.get_virtual_price()) / 1e18;
   }
@@ -567,23 +608,22 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
   /* ========== RESTRICTED FUNCTIONS ========== */
 
   /**
-   * @notice sets slippage for minting
-   * @param _slippageAmount amount in bps (e.g. 50 = 0.5%)
+   * @notice sets max allowance given a token and a spender
+   * @param _token the token which gets approved to be spend
+   * @param _spender the spender which gets a max allowance to spend `_token`
    */
-  function setMintSlippage(uint256 _slippageAmount) external onlyRole(DAO_ROLE) {
-    require(_slippageAmount <= 200, "slippage too high");
-    emit MintSlippageUpdated(mintSlippage, _slippageAmount);
-    mintSlippage = _slippageAmount;
+  function _maxApprove(IERC20 _token, address _spender) internal {
+    _token.safeApprove(_spender, 0);
+    _token.safeApprove(_spender, type(uint256).max);
   }
 
   /**
-   * @notice sets slippage for redeeming
-   * @param _slippageAmount amount in bps (e.g. 50 = 0.5%)
+   * @notice returns the amount of 3CRV that should be allocated for a curveMetapool
+   * @param _balance the max amount of 3CRV that is available in this iteration
+   * @param _ratio the ratio of 3CRV needed to get enough yToken to mint butter
    */
-  function setRedeemSlippage(uint256 _slippageAmount) external onlyRole(DAO_ROLE) {
-    require(_slippageAmount <= 200, "slippage too high");
-    emit RedeemSlippageUpdated(redeemSlippage, _slippageAmount);
-    redeemSlippage = _slippageAmount;
+  function _getPoolAllocation(uint256 _balance, uint256 _ratio) internal pure returns (uint256) {
+    return ((_balance * _ratio) / 1e18);
   }
 
   /**
@@ -786,31 +826,36 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
   }
 
   /**
-   * @notice Changes the current batch cooldown
+   * @notice Changes the the ProcessingThreshold
    * @param _cooldown Cooldown in seconds
+   * @param _mintThreshold Amount of MIM necessary to mint immediately
+   * @param _redeemThreshold Amount of Butter necessary to mint immediately
    * @dev The cooldown is the same for redeem and mint batches
    */
-  function setBatchCooldown(uint256 _cooldown) external onlyRole(DAO_ROLE) {
-    emit BatchCooldownUpdated(batchCooldown, _cooldown);
-    batchCooldown = _cooldown;
+  function setProcessingThreshold(
+    uint256 _cooldown,
+    uint256 _mintThreshold,
+    uint256 _redeemThreshold
+  ) public onlyRole(DAO_ROLE) {
+    ProcessingThreshold memory newProcessingThreshold = ProcessingThreshold({
+      batchCooldown: _cooldown,
+      mintThreshold: _mintThreshold,
+      redeemThreshold: _redeemThreshold
+    });
+    emit ProcessingThresholdUpdated(processingThreshold, newProcessingThreshold);
+    processingThreshold = newProcessingThreshold;
   }
 
   /**
-   * @notice Changes the Threshold of 3CRV which need to be deposited to be able to mint immediately
-   * @param _threshold Amount of 3CRV necessary to mint immediately
+   * @notice sets slippage for mint and redeem
+   * @param _mintSlippage amount in bps (e.g. 50 = 0.5%)
+   * @param _redeemSlippage amount in bps (e.g. 50 = 0.5%)
    */
-  function setMintThreshold(uint256 _threshold) external onlyRole(DAO_ROLE) {
-    emit MintThresholdUpdated(mintThreshold, _threshold);
-    mintThreshold = _threshold;
-  }
-
-  /**
-   * @notice Changes the Threshold of Butter which need to be deposited to be able to redeem immediately
-   * @param _threshold Amount of Butter necessary to mint immediately
-   */
-  function setRedeemThreshold(uint256 _threshold) external onlyRole(DAO_ROLE) {
-    emit RedeemThresholdUpdated(redeemThreshold, _threshold);
-    redeemThreshold = _threshold;
+  function setSlippage(uint256 _mintSlippage, uint256 _redeemSlippage) external onlyRole(DAO_ROLE) {
+    require(_mintSlippage <= 200 && _redeemSlippage <= 200, "slippage too high");
+    Slippage memory newSlippage = Slippage({ mintBps: _mintSlippage, redeemBps: _redeemSlippage });
+    emit SlippageUpdated(slippage, newSlippage);
+    slippage = newSlippage;
   }
 
   /**
@@ -821,8 +866,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    */
   function setRedemptionFee(uint256 _feeRate, address _recipient) external onlyRole(DAO_ROLE) {
     require(_feeRate <= 100, "dont get greedy");
-    redemptionFeeRate = _feeRate;
-    feeRecipient = _recipient;
+    redemptionFee.rate = _feeRate;
+    redemptionFee.recipient = _recipient;
     emit RedemptionFeeUpdated(_feeRate, _recipient);
   }
 
@@ -830,8 +875,19 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    * @notice Claims all accumulated redemption fees in 3CRV
    */
   function claimRedemptionFee() external {
-    threeCrv.safeTransfer(feeRecipient, redemptionFees);
-    redemptionFees = 0;
+    threeCrv.safeTransfer(redemptionFee.recipient, redemptionFee.accumulated);
+    redemptionFee.accumulated = 0;
+  }
+
+  /**
+   * @notice Allows the DAO to recover leftover yToken that have accumulated between pages and cant be used effectively in upcoming batches
+   * @dev This should only be used if there is a clear trend that a certain amount of yToken leftover wont be used in the minting process
+   * @param _yTokenAddress address of the yToken that should be recovered
+   * @param _amount amount of yToken that should recovered
+   */
+  function recoverLeftover(address _yTokenAddress, uint256 _amount) external onlyRole(DAO_ROLE) {
+    require(address(curvePoolTokenPairs[_yTokenAddress].curveMetaPool) != address(0), "yToken doesnt exist");
+    IERC20(_yTokenAddress).safeTransfer(_getContract(keccak256("Treasury")), _amount);
   }
 
   /**
@@ -859,6 +915,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     _unpause();
   }
 
+  /**
+   * @notice Updates the staking contract
+   */
   function setStaking(address _staking) external onlyRole(DAO_ROLE) {
     emit StakingUpdated(address(staking), _staking);
     staking = IStaking(_staking);

@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { Dispatch } from "react";
 import { BatchType } from "../../../hardhat/lib/adapters";
 import MainActionButton from "../MainActionButton";
@@ -31,7 +31,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   hasUnclaimedBalances,
 }) => {
   return (
-    <div className="bg-white rounded-3xl px-5 pt-6 pb-6 mr-8 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl px-5 pt-6 pb-6 md:mr-8 border border-gray-200 shadow-custom">
       <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
       <div>
         <TokenInput
@@ -62,7 +62,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         </div>
       )}
       <div className="w-full text-center">
-        {depositAmount.gt(selectedToken.input.allowance) ? (
+        {depositAmount.gt(selectedToken.input.allowance) || selectedToken.input.allowance.eq(ethers.constants.Zero) ? (
           <div className="space-y-4">
             <MainActionButton
               label={`Allow Popcorn to use your ${selectedToken.input.name}`}

@@ -1,19 +1,19 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {expect} from "chai";
-import {utils} from "ethers";
-import {parseEther} from "ethers/lib/utils";
-import {ethers, waffle} from "hardhat";
-import {BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE} from "../lib/acl/roles";
-import {BatchType} from "../lib/adapters/ButterBatchAdapter";
-import {expectRevert} from "../lib/utils/expectValue";
-import {timeTravel} from "../lib/utils/test";
-import {KeeperIncentive, MockERC20, RewardsEscrow} from "../typechain";
-import {ButterBatchProcessing} from "../typechain/ButterBatchProcessing";
-import {ButterBatchProcessingZapper} from "../typechain/ButterBatchProcessingZapper";
-import {MockBasicIssuanceModule} from "../typechain/MockBasicIssuanceModule";
-import {MockCurveMetapool} from "../typechain/MockCurveMetapool";
-import {MockCurveThreepool} from "../typechain/MockCurveThreepool";
-import {MockYearnV2Vault} from "../typechain/MockYearnV2Vault";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { expect } from "chai";
+import { utils } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import { ethers, waffle } from "hardhat";
+import { BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
+import { BatchType } from "../lib/adapters/ButterBatchAdapter";
+import { expectRevert } from "../lib/utils/expectValue";
+import { timeTravel } from "../lib/utils/test";
+import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";
+import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
+import { ButterBatchProcessingZapper } from "../typechain/ButterBatchProcessingZapper";
+import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
+import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
+import { MockCurveThreepool } from "../typechain/MockCurveThreepool";
+import { MockYearnV2Vault } from "../typechain/MockYearnV2Vault";
 
 const provider = waffle.provider;
 
@@ -143,16 +143,17 @@ async function deployContracts(): Promise<Contracts> {
           crvLPToken: mockCrvUST.address,
         },
       ],
-      1800,
-      parseEther("20000"),
-      parseEther("200")
+      {
+        batchCooldown: 1800,
+        mintThreshold: parseEther("20000"),
+        redeemThreshold: parseEther("200"),
+      }
     )
   ).deployed()) as ButterBatchProcessing;
   await aclRegistry.grantRole(DAO_ROLE, owner.address);
   await aclRegistry.grantRole(KEEPER_ROLE, owner.address);
 
-  await butterBatchProcessing.connect(owner).setRedeemSlippage(100);
-  await butterBatchProcessing.connect(owner).setMintSlippage(100);
+  await butterBatchProcessing.connect(owner).setSlippage(100, 100);
   await butterBatchProcessing.setApprovals();
 
   const butterBatchProcessingZapper = (await (
@@ -395,7 +396,8 @@ describe("ButterBatchProcessingZapper", function () {
     it("takes a redemption fee", async () => {
       await contracts.butterBatchProcessing.setRedemptionFee(100, owner.address);
       await contracts.butterBatchProcessingZapper.connect(depositor).claimAndSwapToStable(claimableRedeemId, 0, 0);
-      expect(await contracts.butterBatchProcessing.redemptionFees()).to.equal(parseEther("199.8"));
+      const redemptionFee = await contracts.butterBatchProcessing.redemptionFee();
+      expect(redemptionFee[0]).to.equal(parseEther("199.8"));
     });
   });
 });

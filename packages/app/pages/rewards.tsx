@@ -6,7 +6,7 @@ import ClaimCard from "components/Rewards/ClaimCard";
 import { NotAvailable } from "components/Rewards/NotAvailable";
 import VestingRecordComponent from "components/Rewards/VestingRecord";
 import TabSelector from "components/TabSelector";
-import { setSingleActionModal } from "context/actions";
+import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, ethers } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
@@ -25,7 +25,7 @@ import { ChainId, connectors } from "../context/Web3/connectors";
 import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../hooks/tokens/useERC20";
 
-enum Tabs {
+export enum Tabs {
   Staking = "Staking Rewards",
   Airdrop = "Airdrop Redemption",
   Vesting = "Vesting Records",
@@ -47,8 +47,9 @@ export default function index(): JSX.Element {
   const balancesXPop = useBalanceAndAllowance(xPop, account, contractAddresses?.xPopRedemption);
   const balancesPop = useBalanceAndAllowance(pop, account, contractAddresses?.xPopRedemption);
 
-  const [tabSelected, setTabSelected] = useState(0);
-  const [availableTabs, setAvailableTabs] = useState([]);
+  const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
+  const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
+  const isSelected = (tab: Tabs) => tabSelected === tab;
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows();
@@ -62,7 +63,7 @@ export default function index(): JSX.Element {
 
   useEffect(() => {
     if (chainId === ChainId.BinanceSmartChain) {
-      setTabSelected(1);
+      setTabSelected(Tabs.Airdrop);
     }
   }, []);
 
@@ -93,8 +94,8 @@ export default function index(): JSX.Element {
 
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
-              setSingleActionModal({
-                image: <img src="images/claim/popover.svg" className="px-6" />,
+              setMultiChoiceActionModal({
+                image: <img src="images/claim/popover.png" className="px-6" />,
                 title: "Everytime you claim rewards, a vesting record is created.",
                 children: (
                   <p className="text-sm text-gray-500">
@@ -104,9 +105,13 @@ export default function index(): JSX.Element {
                 ),
                 onConfirm: {
                   label: "Close",
+                  onClick: () => dispatch(setMultiChoiceActionModal(false)),
+                },
+                onDismiss: {
+                  label: "Do not remind me again",
                   onClick: () => {
                     localStorage.setItem("hideClaimModal", "true");
-                    dispatch(setSingleActionModal(false));
+                    dispatch(setMultiChoiceActionModal(false));
                   },
                 },
               }),
@@ -199,7 +204,7 @@ export default function index(): JSX.Element {
             <span
               className="text-blue-600 inline cursor-pointer"
               onClick={() => {
-                setTabSelected(2);
+                setTabSelected(Tabs.Vesting);
                 dispatch(setSingleActionModal(false));
               }}
             >
@@ -218,35 +223,31 @@ export default function index(): JSX.Element {
     );
   };
 
-  const isSelected = (tab: Tabs) => availableTabs[tabSelected] === tab;
-
   return (
-    <div className="w-full h-screen">
+    <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="">
-        <div className="flex flex-col mx-auto w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
+      <div className="px-6">
+        <div className="flex flex-col mx-auto w-full md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="text-center md:text-left md:w-1/3 mx-6 md:mx-0">
             <h1 className="page-title">Rewards</h1>
             <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
           </div>
           {!account && (
-            <div className="w-full">
-              <div className="block w-full mt-10 mb-24 mr-12 bg-primaryLight rounded-5xl py-20 md:py-44 shadow-custom">
-                <img
-                  src="/images/claims-cat.svg"
-                  alt="cat holding popcorn"
-                  className="py-2 mx-auto px-10 transform scale-101"
-                />
-                <div className="flex mx-10 justify-items-stretch">
-                  <button
-                    onClick={() => activate(connectors.Injected)}
-                    className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
-                    style={{ width: "368px", height: "60px" }}
-                  >
-                    <p className="font-bold text-white">Connect Wallet</p>
-                  </button>
-                </div>
+            <div className="w-full mt-10 mb-24 md:mr-12 md:ml-0 bg-primaryLight rounded-5xl py-20 md:py-44 shadow-custom">
+              <img
+                src="/images/claims-cat.svg"
+                alt="cat holding popcorn"
+                className="py-2 mx-auto px-10 transform scale-101"
+              />
+              <div className="flex mx-10 justify-items-stretch">
+                <button
+                  onClick={() => activate(connectors.Injected)}
+                  className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
+                  style={{ width: "368px", height: "60px" }}
+                >
+                  <p className="font-bold text-white">Connect Wallet</p>
+                </button>
               </div>
             </div>
           )}
@@ -264,9 +265,9 @@ export default function index(): JSX.Element {
                   />
                 </div>
               </div>
-              <div className="flex flex-col w-full md:w-2/3 px-6 md:mx-0 mt-10 mb-8">
+              <div className="flex flex-col w-full md:w-2/3 mt-10 mb-8">
                 <div className="mb-8">
-                  <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} labels={availableTabs} />
+                  <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
                 </div>
                 {isSelected(Tabs.Staking) && stakingVisible(chainId) && !!popLocker && (
                   <ClaimCard
@@ -326,7 +327,7 @@ export default function index(): JSX.Element {
                     visible={isSelected(Tabs.Staking)}
                   />
                 )}
-                {availableTabs[tabSelected] === Tabs.Vesting && (
+                {isSelected(Tabs.Vesting) && (
                   <div className="flex flex-col h-full">
                     {!userEscrowsFetchResult ||
                     !userEscrowsFetchResult?.data ||
@@ -337,7 +338,7 @@ export default function index(): JSX.Element {
                       <>
                         <div>
                           <div
-                            className={`flex flex-row justify-between px-6 md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
+                            className={`flex flex-row justify-between md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
                           >
                             <div className="flex flex-col md:flex-row">
                               <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>

@@ -83,7 +83,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
                 {!readonly && balance && (
                   <p
-                    className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 leading-none hover:text-indigo-500 text-sm"
+                    className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 pt-0.5 leading-none hover:text-indigo-500 text-sm"
                     onClick={() => {
                       onUpdate(formatUnits(balance, token.decimals));
                     }}

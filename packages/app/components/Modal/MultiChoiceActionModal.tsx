@@ -5,7 +5,7 @@ import SecondaryActionButton from "components/SecondaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import * as Icon from "react-feather";
 
-export interface SingleActionModalProps {
+export interface MultiChoiceActionModalProps {
   title: string;
   children?: React.ReactElement;
   content?: string;
@@ -14,17 +14,15 @@ export interface SingleActionModalProps {
   image?: React.ReactElement;
   onConfirm?: { label: string; onClick: Function };
   onDismiss?: { label: string; onClick: Function };
-  keepOpen?: boolean;
 }
-export const DefaultSingleActionModalProps: SingleActionModalProps = {
+export const DefaultMultiChoiceActionModalProps: MultiChoiceActionModalProps = {
   content: "",
   title: "",
   visible: false,
   type: "info",
-  keepOpen: false,
 };
 
-export const SingleActionModal: React.FC<SingleActionModalProps> = ({
+export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
   title,
   type,
   visible,
@@ -33,7 +31,6 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   image,
   onConfirm,
   onDismiss,
-  keepOpen,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
@@ -46,12 +43,12 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   }, [visible]);
 
   const dismiss = () => {
-    setOpen(keepOpen);
+    setOpen(false);
     setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
   };
 
   const confirm = () => {
-    setOpen(keepOpen);
+    setOpen(false);
     setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
   };
 
@@ -90,7 +87,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                   &#8203;
                 </span>
 
-                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-4 md:pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
                   <div>
                     {image ? (
                       <>{image}</>
@@ -131,16 +128,16 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                           ))}
                       </>
                     )}
-                    <div className="mt-3 text-center sm:mt-5">
-                      <h3 className="text-2xl leading-6 font-semibold text-gray-900" id="modal-title">
+                    <div className="mt-2 md:mt-6 text-center">
+                      <h3 className="text-2xl leading-8 font-medium text-gray-900 w-10/12 mx-auto" id="modal-title">
                         {title}
                       </h3>
-                      <div className="mt-2 py-6">
-                        {children ? children : <p className="text-base md:text-sm text-gray-500">{content}</p>}
+                      <div className="mt-2">
+                        {children ? children : <p className="text-base text-gray-600">{content}</p>}
                       </div>
                     </div>
                   </div>
-                  <div className="mt-8">
+                  <div className="mt-6 md:mt-8">
                     <div>
                       {onConfirm && (
                         <>
@@ -148,9 +145,13 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                         </>
                       )}
                       {onDismiss && (
-                        <>
+                        <div className="w-full">
+                          {/* or */}
+                          <div className="flex justify-center vertical-align h-6 my-3 md:my-7">
+                            <img src="/images/butter/primary-btn-divider.svg" />
+                          </div>
                           <SecondaryActionButton label={onDismiss.label} handleClick={dismiss} />
-                        </>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -163,4 +164,4 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
     </Transition.Root>
   );
 };
-export default SingleActionModal;
+export default MultiChoiceActionModal;

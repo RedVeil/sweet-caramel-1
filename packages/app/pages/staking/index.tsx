@@ -34,10 +34,10 @@ export default function index(): JSX.Element {
   };
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto mt-14 pb-6">
+      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-6 md:mx-auto mt-14 pb-6">
         <div className="text-center md:text-left md:w-1/3">
           <h1 className="page-title">Staking</h1>
           <p className="md:text-lg text-gray-500 mt-2">Earn more by staking your tokens</p>
@@ -48,20 +48,14 @@ export default function index(): JSX.Element {
               <img src="/images/farmerCat.svg" alt="farmerCat" className="mx-auto transform scale-101 py-2" />
             </div>
           </div>
-          <div className="md:w-2/3 mx-auto">
-            <div className="space-y-6 mx-4">
+          <div className="w-full md:w-2/3 mx-auto">
+            <div className="space-y-6 h-full">
               {!pageAvailable() && (
-                <div className="flex flex-col w-full 3 px-6 md:mx-0 mt-10 mb-8">
-                  <div className="mb-8">
-                    <NotAvailable
-                      title="No staking, yet"
-                      body="No staking pools on this network"
-                      additionalStyles={"p-24"}
-                    ></NotAvailable>
-                  </div>
+                <div className="flex flex-col w-full 3 md:mx-0 mt-10 mb-8 h-full">
+                  <NotAvailable title="No staking, yet" body="No staking pools on this network" />
                 </div>
               )}
-              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && (
+              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && !popLocker && !stakingPools && (
                 <ContentLoader viewBox="0 0 450 400">
                   {/*eslint-disable */}
                   <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />

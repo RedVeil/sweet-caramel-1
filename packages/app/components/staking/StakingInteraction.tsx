@@ -45,7 +45,7 @@ export default function StakingInteraction({
         />
       </div>
       {withdrawal && (
-        <div className="mx-auto pt-2 pb-6">
+        <div className="mx-auto pt-2">
           <MainActionButton
             label={`Withdraw ${stakingToken?.symbol}`}
             handleClick={withdraw}

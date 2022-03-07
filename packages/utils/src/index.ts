@@ -7,5 +7,6 @@ export { getPopLocker, getStakingPool } from "./getStakingPool";
 export { getEarnedLegacy, getSingleStakingPoolInfoLegacy } from "./getStakingStatsLegacy";
 export type { StakingPoolInfo } from "./getStakingStatsLegacy";
 export { default as getToken, getMultipleToken, getTokenFromAddress } from "./getToken";
+export { default as getTokenOnNetwork } from "./getTokenOnNetwork";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
 export { default as useFetch } from "./useFetch";

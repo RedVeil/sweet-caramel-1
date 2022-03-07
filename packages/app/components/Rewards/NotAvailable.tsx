@@ -11,11 +11,11 @@ export const NotAvailable: React.FC<{ title: string; body: string; visible?: boo
   }
   return (
     <div
-      className={`w-full h-full flex flex-col justify-center items-center bg-gray-50 border-1 rounded-5xl md:h-full min-h-128 md:min-h-auto h-11/12 max-h-screen md:max-h-autoborder-1 border-gray-200 rounded-5xl ${additionalStyles}`}
+      className={`flex flex-col w-full h-116 md:h-128 max-h-screen justify-center items-center bg-gray-50 border-gray-200 border rounded-3xl px-8 shadow-custom ${additionalStyles}`}
     >
-      <img src="/images/emptyPopcorn.svg" className="h-auto md:h-1/2 w-1/2" />
-      <p className="mt-12 font-semibold text-2xl text-gray-900">{title}</p>
-      <p className="mt-1 text-gray-900">{body}</p>
+      <img src="/images/emptyPopcorn.svg" className="w-52 md:w-auto md:h-1/2 " />
+      <p className="text-center mt-12 font-semibold text-3xl text-gray-900">{title}</p>
+      <p className="text-center mt-1 text-gray-900">{body}</p>
     </div>
   );
 };

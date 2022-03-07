@@ -120,6 +120,15 @@ input[type="number"] {
   }
 }
 
+@layer utilities {
+  .word-spacing-full {
+    word-spacing: 100vw;
+  }
+  .word-spacing-normal {
+    word-spacing: normal;
+  }
+}
+
 .button-custom {
   /* border-radius: 0.25rem; */
   padding: 15px;
@@ -148,8 +157,8 @@ input[type="number"] {
 
 .__react_component_tooltip {
   pointer-events: auto !important;
-  border-radius: .5rem;
-  background-color: '#c4c4c4';
+  border-radius: 0.5rem;
+  background-color: "#c4c4c4";
   font-weight: 400;
   line-height: 20px;
 }
