@@ -162,22 +162,22 @@ export default function StakeInterface({
                   chainId,
                   getChainRelevantContracts(chainId),
                 ) && (
-                    <Link
-                      href={getTokenOnNetwork(
-                        stakingPool.tokenAddress?.toLowerCase(),
-                        chainId,
-                        getChainRelevantContracts(chainId),
-                      )}
-                      passHref
+                  <Link
+                    href={getTokenOnNetwork(
+                      stakingPool.tokenAddress?.toLowerCase(),
+                      chainId,
+                      getChainRelevantContracts(chainId),
+                    )}
+                    passHref
+                  >
+                    <a
+                      target="_blank"
+                      className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
                     >
-                      <a
-                        target="_blank"
-                        className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
-                      >
-                        Get Token
-                      </a>
-                    </Link>
-                  )}
+                      Get Token
+                    </a>
+                  </Link>
+                )}
               </div>
             </div>
             <div className="bg-blue-50 rounded-b-3xl py-6 px-8">
@@ -200,9 +200,15 @@ export default function StakeInterface({
               <p className="text-xl font-medium">Happy Staking</p>
               <p className="text-base font-light mt-1">Enjoy more sweet POP in your wallet!</p>
             </div>
-            <img src="/images/catPopVault.svg" className={"hidden md:block absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"} />
+            <img
+              src="/images/catPopVault.svg"
+              className={"hidden md:block absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"}
+            />
             <div className="flex md:hidden w-full content-center">
-              <img src="/images/catPopVaultMobile.png" className={"block md:hidden absolute max-h-80 w-3/4 bottom-0 right-10 xs:right-16"} />
+              <img
+                src="/images/catPopVaultMobile.png"
+                className={"block md:hidden absolute max-h-80 w-3/4 bottom-0 right-10 xs:right-16"}
+              />
             </div>
           </div>
         </div>
