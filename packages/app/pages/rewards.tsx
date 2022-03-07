@@ -265,7 +265,7 @@ export default function index(): JSX.Element {
                   />
                 </div>
               </div>
-              <div className="flex flex-col w-full md:w-2/3 px-6 md:mx-0 mt-10 mb-8">
+              <div className="flex flex-col w-full md:w-2/3 mt-10 mb-8">
                 <div className="mb-8">
                   <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
                 </div>
@@ -338,7 +338,7 @@ export default function index(): JSX.Element {
                       <>
                         <div>
                           <div
-                            className={`flex flex-row justify-between px-6 md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
+                            className={`flex flex-row justify-between md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
                           >
                             <div className="flex flex-col md:flex-row">
                               <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>

@@ -1,7 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Debug } from "components/Debug";
-import MobileExcuseAlert from "components/MobileExcuseAlert";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
@@ -11,7 +10,6 @@ import NetworkHandler from "components/NetworkHandler";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
 import SwapChainModal from "components/SwapChainModal";
-import { ChainId } from "context/Web3/connectors";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
@@ -73,16 +71,7 @@ export default function MyApp(props) {
             <MultiChoiceActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />
-            {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(parseInt(process.env.CHAIN_ID)) ? (
-              <Component {...pageProps} />
-            ) : (
-              <>
-                <div className="hidden lg:block">
-                  <Component {...pageProps} />
-                </div>
-                <MobileExcuseAlert />
-              </>
-            )}
+            <Component {...pageProps} />
             <SwapChainModal />
             <NotificationsContainer />
             <Debug />

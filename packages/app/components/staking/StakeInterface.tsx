@@ -63,7 +63,7 @@ export default function StakeInterface({
             <h1 className="ml-3 page-title uppercase">{stakingToken?.name}</h1>
           </span>
           <div className="flex flex-row flex-wrap items-center mt-4 justify-center md:justify-start">
-            <div className="pr-6 xs:pl-6 ss:pl-0 border-r-2 border-gray-200 mt-2">
+            <div className="pr-6 border-r-2 border-gray-200 mt-2">
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={stakingPool?.apy === "∞" ? "New 🍿✨" : stakingPool?.apy.toLocaleString() + "%"}
@@ -78,7 +78,7 @@ export default function StakeInterface({
                 />
               </div>
             </div>
-            <div className="pl-6 xs:px-6 ss:border-r-2 border-gray-200 mt-2">
+            <div className="pl-6 xs:px-6 md:border-r-2 border-gray-200 mt-2">
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={stakingPool ? formatStakedAmount(stakingPool?.totalStake) : "0"}
@@ -92,8 +92,8 @@ export default function StakeInterface({
                 />
               </div>
             </div>
-            <div className="pl-6 mt-2 text-center md:text-left">
-              <div className="hidden md:block">
+            <div className="mt-2 md:pl-6 text-center md:text-left">
+              <div className="hidden md:block ">
                 <StatusWithLabel
                   content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
                   label="Emission Rate"
