@@ -2,6 +2,7 @@ import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContrac
 import { formatAndRoundBigNumber, getTokenOnNetwork } from "@popcorn/utils";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import TextLink from "components/Common/TextLink";
+import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber } from "ethers";
@@ -149,7 +150,15 @@ export default function StakeInterface({
             <div className="flex flex-col items-center justify-between">
               <div className="flex flex-row justify-between items-end md:items-center py-6 px-8 w-full">
                 <div>
-                  <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
+                  <div className="inline flex flex-row">
+                    <h2 className="text-gray-500 uppercase text-base">Your Staked Balance</h2>
+                    <InfoIconWithTooltip
+                      classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                      id="1"
+                      title="Staked Balance"
+                      content={`This shows your staked balance of ${stakingToken?.symbol} which currently farm POP rewards.`}
+                    />
+                  </div>
                   <div className="flex flex-row items-center mt-1">
                     <p className="text-2xl font-medium  mr-2">
                       {stakingPool.userStake ? formatStakedAmount(stakingPool.userStake) : "0"}
@@ -183,7 +192,15 @@ export default function StakeInterface({
             <div className="bg-blue-50 rounded-b-3xl py-6 px-8">
               <div className="flex flex-row justify-between items-end md:items-center ">
                 <div>
-                  <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
+                  <div className="inline flex flex-row">
+                    <h2 className="text-gray-500 text-base uppercase">Your Staking Rewards</h2>
+                    <InfoIconWithTooltip
+                      classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                      id="2"
+                      title="Your Staking Rewards"
+                      content={`Here you can see how much POP you already earned from your staked ${stakingToken?.symbol}`}
+                    />
+                  </div>
                   <div className="flex flex-row items-center mt-1">
                     <p className="text-2xl font-medium  mr-2">
                       {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned) : "0"}

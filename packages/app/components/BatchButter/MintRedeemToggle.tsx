@@ -25,6 +25,7 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
           Mint
           <div className="hidden md:inline">
             <InfoIconWithTooltip
+              classExtras="h-7 w-7 mt-0 ml-5"
               id="1"
               title="Mint"
               content="Butter is a token that represents a yield accrual strategy. The minting process involves converting deposited stablecoins into other stable assets that are compatible with the yield accrual strategy. As the value of the underlying assets increase, so does the redeemable value of Butter."
@@ -48,6 +49,7 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
           Redeem
           <div className="hidden md:inline">
             <InfoIconWithTooltip
+              classExtras="h-7 w-7 mt-0 ml-5"
               id="2"
               title="Redeem"
               content="The Butter redemption process involves unwrapping Butter's underlying assets into stablecoins."
