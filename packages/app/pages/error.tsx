@@ -1,9 +1,9 @@
 const ErrorPage = () => {
   return (
     <div className="w-full h-screen bg-primaryLight overflow-hidden">
-      <div className="w-full text-center z-20 mt-32">
+      <div className="w-full text-center z-20 mt-24">
         <h1 className="text-4xl 2xl:text-7xl font-medium md:w-1/2 2xl:w-5/12 text-center mx-auto">
-          Please <span className="font-semibold">sign terms and conditions</span> to use this dApp.
+          Please <span className="font-semibold">sign terms and conditions</span> to use this Dapp.
         </h1>
         <div className="z-20 mx-auto w-10/12 md:w-1/2 justify-center flex">
           <div className="flex flex-row">
@@ -38,7 +38,9 @@ const ErrorPage = () => {
           </div>
         </div>
       </div>
-      <img src="/images/errorBackground.svg" alt="bgError" className="absolute bottom-0 -z-10 w-full" />
+      <div className="flex justify-center">
+        <img src="/images/errorBackground.svg" alt="bgError" className="absolute bottom-0 -z-100 max-w-full h-4/6" />
+      </div>
     </div>
   );
 };
