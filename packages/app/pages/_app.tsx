@@ -1,6 +1,8 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
+import Page from "components/Common/Page";
 import { Debug } from "components/Debug";
+import FeatureTogglePanel from "components/DevOnly/FeatureTogglePanel";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
@@ -10,6 +12,7 @@ import NetworkHandler from "components/NetworkHandler";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
 import SwapChainModal from "components/SwapChainModal";
+import { FeatureToggleProvider } from "context/FeatureToggleContext";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
@@ -63,19 +66,24 @@ export default function MyApp(props) {
       <StateProvider>
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
         <Web3ReactProvider getLibrary={getLibrary}>
-          <ContractsWrapper>
-            <SoftLaunchCheck loading={loading} />
-            <NetworkHandler />
-            <MobileFullScreenModalContainer />
-            <SingleActionModalContainer />
-            <MultiChoiceActionModalContainer />
-            <DualActionModalContainer />
-            <DualActionWideModalContainer />
-            <Component {...pageProps} />
-            <SwapChainModal />
-            <NotificationsContainer />
-            <Debug />
-          </ContractsWrapper>
+          <FeatureToggleProvider>
+            <ContractsWrapper>
+              <SoftLaunchCheck loading={loading} />
+              <NetworkHandler />
+              <MobileFullScreenModalContainer />
+              <SingleActionModalContainer />
+              <MultiChoiceActionModalContainer />
+              <DualActionModalContainer />
+              <DualActionWideModalContainer />
+              <Page>
+                <Component {...pageProps} />
+              </Page>
+              <FeatureTogglePanel />
+              <SwapChainModal />
+              <NotificationsContainer />
+              <Debug />
+            </ContractsWrapper>
+          </FeatureToggleProvider>
         </Web3ReactProvider>
       </StateProvider>
     </React.Fragment>

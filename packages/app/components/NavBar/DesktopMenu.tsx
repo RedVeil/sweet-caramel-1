@@ -1,6 +1,7 @@
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { setDualActionWideModal } from "context/actions";
+import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
 import { connectors } from "context/Web3/connectors";
 import useNetworkSwitch from "hooks/useNetworkSwitch";
@@ -18,6 +19,7 @@ export default function DesktopMenu({ currentChain, disconnectInjected }: MenuPr
   const router = useRouter();
   const switchNetwork = useNetworkSwitch();
   const { dispatch } = useContext(store);
+  const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
 
   function showDelayInfo() {
     dispatch(
@@ -58,7 +60,7 @@ export default function DesktopMenu({ currentChain, disconnectInjected }: MenuPr
         </div>
         <ul className="flex flex-row space-x-10 ml-16">
           <li>
-            <NavbarLink label="Butter" isActive={false} onClick={showDelayInfo} />
+            <NavbarLink label="Butter" isActive={butterEnabled} onClick={showDelayInfo} />
           </li>
           <li>
             <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />

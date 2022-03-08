@@ -15,19 +15,23 @@
   [context.deploy-preview.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "4"
+    IS_DEV = "TRUE"
 
 [context.production]
 
   [context.production.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "1"
+    IS_DEV = "FALSE"
 
 [context.rinkeby]
   [context.rinkeby.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "4"
+    IS_DEV = "TRUE"
 
 [context.develop]
   [context.develop.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "4"
+    IS_DEV = "TRUE"

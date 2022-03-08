@@ -36,7 +36,7 @@ import {
   YearnVault,
   YearnVault__factory,
 } from "../../../hardhat/typechain";
-import { networkMap } from "./connectors";
+import { ChainId, networkMap } from "./connectors";
 
 export interface Contracts {
   staking?: Staking[];
@@ -141,7 +141,7 @@ const initializeButterDependencyContracts = (
   chainId: number,
   library,
 ): ButterDependencyContracts => {
-  if ([1, 31337, 1337].includes(chainId)) {
+  if ([ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost].includes(chainId)) {
     return {
       yFrax: YearnVault__factory.connect(contractAddresses.yFrax, library),
       yMim: YearnVault__factory.connect(contractAddresses.yMim, library),

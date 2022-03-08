@@ -16,6 +16,7 @@ import {
   setMultiChoiceActionModal,
   setSingleActionModal,
 } from "context/actions";
+import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
 import { ChainId, connectors } from "context/Web3/connectors";
 import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
@@ -188,6 +189,8 @@ export default function Butter(): JSX.Element {
   const virtualPrice = useThreeCurveVirtualPrice(butterDependencyContracts?.threePool?.address);
   const switchNetwork = useNetworkSwitch();
 
+  const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
+
   useEffect(() => {
     if (contracts?.butterBatch && !butterBatchAdapter) {
       setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
@@ -198,7 +201,7 @@ export default function Butter(): JSX.Element {
     if (!library || !contracts) {
       return;
     }
-    if (![ChainId.Hardhat, ChainId.Localhost, ChainId.Ethereum].includes(chainId)) {
+    if (!butterEnabled) {
       dispatch(
         setDualActionWideModal({
           title: "Coming Soon",
@@ -534,7 +537,7 @@ export default function Butter(): JSX.Element {
                   Your tokens should now be visible in your wallet. If you can’t see your BTR, import it here:
                   <a
                     onClick={async () =>
-                      await window.ethereum.request({
+                      window.ethereum.request({
                         method: "wallet_watchAsset",
                         params: {
                           type: "ERC20",
