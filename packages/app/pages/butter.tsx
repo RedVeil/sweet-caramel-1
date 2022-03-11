@@ -438,7 +438,7 @@ export default function Butter(): JSX.Element {
                   title: "Your first mint",
                   content:
                     "You have successfully deposited into the current batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-                  image: <img src="images/butter/modal-1.png" className="px-6" />,
+                  image: <img src="/images/butter/modal-1.png" className="px-6" />,
                   onConfirm: {
                     label: "Close",
                     onClick: () => dispatch(setSingleActionModal(false)),
@@ -473,7 +473,7 @@ export default function Butter(): JSX.Element {
                   title: "Batch process...",
                   content:
                     "You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.",
-                  image: <img src="images/butter/batch-popover.png" className="px-6" />,
+                  image: <img src="/images/butter/batch-popover.png" className="px-6" />,
                   onConfirm: {
                     label: "Close",
                     onClick: () => dispatch(setMultiChoiceActionModal(false)),
@@ -555,7 +555,7 @@ export default function Butter(): JSX.Element {
                   </a>
                 </p>
               ),
-              image: <img src="images/butter/modal-2.png" className="px-6" />,
+              image: <img src="/images/butter/modal-2.png" className="px-6" />,
               onConfirm: {
                 label: "Close",
                 onClick: () => dispatch(setMultiChoiceActionModal(false)),
@@ -757,7 +757,7 @@ export default function Butter(): JSX.Element {
                       </div>
                       <div className="flex flex-row">
                         <div className="mr-2">
-                          <img title="play-icon" src="images/icons/IconPlay.svg" />
+                          <img title="play-icon" src="/images/icons/IconPlay.svg" />
                         </div>
                       </div>
                       <div></div>
@@ -812,7 +812,7 @@ export default function Butter(): JSX.Element {
                       </div>
                       <div className="flex flex-row">
                         <div className="mr-2">
-                          <img title="play-icon" src="images/icons/IconPlay.svg" />
+                          <img title="play-icon" src="/images/icons/IconPlay.svg" />
                         </div>
                       </div>
                       <div></div>

@@ -32,18 +32,18 @@ export default function StakingPage(): JSX.Element {
   const approveToken = useApproveERC20();
 
   function stake(): void {
-    toast.loading(`Staking ${stakingToken?.name} ...`);
+    toast.loading(`Staking ${stakingToken?.symbol} ...`);
     stakingPool.contract
       .connect(signer)
       .stake(form.amount)
       .then((res) =>
-        onContractSuccess(res, `${stakingToken?.name} staked!`, () => {
+        onContractSuccess(res, `${stakingToken?.symbol} staked!`, () => {
           setForm(defaultForm);
           balances.revalidate();
           if (!localStorage.getItem("hideStakeSuccessPopover")) {
             dispatch(
               setMultiChoiceActionModal({
-                title: "You have successfully staked your Token",
+                title: `You have successfully staked ${stakingToken?.symbol}`,
                 children: SuccessfulStakingModal,
                 image: <img src="/images/stake/stake-success-modal.png" className="px-6" />,
                 onConfirm: {
@@ -66,12 +66,12 @@ export default function StakingPage(): JSX.Element {
   }
 
   function withdraw(): void {
-    toast.loading(`Withdrawing ${stakingToken?.name} ...`);
+    toast.loading(`Withdrawing ${stakingToken?.symbol} ...`);
     stakingPool.contract
       .connect(signer)
       .withdraw(form.amount)
       .then((res) =>
-        onContractSuccess(res, `${stakingToken?.name} withdrawn!`, () => {
+        onContractSuccess(res, `${stakingToken?.symbol} withdrawn!`, () => {
           setForm({ ...defaultForm, type: InteractionType.Withdraw });
           balances.revalidate();
         }),
@@ -80,7 +80,7 @@ export default function StakingPage(): JSX.Element {
   }
 
   function approve(): void {
-    toast.loading(`Approving ${stakingToken?.name} ...`);
+    toast.loading(`Approving ${stakingToken?.symbol} ...`);
     approveToken(stakingToken.contract.connect(signer), stakingPool.address, `${stakingToken?.name} approved!`, () =>
       balances.revalidate(),
     );

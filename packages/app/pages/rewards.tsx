@@ -1,10 +1,10 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { CardLoader } from "components/CardLoader";
+import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import Navbar from "components/NavBar/NavBar";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
 import { NotAvailable } from "components/Rewards/NotAvailable";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import VestingRecordComponent from "components/Rewards/VestingRecord";
 import TabSelector from "components/TabSelector";
 import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
@@ -96,7 +96,7 @@ export default function index(): JSX.Element {
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
               setMultiChoiceActionModal({
-                image: <img src="images/claim/popover.png" className="px-6" />,
+                image: <img src="/images/claim/popover.png" className="px-6" />,
                 title: "Everytime you claim rewards, a vesting record is created.",
                 children: (
                   <p className="text-sm text-gray-500">

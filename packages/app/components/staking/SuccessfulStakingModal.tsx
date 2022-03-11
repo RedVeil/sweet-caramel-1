@@ -18,15 +18,15 @@ const TickMarkSVG: React.ReactElement = (
 
 const SuccessfulStakingModal: React.ReactElement = (
   <div>
-    <p className="text-base text-gray-600">Here's what you get with staking</p>
+    <p className="text-base text-gray-600">Here's what happens when you stake</p>
     <ul className="w-max m-auto mt-5">
       <li className="flex flex-container flex-row w-full m-auto mb-1.5">
         <div className="mr-5">{TickMarkSVG}</div>
-        <p className="leading-8 text-base text-gray-600">Earn some sweet POP</p>
+        <p className="leading-8 text-base text-gray-600">Earn sweet POP!</p>
       </li>
       <li className="flex flex-container flex-row w-fit w-full m-auto mb-1.5">
         <div className="mr-5">{TickMarkSVG}</div>
-        <p className="leading-8 text-base text-gray-600">Contribute to social impact</p>
+        <p className="leading-8 text-base text-gray-600">Support social impact!</p>
       </li>
     </ul>
   </div>

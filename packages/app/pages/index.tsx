@@ -52,7 +52,7 @@ const IndexPage = () => {
           <Hero
             header="Butter"
             content="Optimize your yield while creating positive global impact."
-            image="images/rocket.svg"
+            image="/images/rocket.svg"
             link="/butter"
           />
         ) : (
@@ -60,9 +60,9 @@ const IndexPage = () => {
             className="md:w-1/2 smlaptop:w-130 bg-light flex flex-col items-start self-stretch py-12 px-8 mb-4 mt-10 mx-4 smlaptop:py-20 filter shadow-custom transition duration-500 ease-in-out transform hover:scale-102 cursor-pointer rounded-4xl relative overflow-hidden"
             onClick={showDelayInfo}
           >
-            <img src="images/comingSoon.svg" className="absolute top-0 right-0 w-5/12" />
+            <img src="/images/comingSoon.svg" className="absolute top-0 right-0 w-5/12" />
             <img
-              src="images/rocket.svg"
+              src="/images/rocket.svg"
               className="mx-auto flex-grow-0 w-72 md:w-80 h-52 md:h-56 lglaptop:h-72 lglaptop:w-108"
             />
             <p className="mx-auto text-gray-900 mb-3 mt-8 lg:mt-12 lglaptop:mb-4 lglaptop:mt-20 font-semibold text-2xl md:text-4xl lglaptop:text-5xl">
@@ -79,7 +79,7 @@ const IndexPage = () => {
         <Hero
           header="Staking"
           content="Stake your tokens to participate and earn."
-          image="images/farmer.svg"
+          image="/images/farmer.svg"
           link="/staking"
         />
       </div>
