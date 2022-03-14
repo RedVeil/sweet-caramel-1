@@ -446,33 +446,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     _generateNextBatch(currentMintBatchId, BatchType.Mint);
   }
 
-  function _getPoolAllocationAndRatio(
-    address _component,
-    uint256 _quantity,
-    Batch memory _batch,
-    uint256 _setValue,
-    uint256 _threePoolPrice
-  ) internal view returns (uint256 poolAllocation, uint256 ratio) {
-    //Calculate the virtualPrice of one yToken
-    uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() *
-      curvePoolTokenPairs[_component].curveMetaPool.get_virtual_price()) / 1e18;
-
-    //Calculate the value of quantity (of yToken) in virtualPrice
-    uint256 componentValuePerSet = (_quantity * componentValuePerShare) / 1e18;
-
-    //Calculate the value of leftover yToken in virtualPrice
-    uint256 componentValueHeldByContract = (YearnVault(_component).balanceOf(address(this)) * componentValuePerShare) /
-      1e18;
-
-    ratio = (componentValuePerSet * 1e18) / _setValue;
-
-    poolAllocation =
-      _getPoolAllocation((_batch.suppliedTokenBalance * _threePoolPrice) / 1e18, ratio) -
-      componentValueHeldByContract;
-
-    return (poolAllocation, ratio);
-  }
-
   /**
    * @notice Redeems Butter for 3CRV. This function goes through all the steps necessary to get 3CRV
    * @dev This function reedeems Butter for the underlying yToken and deposits these yToken in curve Metapools for 3CRV
@@ -615,6 +588,33 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
   function _maxApprove(IERC20 _token, address _spender) internal {
     _token.safeApprove(_spender, 0);
     _token.safeApprove(_spender, type(uint256).max);
+  }
+
+  function _getPoolAllocationAndRatio(
+    address _component,
+    uint256 _quantity,
+    Batch memory _batch,
+    uint256 _setValue,
+    uint256 _threePoolPrice
+  ) internal view returns (uint256 poolAllocation, uint256 ratio) {
+    //Calculate the virtualPrice of one yToken
+    uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() *
+      curvePoolTokenPairs[_component].curveMetaPool.get_virtual_price()) / 1e18;
+
+    //Calculate the value of quantity (of yToken) in virtualPrice
+    uint256 componentValuePerSet = (_quantity * componentValuePerShare) / 1e18;
+
+    //Calculate the value of leftover yToken in virtualPrice
+    uint256 componentValueHeldByContract = (YearnVault(_component).balanceOf(address(this)) * componentValuePerShare) /
+      1e18;
+
+    ratio = (componentValuePerSet * 1e18) / _setValue;
+
+    poolAllocation =
+      _getPoolAllocation((_batch.suppliedTokenBalance * _threePoolPrice) / 1e18, ratio) -
+      componentValueHeldByContract;
+
+    return (poolAllocation, ratio);
   }
 
   /**

@@ -15,6 +15,7 @@ import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
+import "../../interfaces/IStaking.sol";
 
 /*
  * @notice This contract allows users to mint and redeem Butter for using 3CRV, DAI, USDC, USDT
@@ -38,34 +39,46 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
 
   bytes32 public immutable contractName = "ButterWhaleProcessing";
 
+  IContractRegistry public contractRegistry;
+  IStaking public staking;
   ISetToken public setToken;
   IERC20 public threeCrv;
-  Curve3Pool private curve3Pool;
+  Curve3Pool private threePool;
   BasicIssuanceModule public setBasicIssuanceModule;
   mapping(address => CurvePoolTokenPair) public curvePoolTokenPairs;
+  uint256 public redemptionFees;
+  uint256 public redemptionFeeRate;
+  address public feeRecipient;
+
+  mapping(address => bool) public sweethearts;
 
   /* ========== EVENTS ========== */
-  event Minted(address account, uint256 amount);
-  event Redeemed(address account, uint256 amount);
-  event ZapMinted(address account, uint256 mintAmount);
-  event ZapRedeemed(address account, uint256 redeemAmount);
-
+  event Minted(address account, uint256 amount, uint256 butterAmount);
+  event Redeemed(address account, uint256 amount, uint256 claimableTokenBalance);
+  event ZapMinted(address account, uint256 mintAmount, uint256 butterAmount);
+  event ZapRedeemed(address account, uint256 redeemAmount, uint256 claimableTokenBalance);
   event CurveTokenPairsUpdated(address[] yTokenAddresses, CurvePoolTokenPair[] curveTokenPairs);
+  event RedemptionFeeUpdated(uint256 newRedemptionFee, address newFeeRecipient);
+  event SweetheartUpdated(address sweetheart, bool isSweeheart);
+  event StakingUpdated(address beforeAddress, address afterAddress);
 
   /* ========== CONSTRUCTOR ========== */
 
   constructor(
     IContractRegistry _contractRegistry,
+    IStaking _staking,
     ISetToken _setToken,
     IERC20 _threeCrv,
-    Curve3Pool _curve3Pool,
+    Curve3Pool _threePool,
     BasicIssuanceModule _basicIssuanceModule,
     address[] memory _yTokenAddresses,
     CurvePoolTokenPair[] memory _curvePoolTokenPairs
   ) ContractRegistryAccess(_contractRegistry) {
+    contractRegistry = _contractRegistry;
+    staking = _staking;
     setToken = _setToken;
     threeCrv = _threeCrv;
-    curve3Pool = _curve3Pool;
+    threePool = _threePool;
     setBasicIssuanceModule = _basicIssuanceModule;
 
     _setCurvePoolTokenPairs(_yTokenAddresses, _curvePoolTokenPairs);
@@ -76,48 +89,55 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
   /**
    * @notice Mint Butter token with deposited 3CRV. This function goes through all the steps necessary to mint an optimal amount of Butter
    * @param _amount Amount of 3cr3CRV to use for minting
-   * @param _minAmountToMint The expected min amount of hysi to mint. If hysiAmount is lower than minAmountToMint_ the transaction will revert.
+   * @param _slippage The accepted slippage in basis points.
+   * @param _stake Do you want to stake your minted Butter?
    * @dev This function deposits 3CRV in the underlying Metapool and deposits these LP token to get yToken which in turn are used to mint Butter
    */
-  function mint(uint256 _amount, uint256 _minAmountToMint) external whenNotPaused {
+  function mint(
+    uint256 _amount,
+    uint256 _slippage,
+    bool _stake
+  ) external whenNotPaused {
     require(threeCrv.balanceOf(msg.sender) >= _amount, "insufficent balance");
     threeCrv.transferFrom(msg.sender, address(this), _amount);
-    _mint(_amount, _minAmountToMint);
-    emit Minted(msg.sender, _amount);
+    uint256 butterAmount = _mint(_amount, _slippage, _stake);
+    emit Minted(msg.sender, _amount, butterAmount);
   }
 
   /**
    * @notice Redeems Butter for 3CRV. This function goes through all the steps necessary to get 3CRV
    * @param _amount amount of Butter to be redeemed
-   * @param _min3crvToReceive sets minimum amount of 3crv to redeem Butter for, otherwise the transaction will revert
+   * @param _slippage The accepted slippage in basis points.
    * @dev This function reedeems Butter for the underlying yToken and deposits these yToken in curve Metapools for 3CRV
    */
-  function redeem(uint256 _amount, uint256 _min3crvToReceive) external whenNotPaused {
-    uint256 claimableTokenBalance = _redeem(_amount, _min3crvToReceive);
+  function redeem(uint256 _amount, uint256 _slippage) external whenNotPaused {
+    uint256 claimableTokenBalance = _redeem(_amount, _slippage);
     threeCrv.safeTransfer(msg.sender, claimableTokenBalance);
-    emit Redeemed(msg.sender, _amount);
+    emit Redeemed(msg.sender, _amount, claimableTokenBalance);
   }
 
   /**
    * @notice zapMint allows a user to mint Butter directly with stablecoins
    * @param _amounts An array of amounts in stablecoins the user wants to deposit
    * @param _min_3crv_amount The min amount of 3CRV which should be minted by the curve three-pool (slippage control)
-   * @param _minAmountToMint The expected min amount of hysi to mint. If hysiAmount is lower than minAmountToMint_ the transaction will revert.
+   * @param _slippage The accepted slippage in basis points.
+   * @param _stake Do you want to stake your minted butter?
    * @dev The amounts in _amounts must align with their index in the curve three-pool
    */
   function zapMint(
     uint256[3] memory _amounts,
     uint256 _min_3crv_amount,
-    uint256 _minAmountToMint
+    uint256 _slippage,
+    bool _stake
   ) external whenNotPaused {
     for (uint256 i; i < _amounts.length; i++) {
       if (_amounts[i] > 0) {
         //Deposit Stables
-        IERC20(curve3Pool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);
+        IERC20(threePool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);
       }
     }
     //Deposit stables to receive 3CRV
-    curve3Pool.add_liquidity(_amounts, _min_3crv_amount);
+    threePool.add_liquidity(_amounts, _min_3crv_amount);
 
     //Check the amount of returned 3CRV
     /*
@@ -125,8 +145,8 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
     If a user sends 3CRV to this contract by accident (Which cant be retrieved anyway) they will be used aswell.
     */
     uint256 threeCrvAmount = threeCrv.balanceOf(address(this));
-    _mint(threeCrvAmount, _minAmountToMint);
-    emit ZapMinted(msg.sender, threeCrvAmount);
+    uint256 butterAmount = _mint(threeCrvAmount, _slippage, _stake);
+    emit ZapMinted(msg.sender, threeCrvAmount, butterAmount);
   }
 
   /**
@@ -134,18 +154,18 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
    * @param _amount amount of Butter to be redeemed
    * @param _stableCoinIndex Defines which stablecoin the user wants to receive
    * @param _min_stable_amount The min amount of stables which should be returned by the curve three-pool (slippage control)
-   * @param _min3crvToReceive sets minimum amount of 3crv to redeem Butter for, otherwise the transaction will revert
+   * @param _slippage The accepted slippage in basis points.
    * @dev The _stableCoinIndex must align with the index in the curve three-pool
    */
   function zapRedeem(
     uint256 _amount,
     uint256 _stableCoinIndex,
     uint256 _min_stable_amount,
-    uint256 _min3crvToReceive
+    uint256 _slippage
   ) external whenNotPaused {
-    uint256 claimableTokenBalance = _redeem(_amount, _min3crvToReceive);
+    uint256 claimableTokenBalance = _redeem(_amount, _slippage);
     _swapAndTransfer3Crv(claimableTokenBalance, _stableCoinIndex, _min_stable_amount);
-    emit ZapRedeemed(msg.sender, _amount);
+    emit ZapRedeemed(msg.sender, _amount, claimableTokenBalance);
   }
 
   /**
@@ -159,72 +179,102 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
       CurveMetapool curveMetapool = curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool;
       YearnVault yearnVault = YearnVault(tokenAddresses[i]);
 
-      threeCrv.safeApprove(address(curveMetapool), 0);
-      threeCrv.safeApprove(address(curveMetapool), type(uint256).max);
-
-      curveLpToken.safeApprove(address(yearnVault), 0);
-      curveLpToken.safeApprove(address(yearnVault), type(uint256).max);
-
-      curveLpToken.safeApprove(address(curveMetapool), 0);
-      curveLpToken.safeApprove(address(curveMetapool), type(uint256).max);
-
-      IERC20(curve3Pool.coins(0)).safeApprove(address(curve3Pool), 0);
-      IERC20(curve3Pool.coins(0)).safeApprove(address(curve3Pool), type(uint256).max);
-
-      IERC20(curve3Pool.coins(1)).safeApprove(address(curve3Pool), 0);
-      IERC20(curve3Pool.coins(1)).safeApprove(address(curve3Pool), type(uint256).max);
-
-      IERC20(curve3Pool.coins(2)).safeApprove(address(curve3Pool), 0);
-      IERC20(curve3Pool.coins(2)).safeApprove(address(curve3Pool), type(uint256).max);
-
-      threeCrv.safeApprove(address(curve3Pool), 0);
-      threeCrv.safeApprove(address(curve3Pool), type(uint256).max);
+      _maxApprove(threeCrv, address(curveMetapool));
+      _maxApprove(curveLpToken, address(yearnVault));
+      _maxApprove(curveLpToken, address(curveMetapool));
     }
+    for (uint128 i; i < 3; i++) {
+      _maxApprove(IERC20(threePool.coins(i)), address(threePool));
+    }
+    _maxApprove(threeCrv, address(threePool));
+    _maxApprove(setToken, address(staking));
+  }
+
+  function getMinAmountToMint(
+    uint256 _valueOfBatch,
+    uint256 _valueOfComponentsPerUnit,
+    uint256 _slippage
+  ) public pure returns (uint256) {
+    uint256 _mintAmount = (_valueOfBatch * 1e18) / _valueOfComponentsPerUnit;
+    uint256 _delta = (_mintAmount * _slippage) / 10_000;
+    return _mintAmount - _delta;
+  }
+
+  function getMinAmount3CrvFromRedeem(uint256 _valueOfComponents, uint256 _slippage) public view returns (uint256) {
+    uint256 _threeCrvToReceive = (_valueOfComponents * 1e18) / threePool.get_virtual_price();
+    uint256 _delta = (_threeCrvToReceive * _slippage) / 10_000;
+    return _threeCrvToReceive - _delta;
+  }
+
+  function valueOfComponents(address[] memory _tokenAddresses, uint256[] memory _quantities)
+    public
+    view
+    returns (uint256)
+  {
+    uint256 value;
+    for (uint256 i = 0; i < _tokenAddresses.length; i++) {
+      value +=
+        (((YearnVault(_tokenAddresses[i]).pricePerShare() *
+          curvePoolTokenPairs[_tokenAddresses[i]].curveMetaPool.get_virtual_price()) / 1e18) * _quantities[i]) /
+        1e18;
+    }
+    return value;
+  }
+
+  function valueOf3Crv(uint256 _units) public view returns (uint256) {
+    return (_units * threePool.get_virtual_price()) / 1e18;
   }
 
   /* ========== RESTRICTED FUNCTIONS ========== */
 
-  function _mint(uint256 _amount, uint256 _minAmountToMint) internal {
-    //Get the quantity of yToken for one Butter
+  function _mint(
+    uint256 _amount,
+    uint256 _slippage,
+    bool _stake
+  ) internal returns (uint256) {
+    //Get the quantities of yToken needed to mint 1 BTR (This should be an equal amount per Token)
     (address[] memory tokenAddresses, uint256[] memory quantities) = setBasicIssuanceModule
       .getRequiredComponentUnitsForIssue(setToken, 1e18);
 
-    //Total value of leftover yToken valued in 3CRV
-    uint256 totalLeftoverIn3Crv;
+    //The value of 1 BTR in virtual Price (`quantities` * `virtualPrice`)
+    uint256 setValue = valueOfComponents(tokenAddresses, quantities);
 
-    //Individual yToken leftovers valued in 3CRV
-    uint256[] memory leftoversIn3Crv = new uint256[](quantities.length);
+    uint256 threeCrvValue = threePool.get_virtual_price();
+
+    //Had to add this to combat a weird "stack to deep" issue when just passing _amount in _getPoolAllocationAndRatio
+    uint256 batchValue = (_amount * threeCrvValue) / 1e18;
+
+    //Remaining amount of 3CRV in this batch which hasnt been allocated yet
+    uint256 remainingBatchBalanceValue = batchValue;
+
+    //Temporary allocation of 3CRV to be deployed in curveMetapools
+    uint256[] memory poolAllocations = new uint256[](quantities.length);
+
+    //Ratio of 3CRV needed to mint 1 BTR
+    uint256[] memory ratios = new uint256[](quantities.length);
 
     for (uint256 i; i < tokenAddresses.length; i++) {
-      //Check how many crvLPToken are needed to mint one yToken
-      uint256 yTokenInCrvToken = YearnVault(tokenAddresses[i]).pricePerShare();
-
-      //Check how many 3CRV are needed to mint one crvLPToken
-      uint256 crvLPTokenIn3Crv = uint256(2e18) -
-        curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool.calc_withdraw_one_coin(1e18, 1);
-
-      //Calculate how many 3CRV are needed to mint one yToken
-      uint256 yTokenIn3Crv = (yTokenInCrvToken * crvLPTokenIn3Crv) / 1e18;
-
-      //Calculate how much the yToken leftover are worth in 3CRV
-      uint256 leftoverIn3Crv = (YearnVault(tokenAddresses[i]).balanceOf(address(this)) * yTokenIn3Crv) / 1e18;
-
-      //Add the leftover value to the array of leftovers for later use
-      leftoversIn3Crv[i] = leftoverIn3Crv;
-
-      //Add the leftover value to the total leftover value
-      totalLeftoverIn3Crv = totalLeftoverIn3Crv + leftoverIn3Crv;
+      // prettier-ignore
+      (uint256 allocation, uint256 ratio) = _getPoolAllocationAndRatio(tokenAddresses[i], quantities[i], batchValue, setValue);
+      poolAllocations[i] = allocation;
+      ratios[i] = ratio;
+      remainingBatchBalanceValue -= allocation;
     }
 
-    //Calculate the total value of supplied token + leftovers in 3CRV
-    uint256 suppliedTokenBalancePlusLeftovers = _amount + totalLeftoverIn3Crv;
-
     for (uint256 i; i < tokenAddresses.length; i++) {
-      //Calculate the pool allocation by dividing the suppliedTokenBalance by number of token addresses and take leftovers into account
-      uint256 poolAllocation = suppliedTokenBalancePlusLeftovers / tokenAddresses.length - leftoversIn3Crv[i];
+      uint256 poolAllocation;
+
+      //RemainingLeftovers should only be 0 if there were no yToken leftover from previous batches
+      //since the first iteration of poolAllocation uses all 3CRV. Therefore we can only have `remainingBatchBalanceValue` from subtracted leftovers
+      if (remainingBatchBalanceValue > 0) {
+        poolAllocation = _getPoolAllocation(remainingBatchBalanceValue, ratios[i]);
+      }
 
       //Pool 3CRV to get crvLPToken
-      _sendToCurve(poolAllocation, curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool);
+      _sendToCurve(
+        ((poolAllocation + poolAllocations[i]) * 1e18) / threeCrvValue,
+        curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool
+      );
 
       //Deposit crvLPToken to get yToken
       _sendToYearn(
@@ -239,31 +289,40 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
       );
     }
 
-    //Get the minimum amount of hysi that we can mint with our balances of yToken
-    uint256 hysiAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
+    //Get the minimum amount of butter that we can mint with our balances of yToken
+    uint256 butterAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
 
     for (uint256 i = 1; i < tokenAddresses.length; i++) {
-      hysiAmount = Math.min(
-        hysiAmount,
+      butterAmount = Math.min(
+        butterAmount,
         (YearnVault(tokenAddresses[i]).balanceOf(address(this)) * 1e18) / quantities[i]
       );
     }
 
-    require(hysiAmount >= _minAmountToMint, "slippage too high");
+    require(butterAmount >= getMinAmountToMint(valueOf3Crv(_amount), setValue, _slippage), "slippage too high");
 
     //Mint Butter
-    setBasicIssuanceModule.issue(setToken, hysiAmount, msg.sender);
+    if (_stake) {
+      setBasicIssuanceModule.issue(setToken, butterAmount, address(this));
+      staking.stakeFor(butterAmount, msg.sender);
+    } else {
+      setBasicIssuanceModule.issue(setToken, butterAmount, msg.sender);
+    }
+
+    return butterAmount;
   }
 
-  function _redeem(uint256 _amount, uint256 _min3crvToReceive) internal returns (uint256) {
+  function _redeem(uint256 _amount, uint256 _slippage) internal returns (uint256) {
     require(setToken.balanceOf(msg.sender) >= _amount, "insufficient balance");
     setToken.transferFrom(msg.sender, address(this), _amount);
 
     //Get tokenAddresses for mapping of underlying
-    (address[] memory tokenAddresses, ) = setBasicIssuanceModule.getRequiredComponentUnitsForIssue(setToken, 1e18);
+    (address[] memory tokenAddresses, uint256[] memory quantities) = setBasicIssuanceModule
+      .getRequiredComponentUnitsForIssue(setToken, _amount);
 
     //Allow setBasicIssuanceModule to use Butter
     _setBasicIssuanceModuleAllowance(_amount);
+
     //Redeem Butter for yToken
     setBasicIssuanceModule.redeem(setToken, _amount, address(this));
 
@@ -283,8 +342,70 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
     //Save the redeemed amount of 3CRV as claimable token for the batch
     uint256 claimableTokenBalance = threeCrv.balanceOf(address(this)) - oldBalance;
 
-    require(claimableTokenBalance >= _min3crvToReceive, "slippage too high");
+    require(
+      claimableTokenBalance >= getMinAmount3CrvFromRedeem(valueOfComponents(tokenAddresses, quantities), _slippage),
+      "slippage too high"
+    );
+    if (!sweethearts[msg.sender]) {
+      //Fee is deducted from threeCrv -- This allows it to work with the Zapper
+      //Fes are denominated in BasisPoints
+      uint256 fee = (claimableTokenBalance * redemptionFeeRate) / 10_000;
+      redemptionFees = redemptionFees + fee;
+      claimableTokenBalance = claimableTokenBalance - fee;
+    }
     return claimableTokenBalance;
+  }
+
+  /**
+   * @notice sets max allowance given a token and a spender
+   * @param _token the token which gets approved to be spend
+   * @param _spender the spender which gets a max allowance to spend `_token`
+   */
+  function _maxApprove(IERC20 _token, address _spender) internal {
+    _token.safeApprove(_spender, 0);
+    _token.safeApprove(_spender, type(uint256).max);
+  }
+
+  /**
+   * @notice sets allowance for basic issuance module
+   * @param _amount amount to approve
+   */
+  function _setBasicIssuanceModuleAllowance(uint256 _amount) internal {
+    setToken.safeApprove(address(setBasicIssuanceModule), 0);
+    setToken.safeApprove(address(setBasicIssuanceModule), _amount);
+  }
+
+  function _getPoolAllocationAndRatio(
+    address _component,
+    uint256 _quantity,
+    uint256 _batchValue,
+    uint256 _setValue
+  ) internal view returns (uint256 poolAllocation, uint256 ratio) {
+    //Calculate the virtualPrice of one yToken
+    uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() *
+      curvePoolTokenPairs[_component].curveMetaPool.get_virtual_price()) / 1e18;
+
+    //Calculate the value of quantity (of yToken) in virtualPrice
+    uint256 componentValuePerSet = (_quantity * componentValuePerShare) / 1e18;
+
+    //Calculate the value of leftover yToken in virtualPrice
+    uint256 componentValueHeldByContract = (YearnVault(_component).balanceOf(address(this)) * componentValuePerShare) /
+      1e18;
+
+    ratio = (componentValuePerSet * 1e18) / _setValue;
+
+    poolAllocation = _getPoolAllocation(_batchValue, ratio) - componentValueHeldByContract;
+
+    return (poolAllocation, ratio);
+  }
+
+  /**
+   * @notice returns the amount of 3CRV that should be allocated for a curveMetapool
+   * @param _balance the max amount of 3CRV that is available in this iteration
+   * @param _ratio the ratio of 3CRV needed to get enough yToken to mint butter
+   */
+  function _getPoolAllocation(uint256 _balance, uint256 _ratio) internal pure returns (uint256) {
+    return ((_balance * _ratio) / 1e18);
   }
 
   /**
@@ -300,25 +421,16 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
     uint256 _min_amount
   ) internal {
     //Burn 3CRV to receive stables
-    curve3Pool.remove_liquidity_one_coin(_threeCurveAmount, int128(uint128(_stableCoinIndex)), _min_amount);
+    threePool.remove_liquidity_one_coin(_threeCurveAmount, int128(uint128(_stableCoinIndex)), _min_amount);
 
     //Check the amount of returned stables
     /*
     If a user sends Stables to this contract by accident (Which cant be retrieved anyway) they will be used aswell.
     */
-    uint256 stableBalance = IERC20(curve3Pool.coins(_stableCoinIndex)).balanceOf(address(this));
+    uint256 stableBalance = IERC20(threePool.coins(_stableCoinIndex)).balanceOf(address(this));
 
     //Transfer stables to user
-    IERC20(curve3Pool.coins(_stableCoinIndex)).safeTransfer(msg.sender, stableBalance);
-  }
-
-  /**
-   * @notice sets allowance for basic issuance module
-   * @param _amount amount to approve
-   */
-  function _setBasicIssuanceModuleAllowance(uint256 _amount) internal {
-    setToken.safeApprove(address(setBasicIssuanceModule), 0);
-    setToken.safeApprove(address(setBasicIssuanceModule), _amount);
+    IERC20(threePool.coins(_stableCoinIndex)).safeTransfer(msg.sender, stableBalance);
   }
 
   /**
@@ -380,7 +492,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
   }
 
   /**
-   * @notice This function defines which underlying token and pools are needed to mint a hysi token
+   * @notice This function defines which underlying token and pools are needed to mint a butter token
    * @param _yTokenAddresses An array of addresses for the yToken needed to mint Butter
    * @param _curvePoolTokenPairs An array structs describing underlying yToken, crvToken and curve metapool
    * @dev since our calculations for minting just iterate through the index and match it with the quantities given by Set
@@ -393,7 +505,52 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
     for (uint256 i; i < _yTokenAddresses.length; i++) {
       curvePoolTokenPairs[_yTokenAddresses[i]] = _curvePoolTokenPairs[i];
     }
-    emit CurveTokenPairsUpdated(_yTokenAddresses, _curvePoolTokenPairs);
+  }
+
+  /**
+   * @notice Changes the redemption fee rate and the fee recipient
+   * @param _feeRate Redemption fee rate in basis points
+   * @param _recipient The recipient which receives these fees (Should be DAO treasury)
+   * @dev Per default both of these values are not set. Therefore a fee has to be explicitly be set with this function
+   */
+  function setRedemptionFee(uint256 _feeRate, address _recipient) external onlyRole(DAO_ROLE) {
+    require(_feeRate <= 100, "dont get greedy");
+    redemptionFeeRate = _feeRate;
+    feeRecipient = _recipient;
+    emit RedemptionFeeUpdated(_feeRate, _recipient);
+  }
+
+  /**
+   * @notice Claims all accumulated redemption fees in 3CRV
+   */
+  function claimRedemptionFee() external {
+    threeCrv.safeTransfer(feeRecipient, redemptionFees);
+    redemptionFees = 0;
+  }
+
+  /**
+   * @notice Allows the DAO to recover leftover yToken that have accumulated between pages and cant be used effectively in upcoming batches
+   * @dev This should only be used if there is a clear trend that a certain amount of yToken leftover wont be used in the minting process
+   * @param _yTokenAddress address of the yToken that should be recovered
+   * @param _amount amount of yToken that should recovered
+   */
+  function recoverLeftover(address _yTokenAddress, uint256 _amount) external onlyRole(DAO_ROLE) {
+    require(address(curvePoolTokenPairs[_yTokenAddress].curveMetaPool) != address(0), "yToken doesnt exist");
+    IERC20(_yTokenAddress).safeTransfer(_getContract(keccak256("Treasury")), _amount);
+  }
+
+  /**
+   * @notice Toggles an address as Sweetheart (partner addresses that don't pay a redemption fee)
+   * @param _sweetheart The address that shall become/lose their sweetheart status
+   */
+  function updateSweetheart(address _sweetheart, bool _enabled) external onlyRole(DAO_ROLE) {
+    sweethearts[_sweetheart] = _enabled;
+    emit SweetheartUpdated(_sweetheart, _enabled);
+  }
+
+  function setStaking(address _staking) external onlyRole(DAO_ROLE) {
+    emit StakingUpdated(address(staking), _staking);
+    staking = IStaking(_staking);
   }
 
   /**
@@ -402,6 +559,14 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
    */
   function pause() external onlyRole(DAO_ROLE) {
     _pause();
+  }
+
+  /**
+   * @notice Unpauses the contract.
+   * @dev All function with the modifer `whenNotPaused` cant be called anymore. Namly deposits and mint/redeem
+   */
+  function unpause() external onlyRole(DAO_ROLE) {
+    _unpause();
   }
 
   function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
