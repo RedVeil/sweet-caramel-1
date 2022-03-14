@@ -1,7 +1,5 @@
 import { Contract } from "@ethersproject/contracts";
 import { ButterDependencyAddresses, ContractAddresses } from "@popcorn/utils/types";
-import { SetToken__factory } from "@setprotocol/set-protocol-v2/dist/typechain/factories/SetToken__factory";
-import { SetToken } from "@setprotocol/set-protocol-v2/typechain/SetToken";
 import IUniswapV3PoolABI from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import {
@@ -27,6 +25,8 @@ import {
   ERC20__factory,
   IGUni,
   IGUni__factory,
+  ISetToken,
+  ISetToken__factory,
   PopLocker,
   PopLocker__factory,
   Staking,
@@ -50,7 +50,7 @@ export interface Contracts {
   threeCrv?: ERC20;
   popUsdcLp?: IGUni;
   popUsdcUniV3Pool?: Contract;
-  butter?: SetToken;
+  butter?: ISetToken;
   butterBatch?: ButterBatchProcessing;
   butterBatchZapper?: ButterBatchProcessingZapper;
 }
@@ -120,7 +120,7 @@ const initializeContracts = (contractAddresses: ContractAddresses, library): Con
     threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
     popUsdcLp: popUsdcLp ? IGUni__factory.connect(popUsdcLp, library) : undefined,
     popUsdcUniV3Pool: popUsdcUniV3Pool ? new Contract(popUsdcUniV3Pool, IUniswapV3PoolABI.abi, library) : undefined,
-    butter: butter ? SetToken__factory.connect(butter, library) : undefined,
+    butter: butter ? ISetToken__factory.connect(butter, library) : undefined,
     butterBatch: butterBatch ? ButterBatchProcessing__factory.connect(butterBatch, library) : undefined,
     butterBatchZapper: butterBatchZapper
       ? ButterBatchProcessingZapper__factory.connect(butterBatchZapper, library)
