@@ -1,5 +1,6 @@
 import { Menu, Transition } from "@headlessui/react";
-import React, { Fragment } from "react";
+import { FeatureToggleContext } from "context/FeatureToggleContext";
+import React, { Fragment, useContext } from "react";
 import { ChainId } from "../../context/Web3/connectors";
 import NetworkOptionsMenuItem from "./NetworkOptionsMenuItem";
 
@@ -9,6 +10,7 @@ interface NetworkOptionsMenuProps {
 }
 
 const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, switchNetwork, ...props }) => {
+  const { showLocalNetwork } = useContext(FeatureToggleContext).features;
   return (
     <Transition
       as={Fragment}
@@ -42,20 +44,22 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
           currentChainId={currentChain}
           key={ChainId.BinanceSmartChain}
         />
-        {[ChainId.Hardhat, ChainId.Localhost, ChainId.Rinkeby].includes(parseInt(process.env.CHAIN_ID)) && [
-          <NetworkOptionsMenuItem
-            chainId={ChainId.Localhost}
-            switchNetwork={(chainId) => switchNetwork(chainId)}
-            currentChainId={currentChain}
-            key={ChainId.Localhost}
-          />,
-          <NetworkOptionsMenuItem
-            chainId={ChainId.Rinkeby}
-            switchNetwork={(chainId) => switchNetwork(chainId)}
-            currentChainId={currentChain}
-            key={ChainId.Rinkeby}
-          />,
-        ]}
+        {showLocalNetwork && (
+          <>
+            <NetworkOptionsMenuItem
+              chainId={ChainId.Localhost}
+              switchNetwork={(chainId) => switchNetwork(chainId)}
+              currentChainId={currentChain}
+              key={ChainId.Localhost}
+            />
+            <NetworkOptionsMenuItem
+              chainId={ChainId.Rinkeby}
+              switchNetwork={(chainId) => switchNetwork(chainId)}
+              currentChainId={currentChain}
+              key={ChainId.Rinkeby}
+            />
+          </>
+        )}
         <NetworkOptionsMenuItem // this should be last otherwise the UI looks messed up. see last prop below:
           chainId={ChainId.Polygon}
           switchNetwork={(chainId) => switchNetwork(chainId)}

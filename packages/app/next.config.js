@@ -1,15 +1,16 @@
-const { join } = require('path');
+const { join } = require("path");
 
-require('../utils/src/envLoader');
+require("../utils/src/envLoader");
 
-const workspace = join(__dirname, '..');
+const workspace = join(__dirname, "..");
 
 module.exports = {
-  target: 'serverless',
+  target: "serverless",
   env: {
     RPC_URL: process.env.RPC_URL,
     CHAIN_ID: process.env.CHAIN_ID,
-    INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID
+    INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID,
+    IS_DEV: process.env.IS_DEV,
   },
   poweredByHeader: false,
   webpack: (config, options) => {
@@ -29,10 +30,10 @@ module.exports = {
           test: /\.svg$/,
           use: [
             {
-              loader: '@svgr/webpack',
+              loader: "@svgr/webpack",
               options: { svgo: false },
             },
-            'file-loader',
+            "file-loader",
           ],
         },
       ],

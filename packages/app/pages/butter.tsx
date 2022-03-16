@@ -16,6 +16,7 @@ import {
   setMultiChoiceActionModal,
   setSingleActionModal,
 } from "context/actions";
+import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
 import { ChainId, connectors } from "context/Web3/connectors";
 import { ButterDependencyContracts, Contracts, ContractsContext } from "context/Web3/contracts";
@@ -188,6 +189,8 @@ export default function Butter(): JSX.Element {
   const virtualPrice = useThreeCurveVirtualPrice(butterDependencyContracts?.threePool?.address);
   const switchNetwork = useNetworkSwitch();
 
+  const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
+
   useEffect(() => {
     if (contracts?.butterBatch && !butterBatchAdapter) {
       setButterBatchAdapter(new ButterBatchAdapter(contracts.butterBatch));
@@ -198,7 +201,7 @@ export default function Butter(): JSX.Element {
     if (!library || !contracts) {
       return;
     }
-    if (![ChainId.Hardhat, ChainId.Localhost, ChainId.Ethereum].includes(chainId)) {
+    if (!butterEnabled) {
       dispatch(
         setDualActionWideModal({
           title: "Coming Soon",
@@ -435,7 +438,7 @@ export default function Butter(): JSX.Element {
                   title: "Your first mint",
                   content:
                     "You have successfully deposited into the current batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-                  image: <img src="images/butter/modal-1.png" className="px-6" />,
+                  image: <img src="/images/butter/modal-1.png" className="px-6" />,
                   onConfirm: {
                     label: "Close",
                     onClick: () => dispatch(setSingleActionModal(false)),
@@ -470,7 +473,7 @@ export default function Butter(): JSX.Element {
                   title: "Batch process...",
                   content:
                     "You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.",
-                  image: <img src="images/butter/batch-popover.png" className="px-6" />,
+                  image: <img src="/images/butter/batch-popover.png" className="px-6" />,
                   onConfirm: {
                     label: "Close",
                     onClick: () => dispatch(setMultiChoiceActionModal(false)),
@@ -534,7 +537,7 @@ export default function Butter(): JSX.Element {
                   Your tokens should now be visible in your wallet. If you can’t see your BTR, import it here:
                   <a
                     onClick={async () =>
-                      await window.ethereum.request({
+                      window.ethereum.request({
                         method: "wallet_watchAsset",
                         params: {
                           type: "ERC20",
@@ -552,7 +555,7 @@ export default function Butter(): JSX.Element {
                   </a>
                 </p>
               ),
-              image: <img src="images/butter/modal-2.png" className="px-6" />,
+              image: <img src="/images/butter/modal-2.png" className="px-6" />,
               onConfirm: {
                 label: "Close",
                 onClick: () => dispatch(setMultiChoiceActionModal(false)),
@@ -754,7 +757,7 @@ export default function Butter(): JSX.Element {
                       </div>
                       <div className="flex flex-row">
                         <div className="mr-2">
-                          <img title="play-icon" src="images/icons/IconPlay.svg" />
+                          <img title="play-icon" src="/images/icons/IconPlay.svg" />
                         </div>
                       </div>
                       <div></div>
@@ -809,7 +812,7 @@ export default function Butter(): JSX.Element {
                       </div>
                       <div className="flex flex-row">
                         <div className="mr-2">
-                          <img title="play-icon" src="images/icons/IconPlay.svg" />
+                          <img title="play-icon" src="/images/icons/IconPlay.svg" />
                         </div>
                       </div>
                       <div></div>

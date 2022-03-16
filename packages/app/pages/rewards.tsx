@@ -1,5 +1,6 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { CardLoader } from "components/CardLoader";
+import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import Navbar from "components/NavBar/NavBar";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
@@ -95,7 +96,7 @@ export default function index(): JSX.Element {
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
               setMultiChoiceActionModal({
-                image: <img src="images/claim/popover.png" className="px-6" />,
+                image: <img src="/images/claim/popover.png" className="px-6" />,
                 title: "Everytime you claim rewards, a vesting record is created.",
                 children: (
                   <p className="text-sm text-gray-500">
@@ -341,9 +342,17 @@ export default function index(): JSX.Element {
                             className={`flex flex-row justify-between md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
                           >
                             <div className="flex flex-col md:flex-row">
-                              <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>
-                                Vesting Records
-                              </h1>
+                              <div className="inline flex flex-row">
+                                <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>
+                                  Vesting Records
+                                </h1>
+                                <InfoIconWithTooltip
+                                  classExtras="h-7 w-7 md:h-8 md:w-8 mt-1.5 md:mt-3 ml-1 md:ml-2"
+                                  id="1"
+                                  title="Vesting Records"
+                                  content="Butter is a token that represents a yield accrual strategy. The minting process involves converting deposited stablecoins into other stable assets that are compatible with the yield accrual strategy. As the value of the underlying assets increase, so does the redeemable value of Butter."
+                                />
+                              </div>
                               <h1
                                 className={`block md:hidden text-lg md:text-xl font-medium text-gray-900 my-auto mr-8`}
                               >

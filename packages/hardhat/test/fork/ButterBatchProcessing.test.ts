@@ -322,10 +322,9 @@ describe("ButterBatchProcessing Network Test", function () {
             },
           ]
         );
-        expect(await contracts.butterBatch.curvePoolTokenPairs(OTHER_TOKEN_ADDRESS)).to.deep.eq([
-          OTHER_TOKEN_ADDRESS,
-          OTHER_TOKEN_ADDRESS,
-        ]);
+        const curvePoolTokenPair = await contracts.butterBatch.curvePoolTokenPairs(OTHER_TOKEN_ADDRESS);
+        expectValue(curvePoolTokenPair.curveMetaPool, OTHER_TOKEN_ADDRESS);
+        expectValue(curvePoolTokenPair.crvLPToken, OTHER_TOKEN_ADDRESS);
       });
     });
   });

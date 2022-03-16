@@ -1,10 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import { BigNumber, Wallet } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { ethers } from "hardhat";
+import { ethers, waffle } from "hardhat";
 import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
-import { expectRevert } from "../lib/utils/expectValue";
-import { MockCurveThreepool, MockERC20 } from "../typechain";
+import { expectRevert, expectValue } from "../lib/utils/expectValue";
+import { MockCurveThreepool, MockERC20, RewardsEscrow, Staking } from "../typechain";
 import { ButterWhaleProcessing } from "../typechain/ButterWhaleProcessing";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
 import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
@@ -26,7 +27,9 @@ interface Contracts {
   mockCurveThreePool: MockCurveThreepool;
   mockBasicIssuanceModule: MockBasicIssuanceModule;
   butterWhaleProcessing: ButterWhaleProcessing;
+  staking: Staking;
 }
+const provider = waffle.provider;
 
 const DepositorInitial = parseEther("100000");
 
@@ -96,11 +99,22 @@ async function deployContracts(): Promise<Contracts> {
     await (await ethers.getContractFactory("ContractRegistry")).deploy(aclRegistry.address)
   ).deployed();
 
+  const rewardsEscrow = (await (
+    await (await ethers.getContractFactory("RewardsEscrow")).deploy(mockPop.address)
+  ).deployed()) as RewardsEscrow;
+
+  const staking = await (
+    await (
+      await ethers.getContractFactory("Staking")
+    ).deploy(mockPop.address, mockSetToken.address, rewardsEscrow.address)
+  ).deployed();
+
   const butterWhaleProcessing = (await (
     await (
       await ethers.getContractFactory("ButterWhaleProcessing")
     ).deploy(
       contractRegistry.address,
+      staking.address,
       mockSetToken.address,
       mock3Crv.address,
       mockCurveThreePool.address,
@@ -142,6 +156,7 @@ async function deployContracts(): Promise<Contracts> {
     mockCurveThreePool,
     mockBasicIssuanceModule,
     butterWhaleProcessing,
+    staking,
   };
 }
 
@@ -252,27 +267,85 @@ describe("butterWhaleProcessing", function () {
       });
     });
   });
+  describe("setStaking", () => {
+    const NEW_STAKING_ADDRESS = Wallet.createRandom().address;
+
+    it("should allow dao role to set staking", async () => {
+      await contracts.butterWhaleProcessing.connect(owner).setStaking(NEW_STAKING_ADDRESS);
+      await expectValue(await contracts.butterWhaleProcessing.staking(), NEW_STAKING_ADDRESS);
+    });
+    it("should allow not allow a non-dao role to set staking", async () => {
+      await expectRevert(
+        contracts.butterWhaleProcessing.connect(depositor).setStaking(NEW_STAKING_ADDRESS),
+        "you dont have the right role"
+      );
+    });
+  });
   describe("minting", function () {
     context("reverts", function () {
       it("reverts when slippage is too high", async function () {
         await expectRevert(
-          contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("10000"), parseEther("10000")),
+          contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("10000"), 0, false),
           "slippage too high"
         );
       });
       it("reverts when user balance is too small", async function () {
         await expectRevert(
-          contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("999990"), 0),
+          contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("999990"), 0, false),
           "insufficent balance"
         );
       });
     });
     context("success", function () {
-      it("batch mints", async function () {
-        expect(await contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("10000"), 0))
+      it("mints butter", async function () {
+        expect(await contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("10000"), 300, false))
           .to.emit(contracts.butterWhaleProcessing, "Minted")
-          .withArgs(depositor.address, parseEther("10000"));
+          .withArgs(depositor.address, parseEther("10000"), parseEther("97.560975609756097560"));
         expect(await contracts.mockSetToken.balanceOf(depositor.address)).to.equal(parseEther("97.560975609756097560"));
+      });
+    });
+    context("zapMint", function () {
+      it("zap mints", async () => {
+        const oldBal = await contracts.mockSetToken.balanceOf(depositor.address);
+        expect(
+          await contracts.butterWhaleProcessing.connect(depositor).zapMint([parseEther("10000"), 0, 0], 0, 300, false)
+        )
+          .to.emit(contracts.butterWhaleProcessing, "ZapMinted")
+          .withArgs(depositor.address, parseEther("10000"), parseEther("97.560975609756097560"));
+
+        expect(await contracts.mockSetToken.balanceOf(depositor.address)).to.equal(
+          oldBal.add(parseEther("97.560975609756097560"))
+        );
+      });
+      it("reverts when slippage is too high", async function () {
+        await expectRevert(
+          contracts.butterWhaleProcessing.connect(depositor).zapMint([parseEther("10000"), 0, 0], 0, 1, false),
+          "slippage too high"
+        );
+      });
+      it("reverts when user balance is too small", async () => {
+        await expectRevert(
+          contracts.butterWhaleProcessing.connect(depositor).zapMint([0, 0, parseEther("10000")], 0, 0, false),
+          "ERC20: transfer amount exceeds balance"
+        );
+      });
+    });
+    describe("mint and stake", () => {
+      it("mints and stakes", async function () {
+        const expectedButterAmount = parseEther("97.560975609756097560");
+        expect(await contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("10000"), 300, true))
+          .to.emit(contracts.butterWhaleProcessing, "Minted")
+          .withArgs(depositor.address, parseEther("10000"), expectedButterAmount);
+        expect(await contracts.staking.balanceOf(depositor.address)).to.equal(expectedButterAmount);
+      });
+      it("zapMints and stakes", async function () {
+        const expectedButterAmount = parseEther("97.560975609756097560");
+        expect(
+          await contracts.butterWhaleProcessing.connect(depositor).zapMint([parseEther("10000"), 0, 0], 0, 300, true)
+        )
+          .to.emit(contracts.butterWhaleProcessing, "ZapMinted")
+          .withArgs(depositor.address, parseEther("10000"), expectedButterAmount);
+        expect(await contracts.staking.balanceOf(depositor.address)).to.equal(expectedButterAmount);
       });
     });
   });
@@ -287,7 +360,7 @@ describe("butterWhaleProcessing", function () {
     context("reverts", function () {
       it("reverts when slippage is too high", async function () {
         await expectRevert(
-          contracts.butterWhaleProcessing.connect(depositor).redeem(parseEther("100"), parseEther("10000")),
+          contracts.butterWhaleProcessing.connect(depositor).redeem(parseEther("100"), 0),
           "slippage too high"
         );
       });
@@ -299,39 +372,11 @@ describe("butterWhaleProcessing", function () {
       });
     });
     context("success", function () {
-      it("batch redeems", async function () {
-        expect(await contracts.butterWhaleProcessing.connect(depositor).redeem(parseEther("100"), 0))
+      it("redeems butter", async function () {
+        expect(await contracts.butterWhaleProcessing.connect(depositor).redeem(parseEther("100"), 100))
           .to.emit(contracts.butterWhaleProcessing, "Redeemed")
-          .withArgs(depositor.address, parseEther("100"));
+          .withArgs(depositor.address, parseEther("100"), parseEther("9990"));
         expect(await contracts.mock3Crv.balanceOf(depositor.address)).to.equal(parseEther("109990"));
-      });
-    });
-  });
-  context("zapping", function () {
-    context("zapMint", function () {
-      it("zap mints", async () => {
-        const oldBal = await contracts.mockSetToken.balanceOf(depositor.address);
-        expect(await contracts.butterWhaleProcessing.connect(depositor).zapMint([parseEther("10000"), 0, 0], 0, 0))
-          .to.emit(contracts.butterWhaleProcessing, "ZapMinted")
-          .withArgs(depositor.address, parseEther("10000"));
-
-        expect(await contracts.mockSetToken.balanceOf(depositor.address)).to.equal(
-          oldBal.add(parseEther("97.560975609756097560"))
-        );
-      });
-      it("reverts when slippage is too high", async function () {
-        await expectRevert(
-          contracts.butterWhaleProcessing
-            .connect(depositor)
-            .zapMint([parseEther("10000"), 0, 0], 0, parseEther("100000")),
-          "slippage too high"
-        );
-      });
-      it("reverts when user balance is too small", async () => {
-        await expectRevert(
-          contracts.butterWhaleProcessing.connect(depositor).zapMint([0, 0, parseEther("10000")], 0, 0),
-          "ERC20: transfer amount exceeds balance"
-        );
       });
     });
     context("zapRedeem", function () {
@@ -343,15 +388,15 @@ describe("butterWhaleProcessing", function () {
       });
       it("zap redeems", async () => {
         const oldBal = await contracts.mockUSDC.balanceOf(depositor.address);
-        expect(await contracts.butterWhaleProcessing.connect(depositor).zapRedeem(parseEther("100"), 1, 0, 0))
+        expect(await contracts.butterWhaleProcessing.connect(depositor).zapRedeem(parseEther("100"), 1, 0, 100))
           .to.emit(contracts.butterWhaleProcessing, "ZapRedeemed")
-          .withArgs(depositor.address, parseEther("100"));
+          .withArgs(depositor.address, parseEther("100"), parseEther("9990"));
 
         expect(await contracts.mockUSDC.balanceOf(depositor.address)).to.equal(oldBal.add(parseEther("9980.01")));
       });
       it("reverts when slippage is too high", async function () {
         await expectRevert(
-          contracts.butterWhaleProcessing.connect(depositor).zapRedeem(parseEther("100"), 1, 0, parseEther("1000000")),
+          contracts.butterWhaleProcessing.connect(depositor).zapRedeem(parseEther("100"), 1, 0, 0),
           "slippage too high"
         );
       });
@@ -370,7 +415,7 @@ describe("butterWhaleProcessing", function () {
     });
     it("prevents mint", async function () {
       await expectRevert(
-        contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("1"), 0),
+        contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("1"), 0, false),
         "Pausable: paused"
       );
     });
@@ -382,7 +427,7 @@ describe("butterWhaleProcessing", function () {
     });
     it("prevents zapMint", async function () {
       await expectRevert(
-        contracts.butterWhaleProcessing.connect(depositor).zapMint([parseEther("1"), 0, 0], 0, 0),
+        contracts.butterWhaleProcessing.connect(depositor).zapMint([parseEther("1"), 0, 0], 0, 0, false),
         "Pausable: paused"
       );
     });
@@ -391,6 +436,142 @@ describe("butterWhaleProcessing", function () {
         contracts.butterWhaleProcessing.connect(depositor).zapRedeem(parseEther("1"), 0, 0, 0),
         "Pausable: paused"
       );
+    });
+    it("allows minting after unpausing", async () => {
+      await contracts.butterWhaleProcessing.unpause();
+      expect(await contracts.butterWhaleProcessing.connect(depositor).mint(parseEther("10000"), 300, false))
+        .to.emit(contracts.butterWhaleProcessing, "Minted")
+        .withArgs(depositor.address, parseEther("10000"), parseEther("97.560975609756097560"));
+    });
+    it("allows zapMinting after unpausing", async () => {
+      await contracts.butterWhaleProcessing.unpause();
+      expect(
+        await contracts.butterWhaleProcessing.connect(depositor).zapMint([parseEther("10000"), 0, 0], 0, 300, false)
+      )
+        .to.emit(contracts.butterWhaleProcessing, "ZapMinted")
+        .withArgs(depositor.address, parseEther("10000"), parseEther("97.560975609756097560"));
+    });
+    it("allows redeeming after unpausing", async () => {
+      await contracts.mockSetToken.mint(depositor.address, parseEther("100"));
+      await contracts.mockSetToken
+        .connect(depositor)
+        .approve(contracts.butterWhaleProcessing.address, parseEther("100"));
+
+      await contracts.butterWhaleProcessing.unpause();
+
+      expect(await contracts.butterWhaleProcessing.connect(depositor).redeem(parseEther("100"), 100))
+        .to.emit(contracts.butterWhaleProcessing, "Redeemed")
+        .withArgs(depositor.address, parseEther("100"), parseEther("9990"));
+    });
+    it("allows zapRedeeming after unpausing", async () => {
+      await contracts.mockSetToken.mint(depositor.address, parseEther("100"));
+      await contracts.mockSetToken
+        .connect(depositor)
+        .approve(contracts.butterWhaleProcessing.address, parseEther("100"));
+
+      await contracts.butterWhaleProcessing.unpause();
+
+      expect(await contracts.butterWhaleProcessing.connect(depositor).zapRedeem(parseEther("100"), 1, 0, 100))
+        .to.emit(contracts.butterWhaleProcessing, "ZapRedeemed")
+        .withArgs(depositor.address, parseEther("100"), parseEther("9990"));
+    });
+  });
+
+  describe("redemption fee", () => {
+    context("sets RedemptionFee", () => {
+      it("sets a redemptionRate when called with DAO role", async () => {
+        expect(await contracts.butterWhaleProcessing.setRedemptionFee(100, owner.address))
+          .to.emit(contracts.butterWhaleProcessing, "RedemptionFeeUpdated")
+          .withArgs(100, owner.address);
+        expect(await contracts.butterWhaleProcessing.redemptionFeeRate()).to.equal(100);
+        expect(await contracts.butterWhaleProcessing.feeRecipient()).to.equal(owner.address);
+      });
+      it("reverts when setting redemptionRate without DAO role", async () => {
+        await expectRevert(
+          contracts.butterWhaleProcessing.connect(depositor).setRedemptionFee(100, owner.address),
+          "you dont have the right role"
+        );
+      });
+      it("reverts when setting a feeRate higher than 1%", async () => {
+        await expectRevert(contracts.butterWhaleProcessing.setRedemptionFee(1000, owner.address), "dont get greedy");
+      });
+    });
+    context("with redemption fee", () => {
+      const depositAmount = parseEther("100");
+      const feeRate = 100;
+      beforeEach(async () => {
+        await contracts.butterWhaleProcessing.setRedemptionFee(feeRate, owner.address);
+        await contracts.mockSetToken.mint(depositor.address, depositAmount);
+        await contracts.mockSetToken.connect(depositor).approve(contracts.butterWhaleProcessing.address, depositAmount);
+        await contracts.mockYearnVaultUSDX.mint(contracts.mockBasicIssuanceModule.address, parseEther("20000"));
+        await contracts.mockYearnVaultUST.mint(contracts.mockBasicIssuanceModule.address, parseEther("20000"));
+        await contracts.mockCrvUSDX.mint(contracts.mockYearnVaultUSDX.address, parseEther("20000"));
+        await contracts.mockCrvUST.mint(contracts.mockYearnVaultUST.address, parseEther("20000"));
+        await provider.send("evm_increaseTime", [1800]);
+        await provider.send("evm_mine", []);
+      });
+      it("takes the fee on butter redemption", async () => {
+        const redeemAmountWithoutFee = parseEther("9990");
+        const fee = redeemAmountWithoutFee.mul(feeRate).div(10000);
+        const oldBal = await contracts.mock3Crv.balanceOf(depositor.address);
+
+        expect(await contracts.butterWhaleProcessing.connect(depositor).redeem(parseEther("100"), 100))
+          .to.emit(contracts.butterWhaleProcessing, "Redeemed")
+          .withArgs(depositor.address, parseEther("100"), redeemAmountWithoutFee.sub(fee));
+
+        const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
+        expect(newBal).to.equal(oldBal.add(redeemAmountWithoutFee.sub(fee)));
+
+        expect(await contracts.butterWhaleProcessing.redemptionFees()).to.equal(fee);
+      });
+      it("takes the fee on butter zapRedemption", async () => {
+        const redeemAmountWithoutFee = parseEther("9990");
+        const fee = redeemAmountWithoutFee.mul(feeRate).div(10000);
+
+        expect(await contracts.butterWhaleProcessing.connect(depositor).zapRedeem(parseEther("100"), 1, 0, 100))
+          .to.emit(contracts.butterWhaleProcessing, "ZapRedeemed")
+          .withArgs(depositor.address, parseEther("100"), redeemAmountWithoutFee.sub(fee));
+
+        const newBal = await contracts.mockUSDC.balanceOf(depositor.address);
+        expect(newBal).to.equal(parseEther("9880.209900000000000000"));
+
+        expect(await contracts.butterWhaleProcessing.redemptionFees()).to.equal(fee);
+      });
+      describe("sweethearts", () => {
+        it("sets a sweetheart when called with DAO role", async () => {
+          expect(await contracts.butterWhaleProcessing.updateSweetheart(depositor.address, true))
+            .to.emit(contracts.butterWhaleProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, true);
+          expect(await contracts.butterWhaleProcessing.sweethearts(depositor.address)).to.equal(true);
+        });
+        it("removes a sweetheart when called with DAO role", async () => {
+          await contracts.butterWhaleProcessing.updateSweetheart(depositor.address, true);
+          expect(await contracts.butterWhaleProcessing.updateSweetheart(depositor.address, false))
+            .to.emit(contracts.butterWhaleProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, false);
+          expect(await contracts.butterWhaleProcessing.sweethearts(depositor.address)).to.equal(false);
+        });
+        it("reverts when trying to set a sweetheart without DAO role", async () => {
+          expect(await contracts.butterWhaleProcessing.updateSweetheart(depositor.address, true))
+            .to.emit(contracts.butterWhaleProcessing, "SweetheartUpdated")
+            .withArgs(depositor.address, true);
+          expect(await contracts.butterWhaleProcessing.sweethearts(depositor.address)).to.equal(true);
+        });
+        it("doesnt apply the redemption fee as a sweetheart", async () => {
+          await contracts.butterWhaleProcessing.updateSweetheart(depositor.address, true);
+          const redeemAmount = parseEther("9990");
+          const oldBal = await contracts.mock3Crv.balanceOf(depositor.address);
+
+          expect(await contracts.butterWhaleProcessing.connect(depositor).redeem(parseEther("100"), 100))
+            .to.emit(contracts.butterWhaleProcessing, "Redeemed")
+            .withArgs(depositor.address, parseEther("100"), redeemAmount);
+
+          const newBal = await contracts.mock3Crv.balanceOf(depositor.address);
+          expect(newBal).to.equal(oldBal.add(redeemAmount));
+
+          expect(await contracts.butterWhaleProcessing.redemptionFees()).to.equal(BigNumber.from("0"));
+        });
+      });
     });
   });
 });
