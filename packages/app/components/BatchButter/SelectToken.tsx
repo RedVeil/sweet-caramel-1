@@ -1,7 +1,6 @@
-import { BatchProcessTokens } from "pages/butter";
+import { BatchProcessToken, BatchProcessTokens } from "@popcorn/utils/src/types";
 import { useState } from "react";
 import * as Icon from "react-feather";
-import { BatchProcessToken } from "./TokenInput";
 
 interface SelectTokenProps {
   allowSelection: Boolean;

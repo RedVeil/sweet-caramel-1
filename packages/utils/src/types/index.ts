@@ -1,5 +1,5 @@
-import { BigNumber } from "ethers";
-import { ERC20 } from "../../../hardhat/typechain";
+import { BigNumber, Contract } from "ethers";
+import { ERC20, ISetToken } from "../../../hardhat/typechain";
 
 export type Address = string;
 export interface ContractAddresses {
@@ -97,3 +97,80 @@ export type ToastConfig = {
   errorMessage?: string;
   id: string;
 };
+
+export type HotSwapParameter = {
+  batchIds: String[];
+  amounts: BigNumber[];
+};
+
+export type SelectedToken = {
+  input: BatchProcessToken;
+  output: BatchProcessToken;
+};
+
+export type BatchProcessTokens = {
+  butter: BatchProcessToken;
+  threeCrv: BatchProcessToken;
+  dai: BatchProcessToken;
+  usdc: BatchProcessToken;
+  usdt: BatchProcessToken;
+};
+
+export type BatchProcessToken = {
+  key: string;
+  claimableBalance?: BigNumber;
+  price: BigNumber;
+  img?: string;
+  contract: ERC20 | ISetToken;
+  name: string;
+  decimals: number;
+  balance?: BigNumber;
+  allowance?: BigNumber;
+};
+
+export type ButterBatchData = {
+  accountBatches: AccountBatch[];
+  currentBatches: CurrentBatches;
+  butterSupply: BigNumber;
+  claimableMintBatches: AccountBatch[];
+  claimableRedeemBatches: AccountBatch[];
+  batchProcessTokens: BatchProcessTokens;
+};
+
+export enum BatchType {
+  Mint,
+  Redeem,
+}
+
+export interface CurrentBatches {
+  mint: Batch;
+  redeem: Batch;
+}
+
+export interface TimeTillBatchProcessing {
+  timeTillProcessing: Date;
+  progressPercentage: number;
+}
+export interface Batch {
+  batchType: BatchType;
+  batchId: string;
+  claimable: boolean;
+  unclaimedShares: BigNumber;
+  suppliedTokenBalance: BigNumber;
+  claimableTokenBalance: BigNumber;
+  suppliedTokenAddress: string;
+  claimableTokenAddress: string;
+}
+
+export interface AccountBatch extends Batch {
+  accountSuppliedTokenBalance: BigNumber;
+  accountClaimableTokenBalance: BigNumber;
+}
+
+export interface ComponentMap {
+  // key is yTokenAddress
+  [key: string]: {
+    metaPool?: Contract;
+    yPool?: Contract;
+  };
+}

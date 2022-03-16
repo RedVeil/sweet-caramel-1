@@ -1,4 +1,4 @@
-import { StakingPool } from "@popcorn/utils/types";
+import { StakingPool } from "@popcorn/utils/src/types";
 import TokenInput from "components/Common/TokenInput";
 import MainActionButton from "components/MainActionButton";
 import TermsAndConditions from "components/StakingTermsAndConditions";

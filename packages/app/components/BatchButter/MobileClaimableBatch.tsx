@@ -1,5 +1,5 @@
-import { BatchType } from "@popcorn/hardhat/lib/adapters";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { BatchType } from "@popcorn/utils/src/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import MainActionButton from "components/MainActionButton";
 import SecondaryActionButton from "components/SecondaryActionButton";

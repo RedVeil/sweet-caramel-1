@@ -18,7 +18,6 @@ import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { GlobalLinearProgressAndLoading } from "../components/GlobalLinearProgressAndLoading";
 import { StateProvider } from "../context/store";
-import ContractsWrapper from "../context/Web3/contracts";
 import "../styles/globals.css";
 
 function getLibrary(provider: any): Web3Provider {
@@ -67,22 +66,20 @@ export default function MyApp(props) {
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
         <Web3ReactProvider getLibrary={getLibrary}>
           <FeatureToggleProvider>
-            <ContractsWrapper>
-              <SoftLaunchCheck loading={loading} />
-              <NetworkHandler />
-              <MobileFullScreenModalContainer />
-              <SingleActionModalContainer />
-              <MultiChoiceActionModalContainer />
-              <DualActionModalContainer />
-              <DualActionWideModalContainer />
-              <Page>
-                <Component {...pageProps} />
-              </Page>
-              <FeatureTogglePanel />
-              <SwapChainModal />
-              <NotificationsContainer />
-              <Debug />
-            </ContractsWrapper>
+            <SoftLaunchCheck loading={loading} />
+            <NetworkHandler />
+            <MobileFullScreenModalContainer />
+            <SingleActionModalContainer />
+            <MultiChoiceActionModalContainer />
+            <DualActionModalContainer />
+            <DualActionWideModalContainer />
+            <Page>
+              <Component {...pageProps} />
+            </Page>
+            <FeatureTogglePanel />
+            <SwapChainModal />
+            <NotificationsContainer />
+            <Debug />
           </FeatureToggleProvider>
         </Web3ReactProvider>
       </StateProvider>

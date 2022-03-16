@@ -28,7 +28,6 @@ export default function StakingPage(): JSX.Element {
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, stakingPool?.address);
   const stakingToken = stakingPool?.stakingToken;
   const isLoading = !stakingPool;
-
   const approveToken = useApproveERC20();
 
   function stake(): void {

@@ -1,4 +1,4 @@
-import { Address } from "@popcorn/utils/types";
+import { Address } from "@popcorn/utils/src/types";
 import Navbar from "components/NavBar/NavBar";
 import StakeCard from "components/StakeCard";
 import { ChainId } from "context/Web3/connectors";

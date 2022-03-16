@@ -1,5 +1,5 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import { Address, StakingPool, Token } from "@popcorn/utils/types";
+import { Address, StakingPool, Token } from "@popcorn/utils/src/types";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import StatusWithLabel from "./Common/StatusWithLabel";

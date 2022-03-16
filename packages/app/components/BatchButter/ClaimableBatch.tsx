@@ -1,5 +1,5 @@
-import { AccountBatch, BatchType } from "@popcorn/hardhat/lib/adapters";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "components/InfoIconWithModal";
 import MainActionButton from "components/MainActionButton";
 import SecondaryActionButton from "components/SecondaryActionButton";

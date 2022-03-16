@@ -1,5 +1,5 @@
 import { numberToBigNumber } from "@popcorn/utils";
-import { Token } from "@popcorn/utils/types";
+import { Token } from "@popcorn/utils/src/types";
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import { formatStakedAmount } from "helper/formatStakedAmount";
@@ -62,7 +62,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
                 className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
                   balance && amount?.gt(balance)
                     ? "focus:ring-red-600 focus:border-red-600"
-                    : "focus:ring-indigo-500 focus:border-indigo-500"
+                    : "focus:ring-blue-500 focus:border-blue-500"
                 }`}
                 onChange={(e) => {
                   onUpdate(e.target.value.replace(/,/g, "."));
@@ -83,7 +83,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
                 {!readonly && balance && (
                   <p
-                    className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 pt-0.5 leading-none hover:text-indigo-500 text-sm"
+                    className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 pt-0.5 leading-none hover:text-blue-500 text-sm"
                     onClick={() => {
                       onUpdate(formatUnits(balance, token.decimals));
                     }}
