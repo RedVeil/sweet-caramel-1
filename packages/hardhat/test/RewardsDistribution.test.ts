@@ -115,7 +115,10 @@ describe("RewardsDistribution", function () {
         expect(result).to.emit(rewardsDistribution, "RewardDistributionAdded").withArgs(0, destAddr, amount, isLocker);
       });
       it("adds the correct data to distributions", async () => {
-        expect(await rewardsDistribution.distributions(0)).to.deep.equal([destAddr, amount, isLocker]);
+        const distribution = await rewardsDistribution.distributions(0);
+        expectValue(distribution.destination, destAddr);
+        expectValue(distribution.amount, amount);
+        expectValue(distribution.isLocker, isLocker);
       });
       it("increases destinations length", async () => {
         expect(await rewardsDistribution.distributionsLength()).to.eq(1);
@@ -137,11 +140,10 @@ describe("RewardsDistribution", function () {
         result = await rewardsDistribution.removeRewardDistribution(0);
       });
       it("removes the distribution", async () => {
-        expect(await rewardsDistribution.distributions(0)).to.deep.equal([
-          "0x0000000000000000000000000000000000000000",
-          parseEther("0"),
-          false,
-        ]);
+        const distribution = await rewardsDistribution.distributions(0);
+        expectValue(distribution.destination, "0x0000000000000000000000000000000000000000");
+        expectValue(distribution.amount, parseEther("0"));
+        expectValue(distribution.isLocker, false);
       });
     });
   });
@@ -167,7 +169,10 @@ describe("RewardsDistribution", function () {
         result = await rewardsDistribution.editRewardDistribution(0, destAddr, amount, isLocker);
       });
       it("changes the correct data in distributions", async () => {
-        expect(await rewardsDistribution.distributions(0)).to.deep.equal([destAddr, amount, isLocker]);
+        const distribution = await rewardsDistribution.distributions(0);
+        expectValue(distribution.destination, destAddr);
+        expectValue(distribution.amount, amount);
+        expectValue(distribution.isLocker, isLocker);
       });
     });
   });

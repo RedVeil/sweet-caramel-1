@@ -383,15 +383,10 @@ describe("ButterBatchProcessing", function () {
         const batchId0 = await contracts.butterBatchProcessing.batchIds(0);
         const adapter = new ButterBatchProcessingAdapter(contracts.butterBatchProcessing);
         const batch = await adapter.getBatch(batchId0);
-        expect(batch).to.deep.contain({
-          batchType: BatchType.Mint,
-          claimable: false,
-          claimableTokenAddress: contracts.mockSetToken.address,
-          suppliedTokenAddress: contracts.mock3Crv.address,
-        });
-        expect(batch.claimableTokenBalance).to.equal(BigNumber.from(0));
-        expect(batch.unclaimedShares).to.equal(BigNumber.from(0));
-        expect(batch.suppliedTokenBalance).to.equal(BigNumber.from(0));
+        expectValue(batch.batchType, BatchType.Mint);
+        expectValue(batch.claimable, false);
+        expectValue(batch.claimableTokenAddress, contracts.mockSetToken.address);
+        expectValue(batch.suppliedTokenAddress, contracts.mock3Crv.address);
       });
     });
     describe("redeem batch generation", () => {
@@ -438,10 +433,9 @@ describe("ButterBatchProcessing", function () {
         it("increments suppliedTokenBalance and unclaimedShares with deposit", async () => {
           const batchId = await contracts.butterBatchProcessing.currentMintBatchId();
           await deposit(10);
-          expect(await subject(batchId)).to.deep.contain({
-            suppliedTokenBalance: parseEther("10"),
-            unclaimedShares: parseEther("10"),
-          });
+          const batch = await subject(batchId);
+          expectValue(batch.suppliedTokenBalance, parseEther("10"));
+          expectValue(batch.unclaimedShares, parseEther("10"));
         });
         it("depositing does not make a batch claimable", async () => {
           const batchId = await contracts.butterBatchProcessing.currentMintBatchId();
@@ -455,11 +449,10 @@ describe("ButterBatchProcessing", function () {
           await deposit(); // 10
           await deposit(); // 10
           await deposit(); // 10
-          expect(await subject(batchId)).to.deep.contain({
-            claimableTokenBalance: parseEther("0"),
-            suppliedTokenBalance: parseEther("30"),
-            unclaimedShares: parseEther("30"),
-          });
+          const batch = await subject(batchId);
+          expectValue(batch.claimableTokenBalance, parseEther("0"));
+          expectValue(batch.suppliedTokenBalance, parseEther("30"));
+          expectValue(batch.unclaimedShares, parseEther("30"));
         });
         it("increments claimableTokenBalance when batch is minted", async () => {
           const batchId = await contracts.butterBatchProcessing.currentMintBatchId();
@@ -467,11 +460,10 @@ describe("ButterBatchProcessing", function () {
           await timeTravel(1 * DAY); // wait enough time to mint batch
           await contracts.butterBatchProcessing.batchMint();
           const batchHysiOwned = await contracts.mockSetToken.balanceOf(contracts.butterBatchProcessing.address);
-          expect(await subject(batchId)).to.deep.contain({
-            claimableTokenBalance: batchHysiOwned,
-            suppliedTokenBalance: parseEther("10"),
-            unclaimedShares: parseEther("10"),
-          });
+          const batch = await subject(batchId);
+          expectValue(batch.claimableTokenBalance, batchHysiOwned);
+          expectValue(batch.suppliedTokenBalance, parseEther("10"));
+          expectValue(batch.unclaimedShares, parseEther("10"));
         });
         it("sets batch to claimable when batch is minted", async () => {
           const batchId = await contracts.butterBatchProcessing.currentMintBatchId();
@@ -488,12 +480,10 @@ describe("ButterBatchProcessing", function () {
           await timeTravel(1 * DAY); // wait enough time to mint batch
           await contracts.butterBatchProcessing.batchMint();
           await contracts.butterBatchProcessing.connect(depositor).claim(batchId, depositor.address);
-
-          expect(await subject(batchId)).to.deep.contain({
-            claimable: true,
-            unclaimedShares: parseEther("0"),
-            claimableTokenBalance: parseEther("0"),
-          });
+          const batch = await subject(batchId);
+          expectValue(batch.claimable, true);
+          expectValue(batch.unclaimedShares, parseEther("0"));
+          expectValue(batch.claimableTokenBalance, parseEther("0"));
         });
       });
 
@@ -771,35 +761,30 @@ describe("ButterBatchProcessing", function () {
           const batchId = await contracts.butterBatchProcessing.currentRedeemBatchId();
           await deposit(10);
           const batch = await subject(batchId);
-          expect(batch).to.deep.contain({
-            suppliedTokenBalance: parseEther("10"),
-            claimable: false,
-            unclaimedShares: parseEther("10"),
-          });
+          expectValue(batch.suppliedTokenBalance, parseEther("10"));
+          expectValue(batch.claimable, false);
+          expectValue(batch.unclaimedShares, parseEther("10"));
         });
         it("increments suppliedTokenBalance and unclaimedShares when multiple deposits are made", async () => {
           const batchId = await contracts.butterBatchProcessing.currentRedeemBatchId();
           await deposit(); // 10
           await deposit(); // 10
           await deposit(); // 10
-          expect(await subject(batchId)).to.deep.contain({
-            claimableTokenBalance: parseEther("0"),
-            suppliedTokenBalance: parseEther("30"),
-            claimable: false,
-            unclaimedShares: parseEther("30"),
-          });
+          const batch = await subject(batchId);
+          expectValue(batch.claimableTokenBalance, parseEther("0"));
+          expectValue(batch.suppliedTokenBalance, parseEther("30"));
+          expectValue(batch.claimable, false);
+          expectValue(batch.unclaimedShares, parseEther("30"));
         });
         it("updates struct when batch is minted", async () => {
           const batchId = await contracts.butterBatchProcessing.currentRedeemBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to redeem batch
           await contracts.butterBatchProcessing.batchRedeem();
-
-          expect(await subject(batchId)).to.deep.contain({
-            suppliedTokenBalance: parseEther("10"),
-            claimable: true,
-            unclaimedShares: parseEther("10"),
-          });
+          const batch = await subject(batchId);
+          expectValue(batch.suppliedTokenBalance, parseEther("10"));
+          expectValue(batch.claimable, true);
+          expectValue(batch.unclaimedShares, parseEther("10"));
         });
         it("decrements unclaimedShares and claimable when claim is made", async () => {
           const batchId = await contracts.butterBatchProcessing.currentRedeemBatchId();
@@ -807,12 +792,10 @@ describe("ButterBatchProcessing", function () {
           await timeTravel(1 * DAY); // wait enough time to redeem batch
           await contracts.butterBatchProcessing.batchRedeem();
           await contracts.butterBatchProcessing.connect(depositor).claim(batchId, depositor.address);
-
-          expect(await subject(batchId)).to.deep.contain({
-            claimable: true,
-            unclaimedShares: parseEther("0"),
-            claimableTokenBalance: parseEther("0"),
-          });
+          const batch = await subject(batchId);
+          expectValue(batch.claimable, true);
+          expectValue(batch.unclaimedShares, parseEther("0"));
+          expectValue(batch.claimableTokenBalance, parseEther("0"));
         });
       });
       it("deposits setToken in the current redeemBatch", async function () {
