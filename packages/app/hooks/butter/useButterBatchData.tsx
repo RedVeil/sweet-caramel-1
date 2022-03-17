@@ -33,6 +33,9 @@ async function getBatchProcessToken(
   butterBatchZapper: ButterBatchProcessingZapper,
   setBasicIssuanceModule: BasicIssuanceModule,
 ): Promise<BatchProcessTokens> {
+  const defaultErc20Decimals = 18;
+  const usdtDecimals = 6;
+  const usdcDecimals = 6;
   return {
     butter: {
       name: "BTR",
@@ -43,7 +46,7 @@ async function getBatchProcessToken(
       price: await butterBatch.valueOfComponents(
         ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(butter.address, parseEther("1"))),
       ),
-      decimals: 18,
+      decimals: defaultErc20Decimals,
       img: "butter.png",
       contract: butter,
     },
@@ -54,7 +57,7 @@ async function getBatchProcessToken(
       allowance: await threeCrv.contract.allowance(account, butterBatch.address),
       claimableBalance: BigNumber.from("0"),
       price: await butterBatchAdapter.getThreeCrvPrice(threePool),
-      decimals: threeCrv.decimals,
+      decimals: defaultErc20Decimals,
       img: "3crv.png",
       contract: threeCrv.contract,
     },
@@ -68,7 +71,7 @@ async function getBatchProcessToken(
         BigNumber.from("0"),
         BigNumber.from("0"),
       ]),
-      decimals: dai.decimals,
+      decimals: defaultErc20Decimals,
       img: "dai.webp",
       contract: dai.contract,
     },
@@ -82,7 +85,7 @@ async function getBatchProcessToken(
         BigNumber.from(1e6),
         BigNumber.from("0"),
       ]),
-      decimals: usdc.decimals,
+      decimals: process.env.CHAIN_ID === "1337" ? defaultErc20Decimals : usdcDecimals,
       img: "usdc.webp",
       contract: usdc.contract,
     },
@@ -96,7 +99,7 @@ async function getBatchProcessToken(
         BigNumber.from("0"),
         BigNumber.from(1e6),
       ]),
-      decimals: usdt.decimals,
+      decimals: process.env.CHAIN_ID === "1337" ? defaultErc20Decimals : usdtDecimals,
       img: "usdt.webp",
       contract: usdt.contract,
     },

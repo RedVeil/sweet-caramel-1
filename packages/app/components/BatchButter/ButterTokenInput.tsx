@@ -1,4 +1,4 @@
-import { formatUnits } from "@ethersproject/units";
+import { formatEther, formatUnits } from "@ethersproject/units";
 import { formatAndRoundBigNumber, formatBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BatchProcessTokens } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "components/InfoIconWithModal";
@@ -24,12 +24,13 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   butterPageState,
 }) => {
   const [estimatedAmount, setEstimatedAmount] = useState<string>("");
-  const [displayDepositAmount, setDisplayDepositAmount] = useState<string>("");
   const [localButterPageState, setButterPageState] = butterPageState;
 
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
-    : formatUnits(localButterPageState.depositAmount, localButterPageState.selectedToken.input.decimals);
+    : Number(
+        formatUnits(localButterPageState.depositAmount, localButterPageState.selectedToken.input.decimals),
+      ).toFixed(3);
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -47,10 +48,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   useEffect(() => {
     if (localButterPageState.depositAmount.eq(BigNumber.from("0"))) {
-      setDisplayDepositAmount("");
       setEstimatedAmount("");
     } else {
-      setDisplayDepositAmount(String(formatBigNumber(localButterPageState.depositAmount)));
       calcOutputAmountsFromInput(localButterPageState.depositAmount);
     }
   }, [localButterPageState.depositAmount]);
@@ -93,7 +92,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                     ? localButterPageState.selectedToken.input.claimableBalance
                     : localButterPageState.selectedToken.input.balance,
                 )
-                  ? "focus:ring-red-600 focus:border-red-600"
+                  ? "focus:ring-red-600 border-red-600"
                   : "focus:ring-blue-500 focus:border-blue-500"
               }`}
               onChange={(e) => {
@@ -118,9 +117,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                   const maxAmount = localButterPageState.useUnclaimedDeposits
                     ? localButterPageState.selectedToken.input.claimableBalance
                     : localButterPageState.selectedToken.input.balance;
-                  setButterPageState({ ...localButterPageState, depositAmount: maxAmount });
-                  setDisplayDepositAmount(String(formatBigNumber(maxAmount)));
                   calcOutputAmountsFromInput(maxAmount);
+                  setButterPageState({ ...localButterPageState, depositAmount: maxAmount });
+                  ref.current = Number(formatEther(maxAmount)).toFixed(3);
                 }}
               >
                 MAX
@@ -153,7 +152,6 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                 className="mr-2 rounded-sm"
                 checked={Boolean(localButterPageState.useUnclaimedDeposits)}
                 onChange={(e) => {
-                  setDisplayDepositAmount("");
                   setEstimatedAmount("0");
                   setButterPageState({
                     ...localButterPageState,
@@ -173,7 +171,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                 Use only unclaimed balances
               </p>
             </label>
-            <div className="mt-1">
+            <div className="mb-1">
               <InfoIconWithModal title="About Unclaimed Balances">
                 <p>
                   When a batch is minted but the Butter has not been claimed yet, it can be redeemed without having to
@@ -218,7 +216,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           <div className="mt-1 relative flex items-center">
             <input
               className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 focus:ring-blue-500 focus:border-blue-500`}
-              value={estimatedAmount}
+              value={Number(estimatedAmount).toFixed(3)}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"

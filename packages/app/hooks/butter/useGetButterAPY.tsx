@@ -3,13 +3,20 @@ import useWeb3 from "hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
 
 const getAPYFromYearnVaults = (vaults) => {
-  const crvFraxVault = vaults.find((vault) => vault?.token?.address === "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B"); // crvFRAX
-  const crvMIMVault = vaults.find(
-    (vault) => vault?.token?.address === "0x5a6A4D54456819380173272A5E8E9B9904BdF41B", // crvMIM
-  );
-  const totalNetAPY = crvFraxVault?.apy?.net_apy + crvMIMVault?.apy?.net_apy;
-  const popcornProtocolFee = 1.5
-  return (totalNetAPY / 2) * 100 * ((100 - popcornProtocolFee / 100));
+  const crvFrax = "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B";
+  const crvRai = "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90";
+  const crvMusd = "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6";
+  const crvAlusd = "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c";
+  const crvFraxVault = vaults.find((vault) => vault?.token?.address === crvFrax);
+  const crvRaiVault = vaults.find((vault) => vault?.token?.address === crvRai);
+  const crvMusdVault = vaults.find((vault) => vault?.token?.address === crvMusd);
+  const crvAlusdVault = vaults.find((vault) => vault?.token?.address === crvAlusd);
+
+  // Currently Rai doesnt have an apy on yearn.
+  // I compared convex apy of rai to another convex vault which has an apy on yearn (ibEUR)
+  // Since both hade pretty much the same rate on convex (6.66 and 6.8) i used the yearn rate of ibEUR as a proxy
+  const totalNetAPY = crvFraxVault?.apy?.net_apy + 0.0318 + crvMusdVault?.apy?.net_apy + crvAlusdVault?.apy?.net_apy;
+  return (totalNetAPY / 4) * 100;
 };
 
 const fetcher = async (key) => {

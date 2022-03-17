@@ -9,7 +9,7 @@ interface SlippageSettingsProps {
 
 const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippage }) => {
   const [visible, setVisibility] = useState<boolean>(false);
-  const [activeButton, setActiveButton] = useState<number>(0);
+  const [activeButton, setActiveButton] = useState<number>(2);
   const [value, setValue] = useState<number>(slippage);
 
   return (

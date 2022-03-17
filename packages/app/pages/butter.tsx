@@ -75,7 +75,7 @@ const DEFAULT_STATE: ButterPageState = {
   depositAmount: BigNumber.from("0"),
   redeeming: false,
   useUnclaimedDeposits: false,
-  slippage: 3,
+  slippage: 1,
 };
 
 export default function Butter(): JSX.Element {
@@ -91,7 +91,7 @@ export default function Butter(): JSX.Element {
   } = useButterBatchData();
   const { dispatch } = useContext(store);
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_STATE);
-  const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.threePool);
+  const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
   const switchNetwork = useNetworkSwitch();
   const loadingButterBatchData = !butterBatchData && !errorFetchingButterBatchData;
 
@@ -195,6 +195,7 @@ export default function Butter(): JSX.Element {
         selectedToken: newSelectedToken,
         useUnclaimedDeposits: false,
         useZap: true,
+        depositAmount: BigNumber.from("0"),
       });
     } else {
       setButterPageState({
@@ -202,6 +203,7 @@ export default function Butter(): JSX.Element {
         selectedToken: newSelectedToken,
         useUnclaimedDeposits: false,
         useZap: false,
+        depositAmount: BigNumber.from("0"),
       });
     }
   }
@@ -518,9 +520,18 @@ export default function Butter(): JSX.Element {
                 </>
               )}
               {account && loadingButterBatchData && (
-                <ContentLoader viewBox="0 0 450 600">
-                  <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
-                </ContentLoader>
+                <>
+                  <div className="hidden md:block">
+                    <ContentLoader viewBox="0 0 450 600">
+                      <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
+                    </ContentLoader>
+                  </div>
+                  <div className="md:hidden">
+                    <ContentLoader viewBox="0 0 500 600">
+                      <rect x="0" y="0" rx="20" ry="20" width="500" height="600" />
+                    </ContentLoader>
+                  </div>
+                </>
               )}
             </div>
 
