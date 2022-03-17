@@ -14,8 +14,8 @@ export const DefaultDualActionModalProps = {
   content: "",
   title: "",
   visible: false,
-  onConfirm: { label: "", onClick: () => {} },
-  onDismiss: { label: "", onClick: () => {} },
+  onConfirm: { label: "", onClick: () => { } },
+  onDismiss: { label: "", onClick: () => { } },
 };
 
 export const DualActionModal: React.FC<DualActionModalProps> = ({ title, content, visible, onDismiss, onConfirm }) => {
@@ -64,7 +64,7 @@ export const DualActionModal: React.FC<DualActionModalProps> = ({ title, content
                 {title}
               </h3>
               <div className="mt-2">
-                <p className="text-sm text-gray-500">{content}</p>
+                <p className="text-base text-gray-500">{content}</p>
               </div>
             </div>
           </div>

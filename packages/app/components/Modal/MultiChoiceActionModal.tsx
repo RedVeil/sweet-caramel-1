@@ -129,7 +129,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                       </>
                     )}
                     <div className="mt-2 md:mt-6 text-center">
-                      <h3 className="text-2xl leading-8 font-medium text-gray-900 w-10/12 mx-auto" id="modal-title">
+                      <h3 className="text-2xl leading-8 font-semibold text-gray-900 w-10/12 mx-auto" id="modal-title">
                         {title}
                       </h3>
                       <div className="mt-2">
