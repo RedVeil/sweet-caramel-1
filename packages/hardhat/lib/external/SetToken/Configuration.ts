@@ -5,20 +5,26 @@ import { getNamedAccountsByChainId } from "../../utils/getNamedAccounts";
 import { ZERO } from "./utils/constants";
 
 const {
-  yMim,
-  crvMimMetapool,
   yFrax,
   crvFraxMetapool,
+  yRai,
+  crvRaiMetapool,
+  yMusd,
+  crvMusdMetapool,
+  yAlusd,
+  crvAlusdMetapool,
   setTokenCreator,
   setBasicIssuanceModule,
   setStreamingFeeModule,
   daoTreasury,
-  daoAgent,
+  daoAgentV2,
 } = getNamedAccountsByChainId(1);
 
 export interface Configuration {
   targetNAV: BigNumber;
   manager?: string;
+  tokenName: string;
+  tokenSymbol: string;
   core: {
     SetTokenCreator: {
       address: string;
@@ -51,8 +57,10 @@ export interface Configuration {
 }
 
 export const DefaultConfiguration: Configuration = {
-  targetNAV: parseEther("1000"),
-  manager: daoAgent,
+  targetNAV: parseEther("10000"),
+  manager: daoAgentV2,
+  tokenName: "Butter V2",
+  tokenSymbol: "BTR",
   core: {
     SetTokenCreator: {
       address: setTokenCreator,
@@ -66,7 +74,7 @@ export const DefaultConfiguration: Configuration = {
         config: {
           feeRecipient: daoTreasury,
           maxStreamingFeePercentage: parseEther(".05") as BigNumberish,
-          streamingFeePercentage: parseEther(".0272") as BigNumberish,
+          streamingFeePercentage: parseEther(".005") as BigNumberish,
           lastStreamingFeeTimestamp: ZERO as BigNumberish,
         },
       },
@@ -74,14 +82,24 @@ export const DefaultConfiguration: Configuration = {
   },
   components: {
     ycrvFRAX: {
-      ratio: 50,
+      ratio: 25,
       address: yFrax,
       oracle: crvFraxMetapool,
     },
-    ycrvMIM: {
-      ratio: 50,
-      address: yMim,
-      oracle: crvMimMetapool,
+    ycrvRai: {
+      ratio: 25,
+      address: yRai,
+      oracle: crvRaiMetapool,
+    },
+    ycrvMusd: {
+      ratio: 25,
+      address: yMusd,
+      oracle: crvMusdMetapool,
+    },
+    ycrvAlusd: {
+      ratio: 25,
+      address: yAlusd,
+      oracle: crvAlusdMetapool,
     },
   },
 };

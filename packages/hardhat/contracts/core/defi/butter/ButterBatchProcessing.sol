@@ -345,8 +345,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     //...or if enough 3CRV was deposited to make the minting worthwhile
     //This is to prevent excessive gas consumption and costs as we will pay keeper to call this function
     require(
-      (block.timestamp - lastMintedAt) >= processingThreshold.batchCooldown ||
-        (batch.suppliedTokenBalance >= processingThreshold.mintThreshold),
+      ((block.timestamp - lastMintedAt) >= processingThreshold.batchCooldown ||
+        (batch.suppliedTokenBalance >= processingThreshold.mintThreshold)) && batch.suppliedTokenBalance > 0,
       "can not execute batch mint yet"
     );
 
@@ -459,8 +459,8 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     //...or if enough Butter was deposited to make the redemption worthwhile
     //This is to prevent excessive gas consumption and costs as we will pay keeper to call this function
     require(
-      (block.timestamp - lastRedeemedAt >= processingThreshold.batchCooldown) ||
-        (batch.suppliedTokenBalance >= processingThreshold.redeemThreshold),
+      ((block.timestamp - lastRedeemedAt >= processingThreshold.batchCooldown) ||
+        (batch.suppliedTokenBalance >= processingThreshold.redeemThreshold)) && batch.suppliedTokenBalance > 0,
       "can not execute batch redeem yet"
     );
 

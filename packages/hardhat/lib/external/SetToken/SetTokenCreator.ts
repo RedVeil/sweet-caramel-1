@@ -9,9 +9,7 @@ import { getComponents } from "./utils/getComponents";
 import { getModules } from "./utils/getModules";
 
 interface SetTokenCreator {
-  _calculateUnits(
-    component: Configuration["components"][0]
-  ): Promise<BigNumber>;
+  _calculateUnits(component: Configuration["components"][0]): Promise<BigNumber>;
   create: (signer: Signer) => Promise<ContractReceipt>;
 }
 
@@ -21,43 +19,25 @@ interface Args {
   hre: HardhatRuntimeEnvironment;
 }
 
-export default function SetTokenCreator({
-  configuration,
-  debug,
-  hre,
-}: Args): SetTokenCreator {
+export default function SetTokenCreator({ configuration, debug, hre }: Args): SetTokenCreator {
   const { targetNAV } = configuration ? configuration : DefaultConfiguration;
 
   return {
-    _calculateUnits: async function (
-      component: Configuration["components"][0]
-    ): Promise<BigNumber> {
-      const yVault = await hre.ethers.getContractAt(
-        YearnV2VaultABI,
-        component.address
-      );
+    _calculateUnits: async function (component: Configuration["components"][0]): Promise<BigNumber> {
+      const yVault = await hre.ethers.getContractAt(YearnV2VaultABI, component.address);
 
-      const curveLP = await hre.ethers.getContractAt(
-        FactoryMetapoolABI,
-        component.oracle
-      );
+      const curveLP = await hre.ethers.getContractAt(FactoryMetapoolABI, component.oracle);
 
-      const targetComponentValue = targetNAV
-        .mul(parseEther(component.ratio.toString()))
-        .div(parseEther("100"));
+      const targetComponentValue = targetNAV.mul(parseEther(component.ratio.toString())).div(parseEther("100"));
 
       console.log("getting price per share of", component);
       const pricePerShare = (await yVault.pricePerShare()) as BigNumber;
       console.log("got price per share", formatEther(pricePerShare));
       const virtualPrice = (await curveLP.get_virtual_price()) as BigNumber;
 
-      const targetCrvLPUnits = targetComponentValue
-        .mul(parseEther("1"))
-        .div(virtualPrice);
+      const targetCrvLPUnits = targetComponentValue.mul(parseEther("1")).div(virtualPrice);
 
-      const targetComponentUnits = targetCrvLPUnits
-        .mul(parseEther("1"))
-        .div(pricePerShare);
+      const targetComponentUnits = targetCrvLPUnits.mul(parseEther("1")).div(pricePerShare);
 
       if (debug) {
         console.log({
@@ -74,10 +54,7 @@ export default function SetTokenCreator({
     },
 
     create: async function (signer: Signer): Promise<ContractReceipt> {
-      const creator = SetTokenCreator__factory.connect(
-        configuration.core.SetTokenCreator.address,
-        signer
-      );
+      const creator = SetTokenCreator__factory.connect(configuration.core.SetTokenCreator.address, signer);
 
       console.log("components");
       const setComponents = getComponents(configuration);
@@ -89,8 +66,8 @@ export default function SetTokenCreator({
         setComponents.map((component) => this._calculateUnits(component)),
         setModules.map((module) => module.address),
         configuration.manager,
-        "Butter",
-        "BUTTER"
+        configuration.tokenName,
+        configuration.tokenSymbol
       );
 
       console.log("waiting for block confirmation");

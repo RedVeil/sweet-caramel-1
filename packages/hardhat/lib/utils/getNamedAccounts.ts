@@ -25,7 +25,8 @@ export default function getNamedAccounts() {
       hardhat: "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
     },
     butterStaking: {
-      hardhat: "0xE3011A37A904aB90C8881a99BD1F6E21401f1522",
+      hardhat: "0xf3a88Fb5E3169Aa9dc1cec22B1007290E02D95DD",
+      mainnet: "0xf3a88Fb5E3169Aa9dc1cec22B1007290E02D95DD",
       //mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
     },
     yFrax: {
@@ -33,30 +34,60 @@ export default function getNamedAccounts() {
       rinkeby: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
       hardhat: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
     },
-    yMim: {
-      mainnet: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
-      rinkeby: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
-      hardhat: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+    yRai: {
+      mainnet: "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
+      rinkeby: "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
+      hardhat: "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
+    },
+    yMusd: {
+      mainnet: "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
+      rinkeby: "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
+      hardhat: "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
+    },
+    yAlusd: {
+      mainnet: "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
+      rinkeby: "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
+      hardhat: "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
     },
     crvFrax: {
       mainnet: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       rinkeby: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       hardhat: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
     },
-    crvMim: {
-      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+    crvRai: {
+      mainnet: "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
+      rinkeby: "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
+      hardhat: "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
+    },
+    crvMusd: {
+      mainnet: "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+      rinkeby: "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+      hardhat: "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+    },
+    crvAlusd: {
+      mainnet: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      rinkeby: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      hardhat: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
     },
     crvFraxMetapool: {
       mainnet: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       rinkeby: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       hardhat: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
     },
-    crvMimMetapool: {
-      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+    crvRaiMetapool: {
+      mainnet: "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d",
+      rinkeby: "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d",
+      hardhat: "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d",
+    },
+    crvMusdMetapool: {
+      mainnet: "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+      rinkeby: "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+      hardhat: "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+    },
+    crvAlusdMetapool: {
+      mainnet: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      rinkeby: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      hardhat: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
     },
     threePool: {
       mainnet: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
@@ -131,9 +162,9 @@ export default function getNamedAccounts() {
       hardhat: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
     },
     butter: {
-      mainnet: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
-      rinkeby: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
-      hardhat: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
+      mainnet: "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
+      rinkeby: "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
+      hardhat: "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
     },
     setStreamingFeeModule: {
       mainnet: "0x08f866c74205617B6F3903EF481798EcED10cDEC",
@@ -147,17 +178,24 @@ export default function getNamedAccounts() {
       mumbai: "",
     },
     dao: {
+      // aragon organization address on mainnet
       mainnet: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
       rinkeby: "0x7D9B21704B5311bB480f0109dFD5D84ed1207e11",
       hardhat: "0xbD94fc22E6910d118187c8300667c66eD560A29B",
     },
     daoAgent: {
+      // aragon agent on mainnet / multisigs on other networks
       mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       rinkeby: "0x6d8bd5d37461788182131bae19d03ff2b3c0687c",
       polygon: "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
       hardhat: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
       arbitrum: "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
       mumbai: "0x196CF485b98fB95e27b13f40A43b59FA2570a16E",
+    },
+    daoAgentV2: {
+      // multisig on mainnet
+      mainnet: "0x6B1741143D3F2C4f1EdA12e19e9518489DF03e04",
+      hardhat: "0x6B1741143D3F2C4f1EdA12e19e9518489DF03e04",
     },
     daoTreasury: {
       mainnet: "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
@@ -210,7 +248,7 @@ export default function getNamedAccounts() {
     },
     keeperIncentive: {
       polygon: "0xd928a457247649835e652416847C54C038FAF920",
-      mainnet: "0xCD4f7582b32d90BD9FC7DC9F8116C43Ab17dE011",
+      mainnet: "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
     },
     contractRegistry: {
       mainnet: "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
@@ -219,8 +257,8 @@ export default function getNamedAccounts() {
       rinkeby: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
     },
     butterBatch: {
-      mainnet: "0xe1CaA1216B2D9Fd88EC700C66D8Bff36bAB4eb6F",
-      hardhat: "0xaca81583840B1bf2dDF6CDe824ada250C1936B4D",
+      mainnet: "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
+      hardhat: "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
       rinkeby: "0x06b90E97Cf4b64f338d1D2106329336897bb16F3",
     },
     butterBatchZapper: {
