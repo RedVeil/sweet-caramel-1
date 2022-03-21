@@ -190,17 +190,17 @@ async function createDemoData(
   console.log("sending dai...");
   await faucet.sendTokens(addresses.dai, 1000, signerAddress);
 
-  await threeCrv.approve(butterBatch.address, parseEther("13000"));
+  await threeCrv.approve(butterBatch.address, parseEther("130000"));
   await butter.approve(butterBatch.address, parseEther("2"));
 
   console.log("first butter mint");
   const mintId0 = await butterBatch.currentMintBatchId();
-  await butterBatch.depositForMint(parseEther("12000"), signerAddress);
+  await butterBatch.depositForMint(parseEther("120000"), signerAddress);
   await butterBatch.batchMint();
   await butterBatch.claim(mintId0, signerAddress);
 
   console.log("second butter mint");
-  await butterBatch.depositForMint(parseEther("1000"), signerAddress);
+  await butterBatch.depositForMint(parseEther("10000"), signerAddress);
   await butterBatch.batchMint();
 
   console.log("redeeming....");
