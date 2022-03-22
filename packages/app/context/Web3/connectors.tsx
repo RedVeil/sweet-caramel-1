@@ -1,5 +1,6 @@
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { NetworkConnector } from "@web3-react/network-connector";
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 
 export enum ChainId {
   Ethereum = 1,
@@ -11,6 +12,16 @@ export enum ChainId {
   Hardhat = 31337,
   BinanceSmartChain = 56,
 }
+
+export enum Wallets {
+  METAMASK,
+  WALLETCONNECT,
+}
+
+export const walletMap = {
+  [Wallets.METAMASK]: "Metamask",
+  [Wallets.WALLETCONNECT]: "WalletConnect",
+};
 
 export const networkMap = {
   [ChainId.Ethereum]: "Ethereum",
@@ -63,4 +74,29 @@ const Network = (chainId: number) => {
   });
 };
 
-export const connectors = { Injected, Network: Network };
+export const walletconnect = new WalletConnectConnector({
+  rpc: RPC_URLS,
+  chainId: 1,
+  bridge: "https://bridge.walletconnect.org",
+  qrcode: true,
+  supportedChainIds,
+});
+
+export const connectors = { Injected, Network: Network, walletconnect };
+
+export const supportedWallets = [Wallets.METAMASK, Wallets.WALLETCONNECT];
+
+export const walletToConnector = {
+  [Wallets.METAMASK]: connectors.Injected,
+  [Wallets.WALLETCONNECT]: connectors.walletconnect,
+};
+
+export const walletToName = {
+  [Wallets.METAMASK]: "Injected",
+  [Wallets.WALLETCONNECT]: "WalletConnect",
+};
+
+export const walletToLogo = {
+  [Wallets.METAMASK]: "/images/wallets/metamask.svg",
+  [Wallets.WALLETCONNECT]: "/images/wallets/walletConnect.svg",
+};

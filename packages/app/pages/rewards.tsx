@@ -22,7 +22,7 @@ import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { toast, Toaster } from "react-hot-toast";
 import { SWRResponse } from "swr";
-import { ChainId, connectors } from "../context/Web3/connectors";
+import { ChainId } from "../context/Web3/connectors";
 import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../hooks/tokens/useERC20";
 
@@ -33,7 +33,8 @@ export enum Tabs {
 }
 
 export default function index(): JSX.Element {
-  const { account, library, chainId, activate, contractAddresses, onContractSuccess, onContractError } = useWeb3();
+  const { account, library, chainId, activate, contractAddresses, onContractSuccess, onContractError, showModal } =
+    useWeb3();
   const { dispatch } = useContext(store);
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
   const xPopRedemption = useMemo(() => {
@@ -243,7 +244,7 @@ export default function index(): JSX.Element {
               />
               <div className="flex mx-10 justify-items-stretch">
                 <button
-                  onClick={() => activate(connectors.Injected)}
+                  onClick={showModal}
                   className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
                   style={{ width: "368px", height: "60px" }}
                 >

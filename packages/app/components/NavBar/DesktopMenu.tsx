@@ -1,9 +1,9 @@
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { setDualActionWideModal } from "context/actions";
+import { setDualActionWideModal, setSingleActionModal } from "context/actions";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
-import { connectors } from "context/Web3/connectors";
+import { Wallets, walletToLogo } from "context/Web3/connectors";
 import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -15,7 +15,7 @@ import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export default function DesktopMenu({ currentChain, disconnectInjected }: MenuProps): JSX.Element {
-  const { chainId, account, activate, deactivate } = useWeb3();
+  const { chainId, account, activate, deactivate, showModal, selectedWallet } = useWeb3();
   const router = useRouter();
   const switchNetwork = useNetworkSwitch();
   const { dispatch } = useContext(store);
@@ -83,36 +83,58 @@ export default function DesktopMenu({ currentChain, disconnectInjected }: MenuPr
             </Menu.Button>
           </Menu>
         </div>
-        <div className="relative flex flex-container flex-row w-fit-content z-10">
-          <Menu>
-            <Menu.Button>
-              <div
-                className={`w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl cursor-pointer`}
-              >
-                <img src={currentChain.logo} alt={""} className="w-4.5 h-4 mr-4" />
-                <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChain.name}</p>
-                <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
-              </div>
-            </Menu.Button>
-            <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => switchNetwork(newChainId)} />
-          </Menu>
-        </div>
+        {selectedWallet !== Wallets.WALLETCONNECT ? (
+          <div className="relative flex flex-container flex-row w-fit-content z-10">
+            <Menu>
+              <Menu.Button>
+                <div
+                  className={`w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl cursor-pointer`}
+                >
+                  <img src={currentChain.logo} alt={""} className="w-4.5 h-4 mr-4" />
+                  <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChain.name}</p>
+                  <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
+                </div>
+              </Menu.Button>
+              <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => switchNetwork(newChainId)} />
+            </Menu>
+          </div>
+        ) : (
+          <div
+            className="relative flex flex-container flex-row w-fit-content z-10"
+            onClick={() => {
+              dispatch(
+                setSingleActionModal({
+                  title: "Network change on app",
+                  content: "You must disconnect and change the wallet on your WalletConnect app",
+                  onDismiss: {
+                    label: "Dismiss",
+                    onClick: () => {
+                      dispatch(setSingleActionModal(false));
+                    },
+                  },
+                }),
+              );
+            }}
+          >
+            <div
+              className={`w-44 mr-5 h-full px-6 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl cursor-pointer`}
+            >
+              <img src={currentChain.logo} alt={""} className="w-4.5 h-4 mr-4" />
+              <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChain.name}</p>
+              <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
+            </div>
+          </div>
+        )}
         <button
-          onClick={() => {
-            if (account) {
-              disconnectInjected(deactivate, activate, chainId);
-            } else {
-              localStorage.setItem("eager_connect", "true");
-              activate(connectors.Injected);
-            }
-          }}
-          className={`rounded-full py-3 w-44 border border-transparent shadow-custom group hover:bg-blue-500 ${
+          onClick={showModal}
+          className={`rounded-full flex flex-row justify-around items-center py-3 px-3 w-44 border border-transparent shadow-custom group hover:bg-blue-500 ${
             account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
           }`}
         >
           <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
-            {account ? "Disconnect Wallet" : "Connect Wallet"}
+            {account ? `${account.slice(0, 6)}...` : "Connect Wallet"}
           </p>
+          {account && <img src={walletToLogo[selectedWallet]} className="w-6 h-6" />}
         </button>
       </div>
     </div>

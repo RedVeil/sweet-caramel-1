@@ -6,6 +6,7 @@ import {
   MultiChoiceActionModalProps,
 } from "components/Modal/MultiChoiceActionModal";
 import { DefaultSingleActionModalProps, SingleActionModalProps } from "components/Modal/SingleActionModal";
+import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "components/Modal/WalletSelectModal";
 import { DefaultDualActionModalProps } from "../components/Modal/DualActionModal";
 import { NotificationProps } from "../components/Notifications/NotificationProps";
 
@@ -15,6 +16,7 @@ export const HIDE_NOTIFICATION = "notifications/HIDE_NOTIFICATION";
 export const CLEAR_NOTIFICATIONS = "notifications/CLEAR_NOTIFICATIONS";
 export const MOBILE_FULL_SCREEN_MODAL = "modals/MOBILE_FULL_SCREEN_MODAL";
 export const SINGLE_ACTION_MODAL = "modals/SINGLE_ACTION_MODAL";
+export const WALLET_SELECT_MODAL = "modals/WALLET_SELECT_MODAL";
 export const MULTI_CHOICE_ACTION_MODAL = "modals/MULTI_CHOICE_ACTION_MODAL";
 export const DUAL_ACTION_MODAL = "modals/DUAL_ACTION_MODAL";
 export const DUAL_ACTION_WIDE_MODAL = "modals/DUAL_ACTION_WIDE_MODAL";
@@ -30,6 +32,7 @@ export type AppActions =
   | ClearNotificationsAction
   | SetMobileFullScreenModalAction
   | SetSingleActionModalAction
+  | SetWalletSelectModalAction
   | SetDualActionModalAction
   | SetDualActionWideModalAction
   | SetMultiChoiceActionModalAction
@@ -144,6 +147,31 @@ export const setSingleActionModal = (props: Partial<SingleActionModalProps> | fa
     type: SINGLE_ACTION_MODAL,
     payload: {
       ...DefaultSingleActionModalProps,
+      visible: true,
+      ...props,
+    },
+  };
+};
+
+export interface SetWalletSelectModalAction {
+  type: typeof WALLET_SELECT_MODAL;
+  payload: WalletSelectModalProps;
+}
+
+export const setWalletSelectModal = (props: Partial<WalletSelectModalProps> | false): SetWalletSelectModalAction => {
+  if (!props) {
+    return {
+      type: WALLET_SELECT_MODAL,
+      payload: {
+        ...DefaultWalletSelectModalProps,
+        visible: false,
+      },
+    };
+  }
+  return {
+    type: WALLET_SELECT_MODAL,
+    payload: {
+      ...DefaultWalletSelectModalProps,
       visible: true,
       ...props,
     },

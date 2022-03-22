@@ -8,6 +8,7 @@ import DualActionWideModalContainer from "components/Modal/DualActionWideModalCo
 import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
 import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
+import { WalletSelectModalContainer } from "components/Modal/WalletSelectModalContainer";
 import NetworkHandler from "components/NetworkHandler";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
@@ -70,6 +71,7 @@ export default function MyApp(props) {
             <NetworkHandler />
             <MobileFullScreenModalContainer />
             <SingleActionModalContainer />
+            <WalletSelectModalContainer />
             <MultiChoiceActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />

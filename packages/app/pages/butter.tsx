@@ -24,7 +24,7 @@ import {
 } from "context/actions";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
-import { ChainId, connectors } from "context/Web3/connectors";
+import { ChainId } from "context/Web3/connectors";
 import { BigNumber, ethers } from "ethers";
 import useButter from "hooks/butter/useButter";
 import useButterBatch from "hooks/butter/useButterBatch";
@@ -79,7 +79,8 @@ const DEFAULT_STATE: ButterPageState = {
 };
 
 export default function Butter(): JSX.Element {
-  const { library, account, chainId, activate, onContractSuccess, onContractError, contractAddresses } = useWeb3();
+  const { library, account, chainId, activate, onContractSuccess, onContractError, contractAddresses, showModal } =
+    useWeb3();
   const { data: butter, error: errorFetchingButter } = useButter();
   const { data: butterBatchZapper, error: errorFetchingButterBatchZapper } = useButterBatchZapper();
   const { data: butterBatch, error: errorFetchingButterBatch } = useButterBatch();
@@ -513,7 +514,7 @@ export default function Butter(): JSX.Element {
                   {!account && (
                     <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                       <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                        <MainActionButton label="Connect Wallet" handleClick={() => activate(connectors.Injected)} />
+                        <MainActionButton label="Connect Wallet" handleClick={showModal} />
                       </div>
                     </div>
                   )}
