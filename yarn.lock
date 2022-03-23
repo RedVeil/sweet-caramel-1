@@ -20772,6 +20772,11 @@ react-smooth@^2.0.0:
     raf "^3.4.0"
     react-transition-group "2.9.0"
 
+react-swipeable@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/react-swipeable/-/react-swipeable-6.2.1.tgz#7359fadda9917ee8b214e946447b56d3c7b0d314"
+  integrity sha512-JpTj+tjJTDcIWtoMkab6zfwWD1T1tBzUyEfXsXnohnNkwA2dTuNS0gtN7HoxU1Qa+e3GDnfNYk2z7vwzfO4SoQ==
+
 react-syntax-highlighter@^13.5.3:
   version "13.5.3"
   resolved "https://registry.yarnpkg.com/react-syntax-highlighter/-/react-syntax-highlighter-13.5.3.tgz#9712850f883a3e19eb858cf93fad7bb357eea9c6"
