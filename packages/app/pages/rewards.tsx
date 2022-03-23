@@ -343,7 +343,7 @@ export default function index(): JSX.Element {
                             className={`flex flex-row justify-between md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}
                           >
                             <div className="flex flex-col md:flex-row">
-                              <div className="inline flex flex-row">
+                              <div className="flex flex-row">
                                 <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>
                                   Vesting Records
                                 </h1>
@@ -351,7 +351,7 @@ export default function index(): JSX.Element {
                                   classExtras="h-7 w-7 md:h-8 md:w-8 mt-1.5 md:mt-3 ml-1 md:ml-2"
                                   id="1"
                                   title="Vesting Records"
-                                  content="Butter is a token that represents a yield accrual strategy. The minting process involves converting deposited stablecoins into other stable assets that are compatible with the yield accrual strategy. As the value of the underlying assets increase, so does the redeemable value of Butter."
+                                  content="Here you can see all your vested POP rewards. Each of these Records will linearly unlock more POP over the span of 365 days. 'Unlock Ends' shows you when all POP will be unlocked from this Vesting Record. 'Total Tokens' is the total amount of POP that this record will unlock over time."
                                 />
                               </div>
                               <h1
