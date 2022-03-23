@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import useButterBatch from "./useButterBatch";
 
 export default function useButterBatchAdapter(): ButterBatchAdapter | undefined {
-  const { data: butterBatch, error: errorFetchingButterBatch } = useButterBatch();
+  const butterBatch = useButterBatch();
   const [butterBatchAdapter, setButterBatchAdapter] = useState<ButterBatchAdapter>(undefined);
   useEffect(() => {
     if (butterBatch) {

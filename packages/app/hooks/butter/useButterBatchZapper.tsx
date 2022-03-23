@@ -1,27 +1,16 @@
-import { isAddress } from "@ethersproject/address";
 import { ButterBatchProcessingZapper, ButterBatchProcessingZapper__factory } from "@popcorn/hardhat/typechain";
 import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import useWeb3 from "hooks/useWeb3";
-import { useCallback } from "react";
-import useSWR, { SWRResponse } from "swr";
+import { useMemo } from "react";
 
-export default function useButterBatchZapper(): SWRResponse<ButterBatchProcessingZapper, Error> {
+export default function useButterBatchZapper(): ButterBatchProcessingZapper {
   const { library, contractAddresses, account, chainId } = useWeb3();
 
-  const getButterBatchZapperContract = useCallback(() => {
-    if (isAddress(contractAddresses.butterBatchZapper))
+  return useMemo(() => {
+    if (isButterSupportedOnCurrentNetwork(chainId))
       return ButterBatchProcessingZapper__factory.connect(
         contractAddresses.butterBatchZapper,
         account ? library.getSigner() : library,
       );
-  }, [chainId, account, library, contractAddresses.butterBatchZapper]);
-
-  const shouldFetch =
-    !!contractAddresses && !!contractAddresses.butterBatchZapper && isButterSupportedOnCurrentNetwork(chainId);
-  return useSWR(
-    shouldFetch ? [`butterBatchZapper`, contractAddresses.butterBatchZapper, chainId, account, library] : null,
-    async (key) => {
-      return getButterBatchZapperContract();
-    },
-  );
+  }, [library, contractAddresses.butterBatchZapper, account]);
 }

@@ -145,7 +145,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   if (["hardhat", "local"].includes(hre.network.name)) {
-    createDemoData(hre, deployments, signer, signerAddress, deploy, addresses);
+    await createDemoData(hre, deployments, signer, signerAddress, deploy, addresses);
   }
 };
 

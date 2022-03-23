@@ -1,6 +1,5 @@
 const defaultFeatureFlags = [
   // Add Feature flags here
-  { key: "butter", prod: false, dev: true },
   { key: "showLocalNetwork", prod: false, dev: true },
 ];
 

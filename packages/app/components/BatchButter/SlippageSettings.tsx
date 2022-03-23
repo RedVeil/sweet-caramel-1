@@ -2,6 +2,19 @@ import { InfoIconWithModal } from "components/InfoIconWithModal";
 import { Dispatch, useState } from "react";
 import PseudoRadioButton from "./PseudoRadioButton";
 
+function getActiveButtonFromSlippage(slippage: number): number {
+  switch (slippage) {
+    case 0.1:
+      return 0;
+    case 0.5:
+      return 1;
+    case 1:
+      return 2;
+    default:
+      return 3;
+  }
+}
+
 interface SlippageSettingsProps {
   slippage: number;
   setSlippage: Dispatch<number>;
@@ -9,7 +22,7 @@ interface SlippageSettingsProps {
 
 const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippage }) => {
   const [visible, setVisibility] = useState<boolean>(false);
-  const [activeButton, setActiveButton] = useState<number>(2);
+  const [activeButton, setActiveButton] = useState<number>(getActiveButtonFromSlippage(slippage));
   const [value, setValue] = useState<number>(slippage);
 
   return (

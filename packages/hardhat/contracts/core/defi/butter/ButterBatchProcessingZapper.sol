@@ -120,7 +120,7 @@ contract ButterBatchProcessingZapper {
    */
   function claimAndSwapToStable(
     bytes32 _batchId,
-    uint256 _stableCoinIndex,
+    uint8 _stableCoinIndex,
     uint256 _min_amount
   ) external {
     //We can only deposit 3CRV which come from mintBatches otherwise this could claim Butter which we cant process here

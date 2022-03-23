@@ -28,7 +28,10 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
               classExtras="h-7 w-7 mt-0 ml-5"
               id="1"
               title="Mint"
-              content="Butter is a token that represents a yield accrual strategy. The minting process involves converting deposited stablecoins into other stable assets that are compatible with the yield accrual strategy. As the value of the underlying assets increase, so does the redeemable value of Butter."
+              content="Mint BTR with 3CRV or stablecoins to earn interest on multiple stablecoins at once.
+              As the value of the underlying assets increase, so does the redeemable value of
+              Butter. This process converts deposited funds into other stablecoins and deploys
+              them to automated yield-farming contracts by Yearn to generate interest."
             />
           </div>
         </p>
@@ -52,7 +55,8 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
               classExtras="h-7 w-7 mt-0 ml-5"
               id="2"
               title="Redeem"
-              content="The Butter redemption process involves unwrapping Butter's underlying assets into stablecoins."
+              content="Redeem your BTR to receive its value in 3CRV or stablecoins. We will convert all the
+              underlying tokens of BTR back into 3CRV or your desired stablecoin."
             />
           </div>
         </p>

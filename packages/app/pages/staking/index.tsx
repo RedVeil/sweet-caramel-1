@@ -2,8 +2,8 @@ import { Address } from "@popcorn/utils/src/types";
 import Navbar from "components/NavBar/NavBar";
 import StakeCard from "components/StakeCard";
 import { ChainId } from "context/Web3/connectors";
+import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
 import usePopLocker from "hooks/staking/usePopLocker";
-import useStakingPools from "hooks/staking/useStakingPools";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import React from "react";
@@ -19,7 +19,7 @@ export default function index(): JSX.Element {
   const router = useRouter();
 
   const { data: popLocker, isValidating: popLockerIsValidating } = usePopLocker(popStaking);
-  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useStakingPools(staking);
+  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
 
   const onSelectPool = (stakingContractAddress: Address, stakingTokenAddress: Address) => {
     if (stakingTokenAddress?.toLowerCase() === pop.toLowerCase()) {

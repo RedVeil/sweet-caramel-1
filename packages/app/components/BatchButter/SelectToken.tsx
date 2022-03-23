@@ -1,4 +1,4 @@
-import { BatchProcessToken, BatchProcessTokens } from "@popcorn/utils/src/types";
+import { BatchProcessToken, BatchProcessTokenKey, BatchProcessTokens } from "@popcorn/utils/src/types";
 import { useState } from "react";
 import * as Icon from "react-feather";
 
@@ -7,7 +7,7 @@ interface SelectTokenProps {
   token: BatchProcessTokens;
   selectedToken: BatchProcessToken;
   notSelectable: string[];
-  selectToken: Function;
+  selectToken?: (token: BatchProcessTokenKey) => void;
 }
 
 export default function SelectToken({
@@ -47,7 +47,7 @@ export default function SelectToken({
                 key={selectableToken}
                 className="cursor-pointer group h-full flex flex-row items-center hover:bg-gray-100 rounded-md"
                 onClick={() => {
-                  selectToken(token[selectableToken]);
+                  selectToken && selectToken(token[selectableToken].key);
                   setDropdown(false);
                 }}
               >

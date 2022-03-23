@@ -83,6 +83,9 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInject
                         <NavbarLink label="Home" url="/" isActive={router.pathname === "/"} />
                       </div>
                       <div className="py-6">
+                        <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/butter"} />
+                      </div>
+                      <div className="py-6">
                         <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />
                       </div>
                       <div className="py-6">

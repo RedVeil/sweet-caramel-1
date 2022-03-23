@@ -5,6 +5,8 @@ export type Address = string;
 export interface ContractAddresses {
   staking?: Array<Address>;
   popStaking?: Address;
+  butterStaking?: Address;
+  popUsdcLpStaking?: Address;
   pop?: Address;
   xPop?: Address;
   xPopRedemption?: Address;
@@ -19,6 +21,18 @@ export interface ContractAddresses {
   butterBatch?: Address;
   butterBatchZapper?: Address;
   butterDependency?: ButterDependencyAddresses;
+  yFrax?: Address;
+  yMim?: Address;
+  crvFrax?: Address;
+  crvMim?: Address;
+  crvFraxMetapool?: Address;
+  crvMimMetapool?: Address;
+  curveAddressProvider?: Address;
+  curveFactoryMetapoolDepositZap?: Address;
+  uniswapRouter?: Address;
+  setBasicIssuanceModule?: Address;
+  setTokenCreator?: Address;
+  setStreamingFeeModule?: Address;
   aclRegistry?: Address;
   contractRegistry?: Address;
   // dao: DAO;
@@ -104,8 +118,8 @@ export type HotSwapParameter = {
 };
 
 export type SelectedToken = {
-  input: BatchProcessToken;
-  output: BatchProcessToken;
+  input: BatchProcessTokenKey;
+  output: BatchProcessTokenKey;
 };
 
 export type BatchProcessTokens = {
@@ -116,8 +130,10 @@ export type BatchProcessTokens = {
   usdt: BatchProcessToken;
 };
 
+export type BatchProcessTokenKey = "butter" | "threeCrv" | "dai" | "usdc" | "usdt";
+
 export type BatchProcessToken = {
-  key: string;
+  key: BatchProcessTokenKey;
   claimableBalance?: BigNumber;
   price: BigNumber;
   img?: string;

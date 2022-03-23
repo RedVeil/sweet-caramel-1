@@ -11,8 +11,8 @@ import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions
 import { store } from "context/store";
 import { BigNumber, ethers } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
+import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
 import usePopLocker from "hooks/staking/usePopLocker";
-import useStakingPools from "hooks/staking/useStakingPools";
 import useClaimEscrows from "hooks/useClaimEscrows";
 import useClaimStakingReward from "hooks/useClaimStakingReward";
 import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
@@ -42,10 +42,10 @@ export default function index(): JSX.Element {
       return XPopRedemption__factory.connect(contractAddresses.xPopRedemption, account ? library.getSigner() : library);
     }
   }, [chainId, account, library]);
-  const { data: pop } = useERC20(contractAddresses.pop);
-  const { data: xPop } = useERC20(contractAddresses.xPop);
+  const pop = useERC20(contractAddresses.pop);
+  const xPop = useERC20(contractAddresses.xPop);
   const { data: popLocker, mutate: revalidatePopLocker } = usePopLocker(contractAddresses.popStaking);
-  const { data: stakingPools, mutate: revalidateStakingPools } = useStakingPools(contractAddresses.staking);
+  const { data: stakingPools, mutate: revalidateStakingPools } = useGetMultipleStakingPools(contractAddresses.staking);
   const balancesXPop = useBalanceAndAllowance(xPop, account, contractAddresses?.xPopRedemption);
   const balancesPop = useBalanceAndAllowance(pop, account, contractAddresses?.xPopRedemption);
 

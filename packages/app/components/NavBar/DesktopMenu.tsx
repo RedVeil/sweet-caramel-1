@@ -1,6 +1,6 @@
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { setDualActionWideModal, setSingleActionModal } from "context/actions";
+import { setSingleActionModal } from "context/actions";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
 import { Wallets, walletToLogo } from "context/Web3/connectors";
@@ -21,33 +21,6 @@ export default function DesktopMenu({ currentChain, disconnectInjected }: MenuPr
   const { dispatch } = useContext(store);
   const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
 
-  function showDelayInfo() {
-    dispatch(
-      setDualActionWideModal({
-        title: "Coming Soon",
-        content:
-          "The release of our yield optimizer, Butter, has been delayed due to recent events involving Abracadabra and MIM. We've decided to change Butter's underlying assets to address these concerns and offer the best product possible in today's DeFi landscape.",
-        image: <img src="/images/ComingSoonCat.svg" className="mx-auto pl-5 w-6/12" />,
-        onConfirm: {
-          label: "Learn More",
-          onClick: () => {
-            window.open(
-              "https://www.notion.so/popcorn-network/Where-s-Butter-edb3b58f6e6541ea9b10242d0fe2df9c",
-              "_blank",
-            );
-            dispatch(setDualActionWideModal(false));
-          },
-        },
-        onDismiss: {
-          label: "Dismiss",
-          onClick: () => {
-            dispatch(setDualActionWideModal(false));
-          },
-        },
-      }),
-    );
-  }
-
   return (
     <div className="flex flex-row items-center justify-between lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto z-50">
       <div className="flex flex-row items-center">
@@ -60,7 +33,7 @@ export default function DesktopMenu({ currentChain, disconnectInjected }: MenuPr
         </div>
         <ul className="flex flex-row space-x-10 ml-16">
           <li>
-            <NavbarLink label="Butter" isActive={butterEnabled} onClick={showDelayInfo} />
+            <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/butter"} />
           </li>
           <li>
             <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />

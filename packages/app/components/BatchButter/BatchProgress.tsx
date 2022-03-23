@@ -1,6 +1,6 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber, formatBigNumber } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
 interface BatchProgressProps {
@@ -13,8 +13,13 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
     <div className="bg-white border border-gray-200 shadow-custom rounded-2xl h-full flex flex-col">
       <div className="w-full flex flex-row px-6 pt-6 pb-3 xs:pb-6 h-full items-center justify-center">
         <div className="w-16 h-16 flex-shrink-0 flex-grow-0 mr-4 rounded-full bg-gray-100 flex flex-row items-center justify-center">
-          <p className="text-2xl font-semibold leading-none text-gray-700">
-            {formatAndRoundBigNumber(batchAmount.div(1000), 0)}k
+          <p className="text-xl font-semibold leading-none text-gray-700">
+            {batchAmount.eq(constants.Zero)
+              ? 0
+              : (Number(formatBigNumber(batchAmount)) / 1000).toFixed(
+                  Number(formatBigNumber(batchAmount)) > 1000 ? 0 : 1,
+                )}
+            k
           </p>
         </div>
         <div className="w-full">

@@ -3,11 +3,12 @@ import {
   adjustDepositDecimals,
   formatAndRoundBigNumber,
   getMinMintAmount,
+  isButterSupportedOnCurrentNetwork,
   ModalType,
   prepareHotSwap,
   toggleModal,
 } from "@popcorn/utils";
-import { BatchProcessToken, BatchType, SelectedToken } from "@popcorn/utils/src/types";
+import { BatchProcessTokenKey, BatchProcessTokens, BatchType, SelectedToken } from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
@@ -16,25 +17,20 @@ import Tutorial from "components/BatchButter/Tutorial";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
-import {
-  setDualActionWideModal,
-  setMobileFullScreenModal,
-  setMultiChoiceActionModal,
-  setSingleActionModal,
-} from "context/actions";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
+import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
 import { ChainId } from "context/Web3/connectors";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, constants, ethers } from "ethers";
 import useButter from "hooks/butter/useButter";
 import useButterBatch from "hooks/butter/useButterBatch";
 import useButterBatchData from "hooks/butter/useButterBatchData";
 import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
 import useGetButterAPY from "hooks/butter/useGetButterAPY";
+import useStakingPool from "hooks/staking/useStakingPool";
 import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
-import router from "next/router";
+import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast, { Toaster } from "react-hot-toast";
@@ -67,6 +63,8 @@ export interface ButterPageState {
   redeeming: boolean;
   useUnclaimedDeposits: boolean;
   slippage: number;
+  initalLoad: boolean;
+  token: BatchProcessTokens;
 }
 
 const DEFAULT_STATE: ButterPageState = {
@@ -76,33 +74,34 @@ const DEFAULT_STATE: ButterPageState = {
   redeeming: false,
   useUnclaimedDeposits: false,
   slippage: 1,
+  initalLoad: true,
+  token: null,
 };
 
 export default function Butter(): JSX.Element {
-  const { library, account, chainId, activate, onContractSuccess, onContractError, contractAddresses, showModal } =
-    useWeb3();
-  const { data: butter, error: errorFetchingButter } = useButter();
-  const { data: butterBatchZapper, error: errorFetchingButterBatchZapper } = useButterBatchZapper();
-  const { data: butterBatch, error: errorFetchingButterBatch } = useButterBatch();
-  const { data: butterAPY, error: errorFetchingYearnVaults, mutate: refetchYearnVaults } = useGetButterAPY();
+  const { library, account, chainId, onContractSuccess, onContractError, contractAddresses, showModal } = useWeb3();
+  const { dispatch } = useContext(store);
+  const router = useRouter();
+  const butter = useButter();
+  const butterBatchZapper = useButterBatchZapper();
+  const butterBatch = useButterBatch();
+  const { data: butterAPY } = useGetButterAPY();
   const {
     data: butterBatchData,
     error: errorFetchingButterBatchData,
     mutate: refetchButterBatchData,
   } = useButterBatchData();
-  const { dispatch } = useContext(store);
+  const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
   const switchNetwork = useNetworkSwitch();
   const loadingButterBatchData = !butterBatchData && !errorFetchingButterBatchData;
 
-  const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
-
   useEffect(() => {
     if (!library || !chainId) {
       return;
     }
-    if (!butterEnabled) {
+    if (!isButterSupportedOnCurrentNetwork(chainId)) {
       dispatch(
         setDualActionWideModal({
           title: "Coming Soon",
@@ -110,12 +109,7 @@ export default function Butter(): JSX.Element {
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
-              if ([ChainId.Hardhat, ChainId.Localhost].includes(parseInt(process.env.CHAIN_ID))) {
-                console.log("switching network ", parseInt(process.env.CHAIN_ID));
-                switchNetwork(Number(process.env.CHAIN_ID));
-              } else {
-                switchNetwork(ChainId.Ethereum);
-              }
+              switchNetwork(ChainId.Ethereum);
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -136,14 +130,23 @@ export default function Butter(): JSX.Element {
     if (!butterBatchData || !butterBatchData?.batchProcessTokens) {
       return;
     }
-    setButterPageState({
-      ...butterPageState,
-      selectedToken: {
-        input: butterBatchData?.batchProcessTokens?.threeCrv,
-        output: butterBatchData?.batchProcessTokens?.butter,
-      },
-      redeeming: false,
-    });
+    if (butterPageState.initalLoad) {
+      setButterPageState({
+        ...butterPageState,
+        selectedToken: {
+          input: butterBatchData?.batchProcessTokens?.threeCrv?.key,
+          output: butterBatchData?.batchProcessTokens?.butter?.key,
+        },
+        token: butterBatchData?.batchProcessTokens,
+        redeeming: false,
+        initalLoad: false,
+      });
+    } else {
+      setButterPageState({
+        ...butterPageState,
+        token: butterBatchData?.batchProcessTokens,
+      });
+    }
   }, [butterBatchData]);
 
   useEffect(() => {
@@ -154,8 +157,8 @@ export default function Butter(): JSX.Element {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterBatchData?.batchProcessTokens?.butter,
-          output: butterBatchData?.batchProcessTokens?.threeCrv,
+          input: butterPageState?.token?.butter?.key,
+          output: butterPageState?.token?.threeCrv?.key,
         },
         useZap: false,
         depositAmount: BigNumber.from("0"),
@@ -165,8 +168,8 @@ export default function Butter(): JSX.Element {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterBatchData?.batchProcessTokens?.threeCrv,
-          output: butterBatchData?.batchProcessTokens?.butter,
+          input: butterPageState?.token?.threeCrv?.key,
+          output: butterPageState?.token?.butter?.key,
         },
         useZap: false,
         depositAmount: BigNumber.from("0"),
@@ -182,7 +185,7 @@ export default function Butter(): JSX.Element {
     return butterBatchData?.claimableRedeemBatches.length > 0;
   };
 
-  function selectToken(token: BatchProcessToken): void {
+  function selectToken(token: BatchProcessTokenKey): void {
     const zapToken = ["dai", "usdc", "usdt"];
     const newSelectedToken = { ...butterPageState.selectedToken };
     if (butterPageState.redeeming) {
@@ -190,7 +193,7 @@ export default function Butter(): JSX.Element {
     } else {
       newSelectedToken.input = token;
     }
-    if (zapToken.includes(newSelectedToken.output.key) || zapToken.includes(newSelectedToken.input.key)) {
+    if (zapToken.includes(newSelectedToken.output) || zapToken.includes(newSelectedToken.input)) {
       setButterPageState({
         ...butterPageState,
         selectedToken: newSelectedToken,
@@ -224,26 +227,27 @@ export default function Butter(): JSX.Element {
       .then((res) =>
         onContractSuccess(res, `Funds deposited!`, () => {
           refetchButterBatchData();
+          setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
         }),
       )
       .catch((err) => onContractError(err));
   }
 
   async function deposit(depositAmount: BigNumber, batchType: BatchType): Promise<void> {
-    depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input.key);
+    depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
     if (batchType === BatchType.Mint) {
-      toast.loading(`Depositing ${butterPageState.selectedToken.input.name} ...`);
+      toast.loading(`Depositing ${butterPageState.token[butterPageState.selectedToken.input].name} ...`);
       let mintCall;
       if (butterPageState.useZap) {
         const virtualPriceValue = await virtualPrice();
         const minMintAmount = getMinMintAmount(
           depositAmount,
-          butterPageState.selectedToken.input.key,
+          butterPageState.selectedToken.input,
           butterPageState.slippage,
           virtualPriceValue,
         );
         mintCall = butterBatchZapper.zapIntoBatch(
-          getZapDepositAmount(depositAmount, butterPageState.selectedToken.input.key),
+          getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
           minMintAmount,
         );
       } else {
@@ -252,24 +256,36 @@ export default function Butter(): JSX.Element {
 
       await mintCall
         .then((res) =>
-          onContractSuccess(res, `${butterPageState.selectedToken.input.name} deposited!`, () => {
-            toggleModal(
-              ModalType.SingleAction,
-              {
-                title: "Your first mint",
-                content:
-                  "You have successfully deposited into the current batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-                image: <img src="images/butter/modal-1.png" className="px-6" />,
-                onConfirm: {
-                  label: "Close",
-                  onClick: () => dispatch(setSingleActionModal(false)),
+          onContractSuccess(
+            res,
+            `${butterPageState.token[butterPageState.selectedToken.input].name} deposited!`,
+            () => {
+              refetchButterBatchData();
+              setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
+              toggleModal(
+                ModalType.MultiChoice,
+                {
+                  title: "Deposit for Mint",
+                  content:
+                    "You have successfully deposited into the current mint batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
+                  image: <img src="images/butter/modal-1.png" className="px-6" />,
+                  onConfirm: {
+                    label: "Close",
+                    onClick: () => dispatch(setMultiChoiceActionModal(false)),
+                  },
+                  onDismiss: {
+                    label: "Do not remind me again",
+                    onClick: () => {
+                      localStorage.setItem("hideBatchProcessingPopover", "true");
+                      dispatch(setMultiChoiceActionModal(false));
+                    },
+                  },
                 },
-              },
-              "mintModal",
-              dispatch,
-            );
-            refetchButterBatchData();
-          }),
+                "hideMintPopover",
+                dispatch,
+              );
+            },
+          ),
         )
         .catch((err) => onContractError(err));
     } else {
@@ -279,12 +295,13 @@ export default function Butter(): JSX.Element {
         .then((res) =>
           onContractSuccess(res, "Butter deposited!", () => {
             refetchButterBatchData();
+            setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
             toggleModal(
               ModalType.MultiChoice,
               {
-                title: "Batch process...",
+                title: "Deposit for Redeem",
                 content:
-                  "You have successfully deposited into the current batch. Check beneath the Mint & Redeem panel to monitor batches pending your action.",
+                  "You have successfully deposited into the current redeem batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
                 image: <img src="images/butter/batch-popover.png" className="px-6" />,
                 onConfirm: {
                   label: "Close",
@@ -298,7 +315,7 @@ export default function Butter(): JSX.Element {
                   },
                 },
               },
-              "hideBatchProcessingPopover",
+              "hideRedeemPopover",
               dispatch,
             );
           }),
@@ -432,14 +449,31 @@ export default function Butter(): JSX.Element {
         <div className="mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14">
           <div className="md:w-6/12 mx-4 md:mx-0 text-center md:text-left">
             <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
-            <p className="mt-2 text-lg text-gray-500">Deposit stablecoins to mint Butter and earn yield</p>
+            <p className="mt-2 text-lg text-gray-500">
+              Mint BTR and earn interest on multiple stablecoins at once.
+              <br />
+              Stake your BTR to earn boosted APY.
+            </p>
             <div className="flex flex-row flex-wrap items-center mt-4 justify-center md:justify-start">
               <div className="pr-6 border-r-2 border-gray-200 mt-2">
                 <div className="hidden md:block ">
                   <StatusWithLabel
-                    content={butterAPY ? butterAPY.toLocaleString() + "%" : "-"}
+                    content={
+                      butterAPY && butterStaking && butterStaking.apy != "∞"
+                        ? (butterAPY + Number(butterStaking.apy)).toLocaleString() + "%"
+                        : "New 🍿✨"
+                    }
                     label="Est. APY"
                     green
+                    infoIconProps={{
+                      id: "estApy",
+                      title: "How we calculate the APY",
+                      content: `The shown APY comes from yield on the underlying stablecoins (${
+                        butterAPY ? butterAPY.toLocaleString() : "-"
+                      } %) and is boosted with POP (${
+                        butterStaking ? butterStaking.apy : "-"
+                      } %). You must stake your BTR to receive the additional APY in POP.`,
+                    }}
                   />
                 </div>
                 <div className="md:hidden">
@@ -482,9 +516,22 @@ export default function Butter(): JSX.Element {
                 </div>
                 <div className="md:hidden">
                   <StatusWithLabel
-                    content={butterAPY ? butterAPY.toLocaleString() + "%" : "-"}
+                    content={
+                      butterAPY && butterStaking && butterStaking.apy != "∞"
+                        ? (butterAPY + Number(butterStaking.apy)).toLocaleString() + "%"
+                        : "New 🍿✨"
+                    }
                     label="Est. APY"
                     green
+                    infoIconProps={{
+                      id: "estApy",
+                      title: "How we calculate the APY",
+                      content: `The shown APY comes from yield on the underlying stablecoins (${
+                        butterAPY ? butterAPY.toLocaleString() : "-"
+                      } %) and is boosted with POP (${
+                        butterStaking ? butterStaking.apy : "-"
+                      } %). You must stake your BTR to receive the additional APY in POP.`,
+                    }}
                   />
                 </div>
               </div>
@@ -502,9 +549,12 @@ export default function Butter(): JSX.Element {
                     butterPageState.useUnclaimedDeposits
                       ? isDepositDisabled(
                           butterPageState.depositAmount,
-                          butterPageState.selectedToken.input.claimableBalance,
+                          butterPageState.token[butterPageState.selectedToken.input].claimableBalance,
                         )
-                      : isDepositDisabled(butterPageState.depositAmount, butterPageState.selectedToken.input.balance)
+                      : isDepositDisabled(
+                          butterPageState.depositAmount,
+                          butterPageState.token[butterPageState.selectedToken.input].balance,
+                        )
                   }
                   hasUnclaimedBalances={hasClaimableBalances()}
                   butterPageState={[butterPageState, setButterPageState]}
@@ -520,7 +570,7 @@ export default function Butter(): JSX.Element {
                   )}
                 </>
               )}
-              {account && loadingButterBatchData && (
+              {account && !butterBatchData && loadingButterBatchData && (
                 <>
                   <div className="hidden md:block">
                     <ContentLoader viewBox="0 0 450 600">
@@ -581,10 +631,10 @@ export default function Butter(): JSX.Element {
                                 </h3>
                                 <div className="my-4">
                                   <p className="text-lg text-gray-500">
-                                    Butter is a token that represents a yield accrual strategy. The minting process
-                                    involves converting deposited stablecoins into other stable assets that are
-                                    compatible with the yield accrual strategy. As the value of the underlying assets
-                                    increase, so does the redeemable value of Butter.
+                                    Mint BTR with 3CRV or stablecoins to earn interest on multiple Stablecoins at once.
+                                    As the value of the underlying assets increase, so does the redeemable value of
+                                    Butter. This process converts deposited funds into other stablecoins and deploys
+                                    them in Yearn to generate interest.
                                   </p>
                                 </div>
                               </div>
@@ -594,8 +644,8 @@ export default function Butter(): JSX.Element {
                                 </h3>
                                 <div className="my-4">
                                   <p className="text-lg text-gray-500">
-                                    The Butter redemption process involves unwrapping Butter's underlying assets into
-                                    stablecoins.
+                                    Redeem your BTR to receive its value in 3CRV or stablecoins. We will convert all the
+                                    underlying tokens of BTR back into 3CRV or your desired stablecoin.
                                   </p>
                                 </div>
                               </div>
@@ -635,7 +685,7 @@ export default function Butter(): JSX.Element {
                 <div className="md:w-1/2 md:ml-2 mb-8 md:mb-0">
                   <BatchProgress
                     batchAmount={
-                      butterBatchData?.currentBatches?.mint && butterBatchData?.batchProcessTokens?.butter
+                      butterBatchData
                         ? butterPageState.redeeming
                           ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
                               .div(parseEther("1"))

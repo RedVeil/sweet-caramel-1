@@ -34,5 +34,7 @@ export default function useGetButterAPY(): SWRResponse<number | void, Error> {
   const { chainId } = useWeb3();
 
   const shouldFetch = isButterSupportedOnCurrentNetwork(chainId);
-  return useSWR(shouldFetch ? [`yearn-vaults`, chainId] : null, fetcher);
+  return useSWR(shouldFetch ? [`yearn-vaults`, chainId] : null, fetcher, {
+    refreshInterval: 3 * 1000,
+  });
 }

@@ -34,8 +34,6 @@ async function getBatchProcessToken(
   setBasicIssuanceModule: BasicIssuanceModule,
 ): Promise<BatchProcessTokens> {
   const defaultErc20Decimals = 18;
-  const usdtDecimals = 6;
-  const usdcDecimals = 6;
   return {
     butter: {
       name: "BTR",
@@ -85,7 +83,7 @@ async function getBatchProcessToken(
         BigNumber.from(1e6),
         BigNumber.from("0"),
       ]),
-      decimals: process.env.CHAIN_ID === "1337" ? defaultErc20Decimals : usdcDecimals,
+      decimals: defaultErc20Decimals,
       img: "usdc.webp",
       contract: usdc.contract,
     },
@@ -99,7 +97,7 @@ async function getBatchProcessToken(
         BigNumber.from("0"),
         BigNumber.from(1e6),
       ]),
-      decimals: process.env.CHAIN_ID === "1337" ? defaultErc20Decimals : usdtDecimals,
+      decimals: defaultErc20Decimals,
       img: "usdt.webp",
       contract: usdt.contract,
     },
@@ -165,16 +163,16 @@ async function getData(
 }
 
 export default function useButterBatchData(): SWRResponse<ButterBatchData, Error> {
-  const { library, contractAddresses, account, chainId } = useWeb3();
-  const { data: dai } = useERC20(contractAddresses.dai);
-  const { data: usdc } = useERC20(contractAddresses.usdc);
-  const { data: usdt } = useERC20(contractAddresses.usdt);
-  const { data: threeCrv } = useERC20(contractAddresses.threeCrv);
-  const { data: butter } = useButter();
-  const { data: butterBatch } = useButterBatch();
-  const { data: butterBatchZapper } = useButterBatchZapper();
-  const { data: setBasicIssuanceModule } = useBasicIssuanceModule();
-  const { data: threePool } = useThreePool();
+  const { contractAddresses, account, chainId } = useWeb3();
+  const dai = useERC20(contractAddresses.dai);
+  const usdc = useERC20(contractAddresses.usdc);
+  const usdt = useERC20(contractAddresses.usdt);
+  const threeCrv = useERC20(contractAddresses.threeCrv);
+  const butter = useButter();
+  const butterBatch = useButterBatch();
+  const butterBatchZapper = useButterBatchZapper();
+  const setBasicIssuanceModule = useBasicIssuanceModule();
+  const threePool = useThreePool();
 
   const butterBatchAdapter = useButterBatchAdapter();
   const shouldFetch = !!(
@@ -195,32 +193,10 @@ export default function useButterBatchData(): SWRResponse<ButterBatchData, Error
     setBasicIssuanceModule
   );
 
-  return useSWR(
-    shouldFetch
-      ? [
-          `butter-batch-data`,
-          library,
-          contractAddresses,
-          account,
-          chainId,
-          dai,
-          usdc,
-          usdt,
-          threeCrv,
-          threePool,
-          butter,
-          butterBatch,
-          butterBatchZapper,
-          butterBatchAdapter,
-          setBasicIssuanceModule,
-        ]
-      : null,
-    async (
-      key,
-      library,
-      contractAddresses,
+  return useSWR(shouldFetch ? `butter-batch-data` : null, async () => {
+    return await getData(
+      butterBatchAdapter,
       account,
-      chainId,
       dai,
       usdc,
       usdt,
@@ -229,22 +205,7 @@ export default function useButterBatchData(): SWRResponse<ButterBatchData, Error
       butter,
       butterBatch,
       butterBatchZapper,
-      butterBatchAdapter,
       setBasicIssuanceModule,
-    ) => {
-      return await getData(
-        butterBatchAdapter,
-        account,
-        dai,
-        usdc,
-        usdt,
-        threeCrv,
-        threePool,
-        butter,
-        butterBatch,
-        butterBatchZapper,
-        setBasicIssuanceModule,
-      );
-    },
-  );
+    );
+  });
 }

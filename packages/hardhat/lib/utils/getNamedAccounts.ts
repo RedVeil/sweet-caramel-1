@@ -263,7 +263,7 @@ export default function getNamedAccounts() {
     },
     butterBatchZapper: {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
-      hardhat: "0xA56F946D6398Dd7d9D4D9B337Cf9E0F68982ca5B",
+      hardhat: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
     },
     rewardsEscrow: {
