@@ -1,5 +1,5 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { formatAndRoundBigNumber, getTokenOnNetwork } from "@popcorn/utils";
+import { formatAndRoundBigNumber, getTokenOnNetwork, localStringOptions } from "@popcorn/utils";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import TextLink from "components/Common/TextLink";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
@@ -67,7 +67,11 @@ export default function StakeInterface({
             <div className="pr-6 border-r-2 border-gray-200 mt-2">
               <div className="hidden md:block">
                 <StatusWithLabel
-                  content={stakingPool?.apy === "∞" ? "New 🍿✨" : stakingPool?.apy.toLocaleString() + "%"}
+                  content={
+                    stakingPool?.apy === "∞"
+                      ? "New 🍿✨"
+                      : Number(stakingPool?.apy).toLocaleString(undefined, localStringOptions) + "%"
+                  }
                   label="Est. APY"
                   green
                 />
@@ -102,7 +106,11 @@ export default function StakeInterface({
               </div>
               <div className="md:hidden">
                 <StatusWithLabel
-                  content={stakingPool?.apy === "∞" ? "New 🍿✨" : stakingPool?.apy.toLocaleString() + "%"}
+                  content={
+                    stakingPool?.apy === "∞"
+                      ? "New 🍿✨"
+                      : Number(stakingPool?.apy).toLocaleString(undefined, localStringOptions) + "%"
+                  }
                   label="Est. APY"
                   green
                 />

@@ -1,6 +1,13 @@
 import { parseEther } from "@ethersproject/units";
 import { ChainId } from "@popcorn/app/context/Web3/connectors";
-import { ERC20, ERC20__factory, IGUni, IGUni__factory } from "@popcorn/hardhat/typechain";
+import {
+  BasicIssuanceModule__factory,
+  ButterBatchProcessing__factory,
+  ERC20,
+  ERC20__factory,
+  IGUni,
+  IGUni__factory,
+} from "@popcorn/hardhat/typechain";
 import { BigNumber } from "ethers";
 import { formatAndRoundBigNumber } from ".";
 import { Address, ContractAddresses } from "./types";
@@ -20,6 +27,8 @@ export async function calculateApy(
   switch (stakedTokenAddress.toLocaleLowerCase()) {
     case contractAddresses.popUsdcLp.toLocaleLowerCase():
       return await getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
+    case contractAddresses.butter.toLocaleLowerCase():
+      return await getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
   }
   return "0";
 }
@@ -79,34 +88,40 @@ async function getPool2Apy(
   return formatAndRoundBigNumber(apy.mul(100), 3);
 }
 
-// export async function getButterApy(
-//   tokenPerWeek: BigNumber,
-//   totalStaked: BigNumber,
-//   contracts: Contracts,
-//   butterDependencyContracts: ButterDependencyContracts,
-// ): Promise<string> {
-//   const uniAdapter = new UniswapPoolAdapter(contracts.popUsdcUniV3Pool);
-//   const butterPrice = await ButterBatchAdapter.getButterValue(
-//     butterDependencyContracts.setBasicIssuanceModule,
-//     {
-//       [butterDependencyContracts.yMim.address.toLowerCase()]: {
-//         metaPool: butterDependencyContracts.crvMimMetapool,
-//         yPool: butterDependencyContracts.yMim,
-//       },
-//       [butterDependencyContracts.yFrax.address.toLowerCase()]: {
-//         metaPool: butterDependencyContracts.crvFraxMetapool,
-//         yPool: butterDependencyContracts.yFrax,
-//       },
-//     },
-//     contracts.butter?.address,
-//   );
-//   const popPrice = await uniAdapter.getTokenPrice();
-//   const stakeValue = totalStaked.mul(butterPrice).div(parseEther("1"));
+export async function getButterApy(
+  tokenPerWeek: BigNumber,
+  totalStaked: BigNumber,
+  contractAddresses: ContractAddresses,
+  chainId: number,
+  library,
+): Promise<string> {
+  if (![ChainId.Ethereum, ChainId.Localhost, ChainId.Hardhat].includes(chainId)) {
+    return "0";
+  }
+  let popPrice = parseEther("1");
+  if (chainId === ChainId.Ethereum) {
+    const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, library);
+    const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
+    popPrice = usdcAmount.mul(parseEther("1")).div(popAmount);
+  }
 
-//   const weeklyRewardsValue = tokenPerWeek.mul(popPrice).div(parseEther("1"));
+  const butterBatch = ButterBatchProcessing__factory.connect(contractAddresses.butterBatch, library);
+  const basicIssuanceModule = BasicIssuanceModule__factory.connect(
+    contractAddresses.butterDependency.setBasicIssuanceModule,
+    library,
+  );
+  const [tokenAddresses, quantities] = await basicIssuanceModule.getRequiredComponentUnitsForIssue(
+    contractAddresses.butter,
+    parseEther("1"),
+  );
+  const butterValue = await butterBatch.valueOfComponents(tokenAddresses, quantities);
+  const stakeValue = totalStaked.mul(butterValue).div(parseEther("1"));
 
-//   const weeklyRewardsPerDollarStaked = weeklyRewardsValue.mul(parseEther("1")).div(stakeValue);
+  const weeklyRewardsValue = tokenPerWeek.mul(popPrice).div(parseEther("1"));
 
-//   const apy = weeklyRewardsPerDollarStaked.mul(52);
-//   return formatAndRoundBigNumber(apy.mul(100), 3);
-// }
+  const weeklyRewardsPerDollarStaked = weeklyRewardsValue.mul(parseEther("1")).div(stakeValue);
+
+  const apy = weeklyRewardsPerDollarStaked.mul(52);
+  return formatAndRoundBigNumber(apy.mul(100), 3);
+  return "1";
+}

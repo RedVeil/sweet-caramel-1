@@ -13,5 +13,6 @@ export { getPopLocker, getStakingPool } from "./getStakingPool";
 export { default as getToken, getMultipleToken, getTokenFromAddress } from "./getToken";
 export { default as getTokenOnNetwork } from "./getTokenOnNetwork";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
+export { default as localStringOptions } from "./localStringOptions";
 export { ModalType, toggleModal } from "./modalHelpers";
 export { default as useFetch } from "./useFetch";
