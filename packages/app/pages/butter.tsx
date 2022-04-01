@@ -98,6 +98,8 @@ export default function Butter(): JSX.Element {
   const switchNetwork = useNetworkSwitch();
   const loadingButterBatchData = !butterBatchData && !errorFetchingButterBatchData;
 
+  const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
+
   useEffect(() => {
     if (!library || !chainId) {
       return;
