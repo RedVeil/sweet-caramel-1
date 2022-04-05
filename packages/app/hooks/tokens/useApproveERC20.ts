@@ -1,5 +1,5 @@
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { Address } from "@popcorn/utils/types";
+import { Address } from "@popcorn/utils/src/types";
 import { constants } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import useWeb3 from "hooks/useWeb3";

@@ -46,6 +46,12 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         .connect(signer)
         .addReward(pop, (await hre.deployments.get("RewardsDistribution")).address, true);
       await addRewardTx.wait();
+    } else {
+      console.log("approving RewardsDistribution contract as rewards distributor ...");
+      const addApprovalTx = await (
+        await hre.ethers.getContractAt("Staking", deployed.address)
+      ).approveRewardDistributor((await hre.deployments.get("RewardsDistribution")).address, true);
+      await addApprovalTx.wait();
     }
   }
 

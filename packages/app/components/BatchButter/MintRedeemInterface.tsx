@@ -1,88 +1,111 @@
-import { BigNumber, ethers } from "ethers";
-import { Dispatch } from "react";
-import { BatchType } from "../../../hardhat/lib/adapters";
+import { BatchType } from "@popcorn/utils/src/types";
+import { BigNumber, constants, ethers } from "ethers";
 import MainActionButton from "../MainActionButton";
+import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
 import MintRedeemToggle from "./MintRedeemToggle";
 import SlippageSettings from "./SlippageSettings";
-import TokenInput, { TokenInputProps } from "./TokenInput";
-interface MintRedeemInterfaceProps extends TokenInputProps {
+interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
-  slippage: number;
-  setSlippage: Dispatch<number>;
   hasUnclaimedBalances: boolean;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   token,
-  selectedToken,
   selectToken,
-  redeeming,
-  setRedeeming,
-  depositAmount,
-  setDepositAmount,
   deposit,
   approve,
   depositDisabled,
-  useUnclaimedDeposits,
-  setUseUnclaimedDeposits,
-  slippage,
-  setSlippage,
   hasUnclaimedBalances,
+  butterPageState,
 }) => {
+  const [localButterPageState, setButterPageState] = butterPageState;
+  function setRedeeming(redeeming: boolean) {
+    setButterPageState({ ...localButterPageState, redeeming: redeeming });
+  }
+  function setSlippage(slippage: number) {
+    setButterPageState({ ...localButterPageState, slippage: slippage });
+  }
   return (
     <div className="bg-white rounded-3xl px-5 pt-6 pb-6 md:mr-8 border border-gray-200 shadow-custom">
-      <MintRedeemToggle redeeming={redeeming} setRedeeming={setRedeeming} />
+      <MintRedeemToggle redeeming={localButterPageState.redeeming} setRedeeming={setRedeeming} />
       <div>
-        <TokenInput
+        <ButterTokenInput
           token={token}
-          selectedToken={selectedToken}
           selectToken={selectToken}
-          redeeming={redeeming}
-          setRedeeming={setRedeeming}
-          depositAmount={depositAmount}
-          setDepositAmount={setDepositAmount}
-          useUnclaimedDeposits={useUnclaimedDeposits}
-          setUseUnclaimedDeposits={setUseUnclaimedDeposits}
           depositDisabled={depositDisabled}
           hasUnclaimedBalances={hasUnclaimedBalances}
+          butterPageState={butterPageState}
         />
       </div>
       <div className="w-full pb-16">
-        {!redeeming && selectedToken.input.key !== "threeCrv" && (
-          <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
+        {!localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv" && (
+          <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
         )}
       </div>
-      {!depositDisabled && !redeeming && selectedToken.input.key !== "threeCrv" && (
+      {!depositDisabled && !localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv" && (
         <div className="pb-6">
           <div className="flex flex-row justify-between">
             <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>
-            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">{slippage} %</p>
+            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">
+              {localButterPageState.slippage} %
+            </p>
           </div>
         </div>
       )}
       <div className="w-full text-center">
-        {depositAmount.gt(selectedToken.input.allowance) || selectedToken.input.allowance.eq(ethers.constants.Zero) ? (
-          <div className="space-y-4">
+        {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits ? (
+          <div className="pt-6">
             <MainActionButton
-              label={`Allow Popcorn to use your ${selectedToken.input.name}`}
-              handleClick={(e) => approve(selectedToken.input.key)}
-              disabled={true}
-            />
-            <MainActionButton
-              label={redeeming ? "Redeem" : "Mint"}
-              handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
-              disabled={true}
+              label={localButterPageState.redeeming ? "Redeem" : "Mint"}
+              handleClick={() =>
+                deposit(
+                  localButterPageState.depositAmount,
+                  localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
+                )
+              }
+              disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
             />
           </div>
         ) : (
-          <div className="pt-6">
-            <MainActionButton
-              label={redeeming ? "Redeem" : "Mint"}
-              handleClick={(e) => deposit(depositAmount, redeeming ? BatchType.Redeem : BatchType.Mint)}
-              disabled={depositDisabled}
-            />
-          </div>
+          <>
+            {localButterPageState.depositAmount.gt(
+              localButterPageState.token[localButterPageState.selectedToken.input].allowance,
+            ) ||
+            localButterPageState.token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero) ? (
+              <div className="space-y-4">
+                <MainActionButton
+                  label={`Allow Popcorn to use your ${
+                    localButterPageState.token[localButterPageState.selectedToken.input].name
+                  }`}
+                  handleClick={() => approve(localButterPageState.selectedToken.input)}
+                />
+                <MainActionButton
+                  label={localButterPageState.redeeming ? "Redeem" : "Mint"}
+                  handleClick={() =>
+                    deposit(
+                      localButterPageState.depositAmount,
+                      localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
+                    )
+                  }
+                  disabled={true}
+                />
+              </div>
+            ) : (
+              <div className="pt-6">
+                <MainActionButton
+                  label={localButterPageState.redeeming ? "Redeem" : "Mint"}
+                  handleClick={() =>
+                    deposit(
+                      localButterPageState.depositAmount,
+                      localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
+                    )
+                  }
+                  disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

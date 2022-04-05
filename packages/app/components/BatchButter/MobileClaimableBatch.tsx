@@ -1,5 +1,5 @@
-import { BatchType } from "@popcorn/hardhat/lib/adapters";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { BatchType } from "@popcorn/utils/src/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import MainActionButton from "components/MainActionButton";
 import SecondaryActionButton from "components/SecondaryActionButton";
@@ -11,9 +11,10 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({ batch, handleClaimAndStake
       <div className="flex flex-row justify-between">
         <StatusWithLabel
           label="Claimable Tokens"
-          content={`${formatAndRoundBigNumber(batch.accountClaimableTokenBalance)} ${
-            batch.batchType === BatchType.Mint ? "BTR" : "3CRV"
-          }`}
+          content={`${formatAndRoundBigNumber(
+            batch.accountClaimableTokenBalance,
+            batch.batchType === BatchType.Mint ? 6 : 2,
+          )} ${batch.batchType === BatchType.Mint ? "BTR" : "3CRV"}`}
         />
         <div className="w-1/3">
           {batch.claimable && batch.batchType === BatchType.Mint && (
@@ -28,9 +29,10 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({ batch, handleClaimAndStake
       <div className="flex flex-row justify-between mt-10">
         <StatusWithLabel
           label="Deposited"
-          content={`${formatAndRoundBigNumber(batch.accountSuppliedTokenBalance)} ${
-            batch.batchType === BatchType.Mint ? "3CRV " : "BTR"
-          }`}
+          content={`${formatAndRoundBigNumber(
+            batch.accountSuppliedTokenBalance,
+            batch.batchType === BatchType.Mint ? 2 : 6,
+          )} ${batch.batchType === BatchType.Mint ? "3CRV " : "BTR"}`}
         />
         <div className="w-1/3">
           {batch.claimable && batch.batchType === BatchType.Mint && (

@@ -1,4 +1,4 @@
-import { Token } from "@popcorn/utils/types";
+import { Token } from "@popcorn/utils/src/types";
 import { BigNumber, constants } from "ethers";
 import { useState } from "react";
 import * as Icon from "react-feather";

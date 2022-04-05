@@ -1,10 +1,10 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BatchType } from "@popcorn/utils/src/types";
 import { expect } from "chai";
 import { utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import { BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
-import { BatchType } from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert } from "../lib/utils/expectValue";
 import { timeTravel } from "../lib/utils/test";
 import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";

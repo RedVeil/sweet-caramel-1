@@ -6,26 +6,23 @@ export type Pool = {
   rewardsToken?: string;
 };
 
-export async function getStakingPools(
-  chainId: number,
-  addresses,
-  deployments
-): Promise<Pool[]> {
+export async function getStakingPools(chainId: number, addresses, deployments): Promise<Pool[]> {
   const { pop, popUsdcLp, butter } = addresses;
   switch (chainId) {
     case 1:
       return [
-        {
-          poolName: "PopLocker",
-          contract: "PopLocker",
-          inputToken: pop,
-        },
-        {
-          poolName: "popUsdcLPStaking",
-          contract: "Staking",
-          inputToken: popUsdcLp,
-          rewardsToken: pop,
-        },
+        // TODO temp disable
+        // {
+        //   poolName: "PopLocker",
+        //   contract: "PopLocker",
+        //   inputToken: pop,
+        // },
+        // {
+        //   poolName: "popUsdcLPStaking",
+        //   contract: "Staking",
+        //   inputToken: popUsdcLp,
+        //   rewardsToken: pop,
+        // },
         {
           poolName: "butterStaking",
           contract: "Staking",

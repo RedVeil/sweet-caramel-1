@@ -1,5 +1,5 @@
-import { AccountBatch, BatchType } from "@popcorn/hardhat/lib/adapters";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "components/InfoIconWithModal";
 import MainActionButton from "components/MainActionButton";
 import SecondaryActionButton from "components/SecondaryActionButton";
@@ -16,7 +16,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({ batch, handleClaimAndStake, hand
     <tr className="even:bg-gray-100 odd:bg-white last:rounded-b-2xl w-full">
       <td className="px-6 py-5 whitespace-nowrap">
         <span className="flex flex-row items-center">
-          {`${formatAndRoundBigNumber(batch.accountSuppliedTokenBalance)} ${
+          {`${formatAndRoundBigNumber(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint ? 2 : 6)} ${
             batch.batchType === BatchType.Mint ? "3CRV " : "BTR"
           }`}
           {batch.batchType === BatchType.Mint && (
@@ -32,7 +32,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({ batch, handleClaimAndStake, hand
         </span>
       </td>
       <td className="px-6 py-5 whitespace-nowrap font-medium">
-        {`${formatAndRoundBigNumber(batch.accountClaimableTokenBalance)} ${
+        {`${formatAndRoundBigNumber(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint ? 6 : 2)} ${
           batch.batchType === BatchType.Mint ? "BTR" : "3CRV"
         }`}
       </td>

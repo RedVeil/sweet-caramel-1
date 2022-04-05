@@ -5,6 +5,7 @@ import {
   MultiChoiceActionModalProps,
 } from "components/Modal/MultiChoiceActionModal";
 import { DefaultSingleActionModalProps, SingleActionModalProps } from "components/Modal/SingleActionModal";
+import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "components/Modal/WalletSelectModal";
 import { NotificationProps } from "components/Notifications/NotificationProps";
 import React, { createContext, useReducer } from "react";
 import { DefaultDualActionModalProps, DualActionModalProps } from "../components/Modal/DualActionModal";
@@ -22,6 +23,7 @@ import {
   SHOW_GLOBAL_LOADER,
   SINGLE_ACTION_MODAL,
   UNSET_NOTIFICATION,
+  WALLET_SELECT_MODAL,
 } from "./actions";
 
 interface DefaultState {
@@ -32,6 +34,7 @@ interface DefaultState {
   dualActionModal: DualActionModalProps;
   dualActionWideModal: DualActionWideModalProps;
   globalLoaderVisible?: boolean;
+  walletSelectModal: WalletSelectModalProps;
 }
 
 const initialState: DefaultState = {
@@ -50,6 +53,9 @@ const initialState: DefaultState = {
   },
   dualActionWideModal: {
     ...DefaultDualActionWideModalProps,
+  },
+  walletSelectModal: {
+    ...DefaultWalletSelectModalProps,
   },
 };
 
@@ -107,6 +113,13 @@ const StateProvider = ({ children }) => {
         return {
           ...state,
           singleActionModal: {
+            ...action.payload,
+          },
+        };
+      case WALLET_SELECT_MODAL:
+        return {
+          ...state,
+          walletSelectModal: {
             ...action.payload,
           },
         };

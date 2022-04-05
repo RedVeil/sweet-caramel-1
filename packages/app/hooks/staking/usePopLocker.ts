@@ -20,8 +20,9 @@ export default function usePopLocker(address: string): SWRResponse<PopLockerMeta
   );
   return useSWR(
     popLocker && contractAddresses.has(address) ? [`getPopLockerInfo`, address, chainId, account] : null,
-    (key, address, chainId, account: string) => {
+    (key) => {
       return getPopLocker(key, popLocker, account);
     },
+    { refreshInterval: 2000 },
   );
 }

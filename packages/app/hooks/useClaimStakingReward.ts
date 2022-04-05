@@ -12,7 +12,6 @@ export default function useClaimStakingReward() {
   const { library, account, chainId } = useWeb3React();
   return useCallback(
     async (stakingPoolContract: PopLocker | Staking, isPopLocker: boolean): Promise<TransactionResponse | null> => {
-      console.log(stakingPoolContract.address, isPopLocker);
       if (!stakingPoolContract || !account || !chainId) {
         return null;
       }

@@ -1,31 +1,19 @@
 import { formatEther, formatUnits } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import ButterBatchAdapter, {
-  ComponentMap,
-} from "../../adapters/ButterBatchAdapter";
+import { ComponentMap } from "packages/utils/src/types";
+import ButterBatchAdapter from "../../adapters/ButterBatchAdapter";
 import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
 
 interface Args {
   dryRun: string;
 }
 
-export default task(
-  "butter:batch-redeem",
-  "process current batch for redeeming"
-)
+export default task("butter:batch-redeem", "process current batch for redeeming")
   .addOptionalParam("dryRun", "will not submit transaction")
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    const {
-      butter,
-      butterBatch,
-      threePool,
-      setBasicIssuanceModule,
-      yMim,
-      yFrax,
-      crvMimMetapool,
-      crvFraxMetapool,
-    } = getNamedAccountsFromNetwork(hre);
+    const { butter, butterBatch, threePool, setBasicIssuanceModule, yMim, yFrax, crvMimMetapool, crvFraxMetapool } =
+      getNamedAccountsFromNetwork(hre);
 
     const {
       butterBatchProcessing,
@@ -42,17 +30,16 @@ export default task(
       [yMimVault, yFraxVault]
     );
 
-    const minAmountOf3Crv =
-      await ButterBatchAdapter.getMinAmountOf3CrvToReceiveForBatchRedeem(
-        5,
-        {
-          hysiBatchInteraction: butterBatchProcessing,
-          basicIssuanceModule,
-          threePool: threePoolContract,
-        },
-        butter,
-        componentMap
-      );
+    const minAmountOf3Crv = await ButterBatchAdapter.getMinAmountOf3CrvToReceiveForBatchRedeem(
+      5,
+      {
+        hysiBatchInteraction: butterBatchProcessing,
+        basicIssuanceModule,
+        threePool: threePoolContract,
+      },
+      butter,
+      componentMap
+    );
 
     console.log({
       butter,
@@ -103,36 +90,14 @@ const getComponentMap = async (
 };
 
 const getContractDependencies = async (hre: HardhatRuntimeEnvironment) => {
-  const {
-    butterBatch,
-    threePool,
-    setBasicIssuanceModule,
-    yMim,
-    yFrax,
-    crvMimMetapool,
-    crvFraxMetapool,
-  } = getNamedAccountsFromNetwork(hre);
+  const { butterBatch, threePool, setBasicIssuanceModule, yMim, yFrax, crvMimMetapool, crvFraxMetapool } =
+    getNamedAccountsFromNetwork(hre);
 
-  const butterBatchProcessing = await hre.ethers.getContractAt(
-    "ButterBatchProcessing",
-    butterBatch
-  );
-  const threePoolContract = await hre.ethers.getContractAt(
-    "MockCurveThreepool",
-    threePool
-  );
-  const basicIssuanceModule = await hre.ethers.getContractAt(
-    "BasicIssuanceModule",
-    setBasicIssuanceModule
-  );
-  const crvMimMetapoolContract = await hre.ethers.getContractAt(
-    "CurveMetapool",
-    crvMimMetapool
-  );
-  const crvFraxMetapoolContract = await hre.ethers.getContractAt(
-    "CurveMetapool",
-    crvFraxMetapool
-  );
+  const butterBatchProcessing = await hre.ethers.getContractAt("ButterBatchProcessing", butterBatch);
+  const threePoolContract = await hre.ethers.getContractAt("MockCurveThreepool", threePool);
+  const basicIssuanceModule = await hre.ethers.getContractAt("BasicIssuanceModule", setBasicIssuanceModule);
+  const crvMimMetapoolContract = await hre.ethers.getContractAt("CurveMetapool", crvMimMetapool);
+  const crvFraxMetapoolContract = await hre.ethers.getContractAt("CurveMetapool", crvFraxMetapool);
 
   const yMimVault = await hre.ethers.getContractAt("YearnVault", yMim);
   const yFraxVault = await hre.ethers.getContractAt("YearnVault", yFrax);

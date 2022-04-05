@@ -1,44 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
+import { AccountBatch, Batch, ComponentMap, CurrentBatches, TimeTillBatchProcessing } from "@popcorn/utils/src/types";
 import { BigNumber, Contract } from "ethers";
-
-export enum BatchType {
-  Mint,
-  Redeem,
-}
-
-export interface CurrentBatches {
-  mint: Batch;
-  redeem: Batch;
-}
-
-export interface TimeTillBatchProcessing {
-  timeTillProcessing: Date;
-  progressPercentage: number;
-}
-export interface Batch {
-  batchType: BatchType;
-  batchId: string;
-  claimable: boolean;
-  unclaimedShares: BigNumber;
-  suppliedTokenBalance: BigNumber;
-  claimableTokenBalance: BigNumber;
-  suppliedTokenAddress: string;
-  claimableTokenAddress: string;
-}
-
-export interface AccountBatch extends Batch {
-  accountSuppliedTokenBalance: BigNumber;
-  accountClaimableTokenBalance: BigNumber;
-}
-
-export interface ComponentMap {
-  // key is yTokenAddress
-  [key: string]: {
-    metaPool?: Contract;
-    yPool?: Contract;
-  };
-}
 
 class ButterBatchAdapter {
   constructor(private contract: Contract) {}
@@ -62,10 +25,7 @@ class ButterBatchAdapter {
 
     const unclaimedShares = batch.unclaimedShares;
     const claimableTokenBalance = batch.claimableTokenBalance;
-    const accountBalance = await this.contract.accountBalances(
-      batchId,
-      address
-    );
+    const accountBalance = await this.contract.accountBalances(batchId, address);
     if (
       claimableTokenBalance === BigNumber.from("0") ||
       accountBalance === BigNumber.from("0") ||
@@ -90,9 +50,7 @@ class ButterBatchAdapter {
     const batchId = await contracts.hysiBatchInteraction.currentRedeemBatchId();
 
     // get expected units of HYSI given 3crv amount:
-    const butterInBatch = (
-      await contracts.hysiBatchInteraction.batches(batchId)
-    ).suppliedTokenBalance;
+    const butterInBatch = (await contracts.hysiBatchInteraction.batches(batchId)).suppliedTokenBalance;
 
     const butterBatchValue = await ButterBatchAdapter.getButterValue(
       contracts.basicIssuanceModule,
@@ -101,12 +59,9 @@ class ButterBatchAdapter {
       butterInBatch
     );
 
-    const threeCrvVirtualPrice =
-      (await contracts.threePool.get_virtual_price()) as BigNumber;
+    const threeCrvVirtualPrice = (await contracts.threePool.get_virtual_price()) as BigNumber;
 
-    const batchThreeCrvValue = butterBatchValue
-      .div(threeCrvVirtualPrice)
-      .mul(parseEther("1"));
+    const batchThreeCrvValue = butterBatchValue.div(threeCrvVirtualPrice).mul(parseEther("1"));
 
     const denominator = 10000;
     const delta = batchThreeCrvValue.mul(slippage).div(denominator);
@@ -138,16 +93,11 @@ class ButterBatchAdapter {
   ): Promise<BigNumber> {
     const batchId = await contracts.hysiBatchInteraction.currentMintBatchId();
 
-    const threeCrvInBatch = (
-      await contracts.hysiBatchInteraction.batches(batchId)
-    ).suppliedTokenBalance;
+    const threeCrvInBatch = (await contracts.hysiBatchInteraction.batches(batchId)).suppliedTokenBalance;
 
-    const threeCrvVirtualPrice =
-      (await contracts.threePool.get_virtual_price()) as BigNumber;
+    const threeCrvVirtualPrice = (await contracts.threePool.get_virtual_price()) as BigNumber;
 
-    const threeCrvUsdValue = threeCrvInBatch
-      .mul(threeCrvVirtualPrice)
-      .div(parseEther("1"));
+    const threeCrvUsdValue = threeCrvInBatch.mul(threeCrvVirtualPrice).div(parseEther("1"));
 
     const butterPrice = await ButterBatchAdapter.getButterValue(
       contracts.basicIssuanceModule,
@@ -182,11 +132,10 @@ class ButterBatchAdapter {
     butterAddress: string,
     units?: BigNumber
   ): Promise<BigNumber> {
-    const components =
-      await basicIssuanceModule.getRequiredComponentUnitsForIssue(
-        butterAddress,
-        units ? units : parseEther("1")
-      );
+    const components = await basicIssuanceModule.getRequiredComponentUnitsForIssue(
+      butterAddress,
+      units ? units : parseEther("1")
+    );
 
     const componentAddresses = components[0];
     const componentAmounts = components[1];
@@ -197,20 +146,13 @@ class ButterBatchAdapter {
         const yPool = componentMap[address.toLowerCase()].yPool;
         const yPoolPricePerShare = await yPool.pricePerShare();
         const metapoolPrice = await metapool.get_virtual_price();
-        return yPoolPricePerShare
-          .mul(metapoolPrice)
-          .div(parseEther("1")) as BigNumber;
+        return yPoolPricePerShare.mul(metapoolPrice).div(parseEther("1")) as BigNumber;
       })
     );
 
-    const butterValue = componentVirtualPrices.reduce(
-      (sum: BigNumber, componentPrice: BigNumber, i) => {
-        return sum.add(
-          componentPrice.mul(componentAmounts[i]).div(parseEther("1"))
-        );
-      },
-      parseEther("0")
-    );
+    const butterValue = componentVirtualPrices.reduce((sum: BigNumber, componentPrice: BigNumber, i) => {
+      return sum.add(componentPrice.mul(componentAmounts[i]).div(parseEther("1")));
+    }, parseEther("0"));
 
     return butterValue as BigNumber;
   }
@@ -219,15 +161,9 @@ class ButterBatchAdapter {
     return await contract.get_virtual_price();
   }
 
-  public async getStableCoinPrice(
-    contract: Contract,
-    tokenAmount: BigNumber[]
-  ): Promise<BigNumber> {
+  public async getStableCoinPrice(contract: Contract, tokenAmount: BigNumber[]): Promise<BigNumber> {
     const threeCrvPrice = await contract.get_virtual_price();
-    const threeCrvAmountforStable = await contract.calc_token_amount(
-      tokenAmount,
-      true
-    );
+    const threeCrvAmountforStable = await contract.calc_token_amount(tokenAmount, true);
     return threeCrvPrice.mul(threeCrvAmountforStable).div(parseEther("1"));
   }
 
@@ -244,19 +180,13 @@ class ButterBatchAdapter {
         return {
           ...batch,
           accountSuppliedTokenBalance: shares,
-          accountClaimableTokenBalance: batch.unclaimedShares.eq(
-            BigNumber.from("0")
-          )
+          accountClaimableTokenBalance: batch.unclaimedShares.eq(BigNumber.from("0"))
             ? 0
-            : batch.claimableTokenBalance
-                .mul(shares)
-                .div(batch.unclaimedShares),
+            : batch.claimableTokenBalance.mul(shares).div(batch.unclaimedShares),
         };
       })
     );
-    return (batches as AccountBatch[]).filter(
-      (batch) => batch.accountSuppliedTokenBalance > BigNumber.from("0")
-    );
+    return (batches as AccountBatch[]).filter((batch) => batch.accountSuppliedTokenBalance > BigNumber.from("0"));
   }
 
   public async getBatchCooldowns(): Promise<BigNumber[]> {
@@ -266,21 +196,13 @@ class ButterBatchAdapter {
     return [lastMintedAt.add(cooldown), lastRedeemedAt.add(cooldown)];
   }
 
-  public async calcBatchTimes(
-    library: Web3Provider
-  ): Promise<TimeTillBatchProcessing[]> {
+  public async calcBatchTimes(library: Web3Provider): Promise<TimeTillBatchProcessing[]> {
     const cooldowns = await this.getBatchCooldowns();
     const currentBlockTime = await (await library.getBlock("latest")).timestamp;
-    const secondsTillMint = new Date(
-      (currentBlockTime / Number(cooldowns[0].toString())) * 1000
-    );
-    const secondsTillRedeem = new Date(
-      (currentBlockTime / Number(cooldowns[1].toString())) * 1000
-    );
-    const percentageTillMint =
-      currentBlockTime / Number(cooldowns[0].toString());
-    const percentageTillRedeem =
-      (currentBlockTime / Number(cooldowns[1].toString())) * 100;
+    const secondsTillMint = new Date((currentBlockTime / Number(cooldowns[0].toString())) * 1000);
+    const secondsTillRedeem = new Date((currentBlockTime / Number(cooldowns[1].toString())) * 1000);
+    const percentageTillMint = currentBlockTime / Number(cooldowns[0].toString());
+    const percentageTillRedeem = (currentBlockTime / Number(cooldowns[1].toString())) * 100;
     return [
       {
         timeTillProcessing: secondsTillMint,

@@ -5,7 +5,7 @@ import TextLink from "components/Common/TextLink";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import Link from "next/link";
 import PopLockerInteraction from "./PopLockerInteraction";
@@ -67,7 +67,11 @@ export default function StakeInterface({
             <div className="pr-6 border-r-2 border-gray-200 mt-2">
               <div className="hidden md:block">
                 <StatusWithLabel
-                  content={stakingPool?.apy === "∞" ? "New 🍿✨" : stakingPool?.apy.toLocaleString() + "%"}
+                  content={
+                    stakingPool?.apy.lt(constants.Zero)
+                      ? "New 🍿✨"
+                      : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
+                  }
                   label="Est. APY"
                   green
                 />
@@ -102,7 +106,11 @@ export default function StakeInterface({
               </div>
               <div className="md:hidden">
                 <StatusWithLabel
-                  content={stakingPool?.apy === "∞" ? "New 🍿✨" : stakingPool?.apy.toLocaleString() + "%"}
+                  content={
+                    stakingPool?.apy.lt(constants.Zero)
+                      ? "New 🍿✨"
+                      : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
+                  }
                   label="Est. APY"
                   green
                 />

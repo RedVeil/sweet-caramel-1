@@ -8,6 +8,7 @@ import DualActionWideModalContainer from "components/Modal/DualActionWideModalCo
 import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
 import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
+import { WalletSelectModalContainer } from "components/Modal/WalletSelectModalContainer";
 import NetworkHandler from "components/NetworkHandler";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
@@ -18,7 +19,6 @@ import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { GlobalLinearProgressAndLoading } from "../components/GlobalLinearProgressAndLoading";
 import { StateProvider } from "../context/store";
-import ContractsWrapper from "../context/Web3/contracts";
 import "../styles/globals.css";
 
 function getLibrary(provider: any): Web3Provider {
@@ -67,22 +67,21 @@ export default function MyApp(props) {
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
         <Web3ReactProvider getLibrary={getLibrary}>
           <FeatureToggleProvider>
-            <ContractsWrapper>
-              <SoftLaunchCheck loading={loading} />
-              <NetworkHandler />
-              <MobileFullScreenModalContainer />
-              <SingleActionModalContainer />
-              <MultiChoiceActionModalContainer />
-              <DualActionModalContainer />
-              <DualActionWideModalContainer />
-              <Page>
-                <Component {...pageProps} />
-              </Page>
-              <FeatureTogglePanel />
-              <SwapChainModal />
-              <NotificationsContainer />
-              <Debug />
-            </ContractsWrapper>
+            <SoftLaunchCheck loading={loading} />
+            <NetworkHandler />
+            <MobileFullScreenModalContainer />
+            <SingleActionModalContainer />
+            <WalletSelectModalContainer />
+            <MultiChoiceActionModalContainer />
+            <DualActionModalContainer />
+            <DualActionWideModalContainer />
+            <Page>
+              <Component {...pageProps} />
+            </Page>
+            <FeatureTogglePanel />
+            <SwapChainModal />
+            <NotificationsContainer />
+            <Debug />
           </FeatureToggleProvider>
         </Web3ReactProvider>
       </StateProvider>

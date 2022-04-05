@@ -1,5 +1,6 @@
 import { useState } from "react";
 import * as Icon from "react-feather";
+import { useSwipeable } from "react-swipeable";
 import MobileTutorialStepButton from "./MobileTutorialStepButton";
 
 function title(step: number): string {
@@ -59,9 +60,26 @@ function tutorialContent(step: number): JSX.Element {
 const Tutorial: React.FC = () => {
   const [step, setStep] = useState<number>(1);
 
+  const swipeHandler = useSwipeable({
+    onSwipedLeft: (eventData) => {
+      setStep(step === 3 ? 1 : step + 1);
+    },
+    onSwipedRight: (eventData) => {
+      setStep(step === 1 ? 3 : step - 1);
+    },
+    delta: 10, // min distance(px) before a swipe starts. *See Notes*
+    preventDefaultTouchmoveEvent: false, // call e.preventDefault *See Details*
+    trackTouch: true, // track touch input
+    trackMouse: true, // track mouse input
+    rotationAngle: 0, // set a rotation angle
+  });
+
   return (
     <>
-      <div className="w-full h-10/12 flex flex-col md:flex-row md:items-center bg-primaryLight px-6 py-6 md:p-0 rounded-3xl border md:border-none border-gray-200 shadow-custom md:shadow-none">
+      <div
+        {...swipeHandler}
+        className="w-full h-10/12 flex flex-col md:flex-row md:items-center bg-primaryLight px-6 py-6 md:p-0 rounded-3xl border md:border-none border-gray-200 shadow-custom md:shadow-none"
+      >
         <div className="hidden w-2/12 md:flex items-center justify-center">
           <button
             className="w-20 h-20 rounded-full bg-white opacity-50 flex justify-center items-center shadow-custom hover:opacity-70"
@@ -70,10 +88,7 @@ const Tutorial: React.FC = () => {
             <Icon.ChevronLeft className="text-primary h-14 w-14 mr-2 opacity-40" />
           </button>
         </div>
-        <div
-          className="w-full h-full justify-center md:w-8/12 pt-2 md:h-auto flex flex-col"
-          onClick={() => setStep(step === 3 ? 1 : step + 1)}
-        >
+        <div className="w-full h-full justify-center md:w-8/12 pt-2 md:h-auto flex flex-col">
           {tutorialContent(step)}
           <h2 className="font-semibold leading-none text-center text-gray-600 mt-4">How it works</h2>
           <h1 className="font-bold leading-none text-center text-2xl mt-6">{title(step)}</h1>

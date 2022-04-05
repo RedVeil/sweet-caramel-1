@@ -1,7 +1,6 @@
-import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
 import { setSingleActionModal } from "context/actions";
 import { store } from "context/store";
+import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
 
@@ -43,7 +42,7 @@ interface SoftLaunchCheckProps {
 }
 
 export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.Element {
-  const { library, chainId, account, deactivate } = useWeb3React<Web3Provider>();
+  const { library, chainId, account, deactivate } = useWeb3();
   const { dispatch } = useContext(store);
   const router = useRouter();
 
@@ -101,7 +100,6 @@ export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.
       if (message) {
         localStorage.setItem("softLaunchTerms", message);
         dispatch(setSingleActionModal(false));
-        router.push("/");
       } else {
         deactivate();
         localStorage.setItem("eager_connect", "false");

@@ -32,6 +32,9 @@
     "lint-staged": "12.2.1",
     "tsconfig-paths": "3.9.0"
   },
+  "resolutions": {
+    "@walletconnect/ethereum-provider": "1.7.1"
+  },
   "repository": {
     "type": "git",
     "url": ""

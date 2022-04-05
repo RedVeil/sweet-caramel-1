@@ -1,6 +1,7 @@
-import { AccountBatch, BatchType } from "@popcorn/hardhat/lib/adapters";
+import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
+import { ButterPageState } from "pages/butter";
 import { Dispatch, useContext } from "react";
 import ClaimableBatch from "./ClaimableBatch";
 import MobileClaimableBatch from "./MobileClaimableBatch";
@@ -11,8 +12,7 @@ interface ClaimableBatchesProps {
   claim: Function;
   claimAndStake: Function;
   withdraw: Function;
-  slippage: number;
-  setSlippage: Dispatch<number>;
+  butterPageState: [ButterPageState, Dispatch<ButterPageState>];
 }
 
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
@@ -20,10 +20,14 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   claim,
   claimAndStake,
   withdraw,
-  slippage,
-  setSlippage,
+  butterPageState,
 }) => {
   const { dispatch } = useContext(store);
+  const [localButterPageState, setButterPageState] = butterPageState;
+
+  function setSlippage(slippage: number): void {
+    setButterPageState({ ...localButterPageState, slippage: slippage });
+  }
 
   function handleClaim(batch: AccountBatch) {
     if (batch.batchType === BatchType.Redeem) {
@@ -32,7 +36,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
           title: "Choose an Output Token",
           content: (
             <ZapModal
-              slippage={slippage}
+              slippage={localButterPageState.slippage}
               setSlippage={setSlippage}
               closeModal={() => dispatch(setDualActionWideModal(false))}
               withdraw={withdraw}
@@ -55,7 +59,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
           title: "Choose an Output Token",
           content: (
             <ZapModal
-              slippage={slippage}
+              slippage={localButterPageState.slippage}
               setSlippage={setSlippage}
               closeModal={() => dispatch(setDualActionWideModal(false))}
               withdraw={withdraw}

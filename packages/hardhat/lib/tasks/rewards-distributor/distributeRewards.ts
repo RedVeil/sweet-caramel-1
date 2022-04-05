@@ -5,7 +5,7 @@ import ask from "readline-sync";
 import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
 
 const REWARDS_DESTINATION_MAP = {
-  "0x64337565e0Ce3E35fb7808C16807803a7540521C": "Butter", //eth
+  "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428": "Butter", //eth
   "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45": "LP", // eth
   "0xeEE1d31297B042820349B03027aB3b13a9406184": "POP", // eth
   "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA": "POP", // poly
@@ -139,6 +139,9 @@ export default task(
 
 const getDistributions = async (rewardsDistributionContract, hre) => {
   const distributions = [0, 1];
+  if (hre.network.name === "mainnet") {
+    distributions.push(2);
+  }
   return Promise.all(
     distributions.map((i) => {
       return rewardsDistributionContract.distributions(i);
@@ -223,9 +226,9 @@ export const popLockerTablePoly = [
 ];
 
 export const popLockerTableEth = [
-  77538.46154, 74436.92308, 71335.38462, 68233.84615, 65132.30769, 62030.76923, 58929.23077, 55827.69231, 52726.15385,
-  49624.61538, 46523.07692, 43421.53846, 40320, 37218.46154, 34116.92308, 31015.38462, 27913.84615, 24812.30769,
-  21710.76923, 18609.23077, 15507.69231, 12406.15385, 9304.615385, 6203.076923, 3101.538462,
+  27692.30769, 26584.61538, 25476.92308, 24369.23077, 23261.53846, 22153.84615, 21046.15385, 19938.46154, 18830.76923,
+  17723.07692, 16615.38462, 15507.69231, 14400, 13292.30769, 12184.61538, 11076.92308, 9969.230769, 8861.538462,
+  7753.846154, 6646.153846, 5538.461538, 4430.769231, 3323.076923, 2215.384615, 1107.692308,
 ];
 
 export const lpTable = [

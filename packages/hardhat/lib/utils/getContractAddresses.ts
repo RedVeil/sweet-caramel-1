@@ -34,9 +34,8 @@ export const mapAccountsFromNamedAccounts = (chainId): ContractAddresses => {
           : (result["butterDependency"] = {
               [contract]: contractsForSelectedNetwork[contract],
             });
-      } else {
-        result[contract] = contractsForSelectedNetwork[contract];
       }
+      result[contract] = contractsForSelectedNetwork[contract];
       result.all.add(contractsForSelectedNetwork[contract].toLowerCase());
 
       return result;
