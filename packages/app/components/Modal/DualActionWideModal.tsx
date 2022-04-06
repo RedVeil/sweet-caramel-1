@@ -14,6 +14,7 @@ export interface DualActionWideModalProps {
   onConfirm?: { label: string; onClick: Function };
   icon?: "check";
   image?: any;
+  keepOpen?: boolean;
 }
 
 export const DefaultDualActionWideModalProps = {
@@ -21,6 +22,7 @@ export const DefaultDualActionWideModalProps = {
   title: "",
   visible: false,
   progress: false,
+  keepOpen: false,
 };
 
 const Example: React.FC<DualActionWideModalProps> = ({
@@ -32,23 +34,29 @@ const Example: React.FC<DualActionWideModalProps> = ({
   onDismiss,
   icon,
   image,
+  keepOpen,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
 
   useEffect(() => {
     if (visible !== open) setOpen(visible);
+    return () => {
+      setOpen(false);
+    };
   }, [visible]);
 
   const dismiss = () => {
-    setOpen(false);
+    setOpen(keepOpen);
     setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
   };
 
   const confirm = () => {
-    setOpen(false);
+    setOpen(keepOpen);
     setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
   };
+
+  if (!visible) return <></>;
 
   return (
     <Transition.Root show={open} as={Fragment}>

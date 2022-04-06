@@ -97,7 +97,7 @@ export type Token = {
 export type StakingPool = {
   address: string;
   tokenAddress: string;
-  apy: string;
+  apy: BigNumber;
   totalStake: BigNumber;
   userStake: BigNumber;
   tokenEmission: BigNumber;

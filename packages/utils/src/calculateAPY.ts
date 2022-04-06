@@ -8,8 +8,7 @@ import {
   IGUni,
   IGUni__factory,
 } from "@popcorn/hardhat/typechain";
-import { BigNumber } from "ethers";
-import { formatAndRoundBigNumber } from ".";
+import { BigNumber, constants } from "ethers";
 import { Address, ContractAddresses } from "./types";
 
 export async function calculateApy(
@@ -19,18 +18,19 @@ export async function calculateApy(
   contractAddresses: ContractAddresses,
   chaindId: number,
   library,
-): Promise<string> {
+): Promise<BigNumber> {
   //Prevents `div by 0` errors
   if (!totalStaked || totalStaked.eq(BigNumber.from("0"))) {
-    return "∞";
+    return BigNumber.from("-1");
   }
   switch (stakedTokenAddress.toLocaleLowerCase()) {
     case contractAddresses.popUsdcLp.toLocaleLowerCase():
       return await getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     case contractAddresses.butter.toLocaleLowerCase():
       return await getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
+    default:
+      return constants.Zero;
   }
-  return "0";
 }
 
 export async function getLpTokenApy(
@@ -39,7 +39,7 @@ export async function getLpTokenApy(
   contractAddresses: ContractAddresses,
   chainId: number,
   library,
-): Promise<string> {
+): Promise<BigNumber> {
   if (chainId === ChainId.Ethereum) {
     const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, library);
     const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
@@ -53,16 +53,16 @@ export async function getLpTokenApy(
       contractAddresses.popUsdcLp,
     );
     if (usdcAmount.eq(BigNumber.from("0")) || popAmount.eq(BigNumber.from("0"))) {
-      return "∞";
+      return BigNumber.from("-1");
     }
     return await getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
   }
 }
 
-export async function getPopApy(tokenPerWeek: BigNumber, totalStaked: BigNumber): Promise<string> {
+export async function getPopApy(tokenPerWeek: BigNumber, totalStaked: BigNumber): Promise<BigNumber> {
   const tokenPerWeekPerShare = tokenPerWeek.mul(parseEther("1")).div(totalStaked);
   const apy = tokenPerWeekPerShare.mul(52);
-  return formatAndRoundBigNumber(apy.mul(100), 3);
+  return apy.mul(100);
 }
 
 async function getPool2Apy(
@@ -71,7 +71,7 @@ async function getPool2Apy(
   tokenPerWeek: BigNumber,
   totalStaked: BigNumber,
   popUsdcLp: ERC20 | IGUni,
-): Promise<string> {
+): Promise<BigNumber> {
   usdcAmount = usdcAmount.mul(BigNumber.from(1e12));
   const totalSupply = await popUsdcLp.totalSupply();
 
@@ -85,7 +85,7 @@ async function getPool2Apy(
   const weeklyRewardsPerDollarStaked = weeklyRewardsValue.mul(parseEther("1")).div(stakeValue);
 
   const apy = weeklyRewardsPerDollarStaked.mul(52);
-  return formatAndRoundBigNumber(apy.mul(100), 3);
+  return apy.mul(100);
 }
 
 export async function getButterApy(
@@ -94,15 +94,15 @@ export async function getButterApy(
   contractAddresses: ContractAddresses,
   chainId: number,
   library,
-): Promise<string> {
+): Promise<BigNumber> {
   if (![ChainId.Ethereum, ChainId.Localhost, ChainId.Hardhat].includes(chainId)) {
-    return "0";
+    return constants.Zero;
   }
   let popPrice = parseEther("1");
   if (chainId === ChainId.Ethereum) {
     const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, library);
     const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
-    popPrice = usdcAmount.mul(parseEther("1")).div(popAmount);
+    popPrice = usdcAmount.mul(parseEther("1")).div(popAmount).mul(BigNumber.from(1e12));
   }
 
   const butterBatch = ButterBatchProcessing__factory.connect(contractAddresses.butterBatch, library);
@@ -116,12 +116,10 @@ export async function getButterApy(
   );
   const butterValue = await butterBatch.valueOfComponents(tokenAddresses, quantities);
   const stakeValue = totalStaked.mul(butterValue).div(parseEther("1"));
-
   const weeklyRewardsValue = tokenPerWeek.mul(popPrice).div(parseEther("1"));
 
   const weeklyRewardsPerDollarStaked = weeklyRewardsValue.mul(parseEther("1")).div(stakeValue);
 
   const apy = weeklyRewardsPerDollarStaked.mul(52);
-  return formatAndRoundBigNumber(apy.mul(100), 3);
-  return "1";
+  return apy.mul(100);
 }

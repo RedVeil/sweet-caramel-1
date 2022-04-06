@@ -1,4 +1,4 @@
-import { connectors, walletToConnector } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connectors";
 import activateRPCNetwork from "helper/activateRPCNetwork";
 import { useEffect, useState } from "react";
 import useWeb3 from "./useWeb3";
@@ -14,8 +14,8 @@ export default function useEagerConnect() {
       const cachedWallet = localStorage.getItem("cached_wallet");
 
       const isAuthorized = await connectors.Injected.isAuthorized();
-      if (isAuthorized && eagerConnect === "true" && cachedWallet) {
-        activate(walletToConnector[Number(cachedWallet)]).catch(() => {
+      if (isAuthorized && eagerConnect === "true") {
+        activate(connectors.Injected).catch(() => {
           setTried(true);
         });
       } else {

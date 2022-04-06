@@ -74,7 +74,7 @@ const Network = (chainId: number) => {
   });
 };
 
-export const walletconnect = new WalletConnectConnector({
+export const Walletconnect = new WalletConnectConnector({
   rpc: RPC_URLS,
   chainId: 1,
   bridge: "https://bridge.walletconnect.org",
@@ -82,13 +82,13 @@ export const walletconnect = new WalletConnectConnector({
   supportedChainIds,
 });
 
-export const connectors = { Injected, Network: Network, walletconnect };
+export const connectors = { Injected, Network, Walletconnect };
 
 export const supportedWallets = [Wallets.METAMASK, Wallets.WALLETCONNECT];
 
 export const walletToConnector = {
   [Wallets.METAMASK]: connectors.Injected,
-  [Wallets.WALLETCONNECT]: connectors.walletconnect,
+  [Wallets.WALLETCONNECT]: connectors.Walletconnect,
 };
 
 export const walletToName = {

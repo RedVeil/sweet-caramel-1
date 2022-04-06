@@ -5,7 +5,7 @@ import ask from "readline-sync";
 import { getNamedAccountsFromNetwork } from "../../utils/getNamedAccounts";
 
 const REWARDS_DESTINATION_MAP = {
-  "0xf3a88Fb5E3169Aa9dc1cec22B1007290E02D95DD": "Butter", //eth
+  "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428": "Butter", //eth
   "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45": "LP", // eth
   "0xeEE1d31297B042820349B03027aB3b13a9406184": "POP", // eth
   "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA": "POP", // poly
@@ -139,6 +139,9 @@ export default task(
 
 const getDistributions = async (rewardsDistributionContract, hre) => {
   const distributions = [0, 1];
+  if (hre.network.name === "mainnet") {
+    distributions.push(2);
+  }
   return Promise.all(
     distributions.map((i) => {
       return rewardsDistributionContract.distributions(i);

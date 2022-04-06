@@ -100,7 +100,6 @@ export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.
       if (message) {
         localStorage.setItem("softLaunchTerms", message);
         dispatch(setSingleActionModal(false));
-        router.push("/");
       } else {
         deactivate();
         localStorage.setItem("eager_connect", "false");

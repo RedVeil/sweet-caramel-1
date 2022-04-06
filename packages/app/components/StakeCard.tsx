@@ -1,5 +1,6 @@
-import { formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Address, StakingPool, Token } from "@popcorn/utils/src/types";
+import { constants } from "ethers/lib/ethers";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import StatusWithLabel from "./Common/StatusWithLabel";
@@ -34,9 +35,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel
             content={
-              stakingPool.apy === "∞"
-                ? "New 🍿✨"
-                : Number(stakingPool.apy).toLocaleString(undefined, localStringOptions) + "%"
+              stakingPool.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool.apy, 2) + "%"
             }
             label="Est. APY"
             green
