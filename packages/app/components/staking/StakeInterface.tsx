@@ -1,11 +1,11 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { formatAndRoundBigNumber, getTokenOnNetwork, localStringOptions } from "@popcorn/utils";
+import { formatAndRoundBigNumber, getTokenOnNetwork } from "@popcorn/utils";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import TextLink from "components/Common/TextLink";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { formatStakedAmount } from "helper/formatStakedAmount";
 import Link from "next/link";
 import PopLockerInteraction from "./PopLockerInteraction";
@@ -68,9 +68,9 @@ export default function StakeInterface({
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={
-                    stakingPool?.apy === "∞"
+                    stakingPool?.apy.lt(constants.Zero)
                       ? "New 🍿✨"
-                      : Number(stakingPool?.apy).toLocaleString(undefined, localStringOptions) + "%"
+                      : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
                   }
                   label="Est. APY"
                   green
@@ -107,9 +107,9 @@ export default function StakeInterface({
               <div className="md:hidden">
                 <StatusWithLabel
                   content={
-                    stakingPool?.apy === "∞"
+                    stakingPool?.apy.lt(constants.Zero)
                       ? "New 🍿✨"
-                      : Number(stakingPool?.apy).toLocaleString(undefined, localStringOptions) + "%"
+                      : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
                   }
                   label="Est. APY"
                   green

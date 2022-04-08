@@ -3,7 +3,7 @@ import { ChevronDownIcon } from "@heroicons/react/solid";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { setMobileFullScreenModal } from "context/actions";
 import { store } from "context/store";
-import { Wallets, walletToLogo } from "context/Web3/connectors";
+import { connectors, Wallets, walletToLogo } from "context/Web3/connectors";
 import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -160,13 +160,20 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInject
                       )}
                       <div className="py-10">
                         <button
-                          onClick={showModal}
+                          onClick={() => {
+                            if (account) {
+                              disconnectInjected(deactivate, activate, chainId);
+                            } else {
+                              localStorage.setItem("eager_connect", "true");
+                              activate(connectors.Injected);
+                            }
+                          }}
                           className={`rounded-full py-3 w-full flex flex-row justify-around items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${
                             account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
                           }`}
                         >
                           <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
-                            {account ? `${account.slice(0, 6)}...${account.slice(37, 42)}` : "Connect Wallet"}
+                            {account ? `Disconnect` : "Connect Wallet"}
                           </p>
                           {account && <img src={walletToLogo[selectedWallet]} className="w-6 h-6" />}
                         </button>

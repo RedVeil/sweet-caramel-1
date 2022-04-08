@@ -28,12 +28,10 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
-    : Number(
-        formatUnits(
-          localButterPageState.depositAmount,
-          localButterPageState.token[localButterPageState.selectedToken.input].decimals,
-        ),
-      ).toFixed(3);
+    : formatUnits(
+        localButterPageState.depositAmount,
+        localButterPageState.token[localButterPageState.selectedToken.input].decimals,
+      );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -44,7 +42,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   const onUpdate = (nextUserInput: string) => {
     if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
-      setButterPageState({ ...localButterPageState, depositAmount: numberToBigNumber(Number(nextUserInput)) });
+      setButterPageState({ ...localButterPageState, depositAmount: numberToBigNumber(nextUserInput) });
       ref.current = nextUserInput;
     }
   };
@@ -221,7 +219,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           <div className="mt-1 relative flex items-center">
             <input
               className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 focus:ring-blue-500 focus:border-blue-500`}
-              value={Number(estimatedAmount).toFixed(3)}
+              value={Number(estimatedAmount)}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"

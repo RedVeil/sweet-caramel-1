@@ -1,6 +1,7 @@
 import { parseEther } from "@ethersproject/units";
 import {
   adjustDepositDecimals,
+  bigNumberToNumber,
   formatAndRoundBigNumber,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
@@ -20,7 +21,7 @@ import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
 import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId } from "context/Web3/connectors";
+import { ChainId, connectors } from "context/Web3/connectors";
 import { BigNumber, constants, ethers } from "ethers";
 import useButter from "hooks/butter/useButter";
 import useButterBatch from "hooks/butter/useButterBatch";
@@ -80,7 +81,7 @@ const DEFAULT_STATE: ButterPageState = {
 };
 
 export default function Butter(): JSX.Element {
-  const { library, account, chainId, onContractSuccess, onContractError, contractAddresses, showModal } = useWeb3();
+  const { library, account, chainId, onContractSuccess, onContractError, contractAddresses, activate } = useWeb3();
   const { dispatch } = useContext(store);
   const router = useRouter();
   const butter = useButter();
@@ -98,8 +99,6 @@ export default function Butter(): JSX.Element {
   const switchNetwork = useNetworkSwitch();
   const loadingButterBatchData = !butterBatchData && !errorFetchingButterBatchData;
 
-  const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
-
   useEffect(() => {
     if (!library || !chainId) {
       return;
@@ -108,7 +107,7 @@ export default function Butter(): JSX.Element {
       dispatch(
         setDualActionWideModal({
           title: "Coming Soon",
-          content: "Currently, Butter exists only on Ethereum. Please switch to Ethereum to use Butter.",
+          content: "Currently, Butter is only available on Ethereum.",
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -123,9 +122,12 @@ export default function Butter(): JSX.Element {
               dispatch(setDualActionWideModal(false));
             },
           },
+          keepOpen: true,
         }),
       );
       return;
+    } else {
+      dispatch(setDualActionWideModal(false));
     }
   }, [library, account, chainId]);
 
@@ -461,8 +463,11 @@ export default function Butter(): JSX.Element {
               <div className="hidden md:block ">
                 <StatusWithLabel
                   content={
-                    butterAPY && butterStaking && butterStaking.apy != "∞"
-                      ? (butterAPY + Number(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                    butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
+                      ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(
+                          undefined,
+                          localStringOptions,
+                        ) + "%"
                       : "New 🍿✨"
                   }
                   label="Est. APY"
@@ -473,7 +478,7 @@ export default function Butter(): JSX.Element {
                     content: `The shown APY comes from yield on the underlying stablecoins (${
                       butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
                     }%) and is boosted with POP (${
-                      butterStaking ? Number(butterStaking.apy).toLocaleString(undefined, localStringOptions) : "-"
+                      butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
                     }%). You must stake your BTR to receive the additional APY in POP.`,
                   }}
                 />
@@ -489,7 +494,7 @@ export default function Butter(): JSX.Element {
                         )}`
                       : "$-"
                   }
-                  label="Total Staked"
+                  label="Total Deposits"
                 />
               </div>
             </div>
@@ -505,7 +510,7 @@ export default function Butter(): JSX.Element {
                         )}`
                       : "$-"
                   }
-                  label="Total Staked"
+                  label="Total Deposits"
                 />
               </div>
               <div className="md:hidden">
@@ -519,8 +524,11 @@ export default function Butter(): JSX.Element {
               <div className="md:hidden">
                 <StatusWithLabel
                   content={
-                    butterAPY && butterStaking && butterStaking.apy != "∞"
-                      ? (butterAPY + Number(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                    butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
+                      ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(
+                          undefined,
+                          localStringOptions,
+                        ) + "%"
                       : "New 🍿✨"
                   }
                   label="Est. APY"
@@ -531,7 +539,7 @@ export default function Butter(): JSX.Element {
                     content: `The shown APY comes from yield on the underlying stablecoins (${
                       butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
                     } %) and is boosted with POP (${
-                      butterStaking ? Number(butterStaking.apy).toLocaleString(undefined, localStringOptions) : "-"
+                      butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
                     } %). You must stake your BTR to receive the additional APY in POP.`,
                   }}
                 />
@@ -566,7 +574,13 @@ export default function Butter(): JSX.Element {
                 {!account && (
                   <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                     <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                      <MainActionButton label="Connect Wallet" handleClick={showModal} />
+                      <MainActionButton
+                        label="Connect Wallet"
+                        handleClick={() => {
+                          localStorage.setItem("eager_connect", "true");
+                          activate(connectors.Injected);
+                        }}
+                      />
                     </div>
                   </div>
                 )}
@@ -702,7 +716,7 @@ export default function Butter(): JSX.Element {
               </div>
             </div>
 
-            <div className="hidden md:flex w-full h-4/5 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+            <div className="hidden md:flex w-full h-120 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
               <Tutorial />
             </div>
           </div>

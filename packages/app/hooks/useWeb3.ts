@@ -40,6 +40,7 @@ export default function useWeb3() {
       localStorage &&
         typeof localStorage !== "undefined" &&
         localStorage?.setItem("cached_wallet", chosenWallet.toString());
+      localStorage?.setItem("eager_connect", "true");
       await activate(walletToConnector[chosenWallet]);
       setSelectedWallet(chosenWallet);
     },
