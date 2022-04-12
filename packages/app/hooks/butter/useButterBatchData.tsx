@@ -194,7 +194,7 @@ export default function useButterBatchData(): SWRResponse<ButterBatchData, Error
   );
 
   return useSWR(shouldFetch ? `butter-batch-data` : null, async () => {
-    return await getData(
+    return getData(
       butterBatchAdapter,
       account,
       dai,

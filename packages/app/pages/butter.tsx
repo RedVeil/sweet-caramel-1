@@ -446,6 +446,19 @@ export default function Butter(): JSX.Element {
       .catch((err) => onContractError(err));
   }
 
+  function getBatchProgressAmount(): BigNumber {
+    if (!butterBatchData) {
+      return BigNumber.from("0");
+    }
+    return butterPageState.redeeming
+      ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
+          .mul(butterBatchData?.batchProcessTokens?.butter.price)
+          .div(parseEther("1"))
+      : butterBatchData?.currentBatches.mint.suppliedTokenBalance
+          .mul(butterBatchData?.batchProcessTokens?.threeCrv.price)
+          .div(parseEther("1"));
+  }
+
   return (
     <div className="w-full h-full">
       <Navbar />
@@ -699,20 +712,7 @@ export default function Butter(): JSX.Element {
                 />
               </div>
               <div className="md:w-1/2 md:ml-2 mb-8 md:mb-0">
-                <BatchProgress
-                  batchAmount={
-                    butterBatchData
-                      ? butterPageState.redeeming
-                        ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
-                            .div(parseEther("1"))
-                            .mul(butterBatchData?.batchProcessTokens?.butter.price)
-                        : butterBatchData?.currentBatches.mint.suppliedTokenBalance
-                            .div(parseEther("1"))
-                            .mul(butterBatchData?.batchProcessTokens?.threeCrv.price)
-                      : BigNumber.from("0")
-                  }
-                  threshold={parseEther("100000")}
-                />
+                <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
               </div>
             </div>
 
