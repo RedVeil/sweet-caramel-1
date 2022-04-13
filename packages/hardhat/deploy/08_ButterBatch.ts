@@ -13,25 +13,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
   const signerAddress = await signer.getAddress();
 
-  const YTOKEN_ADDRESSES = [addresses.yFrax];
-  // addresses.yRai, addresses.yMusd, addresses.yAlusd];
+  const YTOKEN_ADDRESSES = [addresses.yFrax, addresses.yRai, addresses.yMusd, addresses.yAlusd];
   const CRV_DEPENDENCIES = [
     {
       curveMetaPool: addresses.crvFraxMetapool,
       crvLPToken: addresses.crvFrax,
     },
-    // {
-    //   curveMetaPool: addresses.crvRaiMetapool,
-    //   crvLPToken: addresses.crvRai,
-    // },
-    // {
-    //   curveMetaPool: addresses.crvMusdMetapool,
-    //   crvLPToken: addresses.crvMusd,
-    // },
-    // {
-    //   curveMetaPool: addresses.crvAlusdMetapool,
-    //   crvLPToken: addresses.crvAlusd,
-    // },
+    {
+      curveMetaPool: addresses.crvRaiMetapool,
+      crvLPToken: addresses.crvRai,
+    },
+    {
+      curveMetaPool: addresses.crvMusdMetapool,
+      crvLPToken: addresses.crvMusd,
+    },
+    {
+      curveMetaPool: addresses.crvAlusdMetapool,
+      crvLPToken: addresses.crvAlusd,
+    },
   ];
 
   console.log(
@@ -78,7 +77,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await deployments.get("ButterBatchProcessing")
     ).address
   );
-  // await butterBatchProcessing.setApprovals();
+  await butterBatchProcessing.setApprovals();
 
   //Adding permissions and other maintance
   const keeperIncentive = await hre.ethers.getContractAt(
