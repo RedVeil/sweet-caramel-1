@@ -8,6 +8,7 @@ interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
   hasUnclaimedBalances: boolean;
+  permit: Function;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -18,6 +19,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   depositDisabled,
   hasUnclaimedBalances,
   butterPageState,
+  permit,
 }) => {
   const [localButterPageState, setButterPageState] = butterPageState;
   function setRedeeming(redeeming: boolean) {
@@ -75,10 +77,10 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
             localButterPageState.token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero) ? (
               <div className="space-y-4">
                 <MainActionButton
-                  label={`Allow Popcorn to use your ${
+                  label={`${permit ? "Permit" : "Allow"} Popcorn to use your ${
                     localButterPageState.token[localButterPageState.selectedToken.input].name
                   }`}
-                  handleClick={() => approve(localButterPageState.selectedToken.input)}
+                  handleClick={() => (permit ? permit() : approve(localButterPageState.selectedToken.input))}
                 />
                 <MainActionButton
                   label={localButterPageState.redeeming ? "Redeem" : "Mint"}

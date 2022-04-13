@@ -10,6 +10,7 @@ import {
   prepareHotSwap,
   toggleModal,
 } from "@popcorn/utils";
+import GetSignature, { permitTypes } from "@popcorn/utils/src/getSignature.ts";
 import { BatchProcessTokenKey, BatchProcessTokens, BatchType, SelectedToken } from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
@@ -29,11 +30,12 @@ import useButterBatchData from "hooks/butter/useButterBatchData";
 import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
 import useGetButterAPY from "hooks/butter/useGetButterAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
+import useERC20Permit from "hooks/tokens/useERC20Permit";
 import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -41,6 +43,14 @@ enum TOKEN_INDEX {
   dai,
   usdc,
   usdt,
+}
+
+interface SignatureDetails {
+  deadline: BigNumber;
+  v: number;
+  r: string;
+  s: string;
+  value: BigNumber;
 }
 
 function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
@@ -67,6 +77,7 @@ export interface ButterPageState {
   slippage: number;
   initalLoad: boolean;
   token: BatchProcessTokens;
+  signatureData: SignatureDetails;
 }
 
 const DEFAULT_STATE: ButterPageState = {
@@ -78,6 +89,7 @@ const DEFAULT_STATE: ButterPageState = {
   slippage: 1,
   initalLoad: true,
   token: null,
+  signatureData: { v: null, r: null, s: null, value: null, deadline: null },
 };
 
 export default function Butter(): JSX.Element {
@@ -87,6 +99,7 @@ export default function Butter(): JSX.Element {
   const butter = useButter();
   const butterBatchZapper = useButterBatchZapper();
   const butterBatch = useButterBatch();
+  const usdc = useERC20Permit(contractAddresses.usdc);
   const { data: butterAPY } = useGetButterAPY();
   const {
     data: butterBatchData,
@@ -238,6 +251,25 @@ export default function Butter(): JSX.Element {
       .catch((err) => onContractError(err));
   }
 
+  const permit = useCallback(async () => {
+    let valueAdjusted =
+      butterPageState.selectedToken.input === "usdc"
+        ? butterPageState.depositAmount.div(1e12)
+        : butterPageState.depositAmount;
+
+    const { v, r, s, deadline, value } = await GetSignature(
+      library,
+      butterPageState.selectedToken.input === "usdc" ? permitTypes.ALLOWED : permitTypes.AMOUNT,
+      account,
+      butterBatchZapper.address,
+      usdc.contract,
+      chainId,
+      valueAdjusted,
+    );
+
+    v && r && deadline && setButterPageState({ ...butterPageState, signatureData: { v, r, s, deadline, value } });
+  }, [library, account, butterPageState, chainId]);
+
   async function deposit(depositAmount: BigNumber, batchType: BatchType): Promise<void> {
     depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
     if (batchType === BatchType.Mint) {
@@ -251,10 +283,22 @@ export default function Butter(): JSX.Element {
           butterPageState.slippage,
           virtualPriceValue,
         );
-        mintCall = butterBatchZapper.zapIntoBatch(
-          getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
-          minMintAmount,
-        );
+        if (butterPageState.selectedToken.input === "usdc") {
+          const { v, r, s, deadline, value } = butterPageState.signatureData;
+          mintCall = butterBatchZapper.zapIntoBatchPermit(
+            getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
+            minMintAmount,
+            deadline,
+            v,
+            r,
+            s,
+          );
+        } else {
+          mintCall = butterBatchZapper.zapIntoBatch(
+            getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
+            minMintAmount,
+          );
+        }
       } else {
         mintCall = butterBatch.depositForMint(depositAmount, account);
       }
@@ -568,6 +612,7 @@ export default function Butter(): JSX.Element {
                 selectToken={selectToken}
                 deposit={butterPageState.useUnclaimedDeposits ? hotswap : deposit}
                 approve={approve}
+                permit={permit}
                 depositDisabled={
                   butterPageState.useUnclaimedDeposits
                     ? isDepositDisabled(

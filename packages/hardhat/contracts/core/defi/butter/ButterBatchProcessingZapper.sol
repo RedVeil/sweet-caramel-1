@@ -60,11 +60,47 @@ contract ButterBatchProcessingZapper {
    * @param _min_mint_amounts The min amount of 3CRV which should be minted by the curve three-pool (slippage control)
    * @dev The amounts in _amounts must align with their index in the curve three-pool
    */
-  function zapIntoBatch(uint256[3] memory _amounts, uint256 _min_mint_amounts) external {
+  function zapIntoBatchPermit(
+    uint256[3] memory _amounts,
+    uint256 _min_mint_amounts,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) external {
     address butterBatchProcessing = contractRegistry.getContract(keccak256("ButterBatchProcessing"));
     for (uint256 i; i < _amounts.length; i++) {
       if (_amounts[i] > 0) {
         //Deposit Stables
+        if (i == 0) {
+          curve3Pool.coins(0).call(
+            abi.encodeWithSignature(
+              "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)",
+              msg.sender,
+              address(this),
+              _amounts[i],
+              deadline,
+              true,
+              v,
+              r,
+              s
+            )
+          );
+        }
+        if (i == 1) {
+          curve3Pool.coins(1).call(
+            abi.encodeWithSignature(
+              "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)",
+              msg.sender,
+              address(this),
+              _amounts[i],
+              deadline,
+              v,
+              r,
+              s
+            )
+          );
+        }
         IERC20(curve3Pool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);
       }
     }

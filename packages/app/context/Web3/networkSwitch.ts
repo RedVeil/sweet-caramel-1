@@ -22,6 +22,8 @@ export const switchNetwork = async (chainId: number) => {
           return connectToBinanceSmartChain();
         case ChainId.Localhost:
           return connectToLocalhost();
+        case ChainId.Goerli:
+          return connectToGoerli();
       }
     } catch (e) {
       console.error("Error while changing network", e);
@@ -47,6 +49,13 @@ export const connectToEthereumRinkeby = async () => {
   await window.ethereum?.request({
     method: "wallet_switchEthereumChain",
     params: [{ chainId: "0x4" }],
+  });
+};
+
+export const connectToGoerli = async () => {
+  await window.ethereum?.request({
+    method: "wallet_switchEthereumChain",
+    params: [{ chainId: "0x5" }],
   });
 };
 

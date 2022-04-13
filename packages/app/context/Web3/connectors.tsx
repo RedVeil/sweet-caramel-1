@@ -11,6 +11,7 @@ export enum ChainId {
   Localhost = 1337,
   Hardhat = 31337,
   BinanceSmartChain = 56,
+  Goerli = 5,
 }
 
 export enum Wallets {
@@ -32,6 +33,7 @@ export const networkMap = {
   [ChainId.Hardhat]: "Hardhat",
   [ChainId.Localhost]: "Localhost",
   [ChainId.BinanceSmartChain]: "BSC",
+  [ChainId.Goerli]: "Goerli",
 };
 
 export const logos = {
@@ -41,6 +43,7 @@ export const logos = {
   [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
   [ChainId.Localhost]: "/images/icons/ethLogo.png",
   [ChainId.BinanceSmartChain]: "/images/icons/bsc-logo.png",
+  [ChainId.Goerli]: "/images/icons/ethLogo.png",
 };
 
 const RPC_URLS = {
@@ -51,6 +54,7 @@ const RPC_URLS = {
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.BinanceSmartChain]: `https://bsc-dataseed1.binance.org`,
   [ChainId.Localhost]: `http://localhost:8545`,
+  [ChainId.Goerli]: `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
 };
 
 export const supportedChainIds = [
@@ -61,6 +65,7 @@ export const supportedChainIds = [
   ChainId.Mumbai,
   ChainId.Localhost,
   ChainId.BinanceSmartChain,
+  ChainId.Goerli,
 ];
 
 const Injected = new InjectedConnector({
