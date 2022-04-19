@@ -1,4 +1,4 @@
-import { BatchType } from '@popcorn/contracts/adapters/HYSIBatchInteraction/HYSIBatchInteractionAdapter';
+import { BatchType } from '@popcorn/hardhat/lib/adapters/HYSIBatchInteraction/HYSIBatchInteractionAdapter';
 import { BigNumber } from 'ethers';
 import { DepositWithdrawToggle } from '../DepositWithdrawToggle';
 import TokenInput, { TokenInputProps } from '../TokenInput';

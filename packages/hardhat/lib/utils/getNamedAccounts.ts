@@ -280,6 +280,21 @@ export default function getNamedAccounts() {
       polygon: "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
       mainnet: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
     },
+    beneficiaryRegistry: {
+      hardhat: "0x51C65cd0Cdb1A8A8b79dfc2eE965B1bA0bb8fc89"
+    },
+    beneficiaryGovernance: {
+      hardhat: "0x7B4f352Cd40114f12e82fC675b5BA8C7582FC513"
+    },
+    grantElections: {
+      hardhat: "0xC7143d5bA86553C06f5730c8dC9f8187a621A8D4"
+    },
+    rewardsManager: {
+      hardhat: "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8"
+    },
+    govStaking: {
+      hardhat: "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8"
+    },
   };
 }
 

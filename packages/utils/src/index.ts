@@ -22,3 +22,5 @@ export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipu
 export { default as localStringOptions } from "./localStringOptions";
 export { ModalType, toggleModal } from "./modalHelpers";
 export { default as useFetch } from "./useFetch";
+export { IpfsClient } from './IpfsClient/IpfsClient';
+export type { IIpfsClient, UploadResult } from './IpfsClient/IpfsClient';

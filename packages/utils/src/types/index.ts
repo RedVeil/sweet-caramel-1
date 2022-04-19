@@ -29,12 +29,17 @@ export interface ContractAddresses {
   crvMimMetapool?: Address;
   curveAddressProvider?: Address;
   curveFactoryMetapoolDepositZap?: Address;
-  uniswapRouter?: Address;
   setBasicIssuanceModule?: Address;
   setTokenCreator?: Address;
   setStreamingFeeModule?: Address;
   aclRegistry?: Address;
   contractRegistry?: Address;
+  beneficiaryRegistry?: Address;
+  beneficiaryGovernance?: Address;
+  grantElections?: Address;
+  rewardsManager?: Address;
+  uniswapRouter?: Address;
+  govStaking?: Address;
   // dao: DAO;
   voting?: Address;
   dao?: Address;
