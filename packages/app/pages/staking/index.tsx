@@ -37,7 +37,7 @@ export default function index(): JSX.Element {
     <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-6 md:mx-auto mt-14 pb-6">
+      <div className="md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-6 md:mx-auto mt-14 pb-6">
         <div className="text-center md:text-left md:w-1/3">
           <h1 className="page-title">Staking</h1>
           <p className="md:text-lg text-gray-500 mt-2">Earn more by staking your tokens</p>

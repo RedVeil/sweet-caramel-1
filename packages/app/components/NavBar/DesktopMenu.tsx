@@ -22,7 +22,7 @@ export default function DesktopMenu({ currentChain, disconnectInjected }: MenuPr
   const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
 
   return (
-    <div className="flex flex-row items-center justify-between lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto z-50">
+    <div className="flex flex-row items-center justify-between md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto z-50">
       <div className="flex flex-row items-center">
         <div>
           <Link href="/" passHref>

@@ -463,7 +463,7 @@ export default function Butter(): JSX.Element {
     <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-32">
+      <div className="mx-auto md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-32">
         <div className="md:w-6/12 mx-4 md:mx-0 text-center md:text-left">
           <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
           <p className="mt-2 text-lg text-gray-500">

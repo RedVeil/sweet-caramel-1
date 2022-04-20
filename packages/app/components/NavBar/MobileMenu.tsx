@@ -120,11 +120,11 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInject
                           <Menu as={Fragment}>
                             <Menu.Button as={Fragment}>
                               <div
-                                className={`w-full px-6 h-12 py-0.5 flex flex-row items-center justify-between border border-gray-200 shadow-custom rounded-3xl cursor-pointer`}
+                                className={`w-full px-6 h-12 py-0.5 flex flex-row items-center justify-center border border-gray-200 shadow-custom rounded-3xl cursor-pointer relative`}
                               >
                                 <img src={currentChain.logo} alt={""} className="w-4.5 h-4 mr-4" />
                                 <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChain.name}</p>
-                                <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
+                                <ChevronDownIcon className="w-5 h-5 ml-4 absolute right-10" aria-hidden="true" />
                               </div>
                             </Menu.Button>
                             <NetworkOptionsMenu
@@ -168,7 +168,7 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInject
                               activate(connectors.Injected);
                             }
                           }}
-                          className={`rounded-full py-3 w-full flex flex-row justify-around items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${
+                          className={`rounded-full py-3 w-full flex flex-row justify-center gap-2 items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${
                             account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
                           }`}
                         >

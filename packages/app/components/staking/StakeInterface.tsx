@@ -220,7 +220,7 @@ export default function StakeInterface({
               </div>
             </div>
           </div>
-          <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 xs:h-72 sm:h-80 md:h-124">
+          <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 xs:h-72 smmd:h-full md:h-124">
             <div className="mt-8 md:ml-8 text-center md:text-left">
               <p className="text-xl font-medium">Happy Staking</p>
               <p className="text-base font-light mt-1">Enjoy more sweet POP in your wallet!</p>
@@ -229,10 +229,10 @@ export default function StakeInterface({
               src="/images/catPopVault.svg"
               className={"hidden md:block absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"}
             />
-            <div className="flex md:hidden w-full content-center">
+            <div className="flex md:hidden w-full justify-center">
               <img
                 src="/images/catPopVaultMobile.png"
-                className={"block md:hidden absolute max-h-80 w-3/4 bottom-0 right-10 xs:right-16"}
+                className={"block md:hidden max-h-80 w-3/4 bottom-0 pt-10 object-contain"}
               />
             </div>
           </div>
