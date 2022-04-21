@@ -164,7 +164,7 @@ export default function StakeInterface({
                       classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
                       id="1"
                       title="Staked Balance"
-                      content={`This shows your staked balance of ${stakingToken?.symbol} which currently farm POP rewards.`}
+                      content={`This is the balance of ${stakingToken?.symbol} that you have staked.`}
                     />
                   </div>
                   <div className="flex flex-row items-center mt-1">
@@ -206,7 +206,7 @@ export default function StakeInterface({
                       classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
                       id="2"
                       title="Your Staking Rewards"
-                      content={`Here you can see how much POP you already earned from your staked ${stakingToken?.symbol}`}
+                      content={`Staking rewards are received for staking tokens. Rewards may be claimed under the rewards page. Whenever rewards are claimed, 10% is transferred immediately to your wallet, and the rest is streamed and claimable over the next 1 year.`}
                     />
                   </div>
                   <div className="flex flex-row items-center mt-1">

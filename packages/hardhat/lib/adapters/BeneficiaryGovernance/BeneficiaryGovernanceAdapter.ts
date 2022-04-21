@@ -82,14 +82,9 @@ export class BeneficiaryGovernanceAdapter {
     };
   }
 
-  public async getAllProposals(
-    proposalType: ProposalType
-  ): Promise<Proposal[]> {
-    const proposalCount = await this.contract.getNumberOfProposals(
-      proposalType
-    );
-    const proposalTypeName =
-      proposalType === ProposalType.Nomination ? "nominations" : "takedowns";
+  public async getAllProposals(proposalType: ProposalType): Promise<Proposal[]> {
+    const proposalCount = await this.contract.getNumberOfProposals(proposalType);
+    const proposalTypeName = proposalType === ProposalType.Nomination ? "nominations" : "takedowns";
 
     const proposalIds = await Promise.all(
       new Array(Number(proposalCount)).fill(undefined).map(async (x, i) => {
