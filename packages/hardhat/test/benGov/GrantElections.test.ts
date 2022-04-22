@@ -1,6 +1,7 @@
 import { parseEther } from "@ethersproject/units";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import { MockContract } from "ethereum-waffle";
 import { BigNumber, utils } from "ethers";
 import { ethers, waffle } from "hardhat";
 import {
@@ -172,72 +173,64 @@ describe("GrantElections", function () {
   describe("defaults", function () {
     it("should set correct monthly defaults", async function () {
       const monthly = await GrantElectionAdapter(contracts.grantElections).electionDefaults(GRANT_TERM.MONTH);
-      expect(monthly).to.deep.contains({
-        registrationBondRequired: true,
-        registrationBond: parseEther("50"),
-        useChainLinkVRF: true,
-        ranking: 3,
-        awardees: 1,
-        registrationPeriod: 7 * ONE_DAY,
-        votingPeriod: 7 * ONE_DAY,
-        cooldownPeriod: 21 * ONE_DAY,
-        finalizationIncentive: parseEther("2000"),
-        enabled: true,
-        shareType: ShareType.EqualWeight,
-      });
+      expect(monthly.registrationBondRequired).to.equal(true);
+      expect(monthly.registrationBond).to.equal(parseEther("50"));
+      expect(monthly.useChainLinkVRF).to.equal(true);
+      expect(monthly.ranking).to.equal(3);
+      expect(monthly.awardees).to.equal(1);
+      expect(monthly.registrationPeriod).to.equal(7 * ONE_DAY);
+      expect(monthly.votingPeriod).to.equal(7 * ONE_DAY);
+      expect(monthly.cooldownPeriod).to.equal(21 * ONE_DAY);
+      expect(monthly.finalizationIncentive).to.equal(parseEther("2000"));
+      expect(monthly.enabled).to.equal(true);
+      expect(monthly.shareType).to.equal(ShareType.EqualWeight);
     });
 
     it("should set correct quarterly defaults", async function () {
       const quarterly = await GrantElectionAdapter(contracts.grantElections).electionDefaults(GRANT_TERM.QUARTER);
-      expect(quarterly).to.deep.contains({
-        registrationBondRequired: true,
-        registrationBond: parseEther("100"),
-        useChainLinkVRF: true,
-        ranking: 5,
-        awardees: 2,
-        registrationPeriod: 14 * ONE_DAY,
-        votingPeriod: 14 * ONE_DAY,
-        cooldownPeriod: 83 * ONE_DAY,
-        finalizationIncentive: parseEther("2000"),
-        enabled: true,
-        shareType: ShareType.EqualWeight,
-      });
+      expect(quarterly.registrationBondRequired).to.equal(true);
+      expect(quarterly.registrationBond).to.equal(parseEther("100"));
+      expect(quarterly.useChainLinkVRF).to.equal(true);
+      expect(quarterly.ranking).to.equal(5);
+      expect(quarterly.awardees).to.equal(2);
+      expect(quarterly.registrationPeriod).to.equal(14 * ONE_DAY);
+      expect(quarterly.votingPeriod).to.equal(14 * ONE_DAY);
+      expect(quarterly.cooldownPeriod).to.equal(83 * ONE_DAY);
+      expect(quarterly.finalizationIncentive).to.equal(parseEther("2000"));
+      expect(quarterly.enabled).to.equal(true);
+      expect(quarterly.shareType).to.equal(ShareType.EqualWeight);
     });
     it("should set correct yearly defaults", async function () {
       const yearly = await GrantElectionAdapter(contracts.grantElections).electionDefaults(GRANT_TERM.YEAR);
-      expect(yearly).to.deep.contains({
-        registrationBondRequired: true,
-        registrationBond: parseEther("1000"),
-        useChainLinkVRF: true,
-        ranking: 7,
-        awardees: 3,
-        registrationPeriod: 30 * ONE_DAY,
-        votingPeriod: 30 * ONE_DAY,
-        cooldownPeriod: 358 * ONE_DAY,
-        finalizationIncentive: parseEther("2000"),
-        enabled: true,
-        shareType: ShareType.EqualWeight,
-      });
+      expect(yearly.registrationBondRequired).to.equal(true);
+      expect(yearly.registrationBond).to.equal(parseEther("1000"));
+      expect(yearly.useChainLinkVRF).to.equal(true);
+      expect(yearly.ranking).to.equal(7);
+      expect(yearly.awardees).to.equal(3);
+      expect(yearly.registrationPeriod).to.equal(30 * ONE_DAY);
+      expect(yearly.votingPeriod).to.equal(30 * ONE_DAY);
+      expect(yearly.cooldownPeriod).to.equal(358 * ONE_DAY);
+      expect(yearly.finalizationIncentive).to.equal(parseEther("2000"));
+      expect(yearly.enabled).to.equal(true);
+      expect(yearly.shareType).to.equal(ShareType.EqualWeight);
     });
 
     it("should set configuration for grant elections", async function () {
       await contracts.grantElections
         .connect(governance)
         .setConfiguration(GRANT_TERM.QUARTER, 15, 10, false, 100, 100, 100, 0, false, parseEther("100"), true, 0);
-      const quarter = await GrantElectionAdapter(contracts.grantElections).electionDefaults(GRANT_TERM.QUARTER);
-      expect(quarter).to.deep.contains({
-        ranking: 15,
-        awardees: 10,
-        useChainLinkVRF: false,
-        registrationPeriod: 100,
-        votingPeriod: 100,
-        cooldownPeriod: 100,
-        registrationBond: parseEther("0"),
-        registrationBondRequired: false,
-        finalizationIncentive: parseEther("100"),
-        enabled: true,
-        shareType: ShareType.EqualWeight,
-      });
+      const quarterly = await GrantElectionAdapter(contracts.grantElections).electionDefaults(GRANT_TERM.QUARTER);
+      expect(quarterly.registrationBondRequired).to.equal(false);
+      expect(quarterly.registrationBond).to.equal(0);
+      expect(quarterly.useChainLinkVRF).to.equal(false);
+      expect(quarterly.ranking).to.equal(15);
+      expect(quarterly.awardees).to.equal(10);
+      expect(quarterly.registrationPeriod).to.equal(100);
+      expect(quarterly.votingPeriod).to.equal(100);
+      expect(quarterly.cooldownPeriod).to.equal(100);
+      expect(quarterly.finalizationIncentive).to.equal(parseEther("100"));
+      expect(quarterly.enabled).to.equal(true);
+      expect(quarterly.shareType).to.equal(ShareType.EqualWeight);
     });
   });
 
@@ -320,28 +313,23 @@ describe("GrantElections", function () {
       const currentBlock = await waffle.provider.getBlock("latest");
       await contracts.grantElections.initialize(GRANT_TERM.QUARTER, DEFAULT_REGION);
       const metadata = await GrantElectionAdapter(contracts.grantElections).getElectionMetadata(electionId);
-      expect(metadata).to.deep.equal({
-        votes: [],
-        electionTerm: GRANT_TERM.QUARTER,
-        registeredBeneficiaries: [],
-        electionState: ElectionState.Registration,
-        electionStateStringLong: "open for registration",
-        electionStateStringShort: "registration",
-        bondRequirements: { required: true, amount: parseEther("100") },
-        configuration: {
-          awardees: 2,
-          ranking: 5,
-        },
-        useChainlinkVRF: true,
-        periods: {
-          cooldownPeriod: 83 * ONE_DAY, // 83 days
-          registrationPeriod: 14 * ONE_DAY, // 14 days
-          votingPeriod: 14 * ONE_DAY, // 14 days
-        },
-        startTime: currentBlock.timestamp + 1,
-        randomNumber: 0,
-        shareType: 0,
-      });
+      expect(metadata.votes.length).to.equal(0);
+      expect(metadata.electionTerm).to.equal(GRANT_TERM.QUARTER);
+      expect(metadata.registeredBeneficiaries.length).to.equal(0);
+      expect(metadata.electionState).to.equal(ElectionState.Registration);
+      expect(metadata.electionStateStringLong).to.equal("open for registration");
+      expect(metadata.electionStateStringShort).to.equal("registration");
+      expect(metadata.bondRequirements.required).to.equal(true);
+      expect(metadata.bondRequirements.amount).to.equal(parseEther("100"));
+      expect(metadata.configuration.awardees).to.equal(2);
+      expect(metadata.configuration.ranking).to.equal(5);
+      expect(metadata.useChainlinkVRF).to.equal(true);
+      expect(metadata.periods.cooldownPeriod).to.equal(83 * ONE_DAY);
+      expect(metadata.periods.registrationPeriod).to.equal(14 * ONE_DAY);
+      expect(metadata.periods.votingPeriod).to.equal(14 * ONE_DAY);
+      expect(metadata.startTime).to.equal(currentBlock.timestamp + 1);
+      expect(metadata.randomNumber).to.equal(0);
+      expect(metadata.shareType).to.equal(0);
     });
 
     it("should prevent an election from initializing if it isn't finalized", async function () {

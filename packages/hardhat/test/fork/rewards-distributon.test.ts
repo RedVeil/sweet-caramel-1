@@ -55,7 +55,7 @@ describe("rewards distribution test", () => {
       console.log("approved thrice");
     });
 
-    it.only("should distribute rewards successfully", async () => {
+    it("should distribute rewards successfully", async () => {
       const deployer = await impersonateSigner("0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f");
       const distributor = await (
         await ethers.getContractAt("RewardsDistribution", rewardsDistribution)
@@ -66,7 +66,7 @@ describe("rewards distribution test", () => {
       await distributor.distributeRewards(parseEther("1000"));
     });
 
-    it.only("can distribute all funds back to treasury", async () => {
+    it("can distribute all funds back to treasury", async () => {
       const NEW_TREASURY = "0xf7b932085508ddbDD2CBBE7C4C8DCf35904aaf0e";
       const deployer = await impersonateSigner("0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f");
       const distributor = await (

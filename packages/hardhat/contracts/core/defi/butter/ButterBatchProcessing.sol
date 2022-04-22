@@ -224,7 +224,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     Batch storage batch = batches[_batchId];
     uint256 accountBalance = accountBalances[_batchId][_withdrawFor];
     require(batch.claimable == false, "already processed");
-    require(accountBalance >= _amountToWithdraw, "account has insufficient funds");
+    require(accountBalance >= _amountToWithdraw, "not enough funds");
 
     //At this point the account balance is equal to the supplied token and can be used interchangeably
     accountBalances[_batchId][_withdrawFor] = accountBalance - _amountToWithdraw;
@@ -310,7 +310,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
       //Additionally it makes no sense to move funds from the current redeemBatch to the current redeemBatch
       require(batch.claimable == true, "has not yet been processed");
       require(batch.batchType == _batchType, "incorrect batchType");
-      require(accountBalance >= _shares[i], "account has insufficient funds");
+      require(accountBalance >= _shares[i], "not enough funds");
 
       uint256 tokenAmountToClaim = (batch.claimableTokenBalance * _shares[i]) / batch.unclaimedShares;
       batch.claimableTokenBalance = batch.claimableTokenBalance - tokenAmountToClaim;
