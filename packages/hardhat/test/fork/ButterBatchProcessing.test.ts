@@ -4,17 +4,17 @@ import SetTokenAbi from "@setprotocol/set-protocol-v2/artifacts/contracts/protoc
 import { BasicIssuanceModule, SetToken } from "@setprotocol/set-protocol-v2/dist/typechain";
 import bluebird from "bluebird";
 import { expect } from "chai";
-import { BigNumber, Signer, utils } from "ethers";
+import { BigNumber, Signer } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, network, waffle } from "hardhat";
-import ButterBatchAdapter from "../../lib/adapters/ButterBatchAdapter";
 import { ComponentMap } from "packages/utils/src/types";
+import ButterBatchAdapter from "../../lib/adapters/ButterBatchAdapter";
 import CurveMetapoolAbi from "../../lib/external/curve/FactoryMetapool.json";
 import { expectBigNumberCloseTo, expectValue } from "../../lib/utils/expectValue";
 import { getNamedAccountsByChainId } from "../../lib/utils/getNamedAccounts";
 import { DAYS, impersonateSigner } from "../../lib/utils/test";
 import { timeTravel } from "../../lib/utils/test/timeTravel";
-import { ButterBatchProcessing, CurveMetapool, ERC20, Faucet, MockERC20, RewardsEscrow } from "../../typechain";
+import { ButterBatchProcessing, CurveMetapool, ERC20, Faucet, MockERC20 } from "../../typechain";
 import { YearnVault } from "../../typechain/YearnVault";
 
 const provider = waffle.provider;
@@ -47,6 +47,9 @@ let owner: SignerWithAddress,
 let contracts: Contracts;
 
 const BUTTER_TOKEN_ADDRESS = "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae";
+const Y_MIM_ADDRESS = "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8";
+const CURVE_MIM_METAPOOL_ADDRESS = "0x5a6A4D54456819380173272A5E8E9B9904BdF41B";
+const KEEPER_INCENTIVE_ADDRESS = "0xCD4f7582b32d90BD9FC7DC9F8116C43Ab17dE011";
 
 const SET_BASIC_ISSUANCE_MODULE_ADDRESS = "0xd8EF3cACe8b4907117a45B0b125c68560532F94D";
 
@@ -61,17 +64,7 @@ const CURVE_FACTORY_METAPOOL_DEPOSIT_ZAP_ADDRESS = "0xA79828DF1850E8a3A3064576f3
 let componentMap: ComponentMap = {};
 
 async function deployContracts(): Promise<Contracts> {
-  const {
-    yFrax,
-    yMim,
-    crvFraxMetapool,
-    crvFrax,
-    crvMimMetapool,
-    crvMim,
-    keeperIncentive,
-    contractRegistry,
-    threePool,
-  } = getNamedAccountsByChainId(1);
+  const { yFrax, crvFraxMetapool, crvFrax, contractRegistry, threePool } = getNamedAccountsByChainId(1);
   admin = await impersonateSigner("0x92a1cb552d0e177f3a135b4c87a4160c8f2a485f");
 
   //Deploy helper Faucet
@@ -97,7 +90,10 @@ async function deployContracts(): Promise<Contracts> {
 
   const threePoolContract = (await ethers.getContractAt(CurveMetapoolAbi, threePool)) as CurveMetapool;
 
-  const crvMimMetapoolContract = (await ethers.getContractAt(CurveMetapoolAbi, crvMimMetapool)) as CurveMetapool;
+  const crvMimMetapoolContract = (await ethers.getContractAt(
+    CurveMetapoolAbi,
+    CURVE_MIM_METAPOOL_ADDRESS
+  )) as CurveMetapool;
 
   const crvFraxMetapoolContract = (await ethers.getContractAt(CurveMetapoolAbi, crvFraxMetapool)) as CurveMetapool;
 
@@ -112,21 +108,17 @@ async function deployContracts(): Promise<Contracts> {
     await (await ethers.getContractFactory("PopLocker")).deploy(mockPop.address, mockPop.address)
   ).deployed();
 
-  const rewardsEscrow = (await (
-    await (await ethers.getContractFactory("RewardsEscrow")).deploy(mockPop.address)
-  ).deployed()) as RewardsEscrow;
-
   //Deploy ButterBatchProcessing
   const ButterBatchProcessing = await ethers.getContractFactory("ButterBatchProcessing");
-  const YTOKEN_ADDRESSES = [yFrax, yMim];
+  const YTOKEN_ADDRESSES = [yFrax, Y_MIM_ADDRESS];
   const CRV_DEPENDENCIES = [
     {
       curveMetaPool: crvFraxMetapool,
       crvLPToken: crvFrax,
     },
     {
-      curveMetaPool: crvMimMetapool,
-      crvLPToken: crvMim,
+      curveMetaPool: CURVE_MIM_METAPOOL_ADDRESS,
+      crvLPToken: CURVE_MIM_METAPOOL_ADDRESS,
     },
   ];
   const butterBatch = await (
@@ -149,13 +141,11 @@ async function deployContracts(): Promise<Contracts> {
 
   await butterBatch.setApprovals();
 
-  const keeper = await ethers.getContractAt("KeeperIncentive", keeperIncentive);
+  const keeper = await ethers.getContractAt("KeeperIncentive", KEEPER_INCENTIVE_ADDRESS);
 
-  await keeper
-    .connect(admin)
-    .addControllerContract(utils.formatBytes32String("ButterBatchProcessing"), butterBatch.address);
+  await keeper.connect(admin).addControllerContract(await butterBatch.contractName(), butterBatch.address);
 
-  const yMimVault = await ethers.getContractAt("YearnVault", yMim);
+  const yMimVault = await ethers.getContractAt("YearnVault", Y_MIM_ADDRESS);
   const yFraxVault = await ethers.getContractAt("YearnVault", yFrax);
 
   componentMap = await getComponentMap([crvMimMetapoolContract, crvFraxMetapoolContract], [yMimVault, yFraxVault]);
@@ -246,7 +236,7 @@ describe("ButterBatchProcessing Network Test", function () {
       contracts = await deployContracts();
       await Promise.all(
         [depositor, depositor1, depositor2, depositor3].map(async (account) => {
-          return await contracts.faucet.sendThreeCrv(10000, account.address);
+          return contracts.faucet.sendThreeCrv(10000, account.address);
         })
       );
       const currentBlockNumber = await ethers.provider.getBlockNumber();
@@ -383,7 +373,7 @@ describe("ButterBatchProcessing Network Test", function () {
 
           await expect(
             contracts.butterBatch.connect(depositor).withdrawFromBatch(batchId, parseEther("101"), depositor.address)
-          ).to.be.revertedWith("account has insufficient funds");
+          ).to.be.revertedWith("not enough funds");
         });
       });
       context("sucess", function () {
@@ -865,7 +855,7 @@ describe("ButterBatchProcessing Network Test", function () {
             [parseEther("25000")],
             BatchType.Mint
           )
-        ).to.be.revertedWith("insufficient funds");
+        ).to.be.revertedWith("not enough funds");
       });
     });
     context("success", function () {

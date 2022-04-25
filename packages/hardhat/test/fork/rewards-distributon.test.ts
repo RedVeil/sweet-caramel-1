@@ -3,7 +3,7 @@ import { ethers, network } from "hardhat";
 import { getERC20Contract } from "../../../utils/src/contractHelpers";
 import { expectValue } from "../../lib/utils/expectValue";
 import { getNamedAccountsByChainId } from "../../lib/utils/getNamedAccounts";
-import { impersonateSigner, sendEth } from "../../lib/utils/test";
+import { impersonateSigner } from "../../lib/utils/test";
 
 const { pop, rewardsDistribution, popUsdcLpStaking } = getNamedAccountsByChainId(1);
 
@@ -21,38 +21,6 @@ describe("rewards distribution test", () => {
           },
         ],
       });
-    });
-
-    it("should allow rewards manager to approve multiple times", async () => {
-      const distributionContract = await impersonateSigner(rewardsDistribution);
-      await sendEth(rewardsDistribution, "100");
-      const popContract = await getERC20Contract(pop, ethers.provider);
-      console.log("approving ...");
-      await popContract.connect(distributionContract).decreaseAllowance(popUsdcLpStaking, parseEther("0"));
-    });
-
-    it("should allow an EOA to approve multiple times", async () => {
-      const eoa = await impersonateSigner("0x4476D23d376c6A47a1f97BA9D8b8BaCc59cC5E3F");
-      await sendEth(await eoa.getAddress(), "100");
-      const popContract = await getERC20Contract(pop, ethers.provider);
-      console.log("approving ...");
-      await popContract.connect(eoa).approve(popUsdcLpStaking, parseEther("100"));
-      console.log("approving again ...");
-      await popContract.connect(eoa).approve(popUsdcLpStaking, parseEther("100"));
-      console.log("approved twice");
-    });
-
-    it("should allow an EOA to approve multiple times", async () => {
-      const eoa = await impersonateSigner("0x4476D23d376c6A47a1f97BA9D8b8BaCc59cC5E3F");
-      await sendEth(await eoa.getAddress(), "100");
-      const popContract = await getERC20Contract(pop, ethers.provider);
-      console.log("approving ...");
-      await popContract.connect(eoa).approve(popUsdcLpStaking, parseEther("100"));
-      console.log("approving again ...");
-      await popContract.connect(eoa).approve(popUsdcLpStaking, parseEther("0"));
-      console.log("approved twice");
-      await popContract.connect(eoa).approve(popUsdcLpStaking, parseEther("200"));
-      console.log("approved thrice");
     });
 
     it("should distribute rewards successfully", async () => {
