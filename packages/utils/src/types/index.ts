@@ -89,6 +89,12 @@ export interface VestingRecord {
   claimable: number;
 }
 
+export type LockedBalance = {
+  amount: BigNumber;
+  boosted: BigNumber;
+  unlockDate: number;
+};
+
 export type Token = {
   contract: ERC20;
   address: Address;
@@ -108,6 +114,7 @@ export type StakingPool = {
   tokenEmission: BigNumber;
   earned?: BigNumber;
   withdrawable?: BigNumber;
+  lockedBalances?: { amount: BigNumber; boosted: BigNumber; unlockTime: number }[];
   stakingToken: Token;
 };
 

@@ -1,7 +1,10 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import TokenInput from "components/Common/TokenInput";
 import MainActionButton from "components/MainActionButton";
+import DropDownSelect from "components/staking/VestingRecordDropDown";
 import TermsAndConditions from "components/StakingTermsAndConditions";
+import { useState } from "react";
+import { formatDate } from "../../../utils/src/DateTime";
 import { InteractionType } from "./StakeInterface";
 import { StakingInteractionProps } from "./StakingInteraction";
 
@@ -24,16 +27,53 @@ export default function PopLockerInteraction({
   const withdrawal = type === InteractionType.Withdraw;
   const deposit = type === InteractionType.Deposit;
   const stakingToken = stakingPool?.stakingToken;
+  const lockedBalances = stakingPool?.lockedBalances;
+  const [chosenLock, setChosenLock] = useState(lockedBalances[0]);
 
   return (
     <>
       {withdrawal && (
-        <div className="pt-16 mx-auto">
+        <div className="pt-10 mx-auto">
           <div className="w-full mb-10">
-            <label htmlFor="tokenInput" className="flex justify-between text-sm font-medium text-gray-700 text-center">
-              <p className="mb-2  text-base">Withdrawable Amount</p>
+            {lockedBalances?.length ? (
+              <DropDownSelect
+                label={"Stake Records"}
+                options={lockedBalances}
+                selectOption={setChosenLock}
+                selectedOption={chosenLock}
+              />
+            ) : (
+              <></>
+            )}
+            {chosenLock && (
+              <div className="flex flex-row flex-wrap lglaptop:justify-between -mr-2 justify-center my-10">
+                <div className="bg-gray-50 p-4 mb-2 flex-col rounded-2xl mr-2 max-w-1/2 flex-1 lglaptop:w-fit">
+                  <p className="text-gray-500">AMOUNT</p>
+                  <p className="text-gray-900 text-lg font-semibold">
+                    {formatAndRoundBigNumber(chosenLock.amount)} POP
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 mb-2 flex-col rounded-2xl mr-2 max-w-1/2 flex-1 lglaptop:w-fit">
+                  <p className="text-gray-500 whitespace-nowrap">UNLOCK DATE</p>
+                  <p className="text-gray-900 text-lg font-semibold">
+                    {formatDate(new Date(chosenLock.unlockTime * 1000), "MMM dd")}
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 mb-2 flex-col rounded-2xl mr-2 lglaptopt:mt-0 max-w-1/2 flex-1 lglaptop:w-fit">
+                  <p className="text-gray-500">REMAINING</p>
+                  <p className="text-gray-900 text-lg font-semibold">
+                    {Math.floor((chosenLock.unlockTime * 1000 - Date.now()) / (60 * 60 * 24 * 7) / 1000)} Weeks
+                  </p>
+                </div>
+              </div>
+            )}
+            <label
+              htmlFor="tokenInput"
+              className="flex justify-between text-sm font-medium text-gray-700 text-center mt-6"
+            >
+              <p className="mb-2 text-gray-900 text-base">Withdrawable Amount</p>
             </label>
-            <div className="mt-1 relative flex items-center">
+            <div className="relative flex items-center">
               <input
                 type="string"
                 name="tokenInput"
