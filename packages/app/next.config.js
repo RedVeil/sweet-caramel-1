@@ -5,6 +5,7 @@ require("../utils/src/envLoader");
 const workspace = join(__dirname, "..");
 
 module.exports = {
+  reactStrictMode: true,
   target: "serverless",
   env: {
     RPC_URL: process.env.RPC_URL,

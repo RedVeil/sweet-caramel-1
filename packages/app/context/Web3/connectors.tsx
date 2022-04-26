@@ -13,6 +13,17 @@ export enum ChainId {
   BinanceSmartChain = 56,
 }
 
+export enum ChainIdHex {
+  Ethereum = "0x1",
+  Rinkeby = "0x4",
+  Arbitrum = "0xa4b1",
+  Mumbai = "0x13881",
+  Polygon = "0x89",
+  Localhost = "0x539",
+  Hardhat = "0x7a69",
+  BinanceSmartChain = "0x38",
+}
+
 export enum Wallets {
   METAMASK,
   WALLETCONNECT,
@@ -43,7 +54,7 @@ export const logos = {
   [ChainId.BinanceSmartChain]: "/images/icons/bsc-logo.png",
 };
 
-const RPC_URLS = {
+export const RPC_URLS = {
   [ChainId.Ethereum]: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Rinkeby]: `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Arbitrum]: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,

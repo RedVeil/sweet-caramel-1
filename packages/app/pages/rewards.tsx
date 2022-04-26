@@ -22,7 +22,7 @@ import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { toast, Toaster } from "react-hot-toast";
 import { SWRResponse } from "swr";
-import { ChainId, connectors } from "../context/Web3/connectors";
+import { ChainId } from "../context/Web3/connectors";
 import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../hooks/tokens/useERC20";
 
@@ -33,15 +33,15 @@ export enum Tabs {
 }
 
 export default function index(): JSX.Element {
-  const { account, library, chainId, activate, contractAddresses, onContractSuccess, onContractError, showModal } =
+  const { account, signerOrProvider, signer, chainId, connect, contractAddresses, onContractSuccess, onContractError } =
     useWeb3();
   const { dispatch } = useContext(store);
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
   const xPopRedemption = useMemo(() => {
     if (contractAddresses.xPopRedemption) {
-      return XPopRedemption__factory.connect(contractAddresses.xPopRedemption, account ? library.getSigner() : library);
+      return XPopRedemption__factory.connect(contractAddresses.xPopRedemption, signerOrProvider);
     }
-  }, [chainId, account, library]);
+  }, [chainId, account, signerOrProvider]);
   const pop = useERC20(contractAddresses.pop);
   const xPop = useERC20(contractAddresses.xPop);
   const { data: popLocker, mutate: revalidatePopLocker } = usePopLocker(contractAddresses.popStaking);
@@ -155,7 +155,7 @@ export default function index(): JSX.Element {
   async function approveXpopRedemption(): Promise<void> {
     toast.loading("Approving xPOP...");
     await xPop.contract
-      .connect(library.getSigner())
+      .connect(signer)
       .approve(contractAddresses.xPopRedemption, ethers.constants.MaxUint256)
       .then((res) => {
         res.wait().then((res) => {
@@ -176,7 +176,7 @@ export default function index(): JSX.Element {
   async function redeemXpop(amount: BigNumber): Promise<void> {
     toast.loading("Redeeming xPOP...");
     await xPopRedemption
-      .connect(library.getSigner())
+      .connect(signer)
       .redeem(amount)
       .then((res) => {
         res.wait().then((res) => {
@@ -245,8 +245,7 @@ export default function index(): JSX.Element {
               <div className="flex mx-10 justify-items-stretch">
                 <button
                   onClick={() => {
-                    localStorage.setItem("eager_connect", "true");
-                    activate(connectors.Injected);
+                    connect();
                   }}
                   className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
                   style={{ width: "368px", height: "60px" }}

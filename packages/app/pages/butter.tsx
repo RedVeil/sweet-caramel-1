@@ -21,7 +21,7 @@ import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
 import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId, connectors } from "context/Web3/connectors";
+import { ChainId } from "context/Web3/connectors";
 import { BigNumber, constants, ethers } from "ethers";
 import useButter from "hooks/butter/useButter";
 import useButterBatch from "hooks/butter/useButterBatch";
@@ -29,7 +29,6 @@ import useButterBatchData from "hooks/butter/useButterBatchData";
 import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
 import useGetButterAPY from "hooks/butter/useGetButterAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
-import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
@@ -81,7 +80,16 @@ const DEFAULT_STATE: ButterPageState = {
 };
 
 export default function Butter(): JSX.Element {
-  const { library, account, chainId, onContractSuccess, onContractError, contractAddresses, activate } = useWeb3();
+  const {
+    signerOrProvider,
+    account,
+    chainId,
+    onContractSuccess,
+    onContractError,
+    contractAddresses,
+    connect,
+    setChain,
+  } = useWeb3();
   const { dispatch } = useContext(store);
   const router = useRouter();
   const butter = useButter();
@@ -96,11 +104,10 @@ export default function Butter(): JSX.Element {
   const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
-  const switchNetwork = useNetworkSwitch();
   const loadingButterBatchData = !butterBatchData && !errorFetchingButterBatchData;
 
   useEffect(() => {
-    if (!library || !chainId) {
+    if (!signerOrProvider || !chainId) {
       return;
     }
     if (!isButterSupportedOnCurrentNetwork(chainId)) {
@@ -111,7 +118,7 @@ export default function Butter(): JSX.Element {
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
-              switchNetwork(ChainId.Ethereum);
+              setChain(ChainId.Ethereum);
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -125,11 +132,10 @@ export default function Butter(): JSX.Element {
           keepOpen: true,
         }),
       );
-      return;
     } else {
       dispatch(setDualActionWideModal(false));
     }
-  }, [library, account, chainId]);
+  }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
     if (!butterBatchData || !butterBatchData?.batchProcessTokens) {
@@ -590,8 +596,7 @@ export default function Butter(): JSX.Element {
                       <MainActionButton
                         label="Connect Wallet"
                         handleClick={() => {
-                          localStorage.setItem("eager_connect", "true");
-                          activate(connectors.Injected);
+                          connect();
                         }}
                       />
                     </div>
