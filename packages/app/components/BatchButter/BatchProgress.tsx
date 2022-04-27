@@ -29,7 +29,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
               classExtras="h-7 w-7 mt-0 ml-5"
               id="3"
               title="Batch Processing"
-              content="Your mint/redeem request will be processed after the current batch is ready to be processed. The expected wait time is about 24 hours."
+              content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
             />
           </div>
           <p className="text-gray-900 leading-snug break-words">The next batch will process your request.</p>
