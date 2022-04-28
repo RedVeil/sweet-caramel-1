@@ -11,6 +11,7 @@
     "docify": "rm -rf ./docgen/.gitbook.yaml ./docgen/SUMMARY.md ./docgen/docs/* && node docgen/docify.js",
     "test": "yarn hardhat test test/*.test.ts",
     "test:fork": "yarn hardhat test test/fork/*.test.ts",
+    "test:forge": "forge test -vvv",
     "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
     "prettify": "yarn lint-staged --allow-empty"
   },
@@ -33,6 +34,8 @@
   "dependencies": {
     "@balancer-labs/v2-solidity-utils": "2.0.0",
     "@chainlink/contracts": "0.1.9",
+    "@ecmendenhall/ds-test": "^0.0.1",
+    "@ecmendenhall/forge-std": "^0.0.1",
     "@ethersproject/hardware-wallets": "5.5.0",
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@nomiclabs/hardhat-waffle": "2.0.1",

@@ -1,0 +1,7 @@
+[default]
+src = 'contracts'
+test = 'test'
+out = 'artifacts'
+libs = ['node_modules', '../../node_modules']
+fuzz_runs = 1000
+verbosity = 2

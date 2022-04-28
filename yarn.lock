@@ -1399,6 +1399,16 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
+"@ecmendenhall/ds-test@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@ecmendenhall/ds-test/-/ds-test-0.0.1.tgz#e3b4069f1ab6f0680690181a760bd0a1a22fc95d"
+  integrity sha512-kQ4fjfjhAV5yTw4aC8yBImSaKIq9QFq5GOTRSW1LdQ9Cfbmq+g0WYxbSmrejX4nkC1sxr05Lo3Td1hJ2e9U5bg==
+
+"@ecmendenhall/forge-std@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@ecmendenhall/forge-std/-/forge-std-0.0.1.tgz#2f863948245daa07c47b9c773db448150f96aba3"
+  integrity sha512-neS6dfWXNVrA+WCMNpo/BaMs9bnQDOvPROsIgB8HDF4ViDReabuTyPvLkE+gOFzXeyrT5SSga2LLADVWz3+62Q==
+
 "@electron/get@^1.0.1":
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.14.1.tgz#16ba75f02dffb74c23965e72d617adc721d27f40"
