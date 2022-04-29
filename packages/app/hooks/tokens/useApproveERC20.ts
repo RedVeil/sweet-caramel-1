@@ -6,7 +6,7 @@ import useWeb3 from "hooks/useWeb3";
 import { useCallback } from "react";
 
 export default function useApproveERC20() {
-  const { library, account, chainId, onContractSuccess, onContractError } = useWeb3();
+  const { signerOrProvider, account, chainId, onContractSuccess, onContractError } = useWeb3();
   return useCallback(
     async (
       erc20: ERC20,
@@ -15,7 +15,7 @@ export default function useApproveERC20() {
       successCallback?: () => void,
       finalCallback?: () => void,
     ) => {
-      if (!erc20 || !account || !chainId || !library || !isAddress(spender) || !isAddress(erc20.address)) {
+      if (!erc20 || !account || !chainId || !signerOrProvider || !isAddress(spender) || !isAddress(erc20.address)) {
         return null;
       }
       erc20

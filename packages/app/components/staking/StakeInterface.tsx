@@ -64,7 +64,7 @@ export default function StakeInterface({
             <h1 className="ml-3 page-title uppercase">{stakingToken?.name}</h1>
           </span>
           <div className="flex flex-row flex-wrap items-center mt-4 justify-center md:justify-start">
-            <div className="pr-6 border-r-2 border-gray-200 mt-2">
+            <div className="pr-6 border-r-2 border-gray-200 mt-2 flex flex-col items-center w-1/2 xs:w-fit">
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={
@@ -83,7 +83,7 @@ export default function StakeInterface({
                 />
               </div>
             </div>
-            <div className="pl-6 xs:px-6 md:border-r-2 border-gray-200 mt-2">
+            <div className="pl-6 xs:px-6 xs:border-r-2 border-gray-200 mt-2 flex flex-col items-center w-1/2 xs:w-fit">
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={stakingPool ? formatStakedAmount(stakingPool?.totalStake) : "0"}
@@ -97,7 +97,7 @@ export default function StakeInterface({
                 />
               </div>
             </div>
-            <div className="mt-2 md:pl-6 text-center md:text-left">
+            <div className="mt-2 xs:pl-6 text-center md:text-left">
               <div className="hidden md:block ">
                 <StatusWithLabel
                   content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
@@ -164,7 +164,7 @@ export default function StakeInterface({
                       classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
                       id="1"
                       title="Staked Balance"
-                      content={`This shows your staked balance of ${stakingToken?.symbol} which currently farm POP rewards.`}
+                      content={`This is the balance of ${stakingToken?.symbol} that you have staked.`}
                     />
                   </div>
                   <div className="flex flex-row items-center mt-1">
@@ -206,7 +206,7 @@ export default function StakeInterface({
                       classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
                       id="2"
                       title="Your Staking Rewards"
-                      content={`Here you can see how much POP you already earned from your staked ${stakingToken?.symbol}`}
+                      content={`Staking rewards are received for staking tokens. Rewards may be claimed under the rewards page. Whenever rewards are claimed, 10% is transferred immediately to your wallet, and the rest is streamed and claimable over the next 1 year.`}
                     />
                   </div>
                   <div className="flex flex-row items-center mt-1">
@@ -220,7 +220,7 @@ export default function StakeInterface({
               </div>
             </div>
           </div>
-          <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 xs:h-72 sm:h-80 md:h-124">
+          <div className="relative bg-primaryLight rounded-3xl shadow-custom border border-gray-200 mt-8 w-full h-64 xs:h-72 smmd:h-full md:h-124">
             <div className="mt-8 md:ml-8 text-center md:text-left">
               <p className="text-xl font-medium">Happy Staking</p>
               <p className="text-base font-light mt-1">Enjoy more sweet POP in your wallet!</p>
@@ -229,10 +229,10 @@ export default function StakeInterface({
               src="/images/catPopVault.svg"
               className={"hidden md:block absolute max-h-80 w-3/4 right-10 bottom-1 md:bottom-16"}
             />
-            <div className="flex md:hidden w-full content-center">
+            <div className="flex md:hidden w-full justify-center">
               <img
                 src="/images/catPopVaultMobile.png"
-                className={"block md:hidden absolute max-h-80 w-3/4 bottom-0 right-10 xs:right-16"}
+                className={"block md:hidden max-h-80 w-3/4 bottom-0 pt-10 object-contain"}
               />
             </div>
           </div>

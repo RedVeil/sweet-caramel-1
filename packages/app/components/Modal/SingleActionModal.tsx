@@ -84,13 +84,16 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
               aria-modal="true"
             >
               <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <div
+                  className="fixed inset-0 -z-10 bg-gray-500 bg-opacity-75 transition-opacity"
+                  aria-hidden="true"
+                ></div>
 
                 <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
                   &#8203;
                 </span>
 
-                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-6 pb-5 mb-12 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
                   <div>
                     {image ? (
                       <>{image}</>

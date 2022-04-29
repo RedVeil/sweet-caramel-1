@@ -29,12 +29,17 @@ export interface ContractAddresses {
   crvMimMetapool?: Address;
   curveAddressProvider?: Address;
   curveFactoryMetapoolDepositZap?: Address;
-  uniswapRouter?: Address;
   setBasicIssuanceModule?: Address;
   setTokenCreator?: Address;
   setStreamingFeeModule?: Address;
   aclRegistry?: Address;
   contractRegistry?: Address;
+  beneficiaryRegistry?: Address;
+  beneficiaryGovernance?: Address;
+  grantElections?: Address;
+  rewardsManager?: Address;
+  uniswapRouter?: Address;
+  govStaking?: Address;
   // dao: DAO;
   voting?: Address;
   dao?: Address;
@@ -84,6 +89,12 @@ export interface VestingRecord {
   claimable: number;
 }
 
+export type LockedBalance = {
+  amount: BigNumber;
+  boosted: BigNumber;
+  unlockDate: number;
+};
+
 export type Token = {
   contract: ERC20;
   address: Address;
@@ -103,6 +114,7 @@ export type StakingPool = {
   tokenEmission: BigNumber;
   earned?: BigNumber;
   withdrawable?: BigNumber;
+  lockedBalances?: { amount: BigNumber; boosted: BigNumber; unlockTime: number }[];
   stakingToken: Token;
 };
 

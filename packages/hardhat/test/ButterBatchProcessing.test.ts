@@ -1160,7 +1160,7 @@ describe("ButterBatchProcessing", function () {
             [parseEther("20000")],
             BatchType.Mint
           )
-        ).to.be.revertedWith("account has insufficient funds");
+        ).to.be.revertedWith("not enough funds");
       });
     });
     context("success", function () {
