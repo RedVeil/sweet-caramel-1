@@ -18,18 +18,18 @@ export default function PopStakingPage(): JSX.Element {
   const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId } = useWeb3();
   const router = useRouter();
 
-  const [form, setForm] = useState(defaultForm);
-  const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
-  const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
-  const stakingToken = stakingPool?.stakingToken;
   const { dispatch } = useContext(store);
 
   useEffect(() => {
     if ([ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId)) {
       router.push("/staking");
     }
-  }, [stakingPool, chainId]);
+  }, [chainId]);
 
+  const [form, setForm] = useState(defaultForm);
+  const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
+  const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
+  const stakingToken = stakingPool?.stakingToken;
   const approveToken = useApproveERC20();
 
   function stake(): void {
@@ -105,7 +105,7 @@ export default function PopStakingPage(): JSX.Element {
     <div className="overflow-x-hidden w-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
+      <div className="md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
         {!stakingPool ? (
           <StakeInterfaceLoader />
         ) : (

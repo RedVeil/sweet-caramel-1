@@ -1,6 +1,6 @@
-import { Menu } from '@headlessui/react';
-import React from 'react';
-import { ChainId, logos, networkMap } from '../../context/Web3/connectors';
+import { Menu } from "@headlessui/react";
+import React from "react";
+import { ChainId, logos, networkMap } from "../../context/Web3/connectors";
 
 interface NetworkOptionsMenuItemProps {
   chainId: ChainId;
@@ -21,22 +21,16 @@ const NetworkOptionsMenuItem: React.FC<NetworkOptionsMenuItemProps> = ({
       {({ active }) => (
         <div
           className={`${
-            active ? 'bg-gray-100' : 'bg-white'
-          } group rounded-md items-center px-2 py-2 my-0 text-sm flex flex-row justify-between w-full h-12 cursor-pointer ${
-            last ? 'rounded-b-3xl ' : ''
+            active ? "bg-gray-100" : "bg-white"
+          } group rounded-md items-center px-2 py-2 my-0 text-sm flex flex-row justify-center gap-5 w-full h-12 cursor-pointer ${
+            last ? "rounded-b-3xl " : ""
           }`}
           onClick={() => switchNetwork(chainId)}
         >
           <div className="w-4.5 h-4 object-contain ml-3">
-            <img src={logos[chainId]} alt={''} className="w-4.5 h-full" />
+            <img src={logos[chainId]} alt={""} className="w-4.5 h-full" />
           </div>
-          <div
-            className={`w-18 text-lg  ${
-              active ? 'font-semibold' : 'font-medium'
-            }`}
-          >
-            {networkMap[chainId]}
-          </div>
+          <div className={`w-18 text-lg  ${active ? "font-semibold" : "font-medium"}`}>{networkMap[chainId]}</div>
           {currentChainId === chainId ? (
             <div className="mr-3 h-2 w-2 shadow-md rounded-2xl bg-green-400"></div>
           ) : (

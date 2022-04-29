@@ -140,6 +140,7 @@ contract RewardsDistribution is Owned, IRewardsDistribution {
         remainder = remainder.sub(distributions[i].amount);
 
         // Approve the POP
+        IERC20(pop).approve(distributions[i].destination, 0);
         IERC20(pop).approve(distributions[i].destination, distributions[i].amount);
 
         // If the contract implements RewardsDistributionRecipient.sol, inform it how many POP its received.

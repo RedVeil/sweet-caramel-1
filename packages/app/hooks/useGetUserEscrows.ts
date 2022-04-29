@@ -1,10 +1,10 @@
 import { RewardsEscrow } from "@popcorn/hardhat/typechain";
-import { useWeb3React } from "@web3-react/core";
 import {} from "ethereumjs-util";
 import { BigNumber } from "ethers";
 import useSWR from "swr";
 import { getChainRelevantContracts } from "../../hardhat/lib/utils/getContractAddresses";
 import useVestingEscrow from "./useVestingEscrow";
+import useWeb3 from "./useWeb3";
 
 export type Escrow = {
   start: BigNumber;
@@ -62,11 +62,11 @@ const getUserEscrows = () => async (_: any, account: string, vestingEscrow: Rewa
 };
 
 export default function useGetUserEscrows() {
-  const { library, account, chainId } = useWeb3React();
+  const { signerOrProvider, account, chainId } = useWeb3();
   const contractAddresses = getChainRelevantContracts(chainId);
   const vestingEscrow = useVestingEscrow(contractAddresses.rewardsEscrow);
   const shouldFetch = !!vestingEscrow && !!account;
-  return useSWR(shouldFetch ? ["getUserEscrows", account, vestingEscrow, library] : null, getUserEscrows(), {
+  return useSWR(shouldFetch ? ["getUserEscrows", account, vestingEscrow, signerOrProvider] : null, getUserEscrows(), {
     refreshInterval: 2000,
   });
 }

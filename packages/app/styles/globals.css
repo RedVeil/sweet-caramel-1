@@ -30,6 +30,9 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+:root {
+  --onboard-modal-z-index: 50;
+}
 
 @layer base {
   body {

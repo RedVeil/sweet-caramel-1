@@ -8,11 +8,11 @@ import useSWR, { SWRResponse } from "swr";
 export default function useGetMultipleStakingPools(
   addresses: string[] = [],
 ): SWRResponse<StakingPoolMetadata[], Error> {
-  const { library, chainId, contractAddresses, account } = useWeb3();
+  const { signerOrProvider, chainId, contractAddresses, account } = useWeb3();
 
   const stakingContracts = useMemo(
-    () => addresses.map((address) => Staking__factory.connect(address, account ? library.getSigner() : library)),
-    [chainId, addresses, account, library],
+    () => addresses.map((address) => Staking__factory.connect(address, signerOrProvider)),
+    [chainId, addresses, account, signerOrProvider],
   );
 
   const shouldFetch = !!stakingContracts && !!chainId && !addresses.some((address) => !contractAddresses.has(address));
@@ -22,7 +22,7 @@ export default function useGetMultipleStakingPools(
     async (key: string) => {
       return Promise.all(
         stakingContracts.map(async (contract) =>
-          getStakingPool(key, account, contract, contractAddresses, chainId, library),
+          getStakingPool(key, account, contract, contractAddresses, chainId, signerOrProvider),
         ),
       );
     },

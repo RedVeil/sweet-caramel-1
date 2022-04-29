@@ -242,7 +242,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
     uint256 threeCrvValue = threePool.get_virtual_price();
 
     //Had to add this to combat a weird "stack to deep" issue when just passing _amount in _getPoolAllocationAndRatio
-    uint256 batchValue = (_amount * threeCrvValue) / 1e18;
+    uint256 batchValue = valueOf3Crv(_amount);
 
     //Remaining amount of 3CRV in this batch which hasnt been allocated yet
     uint256 remainingBatchBalanceValue = batchValue;
@@ -299,7 +299,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
       );
     }
 
-    require(butterAmount >= getMinAmountToMint(valueOf3Crv(_amount), setValue, _slippage), "slippage too high");
+    require(butterAmount >= getMinAmountToMint(batchValue, setValue, _slippage), "slippage too high");
 
     //Mint Butter
     if (_stake) {

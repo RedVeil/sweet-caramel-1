@@ -1,8 +1,6 @@
-import useEagerConnect from "hooks/useEagerConnect";
 import useWeb3 from "hooks/useWeb3";
-import React, { useCallback, useEffect, useState } from "react";
-import { connectors, networkMap } from "../../context/Web3/connectors";
-import { getChainLogo } from "./../../context/Web3/networkSwitch";
+import React, { useEffect, useState } from "react";
+import { connectors, logos, networkMap } from "../../context/Web3/connectors";
 import DesktopMenu from "./DesktopMenu";
 import { MobileMenu } from "./MobileMenu";
 
@@ -12,25 +10,16 @@ const disconnectInjected = (deactivate: Function, activate: any, chainId: number
   deactivate(connectors.Injected);
 };
 
+function getChain(_chainId: number): { name: string; logo: string; chainId: number } {
+  return { name: networkMap[_chainId], logo: logos[_chainId], chainId: _chainId };
+}
+
 export default function Navbar(): JSX.Element {
   if (typeof window === "undefined") {
     return <></>;
   }
-  const { chainId, library } = useWeb3();
-  const [currentChain, setCurrentChain] = useState({ name: networkMap[chainId], logo: getChainLogo(chainId), chainId });
-
-  useEagerConnect();
-
-  const getChain = useCallback(
-    (_chainId) => {
-      if (_chainId == "0xa4b1") {
-        _chainId = 42161;
-      }
-      return { name: networkMap[_chainId], logo: getChainLogo(_chainId), chainId: _chainId };
-    },
-    [chainId, library],
-  );
-
+  const { chainId } = useWeb3();
+  const [currentChain, setCurrentChain] = useState({ name: networkMap[chainId], logo: logos[chainId], chainId });
   useEffect(() => {
     if (typeof chainId == "number") {
       setCurrentChain(getChain(chainId));
