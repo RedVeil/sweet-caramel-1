@@ -61,5 +61,6 @@ export default function web3Onboard(): void {
       icon: "<svg></svg>",
       description: "DeFi for the People",
     },
+    accountCenter: { desktop: { enabled: false } },
   });
 }

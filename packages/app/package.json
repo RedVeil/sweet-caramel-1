@@ -7,7 +7,8 @@
     "export": "yarn next export",
     "jest": "jest",
     "prettier": "prettier",
-    "prettify": "yarn lint-staged --allow-empty"
+    "prettify": "yarn lint-staged --allow-empty",
+    "start": "next start"
   },
   "lint-staged": {
     "*.{tsx,ts}": "prettier --write"

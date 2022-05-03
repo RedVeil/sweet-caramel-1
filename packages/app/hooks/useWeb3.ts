@@ -9,6 +9,10 @@ import useWeb3Callbacks from "helper/useWeb3Callbacks";
 import { useRouter } from "next/router";
 import { useEffect, useMemo } from "react";
 
+const getWalletFromStorage = () => {
+  return typeof localStorage !== "undefined" && localStorage?.getItem("cached_wallet");
+};
+
 export default function useWeb3() {
   const router = useRouter();
   const [{ connecting, wallet }, connect, disconnect] = useConnectWallet();
