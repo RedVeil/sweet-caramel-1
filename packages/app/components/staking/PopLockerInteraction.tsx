@@ -1,9 +1,9 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import TokenInput from "components/Common/TokenInput";
 import MainActionButton from "components/MainActionButton";
-import DropDownSelect from "components/staking/VestingRecordDropDown";
+import VestingRecordDropDown from "components/staking/VestingRecordDropDown";
 import TermsAndConditions from "components/StakingTermsAndConditions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatDate } from "../../../utils/src/DateTime";
 import { InteractionType } from "./StakeInterface";
 import { StakingInteractionProps } from "./StakingInteraction";
@@ -30,13 +30,20 @@ export default function PopLockerInteraction({
   const lockedBalances = stakingPool?.lockedBalances;
   const [chosenLock, setChosenLock] = useState(lockedBalances[0]);
 
+  useEffect(() => {
+    if (lockedBalances.length > 0) {
+      setChosenLock(lockedBalances[0]);
+    }
+  }, [lockedBalances]);
+
   return (
     <>
       {withdrawal && (
         <div className="pt-10 mx-auto">
           <div className="w-full mb-10">
-            {lockedBalances?.length ? (
-              <DropDownSelect
+            {/* check if lockedBalances[0] is not undefined */}
+            {lockedBalances?.length && lockedBalances[0].unlockTime ? (
+              <VestingRecordDropDown
                 label={"Stake Records"}
                 options={lockedBalances}
                 selectOption={setChosenLock}
@@ -50,7 +57,7 @@ export default function PopLockerInteraction({
                 <div className="bg-gray-50 p-4 mb-2 flex-col rounded-2xl mr-2 max-w-1/2 flex-1 lglaptop:w-fit">
                   <p className="text-gray-500">AMOUNT</p>
                   <p className="text-gray-900 text-lg font-semibold">
-                    {formatAndRoundBigNumber(chosenLock.amount)} POP
+                    {formatAndRoundBigNumber(chosenLock.amount, 3)} POP
                   </p>
                 </div>
                 <div className="bg-gray-50 p-4 mb-2 flex-col rounded-2xl mr-2 max-w-1/2 flex-1 lglaptop:w-fit">

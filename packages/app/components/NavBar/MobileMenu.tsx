@@ -1,10 +1,11 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import SecondaryActionButton from "components/SecondaryActionButton";
+import { store } from "context/store";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { getPoolLink, getPopAddress } from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
@@ -18,6 +19,7 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInject
   const { chainId, account, connect, disconnect, wallet, setChain } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
+  const { dispatch } = useContext(store);
 
   return (
     <>

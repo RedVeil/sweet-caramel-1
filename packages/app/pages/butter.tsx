@@ -35,6 +35,7 @@ import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast, { Toaster } from "react-hot-toast";
+import abi from "../public/ButterBatchZapperAbi.json";
 
 enum TOKEN_INDEX {
   dai,
@@ -89,6 +90,7 @@ export default function Butter(): JSX.Element {
     contractAddresses,
     connect,
     setChain,
+    signer,
   } = useWeb3();
   const { dispatch } = useContext(store);
   const router = useRouter();
@@ -416,10 +418,9 @@ export default function Butter(): JSX.Element {
   }
 
   async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: string): Promise<void> {
-    toast.loading("Withdrawing from Batch...");
     let call;
     if (useZap) {
-      call = butterBatchZapper.zapOutOfBatch(
+      call = new ethers.Contract(contractAddresses.butterBatchZapper, abi, signer).zapOutOfBatch(
         batchId,
         amount,
         TOKEN_INDEX[outputToken],
@@ -430,7 +431,7 @@ export default function Butter(): JSX.Element {
     } else {
       call = butterBatch.withdrawFromBatch(batchId, amount, account);
     }
-    call
+    await call
       .then((res) =>
         onContractSuccess(res, "Funds withdrawn!", () => {
           refetchButterBatchData();
@@ -567,7 +568,7 @@ export default function Butter(): JSX.Element {
           </div>
         </div>
         <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
-          <div className="order-2 md:order-1 md:w-1/3 mb-10">
+          <div className="order-2 md:order-1 md:w-1/3">
             {butterBatchData && butterPageState.selectedToken ? (
               <MintRedeemInterface
                 token={butterBatchData?.batchProcessTokens}
@@ -591,7 +592,7 @@ export default function Butter(): JSX.Element {
             ) : (
               <>
                 {!account && (
-                  <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                  <div className="h-full px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                     <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
                       <MainActionButton
                         label="Connect Wallet"
@@ -721,7 +722,7 @@ export default function Butter(): JSX.Element {
               </div>
             </div>
 
-            <div className="hidden md:flex w-full h-120 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+            <div className="hidden md:flex w-full h-128 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
               <Tutorial />
             </div>
           </div>

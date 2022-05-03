@@ -23,6 +23,5 @@ export default function usePopLocker(address: string): SWRResponse<PopLockerMeta
     (key) => {
       return getPopLocker(key, popLocker, account);
     },
-    { refreshInterval: 2000 },
   );
 }

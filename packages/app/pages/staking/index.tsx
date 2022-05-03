@@ -55,7 +55,7 @@ export default function index(): JSX.Element {
                   <NotAvailable title="No staking, yet" body="No staking pools on this network" />
                 </div>
               )}
-              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && !popLocker && !stakingPools && (
+              {pageAvailable() && (stakingPoolsIsValidating || popLockerIsValidating) && (!popLocker || !stakingPools) && (
                 <ContentLoader viewBox="0 0 450 400">
                   {/*eslint-disable */}
                   <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />

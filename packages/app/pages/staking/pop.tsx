@@ -18,18 +18,18 @@ export default function PopStakingPage(): JSX.Element {
   const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId } = useWeb3();
   const router = useRouter();
 
-  const [form, setForm] = useState(defaultForm);
-  const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
-  const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
-  const stakingToken = stakingPool?.stakingToken;
   const { dispatch } = useContext(store);
 
   useEffect(() => {
     if ([ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId)) {
       router.push("/staking");
     }
-  }, [stakingPool, chainId]);
+  }, [chainId]);
 
+  const [form, setForm] = useState(defaultForm);
+  const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
+  const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
+  const stakingToken = stakingPool?.stakingToken;
   const approveToken = useApproveERC20();
 
   function stake(): void {

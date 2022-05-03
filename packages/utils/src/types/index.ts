@@ -92,7 +92,7 @@ export interface VestingRecord {
 export type LockedBalance = {
   amount: BigNumber;
   boosted: BigNumber;
-  unlockDate: number;
+  unlockTime: number;
 };
 
 export type Token = {
@@ -114,7 +114,7 @@ export type StakingPool = {
   tokenEmission: BigNumber;
   earned?: BigNumber;
   withdrawable?: BigNumber;
-  lockedBalances?: { amount: BigNumber; boosted: BigNumber; unlockTime: number }[];
+  lockedBalances?: LockedBalance[];
   stakingToken: Token;
 };
 

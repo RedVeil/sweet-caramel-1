@@ -1,11 +1,12 @@
 import { formatDate } from "@popcorn/utils/src/DateTime";
+import { LockedBalance } from "@popcorn/utils/types";
 import { useState } from "react";
 import * as Icon from "react-feather";
 
 interface DropDownProps {
   label?: string;
-  options: any;
-  selectedOption: any;
+  options: LockedBalance[];
+  selectedOption: LockedBalance;
   selectOption: Function;
 }
 
@@ -27,7 +28,12 @@ export default function VestingRecordDropDown({
         onClick={() => setDropdown(!showDropdown)}
       >
         <p className="font-semibold leading-none text-gray-900 group-hover:text-blue-700">
-          {selectedOption?.unlockTime && formatDate(new Date(selectedOption.unlockTime * 1000), "MMM dd, yyyy")}
+          {selectedOption?.unlockTime &&
+            formatDate(
+              // Subtract 84 days (12 weeks) from the date to find the lock time from the unlock time.
+              new Date(new Date().setDate(new Date(selectedOption.unlockTime * 1000).getDate() - 84)),
+              "MMM dd, yyyy",
+            )}
         </p>
 
         <>
@@ -40,20 +46,26 @@ export default function VestingRecordDropDown({
       </span>
       {showDropdown && (
         <div className="absolute overflow-scroll left-0 items-start w-full z-20 flex flex-col h-fit max-h-36 px-2 pt-2 pb-2 top-18 space-y-1 bg-white shadow-md rounded-b-md">
-          {options.map((vestingRecord) => (
-            <a
-              key={vestingRecord}
-              className="cursor-pointer group h-full w-full justify-start flex flex-row items-center hover:bg-gray-100 rounded-md"
-              onClick={() => {
-                selectOption(vestingRecord);
-                setDropdown(false);
-              }}
-            >
-              <p className="font-medium px-2 group-hover:text-blue-700 mt-1.5">
-                {formatDate(new Date(vestingRecord.unlockTime * 1000), "MMM dd, yyyy")}
-              </p>
-            </a>
-          ))}
+          {options
+            .filter((vestingRecord) => vestingRecord.unlockTime !== selectedOption.unlockTime)
+            .map((vestingRecord) => (
+              <a
+                key={vestingRecord.unlockTime}
+                className="cursor-pointer group h-full w-full justify-start flex flex-row items-center hover:bg-gray-100 rounded-md"
+                onClick={() => {
+                  selectOption(vestingRecord);
+                  setDropdown(false);
+                }}
+              >
+                <p className="font-medium px-2 group-hover:text-blue-700 mt-1.5">
+                  {formatDate(
+                    // Subtract 84 days (12 weeks) from the date to find the lock time from the unlock time.
+                    new Date(new Date().setDate(new Date(vestingRecord.unlockTime * 1000).getDate() - 84)),
+                    "MMM dd, yyyy",
+                  )}
+                </p>
+              </a>
+            ))}
         </div>
       )}
     </div>
