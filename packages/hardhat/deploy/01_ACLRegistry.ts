@@ -1,4 +1,4 @@
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
@@ -15,7 +15,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     gasLimit: 2000000,
-    pre_eip1559: supportsEIP1559(hre),
   });
 
   const aclRegistry = await hre.ethers.getContractAt(
@@ -34,8 +33,3 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 export default main;
 main.dependencies = ["setup"];
 main.tags = ["core", "frontend"];
-
-const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
-  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum", "bsc"];
-  return !NOT_EIP1559Compatible.includes(hre.network.name);
-};

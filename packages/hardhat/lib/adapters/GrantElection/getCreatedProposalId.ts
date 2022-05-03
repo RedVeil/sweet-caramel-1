@@ -1,6 +1,6 @@
-import { Receipt } from "@anthonymartin/hardhat-deploy/types";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { ethers } from "ethers";
+import { Receipt } from "hardhat-deploy/types";
 
 export const getCreatedProposalId = async (receit: Receipt, provider: JsonRpcProvider): Promise<number> => {
   if (!receit.transactionHash) {

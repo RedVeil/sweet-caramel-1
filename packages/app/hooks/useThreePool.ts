@@ -4,10 +4,10 @@ import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
 export default function useThreePool(): Curve3Pool {
-  const { library, contractAddresses, account } = useWeb3();
+  const { signerOrProvider, contractAddresses, account } = useWeb3();
 
   return useMemo(() => {
     if (isAddress(contractAddresses?.butterDependency?.threePool))
-      return Curve3Pool__factory.connect(contractAddresses?.butterDependency?.threePool, library);
-  }, [, account, library, contractAddresses?.butterDependency?.threePool]);
+      return Curve3Pool__factory.connect(contractAddresses?.butterDependency?.threePool, signerOrProvider);
+  }, [, account, signerOrProvider, contractAddresses?.butterDependency?.threePool]);
 }

@@ -6,7 +6,7 @@ import useVestingEscrow from "./useVestingEscrow";
 import useWeb3 from "./useWeb3";
 
 export default function useClaimEscrows() {
-  const { library, account, chainId, contractAddresses } = useWeb3();
+  const { account, chainId, contractAddresses } = useWeb3();
   const vestingEscrow = useVestingEscrow(contractAddresses.rewardsEscrow);
   return useCallback(
     async (escrowIds: string[]): Promise<TransactionResponse | null> => {
@@ -27,6 +27,6 @@ export default function useClaimEscrows() {
         return vestingEscrow.claimRewards(escrowIds);
       }
     },
-    [library, account, chainId, vestingEscrow],
+    [account, chainId, vestingEscrow],
   );
 }

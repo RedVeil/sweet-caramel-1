@@ -1,127 +1,97 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
-import {
-  NoEthereumProviderError,
-  UserRejectedRequestError as UserRejectedRequestErrorInjected,
-} from "@web3-react/injected-connector";
-import walletSelectInterface from "components/WalletSelectInterface";
-import { setSingleActionModal, setWalletSelectModal } from "context/actions";
-import { store } from "context/store";
-import { networkMap, Wallets, walletToConnector } from "context/Web3/connectors";
+import { ethers } from "@popcorn/hardhat/node_modules/ethers/lib";
+import { useConnectWallet, useSetChain, useWallets } from "@web3-onboard/react";
+import { useWeb3React } from "@web3-react/core";
+import activateRPCNetwork from "helper/activateRPCNetwork";
+import { getStorage, removeStorage, setStorage } from "helper/safeLocalstorageAccess";
 import useWeb3Callbacks from "helper/useWeb3Callbacks";
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import useIsContractReady from "./useIsContractReady";
-
-const getChain = (localstorage, envVar) => {
-  if (!!localstorage) {
-    return parseInt(localstorage);
-  }
-  return parseInt(envVar || "4");
-};
-
-function getErrorMessage(error: Error) {
-  if (error instanceof NoEthereumProviderError) {
-    return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
-  } else if (error instanceof UnsupportedChainIdError) {
-    return `You're connected to an unsupported network. Please connect to ${networkMap[Number(process.env.CHAIN_ID)]}.`;
-  } else if (error instanceof UserRejectedRequestErrorInjected) {
-    return "Please authorize this website to access your Ethereum account.";
-  } else {
-    console.error(error);
-    return "An unknown error occurred. Check the console for more details.";
-  }
-}
-
-const getChainFromStorage = () => {
-  return typeof localStorage !== "undefined" && localStorage?.getItem("chainId");
-};
+import { useRouter } from "next/router";
+import { useEffect, useMemo } from "react";
 
 const getWalletFromStorage = () => {
   return typeof localStorage !== "undefined" && localStorage?.getItem("cached_wallet");
 };
 
 export default function useWeb3() {
-  const { dispatch } = useContext(store);
-  const cachedWallet = getWalletFromStorage();
-  const [selectedWallet, setSelectedWallet] = useState<Wallets>(cachedWallet ? Number(cachedWallet) : Wallets.METAMASK);
+  const router = useRouter();
+  const [{ connecting, wallet }, connect, disconnect] = useConnectWallet();
+  const [{ chains, connectedChain, settingChain }, setChain] = useSetChain();
+  const { activate, deactivate, library } = useWeb3React<Web3Provider>();
 
-  const { library, account, chainId: _chainId, activate, deactivate, error } = useWeb3React<Web3Provider>();
+  const walletProvider = useMemo(
+    () => (wallet?.provider ? new ethers.providers.Web3Provider(wallet?.provider, "any") : null),
+    [wallet?.provider],
+  );
+  const signer = useMemo(() => (walletProvider ? walletProvider.getSigner() : null), [walletProvider]);
 
-  const ref = useRef(getChain(getChainFromStorage(), process.env.CHAIN_ID));
-  const [chainId, setChainId] = useState(ref.current);
+  const signerOrProvider = signer || library;
+  const connectedAccount = wallet?.accounts[0];
+  const accountAddress = connectedAccount?.address;
+
+  const contractAddresses = useMemo(() => getChainRelevantContracts(getChainId()), [getChainId()]);
+  const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(getChainId());
+
+  const wallets = useWallets();
+  useEffect(() => {
+    setStorage("connectedWallets", JSON.stringify(wallets.map(({ label }) => label)));
+  }, [wallets]);
 
   useEffect(() => {
-    if (error) {
-      dispatch(
-        setSingleActionModal({
-          content: getErrorMessage(error),
-          title: "Wallet Error",
-          visible: true,
-          type: "error",
-          onConfirm: {
-            label: "Close",
-            onClick: () => dispatch(setSingleActionModal(false)),
-          },
-        }),
-      );
+    if (!getStorage("rpcChainId")) {
+      setStorage("rpcChainId", process.env.CHAIN_ID);
     }
-  }, [error]);
+    if (!wallet) {
+      activateRPCNetwork(activate, Number(getStorage("rpcChainId")));
+    }
+  }, [wallet]);
 
-  const chooseWallet = useCallback(
-    async (chosenWallet: number) => {
-      dispatch(setWalletSelectModal(false));
-      localStorage &&
-        typeof localStorage !== "undefined" &&
-        localStorage?.setItem("cached_wallet", chosenWallet.toString());
-      localStorage?.setItem("eager_connect", "true");
-      await activate(walletToConnector[chosenWallet]);
-      setSelectedWallet(chosenWallet);
-    },
-    [selectedWallet, setSelectedWallet, account],
-  );
-
-  const showModal = useCallback(() => {
-    dispatch(
-      setWalletSelectModal({
-        children: walletSelectInterface(chooseWallet, deactivate),
-        onDismiss: {
-          label: "Dismiss",
-          onClick: () => {
-            dispatch(setWalletSelectModal(false));
-          },
-        },
-      }),
-    );
+  useEffect(() => {
+    if (!wallet && previouslyConnectedWallets?.length > 0) {
+      handleConnect();
+    }
   }, []);
 
-  // we set the chainId here explicitly, because if the user disconnects their wallet the chainId will be undefined, but the rest of the app would need the currently selected chainId
-  useEffect(() => {
-    if (!_chainId) {
-      setChainId(ref.current);
-    } else if (_chainId !== ref.current) {
-      ref.current = _chainId;
-      localStorage.setItem("chainId", String(_chainId));
-      setChainId(_chainId);
-    }
-  }, [_chainId]);
-
-  const signer = useMemo(() => (account ? library.getSigner(account) : null), [account, library]);
-  const contractAddresses = useMemo(() => getChainRelevantContracts(chainId), [chainId]);
-  const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks();
-  const isContractReady = useIsContractReady();
+  const previouslyConnectedWallets = JSON.parse(getStorage("connectedWallets"));
   return {
-    library,
-    account,
-    chainId,
-    activate,
-    deactivate,
-    signer,
+    account: accountAddress,
+    chainId: getChainId(),
+    connect: handleConnect(),
+    disconnect: async () => {
+      removeStorage("connectedWallets");
+      await disconnect({ label: wallet?.label });
+    },
+    connecting,
+    signerOrProvider,
+    signer: !signerOrProvider || "getSigner" in signerOrProvider ? null : signerOrProvider,
     contractAddresses,
     onContractSuccess,
     onContractError,
-    isContractReady,
-    showModal,
-    selectedWallet,
+    chains,
+    setChain: (newChainId) => setChainFromNumber(newChainId),
+    settingChain,
+    wallet,
   };
+
+  function handleConnect() {
+    return async () => {
+      previouslyConnectedWallets ? await connect({ autoSelect: previouslyConnectedWallets[0] }) : await connect({});
+      if (wallet) {
+        deactivate();
+      }
+    };
+  }
+
+  function getChainId() {
+    return Number(connectedChain?.id) || Number(getStorage("rpcChainId"));
+  }
+
+  function setChainFromNumber(newChainId: number) {
+    setStorage("rpcChainId", String(newChainId));
+    if (wallet) {
+      setChain({ chainId: ethers.utils.hexStripZeros(ethers.utils.hexlify(newChainId)) });
+    } else {
+      router.reload();
+    }
+  }
 }

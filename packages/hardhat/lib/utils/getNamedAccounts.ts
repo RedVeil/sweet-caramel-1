@@ -5,21 +5,29 @@ import { networkMap } from "./constants";
 export default function getNamedAccounts() {
   return {
     popStaking: {
-      rinkeby: "0x5590Fd9df8e0EE2e93030c810B5BfcaE37385904",
-      polygon: "0x3Aa796172b5dc51da02DC8F33E021719e9FF78b2",
-      hardhat: "0xA7c59f010700930003b33aB25a7a0679C860f29c",
-      mainnet: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
+      rinkeby: "0xbd085541Cf339a7B3a5112CeA9440542a02B29E5",
+      polygon: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+      hardhat: "0xefAB0Beb0A557E452b398035eA964948c750b2Fd",
+      mainnet: "0xeEE1d31297B042820349B03027aB3b13a9406184",
+      bsc: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **  an address is needed here for the app to compile without going into a hissy loop
+      arbitrum: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **
     },
     popUsdcLpStaking: {
-      rinkeby: "0x8b6d7f833A7E0C9e83f444866Ca5301A5Ca0E42B",
-      hardhat: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A",
-      polygon: "0x6da8005c4204553E596241F3cD561C7856857db1",
-      mainnet: "0x8A3bC3867dB078Ee2742F063745A374eCC231131",
+      rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
+      hardhat: "0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F",
+      polygon: "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
+      mainnet: "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
+      bsc: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **
+      arbitrum: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **
+    },
+    popUsdcUniV3Pool: {
+      mainnet: "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
+      hardhat: "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
     },
     butterStaking: {
-      hardhat: "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926",
-      mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
-      goerli: "",
+      hardhat: "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
+      mainnet: "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428",
+      //mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
     },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
@@ -132,8 +140,21 @@ export default function getNamedAccounts() {
       mainnet: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
       rinkeby: "0xAc4bFad16369290913596828Ee707F543FCcAF21",
       polygon: "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
-      hardhat: "0xD5ac451B0c50B9476107823Af206eD814a2e2580",
-      goerli: "0xfb537c08657d9F416417Cf9F512934321AE99e35",
+      hardhat: "0x870526b7973b56163a6997bB7C886F5E4EA53638",
+      arbitrum: "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
+      bsc: "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
+    },
+    xPop: {
+      polygon: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      arbitrum: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      bsc: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      hardhat: "0x193521C8934bCF3473453AF4321911E7A89E0E12",
+    },
+    xPopRedemption: {
+      bsc: "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
+      polygon: "0x48168536Fc8834A9543C5A4383721148113fF75A",
+      arbitrum: "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
+      hardhat: "0x9Fcca440F19c62CDF7f973eB6DDF218B15d4C71D",
     },
     dai: {
       mainnet: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
@@ -229,8 +250,8 @@ export default function getNamedAccounts() {
     popUsdcLp: {
       polygon: "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
       mainnet: "0xbba11b41407df8793a89b44ee4b50afad4508555",
-      hardhat: "0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397",
-      rinkeby: "0xAB8Cb0e8F3b05a5B68D9cC1F925132A89d2A3120",
+      hardhat: "0xD49a0e9A4CD5979aE36840f542D2d7f02C4817Be",
+      rinkeby: "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
     },
     aclRegistry: {
       mainnet: "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
@@ -251,28 +272,43 @@ export default function getNamedAccounts() {
       goerli: "0xe91f05fd4610eAa7B282d12b563B6cb3cf0b38AA",
     },
     butterBatch: {
-      mainnet: "0xe1CaA1216B2D9Fd88EC700C66D8Bff36bAB4eb6F",
+      mainnet: "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
       hardhat: "0x8B190573374637f144AC8D37375d97fd84cBD3a0",
-      rinkeby: "0x321b2115687BF0284484Fb66DfB89782315DF47c",
-      goerli: "0x1391005fd5d0412f2B217000992B3361ac8f2bb6",
+      rinkeby: "0x06b90E97Cf4b64f338d1D2106329336897bb16F3",
     },
     butterBatchZapper: {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
-      hardhat: "0x70bDA08DBe07363968e9EE53d899dFE48560605B",
-      rinkeby: "0xfB9a38df8131679441CA69A049761a2277f7e457",
-      goerli: "0x3E667Fc15ab85Ed74A89cbA18d9D70bF09B6464d",
+      hardhat: "0x67aD6EA566BA6B0fC52e97Bc25CE46120fdAc04c",
+      rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
     },
     rewardsEscrow: {
-      hardhat: "0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75",
-      rinkeby: "0x6D7c6edAA01C1bEb0C7D3Ea3598bF35644e2dd68",
-      polygon: "0xF70A6f16B894aA1DfdEe50656A476f2FbF4b6d60",
-      mainnet: "0xcA9208D882955996a6f0BF8648e0A4AAa9f90b59",
+      hardhat: "0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab",
+      rinkeby: "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa",
+      polygon: "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
+      mainnet: "0xb5cb5710044D1074097c17B7535a1cF99cBfb17F",
+      arbitrum: "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      bsc: "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
     },
     rewardsDistribution: {
-      hardhat: "0x07882Ae1ecB7429a84f1D53048d35c4bB2056877",
-      rinkeby: "0xbe94A51e75967De79f1d6e162F4f09CE4b09Da26",
+      hardhat: "0x8bCe54ff8aB45CB075b044AE117b8fD91F9351aB",
+      rinkeby: "",
       polygon: "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
       mainnet: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+    },
+    beneficiaryRegistry: {
+      hardhat: "0x51C65cd0Cdb1A8A8b79dfc2eE965B1bA0bb8fc89",
+    },
+    beneficiaryGovernance: {
+      hardhat: "0x7B4f352Cd40114f12e82fC675b5BA8C7582FC513",
+    },
+    grantElections: {
+      hardhat: "0xC7143d5bA86553C06f5730c8dC9f8187a621A8D4",
+    },
+    rewardsManager: {
+      hardhat: "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8",
+    },
+    govStaking: {
+      hardhat: "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8",
     },
   };
 }

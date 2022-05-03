@@ -9,11 +9,11 @@ import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScree
 import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
 import { WalletSelectModalContainer } from "components/Modal/WalletSelectModalContainer";
-import NetworkHandler from "components/NetworkHandler";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
 import SwapChainModal from "components/SwapChainModal";
 import { FeatureToggleProvider } from "context/FeatureToggleContext";
+import web3Onboard from "helper/web3Onboard";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
@@ -26,6 +26,8 @@ function getLibrary(provider: any): Web3Provider {
   library.pollingInterval = 12000;
   return library;
 }
+
+web3Onboard();
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
@@ -68,7 +70,6 @@ export default function MyApp(props) {
         <Web3ReactProvider getLibrary={getLibrary}>
           <FeatureToggleProvider>
             <SoftLaunchCheck loading={loading} />
-            <NetworkHandler />
             <MobileFullScreenModalContainer />
             <SingleActionModalContainer />
             <WalletSelectModalContainer />

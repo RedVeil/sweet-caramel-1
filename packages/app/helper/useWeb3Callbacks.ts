@@ -1,4 +1,3 @@
-import { useWeb3React } from "@web3-react/core";
 import { ChainId } from "context/Web3/connectors";
 import { ethers } from "ethers";
 import { useCallback } from "react";
@@ -16,8 +15,7 @@ function confirmationsPerChain(chainId: ChainId): number {
   }
 }
 
-export default function useWeb3Callbacks() {
-  const { library, account, chainId } = useWeb3React();
+export default function useWeb3Callbacks(chainId: number) {
   return {
     onSuccess: useCallback(
       async (res: ethers.ContractTransaction, successMessage: string, successCallback?: () => any): Promise<void> => {
@@ -27,7 +25,7 @@ export default function useWeb3Callbacks() {
           successCallback && (await successCallback());
         });
       },
-      [library, account, chainId],
+      [chainId],
     ),
     onError: useCallback(
       async (error) => {
@@ -38,7 +36,7 @@ export default function useWeb3Callbacks() {
           toast.error(error.message.split("'")[1]);
         }
       },
-      [library, account, chainId],
+      [chainId],
     ),
   };
 }

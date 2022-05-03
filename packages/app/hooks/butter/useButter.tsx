@@ -4,11 +4,11 @@ import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
 export default function useButter(): ISetToken {
-  const { library, contractAddresses, account, chainId } = useWeb3();
+  const { signerOrProvider, contractAddresses, chainId } = useWeb3();
 
   return useMemo(() => {
     if (isButterSupportedOnCurrentNetwork(chainId)) {
-      return ISetToken__factory.connect(contractAddresses.butter, account ? library.getSigner() : library);
+      return ISetToken__factory.connect(contractAddresses.butter, signerOrProvider);
     }
-  }, [library, contractAddresses.butter, account]);
+  }, [signerOrProvider, contractAddresses.butter]);
 }

@@ -1,7 +1,6 @@
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 
-export const formatDate = (dt: Date) => {
+export const formatDate = (dt: Date, formatString: string = "LLL dd yyyy; HH:mm a") => {
   const date = DateTime.fromJSDate(dt);
-  const format = 'LLL dd yyyy; HH:mm a';
-  return date.toFormat(format);
+  return date.toFormat(formatString);
 };

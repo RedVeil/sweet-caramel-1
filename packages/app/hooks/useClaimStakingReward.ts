@@ -1,7 +1,7 @@
 import type { TransactionResponse } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
 import { useCallback } from "react";
 import { PopLocker, Staking } from "../../hardhat/typechain";
+import useWeb3 from "./useWeb3";
 
 export type StakingPool = {
   address: string;
@@ -9,14 +9,14 @@ export type StakingPool = {
 };
 
 export default function useClaimStakingReward() {
-  const { library, account, chainId } = useWeb3React();
+  const { signer, account } = useWeb3();
   return useCallback(
     async (stakingPoolContract: PopLocker | Staking, isPopLocker: boolean): Promise<TransactionResponse | null> => {
-      if (!stakingPoolContract || !account || !chainId) {
+      if (!stakingPoolContract || !signer || !account) {
         return null;
       }
-      return stakingPoolContract.connect(library.getSigner()).getReward(isPopLocker ? account : null);
+      return stakingPoolContract.connect(signer).getReward(isPopLocker ? account : null);
     },
-    [library, account, chainId],
+    [signer, account],
   );
 }

@@ -42,7 +42,7 @@ interface SoftLaunchCheckProps {
 }
 
 export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.Element {
-  const { library, chainId, account, deactivate } = useWeb3();
+  const { chainId, account, signer, disconnect } = useWeb3();
   const { dispatch } = useContext(store);
   const router = useRouter();
 
@@ -91,22 +91,20 @@ export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.
     if ((account && !acceptedTerms) || acceptedTerms === undefined) {
       return showSignMessageModal();
     }
-  }, [account, library, chainId, loading]);
+  }, [account, chainId, loading]);
 
   async function acceptConditions() {
     const timestamp = Date.now();
     try {
-      const message = await library.getSigner().signMessage(getShortTerms(timestamp));
+      const message = await signer.signMessage(getShortTerms(timestamp));
       if (message) {
         localStorage.setItem("softLaunchTerms", message);
         dispatch(setSingleActionModal(false));
       } else {
-        deactivate();
-        localStorage.setItem("eager_connect", "false");
+        disconnect();
       }
     } catch (error) {
-      deactivate();
-      localStorage.setItem("eager_connect", "false");
+      disconnect();
       router.push("/error");
       dispatch(setSingleActionModal(false));
     }
