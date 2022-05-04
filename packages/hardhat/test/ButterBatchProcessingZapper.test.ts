@@ -20,7 +20,7 @@ const provider = waffle.provider;
 interface Contracts {
   mock3Crv: MockERC20;
   mockDAI: MockERC20;
-  mockUSDC: MockERC20;
+  mockUSDC: MockERC20Permit;
   mockUSDT: MockERC20;
   mockCrvUSDX: MockERC20;
   mockCrvUST: MockERC20;
@@ -44,10 +44,11 @@ let contracts: Contracts;
 
 async function deployContracts(): Promise<Contracts> {
   const MockERC20 = await ethers.getContractFactory("MockERC20");
+  const MockERC20Permit = await ethers.getContractFactory("MockERC20Permit");
   const mockPop = await (await MockERC20.deploy("POP", "POP", 18)).deployed();
   const mock3Crv = await (await MockERC20.deploy("3Crv", "3Crv", 18)).deployed();
   const mockDAI = await (await MockERC20.deploy("DAI", "DAI", 18)).deployed();
-  const mockUSDC = await (await MockERC20.deploy("USDC", "USDC", 18)).deployed();
+  const mockUSDC = await (await MockERC20Permit.deploy("USDC", "USDC", 18)).deployed();
   const mockUSDT = await (await MockERC20.deploy("USDT", "USDT", 18)).deployed();
 
   const mockBasicCoin = await (await MockERC20.deploy("Basic", "Basic", 18)).deployed();
