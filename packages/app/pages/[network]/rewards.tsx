@@ -22,9 +22,9 @@ import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { toast, Toaster } from "react-hot-toast";
 import { SWRResponse } from "swr";
-import { ChainId } from "../context/Web3/connectors";
-import useBalanceAndAllowance from "../hooks/staking/useBalanceAndAllowance";
-import useERC20 from "../hooks/tokens/useERC20";
+import { ChainId } from "../../context/Web3/connectors";
+import useBalanceAndAllowance from "../../hooks/staking/useBalanceAndAllowance";
+import useERC20 from "../../hooks/tokens/useERC20";
 
 export enum Tabs {
   Staking = "Staking Rewards",

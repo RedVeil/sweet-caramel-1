@@ -12,8 +12,6 @@ export default function FeatureTogglePanel(): JSX.Element {
     setFeatures(newFeatures);
   }
 
-  console.log(process.env.IS_DEV);
-
   if (process.env.IS_DEV !== "TRUE") {
     return <></>;
   }

@@ -1,7 +1,7 @@
 import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
-import { ButterPageState } from "pages/butter";
+import { ButterPageState } from "pages/[network]/butter";
 import { Dispatch, useContext } from "react";
 import ClaimableBatch from "./ClaimableBatch";
 import MobileClaimableBatch from "./MobileClaimableBatch";

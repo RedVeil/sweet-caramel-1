@@ -4,7 +4,7 @@ import { BatchProcessTokenKey, BatchProcessTokens } from "@popcorn/utils/src/typ
 import { InfoIconWithModal } from "components/InfoIconWithModal";
 import { BigNumber } from "ethers";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
-import { ButterPageState } from "pages/butter";
+import { ButterPageState } from "pages/[network]/butter";
 import { Dispatch, useEffect, useRef, useState } from "react";
 import SelectToken from "./SelectToken";
 

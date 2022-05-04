@@ -31,11 +31,10 @@ import useGetButterAPY from "hooks/butter/useGetButterAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
-import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast, { Toaster } from "react-hot-toast";
-import abi from "../public/ButterBatchZapperAbi.json";
+import abi from "../../public/ButterBatchZapperAbi.json";
 
 enum TOKEN_INDEX {
   dai,
@@ -90,10 +89,10 @@ export default function Butter(): JSX.Element {
     contractAddresses,
     connect,
     setChain,
+    pushWithinChain,
     signer,
   } = useWeb3();
   const { dispatch } = useContext(store);
-  const router = useRouter();
   const butter = useButter();
   const butterBatchZapper = useButterBatchZapper();
   const butterBatch = useButterBatch();
@@ -127,7 +126,7 @@ export default function Butter(): JSX.Element {
           onDismiss: {
             label: "Go Back",
             onClick: () => {
-              router.push("/");
+              pushWithinChain("/");
               dispatch(setDualActionWideModal(false));
             },
           },

@@ -5,27 +5,26 @@ import { ChainId } from "context/Web3/connectors";
 import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useWeb3 from "hooks/useWeb3";
-import { useRouter } from "next/router";
 import React from "react";
 import ContentLoader from "react-content-loader";
 import { Toaster } from "react-hot-toast";
-import { NotAvailable } from "../../components/Rewards/NotAvailable";
+import { NotAvailable } from "../../../components/Rewards/NotAvailable";
 
 export default function index(): JSX.Element {
   const {
     contractAddresses: { popStaking, staking, pop },
     chainId,
+    pushWithinChain,
   } = useWeb3();
-  const router = useRouter();
 
-  const { data: popLocker, isValidating: popLockerIsValidating } = usePopLocker(popStaking);
+  const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking);
   const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
 
   const onSelectPool = (stakingContractAddress: Address, stakingTokenAddress: Address) => {
     if (stakingTokenAddress?.toLowerCase() === pop.toLowerCase()) {
-      router.push("staking/pop");
+      pushWithinChain("staking/pop");
     } else {
-      router.push(`staking/${stakingContractAddress}`);
+      pushWithinChain(`staking/${stakingContractAddress}`);
     }
   };
 

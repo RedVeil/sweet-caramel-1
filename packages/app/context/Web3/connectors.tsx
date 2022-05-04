@@ -1,6 +1,4 @@
-import { InjectedConnector } from "@web3-react/injected-connector";
-import { NetworkConnector } from "@web3-react/network-connector";
-import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+import { ethers } from "@popcorn/hardhat/node_modules/ethers/lib";
 
 export enum ChainId {
   Ethereum = 1,
@@ -24,15 +22,15 @@ export enum ChainIdHex {
   BinanceSmartChain = "0x38",
 }
 
-export enum Wallets {
-  METAMASK,
-  WALLETCONNECT,
-}
-
-export const walletMap = {
-  [Wallets.METAMASK]: "Metamask",
-  [Wallets.WALLETCONNECT]: "WalletConnect",
-};
+export const supportedChainIds = [
+  ChainId.Ethereum,
+  ChainId.Rinkeby,
+  ChainId.Arbitrum,
+  ChainId.Polygon,
+  ChainId.Mumbai,
+  ChainId.Localhost,
+  ChainId.BinanceSmartChain,
+];
 
 export const networkMap = {
   [ChainId.Ethereum]: "Ethereum",
@@ -53,7 +51,6 @@ export const logos = {
   [ChainId.Localhost]: "/images/icons/ethLogo.png",
   [ChainId.BinanceSmartChain]: "/images/icons/bsc-logo.png",
 };
-
 export const RPC_URLS = {
   [ChainId.Ethereum]: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Rinkeby]: `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -63,51 +60,15 @@ export const RPC_URLS = {
   [ChainId.BinanceSmartChain]: `https://bsc-dataseed1.binance.org`,
   [ChainId.Localhost]: `http://localhost:8545`,
 };
-
-export const supportedChainIds = [
-  ChainId.Ethereum,
-  ChainId.Rinkeby,
-  ChainId.Arbitrum,
-  ChainId.Polygon,
-  ChainId.Mumbai,
-  ChainId.Localhost,
-  ChainId.BinanceSmartChain,
-];
-
-const Injected = new InjectedConnector({
-  supportedChainIds,
-});
-
-const Network = (chainId: number) => {
-  return new NetworkConnector({
-    urls: RPC_URLS,
-    defaultChainId: chainId,
-  });
-};
-
-export const Walletconnect = new WalletConnectConnector({
-  rpc: RPC_URLS,
-  chainId: 1,
-  bridge: "https://bridge.walletconnect.org",
-  qrcode: true,
-  supportedChainIds,
-});
-
-export const connectors = { Injected, Network, Walletconnect };
-
-export const supportedWallets = [Wallets.METAMASK, Wallets.WALLETCONNECT];
-
-export const walletToConnector = {
-  [Wallets.METAMASK]: connectors.Injected,
-  [Wallets.WALLETCONNECT]: connectors.Walletconnect,
-};
-
-export const walletToName = {
-  [Wallets.METAMASK]: "Injected",
-  [Wallets.WALLETCONNECT]: "WalletConnect",
-};
-
-export const walletToLogo = {
-  [Wallets.METAMASK]: "/images/wallets/metamask.svg",
-  [Wallets.WALLETCONNECT]: "/images/wallets/walletConnect.svg",
+export const PRC_PROVIDERS = {
+  [ChainId.Ethereum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Ethereum], ChainId.Ethereum),
+  [ChainId.Rinkeby]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Rinkeby], ChainId.Rinkeby),
+  [ChainId.Arbitrum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Arbitrum], ChainId.Arbitrum),
+  [ChainId.Polygon]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Polygon], ChainId.Polygon),
+  [ChainId.Mumbai]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Mumbai], ChainId.Mumbai),
+  [ChainId.BinanceSmartChain]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.BinanceSmartChain],
+    ChainId.BinanceSmartChain,
+  ),
+  [ChainId.Localhost]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Localhost], ChainId.Localhost),
 };

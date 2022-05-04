@@ -9,17 +9,18 @@ import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import StakeInterface, { defaultForm, InteractionType } from "../../components/staking/StakeInterface";
-import StakeInterfaceLoader from "../../components/staking/StakeInterfaceLoader";
+import StakeInterface, { defaultForm, InteractionType } from "../../../components/staking/StakeInterface";
+import StakeInterfaceLoader from "../../../components/staking/StakeInterfaceLoader";
 
 export default function StakingPage(): JSX.Element {
-  const { account, chainId, signer, contractAddresses, onContractSuccess, onContractError } = useWeb3();
+  const { account, chainId, signer, contractAddresses, onContractSuccess, onContractError, pushWithinChain } =
+    useWeb3();
   const router = useRouter();
   const { dispatch } = useContext(store);
 
   useEffect(() => {
     if (!!((router.query?.id as string) || false) && !contractAddresses.has(router.query.id as string)) {
-      router.push("/staking");
+      pushWithinChain("/staking");
     }
   }, [contractAddresses, router]);
 

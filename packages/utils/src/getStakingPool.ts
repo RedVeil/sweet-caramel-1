@@ -2,8 +2,8 @@ import { BigNumber, constants } from "ethers";
 import { getPopApy } from ".";
 import { PopLocker, Staking } from "../../hardhat/typechain";
 import { calculateApy } from "./calculateAPY";
-import { Address, ContractAddresses, StakingPool, LockedBalance } from "./types";
 import { getTokenFromAddress } from "./getToken";
+import { Address, ContractAddresses, StakingPool } from "./types";
 
 export interface PopLockerMetadata extends StakingPool {
   contract: PopLocker;

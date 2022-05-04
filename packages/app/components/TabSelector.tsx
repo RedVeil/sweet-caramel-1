@@ -1,4 +1,4 @@
-import { Tabs } from "pages/rewards";
+import { Tabs } from "pages/[network]/rewards";
 import { Dispatch } from "react";
 
 interface TabSelectorProps {

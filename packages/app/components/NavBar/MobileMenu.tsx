@@ -1,31 +1,28 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import SecondaryActionButton from "components/SecondaryActionButton";
-import { store } from "context/store";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useState } from "react";
 import { getPoolLink, getPopAddress } from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export interface MenuProps {
   currentChain: { name: string; logo: any };
-  disconnectInjected: (deactivate: Function, activate: any, chainId: number) => void;
 }
 
-export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInjected }) => {
+export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
   const { chainId, account, connect, disconnect, wallet, setChain } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
-  const { dispatch } = useContext(store);
 
   return (
     <>
       <div className="flex flex-row justify-between items-center px-8 py-6 border-b border-gray-100">
         <div>
-          <Link href="/" passHref>
+          <Link href={`/${router?.query?.network}/`} passHref>
             <a>
               <img src="/images/icons/popLogo.png" alt="Logo" className="w-8 h-8" />
             </a>
