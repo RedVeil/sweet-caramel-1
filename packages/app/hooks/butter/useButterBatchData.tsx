@@ -177,6 +177,7 @@ export default function useButterBatchData(): SWRResponse<ButterBatchData, Error
   const butterBatchAdapter = useButterBatchAdapter();
   const shouldFetch = !!(
     !!butterBatchAdapter &&
+    !!account &&
     contractAddresses.butter &&
     contractAddresses.usdt &&
     contractAddresses.usdc &&
