@@ -3,7 +3,18 @@ const { join } = require("path");
 require("../utils/src/envLoader");
 
 const workspace = join(__dirname, "..");
-const defaultChain = process.env.DEFAULT_CHAIN;
+
+const ChainId = {
+  1: "ethereum",
+  4: "rinkeby",
+  42161: "arbitrum",
+  80001: "mumbai",
+  137: "polygon",
+  1337: "localhost",
+  31337: "hardhat",
+  56: "bnb",
+};
+const defaultChain = ChainId[Number(process.env.CHAIN_ID)];
 
 module.exports = {
   reactStrictMode: true,
@@ -11,7 +22,6 @@ module.exports = {
   env: {
     RPC_URL: process.env.RPC_URL,
     CHAIN_ID: process.env.CHAIN_ID,
-    DEFAULT_CHAIN: process.env.DEFAULT_CHAIN,
     INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID,
     IS_DEV: process.env.IS_DEV,
   },
@@ -33,6 +43,10 @@ module.exports = {
       {
         source: "/staking/:path*",
         destination: `/${defaultChain}/staking/:path*`,
+      },
+      {
+        source: "/butter/:path*",
+        destination: `/${defaultChain}/butter/:path*`,
       },
     ];
   },

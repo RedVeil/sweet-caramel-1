@@ -8,7 +8,7 @@ export enum ChainId {
   Polygon = 137,
   Localhost = 1337,
   Hardhat = 31337,
-  BinanceSmartChain = 56,
+  BNB = 56,
 }
 
 export enum ChainIdHex {
@@ -19,7 +19,7 @@ export enum ChainIdHex {
   Polygon = "0x89",
   Localhost = "0x539",
   Hardhat = "0x7a69",
-  BinanceSmartChain = "0x38",
+  BNB = "0x38",
 }
 
 export const supportedChainIds = [
@@ -29,7 +29,7 @@ export const supportedChainIds = [
   ChainId.Polygon,
   ChainId.Mumbai,
   ChainId.Localhost,
-  ChainId.BinanceSmartChain,
+  ChainId.BNB,
 ];
 
 export const networkMap = {
@@ -40,7 +40,7 @@ export const networkMap = {
   [ChainId.Polygon]: "Polygon",
   [ChainId.Hardhat]: "Hardhat",
   [ChainId.Localhost]: "Localhost",
-  [ChainId.BinanceSmartChain]: "BSC",
+  [ChainId.BNB]: "BNB",
 };
 
 export const logos = {
@@ -49,7 +49,7 @@ export const logos = {
   [ChainId.Polygon]: "/images/icons/polygonLogo.png",
   [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
   [ChainId.Localhost]: "/images/icons/ethLogo.png",
-  [ChainId.BinanceSmartChain]: "/images/icons/bsc-logo.png",
+  [ChainId.BNB]: "/images/icons/bsc-logo.png",
 };
 export const RPC_URLS = {
   [ChainId.Ethereum]: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -57,7 +57,7 @@ export const RPC_URLS = {
   [ChainId.Arbitrum]: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Polygon]: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  [ChainId.BinanceSmartChain]: `https://bsc-dataseed1.binance.org`,
+  [ChainId.BNB]: `https://bsc-dataseed1.binance.org`,
   [ChainId.Localhost]: `http://localhost:8545`,
 };
 export const PRC_PROVIDERS = {
@@ -66,9 +66,6 @@ export const PRC_PROVIDERS = {
   [ChainId.Arbitrum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Arbitrum], ChainId.Arbitrum),
   [ChainId.Polygon]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Polygon], ChainId.Polygon),
   [ChainId.Mumbai]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Mumbai], ChainId.Mumbai),
-  [ChainId.BinanceSmartChain]: new ethers.providers.JsonRpcProvider(
-    RPC_URLS[ChainId.BinanceSmartChain],
-    ChainId.BinanceSmartChain,
-  ),
+  [ChainId.BNB]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.BNB], ChainId.BNB),
   [ChainId.Localhost]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Localhost], ChainId.Localhost),
 };

@@ -64,7 +64,7 @@ export default function index(): JSX.Element {
   };
 
   useEffect(() => {
-    if (chainId === ChainId.BinanceSmartChain) {
+    if (chainId === ChainId.BNB) {
       setTabSelected(Tabs.Airdrop);
     }
   }, []);
@@ -78,11 +78,9 @@ export default function index(): JSX.Element {
   }, [chainId]);
 
   const shouldAirdropVisible = (chainId) =>
-    [ChainId.Arbitrum, ChainId.Polygon, ChainId.Hardhat, ChainId.BinanceSmartChain, ChainId.Localhost].includes(
-      chainId,
-    );
+    [ChainId.Arbitrum, ChainId.Polygon, ChainId.Hardhat, ChainId.BNB, ChainId.Localhost].includes(chainId);
 
-  const stakingVisible = (chainId) => ![ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId);
+  const stakingVisible = (chainId) => ![ChainId.Arbitrum, ChainId.BNB].includes(chainId);
 
   const userEscrowsFetchResult: SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber }, any> =
     useGetUserEscrows();

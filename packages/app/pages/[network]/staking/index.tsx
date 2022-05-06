@@ -29,7 +29,7 @@ export default function index(): JSX.Element {
   };
 
   const pageAvailable = () => {
-    return ![ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId);
+    return ![ChainId.Arbitrum, ChainId.BNB].includes(chainId);
   };
 
   return (

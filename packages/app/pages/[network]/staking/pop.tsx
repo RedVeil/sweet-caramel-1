@@ -20,7 +20,7 @@ export default function PopStakingPage(): JSX.Element {
   const { dispatch } = useContext(store);
 
   useEffect(() => {
-    if ([ChainId.Arbitrum, ChainId.BinanceSmartChain].includes(chainId)) {
+    if ([ChainId.Arbitrum, ChainId.BNB].includes(chainId)) {
       pushWithinChain("/staking");
     }
   }, [chainId]);
