@@ -568,56 +568,52 @@ export default function Butter(): JSX.Element {
           </div>
         </div>
         <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
-          <div className="order-2 md:order-1 md:w-1/3">
-            {butterBatchData && butterPageState.selectedToken ? (
-              <MintRedeemInterface
-                token={butterBatchData?.batchProcessTokens}
-                selectToken={selectToken}
-                deposit={butterPageState.useUnclaimedDeposits ? hotswap : deposit}
-                approve={approve}
-                depositDisabled={
-                  butterPageState.useUnclaimedDeposits
-                    ? isDepositDisabled(
-                        butterPageState.depositAmount,
-                        butterPageState.token[butterPageState.selectedToken.input].claimableBalance,
-                      )
-                    : isDepositDisabled(
-                        butterPageState.depositAmount,
-                        butterPageState.token[butterPageState.selectedToken.input].balance,
-                      )
-                }
-                hasUnclaimedBalances={hasClaimableBalances()}
-                butterPageState={[butterPageState, setButterPageState]}
-              />
-            ) : (
-              <>
-                {!account && (
-                  <div className="h-full px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                    <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                      <MainActionButton
-                        label="Connect Wallet"
-                        handleClick={() => {
-                          connect();
-                        }}
-                      />
-                    </div>
+          <div className="order-2 md:order-1 md:w-1/3 mb-10">
+            {account ? (
+              loadingButterBatchData ? (
+                <>
+                  <div>
+                    <ContentLoader viewBox="0 0 450 600">
+                      <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
+                    </ContentLoader>
                   </div>
-                )}
-              </>
-            )}
-            {account && !butterBatchData && loadingButterBatchData && (
-              <>
-                <div className="hidden md:block">
-                  <ContentLoader viewBox="0 0 450 600">
-                    <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
-                  </ContentLoader>
+                </>
+              ) : (
+                <>
+                  {butterBatchData && butterPageState.selectedToken ? (
+                    <MintRedeemInterface
+                      token={butterBatchData?.batchProcessTokens}
+                      selectToken={selectToken}
+                      deposit={butterPageState.useUnclaimedDeposits ? hotswap : deposit}
+                      approve={approve}
+                      depositDisabled={
+                        butterPageState.useUnclaimedDeposits
+                          ? isDepositDisabled(
+                              butterPageState.depositAmount,
+                              butterPageState.token[butterPageState.selectedToken.input].claimableBalance,
+                            )
+                          : isDepositDisabled(
+                              butterPageState.depositAmount,
+                              butterPageState.token[butterPageState.selectedToken.input].balance,
+                            )
+                      }
+                      hasUnclaimedBalances={hasClaimableBalances()}
+                      butterPageState={[butterPageState, setButterPageState]}
+                    />
+                  ) : null}
+                </>
+              )
+            ) : (
+              <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
+                  <MainActionButton
+                    label="Connect Wallet"
+                    handleClick={() => {
+                      connect();
+                    }}
+                  />
                 </div>
-                <div className="md:hidden">
-                  <ContentLoader viewBox="0 0 500 600">
-                    <rect x="0" y="0" rx="20" ry="20" width="500" height="600" />
-                  </ContentLoader>
-                </div>
-              </>
+              </div>
             )}
           </div>
 
