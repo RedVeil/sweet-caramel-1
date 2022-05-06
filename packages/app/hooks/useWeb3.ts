@@ -50,7 +50,8 @@ export default function useWeb3() {
     if (
       connectedChain?.id &&
       typeof router?.query?.network === "string" &&
-      ChainId[Number(connectedChain.id)] !== toTitleCase(router.query.network)
+      ChainId[Number(connectedChain.id)] !== toTitleCase(router.query.network) &&
+      !router?.pathname?.includes("butter")
     ) {
       alertChainInconsistency(router?.query?.network, ChainId[Number(connectedChain.id)]);
     }
