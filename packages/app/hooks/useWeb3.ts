@@ -39,7 +39,9 @@ export default function useWeb3() {
   }, []);
   useEffect(() => {
     // Track Connected wallets for eagerconnect
-    setStorage("connectedWallets", JSON.stringify(wallets.map(({ label }) => label)));
+    if (wallets?.length > 0) {
+      setStorage("connectedWallets", JSON.stringify(wallets.map(({ label }) => label)));
+    }
   }, [wallets]);
 
   useEffect(() => {
