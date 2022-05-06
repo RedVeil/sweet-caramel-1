@@ -68,7 +68,7 @@ export default function useWeb3() {
 
   const pushWithinChain = useCallback(
     (url, shallow = false) =>
-      router.push({ pathname: url, query: { network: router?.query?.network } }, undefined, {
+      router.push({ pathname: `/${router?.query?.network}${url}` }, undefined, {
         shallow: shallow,
       }),
     [router, router?.query?.network],
