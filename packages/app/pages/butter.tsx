@@ -675,8 +675,10 @@ export default function Butter(): JSX.Element {
                               </h3>
                               <div className="my-4">
                                 <p className="text-lg text-gray-500">
-                                  Redeem your BTR to receive its value in 3CRV or stablecoins. We will convert all the
-                                  underlying tokens of BTR back into 3CRV or your desired stablecoin.
+                                  {`Redeem your BTR to receive its value in 3CRV or stablecoins. The underlying tokens will be converted into 3CRV or your desired stablecoin. Redemptions incur a ${(0.5).toLocaleString(
+                                    undefined,
+                                    localStringOptions,
+                                  )}% (50 bps) redemption fee.`}
                                 </p>
                               </div>
                             </div>

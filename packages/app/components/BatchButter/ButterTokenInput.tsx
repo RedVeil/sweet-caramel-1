@@ -56,15 +56,16 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   }, [localButterPageState.depositAmount]);
 
   function calcOutputAmountsFromInput(value: BigNumber): void {
-    setEstimatedAmount(
-      String(
-        formatBigNumber(
-          value
-            .mul(localButterPageState.token[localButterPageState.selectedToken.input].price)
-            .div(localButterPageState.token[localButterPageState.selectedToken.output].price),
-        ),
-      ),
-    );
+    let output = value
+      .mul(localButterPageState.token[localButterPageState.selectedToken.input].price)
+      .div(localButterPageState.token[localButterPageState.selectedToken.output].price);
+
+    if (localButterPageState.redeeming) {
+      // take out redemption fee
+      const delta = output.mul("50").div("10000");
+      output = output.sub(delta);
+    }
+    setEstimatedAmount(formatBigNumber(output));
   }
 
   return (
