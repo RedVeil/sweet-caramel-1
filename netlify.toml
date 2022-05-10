@@ -5,6 +5,30 @@
   command = "yarn netlify-build"
   publish = "packages/app/out"
 
+[[redirects]]
+  from = "/"
+  to = "/ethereum"
+
+[[redirects]]
+  from = "/butter"
+  to = "/ethereum/butter"
+
+[[redirects]]
+  from = "/rewards"
+  to = "/ethereum/rewards"
+
+[[redirects]]
+  from = "/staking/pop"
+  to = "/ethereum/staking/pop"
+
+[[redirects]]
+  from = "/staking/*"
+  to = "/ethereum/staking/:path"
+
+[[redirects]]
+  from = "/butter/*"
+  to = "/ethereum/butter/:path"
+
 [[plugins]]
   package = 'netlify-plugin-contextual-env'
   [plugins.inputs]

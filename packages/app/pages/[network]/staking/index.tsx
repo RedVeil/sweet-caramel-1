@@ -22,9 +22,9 @@ export default function index(): JSX.Element {
 
   const onSelectPool = (stakingContractAddress: Address, stakingTokenAddress: Address) => {
     if (stakingTokenAddress?.toLowerCase() === pop.toLowerCase()) {
-      pushWithinChain("staking/pop");
+      pushWithinChain("/staking/pop");
     } else {
-      pushWithinChain(`staking/${stakingContractAddress}`);
+      pushWithinChain(`/staking/${stakingContractAddress}`);
     }
   };
 
