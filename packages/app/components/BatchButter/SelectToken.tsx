@@ -25,7 +25,7 @@ export default function SelectToken({
         className={`flex flex-row items-center justify-end ${allowSelection ? "cursor-pointer group" : "mr-4"}`}
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
-        <img className="w-5 mr-2 mb-1.5" src={`images/tokens/${selectedToken.img}`}></img>
+        <img className="w-5 mr-2 mb-1.5" src={`/images/tokens/${selectedToken.img}`}></img>
         <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700">{selectedToken.name}</p>
 
         {allowSelection && (
@@ -51,7 +51,7 @@ export default function SelectToken({
                   setDropdown(false);
                 }}
               >
-                <img className="w-5 h-5 mx-2" src={`images/tokens/${token[selectableToken].img}`}></img>
+                <img className="w-5 h-5 mx-2" src={`/images/tokens/${token[selectableToken].img}`}></img>
                 <p className="font-semibold group-hover:text-blue-700 mt-1.5">{token[selectableToken].name}</p>
               </a>
             ))}
