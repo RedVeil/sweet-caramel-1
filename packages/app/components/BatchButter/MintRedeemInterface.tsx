@@ -8,6 +8,7 @@ interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
   hasUnclaimedBalances: boolean;
+  withdraw?: (amount: BigNumber, useZap?: boolean, outputToken?: string) => Promise<void>;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -18,6 +19,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   depositDisabled,
   hasUnclaimedBalances,
   butterPageState,
+  withdraw,
 }) => {
   const [localButterPageState, setButterPageState] = butterPageState;
   function setRedeeming(redeeming: boolean) {
@@ -27,7 +29,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }
   return (
-    <div className="bg-white rounded-3xl px-5 pt-6 pb-6 md:mr-8 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl px-5 pt-6 pb-6 border border-gray-200 shadow-custom">
       <MintRedeemToggle redeeming={localButterPageState.redeeming} setRedeeming={setRedeeming} />
       <div>
         <ButterTokenInput
@@ -95,12 +97,19 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
               <div className="pt-6">
                 <MainActionButton
                   label={localButterPageState.redeeming ? "Redeem" : "Mint"}
-                  handleClick={() =>
-                    deposit(
-                      localButterPageState.depositAmount,
-                      localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
-                    )
-                  }
+                  handleClick={() => {
+                    if (localButterPageState.redeeming && withdraw) {
+                      withdraw(
+                        localButterPageState.depositAmount,
+                        localButterPageState.useZap,
+                        localButterPageState.selectedToken.output,
+                      );
+                    } else if (localButterPageState.redeeming) {
+                      deposit(localButterPageState.depositAmount, BatchType.Redeem);
+                    } else {
+                      deposit(localButterPageState.depositAmount, BatchType.Mint);
+                    }
+                  }}
                   disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
                 />
               </div>

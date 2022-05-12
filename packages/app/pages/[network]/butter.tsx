@@ -1,11 +1,9 @@
 import { parseEther } from "@ethersproject/units";
 import {
   adjustDepositDecimals,
-  bigNumberToNumber,
   formatAndRoundBigNumber,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
-  localStringOptions,
   ModalType,
   prepareHotSwap,
   toggleModal,
@@ -16,7 +14,7 @@ import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import StatInfoCard from "components/BatchButter/StatInfoCard";
 import Tutorial from "components/BatchButter/Tutorial";
-import StatusWithLabel from "components/Common/StatusWithLabel";
+import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
 import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
@@ -27,8 +25,6 @@ import useButter from "hooks/butter/useButter";
 import useButterBatch from "hooks/butter/useButterBatch";
 import useButterBatchData from "hooks/butter/useButterBatchData";
 import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
-import useGetButterAPY from "hooks/butter/useGetButterAPY";
-import useStakingPool from "hooks/staking/useStakingPool";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
@@ -36,17 +32,17 @@ import ContentLoader from "react-content-loader";
 import toast, { Toaster } from "react-hot-toast";
 import abi from "../../public/ButterBatchZapperAbi.json";
 
-enum TOKEN_INDEX {
+export enum TOKEN_INDEX {
   dai,
   usdc,
   usdt,
 }
 
-function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
+export function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
   return depositAmount.gt(inputTokenBalance);
 }
 
-function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string): [BigNumber, BigNumber, BigNumber] {
+export function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string): [BigNumber, BigNumber, BigNumber] {
   switch (tokenKey) {
     case "dai":
       return [depositAmount, BigNumber.from("0"), BigNumber.from("0")];
@@ -68,7 +64,7 @@ export interface ButterPageState {
   token: BatchProcessTokens;
 }
 
-const DEFAULT_STATE: ButterPageState = {
+export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
   selectedToken: null,
   useZap: false,
   depositAmount: BigNumber.from("0"),
@@ -96,14 +92,12 @@ export default function Butter(): JSX.Element {
   const butter = useButter();
   const butterBatchZapper = useButterBatchZapper();
   const butterBatch = useButterBatch();
-  const { data: butterAPY } = useGetButterAPY();
   const {
     data: butterBatchData,
     error: errorFetchingButterBatchData,
     mutate: refetchButterBatchData,
   } = useButterBatchData();
-  const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
-  const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_STATE);
+  const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
   const loadingButterBatchData = !butterBatchData && !errorFetchingButterBatchData;
 
@@ -470,101 +464,14 @@ export default function Butter(): JSX.Element {
       <Navbar />
       <Toaster position="top-right" />
       <div className="mx-auto md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-32">
-        <div className="md:w-6/12 mx-4 md:mx-0 text-center md:text-left">
+        <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
           <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
           <p className="mt-2 text-lg text-gray-500">
             Mint BTR and earn interest on multiple stablecoins at once.
             <br />
             Stake your BTR to earn boosted APY.
           </p>
-          <div className="flex flex-row flex-wrap items-center mt-4 justify-center md:justify-start">
-            <div className="pr-6 border-r-2 border-gray-200 mt-2">
-              <div className="hidden md:block ">
-                <StatusWithLabel
-                  content={
-                    butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                      ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(
-                          undefined,
-                          localStringOptions,
-                        ) + "%"
-                      : "New 🍿✨"
-                  }
-                  label="Est. APY"
-                  green
-                  infoIconProps={{
-                    id: "estApy",
-                    title: "How we calculate the APY",
-                    content: `The shown APY comes from yield on the underlying stablecoins (${
-                      butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-                    }%) and is boosted with POP (${
-                      butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-                    }%). You must stake your BTR to receive the additional APY in POP.`,
-                  }}
-                />
-              </div>
-              <div className="md:hidden">
-                <StatusWithLabel
-                  content={
-                    butterBatchData?.batchProcessTokens?.butter && butterBatchData?.butterSupply
-                      ? `$${formatAndRoundBigNumber(
-                          butterBatchData?.butterSupply
-                            .mul(butterBatchData?.batchProcessTokens?.butter.price)
-                            .div(parseEther("1")),
-                        )}`
-                      : "$-"
-                  }
-                  label="Total Deposits"
-                />
-              </div>
-            </div>
-            <div className="pl-6 md:px-6 md:border-r-2 border-gray-200 mt-2">
-              <div className="hidden md:block ">
-                <StatusWithLabel
-                  content={
-                    butterBatchData?.batchProcessTokens?.butter && butterBatchData?.butterSupply
-                      ? `$${formatAndRoundBigNumber(
-                          butterBatchData?.butterSupply
-                            .mul(butterBatchData?.batchProcessTokens?.butter.price)
-                            .div(parseEther("1")),
-                        )}`
-                      : "$-"
-                  }
-                  label="Total Deposits"
-                />
-              </div>
-              <div className="md:hidden">
-                <StatusWithLabel content={`Coming Soon`} label="Social Impact" />
-              </div>
-            </div>
-            <div className="mt-2 md:pl-6 text-center md:text-left">
-              <div className="hidden md:block ">
-                <StatusWithLabel content={`Coming Soon`} label="Social Impact" />
-              </div>
-              <div className="md:hidden">
-                <StatusWithLabel
-                  content={
-                    butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                      ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(
-                          undefined,
-                          localStringOptions,
-                        ) + "%"
-                      : "New 🍿✨"
-                  }
-                  label="Est. APY"
-                  green
-                  infoIconProps={{
-                    id: "estApy",
-                    title: "How we calculate the APY",
-                    content: `The shown APY comes from yield on the underlying stablecoins (${
-                      butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-                    } %) and is boosted with POP (${
-                      butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-                    } %). You must stake your BTR to receive the additional APY in POP.`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+          <ButterStats butterData={butterBatchData} />
         </div>
         <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
           <div className="order-2 md:order-1 md:w-1/3 mb-10">
@@ -578,7 +485,7 @@ export default function Butter(): JSX.Element {
                   </div>
                 </>
               ) : (
-                <>
+                <div className="md:pr-8">
                   {butterBatchData && butterPageState.selectedToken ? (
                     <MintRedeemInterface
                       token={butterBatchData?.batchProcessTokens}
@@ -600,7 +507,7 @@ export default function Butter(): JSX.Element {
                       butterPageState={[butterPageState, setButterPageState]}
                     />
                   ) : null}
-                </>
+                </div>
               )
             ) : (
               <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">

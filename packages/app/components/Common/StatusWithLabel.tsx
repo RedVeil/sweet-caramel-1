@@ -20,7 +20,7 @@ export default function StatusWithLabel({
   infoIconProps = null,
 }: StatusWithLabelProps): JSX.Element {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col items-center">
       {infoIconProps ? (
         <span className="flex flex-row items-center">
           <p className="text-gray-500 font-light uppercase">{label}</p>

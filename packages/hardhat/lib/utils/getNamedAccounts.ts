@@ -29,6 +29,10 @@ export default function getNamedAccounts() {
       mainnet: "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428",
       //mainnet: "0x64337565e0Ce3E35fb7808C16807803a7540521C",
     },
+    butterWhaleProcessing: {
+      hardhat: "0x0F527785e39B22911946feDf580d87a4E00465f0",
+      mainnet: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+    },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
       rinkeby: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
