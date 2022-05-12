@@ -280,7 +280,7 @@ export default function Butter(): JSX.Element {
                   title: "Deposit for Mint",
                   content:
                     "You have successfully deposited into the current mint batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-                  image: <img src="images/butter/modal-1.png" className="px-6" />,
+                  image: <img src="/images/butter/modal-1.png" className="px-6" />,
                   onConfirm: {
                     label: "Close",
                     onClick: () => dispatch(setMultiChoiceActionModal(false)),
@@ -314,7 +314,7 @@ export default function Butter(): JSX.Element {
                 title: "Deposit for Redeem",
                 content:
                   "You have successfully deposited into the current redeem batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-                image: <img src="images/butter/batch-popover.png" className="px-6" />,
+                image: <img src="/images/butter/batch-popover.png" className="px-6" />,
                 onConfirm: {
                   label: "Close",
                   onClick: () => dispatch(setMultiChoiceActionModal(false)),
