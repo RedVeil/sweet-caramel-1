@@ -227,7 +227,7 @@ export default function index(): JSX.Element {
     <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="flex flex-col mx-auto w-full md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-6">
+      <div className="flex flex-col mx-auto w-full md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-6 p-6">
         <div className="text-center md:text-left md:w-1/3 mx-6 md:mx-0">
           <h1 className="page-title">Rewards</h1>
           <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
@@ -338,20 +338,20 @@ export default function index(): JSX.Element {
                   ) : (
                     <>
                       <div>
-                        <div className={`flex flex-row justify-between md:px-8 py-6 w-full bg-rewardsBg rounded-t-3xl`}>
+                        <div className={`flex flex-row justify-between md:px-8 p-6 w-full bg-rewardsBg rounded-t-3xl`}>
                           <div className="flex flex-col md:flex-row">
                             <div className="flex flex-row">
-                              <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>
+                              <h1 className={`text-xl md:text-3xl font-medium text-gray-900 my-auto`}>
                                 Vesting Records
                               </h1>
                               <InfoIconWithTooltip
                                 classExtras="h-7 w-7 md:h-8 md:w-8 mt-1.5 md:mt-3 ml-1 md:ml-2"
                                 id="1"
                                 title="Vesting Records"
-                                content="Here you can see all your vested POP rewards. Each of these Records will linearly unlock more POP over the span of 365 days. 'Unlock Ends' shows you when all POP will be unlocked from this Vesting Record. 'Total Tokens' is the total amount of POP that this record will unlock over time."
+                                content="Here you can see all your vested POP rewards. Each of these Records will linearly unlock more POP over the span of 365 days. 'Unlock Ends' shows you when all POP will be unlocked from this Vesting Record. 'Total Vested Tokens' is the total amount of POP that this record will unlock over time."
                               />
                             </div>
-                            <h1 className={`block md:hidden text-lg md:text-xl font-medium text-gray-900 my-auto mr-8`}>
+                            <h1 className={`block md:hidden text-xl md:text-xl font-medium text-gray-900 my-auto mr-8`}>
                               {formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP
                             </h1>
                           </div>

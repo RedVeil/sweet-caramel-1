@@ -19,9 +19,9 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
         index % 2 === 0 ? "bg-rewardsBg2" : "bg-rewardsBg"
       } `}
     >
-      <div className="hidden md:flex flex-row justify-between items-center w-full">
+      <div className="hidden md:flex flex-row justify-between gap-2 items-center w-full">
         <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
-        <StatusWithLabel label="Total Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+        <StatusWithLabel label="Total Vested Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
         <StatusWithLabel
           label="Claimable Tokens"
           content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
@@ -35,22 +35,20 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
         </div>
       </div>
       <div className="md:hidden w-full">
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between gap-2 gap-y-6 flex-wrap">
           <StatusWithLabel
             label="Claimable Tokens"
             content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
           />
-          <div className="w-1/3">
-            <MainActionButton
-              handleClick={() => claim(vestingEscrow)}
-              disabled={!vestingEscrow.claimableAmount.gte(0)}
-              label="Claim"
-            />
-          </div>
-        </div>
-        <div className="flex flex-row justify-between mt-10">
           <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
-          <StatusWithLabel label="Total Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+          <StatusWithLabel label="Total Vested Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+        </div>
+        <div className="w-full mt-6">
+          <MainActionButton
+            handleClick={() => claim(vestingEscrow)}
+            disabled={!vestingEscrow.claimableAmount.gte(0)}
+            label="Claim"
+          />
         </div>
       </div>
     </div>
