@@ -74,7 +74,7 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
         <div className="hidden md:block ">
           <StatusWithLabel content={`Coming Soon`} label="Social Impact" />
         </div>
-        <div className="w-full md:hidden">
+        <div className="w-full md:hidden flex justify-center">
           <StatusWithLabel
             content={
               butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
