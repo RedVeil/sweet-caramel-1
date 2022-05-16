@@ -51,4 +51,8 @@ const ErrorPage = () => {
   );
 };
 
+ErrorPage.getLayout = function getLayout(page) {
+  return <ErrorPage />;
+};
+
 export default ErrorPage;

@@ -1,5 +1,4 @@
 import Hero from "components/landing/Hero";
-import NavBar from "components/NavBar/NavBar";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 
@@ -13,22 +12,19 @@ const IndexPage = () => {
   }, [router.pathname]);
 
   return (
-    <div className="h-full">
-      <NavBar />
-      <div className="flex mx-auto justify-center h-full md:py-20 flex-col md:flex-row w-11/12 lglaptop:w-9/12 2xl:max-w-7xl">
-        <Hero
-          header="Butter"
-          content="Optimize your yield while creating positive global impact."
-          image="/images/rocket.svg"
-          link="/butter"
-        />
-        <Hero
-          header="Staking"
-          content="Stake your tokens to participate and earn."
-          image="/images/farmer.svg"
-          link="/staking"
-        />
-      </div>
+    <div className="flex flex-row">
+      <Hero
+        header="Butter"
+        content="Optimize your yield while creating positive global impact."
+        image="/images/rocket.svg"
+        link="/butter"
+      />
+      <Hero
+        header="Staking"
+        content="Stake your tokens to participate and earn."
+        image="/images/farmer.svg"
+        link="/staking"
+      />
     </div>
   );
 };

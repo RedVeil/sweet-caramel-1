@@ -3,7 +3,6 @@ import { BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
-import Navbar from "components/NavBar/NavBar";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { ChainId } from "context/Web3/connectors";
@@ -14,7 +13,7 @@ import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import {
   ButterPageState,
   DEFAULT_BUTTER_PAGE_STATE,
@@ -229,22 +228,19 @@ export default function InstantButter() {
   }
 
   return (
-    <div className="w-full h-full">
-      <Navbar />
-      <Toaster position="top-right" />
-      <div className="mx-auto md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-32">
-        <div className="max-w-2xl px-4 flex flex-col justify-center mx-auto">
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-custom p-8">
-            <h1 className="text-3xl font-bold text-center">Butter - Yield Optimizer</h1>
-            <p className="mt-2 text-lg text-gray-500 text-center">
-              Mint BTR and earn interest on multiple stablecoins at once.
-              <br />
-              Stake your BTR to earn boosted APY.
-            </p>
-            <div className="">
-              {/* This is technically not included in the Figma, but it seems strange not to show Butter Price at all on
+    <>
+      <div className="max-w-2xl px-4 flex flex-col justify-center mx-auto">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-custom p-8">
+          <h1 className="text-3xl font-bold text-center">Butter - Yield Optimizer</h1>
+          <p className="mt-2 text-lg text-gray-500 text-center">
+            Mint BTR and earn interest on multiple stablecoins at once.
+            <br />
+            Stake your BTR to earn boosted APY.
+          </p>
+          <div className="">
+            {/* This is technically not included in the Figma, but it seems strange not to show Butter Price at all on
               this page. */}
-              {/* <StatInfoCard
+            {/* <StatInfoCard
                 title="Butter Value"
                 content={`$ ${
                   butterBatchData?.batchProcessTokens?.butter
@@ -253,50 +249,49 @@ export default function InstantButter() {
                 }`}
                 icon={{ icon: "Money", color: "bg-blue-300" }}
               /> */}
-            </div>
-            <div className="mx-auto">
-              <ButterStats butterData={butterData} center />
-            </div>
           </div>
-          <div className="mt-10">
-            {butterData && butterPageState.selectedToken ? (
-              <MintRedeemInterface
-                token={butterData?.batchProcessTokens}
-                selectToken={selectToken}
-                deposit={deposit}
-                approve={approve}
-                depositDisabled={isDepositDisabled(
-                  butterPageState.depositAmount,
-                  butterPageState.token[butterPageState.selectedToken.input].balance,
-                )}
-                hasUnclaimedBalances={false}
-                butterPageState={[butterPageState, setButterPageState]}
-                withdraw={redeem}
-              />
-            ) : (
-              <>
-                {!account && (
-                  <div className="h-full px-5 pt-6 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                    <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                      <MainActionButton
-                        label="Connect Wallet"
-                        handleClick={() => {
-                          connect();
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-            {account && !butterData && loadingButterBatchData && (
-              <ContentLoader viewBox="0 0 500 600">
-                <rect x="0" y="0" rx="20" ry="20" width="500" height="600" />
-              </ContentLoader>
-            )}
+          <div className="mx-auto">
+            <ButterStats butterData={butterData} center />
           </div>
         </div>
+        <div className="mt-10">
+          {butterData && butterPageState.selectedToken ? (
+            <MintRedeemInterface
+              token={butterData?.batchProcessTokens}
+              selectToken={selectToken}
+              deposit={deposit}
+              approve={approve}
+              depositDisabled={isDepositDisabled(
+                butterPageState.depositAmount,
+                butterPageState.token[butterPageState.selectedToken.input].balance,
+              )}
+              hasUnclaimedBalances={false}
+              butterPageState={[butterPageState, setButterPageState]}
+              withdraw={redeem}
+            />
+          ) : (
+            <>
+              {!account && (
+                <div className="h-full px-5 pt-6 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                  <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
+                    <MainActionButton
+                      label="Connect Wallet"
+                      handleClick={() => {
+                        connect();
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          {account && !butterData && loadingButterBatchData && (
+            <ContentLoader viewBox="0 0 500 600">
+              <rect x="0" y="0" rx="20" ry="20" width="500" height="600" />
+            </ContentLoader>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

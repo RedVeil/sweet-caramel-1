@@ -1,5 +1,4 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
-import Navbar from "components/NavBar/NavBar";
 import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
 import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
 import { setMultiChoiceActionModal } from "context/actions";
@@ -10,7 +9,7 @@ import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useWeb3 from "hooks/useWeb3";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { ChainId } from "../../../context/Web3/connectors";
 
 export default function PopStakingPage(): JSX.Element {
@@ -101,27 +100,23 @@ export default function PopStakingPage(): JSX.Element {
   }
 
   return (
-    <div className="overflow-x-hidden w-full">
-      <Navbar />
-      <Toaster position="top-right" />
-      <div className="md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
-        {!stakingPool ? (
-          <StakeInterfaceLoader />
-        ) : (
-          <StakeInterface
-            stakingPool={stakingPool}
-            user={balances}
-            form={[form, setForm]}
-            stake={stake}
-            withdraw={withdraw}
-            approve={approve}
-            restake={restake}
-            onlyView={!account}
-            chainId={chainId}
-            isPopLocker
-          />
-        )}
-      </div>
-    </div>
+    <>
+      {!stakingPool ? (
+        <StakeInterfaceLoader />
+      ) : (
+        <StakeInterface
+          stakingPool={stakingPool}
+          user={balances}
+          form={[form, setForm]}
+          stake={stake}
+          withdraw={withdraw}
+          approve={approve}
+          restake={restake}
+          onlyView={!account}
+          chainId={chainId}
+          isPopLocker
+        />
+      )}
+    </>
   );
 }

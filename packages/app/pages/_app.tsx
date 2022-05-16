@@ -31,6 +31,13 @@ web3Onboard();
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
+  const getLayout =
+    Component.getLayout ||
+    (() => (
+      <Page>
+        <Component {...pageProps} />
+      </Page>
+    ));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -76,9 +83,7 @@ export default function MyApp(props) {
             <DualActionModalContainer />
             <DualActionWideModalContainer />
             <NetworkChangePromptModalContainer />
-            <Page>
-              <Component {...pageProps} />
-            </Page>
+            {getLayout(<Component {...pageProps} />)}
             <FeatureTogglePanel />
             <SwapChainModal />
             <NotificationsContainer />

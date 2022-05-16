@@ -14,7 +14,6 @@ import StatInfoCard from "components/BatchButter/StatInfoCard";
 import Tutorial from "components/BatchButter/Tutorial";
 import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
-import Navbar from "components/NavBar/NavBar";
 import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
 import { ChainId } from "context/Web3/connectors";
@@ -28,7 +27,7 @@ import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import abi from "../../public/ButterBatchZapperAbi.json";
 
 export enum TOKEN_INDEX {
@@ -459,189 +458,183 @@ export default function Butter(): JSX.Element {
   }
 
   return (
-    <div className="w-full h-full">
-      <Navbar />
-      <Toaster position="top-right" />
-      <div className="mx-auto md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-32">
-        <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
-          <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
-          <p className="mt-2 text-lg text-gray-500">
-            Mint BTR and earn interest on multiple stablecoins at once.
-            <br />
-            Stake your BTR to earn boosted APY.
-          </p>
-          <ButterStats butterData={butterBatchData} />
-        </div>
-        <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
-          <div className="order-2 md:order-1 md:w-1/3 mb-10">
-            {account ? (
-              loadingButterBatchData ? (
-                <>
-                  <div>
-                    <ContentLoader viewBox="0 0 450 600">
-                      <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
-                    </ContentLoader>
-                  </div>
-                </>
-              ) : (
-                <div className="md:pr-8">
-                  {butterBatchData && butterPageState.selectedToken ? (
-                    <MintRedeemInterface
-                      token={butterBatchData?.batchProcessTokens}
-                      selectToken={selectToken}
-                      deposit={butterPageState.useUnclaimedDeposits ? hotswap : deposit}
-                      approve={approve}
-                      depositDisabled={
-                        butterPageState.useUnclaimedDeposits
-                          ? isDepositDisabled(
-                              butterPageState.depositAmount,
-                              butterPageState.token[butterPageState.selectedToken.input].claimableBalance,
-                            )
-                          : isDepositDisabled(
-                              butterPageState.depositAmount,
-                              butterPageState.token[butterPageState.selectedToken.input].balance,
-                            )
-                      }
-                      hasUnclaimedBalances={hasClaimableBalances()}
-                      butterPageState={[butterPageState, setButterPageState]}
-                    />
-                  ) : null}
-                </div>
-              )
+    <>
+      <div className="md:w-6/12 mx-4 md:mx-0 text-center md:text-left">
+        <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
+        <p className="mt-2 text-lg text-gray-500">
+          Mint BTR and earn interest on multiple stablecoins at once.
+          <br />
+          Stake your BTR to earn boosted APY.
+        </p>
+        <ButterStats butterData={butterBatchData} />
+      </div>
+      <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
+        <div className="order-2 md:order-1 md:w-1/3 mb-10">
+          {account ? (
+            loadingButterBatchData ? (
+              <div>
+                <ContentLoader viewBox="0 0 450 600">
+                  <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
+                </ContentLoader>
+              </div>
             ) : (
-              <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                  <MainActionButton
-                    label="Connect Wallet"
-                    handleClick={() => {
-                      connect();
-                    }}
+              <div className="md:pr-8">
+                {butterBatchData && butterPageState.selectedToken ? (
+                  <MintRedeemInterface
+                    token={butterBatchData?.batchProcessTokens}
+                    selectToken={selectToken}
+                    deposit={butterPageState.useUnclaimedDeposits ? hotswap : deposit}
+                    approve={approve}
+                    depositDisabled={
+                      butterPageState.useUnclaimedDeposits
+                        ? isDepositDisabled(
+                            butterPageState.depositAmount,
+                            butterPageState.token[butterPageState.selectedToken.input].claimableBalance,
+                          )
+                        : isDepositDisabled(
+                            butterPageState.depositAmount,
+                            butterPageState.token[butterPageState.selectedToken.input].balance,
+                          )
+                    }
+                    hasUnclaimedBalances={hasClaimableBalances()}
+                    butterPageState={[butterPageState, setButterPageState]}
                   />
-                </div>
+                ) : null}
               </div>
-            )}
-          </div>
-
-          <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
-            <div className="flex flex-col md:flex-row">
-              <div className="block md:hidden md:w-1/2 md:mr-2 mb-4 md:mb-0">
-                <div
-                  className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-primaryLight"
-                  onClick={() => {
-                    dispatch(
-                      setMobileFullScreenModal({
-                        title: "",
-                        children: <Tutorial />,
-                        onDismiss: () => dispatch(setMobileFullScreenModal(false)),
-                      }),
-                    );
+            )
+          ) : (
+            <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+              <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
+                <MainActionButton
+                  label="Connect Wallet"
+                  handleClick={() => {
+                    connect();
                   }}
-                >
-                  <div className="flex flex-row items-center justify-end mt-0.5">
-                    <div className="w-full flex flex-row justify-center">
-                      <div className="ml-4">
-                        <h3 className="text-lg font-medium text-gray-900">Learn how it works</h3>
-                      </div>
-                    </div>
-                    <div className="flex flex-row">
-                      <div className="mr-2">
-                        <img title="play-icon" src="/images/icons/IconPlay.svg" />
-                      </div>
-                    </div>
-                    <div></div>
-                  </div>
-                </div>
-              </div>
-              <div className="block md:hidden md:w-1/2 md:mr-2 mb-10 md:mb-0">
-                <div
-                  className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-green-100"
-                  onClick={() => {
-                    dispatch(
-                      setMobileFullScreenModal({
-                        title: "",
-                        children: (
-                          <div className="flex flex-col px-8 text-left">
-                            <div className="">
-                              <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                Mint
-                              </h3>
-                              <div className="my-4">
-                                <p className="text-lg text-gray-500">
-                                  Mint BTR with 3CRV or stablecoins to earn interest on multiple Stablecoins at once. As
-                                  the value of the underlying assets increase, so does the redeemable value of Butter.
-                                  This process converts deposited funds into other stablecoins and deploys them in Yearn
-                                  to generate interest.
-                                </p>
-                              </div>
-                            </div>
-                            <div className="mt-14">
-                              <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                Redeem
-                              </h3>
-                              <div className="my-4">
-                                <p className="text-lg text-gray-500">
-                                  Redeem your BTR to receive its value in 3CRV or stablecoins. We will convert all the
-                                  underlying tokens of BTR back into 3CRV or your desired stablecoin.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ),
-                        onDismiss: () => dispatch(setMobileFullScreenModal(false)),
-                      }),
-                    );
-                  }}
-                >
-                  <div className="flex flex-row items-center justify-end mt-0.5">
-                    <div className="w-full flex flex-row justify-center">
-                      <div className="ml-4">
-                        <h3 className="text-lg font-medium text-gray-900">What is Mint & Redeem?</h3>
-                      </div>
-                    </div>
-                    <div className="flex flex-row">
-                      <div className="mr-2">
-                        <img title="play-icon" src="/images/icons/IconPlay.svg" />
-                      </div>
-                    </div>
-                    <div></div>
-                  </div>
-                </div>
-              </div>
-              <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
-                <StatInfoCard
-                  title="Butter Value"
-                  content={`$ ${
-                    butterBatchData?.batchProcessTokens?.butter
-                      ? formatAndRoundBigNumber(butterBatchData?.batchProcessTokens?.butter?.price)
-                      : "-"
-                  }`}
-                  icon={{ icon: "Money", color: "bg-blue-300" }}
                 />
               </div>
-              <div className="md:w-1/2 md:ml-2 mb-8 md:mb-0">
-                <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
+            </div>
+          )}
+        </div>
+
+        <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
+          <div className="flex flex-col md:flex-row">
+            <div className="block md:hidden md:w-1/2 md:mr-2 mb-4 md:mb-0">
+              <div
+                className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-primaryLight"
+                onClick={() => {
+                  dispatch(
+                    setMobileFullScreenModal({
+                      title: "",
+                      children: <Tutorial />,
+                      onDismiss: () => dispatch(setMobileFullScreenModal(false)),
+                    }),
+                  );
+                }}
+              >
+                <div className="flex flex-row items-center justify-end mt-0.5">
+                  <div className="w-full flex flex-row justify-center">
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Learn how it works</h3>
+                    </div>
+                  </div>
+                  <div className="flex flex-row">
+                    <div className="mr-2">
+                      <img title="play-icon" src="/images/icons/IconPlay.svg" />
+                    </div>
+                  </div>
+                  <div></div>
+                </div>
               </div>
             </div>
-
-            <div className="hidden md:flex w-full h-128 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
-              <Tutorial />
+            <div className="block md:hidden md:w-1/2 md:mr-2 mb-10 md:mb-0">
+              <div
+                className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-green-100"
+                onClick={() => {
+                  dispatch(
+                    setMobileFullScreenModal({
+                      title: "",
+                      children: (
+                        <div className="flex flex-col px-8 text-left">
+                          <div className="">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                              Mint
+                            </h3>
+                            <div className="my-4">
+                              <p className="text-lg text-gray-500">
+                                Mint BTR with 3CRV or stablecoins to earn interest on multiple Stablecoins at once. As
+                                the value of the underlying assets increase, so does the redeemable value of Butter.
+                                This process converts deposited funds into other stablecoins and deploys them in Yearn
+                                to generate interest.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-14">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                              Redeem
+                            </h3>
+                            <div className="my-4">
+                              <p className="text-lg text-gray-500">
+                                Redeem your BTR to receive its value in 3CRV or stablecoins. We will convert all the
+                                underlying tokens of BTR back into 3CRV or your desired stablecoin.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                      onDismiss: () => dispatch(setMobileFullScreenModal(false)),
+                    }),
+                  );
+                }}
+              >
+                <div className="flex flex-row items-center justify-end mt-0.5">
+                  <div className="w-full flex flex-row justify-center">
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">What is Mint & Redeem?</h3>
+                    </div>
+                  </div>
+                  <div className="flex flex-row">
+                    <div className="mr-2">
+                      <img title="play-icon" src="/images/icons/IconPlay.svg" />
+                    </div>
+                  </div>
+                  <div></div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        {butterBatchData?.accountBatches?.length > 0 && (
-          <div className="w-full pb-12 mx-auto mt-10">
-            <div className="mx-4 md:mx-0 p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
-              <ClaimableBatches
-                batches={butterBatchData?.accountBatches}
-                claim={claim}
-                claimAndStake={claimAndStake}
-                withdraw={withdraw}
-                butterPageState={[butterPageState, setButterPageState]}
+            <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
+              <StatInfoCard
+                title="Butter Value"
+                content={`$ ${
+                  butterBatchData?.batchProcessTokens?.butter
+                    ? formatAndRoundBigNumber(butterBatchData?.batchProcessTokens?.butter?.price)
+                    : "-"
+                }`}
+                icon={{ icon: "Money", color: "bg-blue-300" }}
               />
             </div>
+            <div className="md:w-1/2 md:ml-2 mb-8 md:mb-0">
+              <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
+            </div>
           </div>
-        )}
+
+          <div className="hidden md:flex w-full h-128 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+            <Tutorial />
+          </div>
+        </div>
       </div>
-    </div>
+      {butterBatchData?.accountBatches?.length > 0 && (
+        <div className="w-full pb-12 mx-auto mt-10">
+          <div className="mx-4 md:mx-0 p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
+            <ClaimableBatches
+              batches={butterBatchData?.accountBatches}
+              claim={claim}
+              claimAndStake={claimAndStake}
+              withdraw={withdraw}
+              butterPageState={[butterPageState, setButterPageState]}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
