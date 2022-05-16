@@ -13,7 +13,14 @@ const ContactEmail: React.FC<FormStepProps> = ({ form, navigation, visible }) =>
   function updateName(value: string): void {
     setFormData({
       ...formData,
-      links: { ...formData.links, contactEmail: value },
+      links: {
+        ...formData.links,
+        contactEmail: {
+          error: false,
+          errorMessage: "",
+          data: value,
+        },
+      },
     });
   }
 
@@ -24,14 +31,14 @@ const ContactEmail: React.FC<FormStepProps> = ({ form, navigation, visible }) =>
           {navigation.currentStep} - Please enter a contact email address
         </h2>
         <ControlledTextInput
-          inputValue={formData?.links?.contactEmail}
+          inputValue={formData?.links?.contactEmail.data}
           id="contactEmail"
           placeholder="Contact Email"
           errorMessage="Contact email cannot be blank."
           updateInput={updateName}
           isValid={isValid}
         />
-        {inputExists(formData.organizationName) && <ContinueButton navigation={navigation} />}
+        {inputExists(formData.organizationName.data) && <ContinueButton navigation={navigation} />}
       </div>
     )
   );

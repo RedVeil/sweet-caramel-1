@@ -3,6 +3,7 @@ import { Address, StakingPool, Token } from "@popcorn/utils/src/types";
 import { constants } from "ethers/lib/ethers";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
 import { formatStakedAmount } from "helper/formatStakedAmount";
+import Badge, { Badge as BadgeType } from "./Common/Badge";
 import StatusWithLabel from "./Common/StatusWithLabel";
 import MainActionButton from "./MainActionButton";
 import TokenIcon from "./TokenIcon";
@@ -11,14 +12,20 @@ interface StakeCardProps {
   stakingPool: StakingPool;
   stakedToken: Token;
   onSelectPool: (stakingContractAddress: Address, stakingTokenAddress: Address) => void;
+  badge?: BadgeType;
 }
 
-const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool }) => {
+const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge }) => {
   return (
     <div
       className="card p-6 md:p-8"
       onClick={async () => await onSelectPool(stakingPool?.address, stakedToken?.address)}
     >
+      {badge && (
+        <div className="absolute -top-4 w-full">
+          <Badge badge={badge} />
+        </div>
+      )}
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
           <TokenIcon token={getSanitizedTokenDisplayName(stakedToken?.name)} />

@@ -28,7 +28,7 @@ const Website: React.FC<FormStepProps> = ({ form, navigation, visible }) => {
           updateInput={updateWebsite}
           isValid={isValid}
         />
-        {inputExists(formData.organizationName) && <ContinueButton navigation={navigation} />}
+        {inputExists(formData.organizationName.data) && <ContinueButton navigation={navigation} />}
       </div>
     )
   );

@@ -159,7 +159,7 @@ const Intro: React.FC<FormStepProps> = ({ form, navigation, visible }) => {
               </h2>
               <div className="mt-6 space-y-4 sm:space-y-0 sm:flex sm:space-x-5">
                 {/* Check for partially completed form */}
-                {formData.organizationName !== "" && (
+                {formData.organizationName.data !== "" && (
                   <button
                     type="button"
                     onClick={() => {

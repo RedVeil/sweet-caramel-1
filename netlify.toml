@@ -3,7 +3,6 @@
 
 [build]
   command = "yarn netlify-build"
-  publish = "packages/app/out"
 
 [[redirects]]
   from = "/"

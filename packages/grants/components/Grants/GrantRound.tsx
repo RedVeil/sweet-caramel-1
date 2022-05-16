@@ -74,14 +74,14 @@ const GrantRound: React.FC<GrantRoundProps> = ({
     <div ref={ref} className="mb-16 w-full flex flex-row flex-wrap items-center">
       {beneficiariesWithMetadata?.map((beneficiary) => (
         <BeneficiaryCardWithElectionData
-          key={beneficiary.beneficiaryAddress}
+          key={beneficiary.beneficiaryAddress.data}
           electionProps={{
             election: election,
             pendingVotes: pendingVotes,
             voiceCredits: voiceCredits,
             votesAssignedByUser: 0,
             assignVotes: assignVotes,
-            totalVotes: votes[beneficiary.beneficiaryAddress],
+            totalVotes: votes[beneficiary.beneficiaryAddress.data],
           }}
           beneficiary={beneficiary}
         />

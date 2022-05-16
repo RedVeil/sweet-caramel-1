@@ -8,6 +8,9 @@ body {
   width: 100%;
   height: 100%;
   background: #fff;
+	font-family: 'Avenir Next LT Pro';
+	font-size: 16px;
+	font-style:normal;
 }
 html,
 a {
@@ -24,20 +27,18 @@ p {
 
 @layer base {
   @font-face {
-    font-family: 'Avenir Next LT Pro';
-    font-weight: 400;
+    font-family: 'Avenir Next LT Pro Italics';
     src: local('Avenir Next LT Pro'),
       url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-It.woff) format('woff');
   }
   @font-face {
     font-family: 'Avenir Next LT Pro';
-    font-weight: 200;
     src: local('Avenir Next LT Pro'),
       url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format('woff');
   }
   @font-face {
     font-family: 'Avenir Next LT Pro';
-    font-weight: 500;
+    font-weight: 600;
     src: local('Avenir Next LT Pro'),
       url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format('woff');
   }
@@ -111,4 +112,15 @@ p {
   /* background-color: #e5e7eb; */
   border-color: #636363;
   color: #636363;
+}
+.hr-line{
+	width:1px
+}
+.apply-card{
+	padding-top: 400px;
+}
+@media screen and (max-width:767px){
+	.apply-card{
+		padding-top: 850px;
+	}
 }

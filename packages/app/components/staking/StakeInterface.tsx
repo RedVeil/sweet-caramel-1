@@ -216,7 +216,7 @@ export default function StakeInterface({
                     <p className="text-2xl font-medium ">POP</p>
                   </div>
                 </div>
-                <TextLink text="Claim Page" url={"/rewards"} />
+                <TextLink text="Claim Page" url={"/rewards"} textSize={"text-lg"} />
               </div>
             </div>
           </div>

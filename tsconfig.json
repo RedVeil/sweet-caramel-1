@@ -31,7 +31,9 @@
       "@popcorn/utils": ["../utils/src"],
       "@popcorn/utils/*": ["../utils/src/*"],
       "@popcorn/hardhat": ["../hardhat"],
-      "@popcorn/hardhat/*": ["../hardhat/*"]
+      "@popcorn/hardhat/*": ["../hardhat/*"],
+      "@popcorn/contracts": ["../hardhat"],
+      "@popcorn/contracts/*": ["../hardhat/*"],
     }
   }
 }

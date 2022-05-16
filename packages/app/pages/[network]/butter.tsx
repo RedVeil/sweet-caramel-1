@@ -4,9 +4,7 @@ import {
   formatAndRoundBigNumber,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
-  ModalType,
   prepareHotSwap,
-  toggleModal,
 } from "@popcorn/utils";
 import { BatchProcessTokenKey, BatchProcessTokens, BatchType, SelectedToken } from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
@@ -21,6 +19,7 @@ import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionM
 import { store } from "context/store";
 import { ChainId } from "context/Web3/connectors";
 import { BigNumber, constants, ethers } from "ethers";
+import { ModalType, toggleModal } from "helper/modalHelpers";
 import useButter from "hooks/butter/useButter";
 import useButterBatch from "hooks/butter/useButterBatch";
 import useButterBatchData from "hooks/butter/useButterBatchData";

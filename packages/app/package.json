@@ -8,6 +8,7 @@
     "jest": "jest",
     "prettier": "prettier",
     "prettify": "yarn lint-staged --allow-empty",
+    "netlify-build": "cd ..; cd hardhat; yarn compile; cd ..; cd app; yarn next build",
     "start": "next start"
   },
   "lint-staged": {
@@ -16,9 +17,9 @@
   "dependencies": {
     "@headlessui/react": "1.4.3",
     "@heroicons/react": "1.0.5",
-    "@popcorn/hardhat": "1.0.0",
-    "@popcorn/ui": "1.0.0",
-    "@popcorn/utils": "1.0.0",
+    "@popcorn/hardhat": "*",
+    "@popcorn/ui": "*",
+    "@popcorn/utils": "*",
     "@setprotocol/set-protocol-v2": "0.1.9",
     "@tailwindcss/forms": "0.4.0",
     "@typechain/ethers-v5": "7.2.0",
