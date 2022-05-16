@@ -24,13 +24,13 @@ export default function DesktopMenu({ currentChain }: MenuProps): JSX.Element {
         </div>
         <ul className="flex flex-row space-x-10 ml-16">
           <li>
-            <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/butter"} />
+            <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/[network]/butter"} />
           </li>
           <li>
-            <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />
+            <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/[network]/staking"} />
           </li>
           <li>
-            <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/rewards"} />
+            <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/[network]/rewards"} />
           </li>
         </ul>
       </div>
