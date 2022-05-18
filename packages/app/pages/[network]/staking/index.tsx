@@ -3,6 +3,7 @@ import { Address } from "@popcorn/utils/src/types";
 import AlertCard, { AlertCardLink } from "components/Common/AlertCard";
 import StakeCard from "components/StakeCard";
 import { setMultiChoiceActionModal } from "context/actions";
+import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
 import { ChainId } from "context/Web3/connectors";
 import { constants } from "ethers";
@@ -34,6 +35,7 @@ export default function index(): JSX.Element {
   const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking);
   const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
   const [modalClosed, closeModal] = useState<boolean>(false);
+  const { features } = useContext(FeatureToggleContext);
 
   useEffect(() => {
     if (account && chainId === ChainId.Polygon && stakingPools) {
@@ -113,7 +115,7 @@ export default function index(): JSX.Element {
             )}
             {pageAvailable() && !!popLocker && !!stakingPools && (
               <>
-                {chainId === ChainId.Polygon && (
+                {features["migrationAlert"] && chainId === ChainId.Polygon && (
                   <AlertCard
                     title="Migrate your liquidity for USDC/POP from Sushiswap to Gelato"
                     text="In PIP-2 the community decided to consolidate all liquidity in Uniswap via Gelato."
@@ -134,11 +136,14 @@ export default function index(): JSX.Element {
                       stakedToken={stakingPool.stakingToken}
                       onSelectPool={onSelectPool}
                       badge={
-                        stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C" && {
-                          text: "Migration Required",
-                          textColor: "text-white",
-                          bgColor: "bg-red-500",
-                        }
+                        features["migrationAlert"] &&
+                        stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
+                          ? {
+                              text: "Migration Required",
+                              textColor: "text-white",
+                              bgColor: "bg-red-500",
+                            }
+                          : undefined
                       }
                     />
                   </div>
