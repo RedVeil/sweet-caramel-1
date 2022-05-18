@@ -1,4 +1,4 @@
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getNamedAccountsFromNetwork } from "../lib/utils/getNamedAccounts";
 

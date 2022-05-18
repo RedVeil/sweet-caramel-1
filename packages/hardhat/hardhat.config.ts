@@ -4,7 +4,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@popcorn/utils/src/envLoader";
 import "@typechain/hardhat";
 import "hardhat-contract-sizer";
-import "hardhat-deploy";
+import "@anthonymartin/hardhat-deploy";
 import "hardhat-gas-reporter";
 import "hardhat-secure-signer";
 import "./lib/tasks";

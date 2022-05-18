@@ -1,4 +1,4 @@
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { addContractToRegistry } from "./utils";
@@ -63,7 +63,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
   await butterWhaleProcessing.setApprovals();
 };
+
 export default func;
 
 func.dependencies = ["setup"];
-func.tags = ["frontend", "butter"];
+func.tags = ["frontend", "butterwhale"];

@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { getBytes32FromIpfsHash } from "@popcorn/utils/src/ipfsHashManipulation";
 import { parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import getCreatedProposalId from "../lib/adapters/GrantElection/getCreatedProposalId";
 import GrantElectionAdapter, { ElectionTerm, ShareType } from "../lib/adapters/GrantElection/GrantElectionAdapter";

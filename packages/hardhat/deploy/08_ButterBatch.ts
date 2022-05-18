@@ -1,7 +1,7 @@
 import { BigNumber, ethers, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { DeploymentsExtension } from "hardhat-deploy/dist/types";
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { addContractToRegistry } from "./utils";
