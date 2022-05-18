@@ -113,12 +113,14 @@ export default function index(): JSX.Element {
             )}
             {pageAvailable() && !!popLocker && !!stakingPools && (
               <>
-                <AlertCard
-                  title="Migrate your liquidity for USDC/POP from Sushiswap to Gelato"
-                  text="In PIP-2 the community decided to consolidate all liquidity in Uniswap via Gelato."
-                  icon={<BellIcon className="text-red-400 w-7 h-8" aria-hidden="true" />}
-                  links={TEMP_MIGRATION_LINKS}
-                />
+                {chainId === ChainId.Polygon && (
+                  <AlertCard
+                    title="Migrate your liquidity for USDC/POP from Sushiswap to Gelato"
+                    text="In PIP-2 the community decided to consolidate all liquidity in Uniswap via Gelato."
+                    icon={<BellIcon className="text-red-400 w-7 h-8" aria-hidden="true" />}
+                    links={TEMP_MIGRATION_LINKS}
+                  />
+                )}
                 <StakeCard
                   key={popLocker.address}
                   stakingPool={popLocker}
