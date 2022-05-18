@@ -3,6 +3,7 @@ export {
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
   prepareHotSwap,
+  percentageToBps,
 } from "./butterHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";

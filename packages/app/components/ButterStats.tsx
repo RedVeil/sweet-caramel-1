@@ -19,8 +19,8 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
 
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
-      <div className="pr-6 border-r-2 border-gray-200 mt-2">
-        <div className="hidden md:block ">
+      <div className={`${!center && "border-gray-200 border-r-2 pr-6"} md:border-gray-200 md:border-r-2 md:pr-6 mt-2`}>
+        <div className="hidden md:block">
           <StatusWithLabel
             content={
               butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
@@ -53,7 +53,7 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
           />
         </div>
       </div>
-      <div className="pl-6 md:px-6 md:border-r-2 border-gray-200 mt-2">
+      <div className={`${!center && "border-gray-200 pl-6"} md:border-gray-200 md:border-r-2 md:px-6 mt-2`}>
         <div className="hidden md:block ">
           <StatusWithLabel
             content={

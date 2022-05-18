@@ -113,6 +113,32 @@ function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
     ethers.constants.Zero,
   );
 }
+
+export async function getData(
+  butterBatchAdapter: ButterBatchAdapter,
+  account: Address,
+  dai: Token,
+  usdc: Token,
+  usdt: Token,
+  threeCrv: Token,
+  threePool: Curve3Pool,
+  butter: ISetToken,
+  setBasicIssuanceModule: BasicIssuanceModule,
+  mainContract: ButterBatchProcessing,
+  zapperContract: ButterBatchProcessingZapper,
+);
+export async function getData(
+  butterBatchAdapter: ButterBatchAdapter,
+  account: Address,
+  dai: Token,
+  usdc: Token,
+  usdt: Token,
+  threeCrv: Token,
+  threePool: Curve3Pool,
+  butter: ISetToken,
+  setBasicIssuanceModule: BasicIssuanceModule,
+  mainContract: ButterWhaleProcessing,
+);
 export async function getData(
   butterBatchAdapter: ButterBatchAdapter,
   account: Address,

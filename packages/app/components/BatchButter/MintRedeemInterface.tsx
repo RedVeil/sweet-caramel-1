@@ -2,13 +2,15 @@ import { BatchType } from "@popcorn/utils/src/types";
 import { BigNumber, constants, ethers } from "ethers";
 import MainActionButton from "../MainActionButton";
 import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
+import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
 import MintRedeemToggle from "./MintRedeemToggle";
 import SlippageSettings from "./SlippageSettings";
 interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
-  hasUnclaimedBalances: boolean;
   withdraw?: (amount: BigNumber, useZap?: boolean, outputToken?: string) => Promise<void>;
+  hasUnclaimedBalances?: boolean;
+  isInstantPage?: boolean;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -17,11 +19,25 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   deposit,
   approve,
   depositDisabled,
-  hasUnclaimedBalances,
   butterPageState,
   withdraw,
+  hasUnclaimedBalances = false,
+  isInstantPage = false,
 }) => {
   const [localButterPageState, setButterPageState] = butterPageState;
+
+  function isAllowanceInsufficient() {
+    return localButterPageState.instant
+      ? localButterPageState.depositAmount.gt(
+          localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance,
+        ) ||
+          localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
+      : localButterPageState.depositAmount.gt(
+          localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance,
+        ) ||
+          localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero);
+  }
+
   function setRedeeming(redeeming: boolean) {
     setButterPageState({ ...localButterPageState, redeeming: redeeming });
   }
@@ -40,19 +56,38 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           butterPageState={butterPageState}
         />
       </div>
-      <div className="w-full pb-16">
-        {!localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv" && (
-          <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
-        )}
-      </div>
-      {!depositDisabled && !localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv" && (
-        <div className="pb-6">
-          <div className="flex flex-row justify-between">
-            <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>
-            <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">
-              {localButterPageState.slippage} %
-            </p>
+
+      {(localButterPageState.instant ||
+        isInstantPage ||
+        (!localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv")) && (
+        <>
+          <div className="w-full pb-16">
+            <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
           </div>
+          <div className="pb-6">
+            <div className="flex flex-row justify-between">
+              <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>
+              <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">
+                {localButterPageState.slippage} %
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && (
+        <div className="mb-4">
+          <CheckMarkToggleWithInfo
+            label="Use Instant Butter (Higher Gas Fee)"
+            value={localButterPageState.instant}
+            onChange={(e) =>
+              setButterPageState({
+                ...localButterPageState,
+                instant: !localButterPageState.instant,
+              })
+            }
+            infoTitle="Instant Butter"
+            infoText="Using 'Instant Butter' comes with significantly higher gas costs! It you to mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when these gas costs are acceptable to you."
+          />
         </div>
       )}
       <div className="w-full text-center">
@@ -71,14 +106,11 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           </div>
         ) : (
           <>
-            {localButterPageState.depositAmount.gt(
-              localButterPageState.token[localButterPageState.selectedToken.input].allowance,
-            ) ||
-            localButterPageState.token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero) ? (
+            {isAllowanceInsufficient() ? (
               <div className="space-y-4">
                 <MainActionButton
                   label={`Allow Popcorn to use your ${
-                    localButterPageState.token[localButterPageState.selectedToken.input].name
+                    localButterPageState.batchToken[localButterPageState.selectedToken.input].name
                   }`}
                   handleClick={() => approve(localButterPageState.selectedToken.input)}
                 />

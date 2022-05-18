@@ -40,7 +40,7 @@ export default function useButterWhaleData(): SWRResponse<ButterBatchData, Error
     setBasicIssuanceModule
   );
 
-  return useSWR(shouldFetch ? `butter-batch-data` : null, async () => {
+  return useSWR(shouldFetch ? `butter-whale-data` : null, async () => {
     return getData(
       butterBatchAdapter,
       account,

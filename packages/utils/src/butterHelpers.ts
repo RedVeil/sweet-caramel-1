@@ -45,10 +45,10 @@ export const getMinMintAmount = (
   slippage: number,
   virtualPrice: BigNumber,
 ): BigNumber => {
-  slippage = slippage * 100;
-  const denominator = 10000;
   depositAmount = adjustDepositDecimals(depositAmount, tokenKey);
   const lpTokenAmount = depositAmount.mul(parseEther("1")).div(virtualPrice);
-  const delta = lpTokenAmount.mul(slippage).div(denominator);
+  const delta = lpTokenAmount.mul(percentageToBps(slippage)).div(10000);
   return lpTokenAmount.sub(delta);
 };
+
+export const percentageToBps = (input: number): number => input * 100;
