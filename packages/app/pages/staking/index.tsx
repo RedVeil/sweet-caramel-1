@@ -37,7 +37,7 @@ export default function index(): JSX.Element {
     <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-6 md:mx-auto mt-14 pb-6">
+      <div className="md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-6 md:mx-auto mt-14 pb-6">
         <div className="text-center md:text-left md:w-1/3">
           <h1 className="page-title">Staking</h1>
           <p className="md:text-lg text-gray-500 mt-2">Earn more by staking your tokens</p>
@@ -55,7 +55,7 @@ export default function index(): JSX.Element {
                   <NotAvailable title="No staking, yet" body="No staking pools on this network" />
                 </div>
               )}
-              {pageAvailable() && stakingPoolsIsValidating && popLockerIsValidating && !popLocker && !stakingPools && (
+              {pageAvailable() && (stakingPoolsIsValidating || popLockerIsValidating) && (!popLocker || !stakingPools) && (
                 <ContentLoader viewBox="0 0 450 400">
                   {/*eslint-disable */}
                   <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />

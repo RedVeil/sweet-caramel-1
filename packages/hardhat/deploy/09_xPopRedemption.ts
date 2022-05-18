@@ -1,5 +1,5 @@
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { formatEther, parseEther } from "ethers/lib/utils";
+import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 
@@ -18,7 +18,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    pre_eip1559: supportsEIP1559(hre),
+
     contract: "XPopRedemption",
   });
 
@@ -66,11 +66,6 @@ const mintPOP = async (address: string, signer: any, recipient: string, hre: Har
   console.log(`Minting ${await POP.symbol()} for`, recipient);
   await (await POP.mint(recipient, parseEther("1000000000"))).wait(1);
   console.log("Total POP supply", formatEther(await POP.totalSupply()));
-};
-
-const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
-  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum", "bsc"];
-  return !NOT_EIP1559Compatible.includes(hre.network.name);
 };
 
 module.exports = main;

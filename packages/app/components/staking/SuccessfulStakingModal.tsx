@@ -9,9 +9,9 @@ const TickMarkSVG: React.ReactElement = (
     <path
       d="M12.5 16.4072L15.1667 19.0739L20.5 13.7406M28.5 16.4072C28.5 23.0346 23.1274 28.4072 16.5 28.4072C9.87258 28.4072 4.5 23.0346 4.5 16.4072C4.5 9.77981 9.87258 4.40723 16.5 4.40723C23.1274 4.40723 28.5 9.77981 28.5 16.4072Z"
       stroke="white"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );

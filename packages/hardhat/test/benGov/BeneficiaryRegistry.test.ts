@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "hardhat";
-import { expectRevert, expectValue } from "../lib/utils/expectValue";
-import { BeneficiaryRegistry } from "../typechain";
+import { expectRevert, expectValue } from "../../lib/utils/expectValue";
+import { BeneficiaryRegistry } from "../../typechain";
 
 let owner: SignerWithAddress, unauthed: SignerWithAddress, beneficiary: SignerWithAddress, council: SignerWithAddress;
 let registry: BeneficiaryRegistry;

@@ -89,7 +89,7 @@ export default function StakingPage(): JSX.Element {
     <div className="overflow-x-hidden w-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
+      <div className="md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mx-auto pb-28">
         {isLoading ? (
           <StakeInterfaceLoader />
         ) : (

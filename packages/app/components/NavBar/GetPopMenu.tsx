@@ -1,4 +1,5 @@
 import { Menu, Transition } from "@headlessui/react";
+import useWeb3 from "hooks/useWeb3";
 import { Fragment } from "react";
 import { getNamedAccountsByChainId } from "../../../hardhat/lib/utils/getNamedAccounts";
 
@@ -23,6 +24,8 @@ export function getPoolLink(chainId: number): string {
 }
 
 const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
+  const { wallet } = useWeb3();
+  const metaMaskConnected = wallet?.label === "MetaMask";
   return (
     <Transition
       as={Fragment}
@@ -37,9 +40,9 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
         <Menu.Item>
           {({ active }) => (
             <a
-              className={`${
-                active ? "bg-gray-100" : "bg-white"
-              } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer rounded-t-2xl border-b border-gray-200`}
+              className={`${active ? "bg-gray-100" : "bg-white"} ${
+                metaMaskConnected ? "rounded-t-2xl border-b" : "rounded-2xl"
+              } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
               href={getPoolLink(chainId)}
               target="_blank"
             >
@@ -47,31 +50,33 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
             </a>
           )}
         </Menu.Item>
-        <Menu.Item>
-          {({ active }) => (
-            <div
-              className={`${
-                active ? "bg-gray-100" : "bg-white"
-              } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-2xl`}
-              onClick={async () =>
-                await window.ethereum.request({
-                  method: "wallet_watchAsset",
-                  params: {
-                    type: "ERC20",
-                    options: {
-                      address: getPopAddress(chainId),
-                      symbol: "POP",
-                      decimals: 18,
-                      image: "https://popcorn.network/images/icons/pop_64x64.png",
+        {metaMaskConnected && (
+          <Menu.Item>
+            {({ active }) => (
+              <div
+                className={`${
+                  active ? "bg-gray-100" : "bg-white"
+                } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-2xl`}
+                onClick={async () =>
+                  await window.ethereum.request({
+                    method: "wallet_watchAsset",
+                    params: {
+                      type: "ERC20",
+                      options: {
+                        address: getPopAddress(chainId),
+                        symbol: "POP",
+                        decimals: 18,
+                        image: "https://popcorn.network/images/icons/pop_64x64.png",
+                      },
                     },
-                  },
-                })
-              }
-            >
-              <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Add to Wallet</p>
-            </div>
-          )}
-        </Menu.Item>
+                  })
+                }
+              >
+                <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Add to Wallet</p>
+              </div>
+            )}
+          </Menu.Item>
+        )}
       </Menu.Items>
     </Transition>
   );

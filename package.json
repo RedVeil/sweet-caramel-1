@@ -13,8 +13,9 @@
     "pretify": "prettier --write .",
     "test": "yarn lerna run test",
     "test:fork": "yarn lerna run test:fork",
+    "test:forge": "yarn lerna run test:forge",
     "coverage": "yarn lerna run coverage",
-    "netlify-build": "lerna run --scope @popcorn/hardhat compile; cd packages/app; yarn next build",
+    "netlify-build": "lerna run --scope @popcorn/hardhat compile && cd packages/app && yarn next build",
     "prepare": "husky install"
   },
   "dependencies": {

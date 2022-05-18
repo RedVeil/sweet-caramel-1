@@ -1,6 +1,6 @@
 import { InformationCircleIcon } from "@heroicons/react/outline";
 import { ArrowSmDownIcon, ArrowSmUpIcon } from "@heroicons/react/solid";
-import { localStringOptions } from "packages/utils/src";
+import { localStringOptions } from "@popcorn/utils/src";
 import React from "react";
 import ReactTooltip from "react-tooltip";
 

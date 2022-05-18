@@ -22,7 +22,7 @@ import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
 import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId, connectors } from "context/Web3/connectors";
+import { ChainId } from "context/Web3/connectors";
 import { BigNumber, constants, ethers } from "ethers";
 import useButter from "hooks/butter/useButter";
 import useButterBatch from "hooks/butter/useButterBatch";
@@ -31,13 +31,13 @@ import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
 import useGetButterAPY from "hooks/butter/useGetButterAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useERC20Permit from "hooks/tokens/useERC20Permit";
-import useNetworkSwitch from "hooks/useNetworkSwitch";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { useCallback, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast, { Toaster } from "react-hot-toast";
+import abi from "../public/ButterBatchZapperAbi.json";
 
 enum TOKEN_INDEX {
   dai,
@@ -93,7 +93,17 @@ const DEFAULT_STATE: ButterPageState = {
 };
 
 export default function Butter(): JSX.Element {
-  const { library, account, chainId, onContractSuccess, onContractError, contractAddresses, activate } = useWeb3();
+  const {
+    signerOrProvider,
+    account,
+    chainId,
+    onContractSuccess,
+    onContractError,
+    contractAddresses,
+    connect,
+    setChain,
+    signer,
+  } = useWeb3();
   const { dispatch } = useContext(store);
   const router = useRouter();
   const butter = useButter();
@@ -109,11 +119,10 @@ export default function Butter(): JSX.Element {
   const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
-  const switchNetwork = useNetworkSwitch();
   const loadingButterBatchData = !butterBatchData && !errorFetchingButterBatchData;
 
   useEffect(() => {
-    if (!library || !chainId) {
+    if (!signerOrProvider || !chainId) {
       return;
     }
     if (!isButterSupportedOnCurrentNetwork(chainId)) {
@@ -124,7 +133,7 @@ export default function Butter(): JSX.Element {
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
-              switchNetwork(ChainId.Ethereum);
+              setChain(ChainId.Ethereum);
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -138,11 +147,10 @@ export default function Butter(): JSX.Element {
           keepOpen: true,
         }),
       );
-      return;
     } else {
       dispatch(setDualActionWideModal(false));
     }
-  }, [library, account, chainId]);
+  }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
     if (!butterBatchData || !butterBatchData?.batchProcessTokens) {
@@ -454,10 +462,9 @@ export default function Butter(): JSX.Element {
   }
 
   async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: string): Promise<void> {
-    toast.loading("Withdrawing from Batch...");
     let call;
     if (useZap) {
-      call = butterBatchZapper.zapOutOfBatch(
+      call = new ethers.Contract(contractAddresses.butterBatchZapper, abi, signer).zapOutOfBatch(
         batchId,
         amount,
         TOKEN_INDEX[outputToken],
@@ -468,7 +475,7 @@ export default function Butter(): JSX.Element {
     } else {
       call = butterBatch.withdrawFromBatch(batchId, amount, account);
     }
-    call
+    await call
       .then((res) =>
         onContractSuccess(res, "Funds withdrawn!", () => {
           refetchButterBatchData();
@@ -507,7 +514,7 @@ export default function Butter(): JSX.Element {
     <div className="w-full h-full">
       <Navbar />
       <Toaster position="top-right" />
-      <div className="mx-auto lg:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-32">
+      <div className="mx-auto md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl mt-14 pb-32">
         <div className="md:w-6/12 mx-4 md:mx-0 text-center md:text-left">
           <h1 className="text-3xl font-bold">Butter - Yield Optimizer</h1>
           <p className="mt-2 text-lg text-gray-500">
@@ -605,7 +612,7 @@ export default function Butter(): JSX.Element {
           </div>
         </div>
         <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
-          <div className="order-2 md:order-1 md:w-1/3 mb-10">
+          <div className="order-2 md:order-1 md:w-1/3">
             {butterBatchData && butterPageState.selectedToken ? (
               <MintRedeemInterface
                 token={butterBatchData?.batchProcessTokens}
@@ -630,13 +637,12 @@ export default function Butter(): JSX.Element {
             ) : (
               <>
                 {!account && (
-                  <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
+                  <div className="h-full px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
                     <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
                       <MainActionButton
                         label="Connect Wallet"
                         handleClick={() => {
-                          localStorage.setItem("eager_connect", "true");
-                          activate(connectors.Injected);
+                          connect();
                         }}
                       />
                     </div>
@@ -761,7 +767,7 @@ export default function Butter(): JSX.Element {
               </div>
             </div>
 
-            <div className="hidden md:flex w-full h-120 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
+            <div className="hidden md:flex w-full h-128 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
               <Tutorial />
             </div>
           </div>

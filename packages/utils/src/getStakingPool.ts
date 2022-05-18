@@ -2,8 +2,8 @@ import { BigNumber, constants } from "ethers";
 import { getPopApy } from ".";
 import { PopLocker, Staking } from "../../hardhat/typechain";
 import { calculateApy } from "./calculateAPY";
-import { Address, ContractAddresses, StakingPool } from "./types";
 import { getTokenFromAddress } from "./getToken";
+import { Address, ContractAddresses, StakingPool } from "./types";
 
 export interface PopLockerMetadata extends StakingPool {
   contract: PopLocker;
@@ -51,6 +51,13 @@ export async function getPopLocker(key: string, popLocker: PopLocker, account?: 
   const earned = userRewards && userRewards.length > 0 ? userRewards[0].amount : constants.Zero;
   const userStake = account ? await popLocker.lockedBalanceOf(account) : constants.Zero;
   const withdrawable = account ? (await popLocker.lockedBalances(account)).unlockable : constants.Zero;
+  let lockedBalances = account
+    ? (await popLocker.lockedBalances(account)).lockData.map((lockedBalanceStruct) => ({
+        amount: lockedBalanceStruct.amount,
+        boosted: lockedBalanceStruct.boosted,
+        unlockTime: lockedBalanceStruct.unlockTime,
+      }))
+    : [];
   const stakingToken = await getTokenFromAddress(tokenAddress, popLocker.provider);
 
   return {
@@ -63,6 +70,7 @@ export async function getPopLocker(key: string, popLocker: PopLocker, account?: 
     tokenEmission: tokenPerWeek?.div(7) || BigNumber.from(0),
     earned,
     withdrawable,
+    lockedBalances,
     stakingToken,
   };
 }

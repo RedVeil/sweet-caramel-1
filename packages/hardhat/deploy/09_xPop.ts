@@ -1,5 +1,5 @@
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "ethers/lib/utils";
+import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {

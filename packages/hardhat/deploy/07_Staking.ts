@@ -1,6 +1,6 @@
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import bluebird from "bluebird";
 import { parseEther } from "ethers/lib/utils";
+import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getStakingPools, Pool } from "../lib/utils/getStakingPools";
@@ -29,7 +29,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: contract,
-      pre_eip1559: supportsEIP1559(hre),
     });
     await prepareRewardsEscrow((await deployments.get(poolName)).address, signer, hre);
 

@@ -1,0 +1,32 @@
+# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Forge Tests
+
+on:
+  push:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: canastro/copy-file-action@master
+        name: "copy env file"
+        with:
+          source: .env.example
+          target: .env
+      - uses: borales/actions-yarn@v2.3.0
+        name: "yarn install"
+        with:
+          cmd: install # will run `yarn install` command
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Run tests
+        run: cd packages/hardhat && forge test -vvv --fork-url $FOUNDRY_FORK_URL
+        env:
+          FOUNDRY_FORK_URL: ${{secrets.RPC_URL}}
