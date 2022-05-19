@@ -17,6 +17,11 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
   const { data: butterAPY } = useGetButterAPY();
   const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
 
+  const apyInfoText = `This is the estimated Annual Percentage Yield. The shown APY comes from yield on the underlying stablecoins (${
+    butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
+  }%) and is boosted with POP (${
+    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
+  }%). You must stake your BTR to receive the additional APY in POP and 90% of POP rewards are vested over one year.`;
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
       <div className={`${!center && "border-gray-200 border-r-2 pr-6"} md:border-gray-200 md:border-r-2 md:pr-6 mt-2`}>
@@ -32,11 +37,7 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
             infoIconProps={{
               id: "estApy",
               title: "How we calculate the APY",
-              content: `The shown APY comes from yield on the underlying stablecoins (${
-                butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-              }%) and is boosted with POP (${
-                butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-              }%). You must stake your BTR to receive the additional APY in POP.`,
+              content: apyInfoText,
             }}
           />
         </div>
@@ -86,11 +87,7 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
             infoIconProps={{
               id: "estApy",
               title: "How we calculate the APY",
-              content: `The shown APY comes from yield on the underlying stablecoins (${
-                butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-              } %) and is boosted with POP (${
-                butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-              } %). You must stake your BTR to receive the additional APY in POP.`,
+              content: apyInfoText,
             }}
           />
         </div>

@@ -74,6 +74,12 @@ export default function StakeInterface({
                   }
                   label="Est. APY"
                   green
+                  infoIconProps={{
+                    id: "estApy",
+                    title: "Est. APY:",
+                    content:
+                      "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+                  }}
                 />
               </div>
               <div className="md:hidden">
@@ -113,6 +119,12 @@ export default function StakeInterface({
                   }
                   label="Est. APY"
                   green
+                  infoIconProps={{
+                    id: "estApy",
+                    title: "Est. APY:",
+                    content:
+                      "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+                  }}
                 />
               </div>
             </div>

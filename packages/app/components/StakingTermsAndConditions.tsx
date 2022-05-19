@@ -47,6 +47,10 @@ const TermsAndConditions = ({
               </li>
             )}
             <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
+              Your staked tokens must be re-staked or withdrawn after the 3-month lock time expires or they will be
+              subjected to a penalty of 1% per week that they are not re-staked.
+            </li>
+            <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
               After rewards are earned and claimed, 10% is immediately transferred, and the rest of the earned amount is
               unlocked linearly over the following 365 day period.
             </li>

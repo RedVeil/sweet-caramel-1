@@ -46,6 +46,11 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             }
             label="Est. APY"
             green
+            infoIconProps={{
+              id: "estApy",
+              title: "Est. APY:",
+              content: "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+            }}
           />
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
