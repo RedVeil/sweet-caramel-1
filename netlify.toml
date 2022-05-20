@@ -9,8 +9,8 @@
   to = "/ethereum"
 
 [[redirects]]
-  from = "/butter"
-  to = "/ethereum/butter"
+  from = "/butter/*"
+  to = "/ethereum/butter/:path"
 
 [[redirects]]
   from = "/rewards"
@@ -24,9 +24,6 @@
   from = "/staking/*"
   to = "/ethereum/staking/:path"
 
-[[redirects]]
-  from = "/butter/*"
-  to = "/ethereum/butter/:path"
 
 [[plugins]]
   package = 'netlify-plugin-contextual-env'

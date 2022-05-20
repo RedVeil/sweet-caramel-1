@@ -33,10 +33,6 @@ module.exports = {
         destination: `/${defaultChain}`,
       },
       {
-        source: "/butter",
-        destination: `/${defaultChain}/butter`,
-      },
-      {
         source: "/rewards",
         destination: `/${defaultChain}/rewards`,
       },

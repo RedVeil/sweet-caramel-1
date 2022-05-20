@@ -56,26 +56,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           butterPageState={butterPageState}
         />
       </div>
-
-      {(localButterPageState.instant ||
-        isInstantPage ||
-        (!localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv")) && (
-        <>
-          <div className="w-full pb-16">
-            <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
-          </div>
-          <div className="pb-6">
-            <div className="flex flex-row justify-between">
-              <p className="text-base leading-none mt-0.5 ml-2t text-gray-500">Slippage</p>
-              <p className="text-base font-semibold leading-none mt-0.5 ml-2t text-gray-500">
-                {localButterPageState.slippage} %
-              </p>
-            </div>
-          </div>
-        </>
-      )}
       {!localButterPageState.useUnclaimedDeposits && !isInstantPage && (
-        <div className="mb-4">
+        <div className="mt-2 mb-6">
           <CheckMarkToggleWithInfo
             label="Use Instant Butter (Higher Gas Fee)"
             value={localButterPageState.instant}
@@ -86,8 +68,15 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
               })
             }
             infoTitle="Instant Butter"
-            infoText="Using 'Instant Butter' comes with significantly higher gas costs! It you to mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when these gas costs are acceptable to you."
+            infoText="Using 'Instant Butter' comes with significantly higher gas costs! Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when these gas costs are acceptable to you."
           />
+        </div>
+      )}
+      {(localButterPageState.instant ||
+        isInstantPage ||
+        (!localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv")) && (
+        <div className="w-full pb-8">
+          <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
         </div>
       )}
       <div className="w-full text-center">
@@ -107,7 +96,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         ) : (
           <>
             {isAllowanceInsufficient() ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <MainActionButton
                   label={`Allow Popcorn to use your ${
                     localButterPageState.batchToken[localButterPageState.selectedToken.input].name
