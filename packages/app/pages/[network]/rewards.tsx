@@ -9,7 +9,7 @@ import TabSelector from "components/TabSelector";
 import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, ethers } from "ethers";
-import { formatStakedAmount } from "helper/formatStakedAmount";
+import { formatStakedAmount } from "helper/formatAmount";
 import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useClaimEscrows from "hooks/useClaimEscrows";

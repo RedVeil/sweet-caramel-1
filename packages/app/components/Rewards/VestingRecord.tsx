@@ -1,7 +1,7 @@
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import MainActionButton from "components/MainActionButton";
 import { format } from "date-fns";
-import { formatStakedAmount } from "helper/formatStakedAmount";
+import { formatStakedAmount } from "helper/formatAmount";
 import { Escrow } from "hooks/useGetUserEscrows";
 
 interface VestingRecordProps {

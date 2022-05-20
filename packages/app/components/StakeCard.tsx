@@ -1,8 +1,9 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Address, StakingPool, Token } from "@popcorn/utils/src/types";
-import { constants } from "ethers/lib/ethers";
+import { constants } from "ethers";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
-import { formatStakedAmount } from "helper/formatStakedAmount";
+import { formatStakedTVL } from "helper/formatAmount";
+import useTokenPrice from "hooks/useTokenPrice";
 import Badge, { Badge as BadgeType } from "./Common/Badge";
 import StatusWithLabel from "./Common/StatusWithLabel";
 import MainActionButton from "./MainActionButton";
@@ -16,6 +17,7 @@ interface StakeCardProps {
 }
 
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge }) => {
+  const tokenPrice = useTokenPrice(stakedToken?.address);
   return (
     <div
       className="card p-6 md:p-8"
@@ -54,7 +56,10 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
           />
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
-          <StatusWithLabel content={formatStakedAmount(stakingPool.totalStake)} label="Total Staked" />
+          <StatusWithLabel
+            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "0"}
+            label="TVL"
+          />
         </div>
         <div className="w-full md:w-1/2 mt-4">
           <StatusWithLabel

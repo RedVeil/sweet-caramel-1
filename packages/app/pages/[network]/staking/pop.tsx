@@ -6,6 +6,7 @@ import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
+import useTokenPrice from "hooks/useTokenPrice";
 import useWeb3 from "hooks/useWeb3";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
@@ -29,6 +30,7 @@ export default function PopStakingPage(): JSX.Element {
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
   const stakingToken = stakingPool?.stakingToken;
   const approveToken = useApproveERC20();
+  const tokenPrice = useTokenPrice(stakingToken?.address);
 
   function stake(): void {
     toast.loading("Staking POP ...");
@@ -101,7 +103,7 @@ export default function PopStakingPage(): JSX.Element {
 
   return (
     <>
-      {!stakingPool ? (
+      {!stakingPool || !tokenPrice ? (
         <StakeInterfaceLoader />
       ) : (
         <StakeInterface
@@ -115,6 +117,7 @@ export default function PopStakingPage(): JSX.Element {
           onlyView={!account}
           chainId={chainId}
           isPopLocker
+          stakedTokenPrice={tokenPrice}
         />
       )}
     </>

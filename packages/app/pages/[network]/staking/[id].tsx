@@ -4,6 +4,7 @@ import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
+import useTokenPrice from "hooks/useTokenPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -27,7 +28,8 @@ export default function StakingPage(): JSX.Element {
   const { data: stakingPool } = useStakingPool(router.query.id as string);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, stakingPool?.address);
   const stakingToken = stakingPool?.stakingToken;
-  const isLoading = !stakingPool;
+  const tokenPrice = useTokenPrice(stakingToken?.address);
+  const isLoading = !stakingPool && !tokenPrice;
   const approveToken = useApproveERC20();
 
   function stake(): void {
@@ -97,6 +99,7 @@ export default function StakingPage(): JSX.Element {
       approve={approve}
       onlyView={!account}
       chainId={chainId}
+      stakedTokenPrice={tokenPrice}
     />
   );
 }

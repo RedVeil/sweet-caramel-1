@@ -1,5 +1,4 @@
 import { RewardsEscrow } from "@popcorn/hardhat/typechain";
-import {} from "ethereumjs-util";
 import { BigNumber } from "ethers";
 import useSWR from "swr";
 import { getChainRelevantContracts } from "../../hardhat/lib/utils/getContractAddresses";
