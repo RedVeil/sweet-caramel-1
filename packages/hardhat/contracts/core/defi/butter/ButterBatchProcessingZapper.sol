@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { BatchType, Batch, IButterBatchProcessing } from "../../interfaces/IButterBatchProcessing.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
 import "../../interfaces/IContractRegistry.sol";
+import "../../../externals/interfaces/IUSDC.sol";
+import "../../../externals/interfaces/IDAI.sol";
 
 /*
  * This Contract allows user to use and receive stablecoins directly when interacting with ButterBatchProcessing.
@@ -63,43 +65,21 @@ contract ButterBatchProcessingZapper {
   function zapIntoBatchPermit(
     uint256[3] memory _amounts,
     uint256 _min_mint_amounts,
-    uint256 deadline,
-    uint8 v,
-    bytes32 r,
-    bytes32 s
+    uint256[2] memory deadline,
+    uint8[2] memory v,
+    bytes32[2] memory r,
+    bytes32[2] memory s,
+    uint256[2] memory nonce
   ) external {
     address butterBatchProcessing = contractRegistry.getContract(keccak256("ButterBatchProcessing"));
     for (uint256 i; i < _amounts.length; i++) {
       if (_amounts[i] > 0) {
         //Deposit Stables
         if (i == 0) {
-          curve3Pool.coins(0).call(
-            abi.encodeWithSignature(
-              "permit(address,address,uint256,uint256,bool,uint8,bytes32,bytes32)",
-              msg.sender,
-              address(this),
-              _amounts[i],
-              deadline,
-              true,
-              v,
-              r,
-              s
-            )
-          );
+          IDAI(curve3Pool.coins(i)).permit(msg.sender, address(this), nonce[i], deadline[i], true, v[i], r[i], s[i]);
         }
         if (i == 1) {
-          curve3Pool.coins(1).call(
-            abi.encodeWithSignature(
-              "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)",
-              msg.sender,
-              address(this),
-              _amounts[i],
-              deadline,
-              v,
-              r,
-              s
-            )
-          );
+          IUSDC(curve3Pool.coins(i)).permit(msg.sender, address(this), _amounts[i], deadline[i], v[i], r[i], s[i]);
         }
         IERC20(curve3Pool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);
       }

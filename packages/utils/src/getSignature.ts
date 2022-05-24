@@ -1,8 +1,6 @@
-import { BigNumber, Contract, ethers } from "ethers";
-import { Address } from "./types";
 import { fromRpcSig } from "ethereumjs-util";
-
-const defaultDeadline = ethers.constants.MaxUint256;
+import { BigNumber, Contract } from "ethers";
+import { Address } from "./types";
 
 export enum permitTypes {
   AMOUNT = 1,
@@ -15,11 +13,11 @@ interface SignatureReturn {
   s: Buffer;
   deadline: BigNumber;
   value?: BigNumber;
+  nonce?: BigNumber;
 }
 
 export default async function getSignature(
   library: any,
-  // deadline: BigNumber = defaultDeadline,
   permitType: permitTypes,
   owner: Address,
   spender: Address,
@@ -47,11 +45,10 @@ export default async function getSignature(
           { name: "expiry", type: "uint256" },
           { name: "allowed", type: "bool" },
         ];
-  console.log(tokenContract, "lol");
 
   const nonce = await tokenContract.nonces(owner);
   const name = await tokenContract.name();
-  const version = "2"; //usdc
+  const version = name === "USD Coin" ? "2" : "1"; // Avoiding extra call
 
   const message = permitTypes.ALLOWED
     ? {
@@ -65,7 +62,7 @@ export default async function getSignature(
         holder: owner,
         spender,
         nonce,
-        expiry: defaultDeadline,
+        expiry: deadline,
         allowed: true,
       };
 
@@ -85,5 +82,5 @@ export default async function getSignature(
     ._signTypedData(getTypedData.domain, getTypedData.types, getTypedData.message);
   const { v, r, s } = fromRpcSig(signature);
 
-  return { v, r, s, deadline, value };
+  return { v, r, s, deadline, value, nonce };
 }

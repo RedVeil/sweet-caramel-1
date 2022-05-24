@@ -143,6 +143,7 @@ export default function getNamedAccounts() {
       hardhat: "0x870526b7973b56163a6997bB7C886F5E4EA53638",
       arbitrum: "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
       bsc: "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
+      goerli: "0xfb537c08657d9F416417Cf9F512934321AE99e35",
     },
     xPop: {
       polygon: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
@@ -275,6 +276,7 @@ export default function getNamedAccounts() {
       mainnet: "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
       hardhat: "0x8B190573374637f144AC8D37375d97fd84cBD3a0",
       rinkeby: "0x06b90E97Cf4b64f338d1D2106329336897bb16F3",
+      goerli: "0x1391005fd5d0412f2B217000992B3361ac8f2bb6",
     },
     butterBatchZapper: {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",

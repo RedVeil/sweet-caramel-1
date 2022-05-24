@@ -55,6 +55,7 @@
     "eth-provider": "0.9.8",
     "ethereum-waffle": "3.4.0",
     "ethers": "5.5.3",
+    "forge-std": "foundry-rs/forge-std",
     "hardhat": "2.9.3",
     "hardhat-deploy": "^0.11.4",
     "hardhat-secure-signer": "0.0.8",
