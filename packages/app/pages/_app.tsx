@@ -7,8 +7,8 @@ import { DualActionModalContainer } from "components/Modal/DualActionModalContai
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
 import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
+import { NetworkChangePromptModalContainer } from "components/Modal/NetworkChangePromptModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
-import { WalletSelectModalContainer } from "components/Modal/WalletSelectModalContainer";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
 import SwapChainModal from "components/SwapChainModal";
@@ -31,6 +31,13 @@ web3Onboard();
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
+  const getLayout =
+    Component.getLayout ||
+    (() => (
+      <Page>
+        <Component {...pageProps} />
+      </Page>
+    ));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -72,13 +79,11 @@ export default function MyApp(props) {
             <SoftLaunchCheck loading={loading} />
             <MobileFullScreenModalContainer />
             <SingleActionModalContainer />
-            <WalletSelectModalContainer />
             <MultiChoiceActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />
-            <Page>
-              <Component {...pageProps} />
-            </Page>
+            <NetworkChangePromptModalContainer />
+            {getLayout(<Component {...pageProps} />)}
             <FeatureTogglePanel />
             <SwapChainModal />
             <NotificationsContainer />

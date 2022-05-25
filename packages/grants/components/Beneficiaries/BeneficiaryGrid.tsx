@@ -13,7 +13,7 @@ interface BeneficiaryGridProps {
 const BeneficiaryGrid: React.FC<BeneficiaryGridProps> = ({ beneficiaries, subtitle, title }: BeneficiaryGridProps) => {
   const [searchFilter, setSearchFilter] = useState<string>("");
   const filteredBeneficiaries = beneficiaries?.filter((beneficiary) => {
-    return beneficiary.organizationName.toLowerCase().includes(searchFilter.toLowerCase());
+    return beneficiary.organizationName.data.toLowerCase().includes(searchFilter.toLowerCase());
   });
   return (
     <div className="w-full  bg-gray-900 pb-16">

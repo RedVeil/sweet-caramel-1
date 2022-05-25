@@ -12,7 +12,7 @@ export default function useGetMultipleStakingPools(
 
   const stakingContracts = useMemo(
     () => addresses.map((address) => Staking__factory.connect(address, signerOrProvider)),
-    [chainId, addresses, account, signerOrProvider],
+    [chainId, addresses, signerOrProvider],
   );
 
   const shouldFetch = !!stakingContracts && !!chainId && !addresses.some((address) => !contractAddresses.has(address));

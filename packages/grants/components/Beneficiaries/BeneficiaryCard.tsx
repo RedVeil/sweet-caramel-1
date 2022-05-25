@@ -8,13 +8,16 @@ interface BeneficiaryCardProps {
 
 const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({ beneficiary }) => {
   return (
-    <div key={beneficiary?.beneficiaryAddress} className="flex flex-col rounded-lg shadow-lg overflow-hidden bg-white">
-      <Link href={`/beneficiaries/${beneficiary?.beneficiaryAddress}`} passHref>
+    <div
+      key={beneficiary?.beneficiaryAddress.data}
+      className="flex flex-col rounded-lg shadow-lg overflow-hidden bg-white"
+    >
+      <Link href={`/beneficiaries/${beneficiary?.beneficiaryAddress.data}`} passHref>
         <a>
           <CardBody
             image={beneficiary?.files.profileImage}
-            name={beneficiary?.organizationName}
-            missionStatement={beneficiary?.missionStatement}
+            name={beneficiary?.organizationName.data}
+            missionStatement={beneficiary?.missionStatement.data}
           />
         </a>
       </Link>

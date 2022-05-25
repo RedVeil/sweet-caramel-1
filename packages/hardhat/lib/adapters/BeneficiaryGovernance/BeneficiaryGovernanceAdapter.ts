@@ -25,10 +25,31 @@ export interface ImpactReport {
   reportCid: string;
 }
 export interface BeneficiaryApplication {
-  organizationName: string;
-  projectName?: string;
-  missionStatement: string;
-  beneficiaryAddress: string;
+  organizationName: {
+    error: boolean;
+    errorMessage: string;
+    data: string;
+  };
+  projectName?: {
+    error: boolean;
+    errorMessage: string;
+    data: string;
+  };
+  missionStatement: {
+    error: boolean;
+    errorMessage: string;
+    data: string;
+  };
+  beneficiaryAddress: {
+    error: boolean;
+    errorMessage: string;
+    data: string;
+  };
+  proposalCategory: {
+    error: boolean;
+    errorMessage: string;
+    data: string;
+  };
   files: {
     profileImage: BeneficiaryImage;
     headerImage?: BeneficiaryImage;
@@ -42,8 +63,16 @@ export interface BeneficiaryApplication {
     facebookUrl?: string;
     instagramUrl?: string;
     githubUrl?: string;
-    proofOfOwnership?: string;
-    contactEmail: string;
+    proofOfOwnership?: {
+      error: boolean;
+      errorMessage: string;
+      data: string;
+    };
+    contactEmail: {
+      error: boolean;
+      errorMessage: string;
+      data: string;
+    };
     website: string;
   };
   version: string;

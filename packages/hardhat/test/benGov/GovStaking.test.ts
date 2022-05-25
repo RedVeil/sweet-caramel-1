@@ -404,12 +404,6 @@ describe("Staking", function () {
       expect(await staking.connect(owner).getRewardForDuration()).to.equal(parseEther("9.999999999999676800"));
     });
 
-    it("should set as RewardsManager", async function () {
-      expect(await staking.getRewardForDuration()).to.equal(0);
-      await staking.connect(rewarder).notifyRewardAmount(stakingFund);
-      expect(await staking.getRewardForDuration()).to.equal(parseEther("9.999999999999676800"));
-    });
-
     it("should revert if not owner", async function () {
       await expect(staking.connect(nonOwner).notifyRewardAmount(stakingFund)).to.be.revertedWith("Not allowed");
     });
@@ -420,9 +414,6 @@ describe("Staking", function () {
       await staking.notifyRewardAmount(parseEther("5"));
       expect(await staking.connect(owner).getRewardForDuration()).to.equal(parseEther("9.999991732803408000"));
     });
-    it("should not allow more rewards than is available in contract balance", async function () {
-      await expect(staking.notifyRewardAmount(parseEther("11"))).to.be.revertedWith("Provided reward too high");
-    });
   });
 
   describe("updatePeriodFinish", function () {
@@ -431,7 +422,7 @@ describe("Staking", function () {
       staking = await Staking.deploy(contractRegistry.address);
       await staking.deployed();
       stakingFund = parseEther("10");
-      await mockPop.transfer(staking.address, stakingFund);
+      await mockPop.approve(staking.address, stakingFund);
       await staking.notifyRewardAmount(stakingFund);
     });
     it("should increase staking period", async function () {

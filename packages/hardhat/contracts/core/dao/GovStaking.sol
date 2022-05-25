@@ -229,6 +229,8 @@ contract GovStaking is IGovStaking, ReentrancyGuard, Ownable {
         IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).hasRole(keccak256("DAO"), msg.sender),
       "Not allowed"
     );
+    IERC20(contractRegistry.getContract(keccak256("POP"))).safeTransferFrom(msg.sender, address(this), _reward);
+
     if (block.timestamp >= periodFinish) {
       rewardRate = _reward / rewardsDuration;
     } else {

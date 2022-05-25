@@ -3,7 +3,27 @@
 
 [build]
   command = "yarn netlify-build"
-  publish = "packages/app/out"
+
+[[redirects]]
+  from = "/"
+  to = "/ethereum"
+
+[[redirects]]
+  from = "/butter/*"
+  to = "/ethereum/butter/:path"
+
+[[redirects]]
+  from = "/rewards"
+  to = "/ethereum/rewards"
+
+[[redirects]]
+  from = "/staking/pop"
+  to = "/ethereum/staking/pop"
+
+[[redirects]]
+  from = "/staking/*"
+  to = "/ethereum/staking/:path"
+
 
 [[plugins]]
   package = 'netlify-plugin-contextual-env'
@@ -15,6 +35,7 @@
   [context.deploy-preview.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "4"
+    DEFAULT_CHAIN="rinkeby"
     IS_DEV = "TRUE"
 
 [context.production]
@@ -22,16 +43,19 @@
   [context.production.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "1"
+    DEFAULT_CHAIN="ethereum"
     IS_DEV = "FALSE"
 
 [context.rinkeby]
   [context.rinkeby.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "4"
+    DEFAULT_CHAIN="rinkeby"
     IS_DEV = "TRUE"
 
 [context.develop]
   [context.develop.environment]
     # this is a random private key needed for hardhat compile to work
     CHAIN_ID = "4"
+    DEFAULT_CHAIN="rinkeby"
     IS_DEV = "TRUE"

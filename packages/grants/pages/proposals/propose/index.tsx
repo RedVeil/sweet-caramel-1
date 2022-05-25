@@ -33,10 +33,31 @@ export interface FormStepProps {
 }
 
 export const defaultFormData: BeneficiaryApplication = {
-  organizationName: "",
-  projectName: "",
-  missionStatement: "",
-  beneficiaryAddress: "",
+  organizationName: {
+    error: false,
+    errorMessage: "",
+    data: "",
+  },
+  projectName: {
+    error: false,
+    errorMessage: "",
+    data: "",
+  },
+  missionStatement: {
+    error: false,
+    errorMessage: "",
+    data: "",
+  },
+  beneficiaryAddress: {
+    error: false,
+    errorMessage: "",
+    data: "",
+  },
+  proposalCategory: {
+    error: false,
+    errorMessage: "",
+    data: "",
+  },
   files: {
     profileImage: { image: "", description: "" },
     headerImage: { image: "", description: "" },
@@ -50,8 +71,16 @@ export const defaultFormData: BeneficiaryApplication = {
     facebookUrl: "",
     instagramUrl: "",
     githubUrl: "",
-    proofOfOwnership: "",
-    contactEmail: "",
+    proofOfOwnership: {
+      error: false,
+      errorMessage: "",
+      data: "",
+    },
+    contactEmail: {
+      error: false,
+      errorMessage: "",
+      data: "",
+    },
     website: "",
   },
   version: "1.0",

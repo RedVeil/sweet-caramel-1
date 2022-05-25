@@ -1,4 +1,4 @@
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";

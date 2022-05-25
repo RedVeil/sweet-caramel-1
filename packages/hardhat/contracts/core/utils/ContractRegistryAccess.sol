@@ -24,4 +24,13 @@ abstract contract ContractRegistryAccess {
   function _getContract(bytes32 _name) internal view virtual returns (address) {
     return _contractRegistry.getContract(_name);
   }
+
+  /**
+   *  @notice Get contract id from contract address.
+   *  @param _contractAddress contract address
+   *  @return name - keccak256 hash of the name string  e.g. `keccak256("ContractName")`
+   */
+  function _getContractIdFromAddress(address _contractAddress) internal view virtual returns (bytes32) {
+    return _contractRegistry.getContractIdFromAddress(_contractAddress);
+  }
 }

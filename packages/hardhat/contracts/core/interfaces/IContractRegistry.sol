@@ -8,4 +8,6 @@ pragma solidity >0.6.0;
  */
 interface IContractRegistry {
   function getContract(bytes32 _name) external view returns (address);
+
+  function getContractIdFromAddress(address _contractAddress) external view returns (bytes32);
 }

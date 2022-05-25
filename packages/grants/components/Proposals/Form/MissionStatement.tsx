@@ -18,12 +18,16 @@ const MissionStatement: React.FC<FormStepProps> = ({ form, navigation, visible }
             name="missionstatement"
             id="missionstatement"
             rows={10}
-            value={formData?.missionStatement}
+            value={formData?.missionStatement.data}
             onChange={(event) => {
               if (!isDirty) setIsDirty(true);
               setFormData({
                 ...formData,
-                missionStatement: event.target.value,
+                missionStatement: {
+                  error: false,
+                  errorMessage: "",
+                  data: event.target.value,
+                },
               });
             }}
             className={
@@ -33,14 +37,14 @@ const MissionStatement: React.FC<FormStepProps> = ({ form, navigation, visible }
             }
             placeholder="Mission Statement"
           />
-          {!inputExists(formData?.missionStatement) && isDirty && (
+          {!inputExists(formData?.missionStatement.data) && isDirty && (
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
             </div>
           )}
         </div>
 
-        {inputExists(formData?.missionStatement) && <ContinueButton navigation={navigation} />}
+        {inputExists(formData?.missionStatement.data) && <ContinueButton navigation={navigation} />}
       </div>
     )
   );

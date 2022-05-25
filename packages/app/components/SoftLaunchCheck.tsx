@@ -42,7 +42,7 @@ interface SoftLaunchCheckProps {
 }
 
 export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.Element {
-  const { chainId, account, signer, disconnect } = useWeb3();
+  const { chainId, account, signer, disconnect, pushWithinChain } = useWeb3();
   const { dispatch } = useContext(store);
   const router = useRouter();
 
@@ -66,7 +66,6 @@ export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.
   const isDev = () => {
     const isDev = sessionStorage.getItem("isDev");
     if (router.query.isDev || isDev) {
-      console.log("IS DEV");
       sessionStorage.setItem("isDev", "true");
       return true;
     }
@@ -105,7 +104,7 @@ export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.
       }
     } catch (error) {
       disconnect();
-      router.push("/error");
+      pushWithinChain("/error");
       dispatch(setSingleActionModal(false));
     }
   }

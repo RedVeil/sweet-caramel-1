@@ -70,6 +70,9 @@ async function deployContracts(): Promise<Contracts> {
   const staking = await (
     await (await ethers.getContractFactory("GovStaking")).deploy(contractRegistry.address)
   ).deployed();
+  const popLocker = await (
+    await (await ethers.getContractFactory("GovStaking")).deploy(contractRegistry.address)
+  ).deployed();
 
   const mockBeneficiaryRegistryFactory = await ethers.getContractFactory("BeneficiaryRegistry");
   const mockBeneficiaryRegistry = await waffle.deployMockContract(
@@ -110,7 +113,7 @@ async function deployContracts(): Promise<Contracts> {
   await contractRegistry.connect(owner).addContract(ethers.utils.id("Staking"), staking.address, ethers.utils.id("1"));
   await contractRegistry
     .connect(owner)
-    .addContract(ethers.utils.id("PopLocker"), staking.address, ethers.utils.id("1"));
+    .addContract(ethers.utils.id("PopLocker"), popLocker.address, ethers.utils.id("1"));
   await contractRegistry
     .connect(owner)
     .addContract(ethers.utils.id("RewardsEscrow"), rewardsEscrow.address, ethers.utils.id("1"));

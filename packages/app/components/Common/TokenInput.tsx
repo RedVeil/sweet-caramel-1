@@ -2,7 +2,7 @@ import { numberToBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
-import { formatStakedAmount } from "helper/formatStakedAmount";
+import { formatStakedAmount } from "helper/formatAmount";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
 import { useEffect, useRef } from "react";
 

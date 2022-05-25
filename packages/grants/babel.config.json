@@ -7,11 +7,11 @@
         "alias": {
           "@popcorn/ui": "../ui/src",
           "@popcorn/utils": "../utils",
-          "@popcorn/contracts": "../contracts",
-          "containers": "./containers",
-          "app": "./app"
+          "@popcorn/contracts": "../hardhat",
+          "@popcorn/hardhart": "../hardhat"
         }
       }
-    ]
+    ],
+		["styled-components", { "ssr": true }]
   ]
 }

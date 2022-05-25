@@ -1,5 +1,5 @@
-import { ProposalType } from "@popcorn/contracts";
-import { VoteOptions } from "@popcorn/contracts/lib/BeneficiaryGovernance/constants";
+import { ProposalType } from "@popcorn/hardhat";
+import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
 import { useWeb3React } from "@web3-react/core";
 import { setDualActionModal } from "context/actions";
 import { store } from "context/store";

@@ -3,7 +3,6 @@ import { useWeb3React } from "@web3-react/core";
 import DropdownSelect from "components/DropdownSelect";
 import MainActionButton from "components/MainActionButton";
 import { utils } from "ethers";
-import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -185,7 +184,7 @@ export default function LockPop() {
                                 </p>
                               </span>
                             </span>
-                            <Slider
+                            {/* <Slider
                               className="mt-2 w-10/12"
                               value={popToLock}
                               onChange={(val) => setPopToLock(Number(val))}
@@ -193,7 +192,7 @@ export default function LockPop() {
                               max={popBalance}
                               step={1}
                               disabled={account && approved >= popToLock && expired}
-                            />
+                            /> */}
                           </div>
                         </div>
                       </div>

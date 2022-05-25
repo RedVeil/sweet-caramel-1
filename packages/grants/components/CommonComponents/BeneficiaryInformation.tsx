@@ -18,26 +18,28 @@ const BeneficiaryInformation: React.FC<BeneficiaryInformationProps> = ({ benefic
         </div>
         <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
           <dl className="sm:divide-y sm:divide-gray-200">
-            {beneficiary?.projectName !== "" && (
+            {beneficiary?.projectName.data !== "" && (
               <div className="bg-gray-50 py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Project Name</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{beneficiary?.projectName}</dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{beneficiary?.projectName.data}</dd>
               </div>
             )}
             <div className="bg-gray-50 py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Mission Statement</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{beneficiary?.missionStatement}</dd>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{beneficiary?.missionStatement.data}</dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">
                 {`${isProposalPreview ? "Organization" : "Beneficiary"} Address`}
               </dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{beneficiary?.beneficiaryAddress}</dd>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {beneficiary?.beneficiaryAddress.data}
+              </dd>
             </div>
             <div className="bg-gray-50 py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Proof of Ownership</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <a href={beneficiary?.links?.proofOfOwnership}>{beneficiary?.links?.proofOfOwnership}</a>
+                <a href={beneficiary?.links?.proofOfOwnership.data}>{beneficiary?.links?.proofOfOwnership.data}</a>
               </dd>
             </div>
 

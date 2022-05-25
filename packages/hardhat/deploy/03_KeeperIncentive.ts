@@ -1,5 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { addContractToRegistry } from "./utils";

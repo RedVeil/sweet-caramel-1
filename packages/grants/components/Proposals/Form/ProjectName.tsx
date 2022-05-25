@@ -8,7 +8,14 @@ export default function ProjectName({ form, navigation, visible }: FormStepProps
   const [formData, setFormData] = form;
 
   function updateProjectName(value: string): void {
-    setFormData({ ...formData, projectName: value });
+    setFormData({
+      ...formData,
+      projectName: {
+        error: false,
+        errorMessage: "",
+        data: value,
+      },
+    });
   }
 
   return (
@@ -18,14 +25,14 @@ export default function ProjectName({ form, navigation, visible }: FormStepProps
           {navigation.currentStep} - Add a project name (Optional)
         </h2>
         <ControlledTextInput
-          inputValue={formData.projectName}
+          inputValue={formData.projectName.data}
           id="project"
           placeholder="Project Name Name"
           errorMessage=""
           updateInput={updateProjectName}
           isValid={() => true}
         />
-        {inputExists(formData.organizationName) && <ContinueButton navigation={navigation} />}
+        {inputExists(formData.organizationName.data) && <ContinueButton navigation={navigation} />}
       </div>
     )
   );

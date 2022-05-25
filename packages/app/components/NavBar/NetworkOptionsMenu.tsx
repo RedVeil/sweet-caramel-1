@@ -39,10 +39,10 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
           key={ChainId.Arbitrum}
         />
         <NetworkOptionsMenuItem
-          chainId={ChainId.BinanceSmartChain}
+          chainId={ChainId.BNB}
           switchNetwork={(chainId) => switchNetwork(chainId)}
           currentChainId={currentChain}
-          key={ChainId.BinanceSmartChain}
+          key={ChainId.BNB}
         />
         {showLocalNetwork && (
           <>

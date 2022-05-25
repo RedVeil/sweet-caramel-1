@@ -4,7 +4,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@popcorn/utils/src/envLoader";
 import "@typechain/hardhat";
 import "hardhat-contract-sizer";
-import "hardhat-deploy";
+import "@anthonymartin/hardhat-deploy";
 import "hardhat-gas-reporter";
 import "hardhat-secure-signer";
 import "./lib/tasks";
@@ -79,8 +79,8 @@ module.exports = {
       chainId: 1337,
       forking: Boolean(parseInt(process.env.FORKING || "0"))
         ? {
-            url: process.env.RPC_URL,
-          }
+          url: process.env.RPC_URL,
+        }
         : undefined,
     },
     localhost: {
