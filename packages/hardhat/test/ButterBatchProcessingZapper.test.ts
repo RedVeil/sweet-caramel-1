@@ -276,16 +276,23 @@ describe("ButterBatchProcessingZapper", function () {
         case "dai":
           return {
             v: [sig.v, 0],
-            r: [sig.r, ""],
-            s: [sig.s, ""],
+            r: [sig.r, ''],
+            s: [sig.s, ''],
             nonce: [sig.nonce, ethers.BigNumber.from("0")],
             deadline: [sig.deadline, ethers.BigNumber.from("0")],
           };
         case "usdc":
+          console.log({
+            v: [0, sig.v],
+            r: ['', sig.r],
+            s: ['', sig.s],
+            nonce: [ethers.BigNumber.from("0"), sig.nonce],
+            deadline: [ethers.BigNumber.from("0"), sig.deadline],
+          })
           return {
             v: [0, sig.v],
-            r: ["", sig.r],
-            s: ["", sig.s],
+            r: ['', sig.r],
+            s: ['', sig.s],
             nonce: [ethers.BigNumber.from("0"), sig.nonce],
             deadline: [ethers.BigNumber.from("0"), sig.deadline],
           };
@@ -302,7 +309,7 @@ describe("ButterBatchProcessingZapper", function () {
         DepositorInitial
       );
 
-      const sigDetails = getZapSignature(signature, "dai");
+      const sigDetails = getZapSignature(signature, "usdc");
 
       const result = await contracts.butterBatchProcessingZapper
         .connect(depositor)
@@ -310,7 +317,7 @@ describe("ButterBatchProcessingZapper", function () {
           [DepositorInitial, DepositorInitial, 0],
           0,
           [ethers.constants.MaxUint256, ethers.constants.MaxUint256],
-          [ethers.BigNumber.from(sigDetails.v[0]), ethers.BigNumber.from(sigDetails.v[1])],
+          [sigDetails.v[0], sigDetails.v[1]],
           [sigDetails.r[0], sigDetails.r[1]],
           [sigDetails.s[0], sigDetails.s[1]],
           [ethers.BigNumber.from(sigDetails.nonce[0]), ethers.BigNumber.from(sigDetails.nonce[1])]

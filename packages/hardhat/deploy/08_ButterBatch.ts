@@ -48,37 +48,36 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
 
   //Butter Batch
-  // console.log("deploying butterBatch...");
-  // const deployed = await deploy("ButterBatchProcessing", {
-  //   from: addresses.deployer,
-  //   args: [
-  //     contractRegistryAddress,
-  //     addresses.butterStaking,
-  //     addresses.butter,
-  //     addresses.threeCrv,
-  //     addresses.threePool,
-  //     addresses.setBasicIssuanceModule,
-  //     YTOKEN_ADDRESSES,
-  //     CRV_DEPENDENCIES,
-  //     { batchCooldown: BigNumber.from("1"), mintThreshold: parseEther("1"), redeemThreshold: parseEther("0.1") },
-  //   ],
-  //   log: true,
-  //   autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-  //   contract: "ButterBatchProcessing",
-  // });
+  console.log("deploying butterBatch...");
+  const deployed = await deploy("ButterBatchProcessing", {
+    from: addresses.deployer,
+    args: [
+      contractRegistryAddress,
+      addresses.butterStaking,
+      addresses.butter,
+      addresses.threeCrv,
+      addresses.threePool,
+      addresses.setBasicIssuanceModule,
+      YTOKEN_ADDRESSES,
+      CRV_DEPENDENCIES,
+      { batchCooldown: BigNumber.from("1"), mintThreshold: parseEther("1"), redeemThreshold: parseEther("0.1") },
+    ],
+    log: true,
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "ButterBatchProcessing",
+  });
 
-  // console.log("adding butterBatch to contract registry...");
-  // await addContractToRegistry("ButterBatchProcessing", deployments, signer, hre);
+  console.log("adding butterBatch to contract registry...");
+  await addContractToRegistry("ButterBatchProcessing", deployments, signer, hre);
 
-  // console.log("setting approvals for ButterBatchProcessing");
-  // const butterBatchProcessing = await hre.ethers.getContractAt(
-  //   "ButterBatchProcessing",
-  //   (
-  //     await deployments.get("ButterBatchProcessing")
-  //   ).address,
-  //   signer
-  // );
-  // await butterBatchProcessing.setApprovals();
+  console.log("setting approvals for ButterBatchProcessing");
+  const butterBatchProcessing = await hre.ethers.getContractAt(
+    "ButterBatchProcessing",
+    (
+      await deployments.get("ButterBatchProcessing")
+    ).address
+  );
+  await butterBatchProcessing.setApprovals();
 
   //Adding permissions and other maintance
   const keeperIncentive = await hre.ethers.getContractAt(
@@ -101,7 +100,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log("deploying butterBatchZapper...");
     await deploy("ButterBatchZapper", {
       from: addresses.deployer,
-      args: [addresses.contractRegistry, addresses.threePool, addresses.threeCrv],
+      args: [contractRegistryAddress, addresses.threePool, addresses.threeCrv],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
       contract: "ButterBatchProcessingZapper",
@@ -217,4 +216,4 @@ export default func;
 //  return !["mainnet", "hardhat", "local"].includes(hre.network.name);
 //};
 func.dependencies = ["setup"];
-func.tags = ["frontend", "butter", "playz"];
+func.tags = ["frontend", "butter"];

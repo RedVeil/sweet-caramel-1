@@ -32,4 +32,4 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 export default main;
 main.dependencies = ["setup"];
-main.tags = ["core", "frontend", "playz"];
+main.tags = ["core", "frontend"];

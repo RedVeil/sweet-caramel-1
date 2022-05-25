@@ -172,7 +172,7 @@ export default function getNamedAccounts() {
       polygon: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
       hardhat: "0xefAB0Beb0A557E452b398035eA964948c750b2Fd",
       arbitrum: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
-      goerli: "0x07865c6E87B9F70255377e024ace6630C1Eaa37F",
+      goerli: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
     },
     usdt: {
       mainnet: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
@@ -262,11 +262,13 @@ export default function getNamedAccounts() {
       polygon: "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
       hardhat: "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
       rinkeby: "0x9a98865646886c9EfEf459954c4Af9D9A86AD208",
+      goerli: "0x9cb2d243e434e215b1ACDA869b9222Fd841e5414"
     },
     keeperIncentive: {
       polygon: "0xd928a457247649835e652416847C54C038FAF920",
       mainnet: "0xCD4f7582b32d90BD9FC7DC9F8116C43Ab17dE011",
       rinkeby: "0xc0C87CfA68a98EABc62716CE9e6B15b350ed3799",
+      goerli: "0x5Be0621AC7acf8007396b11dd24e7a6B407F086E"
     },
     contractRegistry: {
       mainnet: "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
@@ -285,6 +287,7 @@ export default function getNamedAccounts() {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
       hardhat: "0x67aD6EA566BA6B0fC52e97Bc25CE46120fdAc04c",
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
+      goerli: "0x5184AbfB1D536101Ff4BA601874CeDC16154fb1f"
     },
     rewardsEscrow: {
       hardhat: "0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab",

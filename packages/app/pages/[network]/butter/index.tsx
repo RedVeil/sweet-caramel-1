@@ -28,15 +28,26 @@ import useButterWhaleData from "hooks/butter/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/butter/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
 import abi from "../../../public/ButterBatchZapperAbi.json";
+import GetSignature, {permitTypes} from '../../../../utils/src/getSignature';
+import useERC20Permit from "hooks/tokens/useERC20Permit";
 
 export enum TOKEN_INDEX {
   dai,
   usdc,
   usdt,
+}
+
+interface SignatureDetails {
+  deadline: BigNumber;
+  v: number;
+  r: Buffer;
+  s: Buffer;
+  value: BigNumber;
+  nonce: BigNumber;
 }
 
 export function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
@@ -54,6 +65,36 @@ export function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string):
   }
 }
 
+function getZapSignature(
+  sig: SignatureDetails,
+  tokenKey: string,
+): {
+  v: [number, number];
+  r: [Buffer, Buffer];
+  s: [Buffer, Buffer];
+  nonce: [BigNumber, BigNumber];
+  deadline: [BigNumber, BigNumber];
+} {
+  switch (tokenKey) {
+    case "dai":
+      return {
+        v: [sig.v, 0],
+        r: [sig.r, Buffer.alloc(10)],
+        s: [sig.s, Buffer.alloc(10)],
+        nonce: [sig.nonce, BigNumber.from("0")],
+        deadline: [sig.deadline, BigNumber.from("0")],
+      };
+    case "usdc":
+      return {
+        v: [0, sig.v],
+        r: [Buffer.alloc(10), sig.r],
+        s: [Buffer.alloc(10), sig.s],
+        nonce: [BigNumber.from("0"), sig.nonce],
+        deadline: [BigNumber.from("0"), sig.deadline],
+      };
+  }
+}
+
 export interface ButterPageState {
   selectedToken: SelectedToken;
   useZap: boolean;
@@ -65,6 +106,7 @@ export interface ButterPageState {
   batchToken: BatchProcessTokens;
   whaleToken: BatchProcessTokens;
   instant: boolean;
+  signatureData: SignatureDetails;
 }
 
 export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
@@ -78,6 +120,7 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
   batchToken: null,
   whaleToken: null,
   instant: false,
+  signatureData: { v: null, r: null, s: null, value: null, deadline: null, nonce: null },
 };
 
 export default function Butter(): JSX.Element {
@@ -97,6 +140,7 @@ export default function Butter(): JSX.Element {
   const butter = useButter();
   const butterBatchZapper = useButterBatchZapper();
   const butterBatch = useButterBatch();
+  const usdc = useERC20Permit(contractAddresses.usdc);
   const butterWhaleProcessing = useButterWhaleProcessing();
   const { data: butterWhaleData, error: butterWhaleError, mutate: refetchButterWhaleData } = useButterWhaleData();
   const {
@@ -333,9 +377,18 @@ export default function Butter(): JSX.Element {
         butterPageState.slippage,
         virtualPriceValue,
       );
-      return butterBatchZapper.zapIntoBatch(
-        getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
-        minMintAmount,
+      const { deadline, v, r, s, nonce } = getZapSignature(
+        butterPageState.signatureData,
+        butterPageState.selectedToken.input,
+      );
+      return butterBatchZapper.zapIntoBatchPermit(
+          getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
+          minMintAmount,
+          deadline,
+          v,
+          r,
+          s,
+          nonce,
       );
     }
     return butterBatch.depositForMint(depositAmount, account);
@@ -523,6 +576,28 @@ export default function Butter(): JSX.Element {
     );
   }
 
+  const permit = useCallback(async () => {
+    let valueAdjusted =
+      butterPageState.selectedToken.input === "usdc"
+        ? butterPageState.depositAmount.div(1e12)
+        : butterPageState.depositAmount;
+
+    const { v, r, s, deadline, value, nonce } = await GetSignature(
+      signerOrProvider,
+      butterPageState.selectedToken.input === "usdc" ? permitTypes.ALLOWED : permitTypes.AMOUNT,
+      account,
+      butterBatchZapper.address,
+      usdc.contract,
+      chainId,
+      valueAdjusted,
+    );
+
+    v &&
+      r &&
+      deadline &&
+      setButterPageState({ ...butterPageState, signatureData: { v, r, s, deadline, value, nonce } });
+  }, [signerOrProvider, account, butterPageState, chainId]);
+
   function getBatchProgressAmount(): BigNumber {
     if (!butterBatchData) {
       return BigNumber.from("0");
@@ -589,6 +664,7 @@ export default function Butter(): JSX.Element {
                   depositDisabled={depositDisabled()}
                   hasUnclaimedBalances={hasClaimableBalances()}
                   butterPageState={[butterPageState, setButterPageState]}
+                  permit={butterPageState.selectedToken.input === ("usdc" || "dai") && permit}
                 />
               )}
             </div>

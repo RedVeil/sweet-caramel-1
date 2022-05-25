@@ -32,6 +32,7 @@
     "rimraf": "3.0.2"
   },
   "dependencies": {
+    "@anthonymartin/hardhat-deploy": "^0.9.9",
     "@balancer-labs/v2-solidity-utils": "2.0.0",
     "@chainlink/contracts": "0.1.9",
     "@ecmendenhall/ds-test": "^0.0.1",
@@ -57,7 +58,6 @@
     "ethers": "5.5.3",
     "forge-std": "foundry-rs/forge-std",
     "hardhat": "2.9.3",
-    "@anthonymartin/hardhat-deploy": "0.9.9",
     "hardhat-secure-signer": "0.0.8",
     "merkle-tree-solidity": "1.0.8",
     "mocha": "8.4.0",
