@@ -7,12 +7,12 @@ import { addContractToRegistry } from "./utils";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
+  const { deployer } = await getNamedAccounts();
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
 
   await deploy("KeeperIncentive", {
-    from: addresses.deployer,
-    args: [addresses.contractRegistry, BigNumber.from("0"), BigNumber.from("0")],
+    from: deployer,
+    args: [(await deployments.get("ContractRegistry")).address, BigNumber.from("0"), BigNumber.from("0")],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });

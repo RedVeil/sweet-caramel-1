@@ -8,8 +8,6 @@ export enum ChainId {
   Polygon = 137,
   Localhost = 1337,
   Hardhat = 31337,
-  BinanceSmartChain = 56,
-  Goerli = 5,
   BNB = 56,
 }
 
@@ -32,8 +30,6 @@ export const supportedChainIds = [
   ChainId.Mumbai,
   ChainId.Localhost,
   ChainId.BNB,
-  ChainId.Goerli,
-  ChainId.BinanceSmartChain
 ];
 
 export const networkMap = {
@@ -44,8 +40,6 @@ export const networkMap = {
   [ChainId.Polygon]: "Polygon",
   [ChainId.Hardhat]: "Hardhat",
   [ChainId.Localhost]: "Localhost",
-  [ChainId.BinanceSmartChain]: "BSC",
-  [ChainId.Goerli]: "Goerli",
   [ChainId.BNB]: "BNB",
 };
 
@@ -55,8 +49,6 @@ export const logos = {
   [ChainId.Polygon]: "/images/icons/polygonLogo.png",
   [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
   [ChainId.Localhost]: "/images/icons/ethLogo.png",
-  [ChainId.BinanceSmartChain]: "/images/icons/bsc-logo.png",
-  [ChainId.Goerli]: "/images/icons/ethLogo.png",
   [ChainId.BNB]: "/images/icons/bsc-logo.png",
 };
 export const RPC_URLS = {
@@ -67,45 +59,7 @@ export const RPC_URLS = {
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.BNB]: `https://bsc-dataseed1.binance.org`,
   [ChainId.Localhost]: `http://localhost:8545`,
-  [ChainId.Goerli]: `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
 };
-
-// const Injected = new InjectedConnector({
-//   supportedChainIds,
-// });
-
-// const Network = (chainId: number) => {
-//   return new NetworkConnector({
-//     urls: RPC_URLS,
-//     defaultChainId: chainId,
-//   });
-// };
-
-// export const Walletconnect = new WalletConnectConnector({
-//   rpc: RPC_URLS,
-//   chainId: 1,
-//   bridge: "https://bridge.walletconnect.org",
-//   qrcode: true,
-//   supportedChainIds,
-// });
-
-// export const connectors = { Injected, Network, Walletconnect };
-
-// export const supportedWallets = [Wallets.METAMASK, Wallets.WALLETCONNECT];
-
-// export const walletToConnector = {
-//   [Wallets.METAMASK]: connectors.Injected,
-//   [Wallets.WALLETCONNECT]: connectors.Walletconnect,
-// };
-
-// export const walletToName = {
-//   [Wallets.METAMASK]: "Injected",
-//   [Wallets.WALLETCONNECT]: "WalletConnect",
-// };
-
-// export const walletToLogo = {
-//   [Wallets.METAMASK]: "/images/wallets/metamask.svg",
-//   [Wallets.WALLETCONNECT]: "/images/wallets/walletConnect.svg",
 export const PRC_PROVIDERS = {
   [ChainId.Ethereum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Ethereum], ChainId.Ethereum),
   [ChainId.Rinkeby]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Rinkeby], ChainId.Rinkeby),
