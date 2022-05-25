@@ -268,122 +268,25 @@ describe("ButterBatchProcessingZapper", function () {
   });
 
   describe("zapIntoBatch", function () {
-    function getZapSignature(
-      sig: any,
-      tokenKey: string
-    ): { v: [number, number]; r: [string, string]; s: [string, string]; nonce: [any, any]; deadline: [any, any] } {
-      switch (tokenKey) {
-        case "dai":
-          return {
-            v: [sig.v, 0],
-            r: [sig.r, ''],
-            s: [sig.s, ''],
-            nonce: [sig.nonce, ethers.BigNumber.from("0")],
-            deadline: [sig.deadline, ethers.BigNumber.from("0")],
-          };
-        case "usdc":
-          console.log({
-            v: [0, sig.v],
-            r: ['', sig.r],
-            s: ['', sig.s],
-            nonce: [ethers.BigNumber.from("0"), sig.nonce],
-            deadline: [ethers.BigNumber.from("0"), sig.deadline],
-          })
-          return {
-            v: [0, sig.v],
-            r: ['', sig.r],
-            s: ['', sig.s],
-            nonce: [ethers.BigNumber.from("0"), sig.nonce],
-            deadline: [ethers.BigNumber.from("0"), sig.deadline],
-          };
-      }
-    }
-    it.only("zaps into a mint queue with one stablecoin", async function () {
-      const signature = await getSignature(
-        provider,
-        permitTypes.ALLOWED,
-        depositor.address,
-        contracts.butterBatchProcessingZapper.address,
-        contracts.mockDAI,
-        1337,
-        DepositorInitial
-      );
+    it("zaps into a mint queue with one stablecoin", async function () {
+      await expect(
+        contracts.butterBatchProcessingZapper
+          .connect(depositor)
+          .zapIntoBatchPermit(
+            [0, DepositorInitial, 0],
+            0,
+            [ethers.constants.MaxUint256, ethers.constants.MaxUint256],
+            [0, 27],
+            [utils.formatBytes32String("x"), utils.formatBytes32String("s")],
+            [utils.formatBytes32String("s"), utils.formatBytes32String("x")],
+            [ethers.BigNumber.from("0"), ethers.BigNumber.from("1")]
+          )
+      ).to.be.revertedWith("ERC20Permit: invalid signature");
 
-      const sigDetails = getZapSignature(signature, "usdc");
-
-      const result = await contracts.butterBatchProcessingZapper
-        .connect(depositor)
-        .zapIntoBatchPermit(
-          [DepositorInitial, DepositorInitial, 0],
-          0,
-          [ethers.constants.MaxUint256, ethers.constants.MaxUint256],
-          [sigDetails.v[0], sigDetails.v[1]],
-          [sigDetails.r[0], sigDetails.r[1]],
-          [sigDetails.s[0], sigDetails.s[1]],
-          [ethers.BigNumber.from(sigDetails.nonce[0]), ethers.BigNumber.from(sigDetails.nonce[1])]
-        );
-
-      expect(result)
-        .to.emit(contracts.butterBatchProcessingZapper, "ZappedIntoBatch")
-        .withArgs(DepositorInitial, depositor.address);
-
-      expect(result).to.emit(contracts.butterBatchProcessing, "Deposit").withArgs(depositor.address, DepositorInitial);
-
-      expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(0);
+      expect(await contracts.mockUSDC.balanceOf(depositor.address)).to.equal(DepositorInitial);
     });
-
-    // it("zaps into a mint queue with multiple stablecoins", async function () {
-    //   const result = await contracts.butterBatchProcessingZapper
-    //     .connect(depositor)
-    //     .zapIntoBatchPermit(
-    //       [DepositorInitial, DepositorInitial, 0],
-    //       0,
-    //       [ethers.constants.MaxUint256, ethers.constants.MaxUint256],
-
-    //     );
-
-    //   expect(result)
-    //     .to.emit(contracts.butterBatchProcessingZapper, "ZappedIntoBatch")
-    //     .withArgs(DepositorInitial.mul(2), depositor.address);
-
-    //   expect(result)
-    //     .to.emit(contracts.butterBatchProcessing, "Deposit")
-    //     .withArgs(depositor.address, DepositorInitial.mul(2));
-
-    //   expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(0);
-    //   expect(await contracts.mockUSDC.balanceOf(depositor.address)).to.equal(0);
-    // });
-  });
-  describe("zapOutOfBatch", function () {
-    // it("zaps out of the queue into a stablecoin", async function () {
-    //   const expectedStableAmount = parseEther("99.9");
-    //   //Create Batch
-    //   await contracts.butterBatchProcessingZapper.connect(depositor).zapIntoBatch([DepositorInitial, 0, 0], 0);
-    //   const [batchId] = await contracts.butterBatchProcessing.getAccountBatches(depositor.address);
-    //   //Actual Test
-    //   const result = await contracts.butterBatchProcessingZapper
-    //     .connect(depositor)
-    //     .zapOutOfBatch(batchId, DepositorInitial, 0, 0);
-    //   expect(result)
-    //     .to.emit(contracts.butterBatchProcessingZapper, "ZappedOutOfBatch")
-    //     .withArgs(batchId, 0, DepositorInitial, expectedStableAmount, depositor.address);
-    //   expect(result)
-    //     .to.emit(contracts.butterBatchProcessing, "WithdrawnFromBatch")
-    //     .withArgs(batchId, DepositorInitial, depositor.address);
-    //   expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(expectedStableAmount);
-    // });
   });
   describe("claimAndSwapToStable", function () {
-    // it("reverts when claiming a mint batch", async function () {
-    //   await contracts.butterBatchProcessingZapper.connect(depositor).zapIntoBatch([DepositorInitial, 0, 0], 0);
-    //   const [batchId] = await contracts.butterBatchProcessing.getAccountBatches(depositor.address);
-    //   await timeTravel(1800);
-    //   await contracts.butterBatchProcessing.connect(owner).batchMint();
-
-    //   await expect(
-    //     contracts.butterBatchProcessingZapper.claimAndSwapToStable(batchId, 0, parseEther("1"))
-    //   ).to.be.revertedWith("needs to return 3crv");
-    // });
     it("claims batch and swaps into stablecoin", async function () {
       const claimableAmount = parseEther("999");
       const expectedStableAmount = parseEther("998.001");
@@ -429,12 +332,6 @@ describe("ButterBatchProcessing is paused", function () {
     //Pause Contract
     await contracts.butterBatchProcessing.connect(owner).pause();
   });
-  // it("prevents zapping into a batch", async function () {
-  //   await expectRevert(
-  //     contracts.butterBatchProcessingZapper.connect(depositor).zapIntoBatch([parseEther("1"), 0, 0], 0),
-  //     "Pausable: paused"
-  //   );
-  // });
   it("allows zapping out of a batch", async function () {
     await expect(
       contracts.butterBatchProcessingZapper.connect(depositor).zapOutOfBatch(currentMintId, parseEther("100"), 0, 0)

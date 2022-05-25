@@ -9,8 +9,8 @@ export enum permitTypes {
 
 interface SignatureReturn {
   v: number;
-  r: Buffer;
-  s: Buffer;
+  r: string;
+  s: string;
   deadline: BigNumber;
   value?: BigNumber;
   nonce?: BigNumber;

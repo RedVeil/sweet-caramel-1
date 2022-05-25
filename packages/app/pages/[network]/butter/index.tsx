@@ -26,14 +26,14 @@ import useButterBatchData from "hooks/butter/useButterBatchData";
 import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
 import useButterWhaleData from "hooks/butter/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/butter/useButterWhaleProcessing";
+import useERC20Permit from "hooks/tokens/useERC20Permit";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useCallback, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
+import GetSignature, { permitTypes } from "../../../../utils/src/getSignature";
 import abi from "../../../public/ButterBatchZapperAbi.json";
-import GetSignature, {permitTypes} from '../../../../utils/src/getSignature';
-import useERC20Permit from "hooks/tokens/useERC20Permit";
 
 export enum TOKEN_INDEX {
   dai,
@@ -44,8 +44,8 @@ export enum TOKEN_INDEX {
 interface SignatureDetails {
   deadline: BigNumber;
   v: number;
-  r: Buffer;
-  s: Buffer;
+  r: string;
+  s: string;
   value: BigNumber;
   nonce: BigNumber;
 }
@@ -70,8 +70,8 @@ function getZapSignature(
   tokenKey: string,
 ): {
   v: [number, number];
-  r: [Buffer, Buffer];
-  s: [Buffer, Buffer];
+  r: [string, string];
+  s: [string, string];
   nonce: [BigNumber, BigNumber];
   deadline: [BigNumber, BigNumber];
 } {
@@ -79,16 +79,16 @@ function getZapSignature(
     case "dai":
       return {
         v: [sig.v, 0],
-        r: [sig.r, Buffer.alloc(10)],
-        s: [sig.s, Buffer.alloc(10)],
+        r: [ethers.utils.formatBytes32String(sig.r), ethers.utils.formatBytes32String("")],
+        s: [ethers.utils.formatBytes32String(sig.s), ethers.utils.formatBytes32String("")],
         nonce: [sig.nonce, BigNumber.from("0")],
         deadline: [sig.deadline, BigNumber.from("0")],
       };
     case "usdc":
       return {
         v: [0, sig.v],
-        r: [Buffer.alloc(10), sig.r],
-        s: [Buffer.alloc(10), sig.s],
+        r: [ethers.utils.formatBytes32String("x"), ethers.utils.formatBytes32String(sig.r)],
+        s: [ethers.utils.formatBytes32String(""), ethers.utils.formatBytes32String(sig.s)],
         nonce: [BigNumber.from("0"), sig.nonce],
         deadline: [BigNumber.from("0"), sig.deadline],
       };
@@ -382,13 +382,13 @@ export default function Butter(): JSX.Element {
         butterPageState.selectedToken.input,
       );
       return butterBatchZapper.zapIntoBatchPermit(
-          getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
-          minMintAmount,
-          deadline,
-          v,
-          r,
-          s,
-          nonce,
+        getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
+        minMintAmount,
+        deadline,
+        v,
+        r,
+        s,
+        nonce,
       );
     }
     return butterBatch.depositForMint(depositAmount, account);
