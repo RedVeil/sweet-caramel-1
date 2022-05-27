@@ -286,7 +286,7 @@ export default function Butter(): JSX.Element {
     });
   }
 
-  async function instantMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
+  async function instantMint(depositAmount: BigNumber, stakeImmidiate = false): Promise<ethers.ContractTransaction> {
     toast.loading(`Depositing ${butterPageState.batchToken[butterPageState.selectedToken.input].name}...`);
     if (butterPageState.useZap) {
       const virtualPriceValue = await virtualPrice();
@@ -300,14 +300,10 @@ export default function Butter(): JSX.Element {
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
         minMintAmount,
         percentageToBps(butterPageState.slippage),
-        false, // TODO Add option to stake right away
+        stakeImmidiate,
       );
     }
-    return butterWhaleProcessing.mint(
-      depositAmount,
-      percentageToBps(butterPageState.slippage),
-      false, // TODO Add option to stake right away
-    );
+    return butterWhaleProcessing.mint(depositAmount, percentageToBps(butterPageState.slippage), stakeImmidiate);
   }
   async function instantRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
     toast.loading(`Withdrawing ${butterPageState.batchToken[butterPageState.selectedToken.output].name}...`);
@@ -365,7 +361,11 @@ export default function Butter(): JSX.Element {
     );
   }
 
-  async function handleMainAction(depositAmount: BigNumber, batchType: BatchType): Promise<void> {
+  async function handleMainAction(
+    depositAmount: BigNumber,
+    batchType: BatchType,
+    stakeImmidiate = false,
+  ): Promise<void> {
     depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
     if (butterPageState.instant && butterPageState.redeeming) {
       await instantRedeem(depositAmount).then(
@@ -373,7 +373,7 @@ export default function Butter(): JSX.Element {
         (err) => onContractError(err),
       );
     } else if (butterPageState.instant) {
-      await instantMint(depositAmount).then(
+      await instantMint(depositAmount, stakeImmidiate).then(
         (res) => onContractSuccess(res, "Butter minted!"),
         (err) => onContractError(err),
       );
@@ -584,7 +584,7 @@ export default function Butter(): JSX.Element {
                 <MintRedeemInterface
                   token={butterBatchData?.batchProcessTokens}
                   selectToken={selectToken}
-                  deposit={handleMainAction}
+                  mainAction={handleMainAction}
                   approve={approve}
                   depositDisabled={depositDisabled()}
                   hasUnclaimedBalances={hasClaimableBalances()}

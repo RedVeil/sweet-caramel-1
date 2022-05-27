@@ -1,4 +1,5 @@
 import { BatchType } from "@popcorn/utils/src/types";
+import SecondaryActionButton from "components/SecondaryActionButton";
 import { BigNumber, constants, ethers } from "ethers";
 import MainActionButton from "../MainActionButton";
 import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
@@ -6,9 +7,8 @@ import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
 import MintRedeemToggle from "./MintRedeemToggle";
 import SlippageSettings from "./SlippageSettings";
 interface MintRedeemInterfaceProps extends ButterTokenInputProps {
-  deposit: (depositAmount: BigNumber, batchType: BatchType) => Promise<void>;
+  mainAction: (depositAmount: BigNumber, batchType: BatchType, stakeImmidiate?: boolean) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
-  withdraw?: (amount: BigNumber, useZap?: boolean, outputToken?: string) => Promise<void>;
   hasUnclaimedBalances?: boolean;
   isInstantPage?: boolean;
 }
@@ -16,11 +16,10 @@ interface MintRedeemInterfaceProps extends ButterTokenInputProps {
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   token,
   selectToken,
-  deposit,
+  mainAction,
   approve,
   depositDisabled,
   butterPageState,
-  withdraw,
   hasUnclaimedBalances = false,
   isInstantPage = false,
 }) => {
@@ -80,12 +79,12 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         </div>
       )}
       <div className="w-full text-center">
-        {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits ? (
+        {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
           <div className="pt-6">
             <MainActionButton
               label={localButterPageState.redeeming ? "Redeem" : "Mint"}
               handleClick={() =>
-                deposit(
+                mainAction(
                   localButterPageState.depositAmount,
                   localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
                 )
@@ -93,49 +92,60 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
               disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
             />
           </div>
-        ) : (
-          <>
-            {isAllowanceInsufficient() ? (
-              <div className="space-y-6">
+        )}
+        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && isAllowanceInsufficient() && (
+          <div className="space-y-6">
+            <MainActionButton
+              label={`Allow Popcorn to use your ${
+                localButterPageState.batchToken[localButterPageState.selectedToken.input].name
+              }`}
+              handleClick={() => approve(localButterPageState.selectedToken.input)}
+            />
+            <MainActionButton
+              label={localButterPageState.redeeming ? "Redeem" : "Mint"}
+              handleClick={() =>
+                mainAction(
+                  localButterPageState.depositAmount,
+                  localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
+                )
+              }
+              disabled={true}
+            />
+          </div>
+        )}
+        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && !isAllowanceInsufficient() && (
+          <div className="pt-6">
+            {localButterPageState.instant && !localButterPageState.redeeming ? (
+              <>
                 <MainActionButton
-                  label={`Allow Popcorn to use your ${
-                    localButterPageState.batchToken[localButterPageState.selectedToken.input].name
-                  }`}
-                  handleClick={() => approve(localButterPageState.selectedToken.input)}
-                />
-                <MainActionButton
-                  label={localButterPageState.redeeming ? "Redeem" : "Mint"}
-                  handleClick={() =>
-                    deposit(
-                      localButterPageState.depositAmount,
-                      localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
-                    )
-                  }
-                  disabled={true}
-                />
-              </div>
-            ) : (
-              <div className="pt-6">
-                <MainActionButton
-                  label={localButterPageState.redeeming ? "Redeem" : "Mint"}
+                  label="Mint & Stake"
                   handleClick={() => {
-                    if (localButterPageState.redeeming && withdraw) {
-                      withdraw(
-                        localButterPageState.depositAmount,
-                        localButterPageState.useZap,
-                        localButterPageState.selectedToken.output,
-                      );
-                    } else if (localButterPageState.redeeming) {
-                      deposit(localButterPageState.depositAmount, BatchType.Redeem);
-                    } else {
-                      deposit(localButterPageState.depositAmount, BatchType.Mint);
-                    }
+                    mainAction(localButterPageState.depositAmount, BatchType.Mint, true);
                   }}
                   disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
                 />
-              </div>
+                <SecondaryActionButton
+                  label="Mint"
+                  handleClick={() => {
+                    mainAction(localButterPageState.depositAmount, BatchType.Mint, false);
+                  }}
+                  disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                />
+              </>
+            ) : (
+              <MainActionButton
+                label={localButterPageState.redeeming ? "Redeem" : "Mint"}
+                handleClick={() => {
+                  if (localButterPageState.redeeming) {
+                    mainAction(localButterPageState.depositAmount, BatchType.Redeem);
+                  } else {
+                    mainAction(localButterPageState.depositAmount, BatchType.Mint);
+                  }
+                }}
+                disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
+              />
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

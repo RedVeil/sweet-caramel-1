@@ -91,6 +91,7 @@ export default function InstantButter() {
         batchToken: butterData?.batchProcessTokens,
         redeeming: false,
         initalLoad: false,
+        instant: true,
       });
     } else {
       setButterPageState({
@@ -156,11 +157,35 @@ export default function InstantButter() {
     }
   }
 
-  async function deposit(depositAmount: BigNumber, _batchType: BatchType): Promise<void> {
+  async function handleMainAction(
+    depositAmount: BigNumber,
+    batchType: BatchType,
+    stakeImmidiate = false,
+  ): Promise<void> {
+    depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
+    if (butterPageState.redeeming) {
+      await instantWithdraw(depositAmount).then(
+        (res) => onContractSuccess(res, "Butter redeemed!"),
+        (err) => onContractError(err),
+      );
+    } else {
+      await instantMint(depositAmount, batchType, stakeImmidiate).then(
+        (res) => onContractSuccess(res, "Butter minted!"),
+        (err) => onContractError(err),
+      );
+    }
+    await refetchButterData();
+    setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
+  }
+
+  async function instantMint(
+    depositAmount: BigNumber,
+    _batchType: BatchType,
+    stakeImmidiate: boolean,
+  ): Promise<ethers.ContractTransaction> {
     // Batchtype is included to remain compliant with the interface provided by MintRedeemInterface but in not required for the instaMint version.
     depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
     toast.loading(`Depositing ${butterPageState.batchToken[butterPageState.selectedToken.input].name}...`);
-    let mintCall;
     if (butterPageState.useZap) {
       const virtualPriceValue = await virtualPrice();
       const minMintAmount = getMinMintAmount(
@@ -169,34 +194,25 @@ export default function InstantButter() {
         butterPageState.slippage,
         virtualPriceValue,
       );
-      mintCall = butterWhaleProcessing.zapMint(
+      return butterWhaleProcessing.zapMint(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
         minMintAmount,
         percentageToBps(butterPageState.slippage),
-        false, // TODO Add option to stake right away
+        stakeImmidiate,
       );
     } else {
-      mintCall = butterWhaleProcessing.mint(
-        depositAmount,
-        percentageToBps(butterPageState.slippage),
-        false, // TODO Add option to stake right away
-      );
+      return butterWhaleProcessing.mint(depositAmount, percentageToBps(butterPageState.slippage), stakeImmidiate);
     }
-    await mintCall
-      .then((res) =>
-        onContractSuccess(res, "Butter minted!", () => {
-          refetchButterData();
-          setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
-        }),
-      )
-      .catch((err) => onContractError(err));
   }
 
-  async function redeem(amount: BigNumber, useZap?: boolean, outputToken?: string): Promise<void> {
+  async function instantWithdraw(
+    amount: BigNumber,
+    useZap?: boolean,
+    outputToken?: string,
+  ): Promise<ethers.ContractTransaction> {
     toast.loading(`Withdrawing ${butterPageState.batchToken[butterPageState.selectedToken.output].name}...`);
-    let call;
     if (useZap) {
-      call = butterWhaleProcessing.zapRedeem(
+      return butterWhaleProcessing.zapRedeem(
         amount,
         TOKEN_INDEX[outputToken],
         adjustDepositDecimals(amount, outputToken)
@@ -204,16 +220,9 @@ export default function InstantButter() {
           .div(100),
         percentageToBps(butterPageState.slippage),
       );
-    } else {
-      call = butterWhaleProcessing.redeem(amount, percentageToBps(butterPageState.slippage));
     }
-    await call
-      .then((res) =>
-        onContractSuccess(res, "Funds withdrawn!", () => {
-          refetchButterData();
-        }),
-      )
-      .catch((err) => onContractError(err));
+
+    return butterWhaleProcessing.redeem(amount, percentageToBps(butterPageState.slippage));
   }
 
   async function approve(contractKey: string): Promise<void> {
@@ -247,7 +256,7 @@ export default function InstantButter() {
             <MintRedeemInterface
               token={butterData?.batchProcessTokens}
               selectToken={selectToken}
-              deposit={deposit}
+              mainAction={handleMainAction}
               approve={approve}
               depositDisabled={isDepositDisabled(
                 butterPageState.depositAmount,
@@ -255,7 +264,6 @@ export default function InstantButter() {
               )}
               hasUnclaimedBalances={false}
               butterPageState={[butterPageState, setButterPageState]}
-              withdraw={redeem}
               isInstantPage
             />
           ) : (
