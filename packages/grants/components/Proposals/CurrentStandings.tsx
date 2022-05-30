@@ -3,7 +3,7 @@ import { Proposal } from "@popcorn/hardhat/lib/adapters";
 import { bigNumberToNumber, formatAndRoundBigNumber } from "@popcorn/utils";
 import Divider from "components/CommonComponents/Divider";
 import ProgressBar from "components/ProgressBar";
-import { BigNumber,constants } from "ethers";
+import { constants } from "ethers";
 
 const CurrentStandings: React.FC<Proposal> = (proposal) => {
   return (
