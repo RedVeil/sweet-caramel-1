@@ -1,6 +1,6 @@
 import { isBigNumberish } from "@ethersproject/bignumber/lib/bignumber";
 import { Token } from "@popcorn/utils/src/types";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import useTokenAllowance from "hooks/tokens/useTokenAllowance";
 import useTokenBalance from "hooks/tokens/useTokenBalance";
 import { useMemo } from "react";
@@ -31,8 +31,8 @@ export default function useBalanceAndAllowance(
       return { balance, allowance, revalidate, isValidating: balanceIsRevalidating || allowanceIsRevalidating };
     }
     return {
-      balance: BigNumber.from("0"),
-      allowance: BigNumber.from("0"),
+      balance: constants.Zero,
+      allowance: constants.Zero,
       revalidate,
       isValidating: balanceIsRevalidating || allowanceIsRevalidating,
     };

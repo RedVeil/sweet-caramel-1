@@ -21,7 +21,7 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
     butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
   }%) and is boosted with POP (${
     butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-  }%). You must stake your BTR to receive the additional APY in POP and 90% of POP rewards are vested over one year.`;
+  }%). You must stake your BTR to receive the additional APY in POP. 90% of earned POP rewards are vested over one year.`;
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
       <div className={`${!center && "border-gray-200 border-r-2 pr-6"} md:border-gray-200 md:border-r-2 md:pr-6 mt-2`}>

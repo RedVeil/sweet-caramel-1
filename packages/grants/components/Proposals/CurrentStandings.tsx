@@ -3,7 +3,7 @@ import { Proposal } from "@popcorn/hardhat/lib/adapters";
 import { bigNumberToNumber, formatAndRoundBigNumber } from "@popcorn/utils";
 import Divider from "components/CommonComponents/Divider";
 import ProgressBar from "components/ProgressBar";
-import { BigNumber } from "ethers";
+import { BigNumber,constants } from "ethers";
 
 const CurrentStandings: React.FC<Proposal> = (proposal) => {
   return (
@@ -17,7 +17,7 @@ const CurrentStandings: React.FC<Proposal> = (proposal) => {
         <span className="mx-4  w-1/2 justify-self-center flex flex-row justify-between  pb-2">
           <ProgressBar
             progress={
-              proposal?.votes?.for === BigNumber.from("0")
+              proposal?.votes?.for === constants.Zero
                 ? 0
                 : bigNumberToNumber(
                     proposal?.votes?.for.mul(parseEther("100")).div(proposal?.votes?.for.add(proposal?.votes?.against)),

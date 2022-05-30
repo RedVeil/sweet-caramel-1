@@ -44,7 +44,7 @@ export default function useButterBatchData(): SWRResponse<ButterBatchData, Error
   );
 
   return useSWR(shouldFetch ? `butter-batch-data` : null, async () => {
-    return getData(
+    return getData({
       butterBatchAdapter,
       account,
       dai,
@@ -54,8 +54,8 @@ export default function useButterBatchData(): SWRResponse<ButterBatchData, Error
       threePool,
       butter,
       setBasicIssuanceModule,
-      butterBatch,
-      butterBatchZapper,
-    );
+      mainContract: butterBatch,
+      zapperContract: butterBatchZapper,
+    });
   });
 }

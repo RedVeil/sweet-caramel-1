@@ -1,3 +1,4 @@
+import { localStringOptions } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { Dispatch } from "react";
 
@@ -55,8 +56,10 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
               classExtras="h-7 w-7 mt-0 ml-5"
               id="2"
               title="Redeem"
-              content="Redeem your BTR to receive its value in 3CRV or stablecoins. We will convert all the
-              underlying tokens of BTR back into 3CRV or your desired stablecoin."
+              content={`Redeem your BTR to receive its value in 3CRV or stablecoins. The underlying tokens will be converted into 3CRV or your desired stablecoin. Redemptions incur a ${(0.5).toLocaleString(
+                undefined,
+                localStringOptions,
+              )}% (50 bps) redemption fee.`}
             />
           </div>
         </p>

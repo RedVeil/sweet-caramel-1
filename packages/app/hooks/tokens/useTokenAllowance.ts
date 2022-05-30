@@ -1,6 +1,6 @@
 import { isAddress } from "@ethersproject/address";
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import useSWR, { SWRResponse } from "swr";
 
 export default function useTokenAllowance(
@@ -12,7 +12,7 @@ export default function useTokenAllowance(
     [`erc20/allowance`, token, owner, spender],
     async (key: string, tokenContract: ERC20, owner: string | null, spender: string) => {
       if (!isAddress(token.address) || !isAddress(spender) || !isAddress(owner)) {
-        return BigNumber.from("0");
+        return constants.Zero;
       }
       return await tokenContract.allowance(owner, spender);
     },

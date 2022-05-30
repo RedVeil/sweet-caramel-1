@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { AccountBatch, HotSwapParameter } from "./types";
 
@@ -8,7 +8,7 @@ export const isButterSupportedOnCurrentNetwork = (chainId: number) => {
 };
 
 export function prepareHotSwap(batches: AccountBatch[], depositAmount: BigNumber): HotSwapParameter {
-  let cumulatedBatchAmounts = BigNumber.from("0");
+  let cumulatedBatchAmounts = constants.Zero;
   const batchIds: String[] = [];
   const amounts: BigNumber[] = [];
   batches.forEach((batch) => {

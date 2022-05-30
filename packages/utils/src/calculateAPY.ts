@@ -20,7 +20,7 @@ export async function calculateApy(
   library,
 ): Promise<BigNumber> {
   //Prevents `div by 0` errors
-  if (!totalStaked || totalStaked.eq(BigNumber.from("0"))) {
+  if (!totalStaked || totalStaked.eq(constants.Zero)) {
     return BigNumber.from("-1");
   }
   switch (stakedTokenAddress.toLocaleLowerCase()) {
@@ -52,7 +52,7 @@ export async function getLpTokenApy(
     const popAmount = await ERC20__factory.connect(contractAddresses.pop, library).balanceOf(
       contractAddresses.popUsdcLp,
     );
-    if (usdcAmount.eq(BigNumber.from("0")) || popAmount.eq(BigNumber.from("0"))) {
+    if (usdcAmount.eq(constants.Zero) || popAmount.eq(constants.Zero)) {
       return BigNumber.from("-1");
     }
     return await getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);

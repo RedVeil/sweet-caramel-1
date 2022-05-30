@@ -1,5 +1,5 @@
 import { RewardsEscrow } from "@popcorn/hardhat/typechain";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import useSWR from "swr";
 import { getChainRelevantContracts } from "../../hardhat/lib/utils/getContractAddresses";
 import useVestingEscrow from "./useVestingEscrow";
@@ -33,11 +33,11 @@ const getEscrowsByIds = async (vestingEscrow: RewardsEscrow, escrowIds: string[]
 const getUserEscrows = () => async (_: any, account: string, vestingEscrow: RewardsEscrow, library) => {
   const escrowIds: string[] = await vestingEscrow.getEscrowIdsByUser(account);
   if (escrowIds.length === 0) {
-    return { escrows: new Array(0), totalClaimablePop: BigNumber.from("0") };
+    return { escrows: new Array(0), totalClaimablePop: constants.Zero };
   }
-  let totalClaimablePop: BigNumber = BigNumber.from("0");
+  let totalClaimablePop: BigNumber = constants.Zero;
   const escrows = (await getEscrowsByIds(vestingEscrow, escrowIds))
-    .filter((escrow) => escrow.balance.gt(BigNumber.from("0")))
+    .filter((escrow) => escrow.balance.gt(constants.Zero))
     .filter((escrow) => !BAD_ESCROW_IDS.includes(escrow.id));
 
   for (let i = 0; i < escrows.length; i++) {

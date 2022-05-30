@@ -21,7 +21,7 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
     >
       <div className="hidden md:flex flex-row justify-between gap-2 items-center w-full">
         <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
-        <StatusWithLabel label="Total Vested Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+        <StatusWithLabel label="Total Vesting Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
         <StatusWithLabel
           label="Claimable Tokens"
           content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
@@ -41,7 +41,7 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
             content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
           />
           <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
-          <StatusWithLabel label="Total Vested Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+          <StatusWithLabel label="Total Vesting Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
         </div>
         <div className="w-full mt-6">
           <MainActionButton

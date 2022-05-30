@@ -1,7 +1,7 @@
 import { formatEther, formatUnits } from "@ethersproject/units";
 import { formatAndRoundBigNumber, formatBigNumber, numberToBigNumber } from "@popcorn/utils";
-import { BatchProcessTokenKey, BatchProcessTokens } from "@popcorn/utils/src/types";
-import { BigNumber } from "ethers";
+import { BatchProcessToken, BatchProcessTokenKey, BatchProcessTokens } from "@popcorn/utils/src/types";
+import { BigNumber, constants } from "ethers";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
 import { ButterPageState } from "pages/[network]/butter";
 import { Dispatch, useEffect, useRef, useState } from "react";
@@ -16,6 +16,11 @@ export interface ButterTokenInputProps {
   hasUnclaimedBalances?: boolean;
 }
 
+interface SelectedToken {
+  input: BatchProcessToken;
+  output: BatchProcessToken;
+}
+
 const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   token,
   selectToken,
@@ -25,6 +30,10 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 }) => {
   const [estimatedAmount, setEstimatedAmount] = useState<string>("");
   const [localButterPageState, setButterPageState] = butterPageState;
+  const [selectedToken, setSelectedToken] = useState<SelectedToken>({
+    input: localButterPageState.batchToken[localButterPageState.selectedToken.input],
+    output: localButterPageState.batchToken[localButterPageState.selectedToken.output],
+  });
 
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
@@ -33,6 +42,13 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         localButterPageState.batchToken[localButterPageState.selectedToken.input].decimals,
       );
   const ref = useRef(displayAmount);
+
+  useEffect(() => {
+    setSelectedToken({
+      input: localButterPageState.batchToken[localButterPageState.selectedToken.input],
+      output: localButterPageState.batchToken[localButterPageState.selectedToken.output],
+    });
+  }, [localButterPageState.selectedToken.input, localButterPageState.selectedToken.output]);
 
   useEffect(() => {
     if (displayAmount !== ref.current) {
@@ -48,7 +64,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   };
 
   useEffect(() => {
-    if (localButterPageState.depositAmount.eq(BigNumber.from("0"))) {
+    if (localButterPageState.depositAmount.eq(constants.Zero)) {
       setEstimatedAmount("");
     } else {
       calcOutputAmountsFromInput(localButterPageState.depositAmount);
@@ -56,15 +72,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   }, [localButterPageState.depositAmount]);
 
   function calcOutputAmountsFromInput(value: BigNumber): void {
-    setEstimatedAmount(
-      String(
-        formatBigNumber(
-          value
-            .mul(localButterPageState.batchToken[localButterPageState.selectedToken.input].price)
-            .div(localButterPageState.batchToken[localButterPageState.selectedToken.output].price),
-        ),
-      ),
-    );
+    setEstimatedAmount(String(formatBigNumber(value.mul(selectedToken.input.price).div(selectedToken.output.price))));
   }
 
   return (
@@ -75,11 +83,11 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           <p className="text-gray-500 font-medium text-sm">
             {`${formatAndRoundBigNumber(
               localButterPageState.useUnclaimedDeposits
-                ? localButterPageState.batchToken[localButterPageState.selectedToken.input].claimableBalance
-                : localButterPageState.batchToken[localButterPageState.selectedToken.input].balance,
+                ? selectedToken.input.claimableBalance
+                : selectedToken.input.balance,
               localButterPageState.redeeming ? 6 : 2,
-              localButterPageState.batchToken[localButterPageState.selectedToken.input].decimals,
-            )} ${localButterPageState.batchToken[localButterPageState.selectedToken.input].name}`}
+              selectedToken.input.decimals,
+            )} ${selectedToken.input.name}`}
           </p>
         </div>
         <div>
@@ -90,8 +98,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
                 localButterPageState.depositAmount.gt(
                   localButterPageState.useUnclaimedDeposits
-                    ? localButterPageState.batchToken[localButterPageState.selectedToken.input].claimableBalance
-                    : localButterPageState.batchToken[localButterPageState.selectedToken.input].balance,
+                    ? selectedToken.input.claimableBalance
+                    : selectedToken.input.balance,
                 )
                   ? "focus:ring-red-600 border-red-600"
                   : "focus:ring-blue-500 focus:border-blue-500"
@@ -116,8 +124,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                 className="px-2 pb-1 pt-1.5 mr-4 leading-none text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 text-sm"
                 onClick={(e) => {
                   const maxAmount = localButterPageState.useUnclaimedDeposits
-                    ? localButterPageState.batchToken[localButterPageState.selectedToken.input].claimableBalance
-                    : localButterPageState.batchToken[localButterPageState.selectedToken.input].balance;
+                    ? selectedToken.input.claimableBalance
+                    : selectedToken.input.balance;
                   calcOutputAmountsFromInput(maxAmount);
                   setButterPageState({ ...localButterPageState, depositAmount: maxAmount });
                   ref.current = Number(formatEther(maxAmount)).toFixed(3);
@@ -127,7 +135,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               </p>
               <SelectToken
                 allowSelection={!localButterPageState.redeeming}
-                selectedToken={localButterPageState.batchToken[localButterPageState.selectedToken.input]}
+                selectedToken={selectedToken.input}
                 token={token}
                 notSelectable={[
                   localButterPageState.selectedToken.input,
@@ -147,7 +155,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               setEstimatedAmount("0");
               setButterPageState({
                 ...localButterPageState,
-                depositAmount: BigNumber.from("0"),
+                depositAmount: constants.Zero,
                 useUnclaimedDeposits: !localButterPageState.useUnclaimedDeposits,
               });
             }}
@@ -159,8 +167,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
         {localButterPageState.depositAmount.gt(
           localButterPageState.useUnclaimedDeposits
-            ? localButterPageState.batchToken[localButterPageState.selectedToken.input].claimableBalance
-            : localButterPageState.batchToken[localButterPageState.selectedToken.input].balance,
+            ? selectedToken.input.claimableBalance
+            : selectedToken.input.balance,
         ) && <p className="text-red-600">Insufficient Balance</p>}
       </div>
       <div className="relative -mt-10 -mb-10">
@@ -184,9 +192,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         </div>
       </div>
       <div>
-        <p className="text-base font-semibold text-gray-900">{`Estimated ${
-          localButterPageState.batchToken[localButterPageState.selectedToken.output].name
-        } Amount`}</p>
+        <p className="text-base font-semibold text-gray-900">{`Estimated ${selectedToken.output.name} Amount`}</p>
         <div>
           <div className="mt-1 relative flex items-center">
             <input
@@ -207,7 +213,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
             <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
               <SelectToken
                 allowSelection={false}
-                selectedToken={localButterPageState.batchToken[localButterPageState.selectedToken.output]}
+                selectedToken={selectedToken.output}
                 token={token}
                 notSelectable={[
                   localButterPageState.selectedToken.output,

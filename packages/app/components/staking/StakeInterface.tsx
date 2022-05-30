@@ -30,7 +30,7 @@ export enum InteractionType {
 }
 
 export const defaultForm = {
-  amount: BigNumber.from("0"),
+  amount: constants.Zero,
   type: InteractionType.Deposit,
   termsAccepted: false,
 };

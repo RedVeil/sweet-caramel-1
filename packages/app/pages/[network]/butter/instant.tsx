@@ -113,7 +113,7 @@ export default function InstantButter() {
           output: butterPageState?.batchToken?.threeCrv?.key,
         },
         useZap: false,
-        depositAmount: BigNumber.from("0"),
+        depositAmount: constants.Zero,
         useUnclaimedDeposits: false,
       });
     } else {
@@ -124,7 +124,7 @@ export default function InstantButter() {
           output: butterPageState?.batchToken?.butter?.key,
         },
         useZap: false,
-        depositAmount: BigNumber.from("0"),
+        depositAmount: constants.Zero,
         useUnclaimedDeposits: false,
       });
     }
@@ -144,7 +144,7 @@ export default function InstantButter() {
         selectedToken: newSelectedToken,
         useUnclaimedDeposits: false,
         useZap: true,
-        depositAmount: BigNumber.from("0"),
+        depositAmount: constants.Zero,
       });
     } else {
       setButterPageState({
@@ -152,7 +152,7 @@ export default function InstantButter() {
         selectedToken: newSelectedToken,
         useUnclaimedDeposits: false,
         useZap: false,
-        depositAmount: BigNumber.from("0"),
+        depositAmount: constants.Zero,
       });
     }
   }

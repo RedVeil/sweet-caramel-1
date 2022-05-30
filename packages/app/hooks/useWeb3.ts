@@ -31,6 +31,12 @@ export default function useWeb3() {
 
   const { dispatch } = useContext(store);
 
+  const isLoaded = (network: string | undefined): boolean =>
+    connectedChain?.id && typeof network === "string" && !router?.pathname?.includes("butter");
+
+  const isChainMismatch = (network: string | undefined): boolean =>
+    isLoaded(network) && ChainId[Number(connectedChain?.id)] !== toTitleCase(network);
+
   useEffect(() => {
     // Eagerconnect
     if (!wallet && previouslyConnectedWallets?.length > 0) {
@@ -46,14 +52,10 @@ export default function useWeb3() {
 
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
-
-    if (
-      connectedChain?.id &&
-      typeof router?.query?.network === "string" &&
-      ChainId[Number(connectedChain.id)] !== toTitleCase(router.query.network) &&
-      !router?.pathname?.includes("butter")
-    ) {
-      alertChainInconsistency(router?.query?.network, ChainId[Number(connectedChain.id)]);
+    if (isChainMismatch(router?.query?.network as string)) {
+      alertChainInconsistency(router?.query?.network as string, ChainId[Number(connectedChain.id)]);
+    } else {
+      dispatch(setNetworkChangePromptModal(false));
     }
   }, [router?.query?.network, wallet, connectedChain?.id]);
 
@@ -108,7 +110,9 @@ export default function useWeb3() {
   }
 
   function getNonWalletChain(): string {
-    return typeof router?.query?.network === "string" ? toTitleCase(router.query.network) : process.env.DEFAULT_CHAIN;
+    return typeof router?.query?.network === "string"
+      ? toTitleCase(router.query.network)
+      : ChainId[Number(process.env.CHAIN_ID)];
   }
 
   function getChainId(): number {
