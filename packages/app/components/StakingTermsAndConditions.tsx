@@ -39,7 +39,7 @@ const TermsAndConditions = ({
           <p className={`text-lg font-semibold ${isDisabled ? "text-gray-300" : "text-gray-900"} pb-2`}>
             Accept reward terms and conditions:
           </p>
-          <ul className="list-inside">
+          <ol className="pl-6 list-decimal space-y-4">
             {showLockTerms && (
               <li className={`text-lg pb-2 ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
                 Your staked tokens will be locked for a period of 12 weeks. You will be unable to access your tokens
@@ -54,7 +54,7 @@ const TermsAndConditions = ({
               After rewards are earned and claimed, 10% is immediately transferred, and the rest of the earned amount is
               unlocked linearly over the following 365 day period.
             </li>
-          </ul>
+          </ol>
         </div>
       </div>
     </div>
