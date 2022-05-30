@@ -34,7 +34,7 @@ export default function useWeb3() {
   useEffect(() => {
     // Eagerconnect
     if (!wallet && previouslyConnectedWallets?.length > 0) {
-      handleConnect();
+      handleConnect(true);
     }
   }, []);
   useEffect(() => {
@@ -101,9 +101,9 @@ export default function useWeb3() {
     await disconnect({ label: wallet?.label });
   }
 
-  async function handleConnect(): Promise<void> {
+  async function handleConnect(disableModals: boolean = false): Promise<void> {
     return previouslyConnectedWallets
-      ? await connect({ autoSelect: previouslyConnectedWallets[0] })
+      ? await connect({ autoSelect: { label: previouslyConnectedWallets[0], disableModals } })
       : await connect({});
   }
 
