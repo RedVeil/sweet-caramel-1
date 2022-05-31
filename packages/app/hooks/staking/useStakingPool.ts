@@ -15,11 +15,7 @@ export default function useStakingPool(address: string): SWRResponse<StakingPool
   }, [chainId, address, signerOrProvider]);
 
   const shouldFetch = !!stakingContract && contractAddresses.has(address);
-  return useSWR(
-    shouldFetch ? [`staking-pool`, address, chainId, account] : null,
-    async (key) => {
-      return getStakingPool(key, account, stakingContract, contractAddresses, chainId, signerOrProvider);
-    },
-    { refreshInterval: 2000 },
-  );
+  return useSWR(shouldFetch ? [`staking-pool`, address, chainId, account] : null, async (key) => {
+    return getStakingPool(key, account, stakingContract, contractAddresses, chainId, signerOrProvider);
+  });
 }

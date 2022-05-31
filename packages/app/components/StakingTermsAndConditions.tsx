@@ -15,7 +15,7 @@ const TermsAndConditions = ({
 }: TermsAndConditionsProps) => {
   return (
     <div>
-      <div className="relative flex items-start pt-0 md:pt-10 lg:pt-0 pb-10 pr-2">
+      <div className="relative flex items-start pb-10 pr-2">
         <div className="flex items-center h-5 pt-2">
           {isDisabled ? (
             <input
@@ -39,22 +39,25 @@ const TermsAndConditions = ({
           <p className={`text-lg font-semibold ${isDisabled ? "text-gray-300" : "text-gray-900"} pb-2`}>
             Accept reward terms and conditions:
           </p>
-          <ul className="list-inside">
+          <ol className="pl-6 list-decimal space-y-4">
             {showLockTerms && (
-              <li className={`text-lg pb-2 ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
+              <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
                 Your staked tokens will be locked for a period of 12 weeks. You will be unable to access your tokens
                 during this period.
               </li>
             )}
             <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
               Your staked tokens must be re-staked or withdrawn after the 3-month lock time expires or they will be
-              subjected to a penalty of 1% per week that they are not re-staked.
+              subjected to a penalty of 1% per epoch that they are not re-staked.
             </li>
             <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
               After rewards are earned and claimed, 10% is immediately transferred, and the rest of the earned amount is
               unlocked linearly over the following 365 day period.
             </li>
-          </ul>
+            <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
+              90% of POP rewards are vested over one year.
+            </li>
+          </ol>
         </div>
       </div>
     </div>

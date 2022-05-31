@@ -1,5 +1,5 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20, ISetToken } from "../../../hardhat/typechain";
+import { ERC20, ERC20Permit, ISetToken } from "../../../hardhat/typechain";
 
 export type Address = string;
 export interface ContractAddresses {
@@ -97,7 +97,7 @@ export type LockedBalance = {
 };
 
 export type Token = {
-  contract: ERC20;
+  contract: ERC20 | ERC20Permit;
   address: Address;
   name: string;
   symbol: string;

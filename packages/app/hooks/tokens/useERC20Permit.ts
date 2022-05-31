@@ -5,19 +5,19 @@ import { Token } from "../../../utils/src/types/index";
 import useWeb3 from "../useWeb3";
 
 export default function useERC20Permit(address: string | null, permit: boolean = false): Token {
-  const { library, account } = useWeb3();
+  const { signerOrProvider, account } = useWeb3();
   const [token, setToken] = useState<Token>(null);
   useEffect(() => {
     let mounted = true;
-    if (address && library) {
-      getToken(ERC20Permit__factory.connect(address, account ? library.getSigner() : library))
+    if (address && signerOrProvider) {
+      getToken(ERC20Permit__factory.connect(address, signerOrProvider))
         .then((token) => mounted && setToken(token))
         .catch((err) => {});
     }
     return () => {
       mounted = false;
     };
-  }, [address, library, account]);
+  }, [address, signerOrProvider, account]);
 
   return token;
 }

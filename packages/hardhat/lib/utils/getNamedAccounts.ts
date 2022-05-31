@@ -38,68 +38,68 @@ export default function getNamedAccounts() {
       goerli: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
       hardhat: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
     },
-    yMim: {
-      mainnet: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
-      rinkeby: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
-      goerli: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
-      hardhat: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
-    },
     crvFrax: {
       mainnet: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       rinkeby: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       goerli: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       hardhat: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
     },
-    crvMim: {
-      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      goerli: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    crvMusdMetapool: {
-      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      goerli: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    yRai: {
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    yMusd: {
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    yAlusd: {
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    crvRaiMetapool: {
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    crvRai: {
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    crvMusd: {
-      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      goerli: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    crvAlusdMetapool: {
-      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      goerli: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
-    crvAlusd: {
-      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      goerli: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
-    },
     crvFraxMetapool: {
       mainnet: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       rinkeby: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       goerli: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       hardhat: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+    },
+    yRai: {
+      hardhat: "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
+    },
+    crvRaiMetapool: {
+      hardhat: "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d",
+    },
+    crvRai: {
+      hardhat: "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
+    },
+    yMusd: {
+      hardhat: "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
+    },
+    crvMusd: {
+      mainnet: "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+      rinkeby: "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+      goerli: "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+      hardhat: "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+    },
+    crvMusdMetapool: {
+      mainnet: "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+      rinkeby: "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+      goerli: "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+      hardhat: "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+    },
+    yAlusd: {
+      hardhat: "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
+    },
+    crvAlusd: {
+      mainnet: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      rinkeby: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      goerli: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      hardhat: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+    },
+    crvAlusdMetapool: {
+      mainnet: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      rinkeby: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      goerli: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      hardhat: "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+    },
+    yMim: {
+      mainnet: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+      rinkeby: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+      goerli: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+      hardhat: "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+    },
+    crvMim: {
+      mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+      rinkeby: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+      goerli: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+      hardhat: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
     },
     crvMimMetapool: {
       mainnet: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
@@ -166,11 +166,11 @@ export default function getNamedAccounts() {
       hardhat: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     },
     usdc: {
-      mainnet: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      mainnet: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       rinkeby: "0xEE8668081Ed77BCe6ce4eeA3FF2Bd4D0a651517E",
       binance: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
       polygon: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-      hardhat: "0xefAB0Beb0A557E452b398035eA964948c750b2Fd",
+      hardhat: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       arbitrum: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
       goerli: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
     },
@@ -185,10 +185,10 @@ export default function getNamedAccounts() {
       goerli: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
     },
     butter: {
-      mainnet: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
+      mainnet: "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
       rinkeby: "0x02C647E661eBee8C6f8646BE873400E6de073c6D",
       goerli: "0x954446266DA5FC29B544C35af0aE924dC842c4A5",
-      hardhat: "0xdf203cefcd2422e4dca95d020cb9eb986788f7ae",
+      hardhat: "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
     },
     setStreamingFeeModule: {
       mainnet: "0x08f866c74205617B6F3903EF481798EcED10cDEC",
@@ -262,13 +262,13 @@ export default function getNamedAccounts() {
       polygon: "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
       hardhat: "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
       rinkeby: "0x9a98865646886c9EfEf459954c4Af9D9A86AD208",
-      goerli: "0x9cb2d243e434e215b1ACDA869b9222Fd841e5414"
+      goerli: "0x9cb2d243e434e215b1ACDA869b9222Fd841e5414",
     },
     keeperIncentive: {
       polygon: "0xd928a457247649835e652416847C54C038FAF920",
       mainnet: "0xCD4f7582b32d90BD9FC7DC9F8116C43Ab17dE011",
       rinkeby: "0xc0C87CfA68a98EABc62716CE9e6B15b350ed3799",
-      goerli: "0x5Be0621AC7acf8007396b11dd24e7a6B407F086E"
+      goerli: "0x5Be0621AC7acf8007396b11dd24e7a6B407F086E",
     },
     contractRegistry: {
       mainnet: "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
@@ -287,7 +287,7 @@ export default function getNamedAccounts() {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
       hardhat: "0x67aD6EA566BA6B0fC52e97Bc25CE46120fdAc04c",
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
-      goerli: "0x5184AbfB1D536101Ff4BA601874CeDC16154fb1f"
+      goerli: "0x5184AbfB1D536101Ff4BA601874CeDC16154fb1f",
     },
     rewardsEscrow: {
       hardhat: "0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab",

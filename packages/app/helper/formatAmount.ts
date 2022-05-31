@@ -3,7 +3,7 @@ import { BigNumber, constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
 export const formatStakedAmount = (num: BigNumber): string => {
-  if (num.lte(parseEther("1")) && num.gt(BigNumber.from("0"))) {
+  if (num.lte(parseEther("1")) && num.gt(constants.Zero)) {
     return formatAndRoundBigNumber(num, 6);
   } else {
     return formatAndRoundBigNumber(num, 3);
@@ -13,7 +13,7 @@ export const formatStakedAmount = (num: BigNumber): string => {
 // dev - tokenPrice and tokens should both have a consistent decimal points. That is 18.
 export const formatStakedTVL = (tokens: BigNumber, tokenPrice: BigNumber): string => {
   const tvl = tokens.mul(tokenPrice).div(constants.WeiPerEther);
-  if (tvl.lte(parseEther("1")) && tvl.gt(BigNumber.from("0"))) {
+  if (tvl.lte(parseEther("1")) && tvl.gt(constants.Zero)) {
     return formatAndRoundBigNumber(tvl, 0) + "$";
   } else {
     return formatAndRoundBigNumber(tvl, 0) + "$";

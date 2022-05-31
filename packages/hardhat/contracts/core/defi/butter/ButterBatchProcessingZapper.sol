@@ -77,8 +77,7 @@ contract ButterBatchProcessingZapper {
         //Deposit Stables
         if (i == 0) {
           IDAI(curve3Pool.coins(i)).permit(msg.sender, address(this), nonce[i], deadline[i], true, v[i], r[i], s[i]);
-        }
-        if (i == 1) {
+        } else if (i == 1) {
           IUSDC(curve3Pool.coins(i)).permit(msg.sender, address(this), _amounts[i], deadline[i], v[i], r[i], s[i]);
         }
         IERC20(curve3Pool.coins(uint256(i))).safeTransferFrom(msg.sender, address(this), _amounts[i]);

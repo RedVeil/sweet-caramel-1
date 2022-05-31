@@ -30,10 +30,10 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
       )}
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
-          <TokenIcon token={getSanitizedTokenDisplayName(stakedToken?.name)} />
+          <TokenIcon token={getSanitizedTokenDisplayName(stakedToken?.name)} fullsize />
           <h3 className="secondary-title ml-4 ">{getSanitizedTokenDisplayName(stakedToken?.name)}</h3>
         </div>
-        <div className="w-24 flex-shrink-0">
+        <div className="w-24 hidden smmd:block flex-shrink-0 ">
           <MainActionButton
             label="Stake"
             handleClick={async () => await onSelectPool(stakingPool?.address, stakedToken?.address)}
@@ -67,6 +67,12 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             label="Token Emissions"
           />
         </div>
+      </div>
+      <div className="w-full mt-10 smmd:hidden">
+        <MainActionButton
+          label="Stake"
+          handleClick={async () => await onSelectPool(stakingPool?.address, stakedToken?.address)}
+        />
       </div>
     </div>
   );

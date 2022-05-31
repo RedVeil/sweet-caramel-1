@@ -18,6 +18,7 @@ interface SignatureReturn {
 
 export default async function getSignature(
   library: any,
+  signerOrProvider: any,
   permitType: permitTypes,
   owner: Address,
   spender: Address,
@@ -76,10 +77,13 @@ export default async function getSignature(
     },
     message,
   };
+  console.log({ getTypedData });
 
-  const signature = await library
-    .getSigner()
-    ._signTypedData(getTypedData.domain, getTypedData.types, getTypedData.message);
+  const signature = await signerOrProvider._signTypedData(
+    getTypedData.domain,
+    getTypedData.types,
+    getTypedData.message,
+  );
   const { v, r, s } = fromRpcSig(signature);
 
   return { v, r, s, deadline, value, nonce };

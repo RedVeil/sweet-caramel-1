@@ -39,7 +39,7 @@ export default function web3Onboard(): void {
       },
       {
         id: ChainIdHex.BNB,
-        token: "BSC",
+        token: "BNB",
         label: "BNB",
         rpcUrl: RPC_URLS[ChainId.BNB],
       },

@@ -1,7 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import { AccountBatch, Batch, ComponentMap, CurrentBatches, TimeTillBatchProcessing } from "@popcorn/utils/src/types";
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, constants } from "ethers";
 
 class ButterBatchAdapter {
   constructor(private contract: Contract) {}
@@ -27,11 +27,11 @@ class ButterBatchAdapter {
     const claimableTokenBalance = batch.claimableTokenBalance;
     const accountBalance = await this.contract.accountBalances(batchId, address);
     if (
-      claimableTokenBalance === BigNumber.from("0") ||
-      accountBalance === BigNumber.from("0") ||
-      unclaimedShares === BigNumber.from("0")
+      claimableTokenBalance === constants.Zero ||
+      accountBalance === constants.Zero ||
+      unclaimedShares === constants.Zero
     ) {
-      return BigNumber.from("0");
+      return constants.Zero;
     }
 
     return claimableTokenBalance.mul(accountBalance).div(unclaimedShares);
@@ -180,13 +180,13 @@ class ButterBatchAdapter {
         return {
           ...batch,
           accountSuppliedTokenBalance: shares,
-          accountClaimableTokenBalance: batch.unclaimedShares.eq(BigNumber.from("0"))
+          accountClaimableTokenBalance: batch.unclaimedShares.eq(constants.Zero)
             ? 0
             : batch.claimableTokenBalance.mul(shares).div(batch.unclaimedShares),
         };
       })
     );
-    return (batches as AccountBatch[]).filter((batch) => batch.accountSuppliedTokenBalance > BigNumber.from("0"));
+    return (batches as AccountBatch[]).filter((batch) => batch.accountSuppliedTokenBalance > constants.Zero);
   }
 
   public async getBatchCooldowns(): Promise<BigNumber[]> {

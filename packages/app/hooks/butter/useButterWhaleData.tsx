@@ -41,7 +41,7 @@ export default function useButterWhaleData(): SWRResponse<ButterBatchData, Error
   );
 
   return useSWR(shouldFetch ? `butter-whale-data` : null, async () => {
-    return getData(
+    return getData({
       butterBatchAdapter,
       account,
       dai,
@@ -51,7 +51,7 @@ export default function useButterWhaleData(): SWRResponse<ButterBatchData, Error
       threePool,
       butter,
       setBasicIssuanceModule,
-      whaleButter,
-    );
+      mainContract: whaleButter,
+    });
   });
 }
