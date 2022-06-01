@@ -28,7 +28,7 @@ const IndexPage = () => {
         <div className="h-54">
           <Hero
             header="4x"
-            content="Your stablecoin yield with forex while donating to charity"
+            content=" Forex exposure with nobel yield that donates fees to social impact organizations."
             image="/images/4xImage.svg"
             link="/fourx"
             imageSize="h-20"
