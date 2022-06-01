@@ -43,7 +43,7 @@ contract MockCurveThreepool {
   }
 
   function add_liquidity(uint256[3] calldata amounts, uint256 min_mint_amounts) external returns (uint256) {
-    require(amounts[0] > 0, "dai must be larger 0");
+    // require(amounts[0] > 0, "dai must be larger 0");
     require(min_mint_amounts == 0, "min_mint_amounts must be 0");
     uint256 lpTokens;
     for (uint8 i = 0; i < tokens.length; i++) {

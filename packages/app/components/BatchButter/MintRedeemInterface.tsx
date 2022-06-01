@@ -1,6 +1,7 @@
 import { BatchType } from "@popcorn/utils/src/types";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { BigNumber, constants, ethers } from "ethers";
+import { useMemo } from "react";
 import MainActionButton from "../MainActionButton";
 import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
 import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
@@ -25,7 +26,24 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
 }) => {
   const [localButterPageState, setButterPageState] = butterPageState;
 
-  function isAllowanceInsufficient() {
+  const isAllowanceInsufficient = useMemo(() => {
+    if (localButterPageState.selectedToken.input === "usdc") {
+      return localButterPageState.instant
+        ? localButterPageState.depositAmount
+            .div(1e12)
+            .gt(localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance)
+        : localButterPageState.depositAmount
+            .div(1e12)
+            .gt(localButterPageState.batchToken[localButterPageState.selectedToken.input].signatureData?.value || 0);
+    } else if (localButterPageState.selectedToken.input === "dai") {
+      return localButterPageState.instant
+        ? localButterPageState.depositAmount.gt(
+            localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance,
+          )
+        : localButterPageState.depositAmount.gt(
+            localButterPageState.batchToken[localButterPageState.selectedToken.input].signatureData?.value || 0,
+          );
+    }
     return localButterPageState.instant
       ? localButterPageState.depositAmount.gt(
           localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance,
@@ -35,7 +53,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance,
         ) ||
           localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero);
-  }
+  }, [localButterPageState, localButterPageState.selectedToken, localButterPageState.batchToken.usdc.signatureData]);
 
   function setRedeeming(redeeming: boolean) {
     setButterPageState({ ...localButterPageState, redeeming: redeeming });
@@ -93,7 +111,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
             />
           </div>
         )}
-        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && isAllowanceInsufficient() && (
+        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && isAllowanceInsufficient && (
           <div className="space-y-6">
             <MainActionButton
               label={`Allow Popcorn to use your ${
@@ -113,7 +131,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
             />
           </div>
         )}
-        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && !isAllowanceInsufficient() && (
+        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && !isAllowanceInsufficient && (
           <div className="pt-6">
             {localButterPageState.instant && !localButterPageState.redeeming ? (
               <>

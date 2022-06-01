@@ -1,6 +1,6 @@
 import { fromRpcSig } from "ethereumjs-util";
-import { BigNumber, Contract } from "ethers";
-import { Address } from "./types";
+import { BigNumber, constants, Contract } from "ethers";
+import { Address, SignatureDetails } from "./types";
 
 export enum permitTypes {
   AMOUNT = 1,
@@ -16,6 +16,38 @@ interface SignatureReturn {
   nonce?: BigNumber;
 }
 
+export function getZapSignature(
+  sig: SignatureDetails,
+  tokenKey: string,
+): {
+  v: [number, number];
+  r: [string, string];
+  s: [string, string];
+  nonce: [BigNumber, BigNumber];
+  deadline: [BigNumber, BigNumber];
+} {
+  switch (tokenKey) {
+    case "dai":
+      return {
+        v: [sig.v, 0],
+        r: [sig.r, sig.r],
+        s: [sig.s, sig.s],
+        nonce: [sig.nonce, constants.Zero],
+        deadline: [sig.deadline, constants.Zero],
+      };
+    case "usdc":
+      return {
+        v: [0, sig.v],
+        r: [sig.r, sig.r],
+        s: [sig.s, sig.s],
+        nonce: [constants.Zero, sig.nonce],
+        deadline: [constants.Zero, sig.deadline],
+      };
+    default:
+      return null;
+  }
+}
+
 export default async function getSignature(
   library: any,
   signerOrProvider: any,
@@ -29,9 +61,10 @@ export default async function getSignature(
   const block = await library.getBlock("latest");
   const hour = 60 * 60;
   const deadline = block.timestamp + hour;
+  // const deadline = ethers.constants.MaxUint256;
 
   const Permit =
-    permitType === permitTypes.ALLOWED
+    permitType === permitTypes.AMOUNT
       ? [
           { name: "owner", type: "address" },
           { name: "spender", type: "address" },
@@ -51,21 +84,22 @@ export default async function getSignature(
   const name = await tokenContract.name();
   const version = name === "USD Coin" ? "2" : "1"; // Avoiding extra call
 
-  const message = permitTypes.ALLOWED
-    ? {
-        owner,
-        spender,
-        value,
-        deadline,
-        nonce,
-      }
-    : {
-        holder: owner,
-        spender,
-        nonce,
-        expiry: deadline,
-        allowed: true,
-      };
+  const message =
+    permitType === permitTypes.AMOUNT
+      ? {
+          owner,
+          spender,
+          value,
+          deadline,
+          nonce,
+        }
+      : {
+          holder: owner,
+          spender,
+          nonce,
+          expiry: deadline,
+          allowed: true,
+        };
 
   const getTypedData = {
     types: { Permit },

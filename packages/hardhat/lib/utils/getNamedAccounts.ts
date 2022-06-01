@@ -30,7 +30,7 @@ export default function getNamedAccounts() {
     },
     butterWhaleProcessing: {
       mainnet: "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39",
-      hardhat: "0x0F527785e39B22911946feDf580d87a4E00465f0",
+      hardhat: "0x1D3EDBa836caB11C26A186873abf0fFeB8bbaE63",
     },
     yFrax: {
       mainnet: "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",

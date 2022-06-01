@@ -190,6 +190,9 @@ async function createDemoData(
   console.log("sending dai...");
   await faucet.sendTokens(addresses.dai, 1000, signerAddress);
 
+  console.log("sending usdc...");
+  await faucet.sendTokens(addresses.usdc, 1000, signerAddress);
+
   await threeCrv.approve(butterBatch.address, parseEther("130000"));
   await butter.approve(butterBatch.address, parseEther("2"));
 

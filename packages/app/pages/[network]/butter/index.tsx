@@ -31,22 +31,13 @@ import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
-import getSignature, { permitTypes } from "../../../../utils/src/getSignature";
+import getSignature, { getZapSignature, permitTypes } from "../../../../utils/src/getSignature";
 import abi from "../../../public/ButterBatchZapperAbi.json";
 
 export enum TOKEN_INDEX {
   dai,
   usdc,
   usdt,
-}
-
-interface SignatureDetails {
-  deadline: BigNumber;
-  v: number;
-  r: string;
-  s: string;
-  value: BigNumber;
-  nonce: BigNumber;
 }
 
 export function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
@@ -64,36 +55,6 @@ export function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string):
   }
 }
 
-function getZapSignature(
-  sig: SignatureDetails,
-  tokenKey: string,
-): {
-  v: [number, number];
-  r: [string, string];
-  s: [string, string];
-  nonce: [BigNumber, BigNumber];
-  deadline: [BigNumber, BigNumber];
-} {
-  switch (tokenKey) {
-    case "dai":
-      return {
-        v: [sig.v, 0],
-        r: [ethers.utils.formatBytes32String(sig.r), ethers.utils.formatBytes32String("")],
-        s: [ethers.utils.formatBytes32String(sig.s), ethers.utils.formatBytes32String("")],
-        nonce: [sig.nonce, constants.Zero],
-        deadline: [sig.deadline, constants.Zero],
-      };
-    case "usdc":
-      return {
-        v: [0, sig.v],
-        r: [ethers.utils.formatBytes32String("x"), ethers.utils.formatBytes32String(sig.r)],
-        s: [ethers.utils.formatBytes32String(""), ethers.utils.formatBytes32String(sig.s)],
-        nonce: [constants.Zero, sig.nonce],
-        deadline: [constants.Zero, sig.deadline],
-      };
-  }
-}
-
 export interface ButterPageState {
   selectedToken: SelectedToken;
   useZap: boolean;
@@ -105,7 +66,6 @@ export interface ButterPageState {
   batchToken: BatchProcessTokens;
   whaleToken: BatchProcessTokens;
   instant: boolean;
-  signatureData: SignatureDetails;
 }
 
 export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
@@ -119,7 +79,6 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
   batchToken: null,
   whaleToken: null,
   instant: false,
-  signatureData: { v: null, r: null, s: null, value: null, deadline: null, nonce: null },
 };
 
 export default function Butter(): JSX.Element {
@@ -205,11 +164,11 @@ export default function Butter(): JSX.Element {
         initalLoad: false,
       });
     } else {
-      setButterPageState({
-        ...butterPageState,
-        batchToken: butterBatchData?.batchProcessTokens,
-        whaleToken: butterWhaleData?.batchProcessTokens,
-      });
+      // setButterPageState({
+      //   ...butterPageState,
+      //   batchToken: butterBatchData?.batchProcessTokens,
+      //   whaleToken: butterWhaleData?.batchProcessTokens,
+      // });
     }
   }, [butterBatchData, butterWhaleData]);
 
@@ -375,7 +334,7 @@ export default function Butter(): JSX.Element {
         virtualPriceValue,
       );
       const { deadline, v, r, s, nonce } = getZapSignature(
-        butterPageState.signatureData,
+        butterPageState.batchToken[butterPageState.selectedToken.input].signatureData,
         butterPageState.selectedToken.input,
       );
       return butterBatchZapper.zapIntoBatchPermit(
@@ -591,7 +550,7 @@ export default function Butter(): JSX.Element {
       await getSignature(
         rpcProvider,
         signerOrProvider,
-        butterPageState.selectedToken.input === "usdc" ? permitTypes.ALLOWED : permitTypes.AMOUNT,
+        butterPageState.selectedToken.input === "usdc" ? permitTypes.AMOUNT : permitTypes.ALLOWED,
         account,
         butterBatchZapper.address,
         selectedTokenContract,
@@ -603,13 +562,19 @@ export default function Butter(): JSX.Element {
           toast.success("Token approved!");
           setButterPageState({
             ...butterPageState,
-            signatureData: {
-              v: res.v,
-              r: res.r,
-              s: res.s,
-              deadline: res.deadline,
-              value: res.value,
-              nonce: res.nonce,
+            batchToken: {
+              ...butterPageState.batchToken,
+              [contractKey]: {
+                ...butterPageState.batchToken[contractKey],
+                signatureData: {
+                  v: res.v,
+                  r: res.r,
+                  s: res.s,
+                  deadline: res.deadline,
+                  value: res.value,
+                  nonce: res.nonce,
+                },
+              },
             },
           });
           refetchButterBatchData();

@@ -90,6 +90,15 @@ export interface VestingRecord {
   claimable: number;
 }
 
+export interface SignatureDetails {
+  deadline: BigNumber;
+  v: number;
+  r: string;
+  s: string;
+  value: BigNumber;
+  nonce: BigNumber;
+}
+
 export type LockedBalance = {
   amount: BigNumber;
   boosted: BigNumber;
@@ -155,6 +164,7 @@ export type BatchProcessToken = {
   decimals: number;
   balance?: BigNumber;
   allowance?: BigNumber;
+  signatureData?: SignatureDetails;
 };
 
 export type ButterBatchData = {

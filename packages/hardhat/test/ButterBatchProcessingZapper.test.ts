@@ -1,26 +1,27 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BatchType } from "@popcorn/utils/src/types";
+import { Address, BatchType } from "@popcorn/utils/src/types";
 import { expect } from "chai";
-import { utils } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import { BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { expectRevert } from "../lib/utils/expectValue";
 import { timeTravel } from "../lib/utils/test";
-import { KeeperIncentive, MockERC20, RewardsEscrow, MockERC20Permit } from "../typechain";
+import { KeeperIncentive, MockERC20, MockERC20Permit, RewardsEscrow, MockDai } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { ButterBatchProcessingZapper } from "../typechain/ButterBatchProcessingZapper";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
 import { MockCurveMetapool } from "../typechain/MockCurveMetapool";
 import { MockCurveThreepool } from "../typechain/MockCurveThreepool";
 import { MockYearnV2Vault } from "../typechain/MockYearnV2Vault";
-import getSignature, { permitTypes } from "../../utils/src/getSignature";
+import { permitTypes } from "../../utils/src/getSignature";
+import { fromRpcSig } from "ethereumjs-util";
 
 const provider = waffle.provider;
 
 interface Contracts {
   mock3Crv: MockERC20;
-  mockDAI: MockERC20Permit;
+  mockDAI: MockDai;
   mockUSDC: MockERC20Permit;
   mockUSDT: MockERC20;
   mockCrvUSDX: MockERC20;
@@ -46,9 +47,10 @@ let contracts: Contracts;
 async function deployContracts(): Promise<Contracts> {
   const MockERC20 = await ethers.getContractFactory("MockERC20");
   const MockERC20Permit = await ethers.getContractFactory("MockERC20Permit");
+  const MockDai = await ethers.getContractFactory("MockDai");
   const mockPop = await (await MockERC20.deploy("POP", "POP", 18)).deployed();
   const mock3Crv = await (await MockERC20.deploy("3Crv", "3Crv", 18)).deployed();
-  const mockDAI = await (await MockERC20Permit.deploy("DAI", "DAI", 18)).deployed();
+  const mockDAI = await (await MockDai.deploy(1337)).deployed();
   const mockUSDC = await (await MockERC20Permit.deploy("USDC", "USDC", 18)).deployed();
   const mockUSDT = await (await MockERC20.deploy("USDT", "USDT", 18)).deployed();
 
@@ -232,6 +234,84 @@ const deployAndAssignContracts = async () => {
 };
 
 describe("ButterBatchProcessingZapper", function () {
+  let getSignature;
+  context("setup", async function () {
+    getSignature = async (
+      library: any,
+      signerOrProvider: any,
+      permitType: permitTypes,
+      owner: Address,
+      spender: Address,
+      tokenContract: Contract,
+      chainId: number,
+      value: BigNumber
+    ) => {
+      // const block = await library.getBlock("latest");
+      // const hour = 60 * 60;
+      // const deadline = block.timestamp + hour;
+      const deadline = ethers.constants.MaxUint256;
+
+      const Permit =
+        permitType === permitTypes.AMOUNT
+          ? [
+              { name: "owner", type: "address" },
+              { name: "spender", type: "address" },
+              { name: "value", type: "uint256" },
+              { name: "nonce", type: "uint256" },
+              { name: "deadline", type: "uint256" },
+            ]
+          : [
+              { name: "holder", type: "address" },
+              { name: "spender", type: "address" },
+              { name: "nonce", type: "uint256" },
+              { name: "expiry", type: "uint256" },
+              { name: "allowed", type: "bool" },
+            ];
+
+      const nonce = permitType === permitTypes.AMOUNT ? await tokenContract.nonces(owner) : 0;
+      const name = permitType === permitTypes.AMOUNT ? await tokenContract.name() : "Dai Stablecoin";
+      const version = permitType === permitTypes.AMOUNT ? "1" : "1"; // Avoiding extra call - we have to make it version 1 because MockERC20Permit is version = '1'
+
+      const message =
+        permitType === permitTypes.AMOUNT
+          ? {
+              owner,
+              spender,
+              value,
+              deadline,
+              nonce,
+            }
+          : {
+              holder: owner,
+              spender,
+              nonce,
+              expiry: deadline,
+              allowed: true,
+            };
+
+      const getTypedData = {
+        types: { Permit },
+        domain: {
+          name,
+          version,
+          chainId,
+          verifyingContract: tokenContract.address,
+        },
+        message,
+      };
+
+      console.log({ getTypedData });
+
+      const signature = await signerOrProvider._signTypedData(
+        getTypedData.domain,
+        getTypedData.types,
+        getTypedData.message
+      );
+      const { v, r, s } = fromRpcSig(signature);
+
+      return { v, r, s, deadline, value, nonce };
+    };
+  });
   beforeEach(async function () {
     await deployAndAssignContracts();
   });
@@ -266,27 +346,160 @@ describe("ButterBatchProcessingZapper", function () {
       expect(threeCrvButterBatchAllowance).to.equal(ethers.constants.MaxUint256);
     });
   });
-
   describe("zapIntoBatch", function () {
-    it("zaps into a mint queue with one stablecoin", async function () {
-      await expect(
-        contracts.butterBatchProcessingZapper
-          .connect(depositor)
-          .zapIntoBatchPermit(
-            [0, DepositorInitial, 0],
-            0,
-            [ethers.constants.MaxUint256, ethers.constants.MaxUint256],
-            [0, 27],
-            [utils.formatBytes32String("x"), utils.formatBytes32String("s")],
-            [utils.formatBytes32String("s"), utils.formatBytes32String("x")],
-            [ethers.BigNumber.from("0"), ethers.BigNumber.from("1")]
-          )
-      ).to.be.revertedWith("ERC20Permit: invalid signature");
+    it("zaps into a mint queue with USDC stablecoin", async function () {
+      const { v, r, s, deadline, value, nonce } = await getSignature(
+        provider,
+        depositor,
+        permitTypes.AMOUNT,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockUSDC,
+        1337,
+        DepositorInitial
+      );
 
-      expect(await contracts.mockUSDC.balanceOf(depositor.address)).to.equal(DepositorInitial);
+      const result = await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .zapIntoBatchPermit([0, DepositorInitial, 0], 0, [deadline, deadline], [v, v], [r, r], [s, s], [nonce, nonce]);
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessingZapper, "ZappedIntoBatch")
+        .withArgs(DepositorInitial, depositor.address);
+
+      expect(result).to.emit(contracts.butterBatchProcessing, "Deposit").withArgs(depositor.address, DepositorInitial);
+
+      expect(await contracts.mockUSDC.balanceOf(depositor.address)).to.equal(0);
+    });
+
+    it("zaps into a mint queue with DAI stablecoin", async function () {
+      const { v, r, s, deadline, value, nonce } = await getSignature(
+        provider,
+        depositor,
+        permitTypes.ALLOWED,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockDAI,
+        1337,
+        DepositorInitial
+      );
+
+      const result = await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .zapIntoBatchPermit([DepositorInitial, 0, 0], 0, [deadline, deadline], [v, v], [r, r], [s, s], [nonce, nonce]);
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessingZapper, "ZappedIntoBatch")
+        .withArgs(DepositorInitial, depositor.address);
+
+      expect(result).to.emit(contracts.butterBatchProcessing, "Deposit").withArgs(depositor.address, DepositorInitial);
+
+      expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(0);
+    });
+
+    it("zaps into a mint queue with two stablecoins", async function () {
+      const usdcSig = await getSignature(
+        provider,
+        depositor,
+        permitTypes.AMOUNT,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockUSDC,
+        1337,
+        DepositorInitial
+      );
+      const daiSig = await getSignature(
+        provider,
+        depositor,
+        permitTypes.ALLOWED,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockDAI,
+        1337,
+        DepositorInitial
+      );
+      const result = await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .zapIntoBatchPermit(
+          [DepositorInitial, DepositorInitial, 0],
+          0,
+          [daiSig.deadline, usdcSig.deadline],
+          [daiSig.v, usdcSig.v],
+          [daiSig.r, usdcSig.r],
+          [daiSig.s, usdcSig.s],
+          [daiSig.nonce, usdcSig.nonce]
+        );
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessingZapper, "ZappedIntoBatch")
+        .withArgs(DepositorInitial.mul(2), depositor.address);
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessing, "Deposit")
+        .withArgs(depositor.address, DepositorInitial.mul(2));
+
+      expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(0);
+      expect(await contracts.mockUSDC.balanceOf(depositor.address)).to.equal(0);
+    });
+  });
+  describe("zapOutOfBatch", function () {
+    it("zaps out of the queue into a stablecoin", async function () {
+      const expectedStableAmount = parseEther("99.9");
+      const { v, r, s, nonce, deadline } = await getSignature(
+        provider,
+        depositor,
+        permitTypes.AMOUNT,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockUSDC,
+        1337,
+        DepositorInitial
+      );
+      //Create Batch
+      await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .zapIntoBatchPermit([0, DepositorInitial, 0], 0, [deadline, deadline], [v, v], [r, r], [s, s], [nonce, nonce]);
+      const [batchId] = await contracts.butterBatchProcessing.getAccountBatches(depositor.address);
+      //Actual Test
+      const result = await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .zapOutOfBatch(batchId, DepositorInitial, 1, 0);
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessingZapper, "ZappedOutOfBatch")
+        .withArgs(batchId, 1, DepositorInitial, expectedStableAmount, depositor.address);
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessing, "WithdrawnFromBatch")
+        .withArgs(batchId, DepositorInitial, depositor.address);
+
+      expect(await contracts.mockUSDC.balanceOf(depositor.address)).to.equal(expectedStableAmount);
     });
   });
   describe("claimAndSwapToStable", function () {
+    it("reverts when claiming a mint batch", async function () {
+      const { v, r, s, deadline, value, nonce } = await getSignature(
+        provider,
+        depositor,
+        permitTypes.ALLOWED,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockDAI,
+        1337,
+        DepositorInitial
+      );
+
+      await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .zapIntoBatchPermit([DepositorInitial, 0, 0], 0, [deadline, deadline], [v, v], [r, r], [s, s], [nonce, nonce]);
+      const [batchId] = await contracts.butterBatchProcessing.getAccountBatches(depositor.address);
+      await timeTravel(1800);
+      await contracts.butterBatchProcessing.connect(owner).batchMint();
+
+      await expect(
+        contracts.butterBatchProcessingZapper.claimAndSwapToStable(batchId, 0, parseEther("1"))
+      ).to.be.revertedWith("needs to return 3crv");
+    });
     it("claims batch and swaps into stablecoin", async function () {
       const claimableAmount = parseEther("999");
       const expectedStableAmount = parseEther("998.001");
@@ -310,44 +523,73 @@ describe("ButterBatchProcessingZapper", function () {
       expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(expectedStableAmount.add(DepositorInitial));
     });
   });
-});
-describe("ButterBatchProcessing is paused", function () {
-  let currentMintId;
-  let claimableRedeemId;
+  describe("ButterBatchProcessing is paused", function () {
+    let currentMintId;
+    let claimableRedeemId;
 
-  beforeEach(async function () {
-    //Prepare MintBatches
-    currentMintId = await contracts.butterBatchProcessing.currentMintBatchId();
-    await contracts.mock3Crv.mint(depositor.address, parseEther("40000"));
-    await contracts.butterBatchProcessing.connect(depositor).depositForMint(parseEther("20000"), depositor.address);
+    beforeEach(async function () {
+      //Prepare MintBatches
+      currentMintId = await contracts.butterBatchProcessing.currentMintBatchId();
+      await contracts.mock3Crv.mint(depositor.address, parseEther("40000"));
+      await contracts.butterBatchProcessing.connect(depositor).depositForMint(parseEther("20000"), depositor.address);
 
-    await contracts.mockSetToken.mint(depositor.address, parseEther("400"));
-    await contracts.mockSetToken
-      .connect(depositor)
-      .approve(contracts.butterBatchProcessing.address, parseEther("10000"));
-    claimableRedeemId = await contracts.butterBatchProcessing.currentRedeemBatchId();
-    await contracts.butterBatchProcessing.connect(depositor).depositForRedeem(parseEther("200"));
-    await contracts.butterBatchProcessing.connect(owner).batchRedeem();
+      await contracts.mockSetToken.mint(depositor.address, parseEther("400"));
+      await contracts.mockSetToken
+        .connect(depositor)
+        .approve(contracts.butterBatchProcessing.address, parseEther("10000"));
+      claimableRedeemId = await contracts.butterBatchProcessing.currentRedeemBatchId();
+      await contracts.butterBatchProcessing.connect(depositor).depositForRedeem(parseEther("200"));
+      await contracts.butterBatchProcessing.connect(owner).batchRedeem();
 
-    //Pause Contract
-    await contracts.butterBatchProcessing.connect(owner).pause();
-  });
-  it("allows zapping out of a batch", async function () {
-    await expect(
-      contracts.butterBatchProcessingZapper.connect(depositor).zapOutOfBatch(currentMintId, parseEther("100"), 0, 0)
-    )
-      .to.emit(contracts.butterBatchProcessingZapper, "ZappedOutOfBatch")
-      .withArgs(currentMintId, 0, parseEther("100"), parseEther("99.9"), depositor.address);
-  });
-  it("allows claiming and zapping into a stablecoin", async function () {
-    await expect(contracts.butterBatchProcessingZapper.connect(depositor).claimAndSwapToStable(claimableRedeemId, 0, 0))
-      .to.emit(contracts.butterBatchProcessingZapper, "ClaimedIntoStable")
-      .withArgs(claimableRedeemId, 0, parseEther("19980"), parseEther("19960.02"), depositor.address);
-  });
-  it("takes a redemption fee", async () => {
-    await contracts.butterBatchProcessing.setRedemptionFee(100, owner.address);
-    await contracts.butterBatchProcessingZapper.connect(depositor).claimAndSwapToStable(claimableRedeemId, 0, 0);
-    const redemptionFee = await contracts.butterBatchProcessing.redemptionFee();
-    expect(redemptionFee[0]).to.equal(parseEther("199.8"));
+      //Pause Contract
+      await contracts.butterBatchProcessing.connect(owner).pause();
+    });
+    it.only("prevents zapping into a batch", async function () {
+      const { v, r, s, deadline, value, nonce } = await getSignature(
+        provider,
+        depositor,
+        permitTypes.ALLOWED,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockDAI,
+        1337,
+        DepositorInitial
+      );
+
+      await expectRevert(
+        contracts.butterBatchProcessingZapper
+          .connect(depositor)
+          .zapIntoBatchPermit(
+            [DepositorInitial, 0, 0],
+            0,
+            [deadline, deadline],
+            [v, v],
+            [r, r],
+            [s, s],
+            [nonce, nonce]
+          ),
+        "Pausable: paused"
+      );
+    });
+    it("allows zapping out of a batch", async function () {
+      await expect(
+        contracts.butterBatchProcessingZapper.connect(depositor).zapOutOfBatch(currentMintId, parseEther("100"), 0, 0)
+      )
+        .to.emit(contracts.butterBatchProcessingZapper, "ZappedOutOfBatch")
+        .withArgs(currentMintId, 0, parseEther("100"), parseEther("99.9"), depositor.address);
+    });
+    it("allows claiming and zapping into a stablecoin", async function () {
+      await expect(
+        contracts.butterBatchProcessingZapper.connect(depositor).claimAndSwapToStable(claimableRedeemId, 0, 0)
+      )
+        .to.emit(contracts.butterBatchProcessingZapper, "ClaimedIntoStable")
+        .withArgs(claimableRedeemId, 0, parseEther("19980"), parseEther("19960.02"), depositor.address);
+    });
+    it("takes a redemption fee", async () => {
+      await contracts.butterBatchProcessing.setRedemptionFee(100, owner.address);
+      await contracts.butterBatchProcessingZapper.connect(depositor).claimAndSwapToStable(claimableRedeemId, 0, 0);
+      const redemptionFee = await contracts.butterBatchProcessing.redemptionFee();
+      expect(redemptionFee[0]).to.equal(parseEther("199.8"));
+    });
   });
 });
