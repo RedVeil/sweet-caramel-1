@@ -38,10 +38,10 @@ export default function web3Onboard(): void {
         rpcUrl: RPC_URLS[ChainId.Mumbai],
       },
       {
-        id: ChainIdHex.BinanceSmartChain,
-        token: "BSC",
-        label: "BinanceSmartChain",
-        rpcUrl: RPC_URLS[ChainId.BinanceSmartChain],
+        id: ChainIdHex.BNB,
+        token: "BNB",
+        label: "BNB",
+        rpcUrl: RPC_URLS[ChainId.BNB],
       },
       {
         id: ChainIdHex.Hardhat,

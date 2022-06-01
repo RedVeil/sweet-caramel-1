@@ -1,7 +1,6 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import SecondaryActionButton from "components/SecondaryActionButton";
-import { store } from "context/store";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -12,20 +11,18 @@ import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export interface MenuProps {
   currentChain: { name: string; logo: any };
-  disconnectInjected: (deactivate: Function, activate: any, chainId: number) => void;
 }
 
-export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInjected }) => {
+export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
   const { chainId, account, connect, disconnect, wallet, setChain } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
-  const { dispatch } = useContext(store);
 
   return (
     <>
       <div className="flex flex-row justify-between items-center px-8 py-6 border-b border-gray-100">
         <div>
-          <Link href="/" passHref>
+          <Link href={`/${router?.query?.network}/`} passHref>
             <a>
               <img src="/images/icons/popLogo.png" alt="Logo" className="w-8 h-8" />
             </a>
@@ -76,16 +73,24 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain, disconnectInject
                   <div className="h-full w-full flex flex-col pt-1 px-8 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col divide-y divide-gray-200 w-full">
                       <div className="pt-6 pb-6">
-                        <NavbarLink label="Home" url="/" isActive={router.pathname === "/"} />
+                        <NavbarLink label="Home" url="/" isActive={router.pathname === `/[network]`} />
                       </div>
                       <div className="py-6">
-                        <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/butter"} />
+                        <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/[network]/butter"} />
                       </div>
                       <div className="py-6">
-                        <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />
+                        <NavbarLink
+                          label="Staking"
+                          url="/staking"
+                          isActive={router.pathname === "/[network]/staking"}
+                        />
                       </div>
                       <div className="py-6">
-                        <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/rewards"} />
+                        <NavbarLink
+                          label="Rewards"
+                          url="/rewards"
+                          isActive={router.pathname === "/[network]/rewards"}
+                        />
                       </div>
                       <div className="py-10 space-y-6">
                         <SecondaryActionButton

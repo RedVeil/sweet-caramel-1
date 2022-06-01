@@ -8,7 +8,6 @@ import useWeb3 from "../useWeb3";
 
 export default function usePopLocker(address: string): SWRResponse<PopLockerMetadata, Error> {
   const { signerOrProvider, account, chainId, contractAddresses } = useWeb3();
-
   const popLocker = useMemo(
     () =>
       isAddress(address) &&

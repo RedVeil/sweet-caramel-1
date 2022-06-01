@@ -1,6 +1,9 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Debug } from "components/Debug";
+import { DesktopFooter } from "components/DesktopFooter";
+import Header from "components/Header";
+import { MobileFooter } from "components/MobileFooter";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
@@ -63,7 +66,14 @@ export default function MyApp(props) {
               <SingleActionModalContainer />
               <DualActionModalContainer />
               <DualActionWideModalContainer />
+              <Header />
               <Component {...pageProps} />
+              <div className="hidden lg:block">
+                <DesktopFooter />
+              </div>
+              <div className="lg:hidden">
+                <MobileFooter />
+              </div>
               <SwapChainModal />
               <NotificationsContainer />
               <Debug />

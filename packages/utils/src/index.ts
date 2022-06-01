@@ -3,6 +3,7 @@ export {
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
   prepareHotSwap,
+  percentageToBps,
 } from "./butterHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
@@ -22,5 +23,4 @@ export { IpfsClient } from "./IpfsClient/IpfsClient";
 export type { IIpfsClient, UploadResult } from "./IpfsClient/IpfsClient";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
 export { default as localStringOptions } from "./localStringOptions";
-export { ModalType, toggleModal } from "./modalHelpers";
 export { default as useFetch } from "./useFetch";

@@ -146,8 +146,8 @@ contract RewardsManager is IRewardsManager, ReentrancyGuard {
   function _distributeToStaking(uint256 _amount) internal {
     if (_amount == 0) return;
     address staking = contractRegistry.getContract(keccak256("Staking"));
-
-    IERC20(contractRegistry.getContract(keccak256("POP"))).transfer(staking, _amount);
+    IERC20(contractRegistry.getContract(keccak256("POP"))).safeApprove(staking, 0);
+    IERC20(contractRegistry.getContract(keccak256("POP"))).safeApprove(staking, _amount);
     IStaking(staking).notifyRewardAmount(_amount);
     emit StakingDeposited(staking, _amount);
   }

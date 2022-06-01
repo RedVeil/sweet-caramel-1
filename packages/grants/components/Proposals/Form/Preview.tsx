@@ -82,9 +82,9 @@ const Preview: React.FC<FormStepProps> = ({ form, navigation, visible }) => {
 
   const getListOfIncompleteFormInputs = (submissionData: BeneficiaryApplication): string[] => {
     let incompleteFormInputs = [];
-    if (submissionData.organizationName === "") incompleteFormInputs.push("Organization Name");
-    if (submissionData.missionStatement === "") incompleteFormInputs.push("Mission Statement");
-    if (submissionData.beneficiaryAddress === "") incompleteFormInputs.push("Beneficiary Address");
+    if (submissionData.organizationName.data === "") incompleteFormInputs.push("Organization Name");
+    if (submissionData.missionStatement.data === "") incompleteFormInputs.push("Mission Statement");
+    if (submissionData.beneficiaryAddress.data === "") incompleteFormInputs.push("Beneficiary Address");
     if (submissionData.files.profileImage.image === "") incompleteFormInputs.push("Profile Image");
     if (submissionData.files.profileImage.description === "") incompleteFormInputs.push("Profile Image Description");
     if (submissionData.files.headerImage.image === "") incompleteFormInputs.push("Header Image");
@@ -92,7 +92,7 @@ const Preview: React.FC<FormStepProps> = ({ form, navigation, visible }) => {
     if (submissionData.files.impactReports.length === 0) incompleteFormInputs.push("Impact Reports");
     if (submissionData.files.video === "") incompleteFormInputs.push("Video");
     if (submissionData.links.website === "") incompleteFormInputs.push("Website");
-    if (submissionData.links.contactEmail === "") incompleteFormInputs.push("Contact Email");
+    if (submissionData.links.contactEmail.data === "") incompleteFormInputs.push("Contact Email");
     return incompleteFormInputs;
   };
 
@@ -108,7 +108,7 @@ const Preview: React.FC<FormStepProps> = ({ form, navigation, visible }) => {
       //TODO swap out default region with dynamic logic for the region
       await contracts.beneficiaryGovernance
         .connect(library.getSigner())
-        .createProposal(submissionData.beneficiaryAddress, "0x5757", getBytes32FromIpfsHash(cid), 0);
+        .createProposal(submissionData.beneficiaryAddress.data, "0x5757", getBytes32FromIpfsHash(cid), 0);
 
       success();
       setTimeout(() => router.push(`/beneficiary-proposals/${account}`), 1000);

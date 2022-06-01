@@ -12,7 +12,7 @@ export default function useStakingPool(address: string): SWRResponse<StakingPool
   const stakingContract = useMemo(() => {
     if (isAddress(address) && contractAddresses.has(address))
       return Staking__factory.connect(address, signerOrProvider);
-  }, [chainId, account, signerOrProvider]);
+  }, [chainId, address, signerOrProvider]);
 
   const shouldFetch = !!stakingContract && contractAddresses.has(address);
   return useSWR(shouldFetch ? [`staking-pool`, address, chainId, account] : null, async (key) => {

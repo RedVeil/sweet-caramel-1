@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 interface NavbarLinkProps {
   label: string;
@@ -14,6 +15,7 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, 
   md:text-base ${isActive ? "text-gray-800 font-medium" : ""} 
     hover:text-gray-900 cursor-pointer
   `;
+  const router = useRouter();
 
   if (!url) {
     return (
@@ -30,7 +32,7 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, 
   }
 
   return (
-    <Link href={url || ""} passHref>
+    <Link href={`/${router?.query?.network}${url}` || ""} passHref>
       <a
         className={className}
         target={target || "_self"}

@@ -1,6 +1,6 @@
 import { RadioGroup } from "@headlessui/react";
-import { VoteOptions } from "@popcorn/contracts/lib/BeneficiaryGovernance/constants";
 import { ProposalType } from "@popcorn/hardhat/lib/adapters";
+import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
 import { useWeb3React } from "@web3-react/core";
 import { setDualActionModal } from "context/actions";
 import { store } from "context/store";
@@ -14,7 +14,7 @@ import { VotingProps } from "./VotingProps";
 
 const OpenVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasVotedInitial = false }) => {
   const { dispatch } = useContext(store);
-  const [selected, setSelected] = useState<VoteOptions>(VoteOptions.Yay);
+  const [selected, setSelected] = useState<VoteOptions>(VoteOptions.Yea);
   const { contracts } = useContext(ContractsContext);
   const { library, account, activate } = useWeb3React();
   const [hasVoted, setHasVoted] = useState<Boolean>(hasVotedInitial);
@@ -58,7 +58,7 @@ const OpenVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasVotedInitial
         >
           <div className="bg-white rounded-md -space-y-px">
             <RadioGroup.Option
-              value={VoteOptions.Yay}
+              value={VoteOptions.Yea}
               className={({ checked }) =>
                 `rounded-tl-md rounded-tr-md relative border p-4 flex cursor-pointer focus:outline-none ${
                   checked ? "bg-indigo-50 border-indigo-200" : "border-gray-200"
@@ -148,7 +148,7 @@ const OpenVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasVotedInitial
                 account
                   ? {
                       content: `You are about to submit a vote to ${
-                        selected == VoteOptions.Yay ? "accept" : "reject"
+                        selected == VoteOptions.Yea ? "accept" : "reject"
                       } this proposal. You will not be able to vote again for this proposal after you submit your vote. \
                  Confirm to continue.`,
                       title: "Confirm Vote",

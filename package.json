@@ -8,6 +8,7 @@
     "dev": "yarn lerna run --parallel dev",
     "build": "yarn lerna run --parallel build",
     "app:build": "yarn lerna run --scope={@popcorn/app,@popcorn/hardhat} build",
+    "grants:build": "yarn lerna run --scope={@popcorn/grants,@popcorn/hardhat} build",
     "app:start": "yarn lerna run --scope @popcorn/app start",
     "start": "yarn lerna run --scope @popcorn/app start",
     "pretify": "prettier --write .",

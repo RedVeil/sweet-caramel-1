@@ -15,7 +15,7 @@ const TermsAndConditions = ({
 }: TermsAndConditionsProps) => {
   return (
     <div>
-      <div className="relative flex items-start pt-0 md:pt-10 lg:pt-0 pb-10 pr-2">
+      <div className="relative flex items-start pb-10 pr-2">
         <div className="flex items-center h-5 pt-2">
           {isDisabled ? (
             <input
@@ -46,6 +46,10 @@ const TermsAndConditions = ({
                 during this period.
               </li>
             )}
+            <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
+              Your staked tokens must be re-staked or withdrawn after the 3-month lock time expires or they will be
+              subjected to a penalty of 1% per epoch week that they are not re-staked.
+            </li>
             <li className={`text-lg ${isDisabled ? "text-gray-300" : "text-gray-600"}`}>
               After rewards are earned and claimed, 10% is immediately transferred, and the rest of the earned amount is
               unlocked linearly over the following 365 day period.

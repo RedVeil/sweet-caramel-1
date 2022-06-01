@@ -22,7 +22,7 @@ const ProposalGrid: React.FC<ProposalGridProps> = ({ proposalType }) => {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const filteredProposals = proposals
     ?.filter((proposal: Proposal) => {
-      return proposal.application.organizationName.toLowerCase().includes(searchFilter.toLowerCase());
+      return proposal.application.organizationName.data.toLowerCase().includes(searchFilter.toLowerCase());
     })
     .filter((proposal: Proposal) => {
       const proposalStatus = proposal?.status;

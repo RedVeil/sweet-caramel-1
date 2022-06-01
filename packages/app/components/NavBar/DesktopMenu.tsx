@@ -1,25 +1,22 @@
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext } from "react";
 import GetPopMenu from "./GetPopMenu";
 import { MenuProps } from "./MobileMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
-export default function DesktopMenu({ currentChain, disconnectInjected }: MenuProps): JSX.Element {
+export default function DesktopMenu({ currentChain }: MenuProps): JSX.Element {
   const { chainId, account, connect, disconnect, wallet, setChain } = useWeb3();
   const router = useRouter();
-  const { butter: butterEnabled } = useContext(FeatureToggleContext).features;
 
   return (
     <div className="flex flex-row items-center justify-between md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto z-30">
       <div className="flex flex-row items-center">
         <div>
-          <Link href="/" passHref>
+          <Link href={`/${router?.query?.network}/`} passHref>
             <a>
               <img src="/images/icons/popLogo.png" alt="Logo" className="w-10 h-10" />
             </a>
@@ -27,13 +24,13 @@ export default function DesktopMenu({ currentChain, disconnectInjected }: MenuPr
         </div>
         <ul className="flex flex-row space-x-10 ml-16">
           <li>
-            <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/butter"} />
+            <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/[network]/butter"} />
           </li>
           <li>
-            <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />
+            <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/[network]/staking"} />
           </li>
           <li>
-            <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/rewards"} />
+            <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/[network]/rewards"} />
           </li>
         </ul>
       </div>

@@ -20,6 +20,7 @@ export interface ContractAddresses {
   butter?: Address;
   butterBatch?: Address;
   butterBatchZapper?: Address;
+  butterWhaleProcessing?: Address;
   butterDependency?: ButterDependencyAddresses;
   yFrax?: Address;
   yMim?: Address;

@@ -5,6 +5,10 @@ import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
 } from "components/Modal/MultiChoiceActionModal";
+import {
+  DefaultNetworkChangePromptModalProps,
+  NetworkChangePromptModalProps,
+} from "components/Modal/NetworkChangePromptModal";
 import { DefaultSingleActionModalProps, SingleActionModalProps } from "components/Modal/SingleActionModal";
 import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "components/Modal/WalletSelectModal";
 import { DefaultDualActionModalProps } from "../components/Modal/DualActionModal";
@@ -14,6 +18,7 @@ export const PUSH_NOTIFICATION = "notifications/PUSH_NOTIFICATION";
 export const UNSET_NOTIFICATION = "notifications/UNSET_NOTIFICATION";
 export const HIDE_NOTIFICATION = "notifications/HIDE_NOTIFICATION";
 export const CLEAR_NOTIFICATIONS = "notifications/CLEAR_NOTIFICATIONS";
+export const NETWORK_CHANGE_PROMPT_MODAL = "modals/NETWORK_CHANGE_PROMPT_MODAL";
 export const MOBILE_FULL_SCREEN_MODAL = "modals/MOBILE_FULL_SCREEN_MODAL";
 export const SINGLE_ACTION_MODAL = "modals/SINGLE_ACTION_MODAL";
 export const WALLET_SELECT_MODAL = "modals/WALLET_SELECT_MODAL";
@@ -29,6 +34,7 @@ export type AppActions =
   | PushNotificationAction
   | UnsetNotificationAction
   | HideNotificationAction
+  | SetNetworkChangePromptModalAction
   | ClearNotificationsAction
   | SetMobileFullScreenModalAction
   | SetSingleActionModalAction
@@ -122,6 +128,30 @@ export const setMobileFullScreenModal = (
     type: MOBILE_FULL_SCREEN_MODAL,
     payload: {
       ...DefaultMobileFullScreenModalProps,
+      visible: true,
+      ...props,
+    },
+  };
+};
+export interface SetNetworkChangePromptModalAction {
+  type: typeof NETWORK_CHANGE_PROMPT_MODAL;
+  payload: NetworkChangePromptModalProps;
+}
+
+export const setNetworkChangePromptModal = (props: Partial<NetworkChangePromptModalProps> | false) => {
+  if (!props) {
+    return {
+      type: NETWORK_CHANGE_PROMPT_MODAL,
+      payload: {
+        ...DefaultNetworkChangePromptModalProps,
+        visible: false,
+      },
+    };
+  }
+  return {
+    type: NETWORK_CHANGE_PROMPT_MODAL,
+    payload: {
+      ...DefaultNetworkChangePromptModalProps,
       visible: true,
       ...props,
     },

@@ -52,7 +52,7 @@ const SocialMedia: React.FC<SocialMediaProps> = ({ beneficiary }) => {
     <>
       <div className="flex space-x-6">
         <SocialMediaIcon url={beneficiary?.links?.website} platform={"website"} />
-        <SocialMediaIcon url={beneficiary?.links.contactEmail} platform={"email"} />
+        <SocialMediaIcon url={beneficiary?.links.contactEmail.data} platform={"email"} />
         <SocialMediaIcon url={beneficiary?.links?.twitterUrl} platform={"twitter"} />
         <SocialMediaIcon url={beneficiary?.links?.facebookUrl} platform={"facebook"} />
         <SocialMediaIcon url={beneficiary?.links?.instagramUrl} platform={"instagram"} />

@@ -11,7 +11,14 @@ const ProofOfOwnership: React.FC<FormStepProps> = ({ form, navigation, visible }
   function updateProofOfOwnership(proofOfOwnership: string): void {
     setFormData({
       ...formData,
-      links: { ...formData.links, proofOfOwnership },
+      links: {
+        ...formData.links,
+        proofOfOwnership: {
+          error: false,
+          errorMessage: "",
+          data: proofOfOwnership,
+        },
+      },
     });
   }
 
@@ -31,14 +38,14 @@ const ProofOfOwnership: React.FC<FormStepProps> = ({ form, navigation, visible }
           />
         </div>
         <ControlledTextInput
-          inputValue={formData?.links?.proofOfOwnership}
+          inputValue={formData?.links?.proofOfOwnership.data}
           id="proofofownership"
           placeholder="Proof of Ownership"
           errorMessage="The proof of ownership cannot be left blank."
           updateInput={updateProofOfOwnership}
           isValid={inputExists}
         />
-        {inputExists(formData?.links?.proofOfOwnership) && <ContinueButton navigation={navigation} />}
+        {inputExists(formData?.links?.proofOfOwnership.data) && <ContinueButton navigation={navigation} />}
       </div>
     )
   );

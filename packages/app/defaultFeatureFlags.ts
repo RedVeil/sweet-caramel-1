@@ -1,6 +1,7 @@
 const defaultFeatureFlags = [
   // Add Feature flags here
   { key: "showLocalNetwork", prod: false, dev: true },
+  { key: "migrationAlert", prod: false, dev: true },
 ];
 
 const envEnabledDeafaultFeatureFlags: { [key: string]: boolean } = {};

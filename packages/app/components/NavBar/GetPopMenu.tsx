@@ -1,5 +1,6 @@
 import { Menu, Transition } from "@headlessui/react";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import { Fragment } from "react";
 import { getNamedAccountsByChainId } from "../../../hardhat/lib/utils/getNamedAccounts";
 
@@ -25,6 +26,7 @@ export function getPoolLink(chainId: number): string {
 
 const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
   const { wallet } = useWeb3();
+  const router = useRouter();
   const metaMaskConnected = wallet?.label === "MetaMask";
   return (
     <Transition
@@ -43,7 +45,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
               className={`${active ? "bg-gray-100" : "bg-white"} ${
                 metaMaskConnected ? "rounded-t-2xl border-b" : "rounded-2xl"
               } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
-              href={getPoolLink(chainId)}
+              href={`/${router?.query?.network}/${getPoolLink(chainId)}`}
               target="_blank"
             >
               <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Buy POP</p>

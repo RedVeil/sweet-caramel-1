@@ -1,5 +1,4 @@
 import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
-import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useState } from "react";
 import { ElectionProps } from "./ElectionProps";
@@ -27,11 +26,12 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
   function handleSliderChange(value: number) {
     if (electionProps.voiceCredits - electionProps.pendingVotes[electionProps.election.electionTerm].total <= 0) {
       if (
-        electionProps.pendingVotes[electionProps.election.electionTerm].votes[beneficiary.beneficiaryAddress] > value
+        electionProps.pendingVotes[electionProps.election.electionTerm].votes[beneficiary.beneficiaryAddress.data] >
+        value
       ) {
         setVotesAssignedByUser(value);
         electionProps.assignVotes(electionProps.election.electionTerm, {
-          address: beneficiary.beneficiaryAddress,
+          address: beneficiary.beneficiaryAddress.data,
           votes: value,
         });
       }
@@ -39,7 +39,7 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
     }
     setVotesAssignedByUser(value);
     electionProps.assignVotes(electionProps.election.electionTerm, {
-      address: beneficiary.beneficiaryAddress,
+      address: beneficiary.beneficiaryAddress.data,
       votes: value,
     });
   }
@@ -58,7 +58,9 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
       </span>
       {electionProps.assignVotes && electionProps.voiceCredits > 0 && (
         <div className="w-11/12 ml-1 pb-3">
-          <Slider
+          {/* Would most likely be need for ticket #684 */}
+          {
+            /* <Slider
             key={beneficiary?.beneficiaryAddress}
             className="mt-2"
             value={votesAssignedByUser}
@@ -77,7 +79,8 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
             height: '14px',
             width: '14px',
           }} */
-          />
+            /> */
+          }
         </div>
       )}
     </>

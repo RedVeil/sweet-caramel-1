@@ -37,7 +37,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
             visible ? "font-bold" : "text-gray-500"
           }`}
         >
-          Adjust slippage
+          {`Adjust slippage (${slippage}%)`}
         </p>
       </div>
       {visible && (

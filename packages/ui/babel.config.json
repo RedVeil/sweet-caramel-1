@@ -5,7 +5,9 @@
       "module-resolver",
       {
         "alias": {
-          "@popcorn/utils": "../utils"
+          "@popcorn/utils": "../utils",
+          "@popcorn/hardhat": "../hardhat",
+          "components": "../app/components"
         }
       }
     ]

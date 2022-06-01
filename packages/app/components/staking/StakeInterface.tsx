@@ -6,12 +6,13 @@ import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber, constants } from "ethers";
-import { formatStakedAmount } from "helper/formatStakedAmount";
+import { formatStakedAmount, formatStakedTVL } from "helper/formatAmount";
 import Link from "next/link";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
+  stakedTokenPrice: BigNumber;
   chainId: number;
   restake?: () => void;
   isPopLocker?: boolean;
@@ -45,6 +46,7 @@ export default function StakeInterface({
   chainId,
   restake,
   isPopLocker,
+  stakedTokenPrice,
 }: StakeInterfaceProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const [state, setState] = form;
@@ -74,20 +76,30 @@ export default function StakeInterface({
                   }
                   label="Est. APY"
                   green
+                  infoIconProps={{
+                    id: "estApy",
+                    title: "Est. APY:",
+                    content:
+                      "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+                  }}
                 />
               </div>
               <div className="md:hidden">
                 <StatusWithLabel
-                  content={stakingPool ? formatStakedAmount(stakingPool?.totalStake) : "0"}
-                  label="Total Staked"
+                  content={
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "0"
+                  }
+                  label="TVL"
                 />
               </div>
             </div>
             <div className="pl-6 xs:px-6 xs:border-r-2 border-gray-200 mt-2 flex flex-col items-center w-1/2 xs:w-fit">
               <div className="hidden md:block">
                 <StatusWithLabel
-                  content={stakingPool ? formatStakedAmount(stakingPool?.totalStake) : "0"}
-                  label="Total Staked"
+                  content={
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "0"
+                  }
+                  label="TVL"
                 />
               </div>
               <div className="md:hidden">
@@ -113,6 +125,12 @@ export default function StakeInterface({
                   }
                   label="Est. APY"
                   green
+                  infoIconProps={{
+                    id: "estApy",
+                    title: "Est. APY:",
+                    content:
+                      "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+                  }}
                 />
               </div>
             </div>
@@ -216,7 +234,7 @@ export default function StakeInterface({
                     <p className="text-2xl font-medium ">POP</p>
                   </div>
                 </div>
-                <TextLink text="Claim Page" url="/rewards" />
+                <TextLink text="Claim Page" url={"/rewards"} textSize={"text-lg"} />
               </div>
             </div>
           </div>

@@ -4,6 +4,10 @@ import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
 } from "components/Modal/MultiChoiceActionModal";
+import {
+  DefaultNetworkChangePromptModalProps,
+  NetworkChangePromptModalProps,
+} from "components/Modal/NetworkChangePromptModal";
 import { DefaultSingleActionModalProps, SingleActionModalProps } from "components/Modal/SingleActionModal";
 import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "components/Modal/WalletSelectModal";
 import { NotificationProps } from "components/Notifications/NotificationProps";
@@ -19,6 +23,7 @@ import {
   HIDE_NOTIFICATION,
   MOBILE_FULL_SCREEN_MODAL,
   MULTI_CHOICE_ACTION_MODAL,
+  NETWORK_CHANGE_PROMPT_MODAL,
   PUSH_NOTIFICATION,
   SHOW_GLOBAL_LOADER,
   SINGLE_ACTION_MODAL,
@@ -32,6 +37,7 @@ interface DefaultState {
   singleActionModal: SingleActionModalProps;
   multiChoiceActionModal: MultiChoiceActionModalProps;
   dualActionModal: DualActionModalProps;
+  networkChangePromptModal: NetworkChangePromptModalProps;
   dualActionWideModal: DualActionWideModalProps;
   globalLoaderVisible?: boolean;
   walletSelectModal: WalletSelectModalProps;
@@ -47,6 +53,9 @@ const initialState: DefaultState = {
   },
   multiChoiceActionModal: {
     ...DefaultMultiChoiceActionModalProps,
+  },
+  networkChangePromptModal: {
+    ...DefaultNetworkChangePromptModalProps,
   },
   dualActionModal: {
     ...DefaultDualActionModalProps,
@@ -127,6 +136,13 @@ const StateProvider = ({ children }) => {
         return {
           ...state,
           multiChoiceActionModal: {
+            ...action.payload,
+          },
+        };
+      case NETWORK_CHANGE_PROMPT_MODAL:
+        return {
+          ...state,
+          networkChangePromptModal: {
             ...action.payload,
           },
         };
