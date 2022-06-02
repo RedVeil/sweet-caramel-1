@@ -38,7 +38,7 @@ export default function index(): JSX.Element {
   const { features } = useContext(FeatureToggleContext);
 
   useEffect(() => {
-    if (account && chainId === ChainId.Polygon && stakingPools) {
+    if (account && chainId === ChainId.Polygon && stakingPools && features["migrationAlert"]) {
       const popUsdcStaking = stakingPools?.find(
         (pools) => pools.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
       );
