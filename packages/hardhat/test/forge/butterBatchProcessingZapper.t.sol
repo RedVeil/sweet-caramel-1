@@ -9,8 +9,8 @@ import { stdCheats } from "@ecmendenhall/forge-std/src/stdlib.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "../../contracts/core/defi/butter/butterBatchProcessingZapper.sol";
-import "../../contracts/core/defi/butter/butterBatchProcessing.sol";
+import "../../contracts/core/defi/butter/ButterBatchProcessingZapper.sol";
+import "../../contracts/core/defi/butter/ButterBatchProcessing.sol";
 import "../../contracts/core/interfaces/IContractRegistry.sol";
 import "../../contracts/core/interfaces/IACLRegistry.sol";
 import "../../contracts/externals/interfaces/Curve3Pool.sol";
