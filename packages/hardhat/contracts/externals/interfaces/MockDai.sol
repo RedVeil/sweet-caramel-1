@@ -85,7 +85,7 @@ contract MockDai {
     return true;
   }
 
-  function mint(address usr, uint256 wad) external auth {
+  function mint(address usr, uint256 wad) external {
     balanceOf[usr] = add(balanceOf[usr], wad);
     totalSupply = add(totalSupply, wad);
     emit Transfer(address(0), usr, wad);

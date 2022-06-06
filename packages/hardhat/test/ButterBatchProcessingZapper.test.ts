@@ -233,7 +233,7 @@ const deployAndAssignContracts = async () => {
   await contracts.mock3Crv.connect(depositor).approve(contracts.butterBatchProcessing.address, parseEther("100000000"));
 };
 
-describe.only("ButterBatchProcessingZapper", function () {
+describe("ButterBatchProcessingZapper", function () {
   let getSignature;
   context("setup", async function () {
     getSignature = async (
@@ -549,7 +549,7 @@ describe.only("ButterBatchProcessingZapper", function () {
         contracts.butterBatchProcessingZapper.claimAndSwapToStable(batchId, 0, parseEther("1"))
       ).to.be.revertedWith("needs to return 3crv");
     });
-    it.only("claims batch and swaps into stablecoin", async function () {
+    it("claims batch and swaps into stablecoin", async function () {
       const claimableAmount = parseEther("999");
       const expectedStableAmount = parseEther("998.001");
       //Create Batch
