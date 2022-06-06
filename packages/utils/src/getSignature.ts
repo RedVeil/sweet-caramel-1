@@ -7,15 +7,6 @@ export enum permitTypes {
   ALLOWED = 2,
 }
 
-interface SignatureReturn {
-  v: number;
-  r: string;
-  s: string;
-  deadline: BigNumber;
-  value?: BigNumber;
-  nonce?: BigNumber;
-}
-
 export function getZapSignature(
   sig: SignatureDetails,
   tokenKey: string,
@@ -57,7 +48,7 @@ export default async function getSignature(
   tokenContract: Contract,
   chainId: number,
   value: BigNumber,
-): Promise<SignatureReturn> {
+): Promise<SignatureDetails> {
   const block = await library.getBlock("latest");
   const hour = 60 * 60;
   const deadline = block.timestamp + hour;

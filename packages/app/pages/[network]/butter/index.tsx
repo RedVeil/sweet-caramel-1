@@ -7,7 +7,13 @@ import {
   percentageToBps,
   prepareHotSwap,
 } from "@popcorn/utils";
-import { BatchProcessTokenKey, BatchProcessTokens, BatchType, SelectedToken } from "@popcorn/utils/src/types";
+import {
+  BatchProcessTokenKey,
+  BatchProcessTokens,
+  BatchType,
+  SelectedToken,
+  SignatureDetails,
+} from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
@@ -59,6 +65,8 @@ export interface ButterPageState {
   selectedToken: SelectedToken;
   useZap: boolean;
   depositAmount: BigNumber;
+  usdcSignature: SignatureDetails;
+  daiSignature: SignatureDetails;
   redeeming: boolean;
   useUnclaimedDeposits: boolean;
   slippage: number;
@@ -72,6 +80,8 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
   selectedToken: null,
   useZap: false,
   depositAmount: constants.Zero,
+  usdcSignature: null,
+  daiSignature: null,
   redeeming: false,
   useUnclaimedDeposits: false,
   slippage: 1, // in percent (1 = 100 BPS)
@@ -164,11 +174,11 @@ export default function Butter(): JSX.Element {
         initalLoad: false,
       });
     } else {
-      // setButterPageState({
-      //   ...butterPageState,
-      //   batchToken: butterBatchData?.batchProcessTokens,
-      //   whaleToken: butterWhaleData?.batchProcessTokens,
-      // });
+      setButterPageState({
+        ...butterPageState,
+        batchToken: butterBatchData?.batchProcessTokens,
+        whaleToken: butterWhaleData?.batchProcessTokens,
+      });
     }
   }, [butterBatchData, butterWhaleData]);
 
@@ -334,7 +344,7 @@ export default function Butter(): JSX.Element {
         virtualPriceValue,
       );
       const { deadline, v, r, s, nonce } = getZapSignature(
-        butterPageState.batchToken[butterPageState.selectedToken.input].signatureData,
+        butterPageState[`${butterPageState.selectedToken.input}Signature`],
         butterPageState.selectedToken.input,
       );
       return butterBatchZapper.zapIntoBatchPermit(
@@ -562,19 +572,13 @@ export default function Butter(): JSX.Element {
           toast.success("Token approved!");
           setButterPageState({
             ...butterPageState,
-            batchToken: {
-              ...butterPageState.batchToken,
-              [contractKey]: {
-                ...butterPageState.batchToken[contractKey],
-                signatureData: {
-                  v: res.v,
-                  r: res.r,
-                  s: res.s,
-                  deadline: res.deadline,
-                  value: res.value,
-                  nonce: res.nonce,
-                },
-              },
+            [`${contractKey}Signature`]: {
+              v: res.v,
+              r: res.r,
+              s: res.s,
+              deadline: res.deadline,
+              value: res.value,
+              nonce: res.nonce,
             },
           });
           refetchButterBatchData();

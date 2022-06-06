@@ -164,7 +164,6 @@ export type BatchProcessToken = {
   decimals: number;
   balance?: BigNumber;
   allowance?: BigNumber;
-  signatureData?: SignatureDetails;
 };
 
 export type ButterBatchData = {

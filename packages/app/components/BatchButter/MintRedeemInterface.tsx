@@ -28,22 +28,16 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
 
   const isAllowanceInsufficient = useMemo(() => {
     if (localButterPageState.selectedToken.input === "usdc") {
-      return localButterPageState.instant
-        ? localButterPageState.depositAmount
-            .div(1e12)
-            .gt(localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance)
-        : localButterPageState.depositAmount
-            .div(1e12)
-            .gt(localButterPageState.batchToken[localButterPageState.selectedToken.input].signatureData?.value || 0);
-    } else if (localButterPageState.selectedToken.input === "dai") {
-      return localButterPageState.instant
-        ? localButterPageState.depositAmount.gt(
-            localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance,
-          )
-        : localButterPageState.depositAmount.gt(
-            localButterPageState.batchToken[localButterPageState.selectedToken.input].signatureData?.value || 0,
-          );
+      return localButterPageState.depositAmount
+        .div(1e12)
+        .gt(localButterPageState[`${localButterPageState.selectedToken.input}Signature`]?.value || 0);
     }
+    if (localButterPageState.selectedToken.input === "dai") {
+      return localButterPageState.depositAmount.gt(
+        localButterPageState[`${localButterPageState.selectedToken.input}Signature`]?.value || 0,
+      );
+    }
+
     return localButterPageState.instant
       ? localButterPageState.depositAmount.gt(
           localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance,
@@ -53,7 +47,12 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance,
         ) ||
           localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero);
-  }, [localButterPageState, localButterPageState.selectedToken, localButterPageState.batchToken.usdc.signatureData]);
+  }, [
+    localButterPageState,
+    localButterPageState.selectedToken,
+    localButterPageState.usdcSignature,
+    localButterPageState.daiSignature,
+  ]);
 
   function setRedeeming(redeeming: boolean) {
     setButterPageState({ ...localButterPageState, redeeming: redeeming });

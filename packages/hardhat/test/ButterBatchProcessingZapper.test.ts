@@ -397,6 +397,55 @@ describe("ButterBatchProcessingZapper", function () {
       expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(0);
     });
 
+    it("does not allow the signature to be used twice", async function () {
+      const { v, r, s, deadline, value, nonce } = await getSignature(
+        provider,
+        depositor,
+        permitTypes.ALLOWED,
+        depositor.address,
+        contracts.butterBatchProcessingZapper.address,
+        contracts.mockDAI,
+        1337,
+        DepositorInitial.div(2)
+      );
+
+      const result = await contracts.butterBatchProcessingZapper
+        .connect(depositor)
+        .zapIntoBatchPermit(
+          [DepositorInitial.div(2), 0, 0],
+          0,
+          [deadline, deadline],
+          [v, v],
+          [r, r],
+          [s, s],
+          [nonce, nonce]
+        );
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessingZapper, "ZappedIntoBatch")
+        .withArgs(DepositorInitial.div(2), depositor.address);
+
+      expect(result)
+        .to.emit(contracts.butterBatchProcessing, "Deposit")
+        .withArgs(depositor.address, DepositorInitial.div(2));
+
+      expect(await contracts.mockDAI.balanceOf(depositor.address)).to.equal(DepositorInitial.div(2));
+
+      expect(
+        await contracts.butterBatchProcessingZapper
+          .connect(depositor)
+          .zapIntoBatchPermit(
+            [DepositorInitial.div(2), 0, 0],
+            0,
+            [deadline, deadline],
+            [v, v],
+            [r, r],
+            [s, s],
+            [nonce, nonce]
+          )
+      ).to.be.revertedWith("Dai/invalid-nonce");
+    });
+
     it("zaps into a mint queue with two stablecoins", async function () {
       const usdcSig = await getSignature(
         provider,
@@ -544,7 +593,7 @@ describe("ButterBatchProcessingZapper", function () {
       //Pause Contract
       await contracts.butterBatchProcessing.connect(owner).pause();
     });
-    it.only("prevents zapping into a batch", async function () {
+    it("prevents zapping into a batch", async function () {
       const { v, r, s, deadline, value, nonce } = await getSignature(
         provider,
         depositor,
