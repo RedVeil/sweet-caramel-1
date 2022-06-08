@@ -114,7 +114,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           </div>
         )}
         {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && !isAllowanceInsufficient() && (
-          <div className="pt-6">
+          <div className="pt-6 space-y-6">
             {localButterPageState.instant && !localButterPageState.redeeming ? (
               <>
                 <MainActionButton
