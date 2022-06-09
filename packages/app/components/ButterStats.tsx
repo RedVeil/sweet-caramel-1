@@ -12,6 +12,13 @@ export interface ButterStatsProps {
   center?: boolean;
 }
 
+const SocialImpactInfoProps = {
+  content:
+    "Approximately one-third of all fees collected by Popcorn are donated to social impact and non-profit organizations selected by POP token holders.",
+  id: "socialImpact",
+  title: "Social Impact",
+};
+
 export default function ButterStats({ butterData, center = false }: ButterStatsProps) {
   const { contractAddresses } = useWeb3();
   const { data: butterAPY } = useGetButterAPY();
@@ -68,12 +75,12 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
           />
         </div>
         <div className="md:hidden">
-          <StatusWithLabel content={`Coming Soon`} label="Social Impact" />
+          <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
         </div>
       </div>
       <div className="w-full md:w-auto mt-2 md:pl-6 text-center md:text-left">
         <div className="hidden md:block ">
-          <StatusWithLabel content={`Coming Soon`} label="Social Impact" />
+          <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
         </div>
         <div className="w-full md:hidden flex justify-center">
           <StatusWithLabel
