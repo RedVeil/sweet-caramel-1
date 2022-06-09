@@ -1,7 +1,8 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
 import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
 import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
-import { setMultiChoiceActionModal } from "context/actions";
+import TermsContent from "components/staking/TermsModalContent";
+import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
@@ -85,14 +86,24 @@ export default function PopStakingPage(): JSX.Element {
     stakingPool.contract
       .connect(signer)
       ["processExpiredLocks(bool)"](true)
-      .then((res) =>
+      .then((res) => {
         onContractSuccess(res, "POP Restaked!", () => {
           balances.revalidate();
           setForm(defaultForm);
-        }),
-      )
+        });
+        dispatch(setSingleActionModal(false));
+      })
       .catch((err) => onContractError(err));
   }
+
+  const openTermsModal = () => {
+    dispatch(
+      setSingleActionModal({
+        title: "Terms & Conditions",
+        children: <TermsContent restake={restake} />,
+      }),
+    );
+  };
 
   function approve() {
     toast.loading("Approving POP ...");
@@ -113,7 +124,7 @@ export default function PopStakingPage(): JSX.Element {
           stake={stake}
           withdraw={withdraw}
           approve={approve}
-          restake={restake}
+          restake={openTermsModal}
           onlyView={!account}
           chainId={chainId}
           isPopLocker

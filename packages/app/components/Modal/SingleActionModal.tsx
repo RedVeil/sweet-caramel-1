@@ -7,7 +7,7 @@ import * as Icon from "react-feather";
 
 export interface SingleActionModalProps {
   title: string;
-  children?: React.ReactElement;
+  children?: React.ReactElement | React.ReactComponentElement<any>;
   content?: string;
   visible: boolean;
   type?: "info" | "error" | "alert";
@@ -143,7 +143,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                       </div>
                     </div>
                   </div>
-                  <div className="mt-8">
+                  <div className={`${onConfirm || onDismiss ? "mt-8" : ""}`}>
                     <div>
                       {onConfirm && (
                         <>
