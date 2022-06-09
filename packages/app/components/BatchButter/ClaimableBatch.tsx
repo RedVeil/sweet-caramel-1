@@ -1,25 +1,29 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "components/InfoIconWithModal";
 import MainActionButton from "components/MainActionButton";
 import SecondaryActionButton from "components/SecondaryActionButton";
-
+import { formatBatchInputToken, formatBatchOutputToken } from "../../helper/ClaimableBatchUtils";
 export interface BatchProps {
   batch: AccountBatch;
   handleClaimAndStake: (batch: AccountBatch) => void;
   handleClaim: (batch: AccountBatch) => void;
   handleWithdraw: (batch: AccountBatch) => void;
+  isFourX?: boolean;
 }
 
-const ClaimableBatch: React.FC<BatchProps> = ({ batch, handleClaimAndStake, handleClaim, handleWithdraw }) => {
+const ClaimableBatch: React.FC<BatchProps> = ({
+  batch,
+  handleClaimAndStake,
+  handleClaim,
+  handleWithdraw,
+  isFourX = false,
+}) => {
   return (
     <tr className="even:bg-gray-100 odd:bg-white last:rounded-b-2xl w-full">
       <td className="px-6 py-5 whitespace-nowrap">
         <span className="flex flex-row items-center">
-          {`${formatAndRoundBigNumber(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint ? 2 : 6)} ${
-            batch.batchType === BatchType.Mint ? "3CRV " : "BTR"
-          }`}
-          {batch.batchType === BatchType.Mint && (
+          {formatBatchInputToken(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint, isFourX)}
+          {!isFourX && batch.batchType === BatchType.Mint && (
             <div className="mb-1">
               <InfoIconWithModal title="Why do I see 3CRV?">
                 <p>
@@ -32,9 +36,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({ batch, handleClaimAndStake, hand
         </span>
       </td>
       <td className="px-6 py-5 whitespace-nowrap font-medium">
-        {`${formatAndRoundBigNumber(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint ? 6 : 2)} ${
-          batch.batchType === BatchType.Mint ? "BTR" : "3CRV"
-        }`}
+        {formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isFourX)}
       </td>
       <td className="px-6 py-5 flex justify-end">
         <div className="w-36">

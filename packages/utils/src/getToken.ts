@@ -1,7 +1,7 @@
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { Token } from "./types";
-import { ERC20__factory } from "../../hardhat/typechain/factories/ERC20__factory";
 import { getSanitizedTokenDisplayName } from "../../app/helper/displayHelper";
+import { ERC20__factory } from "../../hardhat/typechain/factories/ERC20__factory";
+import { Token } from "./types";
 
 export default async function getToken(erc20: ERC20): Promise<Token> {
   return {

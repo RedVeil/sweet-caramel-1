@@ -7,7 +7,7 @@ export type Pool = {
 };
 
 export async function getStakingPools(chainId: number, addresses, deployments): Promise<Pool[]> {
-  const { pop, popUsdcLp, butter } = addresses;
+  const { pop, popUsdcLp, butter, fourX } = addresses;
   switch (chainId) {
     case 1:
       return [
@@ -23,6 +23,12 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
         //   inputToken: popUsdcLp,
         //   rewardsToken: pop,
         // },
+        /* {
+          poolName: "fourXStaking",
+          contract: "Staking",
+          inputToken: fourX,
+          rewardsToken: pop,
+        }, */
         {
           poolName: "butterStaking",
           contract: "Staking",
@@ -49,6 +55,12 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           inputToken: butter,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
+        {
+          poolName: "fourXStaking",
+          contract: "Staking",
+          inputToken: fourX,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
       ];
     case 31337:
       return [
@@ -67,6 +79,12 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           poolName: "butterStaking",
           contract: "Staking",
           inputToken: butter,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "fourXStaking",
+          contract: "Staking",
+          inputToken: fourX,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
       ];

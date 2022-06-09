@@ -11,6 +11,7 @@ interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   approve: (contractKey: string) => Promise<void>;
   hasUnclaimedBalances?: boolean;
   isInstantPage?: boolean;
+  isFourXPage?: boolean;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -22,19 +23,16 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   butterPageState,
   hasUnclaimedBalances = false,
   isInstantPage = false,
+  isFourXPage = false,
 }) => {
   const [localButterPageState, setButterPageState] = butterPageState;
 
   function isAllowanceInsufficient() {
-    return localButterPageState.instant
-      ? localButterPageState.depositAmount.gt(
-          localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance,
-        ) ||
-          localButterPageState.whaleToken[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
-      : localButterPageState.depositAmount.gt(
-          localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance,
-        ) ||
-          localButterPageState.batchToken[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero);
+    return (
+      localButterPageState.depositAmount.gt(
+        localButterPageState.tokens[localButterPageState.selectedToken.input].allowance,
+      ) || localButterPageState.tokens[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
+    );
   }
 
   function setRedeeming(redeeming: boolean) {
@@ -55,7 +53,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           butterPageState={butterPageState}
         />
       </div>
-      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && (
+      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && !isFourXPage && (
         <div className="mt-2 mb-6">
           <CheckMarkToggleWithInfo
             label="Use Instant Butter (Higher Gas Fee)"
@@ -73,7 +71,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       )}
       {(localButterPageState.instant ||
         isInstantPage ||
-        (!localButterPageState.redeeming && localButterPageState.selectedToken.input !== "threeCrv")) && (
+        (!localButterPageState.redeeming && localButterPageState.useZap)) && (
         <div className="w-full pb-8">
           <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
         </div>
@@ -97,7 +95,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           <div className="space-y-6">
             <MainActionButton
               label={`Allow Popcorn to use your ${
-                localButterPageState.batchToken[localButterPageState.selectedToken.input].name
+                localButterPageState.tokens[localButterPageState.selectedToken.input].name
               }`}
               handleClick={() => approve(localButterPageState.selectedToken.input)}
             />

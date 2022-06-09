@@ -30,7 +30,7 @@ const IndexPage = () => {
             header="4x"
             content=" Forex exposure with nobel yield that donates fees to social impact organizations."
             image="/images/4xImage.svg"
-            link="/fourx"
+            link="/butter/fourx"
             imageSize="h-20"
           />
         </div>

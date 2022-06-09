@@ -1,34 +1,43 @@
 import { bigNumberToNumber, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
-import { ButterBatchData } from "@popcorn/utils/types";
+import { BatchMetadata } from "@popcorn/utils/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import { constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import useGetButterAPY from "hooks/butter/useGetButterAPY";
+import useGetYearnAPY from "hooks/butter/useGetYearnAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useWeb3 from "hooks/useWeb3";
 
 export interface ButterStatsProps {
-  butterData: ButterBatchData;
+  butterData: BatchMetadata;
   center?: boolean;
+  isFourX?: boolean;
+  addresses: string[];
 }
 
-const SocialImpactInfoProps = {
-  content:
-    "Approximately one-third of all fees collected by Popcorn are donated to social impact and non-profit organizations selected by POP token holders.",
-  id: "socialImpact",
-  title: "Social Impact",
-};
-
-export default function ButterStats({ butterData, center = false }: ButterStatsProps) {
+export default function ButterStats({ butterData, center = false, isFourX = false, addresses }: ButterStatsProps) {
+  const isReady = typeof butterData !== "undefined";
+  const SocialImpactInfoProps = {
+    content:
+      "Approximately one-third of all fees collected by Popcorn are donated to social impact and non-profit organizations selected by POP token holders.",
+    id: "socialImpact",
+    title: "Social Impact",
+  };
   const { contractAddresses } = useWeb3();
-  const { data: butterAPY } = useGetButterAPY();
-  const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
+  const { data: butterAPY } = useGetYearnAPY(addresses);
+  const { data: butterStaking } = useStakingPool(
+    isFourX ? contractAddresses.fourXStaking : contractAddresses.butterStaking,
+  );
+  const supply = isReady && butterData.totalSupply;
+  const setToken = isFourX ? butterData?.tokens?.fourX : butterData?.tokens?.butter;
 
   const apyInfoText = `This is the estimated Annual Percentage Yield. The shown APY comes from yield on the underlying stablecoins (${
     butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
   }%) and is boosted with POP (${
     butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-  }%). You must stake your BTR to receive the additional APY in POP. 90% of earned POP rewards are vested over one year.`;
+  }%). You must stake your ${
+    isFourX ? "4X" : "BTR"
+  } to receive the additional APY in POP. 90% of earned POP rewards are vested over one year.`;
+
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
       <div className={`${!center && "border-gray-200 border-r-2 pr-6"} md:border-gray-200 md:border-r-2 md:pr-6 mt-2`}>
@@ -51,11 +60,7 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
         <div className="md:hidden">
           <StatusWithLabel
             content={
-              butterData?.batchProcessTokens?.butter && butterData?.butterSupply
-                ? `$${formatAndRoundBigNumber(
-                    butterData?.butterSupply.mul(butterData?.batchProcessTokens?.butter.price).div(parseEther("1")),
-                  )}`
-                : "$-"
+              setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
             }
             label="Total Deposits"
           />
@@ -65,11 +70,7 @@ export default function ButterStats({ butterData, center = false }: ButterStatsP
         <div className="hidden md:block ">
           <StatusWithLabel
             content={
-              butterData?.batchProcessTokens?.butter && butterData?.butterSupply
-                ? `$${formatAndRoundBigNumber(
-                    butterData?.butterSupply.mul(butterData?.batchProcessTokens?.butter.price).div(parseEther("1")),
-                  )}`
-                : "$-"
+              setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
             }
             label="Total Deposits"
           />

@@ -1,6 +1,6 @@
 import { formatEther, formatUnits } from "@ethersproject/units";
 import { formatAndRoundBigNumber, formatBigNumber, numberToBigNumber } from "@popcorn/utils";
-import { BatchProcessToken, BatchProcessTokenKey, BatchProcessTokens } from "@popcorn/utils/src/types";
+import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
 import { BigNumber, constants } from "ethers";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
 import { ButterPageState } from "pages/[network]/butter";
@@ -9,7 +9,7 @@ import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
 import SelectToken from "./SelectToken";
 
 export interface ButterTokenInputProps {
-  token: BatchProcessTokens;
+  token: Tokens;
   selectToken: (token: BatchProcessTokenKey) => void;
   depositDisabled: boolean;
   butterPageState: [ButterPageState, Dispatch<ButterPageState>];
@@ -17,8 +17,8 @@ export interface ButterTokenInputProps {
 }
 
 interface SelectedToken {
-  input: BatchProcessToken;
-  output: BatchProcessToken;
+  input: TokenMetadata;
+  output: TokenMetadata;
 }
 
 const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
@@ -31,22 +31,22 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   const [estimatedAmount, setEstimatedAmount] = useState<string>("");
   const [localButterPageState, setButterPageState] = butterPageState;
   const [selectedToken, setSelectedToken] = useState<SelectedToken>({
-    input: localButterPageState.batchToken[localButterPageState.selectedToken.input],
-    output: localButterPageState.batchToken[localButterPageState.selectedToken.output],
+    input: localButterPageState.tokens[localButterPageState.selectedToken.input],
+    output: localButterPageState.tokens[localButterPageState.selectedToken.output],
   });
 
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
         localButterPageState.depositAmount,
-        localButterPageState.batchToken[localButterPageState.selectedToken.input].decimals,
+        localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
       );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
     setSelectedToken({
-      input: localButterPageState.batchToken[localButterPageState.selectedToken.input],
-      output: localButterPageState.batchToken[localButterPageState.selectedToken.output],
+      input: localButterPageState.tokens[localButterPageState.selectedToken.input],
+      output: localButterPageState.tokens[localButterPageState.selectedToken.output],
     });
   }, [localButterPageState.selectedToken.input, localButterPageState.selectedToken.output]);
 
@@ -136,10 +136,10 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               <SelectToken
                 allowSelection={!localButterPageState.redeeming}
                 selectedToken={selectedToken.input}
-                token={token}
+                options={token}
                 notSelectable={[
                   localButterPageState.selectedToken.input,
-                  localButterPageState.redeeming ? "threeCrv" : "butter",
+                  ...(localButterPageState.redeeming ? ["threeCrv", "usdc"] : ["butter", "fourX"]),
                 ]}
                 selectToken={selectToken}
               />
@@ -214,7 +214,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               <SelectToken
                 allowSelection={false}
                 selectedToken={selectedToken.output}
-                token={token}
+                options={token}
                 notSelectable={[
                   localButterPageState.selectedToken.output,
                   localButterPageState.redeeming ? "butter" : "threeCrv",

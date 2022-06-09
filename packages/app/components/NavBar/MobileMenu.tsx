@@ -1,22 +1,22 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import SecondaryActionButton from "components/SecondaryActionButton";
+import { logos, networkMap } from "context/Web3/connectors";
+import GetProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
+import DropDownComponent from "./DropDownComponent";
 import { getPoolLink, getPopAddress } from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
-export interface MenuProps {
-  currentChain: { name: string; logo: any };
-}
-
-export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
-  const { chainId, account, connect, disconnect, wallet, setChain } = useWeb3();
+export const MobileMenu: React.FC = () => {
+  const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
+  const products = GetProducts(router, pushWithinChain);
 
   return (
     <>
@@ -75,8 +75,29 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
                       <div className="pt-6 pb-6">
                         <NavbarLink label="Home" url="/" isActive={router.pathname === `/[network]`} />
                       </div>
-                      <div className="py-6">
-                        <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/[network]/butter"} />
+                      <div className="relative flex flex-container flex-row w-fit-content z-10 py-6">
+                        {products.length < 2 ? (
+                          <li className="mt-1">
+                            <NavbarLink label={products[0].title} isActive={false} onClick={products[0].onClick} />
+                          </li>
+                        ) : (
+                          <Menu>
+                            <Menu.Button>
+                              <div className="group flex flex-row items-center -mr-2">
+                                <p
+                                  className={`text-gray-500 text-xl leading-4 font-semibold font-base md:text-base hover:text-gray-900 cursor-pointer`}
+                                >
+                                  Products
+                                </p>
+                                <ChevronDownIcon
+                                  className="fill-current md:text-gray-500 text-gray-900 group-hover:text-gray-900 mt-0.5 w-5 h-5 ml-0.5"
+                                  aria-hidden="true"
+                                />
+                              </div>
+                              <DropDownComponent options={products} />
+                            </Menu.Button>
+                          </Menu>
+                        )}
                       </div>
                       <div className="py-6">
                         <NavbarLink
@@ -123,8 +144,8 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
                             <div
                               className={`w-full px-6 h-12 py-0.5 flex flex-row items-center justify-center border border-gray-200 shadow-custom rounded-3xl cursor-pointer relative`}
                             >
-                              <img src={currentChain.logo} alt={""} className="w-4.5 h-4 mr-4" />
-                              <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChain.name}</p>
+                              <img src={logos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
+                              <p className="leading-none font-medium text-gray-600 mt-0.5">{networkMap[chainId]}</p>
                               <ChevronDownIcon className="w-5 h-5 ml-4 absolute right-10" aria-hidden="true" />
                             </div>
                           </Menu.Button>

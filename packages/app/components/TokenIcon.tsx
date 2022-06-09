@@ -33,7 +33,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
           </div>
         </div>
       );
-    case "Butter":
+    case "Butter V2":
       return (
         <div
           className={`flex items-center rounded-full bg-white border border-gray-300  ${

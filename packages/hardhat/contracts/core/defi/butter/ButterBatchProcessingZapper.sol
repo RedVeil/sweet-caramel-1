@@ -97,7 +97,7 @@ contract ButterBatchProcessingZapper {
     uint256 _stableCoinIndex,
     uint256 _min_amount
   ) external {
-    // Allows the zapepr to withdraw 3CRV from batch for the user
+    // Allows the zapper to withdraw 3CRV from batch for the user
     IButterBatchProcessing(contractRegistry.getContract(keccak256("ButterBatchProcessing"))).withdrawFromBatch(
       _batchId,
       _amountToWithdraw,

@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./MockERC20.sol";
 
+import "hardhat/console.sol";
+
 contract MockCurveMetapool {
   using SafeERC20 for MockERC20;
 
@@ -84,6 +86,35 @@ contract MockCurveMetapool {
     tokens[idx].mint(address(this), transferOut);
     tokens[idx].transferFrom(address(this), msg.sender, transferOut);
     return transferOut;
+  }
+
+  function exchange(
+    int128 i,
+    int128 j,
+    uint256 dx,
+    uint256 min_dy
+  ) external returns (uint256) {
+    if (i == 0) {
+      dai.transferFrom(msg.sender, address(this), dx);
+    } else {
+      token.transferFrom(msg.sender, address(this), dx);
+    }
+    if (j == 0) dai.transfer(msg.sender, dx);
+    if (j == 1) usdc.transfer(msg.sender, dx);
+    if (j == 3) token.transfer(msg.sender, dx);
+    return dx;
+  }
+
+  //...And some others use exchange_underlying (mim,3crv)
+  function exchange_underlying(
+    int128 i,
+    int128 j,
+    uint256 dx,
+    uint256 min_dy
+  ) external returns (uint256) {
+    usdc.transferFrom(msg.sender, address(this), dx);
+    token.transfer(msg.sender, dx);
+    return dx;
   }
 
   // Test helpers

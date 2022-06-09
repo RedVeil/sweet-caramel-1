@@ -3,12 +3,12 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import {IERC20} from "openzeppelin-v3/token/ERC20/IERC20.sol";
-import {SafeERC20} from "openzeppelin-v3/token/ERC20/SafeERC20.sol";
-import {Math} from "openzeppelin-v3/math/Math.sol";
-import {SafeMath} from "openzeppelin-v3/math/SafeMath.sol";
+import { IERC20 } from "openzeppelin-v3/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "openzeppelin-v3/token/ERC20/SafeERC20.sol";
+import { Math } from "openzeppelin-v3/math/Math.sol";
+import { SafeMath } from "openzeppelin-v3/math/SafeMath.sol";
 
-import {VaultAPI} from "./BaseStrategy.sol";
+import { VaultAPI } from "./BaseStrategy.sol";
 
 interface RegistryAPI {
   function governance() external view returns (address);

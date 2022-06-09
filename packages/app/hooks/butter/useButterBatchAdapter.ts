@@ -1,9 +1,9 @@
 import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
+import { Contract } from "ethers";
 import { useEffect, useState } from "react";
-import useButterBatch from "./useButterBatch";
 
-export default function useButterBatchAdapter(): ButterBatchAdapter | undefined {
-  const butterBatch = useButterBatch();
+// TODO: Remove this file
+export default function useButterBatchAdapter(butterBatch: Contract): ButterBatchAdapter | undefined {
   const [butterBatchAdapter, setButterBatchAdapter] = useState<ButterBatchAdapter>(undefined);
   useEffect(() => {
     if (butterBatch) {

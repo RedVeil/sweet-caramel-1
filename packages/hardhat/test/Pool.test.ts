@@ -12,13 +12,7 @@ import {
   expectValue,
 } from "../lib/utils/expectValue";
 import { timeTravel } from "../lib/utils/test";
-import {
-  ACLRegistry,
-  ContractRegistry,
-  MockERC20,
-  MockYearnV2Vault,
-  Pool,
-} from "../typechain";
+import { ACLRegistry, ContractRegistry, MockERC20, MockYearnV2Vault, Pool } from "../typechain";
 
 interface Contracts {
   depositToken: MockERC20;
@@ -40,47 +34,31 @@ let contracts: Contracts;
 
 async function deployContracts(): Promise<Contracts> {
   const MockERC20 = await ethers.getContractFactory("MockERC20");
-  const depositToken = await (
-    await MockERC20.deploy("Token", "TOKEN", 18)
-  ).deployed();
+  const depositToken = await (await MockERC20.deploy("Token", "TOKEN", 18)).deployed();
 
   const MockYearnV2Vault = await ethers.getContractFactory("MockYearnV2Vault");
-  const yearnVault = await (
-    await MockYearnV2Vault.deploy(depositToken.address)
-  ).deployed();
+  const yearnVault = await (await MockYearnV2Vault.deploy(depositToken.address)).deployed();
 
   const yearnRegistry = await deployMockContract(owner, yearnRegistryABI);
   await yearnRegistry.mock.latestVault.returns(yearnVault.address);
   await yearnRegistry.mock.numVaults.returns(1);
   await yearnRegistry.mock.vaults.returns(yearnVault.address);
 
-  const aclRegistry = await (
-    await (await ethers.getContractFactory("ACLRegistry")).deploy()
-  ).deployed();
+  const aclRegistry = await (await (await ethers.getContractFactory("ACLRegistry")).deploy()).deployed();
 
   const contractRegistry = await (
-    await (
-      await ethers.getContractFactory("ContractRegistry")
-    ).deploy(aclRegistry.address)
+    await (await ethers.getContractFactory("ContractRegistry")).deploy(aclRegistry.address)
   ).deployed();
 
   const Pool = await ethers.getContractFactory("Pool");
   const pool = await (
-    await Pool.deploy(
-      depositToken.address,
-      yearnRegistry.address,
-      contractRegistry.address
-    )
+    await Pool.deploy(depositToken.address, yearnRegistry.address, contractRegistry.address)
   ).deployed();
 
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await contractRegistry
     .connect(owner)
-    .addContract(
-      ethers.utils.id("RewardsManager"),
-      rewardsManager.address,
-      ethers.utils.id("1")
-    );
+    .addContract(ethers.utils.id("RewardsManager"), rewardsManager.address, ethers.utils.id("1"));
 
   return {
     depositToken,
@@ -102,11 +80,7 @@ describe("Pool", function () {
     it("reverts if yearn registry address is zero", async function () {
       const Pool = await ethers.getContractFactory("Pool");
       await expectRevert(
-        Pool.deploy(
-          contracts.depositToken.address,
-          ethers.constants.AddressZero,
-          contracts.contractRegistry.address
-        ),
+        Pool.deploy(contracts.depositToken.address, ethers.constants.AddressZero, contracts.contractRegistry.address),
         "Zero address"
       );
     });
@@ -114,33 +88,20 @@ describe("Pool", function () {
     it("reverts if contract registry address is zero", async function () {
       const Pool = await ethers.getContractFactory("Pool");
       await expectRevert(
-        Pool.deploy(
-          contracts.depositToken.address,
-          contracts.yearnRegistry.address,
-          ethers.constants.AddressZero
-        ),
+        Pool.deploy(contracts.depositToken.address, contracts.yearnRegistry.address, ethers.constants.AddressZero),
         "Zero address"
       );
     });
 
     it("stores contract registry address", async function () {
       const Pool = await ethers.getContractFactory("Pool");
-      Pool.deploy(
-        contracts.depositToken.address,
-        contracts.yearnRegistry.address,
-        contracts.contractRegistry.address
-      );
+      Pool.deploy(contracts.depositToken.address, contracts.yearnRegistry.address, contracts.contractRegistry.address);
 
-      expectValue(
-        await contracts.pool.contractRegistry(),
-        contracts.contractRegistry.address
-      );
+      expectValue(await contracts.pool.contractRegistry(), contracts.contractRegistry.address);
     });
 
     it("sets feesUpdatedAt to deployment block timestamp", async function () {
-      let deployBlock = await waffle.provider.getBlock(
-        contracts.pool.deployTransaction.blockNumber
-      );
+      let deployBlock = await waffle.provider.getBlock(contracts.pool.deployTransaction.blockNumber);
       let deployTimestamp = deployBlock.timestamp;
       expectValue(await contracts.pool.feesUpdatedAt(), deployTimestamp);
     });
@@ -162,10 +123,7 @@ describe("Pool", function () {
     });
 
     it("token high water mark is 1e18", async function () {
-      await expectValue(
-        await contracts.pool.poolTokenHWM(),
-        DEFAULT_HIGH_WATER_MARK
-      );
+      await expectValue(await contracts.pool.poolTokenHWM(), DEFAULT_HIGH_WATER_MARK);
     });
   });
 
@@ -186,55 +144,32 @@ describe("Pool", function () {
   describe("deposit", async function () {
     beforeEach(async function () {
       await contracts.depositToken.mint(depositor.address, DEPOSIT_AMOUNT);
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, DEPOSIT_AMOUNT);
     });
 
     it("transfers tokens from depositor", async function () {
-      await expectValue(
-        await contracts.depositToken.balanceOf(depositor.address),
-        DEPOSIT_AMOUNT
-      );
+      await expectValue(await contracts.depositToken.balanceOf(depositor.address), DEPOSIT_AMOUNT);
 
       await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
 
-      await expectValue(
-        await contracts.depositToken.balanceOf(depositor.address),
-        0
-      );
+      await expectValue(await contracts.depositToken.balanceOf(depositor.address), 0);
     });
 
     it("reverts on insufficient balance", async function () {
-      await expectRevert(
-        contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT.add(1)),
-        "Insufficient balance"
-      );
+      await expectRevert(contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT.add(1)), "Insufficient balance");
     });
 
     it("creates a block lock", async function () {
-      const depositTx = await contracts.pool
-        .connect(depositor)
-        .deposit(DEPOSIT_AMOUNT);
+      const depositTx = await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
 
-      await expectValue(
-        await contracts.pool.blockLocks(depositor.address),
-        depositTx.blockNumber
-      );
+      await expectValue(await contracts.pool.blockLocks(depositor.address), depositTx.blockNumber);
     });
 
     it("updates feesUpdatedAt", async function () {
-      const depositTx = await contracts.pool
-        .connect(depositor)
-        .deposit(DEPOSIT_AMOUNT);
-      const depositTxBlock = await waffle.provider.getBlock(
-        depositTx.blockNumber
-      );
+      const depositTx = await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
+      const depositTxBlock = await waffle.provider.getBlock(depositTx.blockNumber);
 
-      await expectValue(
-        await contracts.pool.feesUpdatedAt(),
-        depositTxBlock.timestamp
-      );
+      await expectValue(await contracts.pool.feesUpdatedAt(), depositTxBlock.timestamp);
     });
 
     it("deposits into the yearn vault", async function () {
@@ -242,59 +177,40 @@ describe("Pool", function () {
 
       await expectValue(await contracts.yearnVault.balance(), DEPOSIT_AMOUNT);
 
-      await expectValue(
-        await contracts.depositToken.balanceOf(depositor.address),
-        0
-      );
+      await expectValue(await contracts.depositToken.balanceOf(depositor.address), 0);
     });
 
     it("pool receives yearn shares in exchange for deposit", async function () {
       await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
 
-      await expectValue(
-        await contracts.yearnVault.balanceOf(contracts.pool.address),
-        DEPOSIT_AMOUNT
-      );
+      await expectValue(await contracts.yearnVault.balanceOf(contracts.pool.address), DEPOSIT_AMOUNT);
     });
 
     it("pool transfers shares to depositor", async function () {
       await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
 
-      await expectValue(
-        await contracts.pool.connect(depositor).balanceOf(depositor.address),
-        DEPOSIT_AMOUNT
-      );
+      await expectValue(await contracts.pool.connect(depositor).balanceOf(depositor.address), DEPOSIT_AMOUNT);
     });
 
     it("pool emits a Deposit event", async function () {
-      await expectEvent(
-        await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT),
-        contracts.pool,
-        "Deposit",
-        [depositor.address, DEPOSIT_AMOUNT, DEPOSIT_AMOUNT]
-      );
+      await expectEvent(await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT), contracts.pool, "Deposit", [
+        depositor.address,
+        DEPOSIT_AMOUNT,
+        DEPOSIT_AMOUNT,
+      ]);
     });
 
     it("depositFor deposits and sends shares to address", async function () {
-      await contracts.pool
-        .connect(depositor)
-        .depositFor(DEPOSIT_AMOUNT, depositor2.address);
+      await contracts.pool.connect(depositor).depositFor(DEPOSIT_AMOUNT, depositor2.address);
 
-      expectValue(
-        await contracts.pool.connect(depositor2).balanceOf(depositor2.address),
-        DEPOSIT_AMOUNT
-      );
+      expectValue(await contracts.pool.connect(depositor2).balanceOf(depositor2.address), DEPOSIT_AMOUNT);
     });
 
     it("depositFor reverts on insufficient balance", async function () {
       let amount = parseEther("10000000");
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, amount);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, amount);
       await expectRevert(
-        contracts.pool
-          .connect(depositor)
-          .depositFor(amount, depositor2.address),
+        contracts.pool.connect(depositor).depositFor(amount, depositor2.address),
         "Insufficient balance"
       );
     });
@@ -313,52 +229,32 @@ describe("Pool", function () {
     beforeEach(async function () {
       await contracts.depositToken.mint(depositor.address, DEPOSIT_AMOUNT);
       await contracts.depositToken.mint(depositor2.address, DEPOSIT_AMOUNT);
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, DEPOSIT_AMOUNT);
-      await contracts.depositToken
-        .connect(depositor2)
-        .approve(contracts.pool.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor2).approve(contracts.pool.address, DEPOSIT_AMOUNT);
     });
 
     it("pool tokens are transferable with transfer", async function () {
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, TRANSFER_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, TRANSFER_AMOUNT);
       await contracts.pool.connect(depositor).deposit(TRANSFER_AMOUNT);
       const balance = await contracts.pool.balanceOf(depositor.address);
-      await contracts.pool
-        .connect(depositor)
-        .transfer(depositor2.address, balance);
-      expect(await contracts.pool.balanceOf(depositor2.address)).to.equal(
-        balance
-      );
+      await contracts.pool.connect(depositor).transfer(depositor2.address, balance);
+      expect(await contracts.pool.balanceOf(depositor2.address)).to.equal(balance);
     });
 
     it("pool tokens are transferable with transferFrom", async function () {
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, TRANSFER_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, TRANSFER_AMOUNT);
       await contracts.pool.connect(depositor).deposit(TRANSFER_AMOUNT);
       const balance = await contracts.pool.balanceOf(depositor.address);
-      await contracts.pool
-        .connect(depositor)
-        .approve(depositor2.address, balance);
-      await contracts.pool
-        .connect(depositor2)
-        .transferFrom(depositor.address, depositor2.address, balance);
-      expect(await contracts.pool.balanceOf(depositor2.address)).to.equal(
-        balance
-      );
+      await contracts.pool.connect(depositor).approve(depositor2.address, balance);
+      await contracts.pool.connect(depositor2).transferFrom(depositor.address, depositor2.address, balance);
+      expect(await contracts.pool.balanceOf(depositor2.address)).to.equal(balance);
     });
   });
 
   describe("withdraw", async function () {
     beforeEach(async function () {
       await contracts.depositToken.mint(depositor.address, DEPOSIT_AMOUNT);
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, DEPOSIT_AMOUNT);
 
       await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
     });
@@ -371,14 +267,9 @@ describe("Pool", function () {
     });
 
     it("creates a block lock", async function () {
-      const depositTx = await contracts.pool
-        .connect(depositor)
-        .withdraw(DEPOSIT_AMOUNT);
+      const depositTx = await contracts.pool.connect(depositor).withdraw(DEPOSIT_AMOUNT);
 
-      await expectValue(
-        await contracts.pool.blockLocks(depositor.address),
-        depositTx.blockNumber
-      );
+      await expectValue(await contracts.pool.blockLocks(depositor.address), depositTx.blockNumber);
     });
 
     describe("fees", async function () {
@@ -433,9 +324,7 @@ describe("Pool", function () {
   describe("governance", async function () {
     beforeEach(async function () {
       await contracts.depositToken.mint(depositor.address, DEPOSIT_AMOUNT);
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, DEPOSIT_AMOUNT);
     });
     it("owner can set withdrawalFee", async function () {
       await contracts.pool.connect(owner).setWithdrawalFee(20);
@@ -443,17 +332,11 @@ describe("Pool", function () {
     });
 
     it("non-owner cannot set withdrawalFee", async function () {
-      await expectRevert(
-        contracts.pool.connect(depositor).setWithdrawalFee(20),
-        "you dont have the right role"
-      );
+      await expectRevert(contracts.pool.connect(depositor).setWithdrawalFee(20), "you dont have the right role");
     });
 
     it("reverts on same withdrawalFee", async function () {
-      await expectRevert(
-        contracts.pool.connect(owner).setWithdrawalFee(50),
-        "Same withdrawalFee"
-      );
+      await expectRevert(contracts.pool.connect(owner).setWithdrawalFee(50), "Same withdrawalFee");
     });
 
     it("owner can set managementFee", async function () {
@@ -462,17 +345,11 @@ describe("Pool", function () {
     });
 
     it("non-owner cannot set managementFee", async function () {
-      await expectRevert(
-        contracts.pool.connect(depositor).setManagementFee(500),
-        "you dont have the right role"
-      );
+      await expectRevert(contracts.pool.connect(depositor).setManagementFee(500), "you dont have the right role");
     });
 
     it("reverts on same managementFee", async function () {
-      await expectRevert(
-        contracts.pool.connect(owner).setManagementFee(200),
-        "Same managementFee"
-      );
+      await expectRevert(contracts.pool.connect(owner).setManagementFee(200), "Same managementFee");
     });
 
     it("owner can set performanceFee", async function () {
@@ -481,42 +358,25 @@ describe("Pool", function () {
     });
 
     it("non-owner cannot set performanceFee", async function () {
-      await expectRevert(
-        contracts.pool.connect(depositor).setPerformanceFee(500),
-        "you dont have the right role"
-      );
+      await expectRevert(contracts.pool.connect(depositor).setPerformanceFee(500), "you dont have the right role");
     });
 
     it("reverts on same performanceFee", async function () {
-      await expectRevert(
-        contracts.pool.connect(owner).setPerformanceFee(2000),
-        "Same performanceFee"
-      );
+      await expectRevert(contracts.pool.connect(owner).setPerformanceFee(2000), "Same performanceFee");
     });
 
     it("owner can pause the contract", async function () {
-      await expectEvent(
-        await contracts.pool.connect(owner).pauseContract(),
-        contracts.pool,
-        "Paused",
-        [owner.address]
-      );
+      await expectEvent(await contracts.pool.connect(owner).pauseContract(), contracts.pool, "Paused", [owner.address]);
     });
 
     it("non-owner cannot pause the contract", async function () {
-      await expectRevert(
-        contracts.pool.connect(depositor).pauseContract(),
-        "you dont have the right role"
-      );
+      await expectRevert(contracts.pool.connect(depositor).pauseContract(), "you dont have the right role");
     });
 
     it("deposits to the pool should not be allowed when paused", async function () {
       await contracts.pool.connect(owner).pauseContract();
 
-      await expectRevert(
-        contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT),
-        "Pausable: paused"
-      );
+      await expectRevert(contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT), "Pausable: paused");
     });
 
     it("deposits to the pool can resume when paused and unpaused", async function () {
@@ -529,27 +389,20 @@ describe("Pool", function () {
     });
 
     it("withdrawals are allowed when the pool is paused", async function () {
-      await contracts.depositToken
-        .connect(depositor)
-        .approve(contracts.pool.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.pool.address, DEPOSIT_AMOUNT);
       await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
       await contracts.pool.connect(owner).pauseContract();
 
-      expect(contracts.pool.connect(depositor).withdraw(DEPOSIT_AMOUNT)).not.to
-        .be.reverted;
+      expect(contracts.pool.connect(depositor).withdraw(DEPOSIT_AMOUNT)).not.to.be.reverted;
     });
 
     describe("sending accrued fees to rewards manager", async function () {
       beforeEach(async function () {
         await contracts.depositToken.mint(depositor.address, DEPOSIT_AMOUNT);
-        await contracts.depositToken
-          .connect(depositor)
-          .approve(contracts.pool.address, DEPOSIT_AMOUNT);
+        await contracts.depositToken.connect(depositor).approve(contracts.pool.address, DEPOSIT_AMOUNT);
       });
       it("owner can withdraw accrued fees", async function () {
-        await contracts.depositToken
-          .connect(depositor)
-          .approve(contracts.pool.address, DEPOSIT_AMOUNT);
+        await contracts.depositToken.connect(depositor).approve(contracts.pool.address, DEPOSIT_AMOUNT);
         await contracts.pool.connect(depositor).deposit(DEPOSIT_AMOUNT);
         await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
         await timeTravel(365 * DAY);
@@ -563,10 +416,7 @@ describe("Pool", function () {
 
         await contracts.pool.connect(owner).withdrawAccruedFees();
 
-        await expectValue(
-          await contracts.pool.balanceOf(contracts.pool.address),
-          0
-        );
+        await expectValue(await contracts.pool.balanceOf(contracts.pool.address), 0);
 
         await expectBigNumberCloseTo(
           await contracts.depositToken.balanceOf(rewardsManager.address),

@@ -29,7 +29,7 @@
     "editor.formatOnSave": true
   },
   "[solidity]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "JuanBlanco.solidity"
   },
   "editor.tabCompletion": "on",
   "editor.tabSize": 2,

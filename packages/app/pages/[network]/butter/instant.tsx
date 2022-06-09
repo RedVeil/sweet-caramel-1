@@ -45,6 +45,12 @@ export default function InstantButter() {
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
   const loadingButterBatchData = !butterData && !errorFetchingButterData;
+  const butterYearnAddresses = [
+    contractAddresses.yFrax,
+    contractAddresses.yRai,
+    contractAddresses.yMusd,
+    contractAddresses.yAlusd,
+  ];
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -78,17 +84,17 @@ export default function InstantButter() {
   }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
-    if (!butterData || !butterData?.batchProcessTokens) {
+    if (!butterData || !butterData?.tokens) {
       return;
     }
     if (butterPageState.initalLoad) {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterData?.batchProcessTokens?.threeCrv?.key,
-          output: butterData?.batchProcessTokens?.butter?.key,
+          input: butterData?.tokens?.threeCrv?.key,
+          output: butterData?.tokens?.butter?.key,
         },
-        batchToken: butterData?.batchProcessTokens,
+        tokens: butterData?.tokens,
         redeeming: false,
         initalLoad: false,
         instant: true,
@@ -96,21 +102,21 @@ export default function InstantButter() {
     } else {
       setButterPageState({
         ...butterPageState,
-        batchToken: butterData?.batchProcessTokens,
+        tokens: butterData?.tokens,
       });
     }
   }, [butterData]);
 
   useEffect(() => {
-    if (!butterData || !butterData?.batchProcessTokens) {
+    if (!butterData || !butterData?.tokens) {
       return;
     }
     if (butterPageState.redeeming) {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterPageState?.batchToken?.butter?.key,
-          output: butterPageState?.batchToken?.threeCrv?.key,
+          input: butterPageState?.tokens?.butter?.key,
+          output: butterPageState?.tokens?.threeCrv?.key,
         },
         useZap: false,
         depositAmount: constants.Zero,
@@ -120,8 +126,8 @@ export default function InstantButter() {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterPageState?.batchToken?.threeCrv?.key,
-          output: butterPageState?.batchToken?.butter?.key,
+          input: butterPageState?.tokens?.threeCrv?.key,
+          output: butterPageState?.tokens?.butter?.key,
         },
         useZap: false,
         depositAmount: constants.Zero,
@@ -185,7 +191,7 @@ export default function InstantButter() {
   ): Promise<ethers.ContractTransaction> {
     // Batchtype is included to remain compliant with the interface provided by MintRedeemInterface but in not required for the instaMint version.
     depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
-    toast.loading(`Depositing ${butterPageState.batchToken[butterPageState.selectedToken.input].name}...`);
+    toast.loading(`Depositing ${butterPageState.tokens[butterPageState.selectedToken.input].name}...`);
     if (butterPageState.useZap) {
       const virtualPriceValue = await virtualPrice();
       const minMintAmount = getMinMintAmount(
@@ -210,7 +216,7 @@ export default function InstantButter() {
     useZap?: boolean,
     outputToken?: string,
   ): Promise<ethers.ContractTransaction> {
-    toast.loading(`Withdrawing ${butterPageState.batchToken[butterPageState.selectedToken.output].name}...`);
+    toast.loading(`Withdrawing ${butterPageState.tokens[butterPageState.selectedToken.output].name}...`);
     if (useZap) {
       return butterWhaleProcessing.zapRedeem(
         amount,
@@ -227,7 +233,7 @@ export default function InstantButter() {
 
   async function approve(contractKey: string): Promise<void> {
     toast.loading("Approving Token...");
-    await butterData?.batchProcessTokens[contractKey].contract
+    await butterData?.tokens[contractKey].contract
       .approve(butterWhaleProcessing.address, ethers.constants.MaxUint256)
       .then((res) =>
         onContractSuccess(res, "Token approved!", () => {
@@ -248,19 +254,19 @@ export default function InstantButter() {
             Stake your BTR to earn boosted APY.
           </p>
           <div className="mx-auto">
-            <ButterStats butterData={butterData} center />
+            <ButterStats butterData={butterData} addresses={butterYearnAddresses} center />
           </div>
         </div>
         <div className="mt-10">
           {butterData && butterPageState.selectedToken ? (
             <MintRedeemInterface
-              token={butterData?.batchProcessTokens}
+              token={butterData?.tokens}
               selectToken={selectToken}
               mainAction={handleMainAction}
               approve={approve}
               depositDisabled={isDepositDisabled(
                 butterPageState.depositAmount,
-                butterPageState.batchToken[butterPageState.selectedToken.input].balance,
+                butterPageState.tokens[butterPageState.selectedToken.input].balance,
               )}
               hasUnclaimedBalances={false}
               butterPageState={[butterPageState, setButterPageState]}

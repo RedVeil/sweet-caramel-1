@@ -2,8 +2,8 @@ export {
   adjustDepositDecimals,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
-  prepareHotSwap,
   percentageToBps,
+  prepareHotSwap,
 } from "./butterHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";

@@ -9,7 +9,7 @@ export const isButterSupportedOnCurrentNetwork = (chainId: number) => {
 
 export function prepareHotSwap(batches: AccountBatch[], depositAmount: BigNumber): HotSwapParameter {
   let cumulatedBatchAmounts = constants.Zero;
-  const batchIds: String[] = [];
+  const batchIds: string[] = [];
   const amounts: BigNumber[] = [];
   batches.forEach((batch) => {
     if (cumulatedBatchAmounts < depositAmount) {

@@ -17,7 +17,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -26,7 +26,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -79,8 +79,8 @@ module.exports = {
       chainId: 1337,
       forking: Boolean(parseInt(process.env.FORKING || "0"))
         ? {
-          url: process.env.RPC_URL,
-        }
+            url: process.env.RPC_URL,
+          }
         : undefined,
     },
     localhost: {

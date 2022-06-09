@@ -27,6 +27,7 @@ export async function calculateApy(
     case contractAddresses.popUsdcLp.toLocaleLowerCase():
       return await getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     case contractAddresses.butter.toLocaleLowerCase():
+    case contractAddresses.fourX.toLocaleLowerCase():
       return await getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     default:
       return constants.Zero;

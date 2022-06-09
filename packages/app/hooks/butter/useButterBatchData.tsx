@@ -1,6 +1,5 @@
 import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import { ButterBatchData } from "@popcorn/utils/src/types";
-import useButter from "hooks/butter/useButter";
+import { BatchMetadata } from "@popcorn/utils/src/types";
 import useButterBatch from "hooks/butter/useButterBatch";
 import useButterBatchAdapter from "hooks/butter/useButterBatchAdapter";
 import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
@@ -10,20 +9,21 @@ import useWeb3 from "hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
 import { getData } from "../../helper/ButterDataUtils";
 import useBasicIssuanceModule from "./useBasicIssuanceModule";
+import useSetToken from "./useSetToken";
 
-export default function useButterBatchData(): SWRResponse<ButterBatchData, Error> {
+export default function useButterBatchData(): SWRResponse<BatchMetadata, Error> {
   const { contractAddresses, account, chainId } = useWeb3();
   const dai = useERC20(contractAddresses.dai);
   const usdc = useERC20(contractAddresses.usdc);
   const usdt = useERC20(contractAddresses.usdt);
   const threeCrv = useERC20(contractAddresses.threeCrv);
-  const butter = useButter();
+  const butter = useSetToken(contractAddresses.butter);
   const butterBatch = useButterBatch();
   const butterBatchZapper = useButterBatchZapper();
   const setBasicIssuanceModule = useBasicIssuanceModule();
   const threePool = useThreePool();
 
-  const butterBatchAdapter = useButterBatchAdapter();
+  const butterBatchAdapter = useButterBatchAdapter(butterBatch);
   const shouldFetch = !!(
     !!butterBatchAdapter &&
     !!account &&
