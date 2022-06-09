@@ -1,11 +1,11 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 
-export function formatBatchInputToken(tokenAmount: BigNumber, isMint: boolean, isFourX: boolean) {
-  if (isFourX) {
+export function formatBatchInputToken(tokenAmount: BigNumber, isMint: boolean, isThreeX: boolean) {
+  if (isThreeX) {
     return isMint
       ? `${formatAndRoundBigNumber(tokenAmount, 2, 6)} ${"USDC"}`
-      : `${formatAndRoundBigNumber(tokenAmount, 6)} ${"4X"}`;
+      : `${formatAndRoundBigNumber(tokenAmount, 6)} ${"3X"}`;
   } else {
     return isMint
       ? `${formatAndRoundBigNumber(tokenAmount, 2)} ${"3CRV"}`
@@ -13,10 +13,10 @@ export function formatBatchInputToken(tokenAmount: BigNumber, isMint: boolean, i
   }
 }
 
-export function formatBatchOutputToken(tokenAmount: BigNumber, isMint: boolean, isFourX: boolean) {
-  if (isFourX) {
+export function formatBatchOutputToken(tokenAmount: BigNumber, isMint: boolean, isThreeX: boolean) {
+  if (isThreeX) {
     return isMint
-      ? `${formatAndRoundBigNumber(tokenAmount, 6)} ${"4X"}`
+      ? `${formatAndRoundBigNumber(tokenAmount, 6)} ${"3X"}`
       : `${formatAndRoundBigNumber(tokenAmount, 2, 6)} ${"USDC"}`;
   } else {
     return isMint

@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IClientBatchStorageAccess } from "./IClientBatchStorageAccess.sol";
 /**
- * @notice Defines if the Batch will mint or redeem 4X
+ * @notice Defines if the Batch will mint or redeem 3X
  */
 enum BatchType {
   Mint,
@@ -15,12 +15,12 @@ enum BatchType {
 
 /**
  * @notice The Batch structure is used both for Batches of Minting and Redeeming
- * @param batchType Determines if this Batch is for Minting or Redeeming 4X
+ * @param batchType Determines if this Batch is for Minting or Redeeming 3X
  * @param batchId bytes32 id of the batch
  * @param claimable Shows if a batch has been processed and is ready to be claimed, the suppliedToken cant be withdrawn if a batch is claimable
  * @param unclaimedShares The total amount of unclaimed shares in this batch
- * @param sourceTokenBalance The total amount of deposited token (either DAI or 4X)
- * @param claimableTokenBalance The total amount of claimable token (either sUSD or 4X)
+ * @param sourceTokenBalance The total amount of deposited token (either DAI or 3X)
+ * @param claimableTokenBalance The total amount of claimable token (either sUSD or 3X)
  * @param sourceToken the token one supplies for minting/redeeming another token. the token collateral used to mint or redeem a mintable/redeemable token
  * @param targetToken the token that is claimable after providing the suppliedToken for mint/redeem. the token that a mintable/redeemable token turns into during mint/redeem
  * @param owner address of client (controller contract) that owns this batch and has access rights to it. this makes it so that all balances are isolated and not accessible by other clients that added to this contract over time

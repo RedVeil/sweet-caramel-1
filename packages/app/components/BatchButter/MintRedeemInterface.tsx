@@ -11,7 +11,7 @@ interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   approve: (contractKey: string) => Promise<void>;
   hasUnclaimedBalances?: boolean;
   isInstantPage?: boolean;
-  isFourXPage?: boolean;
+  isThreeXPage?: boolean;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -23,7 +23,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   butterPageState,
   hasUnclaimedBalances = false,
   isInstantPage = false,
-  isFourXPage = false,
+  isThreeXPage = false,
 }) => {
   const [localButterPageState, setButterPageState] = butterPageState;
 
@@ -53,7 +53,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           butterPageState={butterPageState}
         />
       </div>
-      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && !isFourXPage && (
+      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && !isThreeXPage && (
         <div className="mt-2 mb-6">
           <CheckMarkToggleWithInfo
             label="Use Instant Butter (Higher Gas Fee)"

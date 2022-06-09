@@ -10,11 +10,11 @@ import useWeb3 from "hooks/useWeb3";
 export interface ButterStatsProps {
   butterData: BatchMetadata;
   center?: boolean;
-  isFourX?: boolean;
+  isThreeX?: boolean;
   addresses: string[];
 }
 
-export default function ButterStats({ butterData, center = false, isFourX = false, addresses }: ButterStatsProps) {
+export default function ButterStats({ butterData, center = false, isThreeX = false, addresses }: ButterStatsProps) {
   const isReady = typeof butterData !== "undefined";
   const SocialImpactInfoProps = {
     content:
@@ -25,17 +25,17 @@ export default function ButterStats({ butterData, center = false, isFourX = fals
   const { contractAddresses } = useWeb3();
   const { data: butterAPY } = useGetYearnAPY(addresses);
   const { data: butterStaking } = useStakingPool(
-    isFourX ? contractAddresses.fourXStaking : contractAddresses.butterStaking,
+    isThreeX ? contractAddresses.threeXStaking : contractAddresses.butterStaking,
   );
   const supply = isReady && butterData.totalSupply;
-  const setToken = isFourX ? butterData?.tokens?.fourX : butterData?.tokens?.butter;
+  const setToken = isThreeX ? butterData?.tokens?.threeX : butterData?.tokens?.butter;
 
   const apyInfoText = `This is the estimated Annual Percentage Yield. The shown APY comes from yield on the underlying stablecoins (${
     butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
   }%) and is boosted with POP (${
     butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
   }%). You must stake your ${
-    isFourX ? "4X" : "BTR"
+    isThreeX ? "3X" : "BTR"
   } to receive the additional APY in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (

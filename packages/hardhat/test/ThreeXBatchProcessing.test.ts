@@ -16,10 +16,10 @@ import {
 } from "../typechain";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
 import { MockYearnV2Vault } from "../typechain/MockYearnV2Vault";
-import { FourXBatchVault } from "../typechain/FourXBatchVault";
-import FourXBatchAdapter from "../lib/adapters/FourXBatchAdapter";
+import { ThreeXBatchVault } from "../typechain/ThreeXBatchVault";
+import ThreeXBatchAdapter from "../lib/adapters/ThreeXBatchAdapter";
 import { MockCurveOraclePool } from "../typechain/MockCurveOraclePool";
-import { FourXBatchProcessing } from "../typechain/FourXBatchProcessing";
+import { ThreeXBatchProcessing } from "../typechain/ThreeXBatchProcessing";
 import { constants } from "ethers";
 import { MockCurveFactoryMetapool } from "../typechain/MockCurveFactoryMetapool";
 import { MockBasePool } from "../typechain/MockBasePool";
@@ -46,9 +46,9 @@ interface Contracts {
   swapPoolFrax: MockCurveFactoryMetapool;
   swapPoolEurs: MockCurveFactoryMetapool;
   mockBasicIssuanceModule: MockBasicIssuanceModule;
-  fourXBatchProcessing: FourXBatchProcessing;
+  threeXBatchProcessing: ThreeXBatchProcessing;
   staking: Staking;
-  fourXStorage: FourXBatchVault;
+  threeXStorage: ThreeXBatchVault;
   angleRouter: MockAngleRouter;
 }
 
@@ -163,9 +163,9 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(token.agEur.address, token.usdc.address, parseEther("1.06"))
   ).deployed()) as MockAngleRouter;
 
-  const fourXBatchProcessing = await (
+  const threeXBatchProcessing = await (
     await (
-      await ethers.getContractFactory("FourXBatchProcessing")
+      await ethers.getContractFactory("ThreeXBatchProcessing")
     ).deploy(
       contractRegistry.address,
       staking.address,
@@ -208,22 +208,22 @@ async function deployContracts(): Promise<Contracts> {
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("FourXBatchProcessing"), 0, true, false);
+    .createIncentive(utils.formatBytes32String("ThreeXBatchProcessing"), 0, true, false);
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("FourXBatchProcessing"), 0, true, false);
+    .createIncentive(utils.formatBytes32String("ThreeXBatchProcessing"), 0, true, false);
 
   await keeperIncentive
     .connect(owner)
-    .addControllerContract(utils.formatBytes32String("FourXBatchProcessing"), fourXBatchProcessing.address);
+    .addControllerContract(utils.formatBytes32String("ThreeXBatchProcessing"), threeXBatchProcessing.address);
 
-  await fourXBatchProcessing.connect(owner).setSlippage(100, 100);
+  await threeXBatchProcessing.connect(owner).setSlippage(100, 100);
 
-  const fourXStorage = (await ethers.getContractAt(
-    "FourXBatchVault",
-    await fourXBatchProcessing.batchStorage()
-  )) as FourXBatchVault;
+  const threeXStorage = (await ethers.getContractAt(
+    "ThreeXBatchVault",
+    await threeXBatchProcessing.batchStorage()
+  )) as ThreeXBatchVault;
 
   return {
     token,
@@ -234,9 +234,9 @@ async function deployContracts(): Promise<Contracts> {
     curveMetapoolD3,
     curveMetapool3EUR,
     mockBasicIssuanceModule,
-    fourXBatchProcessing,
+    threeXBatchProcessing,
     staking,
-    fourXStorage,
+    threeXStorage,
     angleRouter,
   };
 }
@@ -259,22 +259,22 @@ const deployAndAssignContracts = async () => {
   await mintERC20(contracts.token.usdc);
   await contracts.token.usdc
     .connect(depositor)
-    .approve(contracts.fourXBatchProcessing.address, parseEther("100000000"));
+    .approve(contracts.threeXBatchProcessing.address, parseEther("100000000"));
 };
 
-describe("FourXBatchProcessing", function () {
+describe("ThreeXBatchProcessing", function () {
   beforeEach(async function () {
     await deployAndAssignContracts();
   });
   describe("EOA only flash loan defender", () => {
     it("does not allow interaction from unapproved contracts on depositForMint", async () => {
       const defendedContract = await ethers.getContractFactory("ButterBatchProcessingDefendedHelper");
-      const deployed = await defendedContract.deploy(contracts.fourXBatchProcessing.address);
+      const deployed = await defendedContract.deploy(contracts.threeXBatchProcessing.address);
       await expectRevert(deployed.connect(depositor).depositMint(), "Access denied for caller");
     });
     it("does not allow interaction from unapproved contracts on depositForRedeem", async () => {
       const defendedContract = await ethers.getContractFactory("ButterBatchProcessingDefendedHelper");
-      const deployed = await defendedContract.deploy(contracts.fourXBatchProcessing.address);
+      const deployed = await defendedContract.deploy(contracts.threeXBatchProcessing.address);
       await expectRevert(deployed.connect(depositor).depositRedeem(), "Access denied for caller");
     });
   });
@@ -283,22 +283,22 @@ describe("FourXBatchProcessing", function () {
       const SLIPPAGE = 54;
       let result;
       beforeEach(async () => {
-        result = await contracts.fourXBatchProcessing.connect(owner).setSlippage(SLIPPAGE, SLIPPAGE);
+        result = await contracts.threeXBatchProcessing.connect(owner).setSlippage(SLIPPAGE, SLIPPAGE);
       });
       it("sets slippage value with correct permissions", async () => {
-        const slippage = await contracts.fourXBatchProcessing.slippage();
+        const slippage = await contracts.threeXBatchProcessing.slippage();
         expectValue(slippage.mintBps, SLIPPAGE);
         expectValue(slippage.redeemBps, SLIPPAGE);
       });
       it("emits event", async () => {
-        await expectEvent(result, contracts.fourXBatchProcessing, "SlippageUpdated", [
+        await expectEvent(result, contracts.threeXBatchProcessing, "SlippageUpdated", [
           [100, 100],
           [SLIPPAGE, SLIPPAGE],
         ]);
       });
       it("does not allow unauthenticated address to set redeem slippage", async () => {
         await expectRevert(
-          contracts.fourXBatchProcessing.connect(depositor).setSlippage(SLIPPAGE, SLIPPAGE),
+          contracts.threeXBatchProcessing.connect(depositor).setSlippage(SLIPPAGE, SLIPPAGE),
           "you dont have the right role"
         );
       });
@@ -311,7 +311,7 @@ describe("FourXBatchProcessing", function () {
       const angleRouter = "0xBB755240596530be0c1DE5DFD77ec6398471561d";
       let result;
       beforeEach(async () => {
-        result = await contracts.fourXBatchProcessing.connect(owner).setComponents(
+        result = await contracts.threeXBatchProcessing.connect(owner).setComponents(
           [yToken],
           [
             {
@@ -324,18 +324,18 @@ describe("FourXBatchProcessing", function () {
       });
 
       it("sets curve pool token pairs", async () => {
-        expect(await contracts.fourXBatchProcessing.componentDependencies(yToken)).to.deep.eq([
+        expect(await contracts.threeXBatchProcessing.componentDependencies(yToken)).to.deep.eq([
           swapPool,
           curveMetaPool,
           angleRouter,
         ]);
       });
       it("emits an event", async () => {
-        await expect(result).to.emit(contracts.fourXBatchProcessing, "ComponentDependenciesUpdated");
+        await expect(result).to.emit(contracts.threeXBatchProcessing, "ComponentDependenciesUpdated");
       });
       it("should revert if not owner", async function () {
         await expectRevert(
-          contracts.fourXBatchProcessing.connect(depositor).setComponents(
+          contracts.threeXBatchProcessing.connect(depositor).setComponents(
             [yToken],
             [
               {
@@ -355,23 +355,23 @@ describe("FourXBatchProcessing", function () {
       const redeemThreshold = parseEther("100");
       let result;
       beforeEach(async () => {
-        result = await contracts.fourXBatchProcessing.setProcessingThreshold(cooldown, mintThreshold, redeemThreshold);
+        result = await contracts.threeXBatchProcessing.setProcessingThreshold(cooldown, mintThreshold, redeemThreshold);
       });
       it("sets processing threshold", async () => {
-        const processingThreshold = await contracts.fourXBatchProcessing.processingThreshold();
+        const processingThreshold = await contracts.threeXBatchProcessing.processingThreshold();
         expect(processingThreshold[0]).to.equal(BigNumber.from("52414"));
         expect(processingThreshold[1]).to.equal(mintThreshold);
         expect(processingThreshold[2]).to.equal(redeemThreshold);
       });
       it("emits an event", async () => {
-        expectEvent(result, contracts.fourXBatchProcessing, "ProcessingThresholdUpdated", [
+        expectEvent(result, contracts.threeXBatchProcessing, "ProcessingThresholdUpdated", [
           [BigNumber.from("1800"), parseEther("20000"), parseEther("200")],
           [BigNumber.from("52414"), mintThreshold, redeemThreshold],
         ]);
       });
       it("should revert if not owner", async function () {
         await expectRevert(
-          contracts.fourXBatchProcessing
+          contracts.threeXBatchProcessing
             .connect(depositor)
             .setProcessingThreshold(cooldown, mintThreshold, redeemThreshold),
           "you dont have the right role"
@@ -382,16 +382,16 @@ describe("FourXBatchProcessing", function () {
   context("batch generation", () => {
     describe("mint batch generation", () => {
       it("should set a non-zero batchId when initialized", async () => {
-        const batchId0 = await contracts.fourXStorage.batchIds(0);
-        const adapter = new FourXBatchAdapter(contracts.fourXBatchProcessing);
+        const batchId0 = await contracts.threeXStorage.batchIds(0);
+        const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
         const batch = await adapter.getBatch(batchId0);
         expect(
           batch.batchId.match(/0x.+[^0x0000000000000000000000000000000000000000000000000000000000000000]/)?.length
         ).equal(1);
       });
       it("should set batch struct properties when the contract is deployed", async () => {
-        const batchId0 = await contracts.fourXStorage.batchIds(0);
-        const adapter = new FourXBatchAdapter(contracts.fourXBatchProcessing);
+        const batchId0 = await contracts.threeXStorage.batchIds(0);
+        const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
         const batch = await adapter.getBatch(batchId0);
         expect(batch).to.deep.contain({
           batchType: BatchType.Mint,
@@ -406,8 +406,8 @@ describe("FourXBatchProcessing", function () {
     });
     describe("redeem batch generation", () => {
       it("should set a non-zero batchId when initialized", async () => {
-        const batchId1 = await contracts.fourXStorage.batchIds(1);
-        const adapter = new FourXBatchAdapter(contracts.fourXBatchProcessing);
+        const batchId1 = await contracts.threeXStorage.batchIds(1);
+        const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
         const batch = await adapter.getBatch(batchId1);
         expect(
           batch.batchId.match(/0x.+[^0x0000000000000000000000000000000000000000000000000000000000000000]/)?.length
@@ -415,8 +415,8 @@ describe("FourXBatchProcessing", function () {
       });
 
       it("should set batch struct properties when the contract is deployed", async () => {
-        const batchId1 = await contracts.fourXStorage.batchIds(1);
-        const adapter = new FourXBatchAdapter(contracts.fourXBatchProcessing);
+        const batchId1 = await contracts.threeXStorage.batchIds(1);
+        const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
         const batch = await adapter.getBatch(batchId1);
         expect(batch).to.deep.contain({
           batchType: BatchType.Redeem,
@@ -434,33 +434,33 @@ describe("FourXBatchProcessing", function () {
     context("depositing", function () {
       describe("batch struct", () => {
         const deposit = async (amount?: number) => {
-          await contracts.fourXBatchProcessing
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForMint(parseEther(amount ? amount.toString() : "10"), depositor.address);
         };
 
         const subject = async (batchId) => {
-          const adapter = new FourXBatchAdapter(contracts.fourXBatchProcessing);
+          const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
           const batch = await adapter.getBatch(batchId);
           return batch;
         };
 
         it("increments suppliedTokenBalance and unclaimedShares with deposit", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           await deposit(10);
           const batch = await subject(batchId);
           expect(batch.suppliedTokenBalance).to.equal(parseEther("10"));
           expect(batch.unclaimedShares).to.equal(parseEther("10"));
         });
         it("depositing does not make a batch claimable", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           await deposit(10);
           expect(await subject(batchId)).to.deep.contain({
             claimable: false,
           });
         });
         it("increments suppliedTokenBalance and unclaimedShares when multiple deposits are made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           await deposit(); // 10
           await deposit(); // 10
           await deposit(); // 10
@@ -470,12 +470,12 @@ describe("FourXBatchProcessing", function () {
           expect(batch.unclaimedShares).to.equal(parseEther("30"));
         });
         it.only("increments claimableTokenBalance when batch is minted", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to mint batch
-          await contracts.fourXBatchProcessing.batchMint();
+          await contracts.threeXBatchProcessing.batchMint();
           const batchButterOwned = await contracts.token.setToken.balanceOf(
-            await contracts.fourXBatchProcessing.batchStorage()
+            await contracts.threeXBatchProcessing.batchStorage()
           );
           const batch = await subject(batchId);
           expect(batch.claimableTokenBalance).to.equal(batchButterOwned);
@@ -483,19 +483,19 @@ describe("FourXBatchProcessing", function () {
           expect(batch.unclaimedShares).to.equal(parseEther("10"));
         });
         it("sets batch to claimable when batch is minted", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to mint batch
-          await contracts.fourXBatchProcessing.batchMint();
+          await contracts.threeXBatchProcessing.batchMint();
           const batch = await subject(batchId);
           expect(batch.claimable).to.equal(true);
         });
         it("decrements unclaimedShares and claimable when claim is made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to mint batch
-          await contracts.fourXBatchProcessing.batchMint();
-          await contracts.fourXBatchProcessing.connect(depositor).claim(batchId, depositor.address);
+          await contracts.threeXBatchProcessing.batchMint();
+          await contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address);
           const batch = await subject(batchId);
           expect(batch.claimable).to.equal(true);
           expect(batch.claimableTokenBalance).to.equal(parseEther("0"));
@@ -504,52 +504,56 @@ describe("FourXBatchProcessing", function () {
       });
 
       it("deposits usdc in the current mintBatch", async function () {
-        const result = await contracts.fourXBatchProcessing
+        const result = await contracts.threeXBatchProcessing
           .connect(depositor)
           .depositForMint(parseEther("10000"), depositor.address);
         await expect(result)
-          .to.emit(contracts.fourXBatchProcessing, "Deposit")
+          .to.emit(contracts.threeXBatchProcessing, "Deposit")
           .withArgs(depositor.address, parseEther("10000"));
-        expect(await contracts.token.usdc.balanceOf(await contracts.fourXBatchProcessing.batchStorage())).to.equal(
+        expect(await contracts.token.usdc.balanceOf(await contracts.threeXBatchProcessing.batchStorage())).to.equal(
           parseEther("10000")
         );
-        const currentMintBatchId = await contracts.fourXBatchProcessing.currentMintBatchId();
-        const currentBatch = await contracts.fourXBatchProcessing.getBatch(currentMintBatchId);
+        const currentMintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+        const currentBatch = await contracts.threeXBatchProcessing.getBatch(currentMintBatchId);
         expect(currentBatch.sourceTokenBalance).to.equal(parseEther("10000"));
         expect(currentBatch.unclaimedShares).to.equal(parseEther("10000"));
       });
       it("adds the mintBatch to the users batches", async function () {
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
 
-        const currentMintBatchId = await contracts.fourXBatchProcessing.currentMintBatchId();
-        expect(await contracts.fourXStorage.accountBatches(depositor.address, 0)).to.equal(currentMintBatchId);
+        const currentMintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+        expect(await contracts.threeXStorage.accountBatches(depositor.address, 0)).to.equal(currentMintBatchId);
       });
       it("allows multiple deposits", async function () {
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
         await contracts.token.usdc
           .connect(depositor1)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing
           .connect(depositor1)
           .depositForMint(parseEther("10000"), depositor1.address);
         await contracts.token.usdc
           .connect(depositor2)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor2).depositForMint(parseEther("5000"), depositor2.address);
-        await contracts.fourXBatchProcessing.connect(depositor2).depositForMint(parseEther("5000"), depositor2.address);
-        const currentMintBatchId = await contracts.fourXBatchProcessing.currentMintBatchId();
-        const currentBatch = await contracts.fourXBatchProcessing.getBatch(currentMintBatchId);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing
+          .connect(depositor2)
+          .depositForMint(parseEther("5000"), depositor2.address);
+        await contracts.threeXBatchProcessing
+          .connect(depositor2)
+          .depositForMint(parseEther("5000"), depositor2.address);
+        const currentMintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+        const currentBatch = await contracts.threeXBatchProcessing.getBatch(currentMintBatchId);
         expect(currentBatch.sourceTokenBalance).to.equal(parseEther("30000"));
         expect(currentBatch.unclaimedShares).to.equal(parseEther("30000"));
-        expect(await contracts.fourXStorage.accountBatches(depositor.address, 0)).to.equal(currentMintBatchId);
-        expect(await contracts.fourXStorage.accountBatches(depositor1.address, 0)).to.equal(currentMintBatchId);
-        expect(await contracts.fourXStorage.accountBatches(depositor2.address, 0)).to.equal(currentMintBatchId);
+        expect(await contracts.threeXStorage.accountBatches(depositor.address, 0)).to.equal(currentMintBatchId);
+        expect(await contracts.threeXStorage.accountBatches(depositor1.address, 0)).to.equal(currentMintBatchId);
+        expect(await contracts.threeXStorage.accountBatches(depositor2.address, 0)).to.equal(currentMintBatchId);
       });
     });
     context("batch minting", function () {
@@ -557,95 +561,95 @@ describe("FourXBatchProcessing", function () {
         it("reverts when minting too early", async function () {
           await contracts.token.usdc
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-          await contracts.fourXBatchProcessing
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForMint(parseEther("10000"), depositor.address);
-          await expect(contracts.fourXBatchProcessing.connect(owner).batchMint()).to.be.revertedWith(
+          await expect(contracts.threeXBatchProcessing.connect(owner).batchMint()).to.be.revertedWith(
             "can not execute batch mint yet"
           );
         });
         it("reverts when called by someone other the keeper", async function () {
           await contracts.token.usdc
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-          await contracts.fourXBatchProcessing
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForMint(parseEther("10000"), depositor.address);
           await provider.send("evm_increaseTime", [1800]);
 
-          await expect(contracts.fourXBatchProcessing.connect(depositor).batchMint()).to.be.revertedWith(
+          await expect(contracts.threeXBatchProcessing.connect(depositor).batchMint()).to.be.revertedWith(
             "you dont have the right role"
           );
         });
         it("reverts when slippage is too high", async () => {
-          await contracts.fourXBatchProcessing.connect(owner).setSlippage(0, 0);
+          await contracts.threeXBatchProcessing.connect(owner).setSlippage(0, 0);
           await contracts.token.usdc
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-          await contracts.fourXBatchProcessing
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForMint(parseEther("10000"), depositor.address);
 
           await timeTravel(1 * DAYS);
 
-          await expect(contracts.fourXBatchProcessing.connect(owner).batchMint()).to.be.revertedWith(
+          await expect(contracts.threeXBatchProcessing.connect(owner).batchMint()).to.be.revertedWith(
             "slippage too high"
           );
         });
       });
       context("success", function () {
         it("batch mints", async function () {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           await contracts.token.usdc
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-          await contracts.fourXBatchProcessing
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForMint(parseEther("10000"), depositor.address);
           await provider.send("evm_increaseTime", [1800]);
-          const result = await contracts.fourXBatchProcessing.connect(owner).batchMint();
+          const result = await contracts.threeXBatchProcessing.connect(owner).batchMint();
           await expect(result)
-            .to.emit(contracts.fourXBatchProcessing, "BatchMinted")
+            .to.emit(contracts.threeXBatchProcessing, "BatchMinted")
             .withArgs(batchId, parseEther("10000"), parseEther("96.990291262135922398"));
           expect(
-            await contracts.token.setToken.balanceOf(await contracts.fourXBatchProcessing.batchStorage())
+            await contracts.token.setToken.balanceOf(await contracts.threeXBatchProcessing.batchStorage())
           ).to.equal(parseEther("96.990291262135922398"));
         });
         it("mints early when mintThreshold is met", async function () {
           await contracts.token.usdc
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-          await contracts.fourXBatchProcessing
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForMint(parseEther("10000"), depositor.address);
           await contracts.token.usdc
             .connect(depositor1)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-          await contracts.fourXBatchProcessing
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+          await contracts.threeXBatchProcessing
             .connect(depositor1)
             .depositForMint(parseEther("10000"), depositor1.address);
-          await expect(contracts.fourXBatchProcessing.connect(owner).batchMint()).to.emit(
-            contracts.fourXBatchProcessing,
+          await expect(contracts.threeXBatchProcessing.connect(owner).batchMint()).to.emit(
+            contracts.threeXBatchProcessing,
             "BatchMinted"
           );
         });
         it("advances to the next batch", async function () {
           await contracts.token.usdc
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-          await contracts.fourXBatchProcessing
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForMint(parseEther("10000"), depositor.address);
           await provider.send("evm_increaseTime", [1800]);
 
-          const previousMintBatchId = await contracts.fourXBatchProcessing.currentMintBatchId();
-          await contracts.fourXBatchProcessing.batchMint();
+          const previousMintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+          await contracts.threeXBatchProcessing.batchMint();
 
-          const previousBatch = await contracts.fourXBatchProcessing.getBatch(previousMintBatchId);
+          const previousBatch = await contracts.threeXBatchProcessing.getBatch(previousMintBatchId);
           expect(previousBatch.claimable).to.equal(true);
 
-          const currentMintBatchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const currentMintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           expect(currentMintBatchId).to.not.equal(previousMintBatchId);
         });
       });
@@ -654,52 +658,52 @@ describe("FourXBatchProcessing", function () {
       beforeEach(async function () {
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
         await contracts.token.usdc
           .connect(depositor1)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing
           .connect(depositor1)
           .depositForMint(parseEther("10000"), depositor1.address);
         await contracts.token.usdc
           .connect(depositor2)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing
           .connect(depositor2)
           .depositForMint(parseEther("10000"), depositor2.address);
         await contracts.token.usdc
           .connect(depositor3)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing
           .connect(depositor3)
           .depositForMint(parseEther("10000"), depositor3.address);
       });
       it("reverts when batch is not yet claimable", async function () {
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
         await expect(
-          contracts.fourXBatchProcessing.connect(depositor).claim(batchId, depositor.address)
+          contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address)
         ).to.be.revertedWith("not yet claimable");
       });
       it("claims batch successfully", async function () {
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.fourXBatchProcessing.connect(owner).batchMint();
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
-        await expect(await contracts.fourXBatchProcessing.connect(depositor).claim(batchId, depositor.address))
-          .to.emit(contracts.fourXBatchProcessing, "Claimed")
+        await contracts.threeXBatchProcessing.connect(owner).batchMint();
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
+        await expect(await contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address))
+          .to.emit(contracts.threeXBatchProcessing, "Claimed")
           .withArgs(depositor.address, BatchType.Mint, parseEther("10000"), parseEther("96.990291262135922397"));
         expect(await contracts.token.setToken.balanceOf(depositor.address)).to.equal(
           parseEther("96.990291262135922397")
         );
-        const batch = await contracts.fourXBatchProcessing.getBatch(batchId);
+        const batch = await contracts.threeXBatchProcessing.getBatch(batchId);
         expect(batch.unclaimedShares).to.equal(parseEther("30000"));
         expect(batch.targetTokenBalance).to.equal(parseEther("290.970873786407767194"));
       });
       describe("claim and stake", () => {
         it("reverts when batch is not yet claimable", async function () {
-          const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
-          await expect(contracts.fourXBatchProcessing.connect(depositor).claimAndStake(batchId)).to.be.revertedWith(
+          const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
+          await expect(contracts.threeXBatchProcessing.connect(depositor).claimAndStake(batchId)).to.be.revertedWith(
             "not yet claimable"
           );
         });
@@ -712,26 +716,26 @@ describe("FourXBatchProcessing", function () {
           await contracts.token.setToken.mint(depositor.address, parseEther("10"));
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("10"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
+            .approve(contracts.threeXBatchProcessing.address, parseEther("10"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
           await provider.send("evm_increaseTime", [1800]);
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
 
-          await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
+          await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
 
           //Actual Test
-          await expect(contracts.fourXBatchProcessing.connect(depositor).claimAndStake(batchId)).to.be.revertedWith(
+          await expect(contracts.threeXBatchProcessing.connect(depositor).claimAndStake(batchId)).to.be.revertedWith(
             "ERC20: transfer amount exceeds balance"
           );
         });
         it("claims and stakes batch successully", async function () {
           await provider.send("evm_increaseTime", [1800]);
           await provider.send("evm_mine", []);
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
-          await contracts.fourXBatchProcessing.connect(owner).batchMint();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+          await contracts.threeXBatchProcessing.connect(owner).batchMint();
 
-          await expect(await contracts.fourXBatchProcessing.connect(depositor).claimAndStake(batchId))
-            .to.emit(contracts.fourXBatchProcessing, "Claimed")
+          await expect(await contracts.threeXBatchProcessing.connect(depositor).claimAndStake(batchId))
+            .to.emit(contracts.threeXBatchProcessing, "Claimed")
             .withArgs(depositor.address, BatchType.Mint, parseEther("10000"), parseEther("96.990291262135922397"));
           expect(await contracts.staking.balanceOf(depositor.address)).to.equal(parseEther("96.990291262135922397"));
         });
@@ -749,24 +753,24 @@ describe("FourXBatchProcessing", function () {
       await contracts.yearnVault3EUR.mint(contracts.mockBasicIssuanceModule.address, parseEther("20000"));
       await contracts.token.setToken
         .connect(depositor)
-        .increaseAllowance(contracts.fourXBatchProcessing.address, parseEther("10000000000"));
+        .increaseAllowance(contracts.threeXBatchProcessing.address, parseEther("10000000000"));
     });
     context("depositing", function () {
       describe("batch struct", () => {
         const deposit = async (amount?: number) => {
-          await contracts.fourXBatchProcessing
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .depositForRedeem(parseEther(amount ? amount.toString() : "10"));
         };
 
         const subject = async (batchId) => {
-          const adapter = new FourXBatchAdapter(contracts.fourXBatchProcessing);
+          const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
           const batch = await adapter.getBatch(batchId);
           return batch;
         };
 
         it("increments suppliedTokenBalance and unclaimedShares when a redeem deposit is made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
           await deposit(10);
           const batch = await subject(batchId);
           expect(batch.suppliedTokenBalance).to.equal(parseEther("10"));
@@ -774,7 +778,7 @@ describe("FourXBatchProcessing", function () {
           expect(batch.unclaimedShares).to.equal(parseEther("10"));
         });
         it("increments suppliedTokenBalance and unclaimedShares when multiple deposits are made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
           await deposit(); // 10
           await deposit(); // 10
           await deposit(); // 10
@@ -785,10 +789,10 @@ describe("FourXBatchProcessing", function () {
           expect(batch.unclaimedShares).to.equal(parseEther("30"));
         });
         it("updates struct when batch is minted", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to redeem batch
-          await contracts.fourXBatchProcessing.batchRedeem();
+          await contracts.threeXBatchProcessing.batchRedeem();
 
           const batch = await subject(batchId);
           expect(batch.suppliedTokenBalance).to.equal(parseEther("10"));
@@ -796,11 +800,11 @@ describe("FourXBatchProcessing", function () {
           expect(batch.unclaimedShares).to.equal(parseEther("10"));
         });
         it("decrements unclaimedShares and claimable when claim is made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
           await deposit(); // 10
           await timeTravel(1 * DAY); // wait enough time to redeem batch
-          await contracts.fourXBatchProcessing.batchRedeem();
-          await contracts.fourXBatchProcessing.connect(depositor).claim(batchId, depositor.address);
+          await contracts.threeXBatchProcessing.batchRedeem();
+          await contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address);
 
           const batch = await subject(batchId);
           expect(batch.claimableTokenBalance).to.equal(parseEther("0"));
@@ -811,49 +815,49 @@ describe("FourXBatchProcessing", function () {
       it("deposits setToken in the current redeemBatch", async function () {
         await contracts.token.setToken
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        const result = await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        const result = await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
         await expect(result)
-          .to.emit(contracts.fourXBatchProcessing, "Deposit")
+          .to.emit(contracts.threeXBatchProcessing, "Deposit")
           .withArgs(depositor.address, parseEther("100"));
-        expect(await contracts.token.setToken.balanceOf(await contracts.fourXBatchProcessing.batchStorage())).to.equal(
+        expect(await contracts.token.setToken.balanceOf(await contracts.threeXBatchProcessing.batchStorage())).to.equal(
           parseEther("100")
         );
-        const currentRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-        const currentBatch = await contracts.fourXBatchProcessing.getBatch(currentRedeemBatchId);
+        const currentRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+        const currentBatch = await contracts.threeXBatchProcessing.getBatch(currentRedeemBatchId);
         expect(currentBatch.sourceTokenBalance).to.equal(parseEther("100"));
         expect(currentBatch.unclaimedShares).to.equal(parseEther("100"));
       });
       it("adds the redeemBatch to the users batches", async function () {
         await contracts.token.setToken
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
 
-        const currentRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-        expect(await contracts.fourXStorage.accountBatches(depositor.address, 0)).to.equal(currentRedeemBatchId);
+        const currentRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+        expect(await contracts.threeXStorage.accountBatches(depositor.address, 0)).to.equal(currentRedeemBatchId);
       });
       it("allows multiple deposits", async function () {
         await contracts.token.setToken
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
         await contracts.token.setToken
           .connect(depositor1)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor1).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor1).depositForRedeem(parseEther("100"));
         await contracts.token.setToken
           .connect(depositor2)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor2).depositForRedeem(parseEther("50"));
-        await contracts.fourXBatchProcessing.connect(depositor2).depositForRedeem(parseEther("50"));
-        const currentRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-        const currentBatch = await contracts.fourXStorage.getBatch(currentRedeemBatchId);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor2).depositForRedeem(parseEther("50"));
+        await contracts.threeXBatchProcessing.connect(depositor2).depositForRedeem(parseEther("50"));
+        const currentRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+        const currentBatch = await contracts.threeXStorage.getBatch(currentRedeemBatchId);
         expect(currentBatch.sourceTokenBalance).to.equal(parseEther("300"));
         expect(currentBatch.unclaimedShares).to.equal(parseEther("300"));
-        expect(await contracts.fourXStorage.accountBatches(depositor.address, 0)).to.equal(currentRedeemBatchId);
-        expect(await contracts.fourXStorage.accountBatches(depositor1.address, 0)).to.equal(currentRedeemBatchId);
-        expect(await contracts.fourXStorage.accountBatches(depositor2.address, 0)).to.equal(currentRedeemBatchId);
+        expect(await contracts.threeXStorage.accountBatches(depositor.address, 0)).to.equal(currentRedeemBatchId);
+        expect(await contracts.threeXStorage.accountBatches(depositor1.address, 0)).to.equal(currentRedeemBatchId);
+        expect(await contracts.threeXStorage.accountBatches(depositor2.address, 0)).to.equal(currentRedeemBatchId);
       });
     });
     context("batch redeeming", function () {
@@ -870,80 +874,80 @@ describe("FourXBatchProcessing", function () {
         it("reverts when redeeming too early", async function () {
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
-          await expect(contracts.fourXBatchProcessing.connect(owner).batchRedeem()).to.be.revertedWith(
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+          await expect(contracts.threeXBatchProcessing.connect(owner).batchRedeem()).to.be.revertedWith(
             "can not execute batch redeem yet"
           );
         });
         it("reverts when slippage too high", async function () {
-          await contracts.fourXBatchProcessing.connect(owner).setSlippage(0, 0);
+          await contracts.threeXBatchProcessing.connect(owner).setSlippage(0, 0);
 
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
 
           await timeTravel(1 * DAYS);
 
-          await expect(contracts.fourXBatchProcessing.connect(owner).batchRedeem()).to.be.revertedWith(
+          await expect(contracts.threeXBatchProcessing.connect(owner).batchRedeem()).to.be.revertedWith(
             "slippage too high"
           );
         });
         it("reverts when called by someone other the keeper", async function () {
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
           await provider.send("evm_increaseTime", [1800]);
 
-          await expect(contracts.fourXBatchProcessing.connect(depositor).batchRedeem()).to.be.revertedWith(
+          await expect(contracts.threeXBatchProcessing.connect(depositor).batchRedeem()).to.be.revertedWith(
             "you dont have the right role"
           );
         });
       });
       context("success", function () {
         it("batch redeems", async function () {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
 
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
           await provider.send("evm_increaseTime", [1800]);
 
-          const result = await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
+          const result = await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
           await expect(result)
-            .to.emit(contracts.fourXBatchProcessing, "BatchRedeemed")
+            .to.emit(contracts.threeXBatchProcessing, "BatchRedeemed")
             .withArgs(batchId, parseEther("100"), parseEther("4995"));
-          expect(await contracts.token.usdc.balanceOf(contracts.fourXStorage.address)).to.equal(parseEther("4995"));
+          expect(await contracts.token.usdc.balanceOf(contracts.threeXStorage.address)).to.equal(parseEther("4995"));
         });
         it("redeems early when redeemThreshold is met", async function () {
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
           await contracts.token.setToken
             .connect(depositor1)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor1).depositForRedeem(parseEther("100"));
-          const result = await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
-          await expect(result).to.emit(contracts.fourXBatchProcessing, "BatchRedeemed");
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor1).depositForRedeem(parseEther("100"));
+          const result = await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
+          await expect(result).to.emit(contracts.threeXBatchProcessing, "BatchRedeemed");
         });
         it("advances to the next batch", async function () {
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
           await provider.send("evm_increaseTime", [1800]);
 
-          const previousRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-          await contracts.fourXBatchProcessing.batchRedeem();
+          const previousRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+          await contracts.threeXBatchProcessing.batchRedeem();
 
-          const previousBatch = await contracts.fourXBatchProcessing.getBatch(previousRedeemBatchId);
+          const previousBatch = await contracts.threeXBatchProcessing.getBatch(previousRedeemBatchId);
           expect(previousBatch.claimable).to.equal(true);
 
-          const currentRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const currentRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
           expect(currentRedeemBatchId).to.not.equal(previousRedeemBatchId);
         });
       });
@@ -952,39 +956,39 @@ describe("FourXBatchProcessing", function () {
       beforeEach(async function () {
         await contracts.token.setToken
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
         await contracts.token.setToken
           .connect(depositor1)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor1).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor1).depositForRedeem(parseEther("100"));
         await contracts.token.setToken
           .connect(depositor2)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor2).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor2).depositForRedeem(parseEther("100"));
         await contracts.token.setToken
           .connect(depositor3)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-        await contracts.fourXBatchProcessing.connect(depositor3).depositForRedeem(parseEther("100"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+        await contracts.threeXBatchProcessing.connect(depositor3).depositForRedeem(parseEther("100"));
         await contracts.curveMetapoolD3.mint(contracts.yearnVaultD3.address, parseEther("20000"));
         await contracts.curveMetapool3EUR.mint(contracts.yearnVault3EUR.address, parseEther("20000"));
       });
       it("reverts when batch is not yet claimable", async function () {
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
         await expect(
-          contracts.fourXBatchProcessing.connect(depositor).claim(batchId, depositor.address)
+          contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address)
         ).to.be.revertedWith("not yet claimable");
       });
       it("claim batch successfully", async function () {
         await provider.send("evm_increaseTime", [1800]);
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
-        await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
+        await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
 
-        await expect(await contracts.fourXBatchProcessing.connect(depositor).claim(batchId, depositor.address))
-          .to.emit(contracts.fourXBatchProcessing, "Claimed")
+        await expect(await contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address))
+          .to.emit(contracts.threeXBatchProcessing, "Claimed")
           .withArgs(depositor.address, BatchType.Redeem, parseEther("100"), parseEther("10289.7"));
         expect(await contracts.token.usdc.balanceOf(depositor.address)).to.equal(parseEther("110289.7"));
-        const batch = await contracts.fourXBatchProcessing.getBatch(batchId);
+        const batch = await contracts.threeXBatchProcessing.getBatch(batchId);
         expect(batch.unclaimedShares).to.equal(parseEther("300"));
       });
     });
@@ -992,7 +996,7 @@ describe("FourXBatchProcessing", function () {
   context("withdrawing from batch", function () {
     describe("batch struct", () => {
       const withdraw = async (batchId: string, amount?: BigNumber) => {
-        return contracts.fourXBatchProcessing
+        return contracts.threeXBatchProcessing
           .connect(depositor)
           ["withdrawFromBatch(bytes32,uint256,address)"](
             batchId,
@@ -1001,7 +1005,7 @@ describe("FourXBatchProcessing", function () {
           );
       };
       const subject = async (batchId) => {
-        const adapter = new FourXBatchAdapter(contracts.fourXBatchProcessing);
+        const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
         const batch = await adapter.getBatch(batchId);
         return batch;
       };
@@ -1017,19 +1021,19 @@ describe("FourXBatchProcessing", function () {
           await contracts.curveMetapool3EUR.mint(contracts.yearnVault3EUR.address, parseEther("20000"));
           await contracts.token.setToken
             .connect(depositor)
-            .increaseAllowance(contracts.fourXBatchProcessing.address, parseEther("10000000000"));
+            .increaseAllowance(contracts.threeXBatchProcessing.address, parseEther("10000000000"));
           await contracts.token.setToken.connect(owner).mint(depositor.address, parseEther("100"));
           await contracts.token.setToken
             .connect(depositor)
-            .approve(contracts.fourXBatchProcessing.address, parseEther("100"));
-          await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+            .approve(contracts.threeXBatchProcessing.address, parseEther("100"));
+          await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
         });
 
         it("prevents stealing funds", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
 
           await expectRevert(
-            contracts.fourXBatchProcessing
+            contracts.threeXBatchProcessing
               .connect(depositor)
               ["withdrawFromBatch(bytes32,uint256,address,address)"](
                 batchId,
@@ -1042,7 +1046,7 @@ describe("FourXBatchProcessing", function () {
         });
 
         it("decrements suppliedTokenBalance and unclaimedShares when a withdrawal is made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
           const batchBefore = await subject(batchId);
           await withdraw(batchId);
           const batchAfter = await subject(batchId);
@@ -1050,7 +1054,7 @@ describe("FourXBatchProcessing", function () {
           expect(batchAfter.unclaimedShares.lt(batchBefore.unclaimedShares)).to.be.true;
         });
         it("decrements suppliedTokenBalance and unclaimedShares when multiple deposits are made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
           const batchBefore = await subject(batchId);
           await withdraw(batchId, parseEther("10"));
           await withdraw(batchId, parseEther("10"));
@@ -1060,25 +1064,25 @@ describe("FourXBatchProcessing", function () {
           expect(batchBefore.unclaimedShares.sub(parseEther("30"))).to.equal(batchAfter.unclaimedShares);
         });
         it("transfers set token to depositor after withdraw", async function () {
-          const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
-          await contracts.fourXBatchProcessing
+          const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             ["withdrawFromBatch(bytes32,uint256,address)"](batchId, parseEther("100"), depositor.address);
           expect(await contracts.token.setToken.balanceOf(depositor.address)).to.equal(parseEther("200"));
         });
         it("reverts when the batch was already redeemed", async function () {
-          const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
           await timeTravel(1 * DAY);
-          await contracts.fourXBatchProcessing.batchRedeem();
+          await contracts.threeXBatchProcessing.batchRedeem();
           await expect(withdraw(batchId)).to.be.revertedWith("already processed");
         });
       });
       context("mint batch withdrawal", () => {
         beforeEach(async function () {
-          await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("100"), depositor.address);
+          await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("100"), depositor.address);
         });
         it("decrements suppliedTokenBalance and unclaimedShares when a withdrawal is made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           const batchBefore = await subject(batchId);
           await withdraw(batchId, parseEther("10"));
           const batchAfter = await subject(batchId);
@@ -1086,7 +1090,7 @@ describe("FourXBatchProcessing", function () {
           expect(batchAfter.unclaimedShares.lt(batchBefore.unclaimedShares)).to.be.true;
         });
         it("decrements suppliedTokenBalance and unclaimedShares when multiple deposits are made", async () => {
-          const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+          const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
           const batchBefore = await subject(batchId);
           await withdraw(batchId, parseEther("10"));
           await withdraw(batchId, parseEther("10"));
@@ -1096,24 +1100,24 @@ describe("FourXBatchProcessing", function () {
           expect(batchBefore.unclaimedShares.sub(parseEther("30"))).to.equal(batchAfter.unclaimedShares);
         });
         it("emits an event when withdrawn", async function () {
-          const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
           await expect(await withdraw(batchId, parseEther("100")))
-            .to.emit(contracts.fourXBatchProcessing, "WithdrawnFromBatch")
+            .to.emit(contracts.threeXBatchProcessing, "WithdrawnFromBatch")
             .withArgs(batchId, parseEther("100"), depositor.address);
         });
         it("transfers usdc to depositor after withdraw", async function () {
-          const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
           const balanceBefore = await contracts.token.usdc.balanceOf(depositor.address);
-          await contracts.fourXBatchProcessing
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             ["withdrawFromBatch(bytes32,uint256,address)"](batchId, parseEther("100"), depositor.address);
           const balanceAfter = await contracts.token.usdc.balanceOf(depositor.address);
           expect(balanceAfter.sub(balanceBefore)).to.equal(parseEther("100"));
         });
         it("reverts when the batch was already minted", async function () {
-          const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
           await timeTravel(1 * DAY);
-          await contracts.fourXBatchProcessing.batchMint();
+          await contracts.threeXBatchProcessing.batchMint();
           await expect(withdraw(batchId)).to.be.revertedWith("already processed");
         });
       });
@@ -1123,7 +1127,7 @@ describe("FourXBatchProcessing", function () {
     context("error", function () {
       it("reverts when length of batchIds and shares are not matching", async function () {
         await expect(
-          contracts.fourXBatchProcessing
+          contracts.threeXBatchProcessing
             .connect(depositor)
             .moveUnclaimedIntoCurrentBatch(
               new Array(2).fill("0xa15f699e141c27ed0edace41ff8fa7b836e3ddb658b25c811a1674e9c7a75c5c"),
@@ -1141,40 +1145,40 @@ describe("FourXBatchProcessing", function () {
         await contracts.token.setToken.mint(depositor.address, parseEther("10"));
         await contracts.token.setToken
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
 
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
+        await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
 
         //Actual Test
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
         await expect(
-          contracts.fourXBatchProcessing.moveUnclaimedIntoCurrentBatch([batchId], [parseEther("10000")], false)
+          contracts.threeXBatchProcessing.moveUnclaimedIntoCurrentBatch([batchId], [parseEther("10000")], false)
         ).to.be.revertedWith("incorrect batchType");
       });
       it("reverts on an unclaimable batch", async function () {
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
         await expect(
-          contracts.fourXBatchProcessing.moveUnclaimedIntoCurrentBatch([batchId], [parseEther("10000")], false)
+          contracts.threeXBatchProcessing.moveUnclaimedIntoCurrentBatch([batchId], [parseEther("10000")], false)
         ).to.be.revertedWith("not yet claimable");
       });
       it("reverts if the user has insufficient funds", async function () {
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
         await provider.send("evm_increaseTime", [2500]);
         await provider.send("evm_mine", []);
-        await contracts.fourXBatchProcessing.batchMint();
+        await contracts.threeXBatchProcessing.batchMint();
         await expect(
-          contracts.fourXBatchProcessing.moveUnclaimedIntoCurrentBatch([batchId], [parseEther("20000")], false)
+          contracts.threeXBatchProcessing.moveUnclaimedIntoCurrentBatch([batchId], [parseEther("20000")], false)
         ).to.be.revertedWith("insufficient balance");
       });
     });
@@ -1182,22 +1186,22 @@ describe("FourXBatchProcessing", function () {
       it("moves butter into current redeemBatch", async function () {
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.fourXBatchProcessing.connect(owner).batchMint();
-        const mintedButter = await contracts.token.setToken.balanceOf(contracts.fourXStorage.address);
+        await contracts.threeXBatchProcessing.connect(owner).batchMint();
+        const mintedButter = await contracts.token.setToken.balanceOf(contracts.threeXStorage.address);
         expect(
-          await contracts.fourXBatchProcessing
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .moveUnclaimedIntoCurrentBatch([batchId], [parseEther("10000")], false)
         )
-          .to.emit(contracts.fourXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
+          .to.emit(contracts.threeXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
           .withArgs(mintedButter, depositor.address);
-        const currentRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-        const redeemBatch = await contracts.fourXBatchProcessing.getBatch(currentRedeemBatchId);
+        const currentRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+        const redeemBatch = await contracts.threeXBatchProcessing.getBatch(currentRedeemBatchId);
         expect(redeemBatch.sourceTokenBalance).to.be.equal(mintedButter);
       });
       it("moves usdc into current mintBatch", async function () {
@@ -1208,49 +1212,49 @@ describe("FourXBatchProcessing", function () {
         await contracts.token.setToken.mint(depositor.address, parseEther("10"));
         await contracts.token.setToken
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
 
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
+        await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
 
         //Actual Test
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
-        const redeemedUsdc = await contracts.token.usdc.balanceOf(contracts.fourXStorage.address);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
+        const redeemedUsdc = await contracts.token.usdc.balanceOf(contracts.threeXStorage.address);
 
         expect(
-          await contracts.fourXBatchProcessing
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .moveUnclaimedIntoCurrentBatch([batchId], [parseEther("10")], true)
         )
-          .to.emit(contracts.fourXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
+          .to.emit(contracts.threeXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
           .withArgs(redeemedUsdc, depositor.address);
-        const currentMintBatchId = await contracts.fourXBatchProcessing.currentMintBatchId();
-        const mintBatch = await contracts.fourXStorage.batches(currentMintBatchId);
+        const currentMintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+        const mintBatch = await contracts.threeXStorage.batches(currentMintBatchId);
         expect(mintBatch.sourceTokenBalance).to.be.equal(redeemedUsdc);
       });
       it("moves only parts of the funds in a batch", async function () {
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-        await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
-        const batchId = await contracts.fourXStorage.accountBatches(depositor.address, 0);
+          .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+        await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+        const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 0);
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        await contracts.fourXBatchProcessing.connect(owner).batchMint();
-        const mintedButter = await contracts.token.setToken.balanceOf(contracts.fourXStorage.address);
+        await contracts.threeXBatchProcessing.connect(owner).batchMint();
+        const mintedButter = await contracts.token.setToken.balanceOf(contracts.threeXStorage.address);
         await expect(
-          await contracts.fourXBatchProcessing
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .moveUnclaimedIntoCurrentBatch([batchId], [parseEther("5000")], false)
         )
-          .to.emit(contracts.fourXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
+          .to.emit(contracts.threeXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
           .withArgs(mintedButter.div(2), depositor.address);
-        const currentRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-        const redeemBatch = await contracts.fourXBatchProcessing.getBatch(currentRedeemBatchId);
+        const currentRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+        const redeemBatch = await contracts.threeXBatchProcessing.getBatch(currentRedeemBatchId);
         expectBigNumberCloseTo(redeemBatch.sourceTokenBalance, mintedButter.div(2), parseEther("0.00015"));
-        const mintBatch = await contracts.fourXBatchProcessing.getBatch(batchId);
+        const mintBatch = await contracts.threeXBatchProcessing.getBatch(batchId);
         expectBigNumberCloseTo(mintBatch.targetTokenBalance, mintedButter.div(2), parseEther("0.00015"));
       });
       it("moves funds from up to 20 batches", async function () {
@@ -1263,30 +1267,30 @@ describe("FourXBatchProcessing", function () {
 
         await contracts.token.usdc
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, parseEther("2000"));
+          .approve(contracts.threeXBatchProcessing.address, parseEther("2000"));
         await bluebird.map(
           new Array(20).fill(0),
           async (i) => {
-            await contracts.fourXBatchProcessing
+            await contracts.threeXBatchProcessing
               .connect(depositor)
               .depositForMint(parseEther("100"), depositor.address);
             await provider.send("evm_increaseTime", [1800]);
             await provider.send("evm_mine", []);
-            await contracts.fourXBatchProcessing.connect(owner).batchMint();
+            await contracts.threeXBatchProcessing.connect(owner).batchMint();
           },
           { concurrency: 1 }
         );
-        const batchIds = await contracts.fourXBatchProcessing.getAccountBatches(depositor.address);
-        const mintedButter = await contracts.token.setToken.balanceOf(contracts.fourXStorage.address);
+        const batchIds = await contracts.threeXBatchProcessing.getAccountBatches(depositor.address);
+        const mintedButter = await contracts.token.setToken.balanceOf(contracts.threeXStorage.address);
         expect(
-          await contracts.fourXBatchProcessing
+          await contracts.threeXBatchProcessing
             .connect(depositor)
             .moveUnclaimedIntoCurrentBatch(batchIds, new Array(20).fill(parseEther("100")), false)
         )
-          .to.emit(contracts.fourXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
+          .to.emit(contracts.threeXBatchProcessing, "DepositedUnclaimedSetTokenForRedeem")
           .withArgs(mintedButter, depositor.address);
-        const currentRedeemBatchId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-        const redeemBatch = await contracts.fourXBatchProcessing.getBatch(currentRedeemBatchId);
+        const currentRedeemBatchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+        const redeemBatch = await contracts.threeXBatchProcessing.getBatch(currentRedeemBatchId);
         expect(redeemBatch.sourceTokenBalance).to.be.equal(mintedButter);
       });
     });
@@ -1299,13 +1303,13 @@ describe("FourXBatchProcessing", function () {
 
     beforeEach(async function () {
       //Prepare MintBatches
-      claimableMintId = await contracts.fourXBatchProcessing.currentMintBatchId();
-      await contracts.fourXBatchProcessing.connect(owner).setProcessingThreshold(0, 0, 0);
+      claimableMintId = await contracts.threeXBatchProcessing.currentMintBatchId();
+      await contracts.threeXBatchProcessing.connect(owner).setProcessingThreshold(0, 0, 0);
       await contracts.token.usdc.mint(depositor.address, parseEther("40000"));
-      await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("20000"), depositor.address);
-      await contracts.fourXBatchProcessing.connect(owner).batchMint();
-      currentMintId = await contracts.fourXBatchProcessing.currentMintBatchId();
-      await contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("20000"), depositor.address);
+      await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("20000"), depositor.address);
+      await contracts.threeXBatchProcessing.connect(owner).batchMint();
+      currentMintId = await contracts.threeXBatchProcessing.currentMintBatchId();
+      await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("20000"), depositor.address);
 
       //Prepare RedeemBatches
       await contracts.yearnVaultD3.mint(contracts.mockBasicIssuanceModule.address, parseEther("200000"));
@@ -1313,38 +1317,38 @@ describe("FourXBatchProcessing", function () {
       await contracts.token.setToken.mint(depositor.address, parseEther("400"));
       await contracts.token.setToken
         .connect(depositor)
-        .approve(contracts.fourXBatchProcessing.address, parseEther("10000"));
-      claimableRedeemId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-      await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
-      await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
-      currentRedeemId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
-      await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+        .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
+      claimableRedeemId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+      await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
+      await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
+      currentRedeemId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+      await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("100"));
 
       //Pause Contract
-      await contracts.fourXBatchProcessing.connect(owner).pause();
+      await contracts.threeXBatchProcessing.connect(owner).pause();
     });
     it("prevents deposit for mint", async function () {
       await expectRevert(
-        contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("1"), depositor.address),
+        contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("1"), depositor.address),
         "Pausable: paused"
       );
     });
     it("prevents deposit for redeem", async function () {
       await expectRevert(
-        contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("1")),
+        contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("1")),
         "Pausable: paused"
       );
     });
     it("prevents mint", async function () {
-      await expectRevert(contracts.fourXBatchProcessing.connect(owner).batchMint(), "Pausable: paused");
+      await expectRevert(contracts.threeXBatchProcessing.connect(owner).batchMint(), "Pausable: paused");
     });
     it("prevents redeem", async function () {
-      await expectRevert(contracts.fourXBatchProcessing.connect(owner).batchRedeem(), "Pausable: paused");
+      await expectRevert(contracts.threeXBatchProcessing.connect(owner).batchRedeem(), "Pausable: paused");
     });
     it("prevents to move unclaimed deposits into the current batch", async function () {
-      const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+      const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
       await expectRevert(
-        contracts.fourXBatchProcessing
+        contracts.threeXBatchProcessing
           .connect(depositor)
           .moveUnclaimedIntoCurrentBatch([batchId], [parseEther("1")], true),
         "Pausable: paused"
@@ -1352,88 +1356,92 @@ describe("FourXBatchProcessing", function () {
     });
     it("still allows to withdraw from mint batch", async function () {
       await expect(
-        contracts.fourXBatchProcessing
+        contracts.threeXBatchProcessing
           .connect(depositor)
           ["withdrawFromBatch(bytes32,uint256,address)"](currentMintId, parseEther("10"), depositor.address)
       )
-        .to.emit(contracts.fourXBatchProcessing, "WithdrawnFromBatch")
+        .to.emit(contracts.threeXBatchProcessing, "WithdrawnFromBatch")
         .withArgs(currentMintId, parseEther("10"), depositor.address);
     });
     it("still allows to withdraw from redeem batch", async function () {
       await expect(
-        contracts.fourXBatchProcessing
+        contracts.threeXBatchProcessing
           .connect(depositor)
           ["withdrawFromBatch(bytes32,uint256,address)"](currentRedeemId, parseEther("1"), depositor.address)
       )
-        .to.emit(contracts.fourXBatchProcessing, "WithdrawnFromBatch")
+        .to.emit(contracts.threeXBatchProcessing, "WithdrawnFromBatch")
         .withArgs(currentRedeemId, parseEther("1"), depositor.address);
     });
     it("still allows to claim minted butter", async function () {
-      await expect(contracts.fourXBatchProcessing.connect(depositor).claim(claimableMintId, depositor.address))
-        .to.emit(contracts.fourXBatchProcessing, "Claimed")
+      await expect(contracts.threeXBatchProcessing.connect(depositor).claim(claimableMintId, depositor.address))
+        .to.emit(contracts.threeXBatchProcessing, "Claimed")
         .withArgs(depositor.address, BatchType.Mint, parseEther("20000"), parseEther("193.980582524271844795"));
     });
     it("still allows to claim redemeed usdc", async function () {
-      await expect(contracts.fourXBatchProcessing.connect(depositor).claim(claimableRedeemId, depositor.address))
-        .to.emit(contracts.fourXBatchProcessing, "Claimed")
+      await expect(contracts.threeXBatchProcessing.connect(depositor).claim(claimableRedeemId, depositor.address))
+        .to.emit(contracts.threeXBatchProcessing, "Claimed")
         .withArgs(depositor.address, BatchType.Redeem, parseEther("100"), parseEther("520.024765059099363880"));
     });
     it("allows deposits for minting after unpausing", async function () {
-      await contracts.fourXBatchProcessing.unpause();
+      await contracts.threeXBatchProcessing.unpause();
 
-      await expect(contracts.fourXBatchProcessing.connect(depositor).depositForMint(parseEther("1"), depositor.address))
-        .to.emit(contracts.fourXBatchProcessing, "Deposit")
+      await expect(
+        contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("1"), depositor.address)
+      )
+        .to.emit(contracts.threeXBatchProcessing, "Deposit")
         .withArgs(depositor.address, parseEther("1"));
     });
     it("allows deposits for redeeming after unpausing", async function () {
-      await contracts.fourXBatchProcessing.unpause();
+      await contracts.threeXBatchProcessing.unpause();
 
-      await expect(contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(parseEther("1")))
-        .to.emit(contracts.fourXBatchProcessing, "Deposit")
+      await expect(contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("1")))
+        .to.emit(contracts.threeXBatchProcessing, "Deposit")
         .withArgs(depositor.address, parseEther("1"));
     });
   });
   describe("allows only clients to interact with the storage contract", () => {
     const deposit = async (amount?: number) => {
-      await contracts.fourXBatchProcessing
+      await contracts.threeXBatchProcessing
         .connect(depositor)
         .depositForMint(parseEther(amount ? amount.toString() : "10"), depositor.address);
     };
     it("reverts when a non client tries to deposit", async function () {
-      const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+      const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
       await expect(
-        contracts.fourXStorage.connect(depositor).deposit(batchId, depositor.address, parseEther("10"))
+        contracts.threeXStorage.connect(depositor).deposit(batchId, depositor.address, parseEther("10"))
       ).to.be.revertedWith("!allowed");
     });
     it("reverts when a non client tries to claim", async function () {
-      const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+      const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
       deposit();
       await expect(
-        contracts.fourXStorage.connect(depositor).claim(batchId, depositor.address, parseEther("10"), depositor.address)
+        contracts.threeXStorage
+          .connect(depositor)
+          .claim(batchId, depositor.address, parseEther("10"), depositor.address)
       ).to.be.revertedWith("!allowed");
     });
     it("reverts when a non client tries to withdraw", async function () {
-      const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+      const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
       deposit();
       await expect(
-        contracts.fourXStorage
+        contracts.threeXStorage
           .connect(depositor)
           .withdraw(batchId, depositor.address, parseEther("10"), depositor.address)
       ).to.be.revertedWith("!allowed");
     });
     it("reverts when a non client tries to withdrawSourceTokenFromBatch", async function () {
-      const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
+      const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
       deposit();
-      await expect(contracts.fourXStorage.connect(depositor).withdrawSourceTokenFromBatch(batchId)).to.be.revertedWith(
+      await expect(contracts.threeXStorage.connect(depositor).withdrawSourceTokenFromBatch(batchId)).to.be.revertedWith(
         "!allowed"
       );
     });
     it("reverts when a non client tries to moveUnclaimedIntoCurrentBatch", async function () {
-      const batchId = await contracts.fourXBatchProcessing.currentMintBatchId();
-      const redeemId = await contracts.fourXBatchProcessing.currentRedeemBatchId();
+      const batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+      const redeemId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
       deposit();
       await expect(
-        contracts.fourXStorage
+        contracts.threeXStorage
           .connect(depositor)
           .moveUnclaimedIntoCurrentBatch(batchId, redeemId, depositor.address, parseEther("1"))
       ).to.be.revertedWith("!allowed");
@@ -1442,23 +1450,23 @@ describe("FourXBatchProcessing", function () {
   describe("redemption fee", () => {
     context("sets RedemptionFee", () => {
       it("sets a redemptionRate when called with DAO role", async () => {
-        await expect(await contracts.fourXBatchProcessing.setRedemptionFee(100, owner.address))
-          .to.emit(contracts.fourXBatchProcessing, "RedemptionFeeUpdated")
+        await expect(await contracts.threeXBatchProcessing.setRedemptionFee(100, owner.address))
+          .to.emit(contracts.threeXBatchProcessing, "RedemptionFeeUpdated")
           .withArgs(100, owner.address);
 
-        const redemptionFee = await contracts.fourXBatchProcessing.redemptionFee();
+        const redemptionFee = await contracts.threeXBatchProcessing.redemptionFee();
         expect(redemptionFee[0]).to.equal(BigNumber.from("0"));
         expect(redemptionFee[1]).to.equal(BigNumber.from("100"));
         expect(redemptionFee[2]).to.equal(owner.address);
       });
       it("reverts when setting redemptionRate without DAO role", async () => {
         await expectRevert(
-          contracts.fourXBatchProcessing.connect(depositor).setRedemptionFee(100, owner.address),
+          contracts.threeXBatchProcessing.connect(depositor).setRedemptionFee(100, owner.address),
           "you dont have the right role"
         );
       });
       it("reverts when setting a feeRate higher than 1%", async () => {
-        await expectRevert(contracts.fourXBatchProcessing.setRedemptionFee(1000, owner.address), "dont be greedy");
+        await expectRevert(contracts.threeXBatchProcessing.setRedemptionFee(1000, owner.address), "dont be greedy");
       });
     });
     context("with redemption fee", () => {
@@ -1466,36 +1474,36 @@ describe("FourXBatchProcessing", function () {
       const depositAmount = parseEther("100");
       const feeRate = 100;
       beforeEach(async () => {
-        await contracts.fourXBatchProcessing.setRedemptionFee(feeRate, owner.address);
+        await contracts.threeXBatchProcessing.setRedemptionFee(feeRate, owner.address);
         await contracts.token.setToken.mint(depositor.address, depositAmount);
         await contracts.token.setToken
           .connect(depositor)
-          .approve(contracts.fourXBatchProcessing.address, depositAmount);
-        await contracts.fourXBatchProcessing.connect(depositor).depositForRedeem(depositAmount);
+          .approve(contracts.threeXBatchProcessing.address, depositAmount);
+        await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(depositAmount);
         await contracts.yearnVaultD3.mint(contracts.mockBasicIssuanceModule.address, parseEther("20000"));
         await contracts.yearnVault3EUR.mint(contracts.mockBasicIssuanceModule.address, parseEther("20000"));
         await contracts.curveMetapoolD3.mint(contracts.yearnVaultD3.address, parseEther("20000"));
         await contracts.curveMetapool3EUR.mint(contracts.yearnVault3EUR.address, parseEther("20000"));
         await provider.send("evm_increaseTime", [1800]);
         await provider.send("evm_mine", []);
-        batchId = contracts.fourXBatchProcessing.currentRedeemBatchId();
-        await contracts.fourXBatchProcessing.connect(owner).batchRedeem();
+        batchId = contracts.threeXBatchProcessing.currentRedeemBatchId();
+        await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
       });
       it("takes the fee", async () => {
-        const accountBalance = await contracts.fourXBatchProcessing.getAccountBalance(batchId, depositor.address);
-        const batch = await contracts.fourXBatchProcessing.getBatch(batchId);
+        const accountBalance = await contracts.threeXBatchProcessing.getAccountBalance(batchId, depositor.address);
+        const batch = await contracts.threeXBatchProcessing.getBatch(batchId);
         const claimAmountWithoutFee = batch.targetTokenBalance.mul(accountBalance).div(batch.unclaimedShares);
         const fee = claimAmountWithoutFee.mul(feeRate).div(10000);
         const oldBal = await contracts.token.usdc.balanceOf(depositor.address);
 
-        await expect(await contracts.fourXBatchProcessing.connect(depositor).claim(batchId, depositor.address))
-          .to.emit(contracts.fourXBatchProcessing, "Claimed")
+        await expect(await contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address))
+          .to.emit(contracts.threeXBatchProcessing, "Claimed")
           .withArgs(depositor.address, BatchType.Redeem, depositAmount, claimAmountWithoutFee.sub(fee));
 
         const newBal = await contracts.token.usdc.balanceOf(depositor.address);
         expect(newBal).to.equal(oldBal.add(claimAmountWithoutFee.sub(fee)));
 
-        expect((await contracts.fourXBatchProcessing.redemptionFee()).accumulated).to.equal(fee);
+        expect((await contracts.threeXBatchProcessing.redemptionFee()).accumulated).to.equal(fee);
       });
     });
   });

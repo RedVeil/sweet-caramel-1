@@ -8,7 +8,7 @@ export interface BatchProps {
   handleClaimAndStake: (batch: AccountBatch) => void;
   handleClaim: (batch: AccountBatch) => void;
   handleWithdraw: (batch: AccountBatch) => void;
-  isFourX?: boolean;
+  isThreeX?: boolean;
 }
 
 const ClaimableBatch: React.FC<BatchProps> = ({
@@ -16,14 +16,14 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   handleClaimAndStake,
   handleClaim,
   handleWithdraw,
-  isFourX = false,
+  isThreeX = false,
 }) => {
   return (
     <tr className="even:bg-gray-100 odd:bg-white last:rounded-b-2xl w-full">
       <td className="px-6 py-5 whitespace-nowrap">
         <span className="flex flex-row items-center">
-          {formatBatchInputToken(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint, isFourX)}
-          {!isFourX && batch.batchType === BatchType.Mint && (
+          {formatBatchInputToken(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
+          {!isThreeX && batch.batchType === BatchType.Mint && (
             <div className="mb-1">
               <InfoIconWithModal title="Why do I see 3CRV?">
                 <p>
@@ -36,7 +36,7 @@ const ClaimableBatch: React.FC<BatchProps> = ({
         </span>
       </td>
       <td className="px-6 py-5 whitespace-nowrap font-medium">
-        {formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isFourX)}
+        {formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
       </td>
       <td className="px-6 py-5 flex justify-end">
         <div className="w-36">

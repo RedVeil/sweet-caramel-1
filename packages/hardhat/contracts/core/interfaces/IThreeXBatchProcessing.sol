@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 
 import { BatchType, IAbstractBatchStorage, Batch } from "./IBatchStorage.sol";
 
-interface IFourXBatchProcessing {
+interface IThreeXBatchProcessing {
   function batchStorage() external returns (IAbstractBatchStorage);
 
   function getBatch(bytes32 batchId) external view returns (Batch memory);

@@ -5,20 +5,20 @@ import useERC20 from "hooks/tokens/useERC20";
 import useThreePool from "hooks/useThreePool";
 import useWeb3 from "hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
-import { getData } from "../../helper/FourXDataUtils";
+import { getData } from "../../helper/threeXDataUtils";
 import useBasicIssuanceModule from "./useBasicIssuanceModule";
-import useFourXBatch from "./useFourXBatch";
-import useFourXZapper from "./useFourXZapper";
 import useSetToken from "./useSetToken";
+import useThreeXBatch from "./useThreeXBatch";
+import useThreeXZapper from "./useThreeXZapper";
 
-export default function useFourXData(): SWRResponse<BatchMetadata, Error> {
+export default function useThreeXData(): SWRResponse<BatchMetadata, Error> {
   const { contractAddresses, account, chainId } = useWeb3();
   const dai = useERC20(contractAddresses.dai);
   const usdc = useERC20(contractAddresses.usdc);
   const usdt = useERC20(contractAddresses.usdt);
-  const fourX = useSetToken(contractAddresses.fourX);
-  const fourXBatch = useFourXBatch();
-  const fourXZapper = useFourXZapper();
+  const threeX = useSetToken(contractAddresses.threeX);
+  const threeXBatch = useThreeXBatch();
+  const threeXZapper = useThreeXZapper();
   const setBasicIssuanceModule = useBasicIssuanceModule();
   const threePool = useThreePool();
 
@@ -34,13 +34,13 @@ export default function useFourXData(): SWRResponse<BatchMetadata, Error> {
     usdc &&
     usdt &&
     threePool &&
-    fourX &&
-    fourXBatch &&
-    fourXZapper &&
+    threeX &&
+    threeXBatch &&
+    threeXZapper &&
     setBasicIssuanceModule
   );
 
-  return useSWR(shouldFetch ? [`fourX-batch-data`, chainId] : null, async () => {
-    return getData(account, dai, usdc, usdt, threePool, fourX, setBasicIssuanceModule, fourXBatch, fourXZapper);
+  return useSWR(shouldFetch ? [`threeX-batch-data`, chainId] : null, async () => {
+    return getData(account, dai, usdc, usdt, threePool, threeX, setBasicIssuanceModule, threeXBatch, threeXZapper);
   });
 }

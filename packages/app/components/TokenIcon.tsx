@@ -43,6 +43,16 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
           <img src="/images/icons/butterLogo.png" alt="butter" className="w-5 md:w-7 h-3 md:h-4 mx-auto" />
         </div>
       );
+    case "3X":
+      return (
+        <div
+          className={`flex items-center rounded-full bg-white border border-gray-300  ${
+            fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
+          }`}
+        >
+          <img src="/images/token/threeX.svg" alt="3x" className="w-5 md:w-7 h-3 md:h-4 mx-auto" />
+        </div>
+      );
     case "Popcorn":
     default:
       return (

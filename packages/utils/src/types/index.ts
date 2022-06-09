@@ -6,7 +6,7 @@ export interface ContractAddresses {
   staking?: Array<Address>;
   popStaking?: Address;
   butterStaking?: Address;
-  fourXStaking?: Address;
+  threeXStaking?: Address;
   popUsdcLpStaking?: Address;
   pop?: Address;
   xPop?: Address;
@@ -23,9 +23,9 @@ export interface ContractAddresses {
   butterBatchZapper?: Address;
   butterWhaleProcessing?: Address;
   butterDependency?: ButterDependencyAddresses;
-  fourX?: Address;
-  fourXBatch?: Address;
-  fourXZapper?: Address;
+  threeX?: Address;
+  threeXBatch?: Address;
+  threeXZapper?: Address;
   yMim?: Address;
   crvMim?: Address;
   crvMimMetapool?: Address;
@@ -166,7 +166,7 @@ export type SelectedToken = {
 
 export type Tokens = {
   butter?: TokenMetadata;
-  fourX?: TokenMetadata;
+  threeX?: TokenMetadata;
   dai: TokenMetadata;
   usdc: TokenMetadata;
   usdt: TokenMetadata;
@@ -176,7 +176,7 @@ export type Tokens = {
 
 export type ButterTokenKey = "butter" | "threeCrv" | "dai" | "usdc" | "usdt";
 
-export type BatchProcessTokenKey = ButterTokenKey | FourXTokenKey;
+export type BatchProcessTokenKey = ButterTokenKey | ThreeXTokenKey;
 
 export type TokenMetadata = {
   key: BatchProcessTokenKey;
@@ -199,7 +199,7 @@ export type BatchMetadata = {
   tokens: Tokens;
 };
 
-export type FourXTokenKey = "fourX" | "dai" | "usdc" | "usdt" | "susd";
+export type ThreeXTokenKey = "threeX" | "dai" | "usdc" | "usdt" | "susd";
 
 export enum BatchType {
   Mint,

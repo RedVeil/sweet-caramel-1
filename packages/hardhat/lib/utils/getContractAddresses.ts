@@ -17,7 +17,7 @@ const butterDependencyContractNames = [
   "setStreamingFeeModule",
 ];
 
-const stakingContractNames = ["butterStaking", "popUsdcLpStaking", "fourXStaking"];
+const stakingContractNames = ["butterStaking", "popUsdcLpStaking", "threeXStaking"];
 
 export const mapAccountsFromNamedAccounts = (chainId): ContractAddresses => {
   let contracts: ContractAddresses;

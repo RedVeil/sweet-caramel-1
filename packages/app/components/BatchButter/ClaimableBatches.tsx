@@ -13,7 +13,7 @@ interface ClaimableBatchesProps {
   claimAndStake: Function;
   withdraw: Function;
   butterPageState: [ButterPageState, Dispatch<ButterPageState>];
-  isFourX?: boolean;
+  isThreeX?: boolean;
 }
 
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
@@ -22,13 +22,13 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   claimAndStake,
   withdraw,
   butterPageState,
-  isFourX = false,
+  isThreeX = false,
 }) => {
   const { dispatch } = useContext(store);
   const [localButterPageState, setButterPageState] = butterPageState;
   const tokenOptions =
     localButterPageState?.tokens &&
-    (isFourX
+    (isThreeX
       ? [localButterPageState.tokens.usdc, localButterPageState.tokens.dai, localButterPageState.tokens.usdt]
       : [
           localButterPageState.tokens.threeCrv,
@@ -117,7 +117,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
               handleClaim={handleClaim}
               handleClaimAndStake={handleClaimAndStake}
               handleWithdraw={handleWithdraw}
-              isFourX={isFourX}
+              isThreeX={isThreeX}
             />
           ))}
         </tbody>
@@ -134,7 +134,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
               handleClaim={handleClaim}
               handleClaimAndStake={handleClaimAndStake}
               handleWithdraw={handleWithdraw}
-              isFourX={isFourX}
+              isThreeX={isThreeX}
             />
           ))}
         </div>

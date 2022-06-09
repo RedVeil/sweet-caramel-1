@@ -139,7 +139,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                 options={token}
                 notSelectable={[
                   localButterPageState.selectedToken.input,
-                  ...(localButterPageState.redeeming ? ["threeCrv", "usdc"] : ["butter", "fourX"]),
+                  ...(localButterPageState.redeeming ? ["threeCrv", "usdc"] : ["butter", "threeX"]),
                 ]}
                 selectToken={selectToken}
               />

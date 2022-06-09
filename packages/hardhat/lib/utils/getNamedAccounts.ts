@@ -28,8 +28,8 @@ export default function getNamedAccounts() {
       mainnet: "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428",
       hardhat: "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
     },
-    fourXStaking: {
-      mainnet: "",
+    threeXStaking: {
+      mainnet: "0x34D47d44E0347eDc423164E3c622Aa27401ED566",
       hardhat: "0x547382C0D1b23f707918D3c83A77317B71Aa8470",
     },
     butterWhaleProcessing: {
@@ -217,15 +217,15 @@ export default function getNamedAccounts() {
       rinkeby: "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
       hardhat: "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
     },
-    fourX: {
-      mainnet: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+    threeX: {
+      mainnet: "0xffef8db31b78F0985F61d694C50987167Fa2Bc8F",
       hardhat: "0x0a4286Da1AeF632424D454408bE62Bd863C42bE1",
     },
-    fourXBatch: {
+    threeXBatch: {
       mainnet: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
       hardhat: "0x7C8BaafA542c57fF9B2B90612bf8aB9E86e22C09",
     },
-    fourXZapper: {
+    threeXZapper: {
       mainnet: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
       hardhat: "0x5e6CB7E728E1C320855587E1D9C6F7972ebdD6D5",
     },

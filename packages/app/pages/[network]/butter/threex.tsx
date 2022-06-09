@@ -19,10 +19,10 @@ import { store } from "context/store";
 import { ChainId } from "context/Web3/connectors";
 import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "helper/modalHelpers";
-import useFourXBatch from "hooks/butter/useFourXBatch";
-import useFourXData from "hooks/butter/useFourXData";
-import useFourXZapper from "hooks/butter/useFourXZapper";
 import useSetToken from "hooks/butter/useSetToken";
+import useThreeXBatch from "hooks/butter/useThreeXBatch";
+import useThreeXData from "hooks/butter/useThreeXData";
+import useThreeXZapper from "hooks/butter/useThreeXZapper";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
@@ -41,7 +41,7 @@ export function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: B
 
 const ZAP_TOKEN = ["dai", "usdt"];
 
-export default function FourX(): JSX.Element {
+export default function ThreeX(): JSX.Element {
   const {
     signerOrProvider,
     account,
@@ -55,12 +55,12 @@ export default function FourX(): JSX.Element {
     signer,
   } = useWeb3();
   const { dispatch } = useContext(store);
-  const fourX = useSetToken(contractAddresses.fourX);
-  const fourXZapper = useFourXZapper();
-  const fourXBatch = useFourXBatch();
-  const { data: fourXData, error: errorFetchingFourXData, mutate: refetchFourXData } = useFourXData();
-  const [fourXPageState, setFourXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
-  const loadingFourXData = !fourXData && !errorFetchingFourXData;
+  const threeX = useSetToken(contractAddresses.threeX);
+  const threeXZapper = useThreeXZapper();
+  const threeXBatch = useThreeXBatch();
+  const { data: threeXData, error: errorFetchingThreeXData, mutate: refetchThreeXData } = useThreeXData();
+  const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
+  const loadingThreeXData = !threeXData && !errorFetchingThreeXData;
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -70,7 +70,7 @@ export default function FourX(): JSX.Element {
       dispatch(
         setDualActionWideModal({
           title: "Coming Soon",
-          content: "Currently, 4X is only available on Ethereum.",
+          content: "Currently, 3X is only available on Ethereum.",
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -94,53 +94,53 @@ export default function FourX(): JSX.Element {
   }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
-    if (!fourXData || !fourXData?.tokens) {
+    if (!threeXData || !threeXData?.tokens) {
       return;
     }
-    if (fourXPageState.initalLoad) {
-      setFourXPageState({
-        ...fourXPageState,
+    if (threeXPageState.initalLoad) {
+      setThreeXPageState({
+        ...threeXPageState,
         selectedToken: {
-          input: fourXData?.tokens?.usdc?.key,
-          output: fourXData?.tokens?.fourX?.key,
+          input: threeXData?.tokens?.usdc?.key,
+          output: threeXData?.tokens?.threeX?.key,
         },
-        tokens: fourXData?.tokens,
+        tokens: threeXData?.tokens,
         redeeming: false,
         initalLoad: false,
       });
     } else {
-      setFourXPageState((state) => ({
+      setThreeXPageState((state) => ({
         ...state,
-        tokens: fourXData?.tokens,
+        tokens: threeXData?.tokens,
       }));
     }
-  }, [fourXData]);
+  }, [threeXData]);
 
   useEffect(() => {
-    if (!fourXData || !fourXData?.tokens) {
+    if (!threeXData || !threeXData?.tokens) {
       return;
     }
-    setFourXPageState((state) => ({
+    setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
-        input: state.redeeming ? state?.tokens?.fourX?.key : state?.tokens?.usdc?.key,
-        output: state.redeeming ? state?.tokens?.usdc?.key : state?.tokens?.fourX?.key,
+        input: state.redeeming ? state?.tokens?.threeX?.key : state?.tokens?.usdc?.key,
+        output: state.redeeming ? state?.tokens?.usdc?.key : state?.tokens?.threeX?.key,
       },
       useZap: false,
       depositAmount: BigNumber.from("0"),
       useUnclaimedDeposits: false,
     }));
-  }, [fourXPageState.redeeming]);
+  }, [threeXPageState.redeeming]);
 
   const hasClaimableBalances = () => {
-    if (fourXPageState.redeeming) {
-      return fourXData?.claimableMintBatches.length > 0;
+    if (threeXPageState.redeeming) {
+      return threeXData?.claimableMintBatches.length > 0;
     }
-    return fourXData?.claimableRedeemBatches.length > 0;
+    return threeXData?.claimableRedeemBatches.length > 0;
   };
 
   function selectToken(token: BatchProcessTokenKey): void {
-    setFourXPageState((state) => ({
+    setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
         input: state.redeeming ? state.selectedToken.input : token,
@@ -153,13 +153,13 @@ export default function FourX(): JSX.Element {
   }
 
   async function handleMainAction(depositAmount: BigNumber, batchType: BatchType) {
-    depositAmount = adjustDepositDecimals(depositAmount, fourXPageState.selectedToken.input);
-    if (fourXPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
+    depositAmount = adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
+    if (threeXPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
       await hotswapMint(depositAmount).then(
         (res) => onContractSuccess(res, `Funds deposited!`),
         (err) => onContractError(err),
       );
-    } else if (fourXPageState.useUnclaimedDeposits) {
+    } else if (threeXPageState.useUnclaimedDeposits) {
       await hotswapRedeem(depositAmount).then(
         (res) => onContractSuccess(res, `Funds deposited!`),
         (err) => onContractError(err),
@@ -169,46 +169,46 @@ export default function FourX(): JSX.Element {
     } else {
       await batchRedeem(depositAmount).then(handleRedeemSuccess, (err) => onContractError(err));
     }
-    await refetchFourXData();
-    setFourXPageState((state) => ({ ...state, depositAmount: constants.Zero }));
+    await refetchThreeXData();
+    setThreeXPageState((state) => ({ ...state, depositAmount: constants.Zero }));
   }
 
   async function hotswapRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    const batches = fourXData?.claimableMintBatches;
+    const batches = threeXData?.claimableMintBatches;
     const hotSwapParameter = prepareHotSwap(batches, depositAmount);
     toast.loading("Depositing Funds...");
-    return fourXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, false);
+    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, false);
   }
   async function hotswapMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    const batches = fourXData?.claimableRedeemBatches;
+    const batches = threeXData?.claimableRedeemBatches;
     const hotSwapParameter = prepareHotSwap(batches, depositAmount);
     toast.loading("Depositing Funds...");
-    return fourXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, true);
+    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, true);
   }
   async function batchMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading(`Depositing ${fourXPageState.tokens[fourXPageState.selectedToken.input].name} ...`);
-    if (fourXPageState.useZap) {
+    toast.loading(`Depositing ${threeXPageState.tokens[threeXPageState.selectedToken.input].name} ...`);
+    if (threeXPageState.useZap) {
       const minMintAmount = getMinMintAmount(
         depositAmount,
-        fourXPageState.selectedToken.input,
-        fourXPageState.slippage,
+        threeXPageState.selectedToken.input,
+        threeXPageState.slippage,
         parseEther("1"),
       );
-      return fourXZapper.zapIntoBatch(
+      return threeXZapper.zapIntoBatch(
         depositAmount,
-        TOKEN_INDEX[fourXPageState.selectedToken.input],
+        TOKEN_INDEX[threeXPageState.selectedToken.input],
         TOKEN_INDEX.usdc,
         minMintAmount,
       );
     }
-    return fourXBatch.depositForMint(depositAmount, account);
+    return threeXBatch.depositForMint(depositAmount, account);
   }
   async function batchRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading("Depositing FourX...");
-    return fourXBatch.depositForRedeem(depositAmount);
+    toast.loading("Depositing ThreeX...");
+    return threeXBatch.depositForRedeem(depositAmount);
   }
   function handleMintSuccess(res) {
-    onContractSuccess(res, `${fourXPageState.tokens[fourXPageState.selectedToken.input].name} deposited!`, () => {
+    onContractSuccess(res, `${threeXPageState.tokens[threeXPageState.selectedToken.input].name} deposited!`, () => {
       toggleModal(
         ModalType.MultiChoice,
         {
@@ -234,7 +234,7 @@ export default function FourX(): JSX.Element {
     });
   }
   function handleRedeemSuccess(res) {
-    onContractSuccess(res, "4X deposited!", () => {
+    onContractSuccess(res, "3X deposited!", () => {
       toggleModal(
         ModalType.MultiChoice,
         {
@@ -264,34 +264,34 @@ export default function FourX(): JSX.Element {
     toast.loading("Claiming Batch...");
     let call;
     if (useZap) {
-      call = fourXZapper.claimAndSwapToStable(
+      call = threeXZapper.claimAndSwapToStable(
         batchId,
         TOKEN_INDEX.usdc,
         TOKEN_INDEX[outputToken],
         adjustDepositDecimals(
-          fourXData?.accountBatches
+          threeXData?.accountBatches
             .find((batch) => batch.batchId === batchId)
-            .accountClaimableTokenBalance.mul(fourXData?.tokens?.usdc.price)
-            .div(fourXData?.tokens[outputToken].price),
+            .accountClaimableTokenBalance.mul(threeXData?.tokens?.usdc.price)
+            .div(threeXData?.tokens[outputToken].price),
           outputToken,
         )
-          .mul(100 - fourXPageState.slippage)
+          .mul(100 - threeXPageState.slippage)
           .div(100),
       );
     } else {
-      call = fourXBatch.claim(batchId, account);
+      call = threeXBatch.claim(batchId, account);
     }
     await call
       .then((res) =>
         onContractSuccess(res, `Batch claimed!`, () => {
-          refetchFourXData();
+          refetchThreeXData();
           toggleModal(
             ModalType.MultiChoice,
             {
               title: "You claimed your Token",
               children: (
                 <p className="text-sm text-gray-500">
-                  Your tokens should now be visible in your wallet. If you can’t see your 4X, import it here:
+                  Your tokens should now be visible in your wallet. If you can’t see your 3X, import it here:
                   <a
                     onClick={async () =>
                       window.ethereum.request({
@@ -299,8 +299,8 @@ export default function FourX(): JSX.Element {
                         params: {
                           type: "ERC20",
                           options: {
-                            address: fourX.address,
-                            symbol: "4X",
+                            address: threeX.address,
+                            symbol: "3X",
                             decimals: 18,
                           },
                         },
@@ -308,7 +308,7 @@ export default function FourX(): JSX.Element {
                     }
                     className="text-blue-600 cursor-pointer"
                   >
-                    4X
+                    3X
                   </a>
                 </p>
               ),
@@ -334,10 +334,10 @@ export default function FourX(): JSX.Element {
   }
 
   async function claimAndStake(batchId: string): Promise<void> {
-    toast.loading("Claiming and staking 4X...");
-    await fourXBatch
+    toast.loading("Claiming and staking 3X...");
+    await threeXBatch
       .claimAndStake(batchId)
-      .then((res) => onContractSuccess(res, `Staked claimed 4X`, () => refetchFourXData()))
+      .then((res) => onContractSuccess(res, `Staked claimed 3X`, () => refetchThreeXData()))
       .catch((err) => onContractError(err));
   }
 
@@ -350,7 +350,7 @@ export default function FourX(): JSX.Element {
     withdraw(batchId, amount, useZap, outputToken)
       .then((res) =>
         onContractSuccess(res, "Funds withdrawn!", () => {
-          refetchFourXData();
+          refetchThreeXData();
         }),
       )
       .catch((err) => onContractError(err));
@@ -358,59 +358,61 @@ export default function FourX(): JSX.Element {
 
   async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: BatchProcessTokenKey) {
     if (useZap) {
-      return fourXZapper.zapOutOfBatch(
+      return threeXZapper.zapOutOfBatch(
         batchId,
         amount,
         TOKEN_INDEX.usdc,
         TOKEN_INDEX[outputToken],
         adjustDepositDecimals(amount, outputToken)
-          .mul(100 - fourXPageState.slippage)
+          .mul(100 - threeXPageState.slippage)
           .div(100),
       );
     } else {
-      return fourXBatch["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account);
+      return threeXBatch["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account);
     }
   }
 
   async function approve(contractKey: string): Promise<void> {
     toast.loading("Approving Token...");
-    const selectedTokenContract = fourXData?.tokens[contractKey].contract;
+    const selectedTokenContract = threeXData?.tokens[contractKey].contract;
     await selectedTokenContract
-      .approve(fourXPageState.useZap ? fourXZapper.address : fourXBatch.address, ethers.constants.MaxUint256)
+      .approve(threeXPageState.useZap ? threeXZapper.address : threeXBatch.address, ethers.constants.MaxUint256)
       .then((res) =>
         onContractSuccess(res, "Token approved!", () => {
-          refetchFourXData();
+          refetchThreeXData();
         }),
       )
       .catch((err) => onContractError(err));
   }
 
   function getBatchProgressAmount(): BigNumber {
-    if (!fourXData) {
+    if (!threeXData) {
       return BigNumber.from("0");
     }
-    return fourXPageState.redeeming
-      ? fourXData?.currentBatches.redeem.suppliedTokenBalance.mul(fourXData?.tokens?.fourX.price).div(parseEther("1"))
-      : fourXData?.currentBatches.mint.suppliedTokenBalance
-          .mul(fourXData?.tokens?.usdc.price)
+    return threeXPageState.redeeming
+      ? threeXData?.currentBatches.redeem.suppliedTokenBalance
+          .mul(threeXData?.tokens?.threeX.price)
+          .div(parseEther("1"))
+      : threeXData?.currentBatches.mint.suppliedTokenBalance
+          .mul(threeXData?.tokens?.usdc.price)
           .div(BigNumber.from(1_000_000));
   }
 
   return (
     <div>
       <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
-        <h1 className="text-3xl font-bold">4X - Yield Optimizer</h1>
+        <h1 className="text-3xl font-bold">3X - Yield Optimizer</h1>
         <p className="mt-2 text-lg text-gray-500">
-          Mint 4X and earn interest on multiple stablecoins at once.
+          Mint 3X and earn interest on multiple stablecoins at once.
           <br />
-          Stake your 4X to earn boosted APY.
+          Stake your 3X to earn boosted APY.
         </p>
-        <ButterStats butterData={fourXData} addresses={[contractAddresses.yD3, contractAddresses.y3Eur]} isFourX />
+        <ButterStats butterData={threeXData} addresses={[contractAddresses.yD3, contractAddresses.y3Eur]} isThreeX />
       </div>
       <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
         <div className="order-2 md:order-1 md:w-1/3 mb-10">
           {account ? (
-            loadingFourXData ? (
+            loadingThreeXData ? (
               <>
                 <div>
                   <ContentLoader viewBox="0 0 450 600">
@@ -420,26 +422,26 @@ export default function FourX(): JSX.Element {
               </>
             ) : (
               <div className="md:pr-8">
-                {fourXData && fourXPageState.tokens && fourXPageState.selectedToken && (
+                {threeXData && threeXPageState.tokens && threeXPageState.selectedToken && (
                   <MintRedeemInterface
-                    token={fourXData?.tokens}
+                    token={threeXData?.tokens}
                     selectToken={selectToken}
                     mainAction={handleMainAction}
                     approve={approve}
                     depositDisabled={
-                      fourXPageState.useUnclaimedDeposits
+                      threeXPageState.useUnclaimedDeposits
                         ? isDepositDisabled(
-                            fourXPageState.depositAmount,
-                            fourXPageState.tokens[fourXPageState.selectedToken.input].claimableBalance,
+                            threeXPageState.depositAmount,
+                            threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
                           )
                         : isDepositDisabled(
-                            fourXPageState.depositAmount,
-                            fourXPageState.tokens[fourXPageState.selectedToken.input].balance,
+                            threeXPageState.depositAmount,
+                            threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
                           )
                     }
                     hasUnclaimedBalances={hasClaimableBalances()}
-                    butterPageState={[fourXPageState, setFourXPageState]}
-                    isFourXPage
+                    butterPageState={[threeXPageState, setThreeXPageState]}
+                    isThreeXPage
                   />
                 )}
               </div>
@@ -467,7 +469,7 @@ export default function FourX(): JSX.Element {
                   dispatch(
                     setMobileFullScreenModal({
                       title: "",
-                      children: <Tutorial />,
+                      children: <Tutorial isThreeX />,
                       onDismiss: () => dispatch(setMobileFullScreenModal(false)),
                     }),
                   );
@@ -503,10 +505,10 @@ export default function FourX(): JSX.Element {
                             </h3>
                             <div className="my-4">
                               <p className="text-lg text-gray-500">
-                                Mint 4X with Dai or other stablecoins to earn interest on EUR,GBP,CHF and JPY at once.
-                                As the value of the underlying assets increase, so does the redeemable value of 4X. This
-                                process converts deposited funds into other stablecoins and deploys them in Yearn to
-                                generate interest.
+                                Mint 3X with USDC or other stablecoins to earn interest on a basket of dollar and euro
+                                denominated stablecoins at once. As the value of the underlying assets increase, so does
+                                the redeemable value of 3X. This process converts deposited funds into other stablecoins
+                                and deploys them in Yearn to generate interest.
                               </p>
                             </div>
                           </div>
@@ -516,8 +518,8 @@ export default function FourX(): JSX.Element {
                             </h3>
                             <div className="my-4">
                               <p className="text-lg text-gray-500">
-                                Redeem your 4X to receive its value in sUSD or other stablecoins. We will convert all
-                                the underlying tokens of 4X back into sUSD or your desired stablecoin.
+                                Redeem your 3X to receive its value in USDC or other stablecoins. We will convert all
+                                the underlying tokens of 3X back into USDC or your desired stablecoin.
                               </p>
                             </div>
                           </div>
@@ -545,9 +547,9 @@ export default function FourX(): JSX.Element {
             </div>
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
-                title="4X Value"
+                title="3X Value"
                 content={`$ ${
-                  fourXData?.tokens?.fourX ? formatAndRoundBigNumber(fourXData?.tokens?.fourX?.price) : "-"
+                  threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price) : "-"
                 }`}
                 icon={{ icon: "Money", color: "bg-blue-300" }}
               />
@@ -558,20 +560,20 @@ export default function FourX(): JSX.Element {
           </div>
 
           <div className="hidden md:flex w-full h-128 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
-            <Tutorial />
+            <Tutorial isThreeX />
           </div>
         </div>
       </div>
-      {fourXData?.accountBatches?.length > 0 && (
+      {threeXData?.accountBatches?.length > 0 && (
         <div className="w-full pb-12 mx-auto mt-10">
           <div className="mx-4 md:mx-0 p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
             <ClaimableBatches
-              batches={fourXData?.accountBatches}
+              batches={threeXData?.accountBatches}
               claim={claim}
               claimAndStake={claimAndStake}
               withdraw={handleWithdraw}
-              butterPageState={[fourXPageState, setFourXPageState]}
-              isFourX
+              butterPageState={[threeXPageState, setThreeXPageState]}
+              isThreeX
             />
           </div>
         </div>

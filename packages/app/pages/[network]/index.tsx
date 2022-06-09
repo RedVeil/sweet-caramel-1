@@ -11,8 +11,6 @@ const IndexPage = () => {
     }
   }, [router.pathname]);
 
-  //TODO:Update link for 4x
-
   return (
     <div className="grid grid-cols-12 gap-y-8 md:gap-8 pb-14">
       <div className="col-span-12 md:col-span-6 flex flex-col gap-y-8 order-2 md:order-1">
@@ -20,17 +18,17 @@ const IndexPage = () => {
           <Hero
             header="Butter"
             content="Optimize your yield while creating positive global impact."
-            image="/images/newButterImage.svg"
+            image="/images/butterHero.svg"
             link="/butter"
             imageSize="h-20"
           />
         </div>
         <div className="h-54">
           <Hero
-            header="4x"
-            content=" Forex exposure with nobel yield that donates fees to social impact organizations."
-            image="/images/4xImage.svg"
-            link="/butter/fourx"
+            header="3x"
+            content="Get exposure to Euro and Dollar with noble yield that donates fees to social impact organizations."
+            image="/images/3xHero.svg"
+            link="/butter/threex"
             imageSize="h-20"
           />
         </div>

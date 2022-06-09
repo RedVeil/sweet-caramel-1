@@ -10,7 +10,7 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({
   handleClaimAndStake,
   handleClaim,
   handleWithdraw,
-  isFourX = false,
+  isThreeX = false,
 }) => {
   return (
     <div className="flex flex-col even:bg-gray-100 odd:bg-white last:rounded-b-2xl w-full p-6">
@@ -20,7 +20,7 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({
           content={formatBatchInputToken(
             batch.accountSuppliedTokenBalance,
             batch.batchType === BatchType.Mint,
-            isFourX,
+            isThreeX,
           )}
         />
         <div className="w-1/3">
@@ -39,7 +39,7 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({
           content={formatBatchOutputToken(
             batch.accountClaimableTokenBalance,
             batch.batchType === BatchType.Mint,
-            isFourX,
+            isThreeX,
           )}
         />
         <div className="w-1/3">

@@ -1,10 +1,10 @@
 import { Batch } from "@popcorn/utils/src/types";
 import ButterBatchAdapter from "./ButterBatchAdapter";
-import { FourXBatchProcessing } from "../../typechain/FourXBatchProcessing";
+import { ThreeXBatchProcessing } from "../../typechain/ThreeXBatchProcessing";
 import { BigNumber } from "ethers";
 
-export class FourXBatchAdapter extends ButterBatchAdapter {
-  constructor(contract: FourXBatchProcessing) {
+export class ThreeXBatchAdapter extends ButterBatchAdapter {
+  constructor(contract: ThreeXBatchProcessing) {
     super(contract);
   }
   async getBatch(batchId: string): Promise<Batch> {
@@ -32,4 +32,4 @@ export class FourXBatchAdapter extends ButterBatchAdapter {
   }
 }
 
-export default FourXBatchAdapter;
+export default ThreeXBatchAdapter;

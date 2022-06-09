@@ -17,24 +17,24 @@ import "../../../externals/interfaces/CurveContracts.sol";
 import "../../../externals/interfaces/IAngleRouter.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IBatchStorage.sol";
-import "./FourXBatchVault.sol";
+import "./ThreeXBatchVault.sol";
 import "./controller/AbstractBatchController.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "hardhat/console.sol";
 
 /**
- * @notice Defines if the Batch will mint or redeem 4X
+ * @notice Defines if the Batch will mint or redeem 3X
  */
 
 /*
- * @notice This Contract allows smaller depositors to mint and redeem 4X (formerly known as HYSI) without needing to through all the steps necessary on their own,
+ * @notice This Contract allows smaller depositors to mint and redeem 3X without needing to through all the steps necessary on their own,
  * which not only takes long but mainly costs enormous amounts of gas.
- * The 4X is created from several different yTokens which in turn need each a deposit of a crvLPToken.
- * This means multiple approvals and deposits are necessary to mint one 4X.
- * We batch this process and allow users to pool their funds. Then we pay a keeper to mint or redeem 4X regularly.
+ * The 3X is created from several different yTokens which in turn need each a deposit of a crvLPToken.
+ * This means multiple approvals and deposits are necessary to mint one 3X.
+ * We batch this process and allow users to pool their funds. Then we pay a keeper to mint or redeem 3X regularly.
  */
-contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchController, ContractRegistryAccess {
+contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchController, ContractRegistryAccess {
   using SafeERC20 for YearnVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
@@ -42,7 +42,9 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
 
   /**
    * @notice each component has dependencies that form a path to aquire and subsequently swap out of the component. these are those dependenices
-   * @param curveMetaPool A CurveMetaPool for trading fixedForexToken and USDC
+   * @param swapPool A CurveMetaPool for trading USDC against FRAX
+   * @param curveMetaPool A CurveMetaPool that we want to deploy into yearn (D3, 3EUR)
+   * @param angleRouter The Angle Router to trade USDC against agEUR
    */
   struct ComponentDependencies {
     CurveMetapool swapPool;
@@ -52,12 +54,14 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
 
   /* ========== STATE VARIABLES ========== */
 
-  bytes32 public constant contractName = "FourXBatchProcessing";
+  bytes32 public constant contractName = "ThreeXBatchProcessing";
 
   mapping(address => bool) public batchStorageApprovals;
 
   // Maps yToken Address (which is used in the SetToken) to its underlying Token
   mapping(address => ComponentDependencies) public componentDependencies;
+
+  // FRAX and agEUR which we use as intermediate token to deploy/withdraw from the curveMetapools
   IERC20[2] public swapToken;
 
   BasicIssuanceModule public basicIssuanceModule;
@@ -152,6 +156,7 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
       ? componentDependencies[_component].curveMetaPool.get_virtual_price()
       : (componentDependencies[_component].curveMetaPool.get_virtual_price() *
         componentDependencies[_component].swapPool.price_oracle()) / 1e18;
+
     // Calculate the virtualPrice of one yToken
     uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() * lpTokenPriceInUSD) / 1e18;
 
@@ -169,19 +174,19 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
   }
 
   /**
-   * @notice returns the amount of DAI that should be allocated for a curveMetapool
-   * @param _balance the max amount of DAI that is available in this iteration
-   * @param _ratio the ratio of DAI needed to get enough yToken to mint 4X
+   * @notice returns the amount of USDC that should be allocated for a curveMetapool
+   * @param _balance the max amount of USDC that is available in this iteration
+   * @param _ratio the ratio of USDC needed to get enough yToken to mint 3X
    */
   function _getPoolAllocation(uint256 _balance, uint256 _ratio) internal pure returns (uint256) {
     return ((_balance * _ratio) / 1e18);
   }
 
   /**
-   * @notice Mint 4X token with deposited DAI. This function goes through all the steps necessary to mint an optimal amount of 4X
-   * @dev This function deposits DAI in the underlying Metapool and deposits these LP token to get yToken which in turn are used to mint 4X
+   * @notice Mint 3X token with deposited USDC. This function goes through all the steps necessary to mint an optimal amount of 3X
+   * @dev This function deposits USDC in the underlying Metapool and deposits these LP token to get yToken which in turn are used to mint 3X
    * @dev This process leaves some leftovers which are partially used in the next mint batches.
-   * @dev In order to get DAI we can implement a zap to move stables into the curve tri-pool
+   * @dev In order to get USDC we can implement a zap to move stables into the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
   function batchMint() external whenNotPaused keeperIncentive(contractName, 0) {
@@ -199,22 +204,22 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
     // Check if the Batch got already processed -- should technically not be possible
     require(batch.claimable == false, "already minted");
 
-    // Check if this contract has enough DAI -- should technically not be necessary
+    // Check if this contract has enough USDC -- should technically not be necessary
     require(
       mintBatchTokens.sourceToken.balanceOf(address(batchStorage)) >= batch.sourceTokenBalance,
       "account has insufficient balance of token to mint"
     );
 
-    // Get the quantity of yToken for one 4X
+    // Get the quantity of yToken for one 3X
     (address[] memory tokenAddresses, uint256[] memory quantities) = basicIssuanceModule
       .getRequiredComponentUnitsForIssue(ISetToken(address(mintBatchTokens.targetToken)), 1e18);
 
     uint256 setValue = valueOfComponents(tokenAddresses, quantities);
 
-    // Remaining amount of DAI in this batch which hasnt been allocated yet
+    // Remaining amount of USDC in this batch which hasnt been allocated yet
     uint256 remainingBatchBalanceValue = batch.sourceTokenBalance;
 
-    // Temporary allocation of DAI to be deployed in curveMetapools
+    // Temporary allocation of USDC to be deployed in curveMetapools
     uint256[] memory poolAllocations = new uint256[](quantities.length);
 
     uint256[] memory ratios = new uint256[](quantities.length);
@@ -237,7 +242,7 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
         poolAllocation = _getPoolAllocation(remainingBatchBalanceValue, ratios[i]);
       }
 
-      //Pool ibToken to get crvLPToken
+      //Pool USDC to get crvLPToken via the swapPools
       _sendToCurve(poolAllocation + poolAllocations[i], componentDependencies[tokenAddresses[i]], i);
 
       //Deposit crvLPToken to get yToken
@@ -253,7 +258,7 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
       );
     }
 
-    //Get the minimum amount of 4X that we can mint with our balances of yToken
+    //Get the minimum amount of 3X that we can mint with our balances of yToken
     uint256 setTokenAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
 
     for (uint256 i = 1; i < tokenAddresses.length; i++) {
@@ -269,7 +274,7 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
       "slippage too high"
     );
 
-    //Mint 4X
+    //Mint 3X
     basicIssuanceModule.issue(ISetToken(address(mintBatchTokens.targetToken)), setTokenAmount, address(this));
 
     batchStorage.depositTargetTokensIntoBatch(currentMintBatchId, setTokenAmount);
@@ -291,16 +296,16 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
   }
 
   /**
-   * @notice Redeems 4X for sUSD. This function goes through all the steps necessary to get sUSD
-   * @dev This function reedeems 4X for the underlying yToken and deposits these yToken in curve Metapools for sUSD
-   * @dev In order to get other stablecoins from sUSD we can use a zap to redeem sUSD for stables in the curve tri-pool
+   * @notice Redeems 3X for USDC. This function goes through all the steps necessary to get USDC
+   * @dev This function reedeems 3X for the underlying yToken and deposits these yToken in curve Metapools for USDC
+   * @dev In order to get other stablecoins from USDC we can use a zap to redeem USDC for stables in the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
   function batchRedeem() external whenNotPaused keeperIncentive(contractName, 1) {
     Batch memory batch = this.getBatch(currentRedeemBatchId);
 
     //Check if there was enough time between the last batch redemption and this attempt...
-    //...or if enough 4X was deposited to make the redemption worthwhile
+    //...or if enough 3X was deposited to make the redemption worthwhile
     //This is to prevent excessive gas consumption and costs as we will pay keeper to call this function
     require(
       (block.timestamp - lastRedeemedAt >= processingThreshold.batchCooldown) ||
@@ -317,10 +322,10 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
     (address[] memory tokenAddresses, uint256[] memory quantities) = basicIssuanceModule
       .getRequiredComponentUnitsForIssue(ISetToken(address(mintBatchTokens.targetToken)), batch.sourceTokenBalance);
 
-    //Allow setBasicIssuanceModule to use 4X
+    //Allow setBasicIssuanceModule to use 3X
     _setBasicIssuanceModuleAllowance(sourceTokenBalance);
 
-    //Redeem 4X for yToken
+    //Redeem 3X for yToken
     basicIssuanceModule.redeem(
       ISetToken(address(redeemBatchTokens.sourceToken)),
       batch.sourceTokenBalance,
@@ -331,7 +336,7 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
       //Deposit yToken to receive crvLPToken
       _withdrawFromYearn(YearnVault(tokenAddresses[i]).balanceOf(address(this)), YearnVault(tokenAddresses[i]));
 
-      //Deposit crvLPToken to receive usdc
+      //Deposit crvLPToken to receive USDC
       _withdrawFromCurve(
         componentDependencies[tokenAddresses[i]].curveMetaPool.balanceOf(address(this)),
         componentDependencies[tokenAddresses[i]],
@@ -408,20 +413,17 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
   }
 
   /**
-   * @notice Deposit ibToken in a curve metapool for its LP-Token
-   * @param _amount The amount of ibToken that gets deposited
-   * @param _contracts ComponentDependencies
-   * @param _i index
+   * @notice Trade USDC for intermediate swapToken and deposit those into the destination curveMetapool
+   * @param _amount The amount of USDC that gets deposited
+   * @param _contracts ComponentDependencies (swapPool, curveMetapool and AngleRouter)
+   * @param _i index of the component (0 == d3, 1 == 3eur)
    */
   function _sendToCurve(
     uint256 _amount,
     ComponentDependencies memory _contracts,
     uint256 _i
   ) internal {
-    // Takes ibToken and sends lpToken to this contract
-    // Metapools take an array of amounts [ibToken, usdc].
-    // The second variable determines the min amount of LP-Token we want to receive (slippage control)
-
+    // Trade USDC for intermediate swapToken
     uint256 destAmount;
     if (_i == 0) {
       destAmount = _contracts.swapPool.exchange_underlying(2, 0, _amount, 0);
@@ -435,24 +437,29 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
       );
       destAmount = swapToken[_i].balanceOf(address(this));
     }
+
+    // Pool swapToken for curveMetapool LpToken
+    // The first argument is an array of inputAmounts, the second is for slippage
+    // We do slippage control at the end of the batch operation which is why its 0 here
     _contracts.curveMetaPool.add_liquidity([destAmount, 0, 0], 0);
   }
 
   /**
-   * @notice Withdraws sToken for deposited crvLPToken
-   * @param _amount The amount of crvLPToken that get deposited
-   * @param _contracts CompDependencies
-   * @param _i index
+   * @notice Burns crvLPToken to get intermediate swapToken
+   * @param _amount The amount of lpTOken that get burned
+   * @param _contracts ComponentDependencies (swapPool, curveMetapool and AngleRouter)
+   * @param _i index of the component (0 == d3, 1 == 3eur)
    */
   function _withdrawFromCurve(
     uint256 _amount,
     ComponentDependencies memory _contracts,
     uint256 _i
   ) internal {
-    // Takes lp Token and sends sToken to this contract
-    // The second variable is the index for the token we want to receive
-    // The third variable determines min amount of token we want to receive (slippage control)
+    // Burns lpToken to receive swapToken
+    // First argument is the lpToken amount to burn, second is the index of the token we want to receive and third is slippage control
     _contracts.curveMetaPool.remove_liquidity_one_coin(_amount, 0, uint256(0));
+
+    // No we trade the swapToken back to USDC
     uint256 amountReceived = swapToken[_i].balanceOf(address(this));
     if (_i == 0) {
       _contracts.swapPool.exchange_underlying(0, 2, amountReceived, 0);
@@ -490,9 +497,9 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
   /* ========== ADMIN ========== */
 
   /**
-   * @notice This function allows the owner to change the composition of underlying token of the 4X
-   * @param _components An array of addresses for the yToken needed to mint 4X
-   * @param _componentDependencies An array structs describing underlying yToken, crvToken and curve metapool
+   * @notice This function allows the owner to change the composition of underlying token of the 3X
+   * @param _components An array of addresses for the yToken needed to mint 3X
+   * @param _componentDependencies An array structs describing underlying yToken, curveMetapool (which is also the lpToken), swapPool and AngleRouter
    */
   function setComponents(address[] memory _components, ComponentDependencies[] calldata _componentDependencies)
     external
@@ -502,9 +509,9 @@ contract FourXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchContr
   }
 
   /**
-   * @notice This function defines which underlying token and pools are needed to mint a 4X token
-   * @param _components An array of addresses for the yToken needed to mint 4X
-   * @param _componentDependencies An array structs describing underlying yToken, crvToken and curve metapool
+   * @notice This function defines which underlying token and pools are needed to mint a 3X token
+   * @param _components An array of addresses for the yToken needed to mint 3X
+   * @param _componentDependencies An array structs describing underlying yToken, curveMetapool (which is also the lpToken), swapPool and AngleRouter
    * @dev since our calculations for minting just iterate through the index and match it with the quantities given by Set
    * @dev we must make sure to align them correctly by index, otherwise our whole calculation breaks down
    */

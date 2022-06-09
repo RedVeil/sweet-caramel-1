@@ -1,12 +1,12 @@
 import { parseEther } from "@ethersproject/units";
 import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
-import FourXBatchAdapter from "@popcorn/hardhat/lib/adapters/FourXBatchAdapter";
+import ThreeXBatchAdapter from "@popcorn/hardhat/lib/adapters/ThreeXBatchAdapter";
 import {
   BasicIssuanceModule,
   Curve3Pool,
-  FourXBatchProcessing,
-  FourXZapper,
   ISetToken,
+  ThreeXBatchProcessing,
+  ThreeXZapper,
 } from "@popcorn/hardhat/typechain";
 import { AccountBatch, Address, BatchMetadata, BatchType, Token, Tokens } from "@popcorn/utils/src/types";
 import { BigNumber, ethers } from "ethers";
@@ -22,25 +22,25 @@ async function getToken(
   account: string,
   tokens: Stables,
   threePool: Curve3Pool,
-  fourX: ISetToken,
+  threeX: ISetToken,
   setBasicIssuanceModule: BasicIssuanceModule,
-  mainContract: FourXBatchProcessing,
-  zapperContract?: FourXZapper,
+  mainContract: ThreeXBatchProcessing,
+  zapperContract?: ThreeXZapper,
 ): Promise<Tokens> {
   const defaultErc20Decimals = 18;
   return {
-    fourX: {
-      name: "4X",
-      key: "fourX",
-      balance: await fourX.balanceOf(account),
-      allowance: await fourX.allowance(account, mainContract.address),
+    threeX: {
+      name: "3X",
+      key: "threeX",
+      balance: await threeX.balanceOf(account),
+      allowance: await threeX.allowance(account, mainContract.address),
       claimableBalance: BigNumber.from("0"),
       price: await mainContract.valueOfComponents(
-        ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(fourX.address, parseEther("1"))),
+        ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(threeX.address, parseEther("1"))),
       ),
       decimals: defaultErc20Decimals,
-      img: "fourX.svg",
-      contract: fourX,
+      img: "threeX.svg",
+      contract: threeX,
     },
     dai: {
       name: "DAI",
@@ -100,13 +100,13 @@ export async function getData(
   threePool: Curve3Pool,
   butter: ISetToken,
   setBasicIssuanceModule: BasicIssuanceModule,
-  mainContract: FourXBatchProcessing,
-  zapperContract?: FourXZapper,
+  mainContract: ThreeXBatchProcessing,
+  zapperContract?: ThreeXZapper,
 ): Promise<BatchMetadata> {
-  const fourXBatchAdapter = new FourXBatchAdapter(mainContract);
-  const currentBatches = await fourXBatchAdapter.getCurrentBatches();
+  const threeXBatchAdapter = new ThreeXBatchAdapter(mainContract);
+  const currentBatches = await threeXBatchAdapter.getCurrentBatches();
   const totalSupply = await butter.totalSupply();
-  const accountBatches = await fourXBatchAdapter.getBatches(account);
+  const accountBatches = await threeXBatchAdapter.getBatches(account);
 
   const claimableMintBatches = accountBatches.filter((batch) => batch.batchType == BatchType.Mint && batch.claimable);
   const claimableRedeemBatches = accountBatches.filter(
@@ -114,7 +114,7 @@ export async function getData(
   );
 
   const tokenResponse = await getToken(
-    fourXBatchAdapter,
+    threeXBatchAdapter,
     account,
     { dai, usdc, usdt },
     threePool,
@@ -124,7 +124,7 @@ export async function getData(
     zapperContract,
   );
 
-  tokenResponse.fourX.claimableBalance = getClaimableBalance(claimableMintBatches);
+  tokenResponse.threeX.claimableBalance = getClaimableBalance(claimableMintBatches);
   tokenResponse.usdc.claimableBalance = getClaimableBalance(claimableRedeemBatches);
 
   const response: BatchMetadata = {

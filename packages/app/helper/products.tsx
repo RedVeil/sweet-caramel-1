@@ -17,15 +17,15 @@ export default function getProducts(
       {
         title: "Butter",
         onClick: () => pushWithinChain(`/butter`),
-        // TODO: Should match the url only when not on fourX or Instant
+        // TODO: Should match the url only when not on threeX or Instant
         currentlySelected: router.pathname.includes("/butter"),
         url: "/butter",
       },
       {
-        title: "4X",
-        onClick: () => pushWithinChain(`/butter/fourx`),
-        currentlySelected: router.pathname.includes("/butter/fourx"),
-        url: "/butter/fourx",
+        title: "3X",
+        onClick: () => pushWithinChain(`/butter/threex`),
+        currentlySelected: router.pathname.includes("/butter/threex"),
+        url: "/butter/threex",
       },
     ];
   }, [router, router?.query?.network]);
