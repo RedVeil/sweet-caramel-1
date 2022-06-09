@@ -18,7 +18,7 @@ jobs:
         with:
           source: .env.example
           target: .env
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "yarn install"
         with:
           cmd: install # will run `yarn install` command
