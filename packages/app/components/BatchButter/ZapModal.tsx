@@ -34,9 +34,11 @@ export default function ZapModal({
   return (
     <div className="flex flex-col mt-4 mx-4">
       <OutputToken outputToken={tokenOptions} selectToken={selectToken} selectedToken={selectedToken} />
-      <div className="mt-4">
-        <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
-      </div>
+      {selectedToken !== tokenOptions[0] && (
+        <div className="mt-4">
+          <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
+        </div>
+      )}
       <div className="mt-5 flex flex-row space-x-4 md:space-x-8">
         <SecondaryActionButton
           label={"Cancel"}
