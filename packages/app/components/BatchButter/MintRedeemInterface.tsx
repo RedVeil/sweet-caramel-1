@@ -92,7 +92,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           </div>
         )}
         {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && isAllowanceInsufficient() && (
-          <div className="space-y-6">
+          <div className="pt-6 space-y-6">
             <MainActionButton
               label={`Allow Popcorn to use your ${
                 localButterPageState.tokens[localButterPageState.selectedToken.input].name

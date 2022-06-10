@@ -50,7 +50,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
             fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
           }`}
         >
-          <img src="/images/token/threeX.svg" alt="3x" className="w-5 md:w-7 h-3 md:h-4 mx-auto" />
+          <img src="/images/tokens/threeX.svg" alt="3x" className="w-7 h-7 mb-1 mx-auto" />
         </div>
       );
     case "Popcorn":
