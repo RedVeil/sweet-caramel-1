@@ -35,6 +35,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
     output: localButterPageState.tokens[localButterPageState.selectedToken.output],
   });
 
+  const displayInputToken = localButterPageState.isThreeX ? "USDC" : "3CRV";
+  const displayOutputToken = localButterPageState.isThreeX ? "3X" : "BTR";
+
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
@@ -165,7 +168,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               });
             }}
             infoTitle="About Unclaimed Balances"
-            infoText=" When a batch is minted but the Butter has not been claimed yet, it can be redeemed without having to claim it first. By checking “use unclaimed balances” you will be able to redeem unclaimed balances of Butter. This process applies also for unclaimed 3CRV, which can be converted to Butter without having to claim it."
+            infoText={`When a batch is minted but the ${displayOutputToken} has not been claimed yet, it can be redeemed without having to claim it first. By checking “use unclaimed balances” you will be able to redeem unclaimed balances of ${displayOutputToken}. This process applies also for unclaimed ${displayInputToken}, which can be converted to ${displayOutputToken} without having to claim it.`}
             label="Use only unclaimed balances"
           />
         )}

@@ -43,7 +43,11 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   }
   return (
     <div className="bg-white rounded-3xl px-5 pt-6 pb-6 border border-gray-200 shadow-custom">
-      <MintRedeemToggle redeeming={localButterPageState.redeeming} setRedeeming={setRedeeming} />
+      <MintRedeemToggle
+        redeeming={localButterPageState.redeeming}
+        setRedeeming={setRedeeming}
+        isThreeX={localButterPageState.isThreeX}
+      />
       <div>
         <ButterTokenInput
           token={token}
