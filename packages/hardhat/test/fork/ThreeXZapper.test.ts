@@ -8,30 +8,23 @@ import { BigNumber, Contract, utils } from "ethers";
 import { Signer } from "ethers/lib/ethers";
 import { ethers, network, waffle } from "hardhat";
 import { ADDRESS_ZERO, MAX_UINT_256 } from "../../lib/external/SetToken/utils/constants";
-import { expectBigNumberCloseTo } from "../../lib/utils/expectValue";
+import { expectBigNumberCloseTo, expectRevert } from "../../lib/utils/expectValue";
 import { impersonateSigner } from "../../lib/utils/test/impersonateSigner";
 import { sendEth } from "../../lib/utils/test/sendEth";
 import { ThreeXBatchVault } from "../../typechain/ThreeXBatchVault";
 import {
   ERC20,
   ThreeXBatchProcessing,
-  IibAMM,
-  IibAMM__factory,
-  ISynthetix,
-  ISynthetix__factory,
   MockERC20,
   Staking,
-  CurveMetapool,
-  CurveMetapool__factory,
-  RewardsEscrow,
-  MockYearnV2Vault,
   MockYearnV2Vault__factory,
   ThreeXZapper,
 } from "../../typechain";
 
 const provider = waffle.provider;
 
-const DAI_WHALE_ADDRESS = "0xCFFAd3200574698b78f32232aa9D63eABD290703";
+const DAI_WHALE_ADDRESS = "0x5d38b4e4783e34e2301a2a36c39a03c45798c4dd";
+const USDC_WHALE_ADDRESS = "0xcffad3200574698b78f32232aa9d63eabd290703";
 
 const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const USDC_ADDRESS = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
@@ -73,7 +66,7 @@ let contracts: Contracts;
 
 let owner: SignerWithAddress, depositor: SignerWithAddress;
 let daiWhale: Signer;
-let sUsdWhale: Signer;
+let usdcWhale: Signer;
 
 async function deployToken(): Promise<Token> {
   const MockERC20 = await ethers.getContractFactory("MockERC20");
@@ -93,16 +86,16 @@ async function deployToken(): Promise<Token> {
     [parseEther("50"), parseEther("50")],
     [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
     owner.address,
-    "3X",
-    "3X"
+    "4X",
+    "4X"
   );
   await setTokenCreator.create(
     [Y_D3_ADDRESS, Y_3EUR_ADDRESS],
     [parseEther("50"), parseEther("50")],
     [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
     owner.address,
-    "3X",
-    "3X"
+    "4X",
+    "4X"
   );
   const setToken = (await ethers.getContractAt(SetToken.abi, setTokenAddress)) as ERC20;
 
@@ -180,12 +173,6 @@ async function deployContracts(): Promise<Contracts> {
     )
   ).deployed();
 
-  const zapper = await (
-    await (
-      await ethers.getContractFactory("ThreeXZapper")
-    ).deploy(contractRegistry.address, THREE_POOL_ADDRESS, [DAI_ADDRESS, USDC_ADDRESS, USDT_ADDRESS])
-  ).deployed();
-
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
 
@@ -212,6 +199,12 @@ async function deployContracts(): Promise<Contracts> {
   await keeperIncentive
     .connect(owner)
     .addControllerContract(utils.formatBytes32String("ThreeXBatchProcessing"), threeXBatchProcessing.address);
+
+  const zapper = await (
+    await (
+      await ethers.getContractFactory("ThreeXZapper")
+    ).deploy(contractRegistry.address, THREE_POOL_ADDRESS, [DAI_ADDRESS, USDC_ADDRESS, USDT_ADDRESS])
+  ).deployed();
 
   await aclRegistry.grantRole(ethers.utils.id("ThreeXZapper"), zapper.address);
 
@@ -240,21 +233,29 @@ async function sendERC20(erc20: ERC20, whale: Signer, recipient: string, amount:
   await erc20.connect(whale).transfer(recipient, amount);
 }
 
+async function claimAndRedeem(mintId: string): Promise<string> {
+  await contracts.threeXBatchProcessing.connect(depositor).claim(mintId, depositor.address);
+  await contracts.token.setToken.connect(depositor).approve(contracts.threeXBatchProcessing.address, parseEther("10"));
+  await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
+  const redeemId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+  await timeTravel(1800);
+  await contracts.threeXBatchProcessing.batchRedeem();
+  return redeemId;
+}
+
 describe("ThreeXBatchProcessing - Fork", () => {
-  before(async () => {
+  beforeEach(async () => {
     await network.provider.request({
       method: "hardhat_reset",
       params: [
         {
           forking: {
             jsonRpcUrl: process.env.FORKING_RPC_URL,
-            blockNumber: 14753561,
+            blockNumber: 14898223,
           },
         },
       ],
     });
-  });
-  beforeEach(async () => {
     [owner, depositor] = await ethers.getSigners();
     contracts = await deployContracts();
     await contracts.threeXBatchProcessing.setSlippage(45, 80);
@@ -262,6 +263,10 @@ describe("ThreeXBatchProcessing - Fork", () => {
     daiWhale = await impersonateSigner(DAI_WHALE_ADDRESS);
     await sendEth(DAI_WHALE_ADDRESS, "10");
     await sendERC20(contracts.token.dai, daiWhale, depositor.address, parseEther("20000"));
+
+    usdcWhale = await impersonateSigner(USDC_WHALE_ADDRESS);
+    await sendEth(USDC_WHALE_ADDRESS, "10");
+    await sendERC20(contracts.token.usdc, usdcWhale, depositor.address, BigNumber.from("20000000000"));
 
     await contracts.token.dai.connect(depositor).approve(contracts.zapper.address, MAX_UINT_256);
     await contracts.token.usdc.connect(depositor).approve(contracts.threeXBatchProcessing.address, MAX_UINT_256);
@@ -274,20 +279,28 @@ describe("ThreeXBatchProcessing - Fork", () => {
     it("zaps into batch successfully", async function () {
       expect(await contracts.zapper.connect(depositor).zapIntoBatch(parseEther("1000"), 0, 1, 0))
         .to.emit(contracts.zapper, "ZappedIntoBatch")
-        .withArgs(parseEther("998.212262053729723696"), depositor.address);
+        .withArgs(BigNumber.from("999894685"), depositor.address);
 
       const batch = await contracts.threeXBatchProcessing.getBatch(batchId);
-      expect(batch.sourceTokenBalance).to.equal(parseEther("998.212262053729723696"));
+      expect(batch.sourceTokenBalance).to.equal(BigNumber.from("999894685"));
+    });
+    it("reverts when slippage is too high", async () => {
+      await expectRevert(
+        contracts.zapper.connect(depositor).zapIntoBatch(parseEther("10000"), 0, 1, parseEther("100000")),
+        "slippage too high"
+      );
     });
   });
   context("zapOutOfBatch", function () {
     let batchId;
     beforeEach(async function () {
-      await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+      await contracts.threeXBatchProcessing
+        .connect(depositor)
+        .depositForMint(BigNumber.from("100000000"), depositor.address);
       batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
     });
     it("zaps out of batch successfully", async function () {
-      expect(await contracts.zapper.connect(depositor).zapOutOfBatch(batchId, parseEther("10"), 1, 0, 0))
+      expect(await contracts.zapper.connect(depositor).zapOutOfBatch(batchId, BigNumber.from("100000000"), 1, 0, 0))
         .to.emit(contracts.zapper, "ZappedOutOfBatch")
         .withArgs(
           batchId,
@@ -304,8 +317,23 @@ describe("ThreeXBatchProcessing - Fork", () => {
       );
 
       const batch = await contracts.threeXBatchProcessing.getBatch(batchId);
-      expect(batch.unclaimedShares).to.equal(parseEther("9990"));
+      expect(batch.unclaimedShares).to.equal(0);
       expect(batch.targetTokenBalance).to.equal(0);
+    });
+    it("reverts when slippage is too high", async () => {
+      await expectRevert(
+        contracts.zapper
+          .connect(depositor)
+          .zapOutOfBatch(batchId, BigNumber.from("10000000"), 1, 0, parseEther("10000")),
+        "slippage too high"
+      );
+    });
+    it("reverts when batch is of type redeem", async function () {
+      const redeemId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
+      await expectRevert(
+        contracts.zapper.connect(depositor).zapOutOfBatch(redeemId, parseEther("10"), 1, 0, 0),
+        "!mint"
+      );
     });
   });
   describe("claimAndSwap", () => {
@@ -314,7 +342,9 @@ describe("ThreeXBatchProcessing - Fork", () => {
       await contracts.token.dai
         .connect(depositor)
         .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
-      await contracts.threeXBatchProcessing.connect(depositor).depositForMint(parseEther("10000"), depositor.address);
+      await contracts.threeXBatchProcessing
+        .connect(depositor)
+        .depositForMint(BigNumber.from("10000000000"), depositor.address);
       const mintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
 
       await timeTravel(1800);
@@ -338,6 +368,20 @@ describe("ThreeXBatchProcessing - Fork", () => {
         await contracts.token.dai.balanceOf(depositor.address),
         parseEther("10837.099834769427980844"),
         parseEther("0.00015")
+      );
+    });
+    it("reverts when batch is of type mint", async function () {
+      await contracts.threeXBatchProcessing
+        .connect(depositor)
+        .depositForMint(BigNumber.from("100000000"), depositor.address);
+      batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+      await expectRevert(contracts.zapper.connect(depositor).claimAndSwapToStable(batchId, 1, 0, 0), "!redeem");
+    });
+    it("reverts when slippage is too high", async () => {
+      const redeemId = await claimAndRedeem(batchId);
+      await expectRevert(
+        contracts.zapper.connect(depositor).claimAndSwapToStable(redeemId, 1, 0, parseEther("10000")),
+        "slippage too high"
       );
     });
   });

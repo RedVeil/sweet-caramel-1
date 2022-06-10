@@ -61,7 +61,7 @@ contract ThreeXZapper {
    * @param _amount Input Amount
    * @param _i Index of inputToken
    * @param _j Index of outputToken
-   * @param _min_amount The min amount of USDC which should be returned by the ThreePool (slippage control)
+   * @param _min_amount The min amount of USDC which should be returned by the ThreePool (slippage control) should be taking the decimals of the outputToken into account
    * @dev The amounts in _amounts must align with their index in the ThreePool
    */
   function zapIntoBatch(
@@ -91,7 +91,7 @@ contract ThreeXZapper {
    * @param _amountToWithdraw USDC amount that shall be withdrawn
    * @param _i Index of inputToken
    * @param _j Index of outputToken
-   * @param _min_amount The min amount of USDC which should be returned by the ThreePool (slippage control)
+   * @param _min_amount The min amount of USDC which should be returned by the ThreePool (slippage control) should be taking the decimals of the outputToken into account
    */
   function zapOutOfBatch(
     bytes32 _batchId,
@@ -129,7 +129,7 @@ contract ThreeXZapper {
    * @param _batchId Defines which batch gets withdrawn from
    * @param _i Index of inputToken
    * @param _j Index of outputToken
-   * @param _min_amount The min amount of USDC which should be returned by the ThreePool (slippage control)
+   * @param _min_amount The min amount of USDC which should be returned by the ThreePool (slippage control) should be taking the decimals of the outputToken into account
    */
   function claimAndSwapToStable(
     bytes32 _batchId,
