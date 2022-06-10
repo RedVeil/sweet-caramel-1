@@ -12,14 +12,13 @@ export async function getTokenPrice(
   basicIssuanceModule: BasicIssuanceModule,
   butterBatch: ButterBatchProcessing,
   butterAddress: Address,
-) {
+): Promise<BigNumber> {
   const requiredComponentsForIssue = await basicIssuanceModule.getRequiredComponentUnitsForIssue(
     butterAddress,
     parseEther("1"),
   );
   // Butter Token price
-  const butterPrice = await butterBatch.valueOfComponents(...requiredComponentsForIssue);
-  return butterPrice as BigNumber;
+  return butterBatch.valueOfComponents(...requiredComponentsForIssue);
 }
 
 export default function useGetButterTokenPriceInUSD() {

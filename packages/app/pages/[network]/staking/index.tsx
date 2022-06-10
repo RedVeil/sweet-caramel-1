@@ -42,9 +42,9 @@ export default function index(): JSX.Element {
       const popUsdcStaking = stakingPools?.find(
         (pools) => pools.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
       );
-      const isStaking =
+      const userHasPopUsdcLpStakes =
         popUsdcStaking?.userStake?.gt(constants.Zero) || popUsdcStaking?.withdrawable?.gt(constants.Zero);
-      if (isStaking && !modalClosed) {
+      if (userHasPopUsdcLpStakes && !modalClosed) {
         toggleModal(
           ModalType.MultiChoice,
           {

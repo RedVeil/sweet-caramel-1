@@ -16,12 +16,14 @@ export const getPopUsdcLpTokenPrice = async (
     chaindId === ChainId.Ethereum
       ? await getGUniAssets(provider, contractAddresses)
       : await getPool2Assets(provider, contractAddresses);
+  console.log("popAmount", popAmount);
   try {
     const totalSupply = await popUsdcLp.totalSupply();
     const popPrice = usdcAmount.mul(parseEther("1")).div(popAmount);
     const totalUnderlyingValue = usdcAmount.add(popAmount.mul(popPrice).div(parseEther("1")));
-    const price = totalUnderlyingValue.mul(parseEther("1")).div(totalSupply);
-    return price;
+    console.log("totalSupply", totalSupply);
+
+    return totalUnderlyingValue.mul(parseEther("1")).div(totalSupply);
   } catch (ex) {
     console.log("error while querying LP-Token price. ex - ", ex.toString());
   }

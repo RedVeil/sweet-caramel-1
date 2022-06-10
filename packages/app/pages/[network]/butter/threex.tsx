@@ -96,24 +96,24 @@ export default function ThreeX(): JSX.Element {
     if (!threeXData || !threeXData?.tokens) {
       return;
     }
-    if (threeXPageState.initalLoad) {
-      setThreeXPageState({
-        ...threeXPageState,
-        selectedToken: {
-          input: threeXData?.tokens?.usdc?.key,
-          output: threeXData?.tokens?.threeX?.key,
-        },
-        tokens: threeXData?.tokens,
-        redeeming: false,
-        initalLoad: false,
-        isThreeX: true,
-      });
-    } else {
-      setThreeXPageState((state) => ({
-        ...state,
-        tokens: threeXData?.tokens,
-      }));
-    }
+    setThreeXPageState((state) =>
+      state.initalLoad
+        ? {
+            ...state,
+            selectedToken: {
+              input: threeXData?.tokens?.usdc?.key,
+              output: threeXData?.tokens?.threeX?.key,
+            },
+            tokens: threeXData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+          }
+        : {
+            ...state,
+            tokens: threeXData?.tokens,
+          },
+    );
   }, [threeXData]);
 
   useEffect(() => {

@@ -18,11 +18,9 @@ interface StakeCardProps {
 
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge }) => {
   const tokenPrice = useTokenPrice(stakedToken?.address);
+  console.log(stakingPool.address === "0x547382C0D1b23f707918D3c83A77317B71Aa8470" ? [stakingPool, tokenPrice] : null);
   return (
-    <div
-      className="card p-6 md:p-8"
-      onClick={async () => await onSelectPool(stakingPool?.address, stakedToken?.address)}
-    >
+    <div className="card p-6 md:p-8" onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}>
       {badge && (
         <div className="absolute -top-4 w-full">
           <Badge badge={badge} />
@@ -36,7 +34,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         <div className="w-24 hidden smmd:block flex-shrink-0 ">
           <MainActionButton
             label="Stake"
-            handleClick={async () => await onSelectPool(stakingPool?.address, stakedToken?.address)}
+            handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
           />
         </div>
       </div>
@@ -57,7 +55,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel
-            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "0"}
+            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "0$"}
             label="TVL"
           />
         </div>
@@ -71,7 +69,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
       <div className="w-full mt-10 smmd:hidden">
         <MainActionButton
           label="Stake"
-          handleClick={async () => await onSelectPool(stakingPool?.address, stakedToken?.address)}
+          handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
         />
       </div>
     </div>
