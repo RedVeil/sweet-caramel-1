@@ -63,6 +63,7 @@ export interface ButterPageState {
   initalLoad: boolean;
   tokens: Tokens;
   instant: boolean;
+  isThreeX: boolean;
 }
 
 export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
@@ -75,6 +76,7 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
   initalLoad: true,
   tokens: null,
   instant: false,
+  isThreeX: false,
 };
 
 export default function Butter(): JSX.Element {

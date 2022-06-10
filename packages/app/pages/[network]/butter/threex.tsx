@@ -52,7 +52,6 @@ export default function ThreeX(): JSX.Element {
     connect,
     setChain,
     pushWithinChain,
-    signer,
   } = useWeb3();
   const { dispatch } = useContext(store);
   const threeX = useSetToken(contractAddresses.threeX);
@@ -107,6 +106,7 @@ export default function ThreeX(): JSX.Element {
         tokens: threeXData?.tokens,
         redeeming: false,
         initalLoad: false,
+        isThreeX: true,
       });
     } else {
       setThreeXPageState((state) => ({

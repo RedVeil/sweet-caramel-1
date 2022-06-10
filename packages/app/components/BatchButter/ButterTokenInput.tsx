@@ -75,6 +75,11 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
     setEstimatedAmount(String(formatBigNumber(value.mul(selectedToken.input.price).div(selectedToken.output.price))));
   }
 
+  const useUnclaimedDepositsisDisabled = (): boolean => {
+    const keys = localButterPageState.isThreeX ? ["usdc", "threeX"] : ["threeCrv", "butter"];
+    return !keys.includes(localButterPageState.selectedToken.input);
+  };
+
   return (
     <>
       <div className="mt-10">
@@ -149,7 +154,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
         {hasUnclaimedBalances && !localButterPageState.instant && (
           <CheckMarkToggleWithInfo
-            disabled={!["threeCrv", "butter"].includes(localButterPageState.selectedToken.input)}
+            disabled={useUnclaimedDepositsisDisabled()}
             value={Boolean(localButterPageState.useUnclaimedDeposits)}
             onChange={(e) => {
               setEstimatedAmount("0");

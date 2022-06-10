@@ -125,7 +125,7 @@ export async function getData(
   );
 
   tokenResponse.threeX.claimableBalance = getClaimableBalance(claimableMintBatches);
-  tokenResponse.usdc.claimableBalance = getClaimableBalance(claimableRedeemBatches);
+  tokenResponse.usdc.claimableBalance = getClaimableBalance(claimableRedeemBatches).mul(BigNumber.from(1e12));
 
   const response: BatchMetadata = {
     accountBatches,
