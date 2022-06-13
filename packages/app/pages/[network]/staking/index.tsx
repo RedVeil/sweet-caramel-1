@@ -15,18 +15,18 @@ import React, { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { NotAvailable } from "../../../components/Rewards/NotAvailable";
 
-const TEMP_MIGRATION_LINKS: AlertCardLink[] = [
+const MIGRATION_LINKS: AlertCardLink[] = [
   {
     text: "Read More",
     url: "https://forum.popcorn.network/t/pip-2-liquidity-optimizations-and-use-of-treasury-funds/586",
     openInNewTab: true,
   },
-  { text: "How to migrate", url: "/", openInNewTab: true },
+  { text: "How to migrate", url: "https://medium.com/@MichaelDKisselgof/d3cd5dd4c013", openInNewTab: true },
 ];
 
 export default function index(): JSX.Element {
   const {
-    contractAddresses: { popStaking, staking, pop },
+    contractAddresses: { popStaking, staking, pop, popUsdcArrakisVaultStaking },
     chainId,
     pushWithinChain,
     account,
@@ -36,6 +36,10 @@ export default function index(): JSX.Element {
   const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
   const [modalClosed, closeModal] = useState<boolean>(false);
   const { features } = useContext(FeatureToggleContext);
+
+  const displayedStakingPools = features["migrationAlert"]
+    ? stakingPools
+    : stakingPools?.filter((pool) => pool.address !== popUsdcArrakisVaultStaking);
 
   useEffect(() => {
     if (account && chainId === ChainId.Polygon && stakingPools) {
@@ -48,14 +52,15 @@ export default function index(): JSX.Element {
         toggleModal(
           ModalType.MultiChoice,
           {
-            title: "Migrate your liquidity from Sushiswap to Gelato",
+            title: "Migrate your liquidity from Sushiswap to Arrakis",
             content:
-              "Please withdraw your LP tokens and deposit them into Gelato for the new liquidity mining rewards. In PIP-2 the community decided to consolidate all liquidity in Uniswap via Gelato. The purpose of this measure is to improve both liquidity a slippage. ",
-            image: <img src="/images/butter/batch-popover.png" className="px-6" />,
+              "Please withdraw your LP tokens and deposit them into Arrakis for the new liquidity mining rewards. In PIP-2 the community decided to consolidate all liquidity in Uniswap via Arrakis. The purpose of this measure is to improve both liquidity a slippage. ",
+            image: <img src="/images/stake/lpStaking.png" className="px-6" />,
             onConfirm: {
               label: "Close",
               onClick: () => {
-                dispatch(setMultiChoiceActionModal(false)), closeModal(true);
+                dispatch(setMultiChoiceActionModal(false));
+                closeModal(true);
               },
             },
             onDismiss: {
@@ -117,10 +122,10 @@ export default function index(): JSX.Element {
               <>
                 {features["migrationAlert"] && chainId === ChainId.Polygon && (
                   <AlertCard
-                    title="Migrate your liquidity for USDC/POP from Sushiswap to Gelato"
-                    text="In PIP-2 the community decided to consolidate all liquidity in Uniswap via Gelato."
+                    title="Migrate your liquidity for USDC/POP from Sushiswap to Arrakis"
+                    text="In PIP-2 the community decided to consolidate all liquidity in Uniswap via Arrakis."
                     icon={<BellIcon className="text-red-400 w-7 h-8" aria-hidden="true" />}
-                    links={TEMP_MIGRATION_LINKS}
+                    links={MIGRATION_LINKS}
                   />
                 )}
                 <StakeCard
@@ -129,7 +134,7 @@ export default function index(): JSX.Element {
                   stakedToken={popLocker.stakingToken}
                   onSelectPool={onSelectPool}
                 />
-                {stakingPools?.map((stakingPool) => (
+                {displayedStakingPools?.map((stakingPool) => (
                   <div key={stakingPool.address}>
                     <StakeCard
                       stakingPool={stakingPool}

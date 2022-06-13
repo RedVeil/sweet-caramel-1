@@ -308,6 +308,12 @@ export default function getNamedAccounts() {
       arbitrum: "",
       mumbai: "",
     },
+    popUsdcArrakisVault: {
+      polygon: "0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4",
+    },
+    popUsdcArrakisVaultStaking: {
+      polygon: "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc",
+    },
     dao: {
       // aragon organization address on mainnet
       mainnet: "0xbD94fc22E6910d118187c8300667c66eD560A29B",

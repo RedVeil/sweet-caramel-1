@@ -91,16 +91,22 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
     case 137:
       return [
         {
-          poolName: "PopLocker",
-          contract: "PopLocker",
-          inputToken: pop,
-        },
-        {
-          poolName: "popUsdcLPStaking",
+          poolName: "popUsdcArrakisVaultStaking",
           contract: "Staking",
-          inputToken: popUsdcLp,
+          inputToken: addresses.popUsdcArrakisVault,
           rewardsToken: pop,
         },
+        // {
+        //   poolName: "PopLocker",
+        //   contract: "PopLocker",
+        //   inputToken: pop,
+        // },
+        // {
+        //   poolName: "popUsdcLPStaking",
+        //   contract: "Staking",
+        //   inputToken: popUsdcLp,
+        //   rewardsToken: pop,
+        // },
       ];
     default:
       return [

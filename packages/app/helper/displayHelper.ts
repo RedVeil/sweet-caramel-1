@@ -1,6 +1,7 @@
 const tokenNameMapping = {
-  'Popcorn (PoS)': 'Popcorn',
-  'Gelato Uniswap USDC/POP LP': 'G-UNI USDC/POP LP',
+  "Popcorn (PoS)": "Popcorn",
+  "Gelato Uniswap USDC/POP LP": "Arrakis USDC/POP LP",
+  "Arrakis Vault V1 USDC/POP": "Arrakis USDC/POP LP",
 };
 
 export const getSanitizedTokenDisplayName = (tokenName: string) => {

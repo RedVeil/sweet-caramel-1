@@ -18,6 +18,8 @@ export interface ContractAddresses {
   threePool?: Address;
   popUsdcLp?: Address;
   popUsdcUniV3Pool?: Address;
+  popUsdcArrakisVault?: Address;
+  popUsdcArrakisVaultStaking?: Address;
   butter?: Address;
   butterBatch?: Address;
   butterBatchZapper?: Address;

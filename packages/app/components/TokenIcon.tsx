@@ -5,7 +5,7 @@ interface TokenIconProps {
 
 export default function TokenIcon({ token, fullsize = false }: TokenIconProps): JSX.Element {
   switch (token) {
-    case "G-UNI USDC/POP LP":
+    case "Arrakis USDC/POP LP":
     case "SushiSwap LP Token":
       return (
         <div className="flex flex-row flex-shrink-0 flex-grow-0">
