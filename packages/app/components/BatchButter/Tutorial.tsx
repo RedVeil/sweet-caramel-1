@@ -31,7 +31,7 @@ function text(step: number, isThreeX: boolean): string {
 
 function tutorialContent(step: number, isThreeX: boolean): JSX.Element {
   const imageLinks: { butter: string; threeX: string }[] = [
-    { butter: `/images/butter/Step-1.png`, threeX: `/images/butter/Step-1.png` },
+    { butter: `/images/butter/Step-1.png`, threeX: `/images/butter/Step-1-3X.png` },
     { butter: `/images/butter/Step-2.png`, threeX: `/images/butter/Step-2.png` },
     { butter: `/images/butter/Step-3.png`, threeX: `/images/butter/Step-3-3X.png` },
   ];
@@ -39,7 +39,7 @@ function tutorialContent(step: number, isThreeX: boolean): JSX.Element {
     <div className="w-full md:h-56 flex flex-row items-center justify-center">
       <img
         src={isThreeX ? imageLinks[step - 1].threeX : imageLinks[step - 1].butter}
-        className={`w-full md:w-10/12 smlaptop:w-9/12 xl:w-7/12 2xl:w-9/12 ${step === 1 ? "scale-75" : ""}`}
+        className={`w-full md:w-10/12 smlaptop:w-9/12`}
       />
     </div>
   );
@@ -93,7 +93,7 @@ function Tutorial({ isThreeX = false }: { isThreeX?: boolean }) {
           </button>
         </div>
       </div>
-      <div className="flex flex-row md:hidden items-center justify-center space-x-4 mt-4">
+      <div className="flex flex-row md:hidden items-center justify-center space-x-4 my-4">
         <MobileTutorialStepButton stepState={[step, setStep]} activeState={1} />
         <MobileTutorialStepButton stepState={[step, setStep]} activeState={2} />
         <MobileTutorialStepButton stepState={[step, setStep]} activeState={3} />
