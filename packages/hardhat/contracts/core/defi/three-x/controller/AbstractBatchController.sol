@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "./../../../interfaces/IBatchStorage.sol";
 import "../../../utils/ACLAuth.sol";
 import "../../../interfaces/IStaking.sol";
-import "./AbstractRedeemFee.sol";
+import "./AbstractFee.sol";
 import "./AbstractSweethearts.sol";
 import "../storage/AbstractViewableBatchStorage.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
@@ -17,11 +17,11 @@ abstract contract AbstractBatchController is
   ACLAuth,
   Pausable,
   ReentrancyGuard,
-  AbstractRedeemFee,
-  AbstractSweethearts,
+  AbstractFee,
   AbstractViewableBatchStorage
 {
   using SafeERC20 for IERC20;
+
   struct ProcessingThreshold {
     uint256 batchCooldown;
     uint256 mintThreshold;
@@ -253,6 +253,9 @@ abstract contract AbstractBatchController is
       _claimFor,
       address(this)
     );
+
+    require(batchType == BatchType.Mint, "wrong batch type");
+
     emit Claimed(recipient, batchType, accountBalance, tokenAmountClaimed);
 
     staking.stakeFor(tokenAmountClaimed, _claimFor);
@@ -269,18 +272,6 @@ abstract contract AbstractBatchController is
       _claimFor,
       address(this)
     );
-
-    if (batchType == BatchType.Redeem) {
-      //We only want to apply a fee on redemption of 3X
-      //Sweethearts are partner addresses that we want to exclude from this fee
-      if (!sweethearts[_claimFor]) {
-        //Fee is deducted from batch.targetToken -- This allows it to work with the Zapper
-        //Fes are denominated in BasisPoints
-        uint256 fee = (tokenAmountToClaim * redemptionFee.rate) / 10_000;
-        redemptionFee.accumulated += fee;
-        tokenAmountToClaim -= fee;
-      }
-    }
 
     emit Claimed(recipient, batchType, accountBalance, tokenAmountToClaim);
 

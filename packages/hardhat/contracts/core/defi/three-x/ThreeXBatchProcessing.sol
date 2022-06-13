@@ -21,8 +21,6 @@ import "./ThreeXBatchVault.sol";
 import "./controller/AbstractBatchController.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @notice Defines if the Batch will mint or redeem 3X
  */
@@ -104,8 +102,11 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     _createBatch(BatchType.Mint);
     _createBatch(BatchType.Redeem);
 
-    slippage.mintBps = 40;
-    slippage.redeemBps = 40;
+    slippage.mintBps = 50;
+    slippage.redeemBps = 50;
+
+    _setFee("mint", 50, address(0), mintBatchTokens.targetToken);
+    _setFee("redeem", 50, address(0), redeemBatchTokens.targetToken);
 
     _setApprovals();
   }
@@ -122,7 +123,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
 
   function getMinAmountFromRedeem(uint256 _valueOfComponents, uint256 _slippage) public pure returns (uint256) {
     uint256 delta = (_valueOfComponents * _slippage) / 10_000;
-    return _valueOfComponents - delta;
+    return (_valueOfComponents - delta) / 1e12;
   }
 
   function valueOfComponents(address[] memory _tokenAddresses, uint256[] memory _quantities)
@@ -268,16 +269,25 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
       );
     }
 
-    require(
-      setTokenAmount >=
-        getMinAmountToMint(sourceTokenBalance * 1e12, valueOfComponents(tokenAddresses, quantities), slippage.mintBps),
-      "slippage too high"
+    uint256 minMintAmount = getMinAmountToMint(
+      sourceTokenBalance * 1e12,
+      valueOfComponents(tokenAddresses, quantities),
+      slippage.mintBps
+    );
+
+    require(setTokenAmount >= minMintAmount, "slippage too high");
+
+    uint256 setTokenAmountLessFees = _takeFee(
+      "mint",
+      setTokenAmount - minMintAmount,
+      setTokenAmount,
+      mintBatchTokens.targetToken
     );
 
     //Mint 3X
     basicIssuanceModule.issue(ISetToken(address(mintBatchTokens.targetToken)), setTokenAmount, address(this));
 
-    batchStorage.depositTargetTokensIntoBatch(currentMintBatchId, setTokenAmount);
+    batchStorage.depositTargetTokensIntoBatch(currentMintBatchId, setTokenAmountLessFees);
 
     //Update lastMintedAt for cooldown calculations
     lastMintedAt = block.timestamp;
@@ -344,17 +354,22 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
       );
     }
 
-    uint256 claimableTokenBalance = batch.targetToken.balanceOf(address(this));
+    uint256 claimableTokenBalance = batch.targetToken.balanceOf(address(this)) - fees["redeem"].accumulated;
 
-    require(
-      (claimableTokenBalance * 1e12) >=
-        getMinAmountFromRedeem(valueOfComponents(tokenAddresses, quantities), slippage.redeemBps),
-      "slippage too high"
+    uint256 minRedeemAmount = getMinAmountFromRedeem(valueOfComponents(tokenAddresses, quantities), slippage.redeemBps);
+
+    require(claimableTokenBalance >= minRedeemAmount, "slippage too high");
+
+    uint256 claimableTokenBalanceLessFees = _takeFee(
+      "redeem",
+      claimableTokenBalance - minRedeemAmount,
+      claimableTokenBalance,
+      batch.targetToken
     );
 
     emit BatchRedeemed(currentRedeemBatchId, batch.sourceTokenBalance, claimableTokenBalance);
 
-    batchStorage.depositTargetTokensIntoBatch(currentRedeemBatchId, claimableTokenBalance);
+    batchStorage.depositTargetTokensIntoBatch(currentRedeemBatchId, claimableTokenBalanceLessFees);
 
     //Update lastRedeemedAt for cooldown calculations
     lastRedeemedAt = block.timestamp;

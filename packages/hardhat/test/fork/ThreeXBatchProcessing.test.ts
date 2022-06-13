@@ -25,9 +25,9 @@ import {
 } from "../../typechain";
 import ThreeXBatchAdapter from "../../lib/adapters/ThreeXBatchAdapter";
 import { BatchType } from "../../../utils/src/types";
+import { parseUnits } from "ethers/lib/utils";
 
 const provider = waffle.provider;
-const DAY = 60 * 60 * 24;
 
 const SET_TOKEN_CREATOR_ADDRESS = "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a";
 const SET_BASIC_ISSUANCE_MODULE_ADDRESS = "0xd8EF3cACe8b4907117a45B0b125c68560532F94D";
@@ -643,7 +643,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
 
           //Actual Test
           await expect(contracts.threeXBatchProcessing.connect(depositor).claimAndStake(batchId)).to.be.revertedWith(
-            "ERC20: transfer amount exceeds balance"
+            "wrong batch type"
           );
         });
       });
@@ -1157,12 +1157,12 @@ describe("ThreeXBatchProcessing - Fork", () => {
     it("still allows to claim minted butter", async function () {
       await expect(contracts.threeXBatchProcessing.connect(depositor).claim(claimableMintId, depositor.address))
         .to.emit(contracts.threeXBatchProcessing, "Claimed")
-        .withArgs(depositor.address, BatchType.Mint, BigNumber.from("10000000"), BigNumber.from("92739561430939790"));
+        .withArgs(depositor.address, BatchType.Mint, BigNumber.from("10000000"), BigNumber.from("92669422142274966"));
     });
     it("still allows to claim redemeed usdc", async function () {
       await expect(contracts.threeXBatchProcessing.connect(depositor).claim(claimableRedeemId, depositor.address))
         .to.emit(contracts.threeXBatchProcessing, "Claimed")
-        .withArgs(depositor.address, BatchType.Redeem, parseEther("1"), BigNumber.from("108930689"));
+        .withArgs(depositor.address, BatchType.Redeem, parseEther("1"), BigNumber.from("108386036"));
     });
     it("allows deposits for minting after unpausing", async function () {
       await contracts.threeXBatchProcessing.unpause();
@@ -1235,52 +1235,193 @@ describe("ThreeXBatchProcessing - Fork", () => {
   describe("redemption fee", () => {
     context("sets RedemptionFee", () => {
       it("sets a redemptionRate when called with DAO role", async () => {
-        await expect(await contracts.threeXBatchProcessing.setRedemptionFee(100, owner.address))
-          .to.emit(contracts.threeXBatchProcessing, "RedemptionFeeUpdated")
-          .withArgs(100, owner.address);
+        await expect(
+          await contracts.threeXBatchProcessing.setFee(
+            utils.formatBytes32String("redeem"),
+            100,
+            owner.address,
+            contracts.token.usdc.address
+          )
+        )
+          .to.emit(contracts.threeXBatchProcessing, "FeeUpdated")
+          .withArgs(utils.formatBytes32String("redeem"), 100, owner.address, contracts.token.usdc.address);
 
-        const redemptionFee = await contracts.threeXBatchProcessing.redemptionFee();
+        const redemptionFee = await contracts.threeXBatchProcessing.fees(utils.formatBytes32String("redeem"));
         expect(redemptionFee[0]).to.equal(BigNumber.from("0"));
         expect(redemptionFee[1]).to.equal(BigNumber.from("100"));
         expect(redemptionFee[2]).to.equal(owner.address);
       });
       it("reverts when setting redemptionRate without DAO role", async () => {
         await expectRevert(
-          contracts.threeXBatchProcessing.connect(depositor).setRedemptionFee(100, owner.address),
+          contracts.threeXBatchProcessing
+            .connect(depositor)
+            .setFee(utils.formatBytes32String("redeem"), 100, owner.address, contracts.token.usdc.address),
           "you dont have the right role"
         );
       });
       it("reverts when setting a feeRate higher than 1%", async () => {
-        await expectRevert(contracts.threeXBatchProcessing.setRedemptionFee(1000, owner.address), "dont be greedy");
+        await expectRevert(
+          contracts.threeXBatchProcessing.setFee(
+            utils.formatBytes32String("redeem"),
+            1000,
+            owner.address,
+            contracts.token.usdc.address
+          ),
+          "dont be greedy"
+        );
       });
     });
     context("with redemption fee", () => {
       let batchId;
-      const depositAmount = parseEther("1");
-      const feeRate = 100;
       beforeEach(async () => {
         await mintAndClaim();
         await redeemDeposit();
-        await contracts.threeXBatchProcessing.setRedemptionFee(feeRate, owner.address);
+        await contracts.threeXBatchProcessing.setSlippage(50, 50);
         await timeTravel(1800);
         batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
-        await contracts.threeXBatchProcessing.connect(owner).batchRedeem();
       });
-      it("takes the fee", async () => {
-        const accountBalance = await contracts.threeXBatchProcessing.getAccountBalance(batchId, depositor.address);
-        const batch = await contracts.threeXBatchProcessing.getBatch(batchId);
-        const claimAmountWithoutFee = batch.targetTokenBalance.mul(accountBalance).div(batch.unclaimedShares);
-        const fee = claimAmountWithoutFee.mul(feeRate).div(10000);
-        const oldBal = await contracts.token.usdc.balanceOf(depositor.address);
+      it("fee is equivalent to difference between slippage amount and received amount up to 50bps", async () => {
+        const feeRate = 50;
+        const { threeXBatchProcessing } = contracts;
+        const batchBefore = await threeXBatchProcessing.getBatch(batchId);
 
-        await expect(await contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address))
-          .to.emit(contracts.threeXBatchProcessing, "Claimed")
-          .withArgs(depositor.address, BatchType.Redeem, depositAmount, claimAmountWithoutFee.sub(fee));
+        await expect(contracts.threeXBatchProcessing.connect(owner).batchRedeem())
+          .to.emit(contracts.threeXBatchProcessing, "BatchRedeemed")
+          .withArgs(batchId, batchBefore.sourceTokenBalance, parseUnits("108.930656", 6));
 
-        const newBal = await contracts.token.usdc.balanceOf(depositor.address);
-        expect(newBal).to.equal(oldBal.add(claimAmountWithoutFee.sub(fee)));
+        const batchAfterRedeem = await threeXBatchProcessing.getBatch(batchId);
+        const redeemedAmountAfterFees = batchAfterRedeem.targetTokenBalance;
+        const accumulatedFees = (await contracts.threeXBatchProcessing.fees(utils.formatBytes32String("redeem")))
+          .accumulated;
+        const totalRedeemAmount = accumulatedFees.add(redeemedAmountAfterFees);
 
-        expect((await contracts.threeXBatchProcessing.redemptionFee()).accumulated).to.equal(fee);
+        expect(accumulatedFees).to.equal(parseUnits("0.544653", 6));
+        expect(true).to.equal(accumulatedFees.lte(totalRedeemAmount.mul(feeRate).div(10000)));
+      });
+
+      it("can collect a 60 bps fee", async () => {
+        const feeRate = 60;
+        const { threeXBatchProcessing, token } = contracts;
+        await threeXBatchProcessing.setFee(
+          utils.formatBytes32String("redeem"),
+          feeRate,
+          owner.address,
+          token.usdc.address
+        );
+        const batchBefore = await threeXBatchProcessing.getBatch(batchId);
+        const redeemedAmount = parseUnits("108.930656", 6);
+        await expect(contracts.threeXBatchProcessing.connect(owner).batchRedeem())
+          .to.emit(contracts.threeXBatchProcessing, "BatchRedeemed")
+          .withArgs(batchId, batchBefore.sourceTokenBalance, redeemedAmount);
+
+        const batchAfterRedeem = await threeXBatchProcessing.getBatch(batchId);
+
+        const accumulatedFees = (await contracts.threeXBatchProcessing.fees(utils.formatBytes32String("redeem")))
+          .accumulated;
+
+        expect(redeemedAmount.sub(batchAfterRedeem.targetTokenBalance)).to.equal(
+          redeemedAmount.mul(feeRate).div(10000)
+        );
+
+        expect(accumulatedFees).to.equal(parseUnits("0.653583", 6));
+      });
+    });
+  });
+  describe("mint fee", () => {
+    context("sets MintFee", () => {
+      it("sets a MintFee when called with DAO role", async () => {
+        await expect(
+          await contracts.threeXBatchProcessing.setFee(
+            utils.formatBytes32String("mint"),
+            100,
+            owner.address,
+            contracts.token.setToken.address
+          )
+        )
+          .to.emit(contracts.threeXBatchProcessing, "FeeUpdated")
+          .withArgs(utils.formatBytes32String("mint"), 100, owner.address, contracts.token.setToken.address);
+
+        const redemptionFee = await contracts.threeXBatchProcessing.fees(utils.formatBytes32String("mint"));
+        expect(redemptionFee[0]).to.equal(BigNumber.from("0"));
+        expect(redemptionFee[1]).to.equal(BigNumber.from("100"));
+        expect(redemptionFee[2]).to.equal(owner.address);
+      });
+      it("reverts when setting redemptionRate without DAO role", async () => {
+        await expectRevert(
+          contracts.threeXBatchProcessing
+            .connect(depositor)
+            .setFee(utils.formatBytes32String("mint"), 100, owner.address, contracts.token.usdc.address),
+          "you dont have the right role"
+        );
+      });
+      it("reverts when setting a feeRate higher than 1%", async () => {
+        await expectRevert(
+          contracts.threeXBatchProcessing.setFee(
+            utils.formatBytes32String("mint"),
+            1000,
+            owner.address,
+            contracts.token.usdc.address
+          ),
+          "dont be greedy"
+        );
+      });
+    });
+    context("with mint fee", () => {
+      let batchId;
+      beforeEach(async () => {
+        await contracts.threeXBatchProcessing.setSlippage(50, 50);
+        await contracts.threeXBatchProcessing.setFee(
+          utils.formatBytes32String("mint"),
+          50,
+          owner.address,
+          contracts.token.setToken.address
+        );
+        await mintDeposit(10000000000);
+        await timeTravel(1800);
+        batchId = await contracts.threeXBatchProcessing.currentMintBatchId();
+      });
+      it("fee is equivalent to difference between slippage amount and received amount up to 50bps", async () => {
+        const feeRate = 50;
+        const { threeXBatchProcessing } = contracts;
+        const batchBeforeMint = await threeXBatchProcessing.getBatch(batchId);
+
+        const minAmount = await threeXBatchProcessing.getMinAmountToMint(
+          batchBeforeMint.sourceTokenBalance.mul(1e12),
+          parseEther("107.424864383170648500"),
+          50
+        );
+
+        await expect(contracts.threeXBatchProcessing.connect(owner).batchMint())
+          .to.emit(contracts.threeXBatchProcessing, "BatchMinted")
+          .withArgs(batchId, batchBeforeMint.sourceTokenBalance, parseEther("92.733619263738558228"));
+
+        const batchAfterMint = await threeXBatchProcessing.getBatch(batchId);
+        const mintedTokens = batchAfterMint.targetTokenBalance;
+        const accumulatedFees = (await contracts.threeXBatchProcessing.fees(utils.formatBytes32String("mint")))
+          .accumulated;
+        const totalMintedAmount = accumulatedFees.add(mintedTokens);
+
+        expect(accumulatedFees).to.equal(totalMintedAmount.sub(minAmount));
+        expect(true).to.equal(accumulatedFees.lte(totalMintedAmount.mul(feeRate).div(10000)));
+      });
+
+      it("can collect a 5 bps fee", async () => {
+        const feeRate = 5;
+        const { threeXBatchProcessing } = contracts;
+        threeXBatchProcessing.setFee(
+          utils.formatBytes32String("mint"),
+          feeRate,
+          owner.address,
+          contracts.token.setToken.address
+        );
+
+        const batchAfterMint = await threeXBatchProcessing.getBatch(batchId);
+        const mintedTokens = batchAfterMint.targetTokenBalance;
+        const accumulatedFees = (await contracts.threeXBatchProcessing.fees(utils.formatBytes32String("mint")))
+          .accumulated;
+        const totalMintedAmount = accumulatedFees.add(mintedTokens);
+
+        expect(accumulatedFees).to.equal(totalMintedAmount.mul(feeRate).div(10000));
       });
     });
   });

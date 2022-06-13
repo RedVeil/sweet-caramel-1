@@ -23,12 +23,6 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
         //   inputToken: popUsdcLp,
         //   rewardsToken: pop,
         // },
-        /* {
-          poolName: "threeXStaking",
-          contract: "Staking",
-          inputToken: threeX,
-          rewardsToken: pop,
-        }, */
         {
           poolName: "threeXStaking",
           contract: "Staking",
