@@ -35,10 +35,6 @@ export enum TOKEN_INDEX {
   usdt,
 }
 
-export function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
-  return depositAmount.gt(inputTokenBalance);
-}
-
 const ZAP_TOKEN = ["dai", "usdt"];
 
 export default function ThreeX(): JSX.Element {
@@ -398,6 +394,27 @@ export default function ThreeX(): JSX.Element {
           .div(BigNumber.from(1_000_000));
   }
 
+  function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
+    return depositAmount.gt(inputTokenBalance);
+  }
+
+  const isDepositDisabled = (): boolean => {
+    const tvl = threeXData?.totalSupply?.mul(threeXData?.tokens?.threeX?.price).div(parseEther("1"));
+    const tvlLimit = parseEther("5000000"); // 5m
+    if (!threeXPageState.redeeming && (tvl.gte(tvlLimit) || threeXPageState?.depositAmount.add(tvl).gte(tvlLimit))) {
+      return true;
+    }
+    return threeXPageState.useUnclaimedDeposits
+      ? isBalanceInsufficient(
+          threeXPageState.depositAmount,
+          threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
+        )
+      : isBalanceInsufficient(
+          threeXPageState.depositAmount,
+          threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
+        );
+  };
+
   return (
     <div>
       <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
@@ -428,17 +445,7 @@ export default function ThreeX(): JSX.Element {
                     selectToken={selectToken}
                     mainAction={handleMainAction}
                     approve={approve}
-                    depositDisabled={
-                      threeXPageState.useUnclaimedDeposits
-                        ? isDepositDisabled(
-                            threeXPageState.depositAmount,
-                            threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
-                          )
-                        : isDepositDisabled(
-                            threeXPageState.depositAmount,
-                            threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
-                          )
-                    }
+                    depositDisabled={isDepositDisabled()}
                     hasUnclaimedBalances={hasClaimableBalances()}
                     butterPageState={[threeXPageState, setThreeXPageState]}
                     isThreeXPage

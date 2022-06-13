@@ -76,12 +76,20 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
           />
         </div>
         <div className="md:hidden">
-          <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
+          {isThreeX ? (
+            <StatusWithLabel content={"$5m"} label="TVL Limit" />
+          ) : (
+            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
+          )}
         </div>
       </div>
       <div className="w-full md:w-auto mt-2 md:pl-6 text-center md:text-left">
         <div className="hidden md:block ">
-          <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
+          {isThreeX ? (
+            <StatusWithLabel content={"$5m"} label="TVL Limit" />
+          ) : (
+            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
+          )}
         </div>
         <div className="w-full md:hidden flex justify-center">
           <StatusWithLabel
