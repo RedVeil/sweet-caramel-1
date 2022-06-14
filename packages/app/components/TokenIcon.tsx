@@ -1,7 +1,12 @@
+import { TokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
+import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
+import { ChainId } from "context/Web3/connectors";
+
 interface TokenIconProps {
   token: string;
   fullsize?: boolean;
 }
+const namedAccounts = getNamedAccounts();
 
 export default function TokenIcon({ token, fullsize = false }: TokenIconProps): JSX.Element {
   switch (token) {
@@ -15,8 +20,8 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
             }`}
           >
             <img
-              src="/images/tokens/usdc.webp"
-              alt="eth"
+              src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.usdc.polygon].icon}
+              alt="usdc"
               className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto`}
             />
           </div>
@@ -26,7 +31,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
             }`}
           >
             <img
-              src="/images/icons/popLogo.png"
+              src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
               alt="pop"
               className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto md:ml-2.5`}
             />
@@ -40,7 +45,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
             fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
           }`}
         >
-          <img src="/images/icons/butterLogo.png" alt="butter" className="w-5 md:w-7 h-3 md:h-4 mx-auto" />
+          <img src={TokenMetadataOverride[ChainId.Ethereum][namedAccounts.butter.mainnet].icon} alt="butter" className="w-5 md:w-7 h-3 md:h-4 mx-auto" />
         </div>
       );
     case "3X":
@@ -62,7 +67,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
           }`}
         >
           <img
-            src="/images/icons/popLogo.png"
+            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
             alt="pop"
             className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto md:ml-2.5`}
           />
