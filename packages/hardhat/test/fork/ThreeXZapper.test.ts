@@ -147,7 +147,6 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(
       contractRegistry.address,
       staking.address,
-      ethers.constants.AddressZero,
       { sourceToken: token.usdc.address, targetToken: token.setToken.address }, // mint batch
       { sourceToken: token.setToken.address, targetToken: token.usdc.address }, // redeem batch
       SET_BASIC_ISSUANCE_MODULE_ADDRESS,
@@ -173,8 +172,17 @@ async function deployContracts(): Promise<Contracts> {
     )
   ).deployed();
 
+  const batchStorage = await (
+    await (
+      await ethers.getContractFactory("ThreeXBatchVault")
+    ).deploy(contractRegistry.address, threeXBatchProcessing.address)
+  ).deployed();
+
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+
+  await threeXBatchProcessing.setBatchStorage(batchStorage.address);
+  await threeXBatchProcessing.setApprovals();
 
   await contractRegistry.connect(owner).addContract(ethers.utils.id("POP"), token.pop.address, ethers.utils.id("1"));
   await contractRegistry

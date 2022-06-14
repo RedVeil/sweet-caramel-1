@@ -9,10 +9,7 @@ import "./AbstractBatchStorage.sol";
 abstract contract AbstractViewableBatchStorage {
   AbstractBatchStorage public batchStorage;
 
-  constructor(address _batchStorageAddress) {
-    address batchStorageAddress = _batchStorageAddress;
-    batchStorage = AbstractBatchStorage(batchStorageAddress);
-  }
+  constructor() {}
 
   /**
    * @notice Get ids for all batches that a user has interacted with

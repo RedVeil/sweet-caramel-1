@@ -22,6 +22,7 @@ import {
   RewardsEscrow,
   MockYearnV2Vault,
   MockYearnV2Vault__factory,
+  ContractRegistry,
 } from "../../typechain";
 import ThreeXBatchAdapter from "../../lib/adapters/ThreeXBatchAdapter";
 import { BatchType } from "../../../utils/src/types";
@@ -65,6 +66,7 @@ interface Contracts {
   threeXBatchProcessing: ThreeXBatchProcessing;
   staking: Staking;
   threeXStorage: ThreeXBatchVault;
+  contractRegistry: ContractRegistry;
 }
 
 let contracts: Contracts;
@@ -157,7 +159,6 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(
       contractRegistry.address,
       staking.address,
-      ethers.constants.AddressZero,
       { sourceToken: token.usdc.address, targetToken: token.setToken.address }, // mint batch
       { sourceToken: token.setToken.address, targetToken: token.usdc.address }, // redeem batch
       SET_BASIC_ISSUANCE_MODULE_ADDRESS,
@@ -183,8 +184,17 @@ async function deployContracts(): Promise<Contracts> {
     )
   ).deployed();
 
+  const batchStorage = await (
+    await (
+      await ethers.getContractFactory("ThreeXBatchVault")
+    ).deploy(contractRegistry.address, threeXBatchProcessing.address)
+  ).deployed();
+
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+
+  await threeXBatchProcessing.setBatchStorage(batchStorage.address);
+  await threeXBatchProcessing.setApprovals();
 
   await contractRegistry.connect(owner).addContract(ethers.utils.id("POP"), token.pop.address, ethers.utils.id("1"));
   await contractRegistry
@@ -224,6 +234,7 @@ async function deployContracts(): Promise<Contracts> {
     threeXBatchProcessing,
     staking,
     threeXStorage,
+    contractRegistry,
   };
 }
 
@@ -278,7 +289,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
         {
           forking: {
             jsonRpcUrl: process.env.FORKING_RPC_URL,
-            blockNumber: 14898223,
+            blockNumber: 14932555,
           },
         },
       ],
@@ -406,7 +417,28 @@ describe("ThreeXBatchProcessing - Fork", () => {
       });
     });
   });
-  context("batch generation", () => {
+  context("set storage", () => {
+    it("should set a new storage contract", async () => {
+      const newBatchStorage = await (
+        await (
+          await ethers.getContractFactory("ThreeXBatchVault")
+        ).deploy(contracts.contractRegistry.address, contracts.threeXBatchProcessing.address)
+      ).deployed();
+      await contracts.threeXBatchProcessing.setBatchStorage(newBatchStorage.address);
+      expectValue(await contracts.threeXBatchProcessing.batchStorage, newBatchStorage.address);
+    });
+    it("should revert when not called by owner", async () => {
+      const newBatchStorage = await (
+        await (
+          await ethers.getContractFactory("ThreeXBatchVault")
+        ).deploy(contracts.contractRegistry.address, contracts.threeXBatchProcessing.address)
+      ).deployed();
+
+      await expectRevert(
+        contracts.threeXBatchProcessing.connect(depositor).setBatchStorage(newBatchStorage.address),
+        "you dont have the right role"
+      );
+    });
     describe("mint batch generation", () => {
       it("should set a non-zero batchId when initialized", async () => {
         const batchId0 = await contracts.threeXStorage.batchIds(0);
@@ -416,7 +448,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           batch.batchId.match(/0x.+[^0x0000000000000000000000000000000000000000000000000000000000000000]/)?.length
         ).equal(1);
       });
-      it("should set batch struct properties when the contract is deployed", async () => {
+      it("should set batch struct properties the first time batchStorage gets set", async () => {
         const batchId0 = await contracts.threeXStorage.batchIds(0);
         const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
         const batch = await adapter.getBatch(batchId0);
@@ -441,7 +473,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
         ).equal(1);
       });
 
-      it("should set batch struct properties when the contract is deployed", async () => {
+      it("should set batch struct properties the first time batchStorage gets set", async () => {
         const batchId1 = await contracts.threeXStorage.batchIds(1);
         const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
         const batch = await adapter.getBatch(batchId1);
@@ -594,7 +626,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address)
         ).to.be.revertedWith("not yet claimable");
       });
-      it("claims batch successfully", async function () {
+      it.only("claims batch successfully", async function () {
         await mintDeposit();
         await timeTravel(1800);
         await contracts.threeXBatchProcessing.connect(owner).batchMint();

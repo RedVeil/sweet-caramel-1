@@ -166,6 +166,7 @@ async function createDemoData(
     ).address,
     signer
   );
+  await butterBatch.connect(signer).setSlippage(200, 200);
 
   const threeCrv = await hre.ethers.getContractAt("MockERC20", addresses.threeCrv, signer);
   const dai = await hre.ethers.getContractAt("MockERC20", addresses.dai, signer);

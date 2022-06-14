@@ -38,19 +38,25 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
       console.log("setting approvals ...");
       const approvalTx = await popLocker.connect(signer).setApprovals();
-      await approvalTx.wait(2);
+      if (!["hardhat", "local"].includes(hre.network.name)) {
+        await approvalTx.wait(2);
+      }
 
       console.log("adding pop as rewards tokens with reward distributor ...");
       const addRewardTx = await popLocker
         .connect(signer)
         .addReward(pop, (await hre.deployments.get("RewardsDistribution")).address, true);
-      await addRewardTx.wait(2);
+      if (!["hardhat", "local"].includes(hre.network.name)) {
+        await addRewardTx.wait(2);
+      }
     } else {
       console.log("approving RewardsDistribution contract as rewards distributor ...");
       const addApprovalTx = await (
         await hre.ethers.getContractAt("Staking", deployed.address)
       ).approveRewardDistributor((await hre.deployments.get("RewardsDistribution")).address, true);
-      await addApprovalTx.wait(2);
+      if (!["hardhat", "local"].includes(hre.network.name)) {
+        await addApprovalTx.wait(2);
+      }
     }
   }
 
@@ -74,7 +80,9 @@ async function prepareRewardsEscrow(stakingAddress: string, signer: any, hre: Ha
     signer
   );
   const tx = await rewardsEscrow.addAuthorizedContract(stakingAddress);
-  await tx.wait(2);
+  if (!["hardhat", "local"].includes(hre.network.name)) {
+    await tx.wait(2);
+  }
 }
 
 async function prepareStakingContract(

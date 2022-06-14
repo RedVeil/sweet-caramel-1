@@ -54,8 +54,6 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
 
   bytes32 public constant contractName = "ThreeXBatchProcessing";
 
-  mapping(address => bool) public batchStorageApprovals;
-
   // Maps yToken Address (which is used in the SetToken) to its underlying Token
   mapping(address => ComponentDependencies) public componentDependencies;
 
@@ -76,7 +74,6 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
   constructor(
     IContractRegistry __contractRegistry,
     IStaking _staking,
-    AbstractBatchStorage _batchStorage,
     BatchTokens memory _mintBatchTokens,
     BatchTokens memory _redeemBatchTokens,
     BasicIssuanceModule _basicIssuanceModule,
@@ -84,7 +81,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     ComponentDependencies[] memory _componentDependencies,
     IERC20[2] memory _swapToken,
     ProcessingThreshold memory _processingThreshold
-  ) AbstractBatchController(__contractRegistry, _batchStorage) ContractRegistryAccess(__contractRegistry) {
+  ) AbstractBatchController(__contractRegistry) ContractRegistryAccess(__contractRegistry) {
     staking = _staking;
     basicIssuanceModule = _basicIssuanceModule;
     swapToken = _swapToken;
@@ -99,16 +96,11 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     lastMintedAt = block.timestamp;
     lastRedeemedAt = block.timestamp;
 
-    _createBatch(BatchType.Mint);
-    _createBatch(BatchType.Redeem);
-
     slippage.mintBps = 50;
     slippage.redeemBps = 50;
 
     _setFee("mint", 50, address(0), mintBatchTokens.targetToken);
     _setFee("redeem", 50, address(0), redeemBatchTokens.targetToken);
-
-    _setApprovals();
   }
 
   function getMinAmountToMint(
@@ -299,10 +291,8 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
   }
 
   function _approveBatchStorage(IERC20 token) internal {
-    if (!batchStorageApprovals[address(token)]) {
-      token.safeApprove(address(batchStorage), type(uint256).max);
-      batchStorageApprovals[address(token)] = true;
-    }
+    token.safeApprove(address(batchStorage), 0);
+    token.safeApprove(address(batchStorage), type(uint256).max);
   }
 
   /**
@@ -381,7 +371,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
   /**
    * @notice sets approval for contracts that require access to assets held by this contract
    */
-  function _setApprovals() internal {
+  function setApprovals() external {
     (address[] memory yToken, ) = basicIssuanceModule.getRequiredComponentUnitsForIssue(
       ISetToken(address(mintBatchTokens.targetToken)),
       1e18
@@ -391,20 +381,27 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
       CurveMetapool curveMetapool = componentDependencies[yToken[i]].curveMetaPool;
 
       if (i == 0) {
+        mintBatchTokens.sourceToken.safeApprove(address(componentDependencies[yToken[i]].swapPool), 0);
         mintBatchTokens.sourceToken.safeApprove(address(componentDependencies[yToken[i]].swapPool), type(uint256).max);
+        swapToken[i].safeApprove(address(componentDependencies[yToken[i]].swapPool), 0);
         swapToken[i].safeApprove(address(componentDependencies[yToken[i]].swapPool), type(uint256).max);
       } else {
+        mintBatchTokens.sourceToken.safeApprove(address(componentDependencies[yToken[i]].angleRouter), 0);
         mintBatchTokens.sourceToken.safeApprove(
           address(componentDependencies[yToken[i]].angleRouter),
           type(uint256).max
         );
+        swapToken[i].safeApprove(address(componentDependencies[yToken[i]].angleRouter), 0);
         swapToken[i].safeApprove(address(componentDependencies[yToken[i]].angleRouter), type(uint256).max);
       }
 
+      swapToken[i].safeApprove(address(curveMetapool), 0);
       swapToken[i].safeApprove(address(curveMetapool), type(uint256).max);
 
+      curveMetapool.safeApprove(yToken[i], 0);
       curveMetapool.safeApprove(yToken[i], type(uint256).max);
 
+      curveMetapool.safeApprove(address(curveMetapool), 0);
       curveMetapool.safeApprove(address(curveMetapool), type(uint256).max);
     }
 
@@ -413,6 +410,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     _approveBatchStorage(mintBatchTokens.sourceToken);
     _approveBatchStorage(mintBatchTokens.targetToken);
 
+    mintBatchTokens.targetToken.safeApprove(address(staking), 0);
     mintBatchTokens.targetToken.safeApprove(address(staking), type(uint256).max);
   }
 

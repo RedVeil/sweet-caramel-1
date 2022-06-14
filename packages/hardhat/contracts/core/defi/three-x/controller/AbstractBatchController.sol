@@ -59,17 +59,23 @@ abstract contract AbstractBatchController is
   event DepositedUnclaimedSetTokenForRedeem(uint256 amount, address indexed account);
   event Withdrawal(address indexed to, uint256 amount);
 
-  constructor(IContractRegistry __contractRegistry, AbstractBatchStorage _batchStorage)
-    AbstractViewableBatchStorage(address(batchStorage))
-  {
-    if (address(0) == address(_batchStorage)) {
-      batchStorage = new ThreeXBatchVault(__contractRegistry, address(this));
-    } else {
-      batchStorage = AbstractBatchStorage(_batchStorage);
-    }
-  }
+  constructor(IContractRegistry __contractRegistry) AbstractViewableBatchStorage() {}
 
   /* ========== ADMIN ========== */
+
+  /**
+   * @notice sets batch storage contract
+   * @dev All function with the modifer `whenNotPaused` cant be called anymore. Namly deposits and mint/redeem
+   */
+  function setBatchStorage(AbstractBatchStorage _address) external onlyRoles(DAO_ROLE, GUARDIAN_ROLE) {
+    batchStorage = _address;
+    if (currentMintBatchId == "") {
+      _createBatch(BatchType.Mint);
+    }
+    if (currentRedeemBatchId == "") {
+      _createBatch(BatchType.Redeem);
+    }
+  }
 
   /**
    * @notice Pauses the contract.
