@@ -52,7 +52,7 @@ export default function useWeb3() {
 
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
-    if (isChainMismatch(router?.query?.network as string)) {
+    if (isChainMismatch(router?.query?.network as string) && !["/[network]", "/"].includes(router?.pathname)) {
       alertChainInconsistency(router?.query?.network as string, ChainId[Number(connectedChain.id)]);
     } else {
       dispatch(setNetworkChangePromptModal(false));
