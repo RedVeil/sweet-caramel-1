@@ -1,11 +1,11 @@
 import { BellIcon } from "@heroicons/react/outline";
+import { ChainId } from "@popcorn/utils";
 import { Address } from "@popcorn/utils/src/types";
 import AlertCard, { AlertCardLink } from "components/Common/AlertCard";
 import StakeCard from "components/StakeCard";
 import { setMultiChoiceActionModal } from "context/actions";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { store } from "context/store";
-import { ChainId } from "context/Web3/connectors";
 import { constants } from "ethers";
 import { ModalType, toggleModal } from "helper/modalHelpers";
 import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";

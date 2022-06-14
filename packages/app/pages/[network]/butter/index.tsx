@@ -1,6 +1,7 @@
 import { parseEther } from "@ethersproject/units";
 import {
   adjustDepositDecimals,
+  ChainId,
   formatAndRoundBigNumber,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
@@ -17,7 +18,6 @@ import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
 import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId } from "context/Web3/connectors";
 import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "helper/modalHelpers";
 import useButterBatch from "hooks/butter/useButterBatch";

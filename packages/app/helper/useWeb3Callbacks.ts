@@ -1,4 +1,4 @@
-import { ChainId } from "context/Web3/connectors";
+import { ChainId } from "@popcorn/utils";
 import { ethers } from "ethers";
 import { useCallback } from "react";
 import toast from "react-hot-toast";

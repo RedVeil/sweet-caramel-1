@@ -1,7 +1,7 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
+import { networkLogos, networkMap } from "@popcorn/utils";
 import SecondaryActionButton from "components/SecondaryActionButton";
-import { logos, networkMap } from "context/Web3/connectors";
 import GetProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -144,7 +144,7 @@ export const MobileMenu: React.FC = () => {
                             <div
                               className={`w-full px-6 h-12 py-0.5 flex flex-row items-center justify-center border border-gray-200 shadow-custom rounded-3xl cursor-pointer relative`}
                             >
-                              <img src={logos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
+                              <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
                               <p className="leading-none font-medium text-gray-600 mt-0.5">{networkMap[chainId]}</p>
                               <ChevronDownIcon className="w-5 h-5 ml-4 absolute right-10" aria-hidden="true" />
                             </div>

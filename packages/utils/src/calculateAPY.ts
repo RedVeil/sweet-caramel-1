@@ -1,5 +1,5 @@
 import { parseEther } from "@ethersproject/units";
-import { ChainId } from "@popcorn/app/context/Web3/connectors";
+import { ChainId } from "./connectors";
 import {
   BasicIssuanceModule__factory,
   ButterBatchProcessing__factory,

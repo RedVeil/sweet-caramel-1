@@ -1,4 +1,4 @@
-import { ethers } from "@popcorn/hardhat/node_modules/ethers/lib";
+import { ethers } from "ethers";
 
 export enum ChainId {
   Ethereum = 1,
@@ -43,7 +43,7 @@ export const networkMap = {
   [ChainId.BNB]: "BNB",
 };
 
-export const logos = {
+export const networkLogos = {
   [ChainId.Ethereum]: "/images/icons/ethLogo.png",
   [ChainId.Rinkeby]: "/images/icons/ethLogo.png",
   [ChainId.Polygon]: "/images/icons/polygonLogo.png",

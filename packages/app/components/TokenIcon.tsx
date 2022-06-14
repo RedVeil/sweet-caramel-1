@@ -1,6 +1,6 @@
 import { TokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
 import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
-import { ChainId } from "context/Web3/connectors";
+import { ChainId } from "@popcorn/utils";
 
 interface TokenIconProps {
   token: string;
@@ -45,7 +45,11 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
             fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
           }`}
         >
-          <img src={TokenMetadataOverride[ChainId.Ethereum][namedAccounts.butter.mainnet].icon} alt="butter" className="w-5 md:w-7 h-3 md:h-4 mx-auto" />
+          <img
+            src={TokenMetadataOverride[ChainId.Ethereum][namedAccounts.butter.mainnet].icon}
+            alt="butter"
+            className="w-5 md:w-7 h-3 md:h-4 mx-auto"
+          />
         </div>
       );
     case "3X":

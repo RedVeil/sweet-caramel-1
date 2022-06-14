@@ -1,7 +1,7 @@
+import { ChainId, ChainIdHex, RPC_URLS } from "@popcorn/utils";
 import injected from "@web3-onboard/injected-wallets";
 import { init } from "@web3-onboard/react";
 import walletConnect from "@web3-onboard/walletconnect";
-import { ChainId, ChainIdHex, RPC_URLS } from "context/Web3/connectors";
 
 export default function web3Onboard(): void {
   init({

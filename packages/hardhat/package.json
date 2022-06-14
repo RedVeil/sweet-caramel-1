@@ -7,7 +7,7 @@
     "dev": "yarn hardhat node",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "clean": "rimraf ./cache & rimraf ./artifacts",
-    "compile": "yarn clean && hardhat compile ",
+    "compile": "yarn clean && hardhat compile",
     "docify": "rm -rf ./docgen/.gitbook.yaml ./docgen/SUMMARY.md ./docgen/docs/* && node docgen/docify.js",
     "test": "yarn hardhat test test/*.test.ts",
     "test:fork": "yarn hardhat test test/fork/*.test.ts",

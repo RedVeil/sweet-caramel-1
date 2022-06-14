@@ -1,9 +1,9 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ethers } from "@popcorn/hardhat/node_modules/ethers/lib";
+import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
 import { useConnectWallet, useSetChain, useWallets } from "@web3-onboard/react";
 import { setNetworkChangePromptModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId, PRC_PROVIDERS } from "context/Web3/connectors";
+import { ethers } from "ethers";
 import { getStorage, removeStorage, setStorage } from "helper/safeLocalstorageAccess";
 import toTitleCase from "helper/toTitleCase";
 import useWeb3Callbacks from "helper/useWeb3Callbacks";

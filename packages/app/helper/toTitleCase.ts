@@ -1,4 +1,4 @@
-import { ChainId } from "context/Web3/connectors";
+import { ChainId } from "@popcorn/utils";
 
 export default function toTitleCase(toConvert: string): string {
   if (toConvert.toLowerCase() === ChainId[56].toLowerCase()) {

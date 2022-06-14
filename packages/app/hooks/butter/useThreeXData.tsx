@@ -1,6 +1,5 @@
-import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/types";
-import { ChainId } from "context/Web3/connectors";
 import useERC20 from "hooks/tokens/useERC20";
 import useThreePool from "hooks/useThreePool";
 import useWeb3 from "hooks/useWeb3";

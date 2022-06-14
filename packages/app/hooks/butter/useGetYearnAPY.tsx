@@ -1,5 +1,4 @@
-import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import { ChainId } from "context/Web3/connectors";
+import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import YearnVault from "helper/YearnVault";
 import useWeb3 from "hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";

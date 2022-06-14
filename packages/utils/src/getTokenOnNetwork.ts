@@ -1,4 +1,4 @@
-import { ChainId } from "@popcorn/app/context/Web3/connectors";
+import { ChainId } from "./connectors";
 import { ContractAddresses } from "./types";
 
 export default function getTokenOnNetwork(address: string, chainId: number, contractAddresses: ContractAddresses) {

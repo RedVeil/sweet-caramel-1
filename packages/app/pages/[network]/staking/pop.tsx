@@ -1,4 +1,5 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
+import { ChainId } from "@popcorn/utils";
 import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
 import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
 import TermsContent from "components/staking/TermsModalContent";
@@ -12,7 +13,6 @@ import useWeb3 from "hooks/useWeb3";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { ChainId } from "../../../context/Web3/connectors";
 
 export default function PopStakingPage(): JSX.Element {
   const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId, pushWithinChain } =

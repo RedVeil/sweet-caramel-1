@@ -1,8 +1,8 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
 import { ERC20__factory, IGUni__factory } from "@popcorn/hardhat/typechain";
+import { ChainId } from "@popcorn/utils";
 import { ContractAddresses } from "@popcorn/utils/types";
-import { ChainId } from "context/Web3/connectors";
 import { BigNumber, Contract, ethers } from "ethers";
 import useWeb3 from "hooks/useWeb3";
 import useSWR from "swr";

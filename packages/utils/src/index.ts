@@ -24,3 +24,12 @@ export type { IIpfsClient, UploadResult } from "./IpfsClient/IpfsClient";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
 export { default as localStringOptions } from "./localStringOptions";
 export { default as useFetch } from "./useFetch";
+export {
+  ChainId,
+  ChainIdHex,
+  supportedChainIds,
+  networkMap,
+  networkLogos,
+  RPC_URLS,
+  PRC_PROVIDERS,
+} from "./connectors";

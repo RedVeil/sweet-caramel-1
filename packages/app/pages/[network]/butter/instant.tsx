@@ -1,5 +1,6 @@
 import {
   adjustDepositDecimals,
+  ChainId,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
   percentageToBps,
@@ -10,7 +11,6 @@ import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId } from "context/Web3/connectors";
 import { BigNumber, constants, ethers } from "ethers";
 import useButterWhaleData from "hooks/butter/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/butter/useButterWhaleProcessing";

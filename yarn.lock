@@ -7988,6 +7988,16 @@
     joi "^17.4.2"
     rxjs "^7.5.2"
 
+"@web3-onboard/common@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.1.0.tgz#6ff5c6841e4261743ad6ea4c5aed77c146410ce7"
+  integrity sha512-60Fyh+XfkvAEE21FudLFNrxt7SjTkawR8ogKNg9AsBfFwr6zaNam+yL8u3P/7U9WxTw8qPm4SgiljEaDx4tvag==
+  dependencies:
+    "@ethereumjs/common" "2.6.2"
+    ethers "5.5.4"
+    joi "^17.4.2"
+    rxjs "^7.5.2"
+
 "@web3-onboard/core@^2.2.7":
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.2.8.tgz#0a2c6aa991ea2ac0a0a471d5ee3bbf84aafd79df"
@@ -8004,16 +8014,16 @@
     svelte "^3.46.4"
     svelte-i18n "^3.3.13"
 
-"@web3-onboard/injected-wallets@^2.0.4":
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/injected-wallets/-/injected-wallets-2.0.6.tgz#17a27cf687dfb57a03c4cddce75bc908bc80fc6b"
-  integrity sha512-Cpyd5U0GWDI8QZFCOlbDQU89La6ba/4CsXlNyqc8k1puhTSgi0GcL4sAEwkAKyjRc9YotOOzmR/OEvCLoVqLEQ==
+"@web3-onboard/injected-wallets@2.0.8":
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/injected-wallets/-/injected-wallets-2.0.8.tgz#0a454494e5e2c24a786e0091dd43bdf17f60237c"
+  integrity sha512-GyCC9X+xWuqywOkcbIQlzQqXxxRHDIKoBG38KbyUY1rHV/FafBLlwAkBLfNesd+rGdaT1B5+itEF9m7c4NwYGQ==
   dependencies:
-    "@web3-onboard/common" "^2.0.7"
+    "@web3-onboard/common" "^2.1.0"
     joi "^17.4.2"
     lodash.uniqby "^4.7.0"
 
-"@web3-onboard/react@^2.0.6":
+"@web3-onboard/react@2.1.6":
   version "2.1.6"
   resolved "https://registry.yarnpkg.com/@web3-onboard/react/-/react-2.1.6.tgz#1efc7c5e120a11ddbf13840c651439c2fb34806d"
   integrity sha512-suvxlTkcvAiV2ecJu0mZ7tpnLsFSGqm9BGbjXm7s6xOHPYtRJyqGRlhWSOm1clLHV5sBFF42QMKVQVOFz6TdtQ==
@@ -8021,7 +8031,7 @@
     "@web3-onboard/common" "^2.0.7"
     "@web3-onboard/core" "^2.2.7"
 
-"@web3-onboard/walletconnect@^2.0.1":
+"@web3-onboard/walletconnect@2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@web3-onboard/walletconnect/-/walletconnect-2.0.1.tgz#7d47d63715f95005589453b305f895fe130e1be2"
   integrity sha512-+sjYra9e1yr37/PPtcmGvTrOe3Xq+P9jMyNJbImu+3BtyqKFpCr7vnjzfCFsSLR3gAynro0SZDeFJiegyoZ2Fg==

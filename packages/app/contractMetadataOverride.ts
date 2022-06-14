@@ -1,5 +1,5 @@
 import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
-import { ChainId } from "context/Web3/connectors";
+import { ChainId } from "@popcorn/utils";
 
 export type Token = {
   name?: string;
