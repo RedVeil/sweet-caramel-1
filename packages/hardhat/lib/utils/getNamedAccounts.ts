@@ -230,7 +230,7 @@ export default function getNamedAccounts() {
       hardhat: "0x6409904Cab5b139b8D5F43917Dc211Ac0df005Bb",
     },
     threeXZapper: {
-      mainnet: "0xaCf7A59CB157DD846D8949Fd12E55eeCbA53F9EA",
+      mainnet: "0x763D8760be20f0A3511D0E9ABD44ffB4404C41A7",
       hardhat: "0x5e6CB7E728E1C320855587E1D9C6F7972ebdD6D5",
     },
     yEUR: {
