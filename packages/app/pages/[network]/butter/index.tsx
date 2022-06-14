@@ -298,9 +298,9 @@ export default function Butter(): JSX.Element {
       const virtualPriceValue = await virtualPrice();
       const minMintAmount = getMinMintAmount(
         depositAmount,
-        butterPageState.selectedToken.input,
         butterPageState.slippage,
         virtualPriceValue,
+        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
       );
       return butterWhaleProcessing.zapMint(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
@@ -331,9 +331,9 @@ export default function Butter(): JSX.Element {
       const virtualPriceValue = await virtualPrice();
       const minMintAmount = getMinMintAmount(
         depositAmount,
-        butterPageState.selectedToken.input,
         butterPageState.slippage,
         virtualPriceValue,
+        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
       );
       return butterBatchZapper.zapIntoBatch(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),

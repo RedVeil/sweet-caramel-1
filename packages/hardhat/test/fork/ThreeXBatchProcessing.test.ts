@@ -289,7 +289,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
         {
           forking: {
             jsonRpcUrl: process.env.FORKING_RPC_URL,
-            blockNumber: 14932555,
+            blockNumber: 14898223,
           },
         },
       ],
@@ -626,7 +626,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           contracts.threeXBatchProcessing.connect(depositor).claim(batchId, depositor.address)
         ).to.be.revertedWith("not yet claimable");
       });
-      it.only("claims batch successfully", async function () {
+      it("claims batch successfully", async function () {
         await mintDeposit();
         await timeTravel(1800);
         await contracts.threeXBatchProcessing.connect(owner).batchMint();

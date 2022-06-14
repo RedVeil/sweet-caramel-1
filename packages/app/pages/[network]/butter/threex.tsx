@@ -149,7 +149,9 @@ export default function ThreeX(): JSX.Element {
   }
 
   async function handleMainAction(depositAmount: BigNumber, batchType: BatchType) {
+    // Lower depositAmount decimals to 1e6 if the inputToken is USDC/USDT
     depositAmount = adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
+
     if (threeXPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
       await hotswapMint(depositAmount).then(
         (res) => onContractSuccess(res, `Funds deposited!`),
@@ -181,14 +183,16 @@ export default function ThreeX(): JSX.Element {
     toast.loading("Depositing Funds...");
     return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, true);
   }
+
   async function batchMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
     toast.loading(`Depositing ${threeXPageState.tokens[threeXPageState.selectedToken.input].name} ...`);
     if (threeXPageState.useZap) {
       const minMintAmount = getMinMintAmount(
         depositAmount,
-        threeXPageState.selectedToken.input,
         threeXPageState.slippage,
         parseEther("1"),
+        threeXPageState.selectedToken.input === "dai" ? 18 : 6,
+        6,
       );
       return threeXZapper.zapIntoBatch(
         depositAmount,

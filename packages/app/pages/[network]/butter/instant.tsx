@@ -196,9 +196,9 @@ export default function InstantButter() {
       const virtualPriceValue = await virtualPrice();
       const minMintAmount = getMinMintAmount(
         depositAmount,
-        butterPageState.selectedToken.input,
         butterPageState.slippage,
         virtualPriceValue,
+        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
       );
       return butterWhaleProcessing.zapMint(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),

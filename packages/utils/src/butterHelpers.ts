@@ -41,14 +41,26 @@ export function adjustDepositDecimals(depositAmount: BigNumber, tokenKey: string
 
 export const getMinMintAmount = (
   depositAmount: BigNumber,
-  tokenKey: string,
   slippage: number,
   virtualPrice: BigNumber,
+  inputDecimals = 18,
+  outputDecimals = 18,
 ): BigNumber => {
-  depositAmount = adjustDepositDecimals(depositAmount, tokenKey);
-  const lpTokenAmount = depositAmount.mul(parseEther("1")).div(virtualPrice);
-  const delta = lpTokenAmount.mul(percentageToBps(slippage)).div(10000);
-  return lpTokenAmount.sub(delta);
+  let depositAmountInOutputDecimals: BigNumber;
+  // Raise or lower the mintAmount based on the difference in decimals between inputToken/outputToken
+  const difDecimals = inputDecimals - outputDecimals;
+
+  if (difDecimals === 0) {
+    depositAmountInOutputDecimals = depositAmount;
+  } else if (difDecimals > 0) {
+    depositAmountInOutputDecimals = depositAmount.div(BigNumber.from(10).pow(difDecimals));
+  } else {
+    depositAmountInOutputDecimals = depositAmount.mul(BigNumber.from(10).pow(Math.abs(difDecimals)));
+  }
+
+  const outputAmount = depositAmountInOutputDecimals.mul(parseEther("1")).div(virtualPrice);
+  const delta = outputAmount.mul(percentageToBps(slippage)).div(10000);
+  return outputAmount.sub(delta);
 };
 
 export const percentageToBps = (input: number): number => input * 100;
