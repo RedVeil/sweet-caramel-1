@@ -707,7 +707,7 @@ export default function Butter(): JSX.Element {
                     ? formatAndRoundBigNumber(butterBatchData?.tokens?.butter?.price)
                     : "-"
                 }`}
-                icon={{ icon: "Money", color: "bg-blue-300" }}
+                icon={{ name: "Butter", color: "bg-gray-100" }}
               />
             </div>
             <div className="md:w-1/2 md:ml-2 mb-8 md:mb-0">
