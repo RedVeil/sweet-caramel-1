@@ -39,19 +39,23 @@ const ClaimableBatch: React.FC<BatchProps> = ({
         {formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
       </td>
       <td className="px-6 py-5 flex justify-end">
-        <div className="w-36">
-          {batch.claimable && batch.batchType === BatchType.Mint ? (
-            <div className="space-y-4">
+        {batch.claimable && batch.batchType === BatchType.Mint ? (
+          <div className="space-x-4 flex flex-row justify-end w-80">
+            <div className="w-36">
               <MainActionButton label="Claim and Stake" handleClick={(e) => handleClaimAndStake(batch)} />
+            </div>
+            <div className="w-36">
               <SecondaryActionButton label="Claim" handleClick={(e) => handleClaim(batch)} />
             </div>
-          ) : (
+          </div>
+        ) : (
+          <div className="w-36">
             <MainActionButton
               label={batch.claimable ? "Claim" : "Cancel"}
               handleClick={(e) => (batch.claimable ? handleClaim(batch) : handleWithdraw(batch))}
             />
-          )}
-        </div>
+          </div>
+        )}
       </td>
     </tr>
   );

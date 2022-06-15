@@ -1,6 +1,8 @@
 import { BatchType } from "@popcorn/utils/src/types";
+import { InfoIconWithModal } from "components/InfoIconWithModal";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { BigNumber, constants, ethers } from "ethers";
+import Link from "next/link";
 import MainActionButton from "../MainActionButton";
 import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
 import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
@@ -58,7 +60,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         />
       </div>
       {!localButterPageState.useUnclaimedDeposits && !isInstantPage && !isThreeXPage && (
-        <div className="mt-2 mb-6">
+        <div className="mt-2">
           <CheckMarkToggleWithInfo
             label="Use Instant Butter (Higher Gas Fee)"
             value={localButterPageState.instant}
@@ -76,10 +78,11 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       {(localButterPageState.instant ||
         isInstantPage ||
         (!localButterPageState.redeeming && localButterPageState.useZap)) && (
-        <div className="w-full pb-8">
+        <div className="w-full mt-6">
           <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
         </div>
       )}
+      <hr className="mt-10" />
       <div className="w-full text-center">
         {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
           <div className="pt-6">
@@ -119,6 +122,22 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           <div className="pt-6 space-y-6">
             {localButterPageState.instant && !localButterPageState.redeeming ? (
               <>
+                <span className="text-left flex flex-row items-center">
+                  <p>Mint & Stake vs. Mint</p>
+                  <InfoIconWithModal
+                    title="Mint & Stake vs Mint"
+                    children={
+                      <p>
+                        Choose Mint & Stake to automatically stake the token to earn POP rewards. If you select Mint you
+                        will not earn POP rewards unless the token is staked in the
+                        <Link href="/ethereum/staking" passHref>
+                          <a className="font-medium text-blue-600 hover:text-blue-900"> staking </a>
+                        </Link>
+                        page.
+                      </p>
+                    }
+                  />
+                </span>
                 <MainActionButton
                   label="Mint & Stake"
                   handleClick={() => {

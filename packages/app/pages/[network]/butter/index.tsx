@@ -565,8 +565,6 @@ export default function Butter(): JSX.Element {
         );
   }
 
-  console.log("butterPageState", butterPageState);
-
   return (
     <>
       <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
