@@ -15,7 +15,7 @@ describe.skip("aragon test", () => {
         params: [
           {
             forking: {
-              jsonRpcUrl: process.env.RPC_URL,
+              jsonRpcUrl: process.env.FORKING_RPC_URL,
               blockNumber: 14078388,
             },
           },

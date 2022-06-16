@@ -96,6 +96,24 @@ export default function getNamedAccounts() {
       rinkeby: "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
       hardhat: "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
     },
+    crv3Crypto: {
+      mainnet: "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+    },
+    crvAave: {
+      mainnet: "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
+    },
+    crvComp: {
+      mainnet: "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+    },
+    crvSteth: {
+      mainnet: "0x06325440D014e39736583c165C2963BA99fAf14E",
+    },
+    crvCvxCrv: {
+      mainnet: "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
+    },
+    crvIbBtc: {
+      mainnet: "0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
+    },
     crvFrax: {
       mainnet: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
       rinkeby: "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
@@ -420,6 +438,9 @@ export default function getNamedAccounts() {
       rinkeby: "",
       polygon: "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
       mainnet: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+    },
+    yearnRegistry: {
+      mainnet: "0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804",
     },
     beneficiaryRegistry: {
       hardhat: "0x51C65cd0Cdb1A8A8b79dfc2eE965B1bA0bb8fc89",

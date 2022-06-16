@@ -7,6 +7,15 @@ export {
 } from "./butterHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
+export {
+  ChainId,
+  ChainIdHex,
+  networkLogos,
+  networkMap,
+  PRC_PROVIDERS,
+  RPC_URLS,
+  supportedChainIds,
+} from "./connectors";
 export { getERC20Contract } from "./contractHelpers";
 export {
   bigNumberToNumber,
@@ -24,12 +33,3 @@ export type { IIpfsClient, UploadResult } from "./IpfsClient/IpfsClient";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
 export { default as localStringOptions } from "./localStringOptions";
 export { default as useFetch } from "./useFetch";
-export {
-  ChainId,
-  ChainIdHex,
-  supportedChainIds,
-  networkMap,
-  networkLogos,
-  RPC_URLS,
-  PRC_PROVIDERS,
-} from "./connectors";

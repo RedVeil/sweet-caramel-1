@@ -15,6 +15,11 @@ jobs:
         node-version: [14.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
+    env:
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      # Coverage requires extra memory:
+      # See: https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md#running-out-of-memory
+
     steps:
       - uses: actions/checkout@v2
       - uses: canastro/copy-file-action@master

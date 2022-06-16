@@ -29,4 +29,5 @@ jobs:
       - name: Run tests
         run: cd packages/hardhat && forge test -vvv --fork-url $FOUNDRY_FORK_URL
         env:
+          FOUNDRY_PROFILE: ci
           FOUNDRY_FORK_URL: ${{secrets.RPC_URL}}

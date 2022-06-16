@@ -1,5 +1,4 @@
 import { parseEther } from "@ethersproject/units";
-import { ChainId } from "./connectors";
 import {
   BasicIssuanceModule__factory,
   ButterBatchProcessing__factory,
@@ -9,6 +8,7 @@ import {
   IGUni__factory,
 } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
+import { ChainId } from "./connectors";
 import { Address, ContractAddresses } from "./types";
 
 export async function calculateApy(

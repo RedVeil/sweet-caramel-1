@@ -21,6 +21,7 @@ contract MockCurveMetapool {
   uint256 virtualPrice = 1e18;
 
   uint256 withdrawalSlippageBps = 10;
+  uint256 mintSlippageBps = 0;
 
   uint256 BPS_DENOMINATOR = 10000;
   MockERC20[] tokens;
@@ -65,9 +66,10 @@ contract MockCurveMetapool {
     uint256 lpTokens;
     min_mint_amounts;
     for (uint8 i = 0; i < tokens.length; i++) {
+      uint256 mintAmount = amounts[i] - ((amounts[i] * mintSlippageBps) / 10000);
       tokens[i].transferFrom(msg.sender, address(this), amounts[i]);
-      lpToken.mint(msg.sender, amounts[i]);
-      lpTokens += amounts[i];
+      lpToken.mint(msg.sender, mintAmount);
+      lpTokens += mintAmount;
     }
     return lpTokens;
   }
@@ -125,5 +127,9 @@ contract MockCurveMetapool {
 
   function setWithdrawalSlippage(uint256 withdrawalSlippageBps_) external {
     withdrawalSlippageBps = withdrawalSlippageBps_;
+  }
+
+  function setMintSlippage(uint256 mintSlippageBps_) external {
+    mintSlippageBps = mintSlippageBps_;
   }
 }

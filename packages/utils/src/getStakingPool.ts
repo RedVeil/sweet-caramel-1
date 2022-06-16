@@ -1,6 +1,6 @@
+import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
 import { getPopApy } from ".";
-import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { calculateApy } from "./calculateAPY";
 import { getTokenFromAddress } from "./getToken";
 import { Address, ContractAddresses, StakingPool } from "./types";

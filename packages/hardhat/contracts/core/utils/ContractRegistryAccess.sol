@@ -12,6 +12,7 @@ abstract contract ContractRegistryAccess {
   IContractRegistry internal _contractRegistry;
 
   constructor(IContractRegistry contractRegistry_) {
+    require(address(contractRegistry_) != address(0), "Zero address");
     _contractRegistry = contractRegistry_;
   }
 

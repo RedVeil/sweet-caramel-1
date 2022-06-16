@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.0
+
+pragma solidity ^0.8.0;
+
 import "../core/interfaces/IContractRegistry.sol";
 import "../core/utils/ContractRegistryAccess.sol";
 import "../core/utils/KeeperIncentivized.sol";
