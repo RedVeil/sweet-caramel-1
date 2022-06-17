@@ -559,7 +559,7 @@ export default function ThreeX(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`$ ${
+                content={`$${
                   threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price) : "-"
                 }`}
                 icon={{ name: "3X", color: "bg-gray-100" }}

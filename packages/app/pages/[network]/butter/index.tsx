@@ -700,7 +700,7 @@ export default function Butter(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="Butter Value"
-                content={`$ ${
+                content={`$${
                   butterBatchData?.tokens?.butter
                     ? formatAndRoundBigNumber(butterBatchData?.tokens?.butter?.price)
                     : "-"

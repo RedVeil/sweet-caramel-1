@@ -55,7 +55,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel
-            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "0$"}
+            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "$0"}
             label="TVL"
           />
         </div>
