@@ -40,12 +40,14 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
 
   /**
    * @notice each component has dependencies that form a path to aquire and subsequently swap out of the component. these are those dependenices
-   * @param swapPool A CurveMetaPool for trading USDC against FRAX
-   * @param curveMetaPool A CurveMetaPool that we want to deploy into yearn (D3, 3EUR)
+   * @param lpToken lpToken of the curve metapool
+   * @param utilityPool Special curve metapools that are used withdraw sUSD from the pool and get oracle prices for EUR
+   * @param curveMetaPool A CurveMetaPool that we want to deploy into yearn (SUSD, 3EUR)
    * @param angleRouter The Angle Router to trade USDC against agEUR
    */
   struct ComponentDependencies {
-    CurveMetapool swapPool;
+    IERC20 lpToken;
+    CurveMetapool utilityPool;
     CurveMetapool curveMetaPool;
     IAngleRouter angleRouter;
   }
@@ -57,8 +59,8 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
   // Maps yToken Address (which is used in the SetToken) to its underlying Token
   mapping(address => ComponentDependencies) public componentDependencies;
 
-  // FRAX and agEUR which we use as intermediate token to deploy/withdraw from the curveMetapools
-  IERC20[2] public swapToken;
+  // agEUR which we use as intermediate token to deploy/withdraw from the 3EUR-Pool
+  IERC20 public swapToken;
 
   BasicIssuanceModule public basicIssuanceModule;
 
@@ -79,7 +81,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     BasicIssuanceModule _basicIssuanceModule,
     address[] memory _componentAddresses,
     ComponentDependencies[] memory _componentDependencies,
-    IERC20[2] memory _swapToken,
+    IERC20 _swapToken,
     ProcessingThreshold memory _processingThreshold
   ) AbstractBatchController(__contractRegistry) ContractRegistryAccess(__contractRegistry) {
     staking = _staking;
@@ -96,11 +98,11 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     lastMintedAt = block.timestamp;
     lastRedeemedAt = block.timestamp;
 
-    slippage.mintBps = 50;
-    slippage.redeemBps = 50;
+    slippage.mintBps = 75;
+    slippage.redeemBps = 75;
 
-    _setFee("mint", 50, address(0), mintBatchTokens.targetToken);
-    _setFee("redeem", 50, address(0), redeemBatchTokens.targetToken);
+    _setFee("mint", 75, address(0), mintBatchTokens.targetToken);
+    _setFee("redeem", 75, address(0), redeemBatchTokens.targetToken);
   }
 
   function getMinAmountToMint(
@@ -125,11 +127,11 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
   {
     uint256 value;
     for (uint256 i = 0; i < _tokenAddresses.length; i++) {
-      // d3pool must be i == 0
+      // sUSDpool must be i == 0
       uint256 lpTokenPriceInUSD = i == 0
         ? componentDependencies[_tokenAddresses[i]].curveMetaPool.get_virtual_price()
         : (componentDependencies[_tokenAddresses[i]].curveMetaPool.get_virtual_price() *
-          componentDependencies[_tokenAddresses[i]].swapPool.price_oracle()) / 1e18;
+          componentDependencies[_tokenAddresses[i]].utilityPool.price_oracle()) / 1e18;
 
       value += (((lpTokenPriceInUSD * YearnVault(_tokenAddresses[i]).pricePerShare()) / 1e18) * _quantities[i]) / 1e18;
     }
@@ -148,7 +150,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     uint256 lpTokenPriceInUSD = _i == 0
       ? componentDependencies[_component].curveMetaPool.get_virtual_price()
       : (componentDependencies[_component].curveMetaPool.get_virtual_price() *
-        componentDependencies[_component].swapPool.price_oracle()) / 1e18;
+        componentDependencies[_component].utilityPool.price_oracle()) / 1e18;
 
     // Calculate the virtualPrice of one yToken
     uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() * lpTokenPriceInUSD) / 1e18;
@@ -240,7 +242,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
 
       //Deposit crvLPToken to get yToken
       _sendToYearn(
-        componentDependencies[tokenAddresses[i]].curveMetaPool.balanceOf(address(this)),
+        componentDependencies[tokenAddresses[i]].lpToken.balanceOf(address(this)),
         YearnVault(tokenAddresses[i])
       );
 
@@ -338,12 +340,11 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
 
       //Deposit crvLPToken to receive USDC
       _withdrawFromCurve(
-        componentDependencies[tokenAddresses[i]].curveMetaPool.balanceOf(address(this)),
+        componentDependencies[tokenAddresses[i]].lpToken.balanceOf(address(this)),
         componentDependencies[tokenAddresses[i]],
         i
       );
     }
-
     uint256 claimableTokenBalance = batch.targetToken.balanceOf(address(this)) - fees["redeem"].accumulated;
 
     uint256 minRedeemAmount = getMinAmountFromRedeem(valueOfComponents(tokenAddresses, quantities), slippage.redeemBps);
@@ -378,31 +379,33 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     );
 
     for (uint256 i; i < yToken.length; i++) {
+      IERC20 lpToken = componentDependencies[yToken[i]].lpToken;
       CurveMetapool curveMetapool = componentDependencies[yToken[i]].curveMetaPool;
 
       if (i == 0) {
-        mintBatchTokens.sourceToken.safeApprove(address(componentDependencies[yToken[i]].swapPool), 0);
-        mintBatchTokens.sourceToken.safeApprove(address(componentDependencies[yToken[i]].swapPool), type(uint256).max);
-        swapToken[i].safeApprove(address(componentDependencies[yToken[i]].swapPool), 0);
-        swapToken[i].safeApprove(address(componentDependencies[yToken[i]].swapPool), type(uint256).max);
+        mintBatchTokens.sourceToken.safeApprove(address(curveMetapool), 0);
+        mintBatchTokens.sourceToken.safeApprove(address(curveMetapool), type(uint256).max);
+
+        lpToken.safeApprove(address(componentDependencies[yToken[i]].utilityPool), 0);
+        lpToken.safeApprove(address(componentDependencies[yToken[i]].utilityPool), type(uint256).max);
       } else {
         mintBatchTokens.sourceToken.safeApprove(address(componentDependencies[yToken[i]].angleRouter), 0);
         mintBatchTokens.sourceToken.safeApprove(
           address(componentDependencies[yToken[i]].angleRouter),
           type(uint256).max
         );
-        swapToken[i].safeApprove(address(componentDependencies[yToken[i]].angleRouter), 0);
-        swapToken[i].safeApprove(address(componentDependencies[yToken[i]].angleRouter), type(uint256).max);
+        swapToken.safeApprove(address(componentDependencies[yToken[i]].angleRouter), 0);
+        swapToken.safeApprove(address(componentDependencies[yToken[i]].angleRouter), type(uint256).max);
+
+        swapToken.safeApprove(address(curveMetapool), 0);
+        swapToken.safeApprove(address(curveMetapool), type(uint256).max);
       }
 
-      swapToken[i].safeApprove(address(curveMetapool), 0);
-      swapToken[i].safeApprove(address(curveMetapool), type(uint256).max);
+      lpToken.safeApprove(yToken[i], 0);
+      lpToken.safeApprove(yToken[i], type(uint256).max);
 
-      curveMetapool.safeApprove(yToken[i], 0);
-      curveMetapool.safeApprove(yToken[i], type(uint256).max);
-
-      curveMetapool.safeApprove(address(curveMetapool), 0);
-      curveMetapool.safeApprove(address(curveMetapool), type(uint256).max);
+      lpToken.safeApprove(address(curveMetapool), 0);
+      lpToken.safeApprove(address(curveMetapool), type(uint256).max);
     }
 
     _approveBatchStorage(redeemBatchTokens.sourceToken);
@@ -429,39 +432,28 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
    * @notice Trade USDC for intermediate swapToken and deposit those into the destination curveMetapool
    * @param _amount The amount of USDC that gets deposited
    * @param _contracts ComponentDependencies (swapPool, curveMetapool and AngleRouter)
-   * @param _i index of the component (0 == d3, 1 == 3eur)
+   * @param _i index of the component (0 == sUSD, 1 == 3eur)
    */
   function _sendToCurve(
     uint256 _amount,
     ComponentDependencies memory _contracts,
     uint256 _i
   ) internal {
-    // Trade USDC for intermediate swapToken
-    uint256 destAmount;
     if (_i == 0) {
-      destAmount = _contracts.swapPool.exchange_underlying(2, 0, _amount, 0);
+      _contracts.curveMetaPool.add_liquidity([0, _amount, 0, 0], 0);
     } else {
-      _contracts.angleRouter.mint(
-        address(this),
-        _amount,
-        0,
-        address(swapToken[_i]),
-        address(mintBatchTokens.sourceToken)
-      );
-      destAmount = swapToken[_i].balanceOf(address(this));
+      // Trade USDC for intermediate swapToken
+      _contracts.angleRouter.mint(address(this), _amount, 0, address(swapToken), address(mintBatchTokens.sourceToken));
+      uint256 destAmount = swapToken.balanceOf(address(this));
+      _contracts.curveMetaPool.add_liquidity([destAmount, 0, 0], 0);
     }
-
-    // Pool swapToken for curveMetapool LpToken
-    // The first argument is an array of inputAmounts, the second is for slippage
-    // We do slippage control at the end of the batch operation which is why its 0 here
-    _contracts.curveMetaPool.add_liquidity([destAmount, 0, 0], 0);
   }
 
   /**
    * @notice Burns crvLPToken to get intermediate swapToken
    * @param _amount The amount of lpTOken that get burned
    * @param _contracts ComponentDependencies (swapPool, curveMetapool and AngleRouter)
-   * @param _i index of the component (0 == d3, 1 == 3eur)
+   * @param _i index of the component (0 == sUSD, 1 == 3eur)
    */
   function _withdrawFromCurve(
     uint256 _amount,
@@ -470,18 +462,19 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
   ) internal {
     // Burns lpToken to receive swapToken
     // First argument is the lpToken amount to burn, second is the index of the token we want to receive and third is slippage control
-    _contracts.curveMetaPool.remove_liquidity_one_coin(_amount, 0, uint256(0));
 
     // No we trade the swapToken back to USDC
-    uint256 amountReceived = swapToken[_i].balanceOf(address(this));
+
     if (_i == 0) {
-      _contracts.swapPool.exchange_underlying(0, 2, amountReceived, 0);
+      _contracts.utilityPool.remove_liquidity_one_coin(_amount, int128(1), uint256(0), true);
     } else {
+      _contracts.curveMetaPool.remove_liquidity_one_coin(_amount, int128(0), uint256(0));
+      uint256 amountReceived = swapToken.balanceOf(address(this));
       _contracts.angleRouter.burn(
         address(this),
         amountReceived,
         0,
-        address(swapToken[_i]),
+        address(swapToken),
         address(mintBatchTokens.sourceToken)
       );
     }

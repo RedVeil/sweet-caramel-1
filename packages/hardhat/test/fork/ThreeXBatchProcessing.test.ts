@@ -37,15 +37,14 @@ const USDC_ADDRESS = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
 const USDC_WHALE_ADDRESS = "0xcffad3200574698b78f32232aa9d63eabd290703";
 
-const Y_D3_ADDRESS = "0x16825039dfe2a5b01F3E1E6a2BBF9a576c6F95c4";
+const Y_SUSD_ADDRESS = "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A";
 const Y_3EUR_ADDRESS = "0x5AB64C599FcC59f0f2726A300b03166A395578Da";
 
-const D3_METAPOOL_ADDRESS = "0xBaaa1F5DbA42C3389bDbc2c9D2dE134F5cD0Dc89";
+const SUSD_WITHDRAWAL_POOL_ADDRESS = "0xFCBa3E75865d2d561BE8D220616520c171F12851";
+const CRV_SUSD_ADDRESS = "0xC25a3A3b969415c80451098fa907EC722572917F";
+const SUSD_METAPOOL_ADDRESS = "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD";
 const THREE_EUR_METAPOOL_ADDRESS = "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571";
-const FRAX_METAPOOL_ADDRESS = "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B";
 const EURS_METAPOOL_ADDRESS = "0x98a7F18d4E56Cfe84E3D081B40001B3d5bD3eB8B";
-
-const FRAX_ADDRESS = "0x853d955aCEf822Db058eb8505911ED77F175b99e";
 
 const ANGLE_ROUTER_ADDRESS = "0xBB755240596530be0c1DE5DFD77ec6398471561d";
 const AG_EUR_ADDRESS = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8";
@@ -57,12 +56,10 @@ interface Token {
 }
 interface Contracts {
   token: Token;
-  yearnVaultD3: MockYearnV2Vault;
+  yearnVaultSusd: MockYearnV2Vault;
   yearnVault3EUR: MockYearnV2Vault;
-  curveMetapoolD3: CurveMetapool;
+  curveMetapoolSusd: CurveMetapool;
   curveMetapool3EUR: CurveMetapool;
-  swapPoolFrax: CurveMetapool;
-  swapPoolEurs: CurveMetapool;
   threeXBatchProcessing: ThreeXBatchProcessing;
   staking: Staking;
   threeXStorage: ThreeXBatchVault;
@@ -89,20 +86,20 @@ async function deployToken(): Promise<Token> {
 
   const setTokenCreator = await ethers.getContractAt(SetTokenCreator.abi, SET_TOKEN_CREATOR_ADDRESS);
   const setTokenAddress = await setTokenCreator.callStatic.create(
-    [Y_D3_ADDRESS, Y_3EUR_ADDRESS],
+    [Y_SUSD_ADDRESS, Y_3EUR_ADDRESS],
     [parseEther("50"), parseEther("50")],
     [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
     owner.address,
-    "4X",
-    "4X"
+    "3X",
+    "3X"
   );
   await setTokenCreator.create(
-    [Y_D3_ADDRESS, Y_3EUR_ADDRESS],
+    [Y_SUSD_ADDRESS, Y_3EUR_ADDRESS],
     [parseEther("50"), parseEther("50")],
     [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
     owner.address,
-    "4X",
-    "4X"
+    "3X",
+    "3X"
   );
   const setToken = (await ethers.getContractAt(SetToken.abi, setTokenAddress)) as ERC20;
 
@@ -120,13 +117,10 @@ async function deployToken(): Promise<Token> {
 async function deployContracts(): Promise<Contracts> {
   const token = await deployToken();
 
-  const swapPoolFrax = CurveMetapool__factory.connect(FRAX_METAPOOL_ADDRESS, owner);
-  const swapPoolEurs = CurveMetapool__factory.connect(EURS_METAPOOL_ADDRESS, owner);
-
-  const curveMetapoolD3 = CurveMetapool__factory.connect(D3_METAPOOL_ADDRESS, owner);
+  const curveMetapoolSusd = CurveMetapool__factory.connect(SUSD_METAPOOL_ADDRESS, owner);
   const curveMetapool3EUR = CurveMetapool__factory.connect(THREE_EUR_METAPOOL_ADDRESS, owner);
 
-  const yearnVaultD3 = MockYearnV2Vault__factory.connect(Y_D3_ADDRESS, owner);
+  const yearnVaultSusd = MockYearnV2Vault__factory.connect(Y_SUSD_ADDRESS, owner);
   const yearnVault3EUR = MockYearnV2Vault__factory.connect(Y_3EUR_ADDRESS, owner);
 
   const aclRegistry = await (await (await ethers.getContractFactory("ACLRegistry")).deploy()).deployed();
@@ -162,20 +156,22 @@ async function deployContracts(): Promise<Contracts> {
       { sourceToken: token.usdc.address, targetToken: token.setToken.address }, // mint batch
       { sourceToken: token.setToken.address, targetToken: token.usdc.address }, // redeem batch
       SET_BASIC_ISSUANCE_MODULE_ADDRESS,
-      [yearnVaultD3.address, yearnVault3EUR.address],
+      [yearnVaultSusd.address, yearnVault3EUR.address],
       [
         {
-          swapPool: FRAX_METAPOOL_ADDRESS,
-          curveMetaPool: D3_METAPOOL_ADDRESS,
+          lpToken: CRV_SUSD_ADDRESS,
+          utilityPool: SUSD_WITHDRAWAL_POOL_ADDRESS,
+          curveMetaPool: SUSD_METAPOOL_ADDRESS,
           angleRouter: ethers.constants.AddressZero,
         },
         {
-          swapPool: EURS_METAPOOL_ADDRESS,
+          lpToken: THREE_EUR_METAPOOL_ADDRESS,
+          utilityPool: EURS_METAPOOL_ADDRESS,
           curveMetaPool: THREE_EUR_METAPOOL_ADDRESS,
           angleRouter: ANGLE_ROUTER_ADDRESS,
         },
       ],
-      [FRAX_ADDRESS, AG_EUR_ADDRESS],
+      AG_EUR_ADDRESS,
       {
         batchCooldown: 1800,
         mintThreshold: parseEther("20000"),
@@ -225,11 +221,9 @@ async function deployContracts(): Promise<Contracts> {
 
   return {
     token,
-    yearnVaultD3,
+    yearnVaultSusd,
     yearnVault3EUR,
-    swapPoolFrax,
-    swapPoolEurs,
-    curveMetapoolD3,
+    curveMetapoolSusd,
     curveMetapool3EUR,
     threeXBatchProcessing,
     staking,
@@ -345,25 +339,20 @@ describe("ThreeXBatchProcessing - Fork", () => {
     describe("setUnderlyingTokens", () => {
       const yToken = "0x55559783f812b3af3ABBf7De64C3CD7Cc7d15555";
       const curveMetaPool = "0x1C6a9783F812b3Af3aBbf7de64c3cD7CC7D1af44";
-      const swapPool = "0x890f4e345B1dAED0367A877a1612f86A1f86985f";
+      const lpToken = "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD";
+      const utilityPool = "0x890f4e345B1dAED0367A877a1612f86A1f86985f";
       const angleRouter = "0xBB755240596530be0c1DE5DFD77ec6398471561d";
       let result;
       beforeEach(async () => {
-        result = await contracts.threeXBatchProcessing.connect(owner).setComponents(
-          [yToken],
-          [
-            {
-              swapPool,
-              curveMetaPool,
-              angleRouter,
-            },
-          ]
-        );
+        result = await contracts.threeXBatchProcessing
+          .connect(owner)
+          .setComponents([yToken], [{ lpToken, utilityPool, curveMetaPool, angleRouter }]);
       });
 
       it("sets curve pool token pairs", async () => {
         expect(await contracts.threeXBatchProcessing.componentDependencies(yToken)).to.deep.eq([
-          swapPool,
+          lpToken,
+          utilityPool,
           curveMetaPool,
           angleRouter,
         ]);
@@ -377,7 +366,8 @@ describe("ThreeXBatchProcessing - Fork", () => {
             [yToken],
             [
               {
-                swapPool,
+                lpToken,
+                utilityPool,
                 curveMetaPool,
                 angleRouter,
               },
@@ -1189,12 +1179,12 @@ describe("ThreeXBatchProcessing - Fork", () => {
     it("still allows to claim minted butter", async function () {
       await expect(contracts.threeXBatchProcessing.connect(depositor).claim(claimableMintId, depositor.address))
         .to.emit(contracts.threeXBatchProcessing, "Claimed")
-        .withArgs(depositor.address, BatchType.Mint, BigNumber.from("10000000"), BigNumber.from("92669422142274966"));
+        .withArgs(depositor.address, BatchType.Mint, BigNumber.from("10000000"), BigNumber.from("87362226172596058"));
     });
     it("still allows to claim redemeed usdc", async function () {
       await expect(contracts.threeXBatchProcessing.connect(depositor).claim(claimableRedeemId, depositor.address))
         .to.emit(contracts.threeXBatchProcessing, "Claimed")
-        .withArgs(depositor.address, BatchType.Redeem, parseEther("1"), BigNumber.from("108386036"));
+        .withArgs(depositor.address, BatchType.Redeem, parseEther("1"), BigNumber.from("115036402"));
     });
     it("allows deposits for minting after unpausing", async function () {
       await contracts.threeXBatchProcessing.unpause();
@@ -1319,7 +1309,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
 
         await expect(contracts.threeXBatchProcessing.connect(owner).batchRedeem())
           .to.emit(contracts.threeXBatchProcessing, "BatchRedeemed")
-          .withArgs(batchId, batchBefore.sourceTokenBalance, parseUnits("108.930656", 6));
+          .withArgs(batchId, batchBefore.sourceTokenBalance, parseUnits("115.614436", 6));
 
         const batchAfterRedeem = await threeXBatchProcessing.getBatch(batchId);
         const redeemedAmountAfterFees = batchAfterRedeem.targetTokenBalance;
@@ -1327,7 +1317,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           .accumulated;
         const totalRedeemAmount = accumulatedFees.add(redeemedAmountAfterFees);
 
-        expect(accumulatedFees).to.equal(parseUnits("0.544653", 6));
+        expect(accumulatedFees).to.equal(parseUnits("0.578072", 6));
         expect(true).to.equal(accumulatedFees.lte(totalRedeemAmount.mul(feeRate).div(10000)));
       });
 
@@ -1341,7 +1331,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           token.usdc.address
         );
         const batchBefore = await threeXBatchProcessing.getBatch(batchId);
-        const redeemedAmount = parseUnits("108.930656", 6);
+        const redeemedAmount = parseUnits("115.614436", 6);
         await expect(contracts.threeXBatchProcessing.connect(owner).batchRedeem())
           .to.emit(contracts.threeXBatchProcessing, "BatchRedeemed")
           .withArgs(batchId, batchBefore.sourceTokenBalance, redeemedAmount);
@@ -1355,7 +1345,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           redeemedAmount.mul(feeRate).div(10000)
         );
 
-        expect(accumulatedFees).to.equal(parseUnits("0.653583", 6));
+        expect(accumulatedFees).to.equal(parseUnits("0.693686", 6));
       });
     });
   });
@@ -1419,13 +1409,16 @@ describe("ThreeXBatchProcessing - Fork", () => {
 
         const minAmount = await threeXBatchProcessing.getMinAmountToMint(
           batchBeforeMint.sourceTokenBalance.mul(1e12),
-          parseEther("107.424864383170648500"),
+          await contracts.threeXBatchProcessing.valueOfComponents(
+            [Y_SUSD_ADDRESS, Y_3EUR_ADDRESS],
+            [parseEther("50"), parseEther("50")]
+          ),
           50
         );
 
         await expect(contracts.threeXBatchProcessing.connect(owner).batchMint())
           .to.emit(contracts.threeXBatchProcessing, "BatchMinted")
-          .withArgs(batchId, batchBeforeMint.sourceTokenBalance, parseEther("92.733619263738558228"));
+          .withArgs(batchId, batchBeforeMint.sourceTokenBalance, parseEther("87.422793181878936760"));
 
         const batchAfterMint = await threeXBatchProcessing.getBatch(batchId);
         const mintedTokens = batchAfterMint.targetTokenBalance;
@@ -1433,7 +1426,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           .accumulated;
         const totalMintedAmount = accumulatedFees.add(mintedTokens);
 
-        expect(accumulatedFees).to.equal(totalMintedAmount.sub(minAmount));
+        expectBigNumberCloseTo(accumulatedFees, totalMintedAmount.sub(minAmount));
         expect(true).to.equal(accumulatedFees.lte(totalMintedAmount.mul(feeRate).div(10000)));
       });
 

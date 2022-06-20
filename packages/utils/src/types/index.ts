@@ -40,12 +40,13 @@ export interface ContractAddresses {
   yGBP?: Address;
   yCHF?: Address;
   yJPY?: Address;
-  yD3?: Address;
+  ySusd?: Address;
   y3Eur?: Address;
   crvFrax?: Address;
   crvRai?: Address;
   crvMusd?: Address;
   crvAlusd?: Address;
+  crvSusd?: Address;
   crvEUR?: Address;
   crvGBP?: Address;
   crvCHF?: Address;
@@ -55,6 +56,7 @@ export interface ContractAddresses {
   crvMusdMetapool?: Address;
   crvAlusdMetapool?: Address;
   crvSusdMetapool?: Address;
+  crvSusdUtilityPool?: Address;
   ibEUR?: Address;
   ibGBP?: Address;
   ibCHF?: Address;

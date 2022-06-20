@@ -80,7 +80,7 @@ abstract contract AbstractFee is ACLAuth {
    * @notice Claims all accumulated redemption fees in DAI
    * @param feeType A short string signaling if its a "mint"/"redeem" or any other type of fee
    */
-  function claimRedemptionFee(bytes32 feeType) external {
+  function claimFee(bytes32 feeType) external {
     Fee memory currFee = fees[feeType];
 
     currFee.token.safeTransfer(currFee.recipient, currFee.accumulated);

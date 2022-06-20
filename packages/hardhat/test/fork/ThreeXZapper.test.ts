@@ -35,15 +35,14 @@ const THREE_POOL_ADDRESS = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7";
 const SET_TOKEN_CREATOR_ADDRESS = "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a";
 const SET_BASIC_ISSUANCE_MODULE_ADDRESS = "0xd8EF3cACe8b4907117a45B0b125c68560532F94D";
 
-const Y_D3_ADDRESS = "0x16825039dfe2a5b01F3E1E6a2BBF9a576c6F95c4";
+const Y_SUSD_ADDRESS = "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A";
 const Y_3EUR_ADDRESS = "0x5AB64C599FcC59f0f2726A300b03166A395578Da";
 
-const D3_METAPOOL_ADDRESS = "0xBaaa1F5DbA42C3389bDbc2c9D2dE134F5cD0Dc89";
+const SUSD_WITHDRAWAL_POOL_ADDRESS = "0xFCBa3E75865d2d561BE8D220616520c171F12851";
+const CRV_SUSD_ADDRESS = "0xC25a3A3b969415c80451098fa907EC722572917F";
+const SUSD_METAPOOL_ADDRESS = "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD";
 const THREE_EUR_METAPOOL_ADDRESS = "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571";
-const FRAX_METAPOOL_ADDRESS = "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B";
 const EURS_METAPOOL_ADDRESS = "0x98a7F18d4E56Cfe84E3D081B40001B3d5bD3eB8B";
-
-const FRAX_ADDRESS = "0x853d955aCEf822Db058eb8505911ED77F175b99e";
 
 const ANGLE_ROUTER_ADDRESS = "0xBB755240596530be0c1DE5DFD77ec6398471561d";
 const AG_EUR_ADDRESS = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8";
@@ -82,20 +81,20 @@ async function deployToken(): Promise<Token> {
 
   const setTokenCreator = await ethers.getContractAt(SetTokenCreator.abi, SET_TOKEN_CREATOR_ADDRESS);
   const setTokenAddress = await setTokenCreator.callStatic.create(
-    [Y_D3_ADDRESS, Y_3EUR_ADDRESS],
+    [Y_SUSD_ADDRESS, Y_3EUR_ADDRESS],
     [parseEther("50"), parseEther("50")],
     [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
     owner.address,
-    "4X",
-    "4X"
+    "3X",
+    "3X"
   );
   await setTokenCreator.create(
-    [Y_D3_ADDRESS, Y_3EUR_ADDRESS],
+    [Y_SUSD_ADDRESS, Y_3EUR_ADDRESS],
     [parseEther("50"), parseEther("50")],
     [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
     owner.address,
-    "4X",
-    "4X"
+    "3X",
+    "3X"
   );
   const setToken = (await ethers.getContractAt(SetToken.abi, setTokenAddress)) as ERC20;
 
@@ -138,7 +137,7 @@ async function deployContracts(): Promise<Contracts> {
     ).deploy(token.pop.address, token.setToken.address, rewardsEscrow.address)
   ).deployed();
 
-  const yearnVaultD3 = MockYearnV2Vault__factory.connect(Y_D3_ADDRESS, owner);
+  const yearnVaultSusd = MockYearnV2Vault__factory.connect(Y_SUSD_ADDRESS, owner);
   const yearnVault3EUR = MockYearnV2Vault__factory.connect(Y_3EUR_ADDRESS, owner);
 
   const threeXBatchProcessing = await (
@@ -150,20 +149,22 @@ async function deployContracts(): Promise<Contracts> {
       { sourceToken: token.usdc.address, targetToken: token.setToken.address }, // mint batch
       { sourceToken: token.setToken.address, targetToken: token.usdc.address }, // redeem batch
       SET_BASIC_ISSUANCE_MODULE_ADDRESS,
-      [yearnVaultD3.address, yearnVault3EUR.address],
+      [yearnVaultSusd.address, yearnVault3EUR.address],
       [
         {
-          swapPool: FRAX_METAPOOL_ADDRESS,
-          curveMetaPool: D3_METAPOOL_ADDRESS,
+          lpToken: CRV_SUSD_ADDRESS,
+          utilityPool: SUSD_WITHDRAWAL_POOL_ADDRESS,
+          curveMetaPool: SUSD_METAPOOL_ADDRESS,
           angleRouter: ethers.constants.AddressZero,
         },
         {
-          swapPool: EURS_METAPOOL_ADDRESS,
+          lpToken: THREE_EUR_METAPOOL_ADDRESS,
+          utilityPool: EURS_METAPOOL_ADDRESS,
           curveMetaPool: THREE_EUR_METAPOOL_ADDRESS,
           angleRouter: ANGLE_ROUTER_ADDRESS,
         },
       ],
-      [FRAX_ADDRESS, AG_EUR_ADDRESS],
+      AG_EUR_ADDRESS,
       {
         batchCooldown: 1800,
         mintThreshold: parseEther("20000"),
@@ -213,6 +214,8 @@ async function deployContracts(): Promise<Contracts> {
       await ethers.getContractFactory("ThreeXZapper")
     ).deploy(contractRegistry.address, THREE_POOL_ADDRESS, [DAI_ADDRESS, USDC_ADDRESS, USDT_ADDRESS])
   ).deployed();
+
+  await zapper.setApprovals();
 
   await aclRegistry.grantRole(ethers.utils.id("ThreeXZapper"), zapper.address);
 

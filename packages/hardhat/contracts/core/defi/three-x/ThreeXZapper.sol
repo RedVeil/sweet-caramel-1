@@ -50,8 +50,6 @@ contract ThreeXZapper {
     contractRegistry = _contractRegistry;
     threePool = _threePool;
     token = _token;
-
-    _setApprovals();
   }
 
   /* ========== MUTATIVE FUNCTIONS ========== */
@@ -166,9 +164,12 @@ contract ThreeXZapper {
   /**
    * @notice set idempotent approvals for threePool and butter batch processing
    */
-  function _setApprovals() internal {
+  function setApprovals() external {
     for (uint256 i; i < token.length; i++) {
+      token[i].safeApprove(address(threePool), 0);
       token[i].safeApprove(address(threePool), type(uint256).max);
+
+      token[i].safeApprove(contractRegistry.getContract(keccak256("ThreeXBatchProcessing")), 0);
       token[i].safeApprove(contractRegistry.getContract(keccak256("ThreeXBatchProcessing")), type(uint256).max);
     }
   }

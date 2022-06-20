@@ -428,7 +428,7 @@ export default function ThreeX(): JSX.Element {
           <br />
           Stake your 3X to earn boosted APY.
         </p>
-        <ButterStats butterData={threeXData} addresses={[contractAddresses.yD3, contractAddresses.y3Eur]} isThreeX />
+        <ButterStats butterData={threeXData} addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]} isThreeX />
       </div>
       <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
         <div className="order-2 md:order-1 md:w-1/3 mb-10">
