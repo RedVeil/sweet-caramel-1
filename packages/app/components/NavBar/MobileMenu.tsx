@@ -6,7 +6,7 @@ import GetProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import DropDownComponent from "./DropDownComponent";
 import { getPoolLink, getPopAddress } from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
@@ -17,6 +17,10 @@ export const MobileMenu: React.FC = () => {
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
   const products = GetProducts(router, pushWithinChain);
+
+  useEffect(() => {
+    toggleMenu(false);
+  }, [router?.pathname]);
 
   return (
     <>
@@ -78,7 +82,11 @@ export const MobileMenu: React.FC = () => {
                       <div className="relative flex flex-container flex-row w-fit-content z-10 py-6">
                         {products.length < 2 ? (
                           <li className="mt-1">
-                            <NavbarLink label={products[0].title} isActive={false} onClick={products[0].onClick} />
+                            <NavbarLink
+                              label={products[0].title}
+                              isActive={false}
+                              onClick={() => products[0].onClick}
+                            />
                           </li>
                         ) : (
                           <Menu>
@@ -90,7 +98,7 @@ export const MobileMenu: React.FC = () => {
                                   Products
                                 </p>
                                 <ChevronDownIcon
-                                  className="fill-current md:text-gray-500 text-gray-900 group-hover:text-gray-900 mt-0.5 w-5 h-5 ml-0.5"
+                                  className="fill-current md:text-gray-500 text-gray-900 group-hover:text-gray-900 mt-0.5 w-7 h-5 ml-0.5"
                                   aria-hidden="true"
                                 />
                               </div>
