@@ -2,11 +2,20 @@ export {
   adjustDepositDecimals,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
-  prepareHotSwap,
   percentageToBps,
+  prepareHotSwap,
 } from "./butterHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
+export {
+  ChainId,
+  ChainIdHex,
+  networkLogos,
+  networkMap,
+  PRC_PROVIDERS,
+  RPC_URLS,
+  supportedChainIds,
+} from "./connectors";
 export { getERC20Contract } from "./contractHelpers";
 export {
   bigNumberToNumber,

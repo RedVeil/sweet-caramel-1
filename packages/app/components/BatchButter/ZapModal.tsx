@@ -1,4 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import { TokenMetadata } from "@popcorn/utils/types";
 import MainActionButton from "components/MainActionButton";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { Dispatch, useState } from "react";
@@ -6,6 +7,7 @@ import OutputToken from "./OutputToken";
 import SlippageSettings from "./SlippageSettings";
 
 interface ZapModalProps {
+  tokenOptions: TokenMetadata[];
   slippage: number;
   setSlippage: Dispatch<number>;
   closeModal: Function;
@@ -16,9 +18,8 @@ interface ZapModalProps {
   isWithdraw?: boolean;
 }
 
-const OUTPUT_TOKEN = ["3CRV", "DAI", "USDC", "USDT"];
-
 export default function ZapModal({
+  tokenOptions,
   slippage,
   setSlippage,
   closeModal,
@@ -28,14 +29,16 @@ export default function ZapModal({
   withdrawAmount,
   isWithdraw = false,
 }: ZapModalProps): JSX.Element {
-  const [selectedToken, selectToken] = useState<string>("3CRV");
+  const [selectedToken, selectToken] = useState<TokenMetadata>(tokenOptions[0]);
 
   return (
     <div className="flex flex-col mt-4 mx-4">
-      <OutputToken outputToken={OUTPUT_TOKEN} selectToken={selectToken} selectedToken={selectedToken} />
-      <div className="mt-4">
-        <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
-      </div>
+      <OutputToken outputToken={tokenOptions} selectToken={selectToken} selectedToken={selectedToken} />
+      {selectedToken !== tokenOptions[0] && (
+        <div className="mt-4">
+          <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
+        </div>
+      )}
       <div className="mt-5 flex flex-row space-x-4 md:space-x-8">
         <SecondaryActionButton
           label={"Cancel"}
@@ -47,8 +50,8 @@ export default function ZapModal({
           label={isWithdraw ? "Withdraw" : "Claim"}
           handleClick={() => {
             isWithdraw
-              ? withdraw(batchId, withdrawAmount, selectedToken !== "3CRV", selectedToken.toLowerCase())
-              : claim(batchId, selectedToken !== "3CRV", selectedToken.toLowerCase());
+              ? withdraw(batchId, withdrawAmount, selectedToken !== tokenOptions[0], selectedToken.key)
+              : claim(batchId, selectedToken !== tokenOptions[0], selectedToken.key);
             closeModal();
           }}
         ></MainActionButton>

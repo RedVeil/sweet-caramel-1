@@ -33,15 +33,15 @@ jobs:
         with:
           source: .env.example
           target: .env
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "yarn install"
         with:
           cmd: install # will run `yarn install` command
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "build"
         with:
           cmd: app:build # will run `yarn app:build` command
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "run tests"
         with:
           cmd: test

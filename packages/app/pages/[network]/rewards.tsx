@@ -1,4 +1,5 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
+import { ChainId } from "@popcorn/utils";
 import { CardLoader } from "components/CardLoader";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import AirDropClaim from "components/Rewards/AirdropClaim";
@@ -21,7 +22,6 @@ import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { toast } from "react-hot-toast";
 import { SWRResponse } from "swr";
-import { ChainId } from "../../context/Web3/connectors";
 import useBalanceAndAllowance from "../../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../../hooks/tokens/useERC20";
 

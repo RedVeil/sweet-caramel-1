@@ -5,9 +5,13 @@ import { Dispatch } from "react";
 interface MintRedeemToggleProps {
   redeeming: Boolean;
   setRedeeming: Dispatch<Boolean>;
+  isThreeX?: Boolean;
 }
 
-const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedeeming }) => {
+const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedeeming, isThreeX = false }) => {
+  const displayInputToken = isThreeX ? "USDC" : "3CRV";
+  const displayOutputToken = isThreeX ? "3X" : "BTR";
+
   return (
     <div className="flex flex-row">
       <div
@@ -29,10 +33,14 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
               classExtras="h-7 w-7 mt-0 ml-5"
               id="1"
               title="Mint"
-              content="Mint BTR with 3CRV or stablecoins to earn interest on multiple stablecoins at once.
+              content={`Mint ${displayOutputToken} with ${displayInputToken} or stablecoins to earn interest on multiple stablecoins at once.
               As the value of the underlying assets increase, so does the redeemable value of
-              Butter. This process converts deposited funds into other stablecoins and deploys
-              them to automated yield-farming contracts by Yearn to generate interest."
+              ${displayOutputToken}. This process converts deposited funds into other stablecoins and deploys
+              them to automated yield-farming contracts by Yearn to generate interest. ${
+                isThreeX
+                  ? `Minting incurs a ${(0.75).toLocaleString(undefined, localStringOptions)}% (75 bps) mint fee.`
+                  : ""
+              }`}
             />
           </div>
         </p>
@@ -56,10 +64,10 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
               classExtras="h-7 w-7 mt-0 ml-5"
               id="2"
               title="Redeem"
-              content={`Redeem your BTR to receive its value in 3CRV or stablecoins. The underlying tokens will be converted into 3CRV or your desired stablecoin. Redemptions incur a ${(0.5).toLocaleString(
-                undefined,
-                localStringOptions,
-              )}% (50 bps) redemption fee.`}
+              content={`Redeem your ${displayOutputToken} to receive its value in ${displayInputToken} or stablecoins. The underlying tokens will be converted into ${displayInputToken} or your desired stablecoin. Redemptions incur a ${(isThreeX
+                ? 0.75
+                : 0.5
+              ).toLocaleString(undefined, localStringOptions)}% (${isThreeX ? 75 : 50} bps) redemption fee.`}
             />
           </div>
         </p>

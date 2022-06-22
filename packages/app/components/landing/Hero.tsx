@@ -6,15 +6,19 @@ interface HeroProps {
   content: string;
   image: string;
   link: string;
+  imageSize?: string;
 }
 
-export default function Hero({ header, content, image, link }: HeroProps): JSX.Element {
+export default function Hero({ header, content, image, link, imageSize }: HeroProps): JSX.Element {
   const router = useRouter();
   return (
     <Link href={`/${router?.query?.network}${link}`} passHref>
-      <div className="md:w-1/2 smlaptop:w-130 bg-light flex flex-col items-start self-stretch py-12 px-8 mb-4 mt-10 mx-4 smlaptop:py-20 filter shadow-custom transition duration-500 ease-in-out transform hover:scale-102 cursor-pointer rounded-4xl">
-        <img src={image} className="mx-auto flex-grow-0 w-72 md:w-80 h-52 md:h-56 lglaptop:h-72 lglaptop:w-108" />
-        <p className="mx-auto text-gray-900 mb-3 mt-8 lg:mt-12 lglaptop:mb-4 lglaptop:mt-20 font-semibold text-2xl md:text-4xl lglaptop:text-5xl">
+      <div className="bg-light flex flex-col items-center justify-center py-12 px-8 smlaptop:py-12 filter shadow-custom transition duration-500 ease-in-out transform hover:scale-102 cursor-pointer rounded-4xl w-full h-full">
+        <img
+          src={image}
+          className={`mx-auto flex-grow-0 w-72 md:w-80 lglaptop:w-108 ${imageSize || "h-52 md:h-60 lglaptop:h-72"}`}
+        />
+        <p className="mx-auto text-gray-900 mb-3 mt-8 lg:mt-12 lglaptop:mb-4 font-semibold text-2xl md:text-4xl lglaptop:text-5xl">
           {header}
         </p>
         <div className="mx-auto w-4/5">

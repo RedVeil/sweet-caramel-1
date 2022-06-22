@@ -29,7 +29,7 @@ const prepareLbpManager = async () => {
     params: [
       {
         forking: {
-          jsonRpcUrl: process.env.RPC_URL,
+          jsonRpcUrl: process.env.FORKING_RPC_URL,
           blockNumber: 13677417,
         },
       },
@@ -93,9 +93,7 @@ describe.skip("LBP test", () => {
       expect(config.startTime).to.equal(START_TIME);
       expect(config.swapEnabledOnStart).to.equal(false);
       expect(config.durationInSeconds).to.equal(2.5 * DAYS);
-      expect(dao.treasury).to.equal(
-        "0x0Ec6290aBb4714ba5f1371647894Ce53c6dD673a"
-      );
+      expect(dao.treasury).to.equal("0x0Ec6290aBb4714ba5f1371647894Ce53c6dD673a");
       expect(dao.agent).to.equal("0x0Ec6290aBb4714ba5f1371647894Ce53c6dD673a");
     });
 
@@ -127,19 +125,13 @@ describe.skip("LBP test", () => {
       const config = await lbpManager.poolConfig();
 
       expect(config.deployed).to.be.true;
-      expect(poolAddress).to.equal(
-        "0x604A625B1db031e8CdE1D49d30d425E0b6cf734f"
-      );
+      expect(poolAddress).to.equal("0x604A625B1db031e8CdE1D49d30d425E0b6cf734f");
     });
 
     it("will allow anyone to enable trading on the 29th", async () => {
       const poolAddress = await deployPoolByVote();
       const [anyone] = await ethers.getSigners();
-      const lbpManager = await ethers.getContractAt(
-        "LBPManager",
-        LBP_MANAGER,
-        anyone
-      );
+      const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER, anyone);
 
       await setTimestamp((await lbpManager.poolConfig()).startTime.toNumber());
 
@@ -155,27 +147,15 @@ describe.skip("LBP test", () => {
       await setTimestamp(START_TIME - 15);
 
       const [anyone] = await ethers.getSigners();
-      const lbpManager = await ethers.getContractAt(
-        "LBPManager",
-        LBP_MANAGER,
-        anyone
-      );
+      const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER, anyone);
 
-      await expectRevert(
-        lbpManager.enableTrading(),
-        "Trading can not be enabled yet"
-      );
+      await expectRevert(lbpManager.enableTrading(), "Trading can not be enabled yet");
     });
 
     it("will transfer funds from LBP manager to Pool when LBP is deployed", async () => {
       const poolAddress = await deployPoolByVote();
-      const [usdcBalancerAfter, popBalanceAfter] = await getPoolTokenBalances(
-        LBP_MANAGER
-      );
-      const vault = await ethers.getContractAt(
-        "IVault",
-        namedAccounts.balancerVault
-      );
+      const [usdcBalancerAfter, popBalanceAfter] = await getPoolTokenBalances(LBP_MANAGER);
+      const vault = await ethers.getContractAt("IVault", namedAccounts.balancerVault);
 
       const lbp = await ethers.getContractAt("ILBP", poolAddress);
       const tokens = await vault.getPoolTokens(await lbp.getPoolId());
@@ -207,15 +187,11 @@ describe.skip("LBP test", () => {
 
       await lbpManager.enableTrading();
 
-      const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury
-      );
+      const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(namedAccounts.daoTreasury);
 
       await lbpManager.withdrawFromPool();
 
-      const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury
-      );
+      const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(namedAccounts.daoTreasury);
 
       expect(usdcBalanceAfter.gt(usdcBalanceBefore)).to.be.true;
       expect(popBalanceAfter.gt(popBalanceBefore)).to.be.true;
@@ -225,11 +201,7 @@ describe.skip("LBP test", () => {
 
       await timeTravel(5 * DAYS);
       const [anyone] = await ethers.getSigners();
-      const lbpManager = await ethers.getContractAt(
-        "LBPManager",
-        LBP_MANAGER,
-        anyone
-      );
+      const lbpManager = await ethers.getContractAt("LBPManager", LBP_MANAGER, anyone);
 
       await lbpManager.enableTrading();
 
@@ -246,10 +218,7 @@ describe.skip("LBP test", () => {
         signer
       );
 
-      const agent = new ethers.Contract(
-        namedAccounts.daoAgent,
-        require("../../lib/external/aragon/Agent.json")
-      );
+      const agent = new ethers.Contract(namedAccounts.daoAgent, require("../../lib/external/aragon/Agent.json"));
 
       const tokens = new ethers.Contract(
         namedAccounts.tokenManager,
@@ -260,38 +229,28 @@ describe.skip("LBP test", () => {
       const evmScript = encodeCallScript([
         {
           to: namedAccounts.daoAgent,
-          data: agent.interface.encodeFunctionData(
-            "execute(address,uint256,bytes)",
-            [
-              LBP_MANAGER,
-              0,
-              lbpManager.interface.encodeFunctionData("withdrawFromPool"), // withdrawFromPool()
-            ]
-          ),
+          data: agent.interface.encodeFunctionData("execute(address,uint256,bytes)", [
+            LBP_MANAGER,
+            0,
+            lbpManager.interface.encodeFunctionData("withdrawFromPool"), // withdrawFromPool()
+          ]),
         },
       ]);
 
       const voteEvmScript = encodeCallScript([
         {
           to: namedAccounts.voting,
-          data: voting.interface.encodeFunctionData("newVote(bytes,string)", [
-            evmScript,
-            "",
-          ]),
+          data: voting.interface.encodeFunctionData("newVote(bytes,string)", [evmScript, ""]),
         },
       ]);
 
       await tokens.forward(voteEvmScript);
 
-      const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury
-      );
+      const [usdcBalanceBefore, popBalanceBefore] = await getPoolTokenBalances(namedAccounts.daoTreasury);
 
       await voting.vote(6, true, true);
 
-      const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(
-        namedAccounts.daoTreasury
-      );
+      const [usdcBalanceAfter, popBalanceAfter] = await getPoolTokenBalances(namedAccounts.daoTreasury);
 
       expect(usdcBalanceAfter.gt(usdcBalanceBefore)).to.be.true;
       expect(popBalanceAfter.gt(popBalanceBefore)).to.be.true;
@@ -321,7 +280,7 @@ describe.skip("LBP test", () => {
         params: [
           {
             forking: {
-              jsonRpcUrl: process.env.RPC_URL,
+              jsonRpcUrl: process.env.FORKING_RPC_URL,
               blockNumber: 13677417,
             },
           },
@@ -338,10 +297,7 @@ describe.skip("LBP test", () => {
         require("../../lib/external/aragon/Voting.json"),
         await impersonateSigner(POP_WHALE)
       );
-      await expectRevert(
-        voting.executeVote(5),
-        "Manager does not have enough pool tokens"
-      );
+      await expectRevert(voting.executeVote(5), "Manager does not have enough pool tokens");
     });
   });
 });

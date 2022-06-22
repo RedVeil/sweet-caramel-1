@@ -30,7 +30,7 @@ export enum InteractionType {
 }
 
 export const defaultForm = {
-  amount: BigNumber.from("0"),
+  amount: constants.Zero,
   type: InteractionType.Deposit,
   termsAccepted: false,
 };
@@ -87,7 +87,7 @@ export default function StakeInterface({
               <div className="md:hidden">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "0"
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "$0"
                   }
                   label="TVL"
                 />
@@ -97,7 +97,7 @@ export default function StakeInterface({
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "0"
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "$0"
                   }
                   label="TVL"
                 />

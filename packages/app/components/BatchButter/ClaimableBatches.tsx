@@ -1,7 +1,7 @@
 import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
-import { ButterPageState } from "pages/[network]/butter";
+import { ButterPageState } from "pages/[network]/set/butter";
 import { Dispatch, useContext } from "react";
 import ClaimableBatch from "./ClaimableBatch";
 import MobileClaimableBatch from "./MobileClaimableBatch";
@@ -13,6 +13,7 @@ interface ClaimableBatchesProps {
   claimAndStake: Function;
   withdraw: Function;
   butterPageState: [ButterPageState, Dispatch<ButterPageState>];
+  isThreeX?: boolean;
 }
 
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
@@ -21,10 +22,20 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   claimAndStake,
   withdraw,
   butterPageState,
+  isThreeX = false,
 }) => {
   const { dispatch } = useContext(store);
   const [localButterPageState, setButterPageState] = butterPageState;
-
+  const tokenOptions =
+    localButterPageState?.tokens &&
+    (isThreeX
+      ? [localButterPageState.tokens.usdc, localButterPageState.tokens.dai, localButterPageState.tokens.usdt]
+      : [
+          localButterPageState.tokens.threeCrv,
+          localButterPageState.tokens.dai,
+          localButterPageState.tokens.usdc,
+          localButterPageState.tokens.usdt,
+        ]);
   function setSlippage(slippage: number): void {
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }
@@ -36,6 +47,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
           title: "Choose an Output Token",
           content: (
             <ZapModal
+              tokenOptions={tokenOptions}
               slippage={localButterPageState.slippage}
               setSlippage={setSlippage}
               closeModal={() => dispatch(setDualActionWideModal(false))}
@@ -59,6 +71,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
           title: "Choose an Output Token",
           content: (
             <ZapModal
+              tokenOptions={tokenOptions}
               slippage={localButterPageState.slippage}
               setSlippage={setSlippage}
               closeModal={() => dispatch(setDualActionWideModal(false))}
@@ -104,6 +117,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
               handleClaim={handleClaim}
               handleClaimAndStake={handleClaimAndStake}
               handleWithdraw={handleWithdraw}
+              isThreeX={isThreeX}
             />
           ))}
         </tbody>
@@ -120,6 +134,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
               handleClaim={handleClaim}
               handleClaimAndStake={handleClaimAndStake}
               handleWithdraw={handleWithdraw}
+              isThreeX={isThreeX}
             />
           ))}
         </div>

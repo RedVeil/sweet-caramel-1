@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -18,7 +17,7 @@ jobs:
         with:
           source: .env.example
           target: .env
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "yarn install"
         with:
           cmd: install # will run `yarn install` command
@@ -27,6 +26,7 @@ jobs:
         with:
           version: nightly
       - name: Run tests
-        run: cd packages/hardhat && forge test -vvv --fork-url $FOUNDRY_FORK_URL
+        run: cd packages/hardhat && forge test -vvv --fork-block-number 14970000 --fork-url $FOUNDRY_FORK_URL
         env:
+          FOUNDRY_PROFILE: ci
           FOUNDRY_FORK_URL: ${{secrets.RPC_URL}}

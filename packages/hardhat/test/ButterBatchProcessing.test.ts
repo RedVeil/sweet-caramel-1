@@ -1221,7 +1221,7 @@ describe("ButterBatchProcessing", function () {
         await provider.send("evm_mine", []);
         await contracts.butterBatchProcessing.connect(owner).batchMint();
         const mintedHYSI = await contracts.mockSetToken.balanceOf(contracts.butterBatchProcessing.address);
-        expect(
+        await expect(
           await contracts.butterBatchProcessing
             .connect(depositor)
             .moveUnclaimedDepositsIntoCurrentBatch([batchId], [parseEther("5000")], BatchType.Mint)

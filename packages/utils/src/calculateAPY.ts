@@ -1,5 +1,4 @@
 import { parseEther } from "@ethersproject/units";
-import { ChainId } from "@popcorn/app/context/Web3/connectors";
 import {
   BasicIssuanceModule__factory,
   ButterBatchProcessing__factory,
@@ -9,6 +8,7 @@ import {
   IGUni__factory,
 } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
+import { ChainId } from "./connectors";
 import { Address, ContractAddresses } from "./types";
 
 export async function calculateApy(
@@ -20,13 +20,14 @@ export async function calculateApy(
   library,
 ): Promise<BigNumber> {
   //Prevents `div by 0` errors
-  if (!totalStaked || totalStaked.eq(BigNumber.from("0"))) {
+  if (!totalStaked || totalStaked.eq(constants.Zero)) {
     return BigNumber.from("-1");
   }
   switch (stakedTokenAddress.toLocaleLowerCase()) {
     case contractAddresses.popUsdcLp.toLocaleLowerCase():
       return await getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     case contractAddresses.butter.toLocaleLowerCase():
+    case contractAddresses.threeX.toLocaleLowerCase():
       return await getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     default:
       return constants.Zero;
@@ -52,7 +53,7 @@ export async function getLpTokenApy(
     const popAmount = await ERC20__factory.connect(contractAddresses.pop, library).balanceOf(
       contractAddresses.popUsdcLp,
     );
-    if (usdcAmount.eq(BigNumber.from("0")) || popAmount.eq(BigNumber.from("0"))) {
+    if (usdcAmount.eq(constants.Zero) || popAmount.eq(constants.Zero)) {
       return BigNumber.from("-1");
     }
     return await getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);

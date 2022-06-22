@@ -1,7 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
+import { ChainId } from "@popcorn/utils";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import React, { Fragment, useContext } from "react";
-import { ChainId } from "../../context/Web3/connectors";
 import NetworkOptionsMenuItem from "./NetworkOptionsMenuItem";
 
 interface NetworkOptionsMenuProps {

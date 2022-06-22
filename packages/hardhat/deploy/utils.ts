@@ -15,9 +15,7 @@ export const addContractToRegistry = async (
     signer
   );
 
-  const contract = await contractRegistry.getContract(
-    ethers.utils.id(contractName)
-  );
+  const contract = await contractRegistry.getContract(ethers.utils.id(contractName));
 
   console.log(`Adding contract ${contractName} to registry`);
   if (contract === ethers.constants.AddressZero) {
@@ -30,9 +28,7 @@ export const addContractToRegistry = async (
       { gasLimit: 1000000 }
     );
   } else {
-    console.log(
-      `${contractName} already exists in registry, updating entry ...`
-    );
+    console.log(`${contractName} already exists in registry, updating entry ...`);
 
     const tx = await contractRegistry.updateContract(
       ethers.utils.id(contractName),
@@ -42,7 +38,9 @@ export const addContractToRegistry = async (
       ethers.utils.id("2" + new Date().getTime().toString()),
       { gasLimit: 1000000 }
     );
-    await tx.wait(1);
+    if (!["hardhat", "local"].includes(hre.network.name)) {
+      await tx.wait(1);
+    }
   }
 };
 module.exports.skip = () => true;

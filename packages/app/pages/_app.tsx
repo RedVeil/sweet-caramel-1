@@ -9,10 +9,8 @@ import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScree
 import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
 import { NetworkChangePromptModalContainer } from "components/Modal/NetworkChangePromptModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
-import { WalletSelectModalContainer } from "components/Modal/WalletSelectModalContainer";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
-import SwapChainModal from "components/SwapChainModal";
 import { FeatureToggleProvider } from "context/FeatureToggleContext";
 import web3Onboard from "helper/web3Onboard";
 import Head from "next/head";
@@ -80,14 +78,12 @@ export default function MyApp(props) {
             <SoftLaunchCheck loading={loading} />
             <MobileFullScreenModalContainer />
             <SingleActionModalContainer />
-            <WalletSelectModalContainer />
             <MultiChoiceActionModalContainer />
             <DualActionModalContainer />
             <DualActionWideModalContainer />
             <NetworkChangePromptModalContainer />
             {getLayout(<Component {...pageProps} />)}
             <FeatureTogglePanel />
-            <SwapChainModal />
             <NotificationsContainer />
             <Debug />
           </FeatureToggleProvider>

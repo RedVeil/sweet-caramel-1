@@ -1,7 +1,9 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
+import { ChainId } from "@popcorn/utils";
 import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
 import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
-import { setMultiChoiceActionModal } from "context/actions";
+import TermsContent from "components/staking/TermsModalContent";
+import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
@@ -11,7 +13,6 @@ import useWeb3 from "hooks/useWeb3";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { ChainId } from "../../../context/Web3/connectors";
 
 export default function PopStakingPage(): JSX.Element {
   const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId, pushWithinChain } =
@@ -85,14 +86,24 @@ export default function PopStakingPage(): JSX.Element {
     stakingPool.contract
       .connect(signer)
       ["processExpiredLocks(bool)"](true)
-      .then((res) =>
+      .then((res) => {
         onContractSuccess(res, "POP Restaked!", () => {
           balances.revalidate();
           setForm(defaultForm);
-        }),
-      )
+        });
+        dispatch(setSingleActionModal(false));
+      })
       .catch((err) => onContractError(err));
   }
+
+  const openTermsModal = () => {
+    dispatch(
+      setSingleActionModal({
+        title: "Terms & Conditions",
+        children: <TermsContent restake={restake} />,
+      }),
+    );
+  };
 
   function approve() {
     toast.loading("Approving POP ...");
@@ -113,7 +124,7 @@ export default function PopStakingPage(): JSX.Element {
           stake={stake}
           withdraw={withdraw}
           approve={approve}
-          restake={restake}
+          restake={openTermsModal}
           onlyView={!account}
           chainId={chainId}
           isPopLocker

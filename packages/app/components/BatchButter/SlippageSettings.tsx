@@ -49,7 +49,6 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
                 <InfoIconWithModal
                   title="Slippage Tolerance"
                   content="Your transaction will revert if the price changes unfavorably by more than this percentage"
-                  size="h-6 w-6"
                 />
               </div>
             </div>
@@ -87,11 +86,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
             <div className="flex flex-row">
               <p className="mb-1 text-left font-semibold">Custom Adjustments</p>
               <div className="-mt-1 ml-1">
-                <InfoIconWithModal
-                  title="Custom Adjustments"
-                  content="Input a custom slippage tolerance amount"
-                  size="h-6 w-6"
-                />
+                <InfoIconWithModal title="Custom Adjustments" content="Input a custom slippage tolerance amount" />
               </div>
             </div>
 

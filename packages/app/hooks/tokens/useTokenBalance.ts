@@ -1,6 +1,6 @@
 import { isAddress } from "@ethersproject/address";
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import useSWR, { SWRResponse } from "swr";
 
 export default function useTokenBalance(
@@ -11,9 +11,9 @@ export default function useTokenBalance(
     [`erc20/${token?.address}/balanceOf/${account}`, account],
     async (key: string, account: string | undefined | null) => {
       if (!isAddress(token?.address) || !isAddress(account) || !token) {
-        return BigNumber.from("0");
+        return constants.Zero;
       }
-      return token?.balanceOf(account) || BigNumber.from("0");
+      return token?.balanceOf(account) || constants.Zero;
     },
     {
       refreshInterval: 3 * 1000,

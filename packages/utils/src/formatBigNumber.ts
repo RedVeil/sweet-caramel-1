@@ -1,4 +1,4 @@
-import { BigNumber, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
 export function formatAndRoundBigNumber(value: BigNumber, digits?: number, decimals = 18): string {
@@ -31,7 +31,7 @@ export function numberToBigNumber(value: number | string, decimals: number = 18)
     if (value == "" || value == ".") value = "0";
     return BigNumber.from(parseEther(value));
   }
-  return BigNumber.from("0");
+  return constants.Zero;
 }
 
 export function scaleNumberToBigNumber(value: number): BigNumber {

@@ -24,6 +24,9 @@ export default function SetTokenCreator({ configuration, debug, hre }: Args): Se
 
   return {
     _calculateUnits: async function (component: Configuration["components"][0]): Promise<BigNumber> {
+      if (component.amount) {
+        return component.amount;
+      }
       const yVault = await hre.ethers.getContractAt(YearnV2VaultABI, component.address);
 
       const curveLP = await hre.ethers.getContractAt(FactoryMetapoolABI, component.oracle);

@@ -18,6 +18,7 @@ interface Args {
   force?: boolean;
   distributeOnly?: boolean;
   firstRun?: boolean;
+  noPrompt?: boolean;
 }
 export default task(
   "rewards-distributor:distribute",
@@ -27,16 +28,13 @@ export default task(
   .addFlag("editOnly", "will edit rewards for current period but not distribute rewards")
   .addFlag("dryRun", "will not submit any transactions")
   .addFlag("firstRun", "used when it's the first reward distribution")
+  .addFlag("noPrompt", "disables confirmation prompt for distributing rewards")
   .addFlag(
     "force",
     "will force editing distribute rewards and calling distribution function regardless of rewards period"
   )
   .setAction(async (args: Args, hre) => {
-    const editOnly = args.editOnly;
-    const dryRun = args.dryRun;
-    const firstRun = args.firstRun;
-    const distributeOnly = args.distributeOnly;
-    const force = args.force;
+    const { editOnly, dryRun, firstRun, distributeOnly, force, noPrompt } = args;
     const popLockerAddress = (await hre.deployments.get("PopLocker")).address;
     const { pop, rewardsDistribution } = getNamedAccountsFromNetwork(hre);
 
@@ -122,10 +120,14 @@ export default task(
 
       if (distributeOnly || (!dryRun && !editOnly)) {
         console.log("distributing rewards ... ");
-        const yes = ask.keyInYN(`Are you sure you want to transfer ${formatEther(periodTotalRewards)} POP rewards?`);
+        const yes = noPrompt
+          ? true
+          : ask.keyInYN(`Are you sure you want to transfer ${formatEther(periodTotalRewards)} POP rewards?`);
         if (!yes) {
           process.exit();
         }
+        console.log(`distributing ${formatEther(periodTotalRewards)} POP rewards`);
+
         const tx = await rewardsDistributionContract
           .connect(signer)
           .distributeRewards(periodTotalRewards, { gasLimit: 1000000 });

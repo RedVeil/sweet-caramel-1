@@ -1,9 +1,9 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ethers } from "@popcorn/hardhat/node_modules/ethers/lib";
+import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
 import { useConnectWallet, useSetChain, useWallets } from "@web3-onboard/react";
 import { setNetworkChangePromptModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId, PRC_PROVIDERS } from "context/Web3/connectors";
+import { ethers } from "ethers";
 import { getStorage, removeStorage, setStorage } from "helper/safeLocalstorageAccess";
 import toTitleCase from "helper/toTitleCase";
 import useWeb3Callbacks from "helper/useWeb3Callbacks";
@@ -40,7 +40,7 @@ export default function useWeb3() {
   useEffect(() => {
     // Eagerconnect
     if (!wallet && previouslyConnectedWallets?.length > 0) {
-      handleConnect();
+      handleConnect(true);
     }
   }, []);
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function useWeb3() {
 
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
-    if (isChainMismatch(router?.query?.network as string)) {
+    if (isChainMismatch(router?.query?.network as string) && !["/[network]", "/"].includes(router?.pathname)) {
       alertChainInconsistency(router?.query?.network as string, ChainId[Number(connectedChain.id)]);
     } else {
       dispatch(setNetworkChangePromptModal(false));
@@ -103,9 +103,9 @@ export default function useWeb3() {
     await disconnect({ label: wallet?.label });
   }
 
-  async function handleConnect(): Promise<void> {
+  async function handleConnect(disableModals: boolean = false): Promise<void> {
     return previouslyConnectedWallets
-      ? await connect({ autoSelect: previouslyConnectedWallets[0] })
+      ? await connect({ autoSelect: { label: previouslyConnectedWallets[0], disableModals } })
       : await connect({});
   }
 

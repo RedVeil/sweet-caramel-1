@@ -1,6 +1,6 @@
 import { Menu } from "@headlessui/react";
+import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import React from "react";
-import { ChainId, logos, networkMap } from "../../context/Web3/connectors";
 
 interface NetworkOptionsMenuItemProps {
   chainId: ChainId;
@@ -28,7 +28,7 @@ const NetworkOptionsMenuItem: React.FC<NetworkOptionsMenuItemProps> = ({
           onClick={() => switchNetwork(chainId)}
         >
           <div className="w-4.5 h-4 object-contain ml-3">
-            <img src={logos[chainId]} alt={""} className="w-4.5 h-full" />
+            <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-full" />
           </div>
           <div className={`w-18 text-lg  ${active ? "font-semibold" : "font-medium"}`}>{networkMap[chainId]}</div>
           {currentChainId === chainId ? (

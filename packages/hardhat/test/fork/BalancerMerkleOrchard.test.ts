@@ -23,7 +23,7 @@ describe.skip("Balancer Merkle Orchard", () => {
       params: [
         {
           forking: {
-            jsonRpcUrl: process.env.RPC_URL,
+            jsonRpcUrl: process.env.FORKING_RPC_URL,
             blockNumber: 13450000,
           },
         },
@@ -34,15 +34,10 @@ describe.skip("Balancer Merkle Orchard", () => {
 
     [admin, other, claimer, claimer0, claimer1] = await ethers.getSigners();
 
-    mockToken = await (
-      await ethers.getContractFactory("MockERC20")
-    ).deploy("Mock xPOP", "xPOP", 18);
+    mockToken = await (await ethers.getContractFactory("MockERC20")).deploy("Mock xPOP", "xPOP", 18);
     await mockToken.deployed();
 
-    merkleOrchard = await ethers.getContractAt(
-      "IMerkleOrchard",
-      namedAccounts.merkleOrchard
-    );
+    merkleOrchard = await ethers.getContractAt("IMerkleOrchard", namedAccounts.merkleOrchard);
   });
 
   describe("two account tree", async () => {
@@ -55,12 +50,7 @@ describe.skip("Balancer Merkle Orchard", () => {
       });
       await mockToken.mint(admin.address, parseEther("201"));
       await mockToken.approve(merkleOrchard.address, parseEther("201"));
-      await merkleOrchard.createDistribution(
-        mockToken.address,
-        tree.getHexRoot(),
-        parseEther("201"),
-        0
-      );
+      await merkleOrchard.createDistribution(mockToken.address, tree.getHexRoot(), parseEther("201"), 0);
     });
 
     it("transfers tokens from createDistribution caller", async () => {

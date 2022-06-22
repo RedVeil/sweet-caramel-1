@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./MockERC20.sol";
 
+import "hardhat/console.sol";
+
 contract MockCurveMetapool {
   using SafeERC20 for MockERC20;
 
@@ -19,6 +21,7 @@ contract MockCurveMetapool {
   uint256 virtualPrice = 1e18;
 
   uint256 withdrawalSlippageBps = 10;
+  uint256 mintSlippageBps = 0;
 
   uint256 BPS_DENOMINATOR = 10000;
   MockERC20[] tokens;
@@ -63,9 +66,10 @@ contract MockCurveMetapool {
     uint256 lpTokens;
     min_mint_amounts;
     for (uint8 i = 0; i < tokens.length; i++) {
+      uint256 mintAmount = amounts[i] - ((amounts[i] * mintSlippageBps) / 10000);
       tokens[i].transferFrom(msg.sender, address(this), amounts[i]);
-      lpToken.mint(msg.sender, amounts[i]);
-      lpTokens += amounts[i];
+      lpToken.mint(msg.sender, mintAmount);
+      lpTokens += mintAmount;
     }
     return lpTokens;
   }
@@ -86,6 +90,35 @@ contract MockCurveMetapool {
     return transferOut;
   }
 
+  function exchange(
+    int128 i,
+    int128 j,
+    uint256 dx,
+    uint256 min_dy
+  ) external returns (uint256) {
+    if (i == 0) {
+      dai.transferFrom(msg.sender, address(this), dx);
+    } else {
+      token.transferFrom(msg.sender, address(this), dx);
+    }
+    if (j == 0) dai.transfer(msg.sender, dx);
+    if (j == 1) usdc.transfer(msg.sender, dx);
+    if (j == 3) token.transfer(msg.sender, dx);
+    return dx;
+  }
+
+  //...And some others use exchange_underlying (mim,3crv)
+  function exchange_underlying(
+    int128 i,
+    int128 j,
+    uint256 dx,
+    uint256 min_dy
+  ) external returns (uint256) {
+    usdc.transferFrom(msg.sender, address(this), dx);
+    token.transfer(msg.sender, dx);
+    return dx;
+  }
+
   // Test helpers
 
   function setVirtualPrice(uint256 virtualPrice_) external {
@@ -94,5 +127,9 @@ contract MockCurveMetapool {
 
   function setWithdrawalSlippage(uint256 withdrawalSlippageBps_) external {
     withdrawalSlippageBps = withdrawalSlippageBps_;
+  }
+
+  function setMintSlippage(uint256 mintSlippageBps_) external {
+    mintSlippageBps = mintSlippageBps_;
   }
 }

@@ -1,8 +1,8 @@
 import { parseEther } from "@ethersproject/units";
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { IGUni__factory } from "@popcorn/hardhat/typechain";
+import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
 import { Address } from "@popcorn/utils/types";
-import { ChainId, PRC_PROVIDERS } from "context/Web3/connectors";
 import { ethers } from "ethers";
 import useSWR from "swr";
 

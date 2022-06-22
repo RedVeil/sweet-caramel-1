@@ -8,8 +8,8 @@ import {
   Curve3Pool,
   ISetToken,
 } from "@popcorn/hardhat/typechain";
-import { AccountBatch, Address, BatchProcessTokens, BatchType, ButterBatchData, Token } from "@popcorn/utils/src/types";
-import { BigNumber, ethers } from "ethers";
+import { AccountBatch, Address, BatchMetadata, BatchType, Token, Tokens } from "@popcorn/utils/src/types";
+import { BigNumber, constants, ethers } from "ethers";
 
 interface Stables {
   dai: Token;
@@ -53,7 +53,7 @@ async function getToken(
   setBasicIssuanceModule: BasicIssuanceModule,
   mainContract: ButterBatchProcessing | ButterWhaleProcessing,
   zapperContract?: ButterBatchProcessingZapper,
-): Promise<BatchProcessTokens> {
+): Promise<Tokens> {
   const defaultErc20Decimals = 18;
   return {
     butter: {
@@ -61,7 +61,7 @@ async function getToken(
       key: "butter",
       balance: await butter.balanceOf(account),
       allowance: await butter.allowance(account, mainContract.address),
-      claimableBalance: BigNumber.from("0"),
+      claimableBalance: constants.Zero,
       price: await mainContract.valueOfComponents(
         ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(butter.address, parseEther("1"))),
       ),
@@ -74,7 +74,7 @@ async function getToken(
       key: "threeCrv",
       balance: await tokens.threeCrv.contract.balanceOf(account),
       allowance: await tokens.threeCrv.contract.allowance(account, mainContract.address),
-      claimableBalance: BigNumber.from("0"),
+      claimableBalance: constants.Zero,
       price: await butterAdapter.getThreeCrvPrice(threePool),
       decimals: defaultErc20Decimals,
       img: "3crv.png",
@@ -88,11 +88,7 @@ async function getToken(
         account,
         zapperContract ? zapperContract.address : mainContract.address,
       ),
-      price: await butterAdapter.getStableCoinPrice(threePool, [
-        parseEther("1"),
-        BigNumber.from("0"),
-        BigNumber.from("0"),
-      ]),
+      price: await butterAdapter.getStableCoinPrice(threePool, [parseEther("1"), constants.Zero, constants.Zero]),
       decimals: defaultErc20Decimals,
       img: "dai.webp",
       contract: tokens.dai.contract,
@@ -105,11 +101,7 @@ async function getToken(
         account,
         zapperContract ? zapperContract.address : mainContract.address,
       ),
-      price: await butterAdapter.getStableCoinPrice(threePool, [
-        BigNumber.from("0"),
-        BigNumber.from(1e6),
-        BigNumber.from("0"),
-      ]),
+      price: await butterAdapter.getStableCoinPrice(threePool, [constants.Zero, BigNumber.from(1e6), constants.Zero]),
       decimals: defaultErc20Decimals,
       img: "usdc.webp",
       contract: tokens.usdc.contract,
@@ -122,11 +114,7 @@ async function getToken(
         account,
         zapperContract ? zapperContract.address : mainContract.address,
       ),
-      price: await butterAdapter.getStableCoinPrice(threePool, [
-        BigNumber.from("0"),
-        BigNumber.from("0"),
-        BigNumber.from(1e6),
-      ]),
+      price: await butterAdapter.getStableCoinPrice(threePool, [constants.Zero, constants.Zero, BigNumber.from(1e6)]),
       decimals: defaultErc20Decimals,
       img: "usdt.webp",
       contract: tokens.usdt.contract,
@@ -142,7 +130,7 @@ function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
 
 export async function getData(dependencies: ButterBatchDependenciesInput);
 export async function getData(dependencies: ButterWhaleDependenciesInput);
-export async function getData(dependencies: ButterDependenciesInput): Promise<ButterBatchData> {
+export async function getData(dependencies: ButterDependenciesInput): Promise<BatchMetadata> {
   const {
     butterBatchAdapter,
     account,
@@ -157,7 +145,7 @@ export async function getData(dependencies: ButterDependenciesInput): Promise<Bu
     zapperContract,
   } = dependencies;
   const currentBatches = await butterBatchAdapter.getCurrentBatches();
-  const totalButterSupply = await butterBatchAdapter.getTokenSupply(butter);
+  const totalButterSupply = await butter.totalSupply();
   const accountBatches = await butterBatchAdapter.getBatches(account);
 
   const claimableMintBatches = accountBatches.filter((batch) => batch.batchType == BatchType.Mint && batch.claimable);
@@ -165,7 +153,7 @@ export async function getData(dependencies: ButterDependenciesInput): Promise<Bu
     (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
   );
 
-  const batchProcessTokenRes = await getToken(
+  const tokenResponse = await getToken(
     butterBatchAdapter,
     account,
     { dai, usdc, usdt, threeCrv },
@@ -176,16 +164,16 @@ export async function getData(dependencies: ButterDependenciesInput): Promise<Bu
     zapperContract,
   );
 
-  batchProcessTokenRes.butter.claimableBalance = getClaimableBalance(claimableMintBatches);
-  batchProcessTokenRes.threeCrv.claimableBalance = getClaimableBalance(claimableRedeemBatches);
+  tokenResponse.butter.claimableBalance = getClaimableBalance(claimableMintBatches);
+  tokenResponse.threeCrv.claimableBalance = getClaimableBalance(claimableRedeemBatches);
 
-  const response: ButterBatchData = {
+  const response: BatchMetadata = {
     accountBatches,
     currentBatches,
-    butterSupply: totalButterSupply,
+    totalSupply: totalButterSupply,
     claimableMintBatches,
     claimableRedeemBatches,
-    batchProcessTokens: batchProcessTokenRes,
+    tokens: tokenResponse,
   };
   return response;
 }
