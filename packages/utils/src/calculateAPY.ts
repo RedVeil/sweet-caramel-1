@@ -24,10 +24,10 @@ export async function calculateApy(
     return BigNumber.from("-1");
   }
   switch (stakedTokenAddress.toLocaleLowerCase()) {
-    case contractAddresses.popUsdcLp.toLocaleLowerCase():
+    case contractAddresses?.popUsdcLp?.toLocaleLowerCase():
       return await getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
-    case contractAddresses.butter.toLocaleLowerCase():
-    case contractAddresses.threeX.toLocaleLowerCase():
+    case contractAddresses?.butter?.toLocaleLowerCase():
+    case contractAddresses?.threeX?.toLocaleLowerCase():
       return await getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     default:
       return constants.Zero;

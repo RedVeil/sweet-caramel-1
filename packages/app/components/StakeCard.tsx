@@ -18,7 +18,6 @@ interface StakeCardProps {
 
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge }) => {
   const tokenPrice = useTokenPrice(stakedToken?.address);
-  console.log(stakingPool.address === "0x547382C0D1b23f707918D3c83A77317B71Aa8470" ? [stakingPool, tokenPrice] : null);
   return (
     <div className="card p-6 md:p-8" onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}>
       {badge && (
