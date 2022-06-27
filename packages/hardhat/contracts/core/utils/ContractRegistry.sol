@@ -64,7 +64,7 @@ contract ContractRegistry is IContractRegistry {
     bytes32 _name,
     address _address,
     bytes32 _version
-  ) external {
+  ) external override {
     aclRegistry.requireRole(keccak256("DAO"), msg.sender);
     require(contracts[_name].contractAddress == address(0), "contract already exists");
     require(contractAddresses[_address] == "", "contract address already in use");

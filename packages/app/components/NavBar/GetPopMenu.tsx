@@ -45,7 +45,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
               className={`${active ? "bg-gray-100" : "bg-white"} ${
                 metaMaskConnected ? "rounded-t-2xl border-b" : "rounded-2xl"
               } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
-              href={`/${router?.query?.network}/${getPoolLink(chainId)}`}
+              href={getPoolLink(chainId)}
               target="_blank"
             >
               <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Buy POP</p>

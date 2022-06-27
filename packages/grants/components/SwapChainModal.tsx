@@ -1,17 +1,8 @@
-<<<<<<<< HEAD:packages/grants/components/SwapChainModal.tsx
-import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
-import { useContext, useEffect } from "react";
-import { setSingleActionModal } from "../context/actions";
-import { store } from "../context/store";
-import { networkMap } from "../context/Web3/connectors";
-========
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect } from "react";
 import { setSingleActionModal } from "../context/actions";
 import { store } from "../context/store";
-import { networkMap, supportedChainIds } from "../context/Web3/connectors";
->>>>>>>> production:packages/app/components/SwapChainModal.tsx
+import { networkMap } from "../context/Web3/connectors";
 
 const SwapChainModal: React.FC = () => {
   const { account, chainId } = useWeb3();
