@@ -10,6 +10,7 @@ import usePopLocker from "hooks/staking/usePopLocker";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useTokenPrice from "hooks/useTokenPrice";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -27,11 +28,18 @@ export default function PopStakingPage(): JSX.Element {
   }, [chainId]);
 
   const [form, setForm] = useState(defaultForm);
+  const router = useRouter();
   const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
   const stakingToken = stakingPool?.stakingToken;
   const approveToken = useApproveERC20();
   const tokenPrice = useTokenPrice(stakingToken?.address);
+
+  useEffect(() => {
+    if (router?.query?.action === "withdraw") {
+      setForm({ ...form, type: InteractionType.Withdraw });
+    }
+  }, [router?.query?.action]);
 
   function stake(): void {
     toast.loading("Staking POP ...");

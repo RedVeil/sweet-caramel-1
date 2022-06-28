@@ -1,8 +1,10 @@
 import Navbar from "components/NavBar/NavBar";
+import useRestakeAlert from "hooks/useRestakeAlert";
 import React, { ReactElement } from "react";
 import { Toaster } from "react-hot-toast";
 
 export default function Page(props: { children: ReactElement }) {
+  useRestakeAlert();
   return (
     <div className="w-full h-full">
       <Navbar />
