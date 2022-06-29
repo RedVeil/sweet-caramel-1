@@ -64,8 +64,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
 
-  // console.log("adding ThreeXBatchProcessing to contract registry...");
-  // await addContractToRegistry("ThreeXBatchProcessing", deployments, signer, hre);
+  console.log("adding ThreeXBatchProcessing to contract registry...");
+  await addContractToRegistry("ThreeXBatchProcessing", deployments, signer, hre);
 
   const batchStorage = await deploy("ThreeXBatchVault", {
     from: addresses.deployer,
