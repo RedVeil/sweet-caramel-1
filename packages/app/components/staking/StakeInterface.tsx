@@ -87,7 +87,7 @@ export default function StakeInterface({
               <div className="md:hidden">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "$0"
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
                   }
                   label="TVL"
                 />
@@ -97,7 +97,7 @@ export default function StakeInterface({
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "$0"
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
                   }
                   label="TVL"
                 />
