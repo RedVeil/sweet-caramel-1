@@ -61,6 +61,7 @@ export async function getLpTokenApy(
 }
 
 export async function getPopApy(tokenPerWeek: BigNumber, totalStaked: BigNumber): Promise<BigNumber> {
+  if (totalStaked.eq(BigNumber.from(0))) return BigNumber.from(0);
   const tokenPerWeekPerShare = tokenPerWeek.mul(parseEther("1")).div(totalStaked);
   const apy = tokenPerWeekPerShare.mul(52);
   return apy.mul(100);
