@@ -13,16 +13,8 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({
   isThreeX = false,
 }) => {
   return (
-    <div className="flex flex-col even:bg-gray-100 odd:bg-white last:rounded-b-2xl w-full p-6">
+    <div className="flex flex-col bg-white border-b border-gray-200 last:border-none last:rounded-b-2xl w-full p-6">
       <div className="flex flex-row justify-between">
-        <StatusWithLabel
-          label="Claimable Tokens"
-          content={formatBatchInputToken(
-            batch.accountSuppliedTokenBalance,
-            batch.batchType === BatchType.Mint,
-            isThreeX,
-          )}
-        />
         <StatusWithLabel
           label="Deposited"
           content={formatBatchOutputToken(
@@ -31,14 +23,22 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({
             isThreeX,
           )}
         />
+        <StatusWithLabel
+          label="Claimable"
+          content={formatBatchInputToken(
+            batch.accountSuppliedTokenBalance,
+            batch.batchType === BatchType.Mint,
+            isThreeX,
+          )}
+        />
       </div>
       <div className="flex flex-col space-y-4 mt-10">
         <div className="w-full">
           {batch.claimable && batch.batchType === BatchType.Mint && (
-            <MainActionButton handleClick={() => handleClaimAndStake(batch)} disabled={false} label="Stake" />
+            <MainActionButton handleClick={() => handleClaimAndStake(batch)} disabled={false} label="Claim & Stake" />
           )}
           {batch.claimable && batch.batchType === BatchType.Redeem && (
-            <MainActionButton label="Claim" handleClick={() => handleClaim(batch)} />
+            <SecondaryActionButton label="Claim" handleClick={() => handleClaim(batch)} />
           )}
           {!batch.claimable && <SecondaryActionButton label="Cancel" handleClick={() => handleWithdraw(batch)} />}
         </div>

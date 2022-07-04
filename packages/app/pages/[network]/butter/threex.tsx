@@ -577,7 +577,7 @@ export default function ThreeX(): JSX.Element {
       </div>
       {threeXData?.accountBatches?.length > 0 && (
         <div className="w-full pb-12 mx-auto mt-10">
-          <div className="mx-4 md:mx-0 p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
+          <div className="mx-4 md:mx-0 p-2 pb-0 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
             <ClaimableBatches
               batches={threeXData?.accountBatches}
               claim={claim}
