@@ -421,7 +421,7 @@ export default function ThreeX(): JSX.Element {
 
   return (
     <div>
-      <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
+      <div className="md:max-w-2xl mx-0 text-center md:text-left">
         <h1 className="text-3xl font-bold">3X - Yield Optimizer</h1>
         <p className="mt-2 text-lg text-gray-500">
           Mint 3X and earn interest on multiple stablecoins at once.
@@ -430,7 +430,7 @@ export default function ThreeX(): JSX.Element {
         </p>
         <ButterStats butterData={threeXData} addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]} isThreeX />
       </div>
-      <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
+      <div className="flex flex-col md:flex-row mt-10 mx-0">
         <div className="order-2 md:order-1 md:w-1/3 mb-10">
           {account ? (
             loadingThreeXData ? (
@@ -577,7 +577,7 @@ export default function ThreeX(): JSX.Element {
       </div>
       {threeXData?.accountBatches?.length > 0 && (
         <div className="w-full pb-12 mx-auto mt-10">
-          <div className="mx-4 md:mx-0 p-2 pb-0 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
+          <div className="mx-0 md:px-2 pt-2 pb-0 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
             <ClaimableBatches
               batches={threeXData?.accountBatches}
               claim={claim}

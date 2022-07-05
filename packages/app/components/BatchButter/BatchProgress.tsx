@@ -11,7 +11,7 @@ interface BatchProgressProps {
 const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold }) => {
   return (
     <div className="bg-white border border-gray-200 shadow-custom rounded-2xl h-full flex flex-col">
-      <div className="w-full flex flex-row px-6 pt-6 pb-3 xs:pb-6 h-full items-center justify-center">
+      <div className="w-full flex flex-row p-6 md:pb-3 h-full items-center justify-center">
         <div className="w-16 h-16 flex-shrink-0 flex-grow-0 mr-4 rounded-full bg-gray-100 flex flex-row items-center justify-center">
           <p className="text-xl font-semibold leading-none text-gray-700">
             {batchAmount.eq(constants.Zero)

@@ -14,39 +14,50 @@ const MobileClaimableBatch: React.FC<BatchProps> = ({
 }) => {
   return (
     <div className="flex flex-col bg-white border-b border-gray-200 last:border-none last:rounded-b-2xl w-full p-6">
-      <div className="flex flex-row justify-between">
-        <StatusWithLabel
-          label="Deposited"
-          content={formatBatchOutputToken(
-            batch.accountClaimableTokenBalance,
-            batch.batchType === BatchType.Mint,
-            isThreeX,
-          )}
-        />
-        <StatusWithLabel
-          label="Claimable"
-          content={formatBatchInputToken(
-            batch.accountSuppliedTokenBalance,
-            batch.batchType === BatchType.Mint,
-            isThreeX,
-          )}
-        />
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-6">
+          <StatusWithLabel
+            label="Deposited"
+            content={formatBatchOutputToken(
+              batch.accountClaimableTokenBalance,
+              batch.batchType === BatchType.Mint,
+              isThreeX,
+            )}
+          />
+        </div>
+        <div className="col-span-6">
+          <StatusWithLabel
+            label="Claimable"
+            content={formatBatchInputToken(
+              batch.accountSuppliedTokenBalance,
+              batch.batchType === BatchType.Mint,
+              isThreeX,
+            )}
+          />
+        </div>
       </div>
-      <div className="flex flex-col space-y-4 mt-10">
-        <div className="w-full">
-          {batch.claimable && batch.batchType === BatchType.Mint && (
+      <div className="flex flex-col">
+        {batch.claimable && batch.batchType === BatchType.Mint && (
+          <div className="w-full mt-6">
             <MainActionButton handleClick={() => handleClaimAndStake(batch)} disabled={false} label="Claim & Stake" />
-          )}
-          {batch.claimable && batch.batchType === BatchType.Redeem && (
+          </div>
+        )}
+        {batch.claimable && batch.batchType === BatchType.Redeem && (
+          <div className="w-full mt-6">
             <SecondaryActionButton label="Claim" handleClick={() => handleClaim(batch)} />
-          )}
-          {!batch.claimable && <SecondaryActionButton label="Cancel" handleClick={() => handleWithdraw(batch)} />}
-        </div>
-        <div className="w-full">
-          {batch.claimable && batch.batchType === BatchType.Mint && (
+          </div>
+        )}
+        {!batch.claimable && (
+          <div className="w-full mt-6">
+            <SecondaryActionButton label="Cancel" handleClick={() => handleWithdraw(batch)} />
+          </div>
+        )}
+
+        {batch.claimable && batch.batchType === BatchType.Mint && (
+          <div className="w-full mt-6">
             <SecondaryActionButton handleClick={() => handleClaim(batch)} disabled={false} label="Claim" />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
