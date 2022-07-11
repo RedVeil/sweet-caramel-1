@@ -1,10 +1,10 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 import { CardLoader } from "components/CardLoader";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
 import { NotAvailable } from "components/Rewards/NotAvailable";
+import RewardSummaryCard from "components/Rewards/RewardSummaryCard";
 import VestingRecordComponent from "components/Rewards/VestingRecord";
 import TabSelector from "components/TabSelector";
 import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
@@ -81,8 +81,10 @@ export default function index(): JSX.Element {
 
   const stakingVisible = (chainId) => ![ChainId.Arbitrum, ChainId.BNB].includes(chainId);
 
-  const userEscrowsFetchResult: SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber }, any> =
-    useGetUserEscrows();
+  const userEscrowsFetchResult: SWRResponse<
+    { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
+    any
+  > = useGetUserEscrows();
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
     toast.loading("Claiming Rewards...");
@@ -331,59 +333,55 @@ export default function index(): JSX.Element {
                 ) : (
                   <>
                     <div>
-                      <div className={`flex flex-row justify-between md:px-8 p-6 w-full bg-rewardsBg rounded-t-3xl`}>
-                        <div className="flex flex-col md:flex-row">
-                          <div className="flex flex-row">
-                            <h1 className={`text-lg md:text-3xl font-medium text-gray-900 my-auto`}>Vesting Records</h1>
-                            <InfoIconWithTooltip
-                              classExtras="h-7 w-7 md:h-8 md:w-8 mt-1.5 md:mt-3 ml-1 md:ml-2"
-                              id="1"
-                              title="Vesting Records"
-                              content="Here you can see all your vested POP rewards. Each of these Records will linearly unlock more POP over the span of 365 days. 'Unlock Ends' shows you when all POP will be unlocked from this Vesting Record. 'Total Tokens' is the total amount of POP that this record will unlock over time."
-                            />
-                          </div>
-                          <h1 className={`block md:hidden text-lg md:text-xl font-medium text-gray-900 my-auto mr-8`}>
-                            {formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP
-                          </h1>
+                      <div className="flex flex-col h-full">
+                        <div className="flex flex-row flex-wrap xl:flex-nowrap gap-y-8 gap-x-8 w-full mb-8">
+                          <RewardSummaryCard
+                            content={`${formatStakedAmount(userEscrowsFetchResult?.data?.totalVestingPop)} POP`}
+                            title={"TOTAL VESTING"}
+                            iconUri="/images/lock.svg"
+                          />
+                          <RewardSummaryCard
+                            content={`${formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP`}
+                            title={"TOTAL CLAIMABLE"}
+                            iconUri="/images/yellowCircle.svg"
+                            button={true}
+                            handleClick={() => claimAllEscrows()}
+                          />
                         </div>
-                        <div className="flex flex-row my-auto">
-                          <h1 className={`hidden md:block text-3xl font-medium text-gray-900 my-auto mr-8`}>
-                            {formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP
-                          </h1>
-                          <button
-                            onClick={() => claimAllEscrows()}
-                            className="mx-auto my-auto bg-blue-600 border border-transparent rounded-full justify-self-center shadow-custom py-3 px-5 md:px-10"
-                          >
-                            <p className="font-semibold text-base md:text-lg text-white">Claim All</p>
-                          </button>
+                        <div className="flex flex-col border-gray-200 border rounded-3xl overflow-hidden">
+                          {userEscrowsFetchResult?.data?.escrows
+                            .slice(0, visibleEscrows)
+                            .map((vestingEscrow, index) => {
+                              return (
+                                <VestingRecordComponent
+                                  vestingEscrow={vestingEscrow}
+                                  index={index}
+                                  claim={claimSingleEscrow}
+                                  key={vestingEscrow.end.toString()}
+                                />
+                              );
+                            })}
+                          {userEscrowsFetchResult?.data?.escrows?.length > 0 &&
+                            userEscrowsFetchResult?.data?.escrows?.length > visibleEscrows && (
+                              <div
+                                className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}
+                              >
+                                <div
+                                  className="flex flex-row items-center justify-center cursor-pointer group"
+                                  onClick={() =>
+                                    incrementVisibleEscrows(
+                                      visibleEscrows,
+                                      userEscrowsFetchResult?.data?.escrows?.length,
+                                    )
+                                  }
+                                >
+                                  <h1 className="text-base font-medium group-hover:text-blue-600">Load more</h1>
+                                  <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
+                                </div>
+                              </div>
+                            )}
                         </div>
                       </div>
-                      <div className="flex flex-col">
-                        {userEscrowsFetchResult?.data?.escrows.slice(0, visibleEscrows).map((vestingEscrow, index) => {
-                          return (
-                            <VestingRecordComponent
-                              vestingEscrow={vestingEscrow}
-                              index={index}
-                              claim={claimSingleEscrow}
-                              key={vestingEscrow.end.toString()}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}>
-                      {userEscrowsFetchResult?.data?.escrows?.length > 0 &&
-                        userEscrowsFetchResult?.data?.escrows?.length > visibleEscrows && (
-                          <div
-                            className="flex flex-row items-center justify-center cursor-pointer group"
-                            onClick={() =>
-                              incrementVisibleEscrows(visibleEscrows, userEscrowsFetchResult?.data?.escrows?.length)
-                            }
-                          >
-                            <h1 className="text-base font-medium group-hover:text-blue-600">Load more</h1>
-                            <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
-                          </div>
-                        )}
                     </div>
                   </>
                 )}

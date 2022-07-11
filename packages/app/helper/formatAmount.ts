@@ -2,12 +2,17 @@ import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
 import { BigNumber, constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
-export const formatStakedAmount = (num: BigNumber): string => {
-  if (num.lte(parseEther("1")) && num.gt(constants.Zero)) {
-    return formatAndRoundBigNumber(num, 6);
-  } else {
-    return formatAndRoundBigNumber(num, 3);
+export const formatStakedAmount = (value: BigNumber): string => {
+  if (BigNumber.isBigNumber(value)) {
+    if (value.eq(constants.Zero)) {
+      return "0";
+    }
+    if (value.gte(parseEther("1"))) {
+      return formatAndRoundBigNumber(value, 2);
+    }
+    return `${formatAndRoundBigNumber(value, 5)}...`;
   }
+  return `Invalid val: ${value}`;
 };
 
 // dev - tokenPrice and tokens should both have a consistent decimal points. That is 18.

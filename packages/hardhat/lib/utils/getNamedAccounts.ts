@@ -396,7 +396,7 @@ export default function getNamedAccounts() {
     popUsdcLp: {
       polygon: "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
       mainnet: "0xbba11b41407df8793a89b44ee4b50afad4508555",
-      hardhat: "0xD49a0e9A4CD5979aE36840f542D2d7f02C4817Be",
+      hardhat: "0xD5724171C2b7f0AA717a324626050BD05767e2C6",
       rinkeby: "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
     },
     aclRegistry: {
