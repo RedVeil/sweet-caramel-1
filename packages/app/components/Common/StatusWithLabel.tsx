@@ -8,7 +8,7 @@ interface InfoIconProps {
 
 interface StatusWithLabelProps {
   content: string;
-  label: string;
+  label: string | React.ReactElement;
   infoIconProps?: InfoIconProps;
   green?: boolean;
 }

@@ -251,7 +251,7 @@ export default function InstantButter() {
           <p className="mt-2 text-lg text-gray-500 text-center">
             Mint BTR and earn interest on multiple stablecoins at once.
             <br />
-            Stake your BTR to earn boosted APY.
+            Stake your BTR to earn boosted vAPR.
           </p>
           <div className="mx-auto">
             <ButterStats butterData={butterData} addresses={butterYearnAddresses} center />

@@ -74,11 +74,15 @@ export default function StakeInterface({
                       ? "New 🍿✨"
                       : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
                   }
-                  label="Est. APY"
+                  label={
+                    <>
+                      <span className="lowercase">v</span>APR
+                    </>
+                  }
                   green
                   infoIconProps={{
-                    id: "estApy",
-                    title: "Est. APY:",
+                    id: "vAPR",
+                    title: "vAPR",
                     content:
                       "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
                   }}
@@ -105,7 +109,7 @@ export default function StakeInterface({
               <div className="md:hidden">
                 <StatusWithLabel
                   content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
-                  label="Emission Rate"
+                  label="EMISSION RATE"
                 />
               </div>
             </div>
@@ -113,7 +117,7 @@ export default function StakeInterface({
               <div className="hidden md:block ">
                 <StatusWithLabel
                   content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
-                  label="Emission Rate"
+                  label="EMISSION RATE"
                 />
               </div>
               <div className="md:hidden">
@@ -123,11 +127,15 @@ export default function StakeInterface({
                       ? "New 🍿✨"
                       : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
                   }
-                  label="Est. APY"
+                  label={
+                    <>
+                      <span className="lowercase">v</span>APR
+                    </>
+                  }
                   green
                   infoIconProps={{
-                    id: "estApy",
-                    title: "Est. APY:",
+                    id: "vAPR",
+                    title: "vAPR",
                     content:
                       "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
                   }}

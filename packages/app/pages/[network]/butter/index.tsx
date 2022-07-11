@@ -572,7 +572,7 @@ export default function Butter(): JSX.Element {
         <p className="mt-2 text-lg text-gray-500">
           Mint BTR and earn interest on multiple stablecoins at once.
           <br />
-          Stake your BTR to earn boosted APY.
+          Stake your BTR to earn boosted vAPR.
         </p>
         <ButterStats butterData={butterBatchData} addresses={butterYearnAddresses} />
       </div>

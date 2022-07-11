@@ -44,11 +44,15 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             content={
               stakingPool.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool.apy, 2) + "%"
             }
-            label="Est. APY"
+            label={
+              <>
+                <span className="lowercase">v</span>APR
+              </>
+            }
             green
             infoIconProps={{
-              id: "estApy",
-              title: "Est. APY:",
+              id: "vAPR",
+              title: "vAPR",
               content: "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
             }}
           />
@@ -62,7 +66,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         <div className="w-full md:w-1/2 mt-4">
           <StatusWithLabel
             content={`${formatAndRoundBigNumber(stakingPool.tokenEmission, 3)} POP / day`}
-            label="Token Emissions"
+            label="TOKEN EMISSIONS"
           />
         </div>
       </div>

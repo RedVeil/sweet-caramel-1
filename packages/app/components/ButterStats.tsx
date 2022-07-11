@@ -30,13 +30,13 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
   const supply = isReady && butterData.totalSupply;
   const setToken = isThreeX ? butterData?.tokens?.threeX : butterData?.tokens?.butter;
 
-  const apyInfoText = `This is the estimated Annual Percentage Yield. The shown APY comes from yield on the underlying stablecoins (${
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
     butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
   }%) and is boosted with POP (${
     butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
   }%). You must stake your ${
     isThreeX ? "3X" : "BTR"
-  } to receive the additional APY in POP. 90% of earned POP rewards are vested over one year.`;
+  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
@@ -48,11 +48,15 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
                 ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
                 : "New 🍿✨"
             }
-            label="Est. APY"
+            label={
+              <>
+                <span className="lowercase">v</span>APR
+              </>
+            }
             green
             infoIconProps={{
-              id: "estApy",
-              title: "How we calculate the APY",
+              id: "vAPR",
+              title: "How we calculate the vAPR",
               content: apyInfoText,
             }}
           />
@@ -62,7 +66,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
             content={
               setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
             }
-            label="Total Deposits"
+            label="TOTAL DEPOSITS"
           />
         </div>
       </div>
@@ -72,23 +76,23 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
             content={
               setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
             }
-            label="Total Deposits"
+            label="TOTAL DEPOSITS"
           />
         </div>
         <div className="md:hidden">
           {isThreeX ? (
-            <StatusWithLabel content={"$5m"} label="TVL Limit" />
+            <StatusWithLabel content={"$5m"} label="TVL LIMIT" />
           ) : (
-            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
+            <StatusWithLabel content={`Coming Soon`} label="SOCIAL IMPACT" infoIconProps={SocialImpactInfoProps} />
           )}
         </div>
       </div>
       <div className="w-full md:w-auto mt-2 md:pl-6 text-center md:text-left">
         <div className="hidden md:block ">
           {isThreeX ? (
-            <StatusWithLabel content={"$5m"} label="TVL Limit" />
+            <StatusWithLabel content={"$5m"} label="TVL LIMIT" />
           ) : (
-            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
+            <StatusWithLabel content={`Coming Soon`} label="SOCIAL IMPACT" infoIconProps={SocialImpactInfoProps} />
           )}
         </div>
         <div className="w-full md:hidden flex justify-center">
@@ -98,11 +102,15 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
                 ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
                 : "New 🍿✨"
             }
-            label="Est. APY"
+            label={
+              <>
+                <span className="lowercase">v</span>APR
+              </>
+            }
             green
             infoIconProps={{
-              id: "estApy",
-              title: "How we calculate the APY",
+              id: "vAPR",
+              title: "How we calculate the vAPR",
               content: apyInfoText,
             }}
           />

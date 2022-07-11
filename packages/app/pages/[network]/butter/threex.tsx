@@ -426,7 +426,7 @@ export default function ThreeX(): JSX.Element {
         <p className="mt-2 text-lg text-gray-500">
           Mint 3X and earn interest on multiple stablecoins at once.
           <br />
-          Stake your 3X to earn boosted APY.
+          Stake your 3X to earn boosted vAPR.
         </p>
         <ButterStats butterData={threeXData} addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]} isThreeX />
       </div>
