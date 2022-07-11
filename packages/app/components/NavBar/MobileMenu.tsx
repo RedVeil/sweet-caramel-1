@@ -1,6 +1,7 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { networkLogos, networkMap } from "@popcorn/utils";
+import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import GetProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
@@ -8,12 +9,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import DropDownComponent from "./DropDownComponent";
-import { getPoolLink, getPopAddress } from "./GetPopMenu";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export const MobileMenu: React.FC = () => {
-  const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain } = useWeb3();
+  const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain, contractAddresses } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
   const products = GetProducts(router, pushWithinChain);
@@ -124,7 +124,9 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-10 space-y-6">
                         <SecondaryActionButton
                           label="Buy POP"
-                          handleClick={() => window.open(getPoolLink(chainId), "_blank")}
+                          handleClick={() =>
+                            window.open(getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses), "_blank")
+                          }
                         />
                         <SecondaryActionButton
                           label="Add POP to Wallet"
@@ -134,7 +136,7 @@ export const MobileMenu: React.FC = () => {
                               params: {
                                 type: "ERC20",
                                 options: {
-                                  address: getPopAddress(chainId),
+                                  address: contractAddresses.pop,
                                   symbol: "POP",
                                   decimals: 18,
                                   image: "https://popcorn.network/images/icons/pop_64x64.png",

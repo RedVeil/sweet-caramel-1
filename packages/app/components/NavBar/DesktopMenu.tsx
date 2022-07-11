@@ -61,7 +61,7 @@ export default function DesktopMenu(): JSX.Element {
                 <p className="font-medium ml-3 leading-none mt-1">POP</p>
                 <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
               </div>
-              <GetPopMenu chainId={chainId} />
+              <GetPopMenu />
             </Menu.Button>
           </Menu>
         </div>

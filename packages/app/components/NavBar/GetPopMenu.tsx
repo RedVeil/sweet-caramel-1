@@ -1,31 +1,13 @@
 import { Menu, Transition } from "@headlessui/react";
+import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { Fragment } from "react";
-import { getNamedAccountsByChainId } from "../../../hardhat/lib/utils/getNamedAccounts";
 
-interface GetPopMenuProps {
-  chainId: number;
-}
+interface GetPopMenuProps {}
 
-export function getPopAddress(chainId: number): string {
-  const { pop } = getNamedAccountsByChainId(chainId);
-  return pop;
-}
-
-export function getPoolLink(chainId: number): string {
-  switch (chainId) {
-    case 1:
-      return "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xd0cd466b34a24fcb2f87676278af2005ca8a78c4";
-    case 137:
-      return "https://app.sushi.com/swap?inputCurrency=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c";
-    default:
-      return "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xd0cd466b34a24fcb2f87676278af2005ca8a78c4";
-  }
-}
-
-const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
-  const { wallet } = useWeb3();
+const GetPopMenu: React.FC<GetPopMenuProps> = () => {
+  const { wallet, contractAddresses, chainId } = useWeb3();
   const router = useRouter();
   const metaMaskConnected = wallet?.label === "MetaMask";
   return (
@@ -45,7 +27,11 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
               className={`${active ? "bg-gray-100" : "bg-white"} ${
                 metaMaskConnected ? "rounded-t-2xl border-b" : "rounded-2xl"
               } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
-              href={`/${router?.query?.network}/${getPoolLink(chainId)}`}
+              href={`/${router?.query?.network}/${getTokenOnNetwork(
+                contractAddresses.pop,
+                chainId,
+                contractAddresses,
+              )}`}
               target="_blank"
             >
               <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Buy POP</p>
@@ -65,7 +51,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = ({ chainId }) => {
                     params: {
                       type: "ERC20",
                       options: {
-                        address: getPopAddress(chainId),
+                        address: contractAddresses.pop,
                         symbol: "POP",
                         decimals: 18,
                         image: "https://popcorn.network/images/icons/pop_64x64.png",

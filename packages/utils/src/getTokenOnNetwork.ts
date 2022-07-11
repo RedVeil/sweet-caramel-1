@@ -14,7 +14,7 @@ export default function getTokenOnNetwork(address: string, chainId: number, cont
 function getTokenOnPolygon(address: string, contractAddresses: ContractAddresses) {
   switch (address) {
     case contractAddresses.pop.toLowerCase():
-      return "https://app.sushi.com/swap?inputCurrency=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&outputCurrency=0xC5B57e9a1E7914FDA753A88f24E5703e617Ee50c";
+      return "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon";
     case contractAddresses.popUsdcLp.toLowerCase():
       return "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add";
     default:
