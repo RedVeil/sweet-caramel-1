@@ -337,15 +337,29 @@ export default function index(): JSX.Element {
                         <div className="flex flex-row flex-wrap xl:flex-nowrap gap-y-8 gap-x-8 w-full mb-8">
                           <RewardSummaryCard
                             content={`${formatStakedAmount(userEscrowsFetchResult?.data?.totalVestingPop)} POP`}
-                            title={"TOTAL VESTING"}
+                            title={"Total Vesting"}
                             iconUri="/images/lock.svg"
+                            infoIconProps={{
+                              id: "Total Vesting",
+                              title: "Total Vesting",
+                              content:
+                                "Every time you claim rewards a new 'Vesting Record' below will be added. Rewards in each 'Vesting Record' unlock over time. Come back periodically to claim new rewards as they unlock.",
+                              classExtras: "h-7 w-7 -mt-2 ml-2",
+                            }}
                           />
                           <RewardSummaryCard
                             content={`${formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP`}
-                            title={"TOTAL CLAIMABLE"}
+                            title={"Total Claimable"}
                             iconUri="/images/yellowCircle.svg"
                             button={true}
                             handleClick={() => claimAllEscrows()}
+                            infoIconProps={{
+                              id: "Total Claimable",
+                              title: "Total Claimable",
+                              content:
+                                "This describes the total amount of Rewards that you can currently claim across all 'Vesting Records'.",
+                              classExtras: "h-7 w-7 -mt-2 ml-2",
+                            }}
                           />
                         </div>
                         <div className="flex flex-col border-gray-200 border rounded-3xl overflow-hidden">
