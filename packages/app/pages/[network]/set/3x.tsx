@@ -420,7 +420,7 @@ export default function ThreeX(): JSX.Element {
   };
 
   return (
-    <div>
+    <>
       <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
         <h1 className="text-3xl font-bold">3X - Yield Optimizer</h1>
         <p className="mt-2 text-lg text-gray-500">
@@ -601,6 +601,6 @@ export default function ThreeX(): JSX.Element {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
