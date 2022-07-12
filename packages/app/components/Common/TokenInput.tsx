@@ -59,7 +59,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
+                className={`block w-full pl-5 pr-32 md:pr-36 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
                   balance && amount?.gt(balance)
                     ? "focus:ring-red-600 focus:border-red-600"
                     : "focus:ring-blue-500 focus:border-blue-500"

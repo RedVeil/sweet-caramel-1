@@ -21,6 +21,10 @@ import "./ThreeXBatchVault.sol";
 import "./controller/AbstractBatchController.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+interface IOracle {
+  function read() external view returns (uint256);
+}
+
 /**
  * @notice Defines if the Batch will mint or redeem 3X
  */
@@ -42,12 +46,14 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
    * @notice each component has dependencies that form a path to aquire and subsequently swap out of the component. these are those dependenices
    * @param lpToken lpToken of the curve metapool
    * @param utilityPool Special curve metapools that are used withdraw sUSD from the pool and get oracle prices for EUR
+   * @param oracle Special curve metapools that are used withdraw sUSD from the pool and get oracle prices for EUR
    * @param curveMetaPool A CurveMetaPool that we want to deploy into yearn (SUSD, 3EUR)
    * @param angleRouter The Angle Router to trade USDC against agEUR
    */
   struct ComponentDependencies {
     IERC20 lpToken;
     CurveMetapool utilityPool;
+    IOracle oracle;
     CurveMetapool curveMetaPool;
     IAngleRouter angleRouter;
   }
@@ -131,7 +137,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
       uint256 lpTokenPriceInUSD = i == 0
         ? componentDependencies[_tokenAddresses[i]].curveMetaPool.get_virtual_price()
         : (componentDependencies[_tokenAddresses[i]].curveMetaPool.get_virtual_price() *
-          componentDependencies[_tokenAddresses[i]].utilityPool.price_oracle()) / 1e18;
+          (2e18 - componentDependencies[_tokenAddresses[i]].oracle.read())) / 1e18;
 
       value += (((lpTokenPriceInUSD * YearnVault(_tokenAddresses[i]).pricePerShare()) / 1e18) * _quantities[i]) / 1e18;
     }
@@ -150,8 +156,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     uint256 lpTokenPriceInUSD = _i == 0
       ? componentDependencies[_component].curveMetaPool.get_virtual_price()
       : (componentDependencies[_component].curveMetaPool.get_virtual_price() *
-        componentDependencies[_component].utilityPool.price_oracle()) / 1e18;
-
+        (2e18 - componentDependencies[_component].oracle.read())) / 1e18;
     // Calculate the virtualPrice of one yToken
     uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() * lpTokenPriceInUSD) / 1e18;
 
@@ -164,7 +169,6 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
 
     ratio = (componentValuePerSet * 1e18) / _setValue;
     poolAllocation = _getPoolAllocation(_suppliedTokenBalance, ratio) - (componentValueHeldByContract / 1e12);
-
     return (poolAllocation, ratio);
   }
 
@@ -208,7 +212,6 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     // Get the quantity of yToken for one 3X
     (address[] memory tokenAddresses, uint256[] memory quantities) = basicIssuanceModule
       .getRequiredComponentUnitsForIssue(ISetToken(address(mintBatchTokens.targetToken)), 1e18);
-
     uint256 setValue = valueOfComponents(tokenAddresses, quantities);
 
     // Remaining amount of USDC in this batch which hasnt been allocated yet
@@ -263,11 +266,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
       );
     }
 
-    uint256 minMintAmount = getMinAmountToMint(
-      sourceTokenBalance * 1e12,
-      valueOfComponents(tokenAddresses, quantities),
-      slippage.mintBps
-    );
+    uint256 minMintAmount = getMinAmountToMint(sourceTokenBalance * 1e12, setValue, slippage.mintBps);
 
     require(setTokenAmount >= minMintAmount, "slippage too high");
 

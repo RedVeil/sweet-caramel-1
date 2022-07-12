@@ -28,7 +28,6 @@ export async function getStakingPool(
   const earned = account ? await staking.earned(account) : constants.Zero;
   const userStake = account ? await staking.balanceOf(account) : constants.Zero;
   const stakingToken = await getTokenFromAddress(tokenAddress, library, chainId);
-
   return {
     contract: staking,
     address: staking.address,

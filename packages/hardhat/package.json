@@ -66,7 +66,6 @@
     "prettier-plugin-solidity": "1.0.0-beta.19",
     "solc-0.6.0": "npm:solc@0.6.0",
     "solc-0.6.12": "npm:solc@0.6.12",
-    "solc-0.7.6": "npm:solc@0.7.6",
     "solc-0.8.0": "npm:solc@0.8.0",
     "solidity-coverage": "0.7.18",
     "solidity-shell": "^0.1.0",

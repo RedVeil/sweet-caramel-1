@@ -23,12 +23,13 @@ export async function calculateApy(
   if (!totalStaked || totalStaked.eq(constants.Zero)) {
     return BigNumber.from("-1");
   }
-  switch (stakedTokenAddress?.toLocaleLowerCase()) {
+  switch (stakedTokenAddress.toLocaleLowerCase()) {
+    case contractAddresses.popUsdcArrakisVault?.toLocaleLowerCase():
     case contractAddresses.popUsdcLp?.toLocaleLowerCase():
-      return await getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
+      return getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library, stakedTokenAddress);
     case contractAddresses.butter?.toLocaleLowerCase():
     case contractAddresses.threeX?.toLocaleLowerCase():
-      return await getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
+      return getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     default:
       return constants.Zero;
   }
@@ -40,11 +41,16 @@ export async function getLpTokenApy(
   contractAddresses: ContractAddresses,
   chainId: number,
   library,
+  stakedTokenAddress,
 ): Promise<BigNumber> {
-  if (chainId === ChainId.Ethereum) {
+  if (contractAddresses.popUsdcArrakisVault === stakedTokenAddress) {
+    const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcArrakisVault, library);
+    const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
+    return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
+  } else if (chainId === ChainId.Ethereum) {
     const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, library);
     const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
-    return await getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
+    return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
   } else {
     const popUsdcLp = ERC20__factory.connect(contractAddresses.popUsdcLp, library);
     let usdcAmount = await ERC20__factory.connect(contractAddresses.usdc, library).balanceOf(
@@ -56,12 +62,11 @@ export async function getLpTokenApy(
     if (usdcAmount.eq(constants.Zero) || popAmount.eq(constants.Zero)) {
       return BigNumber.from("-1");
     }
-    return await getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
+    return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
   }
 }
 
 export async function getPopApy(tokenPerWeek: BigNumber, totalStaked: BigNumber): Promise<BigNumber> {
-  if (totalStaked.eq(BigNumber.from(0))) return BigNumber.from(0);
   const tokenPerWeekPerShare = tokenPerWeek.mul(parseEther("1")).div(totalStaked);
   const apy = tokenPerWeekPerShare.mul(52);
   return apy.mul(100);

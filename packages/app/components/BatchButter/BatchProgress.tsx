@@ -32,7 +32,9 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
               content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
             />
           </div>
-          <p className="text-gray-900 leading-snug break-words">The next batch will process your request.</p>
+          <p className="text-gray-900 leading-snug break-words">
+            Your mint/redeem deposit will be processed with the next batch.
+          </p>
         </div>
       </div>
       <div className="h-3 bg-blue-200 rounded-b-2xl mask overflow-hidden">

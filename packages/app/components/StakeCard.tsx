@@ -18,7 +18,6 @@ interface StakeCardProps {
 
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge }) => {
   const tokenPrice = useTokenPrice(stakedToken?.address);
-  console.log(stakingPool.address === "0x547382C0D1b23f707918D3c83A77317B71Aa8470" ? [stakingPool, tokenPrice] : null);
   return (
     <div className="card p-6 md:p-8" onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}>
       {badge && (
@@ -53,13 +52,13 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             infoIconProps={{
               id: "vAPR",
               title: "vAPR",
-              content: "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+              content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
             }}
           />
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel
-            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "$0"}
+            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "..."}
             label="TVL"
           />
         </div>

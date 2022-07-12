@@ -3,7 +3,7 @@ import { formatAndRoundBigNumber, formatBigNumber, numberToBigNumber } from "@po
 import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
 import { BigNumber, constants } from "ethers";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
-import { ButterPageState } from "pages/[network]/butter";
+import { ButterPageState } from "pages/[network]/set/butter";
 import { Dispatch, useEffect, useRef, useState } from "react";
 import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
 import SelectToken from "./SelectToken";

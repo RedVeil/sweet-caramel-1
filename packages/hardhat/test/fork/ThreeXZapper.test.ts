@@ -35,6 +35,8 @@ const THREE_POOL_ADDRESS = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7";
 const SET_TOKEN_CREATOR_ADDRESS = "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a";
 const SET_BASIC_ISSUANCE_MODULE_ADDRESS = "0xd8EF3cACe8b4907117a45B0b125c68560532F94D";
 
+const THREE_X_ADDRESS = "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3";
+
 const Y_SUSD_ADDRESS = "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A";
 const Y_3EUR_ADDRESS = "0x5AB64C599FcC59f0f2726A300b03166A395578Da";
 
@@ -45,6 +47,7 @@ const THREE_EUR_METAPOOL_ADDRESS = "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571";
 const EURS_METAPOOL_ADDRESS = "0x98a7F18d4E56Cfe84E3D081B40001B3d5bD3eB8B";
 
 const ANGLE_ROUTER_ADDRESS = "0xBB755240596530be0c1DE5DFD77ec6398471561d";
+const ANGLE_EUR_ORACLE_ADDRESS = "0xc9Cb5703C109D4Fe46d2F29b0454c434e42A6947";
 const AG_EUR_ADDRESS = "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8";
 
 interface Token {
@@ -79,28 +82,7 @@ async function deployToken(): Promise<Token> {
 
   const dai = (await ethers.getContractAt("@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20", DAI_ADDRESS)) as ERC20;
 
-  const setTokenCreator = await ethers.getContractAt(SetTokenCreator.abi, SET_TOKEN_CREATOR_ADDRESS);
-  const setTokenAddress = await setTokenCreator.callStatic.create(
-    [Y_SUSD_ADDRESS, Y_3EUR_ADDRESS],
-    [parseEther("50"), parseEther("50")],
-    [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
-    owner.address,
-    "3X",
-    "3X"
-  );
-  await setTokenCreator.create(
-    [Y_SUSD_ADDRESS, Y_3EUR_ADDRESS],
-    [parseEther("50"), parseEther("50")],
-    [SET_BASIC_ISSUANCE_MODULE_ADDRESS],
-    owner.address,
-    "3X",
-    "3X"
-  );
-  const setToken = (await ethers.getContractAt(SetToken.abi, setTokenAddress)) as ERC20;
-
-  const setBasicIssuanceModule = await ethers.getContractAt(BasicIssuanceModule.abi, SET_BASIC_ISSUANCE_MODULE_ADDRESS);
-
-  await setBasicIssuanceModule.connect(owner).initialize(setToken.address, ADDRESS_ZERO);
+  const setToken = (await ethers.getContractAt(SetToken.abi, THREE_X_ADDRESS)) as ERC20;
 
   return {
     pop,
@@ -154,12 +136,14 @@ async function deployContracts(): Promise<Contracts> {
         {
           lpToken: CRV_SUSD_ADDRESS,
           utilityPool: SUSD_WITHDRAWAL_POOL_ADDRESS,
+          oracle: ethers.constants.AddressZero,
           curveMetaPool: SUSD_METAPOOL_ADDRESS,
           angleRouter: ethers.constants.AddressZero,
         },
         {
           lpToken: THREE_EUR_METAPOOL_ADDRESS,
-          utilityPool: EURS_METAPOOL_ADDRESS,
+          utilityPool: ethers.constants.AddressZero,
+          oracle: ANGLE_EUR_ORACLE_ADDRESS,
           curveMetaPool: THREE_EUR_METAPOOL_ADDRESS,
           angleRouter: ANGLE_ROUTER_ADDRESS,
         },
@@ -247,7 +231,7 @@ async function sendERC20(erc20: ERC20, whale: Signer, recipient: string, amount:
 async function claimAndRedeem(mintId: string): Promise<string> {
   await contracts.threeXBatchProcessing.connect(depositor).claim(mintId, depositor.address);
   await contracts.token.setToken.connect(depositor).approve(contracts.threeXBatchProcessing.address, parseEther("10"));
-  await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
+  await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("1"));
   const redeemId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
   await timeTravel(1800);
   await contracts.threeXBatchProcessing.batchRedeem();
@@ -262,7 +246,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
         {
           forking: {
             jsonRpcUrl: process.env.FORKING_RPC_URL,
-            blockNumber: 14898223,
+            blockNumber: 14996971,
           },
         },
       ],
@@ -277,7 +261,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
 
     usdcWhale = await impersonateSigner(USDC_WHALE_ADDRESS);
     await sendEth(USDC_WHALE_ADDRESS, "10");
-    await sendERC20(contracts.token.usdc, usdcWhale, depositor.address, BigNumber.from("20000000000"));
+    await sendERC20(contracts.token.usdc, usdcWhale, depositor.address, BigNumber.from(50_000_000_000));
 
     await contracts.token.dai.connect(depositor).approve(contracts.zapper.address, MAX_UINT_256);
     await contracts.token.usdc.connect(depositor).approve(contracts.threeXBatchProcessing.address, MAX_UINT_256);
@@ -290,10 +274,10 @@ describe("ThreeXBatchProcessing - Fork", () => {
     it("zaps into batch successfully", async function () {
       expect(await contracts.zapper.connect(depositor).zapIntoBatch(parseEther("1000"), 0, 1, 0))
         .to.emit(contracts.zapper, "ZappedIntoBatch")
-        .withArgs(BigNumber.from("999894685"), depositor.address);
+        .withArgs(BigNumber.from("999906288"), depositor.address);
 
       const batch = await contracts.threeXBatchProcessing.getBatch(batchId);
-      expect(batch.sourceTokenBalance).to.equal(BigNumber.from("999894685"));
+      expect(batch.sourceTokenBalance).to.equal(BigNumber.from("999906288"));
     });
     it("reverts when slippage is too high", async () => {
       await expectRevert(
@@ -355,7 +339,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
         .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
       await contracts.threeXBatchProcessing
         .connect(depositor)
-        .depositForMint(BigNumber.from("10000000000"), depositor.address);
+        .depositForMint(BigNumber.from(30_000_000_000), depositor.address);
       const mintBatchId = await contracts.threeXBatchProcessing.currentMintBatchId();
 
       await timeTravel(1800);
@@ -364,7 +348,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
       await contracts.token.setToken
         .connect(depositor)
         .approve(contracts.threeXBatchProcessing.address, parseEther("10000"));
-      await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("10"));
+      await contracts.threeXBatchProcessing.connect(depositor).depositForRedeem(parseEther("1"));
       batchId = await contracts.threeXBatchProcessing.currentRedeemBatchId();
       await timeTravel(1800);
       await contracts.threeXBatchProcessing.connect(owner).batchRedeem();

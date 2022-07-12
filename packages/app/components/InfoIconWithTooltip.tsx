@@ -3,7 +3,7 @@ import ReactTooltip from "react-tooltip";
 
 export interface InfoIconWithTooltipProps {
   title?: string;
-  content: string;
+  content: string | React.ReactElement;
   id?: string;
   classExtras?: string;
 }

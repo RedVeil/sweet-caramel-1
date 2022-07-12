@@ -2,7 +2,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
 import { ERC20__factory, IGUni__factory } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
-import { ContractAddresses } from "@popcorn/utils/types";
+import { Address, ContractAddresses } from "@popcorn/utils/types";
 import { BigNumber, Contract, ethers } from "ethers";
 import useWeb3 from "hooks/useWeb3";
 import useSWR from "swr";
@@ -11,17 +11,17 @@ export const getPopUsdcLpTokenPrice = async (
   provider: Web3Provider | ethers.providers.JsonRpcSigner,
   contractAddresses: ContractAddresses,
   chaindId: ChainId,
+  token: Address,
 ) => {
   const [popUsdcLp, usdcAmount, popAmount] =
-    chaindId === ChainId.Ethereum
-      ? await getGUniAssets(provider, contractAddresses)
+    chaindId === ChainId.Ethereum ||
+    contractAddresses.popUsdcArrakisVault.toLocaleLowerCase() === token.toLocaleLowerCase()
+      ? await getGUniAssets(provider, token)
       : await getPool2Assets(provider, contractAddresses);
-  console.log("popAmount", popAmount);
   try {
     const totalSupply = await popUsdcLp.totalSupply();
     const popPrice = usdcAmount.mul(parseEther("1")).div(popAmount);
     const totalUnderlyingValue = usdcAmount.add(popAmount.mul(popPrice).div(parseEther("1")));
-    console.log("totalSupply", totalSupply);
 
     return totalUnderlyingValue.mul(parseEther("1")).div(totalSupply);
   } catch (ex) {
@@ -31,9 +31,9 @@ export const getPopUsdcLpTokenPrice = async (
 
 const getGUniAssets = async (
   provider: Web3Provider | ethers.providers.JsonRpcSigner,
-  contractAddresses: ContractAddresses,
+  token: Address,
 ): Promise<[Contract, BigNumber, BigNumber]> => {
-  const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, provider);
+  const popUsdcLp = IGUni__factory.connect(token, provider);
   const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
   return [popUsdcLp, usdcAmount, popAmount];
 };
@@ -52,10 +52,10 @@ const getPool2Assets = async (
   return [popUsdcLp, usdcAmount, popAmount];
 };
 
-export default function useGetPopUsdcLpTokenPriceInUSD() {
+export default function useGetPopUsdcLpTokenPriceInUSD(token: Address) {
   const { signerOrProvider, chainId, contractAddresses } = useWeb3();
   const shouldFetch = signerOrProvider && contractAddresses && contractAddresses.popUsdcLp;
-  return useSWR(shouldFetch ? ["getPopUsdcLpTokenPrice", signerOrProvider, chainId] : null, async () =>
-    getPopUsdcLpTokenPrice(signerOrProvider, contractAddresses, chainId),
+  return useSWR(shouldFetch ? ["getPopUsdcLpTokenPrice", signerOrProvider, chainId, token] : null, async () =>
+    getPopUsdcLpTokenPrice(signerOrProvider, contractAddresses, chainId, token),
   );
 }

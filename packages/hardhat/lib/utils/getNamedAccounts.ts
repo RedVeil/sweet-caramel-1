@@ -44,6 +44,10 @@ export default function getNamedAccounts() {
       mainnet: "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
       hardhat: "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
     },
+    eurOracle: {
+      mainnet: "0xc9Cb5703C109D4Fe46d2F29b0454c434e42A6947",
+      hardhat: "0xc9Cb5703C109D4Fe46d2F29b0454c434e42A6947",
+    },
     ySusd: {
       mainnet: "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A",
       hardhat: "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A",
@@ -240,16 +244,16 @@ export default function getNamedAccounts() {
       hardhat: "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3",
     },
     threeXBatch: {
-      mainnet: "0x0eC645A204C5592fA0236E014737b40AF2006910",
-      hardhat: "0x742489F22807ebB4C36ca6cD95c3e1C044B7B6c8",
+      mainnet: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
+      hardhat: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
     },
     threeXBatchVault: {
-      mainnet: "0xC9EfefBf0f027596BE263Eb05ED7d22b71Fd6239",
-      hardhat: "0xC9EfefBf0f027596BE263Eb05ED7d22b71Fd6239",
+      mainnet: "0x0B4E13D8019D0F762377570000D9C923f0dad82B",
+      hardhat: "0x0B4E13D8019D0F762377570000D9C923f0dad82B",
     },
     threeXZapper: {
-      mainnet: "0x3b5A31EA103ACa95B4e787a95c65182E44fEb408",
-      hardhat: "0x9338CA7d556248055f5751d85cDA7aD6eF254433",
+      mainnet: "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84",
+      hardhat: "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84",
     },
     yEUR: {
       mainnet: "0x67e019bfbd5a67207755D04467D6A70c0B75bF60",

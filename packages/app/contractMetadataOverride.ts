@@ -80,7 +80,7 @@ export const TokenMetadataOverride: TokenContractMetadataOverride = {
       icon: "/images/icons/3crv_icon.png",
     },
     [namedAccounts.butter.hardhat]: {
-      name: "butter",
+      name: "Butter (v2)",
       icon: "/images/icons/butterLogo.png",
     },
     [namedAccounts.yFrax.hardhat]: {
@@ -132,7 +132,7 @@ export const TokenMetadataOverride: TokenContractMetadataOverride = {
       icon: "/images/icons/3crv_icon.png",
     },
     [namedAccounts.butter.hardhat]: {
-      name: "butter",
+      name: "Butter (v2)",
       icon: "/images/icons/butterLogo.png",
     },
     [namedAccounts.yFrax.hardhat]: {
@@ -183,7 +183,7 @@ export const TokenMetadataOverride: TokenContractMetadataOverride = {
       icon: "/images/icons/3crv_icon.png",
     },
     [namedAccounts.butter.mainnet]: {
-      name: "butter",
+      name: "Butter (v2)",
       icon: "/images/icons/butterLogo.png",
     },
     [namedAccounts.yFrax.mainnet]: {

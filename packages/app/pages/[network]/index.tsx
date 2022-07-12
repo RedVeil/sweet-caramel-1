@@ -16,19 +16,19 @@ const IndexPage = () => {
       <div className="col-span-12 md:col-span-6 flex flex-col gap-y-8 order-2 md:order-1">
         <div className="h-54">
           <Hero
-            header="Butter"
-            content="Optimize your yield while creating positive global impact."
-            image="/images/butterHero.svg"
-            link="/butter"
+            header="3x"
+            content="EUR and USD exposure with noble yield that funds social impact organizations."
+            image="/images/3xHero.svg"
+            link="/set/3x"
             imageSize="h-20"
           />
         </div>
         <div className="h-54">
           <Hero
-            header="3x"
-            content="Get exposure to Euro and Dollar with noble yield that donates fees to social impact organizations."
-            image="/images/3xHero.svg"
-            link="/butter/threex"
+            header="Butter"
+            content="Optimize your stablecoin yield while creating positive global impact."
+            image="/images/butterHero.svg"
+            link="/set/butter"
             imageSize="h-20"
           />
         </div>

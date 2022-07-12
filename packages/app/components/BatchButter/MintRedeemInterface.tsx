@@ -82,6 +82,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
         </div>
       )}
+      <hr className="mt-10" />
       <div className="w-full text-center">
         {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
           <div className="pt-6">

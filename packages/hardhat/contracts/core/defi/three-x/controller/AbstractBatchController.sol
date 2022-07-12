@@ -43,8 +43,8 @@ abstract contract AbstractBatchController is
   bytes32 public currentMintBatchId;
   bytes32 public currentRedeemBatchId;
 
-  BatchTokens redeemBatchTokens;
-  BatchTokens mintBatchTokens;
+  BatchTokens public redeemBatchTokens;
+  BatchTokens public mintBatchTokens;
 
   /* ========== EVENTS ========== */
 

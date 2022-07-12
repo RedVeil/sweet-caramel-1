@@ -19,12 +19,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     {
       lpToken: addresses.crvSusd,
       utilityPool: addresses.crvSusdUtilityPool,
+      oracle: ethers.constants.AddressZero,
       curveMetaPool: addresses.crvSusdMetapool,
       angleRouter: ethers.constants.AddressZero,
     },
     {
       lpToken: addresses.crv3EurMetapool,
-      utilityPool: addresses.crvEursMetapool,
+      utilityPool: ethers.constants.AddressZero,
+      oracle: addresses.eurOracle,
       curveMetaPool: addresses.crv3EurMetapool,
       angleRouter: addresses.angleRouter,
     },
@@ -84,14 +86,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   console.log("setting batch storage contract ... ");
-  const batchStorageTx = await processingContract.setBatchStorage(batchStorage.address);
+  const batchStorageTx = await processingContract.setBatchStorage((await deployments.get("ThreeXBatchVault")).address);
   if (!["hardhat", "local"].includes(hre.network.name)) {
     await batchStorageTx.wait();
   }
 
   console.log("setting threeXBatchProcessing approvals ... ");
-  const block = await hre.ethers.provider.getBlock("latest");
-  console.log({ block });
   const approvalsTx = await processingContract.setApprovals();
   if (!["hardhat", "local"].includes(hre.network.name)) {
     await approvalsTx.wait();

@@ -16,15 +16,15 @@ export default function getProducts(
     return [
       {
         title: "Butter",
-        onClick: () => pushWithinChain(`/butter`),
+        onClick: () => pushWithinChain(`/set/butter`),
         // TODO: Should match the url only when not on threeX or Instant
-        currentlySelected: router.pathname.includes("/butter"),
+        currentlySelected: router.pathname.includes("/set/butter"),
         url: "/butter",
       },
       {
         title: "3X",
-        onClick: () => pushWithinChain(`/butter/threex`),
-        currentlySelected: router.pathname.includes("/butter/threex"),
+        onClick: () => pushWithinChain(`/set/3x`),
+        currentlySelected: router.pathname.includes("/set/3x"),
         url: "/butter/threex",
       },
     ];

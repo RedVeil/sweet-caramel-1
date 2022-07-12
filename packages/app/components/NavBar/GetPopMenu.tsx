@@ -4,7 +4,7 @@ import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { Fragment } from "react";
 
-interface GetPopMenuProps {}
+interface GetPopMenuProps { }
 
 const GetPopMenu: React.FC<GetPopMenuProps> = () => {
   const { wallet, contractAddresses, chainId } = useWeb3();
@@ -24,10 +24,9 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
         <Menu.Item>
           {({ active }) => (
             <a
-              className={`${active ? "bg-gray-100" : "bg-white"} ${
-                metaMaskConnected ? "rounded-t-2xl border-b" : "rounded-2xl"
-              } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
-              href={`/${router?.query?.network}/${getTokenOnNetwork(
+              className={`${active ? "bg-gray-100" : "bg-white"} ${metaMaskConnected ? "rounded-t-2xl border-b" : "rounded-2xl"
+                } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
+              href={`${getTokenOnNetwork(
                 contractAddresses.pop,
                 chainId,
                 contractAddresses,
@@ -42,9 +41,8 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
           <Menu.Item>
             {({ active }) => (
               <div
-                className={`${
-                  active ? "bg-gray-100" : "bg-white"
-                } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-2xl`}
+                className={`${active ? "bg-gray-100" : "bg-white"
+                  } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-2xl`}
                 onClick={async () =>
                   await window.ethereum.request({
                     method: "wallet_watchAsset",

@@ -8,7 +8,7 @@ import * as Icon from "react-feather";
 export interface SingleActionModalProps {
   title: string;
   children?: React.ReactElement | React.ReactComponentElement<any>;
-  content?: string;
+  content?: string | React.ReactElement;
   visible: boolean;
   type?: "info" | "error" | "alert";
   image?: React.ReactElement;

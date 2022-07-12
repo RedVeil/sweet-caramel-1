@@ -39,7 +39,7 @@ export default function StakingPage(): JSX.Element {
       .stake(form.amount)
       .then((res) =>
         onContractSuccess(res, `${stakingToken?.symbol} staked!`, () => {
-          setForm((state) => defaultForm);
+          setForm(defaultForm);
           refetchStakingPool();
           balances.revalidate();
           if (!localStorage.getItem("hideStakeSuccessPopover")) {
@@ -74,7 +74,7 @@ export default function StakingPage(): JSX.Element {
       .withdraw(form.amount)
       .then((res) =>
         onContractSuccess(res, `${stakingToken?.symbol} withdrawn!`, () => {
-          setForm((state) => ({ ...defaultForm, type: InteractionType.Withdraw }));
+          setForm({ ...defaultForm, type: InteractionType.Withdraw });
           refetchStakingPool();
           balances.revalidate();
         }),

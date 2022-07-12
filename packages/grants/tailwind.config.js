@@ -38,7 +38,7 @@ module.exports = {
         128: "34rem",
       },
       height: {
-				100: "25rem",
+        100: "25rem",
         104: "27rem",
         108: "28rem",
         110: "29.5rem",
@@ -78,11 +78,11 @@ module.exports = {
         light: "#FFF5D1",
         cardBg: "#F3F8FF",
 
-				rewardsBg: "#FFFBEA",
-				rewardsBg2: "#FFF6CF",
-				
-				yellow: "#FFF7DB",
-				customBlue:"#A1D7FF",
+        rewardsBg: "#FFFBEA",
+        rewardsBg2: "#FFF6CF",
+
+        yellow: "#FFF7DB",
+        customBlue: "#A1D7FF",
 
         green: colors.emerald,
         purple: colors.violet,

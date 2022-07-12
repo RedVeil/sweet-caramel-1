@@ -66,6 +66,9 @@ export interface ContractAddresses {
   sCHF?: Address;
   sJPY?: Address;
   sUSD?: Address;
+  agEur?: Address;
+  angleRouter?: Address;
+  eurOracle?: Address;
   curveAddressProvider?: Address;
   curveFactoryMetapoolDepositZap?: Address;
   setBasicIssuanceModule?: Address;

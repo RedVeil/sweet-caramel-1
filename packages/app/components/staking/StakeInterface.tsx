@@ -84,14 +84,14 @@ export default function StakeInterface({
                     id: "vAPR",
                     title: "vAPR",
                     content:
-                      "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+                      "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
                   }}
                 />
               </div>
               <div className="md:hidden">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "$0"
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
                   }
                   label="TVL"
                 />
@@ -101,7 +101,7 @@ export default function StakeInterface({
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "$0"
+                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
                   }
                   label="TVL"
                 />
@@ -137,7 +137,7 @@ export default function StakeInterface({
                     id: "vAPR",
                     title: "vAPR",
                     content:
-                      "This is the estimated Annual Percentage Yield. 90% of POP rewards are vested over one year.",
+                      "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
                   }}
                 />
               </div>
@@ -205,22 +205,22 @@ export default function StakeInterface({
                   chainId,
                   getChainRelevantContracts(chainId),
                 ) && (
-                  <Link
-                    href={getTokenOnNetwork(
-                      stakingPool.tokenAddress?.toLowerCase(),
-                      chainId,
-                      getChainRelevantContracts(chainId),
-                    )}
-                    passHref
-                  >
-                    <a
-                      target="_blank"
-                      className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
+                    <Link
+                      href={getTokenOnNetwork(
+                        stakingPool.tokenAddress?.toLowerCase(),
+                        chainId,
+                        getChainRelevantContracts(chainId),
+                      )}
+                      passHref
                     >
-                      Get Token
-                    </a>
-                  </Link>
-                )}
+                      <a
+                        target="_blank"
+                        className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
+                      >
+                        Get Token
+                      </a>
+                    </Link>
+                  )}
               </div>
             </div>
             <div className="bg-blue-50 rounded-b-3xl py-6 px-8">
