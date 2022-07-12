@@ -26,8 +26,8 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
         disabled ? "bg-gray-50" : "bg-cardBg"
       }`}
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between md:mt-2 md:my-auto w-full">
-        <div className="flex flex-row items-center my-auto mb-6 md:mb-4 justify-center md:justify-start">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 md:my-auto w-full">
+        <div className="flex flex-row items-center my-auto mb-6 md:mb-0 justify-center md:justify-start">
           <div className={disabled ? "opacity-50" : "opacity-100"}>
             <TokenIcon token={tokenName} fullsize />
           </div>
@@ -40,7 +40,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
           </h1>
         </div>
         <h1
-          className={`text-2xl md:text-3xl font-semibold md:font-medium leading-none mr-8 mt-1 mb-6 md:mb-4 text-center md:text-left ${
+          className={`text-2xl md:text-3xl font-semibold md:font-medium leading-none mr-8 mt-1 mb-6 md:mb-0 text-center md:text-left ${
             disabled ? "text-gray-400" : "text-gray-500 md:text-gray-900"
           }`}
         >
