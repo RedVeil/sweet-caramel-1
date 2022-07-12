@@ -48,12 +48,12 @@ const Example: React.FC<DualActionWideModalProps> = ({
 
   const dismiss = () => {
     setOpen(keepOpen);
-    setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
+    setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 500);
   };
 
   const confirm = () => {
     setOpen(keepOpen);
-    setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
+    setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 500);
   };
 
   if (!visible) return <></>;
@@ -120,20 +120,20 @@ const Example: React.FC<DualActionWideModalProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-4 sm:grid-flow-row-dense">
-                {onDismiss && (
-                  <SecondaryActionButton
-                    disabled={progress}
-                    label={onDismiss.label}
-                    handleClick={() => dismiss()}
-                  ></SecondaryActionButton>
-                )}
+              <div className="mt-5 flex flex-col gap-y-4 sm:flex-row-reverse sm:mt-6 sm:gap-4">
                 {onConfirm && (
                   <MainActionButton
                     disabled={progress}
                     label={onConfirm.label}
                     handleClick={() => confirm()}
                   ></MainActionButton>
+                )}
+                {onDismiss && (
+                  <SecondaryActionButton
+                    disabled={progress}
+                    label={onDismiss.label}
+                    handleClick={() => dismiss()}
+                  ></SecondaryActionButton>
                 )}
               </div>
             </div>
