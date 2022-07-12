@@ -1,5 +1,5 @@
 import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { getIpfsHashFromBytes32 } from "../ipfsHashManipulation";
 
 export interface IIpfsClient {
@@ -24,24 +24,22 @@ export const IpfsClient: IIpfsClient = {
   },
 
   add: async (beneficiaryApplication: BeneficiaryApplication): Promise<string> => {
-    var myHeaders = new Headers();
-    myHeaders.append("pinata_api_key", process.env.PINATA_API_KEY);
-    myHeaders.append("pinata_secret_api_key", process.env.PINATA_API_SECRET);
-    myHeaders.append("Content-Type", "application/json");
-    var raw = JSON.stringify(beneficiaryApplication);
-    const cid = await fetch(process.env.IPFS_GATEWAY_PIN_JSON, {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    })
-      .then((response) => response.text())
-      .then((result) => {
-        return JSON.parse(result).IpfsHash;
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    const headers = {
+      pinata_api_key: process.env.PINATA_API_KEY,
+      pinata_secret_api_key: process.env.PINATA_API_SECRET,
+      "Content-Type": "application/json",
+    };
+    let cid = "";
+    try {
+      const response = (await axios.post(
+        "https://api.pinata.cloud/pinning/pinJSONToIPFS/",
+        JSON.stringify(beneficiaryApplication),
+        { headers },
+      )) as AxiosResponse<{ IpfsHash: string }>;
+      cid = response.data.IpfsHash;
+    } catch (e) {
+      console.error(e);
+    }
     return cid;
   },
 
