@@ -104,17 +104,6 @@ async function prepareStakingContract(
   console.log("Staking some Token...");
   await inputToken.approve(contractAddress, parseEther("100"));
   await stakingContract.connect(signer).stake(parseEther("100"));
-  await bluebird.map(
-    new Array(31).fill(0),
-    async (_x, _i) => {
-      await hre.network.provider.send("evm_increaseTime", [3600]);
-      await hre.network.provider.send("evm_mine", []);
-      await stakingContract.connect(signer).getReward();
-    },
-    { concurrency: 1 }
-  );
-  await hre.network.provider.send("evm_increaseTime", [3600]);
-  await hre.network.provider.send("evm_mine", []);
 }
 
 async function connectAndMintToken(
@@ -162,9 +151,6 @@ async function createPopLockerData(hre, addresses, signer): Promise<void> {
   await pop.connect(signer).transfer(rewardsDistribution.address, parseEther("1000"));
   //Create withdrawable balance
   await stakingContract.connect(signer).lock(hre.config.namedAccounts.deployer as string, parseEther("10"), 0);
-
-  hre.network.provider.send("evm_increaseTime", [85 * DAYS]);
-  hre.network.provider.send("evm_mine", []);
 
   await rewardsDistribution.connect(signer).distributeRewards(parseEther("1000"));
 }

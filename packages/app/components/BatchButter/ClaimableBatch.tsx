@@ -19,9 +19,10 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   isThreeX = false,
 }) => {
   return (
-    <tr className="even:bg-gray-100 odd:bg-white last:rounded-b-2xl w-full">
+    <tr className="bg-white border-b border-gray-200 last:border-none last:rounded-b-2xl w-full">
       <td className="px-6 py-5 whitespace-nowrap">
-        <span className="flex flex-row items-center">
+        <p className="text-gray-500 mb-2">DEPOSITED</p>
+        <span className="flex flex-row items-center text-gray-900 text-2xl font-semibold">
           {formatBatchInputToken(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
           {!isThreeX && batch.batchType === BatchType.Mint && (
             <div className="mb-1">
@@ -35,22 +36,25 @@ const ClaimableBatch: React.FC<BatchProps> = ({
           )}
         </span>
       </td>
-      <td className="px-6 py-5 whitespace-nowrap font-medium">
-        {formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
+      <td className="px-6 py-5 whitespace-nowrap">
+        <p className="text-gray-500 mb-2">CLAIMABLE</p>
+        <p className="text-gray-900 text-2xl font-semibold">
+          {formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
+        </p>
       </td>
       <td className="px-6 py-5 flex justify-end">
         {batch.claimable && batch.batchType === BatchType.Mint ? (
           <div className="space-x-4 flex flex-row justify-end w-80">
-            <div className="w-36">
+            <div className="">
               <MainActionButton label="Claim and Stake" handleClick={(e) => handleClaimAndStake(batch)} />
             </div>
-            <div className="w-36">
+            <div className="">
               <SecondaryActionButton label="Claim" handleClick={(e) => handleClaim(batch)} />
             </div>
           </div>
         ) : (
-          <div className="w-36">
-            <MainActionButton
+          <div className="">
+            <SecondaryActionButton
               label={batch.claimable ? "Claim" : "Cancel"}
               handleClick={(e) => (batch.claimable ? handleClaim(batch) : handleWithdraw(batch))}
             />

@@ -90,7 +90,6 @@ export const NetworkChangePromptModal: React.FC<NetworkChangePromptModalProps> =
                 <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
                   &#8203;
                 </span>
-
                 <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-4 md:pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
                   <div>
                     {image ? (

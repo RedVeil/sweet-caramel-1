@@ -33,9 +33,10 @@ const getEscrowsByIds = async (vestingEscrow: RewardsEscrow, escrowIds: string[]
 const getUserEscrows = () => async (_: any, account: string, vestingEscrow: RewardsEscrow, library) => {
   const escrowIds: string[] = await vestingEscrow.getEscrowIdsByUser(account);
   if (escrowIds.length === 0) {
-    return { escrows: new Array(0), totalClaimablePop: constants.Zero };
+    return { escrows: new Array(0), totalClaimablePop: constants.Zero, totalVestingPop: constants.Zero };
   }
   let totalClaimablePop: BigNumber = constants.Zero;
+  let totalVestingPop: BigNumber = constants.Zero;
   const escrows = (await getEscrowsByIds(vestingEscrow, escrowIds))
     .filter((escrow) => escrow.balance.gt(constants.Zero))
     .filter((escrow) => !BAD_ESCROW_IDS.includes(escrow.id));
@@ -50,13 +51,14 @@ const getUserEscrows = () => async (_: any, account: string, vestingEscrow: Rewa
       }
       return claimable;
     })();
-
+    totalVestingPop = totalVestingPop.add(escrows[i].balance.sub(escrows[i].claimableAmount));
     totalClaimablePop = totalClaimablePop.add(escrows[i].claimableAmount);
   }
   escrows.sort((a, b) => a.end.toNumber() - b.end.toNumber());
   return {
     escrows,
     totalClaimablePop,
+    totalVestingPop,
   };
 };
 

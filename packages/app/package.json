@@ -15,7 +15,7 @@
     "*.{tsx,ts}": "prettier --write"
   },
   "dependencies": {
-    "@headlessui/react": "1.4.3",
+    "@headlessui/react": "^1.6.5",
     "@heroicons/react": "1.0.5",
     "@popcorn/hardhat": "*",
     "@popcorn/ui": "*",

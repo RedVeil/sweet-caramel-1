@@ -13,7 +13,7 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({
   return (
     <div className="justify-items-center bg-white shadow rounded-lg py-4">
       <p className="text-3xl font-bold text-center">Annual Percentage Yield</p>
-      <p className="text-md text-gray-600 text-center mb-10">Historic APY</p>
+      <p className="text-md text-gray-600 text-center mb-10">Historic vAPR</p>
       <TimeRangeButtonGroup range={range} setRange={setRange} />
       <HYSIAreaChart data={chartData} />
     </div>

@@ -44,7 +44,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }
   return (
-    <div className="bg-white rounded-3xl px-5 pt-6 pb-6 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-custom">
       <MintRedeemToggle
         redeeming={localButterPageState.redeeming}
         setRedeeming={setRedeeming}

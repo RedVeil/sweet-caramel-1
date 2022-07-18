@@ -30,13 +30,13 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
   const supply = isReady && butterData.totalSupply;
   const setToken = isThreeX ? butterData?.tokens?.threeX : butterData?.tokens?.butter;
 
-  const apyInfoText = `This is the estimated Annual Percentage Yield. The shown APY comes from yield on the underlying stablecoins (${
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
     butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
   }%) and is boosted with POP (${
     butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
   }%). You must stake your ${
     isThreeX ? "3X" : "BTR"
-  } to receive the additional APY in POP. 90% of earned POP rewards are vested over one year.`;
+  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
@@ -48,11 +48,15 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
                 ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
                 : "New 🍿✨"
             }
-            label="Est. APY"
+            label={
+              <>
+                <span className="lowercase">v</span>APR
+              </>
+            }
             green
             infoIconProps={{
-              id: "estApy",
-              title: "How we calculate the APY",
+              id: "vAPR",
+              title: "How we calculate the vAPR",
               content: apyInfoText,
             }}
           />
@@ -98,11 +102,15 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
                 ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
                 : "New 🍿✨"
             }
-            label="Est. APY"
+            label={
+              <>
+                <span className="lowercase">v</span>APR
+              </>
+            }
             green
             infoIconProps={{
-              id: "estApy",
-              title: "How we calculate the APY",
+              id: "vAPR",
+              title: "How we calculate the vAPR",
               content: apyInfoText,
             }}
           />

@@ -1,5 +1,5 @@
 import StatusWithLabel from "components/Common/StatusWithLabel";
-import MainActionButton from "components/MainActionButton";
+import SecondaryActionButton from "components/SecondaryActionButton";
 import { format } from "date-fns";
 import { formatStakedAmount } from "helper/formatAmount";
 import { Escrow } from "hooks/useGetUserEscrows";
@@ -15,9 +15,9 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
 
   return (
     <div
-      className={`flex flex-col md:flex-row w-full p-6 md:py-0 md:px-8 md:h-36 ${
-        index % 2 === 0 ? "bg-rewardsBg2" : "bg-rewardsBg"
-      } `}
+      className={`flex flex-col md:flex-row w-full p-6 md:py-0 md:px-8 md:h-36 
+        ${index % 2 === 0 ? "bg-rewardsBg2" : "bg-rewardsBg"}
+         `}
     >
       <div className="hidden md:flex flex-row justify-between gap-2 items-center w-full">
         <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
@@ -27,9 +27,10 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
           content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
         />
         <div className="w-2/12">
-          <MainActionButton
+          <SecondaryActionButton
             handleClick={() => claim(vestingEscrow)}
             disabled={!vestingEscrow.claimableAmount.gte(0)}
+            grayOutline={true}
             label="Claim"
           />
         </div>
@@ -44,9 +45,10 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
           <StatusWithLabel label="Total Vesting Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
         </div>
         <div className="w-full mt-6">
-          <MainActionButton
+          <SecondaryActionButton
             handleClick={() => claim(vestingEscrow)}
             disabled={!vestingEscrow.claimableAmount.gte(0)}
+            grayOutline={true}
             label="Claim"
           />
         </div>

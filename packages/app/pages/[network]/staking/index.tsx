@@ -16,11 +16,6 @@ import ContentLoader from "react-content-loader";
 import { NotAvailable } from "../../../components/Rewards/NotAvailable";
 
 const MIGRATION_LINKS: AlertCardLink[] = [
-  {
-    text: "Read More",
-    url: "https://forum.popcorn.network/t/pip-2-liquidity-optimizations-and-use-of-treasury-funds/586",
-    openInNewTab: true,
-  },
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
 ];
 
@@ -54,7 +49,7 @@ export default function index(): JSX.Element {
           {
             title: "Migrate your liquidity from Sushiswap to Arrakis",
             content:
-              "Please withdraw your LP tokens and deposit them into Arrakis for the new liquidity mining rewards. In PIP-2 the community decided to consolidate all liquidity in Uniswap via Arrakis. The purpose of this measure is to improve both liquidity a slippage. ",
+              "Please withdraw your LP tokens and deposit them into Arrakis for the new liquidity mining rewards. In PIP-2 the community decided to migrate all Polygon liquidity to Uniswap via Arrakis. The purpose of this measure is to improve both liquidity and slippage. ",
             image: <img src="/images/stake/lpStaking.png" className="px-6" />,
             onConfirm: {
               label: "Close",
@@ -123,7 +118,7 @@ export default function index(): JSX.Element {
                 {features["migrationAlert"] && chainId === ChainId.Polygon && (
                   <AlertCard
                     title="Migrate your liquidity for USDC/POP from Sushiswap to Arrakis"
-                    text="In PIP-2 the community decided to consolidate all liquidity in Uniswap via Arrakis."
+                    text="In PIP-2 the community decided to migrate all Polygon liquidity to Uniswap via Arrakis."
                     icon={<BellIcon className="text-red-400 w-7 h-8" aria-hidden="true" />}
                     links={MIGRATION_LINKS}
                   />
@@ -142,12 +137,12 @@ export default function index(): JSX.Element {
                       onSelectPool={onSelectPool}
                       badge={
                         features["migrationAlert"] &&
-                        stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
+                          stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
                           ? {
-                              text: "Migration Required",
-                              textColor: "text-white",
-                              bgColor: "bg-red-500",
-                            }
+                            text: "Migration Required",
+                            textColor: "text-white",
+                            bgColor: "bg-red-500",
+                          }
                           : undefined
                       }
                     />

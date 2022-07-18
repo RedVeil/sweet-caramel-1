@@ -16,12 +16,14 @@ export default function StatInfoCard({ title, content, icon, info }: StatInfoCar
         <div className="ml-4 w-full">
           <div className="flex flex-row items-center w-full justify-between pt-1">
             <p className="font-normal leading-none text-gray-500 text-base uppercase">{title}</p>
-            <InfoIconWithTooltip
-              classExtras="h-7 w-7 mt-0 ml-5"
-              id={info.title}
-              title={info.title}
-              content={info.content}
-            />
+            {info && (
+              <InfoIconWithTooltip
+                classExtras="h-7 w-7 mt-0 ml-5"
+                id={info.title}
+                title={info.title}
+                content={info.content}
+              />
+            )}
           </div>
           <h3 className="text-3xl font-semibold text-gray-900 mt-2">{content}</h3>
         </div>
