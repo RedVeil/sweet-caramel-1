@@ -7,7 +7,7 @@ import usePopLocker from "./staking/usePopLocker";
 import useWeb3 from "./useWeb3";
 
 export default function useRestakeAlert() {
-  const { dispatch } = useContext(store);
+  const { dispatch, state } = useContext(store);
   const {
     account,
     contractAddresses: { popStaking },
@@ -18,7 +18,12 @@ export default function useRestakeAlert() {
 
   useEffect(() => {
     if (!account || !popLocker) return;
-    if (popLocker.withdrawable.gt(constants.Zero) && !restakeAlerted) {
+    if (
+      popLocker.withdrawable.gt(constants.Zero) &&
+      !restakeAlerted &&
+      state.networkChangePromptModal.visible === false &&
+      state.singleActionModal.content !== "To continue please sign terms and conditions."
+    ) {
       dispatch(
         setMultiChoiceActionModal({
           image: <img src="/images/stake/restake_image.png" className="px-6" />,
@@ -33,15 +38,19 @@ export default function useRestakeAlert() {
               router.push({ pathname: `/${router?.query?.network}/staking/pop`, query: { action: "withdraw" } });
             },
           },
-          onDismiss: {
+          onSecondOption: {
             label: "Withdraw Now",
             onClick: () => {
               setRestakeAlerted(true);
               router.push({ pathname: `/${router?.query?.network}/staking/pop`, query: { action: "withdraw" } });
             },
           },
+          onDismiss: {
+            label: "Dismiss",
+            onClick: () => dispatch(setMultiChoiceActionModal(false)),
+          },
         }),
       );
     }
-  }, [popLocker]);
+  }, [popLocker, state.networkChangePromptModal.visible]);
 }
