@@ -62,8 +62,7 @@ export default function web3Onboard(): void {
       description: "DeFi for the People",
     },
     accountCenter: {
-      desktop: { enabled: false, containerElement: "div" },
-      mobile: { enabled: false, containerElement: "div" },
+      desktop: { enabled: false },
     },
   });
 }
