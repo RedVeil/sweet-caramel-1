@@ -1,11 +1,13 @@
-import useWeb3 from "hooks/useWeb3";
+import { Web3Provider } from "@ethersproject/providers";
+import { useWeb3React } from "@web3-react/core";
 import { useContext, useEffect } from "react";
 import { setSingleActionModal } from "../context/actions";
 import { store } from "../context/store";
 import { networkMap } from "../context/Web3/connectors";
 
 const SwapChainModal: React.FC = () => {
-  const { account, chainId } = useWeb3();
+  const context = useWeb3React<Web3Provider>();
+  const { account, chainId } = context;
   const { dispatch } = useContext(store);
 
   useEffect(() => {
