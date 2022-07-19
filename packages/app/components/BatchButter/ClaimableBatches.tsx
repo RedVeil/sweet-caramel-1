@@ -122,7 +122,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         </tbody>
       </table>
       <div className="md:hidden">
-        <div className="bg-gray-200 rounded-t-xl mx-2 py-2">
+        <div className="bg-gray-200 rounded-t-xl py-2">
           <h3 className="text-lg font-semibold text-gray-900 px-4">Your Batches</h3>
         </div>
         <div>

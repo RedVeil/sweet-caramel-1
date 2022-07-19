@@ -66,7 +66,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
             content={
               setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
             }
-            label="TOTAL DEPOSITS"
+            label="Total Deposits"
           />
         </div>
       </div>
@@ -76,23 +76,23 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
             content={
               setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
             }
-            label="TOTAL DEPOSITS"
+            label="Total Deposits"
           />
         </div>
         <div className="md:hidden">
           {isThreeX ? (
-            <StatusWithLabel content={"$5m"} label="TVL LIMIT" />
+            <StatusWithLabel content={"$5m"} label="TVL Limit" />
           ) : (
-            <StatusWithLabel content={`Coming Soon`} label="SOCIAL IMPACT" infoIconProps={SocialImpactInfoProps} />
+            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
           )}
         </div>
       </div>
       <div className="w-full md:w-auto mt-2 md:pl-6 text-center md:text-left">
         <div className="hidden md:block ">
           {isThreeX ? (
-            <StatusWithLabel content={"$5m"} label="TVL LIMIT" />
+            <StatusWithLabel content={"$5m"} label="TVL Limit" />
           ) : (
-            <StatusWithLabel content={`Coming Soon`} label="SOCIAL IMPACT" infoIconProps={SocialImpactInfoProps} />
+            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
           )}
         </div>
         <div className="w-full md:hidden flex justify-center">
