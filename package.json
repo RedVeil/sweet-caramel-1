@@ -35,7 +35,8 @@
     "tsconfig-paths": "3.9.0"
   },
   "resolutions": {
-    "@walletconnect/ethereum-provider": "1.7.1"
+    "@walletconnect/ethereum-provider": "1.7.1",
+    "@web3-onboard/core": "2.2.7"
   },
   "repository": {
     "type": "git",
