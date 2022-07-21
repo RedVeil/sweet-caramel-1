@@ -53,7 +53,10 @@ export default function useWeb3() {
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
     if (isChainMismatch(router?.query?.network as string) && !["/[network]", "/"].includes(router?.pathname)) {
-      alertChainInconsistency(router?.query?.network as string, ChainId[Number(connectedChain.id)]);
+      alertChainInconsistency(
+        router?.query?.network as string,
+        ChainId[Number(connectedChain.id)] || "an unsupported Network",
+      );
     } else {
       dispatch(setNetworkChangePromptModal(false));
     }
@@ -148,18 +151,18 @@ export default function useWeb3() {
   function alertChainInconsistency(intendedChain: string, actualChain: string): void {
     dispatch(
       setNetworkChangePromptModal({
-        content: `You are viewing a page on ${toTitleCase(intendedChain)} but your wallet is set to ${toTitleCase(
-          actualChain,
-        )}.`,
+        content: `You are viewing a page on ${toTitleCase(intendedChain)} but your wallet is set to ${actualChain}.`,
         title: "Network Inconsistency",
         type: "error",
-        onChangeUrl: {
-          label: `Continue on ${toTitleCase(actualChain)}`,
-          onClick: () => {
-            pushNetworkChange(toTitleCase(actualChain), true);
-            dispatch(setNetworkChangePromptModal(false));
-          },
-        },
+        onChangeUrl: ChainId[actualChain]
+          ? {
+              label: `Continue on ${actualChain}`,
+              onClick: () => {
+                pushNetworkChange(toTitleCase(actualChain), true);
+                dispatch(setNetworkChangePromptModal(false));
+              },
+            }
+          : undefined,
         onChangeNetwork: {
           label: `Switch to ${toTitleCase(intendedChain)}`,
           onClick: () => {
