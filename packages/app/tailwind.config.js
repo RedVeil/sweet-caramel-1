@@ -79,6 +79,12 @@ module.exports = {
 			minHeight: { 128: "34rem", 256: "68rem" },
 			lineHeight: {
 				button: "32px",
+				'10.5': '2.75rem',
+				'11': '3rem',
+				'12': '3.5rem',
+				'13': '4rem',
+				'14': '4.5rem',
+				'15': '6rem',
 			},
 			scale: {
 				101: "1.01",
@@ -86,7 +92,7 @@ module.exports = {
 				103: "1.03",
 			},
 			colors: {
-				primary: "#F28705",
+				primary: '#645F4B',
 				primaryLight: "#FDEAA7",
 				primaryDark: "#BF4904",
 
@@ -94,7 +100,7 @@ module.exports = {
 				secondaryLight: "#D5264E",
 				secondaryDark: "#8739B0",
 
-				ctaYellow: "#F6CB22",
+				ctaYellow: '#EBE7D4',
 				ctaYellowLight: "#FFD324",
 
 				light: "#FFF5D1",
@@ -106,6 +112,32 @@ module.exports = {
 				green: colors.emerald,
 				yellow: colors.amber,
 				purple: colors.violet,
+
+				peach: "#FFF8EE",
+				cream: '#EBE7D4',
+				customYellow: '#FEE25D',
+				customPale: '#DFDAC7',
+				customRed: '#FA5A6E',
+				customGreen: '#05BE64',
+				customPurple: '#9B55FF',
+				customDarkGray: '#1F2937',
+			},
+			fontSize: {
+				'xs': '.75rem',
+				'sm': '.875rem',
+				'tiny': '.875rem',
+				'base': '1rem',
+				'lg': '1.125rem',
+				'xl': '1.25rem',
+				'2xl': '1.5rem',
+				'3xl': '2rem',
+				'4xl': '2.5rem',
+				'5xl': '3rem',
+				'6xl': '3.5rem',
+				'7xl': '4rem',
+				'8xl': '4.5rem',
+				'9xl': '6rem',
+				'10xl': '8rem',
 			},
 			backgroundImage: (theme) => ({
 				"hero-pattern": "url('/images/popcorn_playing.gif')",

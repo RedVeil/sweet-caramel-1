@@ -1,28 +1,35 @@
-interface SecondaryActionButtonProps {
-  label: string;
-  handleClick: any;
-  disabled?: boolean;
-  grayOutline?: boolean;
-}
+import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
+import React, { useState } from "react";
 
-const SecondaryActionButton: React.FC<SecondaryActionButtonProps> = ({
-  label,
-  handleClick,
-  disabled = false,
-  grayOutline = false,
-  children,
-}) => {
+interface ButtonProps {
+  label: string;
+  handleClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  disabled?: boolean;
+}
+const SecondaryActionButton: React.FC<ButtonProps> = ({ label, handleClick, disabled = false }) => {
+  const [arrowColor, setArrowColor] = useState("645F4B");
+  const [arrowClass, setArrowClass] = useState("transform translate-x-0");
+
+  const animateArrow = () => {
+    setArrowColor("000000");
+    setArrowClass("transform -translate-x-1/2");
+    setTimeout(() => {
+      setArrowColor("645F4B");
+      setArrowClass("transform translate-x-0");
+    }, 500);
+  };
   return (
     <button
-      type="button"
-      className={`w-full h-hull py-3 px-8 flex flex-row items-center justify-center rounded-full bg-white border ${
-        grayOutline ? "border-gray-200" : "border-blue-600"
-      } text-blue-600 font-medium hover:bg-blue-600 hover:text-white disabled:bg-white disabled:text-gray-300 disabled:border-gray-300`}
+      className="w-full flex justify-between items-center text-primary hover:text-black transition-all ease-in-out font-bold leading-7 relative"
+      onMouseEnter={animateArrow}
       onClick={handleClick}
-      disabled={disabled}
     >
-      {label}
+      <span>{label}</span>
+      <div className={`'absolute right-0 transition-all ease-in-out duration-500 ${arrowClass}`}>
+        <RightArrowIcon color={arrowColor} />
+      </div>
     </button>
   );
 };
+
 export default SecondaryActionButton;

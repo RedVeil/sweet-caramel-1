@@ -9,6 +9,7 @@ body {
   height: 100%;
   background: #fff;
 }
+
 html,
 a {
   color: inherit;
@@ -35,33 +36,39 @@ input[type="number"] {
 }
 
 @layer base {
-  body {
-    @apply font-avenir text-base font-normal tracking-wide text-gray-800;
-  }
   @font-face {
-    font-family: "Avenir LT Pro";
-    font-weight: 300;
-    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Light.woff) format("woff");
-  }
-  @font-face {
-    font-family: "Avenir LT Pro";
+    font-family: 'KH Teka';
     font-weight: 400;
-    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Book.woff) format("woff");
+    src: local('KH Teka'),
+      url(/fonts/KH_Teka/KHTeka-Regular.woff) format('woff');
   }
+
   @font-face {
-    font-family: "Avenir LT Pro";
+    font-family: 'KH Teka';
+    font-weight: 200;
+    src: local('KH Teka'),
+      url(/fonts/KH_Teka/KHTeka-Light.woff) format('woff');
+  }
+
+  @font-face {
+    font-family: 'KH Teka';
     font-weight: 500;
-    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Medium.woff) format("woff");
+    src: local('KH Teka'),
+      url(/fonts/KH_Teka/KHTeka-Medium.woff) format('woff');
   }
-  @font-face {
-    font-family: "Avenir LT Pro";
+
+	@font-face {
+    font-family: 'KH Teka';
     font-weight: 700;
-    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Heavy.woff) format("woff");
+    src: local('KH Teka'),
+      url(/fonts/KH_Teka/KHTeka-Bold.woff) format('woff');
   }
+
   @font-face {
-    font-family: "Avenir LT Pro";
+    font-family: 'KH Teka';
     font-weight: 900;
-    src: url(/fonts/Avenir_Next_LT_Pro/AvenirLTPro-Black.woff) format("woff");
+    src: local('KH Teka'),
+      url(/fonts/KH_Teka/KHTeka-Black.woff) format('woff');
   }
 }
 
