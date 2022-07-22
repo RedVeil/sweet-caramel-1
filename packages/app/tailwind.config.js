@@ -121,6 +121,7 @@ module.exports = {
 				customGreen: '#05BE64',
 				customPurple: '#9B55FF',
 				customDarkGray: '#1F2937',
+				customLightGray: '#969696',
 			},
 			fontSize: {
 				'xs': '.75rem',

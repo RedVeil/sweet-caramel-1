@@ -8,7 +8,6 @@ export default function Hero(): JSX.Element {
       <div className="col-span-12 md:col-span-3">
         <div className=" rounded-lg border border-gray-900 p-6">
           <div className="flex items-center gap-2 mb-2">
-            {" "}
             <p className="text-gray-800 leading-5">Total Value Locked </p>
             <img
               src="/images/icons/tooltip.svg"
@@ -20,7 +19,6 @@ export default function Hero(): JSX.Element {
 
         <div className=" rounded-lg border border-gray-900 p-6 my-8">
           <div className="flex items-center gap-2 mb-2">
-            {" "}
             <p className="text-gray-800 leading-5">My Net Worth</p>
             <img
               src="/images/icons/tooltip.svg"

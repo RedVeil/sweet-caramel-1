@@ -1,4 +1,5 @@
 import Hero from "components/landing/Hero";
+import Products from "components/landing/Products";
 import SecuritySection from "components/landing/SecuritySection";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
@@ -15,6 +16,7 @@ const IndexPage = () => {
   return (
     <main>
       <Hero />
+      <Products />
       <SecuritySection />
     </main>
   );
