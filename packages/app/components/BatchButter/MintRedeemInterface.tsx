@@ -71,7 +71,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
               })
             }
             infoTitle="Instant Butter"
-            infoText="Using 'Instant Butter' comes with significantly higher gas costs! Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when these gas costs are acceptable to you."
+            infoText="Using 'Instant Butter' comes with higher gas costs. Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when the gas costs are acceptable to you."
           />
         </div>
       )}

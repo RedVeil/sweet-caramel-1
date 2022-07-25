@@ -7,9 +7,9 @@ interface Args {
   dryRun: string;
 }
 
-export default task("butter:batch-redeem", "process current batch for redeeming")
+export default task("threeX:batch-redeem", "process current 3X batch for redeeming")
   .addOptionalParam("dryRun", "will not submit transaction")
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    const butterBatchProcessing = await getContractWithSigner(hre, "butterBatch", "ButterBatchProcessing");
-    await batchRedeem(butterBatchProcessing, args["dryRun"]);
+    const threeXBatchProcessing = await getContractWithSigner(hre, "threeXBatch", "ThreeXBatchProcessing");
+    await batchRedeem(threeXBatchProcessing, args["dryRun"]);
   });
