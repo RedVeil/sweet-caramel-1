@@ -61,7 +61,7 @@ export default function DesktopMenu(): JSX.Element {
               <div className="w-36 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between border border-dropdownBorder rounded-4xl text-primary">
                 <img src="/images/icons/popLogo.svg" className="w-5 h-5" />
                 <p className="ml-3 leading-none mt-1">POP</p>
-                <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
+                <ChevronDownIcon className="w-5 h-5 ml-4 text-primary" aria-hidden="true" />
               </div>
               <GetPopMenu />
             </Menu.Button>
@@ -71,11 +71,11 @@ export default function DesktopMenu(): JSX.Element {
           <Menu>
             <Menu.Button>
               <div
-                className={`w-44 h-full px-6 flex flex-row items-center justify-between border border-dropdownBorder rounded-4xl text-primary cursor-pointer`}
+                className={`h-full px-6 flex flex-row items-center justify-between border border-dropdownBorder rounded-4xl text-primary cursor-pointer`}
               >
                 <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
                 <p className="leading-none mt-0.5">{ChainId[chainId]}</p>
-                <ChevronDownIcon className="w-5 h-5 ml-4" aria-hidden="true" />
+                <ChevronDownIcon className="w-8 h-8 ml-4 text-primary" aria-hidden="true" />
               </div>
             </Menu.Button>
             <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => setChain(newChainId)} />

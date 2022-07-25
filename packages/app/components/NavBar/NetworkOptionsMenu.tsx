@@ -22,7 +22,7 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
       leaveTo="transform opacity-0 scale-95"
     >
       <Menu.Items className="md:absolute w-full mt-2 md:top-14 md:w-48 md:-left-2 bg-white rounded-3xl shadow-md border-gray-200 border-solid border focus:outline-none">
-        <p className="text-center align-middle text-md font-light leading-none h-16 rounded-t-3xl border-b border-solid border-gray-200 pt-6 pb-3">
+        <p className="text-center align-middle text-lg leading-none h-16 rounded-t-3xl border-b border-solid border-gray-200 pt-6 pb-3 text-primary">
           Select a Network{" "}
         </p>
 
