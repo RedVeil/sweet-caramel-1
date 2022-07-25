@@ -2,7 +2,7 @@ import React from "react";
 
 const SecuritySection = () => {
   return (
-    <section className="grid grid-cols-12 md:gap-14 px-6 md:px-8">
+    <section className="grid grid-cols-12 md:gap-14">
       <div className="col-span-12 md:col-span-3 pt-10 hidden md:block">
         <h1 className="text-6xl leading-12 pt-10">Security</h1>
         <p className="mt-4">Our smart contract has been audited by the best in the business.</p>

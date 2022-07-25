@@ -122,6 +122,7 @@ module.exports = {
 				customPurple: '#9B55FF',
 				customDarkGray: '#1F2937',
 				customLightGray: '#969696',
+				dropdownBorder: '#D7D7D7',
 			},
 			fontSize: {
 				'xs': '.75rem',
@@ -145,7 +146,7 @@ module.exports = {
 			}),
 			animation: { "spin-slow": "spin 3s linear infinite" },
 			fontFamily: {
-				avenir: ["'Avenir LT Pro'", "sans-serif"],
+				khTeka: ["'KH Teka'", "sans-serif"],
 			},
 		},
 	},

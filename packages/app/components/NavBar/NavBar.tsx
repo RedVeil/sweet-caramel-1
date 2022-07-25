@@ -9,7 +9,7 @@ export default function Navbar(): JSX.Element {
 
   return (
     <>
-      <nav className="hidden md:flex pt-9 bg-white z-10">
+      <nav className="hidden md:flex bg-white z-10 font-landing">
         <DesktopMenu />
       </nav>
       <nav className="md:hidden w-screen h-full relative">

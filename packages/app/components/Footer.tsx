@@ -51,7 +51,7 @@ const Footer = () => {
             type="email"
             name="EMAIL"
             id="mce-EMAIL"
-            className=" border-t border-b border-gray-300 text-gray-500 px-1 py-2 w-full mt-2 leading-7"
+            className="border-x-0 border-y-gray-300 text-gray-500 px-1 py-2 w-full mt-2 leading-7"
             placeholder="Enter your email"
             required
           />
@@ -112,16 +112,16 @@ const Footer = () => {
           <p className="text-gray-900 font-medium leading-6 tracking-1">Products</p>
           <div className="flex flex-col">
             <Link href="/">
-              <a className=" text-primary leading-6 mt-4">Sweet Vaults</a>
+              <a className=" text-primary hover:text-black leading-6 mt-4">Sweet Vaults</a>
             </Link>
             <Link href="/set/3x">
-              <a className=" text-primary leading-6 mt-4">3X</a>
+              <a className=" text-primary hover:text-black leading-6 mt-4">3X</a>
             </Link>
             <Link href="/set/butter">
-              <a className=" text-primary leading-6 mt-4">Butter</a>
+              <a className=" text-primary hover:text-black leading-6 mt-4">Butter</a>
             </Link>
             <Link href="/staking">
-              <a className=" text-primary leading-6 mt-4">Staking</a>
+              <a className=" text-primary hover:text-black leading-6 mt-4">Staking</a>
             </Link>
           </div>
         </div>
@@ -130,10 +130,10 @@ const Footer = () => {
           <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
           <div className="flex flex-col">
             <Link href="/">
-              <a className=" text-primary leading-6 mt-4">Popcorn</a>
+              <a className=" text-primary hover:text-black leading-6 mt-4">Popcorn</a>
             </Link>
             <Link href="/rewards">
-              <a className=" text-primary leading-6 mt-4">Rewards</a>
+              <a className=" text-primary hover:text-black leading-6 mt-4">Rewards</a>
             </Link>
           </div>
         </div>
@@ -142,7 +142,7 @@ const Footer = () => {
           <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
           <div className="flex flex-col">
             <Link href="https://immunefi.com/bounty/popcornnetwork" passHref>
-              <a target="_blank" className=" text-primary leading-6 mt-4">
+              <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
                 Immunefi
               </a>
             </Link>
