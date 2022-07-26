@@ -16,7 +16,7 @@ const Footer = () => {
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) {
-      setIconSize("40");
+      setIconSize("50");
       setFacebookColor("#111827");
       setTwitterColor("#111827");
       setGithubColor("#111827");

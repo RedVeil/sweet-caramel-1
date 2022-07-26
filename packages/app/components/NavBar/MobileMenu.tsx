@@ -1,8 +1,8 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/solid";
-import { networkLogos, networkMap } from "@popcorn/utils";
-import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import DiscordIcon from "components/SVGIcons/DiscordIcon";
+import FacebookIcon from "components/SVGIcons/FacebookIcon";
+import GithubIcon from "components/SVGIcons/GithubIcon";
+import TwitterIcon from "components/SVGIcons/TwitterIcon";
 import GetProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -10,7 +10,6 @@ import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import DropDownComponent from "./DropDownComponent";
 import NavbarLink from "./NavbarLinks";
-import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export const MobileMenu: React.FC = () => {
   const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain, contractAddresses } = useWeb3();
@@ -24,34 +23,36 @@ export const MobileMenu: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center px-8 py-6 border-b border-gray-100">
+      <div className="flex flex-row justify-between items-center px-6 py-6 border-b border-gray-100 font-khTeka">
         <div>
           <Link href={`/${router?.query?.network}/`} passHref>
             <a>
-              <img src="/images/icons/popLogo.png" alt="Logo" className="w-8 h-8" />
+              <img src="/images/icons/popLogo.svg" alt="Logo" className="w-8 h-8" />
             </a>
           </Link>
         </div>
         <button
-          className="text-gray-500 w-5 h-5 relative focus:outline-none bg-white"
+          className="text-gray-500 w-8 relative focus:outline-none bg-white"
           onClick={() => toggleMenu(!menuVisible)}
         >
-          <div className="block w-5 absolute">
+          <div className="block w-8 absolute right-0">
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
+              className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out ${
                 menuVisible ? "rotate-45" : "-translate-y-1.5"
               }`}
             ></span>
+            <span className={`block h-0.5 ${menuVisible ? "hidden" : "block"}`}></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
+              className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out ${
                 menuVisible ? "opacity-0" : "opacity-100"
               }`}
             ></span>
+            <span className={`block h-0.5 ${menuVisible ? "hidden" : "block"}`}></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
+              className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out ${
                 menuVisible ? "-rotate-45" : "translate-y-1.5"
               }`}
             ></span>
@@ -74,10 +75,10 @@ export const MobileMenu: React.FC = () => {
                 leaveTo="translate-x-full"
               >
                 <div className="w-screen">
-                  <div className="h-full w-full flex flex-col pt-1 px-8 shadow-xl bg-white overflow-y-scroll">
-                    <div className="flex flex-col divide-y divide-gray-200 w-full">
+                  <div className="h-full w-full flex flex-col justify-between pt-1 px-8 shadow-xl bg-white overflow-y-scroll">
+                    <div className="flex flex-col w-full">
                       <div className="pt-6 pb-6">
-                        <NavbarLink label="Home" url="/" isActive={router.pathname === `/[network]`} />
+                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/[network]`} />
                       </div>
                       <div className="relative flex flex-container flex-row w-fit-content z-10 py-6">
                         {products.length < 2 ? (
@@ -93,27 +94,24 @@ export const MobileMenu: React.FC = () => {
                             <Menu.Button>
                               <div className="group flex flex-row items-center -mr-2">
                                 <p
-                                  className={`text-gray-500 text-xl leading-4 font-semibold font-base md:text-base hover:text-gray-900 cursor-pointer`}
+                                  className={`text-primary leading-5 text-5xl
+																	hover:text-black cursor-pointer cursor-pointer`}
                                 >
                                   Products
                                 </p>
-                                <ChevronDownIcon
-                                  className="fill-current md:text-gray-500 text-gray-900 group-hover:text-gray-900 mt-0.5 w-7 h-5 ml-0.5"
-                                  aria-hidden="true"
-                                />
                               </div>
                               <DropDownComponent options={products} />
                             </Menu.Button>
                           </Menu>
                         )}
                       </div>
-                      <div className="py-6">
-                        <NavbarLink
-                          label="Staking"
-                          url="/staking"
-                          isActive={router.pathname === "/[network]/staking"}
-                        />
-                      </div>
+                      {/* <div className="py-6">
+												<NavbarLink
+													label="Staking"
+													url="/staking"
+													isActive={router.pathname === "/[network]/staking"}
+												/>
+											</div> */}
                       <div className="py-6">
                         <NavbarLink
                           label="Rewards"
@@ -121,73 +119,50 @@ export const MobileMenu: React.FC = () => {
                           isActive={router.pathname === "/[network]/rewards"}
                         />
                       </div>
-                      <div className="py-10 space-y-6">
-                        <SecondaryActionButton
-                          label="Buy POP"
-                          handleClick={() =>
-                            window.open(getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses), "_blank")
-                          }
-                        />
-                        <SecondaryActionButton
-                          label="Add POP to Wallet"
-                          handleClick={async () =>
-                            await window.ethereum.request({
-                              method: "wallet_watchAsset",
-                              params: {
-                                type: "ERC20",
-                                options: {
-                                  address: contractAddresses.pop,
-                                  symbol: "POP",
-                                  decimals: 18,
-                                  image: "https://popcorn.network/images/icons/pop_64x64.png",
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
+                    </div>
 
-                      <div className="relative py-10 w-full h-full">
-                        <p className="font-medium leading-4 text-gray-500 mb-2">Network Switcher</p>
-                        <Menu as={Fragment}>
-                          <Menu.Button as={Fragment}>
-                            <div
-                              className={`w-full px-6 h-12 py-0.5 flex flex-row items-center justify-center border border-gray-200 shadow-custom rounded-3xl cursor-pointer relative`}
-                            >
-                              <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
-                              <p className="leading-none font-medium text-gray-600 mt-0.5">{networkMap[chainId]}</p>
-                              <ChevronDownIcon className="w-5 h-5 ml-4 absolute right-10" aria-hidden="true" />
-                            </div>
-                          </Menu.Button>
-                          <NetworkOptionsMenu
-                            currentChain={chainId}
-                            switchNetwork={(newChainId) => setChain(newChainId)}
-                          />
-                        </Menu>
+                    <div>
+                      <div className="grid grid-cols-12 mt-12">
+                        <div className="col-span-6">
+                          <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
+                          <div className="flex flex-col">
+                            <Link href="/">
+                              <a href="" className=" text-primary leading-6 mt-4">
+                                Popcorn
+                              </a>
+                            </Link>
+                            <Link href="/docs/Popcorn_whitepaper_v1.pdf">
+                              <a target="_blank" className=" text-primary leading-6 mt-4">
+                                Whitepaper
+                              </a>
+                            </Link>
+                          </div>
+                        </div>
+
+                        <div className="col-span-6">
+                          <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
+                          <div className="flex flex-col">
+                            <Link href="/immunefi">
+                              <a href="" className=" text-primary leading-6 mt-4">
+                                Immunefi
+                              </a>
+                            </Link>
+                          </div>
+                        </div>
                       </div>
-                      <div className="py-10">
-                        <button
-                          onClick={() => {
-                            if (account) {
-                              disconnect();
-                            } else {
-                              connect();
-                            }
-                          }}
-                          className={`rounded-full py-3 w-full flex flex-row justify-center gap-2 items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${
-                            account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
-                          }`}
-                        >
-                          <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
-                            {account ? `Disconnect` : "Connect Wallet"}
-                          </p>
-                          {account && (
-                            <img
-                              className="w-6 h-6"
-                              src={`data:image/svg+xml;utf8,${encodeURIComponent(wallet?.icon)}`}
-                            />
-                          )}
-                        </button>
+                      <div className="flex justify-between pb-12 mt-11">
+                        <a href="https://www.facebook.com/PopcornDAO">
+                          <FacebookIcon color={"#111827"} size={"50"} />
+                        </a>
+                        <a href="https://twitter.com/Popcorn_DAO">
+                          <TwitterIcon color={"#111827"} size={"50"} />
+                        </a>
+                        <a href="https://github.com/popcorndao">
+                          <GithubIcon color={"#111827"} size={"50"} />
+                        </a>
+                        <a href="https://discord.gg/w9zeRTSZsq">
+                          <DiscordIcon color={"#111827"} size={"50"} />
+                        </a>
                       </div>
                     </div>
                   </div>

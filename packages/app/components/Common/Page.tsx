@@ -10,7 +10,7 @@ export default function Page(props: { children: ReactElement }) {
     <div className="w-full h-full font-khTeka">
       <Navbar />
       <Toaster position="top-right" />
-      <div className=" 2xl:max-w-7xl mt-12 pt-0 p-8">{props.children}</div>
+      <div className=" 2xl:max-w-7xl mt-12 pt-0 px-6 md:p-8">{props.children}</div>
       <Footer />
     </div>
   );
