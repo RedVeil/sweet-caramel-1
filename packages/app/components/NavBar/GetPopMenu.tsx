@@ -23,13 +23,13 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
         <Menu.Item>
           {({ active }) => (
             <a
-              className={`${active ? "bg-gray-100" : "bg-white"} ${
+              className={`${active ? "bg-cream text-black font-medium" : "bg-white text-primary "} ${
                 metaMaskConnected ? "rounded-t-3xl border-b" : "rounded-3xl"
               } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
               href={`${getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses)}`}
               target="_blank"
             >
-              <p className={`text-lg text-primary  ${active ? "font-medium" : ""}`}>Buy POP</p>
+              <p className={`text-lg ${active ? "font-medium" : ""}`}>Buy POP</p>
             </a>
           )}
         </Menu.Item>
