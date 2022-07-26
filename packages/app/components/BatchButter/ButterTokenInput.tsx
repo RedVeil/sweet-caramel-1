@@ -87,7 +87,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
     <>
       <div className="mt-10">
         <div className="flex flex-row items-center justify-between mb-1">
-          <p className="text-base font-semibold text-gray-900">Deposit Amount</p>
+          <p className="text-base font-semibold text-gray-900">
+            {localButterPageState.redeeming ? "Redeem Amount" : "Deposit Amount"}
+          </p>
           <p className="text-gray-500 font-medium text-sm">
             {`${formatAndRoundBigNumber(
               localButterPageState.useUnclaimedDeposits
