@@ -276,7 +276,7 @@ describe("XPopRedemption", () => {
       it("reverts on attempt to redeem too much XPOP", async () => {
         await expectRevert(
           contracts.xPopRedemption.connect(redeemer).redeem(XPOP_AMOUNT.mul(10)),
-          "ERC20: burn amount exceeds allowance"
+          "ERC20: insufficient allowance"
         );
       });
     });
