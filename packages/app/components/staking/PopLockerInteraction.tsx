@@ -78,7 +78,7 @@ export default function PopLockerInteraction({
               htmlFor="tokenInput"
               className="flex justify-between text-sm font-medium text-gray-700 text-center mt-6"
             >
-              <p className="mb-2 text-gray-900 text-base">Withdrawable Amount</p>
+              <p className="mb-2 text-gray-900 text-base font-semibold">Withdrawable Amount</p>
             </label>
             <div className="relative flex items-center">
               <input
