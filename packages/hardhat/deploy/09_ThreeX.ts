@@ -178,7 +178,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       utils.formatBytes32String("ThreeXBatchProcessing"),
       0,
       false,
-      false
+      true
     );
     if (!["hardhat", "local"].includes(hre.network.name)) {
       await tx3.wait();
@@ -189,7 +189,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       utils.formatBytes32String("ThreeXBatchProcessing"),
       0,
       false,
-      false
+      true
     );
     if (!["hardhat", "local"].includes(hre.network.name)) {
       await tx4.wait();

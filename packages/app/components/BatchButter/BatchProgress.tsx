@@ -17,8 +17,8 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
             {batchAmount.eq(constants.Zero)
               ? 0
               : (Number(formatBigNumber(batchAmount)) / 1000).toFixed(
-                  Number(formatBigNumber(batchAmount)) > 1000 ? 0 : 1,
-                )}
+                Number(formatBigNumber(batchAmount)) > 1000 ? 0 : 1,
+              )}
             k
           </p>
         </div>
@@ -29,7 +29,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
               classExtras="h-7 w-7 mt-0 ml-5"
               id="3"
               title="Batch Processing"
-              content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+              content="Mint and redeem batches with at least $1000 are processed by keepers approximately every 48 hours. Batch sizes greater than $100k are processed sooner.  Network congestion may cause delays."
             />
           </div>
           <p className="text-gray-900 leading-snug break-words">
