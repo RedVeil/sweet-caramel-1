@@ -37,12 +37,19 @@ export default function useWeb3() {
   const isChainMismatch = (network: string | undefined): boolean =>
     isLoaded(network) && ChainId[Number(connectedChain?.id)] !== toTitleCase(network);
 
+  const inGnosisApp = () => {
+    typeof document !== "undefined" && document?.location?.ancestorOrigins?.contains("https://gnosis-safe.io");
+  };
+
   useEffect(() => {
     // Eagerconnect
-    if (!wallet && previouslyConnectedWallets?.length > 0) {
+    if (!wallet && inGnosisApp) {
+      connect({ autoSelect: { label: "Gnosis Safe", disableModals: true } });
+    } else if (!wallet && previouslyConnectedWallets?.length > 0) {
       handleConnect(true);
     }
   }, []);
+
   useEffect(() => {
     // Track Connected wallets for eagerconnect
     if (wallets?.length > 0) {
