@@ -93,8 +93,8 @@ module.exports = {
 			},
 			colors: {
 				primary: '#645F4B',
-				primaryLight: "#FDEAA7",
-				primaryDark: "#BF4904",
+				primaryLight: "#A5A08C",
+				primaryDark: "#555555",
 
 				secondary: "#B72E73",
 				secondaryLight: "#D5264E",
@@ -103,7 +103,7 @@ module.exports = {
 				ctaYellow: '#EBE7D4',
 				ctaYellowLight: "#FFD324",
 
-				light: "#FFF5D1",
+				light: "#C8C8C8",
 				cardBg: "#F3F8FF",
 
 				rewardsBg: "#FFFBEA",

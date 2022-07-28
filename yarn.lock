@@ -22825,6 +22825,11 @@ react-router@6.3.0, react-router@^6.0.0:
   dependencies:
     history "^5.2.0"
 
+react-simple-wheel-picker@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-simple-wheel-picker/-/react-simple-wheel-picker-1.2.0.tgz#e974a0256ac215aef5878fd8fd7f6be5d31b4165"
+  integrity sha512-+W56p4O8NgWk6ps7521Ca7bpYvvALQvQy4F56z6aj2klX64m1ngiDDsGQY6DwD5T5J0yBy+jr1IDlpYvzkJW/g==
+
 react-sizeme@^3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/react-sizeme/-/react-sizeme-3.0.2.tgz#4a2f167905ba8f8b8d932a9e35164e459f9020e4"
