@@ -83,8 +83,7 @@ export default function StakeInterface({
                   infoIconProps={{
                     id: "vAPR",
                     title: "vAPR",
-                    content:
-                      "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
+                    content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
                   }}
                 />
               </div>
@@ -136,8 +135,7 @@ export default function StakeInterface({
                   infoIconProps={{
                     id: "vAPR",
                     title: "vAPR",
-                    content:
-                      "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
+                    content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
                   }}
                 />
               </div>

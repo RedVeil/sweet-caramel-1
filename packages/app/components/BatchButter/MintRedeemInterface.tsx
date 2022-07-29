@@ -78,10 +78,10 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       {(localButterPageState.instant ||
         isInstantPage ||
         (!localButterPageState.redeeming && localButterPageState.useZap)) && (
-          <div className="w-full mt-6">
-            <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
-          </div>
-        )}
+        <div className="w-full mt-6">
+          <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
+        </div>
+      )}
       <hr className="mt-10" />
       <div className="w-full text-center">
         {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
@@ -101,8 +101,9 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && isAllowanceInsufficient() && (
           <div className="pt-6 space-y-6">
             <MainActionButton
-              label={`Allow Popcorn to use your ${localButterPageState.tokens[localButterPageState.selectedToken.input].name
-                }`}
+              label={`Allow Popcorn to use your ${
+                localButterPageState.tokens[localButterPageState.selectedToken.input].name
+              }`}
               handleClick={() => approve(localButterPageState.selectedToken.input)}
             />
             <MainActionButton

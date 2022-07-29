@@ -1,11 +1,12 @@
 import { ChainId, ChainIdHex, RPC_URLS } from "@popcorn/utils";
+import gnosisModule from "@web3-onboard/gnosis";
 import injected from "@web3-onboard/injected-wallets";
 import { init } from "@web3-onboard/react";
 import walletConnect from "@web3-onboard/walletconnect";
 
 export default function web3Onboard(): void {
   init({
-    wallets: [walletConnect(), injected()],
+    wallets: [walletConnect(), injected(), gnosisModule()],
     chains: [
       {
         id: ChainIdHex.Ethereum,

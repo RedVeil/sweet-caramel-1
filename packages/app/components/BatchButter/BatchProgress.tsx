@@ -17,8 +17,8 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
             {batchAmount.eq(constants.Zero)
               ? 0
               : (Number(formatBigNumber(batchAmount)) / 1000).toFixed(
-                Number(formatBigNumber(batchAmount)) > 1000 ? 0 : 1,
-              )}
+                  Number(formatBigNumber(batchAmount)) > 1000 ? 0 : 1,
+                )}
             k
           </p>
         </div>
