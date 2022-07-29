@@ -38,7 +38,7 @@ export default function Hero(): JSX.Element {
           </div>
         </div>
         {account && (
-          <div className=" rounded-lg md:border md:border-dropdownBorder px-0 pt-4 pb-10 md:p-6 md:pb-0">
+          <div className=" rounded-lg md:border md:border-dropdownBorder px-0 pt-4 md:p-6 md:pb-0">
             <p className="text-gray-900 text-4xl leading-8 hidden md:block">Connect your wallet</p>
             <div className="border md:border-0 md:border-t border-dropdownBorder rounded-lg md:rounded-none px-8 md:px-0 py-2  mb-1 md:mt-4">
               <SecondaryActionButton label="Connect" handleClick={() => connect()} />
@@ -47,7 +47,7 @@ export default function Hero(): JSX.Element {
         )}
       </div>
 
-      <div className="col-span-12 md:col-span-4 h-full">
+      <div className="col-span-12 md:col-span-4 h-full pt-10 md:pt-0">
         <div className="rounded-lg p-6 md:px-8 md:py-9 bg-customYellow h-full flex flex-row md:flex-col justify-between">
           <p className="text-2xl md:text-8xl leading-6 md:leading-13">
             Connect <br />

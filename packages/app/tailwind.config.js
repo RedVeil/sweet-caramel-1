@@ -32,7 +32,7 @@ module.exports = {
 		},
 		extend: {
 			boxShadow: {
-				custom: "0 4px 14px rgba(101, 135, 169, 0.11)",
+				custom: "0 4px 14px rgba(101, 135, 169, 0.16)",
 			},
 			borderRadius: {
 				"4xl": "2rem",

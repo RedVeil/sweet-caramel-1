@@ -10,7 +10,7 @@ const SecuritySection = () => {
           <p className="mt-4 text-primaryDark">Our smart contract has been audited by the best in the business.</p>
         </div>
       </div>
-      <div className="col-span-12 md:col-span-9 hidden md:grid grid-cols-3 gap-8 mt-9">
+      <div className="col-span-12 md:col-span-9 hidden md:grid grid-cols-3 gap-14 mt-9">
         <div className="col-span-3 md:col-span-1">
           <div className=" bg-customRed rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center xl:h-112 xl:w-full">
             <img src="/images/zokyo.svg" alt="" className="rounded-lg" />

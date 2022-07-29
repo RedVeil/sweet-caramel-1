@@ -209,3 +209,7 @@ border-radius: 8px;
 	position: absolute;
 	left:30%
 } 
+
+.__react_component_tooltip{
+	padding:18px 24px!important;
+}

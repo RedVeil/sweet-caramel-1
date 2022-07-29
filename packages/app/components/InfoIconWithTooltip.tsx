@@ -15,14 +15,14 @@ export const InfoIconWithTooltip: React.FC<InfoIconWithTooltipProps> = ({ title,
         src="/images/icons/tooltip.svg"
         data-tip
         data-for={id}
-        className={`inline-flex items-center border border-transparent rounded-full shadow-sm hover:bg-blue-200 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${classExtras}`}
+        className={`inline-flex items-center border border-transparent rounded-full shadow-custom hover:bg-blue-200 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${classExtras}`}
       />
       <ReactTooltip
         id={id}
         place={"bottom"}
         effect="solid"
         type="info"
-        className="shadow-lg rounded-lg border-2 border-dropdownBorder p-4 w-60"
+        className="shadow-lg rounded-lg border-2 border-dropdownBorder w-60"
         backgroundColor="#fff"
         borderColor="rgba(229, 231, 235, var(--tw-border-opacity))"
         data-html="true"

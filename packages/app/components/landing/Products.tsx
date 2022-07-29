@@ -10,7 +10,7 @@ const Products = () => {
         <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4">
             <div className=" relative w-fit">
-              <p className="text-black text-4xl leading-8 mb-1">Sweet Vaults</p>
+              <p className="text-black text-4xl leading-9 md:leading-10  mb-2">Sweet Vaults</p>
               <img
                 src="/images/newProductBadge.svg"
                 alt=""
@@ -45,7 +45,7 @@ const Products = () => {
         <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4 order-1">
             <div className=" relative">
-              <p className="text-black text-4xl leading-8 mb-1">3x</p>
+              <p className="text-black text-4xl leading-9 md:leading-10  mb-2">3x</p>
               <img
                 src="/images/fireProductBadge.svg"
                 alt=""
@@ -120,7 +120,7 @@ const Products = () => {
 
         <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4 order-1">
-            <p className="text-black text-4xl leading-8 mb-1">Butter</p>
+            <p className="text-black text-4xl leading-9 md:leading-10   mb-2">Butter</p>
             <p className=" text-primaryDark">Optimize your yield while creating positive global impact.</p>
           </div>
 
@@ -191,7 +191,7 @@ const Products = () => {
 
         <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4">
-            <p className="text-black text-4xl leading-8 mb-1">Staking</p>
+            <p className="text-black text-4xl leading-9 md:leading-10  mb-2">Staking</p>
             <p className=" text-primaryDark">Single-asset vaults to earn yield on your digital assets</p>
           </div>
 

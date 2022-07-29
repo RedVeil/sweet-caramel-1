@@ -61,7 +61,7 @@ export default function DesktopMenu(): JSX.Element {
             <Menu.Button>
               <div className="w-36 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between border border-dropdownBorder rounded-4xl text-primary">
                 <img src="/images/icons/popLogo.svg" className="w-5 h-5" />
-                <p className="ml-3 leading-none mt-1">POP</p>
+                <p className="ml-3 leading-none">POP</p>
                 <ChevronDownIcon className="w-5 h-5 ml-4 text-primary" aria-hidden="true" />
               </div>
               <GetPopMenu />
