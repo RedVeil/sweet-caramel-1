@@ -27,9 +27,9 @@ const Products = () => {
               <p className="text-primaryLight leading-5">TVL </p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="sweet-vault-tvl"
+                title="Total value locked (TVL)"
+                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
@@ -62,9 +62,11 @@ const Products = () => {
               <p className="text-primaryLight">Exposure</p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="3x-exposure"
+                title="Underlying Tokens"
+                content="50% yvCurve-sUSDpool
+								50% yvCurve-3EURpool
+								3X Has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT, and EURS."
               />
             </div>
             <div className="flex relative mt-1">
@@ -90,9 +92,9 @@ const Products = () => {
               <p className="text-primaryLight leading-5">TVL </p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="3x-tvl"
+                title="Total value locked (TVL)"
+                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
@@ -103,9 +105,9 @@ const Products = () => {
               <p className="text-primaryLight leading-5">vAPR </p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="3x-vapr"
+                title="vAPR"
+                content="Variable Annual Percentage Rate means that the annual percentage rate, your interest stated as a yearly rate, can change over time."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">255.93%</p>
@@ -127,9 +129,11 @@ const Products = () => {
               <p className="text-primaryLight">Exposure</p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="butter-exposure"
+                title="Underlying Tokens"
+                content="50% yvCurve-sUSDpool
+								50% yvCurve-3EURpool
+								3X Has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT, and EURS."
               />
             </div>
             <div className="flex relative mt-1">
@@ -159,9 +163,9 @@ const Products = () => {
               <p className="text-primaryLight leading-5">TVL </p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="butter-tvl"
+                title="Total value locked (TVL)"
+                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
@@ -172,9 +176,9 @@ const Products = () => {
               <p className="text-primaryLight leading-5">vAPR </p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="butter-vapr"
+                title="vAPR"
+                content="Variable Annual Percentage Rate means that the annual percentage rate, your interest stated as a yearly rate, can change over time."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">255.93%</p>
@@ -198,9 +202,9 @@ const Products = () => {
               <p className="text-primaryLight leading-5">TVL </p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="staking-tvl"
+                title="Total value locked (TVL)"
+                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>

@@ -15,9 +15,9 @@ export default function Hero(): JSX.Element {
 
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="hero-tvl"
+                title="Total value locked (TVL)"
+                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
             <p className="text-primary text-xl md:text-4xl leading-8">$5.55m</p>
@@ -29,9 +29,9 @@ export default function Hero(): JSX.Element {
               <p className="text-primaryLight leading-5 md:hidden">MNW</p>
               <InfoIconWithTooltip
                 classExtras=""
-                id="3"
-                title="Batch Processing"
-                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
+                id="hero-mnw"
+                title="Net Worth"
+                content="This value aggregates your Popcorn-related holdings across all blockchain networks."
               />
             </div>
             <p className="text-primary text-xl md:text-4xl leading-8">$45,032,100</p>
