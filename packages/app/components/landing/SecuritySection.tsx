@@ -12,7 +12,7 @@ const SecuritySection = () => {
       </div>
       <div className="col-span-12 md:col-span-9 hidden md:grid grid-cols-3 gap-8 mt-9">
         <div className="col-span-3 md:col-span-1">
-          <div className=" bg-customRed rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center">
+          <div className=" bg-customRed rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center xl:h-112 xl:w-full">
             <img src="/images/zokyo.svg" alt="" className="rounded-lg" />
           </div>
           <p className="text-black text-3xl leading-9 mt-6 mb-4">Zokyo</p>
@@ -23,7 +23,7 @@ const SecuritySection = () => {
         </div>
 
         <div className="col-span-3 md:col-span-1">
-          <div className=" bg-customPurple rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center">
+          <div className=" bg-customPurple rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center xl:h-112 xl:w-full">
             <img src="/images/g0.svg" alt="" className="rounded-lg" />
           </div>
           <p className="text-black text-3xl leading-9 mt-6 mb-4">g0</p>
@@ -34,7 +34,7 @@ const SecuritySection = () => {
         </div>
 
         <div className="col-span-3 md:col-span-1">
-          <div className=" bg-customGreen rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center">
+          <div className=" bg-customGreen rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center xl:h-112 xl:w-full">
             <img src="/images/immunefi.svg" alt="" className="rounded-lg" />
           </div>
           <p className="text-black text-3xl leading-9 mt-6 mb-4">Immunefi</p>

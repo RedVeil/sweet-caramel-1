@@ -2,25 +2,31 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import SecondaryButton from "./SecondaryActionButton";
 import DiscordIcon from "./SVGIcons/DiscordIcon";
-import FacebookIcon from "./SVGIcons/FacebookIcon";
-import GithubIcon from "./SVGIcons/GithubIcon";
+import MediumIcon from "./SVGIcons/MediumIcon";
+import RedditIcon from "./SVGIcons/RedditIcon";
+import TelegramIcon from "./SVGIcons/TelegramIcon";
 import TwitterIcon from "./SVGIcons/TwitterIcon";
+import YoutubeIcon from "./SVGIcons/YoutubeIcon";
 
 const Footer = () => {
-  const [facebookColor, setFacebookColor] = useState("#645F4B");
+  const [telegramColor, setTelegramColor] = useState("#645F4B");
   const [twitterColor, setTwitterColor] = useState("#645F4B");
-  const [githubColor, setGithubColor] = useState("#645F4B");
+  const [mediumIcon, setMediumColor] = useState("#645F4B");
   const [discordColor, setDiscordColor] = useState("#645F4B");
+  const [redditColor, setRedditColor] = useState("#645F4B");
+  const [youtubeColor, setYoutubeColor] = useState("#645F4B");
 
   const [iconSize, setIconSize] = useState("24");
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) {
-      setIconSize("50");
-      setFacebookColor("#111827");
-      setTwitterColor("#111827");
-      setGithubColor("#111827");
-      setDiscordColor("#111827");
+      setIconSize("30");
+      setTelegramColor("#645F4B");
+      setTwitterColor("#645F4B");
+      setMediumColor("#645F4B");
+      setDiscordColor("#645F4B");
+      setRedditColor("#645F4B");
+      setYoutubeColor("#645F4B");
     }
   }, []);
 
@@ -72,17 +78,10 @@ const Footer = () => {
       </div>
       <div className="col-span-12 md:col-span-6 flex flex-col justify-between order-3 md:order-2 mt-12 md:mt-0">
         <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
-          Popcorn is a carbon-neutral wealth management application that leverages blockchain technology to earn
-          competitive yields.
+          Popcorn is an audited, non-custodial DeFi wealth manager with yield-generating products that simultaneously
+          fund nonprofit and social impact organizations.
         </p>
         <div className="flex justify-between md:justify-start md:gap-7 order-1 md:order-2">
-          <a
-            href="https://www.facebook.com/PopcornDAO"
-            onMouseEnter={() => onHoverIcon(setFacebookColor)}
-            onMouseLeave={() => onLeaveIcon(setFacebookColor)}
-          >
-            <FacebookIcon color={facebookColor} size={iconSize} />
-          </a>
           <a
             href="https://twitter.com/Popcorn_DAO"
             onMouseEnter={() => onHoverIcon(setTwitterColor)}
@@ -91,18 +90,39 @@ const Footer = () => {
             <TwitterIcon color={twitterColor} size={iconSize} />
           </a>
           <a
-            href="https://github.com/popcorndao"
-            onMouseEnter={() => onHoverIcon(setGithubColor)}
-            onMouseLeave={() => onLeaveIcon(setGithubColor)}
-          >
-            <GithubIcon color={githubColor} size={iconSize} />
-          </a>
-          <a
             href="https://discord.gg/w9zeRTSZsq"
             onMouseEnter={() => onHoverIcon(setDiscordColor)}
             onMouseLeave={() => onLeaveIcon(setDiscordColor)}
           >
             <DiscordIcon color={discordColor} size={iconSize} />
+          </a>
+          <a
+            href="https://t.me/popcorndao"
+            onMouseEnter={() => onHoverIcon(setTelegramColor)}
+            onMouseLeave={() => onLeaveIcon(setTelegramColor)}
+          >
+            <TelegramIcon color={telegramColor} size={iconSize} />
+          </a>
+          <a
+            href="https://medium.com/popcorndao"
+            onMouseEnter={() => onHoverIcon(setMediumColor)}
+            onMouseLeave={() => onLeaveIcon(setMediumColor)}
+          >
+            <MediumIcon color={mediumIcon} size={iconSize} />
+          </a>
+          <a
+            href="https://www.reddit.com/r/popcorndao/"
+            onMouseEnter={() => onHoverIcon(setRedditColor)}
+            onMouseLeave={() => onLeaveIcon(setRedditColor)}
+          >
+            <RedditIcon color={redditColor} size={iconSize} />
+          </a>
+          <a
+            href="https://www.youtube.com/channel/UCe8n8mGG4JR7nhFT4v9APyA"
+            onMouseEnter={() => onHoverIcon(setYoutubeColor)}
+            onMouseLeave={() => onLeaveIcon(setYoutubeColor)}
+          >
+            <YoutubeIcon color={youtubeColor} size={iconSize} />
           </a>
         </div>
       </div>

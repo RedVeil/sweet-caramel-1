@@ -2,6 +2,7 @@ import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { ChainId, networkLogos } from "@popcorn/utils";
 import MainActionButton from "components/MainActionButton";
+import TertiaryActionButton from "components/TertiaryActionButton";
 import getProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -81,32 +82,16 @@ export default function DesktopMenu(): JSX.Element {
             <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => setChain(newChainId)} />
           </Menu>
         </div>
-        <MainActionButton
-          label="Connect Wallet"
-          handleClick={() => {
-            if (account) {
-              disconnect();
-            } else {
+        {account ? (
+          <MainActionButton
+            label="Connect Wallet"
+            handleClick={() => {
               connect();
-            }
-          }}
-        />
-        {/* <button
-					onClick={() => {
-						if (account) {
-							disconnect();
-						} else {
-							connect();
-						}
-					}}
-					className={`rounded-full flex flex-row justify-around items-center py-3 px-3 w-full border border-transparent shadow-custom group hover:bg-blue-500 ${account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
-						}`}
-				>
-					<p className="text-blue-700 font-semibold text-base group-hover:text-white ">
-						{account ? `Disconnect` : "Connect Wallet"}
-					</p>
-					{account && <img className="w-6 h-6" src={`data:image/svg+xml;utf8,${encodeURIComponent(wallet?.icon)}`} />}
-				</button> */}
+            }}
+          />
+        ) : (
+          <TertiaryActionButton label="Disconnect" handleClick={() => disconnect()} />
+        )}
       </div>
     </div>
   );

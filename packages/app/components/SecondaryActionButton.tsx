@@ -20,7 +20,7 @@ const SecondaryActionButton: React.FC<ButtonProps> = ({ label, handleClick, disa
   };
   return (
     <button
-      className="w-full flex justify-between items-center text-primary hover:text-black transition-all ease-in-out font-bold leading-7 relative"
+      className="w-full flex justify-between items-center text-primary hover:text-black transition-all ease-in-out font-medium leading-7 relative"
       onMouseEnter={animateArrow}
       onClick={handleClick}
     >

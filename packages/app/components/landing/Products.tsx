@@ -1,3 +1,4 @@
+import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import MainActionButton from "components/MainActionButton";
 import React from "react";
 
@@ -5,9 +6,9 @@ const Products = () => {
   return (
     <section className="mt-10">
       <h6 className="font-medium leading-8 mb-4">Our Products</h6>
-      <div className="border-t border-gray-300">
-        <div className="border-b border-gray-300 grid grid-cols-12 gap-6 md:gap-3 py-7">
-          <div className="col-span-12 md:col-span-5">
+      <div className="border-t border-dropdownBorder">
+        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+          <div className="col-span-12 md:col-span-4">
             <div className=" relative w-fit">
               <p className="text-black text-4xl leading-8 mb-1">Sweet Vaults</p>
               <img
@@ -24,23 +25,25 @@ const Products = () => {
           <div className="col-span-4 md:col-span-1">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5">TVL </p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
-            <p className="text-primary text-2xl md:text-4xl leading-8">3.7m</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
           </div>
 
           <div className="hidden md:block col-span-4 md:col-span-2"></div>
 
-          <div className="col-span-12 md:col-span-1">
+          <div className="col-span-12 md:col-span-2">
             <MainActionButton label="View" />
           </div>
         </div>
 
-        <div className="border-b border-gray-300 grid grid-cols-12 gap-6 md:gap-3 py-7">
-          <div className="col-span-12 md:col-span-5 order-1">
+        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+          <div className="col-span-12 md:col-span-4 order-1">
             <div className=" relative">
               <p className="text-black text-4xl leading-8 mb-1">3x</p>
               <img
@@ -57,9 +60,11 @@ const Products = () => {
           <div className="col-span-12 md:col-span-3 order-4 md:order-2">
             <div className="flex gap-2">
               <p className="text-primaryLight">Exposure</p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
             <div className="flex relative mt-1">
@@ -83,32 +88,36 @@ const Products = () => {
           <div className="col-span-4 md:col-span-1 order-2 md:order-3">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5">TVL </p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
-            <p className="text-primary text-2xl md:text-4xl leading-8">3.7m</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
           </div>
 
           <div className="col-span-4 md:col-span-2 order-3 md:order-4">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5">vAPR </p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
-            <p className="text-primary text-2xl md:text-4xl leading-8">255.93%</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">255.93%</p>
           </div>
 
-          <div className="col-span-12 md:col-span-1 order-5">
+          <div className="col-span-12 md:col-span-2 order-5">
             <MainActionButton label="View" />
           </div>
         </div>
 
-        <div className="border-b border-gray-300 grid grid-cols-12 gap-6 md:gap-3 py-7">
-          <div className="col-span-12 md:col-span-5 order-1">
+        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+          <div className="col-span-12 md:col-span-4 order-1">
             <p className="text-black text-4xl leading-8 mb-1">Butter</p>
             <p className=" text-primaryDark">Optimize your yield while creating positive global impact.</p>
           </div>
@@ -116,9 +125,11 @@ const Products = () => {
           <div className="col-span-12 md:col-span-3 order-4 md:order-2">
             <div className="flex gap-2">
               <p className="text-primaryLight">Exposure</p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
             <div className="flex relative mt-1">
@@ -146,32 +157,36 @@ const Products = () => {
           <div className="col-span-4 md:col-span-1 order-2 md:order-3">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5">TVL </p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
-            <p className="text-primary text-2xl md:text-4xl leading-8">3.7m</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
           </div>
 
           <div className="col-span-4 md:col-span-2 order-3 md:order-4">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5">vAPR </p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
-            <p className="text-primary text-2xl md:text-4xl leading-8">255.93%</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">255.93%</p>
           </div>
 
-          <div className="col-span-12 md:col-span-1 order-5">
+          <div className="col-span-12 md:col-span-2 order-5">
             <MainActionButton label="View" />
           </div>
         </div>
 
-        <div className="border-b border-gray-300 grid grid-cols-12 gap-6 md:gap-3 py-7">
-          <div className="col-span-12 md:col-span-5">
+        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+          <div className="col-span-12 md:col-span-4">
             <p className="text-black text-4xl leading-8 mb-1">Staking</p>
             <p className=" text-primaryDark">Single-asset vaults to earn yield on your digital assets</p>
           </div>
@@ -181,17 +196,19 @@ const Products = () => {
           <div className="col-span-4 md:col-span-1">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5">TVL </p>
-              <img
-                src="/images/icons/tooltip.svg"
-                className={`inline-flex items-center border border-transparent rounded-full text-gray-500 `}
+              <InfoIconWithTooltip
+                classExtras=""
+                id="3"
+                title="Batch Processing"
+                content="Mint and redeem requests are processed manually approximately every 48 hours or when a batch reaches 100k"
               />
             </div>
-            <p className="text-primary text-2xl md:text-4xl leading-8">3.7m</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
           </div>
 
           <div className="hidden md:block col-span-12 md:col-span-2"></div>
 
-          <div className="col-span-12 md:col-span-1">
+          <div className="col-span-12 md:col-span-2">
             <MainActionButton label="View" />
           </div>
         </div>

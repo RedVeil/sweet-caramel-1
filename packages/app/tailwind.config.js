@@ -119,6 +119,7 @@ module.exports = {
 				customPale: '#DFDAC7',
 				customRed: '#FA5A6E',
 				customGreen: '#05BE64',
+				customLightGreen: '#78E69B',
 				customPurple: '#9B55FF',
 				customDarkGray: '#1F2937',
 				customLightGray: '#969696',

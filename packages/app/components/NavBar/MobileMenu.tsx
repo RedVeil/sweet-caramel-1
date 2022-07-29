@@ -3,9 +3,12 @@ import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import MainActionButton from "components/MainActionButton";
 import PopUpModal from "components/Modal/PopUpModal";
 import DiscordIcon from "components/SVGIcons/DiscordIcon";
-import FacebookIcon from "components/SVGIcons/FacebookIcon";
-import GithubIcon from "components/SVGIcons/GithubIcon";
+import MediumIcon from "components/SVGIcons/MediumIcon";
+import RedditIcon from "components/SVGIcons/RedditIcon";
+import TelegramIcon from "components/SVGIcons/TelegramIcon";
 import TwitterIcon from "components/SVGIcons/TwitterIcon";
+import YoutubeIcon from "components/SVGIcons/YoutubeIcon";
+import TertiaryActionButton from "components/TertiaryActionButton";
 import GetProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -208,17 +211,23 @@ export const MobileMenu: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex justify-between pb-12 mt-11">
-                        <a href="https://www.facebook.com/PopcornDAO">
-                          <FacebookIcon color={"#111827"} size={"50"} />
-                        </a>
                         <a href="https://twitter.com/Popcorn_DAO">
-                          <TwitterIcon color={"#111827"} size={"50"} />
-                        </a>
-                        <a href="https://github.com/popcorndao">
-                          <GithubIcon color={"#111827"} size={"50"} />
+                          <TwitterIcon color={"#645F4B"} size={"30"} />
                         </a>
                         <a href="https://discord.gg/w9zeRTSZsq">
-                          <DiscordIcon color={"#111827"} size={"50"} />
+                          <DiscordIcon color={"#645F4B"} size={"30"} />
+                        </a>
+                        <a href="https://t.me/popcorndao">
+                          <TelegramIcon color={"#645F4B"} size={"30"} />
+                        </a>
+                        <a href="https://medium.com/popcorndao">
+                          <MediumIcon color={"#645F4B"} size={"30"} />
+                        </a>
+                        <a href="https://www.reddit.com/r/popcorndao/">
+                          <RedditIcon color={"#645F4B"} size={"30"} />
+                        </a>
+                        <a href="https://www.youtube.com/channel/UCe8n8mGG4JR7nhFT4v9APyA">
+                          <YoutubeIcon color={"#645F4B"} size={"30"} />
                         </a>
                       </div>
                     </div>
@@ -233,32 +242,16 @@ export const MobileMenu: React.FC = () => {
       <PopUpModal visible={showPopUp} onClosePopUpModal={closePopUp}>
         <div>
           <p className=" text-black  mb-3">Connect to Wallet</p>
-          <MainActionButton
-            label={account ? `Disconnect` : "Connect Wallet"}
-            handleClick={() => {
-              if (account) {
-                disconnect();
-              } else {
+          {account ? (
+            <MainActionButton
+              label="Connect Wallet"
+              handleClick={() => {
                 connect();
-              }
-            }}
-          />
-          {/* <button
-						onClick={() => {
-							if (account) {
-								disconnect();
-							} else {
-								connect();
-							}
-						}}
-						className={`rounded-full py-3 w-full flex flex-row justify-center gap-2 items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
-							}`}
-					>
-						<p className="text-blue-700 font-semibold text-base group-hover:text-white ">
-							{account ? `Disconnect` : "Connect Wallet"}
-						</p>
-						{account && <img className="w-6 h-6" src={`data:image/svg+xml;utf8,${encodeURIComponent(wallet?.icon)}`} />}
-					</button> */}
+              }}
+            />
+          ) : (
+            <TertiaryActionButton label="Disconnect" handleClick={() => disconnect()} />
+          )}
           <hr className="my-6" />
           <p className=" text-black mb-3">Select Network</p>
           <div className="wheelPicker">

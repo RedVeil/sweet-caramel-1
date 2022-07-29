@@ -30,7 +30,7 @@ const NetworkOptionsMenuItem: React.FC<NetworkOptionsMenuItemProps> = ({
           <div className="w-4.5 h-4 object-contain ml-3">
             <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-full" />
           </div>
-          <div className={`w-18 text-lg  ${active ? "font-semibold" : "font-medium"}`}>{networkMap[chainId]}</div>
+          <div className={`w-18 text-lg  ${active ? "font-medium" : ""}`}>{networkMap[chainId]}</div>
           {currentChainId === chainId ? (
             <div className="mr-3 h-2 w-2 shadow-md rounded-2xl bg-green-400"></div>
           ) : (
