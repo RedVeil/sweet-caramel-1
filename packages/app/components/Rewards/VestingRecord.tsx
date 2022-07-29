@@ -30,7 +30,6 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
           <SecondaryActionButton
             handleClick={() => claim(vestingEscrow)}
             disabled={!vestingEscrow.claimableAmount.gte(0)}
-            grayOutline={true}
             label="Claim"
           />
         </div>
@@ -48,7 +47,6 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
           <SecondaryActionButton
             handleClick={() => claim(vestingEscrow)}
             disabled={!vestingEscrow.claimableAmount.gte(0)}
-            grayOutline={true}
             label="Claim"
           />
         </div>
