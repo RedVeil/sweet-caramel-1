@@ -5,12 +5,8 @@
   command = "yarn netlify-build"
 
 [[redirects]]
-  from = "/"
-  to = "/ethereum"
-
-[[redirects]]
-  from = "/butter/*"
-  to = "/ethereum/butter/:path"
+  from = "/set/*"
+  to = "/ethereum/set/:path"
 
 [[redirects]]
   from = "/rewards"
@@ -24,6 +20,9 @@
   from = "/staking/*"
   to = "/ethereum/staking/:path"
 
+[[redirects]]
+  from = "/"
+  to = "/ethereum"
 
 [[plugins]]
   package = 'netlify-plugin-contextual-env'

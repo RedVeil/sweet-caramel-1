@@ -83,8 +83,7 @@ export default function StakeInterface({
                   infoIconProps={{
                     id: "vAPR",
                     title: "vAPR",
-                    content:
-                      "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
+                    content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
                   }}
                 />
               </div>
@@ -136,8 +135,7 @@ export default function StakeInterface({
                   infoIconProps={{
                     id: "vAPR",
                     title: "vAPR",
-                    content:
-                      "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
+                    content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
                   }}
                 />
               </div>
@@ -205,22 +203,22 @@ export default function StakeInterface({
                   chainId,
                   getChainRelevantContracts(chainId),
                 ) && (
-                    <Link
-                      href={getTokenOnNetwork(
-                        stakingPool.tokenAddress?.toLowerCase(),
-                        chainId,
-                        getChainRelevantContracts(chainId),
-                      )}
-                      passHref
+                  <Link
+                    href={getTokenOnNetwork(
+                      stakingPool.tokenAddress?.toLowerCase(),
+                      chainId,
+                      getChainRelevantContracts(chainId),
+                    )}
+                    passHref
+                  >
+                    <a
+                      target="_blank"
+                      className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
                     >
-                      <a
-                        target="_blank"
-                        className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
-                      >
-                        Get Token
-                      </a>
-                    </Link>
-                  )}
+                      Get Token
+                    </a>
+                  </Link>
+                )}
               </div>
             </div>
             <div className="bg-blue-50 rounded-b-3xl py-6 px-8">

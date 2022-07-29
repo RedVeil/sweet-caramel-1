@@ -1154,6 +1154,8 @@ describe("Vault", function () {
     });
 
     it("reverts on insufficient balance", async function () {
+      await contracts.depositToken.connect(depositor).approve(contracts.vault.address, DEPOSIT_AMOUNT.add(1));
+
       await expectRevert(
         contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT.add(1)),
         "ERC20: transfer amount exceeds balance"
@@ -1393,6 +1395,8 @@ describe("Vault", function () {
     });
 
     it("reverts on insufficient balance", async function () {
+      await contracts.depositToken.connect(depositor).approve(contracts.vault.address, DEPOSIT_AMOUNT.add(1));
+
       await expectRevert(
         contracts.vault.connect(depositor)["mint(uint256,address)"](DEPOSIT_AMOUNT.add(1), depositor.address),
         "ERC20: transfer amount exceeds balance"

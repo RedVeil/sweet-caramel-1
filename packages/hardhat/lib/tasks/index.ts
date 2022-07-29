@@ -15,3 +15,4 @@ export * from "./set-token";
 export * from "./staking";
 export * from "./superseeder";
 export * from "./TPOP";
+export * from "./threeX";

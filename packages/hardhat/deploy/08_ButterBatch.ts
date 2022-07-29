@@ -119,10 +119,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
 
     console.log("creating incentive 1 ...");
-    await keeperIncentive.createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, false, false);
+    await keeperIncentive.createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, false, true);
 
     console.log("creating incentive 2 ...");
-    await keeperIncentive.createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, false, false);
+    await keeperIncentive.createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, false, true);
   }
 
   const zapperContract = await hre.ethers.getContractAt(

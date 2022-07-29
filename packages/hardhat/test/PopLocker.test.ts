@@ -339,6 +339,7 @@ describe("PopLocker", function () {
     });
 
     it("reverts on insufficient caller balance", async function () {
+      await mockPop.approve(staking.address, parseEther("10000000000"));
       await expect(staking.lock(owner.address, parseEther("10000000000"), 0)).to.be.revertedWith(
         "ERC20: transfer amount exceeds balance"
       );

@@ -327,6 +327,10 @@ describe("butterWhaleProcessing", function () {
         );
       });
       it("reverts when user balance is too small", async () => {
+        await contracts.mockUSDT
+          .connect(depositor)
+          .approve(contracts.butterWhaleProcessing.address, parseEther("10000"));
+
         await expectRevert(
           contracts.butterWhaleProcessing.connect(depositor).zapMint([0, 0, parseEther("10000")], 0, 0, false),
           "ERC20: transfer amount exceeds balance"

@@ -100,7 +100,7 @@ describe("XPop", () => {
     it("non-owner cannot burn others tokens", async () => {
       await expectRevert(
         xPop.connect(other).burnFrom(admin.address, parseEther("50")),
-        "ERC20: burn amount exceeds allowance"
+        "ERC20: insufficient allowance"
       );
     });
 

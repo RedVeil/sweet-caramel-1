@@ -12,6 +12,7 @@ import "../storage/AbstractViewableBatchStorage.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../ThreeXBatchVault.sol";
+import { Slippage } from "../../../interfaces/IThreeXBatchProcessing.sol";
 
 abstract contract AbstractBatchController is
   ACLAuth,
@@ -26,11 +27,6 @@ abstract contract AbstractBatchController is
     uint256 batchCooldown;
     uint256 mintThreshold;
     uint256 redeemThreshold;
-  }
-
-  struct Slippage {
-    uint256 mintBps; // in bps
-    uint256 redeemBps; // in bps
   }
 
   IStaking public staking;

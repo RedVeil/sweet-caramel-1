@@ -246,6 +246,7 @@ export default function getNamedAccounts() {
     threeXBatch: {
       mainnet: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
       hardhat: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
+      localhost: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
     },
     threeXBatchVault: {
       mainnet: "0x0B4E13D8019D0F762377570000D9C923f0dad82B",
@@ -413,6 +414,7 @@ export default function getNamedAccounts() {
       polygon: "0xd928a457247649835e652416847C54C038FAF920",
       mainnet: "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
       hardhat: "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
+      localhost: "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
     },
     contractRegistry: {
       mainnet: "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
@@ -423,6 +425,7 @@ export default function getNamedAccounts() {
     butterBatch: {
       mainnet: "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
       hardhat: "0x0Dd99d9f56A14E9D53b2DdC62D9f0bAbe806647A",
+      localhost: "0x0Dd99d9f56A14E9D53b2DdC62D9f0bAbe806647A",
       rinkeby: "0x06b90E97Cf4b64f338d1D2106329336897bb16F3",
     },
     butterBatchZapper: {
