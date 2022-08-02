@@ -17,6 +17,7 @@
   "dependencies": {
     "@headlessui/react": "^1.6.5",
     "@heroicons/react": "1.0.5",
+    "@mailchimp/mailchimp_marketing": "^3.0.75",
     "@popcorn/hardhat": "*",
     "@popcorn/ui": "*",
     "@popcorn/utils": "*",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import SecondaryButton from "./SecondaryActionButton";
+import NewsletterSubscription from "./Common/NewsletterSubscription";
 import DiscordIcon from "./SVGIcons/DiscordIcon";
 import MediumIcon from "./SVGIcons/MediumIcon";
 import RedditIcon from "./SVGIcons/RedditIcon";
@@ -43,38 +43,7 @@ const Footer = () => {
         <div className="bg-customYellow rounded-lg py-3 text-center font-medium text-customDarkGray">
           Any questions? Let’s chat!
         </div>
-        <form
-          action="https://network.us1.list-manage.com/subscribe/post?u=5ce5e82d673fd2cfaf12849a5&amp;id=e85a091ed3"
-          method="post"
-          id="mc-embedded-subscribe-form"
-          name="mc-embedded-subscribe-form"
-          className="validate mt-12"
-          target="_blank"
-          noValidate
-        >
-          <h6 className="px-1 leading-6">Contact Us</h6>
-          <input
-            type="email"
-            name="EMAIL"
-            id="mce-EMAIL"
-            className="border-x-0 border-y-dropdownBorder text-primaryDark placeholder-primaryDark px-1 py-2 w-full mt-2 leading-7"
-            placeholder="Enter your email"
-            required
-          />
-          <div style={{ position: "absolute", left: "-5000px" }} aria-hidden="true">
-            <input type="text" name="b_5ce5e82d673fd2cfaf12849a5_e85a091ed3" tabIndex={-1} />
-          </div>
-          <div className="px-1 py-2 border-b border-dropdownBorder">
-            <SecondaryButton
-              label="Submit"
-              handleClick={(e) => {
-                (window as unknown as any).lintrk("track", {
-                  conversionId: "5594906",
-                });
-              }}
-            />
-          </div>
-        </form>
+        <NewsletterSubscription title="Contact Us" buttonLabel="Submit" />
       </div>
       <div className="col-span-12 md:col-span-6 flex flex-col justify-between order-3 md:order-2 mt-12 md:mt-0">
         <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
