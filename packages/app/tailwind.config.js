@@ -42,9 +42,6 @@ module.exports = {
 			borderWidth: {
 				3: "3px",
 			},
-			borderWidth: {
-				3: "3px",
-			},
 			spacing: {
 				18: "4.5rem",
 				72: "18rem",
@@ -92,17 +89,28 @@ module.exports = {
 				103: "1.03",
 			},
 			colors: {
+				// New Design Colors
 				primary: '#645F4B',
 				primaryLight: "#A5A08C",
 				primaryDark: "#555555",
 
 				secondary: "#B72E73",
-				secondaryLight: "#D5264E",
-				secondaryDark: "#8739B0",
 
-				ctaYellow: '#EBE7D4',
-				ctaYellowLight: "#FFD324",
+				warmGray: '#EBE7D4',
+				customPeach: "#FFF8EE",
+				customYellow: '#FEE25D',
+				customPale: '#DFDAC7',
+				customRed: '#FA5A6E',
+				customGreen: '#05BE64',
+				customLightGreen: '#78E69B',
+				customPurple: '#9B55FF',
+				customDarkGray: '#1F2937',
+				customLightGray: '#D7D7D7',
 
+
+
+
+				// Colors below here are from the old design, will be removed after the new design implementation is complete
 				light: "#C8C8C8",
 				cardBg: "#F3F8FF",
 
@@ -112,18 +120,6 @@ module.exports = {
 				green: colors.emerald,
 				yellow: colors.amber,
 				purple: colors.violet,
-
-				peach: "#FFF8EE",
-				cream: '#EBE7D4',
-				customYellow: '#FEE25D',
-				customPale: '#DFDAC7',
-				customRed: '#FA5A6E',
-				customGreen: '#05BE64',
-				customLightGreen: '#78E69B',
-				customPurple: '#9B55FF',
-				customDarkGray: '#1F2937',
-				customLightGray: '#969696',
-				dropdownBorder: '#D7D7D7',
 			},
 			fontSize: {
 				'xs': '.75rem',

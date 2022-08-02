@@ -40,7 +40,7 @@ const Footer = () => {
   return (
     <footer className="grid grid-cols-12 md:gap-14 px-6 md:px-8 pb-10 mt-20 font-landing">
       <div className="col-span-12 md:col-span-3 order-1 md:order-1">
-        <div className="bg-customYellow rounded-lg py-3 text-center font-medium text-customDarkGray">
+        <div className="bg-customYellow rounded-lg py-3 text-center font-medium text-black">
           Any questions? Let’s chat!
         </div>
         <NewsletterSubscription title="Contact Us" buttonLabel="Submit" />

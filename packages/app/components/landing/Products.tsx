@@ -6,8 +6,8 @@ const Products = () => {
   return (
     <section className="mt-10">
       <h6 className="font-medium leading-8 mb-4">Our Products</h6>
-      <div className="border-t border-dropdownBorder">
-        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+      <div className="border-t border-customLightGray">
+        <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4">
             <div className=" relative w-fit">
               <p className="text-black text-4xl leading-9 md:leading-10  mb-2">Sweet Vaults</p>
@@ -42,7 +42,7 @@ const Products = () => {
           </div>
         </div>
 
-        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+        <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4 order-1">
             <div className=" relative">
               <p className="text-black text-4xl leading-9 md:leading-10  mb-2">3x</p>
@@ -118,7 +118,7 @@ const Products = () => {
           </div>
         </div>
 
-        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+        <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4 order-1">
             <p className="text-black text-4xl leading-9 md:leading-10   mb-2">Butter</p>
             <p className=" text-primaryDark">Optimize your yield while creating positive global impact.</p>
@@ -189,7 +189,7 @@ const Products = () => {
           </div>
         </div>
 
-        <div className="border-b border-dropdownBorder grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+        <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
           <div className="col-span-12 md:col-span-4">
             <p className="text-black text-4xl leading-9 md:leading-10  mb-2">Staking</p>
             <p className=" text-primaryDark">Single-asset vaults to earn yield on your digital assets</p>

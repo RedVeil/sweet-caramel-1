@@ -25,7 +25,7 @@ const DropDownComponent: React.FC<GetPopMenuProps> = ({ options }) => {
                   className={`group text-left md:flex md:flex-col md:justify-center md:text-center mb-4 md:mb-0 ml-2 md:ml-0 md:px-6 md:h-14 cursor-pointer md:border-b md:border-gray-200 last:border-0
                   ${index === 0 ? "rounded-t-3xl" : ""} 
                   ${length - 1 === index ? "rounded-b-3xl" : ""} 
-                  ${active ? "md:bg-cream text-black font-medium" : "md:bg-white text-primary"} `}
+                  ${active ? "md:bg-warmGray text-black font-medium" : "md:bg-white text-primary"} `}
                   onClick={option.onClick}
                 >
                   <p

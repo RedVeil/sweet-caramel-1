@@ -8,7 +8,7 @@ export default function Hero(): JSX.Element {
     <section className="grid grid-cols-12 md:gap-8">
       <div className="col-span-12 md:col-span-3">
         <div className="grid grid-cols-12 w-full gap-4 md:gap-0">
-          <div className="col-span-5 md:col-span-12 rounded-lg border border-dropdownBorder p-6">
+          <div className="col-span-5 md:col-span-12 rounded-lg border border-customLightGray p-6">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5 hidden md:block">Total Value Locked </p>
               <p className="text-primaryLight leading-5 md:hidden">TVL </p>
@@ -23,7 +23,7 @@ export default function Hero(): JSX.Element {
             <p className="text-primary text-xl md:text-4xl leading-8">$5.55m</p>
           </div>
 
-          <div className="col-span-7 md:col-span-12 rounded-lg border border-dropdownBorder p-6 md:my-8">
+          <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5 hidden md:block">My Net Worth</p>
               <p className="text-primaryLight leading-5 md:hidden">MNW</p>
@@ -38,9 +38,9 @@ export default function Hero(): JSX.Element {
           </div>
         </div>
         {account && (
-          <div className=" rounded-lg md:border md:border-dropdownBorder px-0 pt-4 md:p-6 md:pb-0">
+          <div className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0">
             <p className="text-gray-900 text-4xl leading-8 hidden md:block">Connect your wallet</p>
-            <div className="border md:border-0 md:border-t border-dropdownBorder rounded-lg md:rounded-none px-8 md:px-0 py-2  mb-1 md:mt-4">
+            <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-8 md:px-0 py-2  mb-1 md:mt-4">
               <SecondaryActionButton label="Connect" handleClick={() => connect()} />
             </div>
           </div>
