@@ -213,3 +213,26 @@ border-radius: 8px;
 .__react_component_tooltip{
 	padding:18px 24px!important;
 }
+.spinner {
+  margin: auto;
+  border: 2px solid #FFF8EE; 
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border-right: 2px solid #FEE25D;
+  text-align:center;
+  animation-name: spin;
+  animation-duration: 900ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.53, 0.21, 0.29, 0.67);
+}
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  /*50% {width:24px;height:24px} /*shrinking effect*/
+  100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+  0% { -webkit-transform: rotate(0deg);}
+ /*50% {width:24px;height:24px} /*shrinking effect*/
+  100% { -webkit-transform: rotate(360deg); }
+}

@@ -36,7 +36,7 @@ const NewsletterSubscription = ({ title, buttonLabel }) => {
         type="email"
         name="EMAIL"
         id="mce-EMAIL"
-        className="border-t border-b border-customGray text-primaryLight placeholder-primaryLight px-1 py-2 w-full mt-2 leading-7"
+        className=" border-x-0 border-y-customLightGray text-primaryLight placeholder-primaryLight px-1 py-2 w-full mt-2 leading-7"
         placeholder="Enter your email"
         onChange={(e) => setSubscribeEmail(e.target.value)}
         value={subscribeEmail}
@@ -44,7 +44,7 @@ const NewsletterSubscription = ({ title, buttonLabel }) => {
       <div style={{ position: "absolute", left: "-5000px" }} aria-hidden="true">
         <input type="text" name="b_5ce5e82d673fd2cfaf12849a5_e85a091ed3" tabIndex={-1} />
       </div>
-      <div className={`${subscriptionSuccessful ? "" : "px-1 py-2"} border-b border-customGray relative`}>
+      <div className={`${subscriptionSuccessful ? "" : "px-1 py-2"} border-b border-customLightGray relative`}>
         {subscribing && (
           <div className="flex items-center justify-between">
             <p>Submitting...</p> <div className="spinner"></div>
