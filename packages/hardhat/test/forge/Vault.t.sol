@@ -57,7 +57,7 @@ contract VaultTest is DSTest, stdCheats {
   uint256 constant MANAGEMENT_FEE = 200 * 1e14;
   uint256 constant PERFORMANCE_FEE = 2000 * 1e14;
 
-  uint256 constant MAX_DEPOSIT = 996_181 ether;
+  uint256 constant MAX_DEPOSIT = 995_939 ether;
 
   function assertWithin(
     uint256 expected,
