@@ -30,6 +30,11 @@ const Products = () => {
   const butterSupply = typeof butterData !== "undefined" && butterData.totalSupply;
   const threeXSetToken = threeXData?.tokens?.threeX;
   const butterSetToken = butterData?.tokens?.butter;
+
+  let formatter = Intl.NumberFormat("en", {
+    //@ts-ignore
+    notation: "compact",
+  });
   return (
     <section className="mt-10">
       <h6 className="font-medium leading-8 mb-4">Our Products</h6>
@@ -126,7 +131,14 @@ const Products = () => {
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">
               {threeXSetToken && threeXSupply
-                ? `$${formatAndRoundBigNumber(threeXSupply.mul(threeXSetToken.price).div(parseEther("1")))}`
+                ? `$${formatter.format(
+                    parseInt(
+                      formatAndRoundBigNumber(threeXSupply.mul(threeXSetToken.price).div(parseEther("1"))).replace(
+                        /,/gi,
+                        "",
+                      ),
+                    ),
+                  )}`
                 : "$-"}
             </p>
           </div>
@@ -143,7 +155,7 @@ const Products = () => {
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">
               {threeXAPY && threeXStaking && threeXStaking?.apy?.gte(constants.Zero)
-                ? (threeXAPY + bigNumberToNumber(threeXStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                ? `${(threeXAPY + bigNumberToNumber(threeXStaking.apy)).toLocaleString(undefined, localStringOptions)}%`
                 : "New 🍿✨"}
             </p>
           </div>
@@ -209,7 +221,14 @@ const Products = () => {
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">
               {butterSetToken && butterSupply
-                ? `$${formatAndRoundBigNumber(butterSupply.mul(butterSetToken.price).div(parseEther("1")))}`
+                ? `$${formatter.format(
+                    parseInt(
+                      formatAndRoundBigNumber(butterSupply.mul(butterSetToken.price).div(parseEther("1"))).replace(
+                        /,/gi,
+                        "",
+                      ),
+                    ),
+                  )}`
                 : "$-"}
             </p>
           </div>
@@ -226,7 +245,7 @@ const Products = () => {
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">
               {butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                ? `${(butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions)}%`
                 : "New 🍿✨"}
             </p>
           </div>

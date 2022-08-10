@@ -82,7 +82,7 @@ export default function DesktopMenu(): JSX.Element {
             <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => setChain(newChainId)} />
           </Menu>
         </div>
-        {account ? (
+        {!account ? (
           <MainActionButton
             label="Connect Wallet"
             handleClick={() => {

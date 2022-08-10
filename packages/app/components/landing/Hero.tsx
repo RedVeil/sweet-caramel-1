@@ -14,7 +14,10 @@ interface defiLlamaData {
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
   const [TVL, setTVL] = useState<string>("0");
-  let formatter = Intl.NumberFormat("en", { notation: "compact" });
+  let formatter = Intl.NumberFormat("en", {
+    //@ts-ignore
+    notation: "compact",
+  });
 
   const {
     status,
@@ -65,8 +68,8 @@ export default function Hero(): JSX.Element {
             </div>
           )}
         </div>
-        {account && (
-          <div className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0">
+        {!account && (
+          <div className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6">
             <p className="text-gray-900 text-4xl leading-8 hidden md:block">Connect your wallet</p>
             <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-8 md:px-0 py-2  mb-1 md:mt-4">
               <SecondaryActionButton label="Connect" handleClick={() => connect()} />

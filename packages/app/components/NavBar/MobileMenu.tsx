@@ -242,7 +242,7 @@ export const MobileMenu: React.FC = () => {
       <PopUpModal visible={showPopUp} onClosePopUpModal={closePopUp}>
         <div>
           <p className=" text-black  mb-3">Connect to Wallet</p>
-          {account ? (
+          {!account ? (
             <MainActionButton
               label="Connect Wallet"
               handleClick={() => {
