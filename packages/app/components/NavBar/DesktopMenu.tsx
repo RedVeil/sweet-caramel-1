@@ -36,7 +36,7 @@ export default function DesktopMenu(): JSX.Element {
           <li className="relative flex flex-container flex-row z-10">
             <Menu>
               <Menu.Button>
-                <div className="group flex flex-row -mr-2">
+                <div className="group flex flex-row items-center -mr-2">
                   <p
                     className={` text-primary leading-5 text-lg 
 										hover:text-black cursor-pointer`}

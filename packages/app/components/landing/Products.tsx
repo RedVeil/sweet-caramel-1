@@ -1,8 +1,35 @@
+import { bigNumberToNumber, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import MainActionButton from "components/MainActionButton";
+import { constants } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import useButterBatchData from "hooks/butter/useButterBatchData";
+import useGetYearnAPY from "hooks/butter/useGetYearnAPY";
+import useThreeXData from "hooks/butter/useThreeXData";
+import useStakingPool from "hooks/staking/useStakingPool";
+import useWeb3 from "hooks/useWeb3";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 
 const Products = () => {
+  const router = useRouter();
+  const { contractAddresses } = useWeb3();
+  const { data: threeXAPY } = useGetYearnAPY([contractAddresses.ySusd, contractAddresses.y3Eur]);
+  const { data: butterAPY } = useGetYearnAPY([
+    contractAddresses.yFrax,
+    contractAddresses.yRai,
+    contractAddresses.yMusd,
+    contractAddresses.yAlusd,
+  ]);
+  const { data: threeXStaking } = useStakingPool(contractAddresses.threeXStaking);
+  const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
+  const { data: threeXData } = useThreeXData();
+  const { data: butterData } = useButterBatchData();
+  const threeXSupply = typeof threeXData !== "undefined" && threeXData.totalSupply;
+  const butterSupply = typeof butterData !== "undefined" && butterData.totalSupply;
+  const threeXSetToken = threeXData?.tokens?.threeX;
+  const butterSetToken = butterData?.tokens?.butter;
   return (
     <section className="mt-10">
       <h6 className="font-medium leading-8 mb-4">Our Products</h6>
@@ -97,7 +124,11 @@ const Products = () => {
                 content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
-            <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">
+              {threeXSetToken && threeXSupply
+                ? `$${formatAndRoundBigNumber(threeXSupply.mul(threeXSetToken.price).div(parseEther("1")))}`
+                : "$-"}
+            </p>
           </div>
 
           <div className="col-span-4 md:col-span-2 order-3 md:order-4">
@@ -110,11 +141,19 @@ const Products = () => {
                 content="Variable Annual Percentage Rate means that the annual percentage rate, your interest stated as a yearly rate, can change over time."
               />
             </div>
-            <p className="text-primary text-2xl md:text-3xl leading-8">255.93%</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">
+              {threeXAPY && threeXStaking && threeXStaking?.apy?.gte(constants.Zero)
+                ? (threeXAPY + bigNumberToNumber(threeXStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                : "New 🍿✨"}
+            </p>
           </div>
 
           <div className="col-span-12 md:col-span-2 order-5">
-            <MainActionButton label="View" />
+            <Link href={`/${router?.query?.network}/set/3x`}>
+              <a className="">
+                <MainActionButton label="View" />
+              </a>
+            </Link>
           </div>
         </div>
 
@@ -168,7 +207,11 @@ const Products = () => {
                 content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
-            <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">
+              {butterSetToken && butterSupply
+                ? `$${formatAndRoundBigNumber(butterSupply.mul(butterSetToken.price).div(parseEther("1")))}`
+                : "$-"}
+            </p>
           </div>
 
           <div className="col-span-4 md:col-span-2 order-3 md:order-4">
@@ -181,11 +224,19 @@ const Products = () => {
                 content="Variable Annual Percentage Rate means that the annual percentage rate, your interest stated as a yearly rate, can change over time."
               />
             </div>
-            <p className="text-primary text-2xl md:text-3xl leading-8">255.93%</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">
+              {butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
+                ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                : "New 🍿✨"}
+            </p>
           </div>
 
           <div className="col-span-12 md:col-span-2 order-5">
-            <MainActionButton label="View" />
+            <Link href={`/${router?.query?.network}/set/butter`}>
+              <a className="">
+                <MainActionButton label="View" />
+              </a>
+            </Link>
           </div>
         </div>
 
@@ -213,7 +264,11 @@ const Products = () => {
           <div className="hidden md:block col-span-12 md:col-span-2"></div>
 
           <div className="col-span-12 md:col-span-2">
-            <MainActionButton label="View" />
+            <Link href="/staking">
+              <a className="">
+                <MainActionButton label="View" />
+              </a>
+            </Link>
           </div>
         </div>
       </div>

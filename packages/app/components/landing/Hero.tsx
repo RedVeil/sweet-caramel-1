@@ -1,9 +1,36 @@
+import { useFetch } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import useWeb3 from "hooks/useWeb3";
+import { useEffect, useState } from "react";
+interface defiLlamaData {
+  currentChainTvls: {
+    staking: number;
+    pool2: number;
+    Ethereum: number;
+  };
+}
 
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
+  const [TVL, setTVL] = useState<string>("0");
+  let formatter = Intl.NumberFormat("en", { notation: "compact" });
+
+  const {
+    status,
+    data: defiLlamaData,
+    error,
+    loading,
+  } = useFetch<defiLlamaData>("https://api.llama.fi/protocol/popcorn");
+  useEffect(() => {
+    if (status === "fetched") {
+      const stakingTVL: number = defiLlamaData.currentChainTvls.staking;
+      const pool2TVL: number = defiLlamaData.currentChainTvls.pool2;
+      const ethereumTVL: number = defiLlamaData.currentChainTvls.Ethereum;
+      const formattedTVL = parseInt((stakingTVL + pool2TVL + ethereumTVL).toFixed(2));
+      setTVL(formatter.format(formattedTVL));
+    }
+  }, [status, defiLlamaData]);
   return (
     <section className="grid grid-cols-12 md:gap-8">
       <div className="col-span-12 md:col-span-3">
@@ -20,22 +47,23 @@ export default function Hero(): JSX.Element {
                 content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
               />
             </div>
-            <p className="text-primary text-xl md:text-4xl leading-8">$5.55m</p>
+            <p className="text-primary text-xl md:text-4xl leading-8">${TVL}</p>
           </div>
-
-          <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-primaryLight leading-5 hidden md:block">My Net Worth</p>
-              <p className="text-primaryLight leading-5 md:hidden">MNW</p>
-              <InfoIconWithTooltip
-                classExtras=""
-                id="hero-mnw"
-                title="Net Worth"
-                content="This value aggregates your Popcorn-related holdings across all blockchain networks."
-              />
+          {account && (
+            <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-primaryLight leading-5 hidden md:block">My Net Worth</p>
+                <p className="text-primaryLight leading-5 md:hidden">MNW</p>
+                <InfoIconWithTooltip
+                  classExtras=""
+                  id="hero-mnw"
+                  title="Net Worth"
+                  content="This value aggregates your Popcorn-related holdings across all blockchain networks."
+                />
+              </div>
+              <p className="text-primary text-xl md:text-4xl leading-8">$45,032,100</p>
             </div>
-            <p className="text-primary text-xl md:text-4xl leading-8">$45,032,100</p>
-          </div>
+          )}
         </div>
         {account && (
           <div className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0">
