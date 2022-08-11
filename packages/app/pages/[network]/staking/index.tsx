@@ -1,4 +1,3 @@
-import { BellIcon } from "@heroicons/react/outline";
 import { ChainId } from "@popcorn/utils";
 import { Address } from "@popcorn/utils/src/types";
 import AlertCard, { AlertCardLink } from "components/Common/AlertCard";
@@ -87,18 +86,37 @@ export default function index(): JSX.Element {
 
   return (
     <>
-      <div className="text-center md:text-left md:w-1/3">
-        <h1 className="page-title">Staking</h1>
-        <p className="md:text-lg text-gray-500 mt-2">Earn more by staking your tokens</p>
-      </div>
-      <div className="flex flex-row mt-10">
-        <div className="hidden md:block w-1/3">
-          <div className="bg-primaryLight rounded-5xl p-10 pt-44 pb-44 mr-12 mb-24 shadow-custom">
-            <img src="/images/farmerCat.svg" alt="farmerCat" className="mx-auto transform scale-101 py-2" />
+      <div className="grid grid-cols-12">
+        <div className="col-span-12 md:col-span-4">
+          <h1 className=" text-5xl md:text-6xl leading-12">Staking</h1>
+          <p className="text-black mt-2">Earn more by staking your tokens</p>
+        </div>
+        <div className="col-span-12 md:col-span-6 md:col-end-13 mt-12 md:mt-0">
+          <div className="rounded-lg p-6 md:px-8 md:py-9 bg-customYellow h-full flex flex-row md:flex-col justify-between">
+            <p className="text-2xl md:text-8xl leading-6 md:leading-13">
+              Connect <br />
+              Deposit <br />
+              Do well <br />
+              Do good
+            </p>
+            <div className="flex flex-col md:flex-row justify-end">
+              <img src="/images/smiley.svg" alt="" />
+            </div>
           </div>
         </div>
-        <div className="w-full md:w-2/3 mx-auto">
-          <div className="space-y-8 h-full">
+      </div>
+      {features["migrationAlert"] && chainId === ChainId.Polygon && (
+        <div className="mt-10 md:mt-20">
+          <AlertCard
+            title="Migrate your liquidity for USDC/POP from Sushiswap to Arrakis"
+            text="In PIP-2 the community decided to migrate all Polygon liquidity to Uniswap via Arrakis."
+            links={MIGRATION_LINKS}
+          />
+        </div>
+      )}
+      <div className="mt-12 border-t border-t-customLightGray">
+        <div className="w-full">
+          <div className="h-full">
             {!pageAvailable() && (
               <div className="flex flex-col w-full 3 md:mx-0 mt-10 mb-8 h-full">
                 <NotAvailable title="No staking, yet" body="No staking pools on this network" />
@@ -107,7 +125,7 @@ export default function index(): JSX.Element {
             {pageAvailable() && (stakingPoolsIsValidating || popLockerIsValidating) && (!popLocker || !stakingPools) && (
               <ContentLoader viewBox="0 0 450 400">
                 {/*eslint-disable */}
-                <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />
+                <rect x="0" y="0" rx="0" ry="0" width="450" height="108" />
                 <rect x="0" y="115" rx="15" ry="15" width="450" height="108" />
                 <rect x="0" y="230" rx="15" ry="15" width="450" height="108" />
                 {/*eslint-enable */}
@@ -115,14 +133,6 @@ export default function index(): JSX.Element {
             )}
             {pageAvailable() && !!popLocker && !!stakingPools && (
               <>
-                {features["migrationAlert"] && chainId === ChainId.Polygon && (
-                  <AlertCard
-                    title="Migrate your liquidity for USDC/POP from Sushiswap to Arrakis"
-                    text="In PIP-2 the community decided to migrate all Polygon liquidity to Uniswap via Arrakis."
-                    icon={<BellIcon className="text-red-400 w-7 h-8" aria-hidden="true" />}
-                    links={MIGRATION_LINKS}
-                  />
-                )}
                 <StakeCard
                   key={popLocker.address}
                   stakingPool={popLocker}
@@ -152,6 +162,9 @@ export default function index(): JSX.Element {
             )}
           </div>
         </div>
+      </div>
+      <div className="py-6 hidden md:block">
+        <img src="/images/nature.png" alt="" className=" rounded-lg w-full object-cover" />
       </div>
     </>
   );

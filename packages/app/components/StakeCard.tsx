@@ -5,7 +5,6 @@ import { getSanitizedTokenDisplayName } from "helper/displayHelper";
 import { formatStakedTVL } from "helper/formatAmount";
 import useTokenPrice from "hooks/useTokenPrice";
 import Badge, { Badge as BadgeType } from "./Common/Badge";
-import StatusWithLabel from "./Common/StatusWithLabel";
 import MainActionButton from "./MainActionButton";
 import TokenIcon from "./TokenIcon";
 
@@ -19,7 +18,10 @@ interface StakeCardProps {
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge }) => {
   const tokenPrice = useTokenPrice(stakedToken?.address);
   return (
-    <div className="card p-6 md:p-8" onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}>
+    <div
+      className="border-b border-b-customLightGray py-8 md:p-8"
+      onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
+    >
       {badge && (
         <div className="absolute -top-4 w-full">
           <Badge badge={badge} />
@@ -28,50 +30,39 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center">
           <TokenIcon token={getSanitizedTokenDisplayName(stakedToken?.name)} fullsize />
-          <h3 className="secondary-title ml-4 ">{getSanitizedTokenDisplayName(stakedToken?.name)}</h3>
+          <h3 className="text-4xl ml-4 mt-1.5 font-normal">{getSanitizedTokenDisplayName(stakedToken?.name)}</h3>
         </div>
-        <div className="w-24 hidden smmd:block flex-shrink-0 ">
+        <div className="hidden smmd:block">
           <MainActionButton
-            label="Stake"
+            label="View"
             handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
           />
         </div>
       </div>
-      <div className="flex flex-row flex-wrap items-center mt-6 justify-between">
-        <div className="w-1/2 md:w-1/4 mt-4">
-          <StatusWithLabel
-            content={
-              stakingPool.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool.apy, 2) + "%"
-            }
-            label={
-              <>
-                <span className="lowercase">v</span>APR
-              </>
-            }
-            green
-            infoIconProps={{
-              id: "vAPR",
-              title: "vAPR",
-              content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
-            }}
-          />
+      <div className="flex flex-row flex-wrap items-center mt-0 md:mt-6 justify-between">
+        <div className="w-1/2 md:w-1/4 mt-4 md:mt-0">
+          <p className="text-primaryLight leading-6">vAPR</p>
+          <p className="text-primary text-3xl leading-9">
+            {stakingPool.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool.apy, 2) + "%"}
+          </p>
         </div>
-        <div className="w-1/2 md:w-1/4 mt-4">
-          <StatusWithLabel
-            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "..."}
-            label="TVL"
-          />
+        <div className="w-1/2 md:w-1/4 mt-4 md:mt-0">
+          <p className="text-primaryLight leading-6">TVL</p>
+          <p className="text-primary text-3xl leading-9">
+            {tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "-"}
+          </p>
         </div>
-        <div className="w-full md:w-1/2 mt-4">
-          <StatusWithLabel
-            content={`${formatAndRoundBigNumber(stakingPool.tokenEmission, 3)} POP / day`}
-            label="TOKEN EMISSIONS"
-          />
+        <div className="w-full md:w-1/2 mt-4 md:mt-0">
+          <p className="text-primaryLight leading-6">Token Emissions</p>
+          <p className="text-primary text-2xl leading-9">
+            {`${formatAndRoundBigNumber(stakingPool.tokenEmission, 3)}`}{" "}
+            <span className=" text-tokenTextGray text-xl"> POP / day</span>
+          </p>
         </div>
       </div>
       <div className="w-full mt-10 smmd:hidden">
         <MainActionButton
-          label="Stake"
+          label="View"
           handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
         />
       </div>

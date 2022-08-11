@@ -23,7 +23,7 @@ export default function TextLink({
   return (
     <Link href={outsideLink ? url : `/${router?.query?.network}${url}`} passHref>
       <a
-        className={`flex flex-shrink-0 ${textSize} font-medium text-blue-600 hover:text-blue-900 whitespace-nowrap`}
+        className={`flex flex-shrink-0 font-medium text-primary hover:text-black whitespace-nowrap`}
         target={openInNewTab ? "_blank" : "_self"}
       >
         {text}

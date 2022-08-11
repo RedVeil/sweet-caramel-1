@@ -31,7 +31,7 @@ export const TokenMetadataOverride: TokenContractMetadataOverride = {
     },
     [namedAccounts.pop.polygon]: {
       name: "Pop",
-      icon: "/images/icons/popLogo.png",
+      icon: "/images/icons/POP.svg",
     },
   },
   [ChainId.Arbitrum]: {
