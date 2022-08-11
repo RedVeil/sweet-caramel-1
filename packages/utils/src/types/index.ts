@@ -141,6 +141,19 @@ export type Token = {
   decimals: number;
   balance?: BigNumber;
   allowance?: BigNumber;
+  description?: string;
+  icon?: string;
+};
+
+export type ERC20Metadata = {
+  address: Address;
+  name: string;
+  symbol: string;
+  decimals: number;
+  balance?: BigNumber;
+  allowance?: BigNumber;
+  description?: string;
+  icon?: string;
 };
 
 export type StakingPool = {

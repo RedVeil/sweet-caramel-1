@@ -1,6 +1,6 @@
 import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
 import { HardhatConfigNetworks, HardhatConfigNetworksChainIdMapping } from "@popcorn/utils/src/connectors";
-import { ERC20Metadata, SweetVaultMetadata } from "@popcorn/utils/types";
+import { ERC20Metadata } from "@popcorn/utils/types";
 
 const namedAccounts = getNamedAccounts();
 
@@ -239,6 +239,6 @@ export interface OverrideObject {
   addresses: {
     [network in NetworkKeys]?: string;
   };
-  metadata: ContractMetadata & Partial<ERC20Metadata> & Partial<SweetVaultMetadata>;
+  metadata: ContractMetadata & Partial<ERC20Metadata>;
 }
 export type OverrideConfig = OverrideObject[];
