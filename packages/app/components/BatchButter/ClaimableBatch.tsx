@@ -1,7 +1,7 @@
 import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "components/InfoIconWithModal";
 import MainActionButton from "components/MainActionButton";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import TertiaryActionButton from "components/TertiaryActionButton";
 import { formatBatchInputToken, formatBatchOutputToken } from "../../helper/ClaimableBatchUtils";
 export interface BatchProps {
   batch: AccountBatch;
@@ -18,12 +18,38 @@ const ClaimableBatch: React.FC<BatchProps> = ({
   handleWithdraw,
   isThreeX = false,
 }) => {
+  const splitTokenLabel = (value: string) => {
+    const split = value.split(" ");
+
+    return {
+      value: split[0],
+      token: split[1],
+    };
+  };
   return (
     <tr className="bg-white border-b border-gray-200 last:border-none last:rounded-b-2xl w-full">
       <td className="px-6 py-5 whitespace-nowrap">
-        <p className="text-gray-500 mb-2">DEPOSITED</p>
-        <span className="flex flex-row items-center text-gray-900 text-2xl font-semibold">
-          {formatBatchInputToken(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
+        <p className="text-primaryLight mb-2">Deposited</p>
+        <div className="flex flex-row items-center">
+          <p className=" text-primary text-2xl">
+            {
+              splitTokenLabel(
+                formatBatchInputToken(batch.accountSuppliedTokenBalance, batch.batchType === BatchType.Mint, isThreeX),
+              ).value
+            }
+            <span className="text-xl text-tokenTextGray">
+              {" "}
+              {
+                splitTokenLabel(
+                  formatBatchInputToken(
+                    batch.accountSuppliedTokenBalance,
+                    batch.batchType === BatchType.Mint,
+                    isThreeX,
+                  ),
+                ).token
+              }
+            </span>
+          </p>
           {!isThreeX && batch.batchType === BatchType.Mint && (
             <div className="mb-1">
               <InfoIconWithModal title="Why do I see 3CRV?">
@@ -34,27 +60,42 @@ const ClaimableBatch: React.FC<BatchProps> = ({
               </InfoIconWithModal>
             </div>
           )}
-        </span>
+        </div>
       </td>
       <td className="px-6 py-5 whitespace-nowrap">
-        <p className="text-gray-500 mb-2">CLAIMABLE</p>
-        <p className="text-gray-900 text-2xl font-semibold">
-          {formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isThreeX)}
+        <p className="text-primaryLight mb-2">Claimable</p>
+        <p className="text-primary text-2xl">
+          {
+            splitTokenLabel(
+              formatBatchOutputToken(batch.accountClaimableTokenBalance, batch.batchType === BatchType.Mint, isThreeX),
+            ).value
+          }{" "}
+          <span className="text-xl text-tokenTextGray">
+            {
+              splitTokenLabel(
+                formatBatchOutputToken(
+                  batch.accountClaimableTokenBalance,
+                  batch.batchType === BatchType.Mint,
+                  isThreeX,
+                ),
+              ).token
+            }
+          </span>
         </p>
       </td>
-      <td className="px-6 py-5 flex justify-end">
+      <td className="px-6 py-5 flex justify-end items-center h-full">
         {batch.claimable && batch.batchType === BatchType.Mint ? (
           <div className="space-x-4 flex flex-row justify-end w-80">
             <div className="">
               <MainActionButton label="Claim and Stake" handleClick={(e) => handleClaimAndStake(batch)} />
             </div>
             <div className="">
-              <SecondaryActionButton label="Claim" handleClick={(e) => handleClaim(batch)} />
+              <TertiaryActionButton label="Claim" handleClick={(e) => handleClaim(batch)} />
             </div>
           </div>
         ) : (
           <div className="">
-            <SecondaryActionButton
+            <TertiaryActionButton
               label={batch.claimable ? "Claim" : "Cancel"}
               handleClick={(e) => (batch.claimable ? handleClaim(batch) : handleWithdraw(batch))}
             />

@@ -1,6 +1,6 @@
+import { ChevronDownIcon } from "@heroicons/react/outline";
 import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
 import { useState } from "react";
-import * as Icon from "react-feather";
 
 interface SelectTokenProps {
   allowSelection: boolean;
@@ -20,21 +20,20 @@ export default function SelectToken({
   const [showDropdown, setDropdown] = useState<boolean>(false);
 
   return (
-    <div className="relative w-auto mt-1 justify-end" onMouseLeave={() => setDropdown(false)}>
+    <div className="relative w-auto justify-end" onMouseLeave={() => setDropdown(false)}>
       <span
         className={`flex flex-row items-center justify-end ${allowSelection ? "cursor-pointer group" : "mr-4"}`}
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
-        <img className="w-5 mr-2 mb-0.5" src={`/images/tokens/${selectedToken.img}`}></img>
-        <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700">{selectedToken.name}</p>
+        <img className="w-5 mr-2" src={`/images/tokens/${selectedToken.img}`}></img>
+        <p className="font-medium text-lg leading-none mt-1 text-black group-hover:text-primary">{selectedToken.name}</p>
 
         {allowSelection && (
           <>
-            {showDropdown ? (
-              <Icon.ChevronUp className="w-5 h-6 mb-1 ml-2 mr-4 group-hover:text-blue-700" />
-            ) : (
-              <Icon.ChevronDown className="w-5 h-6 mb-1 ml-2 mr-4 group-hover:text-blue-700" />
-            )}
+            <ChevronDownIcon
+              className={`w-10 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${showDropdown ? " rotate-180" : ""
+                }`}
+            />
           </>
         )}
       </span>

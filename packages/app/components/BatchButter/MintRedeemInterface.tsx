@@ -44,7 +44,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }
   return (
-    <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-custom">
+    <div className="bg-white rounded-3xl p-6 border border-customLightGray">
       <MintRedeemToggle
         redeeming={localButterPageState.redeeming}
         setRedeeming={setRedeeming}
@@ -82,7 +82,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
         </div>
       )}
-      <hr className="mt-10" />
+      <hr className="mt-10 bg-customLightGray" />
       <div className="w-full text-center">
         {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
           <div className="pt-6">

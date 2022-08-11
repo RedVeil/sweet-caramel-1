@@ -237,3 +237,13 @@ border-radius: 8px;
  /*50% {width:24px;height:24px} /*shrinking effect*/
   100% { -webkit-transform: rotate(360deg); }
 }
+
+/* .mobileTutorialSlider .slick-slider {
+	height: 100%;
+}
+.mobileTutorialSlider .slick-list {
+	height: 100%;
+}
+.mobileTutorialSlider .slick-track {
+	height: 100%;
+} */

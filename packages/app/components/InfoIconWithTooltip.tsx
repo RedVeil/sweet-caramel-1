@@ -10,13 +10,8 @@ export interface InfoIconWithTooltipProps {
 
 export const InfoIconWithTooltip: React.FC<InfoIconWithTooltipProps> = ({ title, content, id, classExtras }) => {
   return (
-    <div className="inline">
-      <img
-        src="/images/icons/tooltip.svg"
-        data-tip
-        data-for={id}
-        className={`inline-flex items-center border border-transparent rounded-full shadow-custom hover:bg-blue-200 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${classExtras}`}
-      />
+    <div className="flex items-center">
+      <img src="/images/icons/tooltip.svg" data-tip data-for={id} className={`cursor-pointer ${classExtras}`} />
       <ReactTooltip
         id={id}
         place={"bottom"}

@@ -23,18 +23,18 @@ export default function StatusWithLabel({
     <div className="flex flex-col">
       {infoIconProps ? (
         <span className="flex flex-row items-center">
-          <p className="text-gray-500 font-light uppercase">{label}</p>
+          <p className="text-primaryLight">{label}</p>
           <InfoIconWithTooltip
-            classExtras="h-7 w-7 mt-0 ml-5"
+            classExtras="h-5 w-5 mt-0 ml-5"
             id={infoIconProps.id}
             title={infoIconProps.title}
             content={infoIconProps.content}
           />
         </span>
       ) : (
-        <p className="text-gray-500 font-light uppercase">{label}</p>
+        <p className="text-primaryLight">{label}</p>
       )}
-      <p className={`md:text-2xl font-semibold md:mt-1 ${green ? "text-green-600" : "text-gray-900"}`}>{content}</p>
+      <p className={`md:mt-1 text-primary text-3xl leading-8`}>{content}</p>
     </div>
   );
 }

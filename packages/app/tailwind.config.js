@@ -95,6 +95,7 @@ module.exports = {
 				primaryDark: "#555555",
 
 				secondary: "#B72E73",
+				secondaryLight: "#AFAFAF",
 
 				warmGray: '#EBE7D4',
 				customPeach: "#FFF8EE",
