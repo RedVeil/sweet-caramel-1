@@ -9,7 +9,7 @@ import TelegramIcon from "components/SVGIcons/TelegramIcon";
 import TwitterIcon from "components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "components/TertiaryActionButton";
-import GetProducts from "helper/products";
+import { getProductLinks } from "helper/getProductLinks";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -23,7 +23,7 @@ export const MobileMenu: React.FC = () => {
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
   const router = useRouter();
-  const products = GetProducts(router, pushWithinChain);
+  const products = getProductLinks(router, pushWithinChain);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
   const networkData = [

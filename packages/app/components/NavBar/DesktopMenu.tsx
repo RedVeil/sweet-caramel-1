@@ -3,7 +3,7 @@ import { ChevronDownIcon } from "@heroicons/react/solid";
 import { ChainId, networkLogos } from "@popcorn/utils";
 import MainActionButton from "components/MainActionButton";
 import TertiaryActionButton from "components/TertiaryActionButton";
-import getProducts from "helper/products";
+import { getProductLinks } from "helper/getProductLinks";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -15,7 +15,7 @@ import NetworkOptionsMenu from "./NetworkOptionsMenu";
 export default function DesktopMenu(): JSX.Element {
   const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain } = useWeb3();
   const router = useRouter();
-  const products = getProducts(router, pushWithinChain);
+  const products = getProductLinks(router, pushWithinChain);
 
   return (
     <div className="flex flex-row items-center justify-between w-full p-8 z-30">

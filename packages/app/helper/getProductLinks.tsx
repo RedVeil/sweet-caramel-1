@@ -1,23 +1,22 @@
 import { NextRouter } from "next/router";
 import { useMemo } from "react";
 
-export interface ProductTypes {
+interface ProductLinks {
   title: string;
   onClick: () => void;
   currentlySelected: boolean;
   url: string;
 }
 
-export default function getProducts(
+export function getProductLinks(
   router: NextRouter,
   pushWithinChain: (url: string, shallow?: boolean) => Promise<boolean>,
-) {
+): ProductLinks[] {
   return useMemo(() => {
     return [
       {
         title: "Butter",
         onClick: () => pushWithinChain(`/set/butter`),
-        // TODO: Should match the url only when not on threeX or Instant
         currentlySelected: router.pathname.includes("/set/butter"),
         url: "/set/butter",
       },
