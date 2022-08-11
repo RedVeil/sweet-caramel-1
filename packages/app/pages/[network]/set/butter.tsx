@@ -23,11 +23,11 @@ import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actio
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "helper/modalHelpers";
-import useButterBatch from "hooks/butter/useButterBatch";
-import useButterBatchData from "hooks/butter/useButterBatchData";
-import useButterBatchZapper from "hooks/butter/useButterBatchZapper";
-import useButterWhaleData from "hooks/butter/useButterWhaleData";
-import useButterWhaleProcessing from "hooks/butter/useButterWhaleProcessing";
+import useButterBatch from "hooks/set/useButterBatch";
+import useButterBatchData from "hooks/set/useButterBatchData";
+import useButterBatchZapper from "hooks/set/useButterBatchZapper";
+import useButterWhaleData from "hooks/set/useButterWhaleData";
+import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { Fragment, useContext, useEffect, useState } from "react";
@@ -549,23 +549,23 @@ export default function Butter(): JSX.Element {
     }
     return butterPageState.redeeming
       ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
-          .mul(butterBatchData?.tokens?.butter.price)
-          .div(parseEther("1"))
+        .mul(butterBatchData?.tokens?.butter.price)
+        .div(parseEther("1"))
       : butterBatchData?.currentBatches.mint.suppliedTokenBalance
-          .mul(butterBatchData?.tokens?.threeCrv.price)
-          .div(parseEther("1"));
+        .mul(butterBatchData?.tokens?.threeCrv.price)
+        .div(parseEther("1"));
   }
 
   function depositDisabled(): boolean {
     return butterPageState.useUnclaimedDeposits
       ? isDepositDisabled(
-          butterPageState.depositAmount,
-          butterPageState.tokens[butterPageState.selectedToken.input].claimableBalance,
-        )
+        butterPageState.depositAmount,
+        butterPageState.tokens[butterPageState.selectedToken.input].claimableBalance,
+      )
       : isDepositDisabled(
-          butterPageState.depositAmount,
-          butterPageState.tokens[butterPageState.selectedToken.input].balance,
-        );
+        butterPageState.depositAmount,
+        butterPageState.tokens[butterPageState.selectedToken.input].balance,
+      );
   }
 
   return (
@@ -633,11 +633,10 @@ export default function Butter(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="Butter Value"
-                content={`$${
-                  butterBatchData?.tokens?.butter
+                content={`$${butterBatchData?.tokens?.butter
                     ? formatAndRoundBigNumber(butterBatchData?.tokens?.butter?.price)
                     : "-"
-                }`}
+                  }`}
                 icon="Butter"
                 info={{
                   title: "Underlying Tokens",

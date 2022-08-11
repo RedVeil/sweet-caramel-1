@@ -6,6 +6,7 @@ import { Address } from "@popcorn/utils/types";
 import { ethers } from "ethers";
 import useSWR from "swr";
 
+// Returns the popPrice in 1e6
 export const getPopTokenPrice = async (provider: ethers.providers.JsonRpcProvider, popUsdcLpAddress: Address) => {
   try {
     const popUsdcLp = IGUni__factory.connect(popUsdcLpAddress, provider);
@@ -16,6 +17,8 @@ export const getPopTokenPrice = async (provider: ethers.providers.JsonRpcProvide
   }
 };
 
+
+// Hook to return the popPrice in 1e6
 export default function useGetPopTokenPriceInUSD() {
   const mainnetProvider = PRC_PROVIDERS[ChainId.Ethereum];
   // to be able to fetch pop prices on arbitrum and bnb as the pools do not exist on those chains.

@@ -1,6 +1,6 @@
 import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/src/types";
-import useButterBatchAdapter from "hooks/butter/useButterBatchAdapter";
+import useButterBatchAdapter from "hooks/set/useButterBatchAdapter";
 import useERC20 from "hooks/tokens/useERC20";
 import useThreePool from "hooks/useThreePool";
 import useWeb3 from "hooks/useWeb3";

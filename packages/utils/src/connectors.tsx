@@ -69,3 +69,23 @@ export const PRC_PROVIDERS = {
   [ChainId.BNB]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.BNB], ChainId.BNB),
   [ChainId.Localhost]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Localhost], ChainId.Localhost),
 };
+
+export type HardhatConfigNetworks = {
+  mainnet?: string;
+  rinkeby?: string;
+  bsc?: string;
+  polygon?: string;
+  hardhat?: string;
+  arbitrum?: string;
+  localhost?: string;
+};
+
+export const HardhatConfigNetworksChainIdMapping = {
+  mainnet: ChainId.Ethereum,
+  rinkeby: ChainId.Rinkeby,
+  bsc: ChainId.BNB,
+  polygon: ChainId.Polygon,
+  hardhat: ChainId.Localhost,
+  localhost: ChainId.Localhost,
+  arbitrum: ChainId.Arbitrum,
+};

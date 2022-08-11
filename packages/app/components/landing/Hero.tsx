@@ -1,39 +1,32 @@
-import { useFetch } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import useWeb3 from "hooks/useWeb3";
-import { useEffect, useState } from "react";
-interface defiLlamaData {
-  currentChainTvls: {
-    staking: number;
-    pool2: number;
-    Ethereum: number;
-  };
-}
+import { formatUnits } from "ethers/lib/utils";
+import useNetWorth from "hooks/useNetWorth";
+import { constants } from "ethers/lib/ethers";
+import useStakingTVL from "hooks/staking/useStakingTVL";
+import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
+import { ChainId } from "@popcorn/utils";
+import useSetTokenTVL from "hooks/set/useSetTokenTVL";
+import { useMemo } from "react";
+
 
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
-  const [TVL, setTVL] = useState<string>("0");
+  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum)
+  const networth = useNetWorth();
+  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
+  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
+  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch)
+  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch)
+  const tvl = useMemo(() => [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce((total, num) => total.add(num ? num : constants.Zero), constants.Zero), [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL])
+
+
   let formatter = Intl.NumberFormat("en", {
     //@ts-ignore
     notation: "compact",
   });
 
-  const {
-    status,
-    data: defiLlamaData,
-    error,
-    loading,
-  } = useFetch<defiLlamaData>("https://api.llama.fi/protocol/popcorn");
-  useEffect(() => {
-    if (status === "fetched") {
-      const stakingTVL: number = defiLlamaData.currentChainTvls.staking;
-      const pool2TVL: number = defiLlamaData.currentChainTvls.pool2;
-      const ethereumTVL: number = defiLlamaData.currentChainTvls.Ethereum;
-      const formattedTVL = parseInt((stakingTVL + pool2TVL + ethereumTVL).toFixed(2));
-      setTVL(formatter.format(formattedTVL));
-    }
-  }, [status, defiLlamaData]);
   return (
     <section className="grid grid-cols-12 md:gap-8">
       <div className="col-span-12 md:col-span-3">
@@ -42,15 +35,18 @@ export default function Hero(): JSX.Element {
             <div className="flex items-center gap-2 mb-2">
               <p className="text-primaryLight leading-5 hidden md:block">Total Value Locked </p>
               <p className="text-primaryLight leading-5 md:hidden">TVL </p>
-
               <InfoIconWithTooltip
                 classExtras=""
                 id="hero-tvl"
                 title="Total value locked (TVL)"
-                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
+                content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
               />
             </div>
-            <p className="text-primary text-xl md:text-4xl leading-8">${TVL}</p>
+            <p className="text-primary text-xl md:text-4xl leading-8">$
+              {formatter.format(
+                parseInt(
+                  formatUnits(tvl))
+              )}</p>
           </div>
           {account && (
             <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">
@@ -64,7 +60,11 @@ export default function Hero(): JSX.Element {
                   content="This value aggregates your Popcorn-related holdings across all blockchain networks."
                 />
               </div>
-              <p className="text-primary text-xl md:text-4xl leading-8">$45,032,100</p>
+              <p className="text-primary text-xl md:text-4xl leading-8">$
+                {formatter.format(
+                  parseInt(
+                    formatUnits(networth))
+                )}</p>
             </div>
           )}
         </div>

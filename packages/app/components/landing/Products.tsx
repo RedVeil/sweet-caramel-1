@@ -1,20 +1,20 @@
-import { bigNumberToNumber, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
+import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
+import { bigNumberToNumber, ChainId, localStringOptions } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import MainActionButton from "components/MainActionButton";
 import { constants } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-import useButterBatchData from "hooks/butter/useButterBatchData";
-import useGetYearnAPY from "hooks/butter/useGetYearnAPY";
-import useThreeXData from "hooks/butter/useThreeXData";
+import { formatUnits } from "ethers/lib/utils";
+import useGetYearnAPY from "hooks/set/useGetYearnAPY";
+import useSetTokenTVL from "hooks/set/useSetTokenTVL";
 import useStakingPool from "hooks/staking/useStakingPool";
-import useWeb3 from "hooks/useWeb3";
+import useStakingTVL from "hooks/staking/useStakingTVL";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 
 const Products = () => {
   const router = useRouter();
-  const { contractAddresses } = useWeb3();
+  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum)
   const { data: threeXAPY } = useGetYearnAPY([contractAddresses.ySusd, contractAddresses.y3Eur]);
   const { data: butterAPY } = useGetYearnAPY([
     contractAddresses.yFrax,
@@ -24,17 +24,16 @@ const Products = () => {
   ]);
   const { data: threeXStaking } = useStakingPool(contractAddresses.threeXStaking);
   const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
-  const { data: threeXData } = useThreeXData();
-  const { data: butterData } = useButterBatchData();
-  const threeXSupply = typeof threeXData !== "undefined" && threeXData.totalSupply;
-  const butterSupply = typeof butterData !== "undefined" && butterData.totalSupply;
-  const threeXSetToken = threeXData?.tokens?.threeX;
-  const butterSetToken = butterData?.tokens?.butter;
+  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
+  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
+  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch)
+  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch)
 
   let formatter = Intl.NumberFormat("en", {
     //@ts-ignore
     notation: "compact",
   });
+
   return (
     <section className="mt-10">
       <h6 className="font-medium leading-8 mb-4">Our Products</h6>
@@ -61,7 +60,7 @@ const Products = () => {
                 classExtras=""
                 id="sweet-vault-tvl"
                 title="Total value locked (TVL)"
-                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
+                content="The amount of user funds deposited in Sweet Vaults."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
@@ -126,20 +125,17 @@ const Products = () => {
                 classExtras=""
                 id="3x-tvl"
                 title="Total value locked (TVL)"
-                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
+                content="The amount of user funds deposited in 3X."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">
-              {threeXSetToken && threeXSupply
+              {threeXTVL
                 ? `$${formatter.format(
-                    parseInt(
-                      formatAndRoundBigNumber(threeXSupply.mul(threeXSetToken.price).div(parseEther("1"))).replace(
-                        /,/gi,
-                        "",
-                      ),
-                    ),
-                  )}`
-                : "$-"}
+                  parseInt(
+                    formatUnits(threeXTVL)
+                  ),
+                )}`
+                : "$0"}
             </p>
           </div>
 
@@ -182,9 +178,12 @@ const Products = () => {
                 classExtras=""
                 id="butter-exposure"
                 title="Underlying Tokens"
-                content="50% yvCurve-sUSDpool
-								50% yvCurve-3EURpool
-								3X Has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT, and EURS."
+                content="25.00% yvCurve-FRAX
+                25.00% yvCurve-RAI
+                25.00% yvCurve-mUSD
+                25.00% yvCurve-alUSD
+                
+                BTR Has Exposure to: FRAX, RAI, mUSD, alUSD, sUSD and 3CRV (USDC/DAI/USDT)."
               />
             </div>
             <div className="flex relative mt-1">
@@ -216,20 +215,17 @@ const Products = () => {
                 classExtras=""
                 id="butter-tvl"
                 title="Total value locked (TVL)"
-                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
+                content="The amount of user funds deposited in Butter."
               />
             </div>
             <p className="text-primary text-2xl md:text-3xl leading-8">
-              {butterSetToken && butterSupply
+              {butterTVL
                 ? `$${formatter.format(
-                    parseInt(
-                      formatAndRoundBigNumber(butterSupply.mul(butterSetToken.price).div(parseEther("1"))).replace(
-                        /,/gi,
-                        "",
-                      ),
-                    ),
-                  )}`
-                : "$-"}
+                  parseInt(
+                    formatUnits(butterTVL)
+                  ),
+                )}`
+                : "$0"}
             </p>
           </div>
 
@@ -274,10 +270,15 @@ const Products = () => {
                 classExtras=""
                 id="staking-tvl"
                 title="Total value locked (TVL)"
-                content="Total value locked (TVL) is the amount of user funds deposited in the 3X contract."
+                content="The amount of user funds deposited in Staking contracts."
               />
             </div>
-            <p className="text-primary text-2xl md:text-3xl leading-8">$3.7m</p>
+            <p className="text-primary text-2xl md:text-3xl leading-8">{mainnetStakingTVL && polygonStakingTVL
+              ? `$${formatter.format(
+                parseInt(
+                  formatUnits(mainnetStakingTVL.add(polygonStakingTVL)))
+              )}`
+              : "$0"}</p>
           </div>
 
           <div className="hidden md:block col-span-12 md:col-span-2"></div>

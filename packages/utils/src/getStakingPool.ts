@@ -57,10 +57,10 @@ export async function getPopLocker(
   const withdrawable = account ? (await popLocker.lockedBalances(account)).unlockable : constants.Zero;
   let lockedBalances = account
     ? (await popLocker.lockedBalances(account)).lockData.map((lockedBalanceStruct) => ({
-        amount: lockedBalanceStruct.amount,
-        boosted: lockedBalanceStruct.boosted,
-        unlockTime: lockedBalanceStruct.unlockTime,
-      }))
+      amount: lockedBalanceStruct.amount,
+      boosted: lockedBalanceStruct.boosted,
+      unlockTime: lockedBalanceStruct.unlockTime,
+    }))
     : [];
   const stakingToken = await getTokenFromAddress(tokenAddress, popLocker.provider, chainId);
 

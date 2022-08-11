@@ -44,7 +44,7 @@ export default function DesktopMenu(): JSX.Element {
                     Products
                   </p>
                   <ChevronDownIcon
-                    className="fill-current text-primary group-hover:text-black mt-0.5 w-5 h-5 ml-0.5"
+                    className="fill-current text-primary group-hover:text-black mb-0.5 w-5 h-5 ml-0.5"
                     aria-hidden="true"
                   />
                 </div>

@@ -1,259 +1,244 @@
 import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
-import { ChainId } from "@popcorn/utils";
+import { HardhatConfigNetworks, HardhatConfigNetworksChainIdMapping } from "@popcorn/utils/src/connectors";
+import { ERC20Metadata, SweetVaultMetadata } from "@popcorn/utils/types";
 
-export type Token = {
+const namedAccounts = getNamedAccounts();
+
+const {
+  xPop,
+  usdc,
+  dai,
+  pop,
+  usdt,
+  sUSD,
+  threeCrv,
+  butter,
+  yFrax,
+  yRai,
+  yMusd,
+  yAlusd,
+  crvFrax,
+  crvRai,
+  crvMusd,
+  crvAlusd,
+  popStaking,
+  popUsdcArrakisVault,
+  popUsdcUniV3Pool,
+  popUsdcLp,
+} = namedAccounts;
+
+const config: OverrideConfig = [
+  {
+    addresses: xPop,
+    metadata: {
+      name: "xPOP",
+      symbol: "xPOP",
+      icon: "/images/icons/popLogo.png",
+    },
+  },
+  {
+    addresses: usdc,
+    metadata: {
+      name: "USDC",
+      symbol: "USDC",
+      icon: "/images/tokens/usdc.webp",
+    },
+  },
+  {
+    addresses: pop,
+    metadata: {
+      name: "Popcorn",
+      symbol: "POP",
+      icon: "/images/icons/popLogo.png",
+    },
+  },
+  {
+    addresses: popUsdcLp,
+    metadata: {
+      name: "Arrakis USDC/POP LP",
+    },
+  },
+  {
+    addresses: popUsdcArrakisVault,
+    metadata: {
+      name: "Arrakis USDC/POP LP",
+    },
+  },
+  {
+    addresses: popStaking,
+    metadata: {
+      name: "POP",
+      symbol: "POP",
+      icon: "/images/icons/popLogo.png",
+    },
+  },
+  {
+    addresses: dai,
+    metadata: {
+      name: "DAI",
+      symbol: "DAI",
+      icon: "/images/tokens/dai.webp",
+    },
+  },
+  {
+    addresses: usdt,
+    metadata: {
+      name: "USDT",
+      symbol: "USDT",
+      icon: "/images/tokens/usdt.webp",
+    },
+  },
+  {
+    addresses: sUSD,
+    metadata: {
+      name: "sUSD",
+      symbol: "sUSD",
+      icon: "/images/tokens/sUSD.png",
+    },
+  },
+  {
+    addresses: threeCrv,
+    metadata: {
+      name: "threeCrv",
+      symbol: "3CRV",
+      icon: "/images/icons/3crv_icon.png",
+    },
+  },
+  {
+    addresses: butter,
+    metadata: {
+      name: "Butter (V2)",
+      icon: "/images/icons/butterLogo.png",
+    },
+  },
+  {
+    addresses: yFrax,
+    metadata: {
+      name: "yFrax",
+    },
+  },
+  {
+    addresses: yRai,
+    metadata: {
+      name: "yRai",
+    },
+  },
+  {
+    addresses: yMusd,
+    metadata: {
+      name: "yMusd",
+    },
+  },
+  {
+    addresses: yAlusd,
+    metadata: {
+      name: "yAlusd",
+    },
+  },
+  {
+    addresses: crvFrax,
+    metadata: {
+      name: "crvFrax",
+    },
+  },
+  {
+    addresses: crvRai,
+    metadata: {
+      name: "crvRai",
+    },
+  },
+  {
+    addresses: crvMusd,
+    metadata: {
+      name: "crvMusd",
+    },
+  },
+  {
+    addresses: crvAlusd,
+    metadata: {
+      name: "crvAlusd",
+    },
+  },
+];
+
+// singleton for tokenMetadataOverride so we only have to reduce the collection once.
+let tokenMetadataOverride: TokenContractMetadataOverride = {};
+export const getTokenMetadataOverride = (): TokenContractMetadataOverride => {
+  if (Object.keys(tokenMetadataOverride).length == 0) {
+    tokenMetadataOverride = generateTokenMetadataOverride(config);
+  }
+
+  return tokenMetadataOverride;
+};
+
+export const getContractMetadata = (chainId?: number, address?: string): ContractMetadata => {
+  if (Object.keys(tokenMetadataOverride).length == 0) {
+    tokenMetadataOverride = generateTokenMetadataOverride(config);
+  }
+  const mapping = getTokenMetadataOverride();
+  return tokenMetadataOverride[chainId][address.toLowerCase()];
+};
+
+export const useContractMetadata = <TargetObject extends Object>({
+  chainId,
+  address,
+  metadata,
+}: {
+  chainId: number;
+  address: string;
+  metadata?: TargetObject;
+}): { override: ContractMetadata; metadata: TargetObject & ContractMetadata } => {
+  const override = getContractMetadata(chainId, address);
+  return {
+    override,
+    metadata: { ...metadata, ...override },
+  };
+};
+
+export const generateTokenMetadataOverride = (config: OverrideConfig): TokenContractMetadataOverride => {
+  const addToMapping = (
+    mapping: TokenContractMetadataOverride,
+    network: NetworkKeys,
+    address: string,
+    metadata: ContractMetadata,
+  ) => {
+    return {
+      ...mapping,
+      [HardhatConfigNetworksChainIdMapping[network]]: {
+        ...mapping[HardhatConfigNetworksChainIdMapping[network]],
+        [address?.toLowerCase()]: metadata,
+      },
+    };
+  };
+  return config.reduce((mapping, tokenOverride) => {
+    const { metadata, addresses } = tokenOverride;
+    Object.keys(addresses).map(
+      (network) => (mapping = addToMapping({ ...mapping }, network as NetworkKeys, addresses[network], metadata)),
+    );
+    return mapping;
+  }, {} as TokenContractMetadataOverride);
+};
+
+export type ContractMetadata = {
   name?: string;
   symbol?: string;
   description?: string;
   icon?: string;
-
   // additional props
   platform?: string;
 };
 
 export interface TokenContractMetadataOverride {
   [chainId: number]: {
-    [contractAddress: string]: Token;
+    [contractAddress: string]: ContractMetadata;
   };
 }
 
-const namedAccounts = getNamedAccounts();
-
-export const TokenMetadataOverride: TokenContractMetadataOverride = {
-  [ChainId.Polygon]: {
-    [namedAccounts.xPop.polygon]: {
-      name: "xPop",
-      icon: "",
-    },
-    [namedAccounts.usdc.polygon]: {
-      name: "USDC",
-      icon: "/images/tokens/usdc.webp",
-    },
-    [namedAccounts.pop.polygon]: {
-      name: "Pop",
-      icon: "/images/icons/POP.svg",
-    },
-  },
-  [ChainId.Arbitrum]: {
-    [namedAccounts.xPop.arbitrum]: {
-      name: "xPop",
-    },
-    [namedAccounts.usdc.arbitrum]: {
-      name: "USDC",
-      icon: "/images/tokens/usdc.webp",
-    },
-    [namedAccounts.xPop.arbitrum]: {
-      name: "Pop",
-      icon: "/images/icons/popLogo.png",
-    },
-  },
-  [ChainId.BNB]: {
-    [namedAccounts.xPop.bsc]: {
-      name: "xPop",
-    },
-    [namedAccounts.usdc.binance]: {
-      name: "USDC",
-      icon: "/images/tokens/usdc.webp",
-    },
-    [namedAccounts.pop.bsc]: {
-      name: "Pop",
-    },
-  },
-  [ChainId.Hardhat]: {
-    [namedAccounts.xPop.hardhat]: {
-      name: "xPop",
-    },
-    [namedAccounts.dai.hardhat]: {
-      name: "dai",
-      icon: "/images/tokens/dai.webp",
-    },
-    [namedAccounts.usdc.hardhat]: {
-      name: "USDC",
-      icon: "/images/tokens/usdc.webp",
-    },
-    [namedAccounts.usdt.hardhat]: {
-      name: "USDT",
-      icon: "/images/tokens/usdt.webp",
-    },
-    [namedAccounts.threeCrv.hardhat]: {
-      name: "threeCrv",
-      icon: "/images/icons/3crv_icon.png",
-    },
-    [namedAccounts.butter.hardhat]: {
-      name: "Butter (v2)",
-      icon: "/images/icons/butterLogo.png",
-    },
-    [namedAccounts.yFrax.hardhat]: {
-      name: "yFrax",
-    },
-    [namedAccounts.yRai.hardhat]: {
-      name: "yRai",
-    },
-    [namedAccounts.yMusd.hardhat]: {
-      name: "yMusd",
-    },
-    [namedAccounts.yAlusd.hardhat]: {
-      name: "yAlusd",
-    },
-    [namedAccounts.crvFrax.hardhat]: {
-      name: "crvFrax",
-    },
-    [namedAccounts.crvRai.hardhat]: {
-      name: "crvRai",
-    },
-    [namedAccounts.crvMusd.hardhat]: {
-      name: "crvMusd",
-    },
-    [namedAccounts.crvAlusd.hardhat]: {
-      name: "crvAlusd",
-    },
-    [namedAccounts.pop.hardhat]: {
-      name: "Pop",
-    },
-  },
-  [ChainId.Localhost]: {
-    [namedAccounts.xPop.hardhat]: {
-      name: "xPop",
-    },
-    [namedAccounts.dai.hardhat]: {
-      name: "dai",
-      icon: "/images/tokens/dai.webp",
-    },
-    [namedAccounts.usdc.hardhat]: {
-      name: "USDC",
-      icon: "/images/tokens/usdc.webp",
-    },
-    [namedAccounts.usdt.hardhat]: {
-      name: "USDT",
-      icon: "/images/tokens/usdt.webp",
-    },
-    [namedAccounts.threeCrv.hardhat]: {
-      name: "threeCrv",
-      icon: "/images/icons/3crv_icon.png",
-    },
-    [namedAccounts.butter.hardhat]: {
-      name: "Butter (v2)",
-      icon: "/images/icons/butterLogo.png",
-    },
-    [namedAccounts.yFrax.hardhat]: {
-      name: "yFrax",
-    },
-    [namedAccounts.yRai.hardhat]: {
-      name: "yRai",
-    },
-    [namedAccounts.yMusd.hardhat]: {
-      name: "yMusd",
-    },
-    [namedAccounts.yAlusd.hardhat]: {
-      name: "yAlusd",
-    },
-    [namedAccounts.crvFrax.hardhat]: {
-      name: "crvFrax",
-    },
-    [namedAccounts.crvRai.hardhat]: {
-      name: "crvRai",
-    },
-    [namedAccounts.crvMusd.hardhat]: {
-      name: "crvMusd",
-    },
-    [namedAccounts.crvAlusd.hardhat]: {
-      name: "crvAlusd",
-    },
-    [namedAccounts.pop.hardhat]: {
-      name: "Pop",
-    },
-  },
-  [ChainId.Ethereum]: {
-    [namedAccounts.dai.mainnet]: {
-      name: "DAI",
-    },
-    [namedAccounts.pop.mainnet]: {
-      name: "Pop",
-    },
-    [namedAccounts.usdc.mainnet]: {
-      name: "USDC",
-      icon: "/images/tokens/usdc.webp",
-    },
-    [namedAccounts.usdt.mainnet]: {
-      name: "USDT",
-      icon: "/images/tokens/usdt.webp",
-    },
-    [namedAccounts.threeCrv.mainnet]: {
-      name: "threeCrv",
-      icon: "/images/icons/3crv_icon.png",
-    },
-    [namedAccounts.butter.mainnet]: {
-      name: "Butter (v2)",
-      icon: "/images/icons/butterLogo.png",
-    },
-    [namedAccounts.yFrax.mainnet]: {
-      name: "yFrax",
-    },
-    [namedAccounts.yRai.mainnet]: {
-      name: "yRai",
-    },
-    [namedAccounts.yMusd.mainnet]: {
-      name: "yMusd",
-    },
-    [namedAccounts.yAlusd.mainnet]: {
-      name: "yAlusd",
-    },
-    [namedAccounts.crvFrax.mainnet]: {
-      name: "crvFrax",
-    },
-    [namedAccounts.crvRai.mainnet]: {
-      name: "crvRai",
-    },
-    [namedAccounts.crvMusd.mainnet]: {
-      name: "crvMusd",
-    },
-    [namedAccounts.crvAlusd.mainnet]: {
-      name: "crvAlusd",
-    },
-  },
-  [ChainId.Rinkeby]: {
-    [namedAccounts.dai.rinkeby]: {
-      name: "dai",
-      icon: "/images/tokens/dai.webp",
-    },
-    [namedAccounts.pop.rinkeby]: {
-      name: "Pop",
-    },
-    [namedAccounts.usdc.rinkeby]: {
-      name: "USDC",
-      icon: "/images/tokens/usdc.webp",
-    },
-    [namedAccounts.threeCrv.rinkeby]: {
-      name: "threeCrv",
-      icon: "/images/icons/3crv_icon.png",
-    },
-    [namedAccounts.butter.rinkeby]: {
-      name: "butter",
-      icon: "/images/icons/butterLogo.png",
-    },
-    [namedAccounts.yFrax.rinkeby]: {
-      name: "yFrax",
-    },
-    [namedAccounts.yRai.rinkeby]: {
-      name: "yRai",
-    },
-    [namedAccounts.yMusd.rinkeby]: {
-      name: "yMusd",
-    },
-    [namedAccounts.yAlusd.rinkeby]: {
-      name: "yAlusd",
-    },
-    [namedAccounts.crvFrax.rinkeby]: {
-      name: "crvFrax",
-    },
-    [namedAccounts.crvRai.rinkeby]: {
-      name: "crvRai",
-    },
-    [namedAccounts.crvMusd.rinkeby]: {
-      name: "crvMusd",
-    },
-    [namedAccounts.crvAlusd.rinkeby]: {
-      name: "crvAlusd",
-    },
-  },
-};
+export type NetworkKeys = keyof HardhatConfigNetworks;
+export interface OverrideObject {
+  addresses: {
+    [network in NetworkKeys]?: string;
+  };
+  metadata: ContractMetadata & Partial<ERC20Metadata> & Partial<SweetVaultMetadata>;
+}
+export type OverrideConfig = OverrideObject[];

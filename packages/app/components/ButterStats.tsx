@@ -3,7 +3,7 @@ import { BatchMetadata } from "@popcorn/utils/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import { constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import useGetYearnAPY from "hooks/butter/useGetYearnAPY";
+import useGetYearnAPY from "hooks/set/useGetYearnAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useWeb3 from "hooks/useWeb3";
 

@@ -27,6 +27,12 @@ export default function getProducts(
         currentlySelected: router.pathname.includes("/set/3x"),
         url: "/set/threex",
       },
+      {
+        title: "Staking",
+        onClick: () => pushWithinChain(`/staking`),
+        currentlySelected: router.pathname.includes("/staking"),
+        url: "/staking",
+      },
     ];
   }, [router, router?.query?.network]);
 }
