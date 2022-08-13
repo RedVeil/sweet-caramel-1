@@ -5,10 +5,13 @@ module.exports = {
   },
   skipFiles: [
     "core/defi/pool/AffiliateToken.sol",
-    "test_helpers/Faucet.sol",
+    "test_helpers/",
     "mocks/",
     "externals/",
+    "test_helpers/",
     "core/interfaces/",
+    "core/libraries/",
+    "lbp/",
     "core/utils/RandomNumberConsumer.sol",
   ],
 };

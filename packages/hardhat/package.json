@@ -11,7 +11,7 @@
     "docify": "rm -rf ./docgen/.gitbook.yaml ./docgen/SUMMARY.md ./docgen/docs/* && node docgen/docify.js",
     "test": "yarn hardhat test test/*.test.ts",
     "test:fork": "yarn hardhat test test/fork/**/*.test.ts",
-    "test:forge": "forge test -vvv",
+    "test:forge": "yarn hardhat forge:forge-test",
     "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
     "prettify": "yarn lint-staged --allow-empty"
   },

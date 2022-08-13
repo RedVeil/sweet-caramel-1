@@ -6,10 +6,10 @@ import "@ecmendenhall/ds-test/src/test.sol";
 import "@ecmendenhall/forge-std/src/Vm.sol";
 import { stdCheats } from "@ecmendenhall/forge-std/src/stdlib.sol";
 
-import "../../contracts/core/defi/vault/Vault.sol";
-import "../../contracts/core/defi/vault/VaultFeeController.sol";
-import "../../contracts/core/interfaces/IContractRegistry.sol";
-import "../../contracts/core/interfaces/IACLRegistry.sol";
+import "../../../contracts/core/defi/vault/Vault.sol";
+import "../../../contracts/core/defi/vault/VaultFeeController.sol";
+import "../../../contracts/core/interfaces/IContractRegistry.sol";
+import "../../../contracts/core/interfaces/IACLRegistry.sol";
 
 contract User {
   Vault internal vault;
