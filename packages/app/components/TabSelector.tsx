@@ -14,13 +14,15 @@ const TabSelector: React.FC<TabSelectorProps> = ({ activeTab, setActiveTab, avai
         <div
           key={tab}
           className={`w-1/2 cursor-pointer ${
-            activeTab === tab ? "border-b-2 border-blue-600" : "border-b border-gray-400  group hover:border-gray-600"
+            activeTab === tab
+              ? "border-b border-primaryLight"
+              : "border-b border-customLightGray  group hover:border-primaryLight"
           }`}
           onClick={(e) => setActiveTab(tab)}
         >
           <p
-            className={`text-center text-base mb-4 cursor-pointer word-spacing-full sm:word-spacing-normal ${
-              activeTab === tab ? "text-blue-600 font-semibold" : "text-gray-400 group-hover:text-gray-600"
+            className={`text-base md:text-center mb-4 cursor-pointer word-spacing-full sm:word-spacing-normal ${
+              activeTab === tab ? "text-primary font-medium" : "text-primaryLight group-hover:text-primary"
             }`}
           >
             {tab}

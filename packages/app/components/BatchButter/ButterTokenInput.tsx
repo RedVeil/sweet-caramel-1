@@ -102,7 +102,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         </div>
         <div>
           <div className="mt-1 relative flex items-center gap-2">
-            <div className="w-full flex px-5 py-4 items-center border border-customLightGray rounded-md">
+            <div className="w-full flex px-5 py-4 items-center border border-customLightGray rounded-lg">
               <input
                 name="tokenInput"
                 id="tokenInput"

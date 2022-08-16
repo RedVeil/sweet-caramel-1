@@ -34,7 +34,9 @@ export default function StatusWithLabel({
       ) : (
         <p className="text-primaryLight">{label}</p>
       )}
-      <p className={`md:mt-1 text-primary text-3xl leading-8`}>{content}</p>
+      <p className={`md:mt-1 text-primary text-3xl leading-8`}>
+        {content.split(" ")[0]} <span className=" text-tokenTextGray text-xl"> {content.split(" ")[1]}</span>
+      </p>
     </div>
   );
 }
