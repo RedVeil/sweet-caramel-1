@@ -15,14 +15,14 @@ const TokenInputToggle: React.FC<TokenInputToggleProps> = ({ state, labels }) =>
   return (
     <div className="flex flex-row">
       <div
-        className={`w-1/2 ${
-          visible ? "border-b border-gray-400 cursor-pointer group hover:border-gray-600" : "border-b-2 border-blue-600"
+        className={`w-1/2 border-b ${
+          visible ? "border-secondaryLight cursor-pointer group hover:border-primary" : "border-primary"
         }`}
         onClick={(e) => toggle(false)}
       >
         <p
           className={`text-center leading-none text-base mb-4 mt-2 ${
-            visible ? "text-gray-400 group-hover:text-gray-600 font-semibold" : "text-blue-600 font-semibold"
+            visible ? "text-primaryLight group-hover:text-primary" : "text-primary font-medium"
           }`}
         >
           {labels[0]}
@@ -30,13 +30,15 @@ const TokenInputToggle: React.FC<TokenInputToggleProps> = ({ state, labels }) =>
       </div>
       <div
         className={`w-1/2 ${
-          visible ? "border-b-2 border-blue-600" : "border-b border-gray-400 cursor-pointer group hover:border-gray-600"
+          visible
+            ? "border-b border-primary"
+            : "border-b border-secondaryLight cursor-pointer group hover:border-primary"
         }`}
         onClick={(e) => toggle(true)}
       >
         <p
           className={`text-center leading-none text-base mb-4 mt-2 ${
-            visible ? "text-blue-600 font-semibold" : "text-gray-400 group-hover:text-gray-600 font-semibold"
+            visible ? "text-primary  font-medium" : "text-primaryLight group-hover:text-primary"
           }`}
         >
           {labels[1]}

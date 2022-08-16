@@ -1,9 +1,9 @@
+import { getTokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
 import { ERC20 } from "@popcorn/hardhat/typechain";
 import { constants } from "ethers/lib/ethers";
 import { getSanitizedTokenDisplayName } from "../../app/helper/displayHelper";
 import { ERC20__factory } from "../../hardhat/typechain/factories/ERC20__factory";
 import { Token } from "./types";
-import { getTokenMetadataOverride } from "@popcorn/app/contractMetadataOverride"
 
 const TokenMetadataOverride = getTokenMetadataOverride();
 

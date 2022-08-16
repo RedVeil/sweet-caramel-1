@@ -17,7 +17,6 @@ export const getPopTokenPrice = async (provider: ethers.providers.JsonRpcProvide
   }
 };
 
-
 // Hook to return the popPrice in 1e6
 export default function useGetPopTokenPriceInUSD() {
   const mainnetProvider = PRC_PROVIDERS[ChainId.Ethereum];

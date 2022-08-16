@@ -26,13 +26,16 @@ export default function SelectToken({
         onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
       >
         <img className="w-5 mr-2" src={`/images/tokens/${selectedToken.img}`}></img>
-        <p className="font-medium text-lg leading-none mt-1 text-black group-hover:text-primary">{selectedToken.name}</p>
+        <p className="font-medium text-lg leading-none mt-1 text-black group-hover:text-primary">
+          {selectedToken.name}
+        </p>
 
         {allowSelection && (
           <>
             <ChevronDownIcon
-              className={`w-10 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${showDropdown ? " rotate-180" : ""
-                }`}
+              className={`w-10 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${
+                showDropdown ? " rotate-180" : ""
+              }`}
             />
           </>
         )}

@@ -12,7 +12,7 @@ export default function useERC20(address: string | null): Token {
     if (address && signerOrProvider) {
       getToken(ERC20__factory.connect(address, signerOrProvider), rpcProvider, chainId)
         .then((token) => mounted && setToken(token))
-        .catch((err) => { });
+        .catch((err) => {});
     }
     return () => {
       mounted = false;

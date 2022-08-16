@@ -33,24 +33,14 @@ const MobileCardSlider = ({ children }) => {
         {children}
       </Slider>
       <div className="flex justify-center pt-6 gap-5">
-        <div
-          className={`${
-            currentSlide == 0 ? activeDot : inactiveDot
-          } rounded-full h-5 w-5 border border-black transition-all`}
-          onClick={() => gotoSlide(0)}
-        ></div>
-        <div
-          className={`${
-            currentSlide == 1 ? activeDot : inactiveDot
-          } rounded-full h-5 w-5 border border-black transition-all`}
-          onClick={() => gotoSlide(1)}
-        ></div>
-        <div
-          className={`${
-            currentSlide == 2 ? activeDot : inactiveDot
-          } rounded-full h-5 w-5 border border-black transition-all`}
-          onClick={() => gotoSlide(2)}
-        ></div>
+        {children.map((child, index) => (
+          <div
+            className={`${
+              currentSlide == index ? activeDot : inactiveDot
+            } rounded-full h-5 w-5 border border-black transition-all`}
+            onClick={() => gotoSlide(index)}
+          ></div>
+        ))}
       </div>
     </div>
   );

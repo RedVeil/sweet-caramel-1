@@ -205,10 +205,9 @@ border-radius: 8px;
 	border-radius: 50%;
 	height: 8px;
 	width: 8px!important;
-	margin-left: 5px;
 	content:"";
 	position: absolute;
-	left:30%
+	left:40%
 } 
 
 .__react_component_tooltip{
@@ -238,6 +237,16 @@ border-radius: 8px;
   100% { -webkit-transform: rotate(360deg); }
 }
 
+@media screen and (max-width:320px) {
+	.wheelPicker li[aria-selected="true"] span:nth-child(2){
+		left:50%
+	} 
+}
+@media screen and (min-width:768px) and  (max-width:999px) {
+	.wheelPicker li[aria-selected="true"] span:nth-child(2){
+		left:15%
+	} 
+}
 @media screen and (min-width:1000px) and (max-width:1200px){
 html{
 	font-size:14px;

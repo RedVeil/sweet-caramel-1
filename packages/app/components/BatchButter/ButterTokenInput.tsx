@@ -41,9 +41,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
-      localButterPageState.depositAmount,
-      localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
-    );
+        localButterPageState.depositAmount,
+        localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
+      );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -106,14 +106,15 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className={`block w-full p-0 border-0 text-primaryDark text-lg ${localButterPageState.depositAmount.gt(
-                  localButterPageState.useUnclaimedDeposits
-                    ? selectedToken.input.claimableBalance
-                    : selectedToken.input.balance,
-                )
-                  ? "focus:ring-red-600 border-red-600"
-                  : "focus:ring-0"
-                  }`}
+                className={`block w-full p-0 border-0 text-primaryDark text-lg ${
+                  localButterPageState.depositAmount.gt(
+                    localButterPageState.useUnclaimedDeposits
+                      ? selectedToken.input.claimableBalance
+                      : selectedToken.input.balance,
+                  )
+                    ? "focus:ring-red-600 border-red-600"
+                    : "focus:ring-0"
+                }`}
                 onChange={(e) => {
                   onUpdate(e.target.value.replace(/,/g, "."));
                 }}

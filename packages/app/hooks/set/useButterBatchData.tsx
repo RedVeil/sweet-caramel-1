@@ -1,14 +1,14 @@
 import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/src/types";
-import useButterBatch from "./useButterBatch";
-import useButterBatchAdapter from "./useButterBatchAdapter";
-import useButterBatchZapper from "./useButterBatchZapper";
 import useERC20 from "hooks/tokens/useERC20";
 import useThreePool from "hooks/useThreePool";
 import useWeb3 from "hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
 import { getData } from "../../helper/ButterDataUtils";
 import useBasicIssuanceModule from "./useBasicIssuanceModule";
+import useButterBatch from "./useButterBatch";
+import useButterBatchAdapter from "./useButterBatchAdapter";
+import useButterBatchZapper from "./useButterBatchZapper";
 import useSetToken from "./useSetToken";
 
 export default function useButterBatchData(): SWRResponse<BatchMetadata, Error> {
