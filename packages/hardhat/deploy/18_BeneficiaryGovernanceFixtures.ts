@@ -23,6 +23,10 @@ const DURATION_DAY = 24 * 60 * 60;
 const DURATION_YEAR = DURATION_DAY * 365;
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  if (!Boolean(parseInt(process.env.WITH_FIXTURES || "0"))) {
+    console.log("Skipping BenGovFixtures to avoid time travel");
+    return;
+  }
   console.log("Deploying Fixtures");
   const { deployments, ethers } = hre;
   const DEFAULT_REGION = ethers.utils.id("World");

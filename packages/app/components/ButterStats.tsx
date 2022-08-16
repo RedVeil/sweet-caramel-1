@@ -30,13 +30,10 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
   const supply = isReady && butterData.totalSupply;
   const setToken = isThreeX ? butterData?.tokens?.threeX : butterData?.tokens?.butter;
 
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
-    butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-  }%) and is boosted with POP (${
-    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-  }%). You must stake your ${
-    isThreeX ? "3X" : "BTR"
-  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
+    }%) and is boosted with POP (${butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
+    }%). You must stake your ${isThreeX ? "3X" : "BTR"
+    } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
@@ -81,7 +78,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
         </div>
         <div className="md:hidden">
           {isThreeX ? (
-            <StatusWithLabel content={"$5m"} label="TVL Limit" />
+            <StatusWithLabel content={"$1m"} label="TVL Limit" />
           ) : (
             <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
           )}
@@ -90,7 +87,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
       <div className="w-full md:w-auto mt-2 md:pl-6 text-center md:text-left">
         <div className="hidden md:block ">
           {isThreeX ? (
-            <StatusWithLabel content={"$5m"} label="TVL Limit" />
+            <StatusWithLabel content={"$1m"} label="TVL Limit" />
           ) : (
             <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
           )}

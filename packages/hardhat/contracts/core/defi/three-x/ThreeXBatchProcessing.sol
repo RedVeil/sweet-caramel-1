@@ -144,8 +144,6 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     return value;
   }
 
-  //
-
   function _getPoolAllocationAndRatio(
     address _component,
     uint256 _quantity,
@@ -212,6 +210,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     // Get the quantity of yToken for one 3X
     (address[] memory tokenAddresses, uint256[] memory quantities) = basicIssuanceModule
       .getRequiredComponentUnitsForIssue(ISetToken(address(mintBatchTokens.targetToken)), 1e18);
+
     uint256 setValue = valueOfComponents(tokenAddresses, quantities);
 
     // Remaining amount of USDC in this batch which hasnt been allocated yet
@@ -443,7 +442,9 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     } else {
       // Trade USDC for intermediate swapToken
       _contracts.angleRouter.mint(address(this), _amount, 0, address(swapToken), address(mintBatchTokens.sourceToken));
+
       uint256 destAmount = swapToken.balanceOf(address(this));
+
       _contracts.curveMetaPool.add_liquidity([destAmount, 0, 0], 0);
     }
   }

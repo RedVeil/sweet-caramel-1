@@ -27,6 +27,7 @@ export interface ContractAddresses {
   butterDependency?: ButterDependencyAddresses;
   threeX?: Address;
   threeXBatch?: Address;
+  threeXWhale?: Address;
   threeXBatchVault?: Address;
   threeXZapper?: Address;
   yMim?: Address;
