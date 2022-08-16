@@ -70,6 +70,7 @@ export default function ThreeX(): JSX.Element {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, 3X is only available on Ethereum.",
+          image: <img src="/images/modalImages/comingSoon.svg" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -99,20 +100,20 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: threeXData?.tokens?.usdc?.key,
-            output: threeXData?.tokens?.threeX?.key,
-          },
-          tokens: threeXData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-        }
+            ...state,
+            selectedToken: {
+              input: threeXData?.tokens?.usdc?.key,
+              output: threeXData?.tokens?.threeX?.key,
+            },
+            tokens: threeXData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+          }
         : {
-          ...state,
-          tokens: threeXData?.tokens,
-        },
+            ...state,
+            tokens: threeXData?.tokens,
+          },
     );
   }, [threeXData]);
 
@@ -219,15 +220,20 @@ export default function ThreeX(): JSX.Element {
           title: "Deposit for Mint",
           content:
             "You have successfully deposited into the current mint batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-          image: <img src="/images/butter/modal-1.png" className="px-6" />,
+          image: <img src="/images/modalImages/mint.svg" />,
           onConfirm: {
-            label: "Close",
+            label: "Continue",
             onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
-          onDismiss: {
+          onDontShowAgain: {
             label: "Do not remind me again",
             onClick: () => {
               localStorage.setItem("hideBatchProcessingPopover", "true");
+              dispatch(setMultiChoiceActionModal(false));
+            },
+          },
+          onDismiss: {
+            onClick: () => {
               dispatch(setMultiChoiceActionModal(false));
             },
           },
@@ -245,12 +251,17 @@ export default function ThreeX(): JSX.Element {
           title: "Deposit for Redeem",
           content:
             "You have successfully deposited into the current redeem batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-          image: <img src="/images/butter/batch-popover.png" className="px-6" />,
+          image: <img src="/images/modalImages/mint.svg" />,
           onConfirm: {
-            label: "Close",
+            label: "Continue",
             onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
           onDismiss: {
+            onClick: () => {
+              dispatch(setMultiChoiceActionModal(false));
+            },
+          },
+          onDontShowAgain: {
             label: "Do not remind me again",
             onClick: () => {
               localStorage.setItem("hideBatchProcessingPopover", "true");
@@ -294,34 +305,43 @@ export default function ThreeX(): JSX.Element {
             {
               title: "You claimed your token",
               children: (
-                <p className="text-sm text-gray-500">
-                  Your tokens should now be visible in your wallet. To see your tokens, &nbsp;
-                  <a
-                    onClick={async () =>
-                      window.ethereum.request({
-                        method: "wallet_watchAsset",
-                        params: {
-                          type: "ERC20",
-                          options: {
-                            address: threeX.address,
-                            symbol: "3X",
-                            decimals: 18,
+                <>
+                  <p className="text-base text-primaryDark mb-4">
+                    Your tokens are now in your wallet. To see them make sure to import 3x into your wallet
+                  </p>
+                  <p>
+                    <a
+                      onClick={async () =>
+                        window.ethereum.request({
+                          method: "wallet_watchAsset",
+                          params: {
+                            type: "ERC20",
+                            options: {
+                              address: threeX.address,
+                              symbol: "3X",
+                              decimals: 18,
+                            },
                           },
-                        },
-                      })
-                    }
-                    className="text-blue-600 cursor-pointer"
-                  >
-                    Add 3X to Wallet
-                  </a>
-                </p>
+                        })
+                      }
+                      className="text-customPurple cursor-pointer"
+                    >
+                      Add 3X to Wallet
+                    </a>
+                  </p>
+                </>
               ),
-              image: <img src="/images/butter/modal-2.png" className="px-6" />,
+              image: <img src="/images/modalImages/redeemed.svg" />,
               onConfirm: {
-                label: "Close",
+                label: "Continue",
                 onClick: () => dispatch(setMultiChoiceActionModal(false)),
               },
               onDismiss: {
+                onClick: () => {
+                  dispatch(setMultiChoiceActionModal(false));
+                },
+              },
+              onDontShowAgain: {
                 label: "Do not remind me again",
                 onClick: () => {
                   localStorage.setItem("hideClaimSuccessPopover", "true");
@@ -395,11 +415,11 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.redeeming
       ? threeXData?.currentBatches.redeem.suppliedTokenBalance
-        .mul(threeXData?.tokens?.threeX.price)
-        .div(parseEther("1"))
+          .mul(threeXData?.tokens?.threeX.price)
+          .div(parseEther("1"))
       : threeXData?.currentBatches.mint.suppliedTokenBalance
-        .mul(threeXData?.tokens?.usdc.price)
-        .div(BigNumber.from(1_000_000));
+          .mul(threeXData?.tokens?.usdc.price)
+          .div(BigNumber.from(1_000_000));
   }
 
   function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
@@ -414,13 +434,13 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.useUnclaimedDeposits
       ? isBalanceInsufficient(
-        threeXPageState.depositAmount,
-        threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
-      )
+          threeXPageState.depositAmount,
+          threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
+        )
       : isBalanceInsufficient(
-        threeXPageState.depositAmount,
-        threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
-      );
+          threeXPageState.depositAmount,
+          threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
+        );
   };
 
   return (
@@ -495,8 +515,9 @@ export default function ThreeX(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`$${threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price) : "-"
-                  }`}
+                content={`$${
+                  threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price) : "-"
+                }`}
                 icon={"3X"}
                 info={{
                   title: "Underlying Tokens",

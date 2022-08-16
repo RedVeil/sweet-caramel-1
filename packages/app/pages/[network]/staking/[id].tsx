@@ -45,17 +45,22 @@ export default function StakingPage(): JSX.Element {
           if (!localStorage.getItem("hideStakeSuccessPopover")) {
             dispatch(
               setMultiChoiceActionModal({
-                title: `You have successfully staked ${stakingToken?.symbol}`,
+                title: `Successfully staked ${stakingToken?.symbol}`,
                 children: SuccessfulStakingModal,
-                image: <img src="/images/stake/stake-success-modal.png" className="px-6" />,
+                image: <img src="/images/modalImages/successfulStake.svg" />,
                 onConfirm: {
-                  label: "Close",
+                  label: "Continue",
                   onClick: () => dispatch(setMultiChoiceActionModal(false)),
                 },
-                onDismiss: {
+                onDontShowAgain: {
                   label: "Do not remind me again",
                   onClick: () => {
                     localStorage.setItem("hideStakeSuccessPopover", "true");
+                    dispatch(setMultiChoiceActionModal(false));
+                  },
+                },
+                onDismiss: {
+                  onClick: () => {
                     dispatch(setMultiChoiceActionModal(false));
                   },
                 },

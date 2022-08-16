@@ -125,6 +125,7 @@ export default function Butter(): JSX.Element {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, Butter is only available on Ethereum.",
+          image: <img src="/images/modalImages/mint.svg" className="px-6" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -249,12 +250,17 @@ export default function Butter(): JSX.Element {
           title: "Deposit for Mint",
           content:
             "You have successfully deposited into the current mint batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-          image: <img src="/images/butter/modal-1.png" className="px-6" />,
+          image: <img src="/images/modalImages/mint.svg" />,
           onConfirm: {
-            label: "Close",
+            label: "Continue",
             onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
           onDismiss: {
+            onClick: () => {
+              dispatch(setMultiChoiceActionModal(false));
+            },
+          },
+          onDontShowAgain: {
             label: "Do not remind me again",
             onClick: () => {
               localStorage.setItem("hideBatchProcessingPopover", "true");
@@ -276,12 +282,17 @@ export default function Butter(): JSX.Element {
           title: "Deposit for Redeem",
           content:
             "You have successfully deposited into the current redeem batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-          image: <img src="/images/butter/batch-popover.png" className="px-6" />,
+          image: <img src="/images/modalImages/mint.svg" />,
           onConfirm: {
-            label: "Close",
+            label: "Continue",
             onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
           onDismiss: {
+            onClick: () => {
+              dispatch(setMultiChoiceActionModal(false));
+            },
+          },
+          onDontShowAgain: {
             label: "Do not remind me again",
             onClick: () => {
               localStorage.setItem("hideBatchProcessingPopover", "true");
@@ -424,34 +435,43 @@ export default function Butter(): JSX.Element {
         {
           title: "You claimed your token",
           children: (
-            <p className="text-sm text-gray-500">
-              Your tokens should now be visible in your wallet. To see your tokens, &nbsp;
-              <a
-                onClick={async () =>
-                  window.ethereum.request({
-                    method: "wallet_watchAsset",
-                    params: {
-                      type: "ERC20",
-                      options: {
-                        address: contractAddresses.butter,
-                        symbol: "BTR",
-                        decimals: 18,
+            <>
+              <p className="text-base text-primaryDark mb-4">
+                Your tokens are now in your wallet. To see them make sure to import butter into your wallet
+              </p>
+              <p>
+                <a
+                  onClick={async () =>
+                    window.ethereum.request({
+                      method: "wallet_watchAsset",
+                      params: {
+                        type: "ERC20",
+                        options: {
+                          address: contractAddresses.butter,
+                          symbol: "BTR",
+                          decimals: 18,
+                        },
                       },
-                    },
-                  })
-                }
-                className="text-blue-600 cursor-pointer"
-              >
-                Add BTR to Wallet
-              </a>
-            </p>
+                    })
+                  }
+                  className="text-customPurple cursor-pointer"
+                >
+                  Add BTR to Wallet
+                </a>
+              </p>
+            </>
           ),
-          image: <img src="/images/butter/modal-2.png" className="px-6" />,
+          image: <img src="/images/modalImages/redeemed.svg" />,
           onConfirm: {
-            label: "Close",
+            label: "Continue",
             onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
           onDismiss: {
+            onClick: () => {
+              dispatch(setMultiChoiceActionModal(false));
+            },
+          },
+          onDontShowAgain: {
             label: "Do not remind me again",
             onClick: () => {
               localStorage.setItem("hideClaimSuccessPopover", "true");
@@ -549,23 +569,23 @@ export default function Butter(): JSX.Element {
     }
     return butterPageState.redeeming
       ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
-        .mul(butterBatchData?.tokens?.butter.price)
-        .div(parseEther("1"))
+          .mul(butterBatchData?.tokens?.butter.price)
+          .div(parseEther("1"))
       : butterBatchData?.currentBatches.mint.suppliedTokenBalance
-        .mul(butterBatchData?.tokens?.threeCrv.price)
-        .div(parseEther("1"));
+          .mul(butterBatchData?.tokens?.threeCrv.price)
+          .div(parseEther("1"));
   }
 
   function depositDisabled(): boolean {
     return butterPageState.useUnclaimedDeposits
       ? isDepositDisabled(
-        butterPageState.depositAmount,
-        butterPageState.tokens[butterPageState.selectedToken.input].claimableBalance,
-      )
+          butterPageState.depositAmount,
+          butterPageState.tokens[butterPageState.selectedToken.input].claimableBalance,
+        )
       : isDepositDisabled(
-        butterPageState.depositAmount,
-        butterPageState.tokens[butterPageState.selectedToken.input].balance,
-      );
+          butterPageState.depositAmount,
+          butterPageState.tokens[butterPageState.selectedToken.input].balance,
+        );
   }
 
   return (
@@ -633,10 +653,11 @@ export default function Butter(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="Butter Value"
-                content={`$${butterBatchData?.tokens?.butter
+                content={`$${
+                  butterBatchData?.tokens?.butter
                     ? formatAndRoundBigNumber(butterBatchData?.tokens?.butter?.price)
                     : "-"
-                  }`}
+                }`}
                 icon="Butter"
                 info={{
                   title: "Underlying Tokens",

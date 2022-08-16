@@ -61,6 +61,7 @@ export default function InstantButter() {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, Butter is only available on Ethereum.",
+          image: <img src="/images/modalImages/mint.svg" className="px-6" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {

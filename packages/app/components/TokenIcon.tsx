@@ -17,12 +17,12 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
       return (
         <div className="flex flex-row flex-shrink-0 flex-grow-0">
           <img
-            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.usdc.polygon].icon}
+            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts?.usdc?.polygon]?.icon}
             alt="usdc"
             className={`w-10 h-10 `}
           />
           <img
-            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
+            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts?.pop?.polygon]?.icon}
             alt="pop"
             className={`w-10 h-10 -ml-3`}
           />
@@ -31,7 +31,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
     case "Butter (v2)":
       return (
         <img
-          src={TokenMetadataOverride[ChainId.Ethereum][namedAccounts.butter.mainnet].icon}
+          src={TokenMetadataOverride[ChainId.Ethereum][namedAccounts?.butter?.mainnet]?.icon}
           alt="butter"
           className="w-5 md:w-7 h-3 md:h-4 "
         />
@@ -42,7 +42,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
     default:
       return (
         <img
-          src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
+          src={TokenMetadataOverride[ChainId.Polygon][namedAccounts?.pop?.polygon]?.icon}
           alt="pop"
           className={`w-10 h-10`}
         />
