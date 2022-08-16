@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
-import { store } from '../../context/store';
-import SingleActionModal from './SingleActionModal';
+import React, { useContext } from "react";
+import { store } from "../../context/store";
+import SingleActionModal from "./SingleActionModal";
 
 export const SingleActionModalContainer: React.FC = () => {
   const {
@@ -17,6 +17,7 @@ export const SingleActionModalContainer: React.FC = () => {
       onDismiss={singleActionModal.onDismiss}
       onConfirm={singleActionModal.onConfirm}
       keepOpen={singleActionModal.keepOpen}
+      isTerms={singleActionModal.isTerms}
     />
   );
 };

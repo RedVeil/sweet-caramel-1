@@ -17,6 +17,7 @@ export const MultiChoiceActionModalContainer: React.FC = () => {
       onDismiss={multiChoiceActionModal.onDismiss}
       onConfirm={multiChoiceActionModal.onConfirm}
       onSecondOption={multiChoiceActionModal.onSecondOption}
+      onDontShowAgain={multiChoiceActionModal.onDontShowAgain}
     />
   );
 };

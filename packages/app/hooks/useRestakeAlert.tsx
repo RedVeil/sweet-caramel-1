@@ -26,7 +26,7 @@ export default function useRestakeAlert() {
     ) {
       dispatch(
         setMultiChoiceActionModal({
-          image: <img src="/images/stake/restake_image.png" className="px-6" />,
+          image: <img src="/images/modalImages/restake.svg" />,
           title: "It's time to restake!",
           content:
             "Your POP tokens must be re-staked or withdrawn after the 3-month lock time expires or they will be subjected to a penalty of 1% per epoch week that they are not re-staked",
@@ -44,10 +44,6 @@ export default function useRestakeAlert() {
               setRestakeAlerted(true);
               router.push({ pathname: `/${router?.query?.network}/staking/pop`, query: { action: "withdraw" } });
             },
-          },
-          onDismiss: {
-            label: "Dismiss",
-            onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
         }),
       );

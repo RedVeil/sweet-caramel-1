@@ -49,18 +49,23 @@ export default function index(): JSX.Element {
             title: "Migrate your liquidity from Sushiswap to Arrakis",
             content:
               "Please withdraw your LP tokens and deposit them into Arrakis for the new liquidity mining rewards. In PIP-2 the community decided to migrate all Polygon liquidity to Uniswap via Arrakis. The purpose of this measure is to improve both liquidity and slippage. ",
-            image: <img src="/images/stake/lpStaking.png" className="px-6" />,
+            image: <img src="/images/modalImages/migrate.svg" />,
             onConfirm: {
-              label: "Close",
+              label: "Continue",
               onClick: () => {
                 dispatch(setMultiChoiceActionModal(false));
                 closeModal(true);
               },
             },
-            onDismiss: {
+            onDontShowAgain: {
               label: "Do not remind me again",
               onClick: () => {
                 localStorage.setItem("hideLiquidityMigrationModal", "true");
+                dispatch(setMultiChoiceActionModal(false));
+              },
+            },
+            onDismiss: {
+              onClick: () => {
                 dispatch(setMultiChoiceActionModal(false));
               },
             },

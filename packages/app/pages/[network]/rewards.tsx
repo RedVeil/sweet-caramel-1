@@ -96,19 +96,20 @@ export default function index(): JSX.Element {
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
               setMultiChoiceActionModal({
-                image: <img src="/images/claim/popover.png" className="px-6" />,
-                title: "Everytime you claim rewards, a vesting record is created.",
-                children: (
-                  <p className="text-sm text-gray-500">
-                    You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the
-                    next 365 days.
-                  </p>
-                ),
+                image: <img src="/images/modalImages/vestingImage.svg" />,
+                title: "A Vesting Record is generated when you claim your staking rewards.",
+                content:
+                  "You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the next 365 days",
                 onConfirm: {
-                  label: "Close",
+                  label: "Continue",
                   onClick: () => dispatch(setMultiChoiceActionModal(false)),
                 },
                 onDismiss: {
+                  onClick: () => {
+                    dispatch(setMultiChoiceActionModal(false));
+                  },
+                },
+                onDontShowAgain: {
                   label: "Do not remind me again",
                   onClick: () => {
                     localStorage.setItem("hideClaimModal", "true");
@@ -203,7 +204,7 @@ export default function index(): JSX.Element {
           <p>
             Your recently redeemed POP will be vested linearly over 2 years. Go to{" "}
             <span
-              className="text-blue-600 inline cursor-pointer"
+              className="text-customPurple inline cursor-pointer"
               onClick={() => {
                 setTabSelected(Tabs.Vesting);
                 dispatch(setSingleActionModal(false));
@@ -215,7 +216,7 @@ export default function index(): JSX.Element {
           </p>
         ),
 
-        image: <img src="/images/claim/Group_842.png" />,
+        image: <img src="/images/modalImages/redeemed.svg" />,
         onConfirm: {
           label: "Close",
           onClick: () => dispatch(setSingleActionModal(false)),
