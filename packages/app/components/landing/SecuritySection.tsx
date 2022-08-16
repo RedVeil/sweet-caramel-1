@@ -10,10 +10,10 @@ const SecuritySection = () => {
           <p className="mt-4 text-primaryDark">Our smart contract has been audited by the best in the business.</p>
         </div>
       </div>
-      <div className="col-span-12 md:col-span-9 hidden md:grid grid-cols-3 gap-14 mt-9">
+      <div className="col-span-12 md:col-span-9 hidden md:grid grid-cols-3 gap-8 laptop:gap-14 mt-9">
         <div className="col-span-3 md:col-span-1">
           <a href="https://www.zokyo.io/audit-reports?2ebcbc23_page=3" target="_blank">
-            <div className=" bg-customRed rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center xl:h-112 xl:w-full">
+            <div className=" bg-customRed rounded-lg p-14 h-52 w-full md:h-60 laptop:h-76 flex justify-center items-center xl:h-112 xl:w-full">
               <img src="/images/zokyo.svg" alt="" className="rounded-lg" />
             </div>
           </a>
@@ -30,7 +30,7 @@ const SecuritySection = () => {
 
         <div className="col-span-3 md:col-span-1">
           <a href="https://github.com/g0-group/Audits" target="_blank">
-            <div className=" bg-customPurple rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center xl:h-112 xl:w-full">
+            <div className=" bg-customPurple rounded-lg p-14 h-52 w-full md:h-60 laptop:h-76 flex justify-center items-center xl:h-112 xl:w-full">
               <img src="/images/g0.svg" alt="" className="rounded-lg" />
             </div>
           </a>
@@ -43,7 +43,7 @@ const SecuritySection = () => {
 
         <div className="col-span-3 md:col-span-1">
           <a href="https://immunefi.com/bounty/popcornnetwork/" target="_blank">
-            <div className=" bg-customGreen rounded-lg p-14 h-52 md:h-80 w-full md:w-80 flex justify-center items-center xl:h-112 xl:w-full">
+            <div className=" bg-customGreen rounded-lg p-14 h-52 w-full md:h-60 laptop:h-76 flex justify-center items-center xl:h-112 xl:w-full">
               <img src="/images/immunefi.svg" alt="" className="rounded-lg" />
             </div>
             <p className="text-black text-3xl leading-9 mt-6 mb-4">Immunefi</p>

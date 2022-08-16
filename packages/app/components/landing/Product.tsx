@@ -40,7 +40,7 @@ export default function Product({ title, description, stats, route, customConten
   const router = useRouter();
 
   return (
-    <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+    <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-2 laptop:gap-8 py-7">
       <div className="col-span-12 md:col-span-4 order-1">
         <div className="relative flex flex-row">
           <p className="text-black text-4xl leading-9 md:leading-10 mb-2">{title}</p>
@@ -49,9 +49,11 @@ export default function Product({ title, description, stats, route, customConten
         <p className=" text-primaryDark">{description}</p>
       </div>
 
-      <div className="col-span-12 md:col-span-3 order-4 md:order-2">{customContent && customContent}</div>
+      <div className="col-span-12 md:col-span-2 laptop:col-span-3 order-4 md:order-2">
+        {customContent && customContent}
+      </div>
 
-      <div className="col-span-4 md:col-span-1 order-2 md:order-3">
+      <div className="col-span-4 md:col-span-2 laptop:col-span-1 order-2 md:order-3">
         <StatWithTitle title={stats[0].title} content={stats[0].content} infoIcon={stats[0].infoIcon} />
       </div>
 
