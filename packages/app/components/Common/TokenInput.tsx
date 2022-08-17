@@ -59,7 +59,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
             <input
               name="tokenInput"
               id="tokenInput"
-              className={`block w-full p-0 border-0 text-primaryDark text-lg`}
+              className={`block w-full p-0 border-0 text-primaryDark text-lg focus:ring-0`}
               onChange={(e) => {
                 onUpdate(e.target.value.replace(/,/g, "."));
               }}

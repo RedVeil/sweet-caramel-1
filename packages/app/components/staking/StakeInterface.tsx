@@ -61,7 +61,7 @@ export default function StakeInterface({
 
   return (
     <>
-      <div>
+      <div className="-ml-2">
         <Link href="/staking" passHref>
           <a>
             <div className="flex items-center">
@@ -74,9 +74,9 @@ export default function StakeInterface({
       <div className="grid grid-cols-12 mt-12">
         <div className="col-span-12 md:col-span-5">
           <TokenIcon token={stakingToken?.name} />
-          <h1 className="text-black text-6xl leading-13 mt-9">{stakingToken?.name}</h1>
-          <div className=" mt-4">
-            <div className="mt-2 flex justify-between md:justify-start">
+          <h1 className="text-black text-5xl md:text-6xl leading-12 mt-9">{stakingToken?.name}</h1>
+          <div className=" mt-6 md:mt-8">
+            <div className="flex justify-between md:justify-start">
               <div className="block pr-6">
                 <StatusWithLabel
                   content={
@@ -106,7 +106,7 @@ export default function StakeInterface({
                 />
               </div>
             </div>
-            <div className="mt-8">
+            <div className="mt-6 md:mt-8">
               <div className="block ">
                 <StatusWithLabel
                   content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
@@ -157,10 +157,10 @@ export default function StakeInterface({
 
         <div className="md:w-2/3 md:ml-8 order-1 md:order-2">
           <div className="w-full md:grid grid-cols-12 gap-8 hidden">
-            <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
-              <div className="flex gap-6">
-                <TokenIcon token={stakingToken?.name} />
-                <div className="pb-6">
+            <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
+              <div className="flex gap-6 items-center pb-6">
+                <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
+                <div>
                   <div className="flex">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
                     <InfoIconWithTooltip
@@ -170,7 +170,7 @@ export default function StakeInterface({
                       content={`This is the balance of ${stakingToken?.symbol} that you have staked.`}
                     />
                   </div>
-                  <p className="text-primary text-2xl">
+                  <p className="text-primary text-2xl leading-6">
                     {" "}
                     {stakingPool.userStake ? formatStakedAmount(stakingPool.userStake) : "0"} {stakingToken?.symbol}
                   </p>
@@ -198,10 +198,10 @@ export default function StakeInterface({
               )}
             </div>
 
-            <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
-              <div className="flex gap-6">
-                <TokenIcon token={stakingToken?.name} />
-                <div className="pb-6">
+            <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
+              <div className="flex gap-6 items-center pb-6">
+                <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
+                <div>
                   <div className="flex">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>
                     <InfoIconWithTooltip
@@ -211,7 +211,7 @@ export default function StakeInterface({
                       content={`Staking rewards are received for staking tokens. Rewards may be claimed under the rewards page. Whenever rewards are claimed, 10% is transferred immediately to your wallet, and the rest is streamed and claimable over the next 1 year.`}
                     />
                   </div>
-                  <p className="text-primary text-2xl">
+                  <p className="text-primary text-2xl leading-6">
                     {" "}
                     {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned) : "0"} POP
                   </p>
