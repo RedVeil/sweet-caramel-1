@@ -31,14 +31,14 @@ describe("Popcorn Vault Network Tests", function () {
     beforeEach(async function () {
       contracts = await deployContracts(accounts.crvIbBtc);
       await contracts.faucet.sendCrvIbBtcLPTokens(10000, depositor.address);
-      await expectValue(await contracts.asset.balanceOf(depositor.address), parseEther("247.043043673806930404"));
+      expectValue(await contracts.asset.balanceOf(depositor.address), parseEther("247.043043673806930404"));
     });
 
     describe("Vault token", () => {
       it("sets vault token attributes", async () => {
-        await expectValue(await contracts.vault.name(), "Popcorn Curve.fi Factory BTC Metapool: ibBTC Vault");
-        await expectValue(await contracts.vault.symbol(), "pop-ibbtc/sbtcCRV-f");
-        await expectValue(await contracts.vault.decimals(), 18);
+        expectValue(await contracts.vault.name(), "Popcorn Curve.fi Factory BTC Metapool: ibBTC Vault");
+        expectValue(await contracts.vault.symbol(), "pop-ibbtc/sbtcCRV-f");
+        expectValue(await contracts.vault.decimals(), 18);
       });
     });
 
@@ -65,20 +65,20 @@ describe("Popcorn Vault Network Tests", function () {
         // 1. Alice mints 10 shares (costs 10 tokens)
         await contracts.vault.connect(alice)["mint(uint256,address)"](parseEther("10"), alice.address);
         let expectedShareAmount = await contracts.vault.previewDeposit(parseEther("10"));
-        await expectValue(expectedShareAmount, parseEther("10"));
-        await expectValue(await contracts.vault.balanceOf(alice.address), parseEther("10"));
-        await expectValue(await contracts.vault.assetsOf(alice.address), parseEther("10"));
+        expectValue(expectedShareAmount, parseEther("10"));
+        expectValue(await contracts.vault.balanceOf(alice.address), parseEther("10"));
+        expectValue(await contracts.vault.assetsOf(alice.address), parseEther("10"));
 
         // Sanity check.
-        await expectValue(await contracts.vault.totalSupply(), parseEther("10"));
-        await expectValue(await contracts.vault.totalAssets(), parseEther("10"));
+        expectValue(await contracts.vault.totalSupply(), parseEther("10"));
+        expectValue(await contracts.vault.totalAssets(), parseEther("10"));
 
         // 2. Bob deposits 7 tokens (mints 7 shares)
         expectedShareAmount = await contracts.vault.previewDeposit(parseEther("7"));
         await contracts.vault.connect(bob)["deposit(uint256)"](parseEther("7"));
-        await expectValue(expectedShareAmount, parseEther("7"));
-        await expectValue(await contracts.vault.balanceOf(bob.address), parseEther("7"));
-        await expectValue(await contracts.vault.assetsOf(bob.address), parseEther("7"));
+        expectValue(expectedShareAmount, parseEther("7"));
+        expectValue(await contracts.vault.balanceOf(bob.address), parseEther("7"));
+        expectValue(await contracts.vault.assetsOf(bob.address), parseEther("7"));
         let expectedUnderlyingAmount = await contracts.vault.previewWithdraw(parseEther("7"));
         await expectBigNumberCloseTo(expectedUnderlyingAmount, parseEther("7.035175879396984270"));
 
@@ -86,17 +86,17 @@ describe("Popcorn Vault Network Tests", function () {
         let aliceShareBalance = await contracts.vault.balanceOf(alice.address);
         let bobShareBalance = await contracts.vault.balanceOf(bob.address);
         let vaultShareBalance = await contracts.vault.balanceOf(contracts.vault.address);
-        await expectValue(vaultShareBalance, 0);
-        await expectValue(aliceShareBalance.add(bobShareBalance), parseEther("17"));
+        expectValue(vaultShareBalance, 0);
+        expectValue(aliceShareBalance.add(bobShareBalance), parseEther("17"));
 
         let aliceUnderlyingBalance = await contracts.vault.assetsOf(alice.address);
         let bobUnderlyingBalance = await contracts.vault.assetsOf(bob.address);
         let vaultUnderlyingBalance = await contracts.vault.assetsOf(contracts.vault.address);
-        await expectValue(vaultUnderlyingBalance, 0);
-        await expectValue(aliceUnderlyingBalance.add(bobUnderlyingBalance), parseEther("17"));
+        expectValue(vaultUnderlyingBalance, 0);
+        expectValue(aliceUnderlyingBalance.add(bobUnderlyingBalance), parseEther("17"));
 
-        await expectValue(await contracts.vault.totalSupply(), parseEther("17"));
-        await expectValue(await contracts.vault.totalAssets(), parseEther("17"));
+        expectValue(await contracts.vault.totalSupply(), parseEther("17"));
+        expectValue(await contracts.vault.totalAssets(), parseEther("17"));
 
         // 3. Underlying vault balance mutates. (Simulated yield)
         // Alice's vault share is 59%%, Bob's is 41%.
@@ -121,7 +121,7 @@ describe("Popcorn Vault Network Tests", function () {
         await contracts.asset.connect(owner).transfer(yearnVault, parseEther("16"));
         let yearnVaultBalanceAfter = await contracts.asset.balanceOf(yearnVault);
         // Sanity check transfer
-        await expectValue(yearnVaultBalanceAfter, yearnVaultBalanceBefore.add(parseEther("16")));
+        expectValue(yearnVaultBalanceAfter, yearnVaultBalanceBefore.add(parseEther("16")));
 
         // Force harvest of fees. This simplifies accounting in the tests.
         // If we did not harvest here, fees would accrue on the next deposit/mint/withdraw/redeem interaction.
@@ -136,8 +136,8 @@ describe("Popcorn Vault Network Tests", function () {
         );
 
         // Share balances are unchanged
-        await expectValue(aliceShareBalance, await contracts.vault.balanceOf(alice.address));
-        await expectValue(bobShareBalance, await contracts.vault.balanceOf(bob.address));
+        expectValue(aliceShareBalance, await contracts.vault.balanceOf(alice.address));
+        expectValue(bobShareBalance, await contracts.vault.balanceOf(bob.address));
 
         // Underlying amounts increase
         await expectBigNumberCloseTo(
@@ -173,7 +173,7 @@ describe("Popcorn Vault Network Tests", function () {
         );
 
         // Bob's balances are unchanged
-        await expectValue(await contracts.vault.balanceOf(bob.address), parseEther("7"));
+        expectValue(await contracts.vault.balanceOf(bob.address), parseEther("7"));
         await expectBigNumberCloseTo(await contracts.vault.assetsOf(bob.address), parseEther("12.270588235294117645"));
 
         // Vault balances are unchanged
@@ -196,7 +196,7 @@ describe("Popcorn Vault Network Tests", function () {
         // Preview amount equals actual amount transferred.
         // Share value has increased, so minting 15 shares now requires > 15 tokens.
         await expectBigNumberCloseTo(expectedUnderlyingAmount, parseEther("3.505882352941176470"));
-        await expectValue(expectedUnderlyingAmount, actualUnderlyingAmount);
+        expectValue(expectedUnderlyingAmount, actualUnderlyingAmount);
 
         // Total supply increases by 2 shares
         await expectBigNumberCloseTo(await contracts.vault.totalSupply(), parseEther("29.382550335570469798"));
@@ -239,7 +239,7 @@ describe("Popcorn Vault Network Tests", function () {
         await contracts.asset.connect(owner).transfer(yearnVault, parseEther("20"));
         yearnVaultBalanceAfter = await contracts.asset.balanceOf(yearnVault);
         // Sanity check transfer
-        await expectValue(yearnVaultBalanceAfter, yearnVaultBalanceBefore.add(parseEther("20")));
+        expectValue(yearnVaultBalanceAfter, yearnVaultBalanceBefore.add(parseEther("20")));
 
         // Force harvest of fees
         await contracts.vault.takeManagementAndPerformanceFees();
@@ -267,10 +267,7 @@ describe("Popcorn Vault Network Tests", function () {
         await expectBigNumberCloseTo(bobUnderlyingBalance, parseEther("21.016162093891919481"));
 
         // Sanity check sums
-        await expectValue(
-          await contracts.vault.totalSupply(),
-          vaultShareBalance.add(aliceShareBalance).add(bobShareBalance)
-        );
+        expectValue(await contracts.vault.totalSupply(), vaultShareBalance.add(aliceShareBalance).add(bobShareBalance));
 
         await expectBigNumberCloseTo(
           await contracts.vault.totalAssets(),
@@ -418,7 +415,7 @@ describe("Popcorn Vault Network Tests", function () {
         await expectBigNumberCloseTo(expectedUnderlyingAmount, parseEther("10.911081283422459903"));
         await expectBigNumberCloseTo(actualUnderlyingAmount, parseEther("10.911081283422459901"));
         await expectBigNumberCloseTo(expectedUnderlyingAmount, actualUnderlyingAmount, parseEther("0.00000000000001"));
-        await expectValue(shareBalanceAfter, 0);
+        expectValue(shareBalanceAfter, 0);
 
         vaultShareBalance = await contracts.vault.balanceOf(contracts.vault.address);
         vaultUnderlyingBalance = await contracts.vault.assetsOf(contracts.vault.address);
@@ -441,8 +438,8 @@ describe("Popcorn Vault Network Tests", function () {
         await expectBigNumberCloseTo(aliceUnderlyingBalance, parseEther("0.212603136992792"));
 
         // Bob's share and underlying balance are now zero
-        await expectValue(bobShareBalance, 0);
-        await expectValue(bobUnderlyingBalance, 0);
+        expectValue(bobShareBalance, 0);
+        expectValue(bobUnderlyingBalance, 0);
       });
     });
   });

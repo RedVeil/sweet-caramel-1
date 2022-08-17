@@ -55,26 +55,26 @@ describe("Staking", function () {
 
   describe("constructor", function () {
     it("has a rewards token", async function () {
-      await expectValue(await staking.rewardsToken(), mockPop.address);
+      expectValue(await staking.rewardsToken(), mockPop.address);
     });
 
     it("has a staking token", async function () {
-      await expectValue(await staking.stakingToken(), stakingToken.address);
+      expectValue(await staking.stakingToken(), stakingToken.address);
     });
 
     it("has a rewards escrow", async function () {
-      await expectValue(await staking.rewardsEscrow(), rewardsEscrow.address);
+      expectValue(await staking.rewardsEscrow(), rewardsEscrow.address);
     });
 
     it("increases rewardsToken allowance of RewardsEscrow to max at construction time", async function () {
-      await expectValue(await mockPop.allowance(staking.address, rewardsEscrow.address), ethers.constants.MaxUint256);
+      expectValue(await mockPop.allowance(staking.address, rewardsEscrow.address), ethers.constants.MaxUint256);
     });
   });
 
   describe("totalSupply", function () {
     context("No tokens staked", function () {
       it("returns zero", async function () {
-        await expectValue(await staking.totalSupply(), 0);
+        expectValue(await staking.totalSupply(), 0);
       });
     });
   });
@@ -82,7 +82,7 @@ describe("Staking", function () {
   describe("balanceOf", function () {
     context("No tokens staked", function () {
       it("returns zero", async function () {
-        await expectValue(await staking.balanceOf(staker.address), 0);
+        expectValue(await staking.balanceOf(staker.address), 0);
       });
     });
   });
@@ -90,7 +90,7 @@ describe("Staking", function () {
   describe("lastTimeRewardApplicable", function () {
     context("No active rewards", function () {
       it("returns zero", async function () {
-        await expectValue(await staking.lastTimeRewardApplicable(), 0);
+        expectValue(await staking.lastTimeRewardApplicable(), 0);
       });
     });
   });
@@ -98,7 +98,7 @@ describe("Staking", function () {
   describe("lastTimeRewardApplicable", function () {
     context("No active rewards", function () {
       it("returns zero", async function () {
-        await expectValue(await staking.lastTimeRewardApplicable(), 0);
+        expectValue(await staking.lastTimeRewardApplicable(), 0);
       });
     });
   });
@@ -106,7 +106,7 @@ describe("Staking", function () {
   describe("rewardPerToken", function () {
     context("No active rewards", function () {
       it("returns zero", async function () {
-        await expectValue(await staking.rewardPerToken(), 0);
+        expectValue(await staking.rewardPerToken(), 0);
       });
     });
   });
@@ -114,7 +114,7 @@ describe("Staking", function () {
   describe("earned", function () {
     context("No tokens staked", function () {
       it("returns zero", async function () {
-        await expectValue(await staking.earned(staker.address), 0);
+        expectValue(await staking.earned(staker.address), 0);
       });
     });
   });
@@ -122,7 +122,7 @@ describe("Staking", function () {
   describe("getRewardForDuration", function () {
     context("No active rewards", function () {
       it("returns zero", async function () {
-        await expectValue(await staking.getRewardForDuration(), 0);
+        expectValue(await staking.getRewardForDuration(), 0);
       });
     });
   });
@@ -130,7 +130,7 @@ describe("Staking", function () {
   describe("setRewardEscrow", function () {
     it("allows owner to set  rewards escrow address", async () => {
       await staking.connect(owner).setRewardsEscrow(rewardsEscrowAddress.address);
-      await expectValue(await staking.rewardsEscrow(), rewardsEscrowAddress.address);
+      expectValue(await staking.rewardsEscrow(), rewardsEscrowAddress.address);
     });
     it("disallows non-owner to set rewards escrow address", async () => {
       await expectRevert(staking.connect(staker).setRewardsEscrow(rewardsEscrowAddress.address), "");
@@ -155,16 +155,16 @@ describe("Staking", function () {
       });
 
       it("increases total supply", async function () {
-        await expectValue(await staking.totalSupply(), STAKE_AMOUNT);
+        expectValue(await staking.totalSupply(), STAKE_AMOUNT);
       });
 
       it("creates a balance for msg.sender", async function () {
-        await expectValue(await staking.balanceOf(staker.address), STAKE_AMOUNT);
+        expectValue(await staking.balanceOf(staker.address), STAKE_AMOUNT);
       });
 
       it("transfers staking token", async function () {
-        await expectValue(await stakingToken.balanceOf(staker.address), 0);
-        await expectValue(await stakingToken.balanceOf(staking.address), STAKE_AMOUNT);
+        expectValue(await stakingToken.balanceOf(staker.address), 0);
+        expectValue(await stakingToken.balanceOf(staking.address), STAKE_AMOUNT);
       });
 
       it("emits Staked event", async function () {
@@ -190,16 +190,16 @@ describe("Staking", function () {
       });
 
       it("increases total supply", async function () {
-        await expectValue(await staking.totalSupply(), STAKE_AMOUNT);
+        expectValue(await staking.totalSupply(), STAKE_AMOUNT);
       });
 
       it("creates a balance for staker", async function () {
-        await expectValue(await staking.balanceOf(staker.address), STAKE_AMOUNT);
+        expectValue(await staking.balanceOf(staker.address), STAKE_AMOUNT);
       });
 
       it("transfers staking token", async function () {
-        await expectValue(await stakingToken.balanceOf(nonOwner.address), 0);
-        await expectValue(await stakingToken.balanceOf(staking.address), STAKE_AMOUNT);
+        expectValue(await stakingToken.balanceOf(nonOwner.address), 0);
+        expectValue(await stakingToken.balanceOf(staking.address), STAKE_AMOUNT);
       });
 
       it("emits Staked event", async function () {
@@ -231,16 +231,16 @@ describe("Staking", function () {
         });
 
         it("decreases total supply by withdrawal amount", async function () {
-          await expectValue(await staking.totalSupply(), 0);
+          expectValue(await staking.totalSupply(), 0);
         });
 
         it("reduces msg.sender balance by withdrawal amount", async function () {
-          await expectValue(await staking.balanceOf(staker.address), 0);
+          expectValue(await staking.balanceOf(staker.address), 0);
         });
 
         it("transfers staking token", async function () {
-          await expectValue(await stakingToken.balanceOf(staking.address), 0);
-          await expectValue(await stakingToken.balanceOf(staker.address), STAKE_AMOUNT);
+          expectValue(await stakingToken.balanceOf(staking.address), 0);
+          expectValue(await stakingToken.balanceOf(staker.address), STAKE_AMOUNT);
         });
 
         it("emits Withdrawn event", async function () {
@@ -258,16 +258,16 @@ describe("Staking", function () {
         });
 
         it("decreasese total supply by withdrawal amount", async function () {
-          await expectValue(await staking.totalSupply(), remainder);
+          expectValue(await staking.totalSupply(), remainder);
         });
 
         it("reduces msg.sender balance by withdrawal amount", async function () {
-          await expectValue(await staking.balanceOf(staker.address), remainder);
+          expectValue(await staking.balanceOf(staker.address), remainder);
         });
 
         it("transfers staking token", async function () {
-          await expectValue(await stakingToken.balanceOf(staking.address), remainder);
-          await expectValue(await stakingToken.balanceOf(staker.address), withdrawal);
+          expectValue(await stakingToken.balanceOf(staking.address), remainder);
+          expectValue(await stakingToken.balanceOf(staker.address), withdrawal);
         });
 
         it("emits Withdrawn event", async function () {
@@ -287,7 +287,7 @@ describe("Staking", function () {
     context("no active rewards", function () {
       it("transfers no tokens", async function () {
         await staking.connect(staker).getReward();
-        await expectValue(await mockPop.balanceOf(staker.address), 0);
+        expectValue(await mockPop.balanceOf(staker.address), 0);
       });
     });
 
@@ -299,14 +299,14 @@ describe("Staking", function () {
 
       it("transfers 10% of reward", async function () {
         await staking.connect(staker).getReward();
-        await expectValue(await mockPop.balanceOf(staker.address), parseEther("0.999999999999967680"));
+        expectValue(await mockPop.balanceOf(staker.address), parseEther("0.999999999999967680"));
       });
 
       it("escrows 90% of reward", async function () {
         await staking.connect(staker).getReward();
         const [escrowId] = await rewardsEscrow.getEscrowIdsByUser(staker.address);
         const [[_start, _lastUpdateTime, _end, balance, _account]] = await rewardsEscrow.getEscrows([escrowId]);
-        await expectValue(balance, parseEther("8.999999999999709120"));
+        expectValue(balance, parseEther("8.999999999999709120"));
       });
 
       it("emits RewardPaid event", async function () {
@@ -332,7 +332,7 @@ describe("Staking", function () {
 
     it("should withdraw staked tokens when exiting", async () => {
       await exitTx;
-      await expectValue(await stakingToken.balanceOf(staker.address), parseEther("10"));
+      expectValue(await stakingToken.balanceOf(staker.address), parseEther("10"));
     });
 
     it("should get rewards when exiting", async () => {
@@ -342,9 +342,9 @@ describe("Staking", function () {
 
   describe("setEscrowDuration", function () {
     it("updates escrow duration parameter", async () => {
-      await expectValue(await staking.escrowDuration(), 365 * DAYS);
+      expectValue(await staking.escrowDuration(), 365 * DAYS);
       await staking.connect(owner).setEscrowDuration(14 * DAYS);
-      await expectValue(await staking.escrowDuration(), 14 * DAYS);
+      expectValue(await staking.escrowDuration(), 14 * DAYS);
     });
 
     it("emits EscrowDurationUpdated", async () => {
@@ -362,11 +362,11 @@ describe("Staking", function () {
   describe("approveRewardDistributor", async () => {
     it("should allow owner to add an address as an approved reward distributor", async () => {
       await staking.connect(owner).approveRewardDistributor(rewardsDistributor.address, true);
-      await expectValue(await staking.rewardDistributors(rewardsDistributor.address), true);
+      expectValue(await staking.rewardDistributors(rewardsDistributor.address), true);
     });
     it("should allow owner to remove an address as an approved reward distributor", async () => {
       await staking.connect(owner).approveRewardDistributor(rewardsDistributor.address, false);
-      await expectValue(await staking.rewardDistributors(rewardsDistributor.address), false);
+      expectValue(await staking.rewardDistributors(rewardsDistributor.address), false);
     });
     it("should emit RewardDistributorUpdated event", async () => {
       await expectEvent(
@@ -388,14 +388,14 @@ describe("Staking", function () {
     it("updates lastUpdateTime", async () => {
       let notifyTx = await staking.connect(owner).notifyRewardAmount(REWARD_AMOUNT);
       const notifyTxBlock = await ethers.provider.getBlock(notifyTx.blockNumber);
-      await expectValue(await staking.lastUpdateTime(), notifyTxBlock.timestamp);
+      expectValue(await staking.lastUpdateTime(), notifyTxBlock.timestamp);
     });
 
     it("updates periodFinish", async () => {
       let notifyTx = await staking.connect(owner).notifyRewardAmount(REWARD_AMOUNT);
       const notifyTxBlock = await ethers.provider.getBlock(notifyTx.blockNumber);
       const rewardsDuration = await staking.rewardsDuration();
-      await expectValue(await staking.periodFinish(), rewardsDuration.add(notifyTxBlock.timestamp));
+      expectValue(await staking.periodFinish(), rewardsDuration.add(notifyTxBlock.timestamp));
     });
 
     it("emits RewardAdded", async () => {
@@ -410,14 +410,14 @@ describe("Staking", function () {
       let notifyTx = await staking.connect(owner).notifyRewardAmount(REWARD_AMOUNT.div(2));
       const notifyTxBlock = await ethers.provider.getBlock(notifyTx.blockNumber);
       const rewardsDuration = await staking.rewardsDuration();
-      await expectValue(await staking.periodFinish(), rewardsDuration.add(notifyTxBlock.timestamp));
+      expectValue(await staking.periodFinish(), rewardsDuration.add(notifyTxBlock.timestamp));
     });
 
     it("transfers rewards token from msg.sender when called", async () => {
       const balBefore = await mockPop.balanceOf(owner.address);
       await staking.connect(owner).notifyRewardAmount(REWARD_AMOUNT);
       const balAfter = await mockPop.balanceOf(owner.address);
-      await expectValue(balBefore.sub(balAfter), REWARD_AMOUNT);
+      expectValue(balBefore.sub(balAfter), REWARD_AMOUNT);
     });
   });
 
@@ -429,9 +429,9 @@ describe("Staking", function () {
     });
 
     it("transfers recovered token to owner", async () => {
-      await expectValue(await otherToken.balanceOf(owner.address), 0);
+      expectValue(await otherToken.balanceOf(owner.address), 0);
       await staking.connect(owner).recoverERC20(otherToken.address, OTHER_TOKEN_AMOUNT);
-      await expectValue(await otherToken.balanceOf(owner.address), OTHER_TOKEN_AMOUNT);
+      expectValue(await otherToken.balanceOf(owner.address), OTHER_TOKEN_AMOUNT);
     });
 
     it("emits Recovered", async () => {
@@ -486,7 +486,7 @@ describe("Staking", function () {
 
     it("updates rewardsDuration", async () => {
       await staking.connect(owner).setRewardsDuration(REWARDS_DURATION),
-        await expectValue(await staking.rewardsDuration(), REWARDS_DURATION);
+        expectValue(await staking.rewardsDuration(), REWARDS_DURATION);
     });
 
     it("emits RewardsDurationUpdated", async () => {

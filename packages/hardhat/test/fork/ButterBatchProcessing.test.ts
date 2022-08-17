@@ -248,7 +248,7 @@ describe("ButterBatchProcessing Network Test", function () {
         const currentBlockNumber = await ethers.provider.getBlockNumber();
         console.log({ currentBlockNumber });
         const value = await contracts.butterBatch.valueOf3Crv(parseEther("1"));
-        await expectValue(value, parseEther("1.019929695147188721"));
+        expectValue(value, parseEther("1.019929695147188721"));
       });
     });
 

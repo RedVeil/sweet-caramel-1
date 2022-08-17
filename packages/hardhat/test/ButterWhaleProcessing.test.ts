@@ -272,7 +272,7 @@ describe("butterWhaleProcessing", function () {
 
     it("should allow dao role to set staking", async () => {
       await contracts.butterWhaleProcessing.connect(owner).setStaking(NEW_STAKING_ADDRESS);
-      await expectValue(await contracts.butterWhaleProcessing.staking(), NEW_STAKING_ADDRESS);
+      expectValue(await contracts.butterWhaleProcessing.staking(), NEW_STAKING_ADDRESS);
     });
     it("should allow not allow a non-dao role to set staking", async () => {
       await expectRevert(
