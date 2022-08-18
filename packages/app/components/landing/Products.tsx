@@ -167,52 +167,52 @@ const ButterExposure: React.ReactElement = (
       <img
         src="/images/tokens/usdt.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative"
       />
       <img
         src="/images/tokens/Group 1104.svg"
         alt=""
-        className={`md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-2`}
+        className={`md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-2`}
       />
       <img
         src="/images/tokens/multi-collateral-dai-dai-logo 1.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
       />
       <img
         src="/images/tokens/susd 1.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-6"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-6"
       />
       <img
         src="/images/tokens/usd-coin-usdc-logo.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-8"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-8"
       />
       <img
         src="/images/tokens/sLogo.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
       />
       <img
         src="/images/tokens/sDiamondLogo.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-12"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-12"
       />
       <img
         src="/images/tokens/boltLogo.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-14"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-14"
       />
       <img
         src="/images/tokens/clogo.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-16"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-16"
       />
       <img
         src="/images/tokens/RAI.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-18"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-18"
       />
     </div>
   </>
@@ -235,32 +235,32 @@ const ThreeXExposure: React.ReactElement = (
       <img
         src="/images/tokens/usdt.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative"
       />
       <img
         src="/images/tokens/Group 1104.svg"
         alt=""
-        className={`md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-2`}
+        className={`md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-2`}
       />
       <img
         src="/images/tokens/Group 1108.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
       />
       <img
         src="/images/tokens/multi-collateral-dai-dai-logo 1.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-6"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-6"
       />
       <img
         src="/images/tokens/susd 1.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-8"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-8"
       />
       <img
         src="/images/tokens/usd-coin-usdc-logo.svg"
         alt=""
-        className="md:h-6 h-10 w-10 md:w-6 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
       />
     </div>
   </>
