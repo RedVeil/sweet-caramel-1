@@ -228,7 +228,7 @@ export default function index(): JSX.Element {
 
   return (
     <>
-      <div className="grid grid-cols-12 gap-14">
+      <div className="grid grid-cols-12 md:gap-8 laptop:gap-14">
         <div className="col-span-12 md:col-span-3">
           <h1 className="text-6xl leading-12 text-black">Rewards</h1>
           <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
@@ -238,7 +238,7 @@ export default function index(): JSX.Element {
               onClick={() => connect()}
               role="button"
             >
-              <p className="text-gray-900 text-4xl leading-8 hidden md:block">Connect your wallet</p>
+              <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
               <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 mb-1 md:mt-4">
                 <SecondaryActionButton label="Connect" />
               </div>

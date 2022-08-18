@@ -85,7 +85,7 @@ export const MobileMenu: React.FC = () => {
                 className={`w-full px-4 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
                 onClick={() => setShowPopUp(true)}
               >
-                <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-4 h-4 object-contain" />
+                <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-3 h-3 object-contain" />
                 <span
                   className={`${
                     account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
@@ -101,22 +101,20 @@ export const MobileMenu: React.FC = () => {
             <div className="block w-8">
               <span
                 aria-hidden="true"
-                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "rotate-45" : "-translate-y-1.5"
+                className={`block h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-1.5"
                 }`}
               ></span>
-              <span className={`block h-1 ${menuVisible ? "hidden" : "block"}`}></span>
               <span
                 aria-hidden="true"
-                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                className={`block h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
                   menuVisible ? "opacity-0" : "opacity-100"
                 }`}
               ></span>
-              <span className={`block h-1 ${menuVisible ? "hidden" : "block"}`}></span>
               <span
                 aria-hidden="true"
-                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "-rotate-45" : "translate-y-1.5"
+                className={`block h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-1.5"
                 }`}
               ></span>
             </div>
