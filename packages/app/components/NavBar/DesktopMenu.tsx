@@ -76,7 +76,7 @@ export default function DesktopMenu(): JSX.Element {
               >
                 <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
                 <p className="leading-none mt-0.5">{ChainId[chainId]}</p>
-                <ChevronDownIcon className="w-8 h-8 ml-4 text-primary" aria-hidden="true" />
+                <ChevronDownIcon className="w-5 h-5 ml-4 text-primary" aria-hidden="true" />
               </div>
             </Menu.Button>
             <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => setChain(newChainId)} />

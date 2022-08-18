@@ -316,7 +316,7 @@ export default function StakeInterface({
             </MobileCardSlider>
           </div>
 
-          <div className="bg-customRed rounded-lg p-8 hidden md:flex flex-col justify-between mt-8">
+          <div className="bg-customLightYellow rounded-lg p-8 hidden md:flex flex-col justify-between mt-8">
             <h2 className=" text-6xl leading-11">
               Blockchain-enabled <br /> wealth management and <br /> social impact.
             </h2>

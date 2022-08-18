@@ -30,7 +30,9 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
           <div>
             <TokenIcon token={tokenName} fullsize />
           </div>
-          <h1 className={`text-2xl md:text-4xl leading-10 mt-1 ml-4 text-black line-clamp-2 overflow-hidden`}>
+          <h1
+            className={`text-2xl md:text-4xl leading-7 md:leading-12 mt-1 ml-4 text-black line-clamp-2 overflow-hidden`}
+          >
             {getSanitizedTokenDisplayName(tokenName)}
           </h1>
         </div>

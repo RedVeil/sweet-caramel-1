@@ -101,6 +101,7 @@ module.exports = {
 				warmGray: '#EBE7D4',
 				customPeach: "#FFF8EE",
 				customYellow: '#FEE25D',
+				customLightYellow: '#FFE650',
 				customPale: '#DFDAC7',
 				customRed: '#FA5A6E',
 				customGreen: '#05BE64',

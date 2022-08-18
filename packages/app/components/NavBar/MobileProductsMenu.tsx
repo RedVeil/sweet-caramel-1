@@ -9,7 +9,7 @@ const MobileProductsMenu = ({ onCloseMenu }) => {
     <div className="h-screen px-6 py-12">
       <div className="relative">
         <ChevronLeftIcon
-          className="text-black h-10 w-10 absolute left-0 transform -translate-y-1/2 top-1/2"
+          className="text-black h-10 w-10 absolute -left-3 transform -translate-y-1/2 top-1/2"
           onClick={onCloseMenu}
         />
         <p className="text-black text-center font-medium">Products</p>

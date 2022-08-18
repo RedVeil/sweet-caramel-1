@@ -10,8 +10,7 @@ interface NavbarLinkProps {
 }
 
 const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, target }) => {
-  const className = `
-  text-primary leading-5 text-5xl md:text-lg ${isActive ? "text-black font-medium" : ""} 
+  const className = `leading-5 text-5xl md:text-lg ${isActive ? "text-black font-medium" : "text-primary"} 
     hover:text-black cursor-pointer
   `;
   const router = useRouter();

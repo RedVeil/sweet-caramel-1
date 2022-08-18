@@ -261,9 +261,9 @@ html{
 	font-size:12px;
 }
 }
-@media screen and (min-width:1600px){
+@media screen and (min-width:1600){
 	body > div{
-		width:1440px;
+		width:2200px;
 		margin: 0 auto;
 	}
 }

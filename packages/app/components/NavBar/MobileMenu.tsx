@@ -79,19 +79,21 @@ export const MobileMenu: React.FC = () => {
           </Link>
         </div>
         <div className="flex items-center gap-4">
-          <div className="relative w-full">
-            <div
-              className={`w-full px-5 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
-              onClick={() => setShowPopUp(true)}
-            >
-              <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-6 h-6 object-contain" />
-              <span
-                className={`${
-                  account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                } block h-2 w-2 rounded-full border`}
-              ></span>
+          {!menuVisible && (
+            <div className="relative w-full">
+              <div
+                className={`w-full px-5 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
+                onClick={() => setShowPopUp(true)}
+              >
+                <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-6 h-6 object-contain" />
+                <span
+                  className={`${
+                    account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                  } block h-2 w-2 rounded-full border`}
+                ></span>
+              </div>
             </div>
-          </div>
+          )}
           <button
             className="text-gray-500 w-8 relative focus:outline-none bg-white"
             onClick={() => toggleMenu(!menuVisible)}
@@ -137,32 +139,16 @@ export const MobileMenu: React.FC = () => {
                 leaveTo="translate-x-full"
               >
                 <div className="w-screen">
-                  <div className="h-full w-full flex flex-col justify-between pt-1 px-8 shadow-xl bg-white overflow-y-scroll">
+                  <div className="h-full w-full flex flex-col justify-between pt-18 px-6 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col w-full">
                       <div className="pt-6 pb-6">
                         <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/[network]`} />
                       </div>
-                      <div className="relative flex flex-container flex-row z-10 py-6">
+                      <div className="py-6">
                         {products.length < 2 ? (
-                          <li className="mt-1">
-                            <NavbarLink
-                              label={products[0].title}
-                              isActive={false}
-                              onClick={() => products[0].onClick}
-                            />
-                          </li>
+                          <NavbarLink label={products[0].title} isActive={false} onClick={() => products[0].onClick} />
                         ) : (
-                          <div
-                            className="group flex flex-row items-center -mr-2"
-                            onClick={() => toggleProductsMenu(true)}
-                          >
-                            <p
-                              className={`text-primary leading-5 text-5xl
-														hover:text-black cursor-pointer cursor-pointer`}
-                            >
-                              Products
-                            </p>
-                          </div>
+                          <NavbarLink label="Products" isActive={false} onClick={() => toggleProductsMenu(true)} />
                         )}
                       </div>
                       {/* <div className="py-6">
