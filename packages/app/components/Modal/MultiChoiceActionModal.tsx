@@ -56,7 +56,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
 
   const secondOption = () => {
     setOpen(false);
-    setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
+    setTimeout(() => onSecondOption?.onClick && onSecondOption.onClick(), 1000);
   };
 
   if (!visible) return <></>;
@@ -151,7 +151,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                             <MainActionButton label={onConfirm.label} handleClick={confirm} />
                           </>
                         )}
-                        {secondOption && (
+                        {onSecondOption && (
                           <div className="mt-6">
                             <SecondaryActionButton label={onSecondOption.label} handleClick={secondOption} />
                           </div>

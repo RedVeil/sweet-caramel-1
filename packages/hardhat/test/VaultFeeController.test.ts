@@ -52,18 +52,18 @@ describe("VaultFeeController", function () {
 
   describe("constructor", async function () {
     it("sets fee structure at construction time", async function () {
-      await expectValue(await contracts.vaultFeeController.getDepositFee(), 0);
-      await expectValue(await contracts.vaultFeeController.getWithdrawalFee(), FEE_MULTIPLIER.mul(50));
-      await expectValue(await contracts.vaultFeeController.getManagementFee(), FEE_MULTIPLIER.mul(200));
-      await expectValue(await contracts.vaultFeeController.getPerformanceFee(), FEE_MULTIPLIER.mul(2000));
+      expectValue(await contracts.vaultFeeController.getDepositFee(), 0);
+      expectValue(await contracts.vaultFeeController.getWithdrawalFee(), FEE_MULTIPLIER.mul(50));
+      expectValue(await contracts.vaultFeeController.getManagementFee(), FEE_MULTIPLIER.mul(200));
+      expectValue(await contracts.vaultFeeController.getPerformanceFee(), FEE_MULTIPLIER.mul(2000));
     });
   });
 
   describe("setFeeRecipient", async function () {
     it("updates fee recipient", async function () {
-      await expectValue(await contracts.vaultFeeController.feeRecipient(), ethers.constants.AddressZero);
+      expectValue(await contracts.vaultFeeController.feeRecipient(), ethers.constants.AddressZero);
       await contracts.vaultFeeController.connect(owner).setFeeRecipient(feeRecipient.address);
-      await expectValue(await contracts.vaultFeeController.feeRecipient(), feeRecipient.address);
+      expectValue(await contracts.vaultFeeController.feeRecipient(), feeRecipient.address);
     });
 
     it("emits FeeRecipientChanged", async function () {
@@ -93,10 +93,10 @@ describe("VaultFeeController", function () {
 
     it("updates fee structure", async function () {
       await contracts.vaultFeeController.connect(owner).setFees(NEW_FEES);
-      await expectValue(await contracts.vaultFeeController.getDepositFee(), NEW_FEES.deposit);
-      await expectValue(await contracts.vaultFeeController.getWithdrawalFee(), NEW_FEES.withdrawal);
-      await expectValue(await contracts.vaultFeeController.getManagementFee(), NEW_FEES.management);
-      await expectValue(await contracts.vaultFeeController.getPerformanceFee(), NEW_FEES.performance);
+      expectValue(await contracts.vaultFeeController.getDepositFee(), NEW_FEES.deposit);
+      expectValue(await contracts.vaultFeeController.getWithdrawalFee(), NEW_FEES.withdrawal);
+      expectValue(await contracts.vaultFeeController.getManagementFee(), NEW_FEES.management);
+      expectValue(await contracts.vaultFeeController.getPerformanceFee(), NEW_FEES.performance);
     });
 
     it("emits FeesChanged", async function () {

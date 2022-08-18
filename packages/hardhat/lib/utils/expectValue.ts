@@ -25,8 +25,8 @@ export async function expectNoEvent(
   return expect(call).to.not.emit(contract, event);
 }
 
-export async function expectValue(value: any, expectedValue: any): Promise<Chai.AsyncAssertion> {
-  expect(value).to.equal(expectedValue);
+export function expectValue(value: any, expectedValue: any): Chai.Assertion {
+  return expect(value).to.equal(expectedValue);
 }
 
 export async function expectBigNumberCloseTo(

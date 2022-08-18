@@ -113,7 +113,7 @@ describe("KeeperIncentivized", () => {
     const expectedIncentivePaid = INCENTIVE_AMOUNT.sub(INCENTIVE_AMOUNT.mul(INCENTIVE_BURN_RATE).div(parseEther("1")));
     const expectedPopBalanceAfterIncentive = popBalanceBeforeIncentive.add(expectedIncentivePaid);
 
-    await expectValue(await contracts.mockPop.balanceOf(keeper.address), expectedPopBalanceAfterIncentive);
+    expectValue(await contracts.mockPop.balanceOf(keeper.address), expectedPopBalanceAfterIncentive);
   });
 
   it("calling a function with the keeperIncentive modifier applied processes keeper incentive", async function () {
@@ -124,6 +124,6 @@ describe("KeeperIncentivized", () => {
     const expectedIncentivePaid = INCENTIVE_AMOUNT.sub(INCENTIVE_AMOUNT.mul(INCENTIVE_BURN_RATE).div(parseEther("1")));
     const expectedPopBalanceAfterIncentive = popBalanceBeforeIncentive.add(expectedIncentivePaid);
 
-    await expectValue(await contracts.mockPop.balanceOf(keeper.address), expectedPopBalanceAfterIncentive);
+    expectValue(await contracts.mockPop.balanceOf(keeper.address), expectedPopBalanceAfterIncentive);
   });
 });

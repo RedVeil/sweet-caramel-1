@@ -1,4 +1,5 @@
 import { parseEther } from "@ethersproject/units";
+import { ThreeXWhaleProcessing } from "@popcorn/hardhat/typechain";
 import {
   adjustDepositDecimals,
   ChainId,
@@ -7,7 +8,7 @@ import {
   isButterSupportedOnCurrentNetwork,
   prepareHotSwap,
 } from "@popcorn/utils";
-import { BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
+import { BatchMetadata, BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
@@ -22,6 +23,8 @@ import { ModalType, toggleModal } from "helper/modalHelpers";
 import useSetToken from "hooks/butter/useSetToken";
 import useThreeXBatch from "hooks/butter/useThreeXBatch";
 import useThreeXData from "hooks/butter/useThreeXData";
+import useThreeXWhale from "hooks/butter/useThreeXWhale";
+import useThreeXWhaleData from "hooks/butter/useThreeXWhaleData";
 import useThreeXZapper from "hooks/butter/useThreeXZapper";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
@@ -53,9 +56,17 @@ export default function ThreeX(): JSX.Element {
   const threeX = useSetToken(contractAddresses.threeX);
   const threeXZapper = useThreeXZapper();
   const threeXBatch = useThreeXBatch();
-  const { data: threeXData, error: errorFetchingThreeXData, mutate: refetchThreeXData } = useThreeXData();
+  const threeXWhale = useThreeXWhale();
+  const { data: threeXData, error: errorFetchingThreeXData, mutate: refetchThreeXBatchData } = useThreeXData();
+  const {
+    data: threeXWhaleData,
+    error: errorFetchingThreeXWhaleData,
+    mutate: refetchThreeXWhaleData,
+  } = useThreeXWhaleData();
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXData && !errorFetchingThreeXData;
+
+  const refetchThreeXData = () => Promise.all([refetchThreeXBatchData(), refetchThreeXWhaleData()]);
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -95,22 +106,33 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: threeXData?.tokens?.usdc?.key,
-              output: threeXData?.tokens?.threeX?.key,
-            },
-            tokens: threeXData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-          }
-        : {
-            ...state,
-            tokens: threeXData?.tokens,
+          ...state,
+          selectedToken: {
+            input: threeXData?.tokens?.usdc?.key,
+            output: threeXData?.tokens?.threeX?.key,
           },
+          tokens: threeXData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+        }
+        : {
+          ...state,
+          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+        },
     );
-  }, [threeXData]);
+  }, [threeXData, threeXWhaleData]);
+
+  useEffect(() => {
+    setThreeXPageState((state) => ({
+      ...state,
+      selectedToken: {
+        input: state?.selectedToken?.input,
+        output: state.redeeming ? state?.tokens?.usdc?.key : state?.tokens?.threeX?.key,
+      },
+      tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+    }));
+  }, [threeXPageState.instant]);
 
   useEffect(() => {
     if (!threeXData || !threeXData?.tokens) {
@@ -123,7 +145,7 @@ export default function ThreeX(): JSX.Element {
         output: state.redeeming ? state?.tokens?.usdc?.key : state?.tokens?.threeX?.key,
       },
       useZap: false,
-      depositAmount: BigNumber.from("0"),
+      depositAmount: constants.Zero,
       useUnclaimedDeposits: false,
     }));
   }, [threeXPageState.redeeming]);
@@ -148,11 +170,21 @@ export default function ThreeX(): JSX.Element {
     }));
   }
 
-  async function handleMainAction(depositAmount: BigNumber, batchType: BatchType) {
+  async function handleMainAction(depositAmount: BigNumber, batchType: BatchType, stakeImmidiate = false) {
     // Lower depositAmount decimals to 1e6 if the inputToken is USDC/USDT
     depositAmount = adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
 
-    if (threeXPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
+    if (threeXPageState.instant && threeXPageState.redeeming) {
+      await instantRedeem(threeXWhale, depositAmount, threeXPageState, threeXData).then(
+        (res) => onContractSuccess(res, "3x redeemed!"),
+        (err) => onContractError(err),
+      );
+    } else if (threeXPageState.instant) {
+      await instantMint(threeXWhale, depositAmount, threeXPageState, threeXData, stakeImmidiate).then(
+        (res) => onContractSuccess(res, "3x minted!"),
+        (err) => onContractError(err),
+      );
+    } else if (threeXPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
       await hotswapMint(depositAmount).then(
         (res) => onContractSuccess(res, `Funds deposited!`),
         (err) => onContractError(err),
@@ -372,11 +404,21 @@ export default function ThreeX(): JSX.Element {
     }
   }
 
+  function getCurrentlyActiveContract() {
+    if (threeXPageState.instant) {
+      return threeXWhale;
+    } else if (threeXPageState.useZap) {
+      return threeXZapper;
+    } else {
+      return threeXBatch;
+    }
+  }
+
   async function approve(contractKey: string): Promise<void> {
     toast.loading("Approving Token...");
-    const selectedTokenContract = threeXData?.tokens[contractKey].contract;
+    const selectedTokenContract = threeXPageState?.tokens[contractKey].contract;
     await selectedTokenContract
-      .approve(threeXPageState.useZap ? threeXZapper.address : threeXBatch.address, ethers.constants.MaxUint256)
+      .approve(getCurrentlyActiveContract().address, ethers.constants.MaxUint256)
       .then((res) =>
         onContractSuccess(res, "Token approved!", () => {
           refetchThreeXData();
@@ -391,11 +433,11 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.redeeming
       ? threeXData?.currentBatches.redeem.suppliedTokenBalance
-          .mul(threeXData?.tokens?.threeX.price)
-          .div(parseEther("1"))
+        .mul(threeXData?.tokens?.threeX.price)
+        .div(parseEther("1"))
       : threeXData?.currentBatches.mint.suppliedTokenBalance
-          .mul(threeXData?.tokens?.usdc.price)
-          .div(BigNumber.from(1_000_000));
+        .mul(threeXData?.tokens?.usdc.price)
+        .div(BigNumber.from(1_000_000));
   }
 
   function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
@@ -410,13 +452,13 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.useUnclaimedDeposits
       ? isBalanceInsufficient(
-          threeXPageState.depositAmount,
-          threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
-        )
+        threeXPageState.depositAmount,
+        threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
+      )
       : isBalanceInsufficient(
-          threeXPageState.depositAmount,
-          threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
-        );
+        threeXPageState.depositAmount,
+        threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
+      );
   };
 
   return (
@@ -445,7 +487,7 @@ export default function ThreeX(): JSX.Element {
               <div className="md:pr-8">
                 {threeXData && threeXPageState.tokens && threeXPageState.selectedToken && (
                   <MintRedeemInterface
-                    token={threeXData?.tokens}
+                    token={threeXPageState?.tokens}
                     selectToken={selectToken}
                     mainAction={handleMainAction}
                     approve={approve}
@@ -559,9 +601,8 @@ export default function ThreeX(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`$${
-                  threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price) : "-"
-                }`}
+                content={`$${threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price) : "-"
+                  }`}
                 icon={{ name: "3X", color: "bg-gray-100" }}
                 info={{
                   title: "Underlying Tokens",
@@ -602,5 +643,42 @@ export default function ThreeX(): JSX.Element {
         </div>
       )}
     </>
+  );
+}
+export async function instantMint(
+  threeXWhale: ThreeXWhaleProcessing,
+  depositAmount: BigNumber,
+  threeXPageState: ButterPageState,
+  threeXData: BatchMetadata,
+  stakeImmidiate: boolean,
+): Promise<ethers.ContractTransaction> {
+  toast.loading("Minting 3X...");
+  return threeXWhale["mint(uint256,int128,int128,uint256,bool)"](
+    depositAmount,
+    TOKEN_INDEX[threeXPageState.selectedToken.input],
+    TOKEN_INDEX.usdc,
+    getMinMintAmount(
+      depositAmount,
+      threeXPageState.slippage,
+      threeXData.tokens.threeX.price,
+      threeXPageState.selectedToken.input === "dai" ? 18 : 6,
+      18,
+    ),
+    stakeImmidiate,
+  );
+}
+
+export async function instantRedeem(
+  threeXWhale: ThreeXWhaleProcessing,
+  depositAmount: BigNumber,
+  threeXPageState: ButterPageState,
+  threeXData: BatchMetadata,
+): Promise<ethers.ContractTransaction> {
+  toast.loading("Depositing 3X...");
+  return threeXWhale["redeem(uint256,int128,int128,uint256)"](
+    depositAmount,
+    TOKEN_INDEX.usdc,
+    TOKEN_INDEX[threeXPageState.selectedToken.output],
+    0,
   );
 }

@@ -1,13 +1,16 @@
 import { BatchType } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "components/InfoIconWithModal";
 import SecondaryActionButton from "components/SecondaryActionButton";
+import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
+import { useContext } from "react";
 import MainActionButton from "../MainActionButton";
 import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
 import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
 import MintRedeemToggle from "./MintRedeemToggle";
 import SlippageSettings from "./SlippageSettings";
+
 interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   mainAction: (depositAmount: BigNumber, batchType: BatchType, stakeImmidiate?: boolean) => Promise<void>;
   approve: (contractKey: string) => Promise<void>;
@@ -28,12 +31,12 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   isThreeXPage = false,
 }) => {
   const [localButterPageState, setButterPageState] = butterPageState;
+  const { features } = useContext(FeatureToggleContext);
 
   function isAllowanceInsufficient() {
     return (
-      localButterPageState.depositAmount.gt(
-        localButterPageState.tokens[localButterPageState.selectedToken.input].allowance,
-      ) || localButterPageState.tokens[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
+      localButterPageState.depositAmount.gt(token[localButterPageState.selectedToken.input].allowance) ||
+      token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
     );
   }
 
@@ -59,10 +62,10 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           butterPageState={butterPageState}
         />
       </div>
-      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && !isThreeXPage && (
+      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && !(isThreeXPage && !features["instant3X"]) && (
         <div className="mt-2">
           <CheckMarkToggleWithInfo
-            label="Use Instant Butter (Higher Gas Fee)"
+            label={`Use Instant ${isThreeXPage ? "3x" : "Butter"} (Higher Gas Fee)`}
             value={localButterPageState.instant}
             onChange={(e) =>
               setButterPageState({
@@ -78,10 +81,10 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       {(localButterPageState.instant ||
         isInstantPage ||
         (!localButterPageState.redeeming && localButterPageState.useZap)) && (
-        <div className="w-full mt-6">
-          <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
-        </div>
-      )}
+          <div className="w-full mt-6">
+            <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
+          </div>
+        )}
       <hr className="mt-10" />
       <div className="w-full text-center">
         {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
@@ -101,9 +104,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && isAllowanceInsufficient() && (
           <div className="pt-6 space-y-6">
             <MainActionButton
-              label={`Allow Popcorn to use your ${
-                localButterPageState.tokens[localButterPageState.selectedToken.input].name
-              }`}
+              label={`Allow Popcorn to use your ${token[localButterPageState.selectedToken.input].name}`}
               handleClick={() => approve(localButterPageState.selectedToken.input)}
             />
             <MainActionButton

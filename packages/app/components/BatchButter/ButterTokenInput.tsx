@@ -41,9 +41,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
-        localButterPageState.depositAmount,
-        localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
-      );
+      localButterPageState.depositAmount,
+      localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
+    );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -105,15 +105,14 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
             <input
               name="tokenInput"
               id="tokenInput"
-              className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
-                localButterPageState.depositAmount.gt(
-                  localButterPageState.useUnclaimedDeposits
-                    ? selectedToken.input.claimableBalance
-                    : selectedToken.input.balance,
-                )
+              className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${localButterPageState.depositAmount.gt(
+                localButterPageState.useUnclaimedDeposits
+                  ? selectedToken.input.claimableBalance
+                  : selectedToken.input.balance,
+              )
                   ? "focus:ring-red-600 border-red-600"
                   : "focus:ring-blue-500 focus:border-blue-500"
-              }`}
+                }`}
               onChange={(e) => {
                 onUpdate(e.target.value.replace(/,/g, "."));
               }}
@@ -222,13 +221,11 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
             />
             <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
               <SelectToken
-                allowSelection={false}
+                allowSelection={localButterPageState.redeeming && localButterPageState.instant}
                 selectedToken={selectedToken.output}
                 options={token}
-                notSelectable={[
-                  localButterPageState.selectedToken.output,
-                  localButterPageState.redeeming ? "butter" : "threeCrv",
-                ]}
+                notSelectable={[localButterPageState.selectedToken.output, "butter", "threeX"]}
+                selectToken={selectToken}
               />
             </div>
           </div>

@@ -24,9 +24,9 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: nightly-fb9bc908d74376d657a72fa71f1675d6d050b4fc
       - name: Run tests
-        run: cd packages/hardhat && forge test -vvv --fork-block-number 15008113 --fork-url $FOUNDRY_FORK_URL
+        run: yarn test:forge
         env:
           FOUNDRY_PROFILE: ci
-          FOUNDRY_FORK_URL: ${{secrets.RPC_URL}}
+          RPC_URL: ${{secrets.RPC_URL}}
