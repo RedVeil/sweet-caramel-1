@@ -4,7 +4,7 @@ on:
   push:
     # Pattern matched against refs/tags
     tags:        
-      - 'release/*' # Push events to every tag not containing /
+      - 'release/**' # Push events to every tag not containing /
 
 jobs:
   build:
