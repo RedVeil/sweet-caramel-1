@@ -19,7 +19,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
     >
-      <Menu.Items className="absolute top-14 -right-5 w-44 bg-white rounded-3xl shadow-md border-gray-200 border focus:outline-none">
+      <Menu.Items className="absolute top-14 -right-5 w-44 bg-white rounded-3xl border-gray-200 border focus:outline-none">
         <Menu.Item>
           {({ active }) => (
             <a

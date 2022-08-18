@@ -228,15 +228,19 @@ export default function index(): JSX.Element {
 
   return (
     <>
-      <div className="grid grid-cols-12">
-        <div className="col-span-12 md:col-span-3 pt-10">
+      <div className="grid grid-cols-12 gap-14">
+        <div className="col-span-12 md:col-span-3">
           <h1 className="text-6xl leading-12 text-black">Rewards</h1>
           <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
           {!account && (
-            <div className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6">
+            <div
+              className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
+              onClick={() => connect()}
+              role="button"
+            >
               <p className="text-gray-900 text-4xl leading-8 hidden md:block">Connect your wallet</p>
-              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-8 md:px-0 py-2  mb-1 md:mt-4">
-                <SecondaryActionButton label="Connect" handleClick={() => connect()} />
+              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 mb-1 md:mt-4">
+                <SecondaryActionButton label="Connect" />
               </div>
             </div>
           )}
@@ -265,7 +269,7 @@ export default function index(): JSX.Element {
               </div>
             </div>
           </div>
-          <div className="flex flex-col col-span-12 md:col-span-8 mt-10 mb-8">
+          <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10">
             <div>
               <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
             </div>

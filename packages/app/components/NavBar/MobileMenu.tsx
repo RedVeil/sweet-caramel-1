@@ -70,7 +70,7 @@ export const MobileMenu: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center px-6 py-6 border-b border-gray-100 font-khTeka">
+      <div className="flex flex-row justify-between items-center px-6 py-6 font-khTeka">
         <div>
           <Link href={`/${router?.query?.network}/`} passHref>
             <a>
@@ -101,21 +101,21 @@ export const MobileMenu: React.FC = () => {
             <div className="block w-8">
               <span
                 aria-hidden="true"
-                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out ${
+                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
                   menuVisible ? "rotate-45" : "-translate-y-1.5"
                 }`}
               ></span>
-              <span className={`block h-0.5 ${menuVisible ? "hidden" : "block"}`}></span>
+              <span className={`block h-1 ${menuVisible ? "hidden" : "block"}`}></span>
               <span
                 aria-hidden="true"
-                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out ${
+                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
                   menuVisible ? "opacity-0" : "opacity-100"
                 }`}
               ></span>
-              <span className={`block h-0.5 ${menuVisible ? "hidden" : "block"}`}></span>
+              <span className={`block h-1 ${menuVisible ? "hidden" : "block"}`}></span>
               <span
                 aria-hidden="true"
-                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out ${
+                className={`block absolute h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
                   menuVisible ? "-rotate-45" : "translate-y-1.5"
                 }`}
               ></span>

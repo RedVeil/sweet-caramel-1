@@ -447,8 +447,8 @@ export default function ThreeX(): JSX.Element {
     <>
       <div className="grid grid-cols-12">
         <div className="col-span-12 md:col-span-4">
-          <h1 className="text-6xl">3X</h1>
-          <p className="mt-2 leading-5 text-primaryDark">
+          <h1 className="text-6xl leading-12">3X</h1>
+          <p className="mt-4 leading-5 text-primaryDark">
             Mint 3X and earn interest on multiple stablecoins at once.
             <br />
             Stake your 3X to earn boosted APY.
@@ -465,7 +465,7 @@ export default function ThreeX(): JSX.Element {
       </div>
       <div className="md:hidden mt-10">
         <div
-          className="bg-customPurple rounded-lg w-full px-8 py-6 text-white flex justify-between items-center"
+          className="bg-customPurple rounded-lg w-full px-6 py-6 text-white flex justify-between items-center"
           role="button"
           onClick={() => toggleMobileTutorial(true)}
         >
@@ -501,10 +501,14 @@ export default function ThreeX(): JSX.Element {
               </div>
             )
           ) : (
-            <div className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 md:mr-6">
+            <div
+              className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 md:mr-6"
+              role="button"
+              onClick={() => connect()}
+            >
               <p className="text-gray-900 text-4xl leading-8 hidden md:block">Connect your wallet</p>
-              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-8 md:px-0 py-2  mb-1 md:mt-4">
-                <SecondaryActionButton label="Connect" handleClick={() => connect()} />
+              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2  mb-1 md:mt-4">
+                <SecondaryActionButton label="Connect" />
               </div>
             </div>
           )}

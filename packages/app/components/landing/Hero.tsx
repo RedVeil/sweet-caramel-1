@@ -77,7 +77,7 @@ export default function Hero(): JSX.Element {
             onClick={() => connect()}
           >
             <p className="text-gray-900 text-4xl leading-8 hidden md:block">Connect your wallet</p>
-            <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-8 md:px-0 py-2  mb-1 md:mt-4">
+            <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0  py-6 md:py-2  mb-1 md:mt-4">
               <SecondaryActionButton label="Connect" />
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function Hero(): JSX.Element {
         </div>
       </div>
 
-      <div className="col-span-12 md:col-span-8 md:col-start-4 pt-16">
+      <div className="col-span-12 md:col-span-8 md:col-start-4 pt-6">
         <h6 className=" font-medium leading-8 mb-3">Built With</h6>
         <SliderContainer slidesToShow={4}>
           <img src="/images/builtWithLogos/curve.svg" alt="" className="px-2 md:px-5 w-10 h-10 object-contain" />

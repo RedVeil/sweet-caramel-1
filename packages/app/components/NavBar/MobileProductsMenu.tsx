@@ -15,13 +15,15 @@ const MobileProductsMenu = ({ onCloseMenu }) => {
         <p className="text-black text-center font-medium">Products</p>
       </div>
       <ul className="h-full flex flex-col gap-10 justify-center">
-        <li className="mt-1">
-          <NavbarLink
-            label="Sweet Vaults"
-            url="/sweet-vaults"
-            isActive={router.pathname === `/[network]/sweet-vaults`}
-          />
-        </li>
+        {process.env.SHOW_SWEETVAULTS && (
+          <li className="mt-1">
+            <NavbarLink
+              label="Sweet Vaults"
+              url="/sweet-vaults"
+              isActive={router.pathname === `/[network]/sweet-vaults`}
+            />
+          </li>
+        )}
         <li className="mt-1">
           <NavbarLink label="3X " url="/threeX" isActive={router.pathname === `/[network]/threeX`} />
         </li>

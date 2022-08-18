@@ -49,7 +49,10 @@ export default function Product({ title, description, stats, route, customConten
         <p className=" text-primaryDark">{description}</p>
       </div>
 
-      <div className="col-span-12 md:col-span-3 order-3 md:order-2">{customContent && customContent}</div>
+      <div className="col-span-12 md:col-span-3 md:order-2 hidden md:block">{customContent}</div>
+      {customContent && (
+        <div className="col-span-12 md:col-span-3 order-3 md:hidden">{customContent && customContent}</div>
+      )}
 
       <div className="col-span-12 md:col-span-3 grid grid-cols-12 order-2 md:order-3">
         <div className="col-span-6">

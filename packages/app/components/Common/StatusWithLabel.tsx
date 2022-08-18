@@ -25,7 +25,7 @@ export default function StatusWithLabel({
         <span className="flex flex-row items-center">
           <p className="text-primaryLight">{label}</p>
           <InfoIconWithTooltip
-            classExtras="h-5 w-5 mt-0 ml-5"
+            classExtras="h-5 w-5 mt-0 ml-2"
             id={infoIconProps.id}
             title={infoIconProps.title}
             content={infoIconProps.content}
