@@ -23,7 +23,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col md:flex-row justify-between py-6 md:px-8 w-full md:h-48 border-b border-customLightGray`}
+      className={`hover:scale-102 transition duration-500 ease-in-out transform flex flex-col md:flex-row justify-between py-6 md:px-8 w-full md:h-48 border-b border-customLightGray`}
     >
       <div className="flex flex-col justify-between">
         <div className="flex flex-row items-center">

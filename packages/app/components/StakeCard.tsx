@@ -19,7 +19,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
   const tokenPrice = useTokenPrice(stakedToken?.address);
   return (
     <div
-      className="border-b border-b-customLightGray py-8 md:p-8 cursor-pointer"
+      className="border-b border-b-customLightGray py-8 md:p-8 cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform"
       onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
     >
       {badge && (
