@@ -1,5 +1,6 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { ChainId } from "@popcorn/utils";
+import SliderContainer from "components/Common/SliderContainer";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { constants } from "ethers/lib/ethers";
@@ -108,6 +109,17 @@ export default function Hero(): JSX.Element {
             <img src="/images/hands.svg" alt="" />
           </div>
         </div>
+      </div>
+
+      <div className="col-span-12 md:col-span-8 md:col-start-4 pt-16">
+        <h6 className=" font-medium leading-8 mb-3">Built With</h6>
+        <SliderContainer slidesToShow={4}>
+          <img src="/images/builtWithLogos/curve.svg" alt="" className="px-2 md:px-5 w-10 h-10 object-contain" />
+          <img src="/images/builtWithLogos/synthetix.svg" alt="" className="px-2 md:px-5 w-10 h-10 object-contain" />
+          <img src="/images/builtWithLogos/setLogo.svg" alt="" className="px-2 md:px-5 w-10 h-10 object-contain" />
+          <img src="/images/builtWithLogos/yearn.svg" alt="" className="px-2 md:px-5 w-10 h-10 object-contain" />
+          <img src="/images/builtWithLogos/uniswap.svg" alt="" className="px-2 md:px-5 w-10 h-10 object-contain" />
+        </SliderContainer>
       </div>
     </section>
   );
