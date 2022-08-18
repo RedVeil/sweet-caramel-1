@@ -82,10 +82,10 @@ export const MobileMenu: React.FC = () => {
           {!menuVisible && (
             <div className="relative w-full">
               <div
-                className={`w-full px-5 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
+                className={`w-full px-4 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
                 onClick={() => setShowPopUp(true)}
               >
-                <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-6 h-6 object-contain" />
+                <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-4 h-4 object-contain" />
                 <span
                   className={`${
                     account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
@@ -151,13 +151,13 @@ export const MobileMenu: React.FC = () => {
                           <NavbarLink label="Products" isActive={false} onClick={() => toggleProductsMenu(true)} />
                         )}
                       </div>
-                      {/* <div className="py-6">
-												<NavbarLink
-													label="Staking"
-													url="/staking"
-													isActive={router.pathname === "/[network]/staking"}
-												/>
-											</div> */}
+                      <div className="py-6">
+                        <NavbarLink
+                          label="Staking"
+                          url="/staking"
+                          isActive={router.pathname === "/[network]/staking"}
+                        />
+                      </div>
                       <div className="py-6">
                         <NavbarLink
                           label="Rewards"
