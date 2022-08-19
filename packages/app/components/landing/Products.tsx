@@ -47,7 +47,7 @@ const Products = () => {
                 content: "$3.7m",
                 infoIcon: {
                   title: "Total Value Locked",
-                  content: "The amount of user funds deposited in Sweet Vaults.",
+                  content: "TThe total value of assets held by the underlying smart contracts.",
                   id: "sweet-vault-tvl",
                 },
               },
@@ -65,7 +65,7 @@ const Products = () => {
               content: threeXTVL ? `$${formatter.format(parseInt(formatUnits(threeXTVL)))}` : "$0",
               infoIcon: {
                 title: "Total Value Locked",
-                content: "The amount of user funds deposited in BTR.",
+                content: "The total value of assets held by the underlying smart contracts.",
                 id: "btr-tvl",
               },
             },
@@ -99,7 +99,7 @@ const Products = () => {
               content: butterTVL ? `$${formatter.format(parseInt(formatUnits(butterTVL)))}` : "$0",
               infoIcon: {
                 title: "Total Value Locked",
-                content: "The amount of user funds deposited in BTR.",
+                content: "The total value of assets held by the underlying smart contracts.",
                 id: "btr-tvl",
               },
             },
@@ -135,7 +135,7 @@ const Products = () => {
                   : "$0",
               infoIcon: {
                 title: "Total Value Locked",
-                content: "The amount of user funds deposited in BTR.",
+                content: "The total value of assets held by the underlying smart contracts.",
                 id: "staking-tvl",
               },
             },
