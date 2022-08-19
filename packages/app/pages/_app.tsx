@@ -31,7 +31,7 @@ web3Onboard();
 const { title, description, socialShareImage } = {
   title: "Popcorn - Yield That Counts",
   description: "Popcorn is a regenerative yield optimizing protocol.",
-  socialShareImage: "/images/social_cover_image.svg",
+  socialShareImage: "https://sweet-caramel-git-new-website-design-popcorn-dao.vercel.app/images/social_cover_image.svg",
 };
 
 export default function MyApp(props) {
