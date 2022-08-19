@@ -43,12 +43,8 @@ export async function getLpTokenApy(
   library,
   stakedTokenAddress,
 ): Promise<BigNumber> {
-  if (contractAddresses.popUsdcArrakisVault === stakedTokenAddress) {
+  if (contractAddresses.popUsdcArrakisVault.toLowerCase() === stakedTokenAddress.toLowerCase()) {
     const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcArrakisVault, library);
-    const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
-    return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
-  } else if (chainId === ChainId.Ethereum) {
-    const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, library);
     const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
     return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
   } else {
@@ -107,7 +103,7 @@ export async function getButterApy(
   }
   let popPrice = parseEther("1");
   if (chainId === ChainId.Ethereum) {
-    const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, library);
+    const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcArrakisVault, library);
     const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
     popPrice = usdcAmount.mul(parseEther("1")).div(popAmount).mul(BigNumber.from(1e12));
   }

@@ -14,7 +14,7 @@ const TokenMetadataOverride = getTokenMetadataOverride();
 export default function TokenIcon({ token, fullsize = false, imageSize }: TokenIconProps): JSX.Element {
   switch (token) {
     case "Arrakis USDC/POP LP":
-    case "SushiSwap LP Token":
+    case "Sushi USDC/POP LP":
       return (
         <div className="flex flex-row flex-shrink-0 flex-grow-0">
           <img src="/images/tokens/usdc.webp" alt="usdc" className={imageSize ? imageSize : "w-10 h-10"} />
