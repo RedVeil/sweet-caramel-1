@@ -22,8 +22,8 @@ export default function useGetPopTokenPriceInUSD() {
   const mainnetProvider = PRC_PROVIDERS[ChainId.Ethereum];
   // to be able to fetch pop prices on arbitrum and bnb as the pools do not exist on those chains.
   const contractAddresses = getChainRelevantContracts(1);
-  const shouldFetch = mainnetProvider && contractAddresses && contractAddresses.popUsdcLp;
+  const shouldFetch = mainnetProvider && contractAddresses && contractAddresses.popUsdcArrakisVault;
   return useSWR(shouldFetch ? ["getPopTokenPrice", mainnetProvider] : null, async () =>
-    getPopTokenPrice(mainnetProvider, contractAddresses.popUsdcLp),
+    getPopTokenPrice(mainnetProvider, contractAddresses.popUsdcArrakisVault),
   );
 }

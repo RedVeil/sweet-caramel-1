@@ -28,6 +28,8 @@ export default function index(): JSX.Element {
   const { dispatch } = useContext(store);
   const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking);
   const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
+  // const stakingPools = []
+  // const stakingPoolsIsValidating = false
   const [modalClosed, closeModal] = useState<boolean>(false);
   const { features } = useContext(FeatureToggleContext);
 

@@ -12,7 +12,10 @@ async function getStakingTVL(key, popLockerAddress: string, rpcProvider): Promis
     rpcProvider,
   );
   const popPrice = (
-    await getPopTokenPrice(PRC_PROVIDERS[ChainId.Ethereum], getChainRelevantContracts(ChainId.Ethereum).popUsdcLp)
+    await getPopTokenPrice(
+      PRC_PROVIDERS[ChainId.Ethereum],
+      getChainRelevantContracts(ChainId.Ethereum).popUsdcArrakisVault,
+    )
   ).mul(parseEther("0.000001")); // raise by 1e12
   const totalStake = await popLocker.lockedSupply();
   return totalStake.mul(popPrice).div(constants.WeiPerEther);

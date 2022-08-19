@@ -18,7 +18,7 @@ export default function useTokenPrice(token: Address | undefined): BigNumber | u
       return popPrice ? ethers.utils.parseEther(ethers.utils.formatUnits(popPrice, 6)) : undefined;
     case contractAddresses.butter?.toLowerCase():
       return butterPrice;
-    case contractAddresses.popUsdcArrakisVault?.toLocaleLowerCase():
+    case contractAddresses.popUsdcArrakisVault?.toLowerCase():
     case contractAddresses.popUsdcLp?.toLowerCase():
       return popUsdcLpPrice ? ethers.utils.parseEther(ethers.utils.formatUnits(popUsdcLpPrice, 6)) : undefined;
     case contractAddresses.threeX?.toLowerCase():

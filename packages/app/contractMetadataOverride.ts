@@ -55,7 +55,7 @@ const config: OverrideConfig = [
   {
     addresses: popUsdcLp,
     metadata: {
-      name: "Arrakis USDC/POP LP",
+      name: "Sushi USDC/POP LP",
     },
   },
   {

@@ -16,7 +16,6 @@ export default function getNamedAccounts() {
       rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
       hardhat: "0xa722bdA6968F50778B973Ae2701e90200C564B49",
       polygon: "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
-      mainnet: "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
       bsc: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **
       arbitrum: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **
     },
@@ -337,9 +336,11 @@ export default function getNamedAccounts() {
     },
     popUsdcArrakisVault: {
       polygon: "0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4",
+      mainnet: "0xbba11b41407df8793a89b44ee4b50afad4508555",
     },
     popUsdcArrakisVaultStaking: {
       polygon: "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc",
+      mainnet: "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
     },
     dao: {
       // aragon organization address on mainnet
@@ -400,7 +401,6 @@ export default function getNamedAccounts() {
     },
     popUsdcLp: {
       polygon: "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
-      mainnet: "0xbba11b41407df8793a89b44ee4b50afad4508555",
       hardhat: "0xD5724171C2b7f0AA717a324626050BD05767e2C6",
       rinkeby: "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
     },
