@@ -51,6 +51,7 @@
     "react-dropzone": "11.5.1",
     "react-feather": "2.0.9",
     "react-hot-toast": "2.2.0",
+    "react-lottie": "^1.2.3",
     "react-simple-wheel-picker": "^1.2.0",
     "react-slick": "^0.29.0",
     "react-swipeable": "^6.2.1",

@@ -130,11 +130,11 @@ export default function index(): JSX.Element {
               </div>
             )}
             {pageAvailable() && (stakingPoolsIsValidating || popLockerIsValidating) && (!popLocker || !stakingPools) && (
-              <ContentLoader viewBox="0 0 450 400">
+              <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
                 {/*eslint-disable */}
-                <rect x="0" y="0" rx="0" ry="0" width="450" height="108" />
-                <rect x="0" y="115" rx="15" ry="15" width="450" height="108" />
-                <rect x="0" y="230" rx="15" ry="15" width="450" height="108" />
+                <rect x="0" y="0" rx="8" ry="8" width="450" height="108" />
+                <rect x="0" y="115" rx="8" ry="8" width="450" height="108" />
+                <rect x="0" y="230" rx="8" ry="8" width="450" height="108" />
                 {/*eslint-enable */}
               </ContentLoader>
             )}
