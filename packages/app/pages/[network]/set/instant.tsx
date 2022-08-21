@@ -290,8 +290,8 @@ export default function InstantButter() {
             </>
           )}
           {account && !butterData && loadingButterBatchData && (
-            <ContentLoader viewBox="0 0 500 600">
-              <rect x="0" y="0" rx="20" ry="20" width="500" height="600" />
+            <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+              <rect x="0" y="0" rx="8" ry="8" width="400" height="600" />
             </ContentLoader>
           )}
         </div>

@@ -126,17 +126,20 @@ export default function index(): JSX.Element {
           <div className="h-full">
             {!pageAvailable() && (
               <div className="flex flex-col w-full 3 md:mx-0 mt-10 mb-8 h-full">
+                <p>Test 1</p>
                 <NotAvailable title="No staking, yet" body="No staking pools on this network" />
               </div>
             )}
             {pageAvailable() && (stakingPoolsIsValidating || popLockerIsValidating) && (!popLocker || !stakingPools) && (
-              <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-                {/*eslint-disable */}
-                <rect x="0" y="0" rx="8" ry="8" width="450" height="108" />
-                <rect x="0" y="115" rx="8" ry="8" width="450" height="108" />
-                <rect x="0" y="230" rx="8" ry="8" width="450" height="108" />
-                {/*eslint-enable */}
-              </ContentLoader>
+              <div className="mt-10">
+                <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                  {/*eslint-disable */}
+                  <rect x="0" y="0" rx="8" ry="8" width="450" height="108" />
+                  <rect x="0" y="115" rx="8" ry="8" width="450" height="108" />
+                  <rect x="0" y="230" rx="8" ry="8" width="450" height="108" />
+                  {/*eslint-enable */}
+                </ContentLoader>
+              </div>
             )}
             {pageAvailable() && !!popLocker && !!stakingPools && (
               <>
