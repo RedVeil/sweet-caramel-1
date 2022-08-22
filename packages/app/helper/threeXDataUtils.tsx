@@ -39,7 +39,7 @@ async function getToken(
         ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(threeX.address, parseEther("1"))),
       ),
       decimals: defaultErc20Decimals,
-      img: "threeXborderless.png",
+      img: "3X.svg",
       contract: threeX,
     },
     dai: {

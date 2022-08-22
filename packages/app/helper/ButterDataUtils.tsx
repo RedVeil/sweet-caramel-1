@@ -66,7 +66,7 @@ async function getToken(
         ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(butter.address, parseEther("1"))),
       ),
       decimals: defaultErc20Decimals,
-      img: "butter.png",
+      img: "BTR.svg",
       contract: butter,
     },
     threeCrv: {

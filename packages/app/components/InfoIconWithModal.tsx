@@ -21,7 +21,7 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
 
   return (
     <img
-      src="/images/modalImages/migrate.svg"
+      src="/images/icons/tooltip.svg"
       onClick={() => {
         dispatch(
           setSingleActionModal({

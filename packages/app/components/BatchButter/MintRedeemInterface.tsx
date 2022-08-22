@@ -3,6 +3,7 @@ import { InfoIconWithModal } from "components/InfoIconWithModal";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
+import { useEffect } from "react";
 import MainActionButton from "../MainActionButton";
 import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
 import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
@@ -44,6 +45,10 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }
   const butterModalImage = <img src="/images/Instant Butter_icon.svg" />;
+  useEffect(() => {
+    console.log(token);
+  }, []);
+
   return (
     <div className="bg-white rounded-3xl p-6 border border-customLightGray">
       <MintRedeemToggle
