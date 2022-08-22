@@ -594,9 +594,7 @@ export default function Butter(): JSX.Element {
         <div className="col-span-12 md:col-span-5">
           <h1 className="text-6xl leading-12">Butter - Yield Optimizer</h1>
           <p className="mt-4 leading-5 text-primaryDark">
-            Mint 3X and earn interest on multiple stablecoins at once.
-            <br />
-            Stake your 3X to earn boosted APY.
+            Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
           </p>
           <ButterStats butterData={butterBatchData} addresses={butterYearnAddresses} />
         </div>
