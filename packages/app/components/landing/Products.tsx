@@ -160,39 +160,39 @@ const ButterExposure: React.ReactElement = (
       25.00% yvCurve-mUSD
       25.00% yvCurve-alUSD
       
-      BTR Has Exposure to: FRAX, RAI, mUSD, alUSD, sUSD and 3CRV (USDC/DAI/USDT)."
+      BTR has exposure to: FRAX, RAI, mUSD, alUSD, sUSD and 3CRV (USDC/DAI/USDT)."
       />
     </div>
     <div className="flex relative mt-1">
       <img
         src="/images/tokens/boltLogo.svg"
         alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-2"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative"
       />
       <img
         src="/images/tokens/sUnderscore.svg"
         alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-2"
       />
       <img
         src="/images/tokens/RAI.svg"
         alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-6"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
       />
       <img
         src="/images/tokens/sLogo.svg"
         alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-8"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-6"
       />
       <img
         src="/images/tokens/sDiamondLogo.svg"
         alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-8"
       />
       <img
         src="/images/tokens/threeCrv.svg"
         alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-12"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
       />
     </div>
   </>
@@ -208,7 +208,7 @@ const ThreeXExposure: React.ReactElement = (
         title="Underlying Tokens"
         content="50% yvCurve-sUSDpool
 50% yvCurve-3EURpool
-3X Has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT, and EURS."
+3X has exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT, and EURS."
       />
     </div>
     <div className="flex relative mt-1">
