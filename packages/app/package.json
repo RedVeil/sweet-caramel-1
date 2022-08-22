@@ -24,6 +24,7 @@
     "@tailwindcss/forms": "0.4.0",
     "@typechain/ethers-v5": "7.2.0",
     "@uniswap/sdk-core": "3.0.1",
+    "@web3-onboard/coinbase": "^2.0.9",
     "@web3-onboard/gnosis": "2.0.1",
     "@web3-onboard/injected-wallets": "2.0.8",
     "@web3-onboard/react": "2.1.6",
