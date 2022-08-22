@@ -220,15 +220,15 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               spellCheck="false"
               readOnly
             />
-            <SelectToken
-              allowSelection={false}
-              selectedToken={selectedToken.output}
-              options={token}
-              notSelectable={[
-                localButterPageState.selectedToken.output,
-                localButterPageState.redeeming ? "butter" : "threeCrv",
-              ]}
-            />
+            <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
+              <SelectToken
+                allowSelection={localButterPageState.redeeming && localButterPageState.instant}
+                selectedToken={selectedToken.output}
+                options={token}
+                notSelectable={[localButterPageState.selectedToken.output, "butter", "threeX"]}
+                selectToken={selectToken}
+              />
+            </div>
           </div>
         </div>
       </div>

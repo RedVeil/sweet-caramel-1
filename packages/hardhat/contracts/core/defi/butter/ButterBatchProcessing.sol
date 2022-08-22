@@ -16,7 +16,6 @@ import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
 import "../../interfaces/IStaking.sol";
-import "../../interfaces/IKeeperIncentive.sol";
 
 /*
  * @notice This Contract allows smaller depositors to mint and redeem Butter (formerly known as HYSI) without needing to through all the steps necessary on their own,
@@ -388,7 +387,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    * @dev In order to get 3CRV we can implement a zap to move stables into the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchMint() external whenNotPaused keeperIncentive(contractName, 0) {
+  function batchMint() external whenNotPaused keeperIncentive(0) {
     Batch storage batch = batches[currentMintBatchId];
     //Check if there was enough time between the last batch minting and this attempt...
     //...or if enough 3CRV was deposited to make the minting worthwhile
@@ -499,9 +498,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    * @notice Redeems Butter for 3CRV. This function goes through all the steps necessary to get 3CRV
    * @dev This function reedeems Butter for the underlying yToken and deposits these yToken in curve Metapools for 3CRV
    * @dev In order to get stablecoins from 3CRV we can use a zap to redeem 3CRV for stables in the curve tri-pool
-   * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
+   * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentiveV2.sol)
    */
-  function batchRedeem() external whenNotPaused keeperIncentive(contractName, 1) {
+  function batchRedeem() external whenNotPaused keeperIncentive(1) {
     Batch storage batch = batches[currentRedeemBatchId];
 
     //Check if there was enough time between the last batch redemption and this attempt...

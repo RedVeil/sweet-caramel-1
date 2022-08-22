@@ -5,6 +5,7 @@ import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { addContractToRegistry } from "./utils";
 import { DeployFunction, DeploymentsExtension } from "@anthonymartin/hardhat-deploy/types";
 import { timeTravel } from "../lib/utils/test";
+import { INCENTIVE_MANAGER_ROLE } from "../lib/acl/roles";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -13,6 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { threeX, threeXStaking, daoAgentV2 } = addresses;
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
   const signerAddress = await signer.getAddress();
+  const pop = addresses.pop;
 
   const YTOKEN_ADDRESSES = [addresses.ySusd, addresses.y3Eur];
   const CRV_DEPENDENCIES = [
@@ -87,42 +89,26 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   console.log("setting batch storage contract ... ");
   const batchStorageTx = await processingContract.setBatchStorage((await deployments.get("ThreeXBatchVault")).address);
-  if (!["hardhat", "local"].includes(hre.network.name)) {
-    await batchStorageTx.wait();
-  }
+  await wait(batchStorageTx, hre);
 
   console.log("setting threeXBatchProcessing approvals ... ");
   const approvalsTx = await processingContract.setApprovals();
-  if (!["hardhat", "local"].includes(hre.network.name)) {
-    await approvalsTx.wait();
-  }
+  await wait(approvalsTx, hre);
 
   console.log("setting fee recipients ...");
   const feeTx1 = await processingContract.setFee(utils.formatBytes32String("mint"), 75, daoAgentV2, threeX);
-  if (!["hardhat", "local"].includes(hre.network.name)) {
-    await feeTx1.wait();
-  }
+  await wait(feeTx1, hre);
 
   const feeTx2 = await processingContract.setFee(utils.formatBytes32String("redeem"), 75, daoAgentV2, addresses.usdc);
-  if (!["hardhat", "local"].includes(hre.network.name)) {
-    await feeTx2.wait();
-  }
+  await wait(feeTx2, hre);
 
   //Adding permissions and other maintance
   const keeperIncentive = await hre.ethers.getContractAt(
-    "KeeperIncentive",
+    "KeeperIncentiveV2",
     (
       await deployments.get("KeeperIncentive")
     ).address,
     signer
-  );
-
-  console.log("setting ThreeXBatchProcessing as controller contract for keeper incentive");
-  await keeperIncentive.addControllerContract(
-    utils.formatBytes32String("ThreeXBatchProcessing"),
-    (
-      await deployments.get("ThreeXBatchProcessing")
-    ).address
   );
 
   if (!Boolean(parseInt(process.env.UPDATE_ONLY || "0"))) {
@@ -147,9 +133,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const zapper = await hre.ethers.getContractAt("ThreeXZapper", processingZapper.address, signer);
 
     const zapperApprovalsTx = await zapper.setApprovals();
-    if (!["hardhat", "local"].includes(hre.network.name)) {
-      await zapperApprovalsTx.wait();
-    }
+    await wait(zapperApprovalsTx, hre);
 
     console.log("granting ThreeXZapper role to ThreeXZapper");
     const tx1 = await aclRegistry.grantRole(
@@ -158,9 +142,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         await deployments.get("ThreeXZapper")
       ).address
     );
-    if (!["hardhat", "local"].includes(hre.network.name)) {
-      await tx1.wait();
-    }
+    await wait(tx1, hre);
+
+    console.log("granting INCENTIVE_MANAGER_ROLE role to deployer");
+    const incentiveGrantTx = await aclRegistry.grantRole(INCENTIVE_MANAGER_ROLE, await signer.getAddress());
+    await wait(incentiveGrantTx, hre);
 
     console.log("granting ApprovedContract role to ThreeXZapper");
     const tx2 = await aclRegistry.grantRole(
@@ -169,34 +155,40 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         await deployments.get("ThreeXZapper")
       ).address
     );
-    if (!["hardhat", "local"].includes(hre.network.name)) {
-      await tx2.wait();
-    }
+    await wait(tx2, hre);
 
     console.log("creating incentive 1 ...");
     const tx3 = await keeperIncentive.createIncentive(
-      utils.formatBytes32String("ThreeXBatchProcessing"),
-      0,
-      false,
-      true
+      (
+        await deployments.get("ThreeXBatchProcessing")
+      ).address, // controller contract
+      0, // reward
+      true, // enabled
+      true, // openToEveryone
+      pop, // rewardToken
+      60 * 60 * 24, // cooldown
+      0 // burnRate
     );
-    if (!["hardhat", "local"].includes(hre.network.name)) {
-      await tx3.wait();
-    }
+    await wait(tx3, hre);
 
     console.log("creating incentive 2 ...");
     const tx4 = await keeperIncentive.createIncentive(
-      utils.formatBytes32String("ThreeXBatchProcessing"),
-      0,
-      false,
-      true
+      (
+        await deployments.get("ThreeXBatchProcessing")
+      ).address, // controller contract
+      0, // reward
+      true, // enabled
+      true, // openToEveryone
+      pop, // rewardToken
+      60 * 60 * 24, // cooldown
+      0 // burnRate
     );
-    if (!["hardhat", "local"].includes(hre.network.name)) {
-      await tx4.wait();
-    }
+    await wait(tx4, hre);
   }
 
   if (["hardhat", "local"].includes(hre.network.name)) {
+    await keeperIncentive.updateIncentive(processing.address, 0, 0, true, true, pop, 1, 0);
+    await keeperIncentive.updateIncentive(processing.address, 1, 0, true, true, pop, 1, 0);
     await createDemoData(hre, deployments, signer, signerAddress, deploy, addresses, threeX);
   }
 };
@@ -265,6 +257,12 @@ async function createDemoData(
 
   console.log("create batch to be redeemed");
   await threeXBatch.depositForRedeem(parseEther("1"));
+}
+
+async function wait(tx, hre) {
+  if (!["hardhat", "local"].includes(hre.network.name)) {
+    await tx.wait();
+  }
 }
 
 export default func;

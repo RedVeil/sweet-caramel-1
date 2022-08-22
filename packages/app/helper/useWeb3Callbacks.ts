@@ -30,7 +30,10 @@ export default function useWeb3Callbacks(chainId: number) {
     onError: useCallback(
       async (error) => {
         toast.dismiss();
-        if (error.message === "MetaMask Tx Signature: User denied transaction signature.") {
+        if (
+          error.message === "MetaMask Tx Signature: User denied transaction signature." ||
+          "Error: User denied transaction signature"
+        ) {
           toast.error("Transaction was canceled");
         } else {
           toast.error(error.message.split("'")[1]);

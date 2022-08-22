@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/IKeeperIncentive.sol";
+import "../interfaces/IKeeperIncentiveV2.sol";
 
 /**
  *  @notice Provides modifiers and internal functions for processing keeper incentives
@@ -19,34 +19,44 @@ abstract contract KeeperIncentivized {
 
   /**
    *  @notice Process the specified incentive with `msg.sender` as the keeper address
-   *  @param _contractName bytes32 name of calling contract
    *  @param _index uint8 incentive ID
    */
-  modifier keeperIncentive(bytes32 _contractName, uint8 _index) {
-    _handleKeeperIncentive(_contractName, _index, msg.sender);
+  modifier keeperIncentive(uint8 _index) {
+    _handleKeeperIncentive(_index, msg.sender);
     _;
   }
 
   /**
    *  @notice Process a keeper incentive
-   *  @param _contractName bytes32 name of calling contract
    *  @param _index uint8 incentive ID
    *  @param _keeper address of keeper to reward
    */
-  function _handleKeeperIncentive(
-    bytes32 _contractName,
-    uint8 _index,
-    address _keeper
-  ) internal {
-    _keeperIncentive().handleKeeperIncentive(_contractName, _index, _keeper);
+  function _handleKeeperIncentive(uint8 _index, address _keeper) internal {
+    _keeperIncentive().handleKeeperIncentive(_index, _keeper);
   }
 
   /**
    *  @notice Return an IKeeperIncentive interface to the registered KeeperIncentive contract
    *  @return IKeeperIncentive keeper incentive interface
    */
-  function _keeperIncentive() internal view returns (IKeeperIncentive) {
-    return IKeeperIncentive(_getContract(KEEPER_INCENTIVE));
+  function _keeperIncentive() internal view returns (IKeeperIncentiveV2) {
+    return IKeeperIncentiveV2(_getContract(KEEPER_INCENTIVE));
+  }
+
+  /**
+   * @notice Tip a keeper
+   * @param _rewardToken address of token to tip keeper with
+   * @param _keeper address of keeper receiving the tip
+   * @param _i incentive index
+   * @param _amount amount of reward token to tip
+   */
+  function _tip(
+    address _rewardToken,
+    address _keeper,
+    uint256 _i,
+    uint256 _amount
+  ) internal {
+    return _keeperIncentive().tip(_rewardToken, _keeper, _i, _amount);
   }
 
   /**

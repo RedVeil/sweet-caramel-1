@@ -7,7 +7,7 @@ export default function useButterBatch(): ButterBatchProcessing {
   const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
 
   return useMemo(() => {
-    if (isButterSupportedOnCurrentNetwork(chainId))
+    if (contractAddresses?.butterBatch && isButterSupportedOnCurrentNetwork(chainId))
       return ButterBatchProcessing__factory.connect(contractAddresses.butterBatch, signerOrProvider);
   }, [signerOrProvider, contractAddresses.butterBatch, account]);
 }

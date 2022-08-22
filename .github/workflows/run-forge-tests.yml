@@ -26,7 +26,7 @@ jobs:
         with:
           version: nightly
       - name: Run tests
-        run: cd packages/hardhat && forge test -vvv --fork-block-number 15008113 --fork-url $FOUNDRY_FORK_URL
+        run: yarn test:forge
         env:
           FOUNDRY_PROFILE: ci
-          FOUNDRY_FORK_URL: ${{secrets.RPC_URL}}
+          RPC_URL: ${{secrets.RPC_URL}}

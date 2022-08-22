@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
-import "../../utils/KeeperIncentivized.sol";
+import "../../utils/KeeperIncentivizedV1.sol";
 import "../../../externals/interfaces/YearnVault.sol";
 import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
@@ -36,7 +36,7 @@ interface IOracle {
  * This means multiple approvals and deposits are necessary to mint one 3X.
  * We batch this process and allow users to pool their funds. Then we pay a keeper to mint or redeem 3X regularly.
  */
-contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchController, ContractRegistryAccess {
+contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchController, ContractRegistryAccess {
   using SafeERC20 for YearnVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
@@ -144,8 +144,6 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     return value;
   }
 
-  //
-
   function _getPoolAllocationAndRatio(
     address _component,
     uint256 _quantity,
@@ -212,6 +210,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     // Get the quantity of yToken for one 3X
     (address[] memory tokenAddresses, uint256[] memory quantities) = basicIssuanceModule
       .getRequiredComponentUnitsForIssue(ISetToken(address(mintBatchTokens.targetToken)), 1e18);
+
     uint256 setValue = valueOfComponents(tokenAddresses, quantities);
 
     // Remaining amount of USDC in this batch which hasnt been allocated yet
@@ -443,7 +442,9 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
     } else {
       // Trade USDC for intermediate swapToken
       _contracts.angleRouter.mint(address(this), _amount, 0, address(swapToken), address(mintBatchTokens.sourceToken));
+
       uint256 destAmount = swapToken.balanceOf(address(this));
+
       _contracts.curveMetaPool.add_liquidity([destAmount, 0, 0], 0);
     }
   }
@@ -532,7 +533,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivized, AbstractBatchCont
   function _getContract(bytes32 _name)
     internal
     view
-    override(ACLAuth, KeeperIncentivized, ContractRegistryAccess)
+    override(ACLAuth, KeeperIncentivizedV1, ContractRegistryAccess)
     returns (address)
   {
     return super._getContract(_name);

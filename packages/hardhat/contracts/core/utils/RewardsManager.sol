@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-import "./KeeperIncentive.sol";
+import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IRegion.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/ITreasury.sol";
@@ -88,11 +88,7 @@ contract RewardsManager is IRewardsManager, ReentrancyGuard {
     nonReentrant
     returns (uint256[] memory)
   {
-    KeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
-      contractName,
-      0,
-      msg.sender
-    );
+    IKeeperIncentiveV2(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(0, msg.sender);
     require(_path.length >= 2, "Invalid swap path");
     require(_minAmountOut > 0, "Invalid amount");
     require(_path[_path.length - 1] == contractRegistry.getContract(keccak256("POP")), "POP must be last in path");
@@ -119,11 +115,7 @@ contract RewardsManager is IRewardsManager, ReentrancyGuard {
    * @dev Contract must have POP balance in order to distribute according to rewardSplits ratio
    */
   function distributeRewards() public nonReentrant {
-    KeeperIncentive(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(
-      contractName,
-      1,
-      msg.sender
-    );
+    IKeeperIncentiveV2(contractRegistry.getContract(keccak256("KeeperIncentive"))).handleKeeperIncentive(1, msg.sender);
     uint256 availableReward = IERC20(contractRegistry.getContract(keccak256("POP"))).balanceOf(address(this));
     require(availableReward > 0, "No POP balance");
 

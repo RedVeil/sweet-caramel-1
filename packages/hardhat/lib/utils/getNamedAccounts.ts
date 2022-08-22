@@ -33,7 +33,7 @@ export default function getNamedAccounts() {
     },
     butterWhaleProcessing: {
       mainnet: "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39",
-      hardhat: "0x73C68f1f41e4890D06Ba3e71b9E9DfA555f1fb46",
+      hardhat: "0x6D712CB50297b97b79dE784d10F487C00d7f8c2C",
     },
     angleRouter: {
       mainnet: "0xBB755240596530be0c1DE5DFD77ec6398471561d",
@@ -222,6 +222,7 @@ export default function getNamedAccounts() {
       binance: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
       polygon: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
       hardhat: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      localhost: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       arbitrum: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
     },
     usdt: {
@@ -246,6 +247,11 @@ export default function getNamedAccounts() {
       mainnet: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
       hardhat: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
       localhost: "0x42189f909e1EFA409A4509070dDBc31A592422A8",
+    },
+    threeXWhale: {
+      mainnet: "0x0000000000000000000000000000000000000000",
+      hardhat: "0xB9d9e972100a1dD01cd441774b45b5821e136043",
+      localhost: "0xB9d9e972100a1dD01cd441774b45b5821e136043",
     },
     threeXBatchVault: {
       mainnet: "0x0B4E13D8019D0F762377570000D9C923f0dad82B",

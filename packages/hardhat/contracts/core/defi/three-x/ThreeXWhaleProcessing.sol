@@ -214,7 +214,6 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
         setValue
       );
     }
-
     emit Minted(_amount, setTokenAmountAfterFees);
   }
 
@@ -226,6 +225,7 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
     bytes32 batchId = _threeXBatchProcessing.currentMintBatchId();
 
     _threeXBatchProcessing.depositForMint(_amount, address(this));
+
     _threeXBatchProcessing.batchMint();
 
     setTokenAmountAfterFees = _threeXBatchProcessing.claim(batchId, address(this));

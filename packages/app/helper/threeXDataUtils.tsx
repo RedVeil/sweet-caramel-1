@@ -6,6 +6,7 @@ import {
   Curve3Pool,
   ISetToken,
   ThreeXBatchProcessing,
+  ThreeXWhaleProcessing,
   ThreeXZapper,
 } from "@popcorn/hardhat/typechain";
 import { AccountBatch, Address, BatchMetadata, BatchType, Token, Tokens } from "@popcorn/utils/src/types";
@@ -25,6 +26,7 @@ async function getToken(
   threeX: ISetToken,
   setBasicIssuanceModule: BasicIssuanceModule,
   mainContract: ThreeXBatchProcessing,
+  instantContract?: ThreeXWhaleProcessing,
   zapperContract?: ThreeXZapper,
 ): Promise<Tokens> {
   const defaultErc20Decimals = 18;
@@ -33,7 +35,7 @@ async function getToken(
       name: "3X",
       key: "threeX",
       balance: await threeX.balanceOf(account),
-      allowance: await threeX.allowance(account, mainContract.address),
+      allowance: await threeX.allowance(account, instantContract ? instantContract.address : mainContract.address),
       claimableBalance: BigNumber.from("0"),
       price: await mainContract.valueOfComponents(
         ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(threeX.address, parseEther("1"))),
@@ -46,7 +48,10 @@ async function getToken(
       name: "DAI",
       key: "dai",
       balance: await tokens.dai.contract.balanceOf(account),
-      allowance: await tokens.dai.contract.allowance(account, zapperContract?.address),
+      allowance: await tokens.dai.contract.allowance(
+        account,
+        instantContract ? instantContract.address : zapperContract?.address,
+      ),
       price: await butterAdapter.getStableCoinPrice(threePool, [
         parseEther("1"),
         BigNumber.from("0"),
@@ -60,7 +65,10 @@ async function getToken(
       name: "USDC",
       key: "usdc",
       balance: (await tokens.usdc.contract.balanceOf(account)).mul(BigNumber.from(1e12)),
-      allowance: await tokens.usdc.contract.allowance(account, mainContract.address),
+      allowance: await tokens.usdc.contract.allowance(
+        account,
+        instantContract ? instantContract.address : mainContract.address,
+      ),
       price: await butterAdapter.getStableCoinPrice(threePool, [
         BigNumber.from("0"),
         BigNumber.from(1e6),
@@ -74,7 +82,10 @@ async function getToken(
       name: "USDT",
       key: "usdt",
       balance: (await tokens.usdt.contract.balanceOf(account)).mul(BigNumber.from(1e12)),
-      allowance: await tokens.usdt.contract.allowance(account, zapperContract?.address),
+      allowance: await tokens.usdt.contract.allowance(
+        account,
+        instantContract ? instantContract.address : zapperContract?.address,
+      ),
       price: await butterAdapter.getStableCoinPrice(threePool, [
         BigNumber.from("0"),
         BigNumber.from("0"),
@@ -121,7 +132,54 @@ export async function getData(
     butter,
     setBasicIssuanceModule,
     mainContract,
+    null,
     zapperContract,
+  );
+
+  tokenResponse.threeX.claimableBalance = getClaimableBalance(claimableMintBatches);
+  tokenResponse.usdc.claimableBalance = getClaimableBalance(claimableRedeemBatches).mul(BigNumber.from(1e12));
+
+  const response: BatchMetadata = {
+    accountBatches,
+    currentBatches,
+    totalSupply,
+    claimableMintBatches,
+    claimableRedeemBatches,
+    tokens: tokenResponse,
+  };
+  return response;
+}
+
+export async function getDataWhale(
+  account: Address,
+  dai: Token,
+  usdc: Token,
+  usdt: Token,
+  threePool: Curve3Pool,
+  butter: ISetToken,
+  setBasicIssuanceModule: BasicIssuanceModule,
+  instantContract: ThreeXWhaleProcessing,
+  batchContract: ThreeXBatchProcessing,
+): Promise<BatchMetadata> {
+  const threeXBatchAdapter = new ThreeXBatchAdapter(batchContract);
+  const currentBatches = await threeXBatchAdapter.getCurrentBatches();
+  const totalSupply = await butter.totalSupply();
+  const accountBatches = await threeXBatchAdapter.getBatches(account);
+
+  const claimableMintBatches = accountBatches.filter((batch) => batch.batchType == BatchType.Mint && batch.claimable);
+  const claimableRedeemBatches = accountBatches.filter(
+    (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
+  );
+
+  const tokenResponse = await getToken(
+    threeXBatchAdapter,
+    account,
+    { dai, usdc, usdt },
+    threePool,
+    butter,
+    setBasicIssuanceModule,
+    batchContract,
+    instantContract,
   );
 
   tokenResponse.threeX.claimableBalance = getClaimableBalance(claimableMintBatches);

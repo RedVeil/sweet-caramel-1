@@ -29,7 +29,6 @@ abstract contract AbstractFee is ACLAuth {
     IERC20 token
   ) internal returns (uint256) {
     Fee memory currFee = fees[feeType];
-
     require(token == currFee.token, "fee token mismatch");
 
     fee = Math.min((balance * currFee.bps) / 10_000, fee); // the client can tell us the fee they want to take, but it's higher than the threshold defined, we'll set a ceiling
