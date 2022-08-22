@@ -185,6 +185,11 @@ export default function useWeb3() {
             dispatch(setNetworkChangePromptModal(false));
           },
         },
+        onDismiss: {
+          onClick: async () => {
+            dispatch(setNetworkChangePromptModal(false));
+          },
+        },
       }),
     );
   }
