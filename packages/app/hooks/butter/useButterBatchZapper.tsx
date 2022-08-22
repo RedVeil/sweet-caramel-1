@@ -7,7 +7,7 @@ export default function useButterBatchZapper(): ButterBatchProcessingZapper {
   const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
 
   return useMemo(() => {
-    if (isButterSupportedOnCurrentNetwork(chainId))
+    if (contractAddresses?.butterBatchZapper && isButterSupportedOnCurrentNetwork(chainId))
       return ButterBatchProcessingZapper__factory.connect(contractAddresses.butterBatchZapper, signerOrProvider);
   }, [signerOrProvider, contractAddresses.butterBatchZapper, account]);
 }

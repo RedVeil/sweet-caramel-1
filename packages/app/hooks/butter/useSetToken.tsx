@@ -7,7 +7,7 @@ export default function useSetToken(tokenAddress: string): ISetToken {
   const { signerOrProvider, chainId } = useWeb3();
 
   return useMemo(() => {
-    if (isButterSupportedOnCurrentNetwork(chainId)) {
+    if (tokenAddress && isButterSupportedOnCurrentNetwork(chainId)) {
       return ISetToken__factory.connect(tokenAddress, signerOrProvider);
     }
   }, [signerOrProvider, tokenAddress]);
