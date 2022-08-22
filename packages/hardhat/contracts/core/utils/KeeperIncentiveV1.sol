@@ -9,7 +9,7 @@ import "../utils/ContractRegistryAccess.sol";
 import "../utils/ACLAuth.sol";
 import "../interfaces/IStaking.sol";
 
-contract KeeperIncentive is ACLAuth, ContractRegistryAccess {
+contract KeeperIncentiveV1 is ACLAuth, ContractRegistryAccess {
   using SafeERC20 for IERC20;
 
   struct Incentive {

@@ -16,4 +16,10 @@ interface IContractRegistry {
     address _address,
     bytes32 _version
   ) external;
+
+  function updateContract(
+    bytes32 _name,
+    address _newAddress,
+    bytes32 _version
+  ) external;
 }

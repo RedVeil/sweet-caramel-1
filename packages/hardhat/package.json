@@ -34,10 +34,11 @@
     "rimraf": "3.0.2"
   },
   "dependencies": {
+    "@anthonymartin/hardhat-deploy": "0.9.9",
     "@balancer-labs/v2-solidity-utils": "2.0.0",
     "@chainlink/contracts": "0.1.9",
     "@ecmendenhall/ds-test": "^0.0.1",
-    "@ecmendenhall/forge-std": "^0.0.1",
+    "@ecmendenhall/forge-std": "0.0.2",
     "@ethersproject/hardware-wallets": "5.5.0",
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@nomiclabs/hardhat-waffle": "2.0.1",
@@ -58,7 +59,6 @@
     "ethereum-waffle": "3.4.0",
     "ethers": "5.6.7",
     "hardhat": "2.9.3",
-    "@anthonymartin/hardhat-deploy": "0.9.9",
     "hardhat-secure-signer": "0.0.8",
     "merkle-tree-solidity": "1.0.8",
     "mocha": "8.4.0",

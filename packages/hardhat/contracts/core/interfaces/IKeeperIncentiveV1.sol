@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IKeeperIncentive {
+interface IKeeperIncentiveV1 {
   function handleKeeperIncentive(
     bytes32 _contractName,
     uint8 _i,

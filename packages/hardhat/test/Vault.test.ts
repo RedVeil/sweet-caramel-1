@@ -69,7 +69,7 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   const keeperIncentive = await (
-    await (await ethers.getContractFactory("KeeperIncentive")).deploy(contractRegistry.address, 0, 0)
+    await (await ethers.getContractFactory("KeeperIncentiveV2")).deploy(contractRegistry.address, 0, 0)
   ).deployed();
 
   const Vault = await ethers.getContractFactory("Vault");
@@ -103,6 +103,7 @@ async function deployContracts(): Promise<Contracts> {
   const blockLockHelper = await (await VaultBlockLockHelper.deploy(vault.address, depositToken.address)).deployed();
 
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
+  await aclRegistry.grantRole(ethers.utils.id("INCENTIVE_MANAGER_ROLE"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("ApprovedContract"), blockLockHelper.address);
   await contractRegistry
     .connect(owner)
@@ -119,8 +120,12 @@ async function deployContracts(): Promise<Contracts> {
 
   await vault.setStaking(staking.address);
 
-  await keeperIncentive.addControllerContract(await vault.contractName(), vault.address);
-  await keeperIncentive.connect(owner).createIncentive(await vault.contractName(), 0, false, true);
+  const mockERC20Factory = await ethers.getContractFactory("MockERC20");
+  const mockPop = (await (await mockERC20Factory.deploy("TestPOP", "TPOP", 18)).deployed()) as MockERC20;
+
+  await keeperIncentive
+    .connect(owner)
+    .createIncentive(vault.address, parseEther("10"), true, true, mockPop.address, 1, 0);
 
   await vaultFeeController.setFeeRecipient(rewardsManager.address);
 
@@ -135,7 +140,6 @@ async function deployContracts(): Promise<Contracts> {
     contractRegistry,
     blockLockHelper,
     vaultFeeController,
-
     rewardsEscrow,
   };
 }

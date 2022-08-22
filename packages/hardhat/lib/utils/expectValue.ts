@@ -29,6 +29,10 @@ export function expectValue(value: any, expectedValue: any): Chai.Assertion {
   return expect(value).to.equal(expectedValue);
 }
 
+export async function expectStruct(struct: object, expectedStruct: object): Promise<Chai.AsyncAssertion> {
+  expect(JSON.stringify(struct)).to.deep.equal(JSON.stringify(expectedStruct));
+}
+
 export async function expectBigNumberCloseTo(
   value: BigNumber,
   expectedValue: BigNumber,

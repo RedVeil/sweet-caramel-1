@@ -112,7 +112,7 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   const keeperIncentive = await (
-    await (await ethers.getContractFactory("KeeperIncentive")).deploy(contractRegistry.address, 0, 0)
+    await (await ethers.getContractFactory("KeeperIncentiveV2")).deploy(contractRegistry.address, 0, 0)
   ).deployed();
 
   const popStaking = await (
@@ -186,15 +186,11 @@ async function deployContracts(): Promise<Contracts> {
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("ThreeXBatchProcessing"), 0, true, false);
+    .createIncentive(threeXBatchProcessing.address, 0, true, false, token.pop.address, 1, 0);
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("ThreeXBatchProcessing"), 0, true, false);
-
-  await keeperIncentive
-    .connect(owner)
-    .addControllerContract(utils.formatBytes32String("ThreeXBatchProcessing"), threeXBatchProcessing.address);
+    .createIncentive(threeXBatchProcessing.address, 0, true, false, token.pop.address, 1, 0);
 
   await threeXBatchProcessing.connect(owner).setSlippage(100, 100);
 

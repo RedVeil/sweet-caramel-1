@@ -545,23 +545,23 @@ export default function Butter(): JSX.Element {
     }
     return butterPageState.redeeming
       ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
-        .mul(butterBatchData?.tokens?.butter.price)
-        .div(parseEther("1"))
+          .mul(butterBatchData?.tokens?.butter.price)
+          .div(parseEther("1"))
       : butterBatchData?.currentBatches.mint.suppliedTokenBalance
-        .mul(butterBatchData?.tokens?.threeCrv.price)
-        .div(parseEther("1"));
+          .mul(butterBatchData?.tokens?.threeCrv.price)
+          .div(parseEther("1"));
   }
 
   function depositDisabled(): boolean {
     return butterPageState.useUnclaimedDeposits
       ? isDepositDisabled(
-        butterPageState.depositAmount,
-        butterPageState.tokens[butterPageState.selectedToken.input].claimableBalance,
-      )
+          butterPageState.depositAmount,
+          butterPageState.tokens[butterPageState.selectedToken.input].claimableBalance,
+        )
       : isDepositDisabled(
-        butterPageState.depositAmount,
-        butterPageState.tokens[butterPageState.selectedToken.input].balance,
-      );
+          butterPageState.depositAmount,
+          butterPageState.tokens[butterPageState.selectedToken.input].balance,
+        );
   }
 
   return (
@@ -699,10 +699,11 @@ export default function Butter(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="Butter Value"
-                content={`$${butterBatchData?.tokens?.butter
+                content={`$${
+                  butterBatchData?.tokens?.butter
                     ? formatAndRoundBigNumber(butterBatchData?.tokens?.butter?.price)
                     : "-"
-                  }`}
+                }`}
                 icon={{ name: "Butter", color: "bg-gray-100" }}
                 info={{
                   title: "Underlying Tokens",

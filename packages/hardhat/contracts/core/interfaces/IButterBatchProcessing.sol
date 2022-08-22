@@ -23,6 +23,8 @@ struct Batch {
 interface IButterBatchProcessing {
   function batches(bytes32 batchId) external view returns (Batch memory);
 
+  function currentRedeemBatchId() external view returns (bytes32);
+
   function depositForMint(uint256 amount_, address account_) external;
 
   function depositForRedeem(uint256 amount_) external;
@@ -34,4 +36,12 @@ interface IButterBatchProcessing {
     uint256 amountToWithdraw_,
     address account_
   ) external;
+
+  function batchRedeem() external;
+
+  function lastRedeemedAt() external view returns (uint256);
+
+  function setRedemptionFee(uint256 _feeRate, address _recipient) external;
+
+  function claimRedemptionFee() external;
 }

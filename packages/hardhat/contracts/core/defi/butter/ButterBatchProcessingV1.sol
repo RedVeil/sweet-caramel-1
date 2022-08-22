@@ -10,12 +10,13 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
-import "../../utils/KeeperIncentivized.sol";
+import "../../utils/KeeperIncentivizedV1.sol";
 import "../../../externals/interfaces/YearnVault.sol";
 import "../../../externals/interfaces/BasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
 import "../../interfaces/IStaking.sol";
+import "../../interfaces/IKeeperIncentiveV1.sol";
 
 /*
  * @notice This Contract allows smaller depositors to mint and redeem Butter (formerly known as HYSI) without needing to through all the steps necessary on their own,
@@ -24,7 +25,7 @@ import "../../interfaces/IStaking.sol";
  * This means multiple approvals and deposits are necessary to mint one Butter.
  * We batch this process and allow users to pool their funds. Then we pay a keeper to mint or redeem Butter regularly.
  */
-contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperIncentivized, ContractRegistryAccess {
+contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIncentivizedV1, ContractRegistryAccess {
   using SafeERC20 for YearnVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
@@ -173,55 +174,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    */
   function getAccountBatches(address _account) external view returns (bytes32[] memory) {
     return accountBatches[_account];
-  }
-
-  /**
-   * @notice returns the min amount of butter that should be minted given an amount of 3crv
-   * @dev this controls slippage in the minting process
-   */
-  function getMinAmountToMint(
-    uint256 _valueOfBatch,
-    uint256 _valueOfComponentsPerUnit,
-    uint256 _slippage
-  ) public pure returns (uint256) {
-    uint256 _mintAmount = (_valueOfBatch * 1e18) / _valueOfComponentsPerUnit;
-    uint256 _delta = (_mintAmount * _slippage) / 10_000;
-    return _mintAmount - _delta;
-  }
-
-  /**
-   * @notice returns the min amount of 3crv that should be redeemed given an amount of butter
-   * @dev this controls slippage in the redeeming process
-   */
-  function getMinAmount3CrvFromRedeem(uint256 _valueOfComponents, uint256 _slippage) public view returns (uint256) {
-    uint256 _threeCrvToReceive = (_valueOfComponents * 1e18) / threePool.get_virtual_price();
-    uint256 _delta = (_threeCrvToReceive * _slippage) / 10_000;
-    return _threeCrvToReceive - _delta;
-  }
-
-  /**
-   * @notice returns the value of butter in virtualPrice
-   */
-  function valueOfComponents(address[] memory _tokenAddresses, uint256[] memory _quantities)
-    public
-    view
-    returns (uint256)
-  {
-    uint256 value;
-    for (uint256 i = 0; i < _tokenAddresses.length; i++) {
-      value +=
-        (((YearnVault(_tokenAddresses[i]).pricePerShare() *
-          curvePoolTokenPairs[_tokenAddresses[i]].curveMetaPool.get_virtual_price()) / 1e18) * _quantities[i]) /
-        1e18;
-    }
-    return value;
-  }
-
-  /**
-   * @notice returns the value of an amount of 3crv in virtualPrice
-   */
-  function valueOf3Crv(uint256 _units) public view returns (uint256) {
-    return (_units * threePool.get_virtual_price()) / 1e18;
   }
 
   /* ========== MUTATIVE FUNCTIONS ========== */
@@ -387,7 +339,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    * @dev In order to get 3CRV we can implement a zap to move stables into the curve tri-pool
    * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchMint() external whenNotPaused keeperIncentive(0) {
+  function batchMint() external whenNotPaused keeperIncentive(contractName, 0) {
     Batch storage batch = batches[currentMintBatchId];
     //Check if there was enough time between the last batch minting and this attempt...
     //...or if enough 3CRV was deposited to make the minting worthwhile
@@ -498,9 +450,9 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
    * @notice Redeems Butter for 3CRV. This function goes through all the steps necessary to get 3CRV
    * @dev This function reedeems Butter for the underlying yToken and deposits these yToken in curve Metapools for 3CRV
    * @dev In order to get stablecoins from 3CRV we can use a zap to redeem 3CRV for stables in the curve tri-pool
-   * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentiveV2.sol)
+   * @dev handleKeeperIncentive checks if the msg.sender is a permissioned keeper and pays them a reward for calling this function (see KeeperIncentive.sol)
    */
-  function batchRedeem() external whenNotPaused keeperIncentive(1) {
+  function batchRedeem() external whenNotPaused keeperIncentive(contractName, 1) {
     Batch storage batch = batches[currentRedeemBatchId];
 
     //Check if there was enough time between the last batch redemption and this attempt...
@@ -575,6 +527,55 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
       _maxApprove(threeCrv, address(curveMetapool));
     }
     _maxApprove(IERC20(address(setToken)), address(staking));
+  }
+
+  /**
+   * @notice returns the min amount of butter that should be minted given an amount of 3crv
+   * @dev this controls slippage in the minting process
+   */
+  function getMinAmountToMint(
+    uint256 _valueOfBatch,
+    uint256 _valueOfComponentsPerUnit,
+    uint256 _slippage
+  ) public pure returns (uint256) {
+    uint256 _mintAmount = (_valueOfBatch * 1e18) / _valueOfComponentsPerUnit;
+    uint256 _delta = (_mintAmount * _slippage) / 10_000;
+    return _mintAmount - _delta;
+  }
+
+  /**
+   * @notice returns the min amount of 3crv that should be redeemed given an amount of butter
+   * @dev this controls slippage in the redeeming process
+   */
+  function getMinAmount3CrvFromRedeem(uint256 _valueOfComponents, uint256 _slippage) public view returns (uint256) {
+    uint256 _threeCrvToReceive = (_valueOfComponents * 1e18) / threePool.get_virtual_price();
+    uint256 _delta = (_threeCrvToReceive * _slippage) / 10_000;
+    return _threeCrvToReceive - _delta;
+  }
+
+  /**
+   * @notice returns the value of butter in virtualPrice
+   */
+  function valueOfComponents(address[] memory _tokenAddresses, uint256[] memory _quantities)
+    public
+    view
+    returns (uint256)
+  {
+    uint256 value;
+    for (uint256 i = 0; i < _tokenAddresses.length; i++) {
+      value +=
+        (((YearnVault(_tokenAddresses[i]).pricePerShare() *
+          curvePoolTokenPairs[_tokenAddresses[i]].curveMetaPool.get_virtual_price()) / 1e18) * _quantities[i]) /
+        1e18;
+    }
+    return value;
+  }
+
+  /**
+   * @notice returns the value of an amount of 3crv in virtualPrice
+   */
+  function valueOf3Crv(uint256 _units) public view returns (uint256) {
+    return (_units * threePool.get_virtual_price()) / 1e18;
   }
 
   /* ========== RESTRICTED FUNCTIONS ========== */
@@ -797,23 +798,6 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
   /* ========== ADMIN ========== */
 
   /**
-   * @notice Updates the staking contract
-   */
-  function setStaking(address _staking) external onlyRole(DAO_ROLE) {
-    emit StakingUpdated(address(staking), _staking);
-    staking = IStaking(_staking);
-  }
-
-  /**
-   * @notice Toggles an address as Sweetheart (partner addresses that don't pay a redemption fee)
-   * @param _sweetheart The address that shall become/lose their sweetheart status
-   */
-  function updateSweetheart(address _sweetheart, bool _enabled) external onlyRole(DAO_ROLE) {
-    sweethearts[_sweetheart] = _enabled;
-    emit SweetheartUpdated(_sweetheart, _enabled);
-  }
-
-  /**
    * @notice This function allows the owner to change the composition of underlying token of the Butter
    * @param _yTokenAddresses An array of addresses for the yToken needed to mint Butter
    * @param _curvePoolTokenPairs An array structs describing underlying yToken, crvToken and curve metapool
@@ -907,6 +891,15 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
   }
 
   /**
+   * @notice Toggles an address as Sweetheart (partner addresses that don't pay a redemption fee)
+   * @param _sweetheart The address that shall become/lose their sweetheart status
+   */
+  function updateSweetheart(address _sweetheart, bool _enabled) external onlyRole(DAO_ROLE) {
+    sweethearts[_sweetheart] = _enabled;
+    emit SweetheartUpdated(_sweetheart, _enabled);
+  }
+
+  /**
    * @notice Pauses the contract.
    * @dev All function with the modifer `whenNotPaused` cant be called anymore. Namly deposits and mint/redeem
    */
@@ -922,10 +915,18 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     _unpause();
   }
 
+  /**
+   * @notice Updates the staking contract
+   */
+  function setStaking(address _staking) external onlyRole(DAO_ROLE) {
+    emit StakingUpdated(address(staking), _staking);
+    staking = IStaking(_staking);
+  }
+
   function _getContract(bytes32 _name)
     internal
     view
-    override(ACLAuth, KeeperIncentivized, ContractRegistryAccess)
+    override(ACLAuth, KeeperIncentivizedV1, ContractRegistryAccess)
     returns (address)
   {
     return super._getContract(_name);

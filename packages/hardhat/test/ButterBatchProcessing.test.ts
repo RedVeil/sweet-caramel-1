@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { BigNumber, utils, Wallet } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
-import { DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
+import { DAO_ROLE, INCENTIVE_MANAGER_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import ButterBatchProcessingAdapter from "../lib/adapters/ButterBatchAdapter";
 import { expectRevert, expectValue } from "../lib/utils/expectValue";
 import { timeTravel } from "../lib/utils/test";
@@ -108,7 +108,7 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   const keeperIncentive = await (
-    await (await ethers.getContractFactory("KeeperIncentive")).deploy(contractRegistry.address, 0, 0)
+    await (await ethers.getContractFactory("KeeperIncentiveV2")).deploy(contractRegistry.address, 0, 0)
   ).deployed();
 
   const popStaking = await (
@@ -163,6 +163,8 @@ async function deployContracts(): Promise<Contracts> {
 
   await aclRegistry.grantRole(DAO_ROLE, owner.address);
   await aclRegistry.grantRole(KEEPER_ROLE, owner.address);
+  await aclRegistry.grantRole(INCENTIVE_MANAGER_ROLE, owner.address);
+
   await butterBatchProcessing.connect(owner).setSlippage(7, 200);
 
   await butterBatchProcessing.setApprovals();
@@ -177,15 +179,11 @@ async function deployContracts(): Promise<Contracts> {
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, true, false);
+    .createIncentive(butterBatchProcessing.address, 0, true, false, mockPop.address, 1, 0);
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, true, false);
-
-  await keeperIncentive
-    .connect(owner)
-    .addControllerContract(utils.formatBytes32String("ButterBatchProcessing"), butterBatchProcessing.address);
+    .createIncentive(butterBatchProcessing.address, 0, true, false, mockPop.address, 1, 0);
 
   return {
     mock3Crv,

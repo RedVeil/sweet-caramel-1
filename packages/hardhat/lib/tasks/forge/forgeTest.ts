@@ -12,6 +12,7 @@ const forge = {
       "Vault.t.sol": 14837370,
       "ZeroXZapper.t.sol": 15127782,
       "ThreeXWhaleProcessing.t.sol": 15008113,
+      "ButterFeeConverter.t.sol": 15008113,
     },
     forkDirectory: "fork",
   },

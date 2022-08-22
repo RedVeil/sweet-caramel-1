@@ -4,10 +4,10 @@ import { expect } from "chai";
 import { utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
-import { BUTTER_ZAPPER, DAO_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
+import { BUTTER_ZAPPER, DAO_ROLE, INCENTIVE_MANAGER_ROLE, KEEPER_ROLE } from "../lib/acl/roles";
 import { expectRevert } from "../lib/utils/expectValue";
 import { timeTravel } from "../lib/utils/test";
-import { KeeperIncentive, MockERC20, RewardsEscrow } from "../typechain";
+import { KeeperIncentiveV2, MockERC20, RewardsEscrow } from "../typechain";
 import { ButterBatchProcessing } from "../typechain/ButterBatchProcessing";
 import { ButterBatchProcessingZapper } from "../typechain/ButterBatchProcessingZapper";
 import { MockBasicIssuanceModule } from "../typechain/MockBasicIssuanceModule";
@@ -31,7 +31,7 @@ interface Contracts {
   mockCurveMetapoolUST: MockCurveMetapool;
   mockCurveThreePool: MockCurveThreepool;
   mockBasicIssuanceModule: MockBasicIssuanceModule;
-  keeperIncentive: KeeperIncentive;
+  keeperIncentive: KeeperIncentiveV2;
   butterBatchProcessing: ButterBatchProcessing;
   butterBatchProcessingZapper: ButterBatchProcessingZapper;
 }
@@ -105,7 +105,7 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   const keeperIncentive = await (
-    await (await ethers.getContractFactory("KeeperIncentive")).deploy(contractRegistry.address, 0, 0)
+    await (await ethers.getContractFactory("KeeperIncentiveV2")).deploy(contractRegistry.address, 0, 0)
   ).deployed();
 
   const staking = await (
@@ -152,6 +152,7 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed()) as ButterBatchProcessing;
   await aclRegistry.grantRole(DAO_ROLE, owner.address);
   await aclRegistry.grantRole(KEEPER_ROLE, owner.address);
+  await aclRegistry.grantRole(INCENTIVE_MANAGER_ROLE, owner.address);
 
   await butterBatchProcessing.connect(owner).setSlippage(100, 100);
   await butterBatchProcessing.setApprovals();
@@ -191,14 +192,10 @@ async function deployContracts(): Promise<Contracts> {
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, true, false);
+    .createIncentive(butterBatchProcessing.address, 0, true, false, mockPop.address, 1, 0);
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("ButterBatchProcessing"), 0, true, false);
-
-  await keeperIncentive
-    .connect(owner)
-    .addControllerContract(utils.formatBytes32String("ButterBatchProcessing"), butterBatchProcessing.address);
+    .createIncentive(butterBatchProcessing.address, 0, true, false, mockPop.address, 1, 0);
 
   await butterBatchProcessingZapper.setApprovals();
   await aclRegistry.grantRole(ethers.utils.id("ApprovedContract"), butterBatchProcessingZapper.address);

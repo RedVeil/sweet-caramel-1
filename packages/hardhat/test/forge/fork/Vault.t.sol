@@ -2,9 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@ecmendenhall/ds-test/src/test.sol";
-import "@ecmendenhall/forge-std/src/Vm.sol";
-import { stdCheats } from "@ecmendenhall/forge-std/src/stdlib.sol";
+import { Test } from "@ecmendenhall/forge-std/src/Test.sol";
 
 import "../../../contracts/core/defi/vault/Vault.sol";
 import "../../../contracts/core/defi/vault/VaultFeeController.sol";
@@ -43,9 +41,7 @@ address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 
-contract VaultTest is DSTest, stdCheats {
-  Vm public constant vm = Vm(HEVM_ADDRESS);
-
+contract VaultTest is Test {
   IERC20 internal asset;
   User internal alice;
   User internal bob;

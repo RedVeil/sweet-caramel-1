@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@ecmendenhall/ds-test/src/test.sol";
-import "@ecmendenhall/forge-std/src/Vm.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { stdCheats } from "@ecmendenhall/forge-std/src/stdlib.sol";
+import { Test } from "@ecmendenhall/forge-std/src/Test.sol";
 import { ThreeXWhaleProcessing, ThreeXBatchVault } from "../../../contracts/core/defi/three-x/ThreeXWhaleProcessing.sol";
 import { ThreeXBatchProcessing } from "../../../contracts/core/defi/three-x/ThreeXBatchProcessing.sol";
 import "../../../contracts/core/interfaces/IContractRegistry.sol";
@@ -33,10 +31,9 @@ address constant Y_SUSD = 0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A;
 address constant Y_THREE_EUR = 0x5AB64C599FcC59f0f2726A300b03166A395578Da;
 
 // Run with block number 15008113
-// forge test --fork-url https://eth-mainnet.alchemyapi.io/v2/PRIV_KEY --fork-block-number 15256205 --match-contract ThreeXWhaleProcessing -vvv
-contract ThreeXWhaleProcessingTest is DSTest, stdCheats {
+// forge test --fork-url https://eth-mainnet.alchemyapi.io/v2/PRIV_KEY --fork-block-number 15008113 --match-contract ThreeXWhaleProcessing -vvv
+contract ThreeXWhaleProcessingTest is Test {
   using SafeERC20 for IERC20;
-  Vm public constant vm = Vm(HEVM_ADDRESS);
 
   IERC20[3] internal tokens;
   ThreeXWhaleProcessing internal threeXWhaleProcessing;
@@ -78,6 +75,12 @@ contract ThreeXWhaleProcessingTest is DSTest, stdCheats {
 
     // Manage setting the connection to BatchProcessing and setting up Roles/Permissions/connections on WhaleProcessing
     vm.startPrank(DAO);
+    vm.warp(block.timestamp - 3 days);
+    threeXBatchProcessing.grantClientAccess(address(threeXWhaleProcessing));
+    vm.warp(block.timestamp + 3 days);
+    ThreeXBatchVault(THREEX_VAULT).addClient(address(threeXWhaleProcessing));
+    threeXWhaleProcessing.setBatchStorage(AbstractBatchStorage(THREEX_VAULT));
+    threeXWhaleProcessing.acceptClientAccess(address(THREEX_BATCH));
     threeXWhaleProcessing.setFee("mint", 0, address(0), threex);
     threeXWhaleProcessing.setFee("redeem", 0, address(0), usdc);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(this));

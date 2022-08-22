@@ -7,7 +7,6 @@ import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/Saf
 import "../../../utils/ACLAuth.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
-
 abstract contract AbstractFee is ACLAuth {
   using SafeERC20 for IERC20;
 
