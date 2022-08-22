@@ -32,7 +32,7 @@ const { title, description, socialShareImage } = {
   title: "Popcorn - Yield That Counts",
   description: "Popcorn is a regenerative yield optimizing protocol.",
   // we need to host the cover image somewhere
-  socialShareImage: "https://www.popcorn.network/images/social_cover_image.svg",
+  socialShareImage: "https://www.popcorn.network/images/social_cover_image.png",
 };
 
 export default function MyApp(props) {
