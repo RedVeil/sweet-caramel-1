@@ -49,8 +49,7 @@ const Footer = () => {
       </div>
       <div className="col-span-12 md:col-span-6 flex flex-col justify-between order-3 md:order-2 mt-12 md:mt-0">
         <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
-          Popcorn is an audited, non-custodial DeFi wealth manager with yield-generating products that simultaneously
-          fund nonprofit and social impact organizations.
+          Popcorn is a multi-chain regenerative yield optimizing protocol.
         </p>
         <div className="flex justify-between md:justify-start md:gap-7 order-1 md:order-2">
           <a
@@ -102,9 +101,11 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Products</p>
           <div className="flex flex-col">
-            <Link href="/">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Sweet Vaults</a>
-            </Link>
+            {process.env.SHOW_SWEETVAULTS && (
+              <Link href="/">
+                <a className=" text-primary hover:text-black leading-6 mt-4">Sweet Vaults</a>
+              </Link>
+            )}
             <Link href={`/${router?.query?.network}/set/3x`}>
               <a className=" text-primary hover:text-black leading-6 mt-4">3X</a>
             </Link>

@@ -2,13 +2,44 @@ import MobileCardSlider from "components/Common/MobileCardSlider";
 import Link from "next/link";
 import React from "react";
 
+const descriptions = {
+  zokyo: (
+    <>
+      {" "}
+      Zokyo is an end-to-end security resource that provides distinguishable security auditing and penetration testing
+      services alongside prominent vulnerability assessments.{" "}
+      <Link href="https://assets.website-files.com/5f99eb79d508ca853be5f2e8/61b21474b7a1746d889f599d_Popcorn%20SC%20Audit.pdf">
+        <a className="text-customPurple">See Zokyo's review.</a>
+      </Link>
+    </>
+  ),
+  immunefi: (
+    <>
+      Immunefi is a leading bug bounty platform for Web3 where hundreds of security researchers review smart contracts
+      for vulnerabilites.{" "}
+      <Link href="https://immunefi.com/bounty/popcornnetwork/">
+        <a className="text-customPurple">See Popcorn's bug bounty program.</a>
+      </Link>
+    </>
+  ),
+  g0: (
+    <>
+      {" "}
+      g0 group is an industry leading security reviewer having audited blockchain projects such as Gnosis Safe and Nexus
+      Mutual.{" "}
+      <Link href="/docs/PopcornMay2022.pdf">
+        <a className="text-customPurple">See g0's review.</a>
+      </Link>
+    </>
+  ),
+};
 const SecuritySection = () => {
   return (
     <section className="grid grid-cols-12 md:gap-14 pt-10">
       <div className="col-span-12 md:col-span-3 hidden md:block">
         <div>
           <h1 className="text-6xl leading-12 pt-10">Security</h1>
-          <p className="mt-4 text-primaryDark">Our smart contract has been audited by the best in the business.</p>
+          <p className="mt-4 text-primaryDark">Core smart contracts have been audited by the best in the business.</p>
         </div>
       </div>
       <div className="col-span-12 md:col-span-9 hidden md:grid grid-cols-3 gap-8 laptop:gap-14 mt-9">
@@ -17,13 +48,7 @@ const SecuritySection = () => {
             <img src="/images/zokyoCard.svg" alt="Zokyo logo" className="w-full object-contain" />
           </a>
           <p className="text-black text-3xl leading-9 mt-6 mb-4">Zokyo</p>
-          <p className="text-primaryDark leading-5">
-            Zokyo is an end-to-end security resource that provides distinguishable security auditing and penetration
-            testing services alongside prominent vulnerability assessments.{" "}
-            <Link href="https://assets.website-files.com/5f99eb79d508ca853be5f2e8/61b21474b7a1746d889f599d_Popcorn%20SC%20Audit.pdf">
-              <a className="text-customPurple">See Zokyo's review.</a>
-            </Link>
-          </p>
+          <p className="text-primaryDark leading-5">{descriptions.zokyo}</p>
         </div>
 
         <div className="col-span-3 md:col-span-1">
@@ -31,26 +56,14 @@ const SecuritySection = () => {
             <img src="/images/g0Card.svg" alt="g0 logo" className="w-full object-contain" />
           </a>
           <p className="text-black text-3xl leading-9 mt-6 mb-4">g0</p>
-          <p className="text-primaryDark leading-5">
-            g0 group is an industry leading security reviewer having audited blue chip blockchain projects such as
-            Gnosis Safe and Nexus Mutual.{" "}
-            <Link href="/docs/PopcornMay2022.pdf">
-              <a className="text-customPurple">See g0's review.</a>
-            </Link>
-          </p>
+          <p className="text-primaryDark leading-5">{descriptions.g0}</p>
         </div>
         <div className="col-span-3 md:col-span-1">
           <a href="https://immunefi.com/bounty/popcornnetwork/" target="_blank">
             <img src="/images/immunefiCard.svg" alt="Immunefi logo" className="w-full object-contain" />
           </a>
           <p className="text-black text-3xl leading-9 mt-6 mb-4">Immunefi</p>
-          <p className="text-primaryDark leading-5">
-            Immunefi is the leading bug bounty platform for Web3 where hundreds of security researchers review smart
-            contracts for vulnerabilites.{" "}
-            <Link href="https://immunefi.com/bounty/popcornnetwork/">
-              <a className="text-customPurple">See Popcorn's bug bounty program.</a>
-            </Link>
-          </p>
+          <p className="text-primaryDark leading-5">{descriptions.immunefi}</p>
         </div>
       </div>
       <div className="col-span-12 md:hidden mt-9">
@@ -65,13 +78,7 @@ const SecuritySection = () => {
               </div>
             </a>
             <p className="text-black text-3xl leading-9 mt-6 mb-4">Zokyo</p>
-            <p className="text-primaryDark leading-5">
-              Zokyo is an end-to-end security resource that provides distinguishable security auditing and penetration
-              testing services alongside prominent vulnerability assessments.{" "}
-              <Link href="https://assets.website-files.com/5f99eb79d508ca853be5f2e8/61b21474b7a1746d889f599d_Popcorn%20SC%20Audit.pdf">
-                <a className="text-customPurple">See Zokyo's review.</a>
-              </Link>
-            </p>
+            <p className="text-primaryDark leading-5">{descriptions.zokyo}</p>
           </div>
 
           <div className="px-2">
@@ -84,14 +91,7 @@ const SecuritySection = () => {
               </div>
             </a>
             <p className="text-black text-3xl leading-9 mt-6 mb-4">g0</p>
-            <p className="text-primaryDark leading-5">
-              {" "}
-              g0 group is an industry leading security reviewer having audited blue chip blockchain projects such as
-              Gnosis Safe and Nexus Mutual.{" "}
-              <Link href="/docs/PopcornMay2022.pdf">
-                <a className="text-customPurple">See g0's review.</a>
-              </Link>
-            </p>
+            <p className="text-primaryDark leading-5">{descriptions.g0}</p>
           </div>
 
           <div className="px-2">
@@ -104,12 +104,7 @@ const SecuritySection = () => {
               </div>
             </a>
             <p className="text-black text-3xl leading-9 mt-6 mb-4">Immunefi</p>
-            <p className="text-primaryDark leading-5">
-              Immunefi is the leading bug bounty platform for Web3.{" "}
-              <Link href="https://immunefi.com/bounty/popcornnetwork/">
-                <a className="text-customPurple">See Popcorn's bug bounty program.</a>
-              </Link>
-            </p>
+            <p className="text-primaryDark leading-5">{descriptions.immunefi}</p>
           </div>
         </MobileCardSlider>
       </div>
