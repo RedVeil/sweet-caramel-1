@@ -6,10 +6,17 @@ export interface InfoIconWithModalProps {
   title: string;
   content?: string | React.ReactElement;
   children?: React.ReactElement;
+  image?: React.ReactElement;
   size?: string;
 }
 
-export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({ title, content, children, size = "h-7 w-7" }) => {
+export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
+  title,
+  content,
+  children,
+  size = "h-7 w-7",
+  image,
+}) => {
   const { dispatch } = useContext(store);
 
   return (
@@ -19,8 +26,9 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({ title, con
         dispatch(
           setSingleActionModal({
             title,
-            children: children,
-            content: content,
+            children,
+            content,
+            image,
             onDismiss: {
               label: "Dismiss",
               onClick: () => {

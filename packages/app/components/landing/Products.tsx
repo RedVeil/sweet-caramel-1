@@ -165,54 +165,34 @@ const ButterExposure: React.ReactElement = (
     </div>
     <div className="flex relative mt-1">
       <img
-        src="/images/tokens/usdt.svg"
+        src="/images/tokens/boltLogo.svg"
         alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative"
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-2"
       />
       <img
-        src="/images/tokens/Group 1104.svg"
-        alt=""
-        className={`md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-2`}
-      />
-      <img
-        src="/images/tokens/multi-collateral-dai-dai-logo 1.svg"
+        src="/images/tokens/sUnderscore.svg"
         alt=""
         className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
       />
       <img
-        src="/images/tokens/susd 1.svg"
+        src="/images/tokens/RAI.svg"
         alt=""
         className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-6"
       />
       <img
-        src="/images/tokens/usd-coin-usdc-logo.svg"
+        src="/images/tokens/sLogo.svg"
         alt=""
         className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-8"
       />
       <img
-        src="/images/tokens/sLogo.svg"
+        src="/images/tokens/sDiamondLogo.svg"
         alt=""
         className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
       />
       <img
-        src="/images/tokens/sDiamondLogo.svg"
+        src="/images/tokens/threeCrv.svg"
         alt=""
         className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-12"
-      />
-      <img
-        src="/images/tokens/boltLogo.svg"
-        alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-14"
-      />
-      <img
-        src="/images/tokens/clogo.svg"
-        alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-16"
-      />
-      <img
-        src="/images/tokens/RAI.svg"
-        alt=""
-        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-18"
       />
     </div>
   </>
@@ -243,7 +223,7 @@ const ThreeXExposure: React.ReactElement = (
         className={`md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-2`}
       />
       <img
-        src="/images/tokens/Group 1108.svg"
+        src="/images/tokens/ageur.svg"
         alt=""
         className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-4"
       />
@@ -261,6 +241,11 @@ const ThreeXExposure: React.ReactElement = (
         src="/images/tokens/usd-coin-usdc-logo.svg"
         alt=""
         className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-10"
+      />
+      <img
+        src="/images/tokens/tether-usdt-logo.svg"
+        alt=""
+        className="md:h-9 h-10 w-10 md:w-9 laptop:h-10 laptop:w-10 rounded-full relative -left-12"
       />
     </div>
   </>

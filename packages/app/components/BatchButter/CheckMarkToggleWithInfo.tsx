@@ -8,6 +8,7 @@ export function CheckMarkToggleWithInfo({
   infoTitle,
   label,
   onChange,
+  image,
 }: {
   disabled?: boolean;
   value: boolean;
@@ -15,6 +16,7 @@ export function CheckMarkToggleWithInfo({
   infoTitle: string;
   infoText: string;
   label: string;
+  image?: React.ReactElement;
 }) {
   return (
     <div className="flex flex-row items-center mt-2">
@@ -29,7 +31,7 @@ export function CheckMarkToggleWithInfo({
         </p>
       </label>
       <div className="mb-1">
-        <InfoIconWithModal title={infoTitle}>
+        <InfoIconWithModal title={infoTitle} image={image}>
           <p>{infoText}</p>
         </InfoIconWithModal>
       </div>

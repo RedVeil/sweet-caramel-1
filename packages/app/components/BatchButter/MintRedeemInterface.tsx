@@ -43,6 +43,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   function setSlippage(slippage: number) {
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }
+  const butterModalImage = <img src="/images/Instant Butter_icon.svg" />;
   return (
     <div className="bg-white rounded-3xl p-6 border border-customLightGray">
       <MintRedeemToggle
@@ -70,6 +71,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                 instant: !localButterPageState.instant,
               })
             }
+            image={butterModalImage}
             infoTitle="Instant Butter"
             infoText="Using 'Instant Butter' comes with higher gas costs. Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when the gas costs are acceptable to you."
           />
