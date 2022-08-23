@@ -96,7 +96,7 @@ export const NetworkChangePromptModal: React.FC<NetworkChangePromptModalProps> =
                 <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
                   &#8203;
                 </span>
-                <div className="inline-block align-bottom bg-white rounded-lg p-6 md:p-10 mb-12 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
+                <div className="inline-block align-bottom bg-white rounded-lg p-6 md:p-10 mb-12 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-88 md:max-w-md sm:w-full sm:p-8">
                   <div className="flex justify-end">
                     <XIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />
                   </div>

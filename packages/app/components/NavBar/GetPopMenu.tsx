@@ -29,7 +29,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
               href={`${getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses)}`}
               target="_blank"
             >
-              <p className={`text-lg ${active ? "font-medium" : ""}`}>Buy POP</p>
+              <p className={`text-left text-lg px-6 ${active ? "font-medium" : ""}`}>Buy POP</p>
             </a>
           )}
         </Menu.Item>
@@ -39,7 +39,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
               <div
                 className={`${
                   active ? "bg-gray-100" : "bg-white"
-                } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-3xl`}
+                } group px-2 pt-4 w-full h-14 cursor-pointer rounded-b-3xl`}
                 onClick={async () =>
                   await window.ethereum.request({
                     method: "wallet_watchAsset",
@@ -55,7 +55,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                   })
                 }
               >
-                <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Add to Wallet</p>
+                <p className={`text-left text-lg px-6 ${active ? "font-medium" : ""}`}>Add to Wallet</p>
               </div>
             )}
           </Menu.Item>

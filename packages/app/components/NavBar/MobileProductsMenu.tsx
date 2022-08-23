@@ -16,7 +16,7 @@ const MobileProductsMenu = ({ onCloseMenu }) => {
       </div>
       <ul className="h-full flex flex-col gap-10 justify-center">
         {process.env.SHOW_SWEETVAULTS && (
-          <li className="mt-1">
+          <li className="mt-1" onClick={onCloseMenu}>
             <NavbarLink
               label="Sweet Vaults"
               url="/sweet-vaults"
@@ -24,13 +24,13 @@ const MobileProductsMenu = ({ onCloseMenu }) => {
             />
           </li>
         )}
-        <li className="mt-1">
-          <NavbarLink label="3X " url="/threeX" isActive={router.pathname === `/[network]/threeX`} />
+        <li className="mt-1" onClick={onCloseMenu}>
+          <NavbarLink label="3X " url="/set/3x" isActive={router.pathname === `/[network]/set/3x`} />
         </li>
-        <li className="mt-1">
-          <NavbarLink label="Butter" url="/butter" isActive={router.pathname === `/[network]/butter`} />
+        <li className="mt-1" onClick={onCloseMenu}>
+          <NavbarLink label="Butter" url="/set/butter" isActive={router.pathname === `/[network]/set/butter`} />
         </li>
-        <li className="mt-1">
+        <li className="mt-1" onClick={onCloseMenu}>
           <NavbarLink label="Staking" url="/staking" isActive={router.pathname === `/[network]/staking`} />
         </li>
       </ul>

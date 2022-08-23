@@ -671,7 +671,7 @@ export default function Butter(): JSX.Element {
                       25.00% yvCurve-mUSD <br />
                       25.00% yvCurve-alUSD <br />
                       <br />
-                      BTR Has Exposure to: FRAX, RAI, mUSD, alUSD, sUSD and 3CRV (USDC/DAI/USDT).
+                      BTR has Exposure to: FRAX, RAI, mUSD, alUSD, sUSD and 3CRV (USDC/DAI/USDT).
                     </span>
                   ),
                 }}

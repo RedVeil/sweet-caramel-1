@@ -529,7 +529,7 @@ export default function ThreeX(): JSX.Element {
                       50% yvCurve-sUSDpool <br />
                       50% yvCurve-3EURpool <br />
                       <br />
-                      3X Has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT and EURS.
+                      3X has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT and EURS.
                     </span>
                   ),
                 }}
