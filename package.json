@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "3.9.2",
-    "@web3-onboard/common": "^2.2.0",
     "lerna": "5.4.0",
     "typescript": "4.5.4",
     "yarn": "1.22.17"
@@ -38,6 +37,7 @@
   "resolutions": {
     "@walletconnect/ethereum-provider": "1.7.1",
     "@web3-onboard/core": "2.2.7",
+    "@web3-onboard/common": "2.1.0",
     "shell-quote": "^1.7.3",
     "lodash": "^4.17.12",
     "undici": "^5.8.0",
