@@ -95,7 +95,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                 <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
                   &#8203;
                 </span>
-                <div className="inline-block align-bottom bg-white rounded-lg p-6 md:p-10 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
+                <div className="inline-block align-bottom bg-white rounded-lg p-6 md:p-10 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle w-88 md:max-w-md sm:w-full sm:p-8">
                   <Dialog.Panel>
                     <div>
                       {/* Always add onDismiss prop when calling modal else this will break */}

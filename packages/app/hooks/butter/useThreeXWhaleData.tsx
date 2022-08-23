@@ -5,10 +5,10 @@ import useThreePool from "hooks/useThreePool";
 import useWeb3 from "hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
 import { getDataWhale } from "../../helper/threeXDataUtils";
-import useBasicIssuanceModule from "./useBasicIssuanceModule";
-import useSetToken from "./useSetToken";
-import useThreeXBatch from "./useThreeXBatch";
-import useThreeXWhale from "./useThreeXWhale";
+import useThreeXWhale from "../butter/useThreeXWhale";
+import useBasicIssuanceModule from "../set/useBasicIssuanceModule";
+import useSetToken from "../set/useSetToken";
+import useThreeXBatch from "../set/useThreeXBatch";
 
 export default function useThreeXWhaleData(): SWRResponse<BatchMetadata, Error> {
   const { contractAddresses, account, chainId } = useWeb3();

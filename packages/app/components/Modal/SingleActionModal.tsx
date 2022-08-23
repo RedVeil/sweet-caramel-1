@@ -97,7 +97,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                 <Dialog.Panel className="absolute flex top-0 w-full h-full justify-center sm:items-center items-end pb-20">
                   <div
                     className={`inline-block align-bottom bg-white rounded-lg p-6 md:p-10 mb-12 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6 ${
-                      isTerms ? " max-w-lg" : "sm:max-w-md"
+                      isTerms ? " max-w-lg" : "w-88 md:max-w-md"
                     }`}
                   >
                     {!isTerms && (

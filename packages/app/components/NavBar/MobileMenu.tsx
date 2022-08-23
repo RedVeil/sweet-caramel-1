@@ -74,7 +74,7 @@ export const MobileMenu: React.FC = () => {
         <div>
           <Link href={`/${router?.query?.network}/`} passHref>
             <a>
-              <img src="/images/icons/popLogo.svg" alt="Logo" className="w-12 h-12" />
+              <img src="/images/icons/popLogo.svg" alt="Logo" className="w-10 h-10" />
             </a>
           </Link>
         </div>

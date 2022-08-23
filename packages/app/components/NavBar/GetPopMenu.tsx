@@ -55,7 +55,13 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                   })
                 }
               >
-                <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Add to Wallet</p>
+                <p
+                  className={`${
+                    active ? "bg-gray-100" : "bg-white"
+                  } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-3xl`}
+                >
+                  Add to Wallet
+                </p>
               </div>
             )}
           </Menu.Item>

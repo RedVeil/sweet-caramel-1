@@ -23,12 +23,12 @@ import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actio
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "helper/modalHelpers";
-import useSetToken from "hooks/butter/useSetToken";
-import useThreeXBatch from "hooks/butter/useThreeXBatch";
-import useThreeXData from "hooks/butter/useThreeXData";
 import useThreeXWhale from "hooks/butter/useThreeXWhale";
 import useThreeXWhaleData from "hooks/butter/useThreeXWhaleData";
-import useThreeXZapper from "hooks/butter/useThreeXZapper";
+import useSetToken from "hooks/set/useSetToken";
+import useThreeXBatch from "hooks/set/useThreeXBatch";
+import useThreeXData from "hooks/set/useThreeXData";
+import useThreeXZapper from "hooks/set/useThreeXZapper";
 import useWeb3 from "hooks/useWeb3";
 import { Fragment, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
