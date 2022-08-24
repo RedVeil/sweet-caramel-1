@@ -49,7 +49,7 @@ export default task("forge:forge-test", "run forge tests").setAction(async (args
   for (let file of files) {
     let blockNumber = forge.fork.blocks[file];
     const shellCommand =
-      command + ` --fork-url ${rpcUrl} --fork-block-number ${blockNumber} --match-path test/forge/fork/${file}`;
+      command + ` --fork-url ${rpcUrl} --fork-block-number ${blockNumber} --match-path test/forge/fork/${file} --no-match-contract 'Abstract|SimulateThreeXBatchSlippage'`;
     await executeCommand(shellCommand);
   }
 });

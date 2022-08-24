@@ -24,7 +24,7 @@ const getContractDependencies = async (hre: HardhatRuntimeEnvironment) => {
 
   const butterBatchProcessing = await hre.ethers.getContractAt("ButterBatchProcessing", butterBatch);
   const threePoolContract = await hre.ethers.getContractAt("MockCurveThreepool", threePool);
-  const basicIssuanceModule = await hre.ethers.getContractAt("BasicIssuanceModule", setBasicIssuanceModule);
+  const basicIssuanceModule = await hre.ethers.getContractAt("IBasicIssuanceModule", setBasicIssuanceModule);
   const crvMimMetapoolContract = await hre.ethers.getContractAt("CurveMetapool", crvMimMetapool);
   const crvFraxMetapoolContract = await hre.ethers.getContractAt("CurveMetapool", crvFraxMetapool);
 

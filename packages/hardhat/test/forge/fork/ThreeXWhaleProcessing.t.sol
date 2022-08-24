@@ -10,7 +10,7 @@ import { AbstractBatchStorage } from "../../../contracts/core/defi/three-x/stora
 import "../../../contracts/core/interfaces/IStaking.sol";
 import "../../../contracts/core/interfaces/IBatchStorage.sol";
 import "../../../contracts/externals/interfaces/Curve3Pool.sol";
-import "../../../contracts/externals/interfaces/BasicIssuanceModule.sol";
+import "../../../contracts/externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../contracts/core/interfaces/IACLRegistry.sol";
 
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -37,7 +37,7 @@ contract ThreeXWhaleProcessingTest is Test {
 
   IERC20[3] internal tokens;
   ThreeXWhaleProcessing internal threeXWhaleProcessing;
-  BasicIssuanceModule internal basicIssuanceModule = BasicIssuanceModule(BASIC_ISSUANCE_MODULE);
+  IBasicIssuanceModule internal basicIssuanceModule = IBasicIssuanceModule(BASIC_ISSUANCE_MODULE);
   ThreeXBatchProcessing internal threeXBatchProcessing = ThreeXBatchProcessing(THREEX_BATCH);
   IStaking internal staking = IStaking(STAKING);
   IERC20 internal threex = IERC20(THREE_X);

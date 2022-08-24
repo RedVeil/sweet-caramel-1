@@ -10,7 +10,7 @@ import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/KeeperIncentivizedV1.sol";
 import "../../../externals/interfaces/YearnVault.sol";
-import "../../../externals/interfaces/BasicIssuanceModule.sol";
+import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
@@ -68,7 +68,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
   // agEUR which we use as intermediate token to deploy/withdraw from the 3EUR-Pool
   IERC20 public swapToken;
 
-  BasicIssuanceModule public basicIssuanceModule;
+  IBasicIssuanceModule public basicIssuanceModule;
 
   /* ========== EVENTS ========== */
 
@@ -84,7 +84,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
     IStaking _staking,
     BatchTokens memory _mintBatchTokens,
     BatchTokens memory _redeemBatchTokens,
-    BasicIssuanceModule _basicIssuanceModule,
+    IBasicIssuanceModule _basicIssuanceModule,
     address[] memory _componentAddresses,
     ComponentDependencies[] memory _componentDependencies,
     IERC20 _swapToken,
