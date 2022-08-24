@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
 import MainActionButton from "components/MainActionButton";
 import TertiaryActionButton from "components/TertiaryActionButton";
-import React, { Fragment, MouseEventHandler, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface MultiChoiceActionModalProps {
   title: string;
@@ -15,7 +15,7 @@ export interface MultiChoiceActionModalProps {
   onConfirm?: { label: string; onClick: Function };
   onSecondOption?: { label: string; onClick: Function };
   onDismiss?: { label?: string; onClick: Function };
-  onDontShowAgain?: { label?: string; onClick: MouseEventHandler<HTMLButtonElement> };
+  onDontShowAgain?: { label?: string; onClick: Function };
 }
 export const DefaultMultiChoiceActionModalProps: MultiChoiceActionModalProps = {
   content: "",
@@ -59,6 +59,10 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
   const secondOption = () => {
     setOpen(false);
     setTimeout(() => onSecondOption?.onClick && onSecondOption.onClick(), 1000);
+  };
+
+  const dontShowAgain = () => {
+    onDontShowAgain?.onClick && onDontShowAgain.onClick();
   };
 
   if (!visible) return <></>;
@@ -135,10 +139,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                         )}
                         {onDontShowAgain && (
                           <div className="flex justify-center mt-4">
-                            <button
-                              className="text-primary hover:text-black font-medium"
-                              onClick={onDontShowAgain.onClick}
-                            >
+                            <button className="text-primary hover:text-black font-medium" onClick={dontShowAgain}>
                               {onDontShowAgain.label}
                             </button>
                           </div>

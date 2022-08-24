@@ -74,7 +74,7 @@ export const MobileMenu: React.FC = () => {
         <div>
           <Link href={`/${router?.query?.network}/`} passHref>
             <a>
-              <img src="/images/icons/popLogo.svg" alt="Logo" className="w-10 h-10" />
+              <img src="/images/icons/popLogo.svg" alt="Logo" className="w1010 h-10" />
             </a>
           </Link>
         </div>
@@ -95,26 +95,26 @@ export const MobileMenu: React.FC = () => {
             </div>
           )}
           <button
-            className="text-gray-500 w-8 relative focus:outline-none bg-white"
+            className="text-gray-500 w-10 relative focus:outline-none bg-white"
             onClick={() => toggleMenu(!menuVisible)}
           >
-            <div className="block w-8">
+            <div className="block w-10">
               <span
                 aria-hidden="true"
-                className={`block h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-1.5"
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
                 }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
                   menuVisible ? "opacity-0" : "opacity-100"
                 }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-8 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-1.5"
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
                 }`}
               ></span>
             </div>
