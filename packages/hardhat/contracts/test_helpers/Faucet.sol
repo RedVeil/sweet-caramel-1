@@ -99,11 +99,9 @@ contract Faucet {
   CrvStethPool public crvStethPool = CrvStethPool(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
   IERC20 public crvStethLP = IERC20(0x06325440D014e39736583c165C2963BA99fAf14E);
 
-  constructor(
-    address uniswap_,
-    address curveAddressProvider_,
-    address curveDepositZap_
-  ) {
+  constructor(address uniswap_) /* address curveAddressProvider_ */
+  /* address curveDepositZap_ */
+  {
     uniswap = Uniswap(uniswap_);
     IERC20(dai).safeApprove(address(cDai), type(uint256).max);
     cDai.safeApprove(address(crvCompPool), type(uint256).max);

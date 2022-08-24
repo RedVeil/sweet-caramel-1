@@ -34,10 +34,15 @@ contract MockSynthetix {
   function exchangeAtomically(
     bytes32 sourceCurrencyKey,
     uint256 sourceAmount,
-    bytes32 destinationCurrencyKey,
-    bytes32 trackingCode,
-    uint256 minAmount
-  ) external returns (uint256) {
+    bytes32 destinationCurrencyKey
+  )
+    external
+    returns (
+      /* bytes32 trackingCode */
+      /* uint256 minAmount */
+      uint256
+    )
+  {
     tokens[sourceCurrencyKey].safeTransferFrom(msg.sender, address(this), sourceAmount);
     uint256 inputValue = priceInUSD[sourceCurrencyKey] * sourceAmount;
     uint256 outputAmount = inputValue / priceInUSD[destinationCurrencyKey];

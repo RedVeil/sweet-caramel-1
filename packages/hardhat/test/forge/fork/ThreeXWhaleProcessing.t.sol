@@ -95,9 +95,9 @@ contract ThreeXWhaleProcessingTest is Test {
     threex.approve(address(threeXWhaleProcessing), type(uint256).max);
 
     // Hand out money
-    tip(USDC, address(this), 100000e6);
-    tip(DAI, address(this), 100000e18);
-    tip(USDT, address(this), 100000e6);
+    deal(USDC, address(this), 100000e6);
+    deal(DAI, address(this), 100000e18);
+    deal(USDT, address(this), 100000e6);
 
     // Save Preconditions before each test which can be referenced during testing
     (defaultMintSlippage, defaultRedeemSlippage) = threeXBatchProcessing.slippage();
@@ -113,7 +113,7 @@ contract ThreeXWhaleProcessingTest is Test {
   }
 
   function mintThreeX(uint256 _amount) internal {
-    tip(USDC, address(this), _amount * 30000e6);
+    deal(USDC, address(this), _amount * 30000e6);
 
     bytes32 batchId = threeXBatchProcessing.currentMintBatchId();
     usdc.approve(address(threeXBatchProcessing), type(uint256).max);

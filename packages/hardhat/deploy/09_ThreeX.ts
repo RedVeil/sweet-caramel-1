@@ -220,7 +220,7 @@ async function createDemoData(
   //Faucet
   await deploy("Faucet", {
     from: addresses.deployer,
-    args: [addresses.uniswapRouter, addresses.curveAddressProvider, addresses.curveFactoryMetapoolDepositZap],
+    args: [addresses.uniswapRouter /* addresses.curveAddressProvider, addresses.curveFactoryMetapoolDepositZap */],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "Faucet",

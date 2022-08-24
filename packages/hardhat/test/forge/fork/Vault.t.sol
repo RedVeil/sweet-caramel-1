@@ -102,8 +102,8 @@ contract VaultTest is Test {
     vm.prank(ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(bob));
 
-    tip(address(asset), address(alice), 10_000_000 ether);
-    tip(address(asset), address(bob), 10_000_000 ether);
+    deal(address(asset), address(alice), 10_000_000 ether);
+    deal(address(asset), address(bob), 10_000_000 ether);
 
     alice.approve(address(vault), type(uint256).max);
     bob.approve(address(vault), type(uint256).max);
@@ -153,7 +153,7 @@ contract VaultTest is Test {
     uint256 totalVaultIncrease = totalAmount / 2;
     uint256 totalDepositAmount = totalAmount / 2;
 
-    tip(address(asset), address(this), totalVaultIncrease);
+    deal(address(asset), address(this), totalVaultIncrease);
 
     uint256 depositAmount = totalDepositAmount / steps;
     uint256 vaultIncrease = totalVaultIncrease / steps;
@@ -185,7 +185,7 @@ contract VaultTest is Test {
     uint256 totalVaultIncrease = totalAmount / 2;
     uint256 totalDepositAmount = totalAmount / 2;
 
-    tip(address(asset), address(this), totalVaultIncrease);
+    deal(address(asset), address(this), totalVaultIncrease);
 
     uint256 depositAmount = totalDepositAmount / steps;
     uint256 vaultIncrease = totalVaultIncrease / steps;
@@ -230,7 +230,7 @@ contract VaultTest is Test {
     uint256 totalVaultIncrease = totalAmount / 2;
     uint256 totalDepositAmount = totalAmount / 2;
 
-    tip(address(asset), address(this), totalVaultIncrease);
+    deal(address(asset), address(this), totalVaultIncrease);
 
     uint256 depositAmount = totalDepositAmount / steps;
     uint256 vaultIncrease = totalVaultIncrease / steps;
@@ -271,7 +271,7 @@ contract VaultTest is Test {
     uint256 totalVaultIncrease = totalAmount / 2;
     uint256 totalDepositAmount = totalAmount / 2;
 
-    tip(address(asset), address(this), totalVaultIncrease);
+    deal(address(asset), address(this), totalVaultIncrease);
 
     uint256 depositAmount = totalDepositAmount / steps;
     uint256 withdrawalAmount = depositAmount;

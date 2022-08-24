@@ -18,7 +18,9 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
   // Deploy helper Faucet
   const Faucet = await ethers.getContractFactory("Faucet");
   const faucet = await (
-    await Faucet.deploy(accounts.uniswapRouter, accounts.curveAddressProvider, accounts.curveFactoryMetapoolDepositZap)
+    await Faucet.deploy(
+      accounts.uniswapRouter /* accounts.curveAddressProvider, accounts.curveFactoryMetapoolDepositZap */
+    )
   ).deployed();
 
   // Send ETH to Faucet
