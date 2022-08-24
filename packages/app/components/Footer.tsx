@@ -67,7 +67,7 @@ const Footer = () => {
             <DiscordIcon color={discordColor} size={iconSize} />
           </a>
           <a
-            href="https://t.me/popcorndao"
+            href="https://t.me/popcorndaochat"
             onMouseEnter={() => onHoverIcon(setTelegramColor)}
             onMouseLeave={() => onLeaveIcon(setTelegramColor)}
           >
