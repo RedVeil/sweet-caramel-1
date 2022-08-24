@@ -23,7 +23,7 @@ describe.skip("voting test", () => {
         ],
       });
     });
-    it.only("will transfer funds back to DAO agent when pool is closed (via vote)", async () => {
+    it("will transfer funds back to DAO agent when pool is closed (via vote)", async () => {
       const signer = await impersonateSigner(POP_WHALE);
 
       const voting = new ethers.Contract(

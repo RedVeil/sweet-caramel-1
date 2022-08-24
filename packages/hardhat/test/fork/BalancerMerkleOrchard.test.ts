@@ -55,7 +55,7 @@ describe.skip("Balancer Merkle Orchard", () => {
 
     it("transfers tokens from createDistribution caller", async () => {
       const balance = await mockToken.balanceOf(admin.address);
-      await expectValue(balance, 0);
+      expectValue(balance, 0);
     });
 
     it("validating claims", async () => {
@@ -69,7 +69,7 @@ describe.skip("Balancer Merkle Orchard", () => {
         parseEther("100"),
         proof0
       );
-      await expectValue(claim0Valid, true);
+      expectValue(claim0Valid, true);
 
       const leaf1 = soliditySha3(claimer1.address, toWei("101"));
       const proof1 = tree.getHexProof(leaf1);
@@ -81,12 +81,12 @@ describe.skip("Balancer Merkle Orchard", () => {
         parseEther("101"),
         proof1
       );
-      await expectValue(claim1Valid, true);
+      expectValue(claim1Valid, true);
     });
 
     it("making claims", async () => {
       let balance0 = await mockToken.balanceOf(claimer0.address);
-      await expectValue(balance0, 0);
+      expectValue(balance0, 0);
       const leaf0 = soliditySha3(claimer0.address, toWei("100"));
       const proof0 = tree.getHexProof(leaf0);
       await merkleOrchard.claimDistributions(
@@ -103,10 +103,10 @@ describe.skip("Balancer Merkle Orchard", () => {
         [mockToken.address]
       );
       balance0 = await mockToken.balanceOf(claimer0.address);
-      await expectValue(balance0, parseEther("100"));
+      expectValue(balance0, parseEther("100"));
 
       let balance1 = await mockToken.balanceOf(claimer1.address);
-      await expectValue(balance1, 0);
+      expectValue(balance1, 0);
       const leaf1 = soliditySha3(claimer1.address, toWei("101"));
       const proof1 = tree.getHexProof(leaf1);
       await merkleOrchard.claimDistributions(
@@ -123,7 +123,7 @@ describe.skip("Balancer Merkle Orchard", () => {
         [mockToken.address]
       );
       balance1 = await mockToken.balanceOf(claimer1.address);
-      await expectValue(balance1, parseEther("101"));
+      expectValue(balance1, parseEther("101"));
     });
 
     it("reverts on double claims", async () => {

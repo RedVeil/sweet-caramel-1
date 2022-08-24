@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@ecmendenhall/ds-test/src/test.sol";
-import "@ecmendenhall/forge-std/src/Vm.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { stdCheats } from "@ecmendenhall/forge-std/src/stdlib.sol";
-import { ThreeXWhaleProcessing, ThreeXBatchVault } from "../../contracts/core/defi/three-x/ThreeXWhaleProcessing.sol";
-import { ThreeXBatchProcessing } from "../../contracts/core/defi/three-x/ThreeXBatchProcessing.sol";
-import "../../contracts/core/interfaces/IContractRegistry.sol";
-import { AbstractBatchStorage } from "../../contracts/core/defi/three-x/storage/AbstractBatchStorage.sol";
-import "../../contracts/core/interfaces/IStaking.sol";
-import "../../contracts/core/interfaces/IBatchStorage.sol";
-import "../../contracts/externals/interfaces/Curve3Pool.sol";
-import "../../contracts/externals/interfaces/BasicIssuanceModule.sol";
-import "../../contracts/core/interfaces/IACLRegistry.sol";
+import { Test } from "@ecmendenhall/forge-std/src/Test.sol";
+import { ThreeXWhaleProcessing, ThreeXBatchVault } from "../../../contracts/core/defi/three-x/ThreeXWhaleProcessing.sol";
+import { ThreeXBatchProcessing } from "../../../contracts/core/defi/three-x/ThreeXBatchProcessing.sol";
+import "../../../contracts/core/interfaces/IContractRegistry.sol";
+import { AbstractBatchStorage } from "../../../contracts/core/defi/three-x/storage/AbstractBatchStorage.sol";
+import "../../../contracts/core/interfaces/IStaking.sol";
+import "../../../contracts/core/interfaces/IBatchStorage.sol";
+import "../../../contracts/externals/interfaces/Curve3Pool.sol";
+import "../../../contracts/externals/interfaces/BasicIssuanceModule.sol";
+import "../../../contracts/core/interfaces/IACLRegistry.sol";
 
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
@@ -34,9 +32,8 @@ address constant Y_THREE_EUR = 0x5AB64C599FcC59f0f2726A300b03166A395578Da;
 
 // Run with block number 15008113
 // forge test --fork-url https://eth-mainnet.alchemyapi.io/v2/PRIV_KEY --fork-block-number 15008113 --match-contract ThreeXWhaleProcessing -vvv
-contract ThreeXWhaleProcessingTest is DSTest, stdCheats {
+contract ThreeXWhaleProcessingTest is Test {
   using SafeERC20 for IERC20;
-  Vm public constant vm = Vm(HEVM_ADDRESS);
 
   IERC20[3] internal tokens;
   ThreeXWhaleProcessing internal threeXWhaleProcessing;
@@ -158,7 +155,7 @@ contract ThreeXWhaleProcessingTest is DSTest, stdCheats {
 
   function test_mint_high_slippage() public {
     // Should use personal mint
-    uint256 expectedMint = getMinMintAmount(usdcAmountToMint * 1e12, 80);
+    uint256 expectedMint = getMinMintAmount(usdcAmountToMint * 1e12, 150);
     threeXWhaleProcessing.mint(usdcAmountToMint, expectedMint, false);
     uint256 threeXBalanceAfter = threex.balanceOf(address(this));
     uint256 usdcBalanceAfter = usdc.balanceOf(address(this));
@@ -253,7 +250,7 @@ contract ThreeXWhaleProcessingTest is DSTest, stdCheats {
   function test_zap_dai_mint_regular_slippage() public {
     // Should use batch mint
     // In order to successfully use the batch process for minting the default slippage has to be increased here due to market conditions. Might not be nesseccary if starting on a different block number
-    uint256 higherDefaultSlippage = 100;
+    uint256 higherDefaultSlippage = 120;
     vm.prank(DAO);
     threeXBatchProcessing.setSlippage(higherDefaultSlippage, higherDefaultSlippage);
     uint256 expectedMint = getMinMintAmount(daiAmountToMint, higherDefaultSlippage);

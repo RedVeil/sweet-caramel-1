@@ -15,6 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [(await deployments.get("ContractRegistry")).address, BigNumber.from("0"), BigNumber.from("0")],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "KeeperIncentiveV2",
   });
 
   await addContractToRegistry("KeeperIncentive", deployments, signer, hre);

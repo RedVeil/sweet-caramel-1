@@ -11,7 +11,7 @@ export default task("keeper-incentive:toggleApproval", "updates keeper incentive
   .addParam("contract", "name of contract")
   .addParam("index", "index of incentive")
   .setAction(async (args: Args, hre) => {
-    const keeperIncentive = await getContractWithSigner(hre, "keeperIncentive", "KeeperIncentive");
+    const keeperIncentive = await getContractWithSigner(hre, "keeperIncentive", "KeeperIncentiveV2");
 
     const initialIncentive = await keeperIncentive.incentives(
       utils.formatBytes32String(args.contract),

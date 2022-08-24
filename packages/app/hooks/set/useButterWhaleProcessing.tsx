@@ -7,7 +7,7 @@ export default function useButterWhaleProcessing(): ButterWhaleProcessing {
   const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
 
   return useMemo(() => {
-    if (isButterSupportedOnCurrentNetwork(chainId))
+    if (contractAddresses?.butterWhaleProcessing && isButterSupportedOnCurrentNetwork(chainId))
       return ButterWhaleProcessing__factory.connect(contractAddresses.butterWhaleProcessing, signerOrProvider);
   }, [signerOrProvider, contractAddresses.butterWhaleProcessing, account]);
 }

@@ -1,17 +1,23 @@
-[default]
+[profile.default]
 src = 'contracts'
 test = 'test'
 out = 'artifacts'
 libs = ['node_modules', '../../node_modules']
+remappings = [
+  'ds-test/=../../node_modules/@ecmendenhall/ds-test/src/'
+]
 verbosity = 2
 fuzz_runs = 256
 fuzz_max_global_rejects = 100000000
 
-[ci]
+[profile.ci]
 src = 'contracts'
 test = 'test'
 out = 'artifacts'
 libs = ['node_modules', '../../node_modules']
+remappings = [
+  'ds-test/=../../node_modules/@ecmendenhall/ds-test/src/'
+]
 verbosity = 2
 fuzz_max_global_rejects = 100000000
 fuzz_runs = 2500

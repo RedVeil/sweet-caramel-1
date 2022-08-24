@@ -107,8 +107,7 @@ export default function Butter(): JSX.Element {
   } = useButterBatchData();
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
-  const loadingButterBatchData =
-    !butterBatchData && !errorFetchingButterBatchData && !butterWhaleError && !butterWhaleData;
+  const loadingButterBatchData = !butterPageState.selectedToken;
   const butterYearnAddresses = [
     contractAddresses.yFrax,
     contractAddresses.yRai,

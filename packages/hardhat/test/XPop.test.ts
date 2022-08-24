@@ -29,23 +29,23 @@ describe("XPop", () => {
 
   context("Token parameters", async () => {
     it("has a name", async () => {
-      await expectValue(await xPop.name(), "Popcorn.Network (Redeemable POP)");
+      expectValue(await xPop.name(), "Popcorn.Network (Redeemable POP)");
     });
 
     it("has a symbol", async () => {
-      await expectValue(await xPop.symbol(), "xPOP");
+      expectValue(await xPop.symbol(), "xPOP");
     });
 
     it("has 18 decimals", async () => {
-      await expectValue(await xPop.decimals(), 18);
+      expectValue(await xPop.decimals(), 18);
     });
   });
 
   context("Minting", async () => {
     it("approver can mint", async () => {
-      await expectValue(await xPop.balanceOf(other.address), 0);
+      expectValue(await xPop.balanceOf(other.address), 0);
       await xPop.connect(admin).mint(other.address, parseEther("100"));
-      await expectValue(await xPop.balanceOf(other.address), parseEther("100"));
+      expectValue(await xPop.balanceOf(other.address), parseEther("100"));
     });
 
     it("Non-approver cannot mint", async () => {
@@ -58,13 +58,13 @@ describe("XPop", () => {
 
   context("Mint cap", async () => {
     it("has a mint cap", async () => {
-      await expectValue(await xPop.mintCap(), parseEther("500000"));
+      expectValue(await xPop.mintCap(), parseEther("500000"));
     });
 
     it("owner can mint up to mint cap", async () => {
-      await expectValue(await xPop.balanceOf(other.address), 0);
+      expectValue(await xPop.balanceOf(other.address), 0);
       await xPop.connect(admin).mint(other.address, parseEther("500000"));
-      await expectValue(await xPop.balanceOf(other.address), parseEther("500000"));
+      expectValue(await xPop.balanceOf(other.address), parseEther("500000"));
     });
 
     it("owner cannot mint above mint cap", async () => {
@@ -72,15 +72,15 @@ describe("XPop", () => {
     });
 
     it("owner cannot exceed mint cap after burns", async () => {
-      await expectValue(await xPop.balanceOf(other.address), 0);
+      expectValue(await xPop.balanceOf(other.address), 0);
 
       await xPop.connect(admin).mint(other.address, parseEther("500000"));
-      await expectValue(await xPop.totalSupply(), parseEther("500000"));
-      await expectValue(await xPop.totalMinted(), parseEther("500000"));
+      expectValue(await xPop.totalSupply(), parseEther("500000"));
+      expectValue(await xPop.totalMinted(), parseEther("500000"));
 
       await xPop.connect(other).burn(parseEther("100"));
-      await expectValue(await xPop.totalSupply(), parseEther("499900"));
-      await expectValue(await xPop.totalMinted(), parseEther("500000"));
+      expectValue(await xPop.totalSupply(), parseEther("499900"));
+      expectValue(await xPop.totalMinted(), parseEther("500000"));
 
       await expectRevert(xPop.connect(admin).mint(other.address, parseEther("1")), "Mint cap exceeded");
     });
@@ -92,9 +92,9 @@ describe("XPop", () => {
     });
 
     it("token owner can burn owned tokens", async () => {
-      await expectValue(await xPop.balanceOf(other.address), parseEther("100"));
+      expectValue(await xPop.balanceOf(other.address), parseEther("100"));
       await xPop.connect(other).burn(parseEther("50"));
-      await expectValue(await xPop.balanceOf(other.address), parseEther("50"));
+      expectValue(await xPop.balanceOf(other.address), parseEther("50"));
     });
 
     it("non-owner cannot burn others tokens", async () => {
@@ -105,15 +105,15 @@ describe("XPop", () => {
     });
 
     it("burns reduce totalSupply", async () => {
-      await expectValue(await xPop.totalSupply(), parseEther("100"));
+      expectValue(await xPop.totalSupply(), parseEther("100"));
       await xPop.connect(other).burn(parseEther("50"));
-      await expectValue(await xPop.totalSupply(), parseEther("50"));
+      expectValue(await xPop.totalSupply(), parseEther("50"));
     });
 
     it("burns do not reduce totalMinted", async () => {
-      await expectValue(await xPop.totalSupply(), parseEther("100"));
+      expectValue(await xPop.totalSupply(), parseEther("100"));
       await xPop.connect(other).burn(parseEther("50"));
-      await expectValue(await xPop.totalMinted(), parseEther("100"));
+      expectValue(await xPop.totalMinted(), parseEther("100"));
     });
   });
 
@@ -142,7 +142,7 @@ describe("XPop", () => {
     const amount = parseEther("100");
 
     it("sets initial nonce to 0", async () => {
-      await expectValue(await xPop.nonces(approver.address), 0);
+      expectValue(await xPop.nonces(approver.address), 0);
     });
 
     it("accepts approver signature", async () => {
@@ -152,8 +152,8 @@ describe("XPop", () => {
 
       await xPop.permit(approver.address, spender.address, amount, defaultDeadline, v, r, s);
 
-      await expectValue(await xPop.nonces(approver.address), 1);
-      await expectValue(await xPop.allowance(approver.address, spender.address), amount);
+      expectValue(await xPop.nonces(approver.address), 1);
+      expectValue(await xPop.allowance(approver.address, spender.address), amount);
     });
 
     it("rejects replayed signature", async () => {

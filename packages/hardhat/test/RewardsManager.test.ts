@@ -2,16 +2,17 @@ import { MockContract } from "@ethereum-waffle/mock-contract";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { utils } from "ethers";
-import { parseEther } from "ethers/lib/utils";
+import { formatEther, parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
 import IUniswapV2Factory from "../lib/external/uniswap-v2/UniswapV2Factory.json";
 import IUniswapV2Router02 from "../lib/external/uniswap-v2/UniswapV2Router.json";
+import { getKeeperClaimableTokenBalance } from "../lib/adapters/KeeperIncentives/getKeeperBalances";
 import {
   ACLRegistry,
   BeneficiaryVaults,
   ContractRegistry,
   GovStaking,
-  KeeperIncentive,
+  KeeperIncentiveV2,
   MockERC20,
   Region,
   RewardsManager,
@@ -27,7 +28,7 @@ interface Contracts {
   mockUniswapV2Router: MockContract;
   rewardsManager: RewardsManager;
   region: Region;
-  keeperIncentive: KeeperIncentive;
+  keeperIncentive: KeeperIncentiveV2;
   aclRegistry: ACLRegistry;
   contractRegistry: ContractRegistry;
 }
@@ -88,7 +89,7 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   const keeperIncentive = await (
-    await (await ethers.getContractFactory("KeeperIncentive")).deploy(contractRegistry.address, 0, 0)
+    await (await ethers.getContractFactory("KeeperIncentiveV2")).deploy(contractRegistry.address, 0, 0)
   ).deployed();
 
   const mockUniswapV2Factory = await waffle.deployMockContract(owner, IUniswapV2Factory.abi);
@@ -101,6 +102,7 @@ async function deployContracts(): Promise<Contracts> {
 
   await aclRegistry.connect(owner).grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.connect(owner).grantRole(ethers.utils.id("Keeper"), owner.address);
+  await aclRegistry.connect(owner).grantRole(ethers.utils.id("INCENTIVE_MANAGER_ROLE"), owner.address);
 
   await contractRegistry.connect(owner).addContract(ethers.utils.id("POP"), pop.address, ethers.utils.id("1"));
   await contractRegistry.connect(owner).addContract(ethers.utils.id("Region"), region.address, ethers.utils.id("1"));
@@ -126,15 +128,11 @@ async function deployContracts(): Promise<Contracts> {
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("RewardsManager"), parseEther("10"), true, false);
+    .createIncentive(rewardsManager.address, parseEther("5"), true, false, pop.address, 1, 0);
 
   await keeperIncentive
     .connect(owner)
-    .createIncentive(utils.formatBytes32String("RewardsManager"), parseEther("10"), true, false);
-
-  await keeperIncentive
-    .connect(owner)
-    .addControllerContract(utils.formatBytes32String("RewardsManager"), rewardsManager.address);
+    .createIncentive(rewardsManager.address, parseEther("5"), true, false, pop.address, 1, 0);
 
   await pop.mint(owner.address, OwnerInitial);
   await pop.mint(rewarder.address, RewarderInitial);
@@ -404,13 +402,18 @@ describe("RewardsManager", function () {
       //Test preparation
       await contracts.pop.mint(owner.address, parseEther("20.24"));
       await contracts.pop.connect(owner).approve(contracts.rewardsManager.address, parseEther("20"));
+      await contracts.pop.connect(owner).approve(contracts.keeperIncentive.address, parseEther("100000"));
+
       await contracts.keeperIncentive
         .connect(owner)
-        .createIncentive(utils.formatBytes32String("RewardsManager"), parseEther("10"), true, false);
-      await contracts.pop.connect(owner).approve(contracts.keeperIncentive.address, parseEther("100000"));
-      await contracts.keeperIncentive.connect(owner).fundIncentive(parseEther("20"));
+        .fundIncentive(contracts.rewardsManager.address, 0, parseEther("10"));
+      await contracts.keeperIncentive
+        .connect(owner)
+        .fundIncentive(contracts.rewardsManager.address, 1, parseEther("10"));
+
       const swapReward = parseEther("0.24");
       const altAmount = parseEther("1");
+
       await contracts.mockAlt.transfer(contracts.rewardsManager.address, altAmount);
       await contracts.pop.transfer(contracts.rewardsManager.address, swapReward);
 
@@ -420,10 +423,16 @@ describe("RewardsManager", function () {
       await contracts.rewardsManager
         .connect(owner)
         .swapTokenForRewards([contracts.mockAlt.address, contracts.pop.address], swapReward);
-      expect(await contracts.pop.balanceOf(owner.address)).to.equal(parseEther("20"));
 
       await contracts.rewardsManager.connect(owner).distributeRewards();
-      expect(await contracts.pop.balanceOf(owner.address)).to.equal(parseEther("30"));
+
+      const balanceAfter = await getKeeperClaimableTokenBalance(
+        contracts.keeperIncentive,
+        owner.address,
+        contracts.pop.address
+      );
+
+      expect(balanceAfter).to.equal(parseEther("10"));
     });
   });
 });

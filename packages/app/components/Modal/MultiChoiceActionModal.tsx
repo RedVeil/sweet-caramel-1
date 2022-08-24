@@ -58,7 +58,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
 
   const secondOption = () => {
     setOpen(false);
-    setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
+    setTimeout(() => onSecondOption?.onClick && onSecondOption.onClick(), 1000);
   };
 
   if (!visible) return <></>;

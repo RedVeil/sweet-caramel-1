@@ -17,7 +17,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -44,6 +44,15 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
+            runs: 100,
+          },
+        },
+      },
+      {
+        version: "0.6.10",
+        settings: {
+          optimizer: {
+            enabled: true,
             runs: 1000,
           },
         },
@@ -53,7 +62,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -62,7 +71,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -71,7 +80,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },

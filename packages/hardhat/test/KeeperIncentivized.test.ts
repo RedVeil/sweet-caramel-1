@@ -2,18 +2,20 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { KEEPER_INCENTIVE, POP_LOCKER, POP_TOKEN } from "../lib/acl/names";
-import { DAO_ROLE } from "../lib/acl/roles";
+import { DAO_ROLE, INCENTIVE_MANAGER_ROLE } from "../lib/acl/roles";
 import { expectValue } from "../lib/utils/expectValue";
 import { DAYS, timeTravel } from "../lib/utils/test";
+import { getKeeperClaimableTokenBalance } from "../lib/adapters/KeeperIncentives/getKeeperBalances";
 import {
   ACLRegistry,
   ContractRegistry,
-  KeeperIncentive,
+  KeeperIncentiveV2,
   KeeperIncentivizedHelper,
   MockERC20,
   PopLocker,
   RewardsEscrow,
 } from "../typechain";
+import { getIncentiveAccountId } from "../lib/adapters/KeeperIncentives/getIncentiveAccountId";
 
 const INCENTIVE_AMOUNT = parseEther("10");
 const INCENTIVE_BURN_RATE = parseEther("0.25");
@@ -27,7 +29,7 @@ interface Contracts {
   rewardsEscrow: RewardsEscrow;
   keeperIncentivizedHelper: KeeperIncentivizedHelper;
   popLocker: PopLocker;
-  keeperIncentive: KeeperIncentive;
+  keeperIncentive: KeeperIncentiveV2;
 }
 
 let keeper: SignerWithAddress, owner: SignerWithAddress, contracts: Contracts;
@@ -60,8 +62,8 @@ async function deployContracts(): Promise<Contracts> {
   await popLocker.deployed();
 
   const keeperIncentive = (await (
-    await ethers.getContractFactory("KeeperIncentive")
-  ).deploy(contractRegistry.address, INCENTIVE_BURN_RATE, REQUIRED_KEEPER_STAKE)) as KeeperIncentive;
+    await ethers.getContractFactory("KeeperIncentiveV2")
+  ).deploy(contractRegistry.address, INCENTIVE_BURN_RATE, REQUIRED_KEEPER_STAKE)) as KeeperIncentiveV2;
   await keeperIncentive.deployed();
 
   // Mint POP to owner to fund keeper incentives
@@ -71,6 +73,9 @@ async function deployContracts(): Promise<Contracts> {
   // Grant owner DAO role
   await aclRegistry.connect(owner).grantRole(DAO_ROLE, owner.address);
 
+  // Grant owner INCENTIVE MANAGER ROLE
+  await aclRegistry.connect(owner).grantRole(INCENTIVE_MANAGER_ROLE, owner.address);
+
   // Register contract addresses
   await contractRegistry.connect(owner).addContract(KEEPER_INCENTIVE, keeperIncentive.address, INCENTIVE_ID);
   await contractRegistry.connect(owner).addContract(POP_TOKEN, mockPop.address, INCENTIVE_ID);
@@ -79,11 +84,8 @@ async function deployContracts(): Promise<Contracts> {
   // Create and fund keeper incentive
   await keeperIncentive
     .connect(owner)
-    .addControllerContract(ethers.utils.id("KeeperIncentivizedHelper"), keeperIncentivizedHelper.address);
-  await keeperIncentive
-    .connect(owner)
-    .createIncentive(ethers.utils.id("KeeperIncentivizedHelper"), INCENTIVE_AMOUNT, true, true);
-  await keeperIncentive.connect(owner).fundIncentive(INCENTIVE_AMOUNT);
+    .createIncentive(keeperIncentivizedHelper.address, INCENTIVE_AMOUNT, true, true, mockPop.address, 1, 0);
+  await keeperIncentive.connect(owner).fundIncentive(keeperIncentivizedHelper.address, 0, INCENTIVE_AMOUNT);
 
   return {
     aclRegistry,
@@ -106,24 +108,63 @@ describe("KeeperIncentivized", () => {
   });
 
   it("calling _handleKeeperIncentive directly processes keeper incentive", async function () {
-    const popBalanceBeforeIncentive = await contracts.mockPop.balanceOf(keeper.address);
-
+    const popBalanceBeforeIncentive = await getKeeperClaimableTokenBalance(
+      contracts.keeperIncentive,
+      keeper.address,
+      contracts.mockPop.address
+    );
     await contracts.keeperIncentivizedHelper.connect(keeper).handleKeeperIncentiveDirectCall();
 
     const expectedIncentivePaid = INCENTIVE_AMOUNT.sub(INCENTIVE_AMOUNT.mul(INCENTIVE_BURN_RATE).div(parseEther("1")));
     const expectedPopBalanceAfterIncentive = popBalanceBeforeIncentive.add(expectedIncentivePaid);
+    const popBalanceAfterIncentive = await getKeeperClaimableTokenBalance(
+      contracts.keeperIncentive,
+      keeper.address,
+      contracts.mockPop.address
+    );
 
-    await expectValue(await contracts.mockPop.balanceOf(keeper.address), expectedPopBalanceAfterIncentive);
+    expectValue(popBalanceAfterIncentive, expectedPopBalanceAfterIncentive);
   });
 
   it("calling a function with the keeperIncentive modifier applied processes keeper incentive", async function () {
-    const popBalanceBeforeIncentive = await contracts.mockPop.balanceOf(keeper.address);
+    const balanceBefore = await getKeeperClaimableTokenBalance(
+      contracts.keeperIncentive,
+      keeper.address,
+      contracts.mockPop.address
+    );
 
     await contracts.keeperIncentivizedHelper.connect(keeper).handleKeeperIncentiveModifierCall();
 
     const expectedIncentivePaid = INCENTIVE_AMOUNT.sub(INCENTIVE_AMOUNT.mul(INCENTIVE_BURN_RATE).div(parseEther("1")));
-    const expectedPopBalanceAfterIncentive = popBalanceBeforeIncentive.add(expectedIncentivePaid);
+    const expectedPopBalanceAfterIncentive = balanceBefore.add(expectedIncentivePaid);
+    const balanceAfter = await getKeeperClaimableTokenBalance(
+      contracts.keeperIncentive,
+      keeper.address,
+      contracts.mockPop.address
+    );
+    expectValue(balanceAfter, expectedPopBalanceAfterIncentive);
+  });
 
-    await expectValue(await contracts.mockPop.balanceOf(keeper.address), expectedPopBalanceAfterIncentive);
+  it("should tip an incentive", async function () {
+    const tipAmount = parseEther("15");
+    await contracts.mockPop.mint(owner.address, tipAmount);
+    await contracts.mockPop.connect(owner).approve(contracts.keeperIncentivizedHelper.address, tipAmount);
+
+    let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
+    expectValue(hasClaimableBalance, false);
+
+    await contracts.keeperIncentivizedHelper
+      .connect(owner)
+      .tipIncentiveDirectCall(contracts.mockPop.address, keeper.address, 0, tipAmount);
+
+    hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
+    expectValue(hasClaimableBalance, true);
+
+    const keeperAccount = await contracts.keeperIncentive.accounts(
+      getIncentiveAccountId(contracts.keeperIncentivizedHelper.address, 0, contracts.mockPop.address),
+      keeper.address
+    );
+
+    expectValue(keeperAccount.balance, tipAmount);
   });
 });

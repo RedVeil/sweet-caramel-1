@@ -13,7 +13,7 @@ import "../../interfaces/IEIP4626.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IVaultFeeController.sol";
 import "../../interfaces/IStaking.sol";
-import "../../interfaces/IKeeperIncentive.sol";
+import "../../interfaces/IKeeperIncentiveV2.sol";
 
 contract Vault is
   IEIP4626,
@@ -543,7 +543,7 @@ contract Vault is
    * @notice Transfer accrued fees to rewards manager contract. Caller must be a registered keeper.
    * @dev we send funds now to the feeRecipient which is set on the feeController. We must make sure that this is not address(0) before withdrawing fees
    */
-  function withdrawAccruedFees() external keeperIncentive(contractName, 0) takeFees nonReentrant {
+  function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
     uint256 balance = balanceOf(address(this));
 
     _withdraw(address(this), _feeController().feeRecipient(), _convertToAssets(balance, 0), true);
