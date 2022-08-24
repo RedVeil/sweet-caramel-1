@@ -7,14 +7,14 @@ const MobileProductsMenu = ({ onCloseMenu }) => {
   const router = useRouter();
   return (
     <div className="h-screen px-6 py-12">
-      <div className="relative">
+      <div className="relative" style={{ height: "30%" }}>
         <ChevronLeftIcon
           className="text-black h-10 w-10 absolute -left-3 transform -translate-y-1/2 top-1/2"
           onClick={onCloseMenu}
         />
         <p className="text-black text-center font-medium">Products</p>
       </div>
-      <ul className="h-11/12 flex flex-col gap-10 justify-center">
+      <ul className="flex flex-col gap-10 justify-center" style={{ height: "70%" }}>
         {process.env.SHOW_SWEETVAULTS && (
           <li className="mt-1" onClick={onCloseMenu}>
             <NavbarLink
