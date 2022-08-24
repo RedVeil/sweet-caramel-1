@@ -59,7 +59,7 @@ export default function useWeb3() {
 
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
-    if (isChainMismatch(router?.query?.network as string) && !["/[network]", "/"].includes(router?.pathname)) {
+    if (isChainMismatch(router?.query?.network as string) && (!["/[network]", "/"].includes(router?.pathname) || !ChainId[Number(connectedChain?.id)])) {
       alertChainInconsistency(
         router?.query?.network as string,
         ChainId[Number(connectedChain.id)] || "an unsupported Network",
@@ -163,12 +163,12 @@ export default function useWeb3() {
         type: "error",
         onChangeUrl: ChainId[actualChain]
           ? {
-              label: `Continue on ${actualChain}`,
-              onClick: () => {
-                pushNetworkChange(toTitleCase(actualChain), true);
-                dispatch(setNetworkChangePromptModal(false));
-              },
-            }
+            label: `Continue on ${actualChain}`,
+            onClick: () => {
+              pushNetworkChange(toTitleCase(actualChain), true);
+              dispatch(setNetworkChangePromptModal(false));
+            },
+          }
           : undefined,
         onChangeNetwork: {
           label: `Switch to ${toTitleCase(intendedChain)}`,
