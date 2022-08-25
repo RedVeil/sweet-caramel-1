@@ -54,7 +54,7 @@ export default function Hero(): JSX.Element {
           </div>
           {account && (
             <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-1 md:mb-2">
                 <p className="text-primaryLight leading-5 hidden md:block">My Net Worth</p>
                 <p className="text-primaryLight leading-5 md:hidden">MNW</p>
                 <InfoIconWithTooltip
@@ -64,7 +64,7 @@ export default function Hero(): JSX.Element {
                   content="This value aggregates your Popcorn-related holdings across all blockchain networks."
                 />
               </div>
-              <p className="text-primary text-xl md:text-4xl leading-8">
+              <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
                 ${formatter.format(parseInt(formatUnits(networth)))}
               </p>
             </div>
