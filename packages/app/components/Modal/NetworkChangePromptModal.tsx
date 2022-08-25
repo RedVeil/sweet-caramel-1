@@ -122,19 +122,19 @@ export const NetworkChangePromptModal: React.FC<NetworkChangePromptModalProps> =
                           <MainActionButton label={onChangeNetwork.label} handleClick={changeNetwork} />
                         </>
                       )}
-                      {onChangeUrl ||
-                        (onDisconnect && (
+                      {(onChangeUrl ||
+                        onDisconnect) && (
                           <div className="flex justify-center vertical-align h-6 my-4">
                             <img src="/images/butter/primary-btn-divider.svg" className="w-full object-cover" />
                           </div>
-                        ))}
+                        )}
                       {onChangeUrl && (
                         <div className="w-full">
                           <TertiaryActionButton label={onChangeUrl.label} handleClick={changeUrl} />
                         </div>
                       )}
                       {onDisconnect && (
-                        <div className="w-full">
+                        <div className="w-full mt-4">
                           <TertiaryActionButton label={onDisconnect.label} handleClick={disconnect} />
                         </div>
                       )}

@@ -186,7 +186,7 @@ export default function useWeb3() {
           },
         },
         onDismiss: {
-          onClick: async () => {
+          onClick: () => {
             dispatch(setNetworkChangePromptModal(false));
           },
         },
