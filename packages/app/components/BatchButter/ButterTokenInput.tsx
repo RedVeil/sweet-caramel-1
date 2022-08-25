@@ -204,7 +204,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
       <div>
         <p className="text-base font-medium text-primary">{`Estimated ${selectedToken.output.name} Amount`}</p>
         <div>
-          <div className="mt-1 flex items-center px-5 py-4 border border-customLightGray rounded-md">
+          <div className="mt-1 flex items-center px-5 py-4 border border-customLightGray rounded-md relative">
             <input
               className={`block w-full p-0 border-0 text-primaryDark text-lg outline-none focus:bg-transparent focus:ring-0`}
               value={Number(estimatedAmount)}
