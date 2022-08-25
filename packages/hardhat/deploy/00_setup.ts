@@ -16,7 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         {
           forking: {
             jsonRpcUrl: process.env.FORKING_RPC_URL,
-            blockNumber: 15003526,
+            blockNumber: process.env.DEPLOYMENT_BLOCK_NUMBER ? process.env.DEPLOYMENT_BLOCK_NUMBER : undefined,
           },
         },
       ],

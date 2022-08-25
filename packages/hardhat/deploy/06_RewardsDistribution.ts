@@ -12,7 +12,11 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("RewardsDistribution", {
     from: addresses.deployer,
-    args: [hre.config.namedAccounts.deployer as string, addresses.pop, addresses.daoTreasury],
+    args: [
+      hre.config.namedAccounts.deployer as string,
+      await (await deployments.get("TestPOP")).address,
+      addresses.daoTreasury,
+    ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "RewardsDistribution",

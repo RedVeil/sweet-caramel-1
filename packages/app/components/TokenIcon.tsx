@@ -1,4 +1,4 @@
-import { TokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
+import { getTokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
 import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
 import { ChainId } from "@popcorn/utils";
 
@@ -7,6 +7,8 @@ interface TokenIconProps {
   fullsize?: boolean;
 }
 const namedAccounts = getNamedAccounts();
+
+const TokenMetadataOverride = getTokenMetadataOverride();
 
 export default function TokenIcon({ token, fullsize = false }: TokenIconProps): JSX.Element {
   switch (token) {

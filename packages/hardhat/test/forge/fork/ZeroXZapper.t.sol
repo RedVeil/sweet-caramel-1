@@ -1,0 +1,493 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.0;
+
+import { Test } from "@ecmendenhall/forge-std/src/Test.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../../contracts/core/interfaces/IContractRegistry.sol";
+import "../../../contracts/core/interfaces/IACLRegistry.sol";
+import "../../../contracts/core/defi/vault/Vault.sol";
+import "../../../contracts/core/defi/vault/VaultFeeController.sol";
+import "../../../contracts/core/defi/ZeroXZapper.sol";
+
+interface ICurveSETHPool {
+  function calc_withdraw_one_coin(uint256 _burn_amount, int128 i) external returns (uint256);
+
+  function exchange(
+    int128 i,
+    int128 j,
+    uint256 dx,
+    uint256 min_dy
+  ) external payable;
+}
+
+/// @dev Fork block 15127782
+contract ZeroXZapperTest is Test {
+  address constant ETH = address(0);
+  address constant SETH = 0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb;
+  address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+
+  address constant CURVE_SETH_LP = 0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c;
+  address constant CURVE_SETH_POOL = 0xc5424B857f758E906013F3555Dad202e4bdB4567;
+  address constant ZEROX_ROUTER = 0xDef1C0ded9bec7F1a1670819833240f027b25EfF;
+  address constant AFFILIATE = address(0);
+
+  address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
+  address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
+  address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
+
+  address constant DAO = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
+
+  ZeroXZapper internal zapper;
+  Vault internal vault;
+  IContractRegistry internal contractRegistry;
+  VaultFeeController internal vaultFeeController;
+
+  function setUp() public {
+    zapper = new ZeroXZapper(IContractRegistry(CONTRACT_REGISTRY));
+    vault = new Vault(
+      CURVE_SETH_LP,
+      YEARN_REGISTRY,
+      IContractRegistry(CONTRACT_REGISTRY),
+      address(0),
+      Vault.FeeStructure(0, 0, 0, 0)
+    );
+    contractRegistry = IContractRegistry(CONTRACT_REGISTRY);
+    vaultFeeController = new VaultFeeController(
+      VaultFeeController.FeeStructure(0, 0, 0, 0),
+      IContractRegistry(CONTRACT_REGISTRY)
+    );
+
+    vm.startPrank(DAO);
+    IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(zapper));
+
+    vaultFeeController.setFeeRecipient(address(3));
+
+    contractRegistry.addContract(keccak256("VaultFeeController"), address(vaultFeeController), "1");
+
+    vault.setUseLocalFees(true);
+
+    zapper.updateVault(CURVE_SETH_LP, address(vault));
+    vm.stopPrank();
+
+    deal(DAI, address(this), 10000 ether);
+    IERC20(DAI).approve(address(zapper), type(uint256).max);
+
+    vm.deal(address(this), 20000 ether);
+
+    ICurveSETHPool(CURVE_SETH_POOL).exchange{ value: 1100 ether }(0, 1, 1100 ether, 0);
+    IERC20(SETH).approve(address(zapper), type(uint256).max);
+  }
+
+  function zapIntoSethVault() public {
+    uint256 swapAmount = 1000 ether;
+    uint256 minPoolTokens = 0;
+
+    zapper.zapIn(
+      DAI,
+      ETH,
+      CURVE_SETH_POOL,
+      CURVE_SETH_LP,
+      swapAmount,
+      minPoolTokens,
+      ZEROX_ROUTER,
+      hex"d9627aa4000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000003635c9adc5dea000000000000000000000000000000000000000000000000000000ca0dd1a54923768000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000006b175474e89094c44da98b954eedeac495271d0f000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee869584cd00000000000000000000000010000000000000000000000000000000000000110000000000000000000000000000000000000000000000d7dc85291162cd5a23"
+    );
+  }
+
+  function test_zap_in_swap_dai_for_eth() public {
+    // This case swaps 1000 DAI for CVXSETH, then deposits to the Popcorn vault.
+    uint256 swapAmount = 1000 ether;
+    uint256 minPoolTokens = 0;
+
+    zapper.zapIn(
+      // The token the end user is "zapping in" to the vault. If the underlying Curve
+      // pool does not support this token, zapper will swap it for the intermediate
+      // token using 0x. We must construct and pass calldata for a valid 0x order if
+      // the zap in needs to perform a swap.
+      DAI,
+      // The intermediate token we want to swap for. For a Curve pool, this should be
+      // one of the tokens in the pool. In this example using the SETH/CVXSETH pool, this
+      // is one of SETH or CVXSETH.
+      ETH,
+      // The address of the Curve Pool which is used as swapAddress for the ZeroXZapIn
+      CURVE_SETH_POOL,
+      // The address of the Curve LP token which is the vault asset.
+      CURVE_SETH_LP,
+      // Amount of "zap in" token to swap. In this example, 1000 DAI.
+      swapAmount,
+      // Minimum Curve LP tokens to receive. In this example, zero.
+      minPoolTokens,
+      // 0x router address. zapper theoretically supports multiple swap targets, but
+      // the only approved address is currently the 0x router.
+      ZEROX_ROUTER,
+      // Swap data retrieved from the 0x API, representing a DAI/ETH swap order:
+      // https://api.0x.org/swap/v1/quote?buyToken=ETH&sellToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellAmount=1000000000000000000000&slippagePercentage=0.03
+      hex"d9627aa4000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000003635c9adc5dea000000000000000000000000000000000000000000000000000000ca0dd1a54923768000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000006b175474e89094c44da98b954eedeac495271d0f000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee869584cd00000000000000000000000010000000000000000000000000000000000000110000000000000000000000000000000000000000000000d7dc85291162cd5a23"
+    );
+
+    uint256 vaultBalance = vault.balanceOf(address(this));
+
+    // We get back 482 vault shares. This checks out: CVXSETH is about $2, so we should
+    // expect to receive something close to but less than 500 LP tokens in exchange
+    // for 1000 DAI.
+    assertEq(vaultBalance, 918666405687861095);
+  }
+
+  function test_zap_in_swap_dai_for_seth() public {
+    // This case swaps 1000 DAI for SETH, then deposits to the Popcorn vault.
+    uint256 swapAmount = 1000 ether;
+    uint256 minPoolTokens = 0;
+
+    zapper.zapIn(
+      DAI,
+      // This time SETH is our intermediate token...
+      SETH,
+      // The rest of these parameters are the same...
+      CURVE_SETH_POOL,
+      CURVE_SETH_LP,
+      swapAmount,
+      minPoolTokens,
+      ZEROX_ROUTER,
+      // Except for different swap data, this time representing a DAI/SETH swap order:
+      // https://api.0x.org/swap/v1/quote?buyToken=0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb&sellToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellAmount=1000000000000000000000
+      hex"415565b00000000000000000000000006b175474e89094c44da98b954eedeac495271d0f0000000000000000000000005e74c9036fb86bd7ecdcb084a0673efc32ea31cb00000000000000000000000000000000000000000000003635c9adc5dea000000000000000000000000000000000000000000000000000000cd4ef725f4bd9f000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000004e00000000000000000000000000000000000000000000000000000000000000820000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000420000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006b175474e89094c44da98b954eedeac495271d0f000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000003e000000000000000000000000000000000000000000000000000000000000003e000000000000000000000000000000000000000000000000000000000000003c000000000000000000000000000000000000000000000003635c9adc5dea000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000001942616c616e636572563200000000000000000000000000000000000000000000000000000000003635c9adc5dea000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000ba12222222228d8ba445958a75a0704d566bf2c80000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020c45d42f801105e861e86658648e3678ad7aa70f900010000000000000000011e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000006b175474e89094c44da98b954eedeac495271d0f000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002e000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000005e74c9036fb86bd7ecdcb084a0673efc32ea31cb000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000002a000000000000000000000000000000000000000000000000000000000000002a00000000000000000000000000000000000000000000000000000000000000280ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000143757276650000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000cd4ef725f4bd9ef00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000080000000000000000000000000c5424b857f758e906013f3555dad202e4bdb45673df021240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000030000000000000000000000006b175474e89094c44da98b954eedeac495271d0f000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000000000000000000000000000000000000000000000000869584cd00000000000000000000000010000000000000000000000000000000000000110000000000000000000000000000000000000000000000e74caeb49b62cd5a3f"
+    );
+
+    uint256 vaultBalance = vault.balanceOf(address(this));
+
+    // We get slightly more LP tokens in exchange for our SETH, due to the current
+    // pool balance. This pool is usually imbalanced towards CVXSETH, so we get a
+    // bonus for depositing SETH. For all our Curve based zappers, we'll need to
+    // calculate off-chain which token would be more advantageous to swap into
+    // based on the current Curve pool balance.
+    assertEq(vaultBalance, 920194593963696733);
+  }
+
+  function test_zap_in_direct_deposit_eth() public {
+    // This case directly deposits 1000 CVXSETH to the Curve pool, then deposits to the vault.
+    // Since we're zapping in with one of the Curve pool's underlying assets, there's
+    // no need to do a 0x swap or send swap calldata.
+    uint256 zapAmount = 1000 ether;
+    uint256 minPoolTokens = 0;
+
+    zapper.zapIn{ value: zapAmount }(
+      ETH,
+      ETH,
+      CURVE_SETH_POOL,
+      CURVE_SETH_LP,
+      zapAmount,
+      minPoolTokens,
+      // SwapTarget is not required when we dont swap
+      address(0),
+      // SwapData is not required when we dont swap
+      hex""
+    );
+
+    uint256 vaultBalance = vault.balanceOf(address(this));
+
+    // We get back a little under 1000 vault shares for our 1000 CVXSETH.
+    assertEq(vaultBalance, 984031734292341460098);
+  }
+
+  function test_zap_in_direct_deposit_seth() public {
+    // Same structure as the previous example, but using SETH.
+    uint256 zapAmount = 1000 ether;
+    uint256 minPoolTokens = 0;
+
+    zapper.zapIn(
+      SETH,
+      SETH,
+      CURVE_SETH_POOL,
+      CURVE_SETH_LP,
+      zapAmount,
+      minPoolTokens,
+      ZEROX_ROUTER,
+      // Empty swap data for direct deposit
+      hex""
+    );
+
+    uint256 vaultBalance = vault.balanceOf(address(this));
+
+    // Again, we get a bonus from the Curve pool for depositing SETH
+    // rather than CVXSETH.
+    assertEq(vaultBalance, 988608544188881930438);
+  }
+
+  function test_zap_out_to_dai_via_seth() public {
+    // Zap in with 1000 DAI, then zap back out.
+    zapIntoSethVault();
+
+    uint256 vaultBalance = vault.balanceOf(address(this));
+    assertEq(vaultBalance, 918666405687861095);
+
+    // Approve the zapper to spend our vault shares.
+    vault.approve(address(zapper), vaultBalance);
+    // vm.roll forward a block since the vault is block locked.
+    vm.roll(block.number + 1);
+
+    // Zapping out is trickier than zapping in: in order to construct the 0x swap,
+    // we need to calculate the exact amount of SETH to swap for DAI. That means first
+    // previewing our vault withdrawal to get a Curve LP token amount, then previewing
+    // the amount of SETH we receive when we withdraw our Curve LP tokens as SETH. In this case,
+    // that's 492224512049376431331 SETH in wei, which should be equal to `SETHAmount` below.
+    // We will also need to calculate this off-chain.
+
+    // Preview amount of Curve LP tokens we receive in exchange for our shares.
+    uint256 redeemAmount = vault.previewRedeem(vaultBalance);
+    emit log_named_uint("redeem amount", redeemAmount);
+
+    // Preview amount of SETH we receive in exchange for our LP tokens.
+    uint256 SETHAmount = ICurveSETHPool(CURVE_SETH_POOL).calc_withdraw_one_coin(redeemAmount, 1);
+    emit log_named_uint("SETH amount", SETHAmount);
+
+    uint256 daiBalanceBefore = IERC20(DAI).balanceOf(address(this));
+
+    zapper.zapOut(
+      // Vault asset address
+      CURVE_SETH_LP,
+      // Curve Pool,
+      CURVE_SETH_POOL,
+      // Amount of shares to zap out
+      vaultBalance,
+      // Intermediate token (one of CVX or CVXSETH, the two underlying Curve pool tokens)
+      SETH,
+      // Target token to "zap out"
+      DAI,
+      // Minimum amount out
+      0,
+      // 0x router address
+      ZEROX_ROUTER,
+      // 0x swap order based on calculation above  ()
+      // https://api.0x.org/swap/v1/quote?buyToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellToken=0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb&sellAmount=928414438593534105&slippagePercentage=0.03
+      hex"415565b00000000000000000000000005e74c9036fb86bd7ecdcb084a0673efc32ea31cb0000000000000000000000006b175474e89094c44da98b954eedeac495271d0f0000000000000000000000000000000000000000000000000ce2572c67f84fc30000000000000000000000000000000000000000000000343748a455000059df00000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000003a000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002e0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005e74c9036fb86bd7ecdcb084a0673efc32ea31cb000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000002a000000000000000000000000000000000000000000000000000000000000002a000000000000000000000000000000000000000000000000000000000000002800000000000000000000000000000000000000000000000000ce2572c67f84fc30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000f536164646c65000000000000000000000000000000000000000000000000000000000000000000000ce2572c67f84fc3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000080000000000000000000000000a6018520eaacc06c30ff2e1b3ee2c7c22e64196a9169558600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000180000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000006b175474e89094c44da98b954eedeac495271d0f000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000004c000000000000000000000000000000000000000000000000000000000000004c000000000000000000000000000000000000000000000000000000000000004a0ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000001942616c616e6365725632000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000343748a455000059df000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000002a0000000000000000000000000ba12222222228d8ba445958a75a0704d566bf2c8000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000002200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000e096646936b91d6b9d7d0c47c496afbf3d6ec7b6f8000200000000000000000019000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014006df3b2bbb68adc8b0e302443692037ed9f91b4200000000000000000000006300000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000006b175474e89094c44da98b954eedeac495271d0f000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000030000000000000000000000005e74c9036fb86bd7ecdcb084a0673efc32ea31cb000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000000000000000000000000000000000000000000000000869584cd000000000000000000000000100000000000000000000000000000000000001100000000000000000000000000000000000000000000001ce75536d262cd5f78"
+    );
+    uint256 daiBalanceAfter = IERC20(DAI).balanceOf(address(this));
+    uint256 daiZappedOut = daiBalanceAfter - daiBalanceBefore;
+
+    // We get back 987 DAI from our round trip. This is inclusive of
+    // slippage from the two swaps, but not vault or zapper fees.
+    // Vault fees are set to zero in the tests, and zapper fees
+    // are currently zero, although zapper has the ability to set
+    // them to a nonzero amount.
+    assertEq(daiZappedOut, 997930539079260447234);
+  }
+
+  function test_zap_out_to_dai_via_eth() public {
+    // Zap in with 1000 DAI, then zap back out.
+    zapIntoSethVault();
+
+    uint256 vaultBalance = vault.balanceOf(address(this));
+    assertEq(vaultBalance, 918666405687861095);
+
+    // Approve the zapper to spend our vault shares.
+    vault.approve(address(zapper), vaultBalance);
+    // vm.roll forward a block since the vault is block locked.
+    vm.roll(block.number + 1);
+
+    // Zapping out is trickier than zapping in: in order to construct the 0x swap,
+    // we need to calculate the exact amount of SETH to swap for DAI. That means first
+    // previewing our vault withdrawal to get a Curve LP token amount, then previewing
+    // the amount of SETH we receive when we withdraw our Curve LP tokens as SETH. In this case,
+    // that's 492224512049376431331 SETH in wei, which should be equal to `SETHAmount` below.
+    // We will also need to calculate this off-chain.
+
+    // Preview amount of Curve LP tokens we receive in exchange for our shares.
+    uint256 redeemAmount = vault.previewRedeem(vaultBalance);
+    emit log_named_uint("redeem amount", redeemAmount);
+
+    // Preview amount of SETH we receive in exchange for our LP tokens.
+    uint256 SETHAmount = ICurveSETHPool(CURVE_SETH_POOL).calc_withdraw_one_coin(redeemAmount, 0);
+    emit log_named_uint("SETH amount", SETHAmount);
+
+    uint256 daiBalanceBefore = IERC20(DAI).balanceOf(address(this));
+
+    zapper.zapOut(
+      // Vault asset address
+      CURVE_SETH_LP,
+      CURVE_SETH_POOL,
+      // Amount of shares to zap out
+      vaultBalance,
+      // Intermediate token (one of CVX or CVXSETH, the two underlying Curve pool tokens)
+      ETH,
+      // Target token to "zap out"
+      DAI,
+      // Minimum amount out
+      0,
+      // 0x router address
+      ZEROX_ROUTER,
+      // 0x swap order based on calculation above  ()
+      // https://api.0x.org/swap/v1/quote?buyToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellToken=ETH&sellAmount=937899094591212713
+      hex"3598d8ab0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000035a0544dbbb815f3b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002bc02aaa39b223fe8d0a0e5c4f27ead9083c756cc20001f46b175474e89094c44da98b954eedeac495271d0f000000000000000000000000000000000000000000869584cd000000000000000000000000100000000000000000000000000000000000001100000000000000000000000000000000000000000000002583b9b61c62cd5b72"
+    );
+    uint256 daiBalanceAfter = IERC20(DAI).balanceOf(address(this));
+    uint256 daiZappedOut = daiBalanceAfter - daiBalanceBefore;
+
+    // We get back 987 DAI from our round trip. This is inclusive of
+    // slippage from the two swaps, but not vault or zapper fees.
+    // Vault fees are set to zero in the tests, and zapper fees
+    // are currently zero, although zapper has the ability to set
+    // them to a nonzero amount.
+    assertEq(daiZappedOut, 999353967261615229771);
+  }
+
+  function test_zap_in_fee() public {
+    vm.prank(DAO);
+    zapper.setFee(CURVE_SETH_LP, true, 100, 0);
+
+    zapIntoSethVault();
+
+    uint256 expectedVaultBalanceWithoutFees = 918666405687861095;
+    uint256 expectedFee = expectedVaultBalanceWithoutFees / 100;
+
+    assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
+
+    // Make sure the fee was taken
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
+    assertEq(accumulated, expectedFee);
+  }
+
+  function test_zap_out_fee() public {
+    vm.prank(DAO);
+    zapper.setFee(CURVE_SETH_LP, true, 0, 100);
+
+    zapIntoSethVault();
+
+    uint256 vaultBalance = vault.balanceOf(address(this));
+    assertEq(vaultBalance, 918666405687861095);
+
+    // Approve the zapper to spend our vault shares.
+    vault.approve(address(zapper), vaultBalance);
+    // vm.roll forward a block since the vault is block locked.
+    vm.roll(block.number + 1);
+
+    uint256 redeemAmount = vault.previewRedeem(vaultBalance);
+    emit log_named_uint("redeem amount", redeemAmount);
+
+    // Preview amount of SETH we receive in exchange for our LP tokens.
+    uint256 ETHAmount = ICurveSETHPool(CURVE_SETH_POOL).calc_withdraw_one_coin(redeemAmount, 0);
+    emit log_named_uint("ETH amount", ETHAmount);
+
+    uint256 daiBalanceBefore = IERC20(DAI).balanceOf(address(this));
+
+    zapper.zapOut(
+      CURVE_SETH_LP,
+      CURVE_SETH_POOL,
+      vaultBalance,
+      ETH,
+      DAI,
+      0,
+      ZEROX_ROUTER,
+      // https://api.0x.org/swap/v1/quote?buyToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellToken=ETH&sellAmount=933318915444095109
+      hex"3598d8ab000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000003492ba23d43645f5520000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002bc02aaa39b223fe8d0a0e5c4f27ead9083c756cc20001f46b175474e89094c44da98b954eedeac495271d0f000000000000000000000000000000000000000000869584cd000000000000000000000000100000000000000000000000000000000000001100000000000000000000000000000000000000000000009edd33643362cd6845"
+    );
+    uint256 daiBalanceAfter = IERC20(DAI).balanceOf(address(this));
+    uint256 daiZappedOut = daiBalanceAfter - daiBalanceBefore;
+
+    assertEq(daiZappedOut, 989361137172478476928);
+
+    // Make sure the fee was taken
+    uint256 expectedFee = 9186664056878610;
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+
+    (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
+    assertEq(accumulated, expectedFee);
+  }
+
+  function test_global_fee_without_asset_fee() public {
+    // Should use GlobalFee
+
+    vm.prank(DAO);
+    zapper.setGlobalFee(50, 0);
+
+    zapIntoSethVault();
+
+    uint256 expectedVaultBalanceWithoutFees = 918666405687861095;
+    uint256 expectedFee = expectedVaultBalanceWithoutFees / 200;
+
+    assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
+
+    // Make sure the fee was taken
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
+    assertEq(accumulated, expectedFee);
+  }
+
+  function test_global_fee_with_disabled_asset_fee() public {
+    // Should use GlobalFee
+
+    vm.startPrank(DAO);
+    zapper.setFee(CURVE_SETH_LP, false, 100, 0);
+    zapper.setGlobalFee(50, 0);
+    vm.stopPrank();
+
+    zapIntoSethVault();
+
+    uint256 expectedVaultBalanceWithoutFees = 918666405687861095;
+    uint256 expectedFee = expectedVaultBalanceWithoutFees / 200;
+
+    assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
+
+    // Make sure the fee was taken
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
+    assertEq(accumulated, expectedFee);
+  }
+
+  function test_global_fee_with_enabled_asset_fee() public {
+    // Should use AssetFee
+
+    vm.startPrank(DAO);
+    zapper.setFee(CURVE_SETH_LP, true, 100, 0);
+    zapper.setGlobalFee(50, 0);
+    vm.stopPrank();
+
+    zapIntoSethVault();
+
+    uint256 expectedVaultBalanceWithoutFees = 918666405687861095;
+    uint256 expectedFee = expectedVaultBalanceWithoutFees / 100;
+
+    assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
+
+    // Make sure the fee was taken
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
+    assertEq(accumulated, expectedFee);
+  }
+
+  function test_withdraw_fee() public {
+    vm.prank(DAO);
+    zapper.setFee(CURVE_SETH_LP, true, 100, 0);
+
+    zapIntoSethVault();
+
+    uint256 feeBal = IERC20(CURVE_SETH_LP).balanceOf(address(zapper));
+
+    // Preview amount of SETH we receive in exchange for our LP tokens.
+    uint256 ETHAmount = ICurveSETHPool(CURVE_SETH_POOL).calc_withdraw_one_coin(feeBal, 0);
+    emit log_named_uint("ETH amount", ETHAmount);
+
+    uint256 daiBalanceBefore = IERC20(DAI).balanceOf(address(this));
+
+    vm.prank(DAO);
+    zapper.withdrawFees(
+      CURVE_SETH_LP,
+      CURVE_SETH_POOL,
+      ETH,
+      DAI,
+      0,
+      ZEROX_ROUTER,
+      // https://api.0x.org/swap/v1/quote?buyToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellToken=ETH&sellAmount=9333189539143087
+      hex"d9627aa400000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000021287c871a1daf000000000000000000000000000000000000000000000000887ed6ea7558f0ae00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000000006b175474e89094c44da98b954eedeac495271d0f869584cd000000000000000000000000100000000000000000000000000000000000001100000000000000000000000000000000000000000000008d5ae92a2962cd63aa"
+    );
+
+    // Check that fee balance was set to 0
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), 0);
+    (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
+    assertEq(accumulated, 0);
+
+    // Check that dai was transfered to feeController
+    address feeController = address(3);
+    assertEq(IERC20(DAI).balanceOf(address(feeController)), 9940702172190885807);
+  }
+}

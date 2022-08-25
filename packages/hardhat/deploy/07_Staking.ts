@@ -62,7 +62,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   if (["hardhat", "local"].includes(hre.network.name)) {
     await createDemoData(hre, stakingPools[1]);
-    await createPopLockerData(hre, addresses, signer);
+    await createPopLockerData(hre, deployments, signer);
   }
 };
 export default main;
@@ -139,14 +139,25 @@ async function createDemoData(hre: HardhatRuntimeEnvironment, pool: Pool): Promi
   }
 }
 
-async function createPopLockerData(hre, addresses, signer): Promise<void> {
+async function createPopLockerData(hre, deployments, signer): Promise<void> {
   console.log("popLockerData");
-  const rewardsDistribution = await hre.ethers.getContractAt("RewardsDistribution", addresses.rewardsDistribution);
+  const rewardsDistribution = await hre.ethers.getContractAt(
+    "RewardsDistribution",
+    await (
+      await deployments.get("RewardsDistribution")
+    ).address
+  );
+  const stakingContract = await hre.ethers.getContractAt(
+    "PopLocker",
+    await (
+      await deployments.get("PopLocker")
+    ).address
+  );
   console.log("rewardsDistro");
   await rewardsDistribution.connect(signer).approveRewardDistributor(hre.config.namedAccounts.deployer as string, true);
-  await rewardsDistribution.connect(signer).addRewardDistribution(addresses.popStaking, parseEther("1000"), true);
-  const stakingContract = await hre.ethers.getContractAt("PopLocker", addresses.popStaking);
-  const pop = await hre.ethers.getContractAt("MockERC20", addresses.pop);
+  await rewardsDistribution.connect(signer).addRewardDistribution(stakingContract.address, parseEther("1000"), true);
+
+  const pop = await hre.ethers.getContractAt("MockERC20", await (await deployments.get("TestPOP")).address);
   await pop.connect(signer).approve(stakingContract.address, parseEther("10"));
   await pop.connect(signer).transfer(rewardsDistribution.address, parseEther("1000"));
   //Create withdrawable balance

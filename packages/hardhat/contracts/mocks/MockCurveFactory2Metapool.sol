@@ -26,17 +26,15 @@ contract MockCurveFactory2Metapool is MockERC20 {
     tokens = [tokenA, tokenB];
   }
 
-  function coins() external view returns (address[2] memory) {
-    address[2] memory coinAddresses = [address(tokenA), address(tokenB)];
-    return coinAddresses;
+  function coins(uint256 i) external view returns (address) {
+    return address(tokens[i]);
   }
 
   function get_virtual_price() external view returns (uint256) {
     return virtualPrice;
   }
 
-  function calc_withdraw_one_coin(uint256 _token_amount, int128 i) external pure returns (uint256) {
-    i;
+  function calc_withdraw_one_coin(uint256 _token_amount, int128) external pure returns (uint256) {
     return _token_amount;
   }
 

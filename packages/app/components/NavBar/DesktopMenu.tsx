@@ -13,7 +13,6 @@ import NetworkOptionsMenu from "./NetworkOptionsMenu";
 export default function DesktopMenu(): JSX.Element {
   const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain } = useWeb3();
   const router = useRouter();
-  const products = getProducts(router, pushWithinChain);
 
   return (
     <div className="flex flex-row items-center justify-between md:w-11/12 lglaptop:w-9/12 2xl:max-w-7xl pb-6 mx-auto z-30">
@@ -40,7 +39,7 @@ export default function DesktopMenu(): JSX.Element {
                     aria-hidden="true"
                   />
                 </div>
-                <DropDownComponent options={products} />
+                <DropDownComponent options={getProducts(router, pushWithinChain)} />
               </Menu.Button>
             </Menu>
           </li>

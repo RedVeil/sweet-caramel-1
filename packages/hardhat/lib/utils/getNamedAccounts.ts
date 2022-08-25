@@ -7,14 +7,18 @@ export default function getNamedAccounts() {
     popStaking: {
       rinkeby: "0xbd085541Cf339a7B3a5112CeA9440542a02B29E5",
       polygon: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
-      hardhat: "0x976C214741b4657bd99DFD38a5c0E3ac5C99D903",
+      hardhat: "0x683d9CDD3239E0e01E8dC6315fA50AD92aB71D2d",
       mainnet: "0xeEE1d31297B042820349B03027aB3b13a9406184",
       bsc: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **  an address is needed here for the app to compile without going into a hissy loop
       arbitrum: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **
     },
+    ETH: {
+      hardhat: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      mainnet: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    },
     popUsdcLpStaking: {
       rinkeby: "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
-      hardhat: "0xa722bdA6968F50778B973Ae2701e90200C564B49",
+      hardhat: "0xAe120F0df055428E45b264E7794A18c54a2a3fAF",
       polygon: "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
       mainnet: "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
       bsc: "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c", // **
@@ -26,11 +30,11 @@ export default function getNamedAccounts() {
     },
     butterStaking: {
       mainnet: "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428",
-      hardhat: "0x0aec7c174554AF8aEc3680BB58431F6618311510",
+      hardhat: "0x3C1Cb427D20F15563aDa8C249E71db76d7183B6c",
     },
     threeXStaking: {
       mainnet: "0x584732f867a4533BC349d438Fba4fc2aEE5f5f83",
-      hardhat: "0xC1e0A9DB9eA830c52603798481045688c8AE99C2",
+      hardhat: "0x7C8BaafA542c57fF9B2B90612bf8aB9E86e22C09",
     },
     butterWhaleProcessing: {
       mainnet: "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39",
@@ -109,6 +113,7 @@ export default function getNamedAccounts() {
     },
     crvAave: {
       mainnet: "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
+      hardhat: "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
     },
     crvComp: {
       mainnet: "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
@@ -118,6 +123,7 @@ export default function getNamedAccounts() {
     },
     crvCvxCrv: {
       mainnet: "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
+      hardhat: "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
     },
     crvIbBtc: {
       mainnet: "0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
@@ -196,7 +202,7 @@ export default function getNamedAccounts() {
       mainnet: "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
       rinkeby: "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
       polygon: "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
-      hardhat: "0xDde063eBe8E85D666AD99f731B4Dbf8C98F29708",
+      hardhat: "0xcD0048A5628B37B8f743cC2FeA18817A29e97270",
       arbitrum: "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
       bsc: "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
     },
@@ -217,10 +223,21 @@ export default function getNamedAccounts() {
       rinkeby: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       hardhat: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     },
+    crvSEth: {
+      mainnet: "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c",
+      hardhat: "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c",
+    },
+    sEthSweetVault: {
+      mainnet: "0x8bEe2037448F096900Fd9affc427d38aE6CC0350",
+      hardhat: "0xd3FFD73C53F139cEBB80b6A524bE280955b3f4db",
+    },
+    sEthSweetVaultStaking: {
+      hardhat: "0x512F7469BcC83089497506b5df64c6E246B39925",
+    },
     usdc: {
       mainnet: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       rinkeby: "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94",
-      binance: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
+      bsc: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
       polygon: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
       hardhat: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       localhost: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -313,6 +330,10 @@ export default function getNamedAccounts() {
     sUSD: {
       mainnet: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
       hardhat: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+    },
+    sEth: {
+      mainnet: "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb",
+      hardhat: "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb",
     },
     crvEUR: {
       mainnet: "0x19b080FE1ffA0553469D20Ca36219F17Fcf03859",
@@ -407,7 +428,7 @@ export default function getNamedAccounts() {
     popUsdcLp: {
       polygon: "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
       mainnet: "0xbba11b41407df8793a89b44ee4b50afad4508555",
-      hardhat: "0xD5724171C2b7f0AA717a324626050BD05767e2C6",
+      hardhat: "0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F",
       rinkeby: "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
     },
     aclRegistry: {
@@ -440,7 +461,7 @@ export default function getNamedAccounts() {
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
     },
     rewardsEscrow: {
-      hardhat: "0x162700d1613DfEC978032A909DE02643bC55df1A",
+      hardhat: "0x8e264821AFa98DD104eEcfcfa7FD9f8D8B320adA",
       rinkeby: "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa",
       polygon: "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
       mainnet: "0xb5cb5710044D1074097c17B7535a1cF99cBfb17F",
@@ -455,6 +476,13 @@ export default function getNamedAccounts() {
     },
     yearnRegistry: {
       mainnet: "0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804",
+      hardhat: "0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804",
+    },
+    crvAaveSweetPool: {
+      hardhat: "0x56D13Eb21a625EdA8438F55DF2C31dC3632034f5",
+    },
+    crvCvxCrvSweetPool: {
+      hardhat: "0xe70f935c32dA4dB13e7876795f1e175465e6458e",
     },
     beneficiaryRegistry: {
       hardhat: "0x51C65cd0Cdb1A8A8b79dfc2eE965B1bA0bb8fc89",
@@ -470,6 +498,9 @@ export default function getNamedAccounts() {
     },
     govStaking: {
       hardhat: "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8",
+    },
+    zeroXZapper: {
+      hardhat: "0x75c68e69775fA3E9DD38eA32E554f6BF259C1135",
     },
   };
 }

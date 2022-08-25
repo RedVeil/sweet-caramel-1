@@ -14,5 +14,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 export default func;
-func.dependencies = ["setup"];
-func.tags = ["core", "frontend"];
+func.dependencies = ["setup", "acl-registry"];
+func.tags = ["core", "frontend", "contract-registry"];

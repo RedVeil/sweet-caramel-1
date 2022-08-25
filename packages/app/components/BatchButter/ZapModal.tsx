@@ -10,6 +10,7 @@ interface ZapModalProps {
   tokenOptions: TokenMetadata[];
   slippage: number;
   setSlippage: Dispatch<number>;
+  slippageOptions: number[];
   closeModal: Function;
   withdraw: Function;
   claim: Function;
@@ -22,6 +23,7 @@ export default function ZapModal({
   tokenOptions,
   slippage,
   setSlippage,
+  slippageOptions,
   closeModal,
   withdraw,
   claim,
@@ -36,7 +38,7 @@ export default function ZapModal({
       <OutputToken outputToken={tokenOptions} selectToken={selectToken} selectedToken={selectedToken} />
       {selectedToken !== tokenOptions[0] && (
         <div className="mt-4">
-          <SlippageSettings slippage={slippage} setSlippage={setSlippage} />
+          <SlippageSettings slippage={slippage} setSlippage={setSlippage} slippageOptions={slippageOptions} />
         </div>
       )}
       <div className="mt-5 flex flex-row space-x-4 md:space-x-8">

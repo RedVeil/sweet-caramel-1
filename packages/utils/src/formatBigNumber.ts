@@ -1,11 +1,31 @@
 import { BigNumber, constants, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
+const MILLION = 1e6;
+const THOUSAND = 1e3;
+
 export function formatAndRoundBigNumber(value: BigNumber, digits?: number, decimals = 18): string {
   if (BigNumber.isBigNumber(value)) {
-    return Number(utils.formatUnits(value, decimals)).toLocaleString(undefined, {
-      maximumFractionDigits: digits ? digits : 0,
-    });
+    const formatedValue = Number(utils.formatUnits(value, decimals));
+    if (formatedValue > MILLION) {
+      return `${(formatedValue / MILLION).toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      })}M`;
+    } else if (formatedValue > THOUSAND) {
+      return `${(formatedValue / THOUSAND).toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      })}k`;
+    } else if (formatedValue > 1) {
+      return formatedValue.toLocaleString(undefined, {
+        maximumFractionDigits: 4,
+      });
+    } else if (formatedValue === 1) {
+      return String(formatedValue);
+    } else if (formatedValue < 1) {
+      return formatedValue.toLocaleString(undefined, {
+        maximumFractionDigits: 6,
+      });
+    }
   }
   return `Invalid val: ${value}`;
 }

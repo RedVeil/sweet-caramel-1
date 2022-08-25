@@ -18,7 +18,7 @@ interface Uniswap {
   function WETH() external pure returns (address);
 }
 
-interface CrvStethPool {
+interface CrvSethPool {
   function add_liquidity(uint256[2] calldata amounts, uint256 min_mint_amount) external payable;
 }
 
@@ -96,8 +96,8 @@ contract Faucet {
   IERC20 public crvIbBtcLP = IERC20(0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B);
 
   IWETH public weth = IWETH(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-  CrvStethPool public crvStethPool = CrvStethPool(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
-  IERC20 public crvStethLP = IERC20(0x06325440D014e39736583c165C2963BA99fAf14E);
+  CrvSethPool public crvSethPool = CrvSethPool(0xc5424B857f758E906013F3555Dad202e4bdB4567);
+  IERC20 public crvSethLP = IERC20(0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c);
 
   constructor(address uniswap_) /* address curveAddressProvider_ */
   /* address curveDepositZap_ */
@@ -157,9 +157,9 @@ contract Faucet {
     crvIbBtcLP.transfer(recipient, crvIbBtcLP.balanceOf(address(this)));
   }
 
-  function sendCrvStethLPTokens(uint256 amount, address recipient) public {
-    crvStethPool.add_liquidity{ value: amount * 1 ether }([amount * 1 ether, 0], 0);
-    crvStethLP.transfer(recipient, crvStethLP.balanceOf(address(this)));
+  function sendCrvSethLPTokens(uint256 amount, address recipient) public {
+    crvSethPool.add_liquidity{ value: amount * 1 ether }([amount * 1 ether, 0], 0);
+    crvSethLP.transfer(recipient, crvSethLP.balanceOf(address(this)));
   }
 
   function sendThreeCrv(uint256 amount, address recipient) public {

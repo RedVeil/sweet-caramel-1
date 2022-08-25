@@ -50,6 +50,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
               tokenOptions={tokenOptions}
               slippage={localButterPageState.slippage}
               setSlippage={setSlippage}
+              slippageOptions={[0.1, 0.5, 1]}
               closeModal={() => dispatch(setDualActionWideModal(false))}
               withdraw={withdraw}
               claim={claim}
@@ -74,6 +75,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
               tokenOptions={tokenOptions}
               slippage={localButterPageState.slippage}
               setSlippage={setSlippage}
+              slippageOptions={[0.1, 0.5, 1]}
               closeModal={() => dispatch(setDualActionWideModal(false))}
               withdraw={withdraw}
               claim={claim}

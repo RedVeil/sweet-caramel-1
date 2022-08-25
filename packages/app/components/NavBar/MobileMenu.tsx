@@ -3,7 +3,7 @@ import { ChevronDownIcon } from "@heroicons/react/solid";
 import { networkLogos, networkMap } from "@popcorn/utils";
 import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
 import SecondaryActionButton from "components/SecondaryActionButton";
-import GetProducts from "helper/products";
+import getProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -16,7 +16,6 @@ export const MobileMenu: React.FC = () => {
   const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain, contractAddresses } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
-  const products = GetProducts(router, pushWithinChain);
 
   useEffect(() => {
     toggleMenu(false);
@@ -39,21 +38,18 @@ export const MobileMenu: React.FC = () => {
           <div className="block w-5 absolute">
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "rotate-45" : "-translate-y-1.5"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "rotate-45" : "-translate-y-1.5"
+                }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "opacity-0" : "opacity-100"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "opacity-0" : "opacity-100"
+                }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "-rotate-45" : "translate-y-1.5"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "-rotate-45" : "translate-y-1.5"
+                }`}
             ></span>
           </div>
         </button>
@@ -80,32 +76,22 @@ export const MobileMenu: React.FC = () => {
                         <NavbarLink label="Home" url="/" isActive={router.pathname === `/[network]`} />
                       </div>
                       <div className="relative flex flex-container flex-row w-fit-content z-10 py-6">
-                        {products.length < 2 ? (
-                          <li className="mt-1">
-                            <NavbarLink
-                              label={products[0].title}
-                              isActive={false}
-                              onClick={() => products[0].onClick}
-                            />
-                          </li>
-                        ) : (
-                          <Menu>
-                            <Menu.Button>
-                              <div className="group flex flex-row items-center -mr-2">
-                                <p
-                                  className={`text-gray-500 text-xl leading-4 font-semibold font-base md:text-base hover:text-gray-900 cursor-pointer`}
-                                >
-                                  Products
-                                </p>
-                                <ChevronDownIcon
-                                  className="fill-current md:text-gray-500 text-gray-900 group-hover:text-gray-900 mt-0.5 w-7 h-5 ml-0.5"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <DropDownComponent options={products} />
-                            </Menu.Button>
-                          </Menu>
-                        )}
+                        <Menu>
+                          <Menu.Button>
+                            <div className="group flex flex-row items-center -mr-2">
+                              <p
+                                className={`text-gray-500 text-xl leading-4 font-semibold font-base md:text-base hover:text-gray-900 cursor-pointer`}
+                              >
+                                Products
+                              </p>
+                              <ChevronDownIcon
+                                className="fill-current md:text-gray-500 text-gray-900 group-hover:text-gray-900 mt-0.5 w-7 h-5 ml-0.5"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <DropDownComponent options={getProducts(router, pushWithinChain)} />
+                          </Menu.Button>
+                        </Menu>
                       </div>
                       <div className="py-6">
                         <NavbarLink
@@ -174,9 +160,8 @@ export const MobileMenu: React.FC = () => {
                               connect();
                             }
                           }}
-                          className={`rounded-full py-3 w-full flex flex-row justify-center gap-2 items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${
-                            account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
-                          }`}
+                          className={`rounded-full py-3 w-full flex flex-row justify-center gap-2 items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
+                            }`}
                         >
                           <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
                             {account ? `Disconnect` : "Connect Wallet"}

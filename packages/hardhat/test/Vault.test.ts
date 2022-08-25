@@ -1,9 +1,11 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { deployMockContract, MockContract } from "ethereum-waffle";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
+
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
 import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
 import { ADDRESS_ZERO, MAX_UINT_256 } from "../lib/external/SetToken/utils/constants";
 import { expectBigNumberCloseTo, expectEvent, expectRevert, expectValue } from "../lib/utils/expectValue";
@@ -781,13 +783,12 @@ describe("Vault", function () {
 
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
 
-      const amount = DEPOSIT_AMOUNT.sub(1);
-      expectValue(await contracts.vault.previewWithdraw(amount), amount);
+      const amount = DEPOSIT_AMOUNT;
+      await expectValue(await contracts.vault.previewWithdraw(amount), amount.add(10));
       await contracts.vault.connect(depositor)["withdraw(uint256)"](amount);
 
-      expectValue(await contracts.vault.totalSupply(), 1);
-      expectValue(await contracts.vault.totalAssets(), 1);
-      expectValue(await contracts.vault.pricePerShare(), parseEther("1"));
+      await expectValue(await contracts.vault.totalSupply(), 0);
+      await expectValue(await contracts.vault.totalAssets(), 0);
     });
 
     it("returns the amount of shares needed to receive given amount of vaulted assets (withFee)", async function () {
@@ -829,7 +830,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
       await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
 
-      const expectedSharesRequired = parseEther("555.555555555555555555");
+      const expectedSharesRequired = parseEther("555.555555555555555561");
       const expectedFeeInShares = parseEther("111.111111111111111111");
       expectValue(await contracts.vault.previewWithdraw(DEPOSIT_AMOUNT), expectedSharesRequired);
       await contracts.vault.connect(depositor)["withdraw(uint256)"](DEPOSIT_AMOUNT);
@@ -837,10 +838,10 @@ describe("Vault", function () {
       expectValue(await contracts.vault.totalAssets(), DEPOSIT_AMOUNT);
       expectValue(await contracts.vault.balanceOf(contracts.vault.address), expectedFeeInShares);
       await expectBigNumberCloseTo(await contracts.vault.pricePerShare(), parseEther("1.8"));
-      expectValue(await contracts.vault.balanceOf(depositor.address), DEPOSIT_AMOUNT.sub(expectedSharesRequired));
-      expectValue(
+      await expectValue(await contracts.vault.balanceOf(depositor.address), parseEther("444.444444444444444445"));
+      await expectValue(
         await contracts.vault.totalSupply(),
-        DEPOSIT_AMOUNT.sub(expectedSharesRequired).add(expectedFeeInShares)
+        parseEther("555.555555555555555556")
       );
     });
 
@@ -857,7 +858,7 @@ describe("Vault", function () {
       await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
 
       let withdrawAmount = parseEther("495");
-      let expectedSharesRequired = parseEther("277.777777777777777777");
+      let expectedSharesRequired = parseEther("277.777777777777777783");
 
       expectValue(await contracts.vault.previewWithdraw(withdrawAmount), expectedSharesRequired);
       await contracts.vault.connect(depositor)["withdraw(uint256)"](withdrawAmount);
@@ -895,8 +896,8 @@ describe("Vault", function () {
       expectValue(await contracts.vault.accruedManagementFee(), parseEther("10"));
 
       // (1000 * 1000) / (1000-10)
-      expectedShares = parseEther("1010.101010101010101010");
-      expectValue(await contracts.vault.previewWithdraw(DEPOSIT_AMOUNT), expectedShares);
+      expectedShares = parseEther("1010.101010101010101020");
+      await expectValue(await contracts.vault.previewWithdraw(DEPOSIT_AMOUNT), expectedShares);
     });
   });
 
@@ -906,7 +907,7 @@ describe("Vault", function () {
       await contracts.depositToken.connect(depositor).approve(contracts.vault.address, DEPOSIT_AMOUNT.mul(5));
     });
 
-    it("returns the amount of assets given an amount of shares (no fee)", async function () {
+    it("returns the amount of assets required given the amount of shares wanted (no fee)", async function () {
       await contracts.vault.setFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 });
       await contracts.vault.setUseLocalFees(true);
 
@@ -922,7 +923,7 @@ describe("Vault", function () {
 
       // 1000 / 2
       const requiredShares = parseEther("500");
-      expectValue(await contracts.vault.previewMint(requiredShares), DEPOSIT_AMOUNT);
+      await expectValue(await contracts.vault.previewMint(requiredShares), DEPOSIT_AMOUNT);
     });
 
     it("returns the amount of assets given an amount of shares (withFee)", async function () {
@@ -938,7 +939,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
 
       let withdrawAmount = parseEther("500");
-      let expectedAssetsReturned = parseEther("495");
+      let expectedAssetsReturned = parseEther("495").sub(10);
       let feeBalance = parseEther("5");
       expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
@@ -964,8 +965,8 @@ describe("Vault", function () {
 
       let withdrawAmount = DEPOSIT_AMOUNT.div(2);
       let expectedFeeInShares = parseEther("111.111111111111111111");
-      let expectedAssetsReturned = parseEther("900");
-      expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
+      let expectedAssetsReturned = parseEther("900")
+      await expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned.sub(10));
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
 
       expectValue(await contracts.vault.totalAssets(), DEPOSIT_AMOUNT.mul(2).sub(expectedAssetsReturned));
@@ -989,8 +990,8 @@ describe("Vault", function () {
 
       let withdrawAmount = DEPOSIT_AMOUNT.div(2);
       let expectedFeeInShares = parseEther("116.111111111111111111");
-      let expectedAssetsReturned = parseEther("891");
-      expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
+      let expectedAssetsReturned = parseEther("891").sub(10);
+      await expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
 
       expectValue(await contracts.vault.totalAssets(), parseEther("1109"));
@@ -1012,7 +1013,6 @@ describe("Vault", function () {
       let inputShares = DEPOSIT_AMOUNT;
       let expectedAssetsRequired = DEPOSIT_AMOUNT;
 
-      expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
       await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
 
       await timeTravel(365 * DAY);
@@ -1020,7 +1020,7 @@ describe("Vault", function () {
 
       // (1000 * 1000) / (1000-10)
       inputShares = parseEther("1010.101010101010101010");
-      expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired.sub(1));
+      await expectValue(await contracts.vault.previewRedeem(inputShares), expectedAssetsRequired.sub(1).sub(10));
     });
   });
 
@@ -1118,7 +1118,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
       expectValue(
         await contracts.vault.maxWithdraw(depositor.address),
-        (await contracts.vault.assetsOf(depositor.address)).sub(parseEther("5"))
+        (await contracts.vault.assetsOf(depositor.address)).sub(parseEther("5")).sub(10)
       );
     });
   });
@@ -1260,7 +1260,7 @@ describe("Vault", function () {
       await expectEvent(
         await contracts.vault
           .connect(depositor)
-          ["depositAndStakeFor(uint256,address)"](DEPOSIT_AMOUNT, receiver.address),
+        ["depositAndStakeFor(uint256,address)"](DEPOSIT_AMOUNT, receiver.address),
         contracts.staking,
         "Staked",
         [receiver.address, DEPOSIT_AMOUNT]
@@ -1407,7 +1407,7 @@ describe("Vault", function () {
     it("updates feesUpdatedAt", async function () {
       const depositTx = await contracts.vault
         .connect(depositor)
-        ["mint(uint256,address)"](DEPOSIT_AMOUNT, depositor.address);
+      ["mint(uint256,address)"](DEPOSIT_AMOUNT, depositor.address);
       const depositTxBlock = await waffle.provider.getBlock(depositTx.blockNumber);
 
       expectValue(await contracts.vault.feesUpdatedAt(), depositTxBlock.timestamp);
@@ -1552,7 +1552,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-          ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
+        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
         "ERC20: transfer amount exceeds balance"
       );
     });
@@ -1561,7 +1561,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-          ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, ethers.constants.AddressZero, depositor.address),
+        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, ethers.constants.AddressZero, depositor.address),
         "Invalid receiver"
       );
     });
@@ -1569,7 +1569,7 @@ describe("Vault", function () {
     it("redeems (uint256,address,address) shares for specified token amount", async function () {
       await contracts.vault
         .connect(depositor)
-        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, depositor.address, depositor.address);
+      ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, depositor.address, depositor.address);
 
       expectValue(await contracts.depositToken.balanceOf(depositor.address), DEPOSIT_AMOUNT.sub(parseEther("5")));
     });
@@ -1584,7 +1584,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor).approve(receiver.address, DEPOSIT_AMOUNT);
       await contracts.vault
         .connect(receiver)
-        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
+      ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
 
       expectValue(await contracts.depositToken.balanceOf(receiver.address), parseEther("990.025"));
       expectValue(await contracts.vault.allowance(depositor.address, receiver.address), parseEther("5"));
@@ -1594,7 +1594,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(receiver)
-          ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address),
+        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address),
         "reverted with panic code 0x11"
       );
     });
@@ -1664,23 +1664,23 @@ describe("Vault", function () {
     it("withdraws (uint256,address,address) shares for specified token amount", async function () {
       await contracts.vault
         .connect(depositor)
-        ["withdraw(uint256,address,address)"](
-          DEPOSIT_AMOUNT.sub(parseEther("5")),
-          depositor.address,
-          depositor.address
-        );
-      expectValue(await contracts.depositToken.balanceOf(depositor.address), parseEther("995"));
+      ["withdraw(uint256,address,address)"](
+        DEPOSIT_AMOUNT.sub(parseEther("5")),
+        depositor.address,
+        depositor.address
+      );
+      await expectValue(await contracts.depositToken.balanceOf(depositor.address), parseEther("995"));
     });
 
     it("reverts on zero receiver", async function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-          ["withdraw(uint256,address,address)"](
-            DEPOSIT_AMOUNT.sub(parseEther("5")),
-            ethers.constants.AddressZero,
-            depositor.address
-          ),
+        ["withdraw(uint256,address,address)"](
+          DEPOSIT_AMOUNT.sub(parseEther("5")),
+          ethers.constants.AddressZero,
+          depositor.address
+        ),
         "Invalid receiver"
       );
     });
@@ -1695,7 +1695,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor).approve(receiver.address, DEPOSIT_AMOUNT);
       await contracts.vault
         .connect(receiver)
-        ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
+      ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
 
       expectValue(await contracts.depositToken.balanceOf(receiver.address), parseEther("995"));
       await expectBigNumberCloseTo(
@@ -1708,11 +1708,11 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(receiver)
-          ["withdraw(uint256,address,address)"](
-            DEPOSIT_AMOUNT.sub(parseEther("5")),
-            receiver.address,
-            depositor.address
-          ),
+        ["withdraw(uint256,address,address)"](
+          DEPOSIT_AMOUNT.sub(parseEther("5")),
+          receiver.address,
+          depositor.address
+        ),
         "reverted with panic code 0x11"
       );
     });
@@ -1721,7 +1721,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-          ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
+        ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
         "ERC20: transfer amount exceeds balance"
       );
     });
@@ -2112,11 +2112,11 @@ describe("Vault", function () {
         await timeTravel(365 * DAY);
         await contracts.vault
           .connect(depositor)
-          ["redeem(uint256,address,address)"](
-            await contracts.vault.connect(depositor).balanceOf(depositor.address),
-            depositor.address,
-            depositor.address
-          );
+        ["redeem(uint256,address,address)"](
+          await contracts.vault.connect(depositor).balanceOf(depositor.address),
+          depositor.address,
+          depositor.address
+        );
 
         await expectBigNumberCloseTo(
           await contracts.vault.balanceOf(contracts.vault.address),

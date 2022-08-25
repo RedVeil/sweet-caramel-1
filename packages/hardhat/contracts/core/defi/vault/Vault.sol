@@ -92,10 +92,10 @@ contract Vault is
   /**
    * @notice Returns amount of underlying `asset` token represented by 1 vault share.
    * @return Price per vault share in underlying token.
-   * @dev Vault shares are denominated with 18 decimals. Return value units are defined by underlying `asset` token.
+   * @dev Return value units are defined by underlying `asset` token.
    */
   function assetsPerShare() public view returns (uint256) {
-    return _shareValue(1e18);
+    return _shareValue(10**decimals());
   }
 
   /**
@@ -182,7 +182,7 @@ contract Vault is
 
     assets += (assets * withdrawalFee) / (1e18 - withdrawalFee);
 
-    shares = _convertToShares(assets, accruedManagementFee() + accruedPerformanceFee());
+    shares = _convertToShares(assets + 10, accruedManagementFee() + accruedPerformanceFee());
   }
 
   /**
@@ -195,6 +195,7 @@ contract Vault is
     assets = _convertToAssets(shares, accruedManagementFee() + accruedPerformanceFee());
 
     assets -= (assets * getWithdrawalFee()) / 1e18;
+    assets -= 10;
   }
 
   /* ========== VIEWS ( FEES ) ========== */
@@ -296,7 +297,6 @@ contract Vault is
     override
     nonReentrant
     whenNotPaused
-    onlyApprovedContractOrEOA
     takeFees
     returns (uint256 shares)
   {
@@ -357,7 +357,6 @@ contract Vault is
     override
     nonReentrant
     whenNotPaused
-    onlyApprovedContractOrEOA
     takeFees
     returns (uint256 assets)
   {
@@ -424,7 +423,7 @@ contract Vault is
     uint256 assets,
     address receiver,
     address owner
-  ) public override nonReentrant onlyApprovedContractOrEOA takeFees returns (uint256 shares) {
+  ) public override nonReentrant takeFees returns (uint256 shares) {
     require(receiver != address(0), "Invalid receiver");
 
     shares = _convertToShares(assets, 0);
@@ -464,7 +463,7 @@ contract Vault is
     uint256 shares,
     address receiver,
     address owner
-  ) public override nonReentrant onlyApprovedContractOrEOA takeFees returns (uint256 assets) {
+  ) public override nonReentrant takeFees returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);

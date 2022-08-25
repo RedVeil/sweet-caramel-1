@@ -26,6 +26,9 @@ module.exports = {
     IS_DEV: process.env.IS_DEV,
     ETHERSCAN_API_KEY:process.env.ETHERSCAN_API_KEY
   },
+  images: {
+    domains: ["rawcdn.githack.com"],
+  },
   poweredByHeader: false,
   async rewrites() {
     return [
@@ -42,9 +45,10 @@ module.exports = {
         destination: `/${defaultChain}/staking/:path*`,
       },
       {
-        source: "/butter/:path*",
-        destination: `/${defaultChain}/butter/:path*`,
+        source: "/sweetvaults",
+        destination: `/${defaultChain}/sweetvaults`,
       },
+      { source: "/butter/:path*", destination: `/${defaultChain}/butter/:path*` },
     ];
   },
   webpack: (config, options) => {

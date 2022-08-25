@@ -1,14 +1,17 @@
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
+
 import { ADDRESS_ZERO } from "../../../lib/external/SetToken/utils/constants";
 import { getNamedAccountsByChainId } from "../../../lib/utils/getNamedAccounts";
 import { impersonateSigner } from "../../../lib/utils/test";
-import { ERC20, Faucet, Vault } from "../../../typechain";
+import { ContractRegistry, ERC20, Faucet, Vault } from "../../../typechain";
+
 export interface Contracts {
   faucet: Faucet;
   asset: ERC20;
   vault: Vault;
+  contractRegistry: ContractRegistry;
 }
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
 
@@ -72,5 +75,6 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
     faucet,
     asset,
     vault,
+    contractRegistry,
   };
 }

@@ -8,11 +8,11 @@ const MainActionButton: React.FC<MainActionButtonProps> = ({ label, handleClick,
   return (
     <button
       type="button"
-      className="w-full h-hull py-3 px-8 flex flex-row items-center justify-center bg-blue-600 rounded-full hover:bg-blue-700 disabled:bg-gray-300"
+      className="w-full h-hull py-3 px-8 flex flex-row items-center justify-center border border-blue-600 bg-blue-600 rounded-full hover:bg-blue-700 hover:border-blue-700 disabled:bg-gray-300 disabled:border-gray-300"
       onClick={handleClick}
       disabled={disabled}
     >
-      <p className="text-base text-white font-medium">{label}</p>
+      <p className="text-base whitespace-nowrap text-white font-medium">{label}</p>
     </button>
   );
 };

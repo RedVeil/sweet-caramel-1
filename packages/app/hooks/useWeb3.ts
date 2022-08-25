@@ -28,7 +28,6 @@ export default function useWeb3() {
   const contractAddresses = useMemo(() => getChainRelevantContracts(getChainId()), [getChainId()]);
   const wallets = useWallets();
   const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(getChainId());
-
   const { dispatch } = useContext(store);
 
   const isLoaded = (network: string | undefined): boolean =>
@@ -116,7 +115,7 @@ export default function useWeb3() {
   async function handleConnect(disableModals: boolean = false): Promise<void> {
     return previouslyConnectedWallets
       ? await connect({ autoSelect: { label: previouslyConnectedWallets[0], disableModals } })
-      : await connect({});
+      : await connect({ autoSelect: { label: "all", disableModals: false } });
   }
 
   function getNonWalletChain(): string {

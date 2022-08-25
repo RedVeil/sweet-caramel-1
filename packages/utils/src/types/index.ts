@@ -1,9 +1,11 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20, ISetToken } from "../../../hardhat/typechain";
+import { ERC20, ISetToken, Vault } from "../../../hardhat/typechain";
 
 export type Address = string;
 export interface ContractAddresses {
   staking?: Array<Address>;
+  sweetVaults?: Array<Address>;
+  defaultTokenList?: Array<Address>;
   popStaking?: Address;
   butterStaking?: Address;
   threeXStaking?: Address;
@@ -15,6 +17,9 @@ export interface ContractAddresses {
   usdc?: Address;
   usdt?: Address;
   threeCrv?: Address;
+  crvSEth?: Address;
+  sEthSweetVault?: Address;
+  sEthSweetVaultStaking?: Address;
   threePool?: Address;
   popUsdcLp?: Address;
   popUsdcUniV3Pool?: Address;
@@ -67,6 +72,8 @@ export interface ContractAddresses {
   sCHF?: Address;
   sJPY?: Address;
   sUSD?: Address;
+  sEth?: Address;
+  zeroXZapper?: Address;
   agEur?: Address;
   angleRouter?: Address;
   eurOracle?: Address;
@@ -142,6 +149,43 @@ export type Token = {
   decimals: number;
   balance?: BigNumber;
   allowance?: BigNumber;
+  description?: string;
+  icon?: string;
+};
+
+export type ERC20Metadata = {
+  address: Address;
+  name: string;
+  symbol: string;
+  decimals: number;
+  balance?: BigNumber;
+  allowance?: BigNumber;
+  description?: string;
+  icon?: string;
+};
+
+export type SweetVaultMetadata = ERC20Metadata & {
+  deposited: BigNumber;
+  pricePerShare: BigNumber;
+  tvl: BigNumber;
+  apy: number;
+  underlyingToken: Token;
+  curveLink: string;
+  strategy: string;
+  description?: string;
+  token: string;
+  link: string;
+  displayText?: {
+    token?: string;
+    strategy?: string;
+  };
+  defaultDepositTokenSymbol?: string;
+};
+
+// contract w/ metadata pattern
+export type SweetVaultWithMetadata = {
+  contract: Vault;
+  metadata: SweetVaultMetadata;
 };
 
 export type StakingPool = {
