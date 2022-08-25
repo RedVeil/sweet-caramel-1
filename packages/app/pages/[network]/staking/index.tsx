@@ -126,7 +126,6 @@ export default function index(): JSX.Element {
           <div className="h-full">
             {!pageAvailable() && (
               <div className="flex flex-col w-full 3 md:mx-0 mt-10 mb-8 h-full">
-                <p>Test 1</p>
                 <NotAvailable title="No staking, yet" body="No staking pools on this network" />
               </div>
             )}
