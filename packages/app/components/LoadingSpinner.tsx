@@ -7,7 +7,7 @@ const LoadingSpinner = () => {
     autoplay: true,
     animationData: loaderAnim,
     rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
+      preserveAspectRatio: "xMidYMid meet",
     },
   };
   return (
