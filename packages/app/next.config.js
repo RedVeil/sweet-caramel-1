@@ -24,6 +24,7 @@ module.exports = {
     CHAIN_ID: process.env.CHAIN_ID,
     INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID,
     IS_DEV: process.env.IS_DEV,
+    ETHERSCAN_API_KEY:process.env.ETHERSCAN_API_KEY
   },
   poweredByHeader: false,
   async rewrites() {
