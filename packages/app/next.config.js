@@ -29,6 +29,9 @@ module.exports = {
   images: {
     domains: ["rawcdn.githack.com"],
   },
+  images: {
+    domains: ["rawcdn.githack.com"],
+  },
   poweredByHeader: false,
   async rewrites() {
     return [

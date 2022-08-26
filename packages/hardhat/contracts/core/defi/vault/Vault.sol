@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./AffiliateToken.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/ContractRegistryAccess.sol";
@@ -14,6 +15,7 @@ import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IVaultFeeController.sol";
 import "../../interfaces/IStaking.sol";
 import "../../interfaces/IKeeperIncentiveV2.sol";
+import "../../interfaces/IVaultsV1.sol";
 
 contract Vault is
   IEIP4626,
@@ -39,6 +41,7 @@ contract Vault is
 
   uint256 constant MINUTES_PER_YEAR = 525_600;
   bytes32 constant FEE_CONTROLLER_ID = keccak256("VaultFeeController");
+  bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   /* ========== STATE VARIABLES ========== */
 
@@ -47,6 +50,7 @@ contract Vault is
   uint256 public vaultShareHWM = 1e18;
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
+  uint256 keeperVigBps; // percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves
 
   /* ========== EVENTS ========== */
 
@@ -65,6 +69,7 @@ contract Vault is
     address yearnRegistry_,
     IContractRegistry contractRegistry_,
     address staking_,
+    uint256 keeperVigBps_,
     FeeStructure memory feeStructure_
   )
     AffiliateToken(
@@ -85,6 +90,7 @@ contract Vault is
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
     contractName = keccak256(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault"));
+    keeperVigBps = keeperVigBps_;
   }
 
   /* ========== VIEWS ========== */
@@ -489,11 +495,11 @@ contract Vault is
   /* ========== RESTRICTED FUNCTIONS ========== */
 
   /**
-   * @notice Set fees in BPS. Caller must have DAO_ROLE from ACLRegistry.
+   * @notice Set fees in BPS. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function setFees(FeeStructure memory newFees) external onlyRole(DAO_ROLE) {
+  function setFees(FeeStructure memory newFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     // prettier-ignore
     require(
       newFees.deposit < 1e18 &&
@@ -510,16 +516,16 @@ contract Vault is
    * @notice Set whether to use locally configured fees. Caller must have DAO_ROLE from ACLRegistry.
    * @param _useLocalFees `true` to use local fees, `false` to use the VaultFeeController contract.
    */
-  function setUseLocalFees(bool _useLocalFees) external onlyRole(DAO_ROLE) {
+  function setUseLocalFees(bool _useLocalFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     emit UseLocalFees(_useLocalFees);
     useLocalFees = _useLocalFees;
   }
 
   /**
-   * @notice Set staking contract for this vault.
+   * @notice Set staking contract for this vault. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    * @param _staking Address of the staking contract.
    */
-  function setStaking(address _staking) external onlyRole(DAO_ROLE) {
+  function setStaking(address _staking) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     emit StakingUpdated(staking, _staking);
 
     if (staking != address(0)) _approve(address(this), staking, 0);
@@ -529,10 +535,10 @@ contract Vault is
   }
 
   /**
-   * @notice Used to update the yearn registry.
+   * @notice Used to update the yearn registry. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    * @param _registry The new _registry address.
    */
-  function setRegistry(address _registry) external onlyRole(DAO_ROLE) {
+  function setRegistry(address _registry) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     emit RegistryUpdated(address(registry), _registry);
 
     _setRegistry(_registry);
@@ -544,23 +550,44 @@ contract Vault is
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
     uint256 balance = balanceOf(address(this));
+    uint256 accruedFees = _convertToAssets(balance, 0);
 
-    _withdraw(address(this), _feeController().feeRecipient(), _convertToAssets(balance, 0), true);
+    uint256 preBal = token.balanceOf(address(this));
+    uint256 tipAmount = (accruedFees * keeperVigBps) / 1e18;
+
+    _withdraw(address(this), _feeController().feeRecipient(), (accruedFees * 1e18 - keeperVigBps) / 1e18, true);
+    _withdraw(address(this), address(this), tipAmount, true);
+
+    uint256 postBal = token.balanceOf(address(this));
+
+    require(postBal >= preBal, "insufficient tip balance");
+
+    token.approve(address(_keeperIncentive()), postBal);
+
+    _keeperIncentive().tip(address(token), msg.sender, 0, postBal);
 
     _burn(address(this), balance);
   }
 
   /**
-   * @notice Pause deposits. Caller must have DAO_ROLE from ACLRegistry.
+   * @notice Change percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    */
-  function pauseContract() external onlyRole(DAO_ROLE) {
+  function setKeeperVig(uint256 _keeperVigBps) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+    require(_keeperVigBps < 1e18, "invalid vig");
+    keeperVigBps = keeperVigBps;
+  }
+
+  /**
+   * @notice Pause deposits. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function pauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     _pause();
   }
 
   /**
    * @notice Unpause deposits. Caller must have DAO_ROLE from ACLRegistry.
    */
-  function unpauseContract() external onlyRole(DAO_ROLE) {
+  function unpauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     _unpause();
   }
 

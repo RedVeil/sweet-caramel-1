@@ -165,6 +165,7 @@ async function deployContracts(): Promise<Contracts> {
 
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("Keeper"), owner.address);
+  await aclRegistry.grantRole(ethers.utils.id("INCENTIVE_MANAGER_ROLE"), owner.address);
 
   await threeXBatchProcessing.setBatchStorage(batchStorage.address);
   await threeXBatchProcessing.setApprovals();

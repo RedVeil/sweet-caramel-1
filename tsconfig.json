@@ -33,7 +33,7 @@
       "@popcorn/hardhat": ["../hardhat"],
       "@popcorn/hardhat/*": ["../hardhat/*"],
       "@popcorn/contracts": ["../hardhat"],
-      "@popcorn/contracts/*": ["../hardhat/*"],
+      "@popcorn/contracts/*": ["../hardhat/*"]
     }
   }
 }

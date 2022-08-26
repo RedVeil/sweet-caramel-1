@@ -20,14 +20,14 @@ abstract contract AbstractSimulateBatchSlippage is Test {
   }
 
   function test__simulateMintSlippage() external {
-    _runSimulation(batchContract, true);
+    _runSimulation(true);
   }
 
   function test__simulateRedeemSlippage() external {
-    _runSimulation(batchContract, false);
+    _runSimulation(false);
   }
 
-  function _runSimulation(IBatchContract batchContract, bool isMint) internal {
+  function _runSimulation(bool isMint) internal {
     bytes32 batchId;
     Batch memory currentBatch;
     uint256 sourceBatchValue;

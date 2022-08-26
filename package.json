@@ -20,6 +20,7 @@
     "netlify-build": "lerna run --scope @popcorn/hardhat compile && cd packages/app && yarn next build && cd .. && cd grants && yarn next build"
   },
   "dependencies": {
+    "@ecmendenhall/forge-std": "0.0.2",
     "@netlify/plugin-nextjs": "3.9.2",
     "lerna": "5.4.0",
     "typescript": "4.5.4",

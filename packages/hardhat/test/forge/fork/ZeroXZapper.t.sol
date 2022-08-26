@@ -49,6 +49,7 @@ contract ZeroXZapperTest is Test {
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),
       address(0),
+      0,
       Vault.FeeStructure(0, 0, 0, 0)
     );
     contractRegistry = IContractRegistry(CONTRACT_REGISTRY);

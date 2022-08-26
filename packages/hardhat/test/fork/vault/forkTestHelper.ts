@@ -44,7 +44,7 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
   const contractRegistry = await ethers.getContractAt("ContractRegistry", accounts.contractRegistry);
 
   const Vault = await ethers.getContractFactory("Vault");
-  const vault = await Vault.deploy(assetAddress, accounts.yearnRegistry, accounts.contractRegistry, ADDRESS_ZERO, {
+  const vault = await Vault.deploy(assetAddress, accounts.yearnRegistry, accounts.contractRegistry, ADDRESS_ZERO, 1, {
     deposit: 0,
     withdrawal: FEE_MULTIPLIER.mul(50),
     management: FEE_MULTIPLIER.mul(200),

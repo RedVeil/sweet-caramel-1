@@ -13,6 +13,7 @@ import { timeTravel } from "../lib/utils/test";
 import {
   ACLRegistry,
   ContractRegistry,
+  KeeperIncentiveV2,
   MockERC20,
   MockYearnV2Vault,
   RewardsEscrow,
@@ -29,6 +30,7 @@ interface Contracts {
   yearnRegistry: MockContract;
   staking: Staking;
   vault: Vault;
+  keeperIncentive: KeeperIncentiveV2;
   aclRegistry: ACLRegistry;
   contractRegistry: ContractRegistry;
   blockLockHelper: VaultBlockLockHelper;
@@ -76,7 +78,7 @@ async function deployContracts(): Promise<Contracts> {
 
   const Vault = await ethers.getContractFactory("Vault");
   const vault = await (
-    await Vault.deploy(depositToken.address, yearnRegistry.address, contractRegistry.address, ADDRESS_ZERO, {
+    await Vault.deploy(depositToken.address, yearnRegistry.address, contractRegistry.address, ADDRESS_ZERO, 1, {
       deposit: 0,
       withdrawal: FEE_MULTIPLIER.mul(50),
       management: FEE_MULTIPLIER.mul(200),
@@ -138,6 +140,7 @@ async function deployContracts(): Promise<Contracts> {
     yearnRegistry,
     staking,
     vault,
+    keeperIncentive,
     aclRegistry,
     contractRegistry,
     blockLockHelper,
@@ -161,6 +164,7 @@ describe("Vault", function () {
           ethers.constants.AddressZero,
           contracts.contractRegistry.address,
           contracts.staking.address,
+          1,
           {
             deposit: 0,
             withdrawal: FEE_MULTIPLIER.mul(50),
@@ -179,6 +183,7 @@ describe("Vault", function () {
         contracts.yearnRegistry.address,
         contracts.contractRegistry.address,
         contracts.staking.address,
+        1,
         {
           deposit: 0,
           withdrawal: FEE_MULTIPLIER.mul(50),
@@ -198,6 +203,7 @@ describe("Vault", function () {
           contracts.yearnRegistry.address,
           ethers.constants.AddressZero,
           contracts.staking.address,
+          1,
           {
             deposit: 0,
             withdrawal: FEE_MULTIPLIER.mul(50),
