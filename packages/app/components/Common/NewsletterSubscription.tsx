@@ -7,6 +7,7 @@ const NewsletterSubscription = ({ title, buttonLabel }) => {
   const [subscriptionSuccessful, setSubscriptionSuccessful] = useState<boolean>(false);
 
   const subscribeToNewsLetter = async () => {
+    if (subscribeEmail === "") return;
     setSubscribing(true);
     try {
       await fetch("/api/signup", {
