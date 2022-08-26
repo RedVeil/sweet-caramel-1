@@ -71,13 +71,14 @@ export default function StakeInterface({
           </a>
         </Link>
       </div>
+
       <div className="grid grid-cols-12 mt-12">
         <div className="col-span-12 md:col-span-5">
           <TokenIcon token={stakingToken?.name} />
           <h1 className="text-black text-5xl md:text-6xl leading-12 mt-9">{stakingToken?.name}</h1>
-          <div className=" mt-6 md:mt-8">
+          <div className="flex flex-wrap md:flex-col">
             <div className="flex justify-between md:justify-start">
-              <div className="block pr-6">
+              <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
                 <StatusWithLabel
                   content={
                     stakingPool?.apy.lt(constants.Zero)
@@ -97,7 +98,7 @@ export default function StakeInterface({
                   }}
                 />
               </div>
-              <div className="block pl-6 md:border-l md:border-customLightGray">
+              <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
                 <StatusWithLabel
                   content={
                     stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
@@ -107,12 +108,10 @@ export default function StakeInterface({
               </div>
             </div>
             <div className="mt-6 md:mt-8">
-              <div className="block ">
-                <StatusWithLabel
-                  content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
-                  label="EMISSION RATE"
-                />
-              </div>
+              <StatusWithLabel
+                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
+                label="EMISSION RATE"
+              />
             </div>
           </div>
         </div>
