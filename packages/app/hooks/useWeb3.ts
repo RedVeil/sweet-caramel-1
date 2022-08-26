@@ -29,7 +29,7 @@ export default function useWeb3() {
   const wallets = useWallets();
   const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(getChainId());
 
-  const { dispatch } = useContext(store);
+  const { dispatch, state } = useContext(store);
 
   const isLoaded = (network: string | undefined): boolean =>
     connectedChain?.id && typeof network === "string" && !router?.pathname?.includes("butter");
@@ -59,10 +59,14 @@ export default function useWeb3() {
 
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
-    if (isChainMismatch(router?.query?.network as string) && (!["/[network]", "/"].includes(router?.pathname) || !ChainId[Number(connectedChain?.id)])) {
+    if (!connectedChain?.id) return;
+    // Never alert when on landing page
+    if (["/[network]", "/"].includes(router?.pathname)) return;
+
+    if (isChainMismatch(router?.query?.network as string) || !ChainId[Number(connectedChain?.id)]) {
       alertChainInconsistency(
         router?.query?.network as string,
-        ChainId[Number(connectedChain.id)] || "an unsupported Network",
+        ChainId[Number(connectedChain?.id)] || "an unsupported Network",
       );
     } else {
       dispatch(setNetworkChangePromptModal(false));
@@ -163,12 +167,12 @@ export default function useWeb3() {
         type: "error",
         onChangeUrl: ChainId[actualChain]
           ? {
-            label: `Continue on ${actualChain}`,
-            onClick: () => {
-              pushNetworkChange(toTitleCase(actualChain), true);
-              dispatch(setNetworkChangePromptModal(false));
-            },
-          }
+              label: `Continue on ${actualChain}`,
+              onClick: () => {
+                pushNetworkChange(toTitleCase(actualChain), true);
+                dispatch(setNetworkChangePromptModal(false));
+              },
+            }
           : undefined,
         onChangeNetwork: {
           label: `Switch to ${toTitleCase(intendedChain)}`,

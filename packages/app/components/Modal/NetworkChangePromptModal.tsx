@@ -69,7 +69,7 @@ export const NetworkChangePromptModal: React.FC<NetworkChangePromptModalProps> =
       <Dialog
         as="div"
         static
-        className="fixed z-50 inset-0 overflow-y-auto"
+        className="fixed z-70 inset-0 overflow-y-auto"
         initialFocus={cancelButtonRef}
         open={open}
         onClose={() => setOpen(false)}
@@ -122,12 +122,11 @@ export const NetworkChangePromptModal: React.FC<NetworkChangePromptModalProps> =
                           <MainActionButton label={onChangeNetwork.label} handleClick={changeNetwork} />
                         </>
                       )}
-                      {(onChangeUrl ||
-                        onDisconnect) && (
-                          <div className="flex justify-center vertical-align h-6 my-4">
-                            <img src="/images/butter/primary-btn-divider.svg" className="w-full object-cover" />
-                          </div>
-                        )}
+                      {(onChangeUrl || onDisconnect) && (
+                        <div className="flex justify-center vertical-align h-6 my-4">
+                          <img src="/images/butter/primary-btn-divider.svg" className="w-full object-cover" />
+                        </div>
+                      )}
                       {onChangeUrl && (
                         <div className="w-full">
                           <TertiaryActionButton label={onChangeUrl.label} handleClick={changeUrl} />
