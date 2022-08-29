@@ -1,4 +1,3 @@
-import { formatEther, parseEther } from "ethers/lib/utils";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
@@ -12,7 +11,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deploy("xPopRedemption", {
     from: deployer,
     args: [
-      isMainnet ? xPop : (await deployments.get("TestXPop")).address,
+      isMainnet ? xPop : (await deployments.get("XPop")).address,
       isMainnet ? pop : (await deployments.get("TestPOP")).address,
       (await deployments.get("RewardsEscrow")).address,
     ],
@@ -26,27 +25,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await authorizeXPopRedemption((await deployments.get("RewardsEscrow")).address, signer, hre);
   await approveRewardsEscrow((await deployments.get("xPopRedemption")).address, signer, hre);
-
-  if (["hardhat", "local", "localhost"].includes(hre.network.name)) {
-    await mintPOP(
-      (
-        await deployments.get("TestXPop")
-      ).address,
-      signer,
-      hre.config.namedAccounts.deployer as string,
-      hre
-    );
-    await mintPOP(
-      (
-        await deployments.get("TestPOP")
-      ).address,
-      signer,
-      (
-        await deployments.get("xPopRedemption")
-      ).address,
-      hre
-    );
-  }
 };
 
 async function authorizeXPopRedemption(address: string, signer: any, hre: HardhatRuntimeEnvironment) {
@@ -61,14 +39,7 @@ async function approveRewardsEscrow(address: string, signer: any, hre: HardhatRu
   await xPopRedemption.setApprovals();
 }
 
-const mintPOP = async (address: string, signer: any, recipient: string, hre: HardhatRuntimeEnvironment) => {
-  const POP = await hre.ethers.getContractAt("MockERC20", address, signer);
-  console.log(`Minting ${await POP.symbol()} for`, recipient);
-  await (await POP.mint(recipient, parseEther("1000000000"))).wait(1);
-  console.log("Total POP supply", formatEther(await POP.totalSupply()));
-};
-
 module.exports = main;
 export default main;
-main.dependencies = ["setup"];
+main.dependencies = ["setup", "xpop", "rewards-escrow", "test-pop"];
 main.tags = ["frontend", "xpop-redemption"];

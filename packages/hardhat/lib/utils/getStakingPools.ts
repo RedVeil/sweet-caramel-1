@@ -76,12 +76,6 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
-          poolName: "popUsdcLPStaking",
-          contract: "Staking",
-          inputToken: (await deployments.get("POP_USDC_LP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
-        },
-        {
           poolName: "butterStaking",
           contract: "Staking",
           inputToken: butter,
@@ -100,12 +94,6 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           poolName: "PopLocker",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
-        },
-        {
-          poolName: "popUsdcLPStaking",
-          contract: "Staking",
-          inputToken: (await deployments.get("POP_USDC_LP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "butterStaking",
@@ -146,12 +134,6 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           poolName: "PopLocker",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
-        },
-        {
-          poolName: "popUsdcLPStaking",
-          contract: "Staking",
-          inputToken: (await deployments.get("POP_USDC_LP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
         },
       ];
   }
