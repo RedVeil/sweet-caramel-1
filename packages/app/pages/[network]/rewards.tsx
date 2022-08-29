@@ -292,7 +292,11 @@ export default function index(): JSX.Element {
               />
             )}
 
-            {isSelected(Tabs.Staking) && stakingVisible(chainId) && !popLocker && !stakingPools && <CardLoader />}
+            {isSelected(Tabs.Staking) && stakingVisible(chainId) && !popLocker && !stakingPools && (
+              <div className="mt-10">
+                <CardLoader />
+              </div>
+            )}
 
             {isSelected(Tabs.Airdrop) && xPop && pop ? (
               <div className="mt-8">
