@@ -606,25 +606,21 @@ export default function ThreeX(): JSX.Element {
 
       <Transition.Root show={showMobileTutorial} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 overflow-hidden z-40" onClose={() => toggleMobileTutorial(false)}>
-          <div className="absolute inset-0 overflow-hidden">
-            <Dialog.Overlay className="absolute inset-0" />
-
-            <div className="fixed inset-x-0 bottom-0 max-w-full flex bg-white z-40">
-              <Transition.Child
-                as={Fragment}
-                enter="transform transition ease-in-out duration-500 sm:duration-700"
-                enterFrom="translate-x-full"
-                enterTo="translate-x-0"
-                leave="transform transition ease-in-out duration-500 sm:duration-700"
-                leaveFrom="translate-x-0"
-                leaveTo="translate-x-full"
-              >
-                <div className="w-screen">
-                  <MobileTutorialSlider isThreeX onCloseMenu={() => toggleMobileTutorial(false)} />
-                </div>
-              </Transition.Child>
-            </div>
-          </div>
+          <Dialog.Overlay className="absolute inset-0 overflow-hidden">
+            <Transition.Child
+              as={Fragment}
+              enter="transform transition ease-in-out duration-500 sm:duration-700"
+              enterFrom="translate-x-full"
+              enterTo="translate-x-0"
+              leave="transform transition ease-in-out duration-500 sm:duration-700"
+              leaveFrom="translate-x-0"
+              leaveTo="translate-x-full"
+            >
+              <div className="w-screen">
+                <MobileTutorialSlider isThreeX onCloseMenu={() => toggleMobileTutorial(false)} />
+              </div>
+            </Transition.Child>
+          </Dialog.Overlay>
         </Dialog>
       </Transition.Root>
     </>

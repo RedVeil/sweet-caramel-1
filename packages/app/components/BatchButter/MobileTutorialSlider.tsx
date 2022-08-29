@@ -49,7 +49,7 @@ const MobileTutorialSlider = ({ onCloseMenu, isThreeX }) => {
   ];
 
   return (
-    <div className="h-screen px-6 py-12">
+    <div className="h-screen px-6 py-12 bg-white">
       <div className="relative">
         <ChevronLeftIcon
           className="text-black h-10 w-10 absolute left-0 transform -translate-y-1/2 top-1/2"
@@ -57,7 +57,7 @@ const MobileTutorialSlider = ({ onCloseMenu, isThreeX }) => {
         />
         <p className="text-black text-center font-medium">How It Works</p>
       </div>
-      <div className="mt-40 h-full mobileTutorialSlider">
+      <div className="mt-20 mobileTutorialSlider">
         <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
           {tutorialSteps.map((step, index) => (
             <div>
