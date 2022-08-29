@@ -9,7 +9,7 @@ import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { defaultForm, InteractionType } from "../../../components/staking/StakeInterface";
+import StakeInterface, { defaultForm, InteractionType } from "../../../components/staking/StakeInterface";
 import StakeInterfaceLoader from "../../../components/staking/StakeInterfaceLoader";
 
 export default function StakingPage(): JSX.Element {
