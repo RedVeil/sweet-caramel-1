@@ -9,7 +9,7 @@ import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import StakeInterface, { defaultForm, InteractionType } from "../../../components/staking/StakeInterface";
+import { defaultForm, InteractionType } from "../../../components/staking/StakeInterface";
 import StakeInterfaceLoader from "../../../components/staking/StakeInterfaceLoader";
 
 export default function StakingPage(): JSX.Element {
@@ -94,19 +94,21 @@ export default function StakingPage(): JSX.Element {
     );
   }
 
-  return isLoading ? (
-    <StakeInterfaceLoader />
-  ) : (
-    <StakeInterface
-      stakingPool={stakingPool}
-      user={balances}
-      form={[form, setForm]}
-      stake={stake}
-      withdraw={withdraw}
-      approve={approve}
-      onlyView={!account}
-      chainId={chainId}
-      stakedTokenPrice={tokenPrice}
-    />
-  );
+  return <StakeInterfaceLoader />;
+
+  // isLoading ? (
+  //   <StakeInterfaceLoader />
+  // ) : (
+  //   <StakeInterface
+  //     stakingPool={stakingPool}
+  //     user={balances}
+  //     form={[form, setForm]}
+  //     stake={stake}
+  //     withdraw={withdraw}
+  //     approve={approve}
+  //     onlyView={!account}
+  //     chainId={chainId}
+  //     stakedTokenPrice={tokenPrice}
+  //   />
+  // );
 }

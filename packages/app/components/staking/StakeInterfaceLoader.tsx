@@ -20,17 +20,17 @@ export default function StakeInterfaceLoader(): JSX.Element {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-8 mt-6 md:mt-10">
+      <div className="grid grid-cols-12 gap-y-8 md:gap-8 mt-6 md:mt-10">
         <div className="col-span-12 md:col-span-5">
           <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-            <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
+            <rect x="0" y="0" rx="8" ry="8" width="450" height="600" />
           </ContentLoader>
         </div>
 
         <div className="col-span-12 md:col-span-7">
           <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-            <rect x="0" y="0" rx="8" ry="8" width="100%" height="108" />
-            <rect x="0" y="115" rx="8" ry="8" width="100%" height="216" />
+            <rect x="0" y="0" rx="8" ry="8" width="450" height="108" />
+            <rect x="0" y="115" rx="8" ry="8" width="450" height="216" />
           </ContentLoader>
         </div>
       </div>

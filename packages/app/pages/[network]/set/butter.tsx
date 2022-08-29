@@ -627,9 +627,18 @@ export default function Butter(): JSX.Element {
           )}
           <div className="order-2 md:order-1">
             {account && loadingButterBatchData && (
-              <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-                <rect x="0" y="0" rx="8" ry="8" width="400" height="600" />
-              </ContentLoader>
+              <>
+                <div className="order-2 md:hidden">
+                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                    <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
+                  </ContentLoader>
+                </div>
+                <div className="order-1 hidden md:block">
+                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                    <rect x="0" y="0" rx="8" ry="8" width="90%" height="600" />
+                  </ContentLoader>
+                </div>
+              </>
             )}
             {account && !loadingButterBatchData && (
               <div className="md:pr-8">
