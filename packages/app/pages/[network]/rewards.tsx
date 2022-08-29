@@ -240,7 +240,7 @@ export default function index(): JSX.Element {
             >
               <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
               <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 mb-1 md:mt-4">
-                <SecondaryActionButton label="Connect" />
+                <SecondaryActionButton label="Connect Wallet" />
               </div>
             </div>
           )}
