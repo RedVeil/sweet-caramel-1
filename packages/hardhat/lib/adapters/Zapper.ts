@@ -5,6 +5,12 @@ import { ERC20, Vault } from "../../typechain";
 import { ZeroXZapper } from "../../typechain/ZeroXZapper";
 import erc20abi from "../external/erc20/abi.json";
 
+
+const TRI_CRYPTO_POOL_ADDRESS = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46"
+const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+const USDT_DECIMALS = 6
+
+
 interface Token {
   address: string;
   decimals: number;
@@ -126,6 +132,10 @@ export class Zapper {
     coins: ERC20[],
     sell = false
   ): Promise<{ token: Token; i?: number }> {
+    if (stableSwapAddress.toLowerCase() === TRI_CRYPTO_POOL_ADDRESS.toLowerCase()) {
+      return { token: { address: USDT_ADDRESS, decimals: USDT_DECIMALS }, i: 0 }
+    }
+
     const coinBals = await Promise.all(
       coins.map(async (coin) =>
         coin.address === this.ethAddress
