@@ -94,21 +94,19 @@ export default function StakingPage(): JSX.Element {
     );
   }
 
-  return <StakeInterfaceLoader />;
-
-  // isLoading ? (
-  //   <StakeInterfaceLoader />
-  // ) : (
-  //   <StakeInterface
-  //     stakingPool={stakingPool}
-  //     user={balances}
-  //     form={[form, setForm]}
-  //     stake={stake}
-  //     withdraw={withdraw}
-  //     approve={approve}
-  //     onlyView={!account}
-  //     chainId={chainId}
-  //     stakedTokenPrice={tokenPrice}
-  //   />
-  // );
+  return isLoading ? (
+    <StakeInterfaceLoader />
+  ) : (
+    <StakeInterface
+      stakingPool={stakingPool}
+      user={balances}
+      form={[form, setForm]}
+      stake={stake}
+      withdraw={withdraw}
+      approve={approve}
+      onlyView={!account}
+      chainId={chainId}
+      stakedTokenPrice={tokenPrice}
+    />
+  );
 }
