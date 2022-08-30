@@ -11,7 +11,7 @@ export default function Page(props: { children: ReactElement }) {
       <div>
         <Navbar />
         <Toaster position="top-right" />
-        <div className=" mt-0 md:mt-12 pt-5 md:pt-10 px-6 md:px-8">{props.children}</div>
+        <div className="pt-5 md:pt-10 px-6 md:px-8">{props.children}</div>
       </div>
       <Footer />
     </div>

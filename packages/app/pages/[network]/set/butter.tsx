@@ -590,12 +590,14 @@ export default function Butter(): JSX.Element {
   return (
     <>
       <div className="grid grid-cols-12">
-        <div className="col-span-12 md:col-span-5">
-          <h1 className="text-6xl leading-12">Butter - Yield Optimizer</h1>
-          <p className="mt-4 leading-5 text-primaryDark">
-            Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
-          </p>
-          <ButterStats butterData={butterBatchData} addresses={butterYearnAddresses} />
+        <div className="col-span-12 md:col-span-5 flex h-full items-center">
+          <div>
+            <h1 className="text-6xl leading-12">Butter - Yield Optimizer</h1>
+            <p className="mt-4 leading-5 text-primaryDark">
+              Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
+            </p>
+            <ButterStats butterData={butterBatchData} addresses={butterYearnAddresses} />
+          </div>
         </div>
         <div className="col-span-5 col-end-13 hidden md:block">
           <TutorialSlider isThreeX={false} />
