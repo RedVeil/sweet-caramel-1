@@ -80,13 +80,16 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           />
         </div>
       )}
-      {(localButterPageState.instant ||
+      {/* {(localButterPageState.instant ||
         isInstantPage ||
         (!localButterPageState.redeeming && localButterPageState.useZap)) && (
         <div className="w-full mt-6">
           <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
         </div>
-      )}
+      )} */}
+      <div className="w-full mt-6">
+        <SlippageSettings slippage={localButterPageState.slippage} setSlippage={setSlippage} />
+      </div>
       <hr className="mt-10 bg-customLightGray" />
       <div className="w-full text-center">
         {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (

@@ -29,16 +29,14 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
     <>
       <div className="flex flex-row items-center group cursor-pointer mt-2" onClick={() => setVisibility(!visible)}>
         <img className={`w-4 h-4 ${visible ? "" : "text-primaryDark"}`} src="/images/icons/slippage.png" />
-        <p className={`text-base leading-none mt-0.5 ml-2 ${visible ? "font-bold" : "text-primaryDark"}`}>
-          {`Adjust slippage (${slippage}%)`}
-        </p>
+        <p className={`text-base leading-7 mt-0.5 ml-2 text-primaryDark`}>{`Adjust slippage (${slippage}%)`}</p>
       </div>
       {visible && (
-        <div className="mt-4 border border-gray-200 px-8 py-8 rounded-lg relative">
+        <div className="mt-4 border border-gray-200 p-6 rounded-lg relative">
           <div className="flex flex-col">
-            <div className="flex flex-row">
-              <p className="text-left font-semibold mb-4">Slippage Tolerance</p>
-              <div className="-mt-1 ml-1">
+            <div className="flex flex-row items-center">
+              <p className="text-left font-medium text-primary leading-7">Slippage Tolerance</p>
+              <div className="ml-1">
                 <InfoIconWithModal
                   title="Slippage Tolerance"
                   content="Your transaction will revert if the price changes unfavorably by more than this percentage"
@@ -46,7 +44,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
               </div>
             </div>
           </div>
-          <div className="flex flex-row justify-between items-center mt-2 space-x-4">
+          <div className="flex flex-row justify-between items-center mt-6">
             <PseudoRadioButton
               label="0.1 %"
               isActive={activeButton === 0}
@@ -76,9 +74,9 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
             />
           </div>
           <div className="mt-8">
-            <div className="flex flex-row">
-              <p className="mb-1 text-left font-medium">Custom Adjustments</p>
-              <div className="-mt-1 ml-1">
+            <div className="flex flex-row items-center">
+              <p className="text-left font-medium text-primary leading-7">Custom Adjustments</p>
+              <div className="ml-1">
                 <InfoIconWithModal title="Custom Adjustments" content="Input a custom slippage tolerance amount" />
               </div>
             </div>
@@ -86,7 +84,7 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
             <div>
               <div className="mt-1 relative flex items-center">
                 <input
-                  className="block w-full pl-5 pr-16 py-3.5 border-gray-200 font-semibold rounded-md leading-none text-primaryDark focus:text-gray-800 focus:outline-none"
+                  className="block w-full pl-5 pr-16 py-3.5 border-gray-300 font-medium rounded-lg leading-none text-primaryDark focus:outline-0 focus:ring-0 focus:ring-transparent focus:border-primary shadow-sm"
                   type="number"
                   value={value}
                   onChange={(e) => {
