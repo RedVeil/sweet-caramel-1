@@ -3,7 +3,7 @@ import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
-export default function useThreeXZapper(rpcProvider): ThreeXZapper {
+export default function useThreeXZapper(rpcProvider?): ThreeXZapper {
   const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
 
   return useMemo(() => {
