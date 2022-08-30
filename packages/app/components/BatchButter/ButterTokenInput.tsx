@@ -102,19 +102,21 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         </div>
         <div>
           <div className="mt-1 relative flex items-center gap-2">
-            <div className="w-full flex px-5 py-4 items-center border border-customLightGray rounded-lg">
+            <div
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${
+                localButterPageState.depositAmount.gt(
+                  localButterPageState.useUnclaimedDeposits
+                    ? selectedToken.input.claimableBalance
+                    : selectedToken.input.balance,
+                )
+                  ? " border-customRed"
+                  : "border-customLightGray "
+              }`}
+            >
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className={`block w-full p-0 border-0 text-primaryDark text-lg ${
-                  localButterPageState.depositAmount.gt(
-                    localButterPageState.useUnclaimedDeposits
-                      ? selectedToken.input.claimableBalance
-                      : selectedToken.input.balance,
-                  )
-                    ? "focus:ring-red-600 border-red-600"
-                    : "focus:ring-0"
-                }`}
+                className={`block w-full p-0 border-0 text-primaryDark text-lg`}
                 onChange={(e) => {
                   onUpdate(e.target.value.replace(/,/g, "."));
                 }}
@@ -179,7 +181,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           localButterPageState.useUnclaimedDeposits
             ? selectedToken.input.claimableBalance
             : selectedToken.input.balance,
-        ) && <p className="text-red-600">Insufficient Balance</p>}
+        ) && <p className="text-customRed pt-2 leading-6">*Insufficient balance</p>}
       </div>
       <div className="relative -mt-10 -mb-10">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
