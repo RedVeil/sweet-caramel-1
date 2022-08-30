@@ -70,7 +70,6 @@ describe("Zapper Module Network Tests", function () {
     await contracts.seth.approve(contracts.zeroXZapper.address, ethers.constants.MaxUint256);
     await contracts.vault.approve(contracts.zeroXZapper.address, ethers.constants.MaxUint256);
   });
-
   it("zapIn should swap to the underlying asset and deposit into the vault", async () => {
     const vaultBal = await contracts.vault.balanceOf(owner.address);
     const daiBal = await contracts.dai.balanceOf(owner.address);
@@ -80,9 +79,26 @@ describe("Zapper Module Network Tests", function () {
       contracts.vault,
       SETH_POOL,
       parseUnits("1"),
-      0.03
+      0.03,
+      false
     );
     await expectValue((await contracts.vault.balanceOf(owner.address)).gt(vaultBal), true);
+    await expectValue((await contracts.dai.balanceOf(owner.address)).lt(daiBal), true);
+  });
+  it("zapIn should swap to the underlying asset and stake", async () => {
+    await contracts.vault.connect(dao).setStaking(contracts.staking.address);
+    const stakingBal = await contracts.staking.balanceOf(owner.address);
+    const daiBal = await contracts.dai.balanceOf(owner.address);
+
+    await zapper.zapIn(
+      { address: contracts.dai.address, decimals: 18 },
+      contracts.vault,
+      SETH_POOL,
+      parseUnits("1"),
+      0.03,
+      true
+    );
+    await expectValue((await contracts.staking.balanceOf(owner.address)).gt(stakingBal), true);
     await expectValue((await contracts.dai.balanceOf(owner.address)).lt(daiBal), true);
   });
   it("zapIn should deposit crvLP into the vault", async () => {
@@ -90,7 +106,14 @@ describe("Zapper Module Network Tests", function () {
     const vaultBal = await contracts.vault.balanceOf(owner.address);
     const sethBal = await contracts.seth.balanceOf(owner.address);
 
-    await zapper.zapIn({ address: SETH_ADDRESS, decimals: 18 }, contracts.vault, SETH_POOL, parseUnits("1"), 0.03);
+    await zapper.zapIn(
+      { address: SETH_ADDRESS, decimals: 18 },
+      contracts.vault,
+      SETH_POOL,
+      parseUnits("1"),
+      0.03,
+      false
+    );
     await expectValue((await contracts.vault.balanceOf(owner.address)).gt(vaultBal), true);
     await expectValue((await contracts.seth.balanceOf(owner.address)).lt(sethBal), true);
   });
@@ -100,13 +123,46 @@ describe("Zapper Module Network Tests", function () {
       contracts.vault,
       SETH_POOL,
       parseUnits("2000"),
-      0.03
+      0.03,
+      false
     );
     const vaultBal = await contracts.vault.balanceOf(owner.address);
     const daiBal = await contracts.dai.balanceOf(owner.address);
 
-    await zapper.zapOut({ address: contracts.dai.address, decimals: 18 }, contracts.vault, SETH_POOL, vaultBal, 1);
+    await zapper.zapOut(
+      { address: contracts.dai.address, decimals: 18 },
+      contracts.vault,
+      SETH_POOL,
+      vaultBal,
+      1,
+      false
+    );
     await expectValue((await contracts.vault.balanceOf(owner.address)).lt(vaultBal), true);
+    await expectValue((await contracts.dai.balanceOf(owner.address)).gt(daiBal), true);
+  });
+  it("zapOut should unstake and swap into underlying asset", async () => {
+    await contracts.staking.connect(owner).setVault(contracts.vault.address);
+    await contracts.vault.connect(dao).setStaking(contracts.staking.address);
+    await zapper.zapIn(
+      { address: contracts.dai.address, decimals: 18 },
+      contracts.vault,
+      SETH_POOL,
+      parseUnits("2000"),
+      0.03,
+      true
+    );
+    const stakeBal = await contracts.staking.balanceOf(owner.address);
+    const daiBal = await contracts.dai.balanceOf(owner.address);
+
+    await zapper.zapOut(
+      { address: contracts.dai.address, decimals: 18 },
+      contracts.vault,
+      SETH_POOL,
+      stakeBal,
+      1,
+      true
+    );
+    await expectValue((await contracts.staking.balanceOf(owner.address)).lt(stakeBal), true);
     await expectValue((await contracts.dai.balanceOf(owner.address)).gt(daiBal), true);
   });
   it("zapOut should withdraw pool assets", async () => {
@@ -115,12 +171,20 @@ describe("Zapper Module Network Tests", function () {
       contracts.vault,
       SETH_POOL,
       parseUnits("2000"),
-      0.03
+      0.03,
+      false
     );
     const vaultBal = await contracts.vault.balanceOf(owner.address);
     const sethBal = await contracts.seth.balanceOf(owner.address);
 
-    await zapper.zapOut({ address: contracts.seth.address, decimals: 18 }, contracts.vault, SETH_POOL, vaultBal, 0.03);
+    await zapper.zapOut(
+      { address: contracts.seth.address, decimals: 18 },
+      contracts.vault,
+      SETH_POOL,
+      vaultBal,
+      0.03,
+      false
+    );
     await expectValue((await contracts.vault.balanceOf(owner.address)).lt(vaultBal), true);
     await expectValue((await contracts.seth.balanceOf(owner.address)).gt(sethBal), true);
   });

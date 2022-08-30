@@ -40,7 +40,6 @@
     "@balancer-labs/v2-solidity-utils": "2.0.0",
     "@chainlink/contracts": "0.1.9",
     "@ecmendenhall/ds-test": "^0.0.1",
-    "@ecmendenhall/forge-std": "0.0.2",
     "@ethersproject/hardware-wallets": "5.5.0",
     "@makerdao/multicall": "^0.12.0",
     "@nomiclabs/hardhat-ethers": "2.0.4",

@@ -98,6 +98,14 @@ interface IVaultsV1 is IEIP4626 {
     address owner
   ) external override returns (uint256 assets);
 
+  function unstakeAndRedeem(uint256 shares) external;
+
+  function unstakeAndRedeemFor(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) external;
+
   function takeManagementAndPerformanceFees() external;
 
   /* ========== RESTRICTED FUNCTIONS ========== */
@@ -112,7 +120,7 @@ interface IVaultsV1 is IEIP4626 {
 
   function withdrawAccruedFees() external;
 
-  function setKeeperVig(uint256 _keeperVigBps) external;
+  function setKeeperConfig(Vault.KeeperConfig memory _config) external;
 
   function pauseContract() external;
 

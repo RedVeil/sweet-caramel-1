@@ -163,41 +163,41 @@ describe("Keeper incentives", function () {
     it("returns keeper incentives account balances", async () => {
       const balances = await getBalances(contracts.keeperIncentive, keeper.address, contracts.mockPop.address);
 
-      expectValue(balances[0].rewardToken, contracts.mockPop.address);
-      expectValue(balances[1].rewardToken, contracts.mockPop.address);
-      expectValue(balances[2].rewardToken, contracts.mockPop.address);
-      expectValue(balances[3].rewardToken, contracts.mockPop.address);
-      expectValue(balances[4].rewardToken, contracts.mockPop.address);
-      expectValue(balances[5].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[0].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[1].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[2].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[3].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[4].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[5].rewardToken, contracts.mockPop.address);
 
-      expectValue(balances[0].amount, parseEther("7.5"));
-      expectValue(balances[1].amount, parseEther("3.75"));
-      expectValue(balances[2].amount, parseEther("3.75"));
-      expectValue(balances[3].amount, parseEther("3.75"));
-      expectValue(balances[4].amount, parseEther("3.75"));
-      expectValue(balances[5].amount, parseEther("3.75"));
+      await expectValue(balances[0].amount, parseEther("7.5"));
+      await expectValue(balances[1].amount, parseEther("3.75"));
+      await expectValue(balances[2].amount, parseEther("3.75"));
+      await expectValue(balances[3].amount, parseEther("3.75"));
+      await expectValue(balances[4].amount, parseEther("3.75"));
+      await expectValue(balances[5].amount, parseEther("3.75"));
 
-      expectValue(
+      await expectValue(
         balances[0].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[1].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[2].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[3].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 3, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[4].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 4, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[5].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 5, contracts.mockPop.address)
       );
@@ -226,41 +226,41 @@ describe("Keeper incentives", function () {
         contracts.mockPop.address
       );
 
-      expectValue(balances[0].rewardToken, contracts.mockPop.address);
-      expectValue(balances[1].rewardToken, contracts.mockPop.address);
-      expectValue(balances[2].rewardToken, contracts.mockPop.address);
-      expectValue(balances[3].rewardToken, contracts.mockPop.address);
-      expectValue(balances[4].rewardToken, contracts.mockPop.address);
-      expectValue(balances[5].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[0].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[1].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[2].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[3].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[4].rewardToken, contracts.mockPop.address);
+      await expectValue(balances[5].rewardToken, contracts.mockPop.address);
 
-      expectValue(balances[0].amount, parseEther("0"));
-      expectValue(balances[1].amount, parseEther("5"));
-      expectValue(balances[2].amount, parseEther("5"));
-      expectValue(balances[3].amount, parseEther("5"));
-      expectValue(balances[4].amount, parseEther("5.000000000000000001"));
-      expectValue(balances[5].amount, parseEther("0"));
+      await expectValue(balances[0].amount, parseEther("0"));
+      await expectValue(balances[1].amount, parseEther("5"));
+      await expectValue(balances[2].amount, parseEther("5"));
+      await expectValue(balances[3].amount, parseEther("5"));
+      await expectValue(balances[4].amount, parseEther("5.000000000000000001"));
+      await expectValue(balances[5].amount, parseEther("0"));
 
-      expectValue(
+      await expectValue(
         balances[0].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[1].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[2].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[3].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 3, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[4].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 4, contracts.mockPop.address)
       );
-      expectValue(
+      await expectValue(
         balances[5].account,
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 5, contracts.mockPop.address)
       );
@@ -308,18 +308,18 @@ describe("Keeper incentives", function () {
       const keeperAccountBalances = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
 
       for (let i = 0; i < keeperAccountBalances.length; i++) {
-        expectValue(keeperAccountBalances[i].rewardToken, contracts.mockPop.address);
-        expectValue(
+        await expectValue(keeperAccountBalances[i].rewardToken, contracts.mockPop.address);
+        await expectValue(
           keeperAccountBalances[i].account,
           getIncentiveAccountId(contracts.keeperIncentiveHelper.address, i, contracts.mockPop.address)
         );
       }
-      expectValue(keeperAccountBalances[0].amount, parseEther("7.5"));
-      expectValue(keeperAccountBalances[1].amount, parseEther("3.75"));
-      expectValue(keeperAccountBalances[2].amount, parseEther("3.75"));
-      expectValue(keeperAccountBalances[3].amount, parseEther("3.75"));
-      expectValue(keeperAccountBalances[4].amount, parseEther("3.75"));
-      expectValue(keeperAccountBalances[5].amount, parseEther("3.75"));
+      await expectValue(keeperAccountBalances[0].amount, parseEther("7.5"));
+      await expectValue(keeperAccountBalances[1].amount, parseEther("3.75"));
+      await expectValue(keeperAccountBalances[2].amount, parseEther("3.75"));
+      await expectValue(keeperAccountBalances[3].amount, parseEther("3.75"));
+      await expectValue(keeperAccountBalances[4].amount, parseEther("3.75"));
+      await expectValue(keeperAccountBalances[5].amount, parseEther("3.75"));
     });
   });
 
@@ -369,7 +369,7 @@ describe("Keeper incentives", function () {
       contracts.keeperIncentive.connect(manager).updateBurnPercentage(parseEther("2")),
       "burn percentage too high"
     );
-    expectValue(await contracts.keeperIncentive.defaultBurnPercentage(), defaultBurnPercentageBefore);
+    await expectValue(await contracts.keeperIncentive.defaultBurnPercentage(), defaultBurnPercentageBefore);
   });
 
   it("should adjust the burn percentage", async function () {
@@ -379,7 +379,7 @@ describe("Keeper incentives", function () {
       "BurnPercentageChanged",
       [parseEther("0.25"), parseEther("0.1")]
     );
-    expectValue(await contracts.keeperIncentive.defaultBurnPercentage(), parseEther("0.1"));
+    await expectValue(await contracts.keeperIncentive.defaultBurnPercentage(), parseEther("0.1"));
   });
 
   it("should adjust the required keeper stake", async function () {
@@ -389,7 +389,7 @@ describe("Keeper incentives", function () {
       "RequiredKeeperStakeChanged",
       [parseEther("2000"), parseEther("100")]
     );
-    expectValue(await contracts.keeperIncentive.requiredKeeperStake(), parseEther("100"));
+    await expectValue(await contracts.keeperIncentive.requiredKeeperStake(), parseEther("100"));
   });
 
   it("should create an incentive", async () => {
@@ -413,12 +413,12 @@ describe("Keeper incentives", function () {
       contracts.keeperIncentiveHelper.address,
       1
     );
-    expectValue(incentiveStruct[0], incentive);
-    expectValue(incentiveStruct[1], true);
-    expectValue(incentiveStruct[2], false);
+    await expectValue(incentiveStruct[0], incentive);
+    await expectValue(incentiveStruct[1], true);
+    await expectValue(incentiveStruct[2], false);
     const controllerContractList = await contracts.keeperIncentive.getControllerContracts();
-    expectValue(controllerContractList.length, 2);
-    expectValue(controllerContractList[1], contracts.keeperIncentiveHelper.address);
+    await expectValue(controllerContractList.length, 2);
+    await expectValue(controllerContractList[1], contracts.keeperIncentiveHelper.address);
   });
 
   it("should revert if cooldown not set", async () => {
@@ -502,7 +502,7 @@ describe("Keeper incentives", function () {
       await timeTravel(1 * DAYS);
 
       await expectRevert(runJob(1), "wait for cooldown period");
-      expectValue(
+      await expectValue(
         await getKeeperClaimableTokenBalance(contracts.keeperIncentive, keeper.address, contracts.mockPop.address),
         parseEther("1")
       );
@@ -545,9 +545,9 @@ describe("Keeper incentives", function () {
         contracts.keeperIncentiveHelper.address,
         0
       );
-      expectValue(incentiveStruct.reward, parseEther("100"));
-      expectValue(incentiveStruct.openToEveryone, true);
-      expectValue(incentiveStruct.enabled, false);
+      await expectValue(incentiveStruct.reward, parseEther("100"));
+      await expectValue(incentiveStruct.openToEveryone, true);
+      await expectValue(incentiveStruct.enabled, false);
     });
 
     it("should revert if no cooldown", async function () {
@@ -574,7 +574,7 @@ describe("Keeper incentives", function () {
         contracts.keeperIncentiveHelper.address,
         0
       );
-      expectValue(incentiveStruct.cooldown, incentiveStructBefore.cooldown);
+      await expectValue(incentiveStruct.cooldown, incentiveStructBefore.cooldown);
     });
 
     it("should revert if no rewardToken", async function () {
@@ -601,7 +601,7 @@ describe("Keeper incentives", function () {
         contracts.keeperIncentiveHelper.address,
         0
       );
-      expectValue(incentiveStruct.rewardToken, incentiveStructBefore.rewardToken);
+      await expectValue(incentiveStruct.rewardToken, incentiveStructBefore.rewardToken);
     });
 
     it("should revert if burn percentage too high", async function () {
@@ -628,7 +628,7 @@ describe("Keeper incentives", function () {
         contracts.keeperIncentiveHelper.address,
         0
       );
-      expectValue(incentiveStruct.burnPercentage, incentiveStructBefore.burnPercentage);
+      await expectValue(incentiveStruct.burnPercentage, incentiveStructBefore.burnPercentage);
     });
 
     it("should toggle if the incentive is enabled", async function () {
@@ -642,9 +642,9 @@ describe("Keeper incentives", function () {
         contracts.keeperIncentiveHelper.address,
         0
       );
-      expectValue(incentiveStruct[0], incentive);
-      expectValue(incentiveStruct[1], false);
-      expectValue(incentiveStruct[2], false);
+      await expectValue(incentiveStruct[0], incentive);
+      await expectValue(incentiveStruct[1], false);
+      await expectValue(incentiveStruct[2], false);
 
       await expectEvent(
         await contracts.keeperIncentive.connect(manager).toggleIncentive(contracts.keeperIncentiveHelper.address, 0),
@@ -656,9 +656,9 @@ describe("Keeper incentives", function () {
         contracts.keeperIncentiveHelper.address,
         0
       );
-      expectValue(incentiveStruct[0], incentive);
-      expectValue(incentiveStruct[1], true);
-      expectValue(incentiveStruct[2], false);
+      await expectValue(incentiveStruct[0], incentive);
+      await expectValue(incentiveStruct[1], true);
+      await expectValue(incentiveStruct[2], false);
     });
 
     it("should fund incentives", async function () {
@@ -672,12 +672,12 @@ describe("Keeper incentives", function () {
         [incentive, contracts.mockPop.address, incentive]
       );
 
-      expectValue(await contracts.mockPop.balanceOf(contracts.keeperIncentive.address), incentive);
+      await expectValue(await contracts.mockPop.balanceOf(contracts.keeperIncentive.address), incentive);
       const account = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address),
         contracts.keeperIncentive.address
       );
-      expectValue(account.balance, incentive);
+      await expectValue(account.balance, incentive);
     });
 
     it("should revert funding if incentive does not exist", async function () {
@@ -708,9 +708,9 @@ describe("Keeper incentives", function () {
           contracts.keeperIncentiveHelper.address,
           0
         );
-        expectValue(incentiveStruct[0], incentive);
-        expectValue(incentiveStruct[1], true);
-        expectValue(incentiveStruct[2], true);
+        await expectValue(incentiveStruct[0], incentive);
+        await expectValue(incentiveStruct[1], true);
+        await expectValue(incentiveStruct[2], true);
 
         await expectEvent(
           await contracts.keeperIncentive.connect(manager).toggleApproval(contracts.keeperIncentiveHelper.address, 0),
@@ -722,9 +722,9 @@ describe("Keeper incentives", function () {
           contracts.keeperIncentiveHelper.address,
           0
         );
-        expectValue(incentiveStruct[0], incentive);
-        expectValue(incentiveStruct[1], true);
-        expectValue(incentiveStruct[2], false);
+        await expectValue(incentiveStruct[0], incentive);
+        await expectValue(incentiveStruct[1], true);
+        await expectValue(incentiveStruct[2], false);
       });
     });
   });
@@ -738,7 +738,7 @@ describe("Keeper incentives", function () {
         .fundIncentive(contracts.keeperIncentiveHelper.address, 0, fundAmount);
 
       let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, false);
+      await expectValue(hasClaimableBalance, false);
 
       await expectEvent(
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(0),
@@ -747,14 +747,14 @@ describe("Keeper incentives", function () {
         [keeper.address]
       );
       hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
+      await expectValue(hasClaimableBalance, true);
 
       const keeperAccount = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address),
         keeper.address
       );
 
-      expectValue(keeperAccount.balance, parseEther("10").mul(3).div(4));
+      await expectValue(keeperAccount.balance, parseEther("10").mul(3).div(4));
     });
 
     it("should pay out keeper incentive tips", async function () {
@@ -762,7 +762,7 @@ describe("Keeper incentives", function () {
       await contracts.mockPop.connect(manager).approve(contracts.keeperIncentiveHelper.address, tipAmount);
 
       let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, false);
+      await expectValue(hasClaimableBalance, false);
 
       await expectEvent(
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(0),
@@ -779,51 +779,14 @@ describe("Keeper incentives", function () {
         [manager.address]
       );
       hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
+      await expectValue(hasClaimableBalance, true);
 
       const keeperAccount = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address),
         keeper.address
       );
 
-      expectValue(keeperAccount.balance, tipAmount);
-    });
-
-    it("should pay out keeper incentive tips after burn", async function () {
-      const tipAmount = parseEther("15");
-      const burnPercentage = parseEther("0.25");
-      const burnAmount = tipAmount.mul(burnPercentage).div(parseEther("1"));
-      const tipAfterBurn = tipAmount.sub(burnAmount);
-      await contracts.mockPop.connect(manager).approve(contracts.keeperIncentiveHelper.address, tipAmount);
-
-      let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, false);
-
-      await expectEvent(
-        await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(0),
-        contracts.keeperIncentiveHelper,
-        "FunctionCalled",
-        [keeper.address]
-      );
-      await expectEvent(
-        await contracts.keeperIncentiveHelper
-          .connect(manager)
-          .tipIncentiveWithBurn(contracts.mockPop.address, keeper.address, 0, tipAmount, burnPercentage),
-        contracts.keeperIncentive,
-        "IncentiveTipped",
-        [tipAfterBurn, contracts.mockPop.address]
-      );
-      hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
-
-      const keeperAccount = await contracts.keeperIncentive.accounts(
-        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address),
-        keeper.address
-      );
-      const burnBalance = await contracts.keeperIncentive.burnBalancesByToken(contracts.mockPop.address);
-
-      expectValue(keeperAccount.balance, tipAfterBurn);
-      expectValue(burnBalance, burnAmount);
+      await expectValue(keeperAccount.balance, tipAmount);
     });
 
     it("should revert tip if not controller contract", async function () {
@@ -868,7 +831,7 @@ describe("Keeper incentives", function () {
         .fundIncentive(contracts.keeperIncentiveHelper.address, 1, fundAmount);
 
       let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, false);
+      await expectValue(hasClaimableBalance, false);
 
       await expectEvent(
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(1),
@@ -885,14 +848,14 @@ describe("Keeper incentives", function () {
         [manager.address]
       );
       hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
+      await expectValue(hasClaimableBalance, true);
 
       const keeperAccount = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
         keeper.address
       );
 
-      expectValue(keeperAccount.balance, rewardAmount.add(tipAmount));
+      await expectValue(keeperAccount.balance, rewardAmount.add(tipAmount));
     });
 
     it("should pay out keeper incentive rewards and tips in different tokens", async function () {
@@ -916,7 +879,7 @@ describe("Keeper incentives", function () {
         .fundIncentive(contracts.keeperIncentiveHelper.address, 1, fundAmount);
 
       let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, false);
+      await expectValue(hasClaimableBalance, false);
 
       await expectEvent(
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(1),
@@ -933,7 +896,7 @@ describe("Keeper incentives", function () {
         [manager.address]
       );
       hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
+      await expectValue(hasClaimableBalance, true);
 
       const keeperAccountPop = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
@@ -945,8 +908,8 @@ describe("Keeper incentives", function () {
         keeper.address
       );
 
-      expectValue(keeperAccountPop.balance, rewardAmount);
-      expectValue(keeperAccountRewardToken.balance, tipAmount);
+      await expectValue(keeperAccountPop.balance, rewardAmount);
+      await expectValue(keeperAccountRewardToken.balance, tipAmount);
     });
 
     it("should emit an IncentiveTipped event", async function () {
@@ -971,7 +934,7 @@ describe("Keeper incentives", function () {
         .fundIncentive(contracts.keeperIncentiveHelper.address, 0, fundAmount);
 
       let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, false);
+      await expectValue(hasClaimableBalance, false);
 
       await expectEvent(
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(0),
@@ -980,14 +943,14 @@ describe("Keeper incentives", function () {
         [keeper.address]
       );
       hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
+      await expectValue(hasClaimableBalance, true);
 
       const keeperAccount = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address),
         keeper.address
       );
 
-      expectValue(keeperAccount.balance, parseEther("10").mul(3).div(4));
+      await expectValue(keeperAccount.balance, parseEther("10").mul(3).div(4));
 
       // create and fund incentive with different reward token
       await contracts.keeperIncentive
@@ -1013,14 +976,14 @@ describe("Keeper incentives", function () {
         [keeper.address]
       );
       hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
+      await expectValue(hasClaimableBalance, true);
 
       const rewardTokenKeeperAccount = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.rewardToken.address),
         keeper.address
       );
 
-      expectValue(rewardTokenKeeperAccount.balance, parseEther("10"));
+      await expectValue(rewardTokenKeeperAccount.balance, parseEther("10"));
     });
 
     it("should work with legacy function interface", async function () {
@@ -1031,7 +994,7 @@ describe("Keeper incentives", function () {
         .fundIncentive(contracts.keeperIncentiveHelper.address, 0, fundAmount);
 
       let hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, false);
+      await expectValue(hasClaimableBalance, false);
 
       await expectEvent(
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunctionLegacy(),
@@ -1040,14 +1003,14 @@ describe("Keeper incentives", function () {
         [keeper.address]
       );
       hasClaimableBalance = await contracts.keeperIncentive.hasClaimableBalance(keeper.address);
-      expectValue(hasClaimableBalance, true);
+      await expectValue(hasClaimableBalance, true);
 
       const keeperAccount = await contracts.keeperIncentive.accounts(
         getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address),
         keeper.address
       );
 
-      expectValue(keeperAccount.balance, parseEther("10").mul(3).div(4));
+      await expectValue(keeperAccount.balance, parseEther("10").mul(3).div(4));
     });
 
     describe("claimableBalances", async () => {
@@ -1061,11 +1024,11 @@ describe("Keeper incentives", function () {
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(0);
 
         const keeperBalances = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
-        expectValue(keeperBalances.length, 1);
+        await expectValue(keeperBalances.length, 1);
 
-        expectValue(keeperBalances[0].rewardToken, contracts.mockPop.address);
-        expectValue(keeperBalances[0].amount, parseEther("10").mul(3).div(4));
-        expectValue(
+        await expectValue(keeperBalances[0].rewardToken, contracts.mockPop.address);
+        await expectValue(keeperBalances[0].amount, parseEther("10").mul(3).div(4));
+        await expectValue(
           keeperBalances[0].account,
           getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address)
         );
@@ -1099,17 +1062,17 @@ describe("Keeper incentives", function () {
         await contracts.keeperIncentiveHelper.connect(keeper).incentivisedFunction(1);
 
         const keeperBalances = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
-        expectValue(keeperBalances.length, 2);
+        await expectValue(keeperBalances.length, 2);
 
-        expectValue(keeperBalances[0].rewardToken, contracts.mockPop.address);
-        expectValue(keeperBalances[0].amount, parseEther("10").mul(3).div(4));
-        expectValue(
+        await expectValue(keeperBalances[0].rewardToken, contracts.mockPop.address);
+        await expectValue(keeperBalances[0].amount, parseEther("10").mul(3).div(4));
+        await expectValue(
           keeperBalances[0].account,
           getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 0, contracts.mockPop.address)
         );
-        expectValue(keeperBalances[1].rewardToken, contracts.rewardToken.address);
-        expectValue(keeperBalances[1].amount, parseEther("10"));
-        expectValue(
+        await expectValue(keeperBalances[1].rewardToken, contracts.rewardToken.address);
+        await expectValue(keeperBalances[1].amount, parseEther("10"));
+        await expectValue(
           keeperBalances[1].account,
           getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.rewardToken.address)
         );
@@ -1129,12 +1092,12 @@ describe("Keeper incentives", function () {
         await runJob(2);
 
         const keeperBalances = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
-        expectValue(keeperBalances.length, 2);
+        await expectValue(keeperBalances.length, 2);
 
         for (let i = 0; i < keeperBalances.length; i++) {
-          expectValue(keeperBalances[i].rewardToken, contracts.mockPop.address);
-          expectValue(keeperBalances[i].amount, rewardAmount.mul(3).div(4));
-          expectValue(
+          await expectValue(keeperBalances[i].rewardToken, contracts.mockPop.address);
+          await expectValue(keeperBalances[i].amount, rewardAmount.mul(3).div(4));
+          await expectValue(
             keeperBalances[i].account,
             getIncentiveAccountId(contracts.keeperIncentiveHelper.address, i + 1, contracts.mockPop.address)
           );
@@ -1157,7 +1120,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesBefore, parseEther("0"));
+      await expectValue(keeperBalancesBefore, parseEther("0"));
       await runJob(1);
       await runJob(1);
       await runJob(1);
@@ -1168,13 +1131,13 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesAfter, parseEther("4"));
+      await expectValue(keeperBalancesAfter, parseEther("4"));
 
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
+      ]);
 
       const keeperBalancesafter = await getKeeperClaimableTokenBalance(
         contracts.keeperIncentive,
@@ -1182,7 +1145,7 @@ describe("Keeper incentives", function () {
         contracts.mockPop.address
       );
 
-      expectValue(keeperBalancesafter, parseEther("0"));
+      await expectValue(keeperBalancesafter, parseEther("0"));
     });
 
     it("should revert if nothing to claim", async function () {
@@ -1198,7 +1161,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesBefore, parseEther("0"));
+      await expectValue(keeperBalancesBefore, parseEther("0"));
       await runJob(1);
 
       const keeperBalancesAfter = await getKeeperClaimableTokenBalance(
@@ -1206,13 +1169,13 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesAfter, parseEther("1"));
+      await expectValue(keeperBalancesAfter, parseEther("1"));
 
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
+      ]);
 
       const keeperBalancesafter = await getKeeperClaimableTokenBalance(
         contracts.keeperIncentive,
@@ -1220,14 +1183,14 @@ describe("Keeper incentives", function () {
         contracts.mockPop.address
       );
 
-      expectValue(keeperBalancesafter, parseEther("0"));
+      await expectValue(keeperBalancesafter, parseEther("0"));
 
       await expectRevert(
         contracts.keeperIncentive
           .connect(keeper)
-          ["claim(bytes32[])"]([
-            getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
-          ]),
+        ["claim(bytes32[])"]([
+          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
+        ]),
         "nothing to claim"
       );
     });
@@ -1245,7 +1208,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesBefore, parseEther("0"));
+      await expectValue(keeperBalancesBefore, parseEther("0"));
       await runJob(1);
       await runJob(1);
       await runJob(1);
@@ -1256,13 +1219,13 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesAfter, parseEther("4"));
+      await expectValue(keeperBalancesAfter, parseEther("4"));
 
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
+      ]);
 
       const keeperBalancesAfterClaim = await getKeeperClaimableTokenBalance(
         contracts.keeperIncentive,
@@ -1270,7 +1233,7 @@ describe("Keeper incentives", function () {
         contracts.mockPop.address
       );
 
-      expectValue(keeperBalancesAfterClaim, parseEther("0"));
+      await expectValue(keeperBalancesAfterClaim, parseEther("0"));
 
       // create and fund incentive with different reward token
       await contracts.rewardToken.connect(manager).approve(contracts.keeperIncentive.address, fundAmount);
@@ -1292,7 +1255,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.rewardToken.address
       );
-      expectValue(rewardTokenKeeperBalancesBefore, parseEther("0"));
+      await expectValue(rewardTokenKeeperBalancesBefore, parseEther("0"));
       await runJob(2);
       await runJob(2);
       await runJob(2);
@@ -1303,13 +1266,13 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.rewardToken.address
       );
-      expectValue(rewardTokenKeeperBalancesAfter, parseEther("4"));
+      await expectValue(rewardTokenKeeperBalancesAfter, parseEther("4"));
 
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.rewardToken.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.rewardToken.address),
+      ]);
 
       const rewardTokenkeeperBalancesAfterClaim = await getKeeperClaimableTokenBalance(
         contracts.keeperIncentive,
@@ -1317,7 +1280,7 @@ describe("Keeper incentives", function () {
         contracts.mockPop.address
       );
 
-      expectValue(rewardTokenkeeperBalancesAfterClaim, parseEther("0"));
+      await expectValue(rewardTokenkeeperBalancesAfterClaim, parseEther("0"));
     });
 
     it("should payout reward with new token after incentive is updated with new token", async function () {
@@ -1333,7 +1296,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesBefore, parseEther("0"));
+      await expectValue(keeperBalancesBefore, parseEther("0"));
       await runJob(1);
       await runJob(1);
       await runJob(1);
@@ -1344,13 +1307,13 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesAfter, parseEther("4"));
+      await expectValue(keeperBalancesAfter, parseEther("4"));
 
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
+      ]);
 
       const keeperBalancesAfterClaim = await getKeeperClaimableTokenBalance(
         contracts.keeperIncentive,
@@ -1358,7 +1321,7 @@ describe("Keeper incentives", function () {
         contracts.mockPop.address
       );
 
-      expectValue(keeperBalancesAfterClaim, parseEther("0"));
+      await expectValue(keeperBalancesAfterClaim, parseEther("0"));
 
       // update incentive with new rewardToken
       await contracts.rewardToken.connect(manager).approve(contracts.keeperIncentive.address, fundAmount);
@@ -1381,7 +1344,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.rewardToken.address
       );
-      expectValue(rewardTokenkeeperBalancesBefore, parseEther("0"));
+      await expectValue(rewardTokenkeeperBalancesBefore, parseEther("0"));
       await runJob(1);
       await runJob(1);
       await runJob(1);
@@ -1392,14 +1355,14 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.rewardToken.address
       );
-      expectValue(rewardTokenkeeperBalancesAfter, parseEther("4"));
+      await expectValue(rewardTokenkeeperBalancesAfter, parseEther("4"));
 
       // call claim for incentive 1 with new rewardToken
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.rewardToken.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.rewardToken.address),
+      ]);
 
       const rewardTokenkeeperBalancesAfterClaim = await getKeeperClaimableTokenBalance(
         contracts.keeperIncentive,
@@ -1407,7 +1370,7 @@ describe("Keeper incentives", function () {
         contracts.rewardToken.address
       );
 
-      expectValue(rewardTokenkeeperBalancesAfterClaim, parseEther("0"));
+      await expectValue(rewardTokenkeeperBalancesAfterClaim, parseEther("0"));
     });
 
     it("should burn tokens", async function () {
@@ -1424,7 +1387,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesBefore, parseEther("0"));
+      await expectValue(keeperBalancesBefore, parseEther("0"));
       await runJob(1);
 
       const keeperBalancesAfter = await getKeeperClaimableTokenBalance(
@@ -1432,13 +1395,13 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(keeperBalancesAfter, rewardAmount.sub(amountBurned));
+      await expectValue(keeperBalancesAfter, rewardAmount.sub(amountBurned));
 
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address),
+      ]);
 
       const keeperBalancesAfterClaim = await getKeeperClaimableTokenBalance(
         contracts.keeperIncentive,
@@ -1446,14 +1409,14 @@ describe("Keeper incentives", function () {
         contracts.mockPop.address
       );
 
-      expectValue(keeperBalancesAfterClaim, parseEther("0"));
+      await expectValue(keeperBalancesAfterClaim, parseEther("0"));
 
       const burnBalanceBefore = await contracts.keeperIncentive.burnBalancesByToken(contracts.mockPop.address);
-      expectValue(burnBalanceBefore, amountBurned);
+      await expectValue(burnBalanceBefore, amountBurned);
       await contracts.keeperIncentive.burn(contracts.mockPop.address);
 
       const burnBalanceAfter = await contracts.keeperIncentive.burnBalancesByToken(contracts.mockPop.address);
-      expectValue(burnBalanceAfter, 0);
+      await expectValue(burnBalanceAfter, 0);
 
       // should not allow reentrance
       await expectRevert(contracts.keeperIncentive.burn(contracts.mockPop.address), "no burn balance");
@@ -1477,20 +1440,20 @@ describe("Keeper incentives", function () {
       await runJob(3);
 
       const keeperBalancesBefore = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
-      expectValue(keeperBalancesBefore.length, 3);
+      await expectValue(keeperBalancesBefore.length, 3);
 
       await contracts.keeperIncentive
         .connect(keeper)
-        ["claim(bytes32[])"]([
-          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.mockPop.address),
-        ]);
+      ["claim(bytes32[])"]([
+        getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.mockPop.address),
+      ]);
 
       const keeperBalances = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
 
-      expectValue(keeperBalances.length, 3);
-      expectValue(keeperBalances[0].amount, keeperBalancesBefore[0].amount);
-      expectValue(keeperBalances[1].amount, 0);
-      expectValue(keeperBalances[2].amount, keeperBalancesBefore[2].amount);
+      await expectValue(keeperBalances.length, 3);
+      await expectValue(keeperBalances[0].amount, keeperBalancesBefore[0].amount);
+      await expectValue(keeperBalances[1].amount, 0);
+      await expectValue(keeperBalances[2].amount, keeperBalancesBefore[2].amount);
     });
 
     describe("getKeeperClaimableBalances", async () => {
@@ -1512,34 +1475,34 @@ describe("Keeper incentives", function () {
         await runJob(3);
 
         const keeperBalancesBefore = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
-        expectValue(keeperBalancesBefore.length, 3);
+        await expectValue(keeperBalancesBefore.length, 3);
 
         await contracts.keeperIncentive
           .connect(keeper)
-          ["claim(bytes32[])"]([
-            getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.mockPop.address),
-          ]);
+        ["claim(bytes32[])"]([
+          getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.mockPop.address),
+        ]);
 
         const keeperBalances = await getKeeperClaimableBalances(contracts.keeperIncentive, keeper.address);
-        expectValue(keeperBalances.length, 3);
+        await expectValue(keeperBalances.length, 3);
 
-        expectValue(keeperBalances[0].rewardToken, contracts.mockPop.address);
-        expectValue(keeperBalances[1].rewardToken, contracts.mockPop.address);
-        expectValue(keeperBalances[2].rewardToken, contracts.mockPop.address);
+        await expectValue(keeperBalances[0].rewardToken, contracts.mockPop.address);
+        await expectValue(keeperBalances[1].rewardToken, contracts.mockPop.address);
+        await expectValue(keeperBalances[2].rewardToken, contracts.mockPop.address);
 
-        expectValue(keeperBalances[0].amount, keeperBalancesBefore[0].amount);
-        expectValue(keeperBalances[1].amount, 0);
-        expectValue(keeperBalances[2].amount, keeperBalancesBefore[2].amount);
+        await expectValue(keeperBalances[0].amount, keeperBalancesBefore[0].amount);
+        await expectValue(keeperBalances[1].amount, 0);
+        await expectValue(keeperBalances[2].amount, keeperBalancesBefore[2].amount);
 
-        expectValue(
+        await expectValue(
           keeperBalances[0].account,
           getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 1, contracts.mockPop.address)
         );
-        expectValue(
+        await expectValue(
           keeperBalances[1].account,
           getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 2, contracts.mockPop.address)
         );
-        expectValue(
+        await expectValue(
           keeperBalances[2].account,
           getIncentiveAccountId(contracts.keeperIncentiveHelper.address, 3, contracts.mockPop.address)
         );
@@ -1565,7 +1528,7 @@ describe("Keeper incentives", function () {
       contracts.keeperIncentive.address
     );
 
-    expectValue(incentiveAccount.balance, fundAmount.sub(incentive));
+    await expectValue(incentiveAccount.balance, fundAmount.sub(incentive));
   });
 
   it("should not pay out rewards if the incentive budget is not high enough", async function () {
@@ -1580,7 +1543,7 @@ describe("Keeper incentives", function () {
       keeper.address,
       contracts.mockPop.address
     );
-    expectValue(newBalance, oldBalance);
+    await expectValue(newBalance, oldBalance);
   });
 
   it("should revert if the keeper didnt stake enough pop", async function () {
@@ -1625,7 +1588,7 @@ describe("Keeper incentives", function () {
         nonPrivileged.address,
         contracts.mockPop.address
       );
-      expectValue(newBalance, oldBalance.add(incentive.mul(3).div(4)));
+      await expectValue(newBalance, oldBalance.add(incentive.mul(3).div(4)));
     });
 
     it("should not do anything if the incentive for this function wasnt set yet", async function () {
@@ -1665,7 +1628,7 @@ describe("Keeper incentives", function () {
         keeper.address,
         contracts.mockPop.address
       );
-      expectValue(balanceAfter, balanceBefore);
+      await expectValue(balanceAfter, balanceBefore);
     });
   });
 });

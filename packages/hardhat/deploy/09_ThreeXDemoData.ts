@@ -3,6 +3,7 @@ import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { DeployFunction, DeploymentsExtension } from "@anthonymartin/hardhat-deploy/types";
+import { ThreeXBatchProcessing } from "../typechain";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -13,7 +14,23 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const signerAddress = await signer.getAddress();
 
   if (["hardhat", "local"].includes(hre.network.name)) {
-    await createDemoData(hre, deployments, signer, signerAddress, deploy, addresses, threeX);
+    const threeXBatch = await hre.ethers.getContractAt(
+      "ThreeXBatchProcessing",
+      (
+        await deployments.get("ThreeXBatchProcessing")
+      ).address,
+      signer
+    );
+    const keeperIncentive = await hre.ethers.getContractAt(
+      "KeeperIncentiveV2",
+      (
+        await deployments.get("KeeperIncentive")
+      ).address,
+      signer
+    );
+    await keeperIncentive.updateIncentive(threeXBatch.address, 0, 0, true, true, (await deployments.get("TestPOP")).address, 1, 0);
+    await keeperIncentive.updateIncentive(threeXBatch.address, 1, 0, true, true, (await deployments.get("TestPOP")).address, 1, 0);
+    await createDemoData(hre, deployments, signer, signerAddress, deploy, addresses, threeXBatch, threeX);
   }
 };
 
@@ -24,17 +41,10 @@ async function createDemoData(
   signerAddress: string,
   deploy: Function,
   addresses: any,
+  threeXBatch: ThreeXBatchProcessing,
   setTokenAddress: string
 ): Promise<void> {
   console.log("creating demo data...");
-
-  const threeXBatch = await hre.ethers.getContractAt(
-    "ThreeXBatchProcessing",
-    (
-      await deployments.get("ThreeXBatchProcessing")
-    ).address,
-    signer
-  );
   //await timeTravel(3000);
   await threeXBatch.setSlippage(100, 100);
 

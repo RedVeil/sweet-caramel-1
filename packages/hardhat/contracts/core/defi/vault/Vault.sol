@@ -35,7 +35,14 @@ contract Vault is
     uint256 performance;
   }
 
+  struct KeeperConfig {
+    uint256 minWithdrawalAmount; // minimum amount required of accrued fees for calling withdrawAccruedFees
+    uint256 incentiveVigBps; // percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves
+    uint256 keeperPayout; // amount paid out to keeper per invocation of incentivized function - withdrawAccruedFees()
+  }
+
   address public staking;
+  address public zapper;
 
   bytes32 public immutable contractName;
 
@@ -50,7 +57,7 @@ contract Vault is
   uint256 public vaultShareHWM = 1e18;
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
-  uint256 keeperVigBps; // percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves
+  KeeperConfig public keeperConfig;
 
   /* ========== EVENTS ========== */
 
@@ -61,6 +68,8 @@ contract Vault is
   event StakingUpdated(address beforeAddress, address afterAddress);
   event RegistryUpdated(address beforeAddress, address afterAddress);
   event UseLocalFees(bool useLocalFees);
+  event ZapperUpdated(address zapper, address _zapper);
+  event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -69,8 +78,8 @@ contract Vault is
     address yearnRegistry_,
     IContractRegistry contractRegistry_,
     address staking_,
-    uint256 keeperVigBps_,
-    FeeStructure memory feeStructure_
+    FeeStructure memory feeStructure_,
+    KeeperConfig memory keeperConfig_
   )
     AffiliateToken(
       token_,
@@ -90,7 +99,7 @@ contract Vault is
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
     contractName = keccak256(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault"));
-    keeperVigBps = keeperVigBps_;
+    keeperConfig = keeperConfig_;
   }
 
   /* ========== VIEWS ========== */
@@ -472,7 +481,7 @@ contract Vault is
   ) public override nonReentrant takeFees returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
-    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
+    if (msg.sender != owner && msg.sender != zapper) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
     _transfer(owner, address(this), shares);
 
@@ -485,6 +494,38 @@ contract Vault is
     _withdraw(address(this), receiver, assets, true);
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
+  }
+
+  /**
+   * @notice Unstake `shares` from the corresponding staking contract and redeem them for `msg.sender`.
+   * Caller must approve a sufficient number of `shares` tokens to redeem the requested quantity.
+   * @param shares Quantity of shares to redeem.
+   * @return assets of underlying that have been withdrawn.
+   */
+  function unstakeAndRedeem(uint256 shares) external returns (uint256) {
+    return unstakeAndRedeemFor(shares, msg.sender, msg.sender);
+  }
+
+  /**
+   * @notice Unstake `shares` from the corresponding staking contract and redeem them for `msg.sender`.
+   * Caller must approve a sufficient number of `shares` tokens to redeem the requested quantity.
+   * @param shares Quantity of shares to redeem.
+   * @param receiver Receiver of underlying assets.
+   * @param owner Owner of burned vault shares.
+   * @return assets of underlying that have been withdrawn.
+   */
+  function unstakeAndRedeemFor(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public returns (uint256 assets) {
+    require(staking != address(0), "staking is disabled");
+
+    IStaking(staking).withdrawFor(shares, owner, owner);
+
+    assets = redeem(shares, receiver, owner);
+
+    emit UnstakedAndWithdrawn(shares, owner, receiver);
   }
 
   /**
@@ -535,6 +576,15 @@ contract Vault is
   }
 
   /**
+   * @notice Sets the zapper contract which is allowed to unstake and withdraw for a user without addtitional approvals
+   * @param _zapper Address of the new zapper contract.
+   */
+  function setZapper(address _zapper) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+    emit ZapperUpdated(zapper, _zapper);
+    zapper = _zapper;
+  }
+
+  /**
    * @notice Used to update the yearn registry. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    * @param _registry The new _registry address.
    */
@@ -551,30 +601,42 @@ contract Vault is
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
     uint256 balance = balanceOf(address(this));
     uint256 accruedFees = _convertToAssets(balance, 0);
+    uint256 minWithdrawalAmount = keeperConfig.minWithdrawalAmount;
+    uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
-    uint256 preBal = token.balanceOf(address(this));
-    uint256 tipAmount = (accruedFees * keeperVigBps) / 1e18;
+    require(accruedFees >= minWithdrawalAmount, "insufficient withdrawal amount");
 
-    _withdraw(address(this), _feeController().feeRecipient(), (accruedFees * 1e18 - keeperVigBps) / 1e18, true);
+    IERC20 assetToken = IERC20(IEIP4626(address(this)).asset());
+
+    uint256 preBal = assetToken.balanceOf(address(this));
+    uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
+
+    _withdraw(address(this), _feeController().feeRecipient(), (accruedFees * 1e18 - incentiveVig) / 1e18, true);
     _withdraw(address(this), address(this), tipAmount, true);
 
-    uint256 postBal = token.balanceOf(address(this));
+    uint256 postBal = assetToken.balanceOf(address(this));
 
     require(postBal >= preBal, "insufficient tip balance");
 
-    token.approve(address(_keeperIncentive()), postBal);
+    // from test postBal = 2
+    // from test tipAmount = 238
 
-    _keeperIncentive().tip(address(token), msg.sender, 0, postBal);
+    IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
+
+    assetToken.approve(address(keeperIncentive), postBal);
+
+    keeperIncentive.tip(address(assetToken), msg.sender, 0, postBal);
 
     _burn(address(this), balance);
   }
 
   /**
-   * @notice Change percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
+   * @notice Change keeper config. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    */
-  function setKeeperVig(uint256 _keeperVigBps) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
-    require(_keeperVigBps < 1e18, "invalid vig");
-    keeperVigBps = keeperVigBps;
+  function setKeeperConfig(KeeperConfig memory _config) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+    require(_config.incentiveVigBps < 1e18, "invalid vig");
+    require(_config.minWithdrawalAmount > 0, "invalid min withdrawal");
+    keeperConfig = _config;
   }
 
   /**

@@ -183,11 +183,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
     await wait(tx4, hre);
   }
-
-  if (["hardhat", "local"].includes(hre.network.name)) {
-    await keeperIncentive.updateIncentive(processing.address, 0, 0, true, true, pop, 1, 0);
-    await keeperIncentive.updateIncentive(processing.address, 1, 0, true, true, pop, 1, 0);
-  }
 };
 
 async function wait(tx, hre) {

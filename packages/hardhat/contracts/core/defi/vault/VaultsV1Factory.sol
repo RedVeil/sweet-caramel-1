@@ -17,8 +17,8 @@ struct VaultParams {
   address yearnRegistry;
   IContractRegistry contractRegistry;
   address staking;
-  uint256 keeperVigBps;
   Vault.FeeStructure feeStructure;
+  Vault.KeeperConfig keeperConfig;
 }
 
 contract VaultsV1Factory is Owned {
@@ -37,7 +37,7 @@ contract VaultsV1Factory is Owned {
   /**
    * @notice Deploys V1 Vault
    * @param _vaultParams - struct containing Vault contructor params  (address token_, address yearnRegistry_,
-    IContractRegistry contractRegistry_, address staking_, uint256 keeperVigBps, Vault.FeeStructure feeStructure_)
+    IContractRegistry contractRegistry_, address staking_, FeeStructure feeStructure_)
     @param _enabled - bool if vault enabled or disabled
     @param _stakingAddress - address of the staking contract for the vault
     @param _metadataCID - ipfs CID of vault metadata
@@ -45,6 +45,7 @@ contract VaultsV1Factory is Owned {
     @param _exchange - number that marks exchange
     @dev the submitter in the VaultMetadata is function caller from Controller
    */
+
   function deployVaultV1(
     VaultParams memory _vaultParams,
     bool _enabled,
@@ -60,8 +61,8 @@ contract VaultsV1Factory is Owned {
       _vaultParams.yearnRegistry,
       _vaultParams.contractRegistry,
       _vaultParams.staking,
-      _vaultParams.keeperVigBps,
-      _vaultParams.feeStructure
+      _vaultParams.feeStructure,
+      _vaultParams.keeperConfig
     );
     VaultMetadata memory metadata = VaultMetadata({
       vaultAddress: address(vault),

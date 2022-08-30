@@ -47,6 +47,7 @@ async function zapInOrDeposit(
       await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
       amount,
       slippage / 100,
+      false
     );
   }
 }
@@ -92,6 +93,7 @@ async function zapOutOrWithdraw(
       await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
       amount,
       slippage / 100,
+      false
     );
   }
 }

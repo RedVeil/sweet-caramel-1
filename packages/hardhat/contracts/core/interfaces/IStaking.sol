@@ -12,5 +12,11 @@ interface IStaking {
 
   function withdraw(uint256 amount) external;
 
+  function withdrawFor(
+    uint256 amount,
+    address owner,
+    address receiver
+  ) external;
+
   function notifyRewardAmount(uint256 reward) external;
 }

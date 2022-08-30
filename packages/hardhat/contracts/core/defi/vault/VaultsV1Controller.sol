@@ -65,7 +65,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
       _swapAddress,
       _exchange
     );
-    _handleKeeperSetup(vault, (1e18 * (1e18 - _vaultParams.keeperVigBps)) / 1e18, _vaultParams.token);
+    _handleKeeperSetup(vault, _vaultParams.keeperConfig, _vaultParams.token);
     vaultsV1Registry.registerVault(metadata);
     if (_endorse) {
       vaultsV1Registry.toggleEndorseVault(vault);
@@ -77,22 +77,24 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   /**
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @param _vault - address of the newly deployed vault
-   * @param _keeperPayout - the keeper reward for calling incentivized functions on the vault
+   * @param _keeperConfig - the keeperConfig struct from the VaultParams used in vault deployment
    * @dev avoids stack too deep in deployVaultFromV1Factory
    */
+
   function _handleKeeperSetup(
     address _vault,
-    uint256 _keeperPayout,
+    Vault.KeeperConfig memory _keeperConfig,
     address _asset
   ) internal {
+    IVaultsV1(_vault).setKeeperConfig(_keeperConfig);
     IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive"))).createIncentive(
-      _vault, // controller contract
-      _keeperPayout, // reward amount
-      true, // enabled
-      true, // open to everyone
-      _asset, // reward token
-      1 days, // cool down
-      0 // burn percentage
+      _vault,
+      _keeperConfig.keeperPayout,
+      true,
+      false,
+      _asset,
+      1 days,
+      0
     );
   }
 

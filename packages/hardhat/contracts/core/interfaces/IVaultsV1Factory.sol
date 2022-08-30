@@ -15,8 +15,8 @@ interface IVaultsV1Factory {
     address yearnRegistry;
     IContractRegistry contractRegistry;
     address staking;
-    uint256 keeperVigBps;
     Vault.FeeStructure feeStructure;
+    Vault.KeeperConfig keeperConfig;
   }
 
   /* ========== FUNCTIONS ========== */

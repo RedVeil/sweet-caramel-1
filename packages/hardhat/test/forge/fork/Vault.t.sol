@@ -76,13 +76,13 @@ contract VaultTest is Test {
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),
       address(0),
-      1,
       Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,
         management: MANAGEMENT_FEE,
         performance: PERFORMANCE_FEE
-      })
+      }),
+      Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
     alice = new User(vault, asset);
     bob = new User(vault, asset);

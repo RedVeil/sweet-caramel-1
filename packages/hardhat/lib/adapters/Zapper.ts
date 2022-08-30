@@ -29,7 +29,8 @@ export class Zapper {
     vault: Vault,
     stableSwapAddress: string,
     fromAmount: BigNumber,
-    slippagePercentage: number
+    slippagePercentage: number,
+    stake: boolean
   ): Promise<any> {
     const curveLPAddress = await vault.asset();
     const coins = await this.getCoins(stableSwapAddress, vault.provider);
@@ -50,6 +51,7 @@ export class Zapper {
       0,
       this.swapTarget,
       swapData,
+      stake,
       { value: from.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? fromAmount : 0 }
     );
   }
@@ -59,7 +61,8 @@ export class Zapper {
     vault: Vault,
     stableSwapAddress: string,
     sellAmount: BigNumber,
-    slippagePercentage: number
+    slippagePercentage: number,
+    unstake: boolean
   ) {
     const curveLPAddress = await vault.asset();
     const coins = await this.getCoins(stableSwapAddress, vault.provider);
@@ -80,7 +83,8 @@ export class Zapper {
       to.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? constants.AddressZero : to.address,
       0,
       this.swapTarget,
-      swapData
+      swapData,
+      unstake
     );
   }
 

@@ -11,7 +11,7 @@ const forge = {
     blocks: {
       "Vault.t.sol": 14837370,
       "VaultInitialization.t.sol": 15176500,
-      "ZeroXZapper.t.sol": 15127782,
+      "ZeroXZapper.t.sol": 15414618,
       "ThreeXWhaleProcessing.t.sol": 15008113,
       "ButterFeeConverter.t.sol": 15008113,
       "VaultsV1Registry.t.sol": 15008113,

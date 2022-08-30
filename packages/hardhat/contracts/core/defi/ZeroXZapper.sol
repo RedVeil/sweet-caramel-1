@@ -6,10 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../utils/ACLAuth.sol";
 import "../utils/ContractRegistryAccess.sol";
-import "../interfaces/IEIP4626.sol";
 import "../interfaces/IVaultFeeController.sol";
-
-import "hardhat/console.sol";
+import "../interfaces/IVaultsV1.sol";
 
 interface IZapIn {
   function ZapIn(
@@ -212,7 +210,8 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     uint256 incomingTokenQty,
     uint256 minPoolTokens,
     address swapTarget,
-    bytes memory swapData
+    bytes memory swapData,
+    bool stake
   ) public payable {
     address vault = vaults[vaultAsset];
     require(vault != address(0), "Invalid vault");
@@ -250,7 +249,11 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
 
     IERC20(vaultAsset).safeApprove(address(vault), amountOutAfterFees);
 
-    IVault(vault).deposit(amountOutAfterFees, msg.sender);
+    if (stake) {
+      IVaultsV1(vault).depositAndStakeFor(amountOutAfterFees, msg.sender);
+    } else {
+      IVaultsV1(vault).deposit(amountOutAfterFees, msg.sender);
+    }
   }
 
   function zapOut(
@@ -261,13 +264,17 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     address toToken,
     uint256 minToTokens,
     address swapTarget,
-    bytes calldata swapCallData
+    bytes calldata swapCallData,
+    bool unstake
   ) public {
-    address vault = vaults[vaultAsset];
-    require(vault != address(0), "Invalid vault");
+    require(vaults[vaultAsset] != address(0), "Invalid vault");
 
-    IVault(vault).redeem(amount, address(this), msg.sender);
-
+    if (unstake) {
+      IVaultsV1(vaults[vaultAsset]).unstakeAndRedeemFor(amount, address(this), msg.sender);
+    } else {
+      IVaultsV1(vaults[vaultAsset]).redeem(amount, address(this), msg.sender);
+    }
+    // For some reason the value returned of redeem is sometimes a few WEI off which is why i opted for this solution
     uint256 withdrawn = IERC20(vaultAsset).balanceOf(address(this));
 
     Fee memory assetfee = fees[vaultAsset];

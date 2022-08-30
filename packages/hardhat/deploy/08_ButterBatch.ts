@@ -4,6 +4,7 @@ import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { addContractToRegistry } from "./utils";
+import { INCENTIVE_MANAGER_ROLE } from "../lib/acl/roles";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -109,6 +110,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     console.log("granting ButterZapper role to ButterBatchZapper");
     await aclRegistry.grantRole(ethers.utils.id("ButterZapper"), (await deployments.get("ButterBatchZapper")).address);
+    await aclRegistry.grantRole(INCENTIVE_MANAGER_ROLE, await signer.getAddress());
 
     console.log("granting ApprovedContract role to ButterBatchZapper");
     await aclRegistry.grantRole(

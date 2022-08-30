@@ -39,13 +39,13 @@ contract VaultsV1FactoryTest is Test {
       yearnRegistry: YEARN_REGISTRY,
       contractRegistry: IContractRegistry(CONTRACT_REGISTRY),
       staking: address(0),
-      keeperVigBps: 1,
       feeStructure: Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,
         management: MANAGEMENT_FEE,
         performance: PERFORMANCE_FEE
-      })
+      }),
+      keeperConfig: Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     });
 
   address[8] public swapTokenAddresses;
