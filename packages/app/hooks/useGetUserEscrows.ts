@@ -30,7 +30,7 @@ const getEscrowsByIds = async (vestingEscrow: RewardsEscrow, escrowIds: string[]
   return result;
 };
 
-const getUserEscrows = () => async (_: any, account: string, vestingEscrow: RewardsEscrow, library) => {
+const getUserEscrows = () => async (_: any, account: string, vestingEscrow: RewardsEscrow) => {
   const escrowIds: string[] = await vestingEscrow.getEscrowIdsByUser(account);
   if (escrowIds.length === 0) {
     return { escrows: new Array(0), totalClaimablePop: constants.Zero, totalVestingPop: constants.Zero };
@@ -62,12 +62,12 @@ const getUserEscrows = () => async (_: any, account: string, vestingEscrow: Rewa
   };
 };
 
-export default function useGetUserEscrows() {
-  const { signerOrProvider, account, chainId } = useWeb3();
+export default function useGetUserEscrows(chainId, rpcProvider?) {
+  const { account } = useWeb3();
   const contractAddresses = getChainRelevantContracts(chainId);
-  const vestingEscrow = useVestingEscrow(contractAddresses.rewardsEscrow);
+  const vestingEscrow = useVestingEscrow(contractAddresses.rewardsEscrow, rpcProvider);
   const shouldFetch = !!vestingEscrow && !!account;
-  return useSWR(shouldFetch ? ["getUserEscrows", account, vestingEscrow, signerOrProvider] : null, getUserEscrows(), {
+  return useSWR(shouldFetch ? ["getUserEscrows", account, vestingEscrow] : null, getUserEscrows(), {
     refreshInterval: 2000,
   });
 }

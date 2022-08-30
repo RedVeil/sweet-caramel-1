@@ -10,16 +10,16 @@ import useSetToken from "./useSetToken";
 import useThreeXBatch from "./useThreeXBatch";
 import useThreeXZapper from "./useThreeXZapper";
 
-export default function useThreeXData(): SWRResponse<BatchMetadata, Error> {
+export default function useThreeXData(rpcProvider?): SWRResponse<BatchMetadata, Error> {
   const { contractAddresses, account, chainId } = useWeb3();
-  const dai = useERC20(contractAddresses.dai);
-  const usdc = useERC20(contractAddresses.usdc);
-  const usdt = useERC20(contractAddresses.usdt);
-  const threeX = useSetToken(contractAddresses.threeX);
-  const threeXBatch = useThreeXBatch();
-  const threeXZapper = useThreeXZapper();
-  const setBasicIssuanceModule = useBasicIssuanceModule();
-  const threePool = useThreePool();
+  const dai = useERC20(contractAddresses.dai, rpcProvider);
+  const usdc = useERC20(contractAddresses.usdc, rpcProvider);
+  const usdt = useERC20(contractAddresses.usdt, rpcProvider);
+  const threeX = useSetToken(contractAddresses.threeX, rpcProvider);
+  const threeXBatch = useThreeXBatch(rpcProvider);
+  const threeXZapper = useThreeXZapper(rpcProvider);
+  const setBasicIssuanceModule = useBasicIssuanceModule(rpcProvider);
+  const threePool = useThreePool(rpcProvider);
 
   const shouldFetch = !!(
     [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost].includes(chainId) &&
@@ -28,7 +28,6 @@ export default function useThreeXData(): SWRResponse<BatchMetadata, Error> {
     contractAddresses.usdt &&
     contractAddresses.usdc &&
     contractAddresses.dai &&
-    isButterSupportedOnCurrentNetwork(chainId) &&
     dai &&
     usdc &&
     usdt &&
