@@ -29,7 +29,7 @@ contract VaultsV1ControllerTest is Test {
   event VaultTypeAdded(uint256 vaultTypes);
   event VaultStatusChanged(address vaultAddress, bool endorsed, bool enabled);
   /* VaultsV1Factory events */
-  event VaultV1Deployment(address vaultAddress);
+  event VaultV1Deployment(address vault, address vaultStaking);
   /* Vault events */
   event Paused(address account);
   event Unpaused(address account);
@@ -234,8 +234,13 @@ contract VaultsV1ControllerTest is Test {
       _exchange: 1,
       _endorse: true
     });
+
     assertTrue(deployedVault != address(0));
+
     emit log_named_address("VaultV1Deployment", deployedVault);
+
+    assertEq(address(Vault(deployedVault).staking()), 0x566B72091192CCd7013AdF77E2a1b349564acC21);
+
     VaultMetadata memory metadata = vaultsV1Registry.getVault(deployedVault);
     assertEq(metadata.vaultAddress, deployedVault);
     assertEq(metadata.vaultType, 1);
@@ -248,6 +253,7 @@ contract VaultsV1ControllerTest is Test {
     }
     assertEq(metadata.swapAddress, address(0x2222));
     assertEq(metadata.exchange, 1);
+
     assertEq(vaultsV1Registry.getRegisteredAddresses()[0], deployedVault);
     assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.token)[0], deployedVault);
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], deployedVault);
@@ -265,8 +271,13 @@ contract VaultsV1ControllerTest is Test {
       _exchange: 1,
       _endorse: false
     });
+
     assertTrue(deployedVault != address(0));
+
     emit log_named_address("VaultV1Deployment", deployedVault);
+
+    assertEq(address(Vault(deployedVault).staking()), 0x566B72091192CCd7013AdF77E2a1b349564acC21);
+
     VaultMetadata memory metadata = vaultsV1Registry.getVault(deployedVault);
     assertEq(metadata.vaultAddress, deployedVault);
     assertEq(metadata.vaultType, 1);
@@ -279,6 +290,7 @@ contract VaultsV1ControllerTest is Test {
     }
     assertEq(metadata.swapAddress, address(0x2222));
     assertEq(metadata.exchange, 1);
+
     assertEq(vaultsV1Registry.getRegisteredAddresses()[0], deployedVault);
     assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.token)[0], deployedVault);
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], deployedVault);
@@ -290,10 +302,12 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
-    emit VaultV1Deployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F);
+
+    emit VaultV1Deployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F, 0x566B72091192CCd7013AdF77E2a1b349564acC21);
     emit VaultAdded(0x037FC82298142374d974839236D2e2dF6B5BdD8F, 1, true, "someCID");
     emit VaultStatusChanged(0x037FC82298142374d974839236D2e2dF6B5BdD8F, true, true);
     emit VaultV1Deployed(0x037FC82298142374d974839236D2e2dF6B5BdD8F, true);
+
     vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
       true,
@@ -312,22 +326,27 @@ contract VaultsV1ControllerTest is Test {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsV1Controller.addVaultTypeToRegistry(2);
+
     assertEq(vaultsV1Registry.vaultTypes(), 1);
   }
 
   function test__addVaultTypeToRegistryIncorrectTypeReverts() public acceptOwnerships {
     vm.expectRevert("incorrect vault type");
     vaultsV1Controller.addVaultTypeToRegistry(0);
+
     vm.expectRevert("incorrect vault type");
     vaultsV1Controller.addVaultTypeToRegistry(1);
+
     vm.expectRevert("incorrect vault type");
     vaultsV1Controller.addVaultTypeToRegistry(3);
+
     assertEq(vaultsV1Registry.vaultTypes(), 1);
   }
 
   function test__addVaultTypeToRegistry() public acceptOwnerships {
     vaultsV1Controller.addVaultTypeToRegistry(2);
     assertEq(vaultsV1Registry.vaultTypes(), 2);
+
     vaultsV1Controller.addVaultTypeToRegistry(3);
     assertEq(vaultsV1Registry.vaultTypes(), 3);
   }
@@ -335,6 +354,7 @@ contract VaultsV1ControllerTest is Test {
   function test__addVaultTypesToRegistryEvent() public acceptOwnerships {
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     emit VaultTypeAdded(2);
+
     vaultsV1Controller.addVaultTypeToRegistry(2);
   }
 
@@ -342,10 +362,12 @@ contract VaultsV1ControllerTest is Test {
 
   function test__updateRegistryVaultNotOwnerReverts() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
+
     address[8] memory newSwapTokenAddresses;
     for (uint256 i = 0; i < 8; i++) {
       newSwapTokenAddresses[i] = address(uint160(i * 2));
     }
+
     VaultMetadata memory newMetadata = VaultMetadata({
       vaultAddress: vault,
       vaultType: 1,
@@ -357,16 +379,15 @@ contract VaultsV1ControllerTest is Test {
       swapAddress: address(0x8888),
       exchange: 2
     });
+
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsV1Controller.updateRegistryVault(newMetadata);
+
     // check no changes
     VaultMetadata memory vaultsV1RegistryMetadata = vaultsV1Registry.getVault(vault);
     assertEq(vaultsV1RegistryMetadata.vaultAddress, vault);
     assertEq(vaultsV1RegistryMetadata.vaultType, 1);
-    assertEq(vaultsV1Registry.typeVaults(1, 0), vault);
-    assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
-    assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
     assertEq(vaultsV1RegistryMetadata.enabled, true);
     assertEq(vaultsV1RegistryMetadata.stakingAddress, address(0x1111));
     assertEq(vaultsV1RegistryMetadata.submitter, address(this));
@@ -376,14 +397,20 @@ contract VaultsV1ControllerTest is Test {
     }
     assertEq(vaultsV1RegistryMetadata.swapAddress, address(0x2222));
     assertEq(vaultsV1RegistryMetadata.exchange, 1);
+
+    assertEq(vaultsV1Registry.typeVaults(1, 0), vault);
+    assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
+    assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
   }
 
   function test__updateRegistryVaultAddressNotRegisteredReverts() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
+
     address[8] memory newSwapTokenAddresses;
     for (uint256 i = 0; i < 8; i++) {
       newSwapTokenAddresses[i] = address(uint160(i * 2));
     }
+
     address notVault = address(0x7777);
     VaultMetadata memory newMetadata = VaultMetadata({
       vaultAddress: notVault,
@@ -396,17 +423,18 @@ contract VaultsV1ControllerTest is Test {
       swapAddress: address(0x8888),
       exchange: 2
     });
+
     assertTrue(vault != notVault);
+
     assertEq(vaultsV1Registry.getTotalVaults(), 1);
+
     vm.expectRevert("vault address not registered");
     vaultsV1Controller.updateRegistryVault(newMetadata);
+
     // check no changes
     VaultMetadata memory vaultsV1RegistryMetadata = vaultsV1Registry.getVault(vault);
     assertEq(vaultsV1RegistryMetadata.vaultAddress, vault);
     assertEq(vaultsV1RegistryMetadata.vaultType, 1);
-    assertEq(vaultsV1Registry.typeVaults(1, 0), vault);
-    assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
-    assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
     assertEq(vaultsV1RegistryMetadata.enabled, true);
     assertEq(vaultsV1RegistryMetadata.stakingAddress, address(0x1111));
     assertEq(vaultsV1RegistryMetadata.submitter, address(this));
@@ -416,14 +444,20 @@ contract VaultsV1ControllerTest is Test {
     }
     assertEq(vaultsV1RegistryMetadata.swapAddress, address(0x2222));
     assertEq(vaultsV1RegistryMetadata.exchange, 1);
+
+    assertEq(vaultsV1Registry.typeVaults(1, 0), vault);
+    assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
+    assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
   }
 
   function test__updateRegistryVault() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
+
     address[8] memory newSwapTokenAddresses;
     for (uint256 i = 0; i < 8; i++) {
       newSwapTokenAddresses[i] = address(uint160(i * 2));
     }
+
     VaultMetadata memory newMetadata = VaultMetadata({
       vaultAddress: vault,
       vaultType: 1,
@@ -435,13 +469,12 @@ contract VaultsV1ControllerTest is Test {
       swapAddress: address(0x8888),
       exchange: 2
     });
+
     vaultsV1Controller.updateRegistryVault(newMetadata);
+
     VaultMetadata memory vaultsV1RegistryMetadata = vaultsV1Registry.getVault(vault);
     assertEq(vaultsV1RegistryMetadata.vaultAddress, vault);
     assertEq(vaultsV1RegistryMetadata.vaultType, 1);
-    assertEq(vaultsV1Registry.typeVaults(1, 0), vault);
-    assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
-    assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
     assertEq(vaultsV1RegistryMetadata.enabled, false);
     assertEq(vaultsV1RegistryMetadata.stakingAddress, address(0x4444));
     assertEq(vaultsV1RegistryMetadata.submitter, address(this));
@@ -451,15 +484,21 @@ contract VaultsV1ControllerTest is Test {
     }
     assertEq(vaultsV1RegistryMetadata.swapAddress, address(0x8888));
     assertEq(vaultsV1RegistryMetadata.exchange, 2);
+
+    assertEq(vaultsV1Registry.typeVaults(1, 0), vault);
+    assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
+    assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
   }
 
   function test__updateRegistryVaultCannotChangeVaultTypeReverts() public acceptOwnerships {
     helper__addVaultTypesToRegistry(3);
+
     address vault = helper__deployThroughFactory(true);
     address[8] memory newSwapTokenAddresses;
     for (uint256 i = 0; i < 8; i++) {
       newSwapTokenAddresses[i] = address(uint160(i * 2));
     }
+
     VaultMetadata memory newMetadata = VaultMetadata({
       vaultAddress: vault,
       vaultType: 2, // attempt to change vault type
@@ -471,21 +510,28 @@ contract VaultsV1ControllerTest is Test {
       swapAddress: address(0x8888),
       exchange: 2
     });
+
     assertEq(vaultsV1Registry.getVault(vault).vaultType, 1);
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
     assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
+
     vm.expectRevert("no vaults of this type");
     vaultsV1Registry.getVaultsByType(2);
+
     vm.expectRevert("cannot change vault type");
     vaultsV1Controller.updateRegistryVault(newMetadata);
+
     // check no changes
     VaultMetadata memory vaultsV1RegistryMetadata = vaultsV1Registry.getVault(vault);
     assertEq(vaultsV1RegistryMetadata.vaultAddress, vault);
     assertEq(vaultsV1RegistryMetadata.vaultType, 1);
+
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
     assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
+
     vm.expectRevert("no vaults of this type");
     vaultsV1Registry.getVaultsByType(2);
+
     assertEq(vaultsV1RegistryMetadata.enabled, true);
     assertEq(vaultsV1RegistryMetadata.stakingAddress, address(0x1111));
     assertEq(vaultsV1RegistryMetadata.submitter, address(this));
@@ -499,10 +545,12 @@ contract VaultsV1ControllerTest is Test {
 
   function test__updateRegistryVaultCannotChangeSubmitterReverts() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
+
     address[8] memory newSwapTokenAddresses;
     for (uint256 i = 0; i < 8; i++) {
       newSwapTokenAddresses[i] = address(uint160(i * 2));
     }
+
     address notSubmitter = address(0x7777);
     VaultMetadata memory newMetadata = VaultMetadata({
       vaultAddress: address(vault),
@@ -515,8 +563,10 @@ contract VaultsV1ControllerTest is Test {
       swapAddress: address(0x8888),
       exchange: 2
     });
+
     vm.expectRevert("cannot change submitter");
     vaultsV1Controller.updateRegistryVault(newMetadata);
+
     // check no changes
     VaultMetadata memory vaultsV1RegistryMetadata = vaultsV1Registry.getVault(vault);
     assertEq(vaultsV1RegistryMetadata.vaultAddress, vault);
@@ -656,7 +706,7 @@ contract VaultsV1ControllerTest is Test {
     assertTrue(vaultsV1Registry.getVault(vault).enabled);
   }
 
-  function test__toggleEnableVault() public acceptOwnerships {
+  function test__toggleEnableVaultOnly() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
     assertTrue(vaultsV1Registry.getVault(vault).enabled);
     address[] memory vaultsToToggle = new address[](1);
@@ -842,36 +892,31 @@ contract VaultsV1ControllerTest is Test {
   /* Setting vault staking */
   function test__setVaultStakingNotOwnerReverts() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
-    assertEq(Vault(vault).staking(), vaultParams.staking);
-    assertEq(Vault(vault).staking(), address(0));
+    assertEq(Vault(vault).staking(), 0x566B72091192CCd7013AdF77E2a1b349564acC21);
     address newStaking = address(0x8888);
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsV1Controller.setVaultStaking(vault, newStaking);
     assertTrue(Vault(vault).staking() != newStaking);
-    assertEq(Vault(vault).staking(), address(0));
+    assertEq(Vault(vault).staking(), 0x566B72091192CCd7013AdF77E2a1b349564acC21);
   }
 
   function test__setVaultStaking() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
-    assertEq(Vault(vault).staking(), vaultParams.staking);
-    assertEq(Vault(vault).staking(), address(0));
+    assertEq(Vault(vault).staking(), 0x566B72091192CCd7013AdF77E2a1b349564acC21);
     address newStaking = address(0x8888);
     vaultsV1Controller.setVaultStaking(vault, newStaking);
     assertEq(Vault(vault).staking(), newStaking);
-    assertEq(Vault(vault).staking(), address(0x8888));
   }
 
   function test__setVaultStakingEvent() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true);
-    assertEq(Vault(vault).staking(), vaultParams.staking);
-    assertEq(Vault(vault).staking(), address(0));
+    assertEq(Vault(vault).staking(), 0x566B72091192CCd7013AdF77E2a1b349564acC21);
     address newStaking = address(0x8888);
     vm.expectEmit(false, false, false, true, vault);
-    emit StakingUpdated(address(0), newStaking);
+    emit StakingUpdated(0x566B72091192CCd7013AdF77E2a1b349564acC21, newStaking);
     vaultsV1Controller.setVaultStaking(vault, newStaking);
     assertEq(Vault(vault).staking(), newStaking);
-    assertEq(Vault(vault).staking(), address(0x8888));
   }
 
   /* Setting vault registry */

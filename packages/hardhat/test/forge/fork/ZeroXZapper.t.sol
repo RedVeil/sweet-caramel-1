@@ -623,8 +623,6 @@ contract ZeroXZapperTest is Test {
     uint256 ETHAmount = ICurveSETHPool(CURVE_SETH_POOL).calc_withdraw_one_coin(feeBal, 0);
     emit log_named_uint("ETH amount", ETHAmount);
 
-    uint256 daiBalanceBefore = IERC20(DAI).balanceOf(address(this));
-
     vm.prank(DAO);
     zapper.withdrawFees(
       CURVE_SETH_LP,

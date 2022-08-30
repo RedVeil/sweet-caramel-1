@@ -643,15 +643,9 @@ abstract contract BaseStrategy {
    *  time.
    * @return `true` if `tend()` should be called, `false` otherwise.
    */
-  function tendTrigger()
-    public
-    view
-    virtual
-    returns (
-      /* uint256 callCostInWei */
-      bool
-    )
-  {
+  function tendTrigger(
+    uint256 /*callCostInWei*/
+  ) public view virtual returns (bool) {
     // We usually don't need tend, but if there are positions that need
     // active maintainence, overriding this function is how you would
     // signal for that.

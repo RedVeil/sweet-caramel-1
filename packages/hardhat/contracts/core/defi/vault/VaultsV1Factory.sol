@@ -6,6 +6,8 @@ import "./Vault.sol";
 import { VaultMetadata } from "./VaultsV1Registry.sol";
 import "../../utils/Owned.sol";
 import "../../interfaces/IContractRegistry.sol";
+import "../../interfaces/IRewardsEscrow.sol";
+import "../../dao/Staking.sol";
 
 /**
  * @notice Factory that deploys V1 Vaults
@@ -24,10 +26,11 @@ struct VaultParams {
 contract VaultsV1Factory is Owned {
   /* ========== EVENTS ========== */
 
-  event VaultV1Deployment(address vaultAddress);
+  event VaultV1Deployment(address vault, address vaultStaking);
 
   /* ========== STATE VARIABLES ========== */
 
+  IERC20 internal constant pop = IERC20(0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4);
   bytes32 public constant contractName = keccak256("VaultsV1Factory");
 
   /* ========== CONSTRUCTOR ========== */
@@ -55,7 +58,7 @@ contract VaultsV1Factory is Owned {
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
     uint256 _exchange
-  ) external onlyOwner returns (VaultMetadata memory, address) {
+  ) external onlyOwner returns (VaultMetadata memory metadata, address[2] memory contractAddresses) {
     Vault vault = new Vault(
       _vaultParams.token,
       _vaultParams.yearnRegistry,
@@ -64,7 +67,8 @@ contract VaultsV1Factory is Owned {
       _vaultParams.feeStructure,
       _vaultParams.keeperConfig
     );
-    VaultMetadata memory metadata = VaultMetadata({
+
+    metadata = VaultMetadata({
       vaultAddress: address(vault),
       vaultType: 1,
       enabled: _enabled,
@@ -76,7 +80,14 @@ contract VaultsV1Factory is Owned {
       exchange: _exchange
     });
 
-    emit VaultV1Deployment(address(vault));
-    return (metadata, address(vault));
+    Staking staking = new Staking(
+      pop,
+      IERC20(address(vault)),
+      IRewardsEscrow(IContractRegistry(_vaultParams.contractRegistry).getContract(keccak256("RewardsEscrow")))
+    );
+
+    contractAddresses = [address(vault), address(staking)];
+
+    emit VaultV1Deployment(address(vault), address(staking));
   }
 }

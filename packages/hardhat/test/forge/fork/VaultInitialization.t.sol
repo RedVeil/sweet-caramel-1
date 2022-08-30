@@ -201,7 +201,7 @@ contract VaultTest is Test {
     // Eve "donates" these Yearn shares directly
     // to the vault wrapper.
     vm.startPrank(eve);
-    bool success = yearn.transfer(address(vault), yearn.balanceOf(eve));
+    yearn.transfer(address(vault), yearn.balanceOf(eve));
     vm.stopPrank();
 
     // Alice deposits to vault

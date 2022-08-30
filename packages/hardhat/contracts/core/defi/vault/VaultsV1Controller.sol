@@ -10,6 +10,7 @@ import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IVaultsV1Factory.sol";
 import "../../interfaces/IVaultsV1.sol";
+import "../../dao/Staking.sol";
 
 /**
  * @notice controls deploying, registering vaults, adding vault types, updating registry vaults, endorsing and enabling registry vaults, and pausing/unpausing vaults
@@ -55,7 +56,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     bool _endorse
   ) external onlyOwner returns (address) {
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
-    (VaultMetadata memory metadata, address vault) = _vaultsV1Factory().deployVaultV1(
+
+    (VaultMetadata memory metadata, address[2] memory contractAddresses) = _vaultsV1Factory().deployVaultV1(
       _vaultParams,
       _enabled,
       _stakingAddress,
@@ -65,13 +67,19 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
       _swapAddress,
       _exchange
     );
-    _handleKeeperSetup(vault, _vaultParams.keeperConfig, _vaultParams.token);
+
+    _handleKeeperSetup(contractAddresses[0], _vaultParams.keeperConfig, _vaultParams.token);
+
     vaultsV1Registry.registerVault(metadata);
+
+    Vault(contractAddresses[0]).setStaking(contractAddresses[1]);
+
     if (_endorse) {
-      vaultsV1Registry.toggleEndorseVault(vault);
+      vaultsV1Registry.toggleEndorseVault(contractAddresses[0]);
     }
-    emit VaultV1Deployed(vault, _endorse);
-    return vault;
+
+    emit VaultV1Deployed(contractAddresses[0], _endorse);
+    return contractAddresses[0];
   }
 
   /**
@@ -80,7 +88,6 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    * @param _keeperConfig - the keeperConfig struct from the VaultParams used in vault deployment
    * @dev avoids stack too deep in deployVaultFromV1Factory
    */
-
   function _handleKeeperSetup(
     address _vault,
     Vault.KeeperConfig memory _keeperConfig,
