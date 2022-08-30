@@ -553,7 +553,12 @@ export default function ThreeX(): JSX.Element {
             >
               <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
               <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 md:mt-4">
-                <SecondaryActionButton label="Connect Wallet" />
+                <div className="hidden md:block">
+                  <SecondaryActionButton label="Connect" />
+                </div>
+                <div className="md:hidden">
+                  <SecondaryActionButton label="Connect Wallet" />
+                </div>
               </div>
             </div>
           )}
