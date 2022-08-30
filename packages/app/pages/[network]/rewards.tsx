@@ -1,5 +1,5 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
-import { ChainId } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { CardLoader } from "components/CardLoader";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
@@ -10,7 +10,6 @@ import TabSelector from "components/TabSelector";
 import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, ethers } from "ethers";
-import { formatStakedAmount } from "helper/formatAmount";
 import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useClaimEscrows from "hooks/useClaimEscrows";
@@ -326,9 +325,9 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowsFetchResult ||
-                !userEscrowsFetchResult?.data ||
-                userEscrowsFetchResult?.error ||
-                userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                  !userEscrowsFetchResult?.data ||
+                  userEscrowsFetchResult?.error ||
+                  userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No records available" body="No vesting records available" />
                 ) : (
                   <>
@@ -336,7 +335,7 @@ export default function index(): JSX.Element {
                       <div className="flex flex-col h-full">
                         <div className="flex flex-row flex-wrap xl:flex-nowrap gap-y-8 gap-x-8 w-full mb-8">
                           <RewardSummaryCard
-                            content={`${formatStakedAmount(userEscrowsFetchResult?.data?.totalVestingPop)} POP`}
+                            content={`${formatAndRoundBigNumber(userEscrowsFetchResult?.data?.totalVestingPop, 18)} POP`}
                             title={"Total Vesting"}
                             iconUri="/images/lock.svg"
                             infoIconProps={{
@@ -348,7 +347,7 @@ export default function index(): JSX.Element {
                             }}
                           />
                           <RewardSummaryCard
-                            content={`${formatStakedAmount(userEscrowsFetchResult?.data?.totalClaimablePop)} POP`}
+                            content={`${formatAndRoundBigNumber(userEscrowsFetchResult?.data?.totalClaimablePop, 18)} POP`}
                             title={"Total Claimable"}
                             iconUri="/images/yellowCircle.svg"
                             button={true}

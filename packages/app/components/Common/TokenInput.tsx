@@ -1,3 +1,4 @@
+import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
 import TokenSelection from "components/SweetVaults/TokenSelection";
 import { BigNumber, constants } from "ethers";
@@ -62,24 +63,20 @@ export const TokenInput: React.FC<TokenInputProps> = ({
                 className="flex justify-between items-center text-sm font-medium text-gray-700 text-center"
               >
                 <p className="text-base font-semibold text-gray-900">{label}</p>
-                <div className="flex flex-row items-center">
-                  <p className="text-gray-500 font-medium text-sm">
-                    {Number(formatUnits(balance, token?.decimals)).toLocaleString()} {token?.symbol}
-                  </p>
-                </div>
+                <p className="text-gray-500 font-medium text-sm">
+                  {formatAndRoundBigNumber(balance, token?.decimals)} {token?.symbol}
+                </p>
               </label>
             )}
             <div className="mt-1 relative flex items-center">
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className={`block w-full pl-5 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
-                  selectToken ? "pr-40 md:pr-52" : "pr-32 md:pr-36"
-                } ${
-                  balance && amount?.gt(balance)
+                className={`block w-full pl-5 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${selectToken ? "pr-40 md:pr-52" : "pr-32 md:pr-36"
+                  } ${balance && amount?.gt(balance)
                     ? "focus:ring-red-600 focus:border-red-600"
                     : "focus:ring-blue-500 focus:border-blue-500"
-                }`}
+                  }`}
                 onChange={(e) => {
                   onUpdate(e.target.value.replace(/,/g, "."));
                 }}

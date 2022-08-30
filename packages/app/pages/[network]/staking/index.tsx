@@ -137,12 +137,12 @@ export default function index(): JSX.Element {
                       onSelectPool={onSelectPool}
                       badge={
                         features["migrationAlert"] &&
-                        stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
+                          stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
                           ? {
-                              text: "Migration Required",
-                              textColor: "text-white",
-                              bgColor: "bg-red-500",
-                            }
+                            text: "Migration Required",
+                            textColor: "text-white",
+                            bgColor: "bg-red-500",
+                          }
                           : undefined
                       }
                     />

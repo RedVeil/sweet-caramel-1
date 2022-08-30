@@ -2,7 +2,6 @@ import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Address, StakingPool, Token } from "@popcorn/utils/src/types";
 import { constants } from "ethers";
 import { getSanitizedTokenDisplayName } from "helper/displayHelper";
-import { formatStakedTVL } from "helper/formatAmount";
 import useTokenPrice from "hooks/useTokenPrice";
 import Badge, { Badge as BadgeType } from "./Common/Badge";
 import StatusWithLabel from "./Common/StatusWithLabel";
@@ -41,7 +40,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel
             content={
-              stakingPool.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool.apy, 2) + "%"
+              stakingPool.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool.apy, stakedToken.decimals) + "%"
             }
             label={
               <>
@@ -58,13 +57,13 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         </div>
         <div className="w-1/2 md:w-1/4 mt-4">
           <StatusWithLabel
-            content={tokenPrice ? formatStakedTVL(stakingPool.totalStake, tokenPrice) : "..."}
+            content={tokenPrice ? `$ ${formatAndRoundBigNumber(stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther), stakedToken?.decimals)}` : "..."}
             label="TVL"
           />
         </div>
         <div className="w-full md:w-1/2 mt-4">
           <StatusWithLabel
-            content={`${formatAndRoundBigNumber(stakingPool.tokenEmission, 3)} POP / day`}
+            content={`${formatAndRoundBigNumber(stakingPool.tokenEmission, stakedToken.decimals)} POP / day`}
             label="TOKEN EMISSIONS"
           />
         </div>

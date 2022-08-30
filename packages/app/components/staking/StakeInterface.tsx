@@ -6,7 +6,6 @@ import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber, constants } from "ethers";
-import { formatStakedAmount, formatStakedTVL } from "helper/formatAmount";
 import Link from "next/link";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
@@ -72,7 +71,7 @@ export default function StakeInterface({
                   content={
                     stakingPool?.apy.lt(constants.Zero)
                       ? "New 🍿✨"
-                      : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
+                      : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
                   }
                   label={
                     <>
@@ -90,7 +89,7 @@ export default function StakeInterface({
               <div className="md:hidden">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
+                    stakingPool && stakedTokenPrice ? `$ ${formatAndRoundBigNumber(stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther), 18)}` : "..."
                   }
                   label="TVL"
                 />
@@ -100,14 +99,14 @@ export default function StakeInterface({
               <div className="hidden md:block">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
+                    stakingPool && stakedTokenPrice ? `$ ${formatAndRoundBigNumber(stakingPool?.totalStake?.mul(stakedTokenPrice).div(constants.WeiPerEther), 18)}` : "..."
                   }
                   label="TVL"
                 />
               </div>
               <div className="md:hidden">
                 <StatusWithLabel
-                  content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
+                  content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"} POP / day`}
                   label="EMISSION RATE"
                 />
               </div>
@@ -115,7 +114,7 @@ export default function StakeInterface({
             <div className="mt-2 xs:pl-6 text-center md:text-left">
               <div className="hidden md:block ">
                 <StatusWithLabel
-                  content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
+                  content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"} POP / day`}
                   label="EMISSION RATE"
                 />
               </div>
@@ -124,7 +123,7 @@ export default function StakeInterface({
                   content={
                     stakingPool?.apy.lt(constants.Zero)
                       ? "New 🍿✨"
-                      : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
+                      : formatAndRoundBigNumber(stakingPool?.apy, stakingToken.decimals) + "%"
                   }
                   label={
                     <>
@@ -193,7 +192,7 @@ export default function StakeInterface({
                   </div>
                   <div className="flex flex-row items-center mt-1">
                     <p className="text-2xl font-medium  mr-2">
-                      {stakingPool.userStake ? formatStakedAmount(stakingPool.userStake) : "0"}
+                      {stakingPool.userStake ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals) : "0"}
                     </p>
                     <p className="text-2xl font-medium ">{stakingToken?.symbol}</p>
                   </div>
@@ -203,22 +202,22 @@ export default function StakeInterface({
                   chainId,
                   getChainRelevantContracts(chainId),
                 ) && (
-                  <Link
-                    href={getTokenOnNetwork(
-                      stakingPool.tokenAddress?.toLowerCase(),
-                      chainId,
-                      getChainRelevantContracts(chainId),
-                    )}
-                    passHref
-                  >
-                    <a
-                      target="_blank"
-                      className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
+                    <Link
+                      href={getTokenOnNetwork(
+                        stakingPool.tokenAddress?.toLowerCase(),
+                        chainId,
+                        getChainRelevantContracts(chainId),
+                      )}
+                      passHref
                     >
-                      Get Token
-                    </a>
-                  </Link>
-                )}
+                      <a
+                        target="_blank"
+                        className="text-lg text-blue-600 font-medium bg-white px-4 py-2 md:px-6 md:py-3 whitespace-nowrap border border-gray-200 rounded-full hover:text-white hover:bg-blue-500"
+                      >
+                        Get Token
+                      </a>
+                    </Link>
+                  )}
               </div>
             </div>
             <div className="bg-blue-50 rounded-b-3xl py-6 px-8">
@@ -235,7 +234,7 @@ export default function StakeInterface({
                   </div>
                   <div className="flex flex-row items-center mt-1">
                     <p className="text-2xl font-medium  mr-2">
-                      {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned) : "0"}
+                      {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}
                     </p>
                     <p className="text-2xl font-medium ">POP</p>
                   </div>

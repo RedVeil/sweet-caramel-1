@@ -35,6 +35,7 @@ export default function PopStakingPage(): JSX.Element {
   const approveToken = useApproveERC20();
   const tokenPrice = useTokenPrice(stakingToken?.address);
 
+
   useEffect(() => {
     if (router?.query?.action === "withdraw") {
       setForm({ ...form, type: InteractionType.Withdraw });
@@ -79,7 +80,7 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Withdrawing POP ...");
     stakingPool?.contract
       .connect(signer)
-      ["processExpiredLocks(bool)"](false)
+    ["processExpiredLocks(bool)"](false)
       .then((res) =>
         onContractSuccess(res, "POP withdrawn!", () => {
           balances.revalidate();
@@ -93,7 +94,7 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Restaking POP ...");
     stakingPool.contract
       .connect(signer)
-      ["processExpiredLocks(bool)"](true)
+    ["processExpiredLocks(bool)"](true)
       .then((res) => {
         onContractSuccess(res, "POP Restaked!", () => {
           balances.revalidate();

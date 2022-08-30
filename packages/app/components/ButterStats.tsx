@@ -1,4 +1,4 @@
-import { bigNumberToNumber, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
+import { formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import { constants } from "ethers";
@@ -30,13 +30,10 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
   const supply = isReady && butterData.totalSupply;
   const setToken = isThreeX ? butterData?.tokens?.threeX : butterData?.tokens?.butter;
 
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
-    butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-  }%) and is boosted with POP (${
-    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, 2) : "-"
-  }%). You must stake your ${
-    isThreeX ? "3X" : "BTR"
-  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
+    }%) and is boosted with POP (${butterStaking ? formatAndRoundBigNumber(butterStaking.apy, butterData?.tokens?.butter?.decimals) : "-"
+    }%). You must stake your ${isThreeX ? "3X" : "BTR"
+    } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
     <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
@@ -45,7 +42,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
           <StatusWithLabel
             content={
               butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                ? butterAPY + formatAndRoundBigNumber(butterStaking.apy, butterData.tokens.butter.decimals) + "%"
                 : "New 🍿✨"
             }
             label={
@@ -64,7 +61,12 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
         <div className="md:hidden">
           <StatusWithLabel
             content={
-              setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
+              setToken && supply
+                ? `$${formatAndRoundBigNumber(
+                  supply.mul(setToken.price).div(parseEther("1")),
+                  butterData.tokens.butter.decimals,
+                )}`
+                : "$-"
             }
             label="Total Deposits"
           />
@@ -74,7 +76,12 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
         <div className="hidden md:block ">
           <StatusWithLabel
             content={
-              setToken && supply ? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}` : "$-"
+              setToken && supply
+                ? `$${formatAndRoundBigNumber(
+                  supply.mul(setToken.price).div(parseEther("1")),
+                  butterData.tokens.butter.decimals,
+                )}`
+                : "$-"
             }
             label="Total Deposits"
           />
@@ -99,7 +106,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
           <StatusWithLabel
             content={
               butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                ? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) + "%"
+                ? butterAPY + formatAndRoundBigNumber(butterStaking.apy, butterData.tokens.butter.decimals) + "%"
                 : "New 🍿✨"
             }
             label={

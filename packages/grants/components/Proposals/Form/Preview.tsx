@@ -1,5 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+
 import { formatAndRoundBigNumber, getBytes32FromIpfsHash, IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import BeneficiaryPage from "components/Beneficiaries/BeneficiaryPage";
@@ -63,6 +64,7 @@ const Preview: React.FC<FormStepProps> = ({ form, navigation, visible }) => {
         setSingleActionModal({
           content: `In order to create a proposal you need to post a Bond of ${formatAndRoundBigNumber(
             proposalBond,
+            18
           )} POP`,
           title: "You need more POP",
           visible: true,

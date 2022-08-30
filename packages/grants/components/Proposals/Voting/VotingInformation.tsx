@@ -1,4 +1,5 @@
 import { Proposal, ProposalStatus } from "@popcorn/hardhat/lib/adapters";
+
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 
 interface VotingRowProps {
@@ -22,9 +23,9 @@ const VotingInformation: React.FC<Proposal> = (proposal): JSX.Element => {
     <div className="my-4 mx-6">
       <VotingRow name={"Status"} value={ProposalStatus[proposal.status]} />
       <VotingRow name={"Voting Deadline"} value={proposal.stageDeadline.toLocaleString()} />
-      <VotingRow name={"Votes For"} value={formatAndRoundBigNumber(proposal.votes.for)} />
-      <VotingRow name={"Votes Against"} value={formatAndRoundBigNumber(proposal.votes.against)} />
-      <VotingRow name={"Total Votes"} value={formatAndRoundBigNumber(proposal.votes.for.add(proposal.votes.against))} />
+      <VotingRow name={"Votes For"} value={formatAndRoundBigNumber(proposal.votes.for, 18)} />
+      <VotingRow name={"Votes Against"} value={formatAndRoundBigNumber(proposal.votes.against, 18)} />
+      <VotingRow name={"Total Votes"} value={formatAndRoundBigNumber(proposal.votes.for.add(proposal.votes.against), 18)} />
     </div>
   );
 };

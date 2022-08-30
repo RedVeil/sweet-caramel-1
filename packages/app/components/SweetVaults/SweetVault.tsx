@@ -72,11 +72,10 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   } else {
     return (
       <div
-        className={`${
-          expanded
-            ? "bg-white rounded-3xl border border-gray-200 shadow-custom cursor-pointer h-200 smlaptop:h-138"
-            : "card h-104 md:h-60 delay-200"
-        } z-10 bg-gray-50 p-6 md:p-8 transition-all duration-700 ease-in-out`}
+        className={`${expanded
+          ? "bg-white rounded-3xl border border-gray-200 shadow-custom cursor-pointer h-200 smlaptop:h-138"
+          : "card h-104 md:h-60 delay-200"
+          } z-10 bg-gray-50 p-6 md:p-8 transition-all duration-700 ease-in-out`}
         onClick={() => {
           setExpanded(!expanded);
         }}
@@ -92,19 +91,19 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
             <div className="flex flex-row flex-wrap items-center md:items-start mt-6 justify-between relative z-30 bg-gray-50">
               <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
                 <StatusWithLabel
-                  content={formatAndRoundBigNumber(underlyingToken?.balance)}
+                  content={formatAndRoundBigNumber(underlyingToken?.balance, underlyingToken?.decimals)}
                   label="Your Wallet"
                   green
                 />
               </div>
               <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
-                <StatusWithLabel content={formatAndRoundBigNumber(deposited)} label="Your Deposit" />
+                <StatusWithLabel content={formatAndRoundBigNumber(deposited, sweetVault?.metadata?.decimals)} label="Your Deposit" />
               </div>
               <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
                 <StatusWithLabel content={apy?.toLocaleString() + "%"} label="Est apy." />
               </div>
               <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
-                <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl)} label="tvl" />
+                <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="tvl" />
               </div>
             </div>
           </div>

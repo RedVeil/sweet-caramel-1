@@ -1,5 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { ArrowRightIcon } from "@heroicons/react/outline";
+
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import MainActionButton from "components/MainActionButton";
@@ -41,7 +42,7 @@ export default function Register(): JSX.Element {
   function calculateRewardAmount(index: number): string {
     return rewardSplits === undefined || popBalance === undefined
       ? "0"
-      : formatAndRoundBigNumber(rewardSplits[index].mul(popBalance).div(parseEther("100")));
+      : formatAndRoundBigNumber(rewardSplits[index].mul(popBalance).div(parseEther("100")), 18);
   }
 
   async function swapToken(): Promise<void> {
@@ -102,13 +103,13 @@ export default function Register(): JSX.Element {
                     <p className="text-lg font-semibold text-gray-800">3CRV</p>
                   </div>
                   <p className="text-2xl font-bold text-right text-gray-900">
-                    {feeBalance === undefined ? 0 : formatAndRoundBigNumber(feeBalance)}
+                    {feeBalance === undefined ? 0 : formatAndRoundBigNumber(feeBalance, 18)}
                   </p>
                 </div>
                 <ArrowRightIcon className="h-8 mx-auto" />
                 <div className="flex flex-row items-center">
                   <p className="text-2xl font-bold text-right text-gray-900">
-                    {swapOutput === undefined ? 0 : formatAndRoundBigNumber(swapOutput)}
+                    {swapOutput === undefined ? 0 : formatAndRoundBigNumber(swapOutput, 18)}
                   </p>
                   <img src="/images/popcorn_v1_rainbow_bg.png" alt="Logo" className="w-6 h-6 ml-4 mr-2"></img>
                   <p className="text-lg font-semibold text-gray-800">POP</p>
@@ -122,7 +123,7 @@ export default function Register(): JSX.Element {
                   <MainActionButton
                     label={"Swap Fees"}
                     handleClick={swapToken}
-                    disabled={wait || swapOutput === undefined || formatAndRoundBigNumber(swapOutput) === "0"}
+                    disabled={wait || swapOutput === undefined || formatAndRoundBigNumber(swapOutput, 18) === "0"}
                   />
                 )}
               </div>
@@ -140,7 +141,7 @@ export default function Register(): JSX.Element {
                 <div className="w-5/12 flex flex-col justify-center">
                   <p className="text-2xl font-bold mb-2 text-gray-900">Rewards</p>
                   <span className="flex flex-row items-center">
-                    <p className="text-2xl">{popBalance === undefined ? 0 : formatAndRoundBigNumber(popBalance)}</p>
+                    <p className="text-2xl">{popBalance === undefined ? 0 : formatAndRoundBigNumber(popBalance, 18)}</p>
                     <img src="/images/popcorn_v1_rainbow_bg.png" alt="Logo" className="w-6 h-6 ml-2"></img>
                   </span>
                 </div>
@@ -162,7 +163,7 @@ export default function Register(): JSX.Element {
                   <MainActionButton
                     label={"Distribute Fees"}
                     handleClick={distributeRewards}
-                    disabled={wait || popBalance === undefined || formatAndRoundBigNumber(popBalance) === "0"}
+                    disabled={wait || popBalance === undefined || formatAndRoundBigNumber(popBalance, 18) === "0"}
                   />
                 )}
               </div>
