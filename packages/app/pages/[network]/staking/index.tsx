@@ -94,11 +94,9 @@ export default function index(): JSX.Element {
   return (
     <>
       <div className="grid grid-cols-12">
-        <div className="col-span-12 md:col-span-4 flex h-full items-center">
-          <div>
-            <h1 className=" text-5xl md:text-6xl leading-12">Staking</h1>
-            <p className="text-black mt-2">Earn more by staking your tokens</p>
-          </div>
+        <div className="col-span-12 md:col-span-4">
+          <h1 className=" text-5xl md:text-6xl leading-12">Staking</h1>
+          <p className="text-black mt-2">Earn more by staking your tokens</p>
         </div>
         <div className="col-span-12 md:col-span-6 md:col-end-13 mt-12 md:mt-0">
           <div className="rounded-lg p-6 md:px-8 md:py-9 bg-customYellow h-full flex flex-row md:flex-col justify-between">
