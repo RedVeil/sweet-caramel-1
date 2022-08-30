@@ -11,17 +11,17 @@ import useButterBatchAdapter from "./useButterBatchAdapter";
 import useButterBatchZapper from "./useButterBatchZapper";
 import useSetToken from "./useSetToken";
 
-export default function useButterBatchData(): SWRResponse<BatchMetadata, Error> {
+export default function useButterBatchData(rpcProvider?): SWRResponse<BatchMetadata, Error> {
   const { contractAddresses, account, chainId } = useWeb3();
-  const dai = useERC20(contractAddresses.dai);
-  const usdc = useERC20(contractAddresses.usdc);
-  const usdt = useERC20(contractAddresses.usdt);
-  const threeCrv = useERC20(contractAddresses.threeCrv);
-  const butter = useSetToken(contractAddresses.butter);
-  const butterBatch = useButterBatch();
-  const butterBatchZapper = useButterBatchZapper();
-  const setBasicIssuanceModule = useBasicIssuanceModule();
-  const threePool = useThreePool();
+  const dai = useERC20(contractAddresses.dai, rpcProvider);
+  const usdc = useERC20(contractAddresses.usdc, rpcProvider);
+  const usdt = useERC20(contractAddresses.usdt, rpcProvider);
+  const threeCrv = useERC20(contractAddresses.threeCrv, rpcProvider);
+  const butter = useSetToken(contractAddresses.butter, rpcProvider);
+  const butterBatch = useButterBatch(rpcProvider);
+  const butterBatchZapper = useButterBatchZapper(rpcProvider);
+  const setBasicIssuanceModule = useBasicIssuanceModule(rpcProvider);
+  const threePool = useThreePool(rpcProvider);
 
   const butterBatchAdapter = useButterBatchAdapter(butterBatch);
   const shouldFetch = !!(
@@ -31,7 +31,6 @@ export default function useButterBatchData(): SWRResponse<BatchMetadata, Error> 
     contractAddresses.usdt &&
     contractAddresses.usdc &&
     contractAddresses.dai &&
-    isButterSupportedOnCurrentNetwork(chainId) &&
     dai &&
     usdc &&
     usdt &&

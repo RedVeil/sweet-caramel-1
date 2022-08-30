@@ -3,12 +3,12 @@ import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
-export default function useSetToken(tokenAddress: string): ISetToken {
+export default function useSetToken(tokenAddress: string, rpcProvider?): ISetToken {
   const { signerOrProvider, chainId } = useWeb3();
 
   return useMemo(() => {
     if (tokenAddress && isButterSupportedOnCurrentNetwork(chainId)) {
-      return ISetToken__factory.connect(tokenAddress, signerOrProvider);
+      return ISetToken__factory.connect(tokenAddress, rpcProvider ? rpcProvider : signerOrProvider);
     }
   }, [signerOrProvider, tokenAddress]);
 }

@@ -6,8 +6,8 @@ import MainActionButton from "components/MainActionButton";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import useThreeXWhale from "hooks/butter/useThreeXWhale";
-import useThreeXWhaleData from "hooks/butter/useThreeXWhaleData";
+import useThreeXWhale from "hooks/set/useThreeXWhale";
+import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
@@ -77,21 +77,21 @@ export default function Instant3x() {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: threeXWhaleData?.tokens?.usdc?.key,
-              output: threeXWhaleData?.tokens?.threeX?.key,
-            },
-            tokens: threeXWhaleData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-            instant: true,
-          }
-        : {
-            ...state,
-            tokens: threeXWhaleData?.tokens,
+          ...state,
+          selectedToken: {
+            input: threeXWhaleData?.tokens?.usdc?.key,
+            output: threeXWhaleData?.tokens?.threeX?.key,
           },
+          tokens: threeXWhaleData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+          instant: true,
+        }
+        : {
+          ...state,
+          tokens: threeXWhaleData?.tokens,
+        },
     );
   }, [threeXWhaleData]);
 
