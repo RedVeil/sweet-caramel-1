@@ -31,8 +31,6 @@ const Products = () => {
     notation: "compact",
   });
 
-  console.log()
-
   return (
     <section className="mt-10">
       <h6 className="font-medium leading-8 mb-4">Our Products</h6>

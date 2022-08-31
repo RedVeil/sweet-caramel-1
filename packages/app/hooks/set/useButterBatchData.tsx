@@ -1,4 +1,5 @@
 import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
+import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/src/types";
 import useERC20 from "hooks/tokens/useERC20";
 import useThreePool from "hooks/useThreePool";
@@ -38,7 +39,8 @@ export default function useButterBatchData(rpcProvider?): SWRResponse<BatchMetad
     butter &&
     butterBatch &&
     butterBatchZapper &&
-    setBasicIssuanceModule
+    setBasicIssuanceModule &&
+    (rpcProvider || isButterSupportedOnCurrentNetwork(chainId))
   );
 
   return useSWR(shouldFetch ? `butter-batch-data` : null, async () => {

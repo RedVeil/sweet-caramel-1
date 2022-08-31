@@ -33,11 +33,12 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
     (isThreeX
       ? [localButterPageState.tokens.usdc, localButterPageState.tokens.dai, localButterPageState.tokens.usdt]
       : [
-          localButterPageState.tokens.threeCrv,
-          localButterPageState.tokens.dai,
-          localButterPageState.tokens.usdc,
-          localButterPageState.tokens.usdt,
-        ]);
+        localButterPageState.tokens.threeCrv,
+        localButterPageState.tokens.dai,
+        localButterPageState.tokens.usdc,
+        localButterPageState.tokens.usdt,
+      ]);
+
   function setSlippage(slippage: number): void {
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }

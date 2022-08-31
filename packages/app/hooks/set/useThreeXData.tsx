@@ -35,7 +35,8 @@ export default function useThreeXData(rpcProvider?): SWRResponse<BatchMetadata, 
     threeX &&
     threeXBatch &&
     threeXZapper &&
-    setBasicIssuanceModule
+    setBasicIssuanceModule &&
+    (rpcProvider || isButterSupportedOnCurrentNetwork(chainId))
   );
 
   return useSWR(shouldFetch ? [`threeX-batch-data`, chainId] : null, async () => {

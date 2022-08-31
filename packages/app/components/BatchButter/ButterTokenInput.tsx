@@ -84,7 +84,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
     setEstimatedAmount(
       formatAndRoundBigNumber(
         value.mul(selectedToken.input.price).div(selectedToken.output.price),
-        localButterPageState.tokens.butter.decimals,
+        18,
       ),
     )
   }
@@ -118,8 +118,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                   ? selectedToken.input.claimableBalance
                   : selectedToken.input.balance,
               )
-                  ? " border-customRed"
-                  : "border-customLightGray "
+                ? " border-customRed"
+                : "border-customLightGray "
                 }`}
             >
               <input
@@ -218,7 +218,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           <div className="mt-1 flex items-center px-5 py-4 border border-customLightGray rounded-md relative">
             <input
               className={`block w-full p-0 border-0 text-primaryDark text-lg outline-none focus:bg-transparent focus:ring-0`}
-              value={Number(estimatedAmount)}
+              value={estimatedAmount}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"

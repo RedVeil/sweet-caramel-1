@@ -115,6 +115,7 @@ export default function Butter(): JSX.Element {
     contractAddresses.yAlusd,
   ];
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
+
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
       return;
