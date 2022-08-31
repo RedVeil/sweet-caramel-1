@@ -47,12 +47,6 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
           </p>
         </div>
       </div>
-      {/* <div className="h-3 bg-blue-200 rounded-b-2xl mask overflow-hidden">
-				<div
-					className={`h-3 bg-blue-800 rounded-bl-2xl ${batchAmount === threshold ? "rounded-br-2xl" : "rounded-r-2xl"}`}
-					style={{ width: `${formatAndRoundBigNumber(batchAmount.mul(parseEther("100")).div(threshold), 0)}%` }}
-				></div>
-			</div> */}
     </div>
   );
 };

@@ -70,53 +70,6 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
           <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
         )}
       </>
-
-      {/* <div className={`flex flex-col md:flex-row flex-wrap items-start md:items-center mt-4`}>
-				<div className={` pr-6 md:pr-6 mt-6 md:mt-2`}>
-					<div className="block">
-						<StatusWithLabel
-							content={
-								butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-									? (butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(undefined, localStringOptions) +
-									"%"
-									: "New 🍿✨"
-							}
-							label={
-								<>
-									<span className="lowercase">v</span>APR
-								</>
-							}
-							infoIconProps={{
-								id: "vAPR",
-								title: "How we calculate the vAPR",
-								content: apyInfoText,
-							}}
-						/>
-					</div>
-				</div>
-				<div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
-				<div className="md:pl-6 md:px-6 mt-6 md:mt-2">
-					<div className="block ">
-						<StatusWithLabel
-							content={
-								setToken && supply
-									? `$${formatAndRoundBigNumber(supply.mul(setToken.price).div(parseEther("1")))}`
-									: "$-"
-							}
-							label="Total Deposits"
-						/>
-					</div>
-				</div>
-			</div>
-			<div className="w-full md:w-auto mt-6 md:mt-8">
-				<div className="block ">
-					{isThreeX ? (
-						<StatusWithLabel content={"$1m"} label="TVL Limit" />
-					) : (
-						<StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
-					)}
-				</div>
-			</div> */}
     </div>
   );
 }
