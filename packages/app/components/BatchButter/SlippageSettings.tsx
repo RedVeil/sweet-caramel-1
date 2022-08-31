@@ -1,9 +1,9 @@
 import { InfoIconWithModal } from "components/InfoIconWithModal";
-import { Dispatch, useContext, useState } from "react";
-import PseudoRadioButton from "./PseudoRadioButton";
-import { escapeRegExp, inputRegex } from "helper/inputRegex";
 import { setSingleActionModal } from "context/actions";
 import { store } from "context/store";
+import { escapeRegExp, inputRegex } from "helper/inputRegex";
+import { Dispatch, useContext, useState } from "react";
+import PseudoRadioButton from "./PseudoRadioButton";
 
 interface SlippageSettingsProps {
   slippage: number;
@@ -30,6 +30,7 @@ const SlippageModalContent: React.FC<SlippageSettingsProps> = ({ slippage, setSl
             <InfoIconWithModal
               title="Slippage Tolerance"
               content="Your transaction will revert if the price changes unfavorably by more than this percentage"
+              size="w-5 h-5"
             />
           </div>
         </div>
@@ -87,15 +88,20 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
 
   return (
     <>
-      <div className="flex flex-row items-center group cursor-pointer mt-2" onClick={() => dispatch(
-        setSingleActionModal({
-          title: "Slippage",
-          children: (
-            <SlippageModalContent slippage={slippage} setSlippage={setSlippage} slippageOptions={slippageOptions} />
-          ),
-          onDismiss: { label: "Done", onClick: () => dispatch(setSingleActionModal(false)) },
-        }),
-      )}>
+      <div
+        className="flex flex-row items-center group cursor-pointer mt-2"
+        onClick={() =>
+          dispatch(
+            setSingleActionModal({
+              title: "Slippage",
+              children: (
+                <SlippageModalContent slippage={slippage} setSlippage={setSlippage} slippageOptions={slippageOptions} />
+              ),
+              onDismiss: { label: "Done", onClick: () => dispatch(setSingleActionModal(false)) },
+            }),
+          )
+        }
+      >
         <img className="w-4 h-4" src="/images/icons/slippage.png" />
         <p className={`text-base leading-7 mt-0.5 ml-2 text-primaryDark`}>{`Adjust slippage (${slippage}%)`}</p>
       </div>

@@ -14,7 +14,7 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
   title,
   content,
   children,
-  size = "h-7 w-7",
+  size = "h-5 w-5",
   image,
 }) => {
   const { dispatch } = useContext(store);
@@ -38,7 +38,7 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
           }),
         );
       }}
-      className={`ml-1 inline-flex items-center p-1 -mb-0.5 border border-transparent rounded-full shadow-sm text-gray-500 hover:bg-blue-200 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${size}`}
+      className={`ml-1 cursor-pointer ${size}`}
     />
   );
 };

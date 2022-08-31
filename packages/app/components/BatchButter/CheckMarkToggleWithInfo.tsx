@@ -19,19 +19,25 @@ export function CheckMarkToggleWithInfo({
   image?: React.ReactElement;
 }) {
   return (
-    <div className="flex flex-row items-center mt-2">
+    <div className="flex flex-row items-center mt-3">
       <label className={`flex flex-row items-center  group ${disabled ? "cursor-default" : "cursor-pointer"}`}>
-        <input type="checkbox" className="mr-2 rounded-sm" checked={value} onChange={onChange} disabled={disabled} />
+        <input
+          type="checkbox"
+          className="mr-2 rounded-sm border-customLightGray focus:ring-primary checked:text-primary checked:bg-primary checked:border-primary focus:outline-none"
+          checked={value}
+          onChange={onChange}
+          disabled={disabled}
+        />
         <p
-          className={`text-base mt-0.5 leading-none ${
-            disabled ? "text-gray-400" : "text-gray-600 group-hover:text-blue-700"
+          className={`text-base leading-6 ${
+            disabled ? "text-customLightGray" : "text-primaryDark group-hover:text-text-primaryDark"
           }`}
         >
           {label}
         </p>
       </label>
-      <div className="mb-1">
-        <InfoIconWithModal title={infoTitle} image={image}>
+      <div>
+        <InfoIconWithModal title={infoTitle} image={image} size="w-5 h-5">
           <p>{infoText}</p>
         </InfoIconWithModal>
       </div>
