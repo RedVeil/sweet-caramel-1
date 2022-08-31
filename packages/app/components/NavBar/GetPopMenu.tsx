@@ -41,7 +41,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
           <Menu.Item>
             {({ active }) => (
               <div
-                className={`${active ? "bg-gray-100" : "bg-white"} ${
+                className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${
                   popPoolExists ? "rounded-b-3xl" : "rounded-3xl"
                 } group px-2 pt-4 w-full h-14 cursor-pointer`}
                 onClick={async () =>
