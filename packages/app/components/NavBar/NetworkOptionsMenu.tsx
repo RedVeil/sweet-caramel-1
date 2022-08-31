@@ -13,19 +13,19 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
   const { showLocalNetwork } = useContext(FeatureToggleContext).features;
   return (
     <Transition
+      appear={true}
       as={Fragment}
       enter="transition ease-out duration-100"
-      enterFrom="transform opacity-0 scale-95"
-      enterTo="transform opacity-100 scale-100"
+      enterFrom="hidden transform opacity-0 scale-95"
+      enterTo="block transform opacity-100 scale-100"
       leave="transition ease-in duration-75"
-      leaveFrom="transform opacity-100 scale-100"
-      leaveTo="transform opacity-0 scale-95"
+      leaveFrom="block transform opacity-100 scale-100"
+      leaveTo="hidden transform opacity-0 scale-95"
     >
       <Menu.Items className="md:absolute w-full mt-2 md:top-14 md:w-48 md:-left-2 bg-white rounded-3xl shadow-md border-gray-200 border-solid border focus:outline-none">
         <p className="text-center align-middle text-lg leading-none h-16 rounded-t-3xl border-b border-solid border-gray-200 pt-6 pb-3 text-primary">
           Select a Network{" "}
         </p>
-
         <NetworkOptionsMenuItem
           chainId={ChainId.Ethereum}
           switchNetwork={(chainId) => switchNetwork(chainId)}
