@@ -41,9 +41,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
-      localButterPageState.depositAmount,
-      localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
-    );
+        localButterPageState.depositAmount,
+        localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
+      );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -82,11 +82,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   function calcOutputAmountsFromInput(value: BigNumber): void {
     setEstimatedAmount(
-      formatAndRoundBigNumber(
-        value.mul(selectedToken.input.price).div(selectedToken.output.price),
-        localButterPageState.tokens.butter.decimals,
-      ),
-    )
+      formatAndRoundBigNumber(value.mul(selectedToken.input.price).div(selectedToken.output.price), 18),
+    );
   }
 
   const useUnclaimedDepositsisDisabled = (): boolean => {
@@ -113,14 +110,15 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         <div>
           <div className="mt-1 relative flex items-center gap-2">
             <div
-              className={`w-full flex px-5 py-4 items-center rounded-lg border ${localButterPageState.depositAmount.gt(
-                localButterPageState.useUnclaimedDeposits
-                  ? selectedToken.input.claimableBalance
-                  : selectedToken.input.balance,
-              )
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${
+                localButterPageState.depositAmount.gt(
+                  localButterPageState.useUnclaimedDeposits
+                    ? selectedToken.input.claimableBalance
+                    : selectedToken.input.balance,
+                )
                   ? " border-customRed"
                   : "border-customLightGray "
-                }`}
+              }`}
             >
               <input
                 name="tokenInput"
@@ -218,7 +216,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           <div className="mt-1 flex items-center px-5 py-4 border border-customLightGray rounded-md relative">
             <input
               className={`block w-full p-0 border-0 text-primaryDark text-lg outline-none focus:bg-transparent focus:ring-0`}
-              value={Number(estimatedAmount)}
+              value={estimatedAmount}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"

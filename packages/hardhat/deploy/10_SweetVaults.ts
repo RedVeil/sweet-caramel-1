@@ -14,6 +14,7 @@ const FEE_STRUCTURE = {
   management: FEE_MULTIPLIER.mul(200),
   performance: FEE_MULTIPLIER.mul(2000),
 };
+const KEEPER_CONFIG = { minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 };
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -44,7 +45,14 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     });
     const VaultDeployed = await deploy(vaultStakingPools[i].vaultName, {
       from: addresses.deployer,
-      args: [vaultStakingPools[i].inputToken, addresses.yearnRegistry, contractRegistry, ADDRESS_ZERO, FEE_STRUCTURE],
+      args: [
+        vaultStakingPools[i].inputToken,
+        addresses.yearnRegistry,
+        contractRegistry,
+        ADDRESS_ZERO,
+        FEE_STRUCTURE,
+        KEEPER_CONFIG,
+      ],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
       contract: "Vault",
@@ -62,8 +70,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     await addContractToRegistry(vaultStakingPools[i].vaultName, deployments, signer, hre);
     await vault.connect(signer).setStaking(Staking.address);
-  };
-}
+  }
+};
 
 export default main;
 main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop"];

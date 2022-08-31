@@ -1,5 +1,5 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ChainId, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
@@ -30,8 +30,6 @@ const Products = () => {
     //@ts-ignore
     notation: "compact",
   });
-
-  console.log()
 
   return (
     <section className="mt-10">

@@ -38,6 +38,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
           localButterPageState.tokens.usdc,
           localButterPageState.tokens.usdt,
         ]);
+
   function setSlippage(slippage: number): void {
     setButterPageState({ ...localButterPageState, slippage: slippage });
   }
