@@ -24,7 +24,7 @@ const PopUpModal = ({ children, visible, onClosePopUpModal }) => {
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-full"
           >
-            <div className="h-screen w-screen bg-gray-500 bg-opacity-75" onClick={onClickParent}></div>
+            <div className="h-screen w-screen bg-primary bg-opacity-75" onClick={onClickParent}></div>
           </Transition.Child>
 
           <Transition.Child

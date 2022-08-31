@@ -1,4 +1,5 @@
 import { InfoIconWithModal } from "components/InfoIconWithModal";
+import PopUpModal from "components/Modal/PopUpModal";
 import { setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
@@ -22,7 +23,7 @@ const SlippageModalContent: React.FC<SlippageSettingsProps> = ({ slippage, setSl
   };
 
   return (
-    <div className="mt-4 border border-gray-200 p-6 rounded-lg relative">
+    <div className="mt-4 md:border md:border-gray-200 p-2 md:p-6 rounded-lg relative">
       <div className="flex flex-col">
         <div className="flex flex-row items-center">
           <p className="text-left font-medium text-primary leading-7">Slippage Tolerance</p>
@@ -85,11 +86,12 @@ const SlippageModalContent: React.FC<SlippageSettingsProps> = ({ slippage, setSl
 
 const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippage, slippageOptions }) => {
   const { dispatch } = useContext(store);
+  const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
   return (
     <>
       <div
-        className="flex flex-row items-center group cursor-pointer mt-2"
+        className="hidden md:flex flex-row items-center group cursor-pointer mt-2"
         onClick={() =>
           dispatch(
             setSingleActionModal({
@@ -104,6 +106,19 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
       >
         <img className="w-4 h-4" src="/images/icons/slippage.png" />
         <p className={`text-base leading-7 mt-0.5 ml-2 text-primaryDark`}>{`Adjust slippage (${slippage}%)`}</p>
+      </div>
+
+      <div
+        className="flex md:hidden flex-row items-center group cursor-pointer mt-2"
+        onClick={() => setShowPopUp(true)}
+      >
+        <img className="w-4 h-4" src="/images/icons/slippage.png" />
+        <p className={`text-base leading-7 mt-0.5 ml-2 text-primaryDark`}>{`Adjust slippage (${slippage}%)`}</p>
+      </div>
+      <div className="absolute left-0">
+        <PopUpModal visible={showPopUp} onClosePopUpModal={() => setShowPopUp(false)}>
+          <SlippageModalContent slippage={slippage} setSlippage={setSlippage} slippageOptions={slippageOptions} />
+        </PopUpModal>
       </div>
     </>
   );
