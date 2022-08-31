@@ -18,40 +18,40 @@ import WheelPicker from "react-simple-wheel-picker";
 import MobileProductsMenu from "./MobileProductsMenu";
 import NavbarLink from "./NavbarLinks";
 
+const networkData = [
+  {
+    id: JSON.stringify(ChainId.Ethereum),
+    value: networkMap[ChainId.Ethereum],
+  },
+  {
+    id: JSON.stringify(ChainId.Arbitrum),
+    value: networkMap[ChainId.Arbitrum],
+  },
+  {
+    id: JSON.stringify(ChainId.BNB),
+    value: networkMap[ChainId.BNB],
+  },
+  {
+    id: JSON.stringify(ChainId.Rinkeby),
+    value: networkMap[ChainId.Rinkeby],
+  },
+  {
+    id: JSON.stringify(ChainId.Localhost),
+    value: networkMap[ChainId.Localhost],
+  },
+  {
+    id: JSON.stringify(ChainId.Polygon),
+    value: networkMap[ChainId.Polygon],
+  },
+];
+
 export const MobileMenu: React.FC = () => {
-  const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain, contractAddresses } = useWeb3();
+  const { account, connect, disconnect, setChain, pushWithinChain } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
   const router = useRouter();
   const products = getProductLinks(router, pushWithinChain);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
-
-  const networkData = [
-    {
-      id: JSON.stringify(ChainId.Ethereum),
-      value: networkMap[ChainId.Ethereum],
-    },
-    {
-      id: JSON.stringify(ChainId.Arbitrum),
-      value: networkMap[ChainId.Arbitrum],
-    },
-    {
-      id: JSON.stringify(ChainId.BNB),
-      value: networkMap[ChainId.BNB],
-    },
-    {
-      id: JSON.stringify(ChainId.Rinkeby),
-      value: networkMap[ChainId.Rinkeby],
-    },
-    {
-      id: JSON.stringify(ChainId.Localhost),
-      value: networkMap[ChainId.Localhost],
-    },
-    {
-      id: JSON.stringify(ChainId.Polygon),
-      value: networkMap[ChainId.Polygon],
-    },
-  ];
 
   const selectedNetwork = useRef(parseInt(networkData[0].id));
 

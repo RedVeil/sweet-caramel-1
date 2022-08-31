@@ -12,7 +12,7 @@ import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/KeeperIncentivized.sol";
 import "../../../externals/interfaces/YearnVault.sol";
-import "../../../externals/interfaces/BasicIssuanceModule.sol";
+import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
 import "../../interfaces/IStaking.sol";
@@ -94,7 +94,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
   ISetToken public setToken;
   IERC20 public threeCrv;
   CurveMetapool public threePool;
-  BasicIssuanceModule public setBasicIssuanceModule;
+  IBasicIssuanceModule public setBasicIssuanceModule;
   mapping(address => CurvePoolTokenPair) public curvePoolTokenPairs;
 
   /**
@@ -141,7 +141,7 @@ contract ButterBatchProcessing is Pausable, ReentrancyGuard, ACLAuth, KeeperInce
     ISetToken _setToken,
     IERC20 _threeCrv,
     CurveMetapool _threePool,
-    BasicIssuanceModule _basicIssuanceModule,
+    IBasicIssuanceModule _basicIssuanceModule,
     address[] memory _yTokenAddresses,
     CurvePoolTokenPair[] memory _curvePoolTokenPairs,
     ProcessingThreshold memory _processingThreshold

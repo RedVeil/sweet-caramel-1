@@ -17,7 +17,17 @@ const butterDependencyContractNames = [
   "setStreamingFeeModule",
 ];
 
-const stakingContractNames = ["butterStaking", "threeXStaking", "popUsdcArrakisVaultStaking", "popUsdcLpStaking"]; //
+const stakingContractNames = [
+  "butterStaking",
+  "popUsdcLpStaking",
+  "threeXStaking",
+  "popUsdcArrakisVaultStaking",
+  "sEthSweetVaultStaking",
+];
+
+const defaultTokenList = ["dai", "usdc", "usdt", "sUSD", "ETH"];
+
+const sweetVaultNames = ["sEthSweetVault"];
 
 export const mapAccountsFromNamedAccounts = (chainId): ContractAddresses => {
   let contracts: ContractAddresses;
@@ -32,8 +42,18 @@ export const mapAccountsFromNamedAccounts = (chainId): ContractAddresses => {
         result["butterDependency"]
           ? (result["butterDependency"][contract] = contractsForSelectedNetwork[contract])
           : (result["butterDependency"] = {
-              [contract]: contractsForSelectedNetwork[contract],
-            });
+            [contract]: contractsForSelectedNetwork[contract],
+          });
+      } else if (sweetVaultNames.includes(contract)) {
+        result["sweetVaults"]
+          ? result["sweetVaults"].push(contractsForSelectedNetwork[contract])
+          : (result["sweetVaults"] = [contractsForSelectedNetwork[contract]]);
+      } else if (defaultTokenList.includes(contract)) {
+        result["defaultTokenList"]
+          ? result["defaultTokenList"].push(contractsForSelectedNetwork[contract])
+          : (result["defaultTokenList"] = [contractsForSelectedNetwork[contract]]);
+      } else {
+        result[contract] = contractsForSelectedNetwork[contract];
       }
       result[contract] = contractsForSelectedNetwork[contract];
       result.all.add(contractsForSelectedNetwork[contract].toLowerCase());

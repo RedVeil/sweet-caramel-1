@@ -4,25 +4,57 @@ export type Pool = {
   contract: string;
   inputToken: string;
   rewardsToken?: string;
+  vaultName?: string;
 };
+
+export async function getVaultStakingPools(chainId: number, addresses, deployments): Promise<Pool[]> {
+  const { crvSEth } = addresses;
+  switch (chainId) {
+    case 1:
+      return [];
+    case 1337:
+      return [
+        {
+          poolName: "sEthSweetVaultStaking",
+          contract: "Staking",
+          vaultName: "sEthSweetVault",
+          inputToken: crvSEth,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+      ];
+    case 31337:
+      return [
+        {
+          poolName: "sEthSweetVaultStaking",
+          contract: "Staking",
+          vaultName: "sEthSweetVault",
+          inputToken: crvSEth,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+      ];
+    case 137:
+      return [];
+    default:
+      return [];
+  }
+}
 
 export async function getStakingPools(chainId: number, addresses, deployments): Promise<Pool[]> {
   const { pop, popUsdcLp, butter, threeX } = addresses;
   switch (chainId) {
     case 1:
       return [
-        // TODO temp disable
-        // {
-        //   poolName: "PopLocker",
-        //   contract: "PopLocker",
-        //   inputToken: pop,
-        // },
-        // {
-        //   poolName: "popUsdcLPStaking",
-        //   contract: "Staking",
-        //   inputToken: popUsdcLp,
-        //   rewardsToken: pop,
-        // },
+        {
+          poolName: "PopLocker",
+          contract: "PopLocker",
+          inputToken: pop,
+        },
+        {
+          poolName: "popUsdcLPStaking",
+          contract: "Staking",
+          inputToken: popUsdcLp,
+          rewardsToken: pop,
+        },
         {
           poolName: "threeXStaking",
           contract: "Staking",
@@ -44,12 +76,6 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           inputToken: (await deployments.get("TestPOP")).address,
         },
         {
-          poolName: "popUsdcLPStaking",
-          contract: "Staking",
-          inputToken: (await deployments.get("POP_USDC_LP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
-        },
-        {
           poolName: "butterStaking",
           contract: "Staking",
           inputToken: butter,
@@ -68,12 +94,6 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           poolName: "PopLocker",
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
-        },
-        {
-          poolName: "popUsdcLPStaking",
-          contract: "Staking",
-          inputToken: (await deployments.get("POP_USDC_LP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
         },
         {
           poolName: "butterStaking",
@@ -115,13 +135,6 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           contract: "PopLocker",
           inputToken: (await deployments.get("TestPOP")).address,
         },
-        {
-          poolName: "popUsdcLPStaking",
-          contract: "Staking",
-          inputToken: (await deployments.get("POP_USDC_LP")).address,
-          rewardsToken: (await deployments.get("TestPOP")).address,
-        },
       ];
   }
 }
-// -------------------------

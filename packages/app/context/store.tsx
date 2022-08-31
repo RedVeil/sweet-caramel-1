@@ -13,7 +13,6 @@ import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "component
 import { NotificationProps } from "components/Notifications/NotificationProps";
 import React, { createContext, useReducer } from "react";
 import { DefaultDualActionModalProps, DualActionModalProps } from "../components/Modal/DualActionModal";
-import {} from "../components/Modal/SingleActionModal";
 import {
   AppActions,
   CLEAR_NOTIFICATIONS,

@@ -30,13 +30,16 @@ contract MockIbAMM {
     priceInUSD[_ibGBP] = _gbpInUSD;
   }
 
-  function buy(
-    address to,
-    uint256 amount,
-    uint256 minOut
-  ) external returns (bool) {
+  function buy(address to, uint256 amount)
+    external
+    returns (
+      /* uint256 minOut */
+      bool
+    )
+  {
     dai.safeTransferFrom(msg.sender, address(this), amount);
     tokens[to].mint(msg.sender, buy_quote(to, amount));
+    return true;
   }
 
   function buy_quote(address to, uint256 amount) public view returns (uint256) {

@@ -1,11 +1,8 @@
-import bluebird from "bluebird";
 import { parseEther } from "ethers/lib/utils";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { getStakingPools, Pool } from "../lib/utils/getStakingPools";
-import { DAYS } from "../lib/utils/test";
-import { MockERC20 } from "../typechain";
+import { getStakingPools } from "../lib/utils/getStakingPools";
 import { addContractToRegistry } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -59,19 +56,14 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       }
     }
   }
-
-  if (["hardhat", "local"].includes(hre.network.name)) {
-    await createDemoData(hre, stakingPools[1]);
-    await createPopLockerData(hre, addresses, signer);
-  }
 };
 export default main;
-main.dependencies = ["setup"];
+main.dependencies = ["setup", "contract-registry", "rewards-escrow", "rewards-distribution"];
 main.tags = ["frontend", "staking"];
 
 async function prepareRewardsEscrow(stakingAddress: string, signer: any, hre: HardhatRuntimeEnvironment) {
   console.log("preparing rewards escrow ...");
-  const { deployments, getNamedAccounts } = hre;
+  const { deployments } = hre;
   const rewardsEscrow = await hre.ethers.getContractAt(
     "RewardsEscrow",
     await (
@@ -85,77 +77,3 @@ async function prepareRewardsEscrow(stakingAddress: string, signer: any, hre: Ha
   }
 }
 
-async function prepareStakingContract(
-  POP: MockERC20,
-  inputToken: MockERC20,
-  contractAddress: string,
-  signer: any,
-  hre: HardhatRuntimeEnvironment
-): Promise<void> {
-  console.log("pop transfer:", POP.address);
-  console.log("contract: ", contractAddress);
-  await POP.transfer(contractAddress, parseEther("1000"));
-  console.log("balance: ", (await POP.balanceOf(contractAddress)).toString());
-  const stakingContract = await hre.ethers.getContractAt("Staking", contractAddress, signer);
-  await stakingContract.setEscrowDuration(7 * DAYS);
-  console.log("Adding POP rewards to staking at:", contractAddress);
-  await POP.approve(contractAddress, parseEther("1000"));
-  await stakingContract.notifyRewardAmount(parseEther("1000"));
-  console.log("Staking some Token...");
-  await inputToken.approve(contractAddress, parseEther("100"));
-  await stakingContract.connect(signer).stake(parseEther("100"));
-}
-
-async function connectAndMintToken(
-  tokenAddress: string,
-  signer: any,
-  hre: HardhatRuntimeEnvironment
-): Promise<MockERC20> {
-  const token = (await hre.ethers.getContractAt("MockERC20", tokenAddress, signer)) as MockERC20;
-  await (await token.mint(await signer.getAddress(), parseEther("1000000000"))).wait(1);
-  return token;
-}
-
-async function createDemoData(hre: HardhatRuntimeEnvironment, pool: Pool): Promise<void> {
-  try {
-    const { deployments } = hre;
-
-    const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-    // fund Pool staking rewards
-    const poolInputTokens = await connectAndMintToken(pool.inputToken, signer, hre);
-    const poolRewardTokens = await connectAndMintToken(pool.rewardsToken, signer, hre);
-    await prepareStakingContract(
-      poolRewardTokens,
-      poolInputTokens,
-      (
-        await deployments.get(pool.poolName)
-      ).address,
-      signer,
-      hre
-    );
-  } catch (ex) {
-    console.log(ex.toString());
-    process.exit(1);
-  }
-}
-
-async function createPopLockerData(hre, addresses, signer): Promise<void> {
-  console.log("popLockerData");
-  const rewardsDistribution = await hre.ethers.getContractAt("RewardsDistribution", addresses.rewardsDistribution);
-  console.log("rewardsDistro");
-  await rewardsDistribution.connect(signer).approveRewardDistributor(hre.config.namedAccounts.deployer as string, true);
-  await rewardsDistribution.connect(signer).addRewardDistribution(addresses.popStaking, parseEther("1000"), true);
-  const stakingContract = await hre.ethers.getContractAt("PopLocker", addresses.popStaking);
-  const pop = await hre.ethers.getContractAt("MockERC20", addresses.pop);
-  await pop.connect(signer).approve(stakingContract.address, parseEther("10"));
-  await pop.connect(signer).transfer(rewardsDistribution.address, parseEther("1000"));
-  //Create withdrawable balance
-  await stakingContract.connect(signer).lock(hre.config.namedAccounts.deployer as string, parseEther("10"), 0);
-
-  await rewardsDistribution.connect(signer).distributeRewards(parseEther("1000"));
-}
-
-const supportsEIP1559 = (hre: HardhatRuntimeEnvironment): boolean => {
-  const NOT_EIP1559Compatible = ["rinkarby", "mumbai", "polygon", "arbitrum"];
-  return !NOT_EIP1559Compatible.includes(hre.network.name);
-};

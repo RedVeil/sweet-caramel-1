@@ -21,5 +21,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await addContractToRegistry("KeeperIncentive", deployments, signer, hre);
 };
 export default func;
-func.dependencies = ["setup"];
+func.dependencies = ["setup", "contract-registry"];
 func.tags = ["keeper-incentives", "frontend"];

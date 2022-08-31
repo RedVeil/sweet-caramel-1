@@ -141,7 +141,7 @@ async function deployContracts(): Promise<Contracts> {
 
   await butterBatch.setApprovals();
 
-  const keeper = await ethers.getContractAt("KeeperIncentive", KEEPER_INCENTIVE_ADDRESS);
+  const keeper = await ethers.getContractAt("KeeperIncentiveV1", KEEPER_INCENTIVE_ADDRESS);
 
   await keeper.connect(admin).addControllerContract(butterBatch.address, true);
 

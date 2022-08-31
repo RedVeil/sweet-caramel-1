@@ -1,3 +1,4 @@
+
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import MainActionButton from "components/MainActionButton";
@@ -39,7 +40,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
         <div className="my-6 md:my-0">
           <p className="text-primaryLight leading-6">Rewards</p>
           <h1 className={`text-2xl md:text-3xl leading-8 text-primary`}>
-            {formatAndRoundBigNumber(claimAmount, 3)} <span className=" text-tokenTextGray text-xl"> POP</span>
+            {formatAndRoundBigNumber(claimAmount, 18)} <span className=" text-tokenTextGray text-xl"> POP</span>
           </h1>
         </div>
       </div>

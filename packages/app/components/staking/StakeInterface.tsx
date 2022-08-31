@@ -8,7 +8,6 @@ import SecondaryActionButton from "components/SecondaryActionButton";
 import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber, constants } from "ethers";
-import { formatStakedAmount, formatStakedTVL } from "helper/formatAmount";
 import Link from "next/link";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
@@ -83,7 +82,7 @@ export default function StakeInterface({
                   content={
                     stakingPool?.apy.lt(constants.Zero)
                       ? "New 🍿✨"
-                      : formatAndRoundBigNumber(stakingPool?.apy, 2) + "%"
+                      : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
                   }
                   label={
                     <>
@@ -101,7 +100,7 @@ export default function StakeInterface({
               <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? formatStakedTVL(stakingPool?.totalStake, stakedTokenPrice) : "..."
+                    stakingPool && stakedTokenPrice ? `$${formatAndRoundBigNumber(stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther), 18)}` : "..."
                   }
                   label="TVL"
                 />
@@ -109,7 +108,7 @@ export default function StakeInterface({
             </div>
             <div className="mt-6 md:mt-8">
               <StatusWithLabel
-                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission) : "0"} POP / day`}
+                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"} POP / day`}
                 label="EMISSION RATE"
               />
             </div>
@@ -170,8 +169,7 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {" "}
-                    {stakingPool.userStake ? formatStakedAmount(stakingPool.userStake) : "0"} {stakingToken?.symbol}
+                    {stakingPool.userStake ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals) : "0"} {stakingToken?.symbol}
                   </p>
                 </div>
               </div>
@@ -180,21 +178,21 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                <Link
-                  href={getTokenOnNetwork(
-                    stakingPool.tokenAddress?.toLowerCase(),
-                    chainId,
-                    getChainRelevantContracts(chainId),
-                  )}
-                  passHref
-                >
-                  <a target="_blank">
-                    <div className="border-t border-customLightGray pt-2 px-1">
-                      <SecondaryActionButton label="Get Token" />
-                    </div>
-                  </a>
-                </Link>
-              )}
+                  <Link
+                    href={getTokenOnNetwork(
+                      stakingPool.tokenAddress?.toLowerCase(),
+                      chainId,
+                      getChainRelevantContracts(chainId),
+                    )}
+                    passHref
+                  >
+                    <a target="_blank">
+                      <div className="border-t border-customLightGray pt-2 px-1">
+                        <SecondaryActionButton label="Get Token" />
+                      </div>
+                    </a>
+                  </Link>
+                )}
             </div>
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
@@ -211,8 +209,7 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {" "}
-                    {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned) : "0"} POP
+                    {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
                   </p>
                 </div>
               </div>
@@ -221,14 +218,14 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                <Link href="/rewards" passHref>
-                  <a target="_blank">
-                    <div className="border-t border-customLightGray pt-2 px-1">
-                      <SecondaryActionButton label="Claim Page" />
-                    </div>
-                  </a>
-                </Link>
-              )}
+                  <Link href="/rewards" passHref>
+                    <a target="_blank">
+                      <div className="border-t border-customLightGray pt-2 px-1">
+                        <SecondaryActionButton label="Claim Page" />
+                      </div>
+                    </a>
+                  </Link>
+                )}
             </div>
           </div>
 
@@ -249,8 +246,7 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {" "}
-                        {stakingPool.userStake ? formatStakedAmount(stakingPool.userStake) : "0"} {stakingToken?.symbol}
+                        {stakingPool.userStake ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals) : "0"} {stakingToken?.symbol}
                       </p>
                     </div>
                   </div>
@@ -259,21 +255,21 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                    <Link
-                      href={getTokenOnNetwork(
-                        stakingPool.tokenAddress?.toLowerCase(),
-                        chainId,
-                        getChainRelevantContracts(chainId),
-                      )}
-                      passHref
-                    >
-                      <a target="_blank">
-                        <div className="border-t border-customLightGray pt-2 px-1">
-                          <SecondaryActionButton label="Get Token" />
-                        </div>
-                      </a>
-                    </Link>
-                  )}
+                      <Link
+                        href={getTokenOnNetwork(
+                          stakingPool.tokenAddress?.toLowerCase(),
+                          chainId,
+                          getChainRelevantContracts(chainId),
+                        )}
+                        passHref
+                      >
+                        <a target="_blank">
+                          <div className="border-t border-customLightGray pt-2 px-1">
+                            <SecondaryActionButton label="Get Token" />
+                          </div>
+                        </a>
+                      </Link>
+                    )}
                 </div>
               </div>
 
@@ -292,8 +288,7 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {" "}
-                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned) : "0"} POP
+                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
                       </p>
                     </div>
                   </div>
@@ -302,14 +297,14 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                    <Link href="/rewards" passHref>
-                      <a target="_blank">
-                        <div className="border-t border-customLightGray pt-2 px-1">
-                          <SecondaryActionButton label="Claim Page" />
-                        </div>
-                      </a>
-                    </Link>
-                  )}
+                      <Link href="/rewards" passHref>
+                        <a target="_blank">
+                          <div className="border-t border-customLightGray pt-2 px-1">
+                            <SecondaryActionButton label="Claim Page" />
+                          </div>
+                        </a>
+                      </Link>
+                    )}
                 </div>
               </div>
             </MobileCardSlider>

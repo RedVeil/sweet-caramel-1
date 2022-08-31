@@ -111,20 +111,20 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: threeXData?.tokens?.usdc?.key,
-              output: threeXData?.tokens?.threeX?.key,
-            },
-            tokens: threeXData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-          }
-        : {
-            ...state,
-            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          ...state,
+          selectedToken: {
+            input: threeXData?.tokens?.usdc?.key,
+            output: threeXData?.tokens?.threeX?.key,
           },
+          tokens: threeXData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+        }
+        : {
+          ...state,
+          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+        },
     );
   }, [threeXData, threeXWhaleData]);
 
@@ -457,11 +457,11 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.redeeming
       ? threeXData?.currentBatches.redeem.suppliedTokenBalance
-          .mul(threeXData?.tokens?.threeX.price)
-          .div(parseEther("1"))
+        .mul(threeXData?.tokens?.threeX.price)
+        .div(parseEther("1"))
       : threeXData?.currentBatches.mint.suppliedTokenBalance
-          .mul(threeXData?.tokens?.usdc.price)
-          .div(BigNumber.from(1_000_000));
+        .mul(threeXData?.tokens?.usdc.price)
+        .div(BigNumber.from(1_000_000));
   }
 
   function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
@@ -476,13 +476,13 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.useUnclaimedDeposits
       ? isBalanceInsufficient(
-          threeXPageState.depositAmount,
-          threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
-        )
+        threeXPageState.depositAmount,
+        threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
+      )
       : isBalanceInsufficient(
-          threeXPageState.depositAmount,
-          threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
-        );
+        threeXPageState.depositAmount,
+        threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
+      );
   };
 
   return (
@@ -569,9 +569,8 @@ export default function ThreeX(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`$${
-                  threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price) : "-"
-                }`}
+                content={`${threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals) : "-"
+                  }`}
                 icon={"3X"}
                 info={{
                   title: "Underlying Tokens",

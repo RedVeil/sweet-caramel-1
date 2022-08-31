@@ -1,18 +1,19 @@
-import { formatAndRoundBigNumber, formatBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { BigNumber, constants } from "ethers";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, formatUnits } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
 
 interface BatchProgressProps {
   batchAmount: BigNumber;
   threshold: BigNumber;
 }
-
+6
 const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold }) => {
   const [progress, setProgress] = useState<number>(0);
+
   useEffect(() => {
-    setProgress(100 - parseInt(formatAndRoundBigNumber(batchAmount.mul(parseEther("100")).div(threshold), 0)));
+    setProgress(100 - parseInt(formatUnits(batchAmount.mul(parseEther("100")).div(threshold))));
   }, [batchAmount]);
 
   return (
@@ -23,9 +24,9 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
           <p className="text-2xl font-medium leading-none text-black absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-30">
             {batchAmount.eq(constants.Zero)
               ? 0
-              : (Number(formatBigNumber(batchAmount)) / 1000).toFixed(
-                  Number(formatBigNumber(batchAmount)) > 1000 ? 0 : 1,
-                )}
+              : (Number(formatUnits(batchAmount)) / 1000).toFixed(
+                Number(formatUnits(batchAmount, 18)) > 1000 ? 0 : 1,
+              )}
             k
           </p>
           <div className="bg-white w-20 absolute top-0 left-0" style={{ height: `${progress}%` }}></div>

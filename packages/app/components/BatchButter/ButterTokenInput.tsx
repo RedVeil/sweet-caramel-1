@@ -1,5 +1,5 @@
 import { formatEther, formatUnits } from "@ethersproject/units";
-import { formatAndRoundBigNumber, formatBigNumber, numberToBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
 import { BigNumber, constants } from "ethers";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
@@ -41,9 +41,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
-        localButterPageState.depositAmount,
-        localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
-      );
+      localButterPageState.depositAmount,
+      localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
+    );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -61,7 +61,13 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   const onUpdate = (nextUserInput: string) => {
     if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
-      setButterPageState({ ...localButterPageState, depositAmount: numberToBigNumber(nextUserInput) });
+      setButterPageState({
+        ...localButterPageState,
+        depositAmount: numberToBigNumber(
+          nextUserInput,
+          localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
+        ),
+      });
       ref.current = nextUserInput;
     }
   };
@@ -75,7 +81,12 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   }, [localButterPageState.depositAmount]);
 
   function calcOutputAmountsFromInput(value: BigNumber): void {
-    setEstimatedAmount(String(formatBigNumber(value.mul(selectedToken.input.price).div(selectedToken.output.price))));
+    setEstimatedAmount(
+      formatAndRoundBigNumber(
+        value.mul(selectedToken.input.price).div(selectedToken.output.price),
+        localButterPageState.tokens.butter.decimals,
+      ),
+    )
   }
 
   const useUnclaimedDepositsisDisabled = (): boolean => {
@@ -95,7 +106,6 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               localButterPageState.useUnclaimedDeposits
                 ? selectedToken.input.claimableBalance
                 : selectedToken.input.balance,
-              localButterPageState.redeeming ? 6 : 2,
               selectedToken.input.decimals,
             )} ${selectedToken.input.name}`}
           </p>
@@ -103,15 +113,14 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         <div>
           <div className="mt-1 relative flex items-center gap-2">
             <div
-              className={`w-full flex px-5 py-4 items-center rounded-lg border ${
-                localButterPageState.depositAmount.gt(
-                  localButterPageState.useUnclaimedDeposits
-                    ? selectedToken.input.claimableBalance
-                    : selectedToken.input.balance,
-                )
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${localButterPageState.depositAmount.gt(
+                localButterPageState.useUnclaimedDeposits
+                  ? selectedToken.input.claimableBalance
+                  : selectedToken.input.balance,
+              )
                   ? " border-customRed"
                   : "border-customLightGray "
-              }`}
+                }`}
             >
               <input
                 name="tokenInput"

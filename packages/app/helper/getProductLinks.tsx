@@ -1,5 +1,6 @@
+import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { NextRouter } from "next/router";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 
 interface ProductLinks {
   title: string;
@@ -12,8 +13,16 @@ export function getProductLinks(
   router: NextRouter,
   pushWithinChain: (url: string, shallow?: boolean) => Promise<boolean>,
 ): ProductLinks[] {
+  const { features } = useContext(FeatureToggleContext);
+
   return useMemo(() => {
     return [
+      {
+        title: "3X",
+        onClick: () => pushWithinChain(`/set/3x`),
+        currentlySelected: router.pathname.includes("/3x"),
+        url: "/set/3x",
+      },
       {
         title: "Butter",
         onClick: () => pushWithinChain(`/set/butter`),
@@ -21,10 +30,10 @@ export function getProductLinks(
         url: "/set/butter",
       },
       {
-        title: "3X",
-        onClick: () => pushWithinChain(`/set/3x`),
-        currentlySelected: router.pathname.includes("/set/3x"),
-        url: "/set/threex",
+        title: "Sweet Vaults",
+        onClick: () => pushWithinChain(`/sweet-vaults`),
+        currentlySelected: router.pathname.includes("/sweet-vaults"),
+        url: "/sweet-vaults",
       },
       {
         title: "Staking",
@@ -32,6 +41,6 @@ export function getProductLinks(
         currentlySelected: router.pathname.includes("/staking"),
         url: "/staking",
       },
-    ];
-  }, [router, router?.query?.network]);
+    ].filter(product => features.sweetVaults ? true : product.title !== "Sweet Vaults")
+  }, [router, router?.query?.network, features]);
 }

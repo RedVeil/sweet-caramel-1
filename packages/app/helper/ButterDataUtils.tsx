@@ -1,7 +1,7 @@
 import { parseEther } from "@ethersproject/units";
 import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
 import {
-  BasicIssuanceModule,
+  IBasicIssuanceModule,
   ButterBatchProcessing,
   ButterBatchProcessingZapper,
   ButterWhaleProcessing,
@@ -27,7 +27,7 @@ interface BaseButterDependenciesInput {
   threeCrv: Token;
   threePool: Curve3Pool;
   butter: ISetToken;
-  setBasicIssuanceModule: BasicIssuanceModule;
+  setBasicIssuanceModule: IBasicIssuanceModule;
 }
 
 interface ButterBatchDependenciesInput extends BaseButterDependenciesInput {
@@ -50,7 +50,7 @@ async function getToken(
   tokens: Stables,
   threePool: Curve3Pool,
   butter: ISetToken,
-  setBasicIssuanceModule: BasicIssuanceModule,
+  setBasicIssuanceModule: IBasicIssuanceModule,
   mainContract: ButterBatchProcessing | ButterWhaleProcessing,
   zapperContract?: ButterBatchProcessingZapper,
 ): Promise<Tokens> {

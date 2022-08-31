@@ -1,7 +1,8 @@
+import { formatAndRoundBigNumber } from "@popcorn/utils";
+
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import MainActionButton from "components/MainActionButton";
 import { format } from "date-fns";
-import { formatStakedAmount } from "helper/formatAmount";
 import { Escrow } from "hooks/useGetUserEscrows";
 
 interface VestingRecordProps {
@@ -20,10 +21,10 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
     >
       <div className="hidden md:flex flex-row justify-between gap-2 items-center w-full border-b border-customLightGray p-8">
         <StatusWithLabel label="Unlock Ends" content={formattedEndDate} />
-        <StatusWithLabel label="Total Vesting Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+        <StatusWithLabel label="Total Vesting Tokens" content={`${formatAndRoundBigNumber(vestingEscrow.balance, 18)} POP`} />
         <StatusWithLabel
           label="Claimable Tokens"
-          content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
+          content={`${formatAndRoundBigNumber(vestingEscrow.claimableAmount, 18)} POP`}
         />
         <div className="w-2/12">
           <MainActionButton
@@ -38,9 +39,9 @@ const VestingRecordComponent: React.FC<VestingRecordProps> = ({ vestingEscrow, i
         <div className="flex flex-row justify-between gap-2 gap-y-6 flex-wrap mt-6">
           <StatusWithLabel
             label="Claimable Tokens"
-            content={`${formatStakedAmount(vestingEscrow.claimableAmount)} POP`}
+            content={`${formatAndRoundBigNumber(vestingEscrow.claimableAmount, 18)} POP`}
           />
-          <StatusWithLabel label="Total Vesting Tokens" content={`${formatStakedAmount(vestingEscrow.balance)} POP`} />
+          <StatusWithLabel label="Total Vesting Tokens" content={`${formatAndRoundBigNumber(vestingEscrow.balance, 18)} POP`} />
         </div>
         <div className="w-full mt-6">
           <MainActionButton

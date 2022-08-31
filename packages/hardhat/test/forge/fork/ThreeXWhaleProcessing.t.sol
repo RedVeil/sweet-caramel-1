@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Test } from "@ecmendenhall/forge-std/src/Test.sol";
+
 import { ThreeXWhaleProcessing, ThreeXBatchVault } from "../../../contracts/core/defi/three-x/ThreeXWhaleProcessing.sol";
 import { ThreeXBatchProcessing } from "../../../contracts/core/defi/three-x/ThreeXBatchProcessing.sol";
 import "../../../contracts/core/interfaces/IContractRegistry.sol";
@@ -10,7 +11,7 @@ import { AbstractBatchStorage } from "../../../contracts/core/defi/three-x/stora
 import "../../../contracts/core/interfaces/IStaking.sol";
 import "../../../contracts/core/interfaces/IBatchStorage.sol";
 import "../../../contracts/externals/interfaces/Curve3Pool.sol";
-import "../../../contracts/externals/interfaces/BasicIssuanceModule.sol";
+import "../../../contracts/externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../contracts/core/interfaces/IACLRegistry.sol";
 
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -37,7 +38,7 @@ contract ThreeXWhaleProcessingTest is Test {
 
   IERC20[3] internal tokens;
   ThreeXWhaleProcessing internal threeXWhaleProcessing;
-  BasicIssuanceModule internal basicIssuanceModule = BasicIssuanceModule(BASIC_ISSUANCE_MODULE);
+  IBasicIssuanceModule internal basicIssuanceModule = IBasicIssuanceModule(BASIC_ISSUANCE_MODULE);
   ThreeXBatchProcessing internal threeXBatchProcessing = ThreeXBatchProcessing(THREEX_BATCH);
   IStaking internal staking = IStaking(STAKING);
   IERC20 internal threex = IERC20(THREE_X);
@@ -95,9 +96,9 @@ contract ThreeXWhaleProcessingTest is Test {
     threex.approve(address(threeXWhaleProcessing), type(uint256).max);
 
     // Hand out money
-    tip(USDC, address(this), 100000e6);
-    tip(DAI, address(this), 100000e18);
-    tip(USDT, address(this), 100000e6);
+    deal(USDC, address(this), 100000e6);
+    deal(DAI, address(this), 100000e18);
+    deal(USDT, address(this), 100000e6);
 
     // Save Preconditions before each test which can be referenced during testing
     (defaultMintSlippage, defaultRedeemSlippage) = threeXBatchProcessing.slippage();
@@ -113,7 +114,7 @@ contract ThreeXWhaleProcessingTest is Test {
   }
 
   function mintThreeX(uint256 _amount) internal {
-    tip(USDC, address(this), _amount * 30000e6);
+    deal(USDC, address(this), _amount * 30000e6);
 
     bytes32 batchId = threeXBatchProcessing.currentMintBatchId();
     usdc.approve(address(threeXBatchProcessing), type(uint256).max);

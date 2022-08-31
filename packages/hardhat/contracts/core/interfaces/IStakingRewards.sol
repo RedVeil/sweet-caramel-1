@@ -9,10 +9,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 interface IStakingRewards {
   // Views
 
-  function totalSupply() external view returns (uint256);
-
-  function balanceOf(address account) external view returns (uint256);
-
   function lastTimeRewardApplicable() external view returns (uint256);
 
   function rewardPerToken() external view returns (uint256);

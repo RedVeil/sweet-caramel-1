@@ -29,9 +29,8 @@ const DropDownComponent: React.FC<GetPopMenuProps> = ({ options }) => {
                   onClick={option.onClick}
                 >
                   <p
-                    className={`whitespace-nowrap leading-none text-lg ${
-                      option.currentlySelected ? "font-medium" : ""
-                    }`}
+                    className={`whitespace-nowrap leading-none text-lg ${option.currentlySelected ? "font-medium" : ""
+                      }`}
                   >
                     {option.title}
                   </p>

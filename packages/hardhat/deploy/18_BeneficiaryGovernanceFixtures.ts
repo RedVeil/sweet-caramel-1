@@ -362,8 +362,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.dependencies = ["setup"];
-main.tags = ["core", "fixtures"];
+main.dependencies = ["setup", "acl-registry", "contract-registry", "participation-reward", "gov-staking", "beneficiary-governance", "beneficiary-registry", "grant-elections"];
+main.tags = ["core", "beneficiary-governance-demo-data"];
 
 async function getActiveBeneficiaries(beneficiaryRegistry: BeneficiaryRegistry) {
   return (await beneficiaryRegistry.getBeneficiaryList()).filter(

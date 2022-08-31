@@ -10,7 +10,7 @@ import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/KeeperIncentivized.sol";
 import "../../../externals/interfaces/YearnVault.sol";
-import "../../../externals/interfaces/BasicIssuanceModule.sol";
+import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
@@ -32,7 +32,7 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
 
   bytes32 public constant contractName = "ThreeXWhaleProcessing";
 
-  BasicIssuanceModule public basicIssuanceModule;
+  IBasicIssuanceModule public basicIssuanceModule;
   Curve3Pool private threePool;
   IERC20[3] public token; // [dai,usdc,usdt]
 
@@ -45,7 +45,7 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
 
   constructor(
     IContractRegistry __contractRegistry,
-    BasicIssuanceModule _basicIssuanceModule,
+    IBasicIssuanceModule _basicIssuanceModule,
     IStaking _staking,
     Curve3Pool _threePool,
     IERC20[3] memory _token

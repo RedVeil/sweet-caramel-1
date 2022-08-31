@@ -72,9 +72,14 @@ contract MockBasePool is MockERC20 {
   function exchange(
     int128 i,
     int128 j,
-    uint256 dx,
-    uint256 min_dy
-  ) external returns (uint256) {
+    uint256 dx
+  )
+    external
+    returns (
+      /* uint256 min_dy */
+      uint256
+    )
+  {
     baseCoins[uint128(i)].transferFrom(msg.sender, address(this), dx);
     uint256 amount = dx;
     if (baseCoins[uint128(i)].decimals() == 6) {

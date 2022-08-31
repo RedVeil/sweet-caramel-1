@@ -67,6 +67,12 @@ module.exports = {
 				120: "32rem",
 				124: "33rem",
 				128: "34rem",
+				132: "38rem",
+				136: "42rem",
+				138: "44rem",
+				142: "47rem",
+				200: "70rem",
+				384: "102rem",
 			},
 			height: {
 				"1/12": "8.333333%",
@@ -161,5 +167,5 @@ module.exports = {
 			},
 		},
 	},
-	plugins: [require("@tailwindcss/forms")],
+	plugins: [require("@tailwindcss/forms"), require("tailwind-scrollbar-hide")],
 };

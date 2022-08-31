@@ -11,20 +11,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const addresses = await getNamedAccounts();
   const { threeXStaking, threePool, threeX, dai, usdc, usdt } = addresses;
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-  const signerAddress = await signer.getAddress();
 
   //ContractRegistry
   const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
-  const threeXBatchAdress = (await deployments.get("ThreeXBatchProcessing")).address;
-  const threeXBatchVaultAdress = (await deployments.get("ThreeXBatchVault")).address;
-  const threeXBatchProcessing = await hre.ethers.getContractAt("ThreeXBatchProcessing", threeXBatchAdress, signer);
-
-  const threeXBatchVaultContract = await hre.ethers.getContractAt("ThreeXBatchVault", threeXBatchVaultAdress, signer);
 
   //Butter Batch
   console.log("deploying threeXWhaleProcessing...");
 
-  const processing = await deploy("ThreeXWhaleProcessing", {
+  await deploy("ThreeXWhaleProcessing", {
     from: addresses.deployer,
     args: [contractRegistryAddress, addresses.setBasicIssuanceModule, threeXStaking, threePool, [dai, usdc, usdt]],
     log: true,
@@ -62,5 +56,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 export default func;
 
-func.dependencies = ["setup"];
-func.tags = ["frontend", "3x"];
+func.dependencies = ["setup", "acl-registry", "contract-registry", "3x"];
+func.tags = ["frontend", "3x-whale"];

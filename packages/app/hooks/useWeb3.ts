@@ -28,8 +28,7 @@ export default function useWeb3() {
   const contractAddresses = useMemo(() => getChainRelevantContracts(getChainId()), [getChainId()]);
   const wallets = useWallets();
   const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(getChainId());
-
-  const { dispatch, state } = useContext(store);
+  const { dispatch } = useContext(store);
 
   const isLoaded = (network: string | undefined): boolean =>
     connectedChain?.id && typeof network === "string" && !router?.pathname?.includes("butter");
@@ -119,7 +118,7 @@ export default function useWeb3() {
   async function handleConnect(disableModals: boolean = false): Promise<void> {
     return previouslyConnectedWallets
       ? await connect({ autoSelect: { label: previouslyConnectedWallets[0], disableModals } })
-      : await connect({});
+      : await connect({ autoSelect: { label: "all", disableModals: false } });
   }
 
   function getNonWalletChain(): string {
@@ -166,12 +165,12 @@ export default function useWeb3() {
         type: "error",
         onChangeUrl: ChainId[actualChain]
           ? {
-              label: `Continue on ${actualChain}`,
-              onClick: () => {
-                pushNetworkChange(toTitleCase(actualChain), true);
-                dispatch(setNetworkChangePromptModal(false));
-              },
-            }
+            label: `Continue on ${actualChain}`,
+            onClick: () => {
+              pushNetworkChange(toTitleCase(actualChain), true);
+              dispatch(setNetworkChangePromptModal(false));
+            },
+          }
           : undefined,
         onChangeNetwork: {
           label: `Switch to ${toTitleCase(intendedChain)}`,

@@ -2,7 +2,7 @@ import { parseEther } from "@ethersproject/units";
 import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
 import ThreeXBatchAdapter from "@popcorn/hardhat/lib/adapters/ThreeXBatchAdapter";
 import {
-  BasicIssuanceModule,
+  IBasicIssuanceModule,
   Curve3Pool,
   ISetToken,
   ThreeXBatchProcessing,
@@ -24,7 +24,7 @@ async function getToken(
   tokens: Stables,
   threePool: Curve3Pool,
   threeX: ISetToken,
-  setBasicIssuanceModule: BasicIssuanceModule,
+  setBasicIssuanceModule: IBasicIssuanceModule,
   mainContract: ThreeXBatchProcessing,
   instantContract?: ThreeXWhaleProcessing,
   zapperContract?: ThreeXZapper,
@@ -110,7 +110,7 @@ export async function getData(
   usdt: Token,
   threePool: Curve3Pool,
   butter: ISetToken,
-  setBasicIssuanceModule: BasicIssuanceModule,
+  setBasicIssuanceModule: IBasicIssuanceModule,
   mainContract: ThreeXBatchProcessing,
   zapperContract?: ThreeXZapper,
 ): Promise<BatchMetadata> {
@@ -157,7 +157,7 @@ export async function getDataWhale(
   usdt: Token,
   threePool: Curve3Pool,
   butter: ISetToken,
-  setBasicIssuanceModule: BasicIssuanceModule,
+  setBasicIssuanceModule: IBasicIssuanceModule,
   instantContract: ThreeXWhaleProcessing,
   batchContract: ThreeXBatchProcessing,
 ): Promise<BatchMetadata> {

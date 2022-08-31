@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./AffiliateToken.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/ContractRegistryAccess.sol";
@@ -14,6 +15,7 @@ import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IVaultFeeController.sol";
 import "../../interfaces/IStaking.sol";
 import "../../interfaces/IKeeperIncentiveV2.sol";
+import "../../interfaces/IVaultsV1.sol";
 
 contract Vault is
   IEIP4626,
@@ -33,12 +35,20 @@ contract Vault is
     uint256 performance;
   }
 
+  struct KeeperConfig {
+    uint256 minWithdrawalAmount; // minimum amount required of accrued fees for calling withdrawAccruedFees
+    uint256 incentiveVigBps; // percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves
+    uint256 keeperPayout; // amount paid out to keeper per invocation of incentivized function - withdrawAccruedFees()
+  }
+
   address public staking;
+  address public zapper;
 
   bytes32 public immutable contractName;
 
   uint256 constant MINUTES_PER_YEAR = 525_600;
   bytes32 constant FEE_CONTROLLER_ID = keccak256("VaultFeeController");
+  bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   /* ========== STATE VARIABLES ========== */
 
@@ -47,6 +57,7 @@ contract Vault is
   uint256 public vaultShareHWM = 1e18;
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
+  KeeperConfig public keeperConfig;
 
   /* ========== EVENTS ========== */
 
@@ -57,6 +68,8 @@ contract Vault is
   event StakingUpdated(address beforeAddress, address afterAddress);
   event RegistryUpdated(address beforeAddress, address afterAddress);
   event UseLocalFees(bool useLocalFees);
+  event ZapperUpdated(address zapper, address _zapper);
+  event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -65,7 +78,8 @@ contract Vault is
     address yearnRegistry_,
     IContractRegistry contractRegistry_,
     address staking_,
-    FeeStructure memory feeStructure_
+    FeeStructure memory feeStructure_,
+    KeeperConfig memory keeperConfig_
   )
     AffiliateToken(
       token_,
@@ -85,6 +99,7 @@ contract Vault is
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
     contractName = keccak256(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault"));
+    keeperConfig = keeperConfig_;
   }
 
   /* ========== VIEWS ========== */
@@ -92,10 +107,10 @@ contract Vault is
   /**
    * @notice Returns amount of underlying `asset` token represented by 1 vault share.
    * @return Price per vault share in underlying token.
-   * @dev Vault shares are denominated with 18 decimals. Return value units are defined by underlying `asset` token.
+   * @dev Return value units are defined by underlying `asset` token.
    */
   function assetsPerShare() public view returns (uint256) {
-    return _shareValue(1e18);
+    return _shareValue(10**decimals());
   }
 
   /**
@@ -182,7 +197,7 @@ contract Vault is
 
     assets += (assets * withdrawalFee) / (1e18 - withdrawalFee);
 
-    shares = _convertToShares(assets, accruedManagementFee() + accruedPerformanceFee());
+    shares = _convertToShares(assets + 10, accruedManagementFee() + accruedPerformanceFee());
   }
 
   /**
@@ -195,6 +210,7 @@ contract Vault is
     assets = _convertToAssets(shares, accruedManagementFee() + accruedPerformanceFee());
 
     assets -= (assets * getWithdrawalFee()) / 1e18;
+    assets -= 10;
   }
 
   /* ========== VIEWS ( FEES ) ========== */
@@ -296,7 +312,6 @@ contract Vault is
     override
     nonReentrant
     whenNotPaused
-    onlyApprovedContractOrEOA
     takeFees
     returns (uint256 shares)
   {
@@ -357,7 +372,6 @@ contract Vault is
     override
     nonReentrant
     whenNotPaused
-    onlyApprovedContractOrEOA
     takeFees
     returns (uint256 assets)
   {
@@ -424,7 +438,7 @@ contract Vault is
     uint256 assets,
     address receiver,
     address owner
-  ) public override nonReentrant onlyApprovedContractOrEOA takeFees returns (uint256 shares) {
+  ) public override nonReentrant takeFees returns (uint256 shares) {
     require(receiver != address(0), "Invalid receiver");
 
     shares = _convertToShares(assets, 0);
@@ -464,10 +478,10 @@ contract Vault is
     uint256 shares,
     address receiver,
     address owner
-  ) public override nonReentrant onlyApprovedContractOrEOA takeFees returns (uint256 assets) {
+  ) public override nonReentrant takeFees returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
-    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
+    if (msg.sender != owner && msg.sender != zapper) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
     _transfer(owner, address(this), shares);
 
@@ -483,6 +497,38 @@ contract Vault is
   }
 
   /**
+   * @notice Unstake `shares` from the corresponding staking contract and redeem them for `msg.sender`.
+   * Caller must approve a sufficient number of `shares` tokens to redeem the requested quantity.
+   * @param shares Quantity of shares to redeem.
+   * @return assets of underlying that have been withdrawn.
+   */
+  function unstakeAndRedeem(uint256 shares) external returns (uint256) {
+    return unstakeAndRedeemFor(shares, msg.sender, msg.sender);
+  }
+
+  /**
+   * @notice Unstake `shares` from the corresponding staking contract and redeem them for `msg.sender`.
+   * Caller must approve a sufficient number of `shares` tokens to redeem the requested quantity.
+   * @param shares Quantity of shares to redeem.
+   * @param receiver Receiver of underlying assets.
+   * @param owner Owner of burned vault shares.
+   * @return assets of underlying that have been withdrawn.
+   */
+  function unstakeAndRedeemFor(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public returns (uint256 assets) {
+    require(staking != address(0), "staking is disabled");
+
+    IStaking(staking).withdrawFor(shares, owner, owner);
+
+    assets = redeem(shares, receiver, owner);
+
+    emit UnstakedAndWithdrawn(shares, owner, receiver);
+  }
+
+  /**
    * @notice Collect management and performance fees and update vault share high water mark.
    */
   function takeManagementAndPerformanceFees() external nonReentrant takeFees {}
@@ -490,11 +536,11 @@ contract Vault is
   /* ========== RESTRICTED FUNCTIONS ========== */
 
   /**
-   * @notice Set fees in BPS. Caller must have DAO_ROLE from ACLRegistry.
+   * @notice Set fees in BPS. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function setFees(FeeStructure memory newFees) external onlyRole(DAO_ROLE) {
+  function setFees(FeeStructure memory newFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     // prettier-ignore
     require(
       newFees.deposit < 1e18 &&
@@ -511,16 +557,16 @@ contract Vault is
    * @notice Set whether to use locally configured fees. Caller must have DAO_ROLE from ACLRegistry.
    * @param _useLocalFees `true` to use local fees, `false` to use the VaultFeeController contract.
    */
-  function setUseLocalFees(bool _useLocalFees) external onlyRole(DAO_ROLE) {
+  function setUseLocalFees(bool _useLocalFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     emit UseLocalFees(_useLocalFees);
     useLocalFees = _useLocalFees;
   }
 
   /**
-   * @notice Set staking contract for this vault.
+   * @notice Set staking contract for this vault. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    * @param _staking Address of the staking contract.
    */
-  function setStaking(address _staking) external onlyRole(DAO_ROLE) {
+  function setStaking(address _staking) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     emit StakingUpdated(staking, _staking);
 
     if (staking != address(0)) _approve(address(this), staking, 0);
@@ -530,10 +576,19 @@ contract Vault is
   }
 
   /**
-   * @notice Used to update the yearn registry.
+   * @notice Sets the zapper contract which is allowed to unstake and withdraw for a user without addtitional approvals
+   * @param _zapper Address of the new zapper contract.
+   */
+  function setZapper(address _zapper) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+    emit ZapperUpdated(zapper, _zapper);
+    zapper = _zapper;
+  }
+
+  /**
+   * @notice Used to update the yearn registry. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    * @param _registry The new _registry address.
    */
-  function setRegistry(address _registry) external onlyRole(DAO_ROLE) {
+  function setRegistry(address _registry) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     emit RegistryUpdated(address(registry), _registry);
 
     _setRegistry(_registry);
@@ -545,23 +600,56 @@ contract Vault is
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
     uint256 balance = balanceOf(address(this));
+    uint256 accruedFees = _convertToAssets(balance, 0);
+    uint256 minWithdrawalAmount = keeperConfig.minWithdrawalAmount;
+    uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
-    _withdraw(address(this), _feeController().feeRecipient(), _convertToAssets(balance, 0), true);
+    require(accruedFees >= minWithdrawalAmount, "insufficient withdrawal amount");
+
+    IERC20 assetToken = IERC20(IEIP4626(address(this)).asset());
+
+    uint256 preBal = assetToken.balanceOf(address(this));
+    uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
+
+    _withdraw(address(this), _feeController().feeRecipient(), (accruedFees * 1e18 - incentiveVig) / 1e18, true);
+    _withdraw(address(this), address(this), tipAmount, true);
+
+    uint256 postBal = assetToken.balanceOf(address(this));
+
+    require(postBal >= preBal, "insufficient tip balance");
+
+    // from test postBal = 2
+    // from test tipAmount = 238
+
+    IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
+
+    assetToken.approve(address(keeperIncentive), postBal);
+
+    keeperIncentive.tip(address(assetToken), msg.sender, 0, postBal);
 
     _burn(address(this), balance);
   }
 
   /**
-   * @notice Pause deposits. Caller must have DAO_ROLE from ACLRegistry.
+   * @notice Change keeper config. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
    */
-  function pauseContract() external onlyRole(DAO_ROLE) {
+  function setKeeperConfig(KeeperConfig memory _config) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+    require(_config.incentiveVigBps < 1e18, "invalid vig");
+    require(_config.minWithdrawalAmount > 0, "invalid min withdrawal");
+    keeperConfig = _config;
+  }
+
+  /**
+   * @notice Pause deposits. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function pauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     _pause();
   }
 
   /**
    * @notice Unpause deposits. Caller must have DAO_ROLE from ACLRegistry.
    */
-  function unpauseContract() external onlyRole(DAO_ROLE) {
+  function unpauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
     _unpause();
   }
 

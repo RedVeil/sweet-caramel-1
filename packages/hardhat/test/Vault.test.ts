@@ -1,16 +1,19 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { deployMockContract, MockContract } from "ethereum-waffle";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import { ContractTransaction } from "ethers";
 import { ethers, waffle } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
 import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
-import { ADDRESS_ZERO, MAX_UINT_256 } from "../lib/external/SetToken/utils/constants";
+import { ADDRESS_ZERO, MAX_UINT_256, ZERO } from "../lib/external/SetToken/utils/constants";
 import { expectBigNumberCloseTo, expectEvent, expectRevert, expectValue } from "../lib/utils/expectValue";
 import { timeTravel } from "../lib/utils/test";
 import {
   ACLRegistry,
   ContractRegistry,
+  KeeperIncentiveV2,
   MockERC20,
   MockYearnV2Vault,
   RewardsEscrow,
@@ -27,6 +30,7 @@ interface Contracts {
   yearnRegistry: MockContract;
   staking: Staking;
   vault: Vault;
+  keeperIncentive: KeeperIncentiveV2;
   aclRegistry: ACLRegistry;
   contractRegistry: ContractRegistry;
   blockLockHelper: VaultBlockLockHelper;
@@ -38,6 +42,8 @@ const MINUTE = 60;
 const DAY = 60 * 60 * 24;
 const DEPOSIT_AMOUNT = parseEther("1000");
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
+
+const DAO_ADDRESS = "0xbD94fc22E6910d118187c8300667c66eD560A29B";
 
 let owner: SignerWithAddress,
   depositor: SignerWithAddress,
@@ -74,16 +80,28 @@ async function deployContracts(): Promise<Contracts> {
 
   const Vault = await ethers.getContractFactory("Vault");
   const vault = await (
-    await Vault.deploy(depositToken.address, yearnRegistry.address, contractRegistry.address, ADDRESS_ZERO, {
-      deposit: 0,
-      withdrawal: FEE_MULTIPLIER.mul(50),
-      management: FEE_MULTIPLIER.mul(200),
-      performance: FEE_MULTIPLIER.mul(2000),
-    })
+    await Vault.deploy(
+      depositToken.address,
+      yearnRegistry.address,
+      contractRegistry.address,
+      ADDRESS_ZERO,
+      {
+        deposit: 0,
+        withdrawal: FEE_MULTIPLIER.mul(50),
+        management: FEE_MULTIPLIER.mul(200),
+        performance: FEE_MULTIPLIER.mul(2000),
+      },
+      {
+        minWithdrawalAmount: parseEther("100"),
+        incentiveVigBps: 0,
+        keeperPayout: 0,
+      }
+    )
   ).deployed();
 
   const Staking = await ethers.getContractFactory("Staking");
   const staking = await (await Staking.deploy(rewardsToken.address, vault.address, rewardsEscrow.address)).deployed();
+  await staking.connect(owner).setVault(vault.address);
 
   const vaultFeeController = await (
     await (
@@ -136,6 +154,7 @@ async function deployContracts(): Promise<Contracts> {
     yearnRegistry,
     staking,
     vault,
+    keeperIncentive,
     aclRegistry,
     contractRegistry,
     blockLockHelper,
@@ -164,6 +183,11 @@ describe("Vault", function () {
             withdrawal: FEE_MULTIPLIER.mul(50),
             management: FEE_MULTIPLIER.mul(200),
             performance: FEE_MULTIPLIER.mul(2000),
+          },
+          {
+            minWithdrawalAmount: parseEther("100"),
+            incentiveVigBps: 1,
+            keeperPayout: 9,
           }
         ),
         "Zero address"
@@ -182,6 +206,11 @@ describe("Vault", function () {
           withdrawal: FEE_MULTIPLIER.mul(50),
           management: FEE_MULTIPLIER.mul(200),
           performance: FEE_MULTIPLIER.mul(2000),
+        },
+        {
+          minWithdrawalAmount: parseEther("100"),
+          incentiveVigBps: 1,
+          keeperPayout: 9,
         }
       );
       await vault.deployed();
@@ -201,6 +230,11 @@ describe("Vault", function () {
             withdrawal: FEE_MULTIPLIER.mul(50),
             management: FEE_MULTIPLIER.mul(200),
             performance: FEE_MULTIPLIER.mul(2000),
+          },
+          {
+            minWithdrawalAmount: parseEther("100"),
+            incentiveVigBps: 1,
+            keeperPayout: 9,
           }
         ),
         "Zero address"
@@ -781,13 +815,12 @@ describe("Vault", function () {
 
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
 
-      const amount = DEPOSIT_AMOUNT.sub(1);
-      expectValue(await contracts.vault.previewWithdraw(amount), amount);
+      const amount = DEPOSIT_AMOUNT;
+      await expectValue(await contracts.vault.previewWithdraw(amount), amount.add(10));
       await contracts.vault.connect(depositor)["withdraw(uint256)"](amount);
 
-      expectValue(await contracts.vault.totalSupply(), 1);
-      expectValue(await contracts.vault.totalAssets(), 1);
-      expectValue(await contracts.vault.pricePerShare(), parseEther("1"));
+      await expectValue(await contracts.vault.totalSupply(), 0);
+      await expectValue(await contracts.vault.totalAssets(), 0);
     });
 
     it("returns the amount of shares needed to receive given amount of vaulted assets (withFee)", async function () {
@@ -829,7 +862,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
       await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
 
-      const expectedSharesRequired = parseEther("555.555555555555555555");
+      const expectedSharesRequired = parseEther("555.555555555555555561");
       const expectedFeeInShares = parseEther("111.111111111111111111");
       expectValue(await contracts.vault.previewWithdraw(DEPOSIT_AMOUNT), expectedSharesRequired);
       await contracts.vault.connect(depositor)["withdraw(uint256)"](DEPOSIT_AMOUNT);
@@ -837,10 +870,10 @@ describe("Vault", function () {
       expectValue(await contracts.vault.totalAssets(), DEPOSIT_AMOUNT);
       expectValue(await contracts.vault.balanceOf(contracts.vault.address), expectedFeeInShares);
       await expectBigNumberCloseTo(await contracts.vault.pricePerShare(), parseEther("1.8"));
-      expectValue(await contracts.vault.balanceOf(depositor.address), DEPOSIT_AMOUNT.sub(expectedSharesRequired));
-      expectValue(
+      await expectValue(await contracts.vault.balanceOf(depositor.address), parseEther("444.444444444444444445"));
+      await expectValue(
         await contracts.vault.totalSupply(),
-        DEPOSIT_AMOUNT.sub(expectedSharesRequired).add(expectedFeeInShares)
+        parseEther("555.555555555555555556")
       );
     });
 
@@ -857,7 +890,7 @@ describe("Vault", function () {
       await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
 
       let withdrawAmount = parseEther("495");
-      let expectedSharesRequired = parseEther("277.777777777777777777");
+      let expectedSharesRequired = parseEther("277.777777777777777783");
 
       expectValue(await contracts.vault.previewWithdraw(withdrawAmount), expectedSharesRequired);
       await contracts.vault.connect(depositor)["withdraw(uint256)"](withdrawAmount);
@@ -895,8 +928,8 @@ describe("Vault", function () {
       expectValue(await contracts.vault.accruedManagementFee(), parseEther("10"));
 
       // (1000 * 1000) / (1000-10)
-      expectedShares = parseEther("1010.101010101010101010");
-      expectValue(await contracts.vault.previewWithdraw(DEPOSIT_AMOUNT), expectedShares);
+      expectedShares = parseEther("1010.101010101010101020");
+      await expectValue(await contracts.vault.previewWithdraw(DEPOSIT_AMOUNT), expectedShares);
     });
   });
 
@@ -906,7 +939,7 @@ describe("Vault", function () {
       await contracts.depositToken.connect(depositor).approve(contracts.vault.address, DEPOSIT_AMOUNT.mul(5));
     });
 
-    it("returns the amount of assets given an amount of shares (no fee)", async function () {
+    it("returns the amount of assets required given the amount of shares wanted (no fee)", async function () {
       await contracts.vault.setFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 });
       await contracts.vault.setUseLocalFees(true);
 
@@ -922,7 +955,198 @@ describe("Vault", function () {
 
       // 1000 / 2
       const requiredShares = parseEther("500");
-      expectValue(await contracts.vault.previewMint(requiredShares), DEPOSIT_AMOUNT);
+      await expectValue(await contracts.vault.previewMint(requiredShares), DEPOSIT_AMOUNT);
+    });
+
+    it("returns the amount of assets required given the amount of shares wanted (depFee)", async function () {
+      await contracts.vault.setFees({
+        deposit: FEE_MULTIPLIER.mul(100),
+        withdrawal: 0,
+        management: 0,
+        performance: 0,
+      });
+      await contracts.vault.setUseLocalFees(true);
+
+      // (depositAmount / pricePerShare) - mintFee
+      // (1000 / 1) - ((1000 / 1) * 0.010101010101)
+      let inputShares = DEPOSIT_AMOUNT.sub(parseEther("10"));
+      let expectedAssetsRequired = DEPOSIT_AMOUNT;
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
+
+      // (1000 / 2) - ((1000 / 2) * 0.010101010101)
+      inputShares = parseEther("495");
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+      await expectValue(await contracts.vault.pricePerShare(), parseEther("2"));
+
+      // (990 * 2) + 495 = 2475 shares
+      await expectValue(await contracts.vault.balanceOf(depositor.address), parseEther("2475"));
+
+      // (10 * 2) + 5 = 25 shares
+      await expectValue(await contracts.vault.balanceOf(contracts.vault.address), parseEther("25"));
+
+      // depositorShares + feeShares = 2500 shares
+      await expectValue(await contracts.vault.totalSupply(), parseEther("2500"));
+    });
+
+    it("returns the amount of assets required given the amount of shares wanted (perfFee)", async function () {
+      await contracts.vault.setFees({
+        deposit: 0,
+        withdrawal: 0,
+        management: 0,
+        performance: FEE_MULTIPLIER.mul(2000),
+      });
+      await contracts.vault.setUseLocalFees(true);
+
+      let inputShares = DEPOSIT_AMOUNT;
+      let expectedAssetsRequired = DEPOSIT_AMOUNT;
+
+      // Initial deposit mints 1 for 1
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      // Subsequent deposits mint 1 for 1 until share value changes
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
+
+      // (1000 / 1.8)
+      inputShares = parseEther("555.555555555555555555");
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired.sub(1));
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      // PerformanceFee dilluted the amount of shares by ~20%
+      await expectBigNumberCloseTo(await contracts.vault.pricePerShare(), parseEther("1.8"));
+
+      // (1000 * 2) + 555.555555555555555555
+      await expectValue(await contracts.vault.balanceOf(depositor.address), parseEther("2555.555555555555555555"));
+
+      // 400 / 1.8
+      const expectedFeeShares = parseEther("222.222222222222222222");
+      await expectValue(await contracts.vault.balanceOf(contracts.vault.address), expectedFeeShares);
+
+      // userShares + feeShares
+      await expectValue(await contracts.vault.totalSupply(), parseEther("2777.777777777777777777"));
+    });
+
+    it("returns the amount of assets required given the amount of shares wanted (depFee + perfFee)", async function () {
+      await contracts.vault.setFees({
+        deposit: FEE_MULTIPLIER.mul(100),
+        withdrawal: 0,
+        management: 0,
+        performance: FEE_MULTIPLIER.mul(2000),
+      });
+      await contracts.vault.setUseLocalFees(true);
+
+      // (depositAmount / pricePerShare) - depositFee
+      // (1000 / 1) - ((1000 / 1) * 0.01)
+      let inputShares = DEPOSIT_AMOUNT.sub(parseEther("10"));
+      let expectedAssetsRequired = DEPOSIT_AMOUNT;
+
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      let totalSupply = await contracts.vault.totalSupply();
+      let totalAssets = await contracts.vault.totalAssets();
+      let userBal = await contracts.vault.balanceOf(depositor.address);
+      let feeBal = await contracts.vault.balanceOf(contracts.vault.address);
+      await expectValue(totalSupply, expectedAssetsRequired);
+      await expectValue(totalAssets, expectedAssetsRequired);
+      await expectValue(userBal, inputShares);
+      await expectValue(feeBal, parseEther("10"));
+
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+      totalSupply = await contracts.vault.totalSupply();
+      totalAssets = await contracts.vault.totalAssets();
+      userBal = await contracts.vault.balanceOf(depositor.address);
+      feeBal = await contracts.vault.balanceOf(contracts.vault.address);
+      await expectValue(totalSupply, parseEther("2000"));
+      await expectValue(totalAssets, expectedAssetsRequired.mul(2));
+      await expectValue(userBal, inputShares.mul(2));
+      await expectValue(feeBal, parseEther("20"));
+
+      await contracts.yearnVault.setPricePerFullShare(parseEther("2"));
+
+      // (1000 / 1.8) - ((1000 / 1.8) * 0.01)
+      inputShares = parseEther("550");
+      await expectBigNumberCloseTo(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      // PerformanceFee dilluted the amount of shares by ~20%
+      await expectBigNumberCloseTo(await contracts.vault.pricePerShare(), parseEther("1.8"));
+
+      // (990 * 2) + 550
+      inputShares = parseEther("2530");
+      await expectValue(await contracts.vault.balanceOf(depositor.address), inputShares);
+
+      // (10 * 2) + (10 / 1.8) + (400 / 1.8)
+      const expectedFeeShares = parseEther("247.777777777777777777");
+      await expectBigNumberCloseTo(await contracts.vault.balanceOf(contracts.vault.address), expectedFeeShares);
+
+      // userShares + feeShares
+      await expectBigNumberCloseTo(await contracts.vault.totalSupply(), parseEther("2777.777777777777777777"));
+    });
+
+    it("returns the amount of assets required given the amount of shares wanted (manfFee)", async function () {
+      await contracts.vault.setFees({
+        deposit: 0,
+        withdrawal: 0,
+        management: FEE_MULTIPLIER.mul(100),
+        performance: 0,
+      });
+      await contracts.vault.setUseLocalFees(true);
+
+      let inputShares = DEPOSIT_AMOUNT;
+      let expectedAssetsRequired = DEPOSIT_AMOUNT;
+
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
+      await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
+
+      await timeTravel(365 * DAY);
+      await expectValue(await contracts.vault.accruedManagementFee(), parseEther("10"));
+
+      // (1000 * 1000) / (1000-10)
+      inputShares = parseEther("1010.101010101010101010");
+      await expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired.sub(1));
+    });
+
+    it("prevents underflow on fee", async function () {
+      await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
+      await timeTravel(365 * DAY);
+      await contracts.yearnVault.stubAccountBalance(contracts.vault.address, parseEther("1"));
+      await contracts.yearnVault.setPricePerFullShare(parseEther("1"));
+      await expectValue(await contracts.vault.accruedManagementFee(), parseEther("10.01"));
+      await expectValue(await contracts.vault.totalAssets(), parseEther("1"));
+      await expectValue(await contracts.vault.previewMint(parseEther("1")), 0);
+    });
+  });
+
+  describe("previewRedeem", async function () {
+    beforeEach(async function () {
+      await contracts.depositToken.mint(depositor.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.vault.address, DEPOSIT_AMOUNT);
+    });
+
+    it("returns the amount of assets given an amount of shares (no fee)", async function () {
+      await contracts.vault.setFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 });
+      await contracts.vault.setUseLocalFees(true);
+
+      await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
+
+      const amount = DEPOSIT_AMOUNT;
+      await expectValue(await contracts.vault.previewRedeem(amount), amount.sub(10));
+      await contracts.vault.connect(depositor)["redeem(uint256)"](amount);
+
+      await expectValue(await contracts.vault.totalSupply(), 0);
+      await expectValue(await contracts.vault.totalAssets(), 0);
     });
 
     it("returns the amount of assets given an amount of shares (withFee)", async function () {
@@ -938,7 +1162,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
 
       let withdrawAmount = parseEther("500");
-      let expectedAssetsReturned = parseEther("495");
+      let expectedAssetsReturned = parseEther("495").sub(10);
       let feeBalance = parseEther("5");
       expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
@@ -964,8 +1188,8 @@ describe("Vault", function () {
 
       let withdrawAmount = DEPOSIT_AMOUNT.div(2);
       let expectedFeeInShares = parseEther("111.111111111111111111");
-      let expectedAssetsReturned = parseEther("900");
-      expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
+      let expectedAssetsReturned = parseEther("900")
+      await expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned.sub(10));
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
 
       expectValue(await contracts.vault.totalAssets(), DEPOSIT_AMOUNT.mul(2).sub(expectedAssetsReturned));
@@ -989,8 +1213,8 @@ describe("Vault", function () {
 
       let withdrawAmount = DEPOSIT_AMOUNT.div(2);
       let expectedFeeInShares = parseEther("116.111111111111111111");
-      let expectedAssetsReturned = parseEther("891");
-      expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
+      let expectedAssetsReturned = parseEther("891").sub(10);
+      await expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned);
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
 
       expectValue(await contracts.vault.totalAssets(), parseEther("1109"));
@@ -1012,7 +1236,6 @@ describe("Vault", function () {
       let inputShares = DEPOSIT_AMOUNT;
       let expectedAssetsRequired = DEPOSIT_AMOUNT;
 
-      expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired);
       await contracts.vault.connect(depositor)["mint(uint256)"](inputShares);
 
       await timeTravel(365 * DAY);
@@ -1020,7 +1243,7 @@ describe("Vault", function () {
 
       // (1000 * 1000) / (1000-10)
       inputShares = parseEther("1010.101010101010101010");
-      expectValue(await contracts.vault.previewMint(inputShares), expectedAssetsRequired.sub(1));
+      await expectValue(await contracts.vault.previewRedeem(inputShares), expectedAssetsRequired.sub(1).sub(10));
     });
   });
 
@@ -1118,7 +1341,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
       expectValue(
         await contracts.vault.maxWithdraw(depositor.address),
-        (await contracts.vault.assetsOf(depositor.address)).sub(parseEther("5"))
+        (await contracts.vault.assetsOf(depositor.address)).sub(parseEther("5")).sub(10)
       );
     });
   });
@@ -1669,7 +1892,7 @@ describe("Vault", function () {
           depositor.address,
           depositor.address
         );
-      expectValue(await contracts.depositToken.balanceOf(depositor.address), parseEther("995"));
+      await expectValue(await contracts.depositToken.balanceOf(depositor.address), parseEther("995"));
     });
 
     it("reverts on zero receiver", async function () {
@@ -1724,6 +1947,129 @@ describe("Vault", function () {
           ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
         "ERC20: transfer amount exceeds balance"
       );
+    });
+  });
+
+  describe("unstake and redeem", async () => {
+    // Deposit and stake before each
+    const WITHDRAW_AMOUNT = DEPOSIT_AMOUNT;
+    const EXPECTED_RETURN = DEPOSIT_AMOUNT.sub(parseEther("5"));
+    let tx: ContractTransaction;
+    let depositorBalanceBefore: BigNumber;
+    let receiverBalanceBefore: BigNumber;
+    beforeEach(async function () {
+      await contracts.depositToken.mint(depositor.address, DEPOSIT_AMOUNT);
+      await contracts.depositToken.connect(depositor).approve(contracts.vault.address, DEPOSIT_AMOUNT);
+      await contracts.vault.connect(depositor)["depositAndStake(uint256)"](DEPOSIT_AMOUNT);
+    });
+    context("when staking is adress zero", async () => {
+      beforeEach(async () => {
+        await contracts.vault.connect(owner).setStaking(ADDRESS_ZERO);
+      });
+      it("unstake and redeem reverts", async () => {
+        await expectRevert(contracts.vault.connect(depositor).unstakeAndRedeem(WITHDRAW_AMOUNT), "staking is disabled");
+      });
+      it("unstake and redeem for reverts", async () => {
+        await expectRevert(
+          contracts.vault.connect(depositor).unstakeAndRedeemFor(WITHDRAW_AMOUNT, receiver.address, depositor.address),
+          "staking is disabled"
+        );
+      });
+    });
+    context("without setting allowance", async () => {
+      it("unstake and redeem requires no allowance", async () => {
+        contracts.vault.connect(depositor).unstakeAndRedeem(WITHDRAW_AMOUNT);
+      });
+      it("unstake and redeem for reverts", async () => {
+        await expectRevert(
+          contracts.vault.connect(receiver).unstakeAndRedeemFor(WITHDRAW_AMOUNT, receiver.address, depositor.address),
+          "panic code 0x11"
+        );
+      });
+      it("unstake and redeem for does not require allowance when called by zapper", async () => {
+        receiverBalanceBefore = await contracts.vault.balanceOf(receiver.address);
+        await contracts.vault.connect(owner).setZapper(receiver.address);
+        tx = await contracts.vault
+          .connect(receiver)
+          .unstakeAndRedeemFor(WITHDRAW_AMOUNT, receiver.address, depositor.address);
+        await expectValue(
+          await contracts.depositToken.balanceOf(receiver.address),
+          receiverBalanceBefore.add(EXPECTED_RETURN)
+        );
+      });
+    });
+    context("when balance is insufficient", async () => {
+      beforeEach(async () => {
+        depositorBalanceBefore = await contracts.vault.balanceOf(depositor.address);
+        receiverBalanceBefore = await contracts.vault.balanceOf(receiver.address);
+      });
+      it("unstake and redeem reverts", async () => {
+        await contracts.vault.connect(depositor).approve(depositor.address, DEPOSIT_AMOUNT.add(parseEther("5")));
+        await expectRevert(
+          contracts.vault.connect(depositor).unstakeAndRedeem(DEPOSIT_AMOUNT.add(parseEther("5"))),
+          ""
+        );
+      });
+      it("unstake and redeem for reverts", async () => {
+        await contracts.vault.connect(depositor).approve(receiver.address, DEPOSIT_AMOUNT.add(parseEther("5")));
+        await expectRevert(
+          contracts.vault
+            .connect(receiver)
+            .unstakeAndRedeemFor(DEPOSIT_AMOUNT.add(parseEther("5")), receiver.address, depositor.address),
+          ""
+        );
+      });
+    });
+    context("when successfully unstaking and redeeming for self", async () => {
+      beforeEach(async () => {
+        depositorBalanceBefore = await contracts.vault.balanceOf(depositor.address);
+        receiverBalanceBefore = await contracts.depositToken.balanceOf(depositor.address);
+
+        tx = await contracts.vault.connect(depositor).unstakeAndRedeem(WITHDRAW_AMOUNT);
+        console.log(tx);
+      });
+
+      it("moves assets correctly", async () => {
+        await expectValue(await contracts.vault.balanceOf(depositor.address), 0);
+        await expectValue(await contracts.staking.balanceOf(depositor.address), 0);
+        await expectValue(
+          await contracts.depositToken.balanceOf(depositor.address),
+          receiverBalanceBefore.add(EXPECTED_RETURN)
+        );
+      });
+      it("emits correct events", async () => {
+        await expectEvent(tx, contracts.vault, "UnstakedAndWithdrawn", [
+          WITHDRAW_AMOUNT,
+          depositor.address,
+          depositor.address,
+        ]);
+      });
+    });
+    context("when successfully unstaking and redeeming for a nonOwner", async () => {
+      beforeEach(async () => {
+        depositorBalanceBefore = await contracts.vault.balanceOf(depositor.address);
+        receiverBalanceBefore = await contracts.depositToken.balanceOf(receiver.address);
+
+        await contracts.vault.connect(depositor).approve(receiver.address, WITHDRAW_AMOUNT);
+        tx = await contracts.vault
+          .connect(receiver)
+          .unstakeAndRedeemFor(WITHDRAW_AMOUNT, receiver.address, depositor.address);
+      });
+      it("moves assets correctly", async () => {
+        await expectValue(await contracts.vault.balanceOf(depositor.address), 0);
+        await expectValue(await contracts.staking.balanceOf(depositor.address), 0);
+        await expectValue(
+          await contracts.depositToken.balanceOf(receiver.address),
+          receiverBalanceBefore.add(EXPECTED_RETURN)
+        );
+      });
+      it("emits correct events", async () => {
+        await expectEvent(tx, contracts.vault, "UnstakedAndWithdrawn", [
+          WITHDRAW_AMOUNT,
+          depositor.address,
+          receiver.address,
+        ]);
+      });
     });
   });
 
@@ -2105,6 +2451,12 @@ describe("Vault", function () {
 
       it("owner can withdraw accrued fees", async function () {
         await contracts.vault.connect(depositor)["deposit(uint256)"](DEPOSIT_AMOUNT);
+
+        await contracts.vault.connect(owner).setKeeperConfig({
+          minWithdrawalAmount: parseEther("100"),
+          incentiveVigBps: 1,
+          keeperPayout: parseEther("0"),
+        });
 
         const yearnTokenBalance = await contracts.depositToken.balanceOf(contracts.yearnVault.address);
         await contracts.depositToken.mint(contracts.yearnVault.address, yearnTokenBalance);

@@ -1,6 +1,6 @@
 import { parseEther } from "@ethersproject/units";
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { BasicIssuanceModule, ThreeXBatchProcessing } from "@popcorn/hardhat/typechain";
+import { IBasicIssuanceModule, ThreeXBatchProcessing } from "@popcorn/hardhat/typechain";
 import { Address } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
 import useBasicIssuanceModule from "hooks/set/useBasicIssuanceModule";
@@ -9,7 +9,7 @@ import useSWR from "swr";
 import useThreeXBatch from "./set/useThreeXBatch";
 
 async function getTokenPrice(
-  basicIssuanceModule: BasicIssuanceModule,
+  basicIssuanceModule: IBasicIssuanceModule,
   threeXBatchProcessing: ThreeXBatchProcessing,
   threeXAdress: Address,
 ): Promise<BigNumber> {

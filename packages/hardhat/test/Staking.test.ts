@@ -1,11 +1,13 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumber } from "ethers";
-import { parseEther } from "ethers/lib/utils";
+import { deployMockContract } from "ethereum-waffle";
+import { BigNumber, constants, ContractTransaction } from "ethers";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import { ethers } from "hardhat";
+import { ADDRESS_ZERO } from "../lib/external/SetToken/utils/constants";
 import { expectEvent, expectRevert, expectValue } from "../lib/utils/expectValue";
 import { DAYS, timeTravel } from "../lib/utils/test";
-import { MockERC20, Staking } from "../typechain";
-import { RewardsEscrow } from "../typechain/RewardsEscrow";
+import { MockERC20, Staking, Vault, RewardsEscrow } from "../typechain";
+import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
 
 let stakingFund: BigNumber;
 
@@ -17,28 +19,42 @@ let owner: SignerWithAddress,
 
 let mockERC20Factory;
 let stakingToken: MockERC20;
+let depositToken: MockERC20;
 let mockPop: MockERC20;
 let otherToken: MockERC20;
 let staking: Staking;
+let vault: Vault;
 let rewardsEscrow: RewardsEscrow;
 let rewardsEscrowAddress: SignerWithAddress;
 
 const STAKE_AMOUNT = parseEther("10");
 const STAKING_FUND = parseEther("10");
+const MINUTE = 60;
+const DAY = 60 * 60 * 24;
+const DEPOSIT_AMOUNT = parseEther("1000");
+const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
 
 describe("Staking", function () {
   beforeEach(async function () {
+    // Setup
     [owner, nonOwner, staker, treasury, rewardsDistributor, rewardsEscrowAddress] = await ethers.getSigners();
     mockERC20Factory = await ethers.getContractFactory("MockERC20");
     mockPop = (await mockERC20Factory.deploy("TestPOP", "TPOP", 18)) as MockERC20;
     await mockPop.mint(owner.address, parseEther("1000000"));
     await mockPop.mint(nonOwner.address, parseEther("10"));
 
+    // Mint staking token
     stakingToken = (await mockERC20Factory.deploy("TestStakingToken", "TSTAKING", 18)) as MockERC20;
     await stakingToken.mint(owner.address, parseEther("1000000"));
     await stakingToken.mint(nonOwner.address, parseEther("10"));
 
     otherToken = (await mockERC20Factory.deploy("TestOtherToken", "TOTHER", 18)) as MockERC20;
+
+    const MockERC20 = await ethers.getContractFactory("MockERC20");
+    depositToken = await (await MockERC20.deploy("Token", "TOKEN", 18)).deployed();
+
+    const MockYearnV2Vault = await ethers.getContractFactory("MockYearnV2Vault");
+    const yearnVault = await (await MockYearnV2Vault.deploy(depositToken.address)).deployed();
 
     rewardsEscrow = (await (
       await (await ethers.getContractFactory("RewardsEscrow")).deploy(mockPop.address)
@@ -48,9 +64,63 @@ describe("Staking", function () {
     staking = (await stakingFactory.deploy(mockPop.address, stakingToken.address, rewardsEscrow.address)) as Staking;
     await staking.deployed();
 
+    // Give mockPop to owner and staking contract
     await rewardsEscrow.addAuthorizedContract(staking.address);
     await mockPop.transfer(staking.address, STAKING_FUND);
     await mockPop.connect(owner).approve(staking.address, parseEther("100000"));
+
+    const yearnRegistry = await deployMockContract(owner, yearnRegistryABI);
+    await yearnRegistry.mock.latestVault.returns(yearnVault.address);
+    await yearnRegistry.mock.numVaults.returns(1);
+    await yearnRegistry.mock.vaults.returns(yearnVault.address);
+
+    const aclRegistry = await (await (await ethers.getContractFactory("ACLRegistry")).deploy()).deployed();
+    await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
+
+    const contractRegistry = await (
+      await (await ethers.getContractFactory("ContractRegistry")).deploy(aclRegistry.address)
+    ).deployed();
+
+    // Setup & deploy Vault
+    const Vault = await ethers.getContractFactory("Vault");
+    vault = await (
+      await Vault.deploy(
+        depositToken.address,
+        yearnRegistry.address,
+        contractRegistry.address,
+        ADDRESS_ZERO,
+        {
+          deposit: 0,
+          withdrawal: FEE_MULTIPLIER.mul(50),
+          management: FEE_MULTIPLIER.mul(200),
+          performance: FEE_MULTIPLIER.mul(2000),
+        },
+        {
+          minWithdrawalAmount: parseEther("100"),
+          incentiveVigBps: 0,
+          keeperPayout: 0,
+        }
+      )
+    ).deployed();
+
+    const vaultFeeController = await (
+      await (
+        await ethers.getContractFactory("VaultFeeController")
+      ).deploy(
+        {
+          deposit: 0,
+          withdrawal: FEE_MULTIPLIER.mul(50),
+          management: FEE_MULTIPLIER.mul(200),
+          performance: FEE_MULTIPLIER.mul(2000),
+        },
+        contractRegistry.address
+      )
+    ).deployed();
+
+    await contractRegistry
+      .connect(owner)
+      .addContract(ethers.utils.id("VaultFeeController"), vaultFeeController.address, ethers.utils.id("1"));
+
   });
 
   describe("constructor", function () {
@@ -277,6 +347,159 @@ describe("Staking", function () {
     });
   });
 
+  describe("withdrawFor", function () {
+    context("require statements", function () {
+      it("reverts on zero amount", async function () {
+        await staking.connect(staker).approve(nonOwner.address, STAKE_AMOUNT);
+        await expectRevert(
+          staking.connect(nonOwner).withdrawFor(0, staker.address, nonOwner.address),
+          "Cannot withdraw 0"
+        );
+      });
+
+      it("reverts on non-approved withdrawer", async function () {
+        await stakingToken.mint(staker.address, STAKE_AMOUNT);
+        await stakingToken.connect(staker).increaseAllowance(staking.address, STAKE_AMOUNT);
+        await staking.connect(staker).stake(STAKE_AMOUNT);
+        await expectRevert(
+          staking.connect(nonOwner).withdrawFor(STAKE_AMOUNT, staker.address, nonOwner.address),
+          "panic code 0x11"
+        );
+      });
+
+      it("reverts on non-approved withdrawl for amount", async function () {
+        await stakingToken.mint(staker.address, STAKE_AMOUNT);
+        await stakingToken.connect(staker).increaseAllowance(staking.address, STAKE_AMOUNT);
+        await staking.connect(staker).stake(STAKE_AMOUNT);
+        await staking.connect(staker).approve(nonOwner.address, parseEther("1"));
+        await expectRevert(
+          staking.connect(nonOwner).withdrawFor(parseEther("2"), staker.address, nonOwner.address),
+          "panic code 0x11"
+        );
+      });
+
+      context("successful withdrawal fors", function () {
+        let receiverPreBal: BigNumber;
+        let withdrawTx: ContractTransaction;
+
+        beforeEach(async function () {
+          await stakingToken.mint(staker.address, STAKE_AMOUNT);
+          await stakingToken.connect(staker).increaseAllowance(staking.address, STAKE_AMOUNT);
+          await staking.connect(staker).stake(STAKE_AMOUNT);
+        });
+
+        context("full withdrawal for", function () {
+          beforeEach(async function () {
+            // Deposit for the nonOwner to check if _updateReward gets called correctly
+            await stakingToken.mint(nonOwner.address, STAKE_AMOUNT);
+            await stakingToken.connect(nonOwner).approve(staking.address, STAKE_AMOUNT);
+            await staking.connect(nonOwner).stake(STAKE_AMOUNT);
+
+            await staking.connect(owner).notifyRewardAmount(STAKING_FUND);
+            await timeTravel(7 * DAYS);
+
+            // Approve nonOwner and withdraw
+            receiverPreBal = await stakingToken.balanceOf(nonOwner.address);
+            await staking.connect(staker).approve(nonOwner.address, STAKE_AMOUNT);
+            withdrawTx = await staking.connect(nonOwner).withdrawFor(STAKE_AMOUNT, staker.address, nonOwner.address);
+          });
+
+          it("decreases total supply by withdrawal amount", async function () {
+            await expectValue(await staking.totalSupply(), STAKE_AMOUNT);
+          });
+
+          it("reduces owner account balance by withdrawal amount", async function () {
+            await expectValue(await staking.balanceOf(staker.address), 0);
+          });
+
+          it("reduces allowance of owner to msg.sender", async function () {
+            await expectValue(await staking.allowance(staker.address, nonOwner.address), 0);
+          });
+
+          it("transfers staking token to receiver account", async function () {
+            await expectValue(await stakingToken.balanceOf(staker.address), 0);
+            await expectValue(await stakingToken.balanceOf(nonOwner.address), receiverPreBal.add(STAKE_AMOUNT));
+          });
+
+          it("emits Withdrawn event", async function () {
+            await expectEvent(withdrawTx, staking, "Withdrawn", [staker.address, STAKE_AMOUNT]);
+          });
+
+          it("calls _updateReward for owner and receiver", async () => {
+            await expectValue(await staking.earned(staker.address), parseEther("4.9999999999998384"));
+            await expectValue(await staking.earned(nonOwner.address), parseEther("4.9999999999998384"));
+          });
+        });
+
+        context("partial withdrawal for", function () {
+          const remainder = parseEther("1");
+          const withdrawal = STAKE_AMOUNT.sub(remainder);
+          let receiverPreBal: BigNumber;
+
+          beforeEach(async function () {
+            await staking.connect(staker).approve(nonOwner.address, withdrawal);
+            receiverPreBal = await stakingToken.balanceOf(nonOwner.address);
+            withdrawTx = await staking.connect(nonOwner).withdrawFor(withdrawal, staker.address, nonOwner.address);
+          });
+
+          it("decreasese total supply by withdrawal amount", async function () {
+            await expectValue(await staking.totalSupply(), remainder);
+          });
+
+          it("reduces withdrawFor account balance by withdrawal amount", async function () {
+            await expectValue(await staking.balanceOf(staker.address), remainder);
+          });
+
+          it("transfers staking token to withdrawFor account", async function () {
+            await expectValue(await stakingToken.balanceOf(staking.address), remainder);
+            await expectValue(await stakingToken.balanceOf(nonOwner.address), receiverPreBal.add(withdrawal));
+          });
+
+          it("emits Withdrawn event", async function () {
+            await expectEvent(withdrawTx, staking, "Withdrawn", [staker.address, withdrawal]);
+          });
+        });
+
+        context("vault withdrawsFor", () => {
+          const remainder = parseEther("1");
+          const withdrawal = STAKE_AMOUNT.sub(remainder);
+          let receiverPreBal: BigNumber;
+
+          beforeEach(async () => {
+            const stakingFactory = await ethers.getContractFactory("Staking");
+            const vaultStaking = (await stakingFactory.deploy(mockPop.address, vault.address, rewardsEscrow.address)) as Staking;
+            await vaultStaking.deployed();
+
+            await vault.connect(owner).setStaking(vaultStaking.address);
+            await vaultStaking.connect(owner).setVault(vault.address);
+
+            await depositToken.mint(staker.address, STAKE_AMOUNT);
+            await depositToken.connect(staker).approve(vault.address, STAKE_AMOUNT);
+
+            await vault.connect(staker)["depositAndStake(uint256)"](STAKE_AMOUNT);
+
+            await staking.connect(staker).approve(nonOwner.address, withdrawal);
+            receiverPreBal = await stakingToken.balanceOf(nonOwner.address);
+            withdrawTx = await staking.connect(nonOwner).withdrawFor(withdrawal, staker.address, nonOwner.address);
+          });
+
+          it("Vault does not require allowance to withdraw", async function () {
+            await expectValue(await vault.allowance(staker.address, vault.address), 0);
+          });
+
+          it("transfers staking token to receiver account", async function () {
+            await expectValue(await stakingToken.balanceOf(staker.address), 0);
+            await expectValue(await stakingToken.balanceOf(nonOwner.address), receiverPreBal.add(withdrawal));
+          });
+
+          it("emits correct Withdrawn event", async function () {
+            await expectEvent(withdrawTx, staking, "Withdrawn", [staker.address, withdrawal]);
+          });
+        });
+      });
+    });
+  });
+
   describe("getReward", function () {
     beforeEach(async function () {
       await stakingToken.mint(staker.address, STAKE_AMOUNT);
@@ -496,6 +719,41 @@ describe("Staking", function () {
         "RewardsDurationUpdated",
         [REWARDS_DURATION]
       );
+    });
+  });
+
+  describe("setVault", function () {
+    it("reverts if called by non owner", async () => {
+      await expectRevert(staking.connect(nonOwner).setVault(vault.address), "Ownable: caller is not the owner");
+    });
+
+    it("updates vault", async () => {
+      await staking.connect(owner).setVault(vault.address), await expectValue(await staking.vault(), vault.address);
+    });
+
+    it("emits VaultUpdated", async () => {
+      await expectEvent(await staking.connect(owner).setVault(vault.address), staking, "VaultUpdated", [
+        constants.AddressZero,
+        vault.address,
+      ]);
+    });
+  });
+
+  describe("nontransferable", function () {
+    let shares: BigNumber;
+    beforeEach(async function () {
+      await stakingToken.mint(staker.address, STAKE_AMOUNT);
+      await stakingToken.connect(staker).increaseAllowance(staking.address, STAKE_AMOUNT);
+      await staking.connect(staker).stake(STAKE_AMOUNT);
+      shares = await staking.balanceOf(staker.address);
+      await staking.connect(staker).approve(owner.address, shares);
+    });
+    it("reverts if calling transfer", async () => {
+      await expectRevert(staking.connect(staker).transfer(nonOwner.address, shares), "nonTransferable");
+    });
+
+    it("reverts if calling transferFrom", async () => {
+      await expectRevert(staking.transferFrom(staker.address, nonOwner.address, shares), "nonTransferable");
     });
   });
 });

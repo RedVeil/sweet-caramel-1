@@ -26,5 +26,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default main;
 
-main.dependencies = ["setup"];
+main.dependencies = ["setup", "contract-registry", "test-pop"];
 main.tags = ["core", "frontend", "rewards-escrow"];

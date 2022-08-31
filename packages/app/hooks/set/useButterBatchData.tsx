@@ -1,4 +1,4 @@
-import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
 import { BatchMetadata } from "@popcorn/utils/src/types";
 import useERC20 from "hooks/tokens/useERC20";
 import useThreePool from "hooks/useThreePool";
@@ -7,7 +7,6 @@ import useSWR, { SWRResponse } from "swr";
 import { getData } from "../../helper/ButterDataUtils";
 import useBasicIssuanceModule from "./useBasicIssuanceModule";
 import useButterBatch from "./useButterBatch";
-import useButterBatchAdapter from "./useButterBatchAdapter";
 import useButterBatchZapper from "./useButterBatchZapper";
 import useSetToken from "./useSetToken";
 
@@ -23,7 +22,7 @@ export default function useButterBatchData(rpcProvider?): SWRResponse<BatchMetad
   const setBasicIssuanceModule = useBasicIssuanceModule(rpcProvider);
   const threePool = useThreePool(rpcProvider);
 
-  const butterBatchAdapter = useButterBatchAdapter(butterBatch);
+  const butterBatchAdapter = new ButterBatchAdapter(butterBatch);
   const shouldFetch = !!(
     !!butterBatchAdapter &&
     !!account &&

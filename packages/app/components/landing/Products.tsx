@@ -1,18 +1,16 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { bigNumberToNumber, ChainId, localStringOptions } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { constants } from "ethers";
-import { formatUnits } from "ethers/lib/utils";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 import useGetYearnAPY from "hooks/set/useGetYearnAPY";
 import useSetTokenTVL from "hooks/set/useSetTokenTVL";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useStakingTVL from "hooks/staking/useStakingTVL";
-import { useRouter } from "next/router";
 import React from "react";
 import Product from "./Product";
 
 const Products = () => {
-  const router = useRouter();
   const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
   const { data: threeXAPY } = useGetYearnAPY([contractAddresses.ySusd, contractAddresses.y3Eur]);
   const { data: butterAPY } = useGetYearnAPY([
@@ -32,6 +30,8 @@ const Products = () => {
     //@ts-ignore
     notation: "compact",
   });
+
+  console.log()
 
   return (
     <section className="mt-10">
@@ -73,10 +73,7 @@ const Products = () => {
               title: "vAPR",
               content:
                 threeXAPY && threeXStaking && threeXStaking?.apy?.gte(constants.Zero)
-                  ? `${(threeXAPY + bigNumberToNumber(threeXStaking.apy)).toLocaleString(
-                      undefined,
-                      localStringOptions,
-                    )}%`
+                  ? `${formatAndRoundBigNumber(threeXStaking.apy.add(parseUnits(String(threeXAPY))), 18)}%`
                   : "New 🍿✨",
               infoIcon: {
                 title: "Variable Annual Percentage Rate",
@@ -107,10 +104,7 @@ const Products = () => {
               title: "vAPR",
               content:
                 butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                  ? `${(butterAPY + bigNumberToNumber(butterStaking.apy)).toLocaleString(
-                      undefined,
-                      localStringOptions,
-                    )}%`
+                  ? `${formatAndRoundBigNumber(butterStaking.apy.add(parseUnits(String(butterAPY))), 18)}%`
                   : "New 🍿✨",
               infoIcon: {
                 title: "Variable Annual Percentage Rate",

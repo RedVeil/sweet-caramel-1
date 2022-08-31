@@ -1,6 +1,6 @@
 import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
 import { HardhatConfigNetworks, HardhatConfigNetworksChainIdMapping } from "@popcorn/utils/src/connectors";
-import { ERC20Metadata } from "@popcorn/utils/types";
+import { ERC20Metadata, SweetVaultMetadata } from "@popcorn/utils/types";
 
 const namedAccounts = getNamedAccounts();
 
@@ -21,6 +21,9 @@ const {
   crvRai,
   crvMusd,
   crvAlusd,
+  crvSEth,
+  sEth,
+  sEthSweetVault,
   popStaking,
   popUsdcArrakisVault,
   popUsdcUniV3Pool,
@@ -33,7 +36,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "xPOP",
       symbol: "xPOP",
-      icon: "/images/icons/POP.svg",
+      icon: "/images/icons/popLogo.png",
     },
   },
   {
@@ -49,7 +52,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "Popcorn",
       symbol: "POP",
-      icon: "/images/icons/POP.svg",
+      icon: "/images/icons/popLogo.png",
     },
   },
   {
@@ -69,7 +72,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "POP",
       symbol: "POP",
-      icon: "/images/icons/POP.svg",
+      icon: "/images/icons/popLogo.png",
     },
   },
   {
@@ -159,6 +162,36 @@ const config: OverrideConfig = [
       name: "crvAlusd",
     },
   },
+  {
+    addresses: crvSEth,
+    metadata: {
+      name: "crv-sETH/ETH LP",
+      symbol: "crv-sETH/ETH",
+      icon: "/images/tokens/crvSEth.png",
+    },
+  },
+  {
+    addresses: sEth,
+    metadata: {
+      name: "sETH",
+      symbol: "sETH",
+      icon: "/images/tokens/sEth.webp",
+    },
+  },
+  {
+    addresses: sEthSweetVault,
+    metadata: {
+      name: "ETH/sETH Vault",
+      symbol: "pop-ETH/sETH",
+      icon: "/images/tokens/crvSEth.png",
+      displayText: {
+        strategy: `Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.`,
+        token: `This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform.`,
+      },
+      curveLink: "https://curve.fi/seth/deposit",
+      defaultDepositTokenSymbol: "ETH",
+    },
+  },
 ];
 
 // singleton for tokenMetadataOverride so we only have to reduce the collection once.
@@ -239,6 +272,6 @@ export interface OverrideObject {
   addresses: {
     [network in NetworkKeys]?: string;
   };
-  metadata: ContractMetadata & Partial<ERC20Metadata>;
+  metadata: ContractMetadata & Partial<ERC20Metadata> & Partial<SweetVaultMetadata>;
 }
 export type OverrideConfig = OverrideObject[];

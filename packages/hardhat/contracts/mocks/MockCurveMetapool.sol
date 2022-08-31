@@ -93,9 +93,14 @@ contract MockCurveMetapool {
   function exchange(
     int128 i,
     int128 j,
-    uint256 dx,
-    uint256 min_dy
-  ) external returns (uint256) {
+    uint256 dx
+  )
+    external
+    returns (
+      /* uint256 min_dy */
+      uint256
+    )
+  {
     if (i == 0) {
       dai.transferFrom(msg.sender, address(this), dx);
     } else {
@@ -109,11 +114,16 @@ contract MockCurveMetapool {
 
   //...And some others use exchange_underlying (mim,3crv)
   function exchange_underlying(
-    int128 i,
-    int128 j,
-    uint256 dx,
-    uint256 min_dy
-  ) external returns (uint256) {
+    /* int128 i */
+    /* int128 j */
+    uint256 dx
+  )
+    external
+    returns (
+      /* uint256 min_dy */
+      uint256
+    )
+  {
     usdc.transferFrom(msg.sender, address(this), dx);
     token.transfer(msg.sender, dx);
     return dx;

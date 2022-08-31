@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import "./ISetToken.sol";
 
-interface BasicIssuanceModule {
+interface IBasicIssuanceModule {
   function getRequiredComponentUnitsForIssue(ISetToken _setToken, uint256 _quantity)
     external
     view

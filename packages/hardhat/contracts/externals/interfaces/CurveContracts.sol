@@ -97,3 +97,7 @@ interface TriPool {
 interface ThreeCrv is IERC20 {}
 
 interface CrvLPToken is IERC20 {}
+
+interface StableSwap {
+  function coins(uint256 i) external view returns (address);
+}

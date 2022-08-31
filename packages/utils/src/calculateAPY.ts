@@ -1,6 +1,6 @@
 import { parseEther } from "@ethersproject/units";
 import {
-  BasicIssuanceModule__factory,
+  IBasicIssuanceModule__factory,
   ButterBatchProcessing__factory,
   ERC20,
   ERC20__factory,
@@ -109,7 +109,7 @@ export async function getButterApy(
   }
 
   const butterBatch = ButterBatchProcessing__factory.connect(contractAddresses.butterBatch, library);
-  const basicIssuanceModule = BasicIssuanceModule__factory.connect(
+  const basicIssuanceModule = IBasicIssuanceModule__factory.connect(
     contractAddresses.butterDependency.setBasicIssuanceModule,
     library,
   );

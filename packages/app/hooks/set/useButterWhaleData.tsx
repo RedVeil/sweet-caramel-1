@@ -1,6 +1,6 @@
+import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
 import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/src/types";
-import useButterBatchAdapter from "hooks/set/useButterBatchAdapter";
 import useERC20 from "hooks/tokens/useERC20";
 import useThreePool from "hooks/useThreePool";
 import useWeb3 from "hooks/useWeb3";
@@ -23,7 +23,7 @@ export default function useButterWhaleData(): SWRResponse<BatchMetadata, Error> 
   const whaleButter = useButterWhaleProcessing();
   const threePool = useThreePool();
 
-  const butterBatchAdapter = useButterBatchAdapter(butterBatch);
+  const butterBatchAdapter = new ButterBatchAdapter(butterBatch);
   const shouldFetch = !!(
     !!butterBatchAdapter &&
     !!account &&

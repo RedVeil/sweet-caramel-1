@@ -1,42 +1,41 @@
 import { BigNumber, constants, utils } from "ethers";
-import { parseEther } from "ethers/lib/utils";
+import { parseUnits } from "ethers/lib/utils";
 
-export function formatAndRoundBigNumber(value: BigNumber, digits?: number, decimals = 18): string {
+const MILLION = 1e6;
+const THOUSAND = 1e3;
+
+export function formatAndRoundBigNumber(value: BigNumber, decimals: number): string {
   if (BigNumber.isBigNumber(value)) {
-    return Number(utils.formatUnits(value, decimals)).toLocaleString(undefined, {
-      maximumFractionDigits: digits ? digits : 0,
-    });
+    const formatedValue = Number(utils.formatUnits(value, decimals));
+    if (formatedValue > MILLION) {
+      return `${(formatedValue / MILLION).toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      })}M`;
+    } else if (formatedValue > THOUSAND) {
+      return `${(formatedValue / THOUSAND).toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      })}k`;
+    } else if (formatedValue > 1) {
+      return formatedValue.toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      });
+    } else if (formatedValue === 1) {
+      return String(formatedValue);
+    } else if (formatedValue < 1) {
+      return formatedValue.toLocaleString(undefined, {
+        maximumFractionDigits: 6,
+      });
+    }
   }
   return `Invalid val: ${value}`;
 }
 
-export function formatBigNumber(value: BigNumber, decimals: number = 18): string {
-  if (BigNumber.isBigNumber(value)) {
-    return utils.formatUnits(value, decimals);
-  }
-  return "0";
-}
-
-export function bigNumberToNumber(value: BigNumber): number {
-  if (BigNumber.isBigNumber(value)) {
-    return Number(utils.formatEther(value));
-  }
-  return 0;
-}
-
-export function numberToBigNumber(value: number | string, decimals: number = 18): BigNumber {
+export function numberToBigNumber(value: number | string, decimals: number): BigNumber {
   if (typeof value === "number") {
-    return BigNumber.from(parseEther(String(value)));
+    return BigNumber.from(parseUnits(String(value), decimals));
   } else if (typeof value === "string") {
     if (value == "" || value == ".") value = "0";
-    return BigNumber.from(parseEther(value));
+    return BigNumber.from(parseUnits(value, decimals));
   }
   return constants.Zero;
-}
-
-export function scaleNumberToBigNumber(value: number): BigNumber {
-  if (typeof value === "number") {
-    return utils.parseEther(String(value));
-  }
-  return utils.parseEther("0");
 }

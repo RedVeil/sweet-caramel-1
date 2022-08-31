@@ -1,43 +1,56 @@
-import { numberToBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
-import { BigNumber } from "ethers";
-import { formatUnits } from "ethers/lib/utils";
-import { formatStakedAmount } from "helper/formatAmount";
+import TokenSelection from "components/SweetVaults/TokenSelection";
+import { BigNumber, constants } from "ethers";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
 export interface TokenInputProps {
   label: string;
   token: Token;
   amount: BigNumber;
-  balance?: BigNumber;
   setAmount: Function;
+  balance?: BigNumber;
   readonly?: boolean;
+  tokenList?: Token[];
+  selectToken?: any;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
   label,
   token,
-  amount,
   setAmount,
+  amount,
   balance,
   readonly = false,
+  tokenList = [],
+  selectToken = null,
 }) => {
-  const displayAmount = amount.isZero() ? "" : formatUnits(amount, token.decimals);
-  const ref = useRef(displayAmount);
+  const [displayAmount, setDisplayAmount] = useState<string>(
+    amount.isZero() ? "" : formatUnits(amount, token?.decimals),
+  );
 
   useEffect(() => {
-    if (displayAmount !== ref.current) {
-      ref.current = ref.current.includes(".") || readonly ? displayAmount : displayAmount.split(".")[0];
+    if (amount.isZero()) {
+      setDisplayAmount("");
     }
-  }, [ref, displayAmount]);
+  }, [amount]);
 
   const onUpdate = (nextUserInput: string) => {
-    if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
-      setAmount(numberToBigNumber(nextUserInput));
-      ref.current = nextUserInput;
+    if (inputRegex.test(escapeRegExp(nextUserInput))) {
+      const newAmount = ["", "."].includes(nextUserInput) ? constants.Zero : parseUnits(nextUserInput, token?.decimals);
+      setDisplayAmount(nextUserInput);
+      if (!amount.eq(newAmount)) {
+        setAmount(newAmount);
+      }
     }
   };
+
+  function setMaxAmount() {
+    setDisplayAmount(formatUnits(balance, token?.decimals));
+    setAmount(balance);
+  }
 
   return (
     <>
@@ -45,16 +58,15 @@ export const TokenInput: React.FC<TokenInputProps> = ({
         <label htmlFor="tokenInput" className="flex justify-between items-center font-medium text-gray-700 w-full mb-2">
           <p className="font-medium text-primary">{label}</p>
           <p className="text-secondaryLight leading-6">
-            {formatStakedAmount(balance)} {token.symbol}
+            {formatAndRoundBigNumber(balance, token?.decimals)} {token?.symbol}
           </p>
         </label>
       )}
       <div className="flex items-center gap-2 w-full">
         <div className="w-full">
           <div
-            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${
-              balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
-            }`}
+            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
+              }`}
           >
             <input
               name="tokenInput"
@@ -63,7 +75,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               onChange={(e) => {
                 onUpdate(e.target.value.replace(/,/g, "."));
               }}
-              value={ref.current}
+              value={displayAmount}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"
@@ -84,9 +96,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
             <div
               className="px-5 py-4 leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white text-lg transition-all"
               role="button"
-              onClick={() => {
-                onUpdate(formatUnits(balance, token.decimals));
-              }}
+              onClick={setMaxAmount}
             >
               MAX
             </div>
