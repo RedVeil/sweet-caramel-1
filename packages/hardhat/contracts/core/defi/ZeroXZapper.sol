@@ -51,9 +51,17 @@ interface IVault is IEIP4626 {
 interface ICurve {
   function calc_withdraw_one_coin(uint256 amount, int128 i) external view returns (uint256);
 
+  function calc_withdraw_one_coin(uint256 amount, uint256 i) external view returns (uint256);
+
   function remove_liquidity_one_coin(
     uint256 burn_amount,
     int128 i,
+    uint256 min_amount
+  ) external;
+
+  function remove_liquidity_one_coin(
+    uint256 burn_amount,
+    uint256 i,
     uint256 min_amount
   ) external;
 }
@@ -108,15 +116,16 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     uint256 amount,
     int128 i
   ) public view returns (uint256) {
-    address vault = vaults[vaultAsset];
-    require(vault != address(0), "Invalid vault");
+    return ICurve(stableSwap).calc_withdraw_one_coin(_getRedeemAmountForPreview(vaultAsset, amount), i);
+  }
 
-    uint256 redeemAmount = IVault(vault).previewRedeem(amount);
-
-    Fee memory assetfee = fees[vaultAsset];
-    redeemAmount -= (redeemAmount * (assetfee.useAssetFee ? assetfee.outBps : globalFee.outBps)) / 10_000;
-
-    return ICurve(stableSwap).calc_withdraw_one_coin(redeemAmount, i);
+  function previewZapOutTokenAmount(
+    address vaultAsset,
+    address stableSwap,
+    uint256 amount,
+    uint256 i
+  ) public view returns (uint256) {
+    return ICurve(stableSwap).calc_withdraw_one_coin(_getRedeemAmountForPreview(vaultAsset, amount), i);
   }
 
   /* ========== ADMIN FUNCTIONS ========== */
@@ -317,5 +326,14 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
 
   function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
     return super._getContract(_name);
+  }
+
+  function _getRedeemAmountForPreview(address vaultAsset, uint256 amount) internal view returns (uint256 redeemAmount) {
+    address vault = vaults[vaultAsset];
+    require(vault != address(0), "Invalid vault");
+    redeemAmount = IVault(vault).previewRedeem(amount);
+
+    Fee memory assetfee = fees[vaultAsset];
+    redeemAmount -= (redeemAmount * (assetfee.useAssetFee ? assetfee.outBps : globalFee.outBps)) / 10_000;
   }
 }
