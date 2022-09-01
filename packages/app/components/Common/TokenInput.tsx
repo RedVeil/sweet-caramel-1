@@ -34,6 +34,8 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   useEffect(() => {
     if (amount.isZero()) {
       setDisplayAmount("");
+    } else if (readonly) {
+      setDisplayAmount(formatUnits(amount, token?.decimals))
     }
   }, [amount]);
 
@@ -91,7 +93,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
             <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token.symbol}</p>
           </div>
         </div>
-        <div className={`absolute inset-y-0 right-0 flex items-center py-1.5 ${selectToken ? "" : "pr-3"}`}>
+        <div className="">
           {!readonly && balance && (
             <>
               <div
