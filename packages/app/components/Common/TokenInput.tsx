@@ -33,6 +33,8 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   useEffect(() => {
     if (amount.isZero()) {
       setDisplayAmount("");
+    } else if (readonly) {
+      setDisplayAmount(formatUnits(amount, token?.decimals));
     }
   }, [amount]);
 
@@ -91,17 +93,26 @@ export const TokenInput: React.FC<TokenInputProps> = ({
             <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token?.symbol}</p>
           </div>
         </div>
-        {!readonly && balance && (
-          <div>
-            <div
-              className="px-5 py-4 leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white text-lg transition-all"
-              role="button"
-              onClick={setMaxAmount}
-            >
-              MAX
-            </div>
-          </div>
-        )}
+        <div className="">
+          {!readonly && balance && (
+            <>
+              <div
+                className="px-5 py-4 leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white text-lg transition-all"
+                role="button"
+                onClick={setMaxAmount}
+              >
+                MAX
+              </div>
+              {tokenList.length > 0 && (
+                <TokenSelection
+                  selectedToken={token}
+                  tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
+                  selectToken={selectToken}
+                />
+              )}
+            </>
+          )}
+        </div>
       </div>
       {balance && amount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}
     </>

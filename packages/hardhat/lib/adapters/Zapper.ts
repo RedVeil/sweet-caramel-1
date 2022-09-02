@@ -5,11 +5,9 @@ import { ERC20, Vault } from "../../typechain";
 import { ZeroXZapper } from "../../typechain/ZeroXZapper";
 import erc20abi from "../external/erc20/abi.json";
 
-
-const TRI_CRYPTO_POOL_ADDRESS = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46"
-const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
-const USDT_DECIMALS = 6
-
+const TRI_CRYPTO_POOL_ADDRESS = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
+const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+const USDT_DECIMALS = 6;
 
 interface Token {
   address: string;
@@ -22,7 +20,7 @@ export class Zapper {
   private swapTarget = "0xDef1C0ded9bec7F1a1670819833240f027b25EfF";
   private endpoint = "https://api.0x.org/swap/v1/quote";
 
-  constructor(private client: AxiosStatic, public zapper: ZeroXZapper) { }
+  constructor(private client: AxiosStatic, public zapper: ZeroXZapper) {}
 
   public async zapIn(
     from: Token,
@@ -70,9 +68,9 @@ export class Zapper {
     let sellToken = to;
     let swapData = "0x";
     if (!coins.map((coin) => coin.address).includes(to.address)) {
-      const { token, i } = await this.getIntermediateToken(curveLPAddress, coins, true);
+      const { token, i } = await this.getIntermediateToken(stableSwapAddress, coins, true);
       sellToken = token;
-      const swapAmount = await this.zapper.previewZapOutTokenAmount(curveLPAddress, stableSwapAddress, sellAmount, i);
+      let swapAmount = await this.getSwapAmount(curveLPAddress, stableSwapAddress, sellAmount, i);
       swapData = await (await this.getQuote(sellToken, swapAmount, to, slippagePercentage)).data.data;
     }
     return this.zapper.zapOut(
@@ -88,15 +86,48 @@ export class Zapper {
     );
   }
 
+  private async getSwapAmount(curveLPAddress: string, stableSwapAddress: string, sellAmount: BigNumber, i: number) {
+    let swapAmount;
+    let error;
+    try {
+      swapAmount = await this.zapper["previewZapOutTokenAmount(address,address,uint256,int128)"](
+        curveLPAddress,
+        stableSwapAddress,
+        sellAmount,
+        i
+      );
+    } catch (e) {
+      error = e;
+    }
+    if (!swapAmount) {
+      try {
+        swapAmount = await this.zapper["previewZapOutTokenAmount(address,address,uint256,uint256)"](
+          curveLPAddress,
+          stableSwapAddress,
+          sellAmount,
+          i
+        );
+      } catch (e) {
+        error = e;
+      }
+    }
+    if (!swapAmount && error) {
+      throw error;
+    }
+    return swapAmount;
+  }
+
   public constructSwapUrl(
     buyToken: Token,
     sellToken: Token,
     sellAmount: BigNumber,
     slippagePercentage: number
   ): string {
-    return `${this.endpoint}?buyToken=${buyToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? "ETH" : buyToken.address
-      }&sellToken=${sellToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? "ETH" : sellToken.address
-      }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
+    return `${this.endpoint}?buyToken=${
+      buyToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? "ETH" : buyToken.address
+    }&sellToken=${
+      sellToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? "ETH" : sellToken.address
+    }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
   }
 
   public async getPoolAddress(lpTokenAddress: string, provider): Promise<string> {
@@ -137,7 +168,7 @@ export class Zapper {
     sell = false
   ): Promise<{ token: Token; i?: number }> {
     if (stableSwapAddress.toLowerCase() === TRI_CRYPTO_POOL_ADDRESS.toLowerCase()) {
-      return { token: { address: USDT_ADDRESS, decimals: USDT_DECIMALS }, i: 0 }
+      return { token: { address: USDT_ADDRESS, decimals: USDT_DECIMALS }, i: 0 };
     }
 
     const coinBals = await Promise.all(
