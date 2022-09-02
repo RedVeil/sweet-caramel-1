@@ -1,4 +1,5 @@
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import SearchBar from "components/SearchBar";
 import SweetVault from "components/SweetVaults/SweetVault";
 import { setDualActionWideModal } from "context/actions";
@@ -55,20 +56,32 @@ export default function index(): JSX.Element {
 
   return (
     <div className="pb-40">
-      <div className="text-center md:text-left md:w-1/3">
-        <h1 className="page-title">Sweet Vaults</h1>
-        <p className="md:text-lg text-gray-500 mt-4">These vaults are like candy</p>
-        <div className="mt-10 md:mt-16 flex w-full md:w-112">
-          <SearchBar searchValue={searchValue} setSearchValue={setSearchValue} />
+      <div className="grid grid-cols-12">
+        <div className="col-span-12 md:col-span-4">
+          <h1 className="text-6xl leading-12 text-black">Sweet Vaults</h1>
+          <p className="mt-4 leading-5 text-primaryDark">These vaults are like candy</p>
+        </div>
+        <div className="col-span-12 md:col-span-6 md:col-end-13">
+          <div className="rounded-lg bg-customRed hidden md:flex flex-col justify-between p-8 w-full h-full">
+            <h2 className=" text-4xl leading-10">
+              Blockchain-enabled <br /> wealth management <br />
+              and social impact.
+            </h2>
+            <div className="flex justify-end mt-14">
+              <img src="/images/sweetVaults.svg" className="" />
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex flex-row mt-10 md:mt-12">
-        <div className="w-full flex flex-col md:h-128">
-          <div className="space-y-6">
-            {contractAddresses?.sweetVaults?.map((address) => (
-              <SweetVault key={address} address={address} searchString={searchValue} />
-            ))}
-          </div>
+      <div className="grid grid-cols-12 md:gap-10 mt-10 md:mt-20">
+        <div className="col-span-12 md:col-span-4 mb-12 md:mb-0">
+          <SearchBar searchValue={searchValue} setSearchValue={setSearchValue} />
+          <ConnectDepositCard extraClasses="md:h-104 mt-10" />
+        </div>
+        <div className="col-span-12 md:col-span-8 space-y-6 border-t border-customLightGray">
+          {contractAddresses?.sweetVaults?.map((address) => (
+            <SweetVault key={address} address={address} searchString={searchValue} />
+          ))}
         </div>
       </div>
     </div>

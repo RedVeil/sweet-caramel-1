@@ -29,15 +29,15 @@ export default function getNamedAccounts() {
     },
     butterStaking: {
       mainnet: "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428",
-      hardhat: "0x3C1Cb427D20F15563aDa8C249E71db76d7183B6c",
+      hardhat: "0x33E45b187da34826aBCEDA1039231Be46f1b05Af",
     },
     threeXStaking: {
       mainnet: "0x584732f867a4533BC349d438Fba4fc2aEE5f5f83",
-      hardhat: "0x7C8BaafA542c57fF9B2B90612bf8aB9E86e22C09",
+      hardhat: "0x158d291D8b47F056751cfF47d1eEcd19FDF9B6f8",
     },
     butterWhaleProcessing: {
       mainnet: "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39",
-      hardhat: "0x6D712CB50297b97b79dE784d10F487C00d7f8c2C",
+      hardhat: "0x1eB5C49630E08e95Ba7f139BcF4B9BA171C9a8C7",
     },
     angleRouter: {
       mainnet: "0xBB755240596530be0c1DE5DFD77ec6398471561d",
@@ -209,13 +209,13 @@ export default function getNamedAccounts() {
       polygon: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
       arbitrum: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
       bsc: "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
-      hardhat: "0x70eE76691Bdd9696552AF8d4fd634b3cF79DD529",
+      hardhat: "0xaB837301d12cDc4b97f1E910FC56C9179894d9cf",
     },
     xPopRedemption: {
       bsc: "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
       polygon: "0x48168536Fc8834A9543C5A4383721148113fF75A",
       arbitrum: "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
-      hardhat: "0x9Fcca440F19c62CDF7f973eB6DDF218B15d4C71D",
+      hardhat: "0x4ff1f64683785E0460c24A4EF78D582C2488704f",
     },
     dai: {
       mainnet: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
@@ -228,10 +228,10 @@ export default function getNamedAccounts() {
     },
     sEthSweetVault: {
       mainnet: "0x8bEe2037448F096900Fd9affc427d38aE6CC0350",
-      hardhat: "0xd3FFD73C53F139cEBB80b6A524bE280955b3f4db",
+      hardhat: "0xd038A2EE73b64F30d65802Ad188F27921656f28F",
     },
     sEthSweetVaultStaking: {
-      hardhat: "0x512F7469BcC83089497506b5df64c6E246B39925",
+      hardhat: "0x666432Ccb747B2220875cE185f487Ed53677faC9",
     },
     usdc: {
       mainnet: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -276,7 +276,7 @@ export default function getNamedAccounts() {
     },
     threeXZapper: {
       mainnet: "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84",
-      hardhat: "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84",
+      hardhat: "0x24432a08869578aAf4d1eadA12e1e78f171b1a2b",
     },
     yEUR: {
       mainnet: "0x67e019bfbd5a67207755D04467D6A70c0B75bF60",
@@ -434,34 +434,34 @@ export default function getNamedAccounts() {
     aclRegistry: {
       mainnet: "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
       polygon: "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-      hardhat: "0x87006e75a5B6bE9D1bbF61AC8Cd84f05D9140589",
+      hardhat: "0xCa1D199b6F53Af7387ac543Af8e8a34455BBe5E0",
       rinkeby: "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
     },
     keeperIncentive: {
       polygon: "0xd928a457247649835e652416847C54C038FAF920",
       mainnet: "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
-      hardhat: "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
-      localhost: "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
+      hardhat: "0x666D0c3da3dBc946D5128D06115bb4eed4595580",
+      localhost: "0x666D0c3da3dBc946D5128D06115bb4eed4595580",
     },
     contractRegistry: {
       mainnet: "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
       polygon: "0x078927eF642319963a976008A7B1161059b7E77a",
-      hardhat: "0xC7143d5bA86553C06f5730c8dC9f8187a621A8D4",
+      hardhat: "0xB22C255250d74B0ADD1bfB936676D2a299BF48Bd",
       rinkeby: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
     },
     butterBatch: {
       mainnet: "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
-      hardhat: "0x0Dd99d9f56A14E9D53b2DdC62D9f0bAbe806647A",
-      localhost: "0x0Dd99d9f56A14E9D53b2DdC62D9f0bAbe806647A",
+      hardhat: "0x8E45C0936fa1a65bDaD3222bEFeC6a03C83372cE",
+      localhost: "0x8E45C0936fa1a65bDaD3222bEFeC6a03C83372cE",
       rinkeby: "0x06b90E97Cf4b64f338d1D2106329336897bb16F3",
     },
     butterBatchZapper: {
       mainnet: "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
-      hardhat: "0xd9fEc8238711935D6c8d79Bef2B9546ef23FC046",
+      hardhat: "0x262e2b50219620226C5fB5956432A88fffd94Ba7",
       rinkeby: "0x465aAB0388e89f52eD12Ec5C14571ae75684E626",
     },
     rewardsEscrow: {
-      hardhat: "0x8e264821AFa98DD104eEcfcfa7FD9f8D8B320adA",
+      hardhat: "0x1E3b98102e19D3a164d239BdD190913C2F02E756",
       rinkeby: "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa",
       polygon: "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
       mainnet: "0xb5cb5710044D1074097c17B7535a1cF99cBfb17F",
@@ -469,7 +469,7 @@ export default function getNamedAccounts() {
       bsc: "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
     },
     rewardsDistribution: {
-      hardhat: "0x114e375B6FCC6d6fCb68c7A1d407E652C54F25FB",
+      hardhat: "0x286B8DecD5ED79c962b2d8F4346CD97FF0E2C352",
       rinkeby: "",
       polygon: "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
       mainnet: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
@@ -485,22 +485,22 @@ export default function getNamedAccounts() {
       hardhat: "0xe70f935c32dA4dB13e7876795f1e175465e6458e",
     },
     beneficiaryRegistry: {
-      hardhat: "0x51C65cd0Cdb1A8A8b79dfc2eE965B1bA0bb8fc89",
+      hardhat: "0x773330693cb7d5D233348E25809770A32483A940",
     },
     beneficiaryGovernance: {
-      hardhat: "0x7B4f352Cd40114f12e82fC675b5BA8C7582FC513",
+      hardhat: "0x7bdd3b028C4796eF0EAf07d11394d0d9d8c24139",
     },
     grantElections: {
-      hardhat: "0xC7143d5bA86553C06f5730c8dC9f8187a621A8D4",
+      hardhat: "0x40A633EeF249F21D95C8803b7144f19AAfeEF7ae",
     },
     rewardsManager: {
-      hardhat: "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8",
+      hardhat: "0x67baFF31318638F497f4c4894Cd73918563942c8",
     },
     govStaking: {
-      hardhat: "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8",
+      hardhat: "0xe14058B1c3def306e2cb37535647A04De03Db092",
     },
     zeroXZapper: {
-      hardhat: "0x75c68e69775fA3E9DD38eA32E554f6BF259C1135",
+      hardhat: "0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf",
     },
   };
 }

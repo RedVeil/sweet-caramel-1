@@ -1,6 +1,7 @@
 import { ChainId } from "@popcorn/utils";
 import { Address } from "@popcorn/utils/src/types";
 import AlertCard, { AlertCardLink } from "components/Common/AlertCard";
+import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import StakeCard from "components/StakeCard";
 import { setMultiChoiceActionModal } from "context/actions";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
@@ -97,17 +98,7 @@ export default function index(): JSX.Element {
           <p className="text-black mt-2">Earn more by staking your tokens</p>
         </div>
         <div className="col-span-12 md:col-span-6 md:col-end-13 mt-12 md:mt-0">
-          <div className="rounded-lg p-6 md:px-8 md:py-9 bg-customYellow h-full flex flex-row md:flex-col justify-between">
-            <p className="text-2xl md:text-8xl leading-6 md:leading-13">
-              Connect <br />
-              Deposit <br />
-              Do well <br />
-              Do good
-            </p>
-            <div className="flex flex-col md:flex-row justify-end">
-              <img src="/images/smiley.svg" alt="" />
-            </div>
-          </div>
+          <ConnectDepositCard />
         </div>
       </div>
       {features["migrationAlert"] && chainId === ChainId.Polygon && (
@@ -154,12 +145,12 @@ export default function index(): JSX.Element {
                       onSelectPool={onSelectPool}
                       badge={
                         features["migrationAlert"] &&
-                          stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
+                        stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
                           ? {
-                            text: "Migration Required",
-                            textColor: "text-white",
-                            bgColor: "bg-red-500",
-                          }
+                              text: "Migration Required",
+                              textColor: "text-white",
+                              bgColor: "bg-red-500",
+                            }
                           : undefined
                       }
                     />

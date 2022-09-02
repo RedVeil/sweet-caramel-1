@@ -49,7 +49,6 @@ export default function MyApp(props) {
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
-      console.log("end");
       setLoading(false);
     }, 2000);
     Router.events.on("routeChangeStart", () => {
