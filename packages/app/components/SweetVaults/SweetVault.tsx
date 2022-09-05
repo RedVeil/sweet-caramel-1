@@ -74,12 +74,24 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   if (vaultLoading) {
     return (
       <>
-        <ContentLoader className="hidden md:block" viewBox="0 0 450 70">
-          <rect x="0" y="0" rx="10" ry="10" width="450" height="70" />
-        </ContentLoader>
-        <ContentLoader className="md:hidden" viewBox="0 0 450 600">
-          <rect x="0" y="0" rx="10" ry="10" width="450" height="600" />
-        </ContentLoader>
+        <div className="mt-10">
+          <ContentLoader
+            className="hidden md:block"
+            viewBox="0 0 450 70"
+            backgroundColor={"#EBE7D4"}
+            foregroundColor={"#d7d5bc"}
+          >
+            <rect x="0" y="0" rx="8" ry="8" width="450" height="70" />
+          </ContentLoader>
+          <ContentLoader
+            className="md:hidden"
+            viewBox="0 0 450 600"
+            backgroundColor={"#EBE7D4"}
+            foregroundColor={"#d7d5bc"}
+          >
+            <rect x="0" y="0" rx="8" ry="8" width="450" height="600" />
+          </ContentLoader>
+        </div>
       </>
     );
   } else if (searchString?.toLocaleLowerCase() && !name?.toLowerCase().includes(searchString?.toLowerCase())) {
@@ -105,7 +117,6 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
                 expanded ? "rotate-180" : "rotate-0"
               } transform transition-all ease-in-out w-6 text-secondaryLight`}
             />
-            {/* <ArrowDownIcon className="w-4 text-secondaryLight" /> */}
           </div>
         </div>
         <div className="grid grid-cols-12 md:gap-x-10 gap-y-6 mt-6 relative z-30 bg-white">

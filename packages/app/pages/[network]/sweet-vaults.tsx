@@ -1,6 +1,7 @@
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import SearchBar from "components/SearchBar";
+import Pagination from "components/SweetVaults/Pagination";
 import SweetVault from "components/SweetVaults/SweetVault";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
@@ -54,6 +55,21 @@ export default function index(): JSX.Element {
     }
   }, [signerOrProvider, account, chainId]);
 
+  useEffect(() => {
+    updateCurrentPage(slicePosition);
+  }, []);
+  const sliceAmount = 4;
+
+  const [currentVaults, setCurrentVaults] = useState<string[]>();
+  const [slicePosition, setSlicePosition] = useState<number>(0);
+
+  const updateCurrentPage = (e) => {
+    if (contractAddresses?.sweetVaults && contractAddresses?.sweetVaults.length >= e) {
+      setSlicePosition(e);
+      setCurrentVaults(contractAddresses?.sweetVaults.splice(e, sliceAmount));
+    }
+  };
+
   return (
     <div className="pb-40">
       <div className="grid grid-cols-12">
@@ -79,9 +95,29 @@ export default function index(): JSX.Element {
           <ConnectDepositCard extraClasses="md:h-104 mt-10" />
         </div>
         <div className="col-span-12 md:col-span-8 space-y-6 border-t border-customLightGray">
-          {contractAddresses?.sweetVaults?.map((address) => (
-            <SweetVault key={address} address={address} searchString={searchValue} />
-          ))}
+          <div className="hidden md:block">
+            {/* {currentVaults?.map((address) => (
+							<SweetVault key={address} address={address} searchString={searchValue} />
+						))} */}
+            {contractAddresses?.sweetVaults?.map((address) => (
+              <SweetVault key={address} address={address} searchString={searchValue} />
+            ))}
+          </div>
+          <div className="md:hidden">
+            {contractAddresses?.sweetVaults?.map((address) => (
+              <SweetVault key={address} address={address} searchString={searchValue} />
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <Pagination
+              sliceAmount={sliceAmount}
+              onUpdatePage={(e) => updateCurrentPage(e)}
+              lengthOfData={contractAddresses?.sweetVaults.length}
+              currentIndex={slicePosition}
+            />
+          </div>
+          <div></div>
         </div>
       </div>
     </div>
