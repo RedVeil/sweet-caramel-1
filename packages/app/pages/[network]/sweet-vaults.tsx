@@ -96,10 +96,7 @@ export default function index(): JSX.Element {
         </div>
         <div className="col-span-12 md:col-span-8 space-y-6 border-t border-customLightGray">
           <div className="hidden md:block">
-            {/* {currentVaults?.map((address) => (
-							<SweetVault key={address} address={address} searchString={searchValue} />
-						))} */}
-            {contractAddresses?.sweetVaults?.map((address) => (
+            {currentVaults?.map((address) => (
               <SweetVault key={address} address={address} searchString={searchValue} />
             ))}
           </div>
