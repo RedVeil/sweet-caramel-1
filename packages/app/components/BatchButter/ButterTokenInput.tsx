@@ -41,9 +41,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
-        localButterPageState.depositAmount,
-        localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
-      );
+      localButterPageState.depositAmount,
+      localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
+    );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -98,27 +98,18 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           <p className="text-base font-medium text-primary">
             {localButterPageState.redeeming ? "Redeem Amount" : "Deposit Amount"}
           </p>
-          <p className="text-secondaryLight">
-            {`${formatAndRoundBigNumber(
-              localButterPageState.useUnclaimedDeposits
-                ? selectedToken.input.claimableBalance
-                : selectedToken.input.balance,
-              selectedToken.input.decimals,
-            )} ${selectedToken.input.name}`}
-          </p>
         </div>
         <div>
           <div className="mt-1 relative flex items-center gap-2">
             <div
-              className={`w-full flex px-5 py-4 items-center rounded-lg border ${
-                localButterPageState.depositAmount.gt(
-                  localButterPageState.useUnclaimedDeposits
-                    ? selectedToken.input.claimableBalance
-                    : selectedToken.input.balance,
-                )
-                  ? " border-customRed"
-                  : "border-customLightGray "
-              }`}
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${localButterPageState.depositAmount.gt(
+                localButterPageState.useUnclaimedDeposits
+                  ? selectedToken.input.claimableBalance
+                  : selectedToken.input.balance,
+              )
+                ? " border-customRed"
+                : "border-customLightGray "
+                }`}
             >
               <input
                 name="tokenInput"
@@ -150,19 +141,6 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                 selectToken={selectToken}
               />
             </div>
-            <button
-              className="px-5 py-4 leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white text-lg transition-all"
-              onClick={(e) => {
-                const maxAmount = localButterPageState.useUnclaimedDeposits
-                  ? selectedToken.input.claimableBalance
-                  : selectedToken.input.balance;
-                calcOutputAmountsFromInput(maxAmount);
-                setButterPageState({ ...localButterPageState, depositAmount: maxAmount });
-                ref.current = Number(formatEther(maxAmount)).toFixed(3);
-              }}
-            >
-              MAX
-            </button>
           </div>
         </div>
 
@@ -189,6 +167,32 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
             ? selectedToken.input.claimableBalance
             : selectedToken.input.balance,
         ) && <p className="text-customRed pt-2 leading-6">*Insufficient balance</p>}
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex items-center">
+            <img src="/images/wallet.svg" alt="3x" width="20" height="20" className="mr-2" />
+            <p className="text-secondaryLight">
+              {`${formatAndRoundBigNumber(
+                localButterPageState.useUnclaimedDeposits
+                  ? selectedToken.input.claimableBalance
+                  : selectedToken.input.balance,
+                selectedToken.input.decimals,
+              )}`}
+            </p>
+          </div>
+          <button
+            className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
+            onClick={(e) => {
+              const maxAmount = localButterPageState.useUnclaimedDeposits
+                ? selectedToken.input.claimableBalance
+                : selectedToken.input.balance;
+              calcOutputAmountsFromInput(maxAmount);
+              setButterPageState({ ...localButterPageState, depositAmount: maxAmount });
+              ref.current = Number(formatEther(maxAmount)).toFixed(3);
+            }}
+          >
+            MAX
+          </button>
+        </div>
       </div>
       <div className="relative -mt-10 -mb-10">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">

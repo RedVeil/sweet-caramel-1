@@ -108,7 +108,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                     <div>
                       {image}
                       <div className={isTerms ? "" : "mt-10"}>
-                        <h3 className="text-6xl leading-13 text-black pr-10" id="modal-title">
+                        <h3 className="text-6xl leading-13 text-black" id="modal-title">
                           {title}
                         </h3>
                         <div className="mt-4">
