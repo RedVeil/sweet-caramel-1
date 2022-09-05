@@ -101,7 +101,7 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
       <div
         className={`${
           expanded ? " h-160 smlaptop:h-156" : "h-100 md:h-72 delay-200"
-        } bg-white border-b border-customLightGray cursor-pointer z-10 py-6 md:p-8 transition-all duration-700 ease-in-out`}
+        } bg-white border-b border-customLightGray cursor-pointer z-10 py-6 md:p-8 transition-all duration-700 ease-in-out hover:scale-102 transform`}
         onClick={() => {
           setExpanded(!expanded);
         }}
