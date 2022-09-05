@@ -228,10 +228,10 @@ export default function getNamedAccounts() {
     },
     sEthSweetVault: {
       mainnet: "0x8bEe2037448F096900Fd9affc427d38aE6CC0350",
-      hardhat: "0xd038A2EE73b64F30d65802Ad188F27921656f28F",
+      hardhat: "0x286B8DecD5ED79c962b2d8F4346CD97FF0E2C352",
     },
     sEthSweetVaultStaking: {
-      hardhat: "0x666432Ccb747B2220875cE185f487Ed53677faC9",
+      hardhat: "0xb868Cc77A95a65F42611724AF05Aa2d3B6Ec05F2",
     },
     usdc: {
       mainnet: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -434,7 +434,7 @@ export default function getNamedAccounts() {
     aclRegistry: {
       mainnet: "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
       polygon: "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-      hardhat: "0xCa1D199b6F53Af7387ac543Af8e8a34455BBe5E0",
+      hardhat: "0xFD2Cf3b56a73c75A7535fFe44EBABe7723c64719",
       rinkeby: "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
     },
     keeperIncentive: {
@@ -446,7 +446,7 @@ export default function getNamedAccounts() {
     contractRegistry: {
       mainnet: "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
       polygon: "0x078927eF642319963a976008A7B1161059b7E77a",
-      hardhat: "0xB22C255250d74B0ADD1bfB936676D2a299BF48Bd",
+      hardhat: "0x1D8D70AD07C8E7E442AD78E4AC0A16f958Eba7F0",
       rinkeby: "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
     },
     butterBatch: {
