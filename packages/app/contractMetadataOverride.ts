@@ -36,7 +36,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "xPOP",
       symbol: "xPOP",
-      icon: "/images/icons/popLogo.png",
+      icon: "/images/icons/POP.svg",
     },
   },
   {
@@ -52,7 +52,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "Popcorn",
       symbol: "POP",
-      icon: "/images/icons/popLogo.png",
+      icon: "/images/icons/POP.svg",
     },
   },
   {
@@ -72,7 +72,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "POP",
       symbol: "POP",
-      icon: "/images/icons/popLogo.png",
+      icon: "/images/icons/POP.svg",
     },
   },
   {
