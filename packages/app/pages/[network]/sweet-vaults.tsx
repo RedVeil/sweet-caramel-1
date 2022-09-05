@@ -55,6 +55,9 @@ export default function index(): JSX.Element {
     }
   }, [signerOrProvider, account, chainId]);
 
+  useEffect(() => {
+    updateCurrentPage(slicePosition);
+  }, []);
   const sliceAmount = 4;
 
   const [currentVaults, setCurrentVaults] = useState<string[]>();
