@@ -11,7 +11,7 @@ import SelectToken from "./SelectToken";
 export interface ButterTokenInputProps {
   token: Tokens;
   selectToken: (token: BatchProcessTokenKey) => void;
-  depositDisabled: boolean;
+  depositDisabled: { disabled: boolean; errorMessage: string };
   butterPageState: [ButterPageState, Dispatch<ButterPageState>];
   hasUnclaimedBalances?: boolean;
 }
@@ -184,11 +184,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           />
         )}
 
-        {localButterPageState.depositAmount.gt(
-          localButterPageState.useUnclaimedDeposits
-            ? selectedToken.input.claimableBalance
-            : selectedToken.input.balance,
-        ) && <p className="text-customRed pt-2 leading-6">*Insufficient balance</p>}
+        {depositDisabled?.disabled && <p className="text-customRed pt-2 leading-6">{depositDisabled?.errorMessage}</p>}
       </div>
       <div className="relative -mt-10 -mb-10">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">

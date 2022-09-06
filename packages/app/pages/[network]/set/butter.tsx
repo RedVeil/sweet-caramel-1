@@ -22,6 +22,7 @@ import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
 import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
+import { isDepositDisabled } from "helper/isDepositDisabled";
 import { ModalType, toggleModal } from "helper/modalHelpers";
 import useButterBatch from "hooks/set/useButterBatch";
 import useButterBatchData from "hooks/set/useButterBatchData";
@@ -39,10 +40,6 @@ export enum TOKEN_INDEX {
   dai,
   usdc,
   usdt,
-}
-
-export function isDepositDisabled(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
-  return depositAmount.gt(inputTokenBalance);
 }
 
 export function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string): [BigNumber, BigNumber, BigNumber] {
@@ -576,18 +573,6 @@ export default function Butter(): JSX.Element {
           .div(parseEther("1"));
   }
 
-  function depositDisabled(): boolean {
-    return butterPageState.useUnclaimedDeposits
-      ? isDepositDisabled(
-          butterPageState.depositAmount,
-          butterPageState.tokens[butterPageState.selectedToken.input].claimableBalance,
-        )
-      : isDepositDisabled(
-          butterPageState.depositAmount,
-          butterPageState.tokens[butterPageState.selectedToken.input].balance,
-        );
-  }
-
   return (
     <>
       <div className="grid grid-cols-12">
@@ -654,7 +639,7 @@ export default function Butter(): JSX.Element {
                     selectToken={selectToken}
                     mainAction={handleMainAction}
                     approve={approve}
-                    depositDisabled={depositDisabled()}
+                    depositDisabled={isDepositDisabled(butterBatchData, butterPageState)}
                     hasUnclaimedBalances={hasClaimableBalances()}
                     butterPageState={[butterPageState, setButterPageState]}
                   />
