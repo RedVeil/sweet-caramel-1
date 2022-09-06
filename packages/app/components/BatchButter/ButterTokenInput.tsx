@@ -209,7 +209,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                 })
               }
             >
-              <img src="/images/icons/exchangeIcon.svg" alt="exchangeIcon" className="p-3 mx-auto"></img>
+              <img src="/images/icons/exchangeIconSingle.svg" alt="exchangeIcon" className="p-3 mx-auto"></img>
             </div>
           </div>
         </div>
