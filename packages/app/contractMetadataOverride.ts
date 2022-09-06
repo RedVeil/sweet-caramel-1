@@ -1,8 +1,6 @@
-import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
+import namedAccounts from "@popcorn/hardhat/lib/utils/namedAccounts.json";
 import { HardhatConfigNetworks, HardhatConfigNetworksChainIdMapping } from "@popcorn/utils/src/connectors";
 import { ERC20Metadata, SweetVaultMetadata } from "@popcorn/utils/types";
-
-const namedAccounts = getNamedAccounts();
 
 const {
   xPop,
