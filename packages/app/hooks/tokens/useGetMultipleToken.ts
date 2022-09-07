@@ -14,7 +14,7 @@ export default function useGetMultipleToken(
   const tokenAddresses = useMemo(() => tokenContracts?.map((erc20) => erc20.address), [tokenContracts]);
 
   return useSWR(
-    shouldFetch ? [`getPoolInfo-${tokenAddresses}-${spender}`, account, chainId, tokenContracts, spender] : null,
+    shouldFetch ? [`getMultipleToken-${tokenAddresses}`, account, chainId, tokenContracts, spender] : null,
     async (key: string) => getMultipleToken(tokenContracts, rpcProvider, chainId, account, spender),
     { refreshInterval: 2000 },
   );

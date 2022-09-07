@@ -36,13 +36,12 @@ export default function useWeb3() {
   const isChainMismatch = (network: string | undefined): boolean =>
     isLoaded(network) && ChainId[Number(connectedChain?.id)] !== toTitleCase(network);
 
-  const inGnosisApp = () => {
+  const inGnosisApp = () =>
     typeof document !== "undefined" && document?.location?.ancestorOrigins?.contains("https://gnosis-safe.io");
-  };
 
   useEffect(() => {
     // Eagerconnect
-    if (!wallet && inGnosisApp) {
+    if (!wallet && inGnosisApp()) {
       connect({ autoSelect: { label: "Gnosis Safe", disableModals: true } });
     } else if (!wallet && previouslyConnectedWallets?.length > 0) {
       handleConnect(true);
@@ -58,10 +57,14 @@ export default function useWeb3() {
 
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
-    if (isChainMismatch(router?.query?.network as string) && !["/[network]", "/"].includes(router?.pathname)) {
+    if (!connectedChain?.id) return;
+    // Never alert when on landing page
+    if (["/[network]", "/"].includes(router?.pathname)) return;
+
+    if (isChainMismatch(router?.query?.network as string) || !ChainId[Number(connectedChain?.id)]) {
       alertChainInconsistency(
         router?.query?.network as string,
-        ChainId[Number(connectedChain.id)] || "an unsupported Network",
+        ChainId[Number(connectedChain?.id)] || "an unsupported Network",
       );
     } else {
       dispatch(setNetworkChangePromptModal(false));
@@ -162,12 +165,12 @@ export default function useWeb3() {
         type: "error",
         onChangeUrl: ChainId[actualChain]
           ? {
-              label: `Continue on ${actualChain}`,
-              onClick: () => {
-                pushNetworkChange(toTitleCase(actualChain), true);
-                dispatch(setNetworkChangePromptModal(false));
-              },
-            }
+            label: `Continue on ${actualChain}`,
+            onClick: () => {
+              pushNetworkChange(toTitleCase(actualChain), true);
+              dispatch(setNetworkChangePromptModal(false));
+            },
+          }
           : undefined,
         onChangeNetwork: {
           label: `Switch to ${toTitleCase(intendedChain)}`,
@@ -181,6 +184,11 @@ export default function useWeb3() {
           label: "Disconnect Wallet",
           onClick: async () => {
             await handleDisconnect();
+            dispatch(setNetworkChangePromptModal(false));
+          },
+        },
+        onDismiss: {
+          onClick: () => {
             dispatch(setNetworkChangePromptModal(false));
           },
         },

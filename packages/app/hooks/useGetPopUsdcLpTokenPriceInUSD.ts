@@ -14,7 +14,6 @@ export const getPopUsdcLpTokenPrice = async (
   token: Address,
 ) => {
   const [popUsdcLp, usdcAmount, popAmount] =
-    chaindId === ChainId.Ethereum ||
     contractAddresses.popUsdcArrakisVault.toLocaleLowerCase() === token.toLocaleLowerCase()
       ? await getGUniAssets(provider, token)
       : await getPool2Assets(provider, contractAddresses);
@@ -54,7 +53,7 @@ const getPool2Assets = async (
 
 export default function useGetPopUsdcLpTokenPriceInUSD(token: Address) {
   const { signerOrProvider, chainId, contractAddresses } = useWeb3();
-  const shouldFetch = signerOrProvider && contractAddresses && contractAddresses.popUsdcLp;
+  const shouldFetch = signerOrProvider && contractAddresses && contractAddresses.popUsdcArrakisVault;
   return useSWR(shouldFetch ? ["getPopUsdcLpTokenPrice", signerOrProvider, chainId, token] : null, async () =>
     getPopUsdcLpTokenPrice(signerOrProvider, contractAddresses, chainId, token),
   );

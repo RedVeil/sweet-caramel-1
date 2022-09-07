@@ -95,7 +95,7 @@ export default function PopLockerInteraction({
               </div>
             </div>
           </div>
-          <div className="flex flex-row items-center space-x-4">
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-0 md:space-x-4">
             <MainActionButton
               label={"Restake POP"}
               handleClick={restake}

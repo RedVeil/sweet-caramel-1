@@ -1,56 +1,62 @@
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
+package = "@netlify/plugin-nextjs"
 
 [build]
-  command = "yarn netlify-build"
+command = "yarn netlify-build"
 
 [[redirects]]
-  from = "/set/*"
-  to = "/ethereum/set/:path"
+from = "/set/*"
+to = "/ethereum/set/:path"
 
 [[redirects]]
-  from = "/rewards"
-  to = "/ethereum/rewards"
+from = "/rewards"
+to = "/ethereum/rewards"
 
 [[redirects]]
-  from = "/staking/pop"
-  to = "/ethereum/staking/pop"
+from = "/staking/pop"
+to = "/ethereum/staking/pop"
 
 [[redirects]]
-  from = "/staking/*"
-  to = "/ethereum/staking/:path"
+from = "/staking/*"
+to = "/ethereum/staking/:path"
 
 [[redirects]]
-  from = "/"
-  to = "/ethereum"
+from = "/"
+to = "/ethereum"
 
 [[plugins]]
-  package = 'netlify-plugin-contextual-env'
-  [plugins.inputs]
-    mode = 'prefix'
+package = 'netlify-plugin-contextual-env'
+
+[plugins.inputs]
+mode = 'prefix'
 
 [context.deploy-preview]
 
-  [context.deploy-preview.environment]
-    # this is a random private key needed for hardhat compile to work
-    CHAIN_ID = "4"
-    IS_DEV = "TRUE"
+[context.deploy-preview.environment]
+# this is a random private key needed for hardhat compile to work
+CHAIN_ID = "4"
+IS_DEV = "TRUE"
+SHOW_SWEETVAULTS = "FALSE"
 
 [context.production]
 
-  [context.production.environment]
-    # this is a random private key needed for hardhat compile to work
-    CHAIN_ID = "1"
-    IS_DEV = "FALSE"
+[context.production.environment]
+# this is a random private key needed for hardhat compile to work
+CHAIN_ID = "1"
+IS_DEV = "FALSE"
+SHOW_SWEETVAULTS = "FALSE"
 
 [context.rinkeby]
-  [context.rinkeby.environment]
-    # this is a random private key needed for hardhat compile to work
-    CHAIN_ID = "4"
-    IS_DEV = "TRUE"
+
+[context.rinkeby.environment]
+# this is a random private key needed for hardhat compile to work
+CHAIN_ID = "4"
+IS_DEV = "TRUE"
 
 [context.develop]
-  [context.develop.environment]
-    # this is a random private key needed for hardhat compile to work
-    CHAIN_ID = "4"
-    IS_DEV = "TRUE"
+
+[context.develop.environment]
+# this is a random private key needed for hardhat compile to work
+CHAIN_ID = "4"
+IS_DEV = "TRUE"
+SHOW_SWEETVAULTS = "FALSE"

@@ -1,16 +1,18 @@
-interface LoadingSpinnerProps {
-  size?: string;
-}
+import Lottie from "react-lottie";
+import loaderAnim from "../LottieAnimations/loader.json";
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'h-8 w-8',
-}) => {
+const LoadingSpinner = () => {
+  const loaderOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: loaderAnim,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid meet",
+    },
+  };
   return (
-    <div className={`${size}`}>
-      <img
-        src="/images/popcorn2.svg"
-        className="w-full h-full animate-spin-slow"
-      />
+    <div className="flex justify-center items-center" style={{ height: "70vh" }}>
+      <Lottie options={loaderOptions} width="120px" height="120px" />
     </div>
   );
 };

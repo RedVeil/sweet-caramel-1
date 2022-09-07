@@ -117,7 +117,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`z-0 flex justify-between flex-col bg-white rounded-3xl w-full md:w-1/2 md:min-w-280 p-6 mr-8 border border-gray-300 shadow-custom`}
+      className={`z-0 bg-white rounded-lg w-full md:basis-108 shrink-0 p-6 mr-8 border border-gray-300 shadow-custom`}
     >
       <div className="mb-12 flex flex-col">
         <TokenInputToggle

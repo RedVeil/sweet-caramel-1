@@ -1,11 +1,13 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { CardLoader } from "components/CardLoader";
+import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
 import { NotAvailable } from "components/Rewards/NotAvailable";
 import RewardSummaryCard from "components/Rewards/RewardSummaryCard";
 import VestingRecordComponent from "components/Rewards/VestingRecord";
+import SecondaryActionButton from "components/SecondaryActionButton";
 import TabSelector from "components/TabSelector";
 import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
@@ -83,7 +85,7 @@ export default function index(): JSX.Element {
   const userEscrowsFetchResult: SWRResponse<
     { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
     any
-  > = useGetUserEscrows();
+  > = useGetUserEscrows(chainId);
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
     toast.loading("Claiming Rewards...");
@@ -95,19 +97,20 @@ export default function index(): JSX.Element {
           if (!localStorage.getItem("hideClaimModal")) {
             dispatch(
               setMultiChoiceActionModal({
-                image: <img src="/images/claim/popover.png" className="px-6" />,
-                title: "Everytime you claim rewards, a vesting record is created.",
-                children: (
-                  <p className="text-sm text-gray-500">
-                    You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the
-                    next 365 days.
-                  </p>
-                ),
+                image: <img src="/images/modalImages/vestingImage.svg" />,
+                title: "A Vesting Record is generated when you claim your staking rewards.",
+                content:
+                  "You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the next 365 days",
                 onConfirm: {
-                  label: "Close",
+                  label: "Continue",
                   onClick: () => dispatch(setMultiChoiceActionModal(false)),
                 },
                 onDismiss: {
+                  onClick: () => {
+                    dispatch(setMultiChoiceActionModal(false));
+                  },
+                },
+                onDontShowAgain: {
                   label: "Do not remind me again",
                   onClick: () => {
                     localStorage.setItem("hideClaimModal", "true");
@@ -202,7 +205,7 @@ export default function index(): JSX.Element {
           <p>
             Your recently redeemed POP will be vested linearly over 2 years. Go to{" "}
             <span
-              className="text-blue-600 inline cursor-pointer"
+              className="text-customPurple inline cursor-pointer"
               onClick={() => {
                 setTabSelected(Tabs.Vesting);
                 dispatch(setSingleActionModal(false));
@@ -214,7 +217,7 @@ export default function index(): JSX.Element {
           </p>
         ),
 
-        image: <img src="/images/claim/Group_842.png" />,
+        image: <img src="/images/modalImages/redeemed.svg" />,
         onConfirm: {
           label: "Close",
           onClick: () => dispatch(setSingleActionModal(false)),
@@ -225,43 +228,44 @@ export default function index(): JSX.Element {
 
   return (
     <>
-      <div className="text-center md:text-left md:w-1/3 mx-6 md:mx-0">
-        <h1 className="page-title">Rewards</h1>
-        <p className="mt-2 text-lg text-gray-500">Claim your rewards and track your vesting records.</p>
-      </div>
-      {!account && (
-        <div className="w-full mt-10 mb-24 md:mr-12 md:ml-0 bg-primaryLight rounded-5xl py-20 md:py-44 shadow-custom">
-          <img
-            src="/images/claims-cat.svg"
-            alt="cat holding popcorn"
-            className="py-2 mx-auto px-10 transform scale-101"
-          />
-          <div className="flex mx-10 justify-items-stretch">
-            <button
-              onClick={() => {
-                connect();
-              }}
-              className="mx-auto mt-12 bg-blue-600 border border-transparent justify-self-center rounded-2xl drop-shadow"
-              style={{ width: "368px", height: "60px" }}
+      <div className="grid grid-cols-12 md:gap-8 laptop:gap-14">
+        <div className="col-span-12 md:col-span-3">
+          <h1 className="text-6xl leading-12 text-black">Rewards</h1>
+          <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
+          {!account && (
+            <div
+              className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
+              onClick={() => connect()}
+              role="button"
             >
-              <p className="font-bold text-white">Connect Wallet</p>
-            </button>
+              <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
+              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 mb-1 md:mt-4">
+                <div className="hidden md:block">
+                  <SecondaryActionButton label="Connect" />
+                </div>
+                <div className="md:hidden">
+                  <SecondaryActionButton label="Connect Wallet" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="col-span-12 md:col-span-6 md:col-end-13 gap-6 hidden md:grid grid-cols-6">
+          <div className="rounded-lg bg-rewardsGreen col-span-1 h-88"></div>
+
+          <div className="col-span-5 rounded-lg bg-rewardsLightGreen flex justify-end items-end p-8">
+            <img src="/images/twoFingers.svg" className=" h-48 w-48" />
           </div>
         </div>
-      )}
+      </div>
       {account && (
-        <div className="flex flex-row">
-          <div className="hidden md:flex flex-col w-1/3">
-            <div className="flex justify-center items-center p-10 mt-10 mb-8 mr-12 bg-primaryLight rounded-5xl shadow-custom min-h-128 h-11/12 ">
-              <img
-                src="/images/claims-cat.svg"
-                alt="cat holding popcorn"
-                className="self-center w-full py-2 transform scale-101"
-              />
-            </div>
+        <div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
+          <div className="col-span-12 md:col-span-4">
+            <ConnectDepositCard extraClasses="md:h-104" />
           </div>
-          <div className="flex flex-col w-full md:w-2/3 mt-10 mb-8">
-            <div className="mb-8">
+          <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10">
+            <div>
               <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
             </div>
             {isSelected(Tabs.Staking) && stakingVisible(chainId) && !!popLocker && (
@@ -278,20 +282,26 @@ export default function index(): JSX.Element {
 
             {isSelected(Tabs.Staking) && !stakingVisible(chainId) && (
               <NotAvailable
-                title="No staking rewards"
+                title="No Staking Rewards"
                 body="Staking rewards are currently unavailable on this network"
               />
             )}
 
-            {isSelected(Tabs.Staking) && stakingVisible(chainId) && !popLocker && !stakingPools && <CardLoader />}
+            {isSelected(Tabs.Staking) && stakingVisible(chainId) && !popLocker && !stakingPools && (
+              <div className="mt-10">
+                <CardLoader />
+              </div>
+            )}
 
             {isSelected(Tabs.Airdrop) && xPop && pop ? (
-              <AirDropClaim
-                approve={approveXpopRedemption}
-                redeem={redeemXpop}
-                balances={[balancesXPop, balancesPop]}
-                tokens={[xPop, pop]}
-              />
+              <div className="mt-8">
+                <AirDropClaim
+                  approve={approveXpopRedemption}
+                  redeem={redeemXpop}
+                  balances={[balancesXPop, balancesPop]}
+                  tokens={[xPop, pop]}
+                />
+              </div>
             ) : (
               <NotAvailable
                 title="No airdrops"
@@ -317,7 +327,7 @@ export default function index(): JSX.Element {
 
             {isSelected(Tabs.Staking) && (stakingPools?.length || -1) >= 0 && !popLocker && (
               <NotAvailable
-                title="No staking pools"
+                title="No Staking Pools"
                 body="There are no staking pools found on this network"
                 visible={isSelected(Tabs.Staking)}
               />
@@ -325,17 +335,20 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowsFetchResult ||
-                  !userEscrowsFetchResult?.data ||
-                  userEscrowsFetchResult?.error ||
-                  userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
-                  <NotAvailable title="No records available" body="No vesting records available" />
+                !userEscrowsFetchResult?.data ||
+                userEscrowsFetchResult?.error ||
+                userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                  <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>
                     <div>
                       <div className="flex flex-col h-full">
-                        <div className="flex flex-row flex-wrap xl:flex-nowrap gap-y-8 gap-x-8 w-full mb-8">
+                        <div className="flex flex-col md:flex-row gap-8 w-full my-8">
                           <RewardSummaryCard
-                            content={`${formatAndRoundBigNumber(userEscrowsFetchResult?.data?.totalVestingPop, 18)} POP`}
+                            content={`${formatAndRoundBigNumber(
+                              userEscrowsFetchResult?.data?.totalVestingPop,
+                              18,
+                            )} POP`}
                             title={"Total Vesting"}
                             iconUri="/images/lock.svg"
                             infoIconProps={{
@@ -343,11 +356,14 @@ export default function index(): JSX.Element {
                               title: "Total Vesting",
                               content:
                                 "Every time you claim rewards a new 'Vesting Record' below will be added. Rewards in each 'Vesting Record' unlock over time. Come back periodically to claim new rewards as they unlock.",
-                              classExtras: "h-7 w-7 -mt-2 ml-2",
+                              classExtras: "h-5 w-5 ml-2",
                             }}
                           />
                           <RewardSummaryCard
-                            content={`${formatAndRoundBigNumber(userEscrowsFetchResult?.data?.totalClaimablePop, 18)} POP`}
+                            content={`${formatAndRoundBigNumber(
+                              userEscrowsFetchResult?.data?.totalClaimablePop,
+                              18,
+                            )} POP`}
                             title={"Total Claimable"}
                             iconUri="/images/yellowCircle.svg"
                             button={true}
@@ -357,11 +373,11 @@ export default function index(): JSX.Element {
                               title: "Total Claimable",
                               content:
                                 "This describes the total amount of Rewards that you can currently claim across all 'Vesting Records'.",
-                              classExtras: "h-7 w-7 -mt-2 ml-2",
+                              classExtras: "h-5 w-5 ml-2",
                             }}
                           />
                         </div>
-                        <div className="flex flex-col border-gray-200 border rounded-3xl overflow-hidden">
+                        <div className="flex flex-col border-t border-customLightGray overflow-hidden">
                           {userEscrowsFetchResult?.data?.escrows
                             .slice(0, visibleEscrows)
                             .map((vestingEscrow, index) => {
@@ -401,15 +417,22 @@ export default function index(): JSX.Element {
               </div>
             )}
             {!popLocker && (stakingPools?.length || -1) >= 0 && (
-              <ContentLoader viewBox="0 0 450 400">
-                {/* eslint-disable */}
-                <rect x="0" y="0" rx="15" ry="15" width="450" height="108" />
-                <rect x="0" y="115" rx="15" ry="15" width="450" height="108" />
-                <rect x="0" y="230" rx="15" ry="15" width="450" height="108" />
-                {/* eslint-enable */}
-              </ContentLoader>
+              <div className="mt-10">
+                <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                  {/*eslint-disable */}
+                  <rect x="0" y="0" rx="8" ry="8" width="450" height="108" />
+                  <rect x="0" y="115" rx="8" ry="8" width="450" height="108" />
+                  <rect x="0" y="230" rx="8" ry="8" width="450" height="108" />
+                  {/*eslint-enable */}
+                </ContentLoader>
+              </div>
             )}
           </div>
+        </div>
+      )}
+      {account && (
+        <div className="py-6 hidden md:block">
+          <img src="/images/nature.png" alt="" className=" rounded-lg w-full object-cover" />
         </div>
       )}
     </>

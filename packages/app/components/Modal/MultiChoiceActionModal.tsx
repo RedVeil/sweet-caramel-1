@@ -1,9 +1,9 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
+import { XIcon } from "@heroicons/react/outline";
 import MainActionButton from "components/MainActionButton";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import TertiaryActionButton from "components/TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import * as Icon from "react-feather";
 
 export interface MultiChoiceActionModalProps {
   title: string;
@@ -14,7 +14,8 @@ export interface MultiChoiceActionModalProps {
   image?: React.ReactElement;
   onConfirm?: { label: string; onClick: Function };
   onSecondOption?: { label: string; onClick: Function };
-  onDismiss?: { label: string; onClick: Function };
+  onDismiss?: { label?: string; onClick: Function };
+  onDontShowAgain?: { label?: string; onClick: Function };
 }
 export const DefaultMultiChoiceActionModalProps: MultiChoiceActionModalProps = {
   content: "",
@@ -33,6 +34,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
   onConfirm,
   onSecondOption,
   onDismiss,
+  onDontShowAgain,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
@@ -57,6 +59,10 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
   const secondOption = () => {
     setOpen(false);
     setTimeout(() => onSecondOption?.onClick && onSecondOption.onClick(), 1000);
+  };
+
+  const dontShowAgain = () => {
+    onDontShowAgain?.onClick && onDontShowAgain.onClick();
   };
 
   if (!visible) return <></>;
@@ -88,63 +94,29 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
               aria-modal="true"
             >
               <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <div className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
                 <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
                   &#8203;
                 </span>
-                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-4 md:pt-6 pb-5 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-8">
+                <div className="inline-block align-bottom bg-white rounded-lg p-6 md:p-10 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle w-88 md:max-w-md sm:w-full sm:p-8">
                   <Dialog.Panel>
                     <div>
-                      {image ? (
-                        <>{image}</>
-                      ) : (
-                        <>
-                          {(type && type == "error" && (
-                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full  bg-red-100">
-                              <svg
-                                className="h-6 w-6 text-red-600"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                                />
-                              </svg>
-                            </div>
-                          )) ||
-                            (type && type == "alert" && (
-                              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-400">
-                                <svg
-                                  className="h-6 w-6 text-white"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                  aria-hidden="true"
-                                >
-                                  <Icon.AlertCircle />
-                                </svg>
-                              </div>
-                            ))}
-                        </>
-                      )}
-                      <div className="mt-2 md:mt-6 text-center">
-                        <h3 className="text-2xl leading-8 font-semibold text-gray-900 w-10/12 mx-auto" id="modal-title">
+                      {/* Always add onDismiss prop when calling modal else this will break */}
+                      <div className="flex justify-end">
+                        <XIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />
+                      </div>
+                      <div>{image}</div>
+                      <div className="mt-10">
+                        <h3 className="text-6xl leading-13 text-black" id="modal-title">
                           {title}
                         </h3>
-                        <div className="mt-2">
-                          {children ? children : <p className="text-base text-gray-600">{content}</p>}
+                        <div className="mt-4">
+                          {children ? children : <p className="text-base text-primaryDark leading-5">{content}</p>}
                         </div>
                       </div>
                     </div>
-                    <div className="mt-6 md:mt-8">
+                    <div className="mt-10">
                       <div>
                         {onConfirm && (
                           <>
@@ -153,16 +125,23 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                         )}
                         {onSecondOption && (
                           <div className="mt-6">
-                            <SecondaryActionButton label={onSecondOption.label} handleClick={secondOption} />
+                            <TertiaryActionButton label={onSecondOption.label} handleClick={secondOption} />
                           </div>
                         )}
-                        {onDismiss && (
+                        {onDismiss?.label && (
                           <div className="w-full">
                             {/* or */}
                             <div className="flex justify-center vertical-align h-6 my-3 md:my-7">
                               <img src="/images/butter/primary-btn-divider.svg" />
                             </div>
-                            <SecondaryActionButton label={onDismiss.label} handleClick={dismiss} />
+                            <TertiaryActionButton label={onDismiss.label} handleClick={dismiss} />
+                          </div>
+                        )}
+                        {onDontShowAgain && (
+                          <div className="flex justify-center mt-4">
+                            <button className="text-primary hover:text-black font-medium" onClick={dontShowAgain}>
+                              {onDontShowAgain.label}
+                            </button>
                           </div>
                         )}
                       </div>

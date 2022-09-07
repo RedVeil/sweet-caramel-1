@@ -1,4 +1,5 @@
 import { parseEther } from "@ethersproject/units";
+import { Dialog, Transition } from "@headlessui/react";
 import { ThreeXWhaleProcessing } from "@popcorn/hardhat/typechain";
 import {
   adjustDepositDecimals,
@@ -12,24 +13,27 @@ import { BatchMetadata, BatchProcessTokenKey, BatchType } from "@popcorn/utils/s
 import BatchProgress from "components/BatchButter/BatchProgress";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
+import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "components/BatchButter/StatInfoCard";
-import Tutorial from "components/BatchButter/Tutorial";
+import TutorialSlider from "components/BatchButter/TutorialSlider";
 import ButterStats from "components/ButterStats";
-import MainActionButton from "components/MainActionButton";
-import { setDualActionWideModal, setMobileFullScreenModal, setMultiChoiceActionModal } from "context/actions";
+import SecondaryActionButton from "components/SecondaryActionButton";
+import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
+import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "helper/modalHelpers";
-import useSetToken from "hooks/butter/useSetToken";
-import useThreeXBatch from "hooks/butter/useThreeXBatch";
-import useThreeXData from "hooks/butter/useThreeXData";
-import useThreeXWhale from "hooks/butter/useThreeXWhale";
-import useThreeXWhaleData from "hooks/butter/useThreeXWhaleData";
-import useThreeXZapper from "hooks/butter/useThreeXZapper";
+import useSetToken from "hooks/set/useSetToken";
+import useThreeXBatch from "hooks/set/useThreeXBatch";
+import useThreeXData from "hooks/set/useThreeXData";
+import useThreeXWhale from "hooks/set/useThreeXWhale";
+import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
+import useThreeXZapper from "hooks/set/useThreeXZapper";
 import useWeb3 from "hooks/useWeb3";
-import { useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
+import { isDepositDisabled } from "../../../helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
 export enum TOKEN_INDEX {
@@ -65,6 +69,7 @@ export default function ThreeX(): JSX.Element {
   } = useThreeXWhaleData();
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXData && !errorFetchingThreeXData;
+  const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
 
   const refetchThreeXData = () => Promise.all([refetchThreeXBatchData(), refetchThreeXWhaleData()]);
 
@@ -77,6 +82,7 @@ export default function ThreeX(): JSX.Element {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, 3X is only available on Ethereum.",
+          image: <img src="/images/modalImages/comingSoon.svg" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -106,20 +112,20 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: threeXData?.tokens?.usdc?.key,
-            output: threeXData?.tokens?.threeX?.key,
-          },
-          tokens: threeXData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-        }
+            ...state,
+            selectedToken: {
+              input: threeXData?.tokens?.usdc?.key,
+              output: threeXData?.tokens?.threeX?.key,
+            },
+            tokens: threeXData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+          }
         : {
-          ...state,
-          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
-        },
+            ...state,
+            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          },
     );
   }, [threeXData, threeXWhaleData]);
 
@@ -247,15 +253,20 @@ export default function ThreeX(): JSX.Element {
           title: "Deposit for Mint",
           content:
             "You have successfully deposited into the current mint batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-          image: <img src="/images/butter/modal-1.png" className="px-6" />,
+          image: <img src="/images/modalImages/mint.svg" />,
           onConfirm: {
-            label: "Close",
+            label: "Continue",
             onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
-          onDismiss: {
+          onDontShowAgain: {
             label: "Do not remind me again",
             onClick: () => {
               localStorage.setItem("hideBatchProcessingPopover", "true");
+              dispatch(setMultiChoiceActionModal(false));
+            },
+          },
+          onDismiss: {
+            onClick: () => {
               dispatch(setMultiChoiceActionModal(false));
             },
           },
@@ -273,12 +284,17 @@ export default function ThreeX(): JSX.Element {
           title: "Deposit for Redeem",
           content:
             "You have successfully deposited into the current redeem batch. Check the table at the bottom of this page to claim the tokens when they are ready.",
-          image: <img src="/images/butter/batch-popover.png" className="px-6" />,
+          image: <img src="/images/modalImages/mint.svg" />,
           onConfirm: {
-            label: "Close",
+            label: "Continue",
             onClick: () => dispatch(setMultiChoiceActionModal(false)),
           },
           onDismiss: {
+            onClick: () => {
+              dispatch(setMultiChoiceActionModal(false));
+            },
+          },
+          onDontShowAgain: {
             label: "Do not remind me again",
             onClick: () => {
               localStorage.setItem("hideBatchProcessingPopover", "true");
@@ -322,34 +338,43 @@ export default function ThreeX(): JSX.Element {
             {
               title: "You claimed your token",
               children: (
-                <p className="text-sm text-gray-500">
-                  Your tokens should now be visible in your wallet. To see your tokens, &nbsp;
-                  <a
-                    onClick={async () =>
-                      window.ethereum.request({
-                        method: "wallet_watchAsset",
-                        params: {
-                          type: "ERC20",
-                          options: {
-                            address: threeX.address,
-                            symbol: "3X",
-                            decimals: 18,
+                <>
+                  <p className="text-base text-primaryDark mb-4">
+                    Your tokens are now in your wallet. To see them make sure to import 3x into your wallet
+                  </p>
+                  <p>
+                    <a
+                      onClick={async () =>
+                        window.ethereum.request({
+                          method: "wallet_watchAsset",
+                          params: {
+                            type: "ERC20",
+                            options: {
+                              address: threeX.address,
+                              symbol: "3X",
+                              decimals: 18,
+                            },
                           },
-                        },
-                      })
-                    }
-                    className="text-blue-600 cursor-pointer"
-                  >
-                    Add 3X to Wallet
-                  </a>
-                </p>
+                        })
+                      }
+                      className="text-customPurple cursor-pointer"
+                    >
+                      Add 3X to Wallet
+                    </a>
+                  </p>
+                </>
               ),
-              image: <img src="/images/butter/modal-2.png" className="px-6" />,
+              image: <img src="/images/modalImages/redeemed.svg" />,
               onConfirm: {
-                label: "Close",
+                label: "Continue",
                 onClick: () => dispatch(setMultiChoiceActionModal(false)),
               },
               onDismiss: {
+                onClick: () => {
+                  dispatch(setMultiChoiceActionModal(false));
+                },
+              },
+              onDontShowAgain: {
                 label: "Do not remind me again",
                 onClick: () => {
                   localStorage.setItem("hideClaimSuccessPopover", "true");
@@ -433,65 +458,66 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.redeeming
       ? threeXData?.currentBatches.redeem.suppliedTokenBalance
-        .mul(threeXData?.tokens?.threeX.price)
-        .div(parseEther("1"))
+          .mul(threeXData?.tokens?.threeX.price)
+          .div(parseEther("1"))
       : threeXData?.currentBatches.mint.suppliedTokenBalance
-        .mul(threeXData?.tokens?.usdc.price)
-        .div(BigNumber.from(1_000_000));
+          .mul(threeXData?.tokens?.usdc.price)
+          .div(BigNumber.from(1_000_000));
   }
-
-  function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
-    return depositAmount.gt(inputTokenBalance);
-  }
-
-  const isDepositDisabled = (): boolean => {
-    const tvl = threeXData?.totalSupply?.mul(threeXData?.tokens?.threeX?.price).div(parseEther("1"));
-    const tvlLimit = parseEther("1000000"); // 1m
-    if (!threeXPageState.redeeming && (tvl.gte(tvlLimit) || threeXPageState?.depositAmount.add(tvl).gte(tvlLimit))) {
-      return true;
-    }
-    return threeXPageState.useUnclaimedDeposits
-      ? isBalanceInsufficient(
-        threeXPageState.depositAmount,
-        threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
-      )
-      : isBalanceInsufficient(
-        threeXPageState.depositAmount,
-        threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
-      );
-  };
 
   return (
     <>
-      <div className="md:max-w-2xl mx-4 md:mx-0 text-center md:text-left">
-        <h1 className="text-3xl font-bold">3X - Yield Optimizer</h1>
-        <p className="mt-2 text-lg text-gray-500">
-          Mint 3X and earn interest on multiple stablecoins at once.
-          <br />
-          Stake your 3X to earn boosted APY.
-        </p>
-        <ButterStats butterData={threeXData} addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]} isThreeX />
+      <div className="grid grid-cols-12">
+        <div className="col-span-12 md:col-span-4">
+          <h1 className="text-6xl leading-12">3X</h1>
+          <p className="mt-4 leading-5 text-primaryDark">
+            Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
+          </p>
+          <ButterStats
+            butterData={threeXData}
+            addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]}
+            isThreeX
+          />
+        </div>
+        <div className="col-span-5 col-end-13 hidden md:block">
+          <TutorialSlider isThreeX />
+        </div>
       </div>
-      <div className="flex flex-col md:flex-row mt-10 mx-4 md:mx-0">
-        <div className="order-2 md:order-1 md:w-1/3 mb-10">
+      <div className="md:hidden mt-10">
+        <div
+          className="bg-customPurple rounded-lg w-full px-6 py-6 text-white flex justify-between items-center"
+          role="button"
+          onClick={() => toggleMobileTutorial(true)}
+        >
+          <p className="text-medium">Learn How It Works</p>
+          <RightArrowIcon color="fff" />
+        </div>
+      </div>
+      <div className="flex flex-col md:flex-row mt-10">
+        <div className="md:w-1/3 mb-10">
           {account ? (
             loadingThreeXData ? (
               <>
-                <div>
-                  <ContentLoader viewBox="0 0 450 600">
-                    <rect x="0" y="0" rx="20" ry="20" width="400" height="600" />
+                <div className="order-2 md:hidden">
+                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                    <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
+                  </ContentLoader>
+                </div>
+                <div className="order-1 hidden md:block">
+                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                    <rect x="0" y="0" rx="8" ry="8" width="90%" height="600" />
                   </ContentLoader>
                 </div>
               </>
             ) : (
-              <div className="md:pr-8">
+              <div className="md:pr-8 order-2 md:order-1">
                 {threeXData && threeXPageState.tokens && threeXPageState.selectedToken && (
                   <MintRedeemInterface
                     token={threeXPageState?.tokens}
                     selectToken={selectToken}
                     mainAction={handleMainAction}
                     approve={approve}
-                    depositDisabled={isDepositDisabled()}
+                    depositDisabled={isDepositDisabled(threeXData, threeXPageState)}
                     hasUnclaimedBalances={hasClaimableBalances()}
                     butterPageState={[threeXPageState, setThreeXPageState]}
                     isThreeXPage
@@ -500,14 +526,19 @@ export default function ThreeX(): JSX.Element {
               </div>
             )
           ) : (
-            <div className="px-5 pt-6 md:mr-8 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-              <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
-                <MainActionButton
-                  label="Connect Wallet"
-                  handleClick={() => {
-                    connect();
-                  }}
-                />
+            <div
+              className=" rounded-lg md:border md:border-customLightGray px-0 md:p-6 md:pb-0 md:mr-6"
+              role="button"
+              onClick={() => connect()}
+            >
+              <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
+              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 md:mt-4">
+                <div className="hidden md:block">
+                  <SecondaryActionButton label="Connect" />
+                </div>
+                <div className="md:hidden">
+                  <SecondaryActionButton label="Connect Wallet" />
+                </div>
               </div>
             </div>
           )}
@@ -515,95 +546,15 @@ export default function ThreeX(): JSX.Element {
 
         <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
           <div className="flex flex-col md:flex-row">
-            <div className="block md:hidden md:w-1/2 md:mr-2 mb-4 md:mb-0">
-              <div
-                className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-primaryLight"
-                onClick={() => {
-                  dispatch(
-                    setMobileFullScreenModal({
-                      title: "",
-                      children: <Tutorial isThreeX />,
-                      onDismiss: () => dispatch(setMobileFullScreenModal(false)),
-                    }),
-                  );
-                }}
-              >
-                <div className="flex flex-row items-center justify-end mt-0.5">
-                  <div className="w-full flex flex-row justify-center">
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Learn how it works</h3>
-                    </div>
-                  </div>
-                  <div className="flex flex-row">
-                    <div className="mr-2">
-                      <img title="play-icon" src="/images/icons/IconPlay.svg" />
-                    </div>
-                  </div>
-                  <div></div>
-                </div>
-              </div>
-            </div>
-            <div className="block md:hidden md:w-1/2 md:mr-2 mb-10 md:mb-0">
-              <div
-                className="flex flex-col justify-center h-full rounded-3xl border border-gray-200 shadow-custom w-full px-2 pt-2 pb-2 bg-green-100"
-                onClick={() => {
-                  dispatch(
-                    setMobileFullScreenModal({
-                      title: "",
-                      children: (
-                        <div className="flex flex-col px-8 text-left">
-                          <div className="">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                              Mint
-                            </h3>
-                            <div className="my-4">
-                              <p className="text-lg text-gray-500">
-                                Mint 3X with USDC or other stablecoins to earn interest on a basket of dollar and euro
-                                denominated stablecoins at once. As the value of the underlying assets increase, so does
-                                the redeemable value of 3X. This process converts deposited funds into other stablecoins
-                                and deploys them in Yearn to generate interest.
-                              </p>
-                            </div>
-                          </div>
-                          <div className="mt-14">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                              Redeem
-                            </h3>
-                            <div className="my-4">
-                              <p className="text-lg text-gray-500">
-                                Redeem your 3X to receive its value in USDC or other stablecoins. We will convert all
-                                the underlying tokens of 3X back into USDC or your desired stablecoin.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ),
-                      onDismiss: () => dispatch(setMobileFullScreenModal(false)),
-                    }),
-                  );
-                }}
-              >
-                <div className="flex flex-row items-center justify-end mt-0.5">
-                  <div className="w-full flex flex-row justify-center">
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">What is Mint & Redeem?</h3>
-                    </div>
-                  </div>
-                  <div className="flex flex-row">
-                    <div className="mr-2">
-                      <img title="play-icon" src="/images/icons/IconPlay.svg" />
-                    </div>
-                  </div>
-                  <div></div>
-                </div>
-              </div>
-            </div>
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`$${threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals) : "-"
-                  }`}
-                icon={{ name: "3X", color: "bg-gray-100" }}
+                content={`${
+                  threeXData?.tokens?.threeX
+                    ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals)
+                    : "-"
+                }`}
+                icon={"3X"}
                 info={{
                   title: "Underlying Tokens",
                   content: (
@@ -612,7 +563,7 @@ export default function ThreeX(): JSX.Element {
                       50% yvCurve-sUSDpool <br />
                       50% yvCurve-3EURpool <br />
                       <br />
-                      3X Has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT and EURS.
+                      3X has Exposure to: sUSD, DAI, USDC, USDT, agEUR, EURT and EURS.
                     </span>
                   ),
                 }}
@@ -622,26 +573,43 @@ export default function ThreeX(): JSX.Element {
               <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
             </div>
           </div>
-
-          <div className="hidden md:flex w-full h-128 flex-row items-center pt-8 pb-6 pl-2 pr-2 mt-8 border border-gray-200 h-min-content smlaptop:pt-16 laptop:pt-12 lglaptop:pt-16 2xl:pt-12 smlaptop:pb-10 lglaptop:pb-12 2xl:pb-10 rounded-4xl shadow-custom bg-primaryLight">
-            <Tutorial isThreeX />
+          <div className="w-full pb-12 mx-auto mt-10">
+            <div className="md:overflow-x-hidden md:max-h-108">
+              <ClaimableBatches
+                batches={threeXData?.accountBatches}
+                claim={claim}
+                claimAndStake={claimAndStake}
+                withdraw={handleWithdraw}
+                butterPageState={[threeXPageState, setThreeXPageState]}
+                isThreeX
+              />
+            </div>
           </div>
         </div>
       </div>
-      {threeXData?.accountBatches?.length > 0 && (
-        <div className="w-full pb-12 mx-auto mt-10">
-          <div className="mx-4 md:mx-0 p-2 overflow-hidden border border-gray-200 shadow-custom rounded-3xl">
-            <ClaimableBatches
-              batches={threeXData?.accountBatches}
-              claim={claim}
-              claimAndStake={claimAndStake}
-              withdraw={handleWithdraw}
-              butterPageState={[threeXPageState, setThreeXPageState]}
-              isThreeX
-            />
-          </div>
-        </div>
-      )}
+      <div className="py-6 hidden md:block">
+        <img src="/images/nature.png" alt="" className="rounded-lg w-full object-cover" />
+      </div>
+
+      <Transition.Root show={showMobileTutorial} as={Fragment}>
+        <Dialog as="div" className="fixed inset-0 overflow-hidden z-40" onClose={() => toggleMobileTutorial(false)}>
+          <Dialog.Overlay className="absolute inset-0 overflow-hidden">
+            <Transition.Child
+              as={Fragment}
+              enter="transform transition ease-in-out duration-500 sm:duration-700"
+              enterFrom="translate-x-full"
+              enterTo="translate-x-0"
+              leave="transform transition ease-in-out duration-500 sm:duration-700"
+              leaveFrom="translate-x-0"
+              leaveTo="translate-x-full"
+            >
+              <div className="w-screen">
+                <MobileTutorialSlider isThreeX onCloseMenu={() => toggleMobileTutorial(false)} />
+              </div>
+            </Transition.Child>
+          </Dialog.Overlay>
+        </Dialog>
+      </Transition.Root>
     </>
   );
 }

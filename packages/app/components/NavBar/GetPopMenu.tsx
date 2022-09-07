@@ -1,13 +1,15 @@
 import { Menu, Transition } from "@headlessui/react";
+import { ChainId } from "@popcorn/utils";
 import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
 import useWeb3 from "hooks/useWeb3";
 import { Fragment } from "react";
 
-interface GetPopMenuProps { }
+interface GetPopMenuProps {}
 
 const GetPopMenu: React.FC<GetPopMenuProps> = () => {
   const { wallet, contractAddresses, chainId } = useWeb3();
   const metaMaskConnected = wallet?.label === "MetaMask";
+  const popPoolExists = [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost, ChainId.Polygon].includes(chainId);
 
   return (
     <Transition
@@ -19,25 +21,29 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
     >
-      <Menu.Items className="absolute top-14 right-0 w-44 bg-white rounded-2xl shadow-md border-gray-200 border focus:outline-none">
-        <Menu.Item>
-          {({ active }) => (
-            <a
-              className={`${active ? "bg-gray-100" : "bg-white"} ${metaMaskConnected ? "rounded-t-2xl border-b" : "rounded-2xl"
+      <Menu.Items className="absolute top-14 -right-5 w-44 bg-white rounded-3xl border-gray-200 border focus:outline-none">
+        {popPoolExists && (
+          <Menu.Item>
+            {({ active }) => (
+              <a
+                className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${
+                  metaMaskConnected ? "rounded-t-3xl border-b" : "rounded-3xl"
                 } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
-              href={`${getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses)}`}
-              target="_blank"
-            >
-              <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Buy POP</p>
-            </a>
-          )}
-        </Menu.Item>
+                href={`${getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses)}`}
+                target="_blank"
+              >
+                <p className={`text-left text-lg px-6 ${active ? "font-medium" : ""}`}>Buy POP</p>
+              </a>
+            )}
+          </Menu.Item>
+        )}
         {metaMaskConnected && (
           <Menu.Item>
             {({ active }) => (
               <div
-                className={`${active ? "bg-gray-100" : "bg-white"
-                  } group text-center px-2 pt-4 w-full h-14 cursor-pointer rounded-b-2xl`}
+                className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${
+                  popPoolExists ? "rounded-b-3xl" : "rounded-3xl"
+                } group px-2 pt-4 w-full h-14 cursor-pointer`}
                 onClick={async () =>
                   await window.ethereum.request({
                     method: "wallet_watchAsset",
@@ -53,7 +59,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                   })
                 }
               >
-                <p className={`text-lg  ${active ? "font-semibold" : "font-medium"}`}>Add to Wallet</p>
+                <p className={`text-left text-lg px-6 ${active ? "font-medium" : ""}`}>Add to Wallet</p>
               </div>
             )}
           </Menu.Item>

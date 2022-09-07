@@ -1,19 +1,20 @@
-interface MainActionButtonProps {
+import React from "react";
+
+interface ButtonProps {
   label: string;
-  handleClick: any;
+  handleClick?: any;
   disabled?: boolean;
 }
-
-const MainActionButton: React.FC<MainActionButtonProps> = ({ label, handleClick, disabled = false, children }) => {
+const MainActionButton: React.FC<ButtonProps> = ({ label, handleClick, disabled = false, children }) => {
   return (
     <button
-      type="button"
-      className="w-full h-hull py-3 px-8 flex flex-row items-center justify-center border border-blue-600 bg-blue-600 rounded-full hover:bg-blue-700 hover:border-blue-700 disabled:bg-gray-300 disabled:border-gray-300"
+      className="bg-warmGray border-ctaYellow text-black hover:bg-primary hover:border-primary hover:text-white active:bg-white active:border-primary active:text-primary rounded-4xl px-8 py-3 font-medium text-base transition-all ease-in-out duration-500 w-full disabled:bg-customLightGray disabled:border-customLightGray disabled:text-secondaryLight disabled:hover:border-customLightGray disabled:hover:bg-customLightGray disabled:hover:text-secondaryLight"
       onClick={handleClick}
       disabled={disabled}
     >
-      <p className="text-base whitespace-nowrap text-white font-medium">{label}</p>
+      {label}
     </button>
   );
 };
+
 export default MainActionButton;

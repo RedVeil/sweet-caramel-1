@@ -1,7 +1,7 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { TokenMetadata } from "@popcorn/utils/types";
 import MainActionButton from "components/MainActionButton";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import TertiaryActionButton from "components/TertiaryActionButton";
 import { Dispatch, useState } from "react";
 import OutputToken from "./OutputToken";
 import SlippageSettings from "./SlippageSettings";
@@ -42,12 +42,12 @@ export default function ZapModal({
         </div>
       )}
       <div className="mt-5 flex flex-row space-x-4 md:space-x-8">
-        <SecondaryActionButton
+        <TertiaryActionButton
           label={"Cancel"}
           handleClick={() => {
             closeModal();
           }}
-        ></SecondaryActionButton>
+        ></TertiaryActionButton>
         <MainActionButton
           label={isWithdraw ? "Withdraw" : "Claim"}
           handleClick={() => {

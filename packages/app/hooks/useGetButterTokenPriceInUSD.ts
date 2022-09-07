@@ -3,8 +3,8 @@ import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContrac
 import { IBasicIssuanceModule, ButterBatchProcessing } from "@popcorn/hardhat/typechain";
 import { Address, ContractAddresses } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
-import useBasicIssuanceModule from "hooks/butter/useBasicIssuanceModule";
-import useButterBatch from "hooks/butter/useButterBatch";
+import useBasicIssuanceModule from "hooks/set/useBasicIssuanceModule";
+import useButterBatch from "hooks/set/useButterBatch";
 import useWeb3 from "hooks/useWeb3";
 import useSWR from "swr";
 

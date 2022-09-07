@@ -1,4 +1,4 @@
-import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
 import TokenSelection from "components/SweetVaults/TokenSelection";
 import { BigNumber, constants } from "ethers";
@@ -34,6 +34,8 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   useEffect(() => {
     if (amount.isZero()) {
       setDisplayAmount("");
+    } else if (readonly) {
+      setDisplayAmount(formatUnits(amount, token?.decimals));
     }
   }, [amount]);
 
@@ -53,71 +55,66 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   }
 
   return (
-    <div className="w-full">
-      <span className="flex flex-col justify-between">
-        <div className="">
-          <div>
-            {balance && (
-              <label
-                htmlFor="tokenInput"
-                className="flex justify-between items-center text-sm font-medium text-gray-700 text-center"
-              >
-                <p className="text-base font-semibold text-gray-900">{label}</p>
-                <p className="text-gray-500 font-medium text-sm">
-                  {formatAndRoundBigNumber(balance, token?.decimals)} {token?.symbol}
-                </p>
-              </label>
-            )}
-            <div className="mt-1 relative flex items-center">
-              <input
-                name="tokenInput"
-                id="tokenInput"
-                className={`block w-full pl-5 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${selectToken ? "pr-40 md:pr-52" : "pr-32 md:pr-36"
-                  } ${balance && amount?.gt(balance)
-                    ? "focus:ring-red-600 focus:border-red-600"
-                    : "focus:ring-blue-500 focus:border-blue-500"
-                  }`}
-                onChange={(e) => {
-                  onUpdate(e.target.value.replace(/,/g, "."));
-                }}
-                value={displayAmount}
-                inputMode="decimal"
-                autoComplete="off"
-                autoCorrect="off"
-                // text-specific options
-                type="text"
-                pattern="^[0-9]*[.,]?[0-9]*$"
-                placeholder={"0.0"}
-                minLength={1}
-                maxLength={79}
-                spellCheck="false"
-                readOnly={readonly}
+    <>
+      {balance && (
+        <label htmlFor="tokenInput" className="flex justify-between items-center font-medium text-gray-700 w-full mb-2">
+          <p className="font-medium text-primary">{label}</p>
+          <p className="text-secondaryLight leading-6">
+            {formatAndRoundBigNumber(balance, token?.decimals)} {token?.symbol}
+          </p>
+        </label>
+      )}
+      <div className="flex items-center gap-2 w-full">
+        <div className="w-full">
+          <div
+            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
+              }`}
+          >
+            <input
+              name="tokenInput"
+              id="tokenInput"
+              className={`block w-full p-0 border-0 text-primaryDark text-lg focus:ring-0`}
+              onChange={(e) => {
+                onUpdate(e.target.value.replace(/,/g, "."));
+              }}
+              value={displayAmount}
+              inputMode="decimal"
+              autoComplete="off"
+              autoCorrect="off"
+              // text-specific options
+              type="text"
+              pattern="^[0-9]*[.,]?[0-9]*$"
+              placeholder={"0.0"}
+              minLength={1}
+              maxLength={79}
+              spellCheck="false"
+              readOnly={readonly}
+            />
+            {tokenList.length > 0 ? (
+              <TokenSelection
+                selectedToken={token}
+                tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
+                selectToken={selectToken}
               />
-              <div className={`absolute inset-y-0 right-0 flex items-center py-1.5 ${selectToken ? "" : "pr-3"}`}>
-                {!readonly && balance && (
-                  <>
-                    <p
-                      className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 pt-0.5 leading-none hover:text-blue-500 text-sm"
-                      onClick={setMaxAmount}
-                    >
-                      MAX
-                    </p>
-                    {tokenList.length > 0 && (
-                      <TokenSelection
-                        selectedToken={token}
-                        tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
-                        selectToken={selectToken}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-            {balance && amount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}
+            ) : <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token?.symbol}</p>}
           </div>
         </div>
-      </span>
-    </div>
+        <div className="">
+          {!readonly && balance && (
+            <>
+              <div
+                className="px-5 py-4 leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white text-lg transition-all"
+                role="button"
+                onClick={setMaxAmount}
+              >
+                MAX
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
+    </>
   );
 };
 export default TokenInput;

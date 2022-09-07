@@ -32,7 +32,7 @@ module.exports = {
 		},
 		extend: {
 			boxShadow: {
-				custom: "0 4px 14px rgba(101, 135, 169, 0.11)",
+				custom: "0 4px 14px rgba(101, 135, 169, 0.16)",
 			},
 			borderRadius: {
 				"4xl": "2rem",
@@ -42,12 +42,17 @@ module.exports = {
 			borderWidth: {
 				3: "3px",
 			},
-			borderWidth: {
-				3: "3px",
+			zIndex: {
+				'60': '60',
+				'70': '70',
+				'80': '80',
+				'90': '90',
+				'100': '100',
 			},
 			spacing: {
 				18: "4.5rem",
 				72: "18rem",
+				76: "19rem",
 				84: "21rem",
 				88: "22rem",
 				92: "23rem",
@@ -66,8 +71,12 @@ module.exports = {
 				136: "42rem",
 				138: "44rem",
 				142: "47rem",
+				150: "53rem",
+				156: "61rem",
+				160: "65rem",
 				200: "70rem",
 				384: "102rem",
+				386: "110rem",
 			},
 			height: {
 				"1/12": "8.333333%",
@@ -85,6 +94,12 @@ module.exports = {
 			minHeight: { 128: "34rem", 256: "68rem" },
 			lineHeight: {
 				button: "32px",
+				'10.5': '2.75rem',
+				'11': '3rem',
+				'12': '3.5rem',
+				'13': '4rem',
+				'14': '4.5rem',
+				'15': '6rem',
 			},
 			scale: {
 				101: "1.01",
@@ -92,18 +107,35 @@ module.exports = {
 				103: "1.03",
 			},
 			colors: {
-				primary: "#F28705",
-				primaryLight: "#FDEAA7",
-				primaryDark: "#BF4904",
+				// New Design Colors
+				primary: '#645F4B',
+				primaryLight: "#A5A08C",
+				primaryDark: "#555555",
 
 				secondary: "#B72E73",
-				secondaryLight: "#D5264E",
-				secondaryDark: "#8739B0",
+				secondaryLight: "#AFAFAF",
 
-				ctaYellow: "#F6CB22",
-				ctaYellowLight: "#FFD324",
+				warmGray: '#EBE7D4',
+				customPeach: "#FFF8EE",
+				customYellow: '#FEE25D',
+				customLightYellow: '#FFE650',
+				customPale: '#DFDAC7',
+				customRed: '#FA5A6E',
+				customGreen: '#05BE64',
+				customLightGreen: '#78E69B',
+				customPurple: '#9B55FF',
+				customDarkGray: '#1F2937',
+				customLightGray: '#D7D7D7',
+				rewardsGreen: '#1FBC67',
+				rewardsLightGreen: '#7CE59D',
 
-				light: "#FFF5D1",
+				tokenTextGray: '#969696',
+
+
+
+
+				// Colors below here are from the old design, will be removed after the new design implementation is complete
+				light: "#C8C8C8",
 				cardBg: "#F3F8FF",
 
 				rewardsBg: "#FFFBEA",
@@ -113,12 +145,29 @@ module.exports = {
 				yellow: colors.amber,
 				purple: colors.violet,
 			},
+			fontSize: {
+				'xs': '.75rem',
+				'sm': '.875rem',
+				'tiny': '.875rem',
+				'base': '1rem',
+				'lg': '1.125rem',
+				'xl': '1.25rem',
+				'2xl': '1.5rem',
+				'3xl': '2rem',
+				'4xl': '2.5rem',
+				'5xl': '3rem',
+				'6xl': '3.5rem',
+				'7xl': '4rem',
+				'8xl': '4.5rem',
+				'9xl': '6rem',
+				'10xl': '8rem',
+			},
 			backgroundImage: (theme) => ({
 				"hero-pattern": "url('/images/popcorn_playing.gif')",
 			}),
 			animation: { "spin-slow": "spin 3s linear infinite" },
 			fontFamily: {
-				avenir: ["'Avenir LT Pro'", "sans-serif"],
+				khTeka: ["'KH Teka'", "sans-serif"],
 			},
 		},
 	},

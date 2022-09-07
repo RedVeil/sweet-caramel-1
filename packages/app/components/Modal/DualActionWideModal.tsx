@@ -1,8 +1,8 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
-import { CheckIcon } from "@heroicons/react/outline";
+import { XIcon } from "@heroicons/react/outline";
 import MainActionButton from "components/MainActionButton";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import TertiaryActionButton from "components/TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface DualActionWideModalProps {
@@ -78,7 +78,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-filter backdrop-blur" />
+            <Dialog.Overlay className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity backdrop-filter backdrop-blur" />
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
@@ -95,33 +95,26 @@ const Example: React.FC<DualActionWideModalProps> = ({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <Dialog.Panel className="absolute flex top-0 w-full h-full justify-center sm:items-center items-end pb-20">
-              <div className="inline-block align-bottom bg-white rounded-4xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div className="inline-block align-bottom bg-white rounded-lg p-6 md:p-10 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle w-88 md:max-w-md sm:w-full sm:p-6">
+                <div className="flex justify-end">
+                  <XIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />
+                </div>
                 <div>
-                  {image ? (
-                    <>{image}</>
-                  ) : (
-                    <>
-                      {icon == "check" && (
-                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                          <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
-                        </div>
-                      )}
-                    </>
-                  )}
-                  <div className="mt-3 text-center sm:mt-5">
-                    <Dialog.Title as="h3" className="text-2xl leading-6 font-semibold text-gray-900">
+                  {image}
+                  <div className="mt-10">
+                    <h3 className="text-6xl leading-13 text-black" id="modal-title">
                       {title}
-                    </Dialog.Title>
-                    <div className="mt-2">
+                    </h3>
+                    <div className="mt-4">
                       {typeof content === "string" ? (
-                        <p className="text-lg text-gray-500 py-6">{content}</p>
+                        <p className="text-base md:text-sm text-primaryDark leading-5">{content}</p>
                       ) : (
                         <>{content}</>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="mt-5 flex flex-col gap-y-4 sm:flex-row-reverse sm:mt-6 sm:gap-4">
+                <div className="mt-10 flex flex-col gap-6">
                   {onConfirm && (
                     <MainActionButton
                       disabled={progress}
@@ -130,11 +123,11 @@ const Example: React.FC<DualActionWideModalProps> = ({
                     ></MainActionButton>
                   )}
                   {onDismiss && (
-                    <SecondaryActionButton
+                    <TertiaryActionButton
                       disabled={progress}
                       label={onDismiss.label}
                       handleClick={() => dismiss()}
-                    ></SecondaryActionButton>
+                    ></TertiaryActionButton>
                   )}
                 </div>
               </div>

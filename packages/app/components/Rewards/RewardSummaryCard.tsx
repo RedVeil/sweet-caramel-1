@@ -19,13 +19,13 @@ const RewardSummaryCard: React.FC<RewardSummaryCardProps> = ({
   infoIconProps,
 }) => {
   return (
-    <div className="bg-white border border-gray-200 py-6 px-6 shadow-custom rounded-2xl h-min-content w-full flex flex-col">
-      <div className="w-full flex flex-row flex-wrap sm:nowrap gap-y-4 h-full gap-x-6 items-center justify-start">
+    <div className="bg-white border border-customLightGray p-6 rounded-lg w-full flex flex-col">
+      <div className="w-full flex flex-col md:flex-row md:items-center">
         <div className="flex flex-row w-full sm:w-fit items-center gap-x-4">
           <img src={iconUri} className="w-12 h-12" />
           <div className="flex flex-col items-start grow w-full justify-between pt-1">
-            <div className="flex flex-row justify-between sm:justify-start w-full items-start">
-              <p className="font-normal leading-none text-gray-500 uppercase text-base">{title}</p>
+            <div className="flex flex-row gap-2 w-full items-center">
+              <p className="font-normal leading-none text-primaryLight text-base">{title}</p>
               <InfoIconWithTooltip
                 id={infoIconProps.id}
                 title={infoIconProps.title}
@@ -33,11 +33,13 @@ const RewardSummaryCard: React.FC<RewardSummaryCardProps> = ({
                 classExtras={infoIconProps.classExtras}
               />
             </div>
-            <p className="text-gray-900 font-semibold leading-snug break-words text-2xl">{content}</p>
+            <p className="text-primary text-2xl">
+              {content.split(" ")[0]} <span className=" text-tokenTextGray text-xl"> {content.split(" ")[1]}</span>
+            </p>
           </div>
         </div>
         {button && (
-          <div className="grow flex flex-row justify-end">
+          <div className="grow flex flex-row justify-end mt-6 md:mt-0">
             <div className="flex-row self-center grow sm:grow-0 sm:w-32 flex">
               <MainActionButton label="Claim all" handleClick={handleClick} />
             </div>

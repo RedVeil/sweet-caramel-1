@@ -1,83 +1,41 @@
-import { getTokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
-import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
+import namedAccounts from "@popcorn/hardhat/lib/utils/namedAccounts.json";
 import { ChainId } from "@popcorn/utils";
+import { getTokenMetadataOverride } from "contractMetadataOverride";
 
 interface TokenIconProps {
   token: string;
   fullsize?: boolean;
+  imageSize?: string;
 }
-const namedAccounts = getNamedAccounts();
 
 const TokenMetadataOverride = getTokenMetadataOverride();
 
-export default function TokenIcon({ token, fullsize = false }: TokenIconProps): JSX.Element {
+export default function TokenIcon({ token, fullsize = false, imageSize }: TokenIconProps): JSX.Element {
   switch (token) {
     case "Arrakis USDC/POP LP":
-    case "SushiSwap LP Token":
+    case "Sushi USDC/POP LP":
       return (
         <div className="flex flex-row flex-shrink-0 flex-grow-0">
-          <div
-            className={`flex items-center rounded-full bg-white border border-gray-300  ${
-              fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
-            }`}
-          >
-            <img
-              src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.usdc.polygon].icon}
-              alt="usdc"
-              className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto`}
-            />
-          </div>
-          <div
-            className={`flex items-center rounded-full bg-white border border-gray-300 -ml-3  ${
-              fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
-            }`}
-          >
-            <img
-              src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
-              alt="pop"
-              className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto md:ml-2.5`}
-            />
-          </div>
-        </div>
-      );
-    case "Butter V2":
-      return (
-        <div
-          className={`flex items-center rounded-full bg-white border border-gray-300  ${
-            fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
-          }`}
-        >
+          <img src="/images/tokens/usdc.webp" alt="usdc" className={imageSize ? imageSize : "w-10 h-10"} />
           <img
-            src={TokenMetadataOverride[ChainId.Ethereum][namedAccounts.butter.mainnet].icon}
-            alt="butter"
-            className="w-5 md:w-7 h-3 md:h-4 mx-auto"
+            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts?.pop?.polygon]?.icon}
+            alt="pop"
+            className={`${imageSize ? imageSize : "w-10 h-10"} -ml-3`}
           />
         </div>
       );
+    case "Butter (V2)":
+      return <img src="/images/icons/BTR.svg" alt="butter" className={imageSize ? imageSize : "w-10 h-10"} />;
     case "3X":
-      return (
-        <div
-          className={`flex items-center rounded-full bg-white border border-gray-300  ${
-            fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
-          }`}
-        >
-          <img src="/images/tokens/threeX.svg" alt="3x" className="w-7 h-7 mb-1 mx-auto" />
-        </div>
-      );
+      return <img src="/images/tokens/3X.svg" alt="3x" className="w-10 h-10" />;
     case "Popcorn":
     default:
       return (
-        <div
-          className={`flex items-center rounded-full bg-white border border-gray-300 flex-shrink-0 flex-grow-0  ${
-            fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
-          }`}
-        >
-          <img
-            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
-            alt="pop"
-            className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto md:ml-2.5`}
-          />
-        </div>
+        <img
+          src={TokenMetadataOverride[ChainId.Polygon][namedAccounts?.pop?.polygon]?.icon}
+          alt="pop"
+          className={imageSize ? imageSize : "w-10 h-10"}
+        />
       );
   }
 }

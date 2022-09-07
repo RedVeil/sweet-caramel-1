@@ -10,12 +10,9 @@ export const NotAvailable: React.FC<{ title: string; body: string; visible?: boo
     return <></>;
   }
   return (
-    <div
-      className={`flex flex-col w-full h-116 md:h-128 max-h-screen justify-center items-center bg-gray-50 border-gray-200 border rounded-3xl px-8 shadow-custom ${additionalStyles}`}
-    >
-      <img src="/images/emptyPopcorn.svg" className="w-52 md:w-auto md:h-1/2 " />
-      <p className="text-center mt-12 font-semibold text-3xl text-gray-900">{title}</p>
-      <p className="text-center mt-1 text-gray-900">{body}</p>
+    <div className="rounded-lg bg-customLightGray h-40 md:h-104 flex flex-col justify-center px-8 mt-10">
+      <h1 className=" text-black text-3xl md:text-6xl w-56 md:w-64 leading-7 md:leading-11">{title}</h1>
+      <p className="text-primaryDark mt-4 leading-6">{body}</p>
     </div>
   );
 };

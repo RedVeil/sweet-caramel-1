@@ -18,6 +18,7 @@ export const NetworkChangePromptModalContainer: React.FC = () => {
       onChangeNetwork={networkChangePromptModal.onChangeNetwork}
       onChangeUrl={networkChangePromptModal.onChangeUrl}
       onDisconnect={networkChangePromptModal.onDisconnect}
+      onDismiss={networkChangePromptModal.onDismiss}
     />
   );
 };

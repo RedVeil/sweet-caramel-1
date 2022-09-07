@@ -6,14 +6,15 @@ import MainActionButton from "components/MainActionButton";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import useThreeXWhale from "hooks/butter/useThreeXWhale";
-import useThreeXWhaleData from "hooks/butter/useThreeXWhaleData";
+import { isDepositDisabled } from "helper/isDepositDisabled";
+import useThreeXWhale from "hooks/set/useThreeXWhale";
+import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
 import { instantMint, instantRedeem } from "./3x";
-import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE, isDepositDisabled } from "./butter";
+import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
 const ZAP_TOKEN = ["dai", "usdt"];
 
@@ -184,10 +185,7 @@ export default function Instant3x() {
               selectToken={selectToken}
               mainAction={handleMainAction}
               approve={approve}
-              depositDisabled={isDepositDisabled(
-                threeXPageState.depositAmount,
-                threeXPageState?.tokens[threeXPageState.selectedToken.input].balance,
-              )}
+              depositDisabled={isDepositDisabled(threeXWhaleData, threeXPageState)}
               hasUnclaimedBalances={false}
               butterPageState={[threeXPageState, setThreeXPageState]}
               isInstantPage

@@ -2,8 +2,8 @@ import { formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import { constants } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-import useGetYearnAPY from "hooks/butter/useGetYearnAPY";
+import { parseEther, parseUnits } from "ethers/lib/utils";
+import useGetYearnAPY from "hooks/set/useGetYearnAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useWeb3 from "hooks/useWeb3";
 
@@ -30,99 +30,57 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
   const supply = isReady && butterData.totalSupply;
   const setToken = isThreeX ? butterData?.tokens?.threeX : butterData?.tokens?.butter;
 
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-    }%) and is boosted with POP (${butterStaking ? formatAndRoundBigNumber(butterStaking.apy, butterData?.tokens?.butter?.decimals) : "-"
-    }%). You must stake your ${isThreeX ? "3X" : "BTR"
-    } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
+    butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
+  }%) and is boosted with POP (${
+    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, butterData?.tokens?.butter?.decimals) : "-"
+  }%). You must stake your ${
+    isThreeX ? "3X" : "BTR"
+  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
-    <div className={`flex flex-row flex-wrap items-center mt-4 justify-center ${!center && "md:justify-start"}`}>
-      <div className={`${!center && "border-gray-200 border-r-2 pr-6"} md:border-gray-200 md:border-r-2 md:pr-6 mt-2`}>
-        <div className="hidden md:block">
-          <StatusWithLabel
-            content={
-              butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                ? butterAPY + formatAndRoundBigNumber(butterStaking.apy, butterData.tokens.butter.decimals) + "%"
-                : "New 🍿✨"
-            }
-            label={
-              <>
-                <span className="lowercase">v</span>APR
-              </>
-            }
-            green
-            infoIconProps={{
-              id: "vAPR",
-              title: "How we calculate the vAPR",
-              content: apyInfoText,
-            }}
-          />
-        </div>
-        <div className="md:hidden">
-          <StatusWithLabel
-            content={
-              setToken && supply
-                ? `$${formatAndRoundBigNumber(
-                  supply.mul(setToken.price).div(parseEther("1")),
-                  butterData.tokens.butter.decimals,
-                )}`
-                : "$-"
-            }
-            label="Total Deposits"
-          />
-        </div>
-      </div>
-      <div className={`${!center && "border-gray-200 pl-6"} md:border-gray-200 md:border-r-2 md:px-6 mt-2`}>
-        <div className="hidden md:block ">
-          <StatusWithLabel
-            content={
-              setToken && supply
-                ? `$${formatAndRoundBigNumber(
-                  supply.mul(setToken.price).div(parseEther("1")),
-                  butterData.tokens.butter.decimals,
-                )}`
-                : "$-"
-            }
-            label="Total Deposits"
-          />
-        </div>
-        <div className="md:hidden">
-          {isThreeX ? (
-            <StatusWithLabel content={"$1m"} label="TVL Limit" />
-          ) : (
-            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
-          )}
-        </div>
-      </div>
-      <div className="w-full md:w-auto mt-2 md:pl-6 text-center md:text-left">
-        <div className="hidden md:block ">
-          {isThreeX ? (
-            <StatusWithLabel content={"$1m"} label="TVL Limit" />
-          ) : (
-            <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
-          )}
-        </div>
-        <div className="w-full md:hidden flex justify-center">
-          <StatusWithLabel
-            content={
-              butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                ? butterAPY + formatAndRoundBigNumber(butterStaking.apy, butterData.tokens.butter.decimals) + "%"
-                : "New 🍿✨"
-            }
-            label={
-              <>
-                <span className="lowercase">v</span>APR
-              </>
-            }
-            green
-            infoIconProps={{
-              id: "vAPR",
-              title: "How we calculate the vAPR",
-              content: apyInfoText,
-            }}
-          />
-        </div>
-      </div>
+    <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-6">
+      <StatusWithLabel
+        content={
+          butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
+            ? formatAndRoundBigNumber(
+                butterStaking.apy.add(parseUnits(String(butterAPY))),
+                butterData?.tokens?.butter?.decimals,
+              ) + "%"
+            : "..."
+        }
+        label={
+          <>
+            <span className="lowercase">v</span>APR
+          </>
+        }
+        infoIconProps={{
+          id: "vAPR",
+          title: "How we calculate the vAPR",
+          content: apyInfoText,
+        }}
+      />
+      <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
+      <StatusWithLabel
+        content={
+          setToken && supply
+            ? `$${formatAndRoundBigNumber(
+                supply.mul(setToken.price).div(parseEther("1")),
+                butterData?.tokens?.butter?.decimals,
+              )}`
+            : "$ ..."
+        }
+        label="Total Deposits"
+      />
+      <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
+
+      <>
+        {isThreeX ? (
+          <StatusWithLabel content={"$1m"} label="TVL Limit" />
+        ) : (
+          <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
+        )}
+      </>
     </div>
   );
 }

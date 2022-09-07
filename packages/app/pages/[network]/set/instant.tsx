@@ -12,20 +12,15 @@ import MainActionButton from "components/MainActionButton";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import useButterWhaleData from "hooks/butter/useButterWhaleData";
-import useButterWhaleProcessing from "hooks/butter/useButterWhaleProcessing";
+import { isDepositDisabled } from "helper/isDepositDisabled";
+import useButterWhaleData from "hooks/set/useButterWhaleData";
+import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
-import {
-  ButterPageState,
-  DEFAULT_BUTTER_PAGE_STATE,
-  getZapDepositAmount,
-  isDepositDisabled,
-  TOKEN_INDEX,
-} from "./butter";
+import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE, getZapDepositAmount, TOKEN_INDEX } from "./butter";
 
 export default function InstantButter() {
   const {
@@ -61,6 +56,7 @@ export default function InstantButter() {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, Butter is only available on Ethereum.",
+          image: <img src="/images/modalImages/mint.svg" className="px-6" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -264,10 +260,7 @@ export default function InstantButter() {
               selectToken={selectToken}
               mainAction={handleMainAction}
               approve={approve}
-              depositDisabled={isDepositDisabled(
-                butterPageState.depositAmount,
-                butterPageState.tokens[butterPageState.selectedToken.input].balance,
-              )}
+              depositDisabled={isDepositDisabled(butterData, butterPageState)}
               hasUnclaimedBalances={false}
               butterPageState={[butterPageState, setButterPageState]}
               isInstantPage
@@ -289,8 +282,8 @@ export default function InstantButter() {
             </>
           )}
           {account && !butterData && loadingButterBatchData && (
-            <ContentLoader viewBox="0 0 500 600">
-              <rect x="0" y="0" rx="20" ry="20" width="500" height="600" />
+            <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+              <rect x="0" y="0" rx="8" ry="8" width="400" height="600" />
             </ContentLoader>
           )}
         </div>
