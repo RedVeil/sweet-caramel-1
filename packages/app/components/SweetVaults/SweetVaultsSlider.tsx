@@ -39,7 +39,7 @@ const SweetVaultsSlider: React.FC<SliderProps> = ({ tutorialSteps }) => {
             <div className="flex justify-end mb-7">
               <img src="/images/do good.svg" alt="" />
             </div>
-            <div>
+            <div className=" h-88">
               <div className="bg-customLightGray w-10 h-10 rounded-full"></div>
               <h5 className="text-black text-xl leading-8 my-2">{title}</h5>
               <p className="text-primaryDark text-xl leading-8">{content}</p>
@@ -47,7 +47,7 @@ const SweetVaultsSlider: React.FC<SliderProps> = ({ tutorialSteps }) => {
             <div className="flex justify-end pt-6 gap-5">
               {tutorialSteps.map((steps, index) => (
                 <div
-                  className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-3 w-3 transition-all`}
+                  className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-5 w-5 transition-all`}
                   onClick={() => gotoSlide(index)}
                 ></div>
               ))}

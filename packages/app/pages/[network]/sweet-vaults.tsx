@@ -66,7 +66,8 @@ export default function index(): JSX.Element {
   const updateCurrentPage = (e) => {
     if (contractAddresses?.sweetVaults && contractAddresses?.sweetVaults.length >= e) {
       setSlicePosition(e);
-      setCurrentVaults(contractAddresses?.sweetVaults.splice(e, sliceAmount));
+      let vaults = [...contractAddresses?.sweetVaults];
+      setCurrentVaults(vaults.splice(e, sliceAmount));
     }
   };
 
@@ -114,7 +115,6 @@ export default function index(): JSX.Element {
               currentIndex={slicePosition}
             />
           </div>
-          <div></div>
         </div>
       </div>
     </div>
