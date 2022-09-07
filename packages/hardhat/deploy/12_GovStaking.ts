@@ -28,5 +28,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await rewardsEscrow.addAuthorizedContract((await deployments.get("GovStaking")).address);
 };
 export default main;
-main.dependencies = ["setup"];
+main.dependencies = ["setup", "contract-registry", "rewards-escrow"];
 main.tags = ["core", "gov-staking"];

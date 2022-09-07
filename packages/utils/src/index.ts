@@ -2,21 +2,25 @@ export {
   adjustDepositDecimals,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
-  prepareHotSwap,
   percentageToBps,
+  prepareHotSwap,
 } from "./butterHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
-export { getERC20Contract } from "./contractHelpers";
 export {
-  bigNumberToNumber,
-  formatAndRoundBigNumber,
-  formatBigNumber,
-  numberToBigNumber,
-  scaleNumberToBigNumber,
-} from "./formatBigNumber";
+  ChainId,
+  ChainIdHex,
+  networkLogos,
+  networkMap,
+  PRC_PROVIDERS,
+  RPC_URLS,
+  supportedChainIds,
+} from "./connectors";
+export { getERC20Contract } from "./contractHelpers";
+export { formatAndRoundBigNumber, numberToBigNumber } from "./formatBigNumber";
 export type { ContractsWithBalance, TokenBalances } from "./getBalances";
 export { getPopLocker, getStakingPool } from "./getStakingPool";
+export { default as getSweetVault } from "./getSweetVault";
 export { default as getToken, getMultipleToken, getTokenFromAddress } from "./getToken";
 export { default as getTokenOnNetwork } from "./getTokenOnNetwork";
 export { IpfsClient } from "./IpfsClient/IpfsClient";

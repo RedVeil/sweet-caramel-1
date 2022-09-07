@@ -14,8 +14,8 @@ import { BeneficiaryVaults, GrantElections, MockERC20, ParticipationReward, Rand
 
 interface Contracts {
   mockPop: MockERC20;
-  mockStaking: MockContract;
-  mockBeneficiaryRegistry: MockContract;
+  mockStaking: any;
+  mockBeneficiaryRegistry: any;
   beneficiaryVaults: BeneficiaryVaults;
   randomNumberHelper: RandomNumberHelper;
   participationReward: ParticipationReward;

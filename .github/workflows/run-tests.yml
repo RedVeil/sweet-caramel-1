@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [16.x]
       fail-fast:
         false
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
@@ -33,15 +33,15 @@ jobs:
         with:
           source: .env.example
           target: .env
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "yarn install"
         with:
           cmd: install # will run `yarn install` command
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "build"
         with:
           cmd: app:build # will run `yarn app:build` command
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "run tests"
         with:
           cmd: test

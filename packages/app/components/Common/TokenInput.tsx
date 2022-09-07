@@ -1,43 +1,56 @@
-import { numberToBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
-import { BigNumber } from "ethers";
-import { formatUnits } from "ethers/lib/utils";
-import { formatStakedAmount } from "helper/formatAmount";
+import TokenSelection from "components/SweetVaults/TokenSelection";
+import { BigNumber, constants } from "ethers";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
 export interface TokenInputProps {
   label: string;
   token: Token;
   amount: BigNumber;
-  balance?: BigNumber;
   setAmount: Function;
+  balance?: BigNumber;
   readonly?: boolean;
+  tokenList?: Token[];
+  selectToken?: any;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
   label,
   token,
-  amount,
   setAmount,
+  amount,
   balance,
   readonly = false,
+  tokenList = [],
+  selectToken = null,
 }) => {
-  const displayAmount = amount.isZero() ? "" : formatUnits(amount, token.decimals);
-  const ref = useRef(displayAmount);
+  const [displayAmount, setDisplayAmount] = useState<string>(
+    amount.isZero() ? "" : formatUnits(amount, token?.decimals),
+  );
 
   useEffect(() => {
-    if (displayAmount !== ref.current) {
-      ref.current = ref.current.includes(".") || readonly ? displayAmount : displayAmount.split(".")[0];
+    if (amount.isZero()) {
+      setDisplayAmount("");
     }
-  }, [ref, displayAmount]);
+  }, [amount]);
 
   const onUpdate = (nextUserInput: string) => {
-    if (nextUserInput === "" || inputRegex.test(escapeRegExp(nextUserInput))) {
-      setAmount(numberToBigNumber(nextUserInput));
-      ref.current = nextUserInput;
+    if (inputRegex.test(escapeRegExp(nextUserInput))) {
+      const newAmount = ["", "."].includes(nextUserInput) ? constants.Zero : parseUnits(nextUserInput, token?.decimals);
+      setDisplayAmount(nextUserInput);
+      if (!amount.eq(newAmount)) {
+        setAmount(newAmount);
+      }
     }
   };
+
+  function setMaxAmount() {
+    setDisplayAmount(formatUnits(balance, token?.decimals));
+    setAmount(balance);
+  }
 
   return (
     <div className="w-full">
@@ -51,7 +64,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               >
                 <p className="text-base font-semibold text-gray-900">{label}</p>
                 <p className="text-gray-500 font-medium text-sm">
-                  {formatStakedAmount(balance)} {token.symbol}
+                  {formatAndRoundBigNumber(balance, token?.decimals)} {token?.symbol}
                 </p>
               </label>
             )}
@@ -59,15 +72,15 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className={`block w-full pl-5 pr-16 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${
-                  balance && amount?.gt(balance)
+                className={`block w-full pl-5 py-3.5 border-gray-200 rounded-md font-semibold text-gray-500 focus:text-gray-800 ${selectToken ? "pr-40 md:pr-52" : "pr-32 md:pr-36"
+                  } ${balance && amount?.gt(balance)
                     ? "focus:ring-red-600 focus:border-red-600"
                     : "focus:ring-blue-500 focus:border-blue-500"
-                }`}
+                  }`}
                 onChange={(e) => {
                   onUpdate(e.target.value.replace(/,/g, "."));
                 }}
-                value={ref.current}
+                value={displayAmount}
                 inputMode="decimal"
                 autoComplete="off"
                 autoCorrect="off"
@@ -80,18 +93,24 @@ export const TokenInput: React.FC<TokenInputProps> = ({
                 spellCheck="false"
                 readOnly={readonly}
               />
-              <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
+              <div className={`absolute inset-y-0 right-0 flex items-center py-1.5 ${selectToken ? "" : "pr-3"}`}>
                 {!readonly && balance && (
-                  <p
-                    className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 pt-0.5 leading-none hover:text-blue-500 text-sm"
-                    onClick={() => {
-                      onUpdate(formatUnits(balance, token.decimals));
-                    }}
-                  >
-                    MAX
-                  </p>
+                  <>
+                    <p
+                      className="inline-flex items-center text-blue-700 font-semibold border-3 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-blue-700 px-2 h-8 pt-0.5 leading-none hover:text-blue-500 text-sm"
+                      onClick={setMaxAmount}
+                    >
+                      MAX
+                    </p>
+                    {tokenList.length > 0 && (
+                      <TokenSelection
+                        selectedToken={token}
+                        tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
+                        selectToken={selectToken}
+                      />
+                    )}
+                  </>
                 )}
-                <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token.symbol}</p>
               </div>
             </div>
             {balance && amount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}

@@ -8,9 +8,9 @@ body {
   width: 100%;
   height: 100%;
   background: #fff;
-	font-family: 'Avenir Next LT Pro';
-	font-size: 16px;
-	font-style:normal;
+  font-family: "Avenir Next LT Pro";
+  font-size: 16px;
+  font-style: normal;
 }
 html,
 a {
@@ -27,26 +27,22 @@ p {
 
 @layer base {
   @font-face {
-    font-family: 'Avenir Next LT Pro Italics';
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-It.woff) format('woff');
+    font-family: "Avenir Next LT Pro Italics";
+    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-It.woff) format("woff");
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format('woff');
+    font-family: "Avenir Next LT Pro";
+    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format("woff");
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: "Avenir Next LT Pro";
     font-weight: 600;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format('woff');
+    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format("woff");
   }
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: "Avenir Next LT Pro";
     font-weight: 700;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Bold.woff) format('woff');
+    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Bold.woff) format("woff");
   }
 }
 
@@ -113,14 +109,14 @@ p {
   border-color: #636363;
   color: #636363;
 }
-.hr-line{
-	width:1px
+.hr-line {
+  width: 1px;
 }
-.apply-card{
-	padding-top: 400px;
+.apply-card {
+  padding-top: 400px;
 }
-@media screen and (max-width:767px){
-	.apply-card{
-		padding-top: 850px;
-	}
+@media screen and (max-width: 767px) {
+  .apply-card {
+    padding-top: 850px;
+  }
 }

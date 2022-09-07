@@ -20,5 +20,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await addContractToRegistry("ParticipationReward", deployments, signer, hre);
 };
 export default main;
-main.dependencies = ["setup"];
+main.dependencies = ["setup", "contract-registry"];
 main.tags = ["core", "participation-reward"];

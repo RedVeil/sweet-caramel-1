@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../../externals/interfaces/YearnVault.sol";
-import "../../../externals/interfaces/BasicIssuanceModule.sol";
+import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
@@ -44,7 +44,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
   ISetToken public setToken;
   IERC20 public threeCrv;
   Curve3Pool private threePool;
-  BasicIssuanceModule public setBasicIssuanceModule;
+  IBasicIssuanceModule public setBasicIssuanceModule;
   mapping(address => CurvePoolTokenPair) public curvePoolTokenPairs;
   uint256 public redemptionFees;
   uint256 public redemptionFeeRate;
@@ -70,7 +70,7 @@ contract ButterWhaleProcessing is Pausable, ReentrancyGuard, ACLAuth, ContractRe
     ISetToken _setToken,
     IERC20 _threeCrv,
     Curve3Pool _threePool,
-    BasicIssuanceModule _basicIssuanceModule,
+    IBasicIssuanceModule _basicIssuanceModule,
     address[] memory _yTokenAddresses,
     CurvePoolTokenPair[] memory _curvePoolTokenPairs
   ) ContractRegistryAccess(_contractRegistry) {

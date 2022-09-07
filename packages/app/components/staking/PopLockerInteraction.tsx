@@ -8,6 +8,7 @@ import { formatDate } from "../../../utils/src/DateTime";
 import { InteractionType } from "./StakeInterface";
 import { StakingInteractionProps } from "./StakingInteraction";
 
+
 interface PopLockerInteractionProps extends StakingInteractionProps {
   restake: () => void;
 }
@@ -57,7 +58,7 @@ export default function PopLockerInteraction({
                 <div className="bg-gray-50 p-4 mb-2 flex-col rounded-2xl mr-2 max-w-1/2 flex-1 lglaptop:w-fit">
                   <p className="text-gray-500">AMOUNT</p>
                   <p className="text-gray-900 text-lg font-semibold">
-                    {formatAndRoundBigNumber(chosenLock.amount, 3)} POP
+                    {formatAndRoundBigNumber(chosenLock.amount, 18)} POP
                   </p>
                 </div>
                 <div className="bg-gray-50 p-4 mb-2 flex-col rounded-2xl mr-2 max-w-1/2 flex-1 lglaptop:w-fit">
@@ -78,7 +79,7 @@ export default function PopLockerInteraction({
               htmlFor="tokenInput"
               className="flex justify-between text-sm font-medium text-gray-700 text-center mt-6"
             >
-              <p className="mb-2 text-gray-900 text-base">Withdrawable Amount</p>
+              <p className="mb-2 text-gray-900 text-base font-semibold">Withdrawable Amount</p>
             </label>
             <div className="relative flex items-center">
               <input
@@ -86,7 +87,7 @@ export default function PopLockerInteraction({
                 name="tokenInput"
                 id="tokenInput"
                 className="shadow-sm block w-full pl-4 pr-16 py-4 text-lg border-gray-300 bg-gray-100 rounded-xl"
-                value={formatAndRoundBigNumber(stakingPool?.withdrawable)}
+                value={formatAndRoundBigNumber(stakingPool?.withdrawable, stakingPool.stakingToken.decimals)}
                 disabled
               />
               <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">

@@ -4,7 +4,7 @@ import { AccountBatch, Batch, ComponentMap, CurrentBatches, TimeTillBatchProcess
 import { BigNumber, Contract, constants } from "ethers";
 
 class ButterBatchAdapter {
-  constructor(private contract: Contract) {}
+  constructor(public contract: Contract) {}
 
   async getBatch(batchId: string): Promise<Batch> {
     const batch = await this.contract.batches(batchId);
@@ -19,13 +19,27 @@ class ButterBatchAdapter {
       claimableTokenAddress: batch.claimableTokenAddress,
     };
   }
+  async getAcountBalance(batchId, address): Promise<BigNumber> {
+    return this.contract.accountBalances(batchId, address);
+  }
+  async getProcessingThreshold(): Promise<{
+    batchCooldown: BigNumber;
+    mintThreshold: BigNumber;
+    redeemThreshold: BigNumber;
+  }> {
+    return {
+      batchCooldown: this.contract.batchCooldown(),
+      mintThreshold: this.contract.mintThreshold(),
+      redeemThreshold: this.contract.redeemThreshold(),
+    };
+  }
 
   async calculateAmountToReceiveForClaim(batchId, address): Promise<BigNumber> {
-    const batch = await this.contract.batches(batchId);
+    const batch = await this.getBatch(batchId);
 
     const unclaimedShares = batch.unclaimedShares;
     const claimableTokenBalance = batch.claimableTokenBalance;
-    const accountBalance = await this.contract.accountBalances(batchId, address);
+    const accountBalance = await this.getAcountBalance(batchId, address);
     if (
       claimableTokenBalance === constants.Zero ||
       accountBalance === constants.Zero ||
@@ -158,7 +172,7 @@ class ButterBatchAdapter {
   }
 
   public async getThreeCrvPrice(contract: Contract): Promise<BigNumber> {
-    return await contract.get_virtual_price();
+    return contract.get_virtual_price();
   }
 
   public async getStableCoinPrice(contract: Contract, tokenAmount: BigNumber[]): Promise<BigNumber> {
@@ -168,15 +182,15 @@ class ButterBatchAdapter {
   }
 
   public async getTokenSupply(contract: Contract): Promise<BigNumber> {
-    return await contract.totalSupply();
+    return contract.totalSupply();
   }
 
   public async getBatches(account: string): Promise<AccountBatch[]> {
     const batchIds = await this.contract.getAccountBatches(account);
     const batches = await Promise.all(
       batchIds.map(async (id) => {
-        const batch = await this.contract.batches(id);
-        const shares = await this.contract.accountBalances(id, account);
+        const batch = await this.getBatch(id);
+        const shares = await this.getAcountBalance(id, account);
         return {
           ...batch,
           accountSuppliedTokenBalance: shares,
@@ -189,20 +203,20 @@ class ButterBatchAdapter {
     return (batches as AccountBatch[]).filter((batch) => batch.accountSuppliedTokenBalance > constants.Zero);
   }
 
-  public async getBatchCooldowns(): Promise<BigNumber[]> {
+  public async getBatchCooldowns(): Promise<[nextMint: BigNumber, nextRedeem: BigNumber]> {
     const lastMintedAt = await this.contract.lastMintedAt();
     const lastRedeemedAt = await this.contract.lastRedeemedAt();
-    const cooldown = await this.contract.batchCooldown();
-    return [lastMintedAt.add(cooldown), lastRedeemedAt.add(cooldown)];
+    const { batchCooldown } = await this.getProcessingThreshold();
+    return [lastMintedAt.add(batchCooldown), lastRedeemedAt.add(batchCooldown)];
   }
 
   public async calcBatchTimes(library: Web3Provider): Promise<TimeTillBatchProcessing[]> {
-    const cooldowns = await this.getBatchCooldowns();
-    const currentBlockTime = await (await library.getBlock("latest")).timestamp;
-    const secondsTillMint = new Date((currentBlockTime / Number(cooldowns[0].toString())) * 1000);
-    const secondsTillRedeem = new Date((currentBlockTime / Number(cooldowns[1].toString())) * 1000);
-    const percentageTillMint = currentBlockTime / Number(cooldowns[0].toString());
-    const percentageTillRedeem = (currentBlockTime / Number(cooldowns[1].toString())) * 100;
+    const [nextMint, nextRedeem] = await this.getBatchCooldowns();
+    const { timestamp } = await library.getBlock("latest");
+    const secondsTillMint = new Date((timestamp / Number(nextMint.toString())) * 1000);
+    const secondsTillRedeem = new Date((timestamp / Number(nextRedeem.toString())) * 1000);
+    const percentageTillMint = timestamp / Number(nextMint.toString());
+    const percentageTillRedeem = (timestamp / Number(nextRedeem.toString())) * 100;
     return [
       {
         timeTillProcessing: secondsTillMint,

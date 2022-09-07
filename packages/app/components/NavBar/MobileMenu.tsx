@@ -1,22 +1,25 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
+import { networkLogos, networkMap } from "@popcorn/utils";
+import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
 import SecondaryActionButton from "components/SecondaryActionButton";
+import getProducts from "helper/products";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useState } from "react";
-import { getPoolLink, getPopAddress } from "./GetPopMenu";
+import { Fragment, useEffect, useState } from "react";
+import DropDownComponent from "./DropDownComponent";
 import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
-export interface MenuProps {
-  currentChain: { name: string; logo: any };
-}
-
-export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
-  const { chainId, account, connect, disconnect, wallet, setChain } = useWeb3();
+export const MobileMenu: React.FC = () => {
+  const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain, contractAddresses } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const router = useRouter();
+
+  useEffect(() => {
+    toggleMenu(false);
+  }, [router?.pathname]);
 
   return (
     <>
@@ -35,21 +38,18 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
           <div className="block w-5 absolute">
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "rotate-45" : "-translate-y-1.5"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "rotate-45" : "-translate-y-1.5"
+                }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "opacity-0" : "opacity-100"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "opacity-0" : "opacity-100"
+                }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "-rotate-45" : "translate-y-1.5"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "-rotate-45" : "translate-y-1.5"
+                }`}
             ></span>
           </div>
         </button>
@@ -75,8 +75,23 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
                       <div className="pt-6 pb-6">
                         <NavbarLink label="Home" url="/" isActive={router.pathname === `/[network]`} />
                       </div>
-                      <div className="py-6">
-                        <NavbarLink label="Butter" url="/butter" isActive={router.pathname === "/[network]/butter"} />
+                      <div className="relative flex flex-container flex-row w-fit-content z-10 py-6">
+                        <Menu>
+                          <Menu.Button>
+                            <div className="group flex flex-row items-center -mr-2">
+                              <p
+                                className={`text-gray-500 text-xl leading-4 font-semibold font-base md:text-base hover:text-gray-900 cursor-pointer`}
+                              >
+                                Products
+                              </p>
+                              <ChevronDownIcon
+                                className="fill-current md:text-gray-500 text-gray-900 group-hover:text-gray-900 mt-0.5 w-7 h-5 ml-0.5"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <DropDownComponent options={getProducts(router, pushWithinChain)} />
+                          </Menu.Button>
+                        </Menu>
                       </div>
                       <div className="py-6">
                         <NavbarLink
@@ -95,7 +110,9 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
                       <div className="py-10 space-y-6">
                         <SecondaryActionButton
                           label="Buy POP"
-                          handleClick={() => window.open(getPoolLink(chainId), "_blank")}
+                          handleClick={() =>
+                            window.open(getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses), "_blank")
+                          }
                         />
                         <SecondaryActionButton
                           label="Add POP to Wallet"
@@ -105,7 +122,7 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
                               params: {
                                 type: "ERC20",
                                 options: {
-                                  address: getPopAddress(chainId),
+                                  address: contractAddresses.pop,
                                   symbol: "POP",
                                   decimals: 18,
                                   image: "https://popcorn.network/images/icons/pop_64x64.png",
@@ -123,8 +140,8 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
                             <div
                               className={`w-full px-6 h-12 py-0.5 flex flex-row items-center justify-center border border-gray-200 shadow-custom rounded-3xl cursor-pointer relative`}
                             >
-                              <img src={currentChain.logo} alt={""} className="w-4.5 h-4 mr-4" />
-                              <p className="leading-none font-medium text-gray-600 mt-0.5">{currentChain.name}</p>
+                              <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
+                              <p className="leading-none font-medium text-gray-600 mt-0.5">{networkMap[chainId]}</p>
                               <ChevronDownIcon className="w-5 h-5 ml-4 absolute right-10" aria-hidden="true" />
                             </div>
                           </Menu.Button>
@@ -143,9 +160,8 @@ export const MobileMenu: React.FC<MenuProps> = ({ currentChain }) => {
                               connect();
                             }
                           }}
-                          className={`rounded-full py-3 w-full flex flex-row justify-center gap-2 items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${
-                            account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
-                          }`}
+                          className={`rounded-full py-3 w-full flex flex-row justify-center gap-2 items-center px-3 border border-transparent shadow-custom group hover:bg-blue-500 ${account ? "bg-blue-50 border-blue-700" : "bg-blue-100"
+                            }`}
                         >
                           <p className="text-blue-700 font-semibold text-base group-hover:text-white ">
                             {account ? `Disconnect` : "Connect Wallet"}

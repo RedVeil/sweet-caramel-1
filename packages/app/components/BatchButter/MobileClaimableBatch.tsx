@@ -1,44 +1,63 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { BatchType } from "@popcorn/utils/src/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import MainActionButton from "components/MainActionButton";
 import SecondaryActionButton from "components/SecondaryActionButton";
+import { formatBatchInputToken, formatBatchOutputToken } from "helper/ClaimableBatchUtils";
 import { BatchProps } from "./ClaimableBatch";
 
-const MobileClaimableBatch: React.FC<BatchProps> = ({ batch, handleClaimAndStake, handleClaim, handleWithdraw }) => {
+const MobileClaimableBatch: React.FC<BatchProps> = ({
+  batch,
+  handleClaimAndStake,
+  handleClaim,
+  handleWithdraw,
+  isThreeX = false,
+}) => {
   return (
-    <div className="flex flex-col even:bg-gray-100 odd:bg-white last:rounded-b-2xl w-full p-6">
-      <div className="flex flex-row justify-between">
-        <StatusWithLabel
-          label="Claimable Tokens"
-          content={`${formatAndRoundBigNumber(
-            batch.accountClaimableTokenBalance,
-            batch.batchType === BatchType.Mint ? 6 : 2,
-          )} ${batch.batchType === BatchType.Mint ? "BTR" : "3CRV"}`}
-        />
-        <div className="w-1/3">
-          {batch.claimable && batch.batchType === BatchType.Mint && (
-            <MainActionButton handleClick={() => handleClaimAndStake(batch)} disabled={false} label="Stake" />
-          )}
-          {batch.claimable && batch.batchType === BatchType.Redeem && (
-            <MainActionButton label="Claim" handleClick={() => handleClaim(batch)} />
-          )}
-          {!batch.claimable && <SecondaryActionButton label="Cancel" handleClick={() => handleWithdraw(batch)} />}
+    <div className="flex flex-col bg-white border-b border-gray-200 last:border-none last:rounded-b-2xl w-full p-6">
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-6">
+          <StatusWithLabel
+            label="Deposited"
+            content={formatBatchOutputToken(
+              batch.accountClaimableTokenBalance,
+              batch.batchType === BatchType.Mint,
+              isThreeX,
+            )}
+          />
+        </div>
+        <div className="col-span-6">
+          <StatusWithLabel
+            label="Claimable"
+            content={formatBatchInputToken(
+              batch.accountSuppliedTokenBalance,
+              batch.batchType === BatchType.Mint,
+              isThreeX,
+            )}
+          />
         </div>
       </div>
-      <div className="flex flex-row justify-between mt-10">
-        <StatusWithLabel
-          label="Deposited"
-          content={`${formatAndRoundBigNumber(
-            batch.accountSuppliedTokenBalance,
-            batch.batchType === BatchType.Mint ? 2 : 6,
-          )} ${batch.batchType === BatchType.Mint ? "3CRV " : "BTR"}`}
-        />
-        <div className="w-1/3">
-          {batch.claimable && batch.batchType === BatchType.Mint && (
+      <div className="flex flex-col">
+        {batch.claimable && batch.batchType === BatchType.Mint && (
+          <div className="w-full mt-6">
+            <MainActionButton handleClick={() => handleClaimAndStake(batch)} disabled={false} label="Claim & Stake" />
+          </div>
+        )}
+        {batch.claimable && batch.batchType === BatchType.Redeem && (
+          <div className="w-full mt-6">
+            <SecondaryActionButton label="Claim" handleClick={() => handleClaim(batch)} />
+          </div>
+        )}
+        {!batch.claimable && (
+          <div className="w-full mt-6">
+            <SecondaryActionButton label="Cancel" handleClick={() => handleWithdraw(batch)} />
+          </div>
+        )}
+
+        {batch.claimable && batch.batchType === BatchType.Mint && (
+          <div className="w-full mt-6">
             <SecondaryActionButton handleClick={() => handleClaim(batch)} disabled={false} label="Claim" />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

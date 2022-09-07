@@ -18,7 +18,7 @@ export const toggleModal = (
   if (!localStorage.getItem(key)) {
     if (modalType === ModalType.SingleAction) {
       dispatch(setSingleActionModal(modalConfig as Partial<SingleActionModalProps>));
-    } else if ((modalType = ModalType.MultiChoice)) {
+    } else if (modalType === ModalType.MultiChoice) {
       dispatch(setMultiChoiceActionModal(modalConfig as Partial<MultiChoiceActionModalProps>));
     } else {
       dispatch(setDualActionWideModal(modalConfig as Partial<DualActionModalProps>));

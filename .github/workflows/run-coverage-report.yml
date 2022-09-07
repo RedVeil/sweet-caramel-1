@@ -12,8 +12,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    env:
+      NODE_OPTIONS: "--max-old-space-size=8500"
+      # Coverage requires extra memory:
+      # See: https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md#running-out-of-memory
 
     steps:
       - uses: actions/checkout@v2
@@ -22,15 +27,15 @@ jobs:
         with:
           source: .env.example
           target: .env
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "yarn install"
         with:
           cmd: install # will run `yarn install` command
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "build"
         with:
           cmd: app:build # will run `yarn app:build` command
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v3.0.0
         name: "solidity coverage"
         with:
           cmd: coverage

@@ -23,7 +23,7 @@ describe.skip("Balancer Merkle Orchard", () => {
       params: [
         {
           forking: {
-            jsonRpcUrl: process.env.RPC_URL,
+            jsonRpcUrl: process.env.FORKING_RPC_URL,
             blockNumber: 13450000,
           },
         },
@@ -34,15 +34,10 @@ describe.skip("Balancer Merkle Orchard", () => {
 
     [admin, other, claimer, claimer0, claimer1] = await ethers.getSigners();
 
-    mockToken = await (
-      await ethers.getContractFactory("MockERC20")
-    ).deploy("Mock xPOP", "xPOP", 18);
+    mockToken = await (await ethers.getContractFactory("MockERC20")).deploy("Mock xPOP", "xPOP", 18);
     await mockToken.deployed();
 
-    merkleOrchard = await ethers.getContractAt(
-      "IMerkleOrchard",
-      namedAccounts.merkleOrchard
-    );
+    merkleOrchard = await ethers.getContractAt("IMerkleOrchard", namedAccounts.merkleOrchard);
   });
 
   describe("two account tree", async () => {
@@ -55,17 +50,12 @@ describe.skip("Balancer Merkle Orchard", () => {
       });
       await mockToken.mint(admin.address, parseEther("201"));
       await mockToken.approve(merkleOrchard.address, parseEther("201"));
-      await merkleOrchard.createDistribution(
-        mockToken.address,
-        tree.getHexRoot(),
-        parseEther("201"),
-        0
-      );
+      await merkleOrchard.createDistribution(mockToken.address, tree.getHexRoot(), parseEther("201"), 0);
     });
 
     it("transfers tokens from createDistribution caller", async () => {
       const balance = await mockToken.balanceOf(admin.address);
-      await expectValue(balance, 0);
+      expectValue(balance, 0);
     });
 
     it("validating claims", async () => {
@@ -79,7 +69,7 @@ describe.skip("Balancer Merkle Orchard", () => {
         parseEther("100"),
         proof0
       );
-      await expectValue(claim0Valid, true);
+      expectValue(claim0Valid, true);
 
       const leaf1 = soliditySha3(claimer1.address, toWei("101"));
       const proof1 = tree.getHexProof(leaf1);
@@ -91,12 +81,12 @@ describe.skip("Balancer Merkle Orchard", () => {
         parseEther("101"),
         proof1
       );
-      await expectValue(claim1Valid, true);
+      expectValue(claim1Valid, true);
     });
 
     it("making claims", async () => {
       let balance0 = await mockToken.balanceOf(claimer0.address);
-      await expectValue(balance0, 0);
+      expectValue(balance0, 0);
       const leaf0 = soliditySha3(claimer0.address, toWei("100"));
       const proof0 = tree.getHexProof(leaf0);
       await merkleOrchard.claimDistributions(
@@ -113,10 +103,10 @@ describe.skip("Balancer Merkle Orchard", () => {
         [mockToken.address]
       );
       balance0 = await mockToken.balanceOf(claimer0.address);
-      await expectValue(balance0, parseEther("100"));
+      expectValue(balance0, parseEther("100"));
 
       let balance1 = await mockToken.balanceOf(claimer1.address);
-      await expectValue(balance1, 0);
+      expectValue(balance1, 0);
       const leaf1 = soliditySha3(claimer1.address, toWei("101"));
       const proof1 = tree.getHexProof(leaf1);
       await merkleOrchard.claimDistributions(
@@ -133,7 +123,7 @@ describe.skip("Balancer Merkle Orchard", () => {
         [mockToken.address]
       );
       balance1 = await mockToken.balanceOf(claimer1.address);
-      await expectValue(balance1, parseEther("101"));
+      expectValue(balance1, parseEther("101"));
     });
 
     it("reverts on double claims", async () => {

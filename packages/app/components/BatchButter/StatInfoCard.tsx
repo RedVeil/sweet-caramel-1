@@ -1,24 +1,32 @@
-import CardIcon, { CardIconProps } from "../CardIcon";
-import { InfoIconWithModal, InfoIconWithModalProps } from "../InfoIconWithModal";
+import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import CardIcon, { IconProps } from "../CardIcon";
+import { InfoIconWithModalProps } from "../InfoIconWithModal";
 
 interface StatInfoCardProps {
   title: string;
-  content: string;
-  icon: CardIconProps;
+  content: string | React.ReactElement;
+  icon: IconProps;
   info?: InfoIconWithModalProps;
 }
 export default function StatInfoCard({ title, content, icon, info }: StatInfoCardProps): JSX.Element {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 shadow-custom w-full h-full p-6 flex">
-      <div className="flex flex-row items-center justify-between mt-0.5">
-        <div className="flex flex-row">
-          <CardIcon icon={icon.icon} color={icon.color} iconColor={icon.iconColor} />
-          <div className="ml-4">
-            <p className="font-light text-gray-500 text-base leading-none uppercase mt-1">{title}</p>
-            <h3 className="text-3xl font-semibold text-gray-900 mt-2">{content}</h3>
+    <div className="bg-white border border-gray-200 shadow-custom rounded-3xl h-full flex flex-col">
+      <div className="w-full flex flex-row px-6 pt-6 pb-3 xs:pb-6 h-full items-center justify-center">
+        <CardIcon icon={icon} />
+        <div className="ml-4 w-full">
+          <div className="flex flex-row items-center w-full justify-between pt-1">
+            <p className="font-normal leading-none text-gray-500 text-base uppercase">{title}</p>
+            {info && (
+              <InfoIconWithTooltip
+                classExtras="h-7 w-7 mt-0 ml-5"
+                id={info.title}
+                title={info.title}
+                content={info.content}
+              />
+            )}
           </div>
+          <h3 className="text-3xl font-semibold text-gray-900 mt-2">{content}</h3>
         </div>
-        <div>{info && <InfoIconWithModal title={info.title} content={info.content} children={info.children} />}</div>
       </div>
     </div>
   );

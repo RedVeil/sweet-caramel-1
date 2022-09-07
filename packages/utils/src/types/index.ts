@@ -1,11 +1,14 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20, ERC20Permit, ISetToken } from "../../../hardhat/typechain";
+import { ERC20, ERC20Permit, ISetToken, Vault } from "../../../hardhat/typechain";
 
 export type Address = string;
 export interface ContractAddresses {
   staking?: Array<Address>;
+  sweetVaults?: Array<Address>;
+  defaultTokenList?: Array<Address>;
   popStaking?: Address;
   butterStaking?: Address;
+  threeXStaking?: Address;
   popUsdcLpStaking?: Address;
   pop?: Address;
   xPop?: Address;
@@ -14,20 +17,66 @@ export interface ContractAddresses {
   usdc?: Address;
   usdt?: Address;
   threeCrv?: Address;
+  crvSEth?: Address;
+  sEthSweetVault?: Address;
+  sEthSweetVaultStaking?: Address;
   threePool?: Address;
   popUsdcLp?: Address;
   popUsdcUniV3Pool?: Address;
+  popUsdcArrakisVault?: Address;
+  popUsdcArrakisVaultStaking?: Address;
   butter?: Address;
   butterBatch?: Address;
   butterBatchZapper?: Address;
   butterWhaleProcessing?: Address;
   butterDependency?: ButterDependencyAddresses;
-  yFrax?: Address;
+  threeX?: Address;
+  threeXBatch?: Address;
+  threeXWhale?: Address;
+  threeXBatchVault?: Address;
+  threeXZapper?: Address;
   yMim?: Address;
-  crvFrax?: Address;
   crvMim?: Address;
-  crvFraxMetapool?: Address;
   crvMimMetapool?: Address;
+  yFrax?: Address;
+  yRai?: Address;
+  yMusd?: Address;
+  yAlusd?: Address;
+  yEUR?: Address;
+  yGBP?: Address;
+  yCHF?: Address;
+  yJPY?: Address;
+  ySusd?: Address;
+  y3Eur?: Address;
+  crvFrax?: Address;
+  crvRai?: Address;
+  crvMusd?: Address;
+  crvAlusd?: Address;
+  crvSusd?: Address;
+  crvEUR?: Address;
+  crvGBP?: Address;
+  crvCHF?: Address;
+  crvJPY?: Address;
+  crvFraxMetapool?: Address;
+  crvRaiMetapool?: Address;
+  crvMusdMetapool?: Address;
+  crvAlusdMetapool?: Address;
+  crvSusdMetapool?: Address;
+  crvSusdUtilityPool?: Address;
+  ibEUR?: Address;
+  ibGBP?: Address;
+  ibCHF?: Address;
+  ibJPY?: Address;
+  sEUR?: Address;
+  sGBP?: Address;
+  sCHF?: Address;
+  sJPY?: Address;
+  sUSD?: Address;
+  sEth?: Address;
+  zeroXZapper?: Address;
+  agEur?: Address;
+  angleRouter?: Address;
+  eurOracle?: Address;
   curveAddressProvider?: Address;
   curveFactoryMetapoolDepositZap?: Address;
   setBasicIssuanceModule?: Address;
@@ -54,10 +103,6 @@ export interface ContractAddresses {
   rewardsEscrow?: Address;
   all: Set<Address>;
   has: (contract: string) => boolean;
-}
-
-export interface ERC20Contracts {
-  usdc?: Address;
 }
 
 export interface DAO {
@@ -113,6 +158,43 @@ export type Token = {
   decimals: number;
   balance?: BigNumber;
   allowance?: BigNumber;
+  description?: string;
+  icon?: string;
+};
+
+export type ERC20Metadata = {
+  address: Address;
+  name: string;
+  symbol: string;
+  decimals: number;
+  balance?: BigNumber;
+  allowance?: BigNumber;
+  description?: string;
+  icon?: string;
+};
+
+export type SweetVaultMetadata = ERC20Metadata & {
+  deposited: BigNumber;
+  pricePerShare: BigNumber;
+  tvl: BigNumber;
+  apy: number;
+  underlyingToken: Token;
+  curveLink: string;
+  strategy: string;
+  description?: string;
+  token: string;
+  link: string;
+  displayText?: {
+    token?: string;
+    strategy?: string;
+  };
+  defaultDepositTokenSymbol?: string;
+};
+
+// contract w/ metadata pattern
+export type SweetVaultWithMetadata = {
+  contract: Vault;
+  metadata: SweetVaultMetadata;
 };
 
 export type StakingPool = {
@@ -135,7 +217,7 @@ export type ToastConfig = {
 };
 
 export type HotSwapParameter = {
-  batchIds: String[];
+  batchIds: string[];
   amounts: BigNumber[];
 };
 
@@ -144,17 +226,21 @@ export type SelectedToken = {
   output: BatchProcessTokenKey;
 };
 
-export type BatchProcessTokens = {
-  butter: BatchProcessToken;
-  threeCrv: BatchProcessToken;
-  dai: BatchProcessToken;
-  usdc: BatchProcessToken;
-  usdt: BatchProcessToken;
+export type Tokens = {
+  butter?: TokenMetadata;
+  threeX?: TokenMetadata;
+  dai: TokenMetadata;
+  usdc: TokenMetadata;
+  usdt: TokenMetadata;
+  susd?: TokenMetadata;
+  threeCrv?: TokenMetadata;
 };
 
-export type BatchProcessTokenKey = "butter" | "threeCrv" | "dai" | "usdc" | "usdt";
+export type ButterTokenKey = "butter" | "threeCrv" | "dai" | "usdc" | "usdt";
 
-export type BatchProcessToken = {
+export type BatchProcessTokenKey = ButterTokenKey | ThreeXTokenKey;
+
+export type TokenMetadata = {
   key: BatchProcessTokenKey;
   claimableBalance?: BigNumber;
   price: BigNumber;
@@ -166,14 +252,16 @@ export type BatchProcessToken = {
   allowance?: BigNumber;
 };
 
-export type ButterBatchData = {
+export type BatchMetadata = {
   accountBatches: AccountBatch[];
   currentBatches: CurrentBatches;
-  butterSupply: BigNumber;
+  totalSupply: BigNumber;
   claimableMintBatches: AccountBatch[];
   claimableRedeemBatches: AccountBatch[];
-  batchProcessTokens: BatchProcessTokens;
+  tokens: Tokens;
 };
+
+export type ThreeXTokenKey = "threeX" | "dai" | "usdc" | "usdt" | "susd";
 
 export enum BatchType {
   Mint,

@@ -42,24 +42,21 @@ describe("XPopRedemption", () => {
 
   context("Constructor", async () => {
     it("stores address of the xPOP token", async () => {
-      await expectValue(await contracts.xPopRedemption.xPOP(), contracts.xPop.address);
+      expectValue(await contracts.xPopRedemption.xPOP(), contracts.xPop.address);
     });
 
     it("stores address of the RewardsEscrow contract", async () => {
-      await expectValue(await contracts.xPopRedemption.rewardsEscrow(), contracts.rewardsEscrow.address);
+      expectValue(await contracts.xPopRedemption.rewardsEscrow(), contracts.rewardsEscrow.address);
     });
   });
 
   context("setApprovals", async () => {
     it("approves max amount of POP to RewardsEscrow", async () => {
-      await expectValue(
-        await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address),
-        0
-      );
+      expectValue(await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address), 0);
 
       await contracts.xPopRedemption.connect(owner).setApprovals();
 
-      await expectValue(
+      expectValue(
         await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address),
         ethers.constants.MaxUint256
       );
@@ -73,31 +70,22 @@ describe("XPopRedemption", () => {
   context("revokeApprovals", async () => {
     it("revokes RewardsEscrow approval", async () => {
       await contracts.xPopRedemption.connect(owner).setApprovals();
-      await expectValue(
+      expectValue(
         await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address),
         ethers.constants.MaxUint256
       );
 
       await contracts.xPopRedemption.connect(owner).revokeApprovals();
 
-      await expectValue(
-        await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address),
-        0
-      );
+      expectValue(await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address), 0);
     });
 
     it("is idempotent", async () => {
-      await expectValue(
-        await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address),
-        0
-      );
+      expectValue(await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address), 0);
 
       await contracts.xPopRedemption.connect(owner).revokeApprovals();
 
-      await expectValue(
-        await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address),
-        0
-      );
+      expectValue(await contracts.pop.allowance(contracts.xPopRedemption.address, contracts.rewardsEscrow.address), 0);
     });
 
     it("can only be called by owner", async () => {
@@ -124,42 +112,42 @@ describe("XPopRedemption", () => {
       });
 
       it("transfers in xPOP tokens", async () => {
-        await expectValue(await contracts.xPop.balanceOf(redeemer.address), XPOP_AMOUNT);
+        expectValue(await contracts.xPop.balanceOf(redeemer.address), XPOP_AMOUNT);
 
         await contracts.xPopRedemption.connect(redeemer).redeem(XPOP_AMOUNT);
 
-        await expectValue(await contracts.xPop.balanceOf(redeemer.address), 0);
+        expectValue(await contracts.xPop.balanceOf(redeemer.address), 0);
       });
 
       it("burns transferred xPOP", async () => {
-        await expectValue(await contracts.xPop.totalSupply(), XPOP_AMOUNT);
+        expectValue(await contracts.xPop.totalSupply(), XPOP_AMOUNT);
 
         await contracts.xPopRedemption.connect(redeemer).redeem(XPOP_AMOUNT);
 
-        await expectValue(await contracts.xPop.totalSupply(), 0);
+        expectValue(await contracts.xPop.totalSupply(), 0);
       });
 
       it("transfers POP to escrow contract", async () => {
-        await expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), 0);
+        expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), 0);
 
         await contracts.xPopRedemption.connect(redeemer).redeem(XPOP_AMOUNT);
 
-        await expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), XPOP_AMOUNT);
+        expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), XPOP_AMOUNT);
       });
 
       it("creates an escrow", async () => {
         let escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(redeemer.address);
         let escrows = await contracts.rewardsEscrow.getEscrows(escrowIds);
-        await expectValue(escrows.length, 0);
+        expectValue(escrows.length, 0);
 
         await contracts.xPopRedemption.connect(redeemer).redeem(XPOP_AMOUNT);
 
         escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(redeemer.address);
         escrows = await contracts.rewardsEscrow.getEscrows(escrowIds);
         const [{ balance, account }] = escrows;
-        await expectValue(escrows.length, 1);
-        await expectValue(balance, XPOP_AMOUNT);
-        await expectValue(account, redeemer.address);
+        expectValue(escrows.length, 1);
+        expectValue(balance, XPOP_AMOUNT);
+        expectValue(account, redeemer.address);
       });
 
       it("emits an event", async () => {
@@ -209,36 +197,36 @@ describe("XPopRedemption", () => {
       });
 
       it("transfers in xPOP tokens", async () => {
-        await expectValue(await contracts.xPop.balanceOf(redeemer.address), XPOP_AMOUNT);
+        expectValue(await contracts.xPop.balanceOf(redeemer.address), XPOP_AMOUNT);
 
         const { v, r, s } = splitSignature(signature);
         await contracts.xPopRedemption.connect(redeemer).redeemWithSignature(XPOP_AMOUNT, defaultDeadline, v, r, s);
 
-        await expectValue(await contracts.xPop.balanceOf(redeemer.address), 0);
+        expectValue(await contracts.xPop.balanceOf(redeemer.address), 0);
       });
 
       it("burns transferred xPOP", async () => {
-        await expectValue(await contracts.xPop.totalSupply(), XPOP_AMOUNT);
+        expectValue(await contracts.xPop.totalSupply(), XPOP_AMOUNT);
 
         const { v, r, s } = splitSignature(signature);
         await contracts.xPopRedemption.connect(redeemer).redeemWithSignature(XPOP_AMOUNT, defaultDeadline, v, r, s);
 
-        await expectValue(await contracts.xPop.totalSupply(), 0);
+        expectValue(await contracts.xPop.totalSupply(), 0);
       });
 
       it("transfers POP to escrow contract", async () => {
-        await expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), 0);
+        expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), 0);
 
         const { v, r, s } = splitSignature(signature);
         await contracts.xPopRedemption.connect(redeemer).redeemWithSignature(XPOP_AMOUNT, defaultDeadline, v, r, s);
 
-        await expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), XPOP_AMOUNT);
+        expectValue(await contracts.pop.balanceOf(contracts.rewardsEscrow.address), XPOP_AMOUNT);
       });
 
       it("creates an escrow", async () => {
         let escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(redeemer.address);
         let escrows = await contracts.rewardsEscrow.getEscrows(escrowIds);
-        await expectValue(escrows.length, 0);
+        expectValue(escrows.length, 0);
 
         const { v, r, s } = splitSignature(signature);
         await contracts.xPopRedemption.connect(redeemer).redeemWithSignature(XPOP_AMOUNT, defaultDeadline, v, r, s);
@@ -246,9 +234,9 @@ describe("XPopRedemption", () => {
         escrowIds = await contracts.rewardsEscrow.getEscrowIdsByUser(redeemer.address);
         escrows = await contracts.rewardsEscrow.getEscrows(escrowIds);
         const [{ balance, account }] = escrows;
-        await expectValue(escrows.length, 1);
-        await expectValue(balance, XPOP_AMOUNT);
-        await expectValue(account, redeemer.address);
+        expectValue(escrows.length, 1);
+        expectValue(balance, XPOP_AMOUNT);
+        expectValue(account, redeemer.address);
       });
 
       it("emits an event", async () => {
@@ -276,7 +264,7 @@ describe("XPopRedemption", () => {
       it("reverts on attempt to redeem too much XPOP", async () => {
         await expectRevert(
           contracts.xPopRedemption.connect(redeemer).redeem(XPOP_AMOUNT.mul(10)),
-          "ERC20: burn amount exceeds allowance"
+          "ERC20: insufficient allowance"
         );
       });
     });

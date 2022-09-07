@@ -1,9 +1,9 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ethers } from "@popcorn/hardhat/node_modules/ethers/lib";
+import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
 import { useConnectWallet, useSetChain, useWallets } from "@web3-onboard/react";
 import { setNetworkChangePromptModal } from "context/actions";
 import { store } from "context/store";
-import { ChainId, PRC_PROVIDERS } from "context/Web3/connectors";
+import { ethers } from "ethers";
 import { getStorage, removeStorage, setStorage } from "helper/safeLocalstorageAccess";
 import toTitleCase from "helper/toTitleCase";
 import useWeb3Callbacks from "helper/useWeb3Callbacks";
@@ -28,7 +28,6 @@ export default function useWeb3() {
   const contractAddresses = useMemo(() => getChainRelevantContracts(getChainId()), [getChainId()]);
   const wallets = useWallets();
   const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(getChainId());
-
   const { dispatch } = useContext(store);
 
   const isLoaded = (network: string | undefined): boolean =>
@@ -37,12 +36,19 @@ export default function useWeb3() {
   const isChainMismatch = (network: string | undefined): boolean =>
     isLoaded(network) && ChainId[Number(connectedChain?.id)] !== toTitleCase(network);
 
+  const inGnosisApp = () => {
+    typeof document !== "undefined" && document?.location?.ancestorOrigins?.contains("https://gnosis-safe.io");
+  };
+
   useEffect(() => {
     // Eagerconnect
-    if (!wallet && previouslyConnectedWallets?.length > 0) {
+    if (!wallet && inGnosisApp) {
+      connect({ autoSelect: { label: "Gnosis Safe", disableModals: true } });
+    } else if (!wallet && previouslyConnectedWallets?.length > 0) {
       handleConnect(true);
     }
   }, []);
+
   useEffect(() => {
     // Track Connected wallets for eagerconnect
     if (wallets?.length > 0) {
@@ -52,8 +58,11 @@ export default function useWeb3() {
 
   useEffect(() => {
     // Detect and alert mismatch between connected chain and URL
-    if (isChainMismatch(router?.query?.network as string)) {
-      alertChainInconsistency(router?.query?.network as string, ChainId[Number(connectedChain.id)]);
+    if (isChainMismatch(router?.query?.network as string) && !["/[network]", "/"].includes(router?.pathname)) {
+      alertChainInconsistency(
+        router?.query?.network as string,
+        ChainId[Number(connectedChain.id)] || "an unsupported Network",
+      );
     } else {
       dispatch(setNetworkChangePromptModal(false));
     }
@@ -106,7 +115,7 @@ export default function useWeb3() {
   async function handleConnect(disableModals: boolean = false): Promise<void> {
     return previouslyConnectedWallets
       ? await connect({ autoSelect: { label: previouslyConnectedWallets[0], disableModals } })
-      : await connect({});
+      : await connect({ autoSelect: { label: "all", disableModals: false } });
   }
 
   function getNonWalletChain(): string {
@@ -148,18 +157,18 @@ export default function useWeb3() {
   function alertChainInconsistency(intendedChain: string, actualChain: string): void {
     dispatch(
       setNetworkChangePromptModal({
-        content: `You are viewing a page on ${toTitleCase(intendedChain)} but your wallet is set to ${toTitleCase(
-          actualChain,
-        )}.`,
+        content: `You are viewing a page on ${toTitleCase(intendedChain)} but your wallet is set to ${actualChain}.`,
         title: "Network Inconsistency",
         type: "error",
-        onChangeUrl: {
-          label: `Continue on ${toTitleCase(actualChain)}`,
-          onClick: () => {
-            pushNetworkChange(toTitleCase(actualChain), true);
-            dispatch(setNetworkChangePromptModal(false));
-          },
-        },
+        onChangeUrl: ChainId[actualChain]
+          ? {
+              label: `Continue on ${actualChain}`,
+              onClick: () => {
+                pushNetworkChange(toTitleCase(actualChain), true);
+                dispatch(setNetworkChangePromptModal(false));
+              },
+            }
+          : undefined,
         onChangeNetwork: {
           label: `Switch to ${toTitleCase(intendedChain)}`,
           onClick: () => {

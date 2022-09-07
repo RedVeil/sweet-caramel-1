@@ -9,13 +9,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const addresses = await getNamedAccounts();
 
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-  const aclRegistry = await hre.ethers.getContractAt("ACLRegistry", (await deployments.get("ACLRegistry")).address);
-  const participationReward = await hre.ethers.getContractAt(
-    "ParticipationReward",
-    (
-      await deployments.get("ParticipationReward")
-    ).address
-  );
+
   await deploy("GrantElections", {
     from: addresses.deployer,
     args: [(await deployments.get("ContractRegistry")).address],
@@ -23,6 +17,15 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "GrantElections",
   });
+
+  const aclRegistry = await hre.ethers.getContractAt("ACLRegistry", (await deployments.get("ACLRegistry")).address);
+  const participationReward = await hre.ethers.getContractAt(
+    "ParticipationReward",
+    (
+      await deployments.get("ParticipationReward")
+    ).address
+  );
+
   await addContractToRegistry("GrantElections", deployments, signer, hre);
   await aclRegistry.grantRole(
     ethers.utils.id("BeneficiaryGovernance"),
@@ -38,5 +41,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 };
 export default main;
-main.dependencies = ["setup"];
+main.dependencies = ["setup", "acl-registry", "contract-registry", "participation-reward"];
 main.tags = ["core", "grant-elections"];

@@ -30,7 +30,7 @@ export const AccountValue: React.FC<AccountValueProps> = ({
             <div className="rounded-md bg-gray-50 border border-gray-200 p-2">
               <div className="flex flex-row justify-between">
                 <p>
-                  {hysiBalance ? formatAndRoundBigNumber(hysiBalance) : '-'}
+                  {hysiBalance ? formatAndRoundBigNumber(hysiBalance, 18) : '-'}
                 </p>
                 <p className="text-gray-700">Token</p>
               </div>
@@ -54,8 +54,8 @@ export const AccountValue: React.FC<AccountValueProps> = ({
                 <p>
                   {hysiPrice && hysiBalance
                     ? formatAndRoundBigNumber(
-                        hysiBalance.mul(hysiPrice).div(parseEther('1')),
-                      )
+                      hysiBalance.mul(hysiPrice).div(parseEther('1')), 18
+                    )
                     : '-'}
                 </p>
                 <p className="text-gray-700">USD</p>

@@ -11,7 +11,7 @@ interface NavbarLinkProps {
 
 const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, target }) => {
   const className = `
-  text-gray-500 text-xl leading-4 font-semibold font-base 
+  text-gray-500 text-xl leading-4 font-medium md:font-semibold font-base 
   md:text-base ${isActive ? "text-gray-800 font-medium" : ""} 
     hover:text-gray-900 cursor-pointer
   `;

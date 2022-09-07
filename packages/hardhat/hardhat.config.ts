@@ -13,11 +13,20 @@ module.exports = {
   solidity: {
     compilers: [
       {
+        version: "0.8.13",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+        },
+      },
+      {
         version: "0.8.1",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -26,7 +35,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -35,7 +44,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -44,7 +53,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -53,7 +62,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -62,7 +71,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
@@ -75,6 +84,7 @@ module.exports = {
       url: process.env.RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
     hardhat: {
+      allowUnlimitedContractSize: true,
       initialBaseFeePerGas: 0,
       chainId: 1337,
       forking: Boolean(parseInt(process.env.FORKING || "0"))
@@ -132,7 +142,7 @@ module.exports = {
     enabled: false,
   },
   mocha: {
-    timeout: 120000,
+    timeout: 1200000,
   },
   /*contractSizer: {
     alphaSort: true,

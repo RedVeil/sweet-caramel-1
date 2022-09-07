@@ -30,13 +30,12 @@ const getShortTerms = (timestamp) => {
   Congo, Iran, Iraq, Libya, Mali, Nicaragua, Democratic People’s Republic of Korea (North Korea), Somalia,
   Sudan, Syria, Yemen, Zimbabwe or any other state, country or region that is subject to sanctions
   enforced by the United States, the United Kingdom or the European Union.
-  - I will not in the future access this site or use popcorndao.finance dApp while located within the United States any Prohibited Localities.
+  - I will not in the future access this site or use popcorndao.finance dApp while located within the United States or any Prohibited Localities.
   - I am not using, and will not in the future use, a VPN to mask my physical location from a restricted territory.
   - I am lawfully permitted to access this site and use popcorndao.finance under the laws of the jurisdiction on which I reside and am located.
 : ${timestamp}
   `;
 };
-
 interface SoftLaunchCheckProps {
   loading: boolean;
 }
@@ -86,9 +85,9 @@ export default function SoftLaunchCheck({ loading }: SoftLaunchCheckProps): JSX.
     if (isDev()) {
       return;
     }
-
-    if ((account && !acceptedTerms) || acceptedTerms === undefined) {
-      return showSignMessageModal();
+    if (account && !acceptedTerms) {
+      setTimeout(showSignMessageModal, 2500);
+      return;
     }
   }, [account, chainId, loading]);
 

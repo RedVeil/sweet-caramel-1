@@ -66,5 +66,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 export default func;
 
-func.dependencies = ["setup"];
-func.tags = ["frontend", "butterwhale"];
+func.dependencies = ["setup", "contract-registry"];
+func.tags = ["frontend", "butter-whale"];

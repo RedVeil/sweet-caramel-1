@@ -1,11 +1,13 @@
+import { ChainId, ChainIdHex, RPC_URLS } from "@popcorn/utils";
+import CoinbaseWallet from "@web3-onboard/coinbase";
+import gnosisModule from "@web3-onboard/gnosis";
 import injected from "@web3-onboard/injected-wallets";
 import { init } from "@web3-onboard/react";
 import walletConnect from "@web3-onboard/walletconnect";
-import { ChainId, ChainIdHex, RPC_URLS } from "context/Web3/connectors";
 
 export default function web3Onboard(): void {
   init({
-    wallets: [walletConnect(), injected()],
+    wallets: [walletConnect(), injected(), gnosisModule(), CoinbaseWallet()],
     chains: [
       {
         id: ChainIdHex.Ethereum,
@@ -61,6 +63,8 @@ export default function web3Onboard(): void {
       icon: "<svg></svg>",
       description: "DeFi for the People",
     },
-    accountCenter: { desktop: { enabled: false } },
+    accountCenter: {
+      desktop: { enabled: false },
+    },
   });
 }

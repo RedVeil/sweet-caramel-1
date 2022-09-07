@@ -1,11 +1,18 @@
+import { getTokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
+import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
+import { ChainId } from "@popcorn/utils";
+
 interface TokenIconProps {
   token: string;
   fullsize?: boolean;
 }
+const namedAccounts = getNamedAccounts();
+
+const TokenMetadataOverride = getTokenMetadataOverride();
 
 export default function TokenIcon({ token, fullsize = false }: TokenIconProps): JSX.Element {
   switch (token) {
-    case "G-UNI USDC/POP LP":
+    case "Arrakis USDC/POP LP":
     case "SushiSwap LP Token":
       return (
         <div className="flex flex-row flex-shrink-0 flex-grow-0">
@@ -15,8 +22,8 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
             }`}
           >
             <img
-              src="/images/tokens/usdc.webp"
-              alt="eth"
+              src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.usdc.polygon].icon}
+              alt="usdc"
               className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto`}
             />
           </div>
@@ -26,21 +33,35 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
             }`}
           >
             <img
-              src="/images/icons/popLogo.png"
+              src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
               alt="pop"
               className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto md:ml-2.5`}
             />
           </div>
         </div>
       );
-    case "Butter":
+    case "Butter V2":
       return (
         <div
           className={`flex items-center rounded-full bg-white border border-gray-300  ${
             fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
           }`}
         >
-          <img src="/images/icons/butterLogo.png" alt="butter" className="w-5 md:w-7 h-3 md:h-4 mx-auto" />
+          <img
+            src={TokenMetadataOverride[ChainId.Ethereum][namedAccounts.butter.mainnet].icon}
+            alt="butter"
+            className="w-5 md:w-7 h-3 md:h-4 mx-auto"
+          />
+        </div>
+      );
+    case "3X":
+      return (
+        <div
+          className={`flex items-center rounded-full bg-white border border-gray-300  ${
+            fullsize ? "w-12 h-12" : "w-6 h-6 md:w-12 md:h-12"
+          }`}
+        >
+          <img src="/images/tokens/threeX.svg" alt="3x" className="w-7 h-7 mb-1 mx-auto" />
         </div>
       );
     case "Popcorn":
@@ -52,7 +73,7 @@ export default function TokenIcon({ token, fullsize = false }: TokenIconProps): 
           }`}
         >
           <img
-            src="/images/icons/popLogo.png"
+            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts.pop.polygon].icon}
             alt="pop"
             className={`${fullsize ? "w-7 h-7" : "w-3 h-3 md:w-7 md:h-7"} mx-auto md:ml-2.5`}
           />

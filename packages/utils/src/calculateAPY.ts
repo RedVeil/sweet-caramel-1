@@ -1,7 +1,6 @@
 import { parseEther } from "@ethersproject/units";
-import { ChainId } from "@popcorn/app/context/Web3/connectors";
 import {
-  BasicIssuanceModule__factory,
+  IBasicIssuanceModule__factory,
   ButterBatchProcessing__factory,
   ERC20,
   ERC20__factory,
@@ -9,6 +8,7 @@ import {
   IGUni__factory,
 } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
+import { ChainId } from "./connectors";
 import { Address, ContractAddresses } from "./types";
 
 export async function calculateApy(
@@ -24,10 +24,12 @@ export async function calculateApy(
     return BigNumber.from("-1");
   }
   switch (stakedTokenAddress.toLocaleLowerCase()) {
-    case contractAddresses.popUsdcLp.toLocaleLowerCase():
-      return await getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
-    case contractAddresses.butter.toLocaleLowerCase():
-      return await getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
+    case contractAddresses.popUsdcArrakisVault?.toLocaleLowerCase():
+    case contractAddresses.popUsdcLp?.toLocaleLowerCase():
+      return getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library, stakedTokenAddress);
+    case contractAddresses.butter?.toLocaleLowerCase():
+    case contractAddresses.threeX?.toLocaleLowerCase():
+      return getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
     default:
       return constants.Zero;
   }
@@ -39,11 +41,16 @@ export async function getLpTokenApy(
   contractAddresses: ContractAddresses,
   chainId: number,
   library,
+  stakedTokenAddress,
 ): Promise<BigNumber> {
-  if (chainId === ChainId.Ethereum) {
+  if (contractAddresses.popUsdcArrakisVault === stakedTokenAddress) {
+    const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcArrakisVault, library);
+    const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
+    return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
+  } else if (chainId === ChainId.Ethereum) {
     const popUsdcLp = IGUni__factory.connect(contractAddresses.popUsdcLp, library);
     const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
-    return await getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
+    return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
   } else {
     const popUsdcLp = ERC20__factory.connect(contractAddresses.popUsdcLp, library);
     let usdcAmount = await ERC20__factory.connect(contractAddresses.usdc, library).balanceOf(
@@ -55,7 +62,7 @@ export async function getLpTokenApy(
     if (usdcAmount.eq(constants.Zero) || popAmount.eq(constants.Zero)) {
       return BigNumber.from("-1");
     }
-    return await getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
+    return getPool2Apy(usdcAmount, popAmount, tokenPerWeek, totalStaked, popUsdcLp);
   }
 }
 
@@ -106,7 +113,7 @@ export async function getButterApy(
   }
 
   const butterBatch = ButterBatchProcessing__factory.connect(contractAddresses.butterBatch, library);
-  const basicIssuanceModule = BasicIssuanceModule__factory.connect(
+  const basicIssuanceModule = IBasicIssuanceModule__factory.connect(
     contractAddresses.butterDependency.setBasicIssuanceModule,
     library,
   );

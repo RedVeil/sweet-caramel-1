@@ -1,17 +1,19 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
+import { ChainId } from "@popcorn/utils";
 import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
 import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
-import { setMultiChoiceActionModal } from "context/actions";
+import TermsContent from "components/staking/TermsModalContent";
+import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useTokenPrice from "hooks/useTokenPrice";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { ChainId } from "../../../context/Web3/connectors";
 
 export default function PopStakingPage(): JSX.Element {
   const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId, pushWithinChain } =
@@ -26,11 +28,19 @@ export default function PopStakingPage(): JSX.Element {
   }, [chainId]);
 
   const [form, setForm] = useState(defaultForm);
+  const router = useRouter();
   const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
   const stakingToken = stakingPool?.stakingToken;
   const approveToken = useApproveERC20();
   const tokenPrice = useTokenPrice(stakingToken?.address);
+
+
+  useEffect(() => {
+    if (router?.query?.action === "withdraw") {
+      setForm({ ...form, type: InteractionType.Withdraw });
+    }
+  }, [router?.query?.action]);
 
   function stake(): void {
     toast.loading("Staking POP ...");
@@ -70,7 +80,7 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Withdrawing POP ...");
     stakingPool?.contract
       .connect(signer)
-      ["processExpiredLocks(bool)"](false)
+    ["processExpiredLocks(bool)"](false)
       .then((res) =>
         onContractSuccess(res, "POP withdrawn!", () => {
           balances.revalidate();
@@ -84,15 +94,25 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Restaking POP ...");
     stakingPool.contract
       .connect(signer)
-      ["processExpiredLocks(bool)"](true)
-      .then((res) =>
+    ["processExpiredLocks(bool)"](true)
+      .then((res) => {
         onContractSuccess(res, "POP Restaked!", () => {
           balances.revalidate();
           setForm(defaultForm);
-        }),
-      )
+        });
+        dispatch(setSingleActionModal(false));
+      })
       .catch((err) => onContractError(err));
   }
+
+  const openTermsModal = () => {
+    dispatch(
+      setSingleActionModal({
+        title: "Terms & Conditions",
+        children: <TermsContent restake={restake} />,
+      }),
+    );
+  };
 
   function approve() {
     toast.loading("Approving POP ...");
@@ -113,7 +133,7 @@ export default function PopStakingPage(): JSX.Element {
           stake={stake}
           withdraw={withdraw}
           approve={approve}
-          restake={restake}
+          restake={openTermsModal}
           onlyView={!account}
           chainId={chainId}
           isPopLocker

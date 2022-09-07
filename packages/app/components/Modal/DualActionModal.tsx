@@ -14,8 +14,8 @@ export const DefaultDualActionModalProps = {
   content: "",
   title: "",
   visible: false,
-  onConfirm: { label: "", onClick: () => { } },
-  onDismiss: { label: "", onClick: () => { } },
+  onConfirm: { label: "", onClick: () => {} },
+  onDismiss: { label: "", onClick: () => {} },
 };
 
 export const DualActionModal: React.FC<DualActionModalProps> = ({ title, content, visible, onDismiss, onConfirm }) => {

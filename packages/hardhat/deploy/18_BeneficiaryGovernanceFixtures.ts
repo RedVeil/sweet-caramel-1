@@ -23,6 +23,10 @@ const DURATION_DAY = 24 * 60 * 60;
 const DURATION_YEAR = DURATION_DAY * 365;
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  if (!Boolean(parseInt(process.env.WITH_FIXTURES || "0"))) {
+    console.log("Skipping BenGovFixtures to avoid time travel");
+    return;
+  }
   console.log("Deploying Fixtures");
   const { deployments, ethers } = hre;
   const DEFAULT_REGION = ethers.utils.id("World");
@@ -358,8 +362,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.dependencies = ["setup"];
-main.tags = ["core", "fixtures"];
+main.dependencies = ["setup", "acl-registry", "contract-registry", "participation-reward", "gov-staking", "beneficiary-governance", "beneficiary-registry", "grant-elections"];
+main.tags = ["core", "beneficiary-governance-demo-data"];
 
 async function getActiveBeneficiaries(beneficiaryRegistry: BeneficiaryRegistry) {
   return (await beneficiaryRegistry.getBeneficiaryList()).filter(

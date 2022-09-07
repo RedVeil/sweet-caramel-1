@@ -1,6 +1,6 @@
 import { parseEther } from "@ethersproject/units";
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { BasicIssuanceModule, ButterBatchProcessing } from "@popcorn/hardhat/typechain";
+import { IBasicIssuanceModule, ButterBatchProcessing } from "@popcorn/hardhat/typechain";
 import { Address, ContractAddresses } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
 import useBasicIssuanceModule from "hooks/butter/useBasicIssuanceModule";
@@ -9,17 +9,16 @@ import useWeb3 from "hooks/useWeb3";
 import useSWR from "swr";
 
 export async function getTokenPrice(
-  basicIssuanceModule: BasicIssuanceModule,
+  basicIssuanceModule: IBasicIssuanceModule,
   butterBatch: ButterBatchProcessing,
   butterAddress: Address,
-) {
+): Promise<BigNumber> {
   const requiredComponentsForIssue = await basicIssuanceModule.getRequiredComponentUnitsForIssue(
     butterAddress,
     parseEther("1"),
   );
   // Butter Token price
-  const butterPrice = await butterBatch.valueOfComponents(...requiredComponentsForIssue);
-  return butterPrice as BigNumber;
+  return butterBatch.valueOfComponents(...requiredComponentsForIssue);
 }
 
 export default function useGetButterTokenPriceInUSD() {

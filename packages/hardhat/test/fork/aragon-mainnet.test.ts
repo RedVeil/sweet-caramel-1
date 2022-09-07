@@ -15,7 +15,7 @@ describe.skip("aragon test", () => {
         params: [
           {
             forking: {
-              jsonRpcUrl: process.env.RPC_URL,
+              jsonRpcUrl: process.env.FORKING_RPC_URL,
               blockNumber: 14078388,
             },
           },
@@ -64,7 +64,7 @@ describe.skip("aragon test", () => {
       await timeTravel(5 * DAYS);
       await votingContract.executeVote(9);
 
-      await expectValue(await popContract.balanceOf(rewardsDistribution), parseEther("1224000.999999999999999699"));
+      expectValue(await popContract.balanceOf(rewardsDistribution), parseEther("1224000.999999999999999699"));
     });
   });
 });

@@ -52,6 +52,7 @@ export interface Configuration {
       ratio: number; // percent of targetNAV (out of 100)
       address: string;
       oracle: string;
+      amount?: BigNumber; // amount of tokens in set
     };
   };
 }

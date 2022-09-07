@@ -18,3 +18,4 @@ export {
 } from "./GrantElection/GrantElectionAdapter";
 export type { ElectionMetadata } from "./GrantElection/GrantElectionAdapter";
 export * from "./UniswapPoolAdapter";
+export { Zapper } from "./Zapper";

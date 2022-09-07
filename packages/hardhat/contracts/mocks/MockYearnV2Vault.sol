@@ -6,12 +6,19 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./MockERC20.sol";
+import "hardhat/console.sol";
 
 contract MockYearnV2Vault is MockERC20 {
   using SafeERC20 for MockERC20;
   using SafeMath for uint256;
 
   MockERC20 public token;
+  uint256 internal _depositLimit = type(uint256).max;
+  bool _stubTotalAssets;
+  uint256 _totalAssets;
+  bool _stubAccountBalance;
+  address _stubbedAccount;
+  uint256 _stubbedBalance;
 
   constructor(address token_) MockERC20("Mock crvUSDX yVault", "yvUSDX", 18) {
     token = MockERC20(token_);
@@ -21,12 +28,20 @@ contract MockYearnV2Vault is MockERC20 {
     return totalSupply();
   }
 
+  function balanceOf(address account) public view override returns (uint256) {
+    return (_stubAccountBalance && account == _stubbedAccount) ? _stubbedBalance : super.balanceOf(account);
+  }
+
   function balance() public view returns (uint256) {
     return token.balanceOf(address(this));
   }
 
   function totalAssets() external view returns (uint256) {
-    return token.balanceOf(address(this));
+    return _stubTotalAssets ? _totalAssets : token.balanceOf(address(this));
+  }
+
+  function depositLimit() external view returns (uint256) {
+    return _depositLimit;
   }
 
   function pricePerShare() public view returns (uint256) {
@@ -59,7 +74,7 @@ contract MockYearnV2Vault is MockERC20 {
     if (this.totalSupply() == 0) {
       shares = amount;
     } else {
-      shares = (amount * this.totalSupply()) / this.totalAssets();
+      shares = (amount * this.totalSupply()) / (this.totalAssets() - amount);
     }
     _mint(to, shares);
     return shares;
@@ -85,5 +100,30 @@ contract MockYearnV2Vault is MockERC20 {
     token.burn(address(this), token.balanceOf(address(this)));
     uint256 balanceAmount = pricePerFullShare.mul(totalSupply()).div(1e18);
     token.mint(address(this), balanceAmount);
+  }
+
+  function setDepositLimit(uint256 newDepositLimit) external {
+    _depositLimit = newDepositLimit;
+  }
+
+  function stubTotalAssets(uint256 amount) external {
+    _stubTotalAssets = true;
+    _totalAssets = amount;
+  }
+
+  function restoreTotalAssets() external {
+    _stubTotalAssets = false;
+  }
+
+  function stubAccountBalance(address stubbedAccount, uint256 amount) external {
+    _stubAccountBalance = true;
+    _stubbedAccount = stubbedAccount;
+    _stubbedBalance = amount;
+  }
+
+  function restoreStubbedBalance() external {
+    _stubAccountBalance = false;
+    _stubbedAccount = address(0);
+    _stubbedBalance = 0;
   }
 }

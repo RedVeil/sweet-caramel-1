@@ -25,7 +25,7 @@ export default function StakingPage(): JSX.Element {
   }, [contractAddresses, router]);
 
   const [form, setForm] = useState(defaultForm);
-  const { data: stakingPool } = useStakingPool(router.query.id as string);
+  const { data: stakingPool, mutate: refetchStakingPool } = useStakingPool(router.query.id as string);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, stakingPool?.address);
   const stakingToken = stakingPool?.stakingToken;
   const tokenPrice = useTokenPrice(stakingToken?.address);
@@ -40,6 +40,7 @@ export default function StakingPage(): JSX.Element {
       .then((res) =>
         onContractSuccess(res, `${stakingToken?.symbol} staked!`, () => {
           setForm(defaultForm);
+          refetchStakingPool();
           balances.revalidate();
           if (!localStorage.getItem("hideStakeSuccessPopover")) {
             dispatch(
@@ -74,6 +75,7 @@ export default function StakingPage(): JSX.Element {
       .then((res) =>
         onContractSuccess(res, `${stakingToken?.symbol} withdrawn!`, () => {
           setForm({ ...defaultForm, type: InteractionType.Withdraw });
+          refetchStakingPool();
           balances.revalidate();
         }),
       )

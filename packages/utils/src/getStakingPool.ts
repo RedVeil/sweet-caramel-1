@@ -1,6 +1,6 @@
+import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
 import { getPopApy } from ".";
-import { PopLocker, Staking } from "../../hardhat/typechain";
 import { calculateApy } from "./calculateAPY";
 import { getTokenFromAddress } from "./getToken";
 import { Address, ContractAddresses, StakingPool } from "./types";
@@ -27,8 +27,7 @@ export async function getStakingPool(
   const apy = await calculateApy(tokenAddress, tokenPerWeek, totalStake, contractAddresses, chainId, library);
   const earned = account ? await staking.earned(account) : constants.Zero;
   const userStake = account ? await staking.balanceOf(account) : constants.Zero;
-  const stakingToken = await getTokenFromAddress(tokenAddress, library);
-
+  const stakingToken = await getTokenFromAddress(tokenAddress, library, chainId);
   return {
     contract: staking,
     address: staking.address,
@@ -42,7 +41,12 @@ export async function getStakingPool(
   };
 }
 
-export async function getPopLocker(key: string, popLocker: PopLocker, account?: Address): Promise<PopLockerMetadata> {
+export async function getPopLocker(
+  key: string,
+  popLocker: PopLocker,
+  chainId: number,
+  account?: Address,
+): Promise<PopLockerMetadata> {
   const tokenAddress = await popLocker.stakingToken();
   const totalStake = await popLocker.lockedSupply();
   const tokenPerWeek = await popLocker.getRewardForDuration(tokenAddress);
@@ -58,7 +62,7 @@ export async function getPopLocker(key: string, popLocker: PopLocker, account?: 
         unlockTime: lockedBalanceStruct.unlockTime,
       }))
     : [];
-  const stakingToken = await getTokenFromAddress(tokenAddress, popLocker.provider);
+  const stakingToken = await getTokenFromAddress(tokenAddress, popLocker.provider, chainId);
 
   return {
     contract: popLocker,

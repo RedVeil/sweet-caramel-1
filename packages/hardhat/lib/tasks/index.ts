@@ -1,9 +1,12 @@
 export * from "./acl";
 export * from "./airdrop";
 export * from "./aragon";
+export * from "./forge";
 export * from "./butter";
 export * from "./contract-registry";
+export * from "./curve";
 export * from "./ERC20";
+export * from "./forge";
 export * from "./keeper-incentive";
 export * from "./LBP";
 export * from "./LBPManager";
@@ -15,3 +18,4 @@ export * from "./set-token";
 export * from "./staking";
 export * from "./superseeder";
 export * from "./TPOP";
+export * from "./threeX";

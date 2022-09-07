@@ -15,7 +15,7 @@ describe("rewards distribution test", () => {
         params: [
           {
             forking: {
-              jsonRpcUrl: process.env.RPC_URL,
+              jsonRpcUrl: process.env.FORKING_RPC_URL,
               blockNumber: 14149093,
             },
           },
@@ -45,7 +45,7 @@ describe("rewards distribution test", () => {
       await distributor.setTreasury(NEW_TREASURY);
       await distributor.editRewardDistribution(1, popUsdcLpStaking, 0, false);
       await distributor.distributeRewards(distributorBalance);
-      await expectValue(await popContract.balanceOf(NEW_TREASURY), distributorBalance);
+      expectValue(await popContract.balanceOf(NEW_TREASURY), distributorBalance);
     });
   });
 });

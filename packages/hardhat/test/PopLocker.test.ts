@@ -61,12 +61,12 @@ describe("PopLocker", function () {
 
   describe("constructor", function () {
     it("stores token passed at construction time", async function () {
-      await expectValue(await staking.stakingToken(), mockPop.address);
-      await expectValue(await staking.rewardTokens(0), mockPop.address);
+      expectValue(await staking.stakingToken(), mockPop.address);
+      expectValue(await staking.rewardTokens(0), mockPop.address);
     });
 
     it("stores rewards escrow address", async function () {
-      await expectValue(await staking.rewardsEscrow(), rewardsEscrow.address);
+      expectValue(await staking.rewardsEscrow(), rewardsEscrow.address);
     });
 
     it("adds RewardsDistributor", async function () {
@@ -78,15 +78,15 @@ describe("PopLocker", function () {
 
   describe("token attributes", function () {
     it("returns token decimals", async function () {
-      await expectValue(await staking.decimals(), 18);
+      expectValue(await staking.decimals(), 18);
     });
 
     it("returns token name", async function () {
-      await expectValue(await staking.name(), "Vote Locked POP Token");
+      expectValue(await staking.name(), "Vote Locked POP Token");
     });
 
     it("returns token symbol", async function () {
-      await expectValue(await staking.symbol(), "vlPOP");
+      expectValue(await staking.symbol(), "vlPOP");
     });
   });
 
@@ -99,7 +99,7 @@ describe("PopLocker", function () {
   describe("setRewardEscrow", function () {
     it("allows owner to set  rewards escrow address", async () => {
       await staking.connect(owner).setRewardsEscrow(rewardsEscrowAddress.address);
-      await expectValue(await staking.rewardsEscrow(), rewardsEscrowAddress.address);
+      expectValue(await staking.rewardsEscrow(), rewardsEscrowAddress.address);
     });
     it("disallows non-owner to set rewards escrow address", async () => {
       await expectRevert(staking.connect(staker).setRewardsEscrow(rewardsEscrowAddress.address), "");
@@ -116,13 +116,13 @@ describe("PopLocker", function () {
 
     it("approves distributor", async function () {
       await staking.connect(owner).approveRewardDistributor(mockPop.address, distributor.address, true);
-      await expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), true);
+      expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), true);
     });
 
     it("denies distributor", async function () {
       await staking.connect(owner).approveRewardDistributor(mockPop.address, distributor.address, true);
       await staking.connect(owner).approveRewardDistributor(mockPop.address, distributor.address, false);
-      await expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), false);
+      expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), false);
     });
   });
 
@@ -136,21 +136,21 @@ describe("PopLocker", function () {
 
     it("approves distributor", async function () {
       await staking.connect(owner).approveRewardDistributor(mockPop.address, distributor.address, true);
-      await expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), true);
+      expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), true);
     });
 
     it("denies distributor", async function () {
       await staking.connect(owner).approveRewardDistributor(mockPop.address, distributor.address, true);
       await staking.connect(owner).approveRewardDistributor(mockPop.address, distributor.address, false);
-      await expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), false);
+      expectValue(await staking.rewardDistributors(mockPop.address, distributor.address), false);
     });
   });
 
   describe("setEscrowDuration", function () {
     it("updates escrow duration parameter", async () => {
-      await expectValue(await staking.escrowDuration(), 365 * DAYS);
+      expectValue(await staking.escrowDuration(), 365 * DAYS);
       await staking.connect(owner).setEscrowDuration(14 * DAYS);
-      await expectValue(await staking.escrowDuration(), 14 * DAYS);
+      expectValue(await staking.escrowDuration(), 14 * DAYS);
     });
 
     it("emits EscrowDurationUpdated", async () => {
@@ -171,12 +171,12 @@ describe("PopLocker", function () {
 
     it("sets nextMaximumBoostPayment", async () => {
       await staking.connect(owner).setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
-      await expectValue(await staking.nextMaximumBoostPayment(), MAX_PAYMENT);
+      expectValue(await staking.nextMaximumBoostPayment(), MAX_PAYMENT);
     });
 
     it("sets nextBoostRate", async () => {
       await staking.connect(owner).setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
-      await expectValue(await staking.nextBoostRate(), BOOST_RATE);
+      expectValue(await staking.nextBoostRate(), BOOST_RATE);
     });
   });
 
@@ -186,12 +186,12 @@ describe("PopLocker", function () {
 
     it("sets nextMaximumBoostPayment", async () => {
       await staking.connect(owner).setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
-      await expectValue(await staking.nextMaximumBoostPayment(), MAX_PAYMENT);
+      expectValue(await staking.nextMaximumBoostPayment(), MAX_PAYMENT);
     });
 
     it("sets nextBoostRate", async () => {
       await staking.connect(owner).setBoost(MAX_PAYMENT, BOOST_RATE, owner.address);
-      await expectValue(await staking.nextBoostRate(), BOOST_RATE);
+      expectValue(await staking.nextBoostRate(), BOOST_RATE);
     });
   });
 
@@ -201,12 +201,12 @@ describe("PopLocker", function () {
 
     it("updates kickRewardPerEpoch", async () => {
       await staking.connect(owner).setKickIncentive(KICK_INCENTIVE_RATE, KICK_INCENTIVE_DELAY);
-      await expectValue(await staking.kickRewardPerEpoch(), KICK_INCENTIVE_RATE);
+      expectValue(await staking.kickRewardPerEpoch(), KICK_INCENTIVE_RATE);
     });
 
     it("updates kickRewardEpochDelay", async () => {
       await staking.connect(owner).setKickIncentive(KICK_INCENTIVE_RATE, KICK_INCENTIVE_DELAY);
-      await expectValue(await staking.kickRewardEpochDelay(), KICK_INCENTIVE_DELAY);
+      expectValue(await staking.kickRewardEpochDelay(), KICK_INCENTIVE_DELAY);
     });
 
     it("reverts on rate >5%", async () => {
@@ -235,7 +235,7 @@ describe("PopLocker", function () {
     it("returns periodFinish for specified token", async function () {
       let addRewardTx = await staking.connect(owner).addReward(otherToken.address, owner.address, true);
       const addRewardTxBlock = await ethers.provider.getBlock(addRewardTx.blockNumber);
-      await expectValue(await staking.lastTimeRewardApplicable(otherToken.address), addRewardTxBlock.timestamp);
+      expectValue(await staking.lastTimeRewardApplicable(otherToken.address), addRewardTxBlock.timestamp);
     });
   });
 
@@ -257,7 +257,7 @@ describe("PopLocker", function () {
     it("returns account's boosted balance", async function () {
       const boostedBalance = parseEther("10000");
       await staking.lock(staker.address, boostedBalance, 0);
-      await expectValue(await staking.rewardWeightOf(staker.address), boostedBalance);
+      expectValue(await staking.rewardWeightOf(staker.address), boostedBalance);
     });
   });
 
@@ -268,20 +268,20 @@ describe("PopLocker", function () {
       await staking.lock(staker.address, parseEther("7000"), 0);
       await timeTravel(7 * DAYS);
 
-      await expectValue(await staking.balanceAtEpochOf(0, staker.address), parseEther("5000"));
-      await expectValue(await staking.balanceAtEpochOf(1, staker.address), parseEther("12000"));
+      expectValue(await staking.balanceAtEpochOf(0, staker.address), parseEther("5000"));
+      expectValue(await staking.balanceAtEpochOf(1, staker.address), parseEther("12000"));
     });
   });
 
   describe("epochCount", function () {
     it("returns total number of epochs", async function () {
-      await expectValue(await staking.epochCount(), 1);
+      expectValue(await staking.epochCount(), 1);
       await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
-      await expectValue(await staking.epochCount(), 2);
+      expectValue(await staking.epochCount(), 2);
       await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
-      await expectValue(await staking.epochCount(), 3);
+      expectValue(await staking.epochCount(), 3);
     });
   });
 
@@ -290,13 +290,13 @@ describe("PopLocker", function () {
       const epochCountTx = await staking.checkpointEpoch();
       const epochCountTxBlock = await ethers.provider.getBlock(epochCountTx.blockNumber);
       const timestamp = epochCountTxBlock.timestamp;
-      await expectValue(await staking.findEpochId(timestamp), 0);
+      expectValue(await staking.findEpochId(timestamp), 0);
       await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
-      await expectValue(await staking.findEpochId(timestamp + 7 * DAYS), 1);
+      expectValue(await staking.findEpochId(timestamp + 7 * DAYS), 1);
       await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
-      await expectValue(await staking.findEpochId(timestamp + 14 * DAYS), 2);
+      expectValue(await staking.findEpochId(timestamp + 14 * DAYS), 2);
     });
   });
 
@@ -304,21 +304,21 @@ describe("PopLocker", function () {
     it("returns sum of all locked balances, excluding current epoch", async function () {
       const boostedBalance = parseEther("10000");
       await staking.lock(staker.address, boostedBalance, 0);
-      await expectValue(await staking.totalSupply(), 0);
+      expectValue(await staking.totalSupply(), 0);
       await timeTravel(8 * DAYS);
-      await expectValue(await staking.totalSupply(), boostedBalance);
+      expectValue(await staking.totalSupply(), boostedBalance);
     });
   });
 
   describe("totalSupplyAtEpoch", function () {
     it("returns total supply at a specific epoch", async function () {
       await staking.lock(staker.address, parseEther("5000"), 0);
-      await expectValue(await staking.totalSupply(), 0);
+      expectValue(await staking.totalSupply(), 0);
       await timeTravel(7 * DAYS);
       await staking.lock(staker.address, parseEther("5000"), 0);
       await timeTravel(7 * DAYS);
-      await expectValue(await staking.totalSupplyAtEpoch(0), parseEther("5000"));
-      await expectValue(await staking.totalSupplyAtEpoch(1), parseEther("10000"));
+      expectValue(await staking.totalSupplyAtEpoch(0), parseEther("5000"));
+      expectValue(await staking.totalSupplyAtEpoch(1), parseEther("10000"));
     });
   });
 
@@ -339,6 +339,7 @@ describe("PopLocker", function () {
     });
 
     it("reverts on insufficient caller balance", async function () {
+      await mockPop.approve(staking.address, parseEther("10000000000"));
       await expect(staking.lock(owner.address, parseEther("10000000000"), 0)).to.be.revertedWith(
         "ERC20: transfer amount exceeds balance"
       );
@@ -401,9 +402,9 @@ describe("PopLocker", function () {
       await staking.lock(staker.address, amount, 0);
       await timeTravel(7 * DAYS);
       await staking.checkpointEpoch();
-      await expectValue(await mockPop.balanceOf(staking.address), stakingFund.add(amount));
-      await expectValue(await mockPop.balanceOf(owner.address), currentBalance.sub(amount));
-      await expectValue(await staking.balanceOf(staker.address), parseEther("10000"));
+      expectValue(await mockPop.balanceOf(staking.address), stakingFund.add(amount));
+      expectValue(await mockPop.balanceOf(owner.address), currentBalance.sub(amount));
+      expectValue(await staking.balanceOf(staker.address), parseEther("10000"));
     });
 
     it("should update locked balances when staking", async () => {
@@ -535,10 +536,10 @@ describe("PopLocker", function () {
     it("withdraws after lockDuration has passed", async function () {
       const initialBalance = await mockPop.balanceOf(owner.address);
       await staking.connect(owner).lock(owner.address, stakeAmount, 0);
-      await expectValue(await mockPop.balanceOf(owner.address), initialBalance.sub(stakeAmount));
+      expectValue(await mockPop.balanceOf(owner.address), initialBalance.sub(stakeAmount));
       await timeTravel(12 * WEEKS);
       await staking.connect(owner)["processExpiredLocks(bool,uint256,address)"](false, 0, owner.address);
-      await expectValue(await mockPop.balanceOf(owner.address), initialBalance);
+      expectValue(await mockPop.balanceOf(owner.address), initialBalance);
     });
   });
 
@@ -556,9 +557,9 @@ describe("PopLocker", function () {
       const lock1 = await staking.userLocks(owner.address, 0);
       const lock2 = await staking.userLocks(owner.address, 1);
 
-      await expectValue(lockedBalances.total, stakeAmount.mul(2));
-      await expectValue(lockedBalances.unlockable, stakeAmount);
-      await expectValue(lockedBalances.locked, stakeAmount);
+      expectValue(lockedBalances.total, stakeAmount.mul(2));
+      expectValue(lockedBalances.unlockable, stakeAmount);
+      expectValue(lockedBalances.locked, stakeAmount);
       await expectDeepValue(lockedBalances.lockData, [lock2]);
     });
   });
@@ -570,7 +571,7 @@ describe("PopLocker", function () {
       await staking.connect(owner).lock(owner.address, parseEther("10000"), 0);
       await timeTravel(16 * WEEKS);
       await staking.connect(kicker).kickExpiredLocks(owner.address);
-      await expectValue(await mockPop.balanceOf(kicker.address), parseEther("100"));
+      expectValue(await mockPop.balanceOf(kicker.address), parseEther("100"));
     });
   });
 
@@ -615,9 +616,9 @@ describe("PopLocker", function () {
     });
 
     it("transfers recovered token to owner", async () => {
-      await expectValue(await otherToken.balanceOf(owner.address), 0);
+      expectValue(await otherToken.balanceOf(owner.address), 0);
       await staking.connect(owner).recoverERC20(otherToken.address, OTHER_TOKEN_AMOUNT);
-      await expectValue(await otherToken.balanceOf(owner.address), OTHER_TOKEN_AMOUNT);
+      expectValue(await otherToken.balanceOf(owner.address), OTHER_TOKEN_AMOUNT);
     });
 
     it("emits Recovered", async () => {

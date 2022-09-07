@@ -14,7 +14,7 @@ import { expectBigNumberCloseTo, expectValue } from "../../lib/utils/expectValue
 import { getNamedAccountsByChainId } from "../../lib/utils/getNamedAccounts";
 import { DAYS, impersonateSigner } from "../../lib/utils/test";
 import { timeTravel } from "../../lib/utils/test/timeTravel";
-import { ButterBatchProcessing, CurveMetapool, ERC20, Faucet, MockERC20 } from "../../typechain";
+import { ButterBatchProcessingV1, CurveMetapool, ERC20, Faucet, MockERC20 } from "../../typechain";
 import { YearnVault } from "../../typechain/YearnVault";
 
 const provider = waffle.provider;
@@ -26,7 +26,7 @@ interface Contracts {
   butter: SetToken;
   setToken: SetToken; // alias for butter
   basicIssuanceModule: BasicIssuanceModule;
-  butterBatch: ButterBatchProcessing;
+  butterBatch: ButterBatchProcessingV1;
   faucet: Faucet;
   yFraxVault: YearnVault;
   yMimVault: YearnVault;
@@ -109,7 +109,7 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   //Deploy ButterBatchProcessing
-  const ButterBatchProcessing = await ethers.getContractFactory("ButterBatchProcessing");
+  const ButterBatchProcessing = await ethers.getContractFactory("ButterBatchProcessingV1");
   const YTOKEN_ADDRESSES = [yFrax, Y_MIM_ADDRESS];
   const CRV_DEPENDENCIES = [
     {
@@ -141,9 +141,9 @@ async function deployContracts(): Promise<Contracts> {
 
   await butterBatch.setApprovals();
 
-  const keeper = await ethers.getContractAt("KeeperIncentive", KEEPER_INCENTIVE_ADDRESS);
+  const keeper = await ethers.getContractAt("KeeperIncentiveV1", KEEPER_INCENTIVE_ADDRESS);
 
-  await keeper.connect(admin).addControllerContract(await butterBatch.contractName(), butterBatch.address);
+  await keeper.connect(admin).addControllerContract(butterBatch.address, true);
 
   const yMimVault = await ethers.getContractAt("YearnVault", Y_MIM_ADDRESS);
   const yFraxVault = await ethers.getContractAt("YearnVault", yFrax);
@@ -248,7 +248,7 @@ describe("ButterBatchProcessing Network Test", function () {
         const currentBlockNumber = await ethers.provider.getBlockNumber();
         console.log({ currentBlockNumber });
         const value = await contracts.butterBatch.valueOf3Crv(parseEther("1"));
-        await expectValue(value, parseEther("1.019929695147188721"));
+        expectValue(value, parseEther("1.019929695147188721"));
       });
     });
 

@@ -71,11 +71,11 @@ describe("RewardsDistribution", function () {
   describe("approveRewardDistributor", async () => {
     it("should allow owner to add an address as an approved reward distributor", async () => {
       await rewardsDistribution.connect(owner).approveRewardDistributor(rewardsDistributor.address, true);
-      await expectValue(await rewardsDistribution.rewardDistributors(rewardsDistributor.address), true);
+      expectValue(await rewardsDistribution.rewardDistributors(rewardsDistributor.address), true);
     });
     it("should allow owner to remove an address as an approved reward distributor", async () => {
       await rewardsDistribution.connect(owner).approveRewardDistributor(rewardsDistributor.address, false);
-      await expectValue(await rewardsDistribution.rewardDistributors(rewardsDistributor.address), false);
+      expectValue(await rewardsDistribution.rewardDistributors(rewardsDistributor.address), false);
     });
     it("should emit RewardDistributorUpdated event", async () => {
       await expectEvent(
