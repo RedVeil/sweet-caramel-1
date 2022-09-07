@@ -90,7 +90,13 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               spellCheck="false"
               readOnly={readonly}
             />
-            <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token?.symbol}</p>
+            {tokenList.length > 0 ? (
+              <TokenSelection
+                selectedToken={token}
+                tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
+                selectToken={selectToken}
+              />
+            ) : <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token?.symbol}</p>}
           </div>
         </div>
         <div className="">
@@ -103,18 +109,11 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               >
                 MAX
               </div>
-              {tokenList.length > 0 && (
-                <TokenSelection
-                  selectedToken={token}
-                  tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
-                  selectToken={selectToken}
-                />
-              )}
             </>
           )}
         </div>
       </div>
-      {balance && amount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}
+      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
     </>
   );
 };
