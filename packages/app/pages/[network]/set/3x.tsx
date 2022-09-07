@@ -33,6 +33,7 @@ import useWeb3 from "hooks/useWeb3";
 import { Fragment, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
+import { isDepositDisabled } from "../../../helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
 export enum TOKEN_INDEX {
@@ -111,20 +112,20 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: threeXData?.tokens?.usdc?.key,
-            output: threeXData?.tokens?.threeX?.key,
-          },
-          tokens: threeXData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-        }
+            ...state,
+            selectedToken: {
+              input: threeXData?.tokens?.usdc?.key,
+              output: threeXData?.tokens?.threeX?.key,
+            },
+            tokens: threeXData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+          }
         : {
-          ...state,
-          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
-        },
+            ...state,
+            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          },
     );
   }, [threeXData, threeXWhaleData]);
 
@@ -457,33 +458,12 @@ export default function ThreeX(): JSX.Element {
     }
     return threeXPageState.redeeming
       ? threeXData?.currentBatches.redeem.suppliedTokenBalance
-        .mul(threeXData?.tokens?.threeX.price)
-        .div(parseEther("1"))
+          .mul(threeXData?.tokens?.threeX.price)
+          .div(parseEther("1"))
       : threeXData?.currentBatches.mint.suppliedTokenBalance
-        .mul(threeXData?.tokens?.usdc.price)
-        .div(BigNumber.from(1_000_000));
+          .mul(threeXData?.tokens?.usdc.price)
+          .div(BigNumber.from(1_000_000));
   }
-
-  function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
-    return depositAmount.gt(inputTokenBalance);
-  }
-
-  const isDepositDisabled = (): boolean => {
-    const tvl = threeXData?.totalSupply?.mul(threeXData?.tokens?.threeX?.price).div(parseEther("1"));
-    const tvlLimit = parseEther("1000000"); // 1m
-    if (!threeXPageState.redeeming && (tvl.gte(tvlLimit) || threeXPageState?.depositAmount.add(tvl).gte(tvlLimit))) {
-      return true;
-    }
-    return threeXPageState.useUnclaimedDeposits
-      ? isBalanceInsufficient(
-        threeXPageState.depositAmount,
-        threeXPageState.tokens[threeXPageState.selectedToken.input].claimableBalance,
-      )
-      : isBalanceInsufficient(
-        threeXPageState.depositAmount,
-        threeXPageState.tokens[threeXPageState.selectedToken.input].balance,
-      );
-  };
 
   return (
     <>
@@ -537,7 +517,7 @@ export default function ThreeX(): JSX.Element {
                     selectToken={selectToken}
                     mainAction={handleMainAction}
                     approve={approve}
-                    depositDisabled={isDepositDisabled()}
+                    depositDisabled={isDepositDisabled(threeXData, threeXPageState)}
                     hasUnclaimedBalances={hasClaimableBalances()}
                     butterPageState={[threeXPageState, setThreeXPageState]}
                     isThreeXPage
@@ -569,8 +549,11 @@ export default function ThreeX(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`${threeXData?.tokens?.threeX ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals) : "-"
-                  }`}
+                content={`${
+                  threeXData?.tokens?.threeX
+                    ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals)
+                    : "-"
+                }`}
                 icon={"3X"}
                 info={{
                   title: "Underlying Tokens",

@@ -116,7 +116,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
           )}
         </div>
       </div>
-      {balance && amount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}
+      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
     </>
   );
 };

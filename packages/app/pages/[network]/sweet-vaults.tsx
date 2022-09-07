@@ -23,6 +23,9 @@ export default function index(): JSX.Element {
   } = useWeb3();
   const { dispatch } = useContext(store);
   const [searchValue, setSearchValue] = useState("");
+  const [currentVaults, setCurrentVaults] = useState<string[]>();
+  const [slicePosition, setSlicePosition] = useState<number>(0);
+  const sliceAmount = 4;
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -57,14 +60,10 @@ export default function index(): JSX.Element {
 
   useEffect(() => {
     updateCurrentPage(slicePosition);
-  }, []);
-  const sliceAmount = 4;
-
-  const [currentVaults, setCurrentVaults] = useState<string[]>();
-  const [slicePosition, setSlicePosition] = useState<number>(0);
+  }, [contractAddresses?.sweetVaults]);
 
   const updateCurrentPage = (e) => {
-    if (contractAddresses?.sweetVaults && contractAddresses?.sweetVaults.length >= e) {
+    if (contractAddresses.sweetVaults && contractAddresses.sweetVaults.length >= e) {
       setSlicePosition(e);
       let vaults = [...contractAddresses?.sweetVaults];
       setCurrentVaults(vaults.splice(e, sliceAmount));
@@ -106,14 +105,15 @@ export default function index(): JSX.Element {
               <SweetVault key={address} address={address} searchString={searchValue} />
             ))}
           </div>
-
           <div className="hidden md:block">
-            <Pagination
-              sliceAmount={sliceAmount}
-              onUpdatePage={(e) => updateCurrentPage(e)}
-              lengthOfData={contractAddresses?.sweetVaults.length}
-              currentIndex={slicePosition}
-            />
+            {contractAddresses?.sweetVaults?.length && (
+              <Pagination
+                sliceAmount={sliceAmount}
+                onUpdatePage={(e) => updateCurrentPage(e)}
+                lengthOfData={contractAddresses?.sweetVaults?.length}
+                currentIndex={slicePosition}
+              />
+            )}
           </div>
         </div>
       </div>
