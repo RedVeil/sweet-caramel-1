@@ -127,6 +127,11 @@ const Footer = () => {
             <Link href="/rewards">
               <a className=" text-primary hover:text-black leading-6 mt-4">Rewards</a>
             </Link>
+            <Link href="https://popcorn-dao.gitbook.io/popcorndao-gitbook/about-popcorn/welcome-to-popcorn">
+              <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
+                Gitbook
+              </a>
+            </Link>
           </div>
         </div>
 
