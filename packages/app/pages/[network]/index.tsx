@@ -31,7 +31,7 @@ const IndexPage = ({ tvl }) => {
 export default IndexPage;
 
 export async function getServerSideProps({ req, res }) {
-  res.setHeader("Cache-Control", "s-maxage=86400");
+  res.setHeader("Cache-Control", "s-maxage=14400");
   const contractAddressesEth = getChainRelevantContracts(ChainId.Ethereum);
   const contractAddressesPoly = getChainRelevantContracts(ChainId.Polygon);
   const mainnetStakingTVL = await getStakingTVL(
@@ -56,10 +56,6 @@ export async function getServerSideProps({ req, res }) {
     contractAddressesEth.threeXBatch,
     PRC_PROVIDERS[ChainId.Ethereum],
   );
-  // const tvl = [Number(formatUnits(mainnetStakingTVL)), Number(formatUnits(polygonStakingTVL)), Number(formatUnits(butterTVL)), Number(formatUnits(threeXTVL))].reduce(
-  // 	(total, num) => total.add(num ? num : constants.Zero),
-  // 	constants.Zero,
-  // )
 
   const tvl =
     Number(formatUnits(mainnetStakingTVL)) +
