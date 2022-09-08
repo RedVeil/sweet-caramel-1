@@ -5,7 +5,7 @@ import { parseEther } from "ethers/lib/utils";
 import { getPopTokenPrice } from "hooks/useGetPopTokenPriceInUSD";
 import useSWR, { SWRResponse } from "swr";
 
-async function getStakingTVL(key, popLockerAddress: string, rpcProvider): Promise<BigNumber> {
+export async function getStakingTVL(key, popLockerAddress: string, rpcProvider): Promise<BigNumber> {
   const popLocker = new ethers.Contract(
     popLockerAddress,
     ["function lockedSupply() external view returns (uint256)"],

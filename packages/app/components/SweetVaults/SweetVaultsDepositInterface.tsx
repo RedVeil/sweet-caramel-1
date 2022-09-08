@@ -117,10 +117,10 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`z-0 bg-white rounded-lg w-full md:basis-108 shrink-0 p-6 mr-8 border border-gray-300 flex flex-col justify-between h-full`}
+      className={`z-0 bg-white rounded-lg w-full md:basis-108 shrink-0 p-6 mr-8 border border-gray-300 flex flex-col justify-between`}
     >
       <div>
-        <div className="mb-12 flex flex-col">
+        <div className="mb-12">
           <TokenInputToggle
             state={[interactionType !== InteractionType.Deposit, toggleInteractionType]}
             labels={["Deposit", "Withdraw"]}
