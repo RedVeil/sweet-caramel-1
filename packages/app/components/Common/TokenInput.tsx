@@ -1,4 +1,4 @@
-import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
 import TokenSelection from "components/SweetVaults/TokenSelection";
 import { BigNumber, constants } from "ethers";
@@ -35,7 +35,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
     if (amount.isZero()) {
       setDisplayAmount("");
     } else if (readonly) {
-      setDisplayAmount(formatUnits(amount, token?.decimals))
+      setDisplayAmount(formatUnits(amount, token?.decimals));
     }
   }, [amount]);
 
@@ -87,7 +87,15 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               spellCheck="false"
               readOnly={readonly}
             />
-            <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token.symbol}</p>
+            {tokenList.length > 0 ? (
+              <TokenSelection
+                selectedToken={token}
+                tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
+                selectToken={selectToken}
+              />
+            ) : (
+              <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token?.symbol}</p>
+            )}
           </div>
         </div>
       </div>
@@ -111,17 +119,11 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               >
                 MAX
               </div>
-              {tokenList.length > 0 && (
-                <TokenSelection
-                  selectedToken={token}
-                  tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
-                  selectToken={selectToken}
-                />
-              )}
             </>
           )}
         </div>
       </div>
+      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
     </>
   );
 };

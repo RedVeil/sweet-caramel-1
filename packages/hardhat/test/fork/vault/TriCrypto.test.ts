@@ -129,7 +129,14 @@ describe("Zapper Module Network Tests", function () {
     const vaultBal = await contracts.vault.balanceOf(owner.address);
     const ethBal = await owner.getBalance();
 
-    await zapper.zapIn({ address: ETH_ADDRESS, decimals: 18 }, contracts.vault, TRI_CRYPTO_POOL, parseUnits("1"), 0.03, false);
+    await zapper.zapIn(
+      { address: ETH_ADDRESS, decimals: 18 },
+      contracts.vault,
+      TRI_CRYPTO_POOL,
+      parseUnits("1"),
+      0.03,
+      false
+    );
 
     await expectValue((await contracts.vault.balanceOf(owner.address)).gt(vaultBal), true);
     await expectValue((await owner.getBalance()).lt(ethBal), true);
@@ -171,7 +178,14 @@ describe("Zapper Module Network Tests", function () {
     const vaultBal = await contracts.vault.balanceOf(owner.address);
     const ethBal = await owner.getBalance();
 
-    await zapper.zapOut({ address: ETH_ADDRESS, decimals: 18 }, contracts.vault, TRI_CRYPTO_POOL, vaultBal, 0.03, false);
+    await zapper.zapOut(
+      { address: ETH_ADDRESS, decimals: 18 },
+      contracts.vault,
+      TRI_CRYPTO_POOL,
+      vaultBal,
+      0.03,
+      false
+    );
 
     await expectValue((await contracts.vault.balanceOf(owner.address)).lt(vaultBal), true);
     await expectValue((await owner.getBalance()).gt(ethBal), true);

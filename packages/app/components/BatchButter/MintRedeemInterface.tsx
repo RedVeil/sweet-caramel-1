@@ -83,14 +83,14 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       {(localButterPageState.instant ||
         isInstantPage ||
         (!localButterPageState.redeeming && localButterPageState.useZap)) && (
-          <div className="w-full mt-6">
-            <SlippageSettings
-              slippage={localButterPageState.slippage}
-              setSlippage={setSlippage}
-              slippageOptions={[0.1, 0.5, 1]}
-            />
-          </div>
-        )}
+        <div className="w-full mt-6">
+          <SlippageSettings
+            slippage={localButterPageState.slippage}
+            setSlippage={setSlippage}
+            slippageOptions={[0.1, 0.5, 1]}
+          />
+        </div>
+      )}
       <hr className="mt-10 bg-customLightGray" />
       <div className="w-full text-center">
         {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
@@ -103,7 +103,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                   localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
                 )
               }
-              disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
+              disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
             />
           </div>
         )}
@@ -150,14 +150,14 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                   handleClick={() => {
                     mainAction(localButterPageState.depositAmount, BatchType.Mint, true);
                   }}
-                  disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                  disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
                 />
                 <SecondaryActionButton
                   label="Mint"
                   handleClick={() => {
                     mainAction(localButterPageState.depositAmount, BatchType.Mint, false);
                   }}
-                  disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                  disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
                 />
               </>
             ) : (
@@ -170,7 +170,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                     mainAction(localButterPageState.depositAmount, BatchType.Mint);
                   }
                 }}
-                disabled={depositDisabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
               />
             )}
           </div>

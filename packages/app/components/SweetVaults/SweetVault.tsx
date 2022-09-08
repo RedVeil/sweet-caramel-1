@@ -1,6 +1,8 @@
-import { Transition } from "@headlessui/react";
+import { Dialog, Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/outline";
 import { ERC20 } from "@popcorn/hardhat/typechain";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
+import SecondaryActionButton from "components/SecondaryActionButton";
 import { constants } from "ethers";
 import useSweetVault from "hooks/sweetvault/useSweetVault";
 import useTokenList from "hooks/sweetvault/useTokenList";
@@ -8,13 +10,13 @@ import useZeroXZapper from "hooks/sweetvault/useZeroXZapper";
 import useGetMultipleToken from "hooks/tokens/useGetMultipleToken";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { SweetVaultMetadata } from "../../../utils/src/types/index";
 import StatusWithLabel from "../Common/StatusWithLabel";
-import MainActionButton from "../MainActionButton";
-import SweetVaultInfoBox from "./SweetVaultInfoBox";
 import SweetVaultsDepositInterface from "./SweetVaultsDepositInterface";
+import SweetVaultsMobileTutorialSlider from "./SweetVaultsMobileTutorialSlider";
+import SweetVaultsSlider from "./SweetVaultsSlider";
 export interface SweetVaultProps {
   address: string;
   searchString: string;
@@ -46,6 +48,17 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   const metadata = sweetVault ? sweetVault.metadata : ({} as SweetVaultMetadata);
   const { name, underlyingToken, deposited, tvl, apy, curveLink, icon, displayText } = metadata;
 
+  const tutorialSteps = [
+    {
+      title: "About",
+      content: displayText?.token,
+    },
+    {
+      title: "Strategy",
+      content: displayText?.strategy,
+    },
+  ];
+
   async function revalidate(): Promise<void> {
     await Promise.all([revalidateTokenList(), revalidateVault(), revalidatePoolToken()]);
   }
@@ -56,15 +69,29 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
     }
   }, [address, zapper, underlyingToken]);
 
+  const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
+
   if (vaultLoading) {
     return (
       <>
-        <ContentLoader className="hidden md:block" viewBox="0 0 450 70">
-          <rect x="0" y="0" rx="10" ry="10" width="450" height="70" />
-        </ContentLoader>
-        <ContentLoader className="md:hidden" viewBox="0 0 450 600">
-          <rect x="0" y="0" rx="10" ry="10" width="450" height="600" />
-        </ContentLoader>
+        <div className="mt-10">
+          <ContentLoader
+            className="hidden md:block"
+            viewBox="0 0 450 70"
+            backgroundColor={"#EBE7D4"}
+            foregroundColor={"#d7d5bc"}
+          >
+            <rect x="0" y="0" rx="8" ry="8" width="450" height="70" />
+          </ContentLoader>
+          <ContentLoader
+            className="md:hidden"
+            viewBox="0 0 450 600"
+            backgroundColor={"#EBE7D4"}
+            foregroundColor={"#d7d5bc"}
+          >
+            <rect x="0" y="0" rx="8" ry="8" width="450" height="600" />
+          </ContentLoader>
+        </div>
       </>
     );
   } else if (searchString?.toLocaleLowerCase() && !name?.toLowerCase().includes(searchString?.toLowerCase())) {
@@ -72,60 +99,45 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   } else {
     return (
       <div
-        className={`${expanded
-          ? "bg-white rounded-3xl border border-gray-200 shadow-custom cursor-pointer h-200 smlaptop:h-138"
-          : "card h-104 md:h-60 delay-200"
-          } z-10 bg-gray-50 p-6 md:p-8 transition-all duration-700 ease-in-out`}
+        className={`${
+          expanded ? " h-160 smlaptop:h-156" : "h-100 md:h-72 delay-200"
+        } bg-white border-b border-customLightGray cursor-pointer z-10 py-6 md:p-8 transition-all duration-700 ease-in-out hover:scale-102 transform`}
         onClick={() => {
           setExpanded(!expanded);
         }}
       >
         <div className="w-full flex flex-row flex-wrap md:flex-nowrap items-center justify-between">
-          <div className="flex flex-col w-full overflow-visible mb-8 md:mb-0">
+          <div className="flex justify-between w-full mb-8 md:mb-0">
             <div className="flex items-center flex-row">
-              <div className="flex items-center rounded-full bg-white border border-gray-300 w-6 h-6 md:w-12 md:h-12 flex-shrink-0 flex-grow-0">
-                <img src={icon} alt={`${name}-icon`} className="w-3 h-3 md:w-7 md:h-7 mx-auto md:ml-2.5" />
-              </div>
-              <h3 className="secondary-title ml-4 ">{name}</h3>
+              <img src={icon} alt={`${name}-icon`} className="w-10 h-10" />
+              <h3 className=" text-4xl leading-10 ml-2 ">{name}</h3>
             </div>
-            <div className="flex flex-row flex-wrap items-center md:items-start mt-6 justify-between relative z-30 bg-gray-50">
-              <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
-                <StatusWithLabel
-                  content={formatAndRoundBigNumber(underlyingToken?.balance, underlyingToken?.decimals)}
-                  label="Your Wallet"
-                  green
-                />
-              </div>
-              <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
-                <StatusWithLabel content={formatAndRoundBigNumber(deposited, sweetVault?.metadata?.decimals)} label="Your Deposit" />
-              </div>
-              <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
-                <StatusWithLabel content={apy?.toLocaleString() + "%"} label="Est apy." />
-              </div>
-              <div className="w-1/2 flex flex-col md:items-start md:w-1/4 mt-4">
-                <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="tvl" />
-              </div>
-            </div>
+            <ChevronDownIcon
+              className={`${
+                expanded ? "rotate-180" : "rotate-0"
+              } transform transition-all ease-in-out w-6 text-secondaryLight`}
+            />
           </div>
-          <div className="flex flex-col md:flex-row md:w-auto w-full h-full self-start ">
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="whitespace-nowrap mb-4 md:mb-0 md:mr-4 flex flex-row w-full h-full"
-            >
-              {curveLink && (
-                <Link href={curveLink} passHref>
-                  <a
-                    className="w-full h-hull mb-3 sm:mb-0 py-3 px-6 flex flex-row items-center justify-center rounded-full bg-white border border-blue-600 text-blue-600 font-medium hover:bg-blue-600 hover:text-white disabled:bg-gray-300"
-                    target="_blank"
-                  >
-                    Get Token
-                  </a>
-                </Link>
-              )}
-            </div>
-            <div className="whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-              <MainActionButton label="Deposit/Withdraw" handleClick={async () => setExpanded(true)} />
-            </div>
+        </div>
+        <div className="grid grid-cols-12 md:gap-x-10 gap-y-6 mt-6 relative z-30 bg-white">
+          <div className="col-span-12 md:col-span-6">
+            <StatusWithLabel
+              content={formatAndRoundBigNumber(underlyingToken?.balance, underlyingToken?.decimals)}
+              label="Your Wallet"
+              green
+            />
+          </div>
+          <div className="col-span-12 md:col-span-6">
+            <StatusWithLabel
+              content={formatAndRoundBigNumber(deposited, sweetVault?.metadata?.decimals)}
+              label="Your Deposit"
+            />
+          </div>
+          <div className="col-span-6 md:col-span-6">
+            <StatusWithLabel content={apy?.toLocaleString() + "%"} label="Est apy." />
+          </div>
+          <div className="col-span-6 md:col-span-6">
+            <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="tvl" />
           </div>
         </div>
         <Transition
@@ -137,25 +149,70 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
           leaveFrom="transform translate-y-0 opacity-100"
           leaveTo="transform -translate-y-10 md:-translate-y-16 opacity-0"
         >
-          <div className={`mt-10 max-h-2xl w-full flex flex-col md:flex-row`} onClick={(e) => e.stopPropagation()}>
+          <div className={`mt-10 max-h-2xl grid grid-cols-12 md:gap-8`} onClick={(e) => e.stopPropagation()}>
             {tokenList?.length && (
-              <SweetVaultsDepositInterface
-                sweetVault={sweetVault}
-                zapper={zapper}
-                poolToken={poolToken}
-                defaultTokenList={tokenList?.filter((stable) => stable.balance.gt(constants.Zero))}
-                revalidate={revalidate}
-              />
+              <div className="col-span-12 md:col-span-6">
+                <SweetVaultsDepositInterface
+                  sweetVault={sweetVault}
+                  zapper={zapper}
+                  poolToken={poolToken}
+                  defaultTokenList={tokenList?.filter((stable) => stable.balance.gt(constants.Zero))}
+                  revalidate={revalidate}
+                />
+              </div>
             )}
-            <div onClick={(e) => e.stopPropagation()} className={`w-full flex flex-col space-y-8 mt-8 md:mt-0`}>
-              <SweetVaultInfoBox titleText="About" bodyText={displayText?.token} />
-              <SweetVaultInfoBox titleText="Strategy" bodyText={displayText?.strategy} />
+            <div className="col-span-12 md:col-span-6">
+              <div className="hidden md:block">
+                <SweetVaultsSlider tutorialSteps={tutorialSteps} />
+              </div>
+              <div onClick={(e) => e.stopPropagation()} className="flex gap-6">
+                {curveLink && (
+                  <Link href={curveLink} passHref>
+                    <a className="block border border-customLightGray rounded-lg px-6 py-6 mt-8 basis-1/2 md:basis-full">
+                      <div className="hidden md:block">
+                        <SecondaryActionButton label="Get token" />
+                      </div>
+                      <div className="md:hidden">
+                        <SecondaryActionButton label="Buy" />
+                      </div>
+                    </a>
+                  </Link>
+                )}
+                <div className="md:hidden border border-customLightGray rounded-lg px-6 py-6 mt-8 basis-1/2">
+                  <SecondaryActionButton label="Learn" handleClick={() => toggleMobileTutorial(true)} />
+                </div>
+              </div>
             </div>
           </div>
         </Transition>
+
+        <Transition.Root show={showMobileTutorial} as={Fragment}>
+          <Dialog as="div" className="fixed inset-0 overflow-hidden z-40" onClose={() => toggleMobileTutorial(false)}>
+            <Dialog.Overlay className="absolute inset-0 overflow-hidden">
+              <Transition.Child
+                as={Fragment}
+                enter="transform transition ease-in-out duration-500 sm:duration-700"
+                enterFrom="translate-x-full"
+                enterTo="translate-x-0"
+                leave="transform transition ease-in-out duration-500 sm:duration-700"
+                leaveFrom="translate-x-0"
+                leaveTo="translate-x-full"
+              >
+                <div className="w-screen">
+                  <SweetVaultsMobileTutorialSlider
+                    tutorialSteps={tutorialSteps}
+                    onCloseMenu={(e) => {
+                      e.stopPropagation();
+                      toggleMobileTutorial(false);
+                    }}
+                  />
+                </div>
+              </Transition.Child>
+            </Dialog.Overlay>
+          </Dialog>
+        </Transition.Root>
       </div>
     );
   }
 };
-
 export default SweetVault;

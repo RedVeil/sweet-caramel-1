@@ -117,35 +117,37 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`z-0 flex justify-between flex-col bg-white rounded-3xl w-full md:w-1/2 md:min-w-280 p-6 mr-8 border border-gray-300 shadow-custom`}
+      className={`z-0 bg-white rounded-lg w-full md:basis-108 shrink-0 p-6 mr-8 border border-gray-300 flex flex-col justify-between h-full`}
     >
-      <div className="mb-12 flex flex-col">
-        <TokenInputToggle
-          state={[interactionType !== InteractionType.Deposit, toggleInteractionType]}
-          labels={["Deposit", "Withdraw"]}
-        />
+      <div>
+        <div className="mb-12 flex flex-col">
+          <TokenInputToggle
+            state={[interactionType !== InteractionType.Deposit, toggleInteractionType]}
+            labels={["Deposit", "Withdraw"]}
+          />
+        </div>
+        {interactionType === InteractionType.Deposit ? (
+          <TokenInput
+            label={"Deposit"}
+            token={selectedToken}
+            amount={inputAmount}
+            balance={selectedToken?.balance}
+            setAmount={setInputAmount}
+            tokenList={tokenList}
+            //TODO potentially make TokenSelection explicit
+            selectToken={selectToken}
+          />
+        ) : (
+          <TokenInput
+            label={"Withdraw"}
+            token={vaultToken}
+            amount={inputAmount}
+            balance={vault?.balance}
+            setAmount={setInputAmount}
+            tokenList={[vaultToken]}
+          />
+        )}
       </div>
-      {interactionType === InteractionType.Deposit ? (
-        <TokenInput
-          label={"Deposit"}
-          token={selectedToken}
-          amount={inputAmount}
-          balance={selectedToken?.balance}
-          setAmount={setInputAmount}
-          tokenList={tokenList}
-          //TODO potentially make TokenSelection explicit
-          selectToken={selectToken}
-        />
-      ) : (
-        <TokenInput
-          label={"Withdraw"}
-          token={vaultToken}
-          amount={inputAmount}
-          balance={vault?.balance}
-          setAmount={setInputAmount}
-          tokenList={[vaultToken]}
-        />
-      )}
       <div className="relative">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
           <div className="w-full border-t border-gray-300" />
@@ -163,97 +165,101 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
           </div>
         </div>
       </div>
-      {interactionType === InteractionType.Deposit ? (
-        <FakeInputField
-          inputValue={Number(formatUnits(inputAmount, selectedToken?.decimals)) / assetsPerShare}
-          children={
-            <span className="flex flex-row items-center justify-end py-1">
-              <Image priority={true} className="w-5 mr-1" src={vault?.icon} width="20" height="20" />
-              <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700 ml-2">{vault?.symbol}</p>
-            </span>
-          }
-        />
-      ) : (
-        <FakeInputField
-          inputValue={assetsPerShare * Number(formatUnits(inputAmount, vault?.decimals))}
-          children={
-            <TokenSelection
-              tokenList={tokenList.filter((token) => token?.address !== selectedTokenAddress)}
-              selectedToken={selectedToken}
-              selectToken={selectToken}
-            />
-          }
-        />
-      )}
-      {!!defaultTokenList?.find((token) => token?.address === selectedTokenAddress) && (
-        <div className="w-full mt-2">
-          <SlippageSettings slippage={slippage} setSlippage={setSlippage} slippageOptions={[1, 2, 3]} />
-        </div>
-      )}
-      <div className="w-full text-center mt-6 lglaptop:mt-8 xl:mt-10 2xl:mt-12">
+      <div>
         {interactionType === InteractionType.Deposit ? (
-          <SweetVaultButton
-            mainActionLabel="Deposit"
-            mainAction={() =>
-              deposit(
-                inputAmount,
-                slippage,
-                sweetVault,
-                zapper,
-                selectedToken,
-                revalidate,
-                resetInput,
-                onContractSuccess,
-                onContractError,
-                signer,
-                rpcProvider,
-              )
+          <FakeInputField
+            inputValue={Number(formatUnits(inputAmount, selectedToken?.decimals)) / assetsPerShare}
+            children={
+              <span className="flex flex-row items-center justify-end py-1">
+                <Image priority={true} className="w-5 mr-1" src={vault?.icon} width="20" height="20" />
+                <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700 ml-2">
+                  {vault?.symbol}
+                </p>
+              </span>
             }
-            approve={() =>
-              approve(
-                selectedToken === vault?.underlyingToken ? (contract as Vault) : zapper?.zapper,
-                selectedToken,
-                revalidate,
-                signer,
-                approveToken,
-              )
-            }
-            inputAmount={inputAmount}
-            allowance={selectedToken?.allowance}
-            selectedToken={selectedToken}
           />
         ) : (
-          <SweetVaultButton
-            mainActionLabel="Withdraw"
-            mainAction={() =>
-              withdraw(
-                inputAmount,
-                slippage,
-                sweetVault,
-                zapper,
-                selectedToken,
-                revalidate,
-                resetInput,
-                onContractSuccess,
-                onContractError,
-                signer,
-                rpcProvider,
-              )
+          <FakeInputField
+            inputValue={assetsPerShare * Number(formatUnits(inputAmount, vault?.decimals))}
+            children={
+              <TokenSelection
+                tokenList={tokenList.filter((token) => token?.address !== selectedTokenAddress)}
+                selectedToken={selectedToken}
+                selectToken={selectToken}
+              />
             }
-            approve={() =>
-              approve(
-                selectedTokenAddress === vaultToken.address ? (contract as Vault) : zapper?.zapper,
-                vaultToken,
-                selectedTokenAddress === vaultToken.address ? revalidate : mutate,
-                signer,
-                approveToken,
-              )
-            }
-            inputAmount={inputAmount}
-            allowance={selectedTokenAddress === vaultToken.address ? selectedToken?.allowance : vaultZapperAllowance}
-            selectedToken={vaultToken}
           />
         )}
+        {!!defaultTokenList?.find((token) => token?.address === selectedTokenAddress) && (
+          <div className="w-full mt-2">
+            <SlippageSettings slippage={slippage} setSlippage={setSlippage} slippageOptions={[1, 2, 3]} />
+          </div>
+        )}
+        <div className="w-full text-center mt-6 lglaptop:mt-8 xl:mt-10 2xl:mt-12">
+          {interactionType === InteractionType.Deposit ? (
+            <SweetVaultButton
+              mainActionLabel="Deposit"
+              mainAction={() =>
+                deposit(
+                  inputAmount,
+                  slippage,
+                  sweetVault,
+                  zapper,
+                  selectedToken,
+                  revalidate,
+                  resetInput,
+                  onContractSuccess,
+                  onContractError,
+                  signer,
+                  rpcProvider,
+                )
+              }
+              approve={() =>
+                approve(
+                  selectedToken === vault?.underlyingToken ? (contract as Vault) : zapper?.zapper,
+                  selectedToken,
+                  revalidate,
+                  signer,
+                  approveToken,
+                )
+              }
+              inputAmount={inputAmount}
+              allowance={selectedToken?.allowance}
+              selectedToken={selectedToken}
+            />
+          ) : (
+            <SweetVaultButton
+              mainActionLabel="Withdraw"
+              mainAction={() =>
+                withdraw(
+                  inputAmount,
+                  slippage,
+                  sweetVault,
+                  zapper,
+                  selectedToken,
+                  revalidate,
+                  resetInput,
+                  onContractSuccess,
+                  onContractError,
+                  signer,
+                  rpcProvider,
+                )
+              }
+              approve={() =>
+                approve(
+                  selectedTokenAddress === vaultToken.address ? (contract as Vault) : zapper?.zapper,
+                  vaultToken,
+                  selectedTokenAddress === vaultToken.address ? revalidate : mutate,
+                  signer,
+                  approveToken,
+                )
+              }
+              inputAmount={inputAmount}
+              allowance={selectedTokenAddress === vaultToken.address ? selectedToken?.allowance : vaultZapperAllowance}
+              selectedToken={vaultToken}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

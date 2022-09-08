@@ -12,6 +12,7 @@ import MainActionButton from "components/MainActionButton";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
+import { isDepositDisabled } from "helper/isDepositDisabled";
 import useButterWhaleData from "hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
@@ -19,13 +20,7 @@ import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
-import {
-  ButterPageState,
-  DEFAULT_BUTTER_PAGE_STATE,
-  getZapDepositAmount,
-  isDepositDisabled,
-  TOKEN_INDEX,
-} from "./butter";
+import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE, getZapDepositAmount, TOKEN_INDEX } from "./butter";
 
 export default function InstantButter() {
   const {
@@ -265,10 +260,7 @@ export default function InstantButter() {
               selectToken={selectToken}
               mainAction={handleMainAction}
               approve={approve}
-              depositDisabled={isDepositDisabled(
-                butterPageState.depositAmount,
-                butterPageState.tokens[butterPageState.selectedToken.input].balance,
-              )}
+              depositDisabled={isDepositDisabled(butterData, butterPageState)}
               hasUnclaimedBalances={false}
               butterPageState={[butterPageState, setButterPageState]}
               isInstantPage

@@ -1,8 +1,6 @@
-import getNamedAccounts from "@popcorn/hardhat/lib/utils/getNamedAccounts";
+import namedAccounts from "@popcorn/hardhat/lib/utils/namedAccounts.json";
 import { HardhatConfigNetworks, HardhatConfigNetworksChainIdMapping } from "@popcorn/utils/src/connectors";
 import { ERC20Metadata, SweetVaultMetadata } from "@popcorn/utils/types";
-
-const namedAccounts = getNamedAccounts();
 
 const {
   xPop,
@@ -36,7 +34,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "xPOP",
       symbol: "xPOP",
-      icon: "/images/icons/popLogo.png",
+      icon: "/images/icons/POP.svg",
     },
   },
   {
@@ -52,7 +50,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "Popcorn",
       symbol: "POP",
-      icon: "/images/icons/popLogo.png",
+      icon: "/images/icons/POP.svg",
     },
   },
   {
@@ -72,7 +70,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "POP",
       symbol: "POP",
-      icon: "/images/icons/popLogo.png",
+      icon: "/images/icons/POP.svg",
     },
   },
   {
@@ -167,7 +165,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "crv-sETH/ETH LP",
       symbol: "crv-sETH/ETH",
-      icon: "/images/tokens/crvSEth.png",
+      icon: "/images/tokens/crvSeth.png",
     },
   },
   {
@@ -183,7 +181,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "ETH/sETH Vault",
       symbol: "pop-ETH/sETH",
-      icon: "/images/tokens/crvSEth.png",
+      icon: "/images/tokens/crvSeth.png",
       displayText: {
         strategy: `Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.`,
         token: `This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform.`,

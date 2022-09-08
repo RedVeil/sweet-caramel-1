@@ -11,7 +11,7 @@ import SelectToken from "./SelectToken";
 export interface ButterTokenInputProps {
   token: Tokens;
   selectToken: (token: BatchProcessTokenKey) => void;
-  depositDisabled: boolean;
+  depositDisabled: { disabled: boolean; errorMessage: string };
   butterPageState: [ButterPageState, Dispatch<ButterPageState>];
   hasUnclaimedBalances?: boolean;
 }
@@ -162,37 +162,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           />
         )}
 
-        {localButterPageState.depositAmount.gt(
-          localButterPageState.useUnclaimedDeposits
-            ? selectedToken.input.claimableBalance
-            : selectedToken.input.balance,
-        ) && <p className="text-customRed pt-2 leading-6">*Insufficient balance</p>}
-        <div className="flex justify-between items-center mt-2">
-          <div className="flex items-center">
-            <img src="/images/wallet.svg" alt="3x" width="20" height="20" className="mr-2" />
-            <p className="text-secondaryLight">
-              {`${formatAndRoundBigNumber(
-                localButterPageState.useUnclaimedDeposits
-                  ? selectedToken.input.claimableBalance
-                  : selectedToken.input.balance,
-                selectedToken.input.decimals,
-              )}`}
-            </p>
-          </div>
-          <button
-            className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
-            onClick={(e) => {
-              const maxAmount = localButterPageState.useUnclaimedDeposits
-                ? selectedToken.input.claimableBalance
-                : selectedToken.input.balance;
-              calcOutputAmountsFromInput(maxAmount);
-              setButterPageState({ ...localButterPageState, depositAmount: maxAmount });
-              ref.current = Number(formatEther(maxAmount)).toFixed(3);
-            }}
-          >
-            MAX
-          </button>
-        </div>
+        {depositDisabled?.disabled && <p className="text-customRed pt-2 leading-6">{depositDisabled?.errorMessage}</p>}
       </div>
       <div className="relative -mt-10 -mb-10">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">

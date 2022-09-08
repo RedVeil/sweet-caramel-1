@@ -49,7 +49,6 @@ export default function MyApp(props) {
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
-      console.log("end");
       setLoading(false);
     }, 2000);
     Router.events.on("routeChangeStart", () => {
@@ -74,7 +73,7 @@ export default function MyApp(props) {
   return (
     <React.Fragment>
       <Head>
-        <title>Popcorn - DeFi for the People</title>
+        <title>{title}</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
         <meta name="description" content={description} />
 

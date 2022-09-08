@@ -1,6 +1,7 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { CardLoader } from "components/CardLoader";
+import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
 import { NotAvailable } from "components/Rewards/NotAvailable";
@@ -261,17 +262,7 @@ export default function index(): JSX.Element {
       {account && (
         <div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
           <div className="col-span-12 md:col-span-4">
-            <div className="rounded-lg p-8 bg-customYellow md:h-104 flex flex-row md:flex-col justify-between">
-              <p className="text-2xl md:text-8xl leading-6 md:leading-13">
-                Connect <br />
-                Deposit <br />
-                Do well <br />
-                Do good
-              </p>
-              <div className="flex flex-col md:flex-row justify-end">
-                <img src="/images/smiley.svg" alt="" />
-              </div>
-            </div>
+            <ConnectDepositCard extraClasses="md:h-104" />
           </div>
           <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10">
             <div>
@@ -344,9 +335,9 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowsFetchResult ||
-                  !userEscrowsFetchResult?.data ||
-                  userEscrowsFetchResult?.error ||
-                  userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                !userEscrowsFetchResult?.data ||
+                userEscrowsFetchResult?.error ||
+                userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>
@@ -354,7 +345,10 @@ export default function index(): JSX.Element {
                       <div className="flex flex-col h-full">
                         <div className="flex flex-col md:flex-row gap-8 w-full my-8">
                           <RewardSummaryCard
-                            content={`${formatAndRoundBigNumber(userEscrowsFetchResult?.data?.totalVestingPop, 18)} POP`}
+                            content={`${formatAndRoundBigNumber(
+                              userEscrowsFetchResult?.data?.totalVestingPop,
+                              18,
+                            )} POP`}
                             title={"Total Vesting"}
                             iconUri="/images/lock.svg"
                             infoIconProps={{
@@ -366,7 +360,10 @@ export default function index(): JSX.Element {
                             }}
                           />
                           <RewardSummaryCard
-                            content={`${formatAndRoundBigNumber(userEscrowsFetchResult?.data?.totalClaimablePop, 18)} POP`}
+                            content={`${formatAndRoundBigNumber(
+                              userEscrowsFetchResult?.data?.totalClaimablePop,
+                              18,
+                            )} POP`}
                             title={"Total Claimable"}
                             iconUri="/images/yellowCircle.svg"
                             button={true}
