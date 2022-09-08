@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@ecmendenhall/forge-std/src/Test.sol";
+import "forge-std/Test.sol";
 
 import "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
 import { VaultParams } from "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
