@@ -9,7 +9,6 @@ const TriggerTakedownProposal: React.FC = () => {
     dispatch(
       setDualActionModal({
         visible: true,
-        progress: true,
       }),
     );
   };

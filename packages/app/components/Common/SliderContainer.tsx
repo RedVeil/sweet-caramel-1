@@ -2,6 +2,7 @@ import React from "react";
 import Slider from "react-slick";
 
 interface Props {
+  children: JSX.Element[];
   slidesToShow?: number;
 }
 

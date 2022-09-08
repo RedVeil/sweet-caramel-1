@@ -5,7 +5,7 @@ import DualActionWideModal from "./DualActionWideModal";
 export const DualActionWideModalContainer: React.FC = () => {
   const {
     state: {
-      dualActionWideModal: { visible, title, content, progress, onDismiss, onConfirm },
+      dualActionWideModal: { visible, title, content, progress, onDismiss, onConfirm, image, keepOpen },
     },
   } = useContext(store);
   return (
@@ -16,6 +16,8 @@ export const DualActionWideModalContainer: React.FC = () => {
       progress={progress}
       onDismiss={onDismiss}
       onConfirm={onConfirm}
+      image={image}
+      keepOpen={keepOpen}
     />
   );
 };

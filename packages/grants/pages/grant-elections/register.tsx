@@ -1,11 +1,11 @@
 import { Web3Provider } from "@ethersproject/providers";
+import { ElectionTerm } from "@popcorn/hardhat";
 import { useWeb3React } from "@web3-react/core";
 import Icon from "components/Icon";
 import SingleActionModal from "components/Modal/SingleActionModal";
 import Navbar from "components/NavBar/NavBar";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { store } from "../../context/store";
 import { connectors } from "../../context/Web3/connectors";
 import { ContractsContext } from "../../context/Web3/contracts";
 import { ElectionsContext } from "../../context/Web3/elections";
@@ -15,18 +15,17 @@ export default function Register(): JSX.Element {
   const { library, account, activate } = context;
   const { contracts } = useContext(ContractsContext);
   const { elections } = useContext(ElectionsContext);
-  const { dispatch } = useContext(store);
   const [wait, setWait] = useState<boolean>(false);
   const [registerStatus, setRegisterStatus] = useState<"success" | "error" | "none">("none");
   const [allowedToRegister, setRegistrationAllowance] = useState<boolean[]>([false, false, false]);
 
-  function registerForElection(grant_term) {
+  function registerForElection(grantTerm: ElectionTerm) {
     // Register for selected election
     setWait(true);
     toast.loading("Registering for election...");
     let connected = contracts.grantElections.connect(library.getSigner());
     connected
-      .registerForElection(account, grant_term)
+      .registerForElection(account, grantTerm)
       .then((res) => {
         toast.success("You are registered!");
         setWait(false);

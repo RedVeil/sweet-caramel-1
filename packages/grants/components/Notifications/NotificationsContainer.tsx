@@ -13,9 +13,9 @@ const NotificationsContainer: React.FC = () => {
   } = useContext(store);
 
   useEffect(() => {
-    const timeouts = [];
+    const timeouts: NodeJS.Timeout[] = [];
     const intId = setInterval(() => {
-      notifications.map((notification) => {
+      notifications.forEach((notification) => {
         if (notification.isFlash) {
           const id = setTimeout(() => {
             dispatch(hideNotification(notification.id));
@@ -27,7 +27,7 @@ const NotificationsContainer: React.FC = () => {
 
     return () => {
       clearInterval(intId);
-      timeouts.map((timeout) => clearTimeout(timeout));
+      timeouts.forEach((timeout) => clearTimeout(timeout));
     };
   }, [notifications]);
 

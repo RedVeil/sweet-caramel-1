@@ -7,7 +7,7 @@ interface FilterGrantRoundsProps {
 }
 
 const FilterGrantRounds: React.FC<FilterGrantRoundsProps> = ({ grantRoundFilter, setGrantRoundFilter }) => {
-  function filterGrantRounds(key: string): void {
+  function filterGrantRounds(key: "active" | "closed"): void {
     const shallow = { ...grantRoundFilter };
     shallow[key] = !shallow[key];
     setGrantRoundFilter(shallow);
@@ -16,15 +16,20 @@ const FilterGrantRounds: React.FC<FilterGrantRoundsProps> = ({ grantRoundFilter,
   return (
     <span className="flex flex-row items-center space-x-2">
       <p>Show:</p>
-      {Object.keys(grantRoundFilter)?.map((key) => (
+      {["active", "closed"].map((grantsRoundStatus: "active" | "closed") => (
         <label
-          key={key}
+          key={grantsRoundStatus}
           className="flex flex-row items-center space-x-1 cursor-pointer"
-          htmlFor={`show-${key}-elections`}
-          onClick={() => filterGrantRounds(key)}
+          htmlFor={`show-${grantsRoundStatus}-elections`}
+          onClick={() => filterGrantRounds(grantsRoundStatus)}
         >
-          <input id={`show-${key}-elections`} type="checkbox" checked={grantRoundFilter[key]} readOnly />
-          <p>{key}</p>
+          <input
+            id={`show-${grantsRoundStatus}-elections`}
+            type="checkbox"
+            checked={grantRoundFilter[grantsRoundStatus]}
+            readOnly
+          />
+          <p>{grantsRoundStatus}</p>
         </label>
       ))}
     </span>

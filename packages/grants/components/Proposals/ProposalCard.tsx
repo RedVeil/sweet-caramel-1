@@ -20,8 +20,8 @@ const ProposalCard: React.FC<ProposalCardProps> = ({ proposal, proposalType = 0 
         <a>
           <CardBody
             image={proposal?.application?.files?.profileImage}
-            name={proposal?.application?.organizationName.data}
-            missionStatement={proposal?.application?.missionStatement.data}
+            organizationName={proposal?.application?.organizationName}
+            missionStatement={proposal?.application?.missionStatement}
           />
           <div className="relative">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">

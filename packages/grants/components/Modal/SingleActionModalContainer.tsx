@@ -11,8 +11,12 @@ export const SingleActionModalContainer: React.FC = () => {
       visible={singleActionModal.visible}
       title={singleActionModal.title}
       content={singleActionModal.content}
+      children={singleActionModal.children}
+      image={singleActionModal.image}
       type={singleActionModal.type}
+      onDismiss={singleActionModal.onDismiss}
       onConfirm={singleActionModal.onConfirm}
+      keepOpen={singleActionModal.keepOpen}
     />
   );
 };

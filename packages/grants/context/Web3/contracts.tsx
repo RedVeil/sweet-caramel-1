@@ -1,13 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { ContractAddresses } from "@popcorn/utils/types";
-import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
-import {
-  NoEthereumProviderError,
-  UserRejectedRequestError as UserRejectedRequestErrorInjected,
-} from "@web3-react/injected-connector";
-import activateRPCNetwork from "helper/activateRPCNetwork";
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { getChainRelevantContracts } from "../../../hardhat/lib/utils/getContractAddresses";
+import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import {
   BeneficiaryGovernance,
   BeneficiaryGovernance__factory,
@@ -23,10 +15,18 @@ import {
   IUniswapV2Router02__factory,
   RewardsManager,
   RewardsManager__factory,
-} from "../../../hardhat/typechain";
+} from "@popcorn/hardhat/typechain";
+import { ContractAddresses } from "@popcorn/utils/types";
+import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
+import {
+  NoEthereumProviderError,
+  UserRejectedRequestError as UserRejectedRequestErrorInjected,
+} from "@web3-react/injected-connector";
+import activateRPCNetwork from "helper/activateRPCNetwork";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { setSingleActionModal } from "../actions";
 import { store } from "../store";
-import { networkMap } from "./connectors";
+import { ChainId, networkMap } from "./connectors";
 
 export interface Contracts {
   staking?: GovStaking;
@@ -54,7 +54,9 @@ function getErrorMessage(error: Error) {
   if (error instanceof NoEthereumProviderError) {
     return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
   } else if (error instanceof UnsupportedChainIdError) {
-    return `You're connected to an unsupported network. Please connect to ${networkMap[Number(process.env.CHAIN_ID)]}.`;
+    return `You're connected to an unsupported network. Please connect to ${
+      networkMap[Number(process.env.CHAIN_ID) as ChainId]
+    }.`;
   } else if (error instanceof UserRejectedRequestErrorInjected) {
     return "Please authorize this website to access your Ethereum account.";
   } else {
@@ -63,7 +65,7 @@ function getErrorMessage(error: Error) {
   }
 }
 
-const initializeContracts = (contractAddresses: ContractAddresses, library): Contracts => {
+const initializeContracts = (contractAddresses: ContractAddresses, library: Web3Provider): Contracts => {
   const {
     pop,
     threeCrv,
@@ -73,9 +75,7 @@ const initializeContracts = (contractAddresses: ContractAddresses, library): Con
     uniswapRouter,
     beneficiaryGovernance,
     govStaking,
-  } = {
-    ...contractAddresses,
-  };
+  } = contractAddresses;
   const contracts: Contracts = {
     staking: govStaking ? GovStaking__factory.connect(govStaking, library) : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
@@ -128,14 +128,11 @@ export default function ContractsWrapper({ children }: ContractsWrapperProps): J
 
   useEffect(() => {
     if (!library || !chainId || chainId === undefined) {
-      return () => {
-        setContracts({});
-      };
+      setContracts({});
+    } else {
+      const contractAddresses = getChainRelevantContracts(chainId);
+      setContracts(initializeContracts(contractAddresses, library));
     }
-
-    const contractAddresses = getChainRelevantContracts(chainId);
-    const contracts = initializeContracts(contractAddresses, library);
-    setContracts(contracts);
   }, [library, active, chainId]);
 
   return (

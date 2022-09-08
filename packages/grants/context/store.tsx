@@ -1,31 +1,58 @@
 import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "components/Modal/DualActionWideModal";
-import { DefaultSingleActionModalProps } from "components/Modal/SingleActionModal";
+import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "components/Modal/MobileFullScreenModal";
+import {
+  DefaultMultiChoiceActionModalProps,
+  MultiChoiceActionModalProps,
+} from "components/Modal/MultiChoiceActionModal";
+import {
+  DefaultNetworkChangePromptModalProps,
+  NetworkChangePromptModalProps,
+} from "components/Modal/NetworkChangePromptModal";
+import { DefaultSingleActionModalProps, SingleActionModalProps } from "components/Modal/SingleActionModal";
 import { NotificationProps } from "components/Notifications/NotificationProps";
 import React, { createContext, useReducer } from "react";
 import { DefaultDualActionModalProps, DualActionModalProps } from "../components/Modal/DualActionModal";
-import { SingleActionModalProps } from "../components/Modal/SingleActionModal";
+import {} from "../components/Modal/SingleActionModal";
 import {
   AppActions,
   CLEAR_NOTIFICATIONS,
   DUAL_ACTION_MODAL,
   DUAL_ACTION_WIDE_MODAL,
+  HIDE_GLOBAL_LOADER,
   HIDE_NOTIFICATION,
+  MOBILE_FULL_SCREEN_MODAL,
+  MULTI_CHOICE_ACTION_MODAL,
+  NETWORK_CHANGE_PROMPT_MODAL,
   PUSH_NOTIFICATION,
+  SHOW_GLOBAL_LOADER,
   SINGLE_ACTION_MODAL,
   UNSET_NOTIFICATION,
 } from "./actions";
 
 interface DefaultState {
   notifications: NotificationProps[];
+  mobileFullScreenModal: MobileFullScreenModalProps;
   singleActionModal: SingleActionModalProps;
+  multiChoiceActionModal: MultiChoiceActionModalProps;
   dualActionModal: DualActionModalProps;
+  networkChangePromptModal: NetworkChangePromptModalProps;
   dualActionWideModal: DualActionWideModalProps;
+  globalLoaderVisible?: boolean;
 }
 
 const initialState: DefaultState = {
   notifications: [],
+  mobileFullScreenModal: {
+    ...DefaultMobileFullScreenModalProps,
+  },
   singleActionModal: {
     ...DefaultSingleActionModalProps,
+  },
+  multiChoiceActionModal: {
+    ...DefaultMultiChoiceActionModalProps,
+  },
+  networkChangePromptModal: {
+    ...DefaultNetworkChangePromptModalProps,
   },
   dualActionModal: {
     ...DefaultDualActionModalProps,
@@ -43,7 +70,7 @@ const store = createContext(
 );
 const { Provider } = store;
 
-const StateProvider = ({ children }) => {
+const StateProvider = ({ children }: { children: React.ReactElement }) => {
   const [state, dispatch] = useReducer((state: DefaultState, action: AppActions) => {
     switch (action.type) {
       case PUSH_NOTIFICATION:
@@ -78,10 +105,31 @@ const StateProvider = ({ children }) => {
             }),
           ],
         };
+      case MOBILE_FULL_SCREEN_MODAL:
+        return {
+          ...state,
+          mobileFullScreenModal: {
+            ...action.payload,
+          },
+        };
       case SINGLE_ACTION_MODAL:
         return {
           ...state,
           singleActionModal: {
+            ...action.payload,
+          },
+        };
+      case MULTI_CHOICE_ACTION_MODAL:
+        return {
+          ...state,
+          multiChoiceActionModal: {
+            ...action.payload,
+          },
+        };
+      case NETWORK_CHANGE_PROMPT_MODAL:
+        return {
+          ...state,
+          networkChangePromptModal: {
             ...action.payload,
           },
         };
@@ -98,6 +146,12 @@ const StateProvider = ({ children }) => {
           dualActionWideModal: {
             ...action.payload,
           },
+        };
+      case SHOW_GLOBAL_LOADER:
+      case HIDE_GLOBAL_LOADER:
+        return {
+          ...state,
+          globalLoaderVisible: action.payload,
         };
       default:
         return {

@@ -23,6 +23,17 @@ export const networkMap = {
   [ChainId.BinanceSmartChain]: "BSC",
 };
 
+export const networkMapAccounts = {
+  [ChainId.Ethereum]: "mainnet",
+  [ChainId.Rinkeby]: "rinkeby",
+  [ChainId.Arbitrum]: "arbitrum",
+  [ChainId.Mumbai]: "polygon_mumbai",
+  [ChainId.Polygon]: "polygon",
+  [ChainId.Hardhat]: "hardhat",
+  [ChainId.Localhost]: "hardhat",
+  [ChainId.BinanceSmartChain]: "bsc",
+};
+
 export const logos = {
   [ChainId.Ethereum]: "/images/icons/ethLogo.png",
   [ChainId.Rinkeby]: "/images/icons/ethLogo.png",

@@ -1,21 +1,25 @@
+import { BeneficiaryImage } from "@popcorn/hardhat";
+import {
+  AdditionalImages,
+  ImpactReport,
+} from "@popcorn/hardhat/lib/adapters/BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
 import { IpfsClient, UploadResult } from "@popcorn/utils";
 import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
-import * as SVGLoaders from "svg-loaders-react";
-
-const success = (msg: string) => toast.success(msg);
 
 const uploadError = (errMsg: string) => toast.error(errMsg);
-const isSuccessfulUpload = (res: UploadResult): boolean => res.status === 200;
+const isSuccessfulUpload = (res: UploadResult): boolean => res.status >= 200 && res.status < 300;
 const isFailedUpload = (res: UploadResult): boolean => res.status !== 200;
 
 interface IPFSUploadFuncProps {
-  localState: string | string[];
+  localState: string | string[] | ImpactReport[] | BeneficiaryImage[] | AdditionalImages[];
   fileType: string;
   maxFileSizeMB?: number;
   numMaxFiles: number;
-  setLocalState: (input: string | string[]) => void;
+  setLocalState: (
+    input: string | string[] | UploadResult[] | ImpactReport[] | BeneficiaryImage[] | AdditionalImages[],
+  ) => void;
 }
 
 const isValidFileSize = (file: File, maxFileSizeMB: number) => {
@@ -30,13 +34,52 @@ const isValidFileSize = (file: File, maxFileSizeMB: number) => {
   return null;
 };
 
-const showUploadBox = (numMaxFiles: number, localState: string | string[]): boolean => {
-  if (typeof localState === "string") return localState === "";
-  return localState.length < numMaxFiles || numMaxFiles === 0;
+const uploadSingleFile = async (
+  files: File[],
+  setVideo: (input: string | string[]) => void,
+  setUploadProgress?: React.Dispatch<React.SetStateAction<number>>,
+) => {
+  toast.loading("Uploading");
+  const res = await IpfsClient.upload(files[0], setUploadProgress);
+  if (isSuccessfulUpload(res)) {
+    setVideo(res.hash);
+    toast.dismiss();
+    toast.success("Successful upload to IPFS");
+  } else {
+    toast.dismiss();
+    uploadError(`Upload was unsuccessful with status ${res.status}. ${res.errorDetails}`);
+  }
 };
 
-const Spinner = () => {
-  return <SVGLoaders.Oval stroke="#ffffff" className="mx-auto my-4 h-10 w-10" />;
+const uploadMultipleFiles = async (files: File[], setLocalState: (input: UploadResult[]) => void, fileType: string) => {
+  toast.loading("Uploading");
+  const uploadResults = await Promise.all(
+    files.map((file) => {
+      return IpfsClient.upload(file);
+    }),
+  );
+  if (uploadResults.every(isSuccessfulUpload)) {
+    setLocalState(uploadResults.map((result) => result));
+    toast.dismiss();
+    toast.success(`${fileType === "image/*" ? "Images" : "Files"} successfully uploaded to IPFS`);
+  } else if (uploadResults.every(isFailedUpload)) {
+    toast.dismiss();
+    uploadError(
+      `Uploads were unsuccessful with status ${uploadResults[0].status}: 
+			${uploadResults[0].errorDetails}`,
+    );
+  } else {
+    const successfulUploads = uploadResults.filter(isSuccessfulUpload);
+    const unsuccessfulUploads = uploadResults.filter(isFailedUpload);
+    setLocalState(successfulUploads.map((result) => result));
+    toast.success(
+      `${successfulUploads.length} ${fileType === "image/*" ? "images" : "files"} were successfully upload to IPFS`,
+    );
+    uploadError(
+      `${successfulUploads.length} ${fileType === "image/*" ? "images" : "files"} were unsuccessfully uploaded to IPFS 
+			with status ${unsuccessfulUploads[0].status}: ${unsuccessfulUploads[0].errorDetails}`,
+    );
+  }
 };
 
 const IPFSUploadFunc: React.FC<IPFSUploadFuncProps> = ({
@@ -47,69 +90,36 @@ const IPFSUploadFunc: React.FC<IPFSUploadFuncProps> = ({
   setLocalState,
   children,
 }) => {
-  const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [_uploadProgress, setUploadProgress] = useState<number>(0); // TODO Actually use uploadProgress
 
   useEffect(() => {
-    if (localState || localState.length > 0) {
+    if (localState) {
       setUploadProgress(0);
     }
   }, [localState]);
 
-  const uploadSingleFile = async (
-    files: File[],
-    setVideo: (input: string | string[]) => void,
-    setUploadProgress?: (progress: number) => void,
-  ) => {
-    setLoading(true);
-    const res = await IpfsClient.upload(files[0], setUploadProgress);
-    if (isSuccessfulUpload(res)) {
-      setVideo(res.hash);
-      toast.dismiss();
-      success("Successful upload to IPFS");
-    } else {
-      toast.dismiss();
-      uploadError(`Upload was unsuccessful with status ${res.status}. ${res.errorDetails}`);
-    }
-    setLoading(false);
-  };
-
-  const { acceptedFiles, fileRejections, getRootProps, getInputProps, isDragActive, isDragAccept, isDragReject } =
-    useDropzone({
-      accept: fileType,
-      multiple: numMaxFiles !== 1,
-      maxFiles: numMaxFiles,
-      validator: (file: File) => {
-        return maxFileSizeMB ? isValidFileSize(file, maxFileSizeMB) : null;
-      },
-      onDrop: (acceptedFiles) => {
-        if (fileRejections.length) {
-          toast.error(`Maximum number of files to be uploaded is ${numMaxFiles}`);
+  const { fileRejections, getRootProps, getInputProps } = useDropzone({
+    accept: fileType,
+    multiple: numMaxFiles !== 1,
+    maxFiles: numMaxFiles,
+    validator: (file: File) => {
+      return maxFileSizeMB ? isValidFileSize(file, maxFileSizeMB) : null;
+    },
+    onDrop: (acceptedFiles) => {
+      if (fileRejections.length) {
+        toast.error(`Maximum number of files to be uploaded is ${numMaxFiles}`);
+      } else {
+        if (numMaxFiles === 1) {
+          uploadSingleFile(acceptedFiles, setLocalState);
         } else {
-          if (numMaxFiles === 1 && fileType === "image/*") {
-            uploadSingleFile(acceptedFiles, setLocalState);
-          } else if (fileType === "video/*") {
-            uploadSingleFile(acceptedFiles, setLocalState, setUploadProgress);
-          }
+          uploadMultipleFiles(acceptedFiles, setLocalState, fileType);
         }
-        setFiles(
-          acceptedFiles.map((file) =>
-            Object.assign(file, {
-              preview: URL.createObjectURL(file),
-            }),
-          ),
-        );
-      },
-    });
-  const rootProps = getRootProps() as any;
+      }
+    },
+  });
+  const rootProps = getRootProps();
   return (
     <div {...rootProps} className="w-full">
-      {loading && (
-        <div className="absolute transform left-1/2 -translate-x-1/2 z-50">
-          <Spinner />
-        </div>
-      )}
       <input {...getInputProps()} />
       {children}
     </div>

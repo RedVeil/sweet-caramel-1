@@ -14,13 +14,13 @@ interface ProfileImageUploadProps {
 const ProfileImageUpload: React.FC<ProfileImageUploadProps> = (props) => {
   return (
     <IPFSUploadFunc {...props}>
-      <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 top-44 md:top-28">
+      <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 top-24 md:top-28">
         <div className="relative">
           {!props.localState ? (
             <AvatarIcon />
           ) : (
             <img
-              src={`https:/popcorn.mypinata.cloud/ipfs/${props.localState}`}
+              src={`https://popcorn.mypinata.cloud/ipfs/${props.localState}`}
               alt=""
               className=" w-32 h-32 rounded-full object-cover"
             />

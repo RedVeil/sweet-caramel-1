@@ -1,6 +1,23 @@
+import { BeneficiaryApplication } from "@popcorn/hardhat";
+import TextInput from "components/CommonComponents/TextInput";
 import React from "react";
+import inputExists from "utils/isValidInput";
 
-const ProofsForm = () => {
+const ProofsForm = ({
+  form,
+}: {
+  form: [formData: BeneficiaryApplication, setFormData: React.Dispatch<BeneficiaryApplication>];
+}) => {
+  const [formData, setFormData] = form;
+  const updateInput = (value: string, formKey: string): void => {
+    setFormData({
+      ...formData,
+      links: {
+        ...formData.links,
+        [formKey]: value,
+      },
+    });
+  };
   return (
     <div className=" rounded-6xl p-10 mt-20 shadow-custom-lg">
       <h6 className=" font-semibold text-3xl text-center mb-12">Proof of Ownership</h6>
@@ -12,17 +29,17 @@ const ProofsForm = () => {
           </label>
           <p className=" text-gray-500">
             Share a URL on the beneficiary’s website or a tweet on the beneficiary’s official Twitter account that
-            contains the Ethereum address shared in Step 2
+            contains the Ethereum address shared in Step 1
           </p>
-          <div className="mt-1">
-            <input
-              type="text"
-              name="ownership-url"
-              id="ownership-url"
-              className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3"
-            />
-          </div>
-          <p className="mt-2 text-sm text-gray-500">* The official company name of your non profit organization</p>
+          <TextInput
+            name="ownership-url"
+            id="ownership-url"
+            inputValue={formData.links.proofOfOwnership}
+            isValid={inputExists}
+            updateInput={updateInput}
+            formKey={"proofOfOwnership"}
+            inputDescription={"* URL reference containing ethereum address"}
+          />
         </div>
       </form>
     </div>

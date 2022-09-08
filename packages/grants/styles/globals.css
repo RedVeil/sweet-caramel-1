@@ -3,14 +3,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "~slick-carousel/slick/slick.css"; 
+@import "~slick-carousel/slick/slick-theme.css";
+
 html,
 body {
   width: 100%;
   height: 100%;
   background: #fff;
-  font-family: "Avenir Next LT Pro";
-  font-size: 16px;
-  font-style: normal;
+	font-family: 'Avenir Next LT Pro';
+	font-size: 16px;
+	font-style:normal;
 }
 html,
 a {
@@ -27,22 +30,21 @@ p {
 
 @layer base {
   @font-face {
-    font-family: "Avenir Next LT Pro Italics";
-    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-It.woff) format("woff");
+    font-family: 'Avenir Next LT Pro';
+    src: local('Avenir Next LT Pro'),
+      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format('woff');
   }
   @font-face {
-    font-family: "Avenir Next LT Pro";
-    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format("woff");
-  }
-  @font-face {
-    font-family: "Avenir Next LT Pro";
+    font-family: 'Avenir Next LT Pro';
     font-weight: 600;
-    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format("woff");
+    src: local('Avenir Next LT Pro'),
+      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format('woff');
   }
   @font-face {
-    font-family: "Avenir Next LT Pro";
+    font-family: 'Avenir Next LT Pro';
     font-weight: 700;
-    src: local("Avenir Next LT Pro"), url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Bold.woff) format("woff");
+    src: local('Avenir Next LT Pro'),
+      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Bold.woff) format('woff');
   }
 }
 
@@ -89,7 +91,6 @@ p {
 }
 
 .button-custom {
-  /* border-radius: 0.25rem; */
   padding: 15px;
   padding-top: 9px;
   padding-bottom: 9px;
@@ -99,24 +100,61 @@ p {
   justify-content: center;
   align-items: center;
   width: auto;
-  /* color: white; */
-  /* font-weight: 600; */
-  /* box-shadow: 0px 2px 8px -3px black; */
 }
 
 .gray-color {
-  /* background-color: #e5e7eb; */
   border-color: #636363;
   color: #636363;
 }
-.hr-line {
-  width: 1px;
+.hr-line{
+	width:1px
 }
-.apply-card {
-  padding-top: 400px;
+.apply-card{
+	padding-top: 400px;
 }
-@media screen and (max-width: 767px) {
-  .apply-card {
-    padding-top: 850px;
-  }
+.rs-slider-progress-bar{
+	background-color: #1E40AF!important;
+}
+.rs-slider-bar{
+	background-color: #DBEAFE!important;
+}
+.rs-slider-handle:before{
+	border-color: #1E40AF!important;
+}
+@media screen and (max-width:767px){
+	.apply-card{
+		padding-top: 850px;
+	}
+	.apply-overlay{
+		height: 800px;
+	}
+} 
+@media screen and (max-width:400px){
+	.apply-card{
+		padding-top: 1000px;
+	}
+	.apply-overlay{
+		height: 800px;
+	}
+}
+
+@media screen and (min-width:768px) and (max-width:1024px){
+	.apply-card{
+		padding-top: 500px;
+	}
+}
+
+.apply-overlay{
+	height: 600px;
+}
+
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+}
+.line-clamp-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;  
 }

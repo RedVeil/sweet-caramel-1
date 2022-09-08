@@ -1,30 +1,33 @@
+import { Web3Provider } from "@ethersproject/providers";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { DocumentAddIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
+import { useWeb3React } from "@web3-react/core";
 import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
+import { connectors } from "context/Web3/connectors";
 import Link from "next/link";
+import router from "next/router";
 import { Fragment, useState } from "react";
 import MobileBeneficiaryFilter from "./Beneficiaries/MobileBeneficiaryFilter";
 import Button from "./CommonComponents/Button";
-import WalletIcon from "./Svgs/WalletIcon";
+import ConnectWalletButtons from "./CommonComponents/ConnectWalletButtons";
 
 const Header = () => {
   const [menuVisible, toggleMenu] = useState<boolean>(false);
+  const [selectedFilter, setSelectedFilter] = useState<{ name: string; link: string }>({ name: "", link: "" });
   const filterList = [
-    {
-      name: "Beneficiary Applications",
-    },
-    {
-      name: "Reported Beneficiaries",
-    },
-    {
-      name: "Grant Rounds",
-    },
+    { name: "Beneficiary Applications", link: "/applications" },
+    { name: "Reported Beneficiaries", link: "/beneficiaries" },
+    { name: "Grant Rounds", link: "/grants" },
   ];
 
-  const switchFilter = (filter) => {
-    console.log(filter);
+  const switchFilter = (filter: { name: string; link: string }) => {
+    setSelectedFilter(filter);
+    router.push(filter.link);
   };
+  const context = useWeb3React<Web3Provider>();
+  const { account, activate, active, deactivate } = context;
+
   return (
     <header className="container mx-auto flex justify-between py-4 md:py-5">
       <div className="pl-5 md:pl-10 flex gap-10 items-center">
@@ -35,39 +38,43 @@ const Header = () => {
         </Link>
         <Menu>
           <Menu.Button className="cursor-pointer hidden lg:flex relative">
-            <p className="text-gray-500 font-semibold">Vote Now</p>
+            <p className="text-gray-500 hover:text-gray-900  font-semibold">Vote Now</p>
             <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
             <BeneficiaryFilter
               filterList={filterList}
               switchFilter={switchFilter}
-              position="absolute top-10 left-1/2 transform -translate-x-1/2"
+              position="absolute top-10 left-1/2 transform -translate-x-1/2 z-20"
               width="w-60"
+              selectedItem={selectedFilter}
             />
           </Menu.Button>
         </Menu>
-        <Link href="/" passHref>
+        <Link href="/beneficiaries" passHref>
           <a>
-            <p className="text-gray-500 font-semibold hidden lg:block">Eligible Beneficiaries</p>
+            <p className="text-gray-500 hover:text-gray-900  font-semibold hidden lg:block">Eligible Beneficiaries</p>
           </a>
         </Link>
         <Link href="/" passHref>
           <a>
-            <p className="text-gray-500 font-semibold hidden lg:block">FAQ</p>
+            <p className="text-gray-500 hover:text-gray-900  font-semibold hidden lg:block">FAQ</p>
           </a>
         </Link>
       </div>
 
       <div className="pr-5 md:pr-10 flex items-center gap-5 md:gap-10">
-        <Button variant="primary" className="md:w-44 py-3 px-8 md:px-0">
-          <span className="hidden md:inline">Create Proposal</span>
-          <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
-        </Button>
-        <Button variant="secondary" className="md:w-44 py-3 px-8 md:px-0">
-          <span className="hidden md:inline">Connect Wallet</span>
-          <span className="md:hidden">
-            <WalletIcon />
-          </span>
-        </Button>
+        <Link href="/apply" passHref>
+          <a>
+            <Button variant="primary" className="md:w-44 py-3 px-8 md:px-0">
+              <span className="hidden md:inline">Create Proposal</span>
+              <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
+            </Button>
+          </a>
+        </Link>
+        <ConnectWalletButtons
+          connected={account ? true : false}
+          connectWallet={() => activate(connectors.Injected)}
+          disconnectWallet={deactivate}
+        />
         <button
           className="lg:hidden text-gray-500 w-5 h-5 relative focus:outline-none bg-white"
           onClick={() => toggleMenu(!menuVisible)}

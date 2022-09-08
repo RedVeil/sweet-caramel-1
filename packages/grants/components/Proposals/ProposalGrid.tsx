@@ -14,6 +14,9 @@ export interface ProposalGridProps {
   proposalType: ProposalType;
 }
 
+const proposalStatuses: proposalStatus[] = ["Open", "Challenge", "Completed", "Passed", "Failed", "All"];
+type proposalStatus = "Open" | "Challenge" | "Completed" | "Passed" | "Failed" | "All";
+
 const ProposalGrid: React.FC<ProposalGridProps> = ({ proposalType }) => {
   const { dispatch } = useContext(store);
   const [searchFilter, setSearchFilter] = useState<string>("");
@@ -22,7 +25,7 @@ const ProposalGrid: React.FC<ProposalGridProps> = ({ proposalType }) => {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const filteredProposals = proposals
     ?.filter((proposal: Proposal) => {
-      return proposal.application.organizationName.data.toLowerCase().includes(searchFilter.toLowerCase());
+      return proposal.application.organizationName.toLowerCase().includes(searchFilter.toLowerCase());
     })
     .filter((proposal: Proposal) => {
       const proposalStatus = proposal?.status;
@@ -35,7 +38,9 @@ const ProposalGrid: React.FC<ProposalGridProps> = ({ proposalType }) => {
     if (contracts) {
       new BeneficiaryGovernanceAdapter(contracts.beneficiaryGovernance, IpfsClient)
         .getAllProposals(proposalType)
-        .then((res) => setProposals(res));
+        .then((res) => {
+          setProposals(res);
+        });
     }
   }, [contracts]);
 
@@ -111,15 +116,12 @@ const ProposalGrid: React.FC<ProposalGridProps> = ({ proposalType }) => {
                 defaultValue={"All"}
                 value={ProposalStatus[statusFilter]}
                 onChange={(e) => {
-                  const status = e.target.value;
-                  setStatusFilter(ProposalStatus[status]);
+                  setStatusFilter(ProposalStatus[e.target.value as proposalStatus]);
                 }}
               >
-                {Object.keys(ProposalStatus)
-                  .slice(0, Object.keys(ProposalStatus).length / 2)
-                  .map((status) => {
-                    return <option value={ProposalStatus[status]}>{ProposalStatus[status]}</option>;
-                  })}
+                {proposalStatuses.map((status: proposalStatus) => {
+                  return <option value={ProposalStatus[status]}>{ProposalStatus[status]}</option>;
+                })}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 px-2 flex items-center">
                 <ChevronDownIcon className="h-4 w-4 text-gray-400" aria-hidden="true" />

@@ -7,18 +7,19 @@ interface VoteSliderProps {
   beneficiary: BeneficiaryApplication;
   electionProps: ElectionProps;
 }
+type sliderMark = { [key: number]: { style: { color: string }; label: string } };
 
 const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) => {
   const [votesAssignedByUser, setVotesAssignedByUser] = useState(0);
 
-  const sliderSteps = [
+  const sliderSteps: [number, string][] = [
     [0, "0%"],
     [electionProps.voiceCredits * 0.25, "25%"],
     [electionProps.voiceCredits * 0.5, "50%"],
     [electionProps.voiceCredits * 0.75, "75%"],
     [electionProps.voiceCredits, "100%"],
   ];
-  const sliderMarks = {};
+  const sliderMarks: sliderMark = {};
   sliderSteps.forEach(function (step) {
     sliderMarks[step[0]] = { style: { color: "#374151" }, label: step[1] };
   });
@@ -26,12 +27,11 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
   function handleSliderChange(value: number) {
     if (electionProps.voiceCredits - electionProps.pendingVotes[electionProps.election.electionTerm].total <= 0) {
       if (
-        electionProps.pendingVotes[electionProps.election.electionTerm].votes[beneficiary.beneficiaryAddress.data] >
-        value
+        electionProps.pendingVotes[electionProps.election.electionTerm].votes[beneficiary.beneficiaryAddress] > value
       ) {
         setVotesAssignedByUser(value);
         electionProps.assignVotes(electionProps.election.electionTerm, {
-          address: beneficiary.beneficiaryAddress.data,
+          address: beneficiary.beneficiaryAddress,
           votes: value,
         });
       }
@@ -39,7 +39,7 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
     }
     setVotesAssignedByUser(value);
     electionProps.assignVotes(electionProps.election.electionTerm, {
-      address: beneficiary.beneficiaryAddress.data,
+      address: beneficiary.beneficiaryAddress,
       votes: value,
     });
   }
@@ -58,7 +58,6 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
       </span>
       {electionProps.assignVotes && electionProps.voiceCredits > 0 && (
         <div className="w-11/12 ml-1 pb-3">
-          {/* Would most likely be need for ticket #684 */}
           {
             /* <Slider
             key={beneficiary?.beneficiaryAddress}

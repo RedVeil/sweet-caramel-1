@@ -1,14 +1,19 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/outline";
-import { Fragment, useEffect, useRef, useState } from "react";
+import Button from "components/CommonComponents/Button";
+import React, { Fragment, useEffect, useRef, useState } from "react";
+
 export interface DualActionWideModalProps {
   title: string;
   content: React.ReactElement | string;
   visible: boolean;
   progress?: boolean;
   onDismiss?: { label: string; onClick: Function };
-  onConfirm: { label: string; onClick: Function };
+  onConfirm?: { label: string; onClick: Function };
+  icon?: "check";
+  image?: any;
+  keepOpen?: boolean;
 }
 
 export const DefaultDualActionWideModalProps = {
@@ -16,33 +21,48 @@ export const DefaultDualActionWideModalProps = {
   title: "",
   visible: false,
   progress: false,
-  onConfirm: { label: "", onClick: () => {} },
+  keepOpen: false,
 };
 
-const Example: React.FC<DualActionWideModalProps> = ({ content, title, visible, progress, onConfirm, onDismiss }) => {
+const Example: React.FC<DualActionWideModalProps> = ({
+  content,
+  title,
+  visible,
+  progress,
+  onConfirm,
+  onDismiss,
+  icon,
+  image,
+  keepOpen,
+}) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
 
   useEffect(() => {
     if (visible !== open) setOpen(visible);
+    return () => {
+      setOpen(false);
+    };
   }, [visible]);
 
   const dismiss = () => {
-    setOpen(false);
-    setTimeout(onDismiss?.onClick && onDismiss.onClick(), 1000);
+    setOpen(keepOpen);
+    setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
   };
 
   const confirm = () => {
-    setOpen(false);
+    setOpen(keepOpen);
     setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
   };
+
+  if (!visible) return <></>;
 
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
         as="div"
         static
-        className="fixed z-10 inset-0 overflow-y-auto"
+        className="fixed z-50 inset-0 overflow-y-auto"
         initialFocus={cancelButtonRef}
         open={open}
         onClose={() => setOpen(false)}
@@ -57,7 +77,7 @@ const Example: React.FC<DualActionWideModalProps> = ({ content, title, visible, 
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-filter backdrop-blur" />
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
@@ -73,40 +93,42 @@ const Example: React.FC<DualActionWideModalProps> = ({ content, title, visible, 
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div className="inline-block align-bottom bg-white rounded-4xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-8">
               <div>
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                  <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
-                </div>
+                {image ? (
+                  <>{image}</>
+                ) : (
+                  <>
+                    {icon == "check" && (
+                      <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+                      </div>
+                    )}
+                  </>
+                )}
                 <div className="mt-3 text-center sm:mt-5">
-                  <Dialog.Title as="h3" className="text-lg leading-6 font-medium text-gray-900">
+                  <Dialog.Title as="h3" className="text-2xl leading-6 font-semibold text-gray-900">
                     {title}
                   </Dialog.Title>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500">{content}</p>
+                    {typeof content === "string" ? (
+                      <p className="text-lg text-gray-500 py-6">{content}</p>
+                    ) : (
+                      <>{content}</>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-4 sm:grid-flow-row-dense">
                 {onConfirm && (
-                  <button
-                    type="button"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-                    onClick={() => confirm()}
-                  >
+                  <Button variant="primary" onClick={() => confirm()} className="py-3 px-5">
                     {onConfirm.label}
-                  </button>
+                  </Button>
                 )}
-
                 {onDismiss && (
-                  <button
-                    type="button"
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
-                    ref={cancelButtonRef}
-                    onClick={() => dismiss()}
-                  >
+                  <Button variant="secondary" onClick={() => dismiss()} className="py-3 px-5">
                     {onDismiss.label}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

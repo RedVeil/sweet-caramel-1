@@ -1,6 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { ArrowRightIcon } from "@heroicons/react/outline";
-
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import MainActionButton from "components/MainActionButton";

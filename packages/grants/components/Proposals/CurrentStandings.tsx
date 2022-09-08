@@ -1,10 +1,10 @@
 import { parseEther } from "@ethersproject/units";
 import { Proposal } from "@popcorn/hardhat/lib/adapters";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-
 import Divider from "components/CommonComponents/Divider";
 import ProgressBar from "components/ProgressBar";
-import { constants } from "ethers";
+import { BigNumber } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
 
 const CurrentStandings: React.FC<Proposal> = (proposal) => {
   return (
@@ -18,16 +18,11 @@ const CurrentStandings: React.FC<Proposal> = (proposal) => {
         <span className="mx-4  w-1/2 justify-self-center flex flex-row justify-between  pb-2">
           <ProgressBar
             progress={
-              proposal?.votes?.for === constants.Zero
+              proposal?.votes?.for === BigNumber.from("0")
                 ? 0
-                : Number(
-                  formatAndRoundBigNumber(
-                    proposal?.votes?.for
-                      .mul(parseEther("100"))
-                      .div(proposal?.votes?.for.add(proposal?.votes?.against)),
-                    18,
-                  ),
-                )
+                : Number(formatUnits(
+                  proposal?.votes?.for.mul(parseEther("100")).div(proposal?.votes?.for.add(proposal?.votes?.against)),
+                ))
             }
             progressColor={"bg-green-300"}
           />

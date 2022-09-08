@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import NavBar from "../../components/NavBar/NavBar";
-import { setDualActionModal, setSingleActionModal } from "../../context/actions";
+import { setDualActionModal } from "../../context/actions";
 import { store } from "../../context/store";
 import { connectors } from "../../context/Web3/connectors";
 import { ContractsContext } from "../../context/Web3/contracts";
@@ -63,11 +63,11 @@ const defaultPendingVotes = {
   },
 };
 
-const getSelectedGrantTermsFromQuery = (type: string): number[] => {
+const getSelectedGrantTermsFromQuery = (type: "all" | "monthly" | "quarterly" | "yearly"): number[] => {
   if (type == "all") {
     return [0, 1, 2];
   }
-  return type && [ElectionTerm[capitalize(type as string)]];
+  return type && [ElectionTerm[capitalize(type) as "Monthly" | "Quarterly" | "Yearly"]];
 };
 
 const getOtherGrantElections = (currentGrantElection: number[]): number[] => {
@@ -85,6 +85,9 @@ export default function AllGrants() {
   const [pendingVotes, setPendingVotes] = useState<PendingVotes>(defaultPendingVotes);
   const [voiceCredits, setVoiceCredits] = useState(0);
   const [activeGrantRound, scrollToGrantRound] = useState<number>();
+  const [activeType, setActiveType] = useState<"all" | "monthly" | "quarterly" | "yearly">();
+  const [selectedGrantTerms, setSelectedGrantTerms] = useState<number[]>([]);
+
   const [grantRoundFilter, setGrantRoundFilter] = useState<IGrantRoundFilter>({
     active: true,
     closed: true,
@@ -120,54 +123,30 @@ export default function AllGrants() {
     }
   }, [contracts, account]);
 
-  //TODO this functions in not implemented, should this be here?
-  function registerForElection(grant_term) {
-    // Register for selected election
-    let connected = contracts.grantElections.connect(library.getSigner());
-    connected
-      .registerForElection(account, grant_term)
-      .then((res) => {
-        setSingleActionModal({
-          content: `You have successfully registered for this grant election`,
-          title: "Success!",
-          visible: true,
-          type: "info",
-          onConfirm: {
-            label: "Done",
-            onClick: () => dispatch(setSingleActionModal(false)),
-          },
-        });
-        let newElectionSignedUpForArray = electionsSignedUpFor;
-        newElectionSignedUpForArray[grant_term] = true;
-        setElectionsSignedUpFor(newElectionSignedUpForArray);
-      })
-      .catch((err) => {
-        setSingleActionModal({
-          content: `There was an error registering you for this election: ${err.message}`,
-          title: "Error",
-          visible: true,
-          type: "error",
-          onConfirm: {
-            label: "Go Back",
-            onClick: () => dispatch(setSingleActionModal(false)),
-          },
-        });
-      });
-  }
-  const [selectedGrantTerms, setSelectedGrantTerms] = useState<number[]>([]);
-
   useEffect(() => {
-    if (router?.query?.type) {
-      setSelectedGrantTerms(getSelectedGrantTermsFromQuery(router.query.type as string));
+    if (activeType) {
+      setSelectedGrantTerms(getSelectedGrantTermsFromQuery(activeType));
     }
-  }, [router]);
+  }, [activeType]);
 
-  const getVoiceCredits = async (account) => {
+  const getVoiceCredits = async (account: string) => {
     if (!account) return;
     const vCredits = await contracts.staking.getVoiceCredits(account);
     const vCreditsFormatted = +utils.formatEther(vCredits).toString().split(".")[0];
     setVoiceCredits(vCreditsFormatted);
   };
+
+  function isCorrectGrantTerm(grantTerm: string | string[]): grantTerm is "all" | "monthly" | "quarterly" | "yearly" {
+    return typeof grantTerm === "string" && ["all", "monthly", "quarterly", "yearly"].includes(grantTerm);
+  }
+  useEffect(() => {
+    if (router.isReady && router.query?.type) {
+      const grantTerm = router.query.type as string;
+      if (isCorrectGrantTerm(grantTerm)) {
+        setActiveType(grantTerm);
+      }
+    }
+  }, [router, router.query?.type, router.isReady]);
 
   useEffect(() => {
     if (contracts?.pop && account) {
@@ -299,7 +278,7 @@ export default function AllGrants() {
               grantRoundFilter={grantRoundFilter}
               assignVotes={assignVotes}
               connectWallet={connectWallet}
-              submitVotes={(grantTerm) => {
+              submitVotes={(grantTerm: ElectionTerm) => {
                 dispatch(
                   setDualActionModal({
                     content:
@@ -340,7 +319,7 @@ export default function AllGrants() {
           </div>
         </div>
       )}
-      {getOtherGrantElections(selectedGrantTerms).map((election) => (
+      {getOtherGrantElections(selectedGrantTerms).map((election: 0 | 1 | 2) => (
         <div key={election} className="mt-8 pt-8 relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:mt-5">
           <div className="max-w-md mx-auto lg:max-w-5xl">
             <div className="rounded-lg bg-white px-6 py-8 sm:p-10 lg:flex lg:items-center">

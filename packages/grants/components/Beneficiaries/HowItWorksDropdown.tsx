@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Slider from "react-slick";
 import { Transition } from "react-transition-group";
 
 const HowItWorksDropdown = () => {
@@ -10,18 +11,18 @@ const HowItWorksDropdown = () => {
     image: string;
   }> = [
     {
-      title: "Nominate an organization",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sed maximus dui.",
+      title: "Nominate an Organization",
+      text: "An organization wishing to apply for eligible beneficiary status may acquire the requisite number of 2000 $POP tokens to raise a Beneficiary Nomination Proposal. Alternatively they may reach out to the Popcorn Foundation to seek a nomination at no cost.",
       image: "/images/nominateCat.svg",
     },
     {
       title: "Vote",
-      text: "Curabitur lacinia, leo id dictum egestas, orci augue malesuada nisi, in tincidunt dolor turpis vel mauris. ",
+      text: "In order to accept eligible beneficiaries, we use a two-phase binary voting process (Accept or Reject). Following these two voting rounds, a voice credit allocation voting process will be held in the Grant Rounds section of our website.",
       image: "/images/voteCat.svg",
     },
     {
-      title: "Organizations get funded",
-      text: "In vel rutrum lorem, eu feugiat sapien. Nulla vitae feugiat magna. Duis aliquam est lectus, ac viverra mauris consequat quis.",
+      title: "Organization get funded",
+      text: "Grants are awarded to a set number of top-ranking beneficiaries as voted on by the $POP-token holders.",
       image: "/images/organizeCat.svg",
     },
   ];
@@ -36,6 +37,7 @@ const HowItWorksDropdown = () => {
     entered: { opacity: 1, height: "100%" },
     exiting: { opacity: 0, height: "0px" },
     exited: { opacity: 0, height: "0px" },
+    unmounted: { opacity: 0, height: "0px" },
   };
 
   const sliderSettings = {
@@ -49,7 +51,7 @@ const HowItWorksDropdown = () => {
     autoplay: showDropDown,
     autoplaySpeed: 5000,
     easing: "ease-in",
-    beforeChange: (oldIndex, newIndex) => {
+    beforeChange: (oldIndex: number, newIndex: number) => {
       setCurrentSlide(newIndex);
     },
   };
@@ -89,12 +91,14 @@ const HowItWorksDropdown = () => {
               >
                 {processList.map((process, index) => (
                   <div
-                    className="col-span-12 md:col-span-4 w-screen md:w-full px-16 md:px-0 flex flex-col justify-center text-center pt-10"
+                    className="col-span-12 md:col-span-4 w-screen md:w-full px-16 md:px-0 flex flex-col text-center pt-10"
                     key={index}
                   >
                     <img src={process.image} alt="" className="w-40 mx-auto mb-10" />
-                    <h6 className=" text-gray-900 text-2xl font-semibold mb-3">{process.title}</h6>
-                    <p className=" text-lg text-gray-500">{process.text}</p>
+                    <div className="flex flex-col justify-center h-60">
+                      <h6 className=" text-gray-900 text-2xl font-semibold mb-3">{process.title}</h6>
+                      <p className=" text-lg text-gray-500">{process.text}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -103,14 +107,16 @@ const HowItWorksDropdown = () => {
         </div>
         <div className="block lg:hidden">
           {showDropDown && (
-            <div>
-              {processList.map((process, index) => (
-                <div className="w-screen px-16 pt-20 flex flex-col justify-center text-center" key={index}>
-                  <img src={process.image} alt="" className="w-40 mx-auto mb-10" />
-                  <h6 className=" text-gray-900 text-2xl font-semibold mb-3">{process.title}</h6>
-                  <p className=" text-lg text-gray-500">{process.text}</p>
-                </div>
-              ))}
+            <>
+              <Slider {...sliderSettings}>
+                {processList.map((process, index) => (
+                  <div className="w-screen px-16 pt-20 flex flex-col justify-center text-center" key={index}>
+                    <img src={process.image} alt="" className="w-40 mx-auto mb-10" />
+                    <h6 className=" text-gray-900 text-2xl font-semibold mb-3">{process.title}</h6>
+                    <p className=" text-lg text-gray-500">{process.text}</p>
+                  </div>
+                ))}
+              </Slider>
               <div className="flex justify-center pt-10 gap-5">
                 {processList.map((process, index) => (
                   <div
@@ -123,7 +129,7 @@ const HowItWorksDropdown = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>

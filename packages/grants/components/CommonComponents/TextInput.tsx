@@ -11,7 +11,7 @@ interface TextInputProps {
   formKey: string;
   className?: string;
   errorMsg?: string;
-  updateInput: (value: string, formKey: string, errorObj?: { error: boolean; errorMessage: string }) => void;
+  updateInput: (value: string, formKey: string) => void;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -25,7 +25,6 @@ const TextInput: React.FC<TextInputProps> = ({
   inputDescription,
   formKey,
   className,
-  errorMsg,
 }) => {
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const checkInputError = () => {
@@ -38,12 +37,10 @@ const TextInput: React.FC<TextInputProps> = ({
     return true;
   };
 
-  const updateError = (input: any) => {
-    if (isValid) {
-      return isValid(input);
-    }
-    return true;
-  };
+  const focusStyle = checkInputError()
+    ? "focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
+    : "border-rose-600 focus:ring-rose-500 focus:border-rose-500";
+
   return (
     <>
       {type == "textarea" ? (
@@ -51,20 +48,11 @@ const TextInput: React.FC<TextInputProps> = ({
           name={name}
           id={id}
           rows={3}
-          className={`${className} mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3 ${
-            checkInputError()
-              ? "focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
-              : "border-rose-600 focus:ring-rose-500 focus:border-rose-500"
-          }`}
+          className={`${className} mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3 ${focusStyle}`}
           value={inputValue}
           onChange={(e) => {
             if (!isDirty) setIsDirty(true);
-            let error = !updateError(e.target.value);
-            let errorObj = {
-              error,
-              errorMessage: errorMsg,
-            };
-            updateInput(e.target.value, formKey, errorObj);
+            updateInput(e.target.value, formKey);
           }}
         />
       ) : (
@@ -73,20 +61,11 @@ const TextInput: React.FC<TextInputProps> = ({
           name={name}
           id={id}
           placeholder={placeholder}
-          className={`${className} mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3 ${
-            checkInputError()
-              ? "focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
-              : "border-rose-600 focus:ring-rose-500 focus:border-rose-500"
-          }`}
+          className={`${className} mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3 ${focusStyle}`}
           value={inputValue}
           onChange={(e) => {
             if (!isDirty) setIsDirty(true);
-            let error = !updateError(e.target.value);
-            let errorObj = {
-              error,
-              errorMessage: errorMsg,
-            };
-            updateInput(e.target.value, formKey, errorObj);
+            updateInput(e.target.value, formKey);
           }}
         />
       )}

@@ -23,7 +23,7 @@ export const DesktopFooter: React.FC = () => {
           >
             <div
               id="mc_embed_signup_scroll"
-              className="w-5/12 shadow-xl bg-white rounded-2xl p-3 mt-10 mx-auto flex flex-row items-center justify-between relative z-20"
+              className="w-5/12 shadow-xl bg-white rounded-5xl p-3 mt-10  mx-auto flex flex-row items-center justify-between relative"
             >
               <input
                 type="email"
@@ -39,10 +39,10 @@ export const DesktopFooter: React.FC = () => {
               <div className="clear">
                 <input
                   type="submit"
-                  value="Main Button"
+                  value="Subscribe"
                   name="subscribe"
                   id="mc-embedded-subscribe"
-                  className="font-semibold text-base bg-blue-600 hover:bg-blue-500 text-white rounded-2xl px-6 py-3 cursor-pointer"
+                  className="font-semibold text-base bg-blue-600 hover:bg-blue-700 text-white rounded-4xl px-8 py-3 cursor-pointer"
                   readOnly
                   onClick={() => {}}
                 />

@@ -2,7 +2,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
 interface FilterProps {
-  filterList: Array<{ name: string }>;
+  filterList: Array<{ name: string; link: string }> | Array<string>;
   switchFilter: Function;
   position: string;
   width: string;
@@ -28,9 +28,11 @@ const MobileBeneficiaryFilter: React.FC<FilterProps> = ({ filterList, switchFilt
                   active ? "bg-gray-100" : "bg-white"
                 } group text-left py-4 block w-full cursor-pointer first:rounded-t-2xl last:rounded-b-2xl`}
                 target="_blank"
-                onClick={() => switchFilter(item.name)}
+                onClick={() => switchFilter(item)}
               >
-                <p className="text-gray-500 font-semibold leading-none">{item.name}</p>
+                <p className="text-gray-500 font-semibold leading-none">
+                  {typeof item === "string" ? item : item.name}
+                </p>
               </a>
             )}
           </Menu.Item>

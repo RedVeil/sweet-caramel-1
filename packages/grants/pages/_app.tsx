@@ -9,9 +9,11 @@ import DualActionWideModalContainer from "components/Modal/DualActionWideModalCo
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SwapChainModal from "components/SwapChainModal";
+import type { AppProps } from "next/app";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { StateProvider } from "../context/store";
 import ContractsWrapper from "../context/Web3/contracts";
 import ElectionsProvider from "../context/Web3/elections";
@@ -23,7 +25,7 @@ function getLibrary(provider: any): Web3Provider {
   return library;
 }
 
-export default function MyApp(props) {
+export default function MyApp(props: AppProps): JSX.Element {
   const { Component, pageProps } = props;
   const [loading, setLoading] = useState(false);
 
@@ -66,6 +68,7 @@ export default function MyApp(props) {
               <SingleActionModalContainer />
               <DualActionModalContainer />
               <DualActionWideModalContainer />
+              <Toaster position="top-right" reverseOrder={false} />
               <Header />
               <Component {...pageProps} />
               <div className="hidden lg:block">

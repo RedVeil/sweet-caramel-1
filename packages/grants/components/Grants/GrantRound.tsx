@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO Fix this whole file
 import { BeneficiaryApplication, BeneficiaryRegistryAdapter, ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { ContractsContext } from "context/Web3/contracts";
@@ -44,11 +46,7 @@ const GrantRound: React.FC<GrantRoundProps> = ({
   }, [election]);
 
   const getBeneficiary = async (address: string): Promise<BeneficiaryApplication> => {
-    const beneficiary = await BeneficiaryRegistryAdapter(
-      contracts.beneficiaryRegistry,
-      IpfsClient,
-    ).getBeneficiaryApplication(address);
-    return beneficiary;
+    return BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient).getBeneficiaryApplication(address);
   };
 
   const getAllBeneficiaries = async (registeredBeneficiaries: string[]) => {
@@ -74,14 +72,14 @@ const GrantRound: React.FC<GrantRoundProps> = ({
     <div ref={ref} className="mb-16 w-full flex flex-row flex-wrap items-center">
       {beneficiariesWithMetadata?.map((beneficiary) => (
         <BeneficiaryCardWithElectionData
-          key={beneficiary.beneficiaryAddress.data}
+          key={beneficiary.beneficiaryAddress}
           electionProps={{
             election: election,
             pendingVotes: pendingVotes,
             voiceCredits: voiceCredits,
             votesAssignedByUser: 0,
             assignVotes: assignVotes,
-            totalVotes: votes[beneficiary.beneficiaryAddress.data],
+            totalVotes: votes[beneficiary.beneficiaryAddress],
           }}
           beneficiary={beneficiary}
         />

@@ -1,21 +1,22 @@
+import { FormSteps } from "pages/apply/form";
 import React from "react";
 interface FlowStepsProps {
-  active: Number;
+  active: FormSteps;
 }
 const FlowSteps: React.FC<FlowStepsProps> = ({ active }) => {
   const stepList: Array<{
-    title: String;
-    id: number;
+    title: string;
+    id: FormSteps;
   }> = [
-    { id: 0, title: "General Information" },
-    { id: 1, title: "Proofs" },
-    { id: 2, title: "Impact Reports" },
-    { id: 3, title: "Visual Content" },
+    { id: FormSteps.GENERAL_INFORMATION, title: "General Information" },
+    { id: FormSteps.PROOFS, title: "Proofs" },
+    { id: FormSteps.IMPACT_REPORTS, title: "Impact Reports" },
+    { id: FormSteps.VISUAL_CONTENT, title: "Visual Content" },
   ];
   return (
     <div className="flex justify-between overflow-x-scroll lg:overflow-x-hidden">
       {stepList.map((step) => (
-        <div className="flex gap-3 items-center pr-5 md:pr-0" key={step.id.toString()}>
+        <div className="flex gap-3 items-center pr-5 md:pr-0" key={step.id}>
           <div
             className={`${
               active == step.id ? "bg-blue-50" : "bg-gray-100"

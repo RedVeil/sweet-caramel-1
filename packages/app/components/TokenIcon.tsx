@@ -1,6 +1,5 @@
 import namedAccounts from "@popcorn/hardhat/lib/utils/namedAccounts.json";
-import { ChainId } from "@popcorn/utils";
-import { getTokenMetadataOverride } from "contractMetadataOverride";
+import { ChainId, getTokenMetadataOverride } from "@popcorn/utils";
 
 interface TokenIconProps {
   token: string;

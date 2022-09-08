@@ -1,6 +1,6 @@
 import { parseEther } from "@ethersproject/units";
-import { useContractMetadata } from "@popcorn/app/contractMetadataOverride";
 import { ERC20__factory, Vault } from "@popcorn/hardhat/typechain";
+import { useContractMetadata } from "./contractMetadataOverride";
 import getToken from "./getToken";
 import { Address, SweetVaultMetadata } from "./types";
 import { SweetVaultWithMetadata } from "./types/index";

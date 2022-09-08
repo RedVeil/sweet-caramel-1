@@ -1,11 +1,14 @@
-const { join } = require('path');
+const { join } = require("path");
 
-require('../utils/src/envLoader');
+require("../utils/src/envLoader");
 
-const workspace = join(__dirname, '..');
+const workspace = join(__dirname, "..");
 
 module.exports = {
-  target: 'serverless',
+  target: "serverless",
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   env: {
     RPC_URL: process.env.RPC_URL,
     CHAIN_ID: process.env.CHAIN_ID,
@@ -54,6 +57,16 @@ module.exports = {
           include: [workspace],
           exclude: /node_modules/,
           use: options.defaultLoaders.babel,
+        },
+        {
+          test: /\.svg$/,
+          use: [
+            {
+              loader: "@svgr/webpack",
+              options: { svgo: false },
+            },
+            "file-loader",
+          ],
         },
       ],
     };

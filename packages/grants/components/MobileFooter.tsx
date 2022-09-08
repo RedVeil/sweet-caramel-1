@@ -18,7 +18,7 @@ export const MobileFooter: React.FC = () => {
           >
             <div
               id="mc_embed_signup_scroll"
-              className="shadow-xl bg-white rounded-xl py-2 px-2 mt-8 w-full mx-auto flex flex-row items-center justify-between mb-12"
+              className="shadow-xl bg-white rounded-4xl py-2 px-2 mt-8 w-full mx-auto flex flex-row items-center justify-between mb-12"
             >
               <input
                 type="email"
@@ -37,7 +37,7 @@ export const MobileFooter: React.FC = () => {
                   value="Subscribe"
                   name="subscribe"
                   id="mc-embedded-subscribe"
-                  className="font-semibold text-base bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-4 py-2 cursor-pointer"
+                  className="font-semibold text-base bg-blue-600 hover:bg-blue-700 text-white rounded-4xl px-4 py-2 cursor-pointer"
                   readOnly
                   onClick={() => {}}
                 />
