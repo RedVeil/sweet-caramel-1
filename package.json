@@ -15,12 +15,12 @@
     "test": "yarn lerna run test",
     "test:fork": "yarn lerna run test:fork",
     "test:forge": "yarn lerna run test:forge",
+    "install:forge":"yarn lerna run install:forge",
     "coverage": "yarn lerna run coverage",
     "prepare": "husky install",
     "netlify-build": "lerna run --scope @popcorn/hardhat compile && cd packages/app && yarn next build && cd .. && cd grants && yarn next build"
   },
   "dependencies": {
-    "@ecmendenhall/forge-std": "0.0.2",
     "@netlify/plugin-nextjs": "3.9.2",
     "lerna": "5.4.0",
     "typescript": "4.5.4",

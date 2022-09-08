@@ -2,9 +2,10 @@
 src = 'contracts'
 test = 'test'
 out = 'artifacts'
-libs = ['node_modules', '../../node_modules']
+libs = ['node_modules', '../../node_modules', "lib"]
 remappings = [
-  'ds-test/=../../node_modules/@ecmendenhall/ds-test/src/'
+  'ds-test/=lib/forge-std/lib/ds-test/src/',
+  'forge-std/=lib/forge-std/src/'
 ]
 verbosity = 2
 fuzz_runs = 256
@@ -14,9 +15,10 @@ fuzz_max_global_rejects = 100000000
 src = 'contracts'
 test = 'test'
 out = 'artifacts'
-libs = ['node_modules', '../../node_modules']
+libs = ['node_modules', '../../node_modules', "lib"]
 remappings = [
-  'ds-test/=../../node_modules/@ecmendenhall/ds-test/src/'
+  'ds-test/=lib/forge-std/lib/ds-test/src/',
+  'forge-std/=lib/forge-std/src/'
 ]
 verbosity = 2
 fuzz_max_global_rejects = 100000000

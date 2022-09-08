@@ -39,7 +39,9 @@ packages
 ## Prerequisites
 
 1. Install packages:
+   - `curl -L https://foundry.paradigm.xyz | bash` 
    - `yarn install`
+   - in /packages/hardhat `foundryup`
 
 2. Update .env
    1. `RPC_URL` is used to run a local node and can be set to `http://localhost:8545` 
