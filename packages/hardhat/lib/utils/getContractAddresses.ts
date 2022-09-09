@@ -42,8 +42,8 @@ export const mapAccountsFromNamedAccounts = (chainId): ContractAddresses => {
         result["butterDependency"]
           ? (result["butterDependency"][contract] = contractsForSelectedNetwork[contract])
           : (result["butterDependency"] = {
-            [contract]: contractsForSelectedNetwork[contract],
-          });
+              [contract]: contractsForSelectedNetwork[contract],
+            });
       } else if (sweetVaultNames.includes(contract)) {
         result["sweetVaults"]
           ? result["sweetVaults"].push(contractsForSelectedNetwork[contract])

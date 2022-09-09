@@ -4,8 +4,7 @@
   "main": "index",
   "scripts": {
     "build": "yarn clean && yarn hardhat compile",
-    "dev": "yarn hardhat node --network hardhat --export ./deployments.json",
-    "export": "node exportAddresses.js",
+    "dev": "yarn hardhat node",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "clean": "rimraf ./cache & rimraf ./artifacts",
     "compile": "yarn clean && hardhat compile",

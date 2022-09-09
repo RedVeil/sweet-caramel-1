@@ -1,11 +1,13 @@
-import { parseEther } from "@ethersproject/units";
 import { ethers } from "hardhat";
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { parseEther } from "@ethersproject/units";
+
+import { ADDRESS_ZERO } from "../lib/utils/constants";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getVaultStakingPools } from "../lib/utils/getStakingPools";
 import { addContractToRegistry, FaucetController } from "./utils";
-import { ADDRESS_ZERO } from "../lib/utils/constants";
 
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
 const FEE_STRUCTURE = {
@@ -42,6 +44,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       contractRegistry,
       ADDRESS_ZERO,
       FEE_STRUCTURE,
+      KEEPER_CONFIG,
     });
     const VaultDeployed = await deploy(vaultStakingPools[i].vaultName, {
       from: addresses.deployer,

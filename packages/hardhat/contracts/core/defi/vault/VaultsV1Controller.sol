@@ -35,41 +35,22 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
   /**
    * @notice deploys and registers V1 Vault from VaultsV1Factory
-   * @param _vaultParams - struct containing Vault contructor params (address token_, address yearnRegistry_,
+   * @param _vaultParams - struct containing Vault constructor params (address token_, address yearnRegistry_,
     IContractRegistry contractRegistry_, address staking_, FeeStructure feeStructure_)
-    @param _enabled - bool if vault enabled or disabled
-    @param _stakingAddress - address of the staking contract for the vault
-    @param _metadataCID - ipfs CID of vault metadata
-    @param _swapTokenAddresses - array of underlying tokens to recieve LP tokens
-    @param _exchange - number that marks exchange
     @param _endorse - bool if vault is to be endorsed after registration
     @dev the submitter in the VaultMetadata from the factory will be function caller
    */
-  function deployVaultFromV1Factory(
-    VaultParams memory _vaultParams,
-    bool _enabled,
-    address _stakingAddress,
-    string memory _metadataCID,
-    address[8] memory _swapTokenAddresses,
-    address _swapAddress,
-    uint256 _exchange,
-    bool _endorse
-  ) external onlyOwner returns (address) {
+  function deployVaultFromV1Factory(VaultParams memory _vaultParams, bool _endorse)
+    external
+    onlyOwner
+    returns (address)
+  {
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
-
+    _vaultParams.submitter = msg.sender;
     (VaultMetadata memory metadata, address[2] memory contractAddresses) = _vaultsV1Factory().deployVaultV1(
-      _vaultParams,
-      _enabled,
-      _stakingAddress,
-      msg.sender,
-      _metadataCID,
-      _swapTokenAddresses,
-      _swapAddress,
-      _exchange
+      _vaultParams
     );
-
     _handleKeeperSetup(contractAddresses[0], _vaultParams.keeperConfig, _vaultParams.token);
-
     vaultsV1Registry.registerVault(metadata);
 
     Vault(contractAddresses[0]).setStaking(contractAddresses[1]);
