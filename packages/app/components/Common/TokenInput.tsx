@@ -64,7 +64,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
           </p>
         </label>
       )}
-      <div className="flex items-center gap-2 w-full">
+      <div className="flex items-center gap-2 md:gap-0 md:space-x-2 w-full">
         <div className="w-full">
           <div
             className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${

@@ -100,7 +100,12 @@ export default function StakeInterface({
               <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
                 <StatusWithLabel
                   content={
-                    stakingPool && stakedTokenPrice ? `$${formatAndRoundBigNumber(stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther), 18)}` : "..."
+                    stakingPool && stakedTokenPrice
+                      ? `$${formatAndRoundBigNumber(
+                          stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
+                          18,
+                        )}`
+                      : "..."
                   }
                   label="TVL"
                 />
@@ -108,7 +113,9 @@ export default function StakeInterface({
             </div>
             <div className="mt-6 md:mt-8">
               <StatusWithLabel
-                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"} POP / day`}
+                content={`${
+                  stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
+                } POP / day`}
                 label="EMISSION RATE"
               />
             </div>
@@ -156,7 +163,7 @@ export default function StakeInterface({
         <div className="md:w-2/3 md:ml-8 order-1 md:order-2">
           <div className="w-full md:grid grid-cols-12 gap-8 hidden">
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
-              <div className="flex gap-6 items-center pb-6">
+              <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
                 <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
                 <div>
                   <div className="flex">
@@ -169,7 +176,10 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.userStake ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals) : "0"} {stakingToken?.symbol}
+                    {stakingPool.userStake
+                      ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
+                      : "0"}{" "}
+                    {stakingToken?.symbol}
                   </p>
                 </div>
               </div>
@@ -178,25 +188,25 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                  <Link
-                    href={getTokenOnNetwork(
-                      stakingPool.tokenAddress?.toLowerCase(),
-                      chainId,
-                      getChainRelevantContracts(chainId),
-                    )}
-                    passHref
-                  >
-                    <a target="_blank">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Get Token" />
-                      </div>
-                    </a>
-                  </Link>
-                )}
+                <Link
+                  href={getTokenOnNetwork(
+                    stakingPool.tokenAddress?.toLowerCase(),
+                    chainId,
+                    getChainRelevantContracts(chainId),
+                  )}
+                  passHref
+                >
+                  <a target="_blank">
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Get Token" />
+                    </div>
+                  </a>
+                </Link>
+              )}
             </div>
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
-              <div className="flex gap-6 items-center pb-6">
+              <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
                 <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
                 <div>
                   <div className="flex">
@@ -218,14 +228,14 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                  <Link href="/rewards" passHref>
-                    <a target="_blank">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Claim Page" />
-                      </div>
-                    </a>
-                  </Link>
-                )}
+                <Link href="/rewards" passHref>
+                  <a target="_blank">
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Claim Page" />
+                    </div>
+                  </a>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -233,7 +243,7 @@ export default function StakeInterface({
             <MobileCardSlider>
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
-                  <div className="flex gap-6">
+                  <div className="flex gap-6 md:gap-0 md:space-x-6">
                     <TokenIcon token={stakingToken?.name} />
                     <div className="pb-6">
                       <div className="flex">
@@ -246,7 +256,10 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.userStake ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals) : "0"} {stakingToken?.symbol}
+                        {stakingPool.userStake
+                          ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
+                          : "0"}{" "}
+                        {stakingToken?.symbol}
                       </p>
                     </div>
                   </div>
@@ -255,27 +268,27 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                      <Link
-                        href={getTokenOnNetwork(
-                          stakingPool.tokenAddress?.toLowerCase(),
-                          chainId,
-                          getChainRelevantContracts(chainId),
-                        )}
-                        passHref
-                      >
-                        <a target="_blank">
-                          <div className="border-t border-customLightGray pt-2 px-1">
-                            <SecondaryActionButton label="Get Token" />
-                          </div>
-                        </a>
-                      </Link>
-                    )}
+                    <Link
+                      href={getTokenOnNetwork(
+                        stakingPool.tokenAddress?.toLowerCase(),
+                        chainId,
+                        getChainRelevantContracts(chainId),
+                      )}
+                      passHref
+                    >
+                      <a target="_blank">
+                        <div className="border-t border-customLightGray pt-2 px-1">
+                          <SecondaryActionButton label="Get Token" />
+                        </div>
+                      </a>
+                    </Link>
+                  )}
                 </div>
               </div>
 
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
-                  <div className="flex gap-6">
+                  <div className="flex gap-6 md:gap-0 md:space-x-6">
                     <TokenIcon token={stakingToken?.name} />
                     <div className="pb-6">
                       <div className="flex">
@@ -288,7 +301,8 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
+                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
+                        POP
                       </p>
                     </div>
                   </div>
@@ -297,14 +311,14 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                      <Link href="/rewards" passHref>
-                        <a target="_blank">
-                          <div className="border-t border-customLightGray pt-2 px-1">
-                            <SecondaryActionButton label="Claim Page" />
-                          </div>
-                        </a>
-                      </Link>
-                    )}
+                    <Link href="/rewards" passHref>
+                      <a target="_blank">
+                        <div className="border-t border-customLightGray pt-2 px-1">
+                          <SecondaryActionButton label="Claim Page" />
+                        </div>
+                      </a>
+                    </Link>
+                  )}
                 </div>
               </div>
             </MobileCardSlider>

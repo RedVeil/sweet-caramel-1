@@ -20,7 +20,7 @@ export default function Hero({ tvl }): JSX.Element {
       <div className="col-span-12 md:col-span-3">
         <div className="grid grid-cols-12 w-full gap-4 md:gap-0">
           <div className="col-span-5 md:col-span-12 rounded-lg border border-customLightGray p-6">
-            <div className="flex items-center gap-2 mb-1 md:mb-2">
+            <div className="flex items-center gap-2 md:gap-0 md:space-x-2 mb-1 md:mb-2">
               <p className="text-primaryLight leading-5 hidden md:block">Total Value Locked </p>
               <p className="text-primaryLight leading-5 md:hidden">TVL </p>
               <InfoIconWithTooltip
@@ -34,7 +34,7 @@ export default function Hero({ tvl }): JSX.Element {
           </div>
           {account && (
             <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">
-              <div className="flex items-center gap-2 mb-1 md:mb-2">
+              <div className="flex items-center gap-2 md:gap-0 md:space-x-2 mb-1 md:mb-2">
                 <p className="text-primaryLight leading-5 hidden md:block">My Net Worth</p>
                 <p className="text-primaryLight leading-5 md:hidden">MNW</p>
                 <InfoIconWithTooltip

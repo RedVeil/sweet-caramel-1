@@ -165,7 +165,7 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
               <div className="hidden md:block">
                 <SweetVaultsSlider tutorialSteps={tutorialSteps} />
               </div>
-              <div onClick={(e) => e.stopPropagation()} className="flex gap-6">
+              <div onClick={(e) => e.stopPropagation()} className="flex gap-6 md:gap-0 md:space-x-6">
                 {curveLink && (
                   <Link href={curveLink} passHref>
                     <a className="block border border-customLightGray rounded-lg px-6 py-6 mt-8 basis-1/2 md:basis-full">

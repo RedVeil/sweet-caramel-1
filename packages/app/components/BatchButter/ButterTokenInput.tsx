@@ -108,7 +108,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           </p>
         </div>
         <div>
-          <div className="mt-1 relative flex items-center gap-2">
+          <div className="mt-1 relative flex items-center gap-2 md:gap-0 md:space-x-2">
             <div
               className={`w-full flex px-5 py-4 items-center rounded-lg border ${
                 localButterPageState.depositAmount.gt(

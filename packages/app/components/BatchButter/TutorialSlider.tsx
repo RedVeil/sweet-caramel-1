@@ -60,7 +60,7 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
                 <p>{step.content}</p>
               </div>
 
-              <div className="flex justify-end pt-6 gap-5">
+              <div className="flex justify-end pt-6 gap-5 md:gap-0 md:space-x-5">
                 {tutorialSteps.map((steps, index) => (
                   <div
                     className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-3 w-3 transition-all`}

@@ -343,7 +343,7 @@ export default function index(): JSX.Element {
                   <>
                     <div>
                       <div className="flex flex-col h-full">
-                        <div className="flex flex-col md:flex-row gap-8 w-full my-8">
+                        <div className="flex flex-col md:flex-row gap-8 md:gap-0 md:space-x-8 w-full my-8">
                           <RewardSummaryCard
                             content={`${formatAndRoundBigNumber(
                               userEscrowsFetchResult?.data?.totalVestingPop,
