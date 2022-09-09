@@ -55,7 +55,7 @@ const Products = () => {
           />
         )}
         <Product
-          title="3x"
+          title="3X"
           description="EUR & USD exposure with noble yield that funds social impact organizations"
           stats={[
             {
