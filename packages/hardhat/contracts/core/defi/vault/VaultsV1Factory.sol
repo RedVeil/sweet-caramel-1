@@ -21,15 +21,6 @@ struct VaultParams {
   address staking;
   Vault.FeeStructure feeStructure;
   Vault.KeeperConfig keeperConfig;
-  bool enabled;
-  address stakingAddress;
-  address submitter;
-  string metadataCID;
-  address[8] swapTokenAddresses;
-  address swapAddress;
-  uint256 exchange;
-  address zapIn;
-  address zapOut;
 }
 
 contract VaultsV1Factory is Owned {
@@ -50,13 +41,24 @@ contract VaultsV1Factory is Owned {
    * @notice Deploys V1 Vault
    * @param _vaultParams - struct containing Vault contructor params  (address token_, address yearnRegistry_,
     IContractRegistry contractRegistry_, address staking_, FeeStructure feeStructure_)
+    @param _enabled - bool if vault enabled or disabled
+    @param _stakingAddress - address of the staking contract for the vault
+    @param _metadataCID - ipfs CID of vault metadata
+    @param _swapTokenAddresses - array of underlying tokens to recieve LP tokens
+    @param _exchange - number that marks exchange
     @dev the submitter in the VaultMetadata is function caller from Controller
    */
-  function deployVaultV1(VaultParams memory _vaultParams)
-    external
-    onlyOwner
-    returns (VaultMetadata memory metadata, address[2] memory contractAddresses)
-  {
+
+  function deployVaultV1(
+    VaultParams memory _vaultParams,
+    bool _enabled,
+    address _stakingAddress,
+    address _submitter,
+    string memory _metadataCID,
+    address[8] memory _swapTokenAddresses,
+    address _swapAddress,
+    uint256 _exchange
+  ) external onlyOwner returns (VaultMetadata memory metadata, address[2] memory contractAddresses) {
     Vault vault = new Vault(
       _vaultParams.token,
       _vaultParams.yearnRegistry,
@@ -69,15 +71,13 @@ contract VaultsV1Factory is Owned {
     metadata = VaultMetadata({
       vaultAddress: address(vault),
       vaultType: 1,
-      enabled: _vaultParams.enabled,
-      stakingAddress: _vaultParams.stakingAddress,
-      submitter: _vaultParams.submitter,
-      metadataCID: _vaultParams.metadataCID,
-      swapTokenAddresses: _vaultParams.swapTokenAddresses,
-      swapAddress: _vaultParams.swapAddress,
-      exchange: _vaultParams.exchange,
-      zapIn: _vaultParams.zapIn,
-      zapOut: _vaultParams.zapOut
+      enabled: _enabled,
+      stakingAddress: _stakingAddress,
+      submitter: _submitter,
+      metadataCID: _metadataCID,
+      swapTokenAddresses: _swapTokenAddresses,
+      swapAddress: _swapAddress,
+      exchange: _exchange
     });
 
     Staking staking = new Staking(

@@ -73,7 +73,7 @@ export interface ContractAddresses {
   sJPY?: Address;
   sUSD?: Address;
   sEth?: Address;
-  vaultsV1Zapper?: Address;
+  zeroXZapper?: Address;
   agEur?: Address;
   angleRouter?: Address;
   eurOracle?: Address;

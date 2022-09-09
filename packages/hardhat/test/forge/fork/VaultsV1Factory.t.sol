@@ -19,8 +19,6 @@ address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
-address constant CURVE_ZAP_IN = 0x5Ce9b49B7A1bE9f2c3DC2B2A5BaCEA56fa21FBeE;
-address constant CURVE_ZAP_OUT = 0xE03A338d5c305613AfC3877389DD3B0617233387;
 address constant POP = 0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4;
 
 contract VaultsV1FactoryTest is Test {
@@ -49,16 +47,7 @@ contract VaultsV1FactoryTest is Test {
         management: MANAGEMENT_FEE,
         performance: PERFORMANCE_FEE
       }),
-      keeperConfig: Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 }),
-      enabled: true,
-      stakingAddress: address(0x1111),
-      submitter: vaultsV1ControllerOwner,
-      metadataCID: "someCID",
-      swapTokenAddresses: swapTokenAddresses,
-      swapAddress: address(0x2222),
-      exchange: 1,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      keeperConfig: Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     });
 
   address[8] public swapTokenAddresses;
@@ -105,32 +94,61 @@ contract VaultsV1FactoryTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       swapTokenAddresses[i] = address(uint160(i));
     }
-    vaultParams.swapTokenAddresses = swapTokenAddresses;
   }
 
   /* ========== FUNCTIONS TESTS ========== */
 
-  // vm.expectRevert is broken, this test reverts as expected but the test fails anyways.
-  /* function test__deployVaultV1NotOwnerReverts() public {
+  function test__deployVaultV1NotOwnerReverts() public {
     vm.stopPrank();
     vm.expectRevert("Only the contract owner may perform this action");
-    (VaultMetadata memory metadata, address[2] memory contractAddresses) = vaultsV1Factory.deployVaultV1(vaultParams);
+    (VaultMetadata memory metadata, address[2] memory contractAddresses) = vaultsV1Factory.deployVaultV1(
+      vaultParams,
+      true,
+      address(0x1111),
+      vaultsV1ControllerOwner,
+      "someCID",
+      swapTokenAddresses,
+      address(0x2222),
+      1
+    );
+
     assertEq(contractAddresses[0], address(0), "vault deployment failed");
     assertEq(metadata.vaultAddress, address(0), "metadata not constructed");
 
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    (VaultMetadata memory _metadata, address[2] memory _contractAddresses) = vaultsV1Factory.deployVaultV1(vaultParams);
+    (VaultMetadata memory _metadata, address[2] memory _contractAddresses) = vaultsV1Factory.deployVaultV1(
+      vaultParams,
+      true,
+      address(0x1111),
+      vaultsV1ControllerOwner,
+      "someCID",
+      swapTokenAddresses,
+      address(0x2222),
+      1
+    );
+
     assertEq(_contractAddresses[0], address(0));
     assertEq(_metadata.vaultAddress, address(0));
-  } */
+  }
 
   function test__deployVaultV1() public {
     (VaultMetadata memory metadata, address[2] memory contractAddresses) = vaultsV1Factory.deployVaultV1({
-      _vaultParams: vaultParams
+      _vaultParams: vaultParams,
+      _enabled: true,
+      _stakingAddress: address(0x1111),
+      _submitter: vaultsV1ControllerOwner,
+      _metadataCID: "someCID",
+      _swapTokenAddresses: swapTokenAddresses,
+      _swapAddress: address(0x2222),
+      _exchange: 1
     });
+
+    // Check that the vault got deployed
     assertTrue(contractAddresses[0] != address(0));
+
     emit log_named_address("VaultV1Deployment", contractAddresses[0]);
+
     assertEq(metadata.vaultAddress, contractAddresses[0]);
     assertEq(metadata.vaultType, 1);
     assertEq(metadata.enabled, true);
@@ -144,8 +162,6 @@ contract VaultsV1FactoryTest is Test {
 
     assertEq(metadata.swapAddress, address(0x2222));
     assertEq(metadata.exchange, 1);
-    assertEq(metadata.zapIn, CURVE_ZAP_IN);
-    assertEq(metadata.zapOut, CURVE_ZAP_OUT);
 
     // Test Staking Properties
     Vault vault = Vault(contractAddresses[0]);
@@ -159,6 +175,15 @@ contract VaultsV1FactoryTest is Test {
   function test__deployVaultV1Event() public {
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
     emit VaultV1Deployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F, 0x566B72091192CCd7013AdF77E2a1b349564acC21);
-    vaultsV1Factory.deployVaultV1(vaultParams);
+    vaultsV1Factory.deployVaultV1(
+      vaultParams,
+      true,
+      address(0x1111),
+      vaultsV1ControllerOwner,
+      "someCID",
+      swapTokenAddresses,
+      address(0x2222),
+      1
+    );
   }
 }

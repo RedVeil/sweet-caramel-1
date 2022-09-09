@@ -19,8 +19,6 @@ address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
-address constant CURVE_ZAP_IN = 0x5Ce9b49B7A1bE9f2c3DC2B2A5BaCEA56fa21FBeE;
-address constant CURVE_ZAP_OUT = 0xE03A338d5c305613AfC3877389DD3B0617233387;
 
 contract VaultsV1RegistryTest is Test {
   event VaultAdded(address vaultAddress, uint256 vaultType, bool enabled, string metadataCID);
@@ -52,16 +50,7 @@ contract VaultsV1RegistryTest is Test {
         management: MANAGEMENT_FEE,
         performance: PERFORMANCE_FEE
       }),
-      keeperConfig: Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 }),
-      enabled: true,
-      stakingAddress: address(0x1111),
-      submitter: address(0),
-      metadataCID: "someCID",
-      swapTokenAddresses: swapTokenAddresses,
-      swapAddress: address(0x2222),
-      exchange: 1,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      keeperConfig: Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     });
 
   address[8] public swapTokenAddresses;
@@ -114,7 +103,6 @@ contract VaultsV1RegistryTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       swapTokenAddresses[i] = address(uint160(i));
     }
-    vaultParams.swapTokenAddresses = swapTokenAddresses;
   }
 
   /* ========== HELPER FUNCTIONS ========== */
@@ -128,7 +116,16 @@ contract VaultsV1RegistryTest is Test {
   function helper__deployThroughFactory(bool _endorsed) public returns (address) {
     vm.stopPrank();
     vm.startPrank(vaultsV1ControllerOwner);
-    address deployedVault = vaultsV1Controller.deployVaultFromV1Factory(vaultParams, _endorsed);
+    address deployedVault = vaultsV1Controller.deployVaultFromV1Factory(
+      vaultParams,
+      true,
+      address(0x1111),
+      "someCID",
+      swapTokenAddresses,
+      address(0x2222),
+      1,
+      _endorsed
+    );
     VaultMetadata memory metadata = vaultsV1Registry.getVault(deployedVault);
     assertEq(metadata.vaultAddress, deployedVault);
     assertEq(metadata.submitter, address(this));
@@ -161,9 +158,7 @@ contract VaultsV1RegistryTest is Test {
       metadataCID: "someCID",
       swapTokenAddresses: swapTokenAddresses,
       swapAddress: address(0x2222),
-      exchange: 1,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      exchange: 1
     });
     assertEq(metadata.vaultAddress, address(vault));
     return (vault, metadata);
@@ -180,7 +175,16 @@ contract VaultsV1RegistryTest is Test {
     vaultParams.token = _asset;
     address[] memory deployedVaults = new address[](_amount);
     for (uint256 i = 0; i < _amount; i++) {
-      address deployedVault = vaultsV1Controller.deployVaultFromV1Factory(vaultParams, _endorsed);
+      address deployedVault = vaultsV1Controller.deployVaultFromV1Factory(
+        vaultParams,
+        true,
+        address(0x1111),
+        "someCID",
+        swapTokenAddresses,
+        address(0x2222),
+        1,
+        _endorsed
+      );
       deployedVaults[i] = deployedVault;
     }
     assertEq(vaultsV1Registry.getTotalVaults(), prevAmount + _amount);
@@ -326,9 +330,7 @@ contract VaultsV1RegistryTest is Test {
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
-      exchange: 2,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      exchange: 2
     });
     vm.stopPrank();
     vm.startPrank(notOwner);
@@ -372,9 +374,7 @@ contract VaultsV1RegistryTest is Test {
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
-      exchange: 2,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      exchange: 2
     });
     assertTrue(vault != notVault);
     assertEq(vaultsV1Registry.getTotalVaults(), 1);
@@ -416,9 +416,7 @@ contract VaultsV1RegistryTest is Test {
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
-      exchange: 2,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      exchange: 2
     });
     vaultsV1Registry.updateVault(newMetadata);
     VaultMetadata memory vaultsV1RegistryMetadata = vaultsV1Registry.getVault(vault);
@@ -454,9 +452,7 @@ contract VaultsV1RegistryTest is Test {
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
-      exchange: 2,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      exchange: 2
     });
     assertEq(vaultsV1Registry.getVault(vault).vaultType, 1);
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
@@ -502,9 +498,7 @@ contract VaultsV1RegistryTest is Test {
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
-      exchange: 2,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      exchange: 2
     });
     assertEq((vaultsV1Registry.getVault(vault)).submitter, address(this));
     vm.expectRevert("cannot change submitter");
@@ -541,9 +535,7 @@ contract VaultsV1RegistryTest is Test {
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
-      exchange: 2,
-      zapIn: CURVE_ZAP_IN,
-      zapOut: CURVE_ZAP_OUT
+      exchange: 2
     });
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     emit VaultUpdated(vault, 1, true, "differentCID");
@@ -646,14 +638,13 @@ contract VaultsV1RegistryTest is Test {
 
   /* ========== VIEW FUNCTIONS TESTS ========== */
 
-  // vm.expectRevert is broken, this test reverts as expected but the test fails anyways.
-  /* function test__view__getVaultAddressNotRegisteredReverts() public {
+  function test__view__getVaultAddressNotRegisteredReverts() public {
     address deployedVault = helper__deployThroughFactory(true);
     address notVault = address(0x7777);
     assertTrue(notVault != deployedVault);
     vm.expectRevert("vault address not registered");
     vaultsV1Registry.getVault(notVault);
-  } */
+  }
 
   function test__view__getVaultsByAssetNoAssetVaultsReverts() public {
     helper__deployMultipleVaultsAndRegister(CRV_3CRYPTO, 1, true);

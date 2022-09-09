@@ -20,8 +20,6 @@ struct VaultMetadata {
   address[8] swapTokenAddresses; // underlying assets to deposit and recieve LP token
   address swapAddress; // ex: stableSwapAddress for Curve
   uint256 exchange; // number specifying exchange (1 = curve)
-  address zapIn; // address of inbound zap contract
-  address zapOut; // address of outbount zap contract
 }
 
 contract VaultsV1Registry is Owned {
@@ -124,9 +122,7 @@ contract VaultsV1Registry is Owned {
       params.metadataCID,
       params.swapTokenAddresses,
       params.swapAddress,
-      params.exchange,
-      params.zapIn,
-      params.zapOut
+      params.exchange
     );
     vaultAddresses.push(params.vaultAddress);
     assetVaults[IEIP4626(params.vaultAddress).asset()].push(params.vaultAddress);
@@ -150,8 +146,6 @@ contract VaultsV1Registry is Owned {
     updatedVault.swapTokenAddresses = _vaultMetadata.swapTokenAddresses;
     updatedVault.swapAddress = _vaultMetadata.swapAddress;
     updatedVault.exchange = _vaultMetadata.exchange;
-    updatedVault.zapIn = _vaultMetadata.zapIn;
-    updatedVault.zapOut = _vaultMetadata.zapOut;
     emit VaultUpdated(
       _vaultMetadata.vaultAddress,
       _vaultMetadata.vaultType,
