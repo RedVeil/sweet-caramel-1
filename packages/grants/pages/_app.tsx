@@ -1,15 +1,15 @@
+import type { ReactElement, ReactNode } from 'react'
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Debug } from "components/Debug";
-import { DesktopFooter } from "components/DesktopFooter";
 import Header from "components/Header";
-import { MobileFooter } from "components/MobileFooter";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SwapChainModal from "components/SwapChainModal";
-import type { AppProps } from "next/app";
+import type { NextPage } from 'next'
+import type { AppProps } from 'next/app'
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
@@ -18,6 +18,8 @@ import { StateProvider } from "../context/store";
 import ContractsWrapper from "../context/Web3/contracts";
 import ElectionsProvider from "../context/Web3/elections";
 import "../styles/globals.css";
+import { Layout } from 'components/Layout/Layout';
+
 
 function getLibrary(provider: any): Web3Provider {
   const library = new Web3Provider(provider);
@@ -25,9 +27,25 @@ function getLibrary(provider: any): Web3Provider {
   return library;
 }
 
-export default function MyApp(props: AppProps): JSX.Element {
-  const { Component, pageProps } = props;
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
+
+
+export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const [loading, setLoading] = useState(false);
+
+  const getLayout =
+    Component.getLayout ||
+    (() => (
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    ));
 
   useEffect(() => {
     Router.events.on("routeChangeStart", () => {
@@ -70,13 +88,7 @@ export default function MyApp(props: AppProps): JSX.Element {
               <DualActionWideModalContainer />
               <Toaster position="top-right" reverseOrder={false} />
               <Header />
-              <Component {...pageProps} />
-              <div className="hidden lg:block">
-                <DesktopFooter />
-              </div>
-              <div className="lg:hidden">
-                <MobileFooter />
-              </div>
+              {getLayout(<Component {...pageProps} />)}
               <SwapChainModal />
               <NotificationsContainer />
               <Debug />
