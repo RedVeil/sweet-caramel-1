@@ -17,6 +17,7 @@ import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "components/BatchButter/StatInfoCard";
 import TutorialSlider from "components/BatchButter/TutorialSlider";
 import ButterStats from "components/ButterStats";
+import TransactionToast, { ToastParams } from "components/Notifications/TransactionToast";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
 import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
@@ -29,6 +30,7 @@ import useButterBatchData from "hooks/set/useButterBatchData";
 import useButterBatchZapper from "hooks/set/useButterBatchZapper";
 import useButterWhaleData from "hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
+import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { Fragment, useContext, useEffect, useState } from "react";
@@ -112,6 +114,10 @@ export default function Butter(): JSX.Element {
     contractAddresses.yAlusd,
   ];
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
+  const approveToken = useApproveERC20();
+
+
+  /* ---- USE EFFECTS ---- */
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -204,12 +210,28 @@ export default function Butter(): JSX.Element {
     }
   }, [butterPageState.redeeming]);
 
+
+  /* ---- HELPER FUNCTIONS ---- */
+
   const hasClaimableBalances = () => {
     if (butterPageState.redeeming) {
       return butterBatchData?.claimableMintBatches.length > 0;
     }
     return butterBatchData?.claimableRedeemBatches.length > 0;
   };
+
+  function getBatchProgressAmount(): BigNumber {
+    if (!butterBatchData) {
+      return constants.Zero;
+    }
+    return butterPageState.redeeming
+      ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
+        .mul(butterBatchData?.tokens?.butter.price)
+        .div(parseEther("1"))
+      : butterBatchData?.currentBatches.mint.suppliedTokenBalance
+        .mul(butterBatchData?.tokens?.threeCrv.price)
+        .div(parseEther("1"));
+  }
 
   function selectToken(token: BatchProcessTokenKey): void {
     const zapToken = ["dai", "usdc", "usdt"];
@@ -238,8 +260,338 @@ export default function Butter(): JSX.Element {
     }
   }
 
-  function handleMintSuccess(res) {
-    onContractSuccess(res, `${butterPageState.tokens[butterPageState.selectedToken.input].name} deposited!`, () => {
+  /* ---- MAIN INTERACTIONS ---- */
+
+  async function handleMainAction(
+    depositAmount: BigNumber,
+    batchType: BatchType,
+    stakeImmidiate = false,
+  ): Promise<void> {
+    // All input amounts are currently raised to 1e18 thats why we adjust them now to proper decimals
+    depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
+
+    if (butterPageState.instant && butterPageState.redeeming) {
+      await instantRedeem(depositAmount);
+    } else if (butterPageState.instant) {
+      await instantMint(depositAmount, stakeImmidiate);
+    } else if (butterPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
+      await hotswapMint(depositAmount)
+    } else if (butterPageState.useUnclaimedDeposits) {
+      await hotswapRedeem(depositAmount)
+    } else if (batchType === BatchType.Mint) {
+      await batchMint(depositAmount);
+    } else {
+      await batchRedeem(depositAmount);
+    }
+    await Promise.all([refetchButterBatchData(), refetchButterWhaleData()]);
+  }
+
+  /* ---- MINT MAIN INTERACTIONS ---- */
+
+  async function batchMint(depositAmount: BigNumber): Promise<void> {
+    const inputToken = butterPageState.tokens[butterPageState.selectedToken.input]
+    const toastDescription = `${formatAndRoundBigNumber(depositAmount, ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18)} ${inputToken.name}`
+
+
+    if (butterPageState.useZap) {
+      TransactionToast.loading({ title: "ZapDepositing for Mint", description: `${toastDescription} for BTR` });
+
+      const virtualPriceValue = await virtualPrice();
+      const minMintAmount = getMinMintAmount(
+        depositAmount,
+        butterPageState.slippage,
+        virtualPriceValue,
+        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
+      );
+
+      return butterBatchZapper.zapIntoBatch(
+        getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
+        minMintAmount,
+      ).then(
+        (res) => handleMintSuccess(res, { title: "ZapDeposited for Mint successfully", description: `${toastDescription} for BTR` }),
+        (err) => onContractError(err, `ZapDepositing for Mint ${toastDescription}`),
+      );
+    }
+
+    TransactionToast.loading({ title: "Depositing for Mint", description: `${toastDescription} for BTR` });
+
+    return butterBatch.depositForMint(depositAmount, account).then(
+      (res) => handleMintSuccess(res, { title: "Deposited for Mint successfully", description: `${toastDescription} for BTR` }),
+      (err) => onContractError(err, `Depositing for Mint ${toastDescription}`),
+    );
+  }
+
+  async function instantMint(depositAmount: BigNumber, stakeImmidiate = false): Promise<void> {
+    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, 18)
+    const inputTokenName = butterPageState.tokens[butterPageState.selectedToken.input].name
+
+    if (butterPageState.useZap) {
+      TransactionToast.loading(
+        {
+          title: "ZapMinting",
+          description: `${formatedDepositAmount} ${inputTokenName} to BTR`
+        })
+
+      const virtualPriceValue = await virtualPrice();
+      const minMintAmount = getMinMintAmount(
+        depositAmount,
+        butterPageState.slippage,
+        virtualPriceValue,
+        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
+      );
+
+      return butterWhaleProcessing.zapMint(
+        getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
+        minMintAmount,
+        percentageToBps(butterPageState.slippage),
+        stakeImmidiate,
+      ).then(
+        (res) =>
+          onContractSuccess(
+            res,
+            {
+              title: "ZapMinted successfully",
+              description: `${formatedDepositAmount} ${inputTokenName} to BTR`
+            },
+            () => setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
+          ),
+        (err) => onContractError(err, `ZapMinting ${formatedDepositAmount} ${inputTokenName}`))
+    }
+
+    TransactionToast.loading({ title: "Minting", description: `Using ${formatedDepositAmount} 3CRV` })
+
+    return butterWhaleProcessing.mint(depositAmount, percentageToBps(butterPageState.slippage), stakeImmidiate).then(
+      (res) =>
+        onContractSuccess(
+          res,
+          {
+            title: "Minted successfully",
+            description: `Used ${formatedDepositAmount} 3CRV`
+          },
+          () => setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
+        ),
+      (err) => onContractError(err, `Minting using ${formatedDepositAmount} 3CRV`))
+  }
+
+  async function hotswapMint(depositAmount: BigNumber): Promise<void> {
+    const batches = butterBatchData?.claimableRedeemBatches;
+    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
+
+    const toastDescription = `${formatAndRoundBigNumber(depositAmount, 18)} 3CRV`
+    TransactionToast.loading({ title: "Hot Swapping", description: `${toastDescription} for BTR` })
+
+    return butterBatch.moveUnclaimedDepositsIntoCurrentBatch(
+      hotSwapParameter.batchIds as string[],
+      hotSwapParameter.amounts,
+      BatchType.Redeem,
+    ).then(
+      (res) =>
+        onContractSuccess(res, { title: "Hot Swapped successfully", description: `${toastDescription} for BTR` },
+          () => setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
+        ),
+      (err) => onContractError(err, `Hot Swapping ${toastDescription}`),
+    );
+  }
+
+  /* ---- REDEEM MAIN INTERACTIONS ---- */
+
+  async function batchRedeem(depositAmount: BigNumber): Promise<void> {
+    const toastDescription = `${formatAndRoundBigNumber(depositAmount, 18)} BTR`
+    TransactionToast.loading({ title: "Depositing for Redeem", description: toastDescription });
+
+    return butterBatch.depositForRedeem(depositAmount).then(
+      (res) => handleRedeemSuccess(res, { title: "Deposited for Redeem successfully", description: toastDescription }),
+      (err) => onContractError(err, `Depositing for Redeem ${toastDescription}`),
+    );
+  }
+
+  async function instantRedeem(depositAmount: BigNumber): Promise<void> {
+    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, 18)
+    const outputTokenName = butterPageState.tokens[butterPageState.selectedToken.output].name
+
+    if (butterPageState.useZap) {
+      TransactionToast.loading(
+        {
+          title: "ZapRedeeming",
+          description: `${formatedDepositAmount} BTR to ${outputTokenName}`
+        })
+
+      return butterWhaleProcessing.zapRedeem(
+        depositAmount,
+        TOKEN_INDEX[butterPageState.selectedToken.output],
+        adjustDepositDecimals(depositAmount, butterPageState.selectedToken.output)
+          .mul(100 - butterPageState.slippage)
+          .div(100),
+        butterPageState.slippage,
+      ).then(
+        (res) =>
+          onContractSuccess(
+            res,
+            {
+              title: "ZapRedeemed successfully",
+              description: `${formatedDepositAmount} BTR to ${outputTokenName}`
+            },
+            () => setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
+          ),
+        (err) => onContractError(err, `ZapRedeeming ${formatedDepositAmount} BTR`))
+    }
+
+    TransactionToast.loading({ title: "Redeeming", description: `Using ${formatedDepositAmount} BTR` })
+
+    return butterWhaleProcessing.redeem(
+      depositAmount,
+      percentageToBps(butterPageState.slippage))
+      .then(
+        (res) =>
+          onContractSuccess(
+            res,
+            {
+              title: "Redeemed successfully",
+              description: `Used ${formatedDepositAmount} BTR`
+            },
+            () => setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
+          ),
+        (err) => onContractError(err, `Redeeming using ${formatedDepositAmount} BTR`))
+  }
+
+  async function hotswapRedeem(depositAmount: BigNumber): Promise<void> {
+    const batches = butterBatchData?.claimableMintBatches;
+    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
+
+    const toastDescription = `${formatAndRoundBigNumber(depositAmount, 18)} BTR`
+    TransactionToast.loading({ title: "Hot Swapping", description: `${toastDescription} for 3CRV` })
+
+    return butterBatch.moveUnclaimedDepositsIntoCurrentBatch(
+      hotSwapParameter.batchIds as string[],
+      hotSwapParameter.amounts,
+      BatchType.Mint,
+    ).then(
+      (res) =>
+        onContractSuccess(res, { title: "Hot Swapped successfully", description: `${toastDescription} for 3CRV` },
+          () => setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
+        ),
+      (err) => onContractError(err, `Hot Swapping ${toastDescription}`),
+    );
+  }
+
+  /* ---- CLAIMING MAIN INTERACTIONS ---- */
+
+  async function claim(batchId: string, useZap?: boolean, outputToken?: string): Promise<void> {
+    const batch = butterBatchData.accountBatches.find(batch => batch.batchId === batchId);
+    const claimableAmount = formatAndRoundBigNumber(batch.accountClaimableTokenBalance, 18)
+    const claimToken = batch.batchType == BatchType.Mint ? "BTR" : "3CRV"
+
+    let errorMessage: string;
+    let successMessage: ToastParams;
+    let call;
+    if (useZap) {
+      TransactionToast.loading({ title: "ZapClaiming", description: `${claimableAmount} ${claimToken} to ${outputToken.toUpperCase()} ` })
+      errorMessage = `ZapClaiming ${claimableAmount} ${claimToken}`
+      successMessage = { title: "ZapClaimed successfully", description: `${claimableAmount} ${claimToken} to ${outputToken.toUpperCase()} ` }
+
+      call = butterBatchZapper.claimAndSwapToStable(
+        batchId,
+        TOKEN_INDEX[outputToken],
+        adjustDepositDecimals(
+          butterBatchData?.accountBatches
+            .find((batch) => batch.batchId === batchId)
+            .accountClaimableTokenBalance.mul(butterBatchData?.tokens?.threeCrv.price)
+            .div(butterBatchData?.tokens[outputToken].price),
+          outputToken,
+        )
+          .mul(100 - butterPageState.slippage)
+          .div(100),
+      );
+    } else {
+      TransactionToast.loading({ title: "Claiming", description: `${claimableAmount} ${claimToken}` })
+      errorMessage = `Claiming ${claimableAmount} ${claimToken}`
+      successMessage = { title: "Claimed successfully", description: `${claimableAmount} ${claimToken}` }
+
+      call = butterBatch.claim(batchId, account);
+    }
+    await call.then(
+      (res) => handleClaimSuccess(res, successMessage),
+      (err) => onContractError(err, errorMessage),
+    );
+  }
+
+  async function claimAndStake(batchId: string): Promise<void> {
+    const toastDescription = `${formatAndRoundBigNumber(butterBatchData.accountBatches.find(batch => batch.batchId === batchId).accountClaimableTokenBalance, 18)} BTR`
+    TransactionToast.loading({ title: "Claiming and Staking", description: toastDescription })
+
+    await butterBatch
+      .claimAndStake(batchId, account)
+      .then((res) => onContractSuccess(res, { title: "Claimed and Staked successfully", description: toastDescription }, () => refetchButterBatchData()))
+      .catch((err) => onContractError(err, `Claiming and Staking ${toastDescription} `));
+  }
+
+  /* ---- OTHER MAIN INTERACTIONS ---- */
+
+  async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: string): Promise<void> {
+    const toastDescription = `${formatAndRoundBigNumber(amount, 18)} ${butterBatchData.accountBatches.find(batch => batch.batchId === batchId).batchType === BatchType.Mint ? "3CRV" : "BTR"} `
+
+    let errorMessage: string;
+    let successMessage: ToastParams;
+    let call;
+    if (useZap) {
+      TransactionToast.loading({ title: "ZapCanceling", description: `${toastDescription} to ${outputToken.toUpperCase()} ` })
+      errorMessage = `ZapCanceling ${toastDescription} `
+      successMessage = { title: "ZapCanceled", description: `${toastDescription} to ${outputToken.toUpperCase()} ` }
+
+      call = new ethers.Contract(contractAddresses.butterBatchZapper, abi, signer).zapOutOfBatch(
+        batchId,
+        amount,
+        TOKEN_INDEX[outputToken],
+        adjustDepositDecimals(amount, outputToken)
+          .mul(100 - butterPageState.slippage)
+          .div(100),
+      );
+    } else {
+      TransactionToast.loading({ title: "Canceling", description: toastDescription })
+      errorMessage = `Canceling ${toastDescription} `
+      successMessage = { title: "Canceled successfully", description: toastDescription }
+
+      call = butterBatch.withdrawFromBatch(batchId, amount, account);
+    }
+
+    await call
+      .then((res) =>
+        onContractSuccess(res, successMessage, () => {
+          refetchButterBatchData();
+        }),
+      )
+      .catch((err) => onContractError(err, errorMessage));
+  }
+
+  async function approve(contractKey: string): Promise<void> {
+    const selectedInputToken = butterBatchData?.tokens[contractKey];
+
+    let currentContractName = "Batching"
+    let currentContractAddress = butterBatch.address
+    if (butterPageState.instant) {
+      currentContractName = "Instant Processing";
+      currentContractAddress = butterWhaleProcessing.address
+    }
+    if (butterPageState.useZap) {
+      currentContractName = "Zapping";
+      currentContractAddress = butterBatchZapper.address
+    }
+
+    const toastDescription = `${selectedInputToken.name} for ${currentContractName}`
+    TransactionToast.loading({ title: "Approving", description: toastDescription })
+
+    await approveToken(
+      selectedInputToken.contract,
+      currentContractAddress,
+      { title: "Approved successfully", description: toastDescription },
+      `Approving ${toastDescription} `,
+      () => refetchButterBatchData())
+  }
+
+  /* ---- HANDLE SUCCESS MODALS---- */
+
+  function handleMintSuccess(res, successMessage: ToastParams) {
+    onContractSuccess(res, successMessage, () => {
       setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
       toggleModal(
         ModalType.MultiChoice,
@@ -270,8 +622,8 @@ export default function Butter(): JSX.Element {
       );
     });
   }
-  function handleRedeemSuccess(res) {
-    onContractSuccess(res, "Butter deposited!", () => {
+  function handleRedeemSuccess(res, successMessage: ToastParams) {
+    onContractSuccess(res, successMessage, () => {
       setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
       toggleModal(
         ModalType.MultiChoice,
@@ -303,129 +655,8 @@ export default function Butter(): JSX.Element {
     });
   }
 
-  async function instantMint(depositAmount: BigNumber, stakeImmidiate = false): Promise<ethers.ContractTransaction> {
-    toast.loading(`Depositing ${butterPageState.tokens[butterPageState.selectedToken.input].name}...`);
-    if (butterPageState.useZap) {
-      const virtualPriceValue = await virtualPrice();
-      const minMintAmount = getMinMintAmount(
-        depositAmount,
-        butterPageState.slippage,
-        virtualPriceValue,
-        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
-      );
-      return butterWhaleProcessing.zapMint(
-        getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
-        minMintAmount,
-        percentageToBps(butterPageState.slippage),
-        stakeImmidiate,
-      );
-    }
-    return butterWhaleProcessing.mint(depositAmount, percentageToBps(butterPageState.slippage), stakeImmidiate);
-  }
-  async function instantRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading(`Withdrawing ${butterPageState.tokens[butterPageState.selectedToken.output].name}...`);
-    if (butterPageState.useZap) {
-      return butterWhaleProcessing.zapRedeem(
-        depositAmount,
-        TOKEN_INDEX[butterPageState.selectedToken.output],
-        adjustDepositDecimals(depositAmount, butterPageState.selectedToken.output)
-          .mul(100 - butterPageState.slippage)
-          .div(100),
-        butterPageState.slippage,
-      );
-    }
-    return butterWhaleProcessing.redeem(depositAmount, percentageToBps(butterPageState.slippage));
-  }
-  async function batchMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading(`Depositing ${butterPageState.tokens[butterPageState.selectedToken.input].name} ...`);
-    if (butterPageState.useZap) {
-      const virtualPriceValue = await virtualPrice();
-      const minMintAmount = getMinMintAmount(
-        depositAmount,
-        butterPageState.slippage,
-        virtualPriceValue,
-        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
-      );
-      return butterBatchZapper.zapIntoBatch(
-        getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
-        minMintAmount,
-      );
-    }
-    return butterBatch.depositForMint(depositAmount, account);
-  }
-  async function batchRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading("Depositing Butter...");
-    return butterBatch.depositForRedeem(depositAmount);
-  }
-  async function hotswapRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    const batches = butterBatchData?.claimableMintBatches;
-    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
-    toast.loading("Depositing Funds...");
-    return butterBatch.moveUnclaimedDepositsIntoCurrentBatch(
-      hotSwapParameter.batchIds as string[],
-      hotSwapParameter.amounts,
-      BatchType.Mint,
-    );
-  }
-  async function hotswapMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    const batches = butterBatchData?.claimableRedeemBatches;
-    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
-    toast.loading("Depositing Funds...");
-    return butterBatch.moveUnclaimedDepositsIntoCurrentBatch(
-      hotSwapParameter.batchIds as string[],
-      hotSwapParameter.amounts,
-      BatchType.Redeem,
-    );
-  }
-
-  async function handleMainAction(
-    depositAmount: BigNumber,
-    batchType: BatchType,
-    stakeImmidiate = false,
-  ): Promise<void> {
-    depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
-    if (butterPageState.instant && butterPageState.redeeming) {
-      await instantRedeem(depositAmount).then(
-        (res) =>
-          onContractSuccess(res, "Butter redeemed!", () =>
-            setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
-          ),
-        (err) => onContractError(err),
-      );
-    } else if (butterPageState.instant) {
-      await instantMint(depositAmount, stakeImmidiate).then(
-        (res) =>
-          onContractSuccess(res, "Butter minted!", () =>
-            setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
-          ),
-        (err) => onContractError(err),
-      );
-    } else if (butterPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
-      hotswapMint(depositAmount).then(
-        (res) =>
-          onContractSuccess(res, `Funds deposited!`, () =>
-            setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
-          ),
-        (err) => onContractError(err),
-      );
-    } else if (butterPageState.useUnclaimedDeposits) {
-      await hotswapRedeem(depositAmount).then(
-        (res) =>
-          onContractSuccess(res, `Funds deposited!`, () =>
-            setButterPageState({ ...butterPageState, depositAmount: constants.Zero }),
-          ),
-        (err) => onContractError(err),
-      );
-    } else if (batchType === BatchType.Mint) {
-      await batchMint(depositAmount).then(handleMintSuccess, (err) => onContractError(err));
-    } else {
-      await batchRedeem(depositAmount).then(handleRedeemSuccess, (err) => onContractError(err));
-    }
-    await Promise.all([refetchButterBatchData(), refetchButterWhaleData()]);
-  }
-
-  function handleClaimSuccess(res) {
-    onContractSuccess(res, `Batch claimed!`, () => {
+  function handleClaimSuccess(res, successMessage: ToastParams) {
+    onContractSuccess(res, successMessage, () => {
       refetchButterBatchData();
       toggleModal(
         ModalType.MultiChoice,
@@ -480,97 +711,6 @@ export default function Butter(): JSX.Element {
         dispatch,
       );
     });
-  }
-  async function claim(batchId: string, useZap?: boolean, outputToken?: string): Promise<void> {
-    toast.loading("Claiming Batch...");
-    let call;
-    if (useZap) {
-      call = butterBatchZapper.claimAndSwapToStable(
-        batchId,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(
-          butterBatchData?.accountBatches
-            .find((batch) => batch.batchId === batchId)
-            .accountClaimableTokenBalance.mul(butterBatchData?.tokens?.threeCrv.price)
-            .div(butterBatchData?.tokens[outputToken].price),
-          outputToken,
-        )
-          .mul(100 - butterPageState.slippage)
-          .div(100),
-      );
-    } else {
-      call = butterBatch.claim(batchId, account);
-    }
-    await call.then(
-      (res) => handleClaimSuccess(res),
-      (err) => onContractError(err),
-    );
-  }
-
-  async function claimAndStake(batchId: string): Promise<void> {
-    toast.loading("Claiming and staking Butter...");
-    await butterBatch
-      .claimAndStake(batchId, account)
-      .then((res) => onContractSuccess(res, `Staked claimed Butter`, () => refetchButterBatchData()))
-      .catch((err) => onContractError(err));
-  }
-
-  async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: string): Promise<void> {
-    let call;
-    if (useZap) {
-      call = new ethers.Contract(contractAddresses.butterBatchZapper, abi, signer).zapOutOfBatch(
-        batchId,
-        amount,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(amount, outputToken)
-          .mul(100 - butterPageState.slippage)
-          .div(100),
-      );
-    } else {
-      call = butterBatch.withdrawFromBatch(batchId, amount, account);
-    }
-    await call
-      .then((res) =>
-        onContractSuccess(res, "Funds withdrawn!", () => {
-          refetchButterBatchData();
-        }),
-      )
-      .catch((err) => onContractError(err));
-  }
-
-  function getCurrentContractAddress(): string {
-    if (butterPageState.instant) {
-      return butterWhaleProcessing.address;
-    }
-    if (butterPageState.useZap) {
-      return butterBatchZapper.address;
-    }
-    return butterBatch.address;
-  }
-
-  async function approve(contractKey: string): Promise<void> {
-    toast.loading("Approving Token...");
-    const selectedTokenContract = butterBatchData?.tokens[contractKey].contract;
-    await selectedTokenContract.approve(getCurrentContractAddress(), ethers.constants.MaxUint256).then(
-      (res) =>
-        onContractSuccess(res, "Token approved!", () => {
-          refetchButterBatchData();
-        }),
-      (err) => onContractError(err),
-    );
-  }
-
-  function getBatchProgressAmount(): BigNumber {
-    if (!butterBatchData) {
-      return constants.Zero;
-    }
-    return butterPageState.redeeming
-      ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
-          .mul(butterBatchData?.tokens?.butter.price)
-          .div(parseEther("1"))
-      : butterBatchData?.currentBatches.mint.suppliedTokenBalance
-          .mul(butterBatchData?.tokens?.threeCrv.price)
-          .div(parseEther("1"));
   }
 
   return (
@@ -654,14 +794,13 @@ export default function Butter(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="Butter Value"
-                content={`$${
-                  butterBatchData?.tokens?.butter
-                    ? formatAndRoundBigNumber(
-                        butterBatchData?.tokens?.butter?.price,
-                        butterPageState?.tokens?.butter?.decimals,
-                      )
-                    : "-"
-                }`}
+                content={`$${butterBatchData?.tokens?.butter
+                  ? formatAndRoundBigNumber(
+                    butterBatchData?.tokens?.butter?.price,
+                    butterPageState?.tokens?.butter?.decimals,
+                  )
+                  : "-"
+                  }`}
                 icon={"Butter"}
                 info={{
                   title: "Underlying Tokens",

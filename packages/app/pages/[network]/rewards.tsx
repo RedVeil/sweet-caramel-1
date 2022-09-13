@@ -2,6 +2,7 @@ import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/ty
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { CardLoader } from "components/CardLoader";
 import ConnectDepositCard from "components/Common/ConnectDepositCard";
+import TransactionToast from "components/Notifications/TransactionToast";
 import AirDropClaim from "components/Rewards/AirdropClaim";
 import ClaimCard from "components/Rewards/ClaimCard";
 import { NotAvailable } from "components/Rewards/NotAvailable";
@@ -14,6 +15,7 @@ import { store } from "context/store";
 import { BigNumber, ethers } from "ethers";
 import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
 import usePopLocker from "hooks/staking/usePopLocker";
+import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useClaimEscrows from "hooks/useClaimEscrows";
 import useClaimStakingReward from "hooks/useClaimStakingReward";
 import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
@@ -21,7 +23,6 @@ import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
-import { toast } from "react-hot-toast";
 import { SWRResponse } from "swr";
 import useBalanceAndAllowance from "../../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../../hooks/tokens/useERC20";
@@ -55,6 +56,8 @@ export default function index(): JSX.Element {
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows();
+  const approveToken = useApproveERC20();
+
 
   const revalidate = () => {
     revalidatePopLocker();
@@ -88,10 +91,12 @@ export default function index(): JSX.Element {
   > = useGetUserEscrows(chainId);
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
-    toast.loading("Claiming Rewards...");
+    const toastDescription = `${formatAndRoundBigNumber(isPopLocker ? popLocker.earned : stakingPools.find(stakingPool => stakingPool.address.toLowerCase() === pool.address.toLowerCase()).earned, 18)} POP`
+    TransactionToast.loading({ title: "Claiming rewards", description: toastDescription })
+
     claimStakingReward(pool, isPopLocker).then(
       (res) =>
-        onContractSuccess(res, "Rewards Claimed!", () => {
+        onContractSuccess(res, { title: "Claimed rewards successfully", description: toastDescription }, () => {
           revalidate();
 
           if (!localStorage.getItem("hideClaimModal")) {
@@ -121,26 +126,31 @@ export default function index(): JSX.Element {
             );
           }
         }),
-      (err) => onContractError(err),
+      (err) => onContractError(err, `Claiming rewards - ${toastDescription}`),
     );
   };
 
   const claimSingleEscrow = async (escrow: Escrow) => {
-    toast.loading("Claiming Escrow...");
+    const toastDescription = `${formatAndRoundBigNumber(escrow.claimableAmount, 18)} POP`
+    TransactionToast.loading({ title: "Claiming escrow", description: toastDescription })
+
     claimVestedPopFromEscrows([escrow.id]).then(
-      (res) => onContractSuccess(res, "Claimed Escrow!", revalidate),
-      (err) => onContractError(err),
+      (res) => onContractSuccess(res, { title: "Claimed escrow successfully", description: toastDescription }, revalidate),
+      (err) => onContractError(err, `Claiming escrow - ${toastDescription}`),
     );
   };
 
   const claimAllEscrows = async () => {
-    toast.loading("Claiming Escrows...");
+    const toastDescription = `${formatAndRoundBigNumber(userEscrowsFetchResult?.data?.totalClaimablePop, 18)} POP`
+    TransactionToast.loading({ title: "Claiming escrow", description: toastDescription })
+
     const escrowsIds = userEscrowsFetchResult?.data?.escrows.map((escrow) => escrow.id);
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
+
     if (numberOfEscrows && numberOfEscrows > 0) {
       claimVestedPopFromEscrows(escrowsIds).then(
-        (res) => onContractSuccess(res, "Claimed Escrows!", revalidate),
-        (err) => onContractError(err),
+        (res) => onContractSuccess(res, { title: "Claimed escrow successfully", description: toastDescription }, revalidate),
+        (err) => onContractError(err, `Claiming escrow - ${toastDescription}`),
       );
     }
   };
@@ -154,49 +164,28 @@ export default function index(): JSX.Element {
   }
 
   async function approveXpopRedemption(): Promise<void> {
-    toast.loading("Approving xPOP...");
-    await xPop.contract
-      .connect(signer)
-      .approve(contractAddresses.xPopRedemption, ethers.constants.MaxUint256)
-      .then((res) => {
-        res.wait().then((res) => {
-          toast.dismiss();
-          toast.success("xPOP approved!");
-          revalidate();
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+    TransactionToast.loading({ title: "Approving", description: "xPOP for Redemption" })
+    approveToken(
+      xPop.contract.connect(signer),
+      contractAddresses.xPopRedemption,
+      { title: "Approved successfully", description: "xPOP for Redemption" },
+      "Approving xPOP for Redemption",
+      () => revalidate())
   }
+
+
   async function redeemXpop(amount: BigNumber): Promise<void> {
-    toast.loading("Redeeming xPOP...");
+    const toastDescription = `${formatAndRoundBigNumber(amount, 18)} xPOP`
+    TransactionToast.loading({ title: "Redeeming", description: toastDescription })
+
     await xPopRedemption
       .connect(signer)
-      .redeem(amount)
-      .then((res) => {
-        res.wait().then((res) => {
-          toast.dismiss();
-          toast.success("xPOP redeemed!");
-          revalidate();
-          postRedeemSuccess();
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
-        revalidate();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+      .redeem(amount).then(
+        (res) => onContractSuccess(res, { title: "Redeemed successfully", description: toastDescription }, () => { revalidate(); postRedeemSuccess(); }),
+        (err) => onContractError(err, `Redeeming ${toastDescription}`),
+      );
   }
+
   const postRedeemSuccess = () => {
     dispatch(
       setSingleActionModal({
@@ -335,9 +324,9 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowsFetchResult ||
-                !userEscrowsFetchResult?.data ||
-                userEscrowsFetchResult?.error ||
-                userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                  !userEscrowsFetchResult?.data ||
+                  userEscrowsFetchResult?.error ||
+                  userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>

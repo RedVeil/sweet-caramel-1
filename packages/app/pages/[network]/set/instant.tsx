@@ -1,6 +1,7 @@
 import {
   adjustDepositDecimals,
   ChainId,
+  formatAndRoundBigNumber,
   getMinMintAmount,
   isButterSupportedOnCurrentNetwork,
   percentageToBps,
@@ -9,12 +10,14 @@ import { BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
+import TransactionToast from "components/Notifications/TransactionToast";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { isDepositDisabled } from "helper/isDepositDisabled";
 import useButterWhaleData from "hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
+import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
@@ -46,6 +49,8 @@ export default function InstantButter() {
     contractAddresses.yMusd,
     contractAddresses.yAlusd,
   ];
+  const approveToken = useApproveERC20();
+
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -166,29 +171,28 @@ export default function InstantButter() {
   ): Promise<void> {
     depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
     if (butterPageState.redeeming) {
-      await instantWithdraw(depositAmount).then(
-        (res) => onContractSuccess(res, "Butter redeemed!"),
-        (err) => onContractError(err),
-      );
+      await instantRedeem(depositAmount);
     } else {
-      await instantMint(depositAmount, batchType, stakeImmidiate).then(
-        (res) => onContractSuccess(res, "Butter minted!"),
-        (err) => onContractError(err),
-      );
+      await instantMint(depositAmount, batchType, stakeImmidiate);
     }
     await refetchButterData();
     setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
   }
 
-  async function instantMint(
-    depositAmount: BigNumber,
-    _batchType: BatchType,
-    stakeImmidiate: boolean,
-  ): Promise<ethers.ContractTransaction> {
+  async function instantMint(depositAmount: BigNumber, _batchType: BatchType, stakeImmidiate: boolean,): Promise<void> {
     // Batchtype is included to remain compliant with the interface provided by MintRedeemInterface but in not required for the instaMint version.
     depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
-    toast.loading(`Depositing ${butterPageState.tokens[butterPageState.selectedToken.input].name}...`);
+
+    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, 18)
+    const inputTokenName = butterPageState.tokens[butterPageState.selectedToken.input].name
+
     if (butterPageState.useZap) {
+      TransactionToast.loading(
+        {
+          title: "ZapMinting",
+          description: `${formatedDepositAmount} ${inputTokenName} to BTR`
+        })
+
       const virtualPriceValue = await virtualPrice();
       const minMintAmount = getMinMintAmount(
         depositAmount,
@@ -196,47 +200,98 @@ export default function InstantButter() {
         virtualPriceValue,
         ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
       );
+
       return butterWhaleProcessing.zapMint(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
         minMintAmount,
         percentageToBps(butterPageState.slippage),
         stakeImmidiate,
-      );
-    } else {
-      return butterWhaleProcessing.mint(depositAmount, percentageToBps(butterPageState.slippage), stakeImmidiate);
+      ).then(
+        (res) =>
+          onContractSuccess(
+            res,
+            {
+              title: "ZapMinted successfully",
+              description: `${formatedDepositAmount} ${inputTokenName} to BTR`
+            },
+          ),
+        (err) => onContractError(err, `ZapMinting ${formatedDepositAmount} ${inputTokenName}`))
     }
+
+    TransactionToast.loading({ title: "Minting", description: `Using ${formatedDepositAmount} 3CRV` })
+
+    return butterWhaleProcessing.mint(depositAmount, percentageToBps(butterPageState.slippage), stakeImmidiate).then(
+      (res) =>
+        onContractSuccess(
+          res,
+          {
+            title: "Minted successfully",
+            description: `Used ${formatedDepositAmount} 3CRV`
+          },
+        ),
+      (err) => onContractError(err, `Minting using ${formatedDepositAmount} 3CRV`))
   }
 
-  async function instantWithdraw(
-    amount: BigNumber,
-    useZap?: boolean,
-    outputToken?: string,
-  ): Promise<ethers.ContractTransaction> {
-    toast.loading(`Withdrawing ${butterPageState.tokens[butterPageState.selectedToken.output].name}...`);
-    if (useZap) {
+  async function instantRedeem(depositAmount: BigNumber, useZap?: boolean, outputToken?: string,): Promise<void> {
+    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, 18)
+    const outputTokenName = butterPageState.tokens[butterPageState.selectedToken.output].name
+
+    if (butterPageState.useZap) {
+
+      TransactionToast.loading(
+        {
+          title: "ZapRedeeming",
+          description: `${formatedDepositAmount} BTR to ${outputTokenName}`
+        })
+
       return butterWhaleProcessing.zapRedeem(
-        amount,
+        depositAmount,
         TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(amount, outputToken)
+        adjustDepositDecimals(depositAmount, outputToken)
           .mul(100 - butterPageState.slippage)
           .div(100),
         percentageToBps(butterPageState.slippage),
-      );
+      ).then(
+        (res) =>
+          onContractSuccess(
+            res,
+            {
+              title: "ZapRedeemed successfully",
+              description: `${formatedDepositAmount} BTR to ${outputTokenName}`
+            },
+          ),
+        (err) => onContractError(err, `ZapRedeeming ${formatedDepositAmount} BTR`))
     }
 
-    return butterWhaleProcessing.redeem(amount, percentageToBps(butterPageState.slippage));
+    TransactionToast.loading({ title: "Redeeming", description: `Using ${formatedDepositAmount} BTR` })
+
+    return butterWhaleProcessing.redeem(
+      depositAmount,
+      percentageToBps(butterPageState.slippage))
+      .then(
+        (res) =>
+          onContractSuccess(
+            res,
+            {
+              title: "Redeemed successfully",
+              description: `Used ${formatedDepositAmount} BTR`
+            },
+          ),
+        (err) => onContractError(err, `Redeeming using ${formatedDepositAmount} BTR`))
   }
 
   async function approve(contractKey: string): Promise<void> {
-    toast.loading("Approving Token...");
-    await butterData?.tokens[contractKey].contract
-      .approve(butterWhaleProcessing.address, ethers.constants.MaxUint256)
-      .then((res) =>
-        onContractSuccess(res, "Token approved!", () => {
-          refetchButterData();
-        }),
-      )
-      .catch((err) => onContractError(err));
+    const selectedInputToken = butterData?.tokens[contractKey];
+
+    const toastDescription = `${selectedInputToken.symbol} for Instant Processing`
+    TransactionToast.loading({ title: "Approving", description: toastDescription })
+
+    await approveToken(
+      selectedInputToken.contract,
+      butterWhaleProcessing.address,
+      { title: "Approved successfully", description: toastDescription },
+      `Approving ${toastDescription}`,
+      () => refetchButterData())
   }
 
   return (

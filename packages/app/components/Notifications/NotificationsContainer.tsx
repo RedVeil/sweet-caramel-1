@@ -1,10 +1,9 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Transition } from '@headlessui/react';
-import { CheckCircleIcon, ClockIcon } from '@heroicons/react/outline';
-import { XIcon } from '@heroicons/react/solid';
 import { Fragment, useContext, useEffect } from 'react';
 import { hideNotification, unsetNotification } from '../../context/actions';
 import { store } from '../../context/store';
+import Image from "next/image";
 
 
 const NotificationsContainer: React.FC = () => {
@@ -37,7 +36,7 @@ const NotificationsContainer: React.FC = () => {
       {/* Global notification live region, render this permanently at the end of the document */}
       <div
         aria-live="assertive"
-        className="fixed inset-0 flex items-end  px-4 py-6 pointer-events-none sm:p-6 sm:items-start sm:justify-end"
+        className="fixed inset-0 flex px-4 py-6 pointer-events-none sm:p-6 items-start sm:justify-end z-100"
       >
         {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
         {notifications &&
@@ -57,41 +56,30 @@ const NotificationsContainer: React.FC = () => {
                 dispatch(unsetNotification(notification.id));
               }}
             >
-              <div className="max-w-sm m-4 w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden block ">
-                <div className="p-4">
+              <div className="m-4 max-w-sm w-full bg-white shadow-notificationShadow rounded-lg pointer-events-auto overflow-hidden block ">
+                <div className=" py-6 pl-6 pr-8">
                   <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      {notification.type == 'success' && (
-                        <CheckCircleIcon
-                          className="h-6 w-6 text-green-400"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {notification.type == 'waiting' && (
-                        <ClockIcon
-                          className="h6 w-6 text-yellow-400"
-                          aria-hidden="true"
-                        />
-                      )}
+                    <div className="flex-shrink-0 w-8 h-8">
+                      <Image
+                        src={`/images/icons/${notification.type}.svg`}
+                        alt={notification.type}
+                        width="100"
+                        height="100"
+                      />
                     </div>
-                    <div className="ml-3 w-0 flex-1 pt-0.5">
-                      <p className="text-sm font-medium text-gray-900">
+                    <div className="w-0 flex-1 pt-0.5 ml-6">
+                      <p className="text-base leading-6 font-medium text-black">
                         {notification.title}
                       </p>
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-2 text-xl text-primaryDark font-normal">
                         {notification.content}
                       </p>
-                    </div>
-                    <div className="ml-4 flex-shrink-0 flex">
                       <button
-                        className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className='text-customPurple font-semibold text-base leading-6 mt-2'
                         onClick={() => {
                           dispatch(hideNotification(notification.id));
                         }}
-                      >
-                        <span className="sr-only">Close</span>
-                        <XIcon className="h-5 w-5" aria-hidden="true" />
-                      </button>
+                      >Dismiss</button>
                     </div>
                   </div>
                 </div>

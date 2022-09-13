@@ -1,4 +1,6 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
+import TransactionToast from "components/Notifications/TransactionToast";
 import { setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
@@ -33,12 +35,14 @@ export default function StakingPage(): JSX.Element {
   const approveToken = useApproveERC20();
 
   function stake(): void {
-    toast.loading(`Staking ${stakingToken?.symbol} ...`);
+    const toastDescription = `${formatAndRoundBigNumber(form.amount, stakingToken.decimals)} ${stakingToken?.symbol}`
+    TransactionToast.loading({ title: "Staking", description: toastDescription });
+
     stakingPool.contract
       .connect(signer)
       .stake(form.amount)
       .then((res) =>
-        onContractSuccess(res, `${stakingToken?.symbol} staked!`, () => {
+        onContractSuccess(res, { title: "Staked successfully", description: toastDescription }, () => {
           setForm(defaultForm);
           refetchStakingPool();
           balances.revalidate();
@@ -69,28 +73,35 @@ export default function StakingPage(): JSX.Element {
           }
         }),
       )
-      .catch((err) => onContractError(err));
+      .catch((err) => onContractError(err, `Staking ${toastDescription}`));
   }
 
   function withdraw(): void {
-    toast.loading(`Withdrawing ${stakingToken?.symbol} ...`);
+    const toastDescription = `${formatAndRoundBigNumber(form.amount, stakingToken.decimals)} ${stakingToken?.symbol}`
+    TransactionToast.loading({ title: "Withdrawing", description: toastDescription });
+
     stakingPool.contract
       .connect(signer)
       .withdraw(form.amount)
       .then((res) =>
-        onContractSuccess(res, `${stakingToken?.symbol} withdrawn!`, () => {
+        onContractSuccess(res, { title: "Withdrew successfully", description: toastDescription }, () => {
           setForm({ ...defaultForm, type: InteractionType.Withdraw });
           refetchStakingPool();
           balances.revalidate();
         }),
       )
-      .catch((err) => onContractError(err));
+      .catch((err) => onContractError(err, `Withdrawing ${toastDescription}`));
   }
 
   function approve(): void {
-    toast.loading(`Approving ${stakingToken?.symbol} ...`);
-    approveToken(stakingToken.contract.connect(signer), stakingPool.address, `${stakingToken?.name} approved!`, () =>
-      balances.revalidate(),
+    TransactionToast.loading({ title: "Approving", description: `${stakingToken.symbol} for Staking` })
+
+    approveToken(
+      stakingToken.contract.connect(signer),
+      stakingPool.address,
+      { title: "Approved successfully", description: `${stakingToken.symbol} for Staking` },
+      `Approving ${stakingToken.symbol} for Staking`,
+      () => balances.revalidate(),
     );
   }
 

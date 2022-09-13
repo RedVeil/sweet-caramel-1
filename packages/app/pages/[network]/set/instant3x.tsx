@@ -1,19 +1,21 @@
-import { adjustDepositDecimals, ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import { BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
+import { ThreeXWhaleProcessing } from "@popcorn/hardhat/typechain";
+import { adjustDepositDecimals, ChainId, formatAndRoundBigNumber, getMinMintAmount, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import { BatchMetadata, BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
+import TransactionToast from "components/Notifications/TransactionToast";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { isDepositDisabled } from "helper/isDepositDisabled";
 import useThreeXWhale from "hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
+import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
-import toast from "react-hot-toast";
-import { instantMint, instantRedeem } from "./3x";
+import { TOKEN_INDEX } from "./3x";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
 const ZAP_TOKEN = ["dai", "usdt"];
@@ -39,6 +41,7 @@ export default function Instant3x() {
   } = useThreeXWhaleData();
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXWhaleData && !errorFetchingThreeXWhaleData;
+  const approveToken = useApproveERC20();
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -78,21 +81,21 @@ export default function Instant3x() {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: threeXWhaleData?.tokens?.usdc?.key,
-              output: threeXWhaleData?.tokens?.threeX?.key,
-            },
-            tokens: threeXWhaleData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-            instant: true,
-          }
-        : {
-            ...state,
-            tokens: threeXWhaleData?.tokens,
+          ...state,
+          selectedToken: {
+            input: threeXWhaleData?.tokens?.usdc?.key,
+            output: threeXWhaleData?.tokens?.threeX?.key,
           },
+          tokens: threeXWhaleData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+          instant: true,
+        }
+        : {
+          ...state,
+          tokens: threeXWhaleData?.tokens,
+        },
     );
   }, [threeXWhaleData]);
 
@@ -132,31 +135,98 @@ export default function Instant3x() {
   ): Promise<void> {
     depositAmount = adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
     if (threeXPageState.redeeming) {
-      await instantRedeem(threeXWhale, depositAmount, threeXPageState, threeXWhaleData).then(
-        (res) => onContractSuccess(res, "3x redeemed!"),
-        (err) => onContractError(err),
-      );
+      await instantRedeem(threeXWhale, depositAmount, threeXPageState, threeXWhaleData)
     } else {
-      await instantMint(threeXWhale, depositAmount, threeXPageState, threeXWhaleData, stakeImmidiate).then(
-        (res) => onContractSuccess(res, "3x minted!"),
-        (err) => onContractError(err),
-      );
+      await instantMint(threeXWhale, depositAmount, threeXPageState, threeXWhaleData, stakeImmidiate)
     }
     await refetchThreeXData();
     setThreeXPageState((state) => ({ ...state, depositAmount: constants.Zero }));
   }
 
+  async function instantMint(
+    threeXWhale: ThreeXWhaleProcessing,
+    depositAmount: BigNumber,
+    pageState: ButterPageState,
+    batchData: BatchMetadata,
+    stakeImmidiate: boolean,
+  ): Promise<void> {
+    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, pageState.selectedToken.input === "dai" ? 18 : 6);
+    const inputTokenName = pageState.selectedToken.input.toUpperCase()
+
+    TransactionToast.loading(
+      {
+        title: "ZapMinting",
+        description: `${formatedDepositAmount} ${inputTokenName} to 3X`
+      })
+
+    return threeXWhale["mint(uint256,int128,int128,uint256,bool)"](
+      depositAmount,
+      TOKEN_INDEX[pageState.selectedToken.input],
+      TOKEN_INDEX.usdc,
+      getMinMintAmount(
+        depositAmount,
+        pageState.slippage,
+        batchData.tokens.threeX.price,
+        pageState.selectedToken.input === "dai" ? 18 : 6,
+        18,
+      ),
+      stakeImmidiate,
+    ).then(
+      (res) =>
+        onContractSuccess(
+          res,
+          {
+            title: "ZapMinted successfully",
+            description: `${formatedDepositAmount} ${inputTokenName} to 3X`
+          },
+        ),
+      (err) => onContractError(err, `ZapMinting ${formatedDepositAmount} ${inputTokenName}`))
+  }
+
+  async function instantRedeem(
+    threeXWhale: ThreeXWhaleProcessing,
+    depositAmount: BigNumber,
+    pageState: ButterPageState,
+    batchData: BatchMetadata,
+  ): Promise<void> {
+    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, 18)
+    const outputTokenName = pageState.tokens[pageState.selectedToken.output].name
+
+    TransactionToast.loading(
+      {
+        title: "ZapRedeeming",
+        description: `${formatedDepositAmount} 3X to ${outputTokenName}`
+      })
+
+    return threeXWhale["redeem(uint256,int128,int128,uint256)"](
+      depositAmount,
+      TOKEN_INDEX.usdc,
+      TOKEN_INDEX[pageState.selectedToken.output],
+      0,
+    ).then(
+      (res) =>
+        onContractSuccess(
+          res,
+          {
+            title: "ZapRedeemed successfully",
+            description: `${formatedDepositAmount} 3X to ${outputTokenName}`
+          },
+        ),
+      (err) => onContractError(err, `ZapRedeeming ${formatedDepositAmount} 3X`))
+  }
+
   async function approve(contractKey: string): Promise<void> {
-    toast.loading("Approving Token...");
-    const selectedTokenContract = threeXWhaleData?.tokens[contractKey].contract;
-    await selectedTokenContract
-      .approve(threeXWhale.address, ethers.constants.MaxUint256)
-      .then((res) =>
-        onContractSuccess(res, "Token approved!", () => {
-          refetchThreeXData();
-        }),
-      )
-      .catch((err) => onContractError(err));
+    const selectedInputToken = threeXWhaleData?.tokens[contractKey];
+
+    const toastDescription = `${selectedInputToken.symbol} for Instant Processing`
+    TransactionToast.loading({ title: "Approving", description: toastDescription })
+
+    await approveToken(
+      selectedInputToken.contract,
+      threeXWhale.address,
+      { title: "Approved successfully", description: toastDescription },
+      `Approving ${toastDescription} `,
+      () => refetchThreeXData())
   }
 
   return (

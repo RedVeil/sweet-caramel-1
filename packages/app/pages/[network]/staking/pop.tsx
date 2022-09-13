@@ -1,5 +1,6 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
-import { ChainId } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import TransactionToast from "components/Notifications/TransactionToast";
 import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
 import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
 import TermsContent from "components/staking/TermsModalContent";
@@ -43,12 +44,14 @@ export default function PopStakingPage(): JSX.Element {
   }, [router?.query?.action]);
 
   function stake(): void {
-    toast.loading("Staking POP ...");
+    const toastDescription = `${formatAndRoundBigNumber(form.amount, stakingToken.decimals)} ${stakingToken?.symbol}`
+    TransactionToast.loading({ title: "Staking", description: toastDescription })
+
     stakingPool?.contract
       .connect(signer)
       .lock(account, form.amount, 0)
       .then((res) =>
-        onContractSuccess(res, "POP staked!", () => {
+        onContractSuccess(res, { title: "Staked successfully", description: toastDescription }, () => {
           balances.revalidate();
           setForm(defaultForm);
           if (!localStorage.getItem("hideStakeSuccessPopover")) {
@@ -78,36 +81,51 @@ export default function PopStakingPage(): JSX.Element {
           }
         }),
       )
-      .catch((err) => onContractError(err));
+      .catch((err) => onContractError(err, `Staking ${toastDescription}`));
   }
 
   function withdraw(): void {
-    toast.loading("Withdrawing POP ...");
+    const toastDescription = `${formatAndRoundBigNumber(form.amount, stakingToken.decimals)} ${stakingToken?.symbol}`
+    TransactionToast.loading({ title: "Withdrawing", description: toastDescription })
+
     stakingPool?.contract
       .connect(signer)
     ["processExpiredLocks(bool)"](false)
       .then((res) =>
-        onContractSuccess(res, "POP withdrawn!", () => {
+        onContractSuccess(res, { title: "Withdrew successfully", description: toastDescription }, () => {
           balances.revalidate();
           setForm({ ...defaultForm, type: InteractionType.Withdraw });
         }),
       )
-      .catch((err) => onContractError(err));
+      .catch((err) => onContractError(err, `Withdrawing ${toastDescription}`));
   }
 
   function restake(): void {
-    toast.loading("Restaking POP ...");
+    const toastDescription = `${formatAndRoundBigNumber(stakingPool.withdrawable, stakingToken.decimals)} ${stakingToken?.symbol}`
+    TransactionToast.loading({ title: "Restaking", description: toastDescription })
+
     stakingPool.contract
       .connect(signer)
     ["processExpiredLocks(bool)"](true)
       .then((res) => {
-        onContractSuccess(res, "POP Restaked!", () => {
+        onContractSuccess(res, { title: "Restaked successfully", description: toastDescription }, () => {
           balances.revalidate();
           setForm(defaultForm);
         });
         dispatch(setSingleActionModal(false));
       })
-      .catch((err) => onContractError(err));
+      .catch((err) => onContractError(err, `Restaking ${toastDescription}`));
+  }
+
+  function approve() {
+    TransactionToast.loading({ title: "Approving", description: "POP for Staking" })
+
+    approveToken(
+      stakingToken.contract.connect(signer),
+      stakingPool.address,
+      { title: "Approved successfully", description: "POP for Staking" },
+      "Approving POP for Staking",
+      () => balances.revalidate())
   }
 
   const openTermsModal = () => {
@@ -119,13 +137,6 @@ export default function PopStakingPage(): JSX.Element {
       }),
     );
   };
-
-  function approve() {
-    toast.loading("Approving POP ...");
-    approveToken(stakingToken.contract.connect(signer), stakingPool.address, "POP approved!", () => {
-      balances.revalidate();
-    });
-  }
 
   return (
     <>
