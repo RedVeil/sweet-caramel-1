@@ -6,7 +6,7 @@ import SecondaryActionButton from "components/SecondaryActionButton";
 import { constants } from "ethers";
 import useSweetVault from "hooks/sweetvault/useSweetVault";
 import useTokenList from "hooks/sweetvault/useTokenList";
-import useZeroXZapper from "hooks/sweetvault/useZeroXZapper";
+import useVaultsV1Zapper from "hooks/sweetvault/useVaultsV1Zapper";
 import useGetMultipleToken from "hooks/tokens/useGetMultipleToken";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -29,7 +29,7 @@ async function getCoins(zapper, underlyingAddress, provider): Promise<ERC20[]> {
 const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   const { signerOrProvider, contractAddresses, account, rpcProvider } = useWeb3();
   const [expanded, setExpanded] = useState<boolean>(false);
-  const zapper = useZeroXZapper();
+  const zapper = useVaultsV1Zapper();
   const [poolCoins, setPoolCoins] = useState<ERC20[]>(null);
   const {
     data: tokenList,

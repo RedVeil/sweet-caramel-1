@@ -1,6 +1,6 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { Zapper } from "@popcorn/hardhat/lib/adapters";
-import { ERC20, Vault, ZeroXZapper } from "@popcorn/hardhat/typechain";
+import { ERC20, Vault, VaultsV1Zapper } from "@popcorn/hardhat/typechain";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
 import { ContractTransaction } from "ethers/lib/ethers";
 import toast from "react-hot-toast";
@@ -47,7 +47,7 @@ async function zapInOrDeposit(
       await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
       amount,
       slippage / 100,
-      false
+      false,
     );
   }
 }
@@ -93,13 +93,13 @@ async function zapOutOrWithdraw(
       await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
       amount,
       slippage / 100,
-      false
+      false,
     );
   }
 }
 
 export function approve(
-  contract: Vault | ZeroXZapper,
+  contract: Vault | VaultsV1Zapper,
   selectedToken: Token,
   revalidate: () => void,
   signer: any,
