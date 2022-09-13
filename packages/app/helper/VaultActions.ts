@@ -1,10 +1,9 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { Zapper } from "@popcorn/hardhat/lib/adapters";
 import { ERC20, Vault, ZeroXZapper } from "@popcorn/hardhat/typechain";
-import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
-import TransactionToast, { ToastParams } from "components/Notifications/TransactionToast";
 import { ContractTransaction } from "ethers/lib/ethers";
+import toast from "react-hot-toast";
 
 export async function deposit(
   amount: BigNumber,
@@ -14,27 +13,34 @@ export async function deposit(
   selectedToken: Token,
   revalidate: () => void,
   resetInput: () => void,
-  onContractSuccess: (res: ContractTransaction, successMessage: ToastParams, successCallback?: () => any) => Promise<void>,
-  onContractError: (error: any, errorMessage: string) => Promise<void>,
+  onContractSuccess: (res: ContractTransaction, successMessage: string, successCallback?: () => any) => Promise<void>,
+  onContractError: (error: any) => Promise<void>,
   signer: any,
   provider: any,
 ): Promise<void> {
-  const toastDescription = `${formatAndRoundBigNumber(amount, selectedToken.decimals)} ${selectedToken.symbol}`
-
+  zapInOrDeposit(amount, slippage, sweetVault, zapper, selectedToken, signer, provider)
+    .then((res) =>
+      onContractSuccess(res, `Deposited ${sweetVault?.metadata?.underlyingToken?.name}!`, () => {
+        resetInput();
+        revalidate();
+      }),
+    )
+    .catch((err) => onContractError(err));
+}
+async function zapInOrDeposit(
+  amount: BigNumber,
+  slippage: number,
+  sweetVault: SweetVaultWithMetadata,
+  zapper: Zapper,
+  selectedToken: Token,
+  signer: any,
+  provider: any,
+) {
   if (selectedToken?.address === sweetVault?.metadata?.underlyingToken?.address) {
-    TransactionToast.loading({ title: "Depositing", description: toastDescription })
-
-    return sweetVault?.contract?.connect(signer)["deposit(uint256)"](amount).then(
-      (res) =>
-        onContractSuccess(res, { title: "Deposited successfully", description: toastDescription }, () => {
-          resetInput();
-          revalidate();
-        }),
-      (err) => onContractError(err, `Depositing ${toastDescription}`));
-
+    toast.loading(`Depositing ${selectedToken?.name} into vault...`);
+    return sweetVault?.contract?.connect(signer)["deposit(uint256)"](amount);
   } else {
-    TransactionToast.loading({ title: "ZapDepositing", description: toastDescription })
-
+    toast.loading(`Zapping ${selectedToken?.name} into vault...`);
     return zapper.zapIn(
       { address: selectedToken?.address, decimals: selectedToken?.decimals },
       sweetVault?.contract as Vault,
@@ -42,13 +48,7 @@ export async function deposit(
       amount,
       slippage / 100,
       false
-    ).then(
-      (res) =>
-        onContractSuccess(res, { title: "ZapDeposited successfully", description: toastDescription }, () => {
-          resetInput();
-          revalidate();
-        }),
-      (err) => onContractError(err, `ZapDepositing ${toastDescription}`));
+    );
   }
 }
 
@@ -60,27 +60,33 @@ export async function withdraw(
   selectedToken: Token,
   revalidate: () => void,
   resetInput: () => void,
-  onContractSuccess: (res: ContractTransaction, successMessage: ToastParams, successCallback?: () => any) => Promise<void>,
-  onContractError: (error: any, errorMessage: string) => Promise<void>,
+  onContractSuccess: (res: ContractTransaction, successMessage: string, successCallback?: () => any) => Promise<void>,
+  onContractError: (error: any) => Promise<void>,
   signer: any,
   provider: any,
 ): Promise<void> {
-  const toastDescription = `${formatAndRoundBigNumber(amount, selectedToken.decimals)} ${selectedToken.symbol}`
-
+  toast.loading(`Withdrawing ${sweetVault?.metadata?.underlyingToken?.name} ...`);
+  zapOutOrWithdraw(amount, slippage, sweetVault, zapper, selectedToken, signer, provider)
+    .then((res) =>
+      onContractSuccess(res, `${sweetVault?.metadata?.underlyingToken?.name} withdrawn!`, () => {
+        resetInput();
+        revalidate();
+      }),
+    )
+    .catch((err) => onContractError(err));
+}
+async function zapOutOrWithdraw(
+  amount: BigNumber,
+  slippage: number,
+  sweetVault: SweetVaultWithMetadata,
+  zapper: Zapper,
+  selectedToken: Token,
+  signer: any,
+  provider: any,
+) {
   if (selectedToken?.address === sweetVault?.metadata?.underlyingToken?.address) {
-    TransactionToast.loading({ title: "Withdrawing", description: toastDescription })
-
-    return sweetVault?.contract?.connect(signer)["redeem(uint256)"](amount).then(
-      (res) =>
-        onContractSuccess(res, { title: "Withdrawn successfully", description: toastDescription }, () => {
-          resetInput();
-          revalidate();
-        }),
-      (err) => onContractError(err, `Withdrawing ${toastDescription}`));
-
+    return sweetVault?.contract?.connect(signer)["redeem(uint256)"](amount);
   } else {
-    TransactionToast.loading({ title: "ZapWithdrawing", description: toastDescription })
-
     return zapper.zapOut(
       { address: selectedToken?.address, decimals: selectedToken?.decimals },
       sweetVault?.contract as Vault,
@@ -88,13 +94,7 @@ export async function withdraw(
       amount,
       slippage / 100,
       false
-    ).then(
-      (res) =>
-        onContractSuccess(res, { title: "ZapWithdrawn successfully", description: toastDescription }, () => {
-          resetInput();
-          revalidate();
-        }),
-      (err) => onContractError(err, `ZapWithdrawing ${toastDescription}`));
+    );
   }
 }
 
@@ -106,19 +106,13 @@ export function approve(
   approveToken: (
     erc20: ERC20,
     spender: string,
-    successMessage: ToastParams,
-    errorMessage: string,
+    successMessage: string,
     successCallback?: () => void,
     finalCallback?: () => void,
   ) => Promise<any>,
 ): void {
-  const toastDescription = `${selectedToken?.symbol} for Sweet Vault`
-  TransactionToast.loading({ title: "Approving", description: toastDescription })
-
-  approveToken(selectedToken?.contract?.connect(signer),
-    contract?.address,
-    { title: "Approved successfully", description: toastDescription },
-    `Approving ${toastDescription}`,
-    () => revalidate(),
+  toast.loading(`Approving ${selectedToken?.name} ...`);
+  approveToken(selectedToken?.contract?.connect(signer), contract?.address, `${selectedToken?.name} approved!`, () =>
+    revalidate(),
   );
 }

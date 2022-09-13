@@ -1,6 +1,5 @@
 import { ERC20 } from "@popcorn/hardhat/typechain";
 import { Address } from "@popcorn/utils/src/types";
-import { ToastParams } from "components/Notifications/TransactionToast";
 import { constants } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import useWeb3 from "hooks/useWeb3";
@@ -12,8 +11,7 @@ export default function useApproveERC20() {
     async (
       erc20: ERC20,
       spender: Address,
-      successMessage: ToastParams,
-      errorMessage: string,
+      successMessage: string,
       successCallback?: () => void,
       finalCallback?: () => void,
     ) => {
@@ -23,7 +21,7 @@ export default function useApproveERC20() {
       erc20
         .approve(spender, constants.MaxUint256)
         .then((res) => onContractSuccess(res, successMessage, successCallback))
-        .catch((err) => onContractError(err, errorMessage))
+        .catch((err) => onContractError(err))
         .finally(() => finalCallback && finalCallback());
     },
     [account, chainId],

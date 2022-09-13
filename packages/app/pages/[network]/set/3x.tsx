@@ -17,13 +17,11 @@ import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "components/BatchButter/StatInfoCard";
 import TutorialSlider from "components/BatchButter/TutorialSlider";
 import ButterStats from "components/ButterStats";
-import TransactionToast, { ToastParams } from "components/Notifications/TransactionToast";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
 import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import { isDepositDisabled } from "helper/isDepositDisabled";
 import { ModalType, toggleModal } from "helper/modalHelpers";
 import useSetToken from "hooks/set/useSetToken";
 import useThreeXBatch from "hooks/set/useThreeXBatch";
@@ -31,10 +29,11 @@ import useThreeXData from "hooks/set/useThreeXData";
 import useThreeXWhale from "hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useThreeXZapper from "hooks/set/useThreeXZapper";
-import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useWeb3 from "hooks/useWeb3";
 import { Fragment, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
+import toast from "react-hot-toast";
+import { isDepositDisabled } from "../../../helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
 export enum TOKEN_INDEX {
@@ -71,10 +70,8 @@ export default function ThreeX(): JSX.Element {
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXData && !errorFetchingThreeXData;
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
-  const refetchThreeXData = () => Promise.all([refetchThreeXBatchData(), refetchThreeXWhaleData()]);
-  const approveToken = useApproveERC20();
 
-  /* ---- USE EFFECTS ---- */
+  const refetchThreeXData = () => Promise.all([refetchThreeXBatchData(), refetchThreeXWhaleData()]);
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -115,20 +112,20 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: threeXData?.tokens?.usdc?.key,
-            output: threeXData?.tokens?.threeX?.key,
-          },
-          tokens: threeXData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-        }
+            ...state,
+            selectedToken: {
+              input: threeXData?.tokens?.usdc?.key,
+              output: threeXData?.tokens?.threeX?.key,
+            },
+            tokens: threeXData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+          }
         : {
-          ...state,
-          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
-        },
+            ...state,
+            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          },
     );
   }, [threeXData, threeXWhaleData]);
 
@@ -159,31 +156,12 @@ export default function ThreeX(): JSX.Element {
     }));
   }, [threeXPageState.redeeming]);
 
-  /* ---- HELPER FUNCTIONS ---- */
-
   const hasClaimableBalances = () => {
     if (threeXPageState.redeeming) {
       return threeXData?.claimableMintBatches.length > 0;
     }
     return threeXData?.claimableRedeemBatches.length > 0;
   };
-
-  function getBatchProgressAmount(): BigNumber {
-    if (!threeXData) {
-      return BigNumber.from("0");
-    }
-    return threeXPageState.redeeming
-      ? threeXData?.currentBatches.redeem.suppliedTokenBalance
-        .mul(threeXData?.tokens?.threeX.price)
-        .div(parseEther("1"))
-      : threeXData?.currentBatches.mint.suppliedTokenBalance
-        .mul(threeXData?.tokens?.usdc.price)
-        .div(BigNumber.from(1_000_000));
-  }
-
-  function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
-    return depositAmount.gt(inputTokenBalance);
-  }
 
   function selectToken(token: BatchProcessTokenKey): void {
     setThreeXPageState((state) => ({
@@ -198,38 +176,55 @@ export default function ThreeX(): JSX.Element {
     }));
   }
 
-  /* ---- MAIN INTERACTIONS ---- */
-
   async function handleMainAction(depositAmount: BigNumber, batchType: BatchType, stakeImmidiate = false) {
     // Lower depositAmount decimals to 1e6 if the inputToken is USDC/USDT
     depositAmount = adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
 
     if (threeXPageState.instant && threeXPageState.redeeming) {
-      await instantRedeem(threeXWhale, depositAmount, threeXPageState, threeXData)
+      await instantRedeem(threeXWhale, depositAmount, threeXPageState, threeXData).then(
+        (res) => onContractSuccess(res, "3x redeemed!"),
+        (err) => onContractError(err),
+      );
     } else if (threeXPageState.instant) {
-      await instantMint(threeXWhale, depositAmount, threeXPageState, threeXData, stakeImmidiate)
+      await instantMint(threeXWhale, depositAmount, threeXPageState, threeXData, stakeImmidiate).then(
+        (res) => onContractSuccess(res, "3x minted!"),
+        (err) => onContractError(err),
+      );
     } else if (threeXPageState.useUnclaimedDeposits && batchType === BatchType.Mint) {
-      await hotswapMint(depositAmount)
+      await hotswapMint(depositAmount).then(
+        (res) => onContractSuccess(res, `Funds deposited!`),
+        (err) => onContractError(err),
+      );
     } else if (threeXPageState.useUnclaimedDeposits) {
-      await hotswapRedeem(depositAmount)
+      await hotswapRedeem(depositAmount).then(
+        (res) => onContractSuccess(res, `Funds deposited!`),
+        (err) => onContractError(err),
+      );
     } else if (batchType === BatchType.Mint) {
-      await batchMint(depositAmount)
+      await batchMint(depositAmount).then(handleMintSuccess, (err) => onContractError(err));
     } else {
-      await batchRedeem(depositAmount)
+      await batchRedeem(depositAmount).then(handleRedeemSuccess, (err) => onContractError(err));
     }
     await refetchThreeXData();
     setThreeXPageState((state) => ({ ...state, depositAmount: constants.Zero }));
   }
 
-  /* ---- MINT MAIN INTERACTIONS ---- */
+  async function hotswapRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
+    const batches = threeXData?.claimableMintBatches;
+    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
+    toast.loading("Depositing Funds...");
+    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, false);
+  }
+  async function hotswapMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
+    const batches = threeXData?.claimableRedeemBatches;
+    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
+    toast.loading("Depositing Funds...");
+    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, true);
+  }
 
-  async function batchMint(depositAmount: BigNumber): Promise<void> {
-    const inputToken = threeXPageState.tokens[threeXPageState.selectedToken.input]
-    const toastDescription = `${formatAndRoundBigNumber(depositAmount, threeXPageState.selectedToken.input === "dai" ? 18 : 6)} ${inputToken.name}`
-
+  async function batchMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
+    toast.loading(`Depositing ${threeXPageState.tokens[threeXPageState.selectedToken.input].name} ...`);
     if (threeXPageState.useZap) {
-      TransactionToast.loading({ title: "ZapDepositing for Mint", description: `${toastDescription} for 3X` });
-
       const minMintAmount = getMinMintAmount(
         depositAmount,
         threeXPageState.slippage,
@@ -242,256 +237,16 @@ export default function ThreeX(): JSX.Element {
         TOKEN_INDEX[threeXPageState.selectedToken.input],
         TOKEN_INDEX.usdc,
         minMintAmount,
-      ).then(
-        (res) => handleMintSuccess(res, { title: "ZapDeposited for Mint successfully", description: `${toastDescription} for 3X` }),
-        (err) => onContractError(err, `ZapDepositing for Mint ${toastDescription}`),
       );
     }
-
-    TransactionToast.loading({ title: "Depositing for Mint", description: `${toastDescription} for 3X` });
-
-    return threeXBatch.depositForMint(depositAmount, account).then(
-      (res) => handleMintSuccess(res, { title: "Deposited for Mint successfully", description: `${toastDescription} for 3X` }),
-      (err) => onContractError(err, `Depositing for Mint ${toastDescription}`),
-    )
+    return threeXBatch.depositForMint(depositAmount, account);
   }
-
-  async function instantMint(
-    threeXWhale: ThreeXWhaleProcessing,
-    depositAmount: BigNumber,
-    pageState: ButterPageState,
-    batchData: BatchMetadata,
-    stakeImmidiate: boolean,
-  ): Promise<void> {
-    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, pageState.selectedToken.input === "dai" ? 18 : 6);
-    const inputTokenName = pageState.selectedToken.input.toUpperCase()
-
-    TransactionToast.loading(
-      {
-        title: "ZapMinting",
-        description: `${formatedDepositAmount} ${inputTokenName} to 3X`
-      })
-
-    return threeXWhale["mint(uint256,int128,int128,uint256,bool)"](
-      depositAmount,
-      TOKEN_INDEX[pageState.selectedToken.input],
-      TOKEN_INDEX.usdc,
-      getMinMintAmount(
-        depositAmount,
-        pageState.slippage,
-        batchData.tokens.threeX.price,
-        pageState.selectedToken.input === "dai" ? 18 : 6,
-        18,
-      ),
-      stakeImmidiate,
-    ).then(
-      (res) =>
-        onContractSuccess(
-          res,
-          {
-            title: "ZapMinted successfully",
-            description: `${formatedDepositAmount} ${inputTokenName} to 3X`
-          },
-        ),
-      (err) => onContractError(err, `ZapMinting ${formatedDepositAmount} ${inputTokenName}`))
+  async function batchRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
+    toast.loading("Depositing 3X...");
+    return threeXBatch.depositForRedeem(depositAmount);
   }
-
-  async function hotswapMint(depositAmount: BigNumber): Promise<void> {
-    const batches = threeXData?.claimableRedeemBatches;
-    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
-
-    const toastDescription = `${formatAndRoundBigNumber(depositAmount, 18)} USDC`
-    TransactionToast.loading({ title: "Hot Swapping", description: `${toastDescription} for 3X` })
-
-    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, true).then(
-      (res) =>
-        onContractSuccess(res, { title: "Hot Swapped successfully", description: `${toastDescription} for BTR` }),
-      (err) => onContractError(err, `Hot Swapping ${toastDescription}`),
-    )
-  }
-
-  /* ---- REDEEM MAIN INTERACTIONS ---- */
-
-
-  async function batchRedeem(depositAmount: BigNumber): Promise<void> {
-    const toastDescription = `${formatAndRoundBigNumber(depositAmount, 18)} 3X`
-    TransactionToast.loading({ title: "Depositing for Redeem", description: toastDescription });
-
-    return threeXBatch.depositForRedeem(depositAmount).then(
-      (res) => handleRedeemSuccess(res, { title: "Deposited for Redeem successfully", description: toastDescription }),
-      (err) => onContractError(err, `Depositing for Redeem ${toastDescription}`))
-  }
-
-  async function instantRedeem(
-    threeXWhale: ThreeXWhaleProcessing,
-    depositAmount: BigNumber,
-    pageState: ButterPageState,
-    batchData: BatchMetadata,
-  ): Promise<void> {
-    const formatedDepositAmount = formatAndRoundBigNumber(depositAmount, 18)
-    const outputTokenName = pageState.tokens[pageState.selectedToken.output].name
-
-    TransactionToast.loading(
-      {
-        title: "ZapRedeeming",
-        description: `${formatedDepositAmount} 3X to ${outputTokenName}`
-      })
-
-    return threeXWhale["redeem(uint256,int128,int128,uint256)"](
-      depositAmount,
-      TOKEN_INDEX.usdc,
-      TOKEN_INDEX[pageState.selectedToken.output],
-      0,
-    ).then(
-      (res) =>
-        onContractSuccess(
-          res,
-          {
-            title: "ZapRedeemed successfully",
-            description: `${formatedDepositAmount} 3X to ${outputTokenName}`
-          },
-        ),
-      (err) => onContractError(err, `ZapRedeeming ${formatedDepositAmount} 3X`))
-  }
-
-  async function hotswapRedeem(depositAmount: BigNumber): Promise<void> {
-    const batches = threeXData?.claimableMintBatches;
-    const hotSwapParameter = prepareHotSwap(batches, depositAmount);
-
-    const toastDescription = `${formatAndRoundBigNumber(depositAmount, 18)} 3X`
-    TransactionToast.loading({ title: "Hot Swapping", description: `${toastDescription} for USDC` })
-
-    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, false).then(
-      (res) => onContractSuccess(res, { title: "Hot Swapped successfully", description: `${toastDescription} for USDC` }),
-      (err) => onContractError(err, `Hot Swapping ${toastDescription}`),
-    );
-  }
-
-  /* ---- CLAIMING MAIN INTERACTIONS ---- */
-
-  async function claim(batchId: string, useZap?: boolean, outputToken?: BatchProcessTokenKey): Promise<void> {
-    const batch = threeXData.accountBatches.find(batch => batch.batchId === batchId);
-    const claimableAmount = formatAndRoundBigNumber(batch.accountClaimableTokenBalance, batch.batchType == BatchType.Mint ? 18 : 6)
-    const claimToken = batch.batchType == BatchType.Mint ? "3X" : "USDC"
-
-    let errorMessage: string;
-    let successMessage: ToastParams;
-    let call;
-    if (useZap) {
-      TransactionToast.loading({ title: "ZapClaiming", description: `${claimableAmount} ${claimToken} to ${outputToken.toUpperCase()} ` })
-      errorMessage = `ZapClaiming ${claimableAmount} ${claimToken}`
-      successMessage = { title: "ZapClaimed successfully", description: `${claimableAmount} ${claimToken} to ${outputToken.toUpperCase()} ` }
-
-      call = threeXZapper.claimAndSwapToStable(
-        batchId,
-        TOKEN_INDEX.usdc,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(
-          threeXData?.accountBatches
-            .find((batch) => batch.batchId === batchId)
-            .accountClaimableTokenBalance.mul(threeXData?.tokens?.usdc.price)
-            .div(threeXData?.tokens[outputToken].price),
-          outputToken,
-        )
-          .mul(100 - threeXPageState.slippage)
-          .div(100),
-      );
-    } else {
-      TransactionToast.loading({ title: "Claiming", description: `${claimableAmount} ${claimToken}` })
-      errorMessage = `Claiming ${claimableAmount} ${claimToken}`
-      successMessage = { title: "Claimed successfully", description: `${claimableAmount} ${claimToken}` }
-
-      call = threeXBatch.claim(batchId, account);
-    }
-    await call.then(
-      (res) => handleClaimSuccess(res, successMessage),
-      (err) => onContractError(err, errorMessage))
-  }
-
-  async function claimAndStake(batchId: string): Promise<void> {
-    const toastDescription = `${formatAndRoundBigNumber(threeXData.accountBatches.find(batch => batch.batchId === batchId).accountClaimableTokenBalance, 18)} 3X`
-    TransactionToast.loading({ title: "Claiming and Staking", description: toastDescription })
-
-    await threeXBatch
-      .claimAndStake(batchId)
-      .then((res) => onContractSuccess(res, { title: "Claimed and Staked successfully", description: toastDescription }, () => refetchThreeXData()))
-      .catch((err) => onContractError(err, `Claiming and Staking ${toastDescription} `));
-  }
-
-  /* ---- OTHER MAIN INTERACTIONS ---- */
-
-  async function withdraw(
-    batchId: string,
-    amount: BigNumber,
-    useZap?: boolean,
-    outputToken?: BatchProcessTokenKey,
-  ): Promise<void> {
-    const toastDescription = `${formatAndRoundBigNumber(amount, 18)} ${threeXData.accountBatches.find(batch => batch.batchId === batchId).batchType === BatchType.Mint ? "USDC" : "3X"} `
-
-    let errorMessage: string;
-    let successMessage: ToastParams;
-    let call;
-    if (useZap) {
-      TransactionToast.loading({ title: "ZapCanceling", description: `${toastDescription} to ${outputToken.toUpperCase()} ` })
-      errorMessage = `ZapCanceling ${toastDescription} `
-      successMessage = { title: "ZapCanceled", description: `${toastDescription} to ${outputToken.toUpperCase()} ` }
-
-      call = threeXZapper.zapOutOfBatch(
-        batchId,
-        amount,
-        TOKEN_INDEX.usdc,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(amount, outputToken)
-          .mul(100 - threeXPageState.slippage)
-          .div(100),
-      );
-    } else {
-      TransactionToast.loading({ title: "Canceling", description: toastDescription })
-      errorMessage = `Canceling ${toastDescription} `
-      successMessage = { title: "Canceled successfully", description: toastDescription }
-
-      call = threeXBatch["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account);
-    }
-
-    await call
-      .then((res) =>
-        onContractSuccess(res, successMessage, () => {
-          refetchThreeXData();
-        }),
-      )
-      .catch((err) => onContractError(err, errorMessage));
-  }
-
-
-  async function approve(contractKey: string): Promise<void> {
-    const selectedInputToken = threeXPageState?.tokens[contractKey];
-
-    let currentContractName = "Batching"
-    let currentContractAddress = threeXBatch.address
-    if (threeXPageState.instant) {
-      currentContractName = "Instant Processing";
-      currentContractAddress = threeXWhale.address
-    }
-    if (threeXPageState.useZap) {
-      currentContractName = "Zapping";
-      currentContractAddress = threeXZapper.address
-    }
-
-    const toastDescription = `${selectedInputToken.name} for ${currentContractName}`
-    TransactionToast.loading({ title: "Approving", description: toastDescription })
-
-    await approveToken(
-      selectedInputToken.contract,
-      currentContractAddress,
-      { title: "Approved successfully", description: toastDescription },
-      `Approving ${toastDescription} `,
-      () => refetchThreeXData())
-  }
-
-  /* ---- HANDLE SUCCESS MODALS---- */
-
-  function handleMintSuccess(res, successMessage: ToastParams) {
-    onContractSuccess(res, successMessage, () => {
+  function handleMintSuccess(res) {
+    onContractSuccess(res, `${threeXPageState.tokens[threeXPageState.selectedToken.input].name} deposited!`, () => {
       toggleModal(
         ModalType.MultiChoice,
         {
@@ -521,8 +276,8 @@ export default function ThreeX(): JSX.Element {
       );
     });
   }
-  function handleRedeemSuccess(res, successMessage: ToastParams) {
-    onContractSuccess(res, successMessage, () => {
+  function handleRedeemSuccess(res) {
+    onContractSuccess(res, "3X deposited!", () => {
       toggleModal(
         ModalType.MultiChoice,
         {
@@ -553,62 +308,161 @@ export default function ThreeX(): JSX.Element {
     });
   }
 
-  function handleClaimSuccess(res, successMessage: ToastParams) {
-    onContractSuccess(res, successMessage, () => {
-      refetchThreeXData();
-      toggleModal(
-        ModalType.MultiChoice,
-        {
-          title: "You claimed your token",
-          children: (
-            <>
-              <p className="text-base text-primaryDark mb-4">
-                Your tokens are now in your wallet. To see them make sure to import 3x into your wallet
-              </p>
-              <p>
-                <a
-                  onClick={async () =>
-                    window.ethereum.request({
-                      method: "wallet_watchAsset",
-                      params: {
-                        type: "ERC20",
-                        options: {
-                          address: threeX.address,
-                          symbol: "3X",
-                          decimals: 18,
-                        },
-                      },
-                    })
-                  }
-                  className="text-customPurple cursor-pointer"
-                >
-                  Add 3X to Wallet
-                </a>
-              </p>
-            </>
-          ),
-          image: <img src="/images/modalImages/redeemed.svg" />,
-          onConfirm: {
-            label: "Continue",
-            onClick: () => dispatch(setMultiChoiceActionModal(false)),
-          },
-          onDismiss: {
-            onClick: () => {
-              dispatch(setMultiChoiceActionModal(false));
-            },
-          },
-          onDontShowAgain: {
-            label: "Do not remind me again",
-            onClick: () => {
-              localStorage.setItem("hideClaimSuccessPopover", "true");
-              dispatch(setMultiChoiceActionModal(false));
-            },
-          },
-        },
-        "hideClaimSuccessPopover",
-        dispatch,
+  async function claim(batchId: string, useZap?: boolean, outputToken?: BatchProcessTokenKey): Promise<void> {
+    toast.loading("Claiming Batch...");
+    let call;
+    if (useZap) {
+      call = threeXZapper.claimAndSwapToStable(
+        batchId,
+        TOKEN_INDEX.usdc,
+        TOKEN_INDEX[outputToken],
+        adjustDepositDecimals(
+          threeXData?.accountBatches
+            .find((batch) => batch.batchId === batchId)
+            .accountClaimableTokenBalance.mul(threeXData?.tokens?.usdc.price)
+            .div(threeXData?.tokens[outputToken].price),
+          outputToken,
+        )
+          .mul(100 - threeXPageState.slippage)
+          .div(100),
       );
-    })
+    } else {
+      call = threeXBatch.claim(batchId, account);
+    }
+    await call
+      .then((res) =>
+        onContractSuccess(res, `Batch claimed!`, () => {
+          refetchThreeXData();
+          toggleModal(
+            ModalType.MultiChoice,
+            {
+              title: "You claimed your token",
+              children: (
+                <>
+                  <p className="text-base text-primaryDark mb-4">
+                    Your tokens are now in your wallet. To see them make sure to import 3x into your wallet
+                  </p>
+                  <p>
+                    <a
+                      onClick={async () =>
+                        window.ethereum.request({
+                          method: "wallet_watchAsset",
+                          params: {
+                            type: "ERC20",
+                            options: {
+                              address: threeX.address,
+                              symbol: "3X",
+                              decimals: 18,
+                            },
+                          },
+                        })
+                      }
+                      className="text-customPurple cursor-pointer"
+                    >
+                      Add 3X to Wallet
+                    </a>
+                  </p>
+                </>
+              ),
+              image: <img src="/images/modalImages/redeemed.svg" />,
+              onConfirm: {
+                label: "Continue",
+                onClick: () => dispatch(setMultiChoiceActionModal(false)),
+              },
+              onDismiss: {
+                onClick: () => {
+                  dispatch(setMultiChoiceActionModal(false));
+                },
+              },
+              onDontShowAgain: {
+                label: "Do not remind me again",
+                onClick: () => {
+                  localStorage.setItem("hideClaimSuccessPopover", "true");
+                  dispatch(setMultiChoiceActionModal(false));
+                },
+              },
+            },
+            "hideClaimSuccessPopover",
+            dispatch,
+          );
+        }),
+      )
+      .catch((err) => onContractError(err));
+  }
+
+  async function claimAndStake(batchId: string): Promise<void> {
+    toast.loading("Claiming and staking 3X...");
+    await threeXBatch
+      .claimAndStake(batchId)
+      .then((res) => onContractSuccess(res, `Staked claimed 3X`, () => refetchThreeXData()))
+      .catch((err) => onContractError(err));
+  }
+
+  async function handleWithdraw(
+    batchId: string,
+    amount: BigNumber,
+    useZap?: boolean,
+    outputToken?: BatchProcessTokenKey,
+  ) {
+    withdraw(batchId, amount, useZap, outputToken)
+      .then((res) =>
+        onContractSuccess(res, "Funds withdrawn!", () => {
+          refetchThreeXData();
+        }),
+      )
+      .catch((err) => onContractError(err));
+  }
+
+  async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: BatchProcessTokenKey) {
+    if (useZap) {
+      return threeXZapper.zapOutOfBatch(
+        batchId,
+        amount,
+        TOKEN_INDEX.usdc,
+        TOKEN_INDEX[outputToken],
+        adjustDepositDecimals(amount, outputToken)
+          .mul(100 - threeXPageState.slippage)
+          .div(100),
+      );
+    } else {
+      return threeXBatch["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account);
+    }
+  }
+
+  function getCurrentlyActiveContract() {
+    if (threeXPageState.instant) {
+      return threeXWhale;
+    } else if (threeXPageState.useZap) {
+      return threeXZapper;
+    } else {
+      return threeXBatch;
+    }
+  }
+
+  async function approve(contractKey: string): Promise<void> {
+    toast.loading("Approving Token...");
+    const selectedTokenContract = threeXPageState?.tokens[contractKey].contract;
+    await selectedTokenContract
+      .approve(getCurrentlyActiveContract().address, ethers.constants.MaxUint256)
+      .then((res) =>
+        onContractSuccess(res, "Token approved!", () => {
+          refetchThreeXData();
+        }),
+      )
+      .catch((err) => onContractError(err));
+  }
+
+  function getBatchProgressAmount(): BigNumber {
+    if (!threeXData) {
+      return BigNumber.from("0");
+    }
+    return threeXPageState.redeeming
+      ? threeXData?.currentBatches.redeem.suppliedTokenBalance
+          .mul(threeXData?.tokens?.threeX.price)
+          .div(parseEther("1"))
+      : threeXData?.currentBatches.mint.suppliedTokenBalance
+          .mul(threeXData?.tokens?.usdc.price)
+          .div(BigNumber.from(1_000_000));
   }
 
   return (
@@ -695,10 +549,11 @@ export default function ThreeX(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`${threeXData?.tokens?.threeX
-                  ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals)
-                  : "-"
-                  }`}
+                content={`${
+                  threeXData?.tokens?.threeX
+                    ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals)
+                    : "-"
+                }`}
                 icon={"3X"}
                 info={{
                   title: "Underlying Tokens",
@@ -724,7 +579,7 @@ export default function ThreeX(): JSX.Element {
                 batches={threeXData?.accountBatches}
                 claim={claim}
                 claimAndStake={claimAndStake}
-                withdraw={withdraw}
+                withdraw={handleWithdraw}
                 butterPageState={[threeXPageState, setThreeXPageState]}
                 isThreeX
               />
@@ -756,5 +611,42 @@ export default function ThreeX(): JSX.Element {
         </Dialog>
       </Transition.Root>
     </>
+  );
+}
+export async function instantMint(
+  threeXWhale: ThreeXWhaleProcessing,
+  depositAmount: BigNumber,
+  threeXPageState: ButterPageState,
+  threeXData: BatchMetadata,
+  stakeImmidiate: boolean,
+): Promise<ethers.ContractTransaction> {
+  toast.loading("Minting 3X...");
+  return threeXWhale["mint(uint256,int128,int128,uint256,bool)"](
+    depositAmount,
+    TOKEN_INDEX[threeXPageState.selectedToken.input],
+    TOKEN_INDEX.usdc,
+    getMinMintAmount(
+      depositAmount,
+      threeXPageState.slippage,
+      threeXData.tokens.threeX.price,
+      threeXPageState.selectedToken.input === "dai" ? 18 : 6,
+      18,
+    ),
+    stakeImmidiate,
+  );
+}
+
+export async function instantRedeem(
+  threeXWhale: ThreeXWhaleProcessing,
+  depositAmount: BigNumber,
+  threeXPageState: ButterPageState,
+  threeXData: BatchMetadata,
+): Promise<ethers.ContractTransaction> {
+  toast.loading("Depositing 3X...");
+  return threeXWhale["redeem(uint256,int128,int128,uint256)"](
+    depositAmount,
+    TOKEN_INDEX.usdc,
+    TOKEN_INDEX[threeXPageState.selectedToken.output],
+    0,
   );
 }
