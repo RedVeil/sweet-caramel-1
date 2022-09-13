@@ -12,14 +12,14 @@ import useNetWorth from "hooks/useNetWorth";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 import { BigNumber } from "ethers";
+import useSWR from "swr";
 
-interface HeroProps {
-  tvl: BigNumber;
-}
-export default function Hero({ tvl }: HeroProps): JSX.Element {
+const fetcher = () => fetch('/api/getTvl').then((res) => res.json()).then(data => data.tvl)
+
+export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
   const networth = useNetWorth();
-
+  const { data: tvl, error } = useSWR('/api/profile-data', fetcher)
   let formatter = Intl.NumberFormat("en", {
     //@ts-ignore
     notation: "compact",
@@ -41,7 +41,7 @@ export default function Hero({ tvl }: HeroProps): JSX.Element {
               />
             </div>
             <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
-              ${formatter.format(parseInt(formatUnits(tvl)))}
+              ${tvl ? formatter.format(parseInt(formatUnits(tvl))) : "0"}
             </p>
           </div>
           {account && (
