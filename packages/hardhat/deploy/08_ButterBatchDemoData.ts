@@ -50,14 +50,6 @@ async function createDemoData(
   const threeCrv = await hre.ethers.getContractAt("MockERC20", addresses.threeCrv, signer);
   const butter = await hre.ethers.getContractAt("MockERC20", addresses.butter, signer);
 
-  //Faucet
-  await deploy("Faucet", {
-    from: addresses.deployer,
-    args: [addresses.uniswapRouter /* addresses.curveAddressProvider, addresses.curveFactoryMetapoolDepositZap */],
-    log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "Faucet",
-  });
   const faucet = await hre.ethers.getContractAt("Faucet", (await deployments.get("Faucet")).address, signer);
 
   await hre.network.provider.send("hardhat_setBalance", [
@@ -91,5 +83,5 @@ async function createDemoData(
 }
 
 export default func;
-func.dependencies = ["setup", "butter", "test-pop", "staking"];
+func.dependencies = ["setup", "butter", "test-pop", "staking", "faucet"];
 func.tags = ["frontend", "butter-demo-data"];

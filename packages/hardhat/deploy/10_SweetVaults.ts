@@ -74,7 +74,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop"];
+main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop", "faucet"];
 main.tags = ["frontend", "sweet-vaults"];
 
 async function createDemoSweetVaults(hre: HardhatRuntimeEnvironment, signer, addresses, poolInfo) {
