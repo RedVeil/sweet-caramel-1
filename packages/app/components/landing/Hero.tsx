@@ -11,24 +11,14 @@ import useStakingTVL from "hooks/staking/useStakingTVL";
 import useNetWorth from "hooks/useNetWorth";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
+import { BigNumber } from "ethers";
 
-
-export default function Hero(): JSX.Element {
+interface HeroProps {
+  tvl: BigNumber;
+}
+export default function Hero({ tvl }: HeroProps): JSX.Element {
   const { account, connect } = useWeb3();
-  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
   const networth = useNetWorth();
-  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
-  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
-  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
-  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch);
-  const tvl = useMemo(
-    () =>
-      [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce(
-        (total, num) => total.add(num ? num : constants.Zero),
-        constants.Zero,
-      ),
-    [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL],
-  );
 
   let formatter = Intl.NumberFormat("en", {
     //@ts-ignore
