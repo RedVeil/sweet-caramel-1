@@ -7,7 +7,6 @@ import { getVaultStakingPools } from "../lib/utils/getStakingPools";
 import { addContractToRegistry, FaucetController } from "./utils";
 import { ADDRESS_ZERO } from "../lib/utils/constants";
 
-
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
@@ -45,7 +44,7 @@ async function createDemoSweetVaults(hre: HardhatRuntimeEnvironment, signer, add
     );
     const underlyingToken = await hre.ethers.getContractAt("MockERC20", poolInfo.inputToken, signer);
     await underlyingToken.approve(vault.address, parseEther("10"));
-    await vault["deposit(uint256)"](parseEther("10"));
+    await vault.depositAndStake(parseEther("10"));
     console.log(await (await underlyingToken.balanceOf(addresses.deployer)).toString());
   };
 

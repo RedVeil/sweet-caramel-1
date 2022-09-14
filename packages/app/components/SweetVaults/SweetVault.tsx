@@ -4,6 +4,7 @@ import { ERC20 } from "@popcorn/hardhat/typechain";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { constants } from "ethers";
+import useStakingPool from "hooks/staking/useStakingPool";
 import useSweetVault from "hooks/sweetvault/useSweetVault";
 import useTokenList from "hooks/sweetvault/useTokenList";
 import useVaultsV1Zapper from "hooks/sweetvault/useVaultsV1Zapper";
@@ -17,6 +18,7 @@ import StatusWithLabel from "../Common/StatusWithLabel";
 import SweetVaultsDepositInterface from "./SweetVaultsDepositInterface";
 import SweetVaultsMobileTutorialSlider from "./SweetVaultsMobileTutorialSlider";
 import SweetVaultsSlider from "./SweetVaultsSlider";
+
 export interface SweetVaultProps {
   address: string;
   searchString: string;
@@ -37,16 +39,24 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
     mutate: revalidateTokenList,
   } = useTokenList(contractAddresses.defaultTokenList, zapper?.zapper?.address);
   const { data: sweetVault, error: sweetVaultError, mutate: revalidateVault } = useSweetVault(address);
+  const { data: stakingPool } = useStakingPool(sweetVault?.metadata?.stakingAdress);
   const {
     data: poolToken,
     error: poolTokenError,
     mutate: revalidatePoolToken,
   } = useGetMultipleToken(poolCoins, zapper?.zapper?.address);
-
-  const vaultLoading = !sweetVault;
+  const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
 
   const metadata = sweetVault ? sweetVault.metadata : ({} as SweetVaultMetadata);
   const { name, underlyingToken, deposited, tvl, apy, curveLink, icon, displayText } = metadata;
+  const vaultLoading = !sweetVault;
+
+  const stakingApy = formatAndRoundBigNumber(stakingPool?.apy, 3);
+
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying assets (${apy?.toLocaleString() || "-"
+    }%) and is boosted with POP (${stakingApy || "-"
+    }%). You must stake your ${name} to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+
 
   const tutorialSteps = [
     {
@@ -59,9 +69,6 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
     },
   ];
 
-  async function revalidate(): Promise<void> {
-    await Promise.all([revalidateTokenList(), revalidateVault(), revalidatePoolToken()]);
-  }
 
   useEffect(() => {
     if (zapper && underlyingToken?.address) {
@@ -69,7 +76,9 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
     }
   }, [address, zapper, underlyingToken]);
 
-  const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
+  async function revalidate(): Promise<void> {
+    await Promise.all([revalidateTokenList(), revalidateVault(), revalidatePoolToken()]);
+  }
 
   if (vaultLoading) {
     return (
@@ -99,9 +108,8 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   } else {
     return (
       <div
-        className={`${
-          expanded ? " h-160 smlaptop:h-156" : "h-100 md:h-72 delay-200"
-        } bg-white border-b border-customLightGray cursor-pointer z-10 py-6 md:p-8 transition-all duration-700 ease-in-out hover:scale-102 transform`}
+        className={`${expanded ? " h-160 smlaptop:h-156" : "h-100 md:h-72 delay-200"
+          } bg-white border-b border-customLightGray cursor-pointer z-10 py-6 md:p-8 transition-all duration-700 ease-in-out hover:scale-102 transform`}
         onClick={() => {
           setExpanded(!expanded);
         }}
@@ -113,9 +121,8 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
               <h3 className=" text-4xl leading-10 ml-2 ">{name}</h3>
             </div>
             <ChevronDownIcon
-              className={`${
-                expanded ? "rotate-180" : "rotate-0"
-              } transform transition-all ease-in-out w-6 text-secondaryLight`}
+              className={`${expanded ? "rotate-180" : "rotate-0"
+                } transform transition-all ease-in-out w-6 text-secondaryLight`}
             />
           </div>
         </div>
@@ -134,7 +141,15 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
             />
           </div>
           <div className="col-span-6 md:col-span-6">
-            <StatusWithLabel content={apy?.toLocaleString() + "%"} label="Est apy." />
+            <StatusWithLabel
+              content={(apy + Number(stakingApy))?.toLocaleString() + "%"}
+              label="Est apy."
+              infoIconProps={{
+                id: "vAPR",
+                title: "How we calculate the vAPR",
+                content: apyInfoText,
+              }}
+            />
           </div>
           <div className="col-span-6 md:col-span-6">
             <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="tvl" />

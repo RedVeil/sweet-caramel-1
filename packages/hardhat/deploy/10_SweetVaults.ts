@@ -73,6 +73,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     await addContractToRegistry(vaultStakingPools[i].vaultName, deployments, signer, hre);
     await vault.connect(signer).setStaking(Staking.address);
+
+    const staking = await ethers.getContractAt("Staking", Staking.address);
+    await staking.connect(signer).setVault(vault.address);
   }
 };
 

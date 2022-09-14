@@ -180,6 +180,7 @@ export type SweetVaultMetadata = ERC20Metadata & {
     strategy?: string;
   };
   defaultDepositTokenSymbol?: string;
+  stakingAdress?: string;
 };
 
 // contract w/ metadata pattern

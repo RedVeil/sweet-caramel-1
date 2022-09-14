@@ -5,7 +5,7 @@ import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
 import { ContractTransaction } from "ethers/lib/ethers";
 import toast from "react-hot-toast";
 
-export async function deposit(
+export async function depositAndStake(
   amount: BigNumber,
   slippage: number,
   sweetVault: SweetVaultWithMetadata,
@@ -18,7 +18,7 @@ export async function deposit(
   signer: any,
   provider: any,
 ): Promise<void> {
-  zapInOrDeposit(amount, slippage, sweetVault, zapper, selectedToken, signer, provider)
+  zapInOrDepositAndStake(amount, slippage, sweetVault, zapper, selectedToken, signer, provider)
     .then((res) =>
       onContractSuccess(res, `Deposited ${sweetVault?.metadata?.underlyingToken?.name}!`, () => {
         resetInput();
@@ -27,7 +27,7 @@ export async function deposit(
     )
     .catch((err) => onContractError(err));
 }
-async function zapInOrDeposit(
+async function zapInOrDepositAndStake(
   amount: BigNumber,
   slippage: number,
   sweetVault: SweetVaultWithMetadata,
@@ -38,7 +38,7 @@ async function zapInOrDeposit(
 ) {
   if (selectedToken?.address === sweetVault?.metadata?.underlyingToken?.address) {
     toast.loading(`Depositing ${selectedToken?.name} into vault...`);
-    return sweetVault?.contract?.connect(signer)["deposit(uint256)"](amount);
+    return sweetVault?.contract?.connect(signer).depositAndStake(amount);
   } else {
     toast.loading(`Zapping ${selectedToken?.name} into vault...`);
     return zapper.zapIn(
@@ -47,12 +47,12 @@ async function zapInOrDeposit(
       await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
       amount,
       slippage / 100,
-      false,
+      true,
     );
   }
 }
 
-export async function withdraw(
+export async function unstakeAndRedeem(
   amount: BigNumber,
   slippage: number,
   sweetVault: SweetVaultWithMetadata,
@@ -66,7 +66,7 @@ export async function withdraw(
   provider: any,
 ): Promise<void> {
   toast.loading(`Withdrawing ${sweetVault?.metadata?.underlyingToken?.name} ...`);
-  zapOutOrWithdraw(amount, slippage, sweetVault, zapper, selectedToken, signer, provider)
+  unstakeAndZapOutOrWithdraw(amount, slippage, sweetVault, zapper, selectedToken, signer, provider)
     .then((res) =>
       onContractSuccess(res, `${sweetVault?.metadata?.underlyingToken?.name} withdrawn!`, () => {
         resetInput();
@@ -75,7 +75,7 @@ export async function withdraw(
     )
     .catch((err) => onContractError(err));
 }
-async function zapOutOrWithdraw(
+async function unstakeAndZapOutOrWithdraw(
   amount: BigNumber,
   slippage: number,
   sweetVault: SweetVaultWithMetadata,
@@ -85,7 +85,7 @@ async function zapOutOrWithdraw(
   provider: any,
 ) {
   if (selectedToken?.address === sweetVault?.metadata?.underlyingToken?.address) {
-    return sweetVault?.contract?.connect(signer)["redeem(uint256)"](amount);
+    return sweetVault?.contract?.connect(signer).unstakeAndRedeem(amount);
   } else {
     return zapper.zapOut(
       { address: selectedToken?.address, decimals: selectedToken?.decimals },
@@ -93,7 +93,7 @@ async function zapOutOrWithdraw(
       await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
       amount,
       slippage / 100,
-      false,
+      true,
     );
   }
 }
