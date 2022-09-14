@@ -4,7 +4,7 @@ import SecuritySection from "components/landing/SecuritySection";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 
-const IndexPage = () => {
+const IndexPage = ({ tvl }) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -14,11 +14,19 @@ const IndexPage = () => {
   }, [router.pathname]);
   return (
     <main>
-      <Hero />
+      <Hero tvl={tvl} />
       <Products />
       <SecuritySection />
     </main>
   );
 };
+
+export async function getServerSideProps({ req, res }) {
+  const tvlRes = await fetch('/api/getTvl')
+  const tvlJson = await tvlRes.json()
+
+  res.setHeader("Cache-Control", "s-maxage=14400");
+  return { props: { tvl: tvlJson.tvl } };
+}
 
 export default IndexPage;

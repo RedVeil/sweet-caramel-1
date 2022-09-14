@@ -1,25 +1,20 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ChainId } from "@popcorn/utils";
 import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import SliderContainer from "components/Common/SliderContainer";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import SecondaryActionButton from "components/SecondaryActionButton";
-import { constants } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
-import useSetTokenTVL from "hooks/set/useSetTokenTVL";
-import useStakingTVL from "hooks/staking/useStakingTVL";
 import useNetWorth from "hooks/useNetWorth";
 import useWeb3 from "hooks/useWeb3";
-import { useMemo } from "react";
 import { BigNumber } from "ethers";
-import useSWR from "swr";
 
-const fetcher = () => fetch('/api/getTvl').then((res) => res.json()).then(data => data.tvl)
+interface HeroProps {
+  tvl: BigNumber
+}
 
-export default function Hero(): JSX.Element {
+export default function Hero({ tvl }: HeroProps): JSX.Element {
   const { account, connect } = useWeb3();
   const networth = useNetWorth();
-  const { data: tvl, error } = useSWR('/api/profile-data', fetcher)
   let formatter = Intl.NumberFormat("en", {
     //@ts-ignore
     notation: "compact",
