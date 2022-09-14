@@ -5,6 +5,7 @@ import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
 import TermsContent from "components/staking/TermsModalContent";
 import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
 import { store } from "context/store";
+import { constants } from "ethers/lib/ethers";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
@@ -34,7 +35,6 @@ export default function PopStakingPage(): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const approveToken = useApproveERC20();
   const tokenPrice = useTokenPrice(stakingToken?.address);
-
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {
@@ -85,7 +85,7 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Withdrawing POP ...");
     stakingPool?.contract
       .connect(signer)
-    ["processExpiredLocks(bool)"](false)
+      ["processExpiredLocks(bool)"](false)
       .then((res) =>
         onContractSuccess(res, "POP withdrawn!", () => {
           balances.revalidate();
@@ -99,7 +99,7 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Restaking POP ...");
     stakingPool.contract
       .connect(signer)
-    ["processExpiredLocks(bool)"](true)
+      ["processExpiredLocks(bool)"](true)
       .then((res) => {
         onContractSuccess(res, "POP Restaked!", () => {
           balances.revalidate();
@@ -122,9 +122,15 @@ export default function PopStakingPage(): JSX.Element {
 
   function approve() {
     toast.loading("Approving POP ...");
-    approveToken(stakingToken.contract.connect(signer), stakingPool.address, "POP approved!", () => {
-      balances.revalidate();
-    });
+    approveToken(
+      stakingToken.contract.connect(signer),
+      constants.MaxUint256,
+      stakingPool.address,
+      "POP approved!",
+      () => {
+        balances.revalidate();
+      },
+    );
   }
 
   return (

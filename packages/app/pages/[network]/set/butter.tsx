@@ -9,13 +9,7 @@ import {
   percentageToBps,
   prepareHotSwap,
 } from "@popcorn/utils";
-import {
-  BatchProcessTokenKey,
-  BatchType,
-  SelectedToken,
-  SignatureDetails,
-  Tokens  
-} from "@popcorn/utils/src/types";
+import { BatchProcessTokenKey, BatchType, SelectedToken, SignatureDetails, Tokens } from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
@@ -35,12 +29,13 @@ import useButterBatchData from "hooks/set/useButterBatchData";
 import useButterBatchZapper from "hooks/set/useButterBatchZapper";
 import useButterWhaleData from "hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
+import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { Fragment, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
-import getSignature, { getZapSignature, permitTypes } from "../../../../utils/src/getSignature";
+import { getZapSignature } from "../../../../utils/src/getSignature";
 import abi from "../../../public/ButterBatchZapperAbi.json";
 
 export enum TOKEN_INDEX {
@@ -52,9 +47,9 @@ export enum TOKEN_INDEX {
 export function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string): [BigNumber, BigNumber, BigNumber] {
   switch (tokenKey) {
     case "dai":
-      return [depositAmount, constants.Zero, constants.Zero];
+      return [ethers.constants.MaxUint256, constants.Zero, constants.Zero];
     case "usdc":
-      return [constants.Zero, depositAmount, constants.Zero];
+      return [constants.Zero, ethers.constants.MaxUint256, constants.Zero];
     case "usdt":
       return [constants.Zero, constants.Zero, depositAmount];
   }
@@ -104,6 +99,7 @@ export default function Butter(): JSX.Element {
     pushWithinChain,
     signer,
   } = useWeb3();
+  const approveToken = useApproveERC20();
   const { dispatch } = useContext(store);
   const butterBatchZapper = useButterBatchZapper();
   const butterBatch = useButterBatch();
@@ -362,15 +358,19 @@ export default function Butter(): JSX.Element {
         butterPageState[`${butterPageState.selectedToken.input}Signature`],
         butterPageState.selectedToken.input,
       );
-      return butterBatchZapper.zapIntoBatchPermit(
-        getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
-        minMintAmount,
-        deadline,
-        v,
-        r,
-        s,
-        nonce,
-      );
+      return await butterBatchZapper
+        .zapIntoBatchPermit(
+          getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
+          minMintAmount,
+          deadline,
+          v,
+          r,
+          s,
+          nonce,
+        )
+        .then((): any =>
+          localStorage.removeItem(butterBatchData?.tokens[butterPageState.selectedToken.input].name + "Signature"),
+        );
     }
     return butterBatch.depositForMint(depositAmount, account);
   }
@@ -571,53 +571,21 @@ export default function Butter(): JSX.Element {
 
   async function approve(contractKey: string): Promise<void> {
     toast.loading("Approving Token...");
-    const selectedTokenContract = butterBatchData?.batchProcessTokens[contractKey].contract;
-    if (
-      getCurrentContractAddress() === butterBatchZapper.address &&
-      (contractKey === "dai" || contractKey === "usdc")
-    ) {
-      const valueAdjusted =
-        butterPageState.selectedToken.input === "usdc"
-          ? butterPageState.depositAmount.div(1e12)
-          : butterPageState.depositAmount;
+    const valueAdjusted =
+      butterPageState.selectedToken.input === "usdc"
+        ? butterPageState.depositAmount.div(1e12)
+        : butterPageState.depositAmount;
 
-      await getSignature(
-        rpcProvider,
-        signerOrProvider,
-        butterPageState.selectedToken.input === "usdc" ? permitTypes.AMOUNT : permitTypes.ALLOWED,
-        account,
-        butterBatchZapper.address,
-        selectedTokenContract,
-        chainId,
-        valueAdjusted,
-      ).then(
-        (res) => {
-          toast.dismiss();
-          toast.success("Token approved!");
-          setButterPageState({
-            ...butterPageState,
-            [`${contractKey}Signature`]: {
-              v: res.v,
-              r: res.r,
-              s: res.s,
-              deadline: res.deadline,
-              value: res.value,
-              nonce: res.nonce,
-            },
-          });
-          refetchButterBatchData();
-        },
-        (err) => onContractError(err),
-      );
-    } else {
-      await selectedTokenContract.approve(getCurrentContractAddress(), ethers.constants.MaxUint256).then(
-        (res) =>
-          onContractSuccess(res, "Token approved!", () => {
-            refetchButterBatchData();
-          }),
-        (err) => onContractError(err),
-      );
-    }
+    await approveToken(
+      butterBatchData.tokens[contractKey].contract,
+      butterBatchZapper.address,
+      valueAdjusted,
+      toast,
+      "Token Approved",
+      () => {
+        refetchButterBatchData();
+      },
+    );
   }
 
   function getBatchProgressAmount(): BigNumber {

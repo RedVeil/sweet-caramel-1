@@ -1,4 +1,4 @@
-import { ERC20__factory } from "@popcorn/hardhat/typechain";
+import { ERC20Permit__factory } from "@popcorn/hardhat/typechain";
 import { getToken } from "@popcorn/utils";
 import { useEffect, useState } from "react";
 import { Token } from "../../../utils/src/types/index";
@@ -10,9 +10,13 @@ export default function useERC20(address: string | null, staticRpcProvider?): To
   useEffect(() => {
     let mounted = true;
     if (address && signerOrProvider) {
-      getToken(ERC20__factory.connect(address, staticRpcProvider ? staticRpcProvider : signerOrProvider), staticRpcProvider ? staticRpcProvider : rpcProvider, chainId)
+      getToken(
+        ERC20Permit__factory.connect(address, staticRpcProvider ? staticRpcProvider : signerOrProvider),
+        staticRpcProvider ? staticRpcProvider : rpcProvider,
+        chainId,
+      )
         .then((token) => mounted && setToken(token))
-        .catch((err) => { });
+        .catch((err) => {});
     }
     return () => {
       mounted = false;

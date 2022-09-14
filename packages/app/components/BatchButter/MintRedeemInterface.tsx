@@ -3,9 +3,10 @@ import { InfoIconWithModal } from "components/InfoIconWithModal";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { BigNumber, constants, ethers } from "ethers";
+import useTokenAllowance from "hooks/tokens/useTokenAllowance";
+import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
-import { useContext } from "react";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import MainActionButton from "../MainActionButton";
 import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
 import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
@@ -31,35 +32,40 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   isInstantPage = false,
   isThreeXPage = false,
 }) => {
+  const { account, contractAddresses } = useWeb3();
   const [localButterPageState, setButterPageState] = butterPageState;
   const { features } = useContext(FeatureToggleContext);
+  const tokenAllowance = useTokenAllowance(
+    token[localButterPageState.selectedToken?.input]?.contract || undefined,
+    account,
+    contractAddresses.butterBatchZapper,
+  );
 
   const isAllowanceInsufficient = useMemo(() => {
-    if (localButterPageState.selectedToken.input === "usdc") {
-      return localButterPageState.depositAmount
-        .div(1e12)
-        .gt(localButterPageState[`${localButterPageState.selectedToken.input}Signature`]?.value || 0);
-    }
-    if (localButterPageState.selectedToken.input === "dai") {
-      return localButterPageState.depositAmount.gt(
-        localButterPageState[`${localButterPageState.selectedToken.input}Signature`]?.value || 0,
-      );
-    }
+    if (token && token[localButterPageState.selectedToken?.input]?.contract && tokenAllowance) {
+      if (localButterPageState.selectedToken.input === "usdc") {
+        if (tokenAllowance?.data?.hex) {
+          return localButterPageState.depositAmount.div(1e12).gt(BigNumber.from(tokenAllowance.data.hex));
+        }
+        return true;
+      }
+      if (localButterPageState.selectedToken.input === "dai") {
+        return localButterPageState.depositAmount.gt(tokenAllowance?.data || 0);
+      }
 
-    return localButterPageState.instant
-      ? localButterPageState.depositAmount.gt(
-          token[localButterPageState.selectedToken.input].allowance,
-        ) ||
-          token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
-      : localButterPageState.depositAmount.gt(
-          token[localButterPageState.selectedToken.input].allowance,
-        ) ||
-          token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero);
+      return localButterPageState.instant
+        ? localButterPageState.depositAmount.gt(token[localButterPageState.selectedToken.input].allowance) ||
+            token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
+        : localButterPageState.depositAmount.gt(token[localButterPageState.selectedToken.input].allowance) ||
+            token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero);
+    }
+    return false;
   }, [
     localButterPageState,
     localButterPageState.selectedToken,
     localButterPageState.usdcSignature,
     localButterPageState.daiSignature,
+    tokenAllowance,
   ]);
 
   function setRedeeming(redeeming: boolean) {

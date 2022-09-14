@@ -160,6 +160,7 @@ export type Token = {
   allowance?: BigNumber;
   description?: string;
   icon?: string;
+  permit?: boolean;
 };
 
 export type ERC20Metadata = {

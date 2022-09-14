@@ -1,14 +1,23 @@
 import { getTokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
-import { ERC20 } from "@popcorn/hardhat/typechain";
+import { getTokenAllowance } from "@popcorn/app/hooks/tokens/useTokenAllowance";
+import { ERC20Permit, ERC20Permit__factory } from "@popcorn/hardhat/typechain";
 import { constants } from "ethers/lib/ethers";
 import { getSanitizedTokenDisplayName } from "../../app/helper/displayHelper";
-import { ERC20__factory } from "../../hardhat/typechain/factories/ERC20__factory";
 import { Token } from "./types";
 
 const TokenMetadataOverride = getTokenMetadataOverride();
 
+async function checkPermit(erc20: ERC20Permit) {
+  try {
+    await erc20.DOMAIN_SEPARATOR();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default async function getToken(
-  erc20: ERC20,
+  erc20: ERC20Permit,
   provider,
   chainId: number,
   account?: string,
@@ -36,7 +45,8 @@ export default async function getToken(
       symbol: await erc20.symbol(),
       decimals: await erc20.decimals(),
       balance: account ? await erc20.balanceOf(account) : constants.Zero,
-      allowance: account && spender ? await erc20.allowance(account, spender) : constants.Zero,
+      permit: await checkPermit(erc20),
+      allowance: account && spender ? await getTokenAllowance(erc20, account, spender) : constants.Zero,
       ...overridingMetadata,
     };
   }
@@ -47,7 +57,8 @@ export default async function getToken(
     symbol: await erc20.symbol(),
     decimals: await erc20.decimals(),
     balance: account ? await erc20.balanceOf(account) : constants.Zero,
-    allowance: account && spender ? await erc20.allowance(account, spender) : constants.Zero,
+    permit: await checkPermit(erc20),
+    allowance: account && spender ? await getTokenAllowance(erc20, account, spender) : constants.Zero,
   };
 }
 
@@ -58,11 +69,11 @@ export const getTokenFromAddress = async (
   account?: string,
   spender?: string,
 ): Promise<Token> => {
-  return getToken(ERC20__factory.connect(address, provider), provider, chainId, account, spender);
+  return getToken(ERC20Permit__factory.connect(address, provider), provider, chainId, account, spender);
 };
 
 export async function getMultipleToken(
-  multipleErc20: ERC20[],
+  multipleErc20: ERC20Permit[],
   provider,
   chainId: number,
   account?: string,

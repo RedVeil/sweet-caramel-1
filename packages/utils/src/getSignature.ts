@@ -1,5 +1,5 @@
 import { fromRpcSig } from "ethereumjs-util";
-import { BigNumber, constants, Contract } from "ethers";
+import { BigNumber, constants, Contract, ethers } from "ethers";
 import { Address, SignatureDetails } from "./types";
 
 export enum permitTypes {
@@ -52,7 +52,6 @@ export default async function getSignature(
   const block = await library.getBlock("latest");
   const hour = 60 * 60;
   const deadline = block.timestamp + hour;
-  // const deadline = ethers.constants.MaxUint256;
 
   const Permit =
     permitType === permitTypes.AMOUNT
@@ -80,7 +79,7 @@ export default async function getSignature(
       ? {
           owner,
           spender,
-          value,
+          value: ethers.constants.MaxUint256,
           deadline,
           nonce,
         }
