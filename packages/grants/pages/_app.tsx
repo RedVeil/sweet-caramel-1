@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react'
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Debug } from "components/Debug";
-import Header from "components/Header";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
@@ -87,7 +86,6 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
               <DualActionModalContainer />
               <DualActionWideModalContainer />
               <Toaster position="top-right" reverseOrder={false} />
-              <Header />
               {getLayout(<Component {...pageProps} />)}
               <SwapChainModal />
               <NotificationsContainer />

@@ -18,61 +18,45 @@ export enum ProposalType {
 export interface BeneficiaryImage {
   image: string;
   description: string;
+  hash?: string;
 }
 
 export interface ImpactReport {
   fileName: string;
   reportCid: string;
+  hash?: string;
+}
+export interface AdditionalImages {
+  fileName: string;
+  hash: string;
+  description: string;
+  image?: string;
+}
+export interface AdditionalImages {
+  fileName: string;
+  hash: string;
+  description: string;
 }
 export interface BeneficiaryApplication {
-  organizationName: {
-    error: boolean;
-    errorMessage: string;
-    data: string;
-  };
-  projectName?: {
-    error: boolean;
-    errorMessage: string;
-    data: string;
-  };
-  missionStatement: {
-    error: boolean;
-    errorMessage: string;
-    data: string;
-  };
-  beneficiaryAddress: {
-    error: boolean;
-    errorMessage: string;
-    data: string;
-  };
-  proposalCategory: {
-    error: boolean;
-    errorMessage: string;
-    data: string;
-  };
+  organizationName: string;
+  projectName?: string;
+  missionStatement: string;
+  beneficiaryAddress: string;
+  proposalCategory: string;
   files: {
     profileImage: BeneficiaryImage;
     headerImage?: BeneficiaryImage;
     impactReports?: ImpactReport[];
-    additionalImages?: BeneficiaryImage[];
+    additionalImages?: AdditionalImages[];
     video: string;
   };
   links: {
     twitterUrl?: string;
     linkedinUrl?: string;
-    facebookUrl?: string;
-    instagramUrl?: string;
-    githubUrl?: string;
-    proofOfOwnership?: {
-      error: boolean;
-      errorMessage: string;
-      data: string;
-    };
-    contactEmail: {
-      error: boolean;
-      errorMessage: string;
-      data: string;
-    };
+    telegramUrl?: string;
+    signalUrl?: string;
+    proofOfOwnership?: string;
+    contactEmail: string;
     website: string;
   };
   version: string;
@@ -87,9 +71,10 @@ export interface Proposal {
     for: BigNumber;
     against: BigNumber;
   };
+  startTime: Date;
 }
 export class BeneficiaryGovernanceAdapter {
-  constructor(private contract: Contract, private IpfsClient: IIpfsClient) {}
+  constructor(private contract: Contract, private IpfsClient: IIpfsClient) { }
 
   public async getProposal(id: number): Promise<Proposal> {
     const proposal = await this.contract.proposals(id);
@@ -102,12 +87,13 @@ export class BeneficiaryGovernanceAdapter {
         (Number(proposal.startTime.toString()) +
           Number(proposal.configurationOptions.votingPeriod.toString()) +
           Number(proposal.configurationOptions.vetoPeriod.toString())) *
-          1000
+        1000
       ),
       votes: {
         for: proposal.yesCount,
         against: proposal.noCount,
       },
+      startTime: new Date(Number(proposal.startTime.toString()) * 1000),
     };
   }
 

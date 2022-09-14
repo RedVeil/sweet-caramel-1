@@ -2,37 +2,15 @@ const colors = require("tailwindcss/colors");
 
 module.exports = {
   content: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}", "./containers/**/*.{js,ts,jsx,tsx}"],
+  mode: "jit",
   theme: {
-    screens: {
-      xs: "440px",
-      // => @media (min-"440px) { ... }
-
-      sm: "640px",
-      // => @media (min-"640px) { ... }
-
-      smmd: "700px",
-
-      md: "1024px",
-      // => @media (min-"1024px) { ... }
-
-      smlaptop: "1200px",
-      // => @media (min-"1440px) { ... }
-
-      laptop: "1440px",
-      // => @media (min-"1440px) { ... }
-
-      lglaptop: "1680px",
-      // => @media (min-"1440px) { ... }
-
-      xl: "1920px",
-      // => @media (min-"1920px) { ... }
-
-      "2xl": "2560px",
-      // => @media (min-"2560px) { ... }
-    },
     extend: {
       boxShadow: {
-        custom: "0 4px 14px rgba(101, 135, 169, 0.16)",
+        custom: "0 4px 14px rgba(101, 135, 169, 0.11)",
+        "custom-md": "0px 20px 50px rgba(14, 42, 68, 0.1)",
+        "custom-lg": "0px 10px 40px rgba(11, 44, 74, 0.1)",
+        "voting-card": "0px 4px 14px rgba(101, 135, 169, 0.11), 0px 4px 14px rgba(101, 135, 169, 0.11)",
+        "voting-card-mobile": "0px -21px 14px rgba(101, 135, 169, 0.11), 0px 4px 14px rgba(101, 135, 169, 0.11)",
       },
       borderRadius: {
         "4xl": "2rem",
@@ -111,6 +89,7 @@ module.exports = {
         primary: "#645F4B",
         primaryLight: "#A5A08C",
         primaryDark: "#555555",
+        pink: "#FDA1B5",
 
         secondary: "#B72E73",
         secondaryLight: "#AFAFAF",

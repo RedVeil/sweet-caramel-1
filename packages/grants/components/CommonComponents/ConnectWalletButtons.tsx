@@ -1,7 +1,6 @@
 import React from "react";
 import DisconnectWalletIcon from "../Svgs/DisconnectWalletIcon";
 import WalletIcon from "../Svgs/WalletIcon";
-import Button from "./Button";
 
 interface Props {
   connected: boolean;
@@ -12,12 +11,15 @@ const ConnectWalletButtons: React.FC<Props> = ({ connected, connectWallet, disco
   return (
     <>
       {!connected && (
-        <Button variant="tertiary" className="md:w-44 py-3 px-8 md:px-0" onClick={connectWallet}>
+        <button
+          className="bg-warmGray border-ctaYellow text-black hover:bg-primary hover:border-primary hover:text-white active:bg-white active:border-primary active:text-primary rounded-4xl px-8 py-3 font-medium text-base transition-all ease-in-out duration-500 w-full disabled:bg-customLightGray disabled:border-customLightGray disabled:text-secondaryLight disabled:hover:border-customLightGray disabled:hover:bg-customLightGray disabled:hover:text-secondaryLight"
+          onClick={connectWallet}
+        >
           <span className="hidden md:inline">Connect Wallet</span>
           <span className="md:hidden">
             <WalletIcon />
           </span>
-        </Button>
+        </button>
       )}
       {connected && (
         <button
