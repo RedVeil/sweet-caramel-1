@@ -171,9 +171,9 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
           <FakeInputField
             inputValue={Number(formatUnits(inputAmount, selectedToken?.decimals)) / assetsPerShare}
             children={
-              <span className="flex flex-row items-center justify-end py-1">
+              <span className="flex flex-row items-center justify-end">
                 <Image priority={true} className="w-5 mr-1" src={sweetVault?.metadata?.icon} width="20" height="20" />
-                <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700 ml-2">
+                <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700 ml-2 hidden md:block">
                   {sweetVault?.metadata?.symbol}
                 </p>
               </span>

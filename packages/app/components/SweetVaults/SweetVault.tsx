@@ -127,20 +127,20 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
           </div>
         </div>
         <div className="grid grid-cols-12 md:gap-x-10 gap-y-6 mt-6 relative z-30 bg-white">
-          <div className="col-span-12 md:col-span-6">
+          <div className="col-span-6">
             <StatusWithLabel
               content={formatAndRoundBigNumber(underlyingToken?.balance, underlyingToken?.decimals)}
               label="Your Wallet"
               green
             />
           </div>
-          <div className="col-span-12 md:col-span-6">
+          <div className="col-span-6">
             <StatusWithLabel
               content={formatAndRoundBigNumber(deposited, sweetVault?.metadata?.decimals)}
               label="Your Deposit"
             />
           </div>
-          <div className="col-span-6 md:col-span-6">
+          <div className="col-span-6">
             <StatusWithLabel
               content={(apy + Number(stakingApy))?.toLocaleString() + "%"}
               label="Est apy."
@@ -151,8 +151,8 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
               }}
             />
           </div>
-          <div className="col-span-6 md:col-span-6">
-            <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="tvl" />
+          <div className="col-span-6">
+            <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="TVL" />
           </div>
         </div>
         <Transition

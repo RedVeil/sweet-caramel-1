@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Faucet } from "../typechain/Faucet";
 import { parseEther } from "ethers/lib/utils";
 
 export const addContractToRegistry = async (
@@ -48,7 +47,7 @@ export const addContractToRegistry = async (
 
 export const FaucetController = async (hre, signer) => {
   const initialize = await (() =>
-    async function (hre: HardhatRuntimeEnvironment, signer): Promise<Faucet> {
+    async function (hre: HardhatRuntimeEnvironment, signer) {
       const faucetAddress = (await hre.deployments.get("Faucet")).address;
       if ((await hre.ethers.provider.getBalance(faucetAddress)).lt(parseEther("100000"))) {
         await hre.network.provider.send("hardhat_setBalance", [
