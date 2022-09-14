@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "~slick-carousel/slick/slick.css"; 
+@import "~slick-carousel/slick/slick.css";
 @import "~slick-carousel/slick/slick-theme.css";
 
 html,
@@ -11,9 +11,9 @@ body {
   width: 100%;
   height: 100%;
   background: #fff;
-	font-family: 'Avenir Next LT Pro';
-	font-size: 16px;
-	font-style:normal;
+  font-family: "KH Teka", sans-serif;
+  font-size: 16px;
+  font-style: normal;
 }
 html,
 a {
@@ -30,27 +30,39 @@ p {
 
 @layer base {
   @font-face {
-    font-family: 'Avenir Next LT Pro';
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Regular.woff) format('woff');
+    font-family: "KH Teka";
+    font-weight: 400;
+    src: local("KH Teka"), url(/fonts/KH_Teka/KHTeka-Regular.woff) format("woff");
   }
+
   @font-face {
-    font-family: 'Avenir Next LT Pro';
-    font-weight: 600;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Demi.woff) format('woff');
+    font-family: "KH Teka";
+    font-weight: 200;
+    src: local("KH Teka"), url(/fonts/KH_Teka/KHTeka-Light.woff) format("woff");
   }
+
   @font-face {
-    font-family: 'Avenir Next LT Pro';
+    font-family: "KH Teka";
+    font-weight: 500;
+    src: local("KH Teka"), url(/fonts/KH_Teka/KHTeka-Medium.woff) format("woff");
+  }
+
+  @font-face {
+    font-family: "KH Teka";
     font-weight: 700;
-    src: local('Avenir Next LT Pro'),
-      url(/fonts/Avenir_Next_LT_Pro/AvenirNextLTPro-Bold.woff) format('woff');
+    src: local("KH Teka"), url(/fonts/KH_Teka/KHTeka-Bold.woff) format("woff");
+  }
+
+  @font-face {
+    font-family: "KH Teka";
+    font-weight: 900;
+    src: local("KH Teka"), url(/fonts/KH_Teka/KHTeka-Black.woff) format("woff");
   }
 }
 
 @layer components {
   .button {
-    @apply flex-shrink-0 block px-4 py-2 text-base font-medium rounded-md border border-transparent text-base align-middle text-center leading-button shadow-sm;
+    @apply flex-shrink-0 block px-4 py-2 font-medium rounded-md border border-transparent text-base align-middle text-center leading-button shadow-sm;
   }
 
   .button:disabled {
@@ -106,55 +118,91 @@ p {
   border-color: #636363;
   color: #636363;
 }
-.hr-line{
-	width:1px
+.hr-line {
+  width: 1px;
 }
-.apply-card{
-	padding-top: 400px;
+.apply-card {
+  padding-top: 400px;
 }
-.rs-slider-progress-bar{
-	background-color: #1E40AF!important;
+.rs-slider-progress-bar {
+  background-color: #1e40af !important;
 }
-.rs-slider-bar{
-	background-color: #DBEAFE!important;
+.rs-slider-bar {
+  background-color: #dbeafe !important;
 }
-.rs-slider-handle:before{
-	border-color: #1E40AF!important;
+.rs-slider-handle:before {
+  border-color: #1e40af !important;
 }
-@media screen and (max-width:767px){
-	.apply-card{
-		padding-top: 850px;
-	}
-	.apply-overlay{
-		height: 800px;
-	}
-} 
-@media screen and (max-width:400px){
-	.apply-card{
-		padding-top: 1000px;
-	}
-	.apply-overlay{
-		height: 800px;
-	}
+@media screen and (max-width: 767px) {
+  .apply-card {
+    padding-top: 850px;
+  }
+  .apply-overlay {
+    height: 800px;
+  }
 }
-
-@media screen and (min-width:768px) and (max-width:1024px){
-	.apply-card{
-		padding-top: 500px;
-	}
+@media screen and (max-width: 400px) {
+  .apply-card {
+    padding-top: 1000px;
+  }
+  .apply-overlay {
+    height: 800px;
+  }
 }
 
-.apply-overlay{
-	height: 600px;
+.wheelPicker ul {
+  border: 1px solid #e5e7eb;
+  box-shadow: inset 0px -4px 11px rgba(0, 0, 0, 0.1), inset 0px 4px 11px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px;
+}
+.wheelPicker li {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  margin: 5px 0px;
+}
+.wheelPicker li p {
+  font-weight: 600;
+  font-size: 18px !important;
+}
+.wheelPicker li span {
+  display: none;
+}
+.wheelPicker li[aria-selected="true"] {
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  padding-left: 0px;
+  border: 2px solid #000000;
+}
+
+.wheelPicker li[aria-selected="true"] span:nth-child(2) {
+  display: block;
+  background-color: #50c56e;
+  border-radius: 50%;
+  height: 8px;
+  width: 8px !important;
+  content: "";
+  position: absolute;
+  left: 40%;
+}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .apply-card {
+    padding-top: 500px;
+  }
+}
+
+.apply-overlay {
+  height: 600px;
 }
 
 .line-clamp {
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
+  -webkit-box-orient: vertical;
 }
 .line-clamp-title {
   display: -webkit-box;
   -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;  
+  -webkit-box-orient: vertical;
 }

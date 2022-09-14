@@ -51,7 +51,7 @@ const BeneficiaryPage: React.FC<BeneficiaryPageProps> = ({ categoryFilter }): JS
   };
   return (
     <>
-      <section className="grid grid-cols-12 py-20 gap-y-10 md:gap-10">
+      <section className="grid grid-cols-12 pb-20 gap-y-10 md:gap-10">
         {isLoading &&
           [1, 2, 3].map((i) => (
             <div className="col-span-12 md:col-span-6 lg:col-span-4" key={i}>

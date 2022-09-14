@@ -2,15 +2,16 @@ import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
 interface FilterProps {
-  filterList: Array<string> | Array<{ name: string; link: string }>;
+  filterList: Array<string> | { [key: string]: string }[];
   selectedItem: string | { name: string; link: string };
-  switchFilter: Function;
+  switchFilter: (item: string | { [key: string]: string }) => void;
   position: string;
   width: string;
 }
 
 const BeneficiaryFilter: React.FC<FilterProps> = ({ filterList, switchFilter, position, width, selectedItem }) => {
-  const checkActiveItem = (item: string | { name: string; link: string }) => {
+
+  const checkActiveItem = (item: any) => {
     if (typeof selectedItem === "string") {
       return selectedItem === item;
     } else {
@@ -35,13 +36,15 @@ const BeneficiaryFilter: React.FC<FilterProps> = ({ filterList, switchFilter, po
           <Menu.Item key={index}>
             {({ active }) => (
               <a
-                className={`${
-                  active || checkActiveItem(item) ? "bg-gray-100 text-black-900" : "bg-white text-gray-500 "
-                } group text-center px-2 py-4 block w-full cursor-pointer border-b border-gray-200 first:rounded-t-2xl last:rounded-b-2xl`}
+                className={`${active || checkActiveItem(item) ? "bg-gray-100 text-black-900" : "bg-white text-gray-500 "
+                  } group text-center px-2 py-4 block w-full cursor-pointer border-b border-gray-200 first:rounded-t-2xl last:rounded-b-2xl`}
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >
-                <p className="font-semibold leading-none">{typeof item === "string" ? item : item.name}</p>
+                <>
+                  {console.log(item)}
+                  <p className="font-semibold leading-none">{typeof item === "string" ? item : (item.name || item.value)}</p>
+                </>
               </a>
             )}
           </Menu.Item>
