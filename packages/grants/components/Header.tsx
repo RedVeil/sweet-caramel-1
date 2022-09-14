@@ -8,7 +8,7 @@ import { connectors } from "context/Web3/connectors";
 import Link from "next/link";
 import router from "next/router";
 import { Fragment, useState } from "react";
-import MobileBeneficiaryFilter from "./Beneficiaries/MobileBeneficiaryFilter";
+import MobileBeneficiaryFilter from "./Beneficiaries/MobileBeneficiaryFilterOld";
 import Button from "./CommonComponents/Button";
 import ConnectWalletButtons from "./CommonComponents/ConnectWalletButtons";
 
