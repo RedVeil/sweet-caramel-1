@@ -1,8 +1,8 @@
+import { DeployFunction, DeploymentsExtension } from "@anthonymartin/hardhat-deploy/types";
 import { BigNumber, ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { DeployFunction, DeploymentsExtension } from "@anthonymartin/hardhat-deploy/types";
 import { ThreeXBatchProcessing } from "../typechain";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -28,8 +28,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address,
       signer
     );
-    await keeperIncentive.updateIncentive(threeXBatch.address, 0, 0, true, true, (await deployments.get("TestPOP")).address, 1, 0);
-    await keeperIncentive.updateIncentive(threeXBatch.address, 1, 0, true, true, (await deployments.get("TestPOP")).address, 1, 0);
+    await keeperIncentive.updateIncentive(
+      threeXBatch.address,
+      0,
+      0,
+      true,
+      true,
+      (
+        await deployments.get("TestPOP")
+      ).address,
+      1,
+      0
+    );
+    await keeperIncentive.updateIncentive(
+      threeXBatch.address,
+      1,
+      0,
+      true,
+      true,
+      (
+        await deployments.get("TestPOP")
+      ).address,
+      1,
+      0
+    );
     await createDemoData(hre, deployments, signer, signerAddress, deploy, addresses, threeXBatch, threeX);
   }
 };
@@ -51,14 +73,6 @@ async function createDemoData(
   const usdc = await hre.ethers.getContractAt("MockERC20", addresses.usdc, signer);
   const setToken = await hre.ethers.getContractAt("MockERC20", setTokenAddress, signer);
 
-  //Faucet
-  await deploy("Faucet", {
-    from: addresses.deployer,
-    args: [addresses.uniswapRouter /* addresses.curveAddressProvider, addresses.curveFactoryMetapoolDepositZap */],
-    log: true,
-    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-    contract: "Faucet",
-  });
   const faucet = await hre.ethers.getContractAt("Faucet", (await deployments.get("Faucet")).address, signer);
 
   await hre.network.provider.send("hardhat_setBalance", [
@@ -95,5 +109,5 @@ async function createDemoData(
 
 export default func;
 
-func.dependencies = ["setup", "3x", "staking"];
+func.dependencies = ["setup", "3x", "staking", "faucet"];
 func.tags = ["frontend", "3x-demo-data"];

@@ -1,12 +1,9 @@
-import { parseEther } from "@ethersproject/units";
-import { ethers } from "hardhat";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { parseEther } from "@ethersproject/units";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getVaultStakingPools } from "../lib/utils/getStakingPools";
-import { addContractToRegistry, FaucetController } from "./utils";
-import { ADDRESS_ZERO } from "../lib/utils/constants";
-
+import { FaucetController } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -16,22 +13,12 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const vaultStakingPools = await getVaultStakingPools(hre.network.config.chainId, addresses, deployments);
 
   for (var i = 0; i < vaultStakingPools.length; i++) {
-    if (["hardhat", "local"].includes(hre.network.name)) {
-      await deploy("Faucet", {
-        from: addresses.deployer,
-        args: [addresses.uniswapRouter],
-        log: true,
-        autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-        contract: "Faucet",
-      });
-
-      await createDemoSweetVaults(hre, signer, addresses, vaultStakingPools[i]);
-    }
+    await createDemoSweetVaults(hre, signer, addresses, vaultStakingPools[i]);
   }
 };
 
 export default main;
-main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop", "sweet-vaults"];
+main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop", "sweet-vaults", "faucet"];
 main.tags = ["frontend", "sweet-vaults-demo-data"];
 
 async function createDemoSweetVaults(hre: HardhatRuntimeEnvironment, signer, addresses, poolInfo) {

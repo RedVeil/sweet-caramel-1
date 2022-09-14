@@ -1,11 +1,11 @@
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "@ethersproject/units";
 import { ethers } from "hardhat";
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { ADDRESS_ZERO } from "../lib/utils/constants";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getVaultStakingPools } from "../lib/utils/getStakingPools";
 import { addContractToRegistry, FaucetController } from "./utils";
-import { ADDRESS_ZERO } from "../lib/utils/constants";
 
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
 const FEE_STRUCTURE = {
@@ -74,7 +74,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop"];
+main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop", "faucet"];
 main.tags = ["frontend", "sweet-vaults"];
 
 async function createDemoSweetVaults(hre: HardhatRuntimeEnvironment, signer, addresses, poolInfo) {

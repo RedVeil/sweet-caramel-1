@@ -1,8 +1,8 @@
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { getBytes32FromIpfsHash } from "@popcorn/utils/src/ipfsHashManipulation";
 import { parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
-import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import getCreatedProposalId from "../lib/adapters/GrantElection/getCreatedProposalId";
 import GrantElectionAdapter, { ElectionTerm, ShareType } from "../lib/adapters/GrantElection/GrantElectionAdapter";
@@ -23,10 +23,10 @@ const DURATION_DAY = 24 * 60 * 60;
 const DURATION_YEAR = DURATION_DAY * 365;
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  if (!Boolean(parseInt(process.env.WITH_FIXTURES || "0"))) {
-    console.log("Skipping BenGovFixtures to avoid time travel");
-    return;
-  }
+  // if (!Boolean(parseInt(process.env.WITH_FIXTURES || "0"))) {
+  //   console.log("Skipping BenGovFixtures to avoid time travel");
+  //   return;
+  // }
   console.log("Deploying Fixtures");
   const { deployments, ethers } = hre;
   const DEFAULT_REGION = ethers.utils.id("World");
@@ -362,7 +362,18 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.dependencies = ["setup", "acl-registry", "contract-registry", "participation-reward", "gov-staking", "beneficiary-governance", "beneficiary-registry", "grant-elections"];
+main.dependencies = [
+  "setup",
+  "faucet",
+  "acl-registry",
+  "contract-registry",
+  "participation-reward",
+  "rewards-manager",
+  "gov-staking",
+  "beneficiary-governance",
+  "beneficiary-registry",
+  "grant-elections",
+];
 main.tags = ["core", "beneficiary-governance-demo-data"];
 
 async function getActiveBeneficiaries(beneficiaryRegistry: BeneficiaryRegistry) {
