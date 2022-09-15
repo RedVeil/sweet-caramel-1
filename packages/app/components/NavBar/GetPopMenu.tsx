@@ -4,7 +4,7 @@ import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
 import useWeb3 from "hooks/useWeb3";
 import { Fragment } from "react";
 
-interface GetPopMenuProps {}
+interface GetPopMenuProps { }
 
 const GetPopMenu: React.FC<GetPopMenuProps> = () => {
   const { wallet, contractAddresses, chainId } = useWeb3();
@@ -26,9 +26,8 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
           <Menu.Item>
             {({ active }) => (
               <a
-                className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${
-                  metaMaskConnected ? "rounded-t-3xl border-b" : "rounded-3xl"
-                } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
+                className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${metaMaskConnected ? "rounded-t-3xl border-b" : "rounded-3xl"
+                  } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
                 href={`${getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses)}`}
                 target="_blank"
               >
@@ -41,9 +40,8 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
           <Menu.Item>
             {({ active }) => (
               <div
-                className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${
-                  popPoolExists ? "rounded-b-3xl" : "rounded-3xl"
-                } group px-2 pt-4 w-full h-14 cursor-pointer`}
+                className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${popPoolExists ? "rounded-b-3xl" : "rounded-3xl"
+                  } group px-2 pt-4 w-full h-14 cursor-pointer`}
                 onClick={async () =>
                   await window.ethereum.request({
                     method: "wallet_watchAsset",
@@ -53,7 +51,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                         address: contractAddresses.pop,
                         symbol: "POP",
                         decimals: 18,
-                        image: "https://popcorn.network/images/icons/pop_64x64.png",
+                        image: "https://www.popcorn.network/images/icons/circle/circle_yellow_64x64.png",
                       },
                     },
                   })
