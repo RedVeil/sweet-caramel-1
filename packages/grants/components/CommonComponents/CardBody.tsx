@@ -4,7 +4,7 @@ import VotingProgress from "components/CommonComponents/VotingProgress";
 import { BigNumber } from "ethers";
 import React, { useEffect, useState } from "react";
 import { formatTimeUntilDeadline } from "../../utils/formatTimeUntilDeadline";
-
+import Image from "next/image";
 export interface CardBodyProps {
   image: BeneficiaryImage;
   organizationName: string;
@@ -46,13 +46,20 @@ const CardBody: React.FC<CardBodyProps> = ({
     return ProposalStatus[status];
   };
   return (
-    <div className="shadow-custom-lg bg-white rounded-4xl transition duration-500 ease-in-out transform hover:scale-102">
+    <div className="bg-white rounded-lg transition duration-500 ease-in-out transform hover:scale-102 border border-customLightGray">
       <div className="relative">
-        <img
-          className="h-48 w-full object-cover rounded-t-4xl"
-          src={`${process.env.IPFS_URL}${image?.image}`}
-          alt={image?.description}
-        />
+        <div className="w-full h-[200px]">
+          <Image
+            className="rounded-t-lg relative"
+            src={`${process.env.IPFS_URL}${image?.image}`}
+            alt={image?.description}
+            objectFit="cover"
+            objectPosition="top"
+            height="200"
+            width="100%"
+            layout="fill"
+          />
+        </div>
         {isApplication && (
           <div className="flex justify-between px-4 absolute top-5 w-full">
             <div className=" bg-gray-600 bg-opacity-50 rounded-4xl px-4 py-2 text-white font-semibold">

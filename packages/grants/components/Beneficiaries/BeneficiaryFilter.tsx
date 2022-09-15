@@ -41,10 +41,7 @@ const BeneficiaryFilter: React.FC<FilterProps> = ({ filterList, switchFilter, po
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >
-                <>
-                  {console.log(item)}
-                  <p className="font-semibold leading-none">{typeof item === "string" ? item : (item.name || item.value)}</p>
-                </>
+                <p className="font-semibold leading-none">{typeof item === "string" ? item : (item.name || item.value)}</p>
               </a>
             )}
           </Menu.Item>

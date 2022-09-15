@@ -2,7 +2,7 @@ import { Menu } from "@headlessui/react";
 import { ViewGridIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
-import BeneficiaryPage from "components/Beneficiaries/BeneficiaryPage";
+import Beneficiaries from "components/Beneficiaries/Beneficiaries";
 import FacebookPixel from "components/FacebookPixel";
 import TutorialSlider from "components/Beneficiaries/TutorialSlider";
 import { useRouter } from "next/router";
@@ -165,7 +165,7 @@ const IndexPage = () => {
           {/* //TODO: add filter for mobile here */}
         </div>
         <MobileBeneficiaryCategoryFilter filterList={filterList} visible={showBeneficiaryCategories} onClose={setShowBeneficiaryCategories} />
-        <BeneficiaryPage categoryFilter={categoryFilter.id} />
+        <Beneficiaries categoryFilter={categoryFilter.value} />
       </section>
     </>
   );
