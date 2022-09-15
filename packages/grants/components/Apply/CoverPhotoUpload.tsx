@@ -15,18 +15,18 @@ const CoverPhotoUpload: React.FC<CoverPhotoUploadProps> = (props) => {
   return (
     <IPFSUploadFunc {...props}>
       <CoverImg
-        className=" bg-gray-100 rounded-2xl flex flex-col justify-center items-center py-16 relative h-44"
+        className=" bg-gray-100 rounded-2xl flex flex-col p-6 md:px-8 md:py-16 relative h-44 cursor-pointer"
         bgImage={`https://popcorn.mypinata.cloud/ipfs/${props.localState}`}
       >
         {!props.localState && (
           <>
-            <p className=" font-semibold text-blue-600">
-              Upload a file <span className=" text-gray-600">or drag and drop</span>
+            <p className=" font-medium text-customPurple">
+              Upload a file <span className=" text-primaryDark font-normal">or drag and drop</span>
             </p>
-            <p className="text-gray-500 pb-18 md:pb-0">PNG, JPG, GIF up to 10MB</p>
+            <p className="text-primaryDark pb-18 md:pb-0">PNG, JPG, GIF up to 10MB</p>
           </>
         )}
-        <span className="bg-white border border-gray-200 rounded-3xl px-6 py-3 text-blue-600 font-semibold flex items-center gap-2 absolute right-5 bottom-5">
+        <span className="bg-white border border-primary rounded-3xl px-6 py-3 text-primary font-medium hidden md:flex items-center gap-2 absolute right-6 bottom-5 cursor-pointer">
           <CameraIcon className="w-5 h-5" /> Cover
         </span>
       </CoverImg>

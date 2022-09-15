@@ -10,10 +10,10 @@ import { useWeb3React } from "@web3-react/core";
 import Button from "components/CommonComponents/Button";
 import { connectors } from "context/Web3/connectors";
 import Link from "next/link";
-import React, { ReactElement } from "react";
+import React from "react";
 
 interface RequirementsObject {
-  icon: ReactElement;
+  icon: JSX.Element;
   title: string;
   content?: string;
   children?: JSX.Element;
@@ -130,8 +130,8 @@ const ApplyPage = () => {
               {account ? (
                 <Link href="/apply/form">
                   <a>
-                    <Button variant="tertiary" className="py-3 px-5 mt-10">
-                      Apply Now
+                    <Button variant="secondary" className="py-3 px-5 mt-10">
+                      Start Your Application
                     </Button>
                   </a>
                 </Link>

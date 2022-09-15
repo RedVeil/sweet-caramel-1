@@ -49,7 +49,7 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map((step, index) => (
           <div key={index}>
-            <div className=" bg-pink rounded-lg p-8 flex flex-col justify-between text-black">
+            <div className=" bg-customPink rounded-lg p-8 flex flex-col justify-between text-black">
               <h6 className="text-base text-black">Learn how it works</h6>
 
               <div className="py-6 text-black">

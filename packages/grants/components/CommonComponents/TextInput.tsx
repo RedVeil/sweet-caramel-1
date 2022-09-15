@@ -38,8 +38,8 @@ const TextInput: React.FC<TextInputProps> = ({
   };
 
   const focusStyle = checkInputError()
-    ? "focus:ring-indigo-500 focus:border-indigo-500 border-gray-300"
-    : "border-rose-600 focus:ring-rose-500 focus:border-rose-500";
+    ? "focus:ring-primary focus:border-primary border-gray-300"
+    : "border-customRed focus:ring-customRed focus:border-customRed";
 
   return (
     <>
@@ -48,7 +48,7 @@ const TextInput: React.FC<TextInputProps> = ({
           name={name}
           id={id}
           rows={3}
-          className={`${className} mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3 ${focusStyle}`}
+          className={`${className} mt-1 block w-full sm:text-sm rounded py-3 ${focusStyle}`}
           value={inputValue}
           onChange={(e) => {
             if (!isDirty) setIsDirty(true);
@@ -61,7 +61,7 @@ const TextInput: React.FC<TextInputProps> = ({
           name={name}
           id={id}
           placeholder={placeholder}
-          className={`${className} mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-3 ${focusStyle}`}
+          className={`${className} mt-1 block w-full sm:text-sm rounded py-3 ${focusStyle}`}
           value={inputValue}
           onChange={(e) => {
             if (!isDirty) setIsDirty(true);
@@ -69,7 +69,7 @@ const TextInput: React.FC<TextInputProps> = ({
           }}
         />
       )}
-      <p className="mt-2 text-sm text-gray-500">{inputDescription}</p>
+      <p className="mt-2 text-sm text-secondaryDark">{inputDescription}</p>
     </>
   );
 };
