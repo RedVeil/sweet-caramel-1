@@ -42,7 +42,7 @@ const Footer = () => {
     setFunction("#645F4B");
   };
   return (
-    <footer className="grid grid-cols-12 md:gap-8 laptop:gap-14  px-6 md:px-8 pb-10 mt-12 md:mt-20 font-landing">
+    <footer className="grid grid-cols-12 md:gap-8 2xl:gap-14 pb-10 mt-12 md:mt-20">
       <div className="col-span-12 md:col-span-4 order-1 md:order-1">
         <div className="bg-customYellow rounded-lg py-3 text-center font-medium text-black">
           Have you got questions? Let’s chat :)
@@ -99,7 +99,7 @@ const Footer = () => {
           </a>
         </div>
       </div>
-      <div className="col-span-12 md:col-span-4 flex flex-col md:flex-row gap-12 md:gap-0 md:justify-between order-2 md:order-3 mt-12 md:mt-0">
+      <div className="col-span-12 md:col-span-4 flex flex-col md:flex-row space-x-5 md:space-x-0 md:justify-between order-2 md:order-3 mt-12 md:mt-0">
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Site</p>
           <div className="flex flex-col">
@@ -111,7 +111,7 @@ const Footer = () => {
             </Link>
           </div>
         </div>
-        <div>
+        <div className="mt-8 mt-md:0">
           <p className="text-gray-900 font-medium leading-6 tracking-1">Contact Us</p>
           <div className="flex flex-col">
             <a className=" text-primary hover:text-black leading-6 mt-4" href="mailto:info@popcorn.foundation">
