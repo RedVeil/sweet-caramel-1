@@ -587,9 +587,7 @@ export default function ThreeX(): JSX.Element {
           </div>
         </div>
       </div>
-      <div className="py-6 hidden md:block">
-        <img src="/images/nature.png" alt="" className="rounded-lg w-full object-cover" />
-      </div>
+      {/* <FooterLandScapeImage/> */}
 
       <Transition.Root show={showMobileTutorial} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 overflow-hidden z-40" onClose={() => toggleMobileTutorial(false)}>

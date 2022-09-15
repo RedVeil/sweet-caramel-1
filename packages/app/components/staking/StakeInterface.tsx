@@ -343,9 +343,7 @@ export default function StakeInterface({
           <img src="/images/hands.svg" alt="" className=" h-12 w-12" />
         </div>
       </div>
-      <div className="py-6 hidden md:block mt-10">
-        <img src="/images/nature.png" alt="" className=" rounded-lg w-full object-cover" />
-      </div>
+      {/* <FooterLandScapeImage/> */}
     </>
   );
 }
