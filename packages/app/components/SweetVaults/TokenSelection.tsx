@@ -13,22 +13,21 @@ export default function TokenSelection({ tokenList, selectedToken, selectToken }
   const [showDropdown, setDropdown] = useState<boolean>(false);
 
   return (
-    <div className="relative w-full ml-2 mt-1 justify-end" onMouseLeave={() => setDropdown(false)}>
+    <div className="relative w-full ml-2 justify-end" onMouseLeave={() => setDropdown(false)}>
       <span
         className={`flex flex-row items-center justify-end`}
         onClick={() => (selectToken ? setDropdown(!showDropdown) : {})}
       >
-        <img className="w-5 mr-1 mb-0.5" src={selectedToken?.icon}></img>
-        <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700">{selectedToken?.symbol}</p>
-
+        <img className="w-5 mr-1" src={selectedToken?.icon}></img>
+        <p className="font-semibold leading-none mt-0.5 text-gray-700 group-hover:text-blue-700 hidden md:block">{selectedToken?.symbol}</p>
         {
           //TODO potentially make this an explicit flag
           selectToken && (
             <>
               {showDropdown ? (
-                <Icon.ChevronUp className="w-5 h-6  ml-1 mr-2 group-hover:text-blue-700" />
+                <Icon.ChevronUp className="w-5 h-5 ml-1 mb-0.5 group-hover:text-blue-700" />
               ) : (
-                <Icon.ChevronDown className="w-5 h-6  ml-1 mr-2 group-hover:text-blue-700" />
+                <Icon.ChevronDown className="w-5 h-5 ml-1 mb-0.5 group-hover:text-blue-700" />
               )}
             </>
           )

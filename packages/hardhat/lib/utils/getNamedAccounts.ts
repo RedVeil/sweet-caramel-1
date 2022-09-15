@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { networkMap } from "./constants";
-import namedAccounts from "./namedAccounts.json";
+import namedAccounts from "./namedAccounts.json"
 
 export const getNamedAccountsFromNetwork = (hre: HardhatRuntimeEnvironment) => {
   return Object.keys(namedAccounts).reduce((map, contract) => {

@@ -1,14 +1,34 @@
+import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
+import { ChainId } from "@popcorn/utils";
 import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import SliderContainer from "components/Common/SliderContainer";
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import SecondaryActionButton from "components/SecondaryActionButton";
+import { constants } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
+import useSetTokenTVL from "hooks/set/useSetTokenTVL";
+import useStakingTVL from "hooks/staking/useStakingTVL";
 import useNetWorth from "hooks/useNetWorth";
 import useWeb3 from "hooks/useWeb3";
+import { useMemo } from "react";
 
-export default function Hero({ tvl }): JSX.Element {
+
+export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
+  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
   const networth = useNetWorth();
+  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
+  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
+  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
+  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch);
+  const tvl = useMemo(
+    () =>
+      [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce(
+        (total, num) => total.add(num ? num : constants.Zero),
+        constants.Zero,
+      ),
+    [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL],
+  );
 
   let formatter = Intl.NumberFormat("en", {
     //@ts-ignore
@@ -30,7 +50,9 @@ export default function Hero({ tvl }): JSX.Element {
                 content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
               />
             </div>
-            <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">${formatter.format(tvl)}</p>
+            <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
+              ${formatter.format(parseInt(formatUnits(tvl)))}
+            </p>
           </div>
           {account && (
             <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">

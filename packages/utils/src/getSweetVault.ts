@@ -23,13 +23,15 @@ export default async function getSweetVault(
     (vault) => vault?.token?.address.toLowerCase() === underlyingTokenAddress.toLowerCase(),
   );
 
+  const staking = ERC20__factory.connect(await sweetVault.staking(), signerOrProvider);
+
   const { metadata } = useContractMetadata({
     chainId: chainId,
     address: sweetVault.address,
     metadata: {
       name: vault.display_name.split(" ")[1],
       symbol: vault.token.symbol,
-      balance: account ? await sweetVault.balanceOf(account) : parseEther("0"),
+      balance: account ? await staking.balanceOf(account) : parseEther("0"),
       allowance: account ? await sweetVault.allowance(account, sweetVault.address) : parseEther("0"),
       decimals: await sweetVault.decimals(),
       icon: vault.icon,
@@ -47,7 +49,8 @@ export default async function getSweetVault(
         account,
         sweetVault.address,
       ),
-      deposited: account ? await sweetVault.assetsOf(account) : parseEther("0"),
+      deposited: account ? (await staking.balanceOf(account)).mul(pricePerShare).div(parseEther("1")) : parseEther("0"),
+      stakingAdress: staking.address,
     } as SweetVaultMetadata,
   });
 
