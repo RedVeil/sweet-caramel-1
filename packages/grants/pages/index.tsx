@@ -11,7 +11,7 @@ import SecondaryActionButton from "components/SecondaryActionButton";
 import Link from 'next/link';
 import Image from "next/image";
 import { MobileBeneficiaryCategoryFilter } from "components/Beneficiaries/MobileBeneficiaryCategoryFilter";
-
+import Button from "components/CommonComponents/Button";
 
 export enum filterValues {
   all = "All",
@@ -21,7 +21,7 @@ export enum filterValues {
   openSource = "Open Source",
 }
 
-const filterList = [
+const categories = [
   {
     id: '1',
     value: filterValues.all,
@@ -52,7 +52,7 @@ const IndexPage = () => {
       router.replace(window.location.pathname);
     }
   }, [router.pathname]);
-  const [categoryFilter, setCategoryFilter] = useState<{ id: string, value: string }>(filterList[0]);
+  const [categoryFilter, setCategoryFilter] = useState<{ id: string, value: string }>(categories[0]);
 
   const switchFilter = (value: { id: string, value: string }) => {
     setCategoryFilter(value);
@@ -60,7 +60,14 @@ const IndexPage = () => {
   return (
     <>
       <FacebookPixel />
-      <section className="bg-customYellow p-6 md:p-8 rounded-lg">
+      <section className="bg-customYellow p-6 md:p-8 rounded-lg relative">
+        <div className="absolute left-1/2 -top-[12px] transform -translate-x-1/2 -translate-y-[12px] hidden lg:block">
+          <Link href="/applications" passHref>
+            <Button variant="primary">
+              Beneficiary Applications
+            </Button>
+          </Link>
+        </div>
         <div className="hidden md:block">
           <div className="flex w-full justify-end">
             <div className="mr-10">
@@ -136,14 +143,14 @@ const IndexPage = () => {
       </section>
 
       <section>
-        <div className="flex justify-between relative mb-10">
+        <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10">
           <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%]">
             Eligible Beneficiaries At A Glance
           </h1>
-          <div>
+          <div className="hidden md:block">
             <Menu>
               <Menu.Button className="bg-white rounded-4xl border border-[#E5E7EB]">
-                <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between rounded-3xxl">
+                <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between">
                   <div className="flex items-center">
                     <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
                     <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">
@@ -153,7 +160,7 @@ const IndexPage = () => {
                   <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <BeneficiaryFilter
-                  filterList={filterList}
+                  filterList={categories}
                   switchFilter={switchFilter}
                   position="absolute top-14 right-0 z-40"
                   width="w-44"
@@ -162,9 +169,28 @@ const IndexPage = () => {
               </Menu.Button>
             </Menu>
           </div>
-          {/* //TODO: add filter for mobile here */}
+          <div className="block md:hidden mt-5">
+            <button
+              onClick={() => setShowBeneficiaryCategories(true)}
+              className="w-full py-3 px-5  flex flex-row items-center justify-between rounded-4xl border border-[#E5E7EB]"
+            >
+              <div className="flex items-center">
+                <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
+                <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">
+                  {categoryFilter.value}
+                </p>
+              </div>
+              <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
-        <MobileBeneficiaryCategoryFilter filterList={filterList} visible={showBeneficiaryCategories} onClose={setShowBeneficiaryCategories} />
+        <MobileBeneficiaryCategoryFilter
+          categories={categories}
+          visible={showBeneficiaryCategories}
+          onClose={setShowBeneficiaryCategories}
+          selectedItem={categoryFilter}
+          switchFilter={switchFilter}
+        />
         <Beneficiaries categoryFilter={categoryFilter.value} />
       </section>
     </>

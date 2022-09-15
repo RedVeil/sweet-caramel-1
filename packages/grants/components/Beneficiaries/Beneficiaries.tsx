@@ -56,7 +56,7 @@ const Beneficiaries: React.FC<BeneficiaryPageProps> = ({ categoryFilter }): JSX.
 
   return (
     <>
-      <section className="grid grid-cols-12 pb-20 gap-y-10 md:gap-10">
+      <div className="grid grid-cols-12 pb-10 md:pb-20 gap-y-10 md:gap-10">
         {isLoading &&
           [1, 2, 3].map((i) => (
             <div className="col-span-12 md:col-span-6 lg:col-span-4" key={i}>
@@ -93,7 +93,7 @@ const Beneficiaries: React.FC<BeneficiaryPageProps> = ({ categoryFilter }): JSX.
             </div>
           ))
         )}
-      </section>
+      </div>
       {filteredBeneficiaries?.length > 0 && (
         <div className="flex justify-center">
           <Button
