@@ -49,6 +49,7 @@ export default function Instant3x() {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, 3X is only available on Ethereum.",
+          image: <img src="/images/modalImages/comingSoon.svg" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {

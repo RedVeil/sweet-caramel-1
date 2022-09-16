@@ -36,6 +36,7 @@ export default function index(): JSX.Element {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, Sweet Vaults is only available on Ethereum.",
+          image: <img src="/images/modalImages/comingSoon.svg" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
