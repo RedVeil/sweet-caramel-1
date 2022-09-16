@@ -19,15 +19,15 @@ const ProofsForm = ({
     });
   };
   return (
-    <div className=" rounded-6xl p-10 mt-20 shadow-custom-lg">
-      <h6 className=" font-semibold text-3xl text-center mb-12">Proof of Ownership</h6>
+    <div className=" rounded-lg px-6 py-10 md:p-10 mt-10 md:mt-20 border border-customLightGray">
+      <h6 className="text-2xl md:text-3xl">Proof of Ownership</h6>
 
-      <form className="mt-20">
+      <form className="mt-6 md:mt-14">
         <div>
-          <label htmlFor="ownership-url" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="ownership-url" className="block  text-black leading-5 mb-2">
             Please share proof of ownership
           </label>
-          <p className=" text-gray-500">
+          <p className=" text-secondaryDark leading-4 mb-4">
             Share a URL on the beneficiary’s website or a tweet on the beneficiary’s official Twitter account that
             contains the Ethereum address shared in Step 1
           </p>

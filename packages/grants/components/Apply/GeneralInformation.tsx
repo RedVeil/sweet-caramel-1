@@ -61,8 +61,8 @@ const GeneralInformation = ({
   }, []);
 
   return (
-    <div className="rounded-lg px-6 py-10 md:p-10 mt-20 border border-customLightGray">
-      <h6 className="text-3xl mb-12">General Information</h6>
+    <div className="rounded-lg px-6 py-10 md:p-10 mt-10 md:mt-20 border border-customLightGray">
+      <h6 className="text-2xl md:text-3xl mb-12">General Information</h6>
 
       <div className="relative">
         <CoverPhotoUpload

@@ -69,7 +69,7 @@ const TextInput: React.FC<TextInputProps> = ({
           }}
         />
       )}
-      <p className="mt-2 text-sm text-secondaryDark">{inputDescription}</p>
+      <p className="mt-2 text-sm text-secondaryDark leading-4">{inputDescription}</p>
     </>
   );
 };

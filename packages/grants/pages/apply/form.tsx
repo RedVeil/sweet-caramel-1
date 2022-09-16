@@ -292,7 +292,7 @@ const ApplyForm = () => {
         {activeForm == FormSteps.PROOFS && <ProofsForm form={[formData, setFormData]} />}
         {activeForm == FormSteps.IMPACT_REPORTS && <ImpactReports form={[formData, setFormData]} />}
         {activeForm == FormSteps.VISUAL_CONTENT && <VisualContent form={[formData, setFormData]} />}
-        <div className="flex justify-center gap-8 mt-20 mb-20 md:mb-40">
+        <div className="flex justify-center gap-8 mt-10 md:mt-20 mb-20 md:mb-40">
           {activeForm !== FormSteps.GENERAL_INFORMATION && (
             <Button variant="secondary" className="py-2 px-6" onClick={prevActiveForm}>
               Back

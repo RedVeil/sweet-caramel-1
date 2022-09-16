@@ -34,12 +34,12 @@ const ImpactReports = ({
     });
   };
   return (
-    <div className=" rounded-6xl p-10 mt-20 shadow-custom-lg">
-      <h6 className=" font-semibold text-3xl text-center mb-12">Impact Reports</h6>
+    <div className=" rounded-lg px-6 py-10 md:p-10 mt-10 md:mt-20 border border-customLightGray">
+      <h6 className="text-2xl md:text-3xl">Impact Reports</h6>
 
-      <form className="mt-20">
+      <form className="mt-6 md:mt-14">
         <div>
-          <label htmlFor="impact-reports" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="impact-reports" className="block  text-black leading-5 mb-2">
             You’re welcome to upload 4 recent impact reports from your organization
           </label>
           <div className="mt-1 relative">
@@ -55,24 +55,23 @@ const ImpactReports = ({
               </IPFSUploadFunc>
             </div>
           </div>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-secondaryDark">
             * Files can be in PDF or JPG format. All documents submitted must be in English or has English as a
             translated version.
           </p>
         </div>
       </form>
       {formData?.files?.impactReports.map(({ fileName, hash }, i) => (
-        <div
-          className="border border-gray-200 rounded-2xl flex justify-between py-3 px-4 items-center font-semibold my-4"
-          key={hash}
-        >
+        <div className="border border-gray-200 rounded-2xl flex justify-between py-3 px-4 items-center my-4" key={hash}>
           <div className="flex gap-2">
-            <PaperClipIcon className="h-5 w-5 text-gray-400" />
-            <a className="text-gray-900" href={`https://popcorn.mypinata.cloud/ipfs/${hash}`}>
+            <div>
+              <PaperClipIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <a className="text-black" href={`https://popcorn.mypinata.cloud/ipfs/${hash}`}>
               {fileName}
             </a>
           </div>
-          <button className="text-blue-600 text-sm" onClick={() => removeImpactReport(i)}>
+          <button className="text-customPurple text-sm" onClick={() => removeImpactReport(i)}>
             Delete
           </button>
         </div>
