@@ -67,7 +67,10 @@ const ImpactReports = ({
             <div>
               <PaperClipIcon className="h-5 w-5 text-gray-400" />
             </div>
-            <a className="text-black" href={`https://popcorn.mypinata.cloud/ipfs/${hash}`}>
+            <a
+              className="text-black w-40 md:w-full text-ellipsis whitespace-nowrap overflow-hidden"
+              href={`https://popcorn.mypinata.cloud/ipfs/${hash}`}
+            >
               {fileName}
             </a>
           </div>
