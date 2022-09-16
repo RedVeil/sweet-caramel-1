@@ -27,8 +27,8 @@ export default function DesktopMenu(): JSX.Element {
           </Link>
         </div>
       </div>
-      <div className="flex flex-container flex-row w-fit-content gap-6">
-        <ul className="flex items-center flex-row gap-16 mr-10">
+      <div className="flex flex-container flex-row w-fit-content gap-6 md:gap-0 md:space-x-6">
+        <ul className="flex items-center flex-row gap-16 md:gap-0 md:space-x-16 mr-10">
           <li>
             <NavbarLink label="Popcorn" url="/" isActive={router.pathname === "/[network]"} />
           </li>

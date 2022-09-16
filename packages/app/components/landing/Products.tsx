@@ -55,7 +55,7 @@ const Products = () => {
           />
         )}
         <Product
-          title="3x"
+          title="3X"
           description="EUR & USD exposure with noble yield that funds social impact organizations"
           stats={[
             {
@@ -141,7 +141,7 @@ const Products = () => {
 
 const ButterExposure: React.ReactElement = (
   <>
-    <div className="flex gap-2">
+    <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>
       <InfoIconWithTooltip
         classExtras=""
@@ -192,7 +192,7 @@ const ButterExposure: React.ReactElement = (
 
 const ThreeXExposure: React.ReactElement = (
   <>
-    <div className="flex gap-2">
+    <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>
       <InfoIconWithTooltip
         classExtras=""

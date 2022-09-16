@@ -100,21 +100,14 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           </p>
         </div>
         <div>
-          <div className="mt-1 relative flex items-center gap-2">
+          <div className="mt-1 relative flex items-center gap-2 md:gap-0 md:space-x-2">
             <div
-              className={`w-full flex px-5 py-4 items-center rounded-lg border ${localButterPageState.depositAmount.gt(
-                localButterPageState.useUnclaimedDeposits
-                  ? selectedToken.input.claimableBalance
-                  : selectedToken.input.balance,
-              )
-                ? " border-customRed"
-                : "border-customLightGray "
-                }`}
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${depositDisabled?.disabled ? " border-customRed" : "border-customLightGray "}`}
             >
               <input
                 name="tokenInput"
                 id="tokenInput"
-                className={`block w-full p-0 border-0 text-primaryDark text-lg`}
+                className="block w-full p-0 border-0 text-primaryDark text-lg"
                 onChange={(e) => {
                   onUpdate(e.target.value.replace(/,/g, "."));
                 }}
@@ -161,8 +154,33 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
             label="Use only unclaimed balances"
           />
         )}
-
         {depositDisabled?.disabled && <p className="text-customRed pt-2 leading-6">{depositDisabled?.errorMessage}</p>}
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex items-center">
+            <img src="/images/wallet.svg" alt="3x" width="20" height="20" className="mr-2" />
+            <p className="text-secondaryLight">
+              {`${formatAndRoundBigNumber(
+                localButterPageState.useUnclaimedDeposits
+                  ? selectedToken.input.claimableBalance
+                  : selectedToken.input.balance,
+                selectedToken.input.decimals,
+              )}`}
+            </p>
+          </div>
+          <button
+            className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
+            onClick={(e) => {
+              const maxAmount = localButterPageState.useUnclaimedDeposits
+                ? selectedToken.input.claimableBalance
+                : selectedToken.input.balance;
+              calcOutputAmountsFromInput(maxAmount);
+              setButterPageState({ ...localButterPageState, depositAmount: maxAmount });
+              ref.current = Number(formatEther(maxAmount)).toFixed(3);
+            }}
+          >
+            MAX
+          </button>
+        </div>
       </div>
       <div className="relative -mt-10 -mb-10">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -187,9 +205,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
       <div>
         <p className="text-base font-medium text-primary">{`Estimated ${selectedToken.output.name} Amount`}</p>
         <div>
-          <div className="mt-1 flex items-center px-5 py-4 border border-customLightGray rounded-md relative">
+          <div className="w-full flex px-5 py-4 items-center rounded-lg border">
             <input
-              className={`block w-full p-0 border-0 text-primaryDark text-lg outline-none focus:bg-transparent focus:ring-0`}
+              className="block w-full p-0 border-0 text-primaryDark text-lg"
               value={estimatedAmount}
               inputMode="decimal"
               autoComplete="off"
@@ -203,15 +221,13 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               spellCheck="false"
               readOnly
             />
-            <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5 items-center">
-              <SelectToken
-                allowSelection={localButterPageState.redeeming && localButterPageState.instant}
-                selectedToken={selectedToken.output}
-                options={token}
-                notSelectable={[localButterPageState.selectedToken.output, "butter", "threeX"]}
-                selectToken={selectToken}
-              />
-            </div>
+            <SelectToken
+              allowSelection={localButterPageState.redeeming && localButterPageState.instant}
+              selectedToken={selectedToken.output}
+              options={token}
+              notSelectable={[localButterPageState.selectedToken.output, "butter", "threeX"]}
+              selectToken={selectToken}
+            />
           </div>
         </div>
       </div>

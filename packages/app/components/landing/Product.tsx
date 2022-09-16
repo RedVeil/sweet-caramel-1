@@ -22,7 +22,7 @@ export interface StatWithTitleProps {
 export function StatWithTitle({ title, content, infoIcon }: StatWithTitleProps): JSX.Element {
   return (
     <>
-      <div className="flex items-center gap-2 mb-1 md:mb-2">
+      <div className="flex items-center gap-2 md:gap-0 md:space-x-2 mb-1 md:mb-2">
         <p className="text-primaryLight leading-5">{title}</p>
         <InfoIconWithTooltip
           title={infoIcon.title}

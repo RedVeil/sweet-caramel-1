@@ -73,7 +73,7 @@ export interface ContractAddresses {
   sJPY?: Address;
   sUSD?: Address;
   sEth?: Address;
-  zeroXZapper?: Address;
+  vaultsV1Zapper?: Address;
   agEur?: Address;
   angleRouter?: Address;
   eurOracle?: Address;
@@ -180,6 +180,7 @@ export type SweetVaultMetadata = ERC20Metadata & {
     strategy?: string;
   };
   defaultDepositTokenSymbol?: string;
+  stakingAdress?: string;
 };
 
 // contract w/ metadata pattern

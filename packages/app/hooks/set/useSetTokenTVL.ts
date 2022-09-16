@@ -24,7 +24,12 @@ export async function getSetTokenValue(
   return batchContract.valueOfComponents(...requiredComponentsForIssue);
 }
 
-async function getSetTokenTVL(key, setTokenAddress: string, batchAddress: string, rpcProvider): Promise<BigNumber> {
+export async function getSetTokenTVL(
+  key,
+  setTokenAddress: string,
+  batchAddress: string,
+  rpcProvider,
+): Promise<BigNumber> {
   const batchContract = new ethers.Contract(
     batchAddress,
     [

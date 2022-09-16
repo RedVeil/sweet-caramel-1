@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({ onUpdatePage, sliceAmount, leng
           <ChevronLeftIcon className=" text-black w-4" />
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex gap-6 md:gap-0 md:space-x-6">
           {[...Array(noOfPages)].map((e, i) => (
             <p
               key={i}

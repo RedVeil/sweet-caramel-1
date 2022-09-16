@@ -6,7 +6,7 @@ import FakeInputField from "components/FakeInputField";
 import TokenSelection from "components/SweetVaults/TokenSelection";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { approve, deposit, withdraw } from "helper/VaultActions";
+import { approve, depositAndStake, unstakeAndRedeem } from "helper/VaultActions";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useTokenAllowance from "hooks/tokens/useTokenAllowance";
 import useWeb3 from "hooks/useWeb3";
@@ -37,10 +37,11 @@ async function calcOutputAmount(
   defaultTokenList: Token[],
   rpcProvider,
 ): Promise<number> {
-  const { metadata, contract } = sweetVault;
-  const assetPerShare = Number(formatUnits(await contract?.assetsPerShare(), metadata.decimals));
+  const assetPerShare = Number(
+    formatUnits(await sweetVault?.contract?.assetsPerShare(), sweetVault?.metadata.decimals),
+  );
   if (!!defaultTokenList?.find((token) => token.address === buyToken?.address)) {
-    const poolAddress = await zapper.getPoolAddress(metadata.underlyingToken?.address, rpcProvider);
+    const poolAddress = await zapper.getPoolAddress(sweetVault?.metadata.underlyingToken?.address, rpcProvider);
     const sellToken = await zapper.getIntermediateToken(
       poolAddress,
       poolToken.map((token) => token.contract),
@@ -60,10 +61,6 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   poolToken,
   defaultTokenList,
 }) => {
-  const { metadata, contract } = sweetVault;
-  const vaultToken = { contract, ...metadata };
-  const vault = metadata;
-
   const { account, signer, rpcProvider, onContractSuccess, onContractError } = useWeb3();
   const [interactionType, setInteractionType] = useState<InteractionType>(InteractionType.Deposit);
   const [inputAmount, setInputAmount] = useState<BigNumber>(constants.Zero);
@@ -71,19 +68,23 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   const [slippage, setSlippage] = useState<number>(1);
   const [tokenList, setTokenList] = useState<Token[]>([]);
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string>(
-    defaultTokenList?.find((token) => token.symbol == vault?.defaultDepositTokenSymbol)?.address ||
-      vault?.underlyingToken?.address,
+    defaultTokenList?.find((token) => token.symbol == sweetVault?.metadata?.defaultDepositTokenSymbol)?.address ||
+    sweetVault?.metadata?.underlyingToken?.address,
   );
-  const [selectedToken, setSelectedToken] = useState<Token>(vault?.underlyingToken);
-  const { data: vaultZapperAllowance, error, mutate } = useTokenAllowance(contract, account, zapper?.zapper?.address);
+  const [selectedToken, setSelectedToken] = useState<Token>(sweetVault?.metadata?.underlyingToken);
+  const {
+    data: vaultZapperAllowance,
+    error,
+    mutate,
+  } = useTokenAllowance(sweetVault?.contract, account, zapper?.zapper?.address);
   const approveToken = useApproveERC20();
 
   useEffect(() => {
-    if (vault && poolToken?.length) {
-      const list = [vault.underlyingToken, ...poolToken, ...defaultTokenList];
+    if (sweetVault?.metadata && poolToken?.length) {
+      const list = [sweetVault?.metadata.underlyingToken, ...poolToken, ...defaultTokenList];
       setTokenList(list.filter((token, index) => list.findIndex((obj) => obj.address === token.address) === index));
     }
-  }, [metadata, vault?.underlyingToken, poolToken, defaultTokenList]);
+  }, [sweetVault?.metadata, sweetVault?.metadata?.underlyingToken, poolToken, defaultTokenList]);
 
   useEffect(() => {
     setSelectedToken(tokenList.find((token) => token?.address === selectedTokenAddress));
@@ -110,17 +111,17 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
     setInteractionType(
       interactionType === InteractionType.Deposit ? InteractionType.Withdraw : InteractionType.Deposit,
     );
-    setSelectedTokenAddress(vault?.underlyingToken?.address);
+    setSelectedTokenAddress(sweetVault?.metadata?.underlyingToken?.address);
     resetInput();
   }
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`z-0 bg-white rounded-lg w-full md:basis-108 shrink-0 p-6 mr-8 border border-gray-300 flex flex-col justify-between h-full`}
+      className={`z-0 bg-white rounded-lg w-full md:basis-108 shrink-0 p-6 mr-8 border border-gray-300 flex flex-col justify-between`}
     >
       <div>
-        <div className="mb-12 flex flex-col">
+        <div className="mb-12">
           <TokenInputToggle
             state={[interactionType !== InteractionType.Deposit, toggleInteractionType]}
             labels={["Deposit", "Withdraw"]}
@@ -140,11 +141,11 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
         ) : (
           <TokenInput
             label={"Withdraw"}
-            token={vaultToken}
+            token={{ contract: sweetVault?.contract, ...sweetVault?.metadata }}
             amount={inputAmount}
-            balance={vault?.balance}
+            balance={sweetVault?.metadata?.deposited}
             setAmount={setInputAmount}
-            tokenList={[vaultToken]}
+            tokenList={[{ contract: sweetVault?.contract, ...sweetVault?.metadata }]}
           />
         )}
       </div>
@@ -170,17 +171,17 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
           <FakeInputField
             inputValue={Number(formatUnits(inputAmount, selectedToken?.decimals)) / assetsPerShare}
             children={
-              <span className="flex flex-row items-center justify-end py-1">
-                <Image priority={true} className="w-5 mr-1" src={vault?.icon} width="20" height="20" />
-                <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700 ml-2">
-                  {vault?.symbol}
+              <span className="flex flex-row items-center justify-end">
+                <Image priority={true} className="w-5 mr-1" src={sweetVault?.metadata?.icon} width="20" height="20" />
+                <p className="font-semibold leading-none text-gray-700 group-hover:text-blue-700 ml-2 hidden md:block">
+                  {sweetVault?.metadata?.symbol}
                 </p>
               </span>
             }
           />
         ) : (
           <FakeInputField
-            inputValue={assetsPerShare * Number(formatUnits(inputAmount, vault?.decimals))}
+            inputValue={assetsPerShare * Number(formatUnits(inputAmount, sweetVault?.metadata?.decimals))}
             children={
               <TokenSelection
                 tokenList={tokenList.filter((token) => token?.address !== selectedTokenAddress)}
@@ -200,7 +201,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
             <SweetVaultButton
               mainActionLabel="Deposit"
               mainAction={() =>
-                deposit(
+                depositAndStake(
                   inputAmount,
                   slippage,
                   sweetVault,
@@ -216,12 +217,11 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
               }
               approve={() =>
                 approve(
-                  selectedToken === vault?.underlyingToken ? (contract as Vault) : zapper?.zapper,
+                  selectedToken === sweetVault?.metadata?.underlyingToken ? (sweetVault?.contract as Vault) : zapper?.zapper,
                   selectedToken,
                   revalidate,
                   signer,
-                  approveToken,
-                )
+                  approveToken)
               }
               inputAmount={inputAmount}
               allowance={selectedToken?.allowance}
@@ -231,7 +231,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
             <SweetVaultButton
               mainActionLabel="Withdraw"
               mainAction={() =>
-                withdraw(
+                unstakeAndRedeem(
                   inputAmount,
                   slippage,
                   sweetVault,
@@ -247,16 +247,20 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
               }
               approve={() =>
                 approve(
-                  selectedTokenAddress === vaultToken.address ? (contract as Vault) : zapper?.zapper,
-                  vaultToken,
-                  selectedTokenAddress === vaultToken.address ? revalidate : mutate,
+                  selectedToken === sweetVault?.metadata?.underlyingToken ? (sweetVault?.contract as Vault) : zapper?.zapper,
+                  { contract: sweetVault?.contract, ...sweetVault?.metadata },
+                  selectedTokenAddress === sweetVault?.metadata?.address ? revalidate : mutate,
                   signer,
                   approveToken,
                 )
               }
               inputAmount={inputAmount}
-              allowance={selectedTokenAddress === vaultToken.address ? selectedToken?.allowance : vaultZapperAllowance}
-              selectedToken={vaultToken}
+              allowance={
+                selectedToken === sweetVault?.metadata?.underlyingToken
+                  ? sweetVault?.metadata?.allowance
+                  : vaultZapperAllowance
+              }
+              selectedToken={{ contract: sweetVault?.contract, ...sweetVault?.metadata }}
             />
           )}
         </div>

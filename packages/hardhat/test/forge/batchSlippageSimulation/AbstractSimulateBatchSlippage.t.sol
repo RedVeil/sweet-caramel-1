@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import { Test } from "@ecmendenhall/forge-std/src/Test.sol";
+import { Test } from "forge-std/Test.sol";
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 
 import "../../../contracts/core/interfaces/IBatchContract.sol";

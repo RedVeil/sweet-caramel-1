@@ -21,10 +21,10 @@ const RewardSummaryCard: React.FC<RewardSummaryCardProps> = ({
   return (
     <div className="bg-white border border-customLightGray p-6 rounded-lg w-full flex flex-col">
       <div className="w-full flex flex-col md:flex-row md:items-center">
-        <div className="flex flex-row w-full sm:w-fit items-center gap-x-4">
+        <div className="flex flex-row w-full sm:w-fit items-center gap-4 md:gap-0 md:space-x-4">
           <img src={iconUri} className="w-12 h-12" />
           <div className="flex flex-col items-start grow w-full justify-between pt-1">
-            <div className="flex flex-row gap-2 w-full items-center">
+            <div className="flex flex-row gap-2 md:gap-0 md:space-x-2 w-full items-center">
               <p className="font-normal leading-none text-primaryLight text-base">{title}</p>
               <InfoIconWithTooltip
                 id={infoIconProps.id}

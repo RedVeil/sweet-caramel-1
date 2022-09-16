@@ -61,7 +61,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
           <p className="font-medium text-primary">{label}</p>
         </label>
       )}
-      <div className="flex items-center gap-2 w-full">
+      <div className="flex items-center gap-2 md:gap-0 md:space-x-2 w-full">
         <div className="w-full">
           <div
             className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
@@ -94,12 +94,15 @@ export const TokenInput: React.FC<TokenInputProps> = ({
                 selectToken={selectToken}
               />
             ) : (
-              <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token?.symbol}</p>
+              <div className="inline-flex items-center">
+                <img className="w-5 md:mr-2 mb-0.5" src={token?.icon}></img>
+                <p className="hidden md:block font-semibold text-gray-700">{token?.symbol}</p>
+              </div>
             )}
           </div>
         </div>
       </div>
-      {balance && amount?.gt(balance) && <p className="text-red-600">Insufficient Balance</p>}
+      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
       <div className="flex items-center justify-between mt-2">
         {balance && (
           <div className="flex items-center">
@@ -123,7 +126,6 @@ export const TokenInput: React.FC<TokenInputProps> = ({
           )}
         </div>
       </div>
-      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
     </>
   );
 };

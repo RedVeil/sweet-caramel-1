@@ -303,6 +303,23 @@ input[type="number"] {
 img {
   max-width: none;
 }
+
+/* wheel picker css */
+.custom-wheelpicker {
+  height: 400px;
+  border: 1px solid #e5e7eb;
+  box-shadow: inset 0px -4px 11px rgb(0 0 0 / 10%), inset 0px 4px 11px rgb(0 0 0 / 10%) !important;
+  border-radius: 8px;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  overflow-y: scroll;
+  will-change: transform;
+  text-align: center;
+  padding: 0 20px;
+  background-color: #fff;
+}
+
 @media screen and (max-width: 320px) {
   .wheelPicker li[aria-selected="true"] span:nth-child(2) {
     left: 50%;

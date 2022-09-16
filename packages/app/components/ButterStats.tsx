@@ -39,7 +39,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
   } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
-    <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-6">
+    <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-0 md:space-x-6">
       <StatusWithLabel
         content={
           butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)

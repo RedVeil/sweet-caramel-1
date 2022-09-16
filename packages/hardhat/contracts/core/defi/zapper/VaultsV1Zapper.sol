@@ -4,37 +4,14 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../utils/ACLAuth.sol";
-import "../utils/ContractRegistryAccess.sol";
-import "../interfaces/IVaultFeeController.sol";
-import "../interfaces/IVaultsV1.sol";
-
-interface IZapIn {
-  function ZapIn(
-    address fromTokenAddress,
-    address toTokenAddress,
-    address swapAddress,
-    uint256 incomingTokenQty,
-    uint256 minPoolTokens,
-    address swapTarget,
-    bytes calldata swapData,
-    address affiliate
-  ) external payable returns (uint256);
-}
-
-interface IZapOut {
-  function ZapOut(
-    address swapAddress,
-    uint256 incomingCrv,
-    address intermediateToken,
-    address toToken,
-    uint256 minToTokens,
-    address _swapTarget,
-    bytes calldata _swapCallData,
-    address affiliate,
-    bool shouldSellEntireBalance
-  ) external returns (uint256);
-}
+import "../../utils/ACLAuth.sol";
+import "../../utils/ContractRegistryAccess.sol";
+import "../../interfaces/IVaultFeeController.sol";
+import "../../interfaces/IVaultsV1.sol";
+import "../../interfaces/IZapIn.sol";
+import "../../interfaces/IZapOut.sol";
+import "../../interfaces/IWETH.sol";
+import { VaultMetadata } from "../vault/VaultsV1Registry.sol";
 
 interface IVault is IEIP4626 {
   function deposit(uint256 assets, address receiver) external returns (uint256);
@@ -66,12 +43,16 @@ interface ICurve {
   ) external;
 }
 
-contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
+interface IVaultsV1Registry {
+  function getVault(address _vaultAddress) external view returns (VaultMetadata memory);
+}
+
+contract VaultsV1Zapper is ACLAuth, ContractRegistryAccess {
   using SafeERC20 for IERC20;
 
-  struct VaultConfig {
-    address vault;
-    address zapper;
+  struct Zaps {
+    address zapIn;
+    address zapOut;
   }
 
   struct GlobalFee {
@@ -88,12 +69,11 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
 
   /* ========== STATE VARIABLES ========== */
 
-  IZapIn constant zapperIn = IZapIn(0x5Ce9b49B7A1bE9f2c3DC2B2A5BaCEA56fa21FBeE);
-  IZapOut constant zapperOut = IZapOut(0xE03A338d5c305613AfC3877389DD3B0617233387);
-
   bytes32 constant FEE_CONTROLLER_ID = keccak256("VaultFeeController");
+  bytes32 constant VAULTS_V1_REGISTRY = keccak256("VaultsV1Registry");
 
   mapping(address => address) internal vaults;
+  mapping(address => Zaps) internal zaps;
   mapping(address => Fee) public fees;
   GlobalFee public globalFee;
 
@@ -128,6 +108,11 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     return ICurve(stableSwap).calc_withdraw_one_coin(_getRedeemAmountForPreview(vaultAsset, amount), i);
   }
 
+  function previewRedeemFees(address vaultAsset, uint256 amount) public view returns (uint256) {
+    Fee memory assetfee = fees[vaultAsset];
+    return amount - (amount * (assetfee.useAssetFee ? assetfee.outBps : globalFee.outBps)) / 10_000;
+  }
+
   /* ========== ADMIN FUNCTIONS ========== */
 
   function updateVault(address underlyingToken, address vault) external onlyRole(DAO_ROLE) {
@@ -138,6 +123,14 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
   function removeVault(address underlyingToken) external onlyRole(DAO_ROLE) {
     emit RemovedVault(underlyingToken, vaults[underlyingToken]);
     delete vaults[underlyingToken];
+  }
+
+  function updateZaps(
+    address underlyingToken,
+    address zapIn,
+    address zapOut
+  ) external onlyRole(DAO_ROLE) {
+    zaps[underlyingToken] = Zaps({ zapIn: zapIn, zapOut: zapOut });
   }
 
   /**
@@ -190,9 +183,10 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     uint256 feeBal = fees[vaultAsset].accumulated;
     fees[vaultAsset].accumulated = 0;
 
-    IERC20(vaultAsset).approve(address(zapperOut), feeBal);
+    address zapOut = zaps[vaultAsset].zapOut;
+    IERC20(vaultAsset).approve(zapOut, feeBal);
 
-    uint256 amountOut = zapperOut.ZapOut(
+    uint256 amountOut = IZapOut(zapOut).ZapOut(
       pool,
       feeBal,
       intermediateToken,
@@ -226,6 +220,8 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     require(vault != address(0), "Invalid vault");
     uint256 amountReceived;
 
+    address zapIn = zaps[vaultAsset].zapIn;
+
     if (fromTokenAddress != address(0)) {
       require(msg.value == 0, "msg.value != 0");
       IERC20 fromToken = IERC20(fromTokenAddress);
@@ -235,10 +231,10 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
       uint256 balanceAfter = fromToken.balanceOf(address(this));
 
       amountReceived = balanceAfter - balanceBefore;
-      fromToken.safeApprove(address(zapperIn), amountReceived);
+      fromToken.safeApprove(zapIn, amountReceived);
     }
 
-    uint256 amountOut = zapperIn.ZapIn{ value: msg.value }(
+    uint256 amountOut = IZapIn(zapIn).ZapIn{ value: msg.value }(
       fromTokenAddress,
       toTokenAddress,
       pool,
@@ -276,12 +272,13 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     bytes calldata swapCallData,
     bool unstake
   ) public {
-    require(vaults[vaultAsset] != address(0), "Invalid vault");
+    address vault = vaults[vaultAsset];
+    require(vault != address(0), "Invalid vault");
 
     if (unstake) {
-      IVaultsV1(vaults[vaultAsset]).unstakeAndRedeemFor(amount, address(this), msg.sender);
+      IVaultsV1(vault).unstakeAndRedeemFor(amount, address(this), msg.sender);
     } else {
-      IVaultsV1(vaults[vaultAsset]).redeem(amount, address(this), msg.sender);
+      IVaultsV1(vault).redeem(amount, address(this), msg.sender);
     }
     // For some reason the value returned of redeem is sometimes a few WEI off which is why i opted for this solution
     uint256 withdrawn = IERC20(vaultAsset).balanceOf(address(this));
@@ -289,9 +286,9 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     Fee memory assetfee = fees[vaultAsset];
     withdrawn = _takeFee(vaultAsset, withdrawn, assetfee.useAssetFee ? assetfee.outBps : globalFee.outBps);
 
-    IERC20(vaultAsset).safeApprove(address(zapperOut), withdrawn);
+    IERC20(vaultAsset).safeApprove(zaps[vaultAsset].zapOut, withdrawn);
 
-    uint256 amountOut = zapperOut.ZapOut(
+    uint256 amountOut = IZapOut(zaps[vaultAsset].zapOut).ZapOut(
       pool,
       withdrawn,
       intermediateToken,
@@ -333,7 +330,6 @@ contract ZeroXZapper is ACLAuth, ContractRegistryAccess {
     require(vault != address(0), "Invalid vault");
     redeemAmount = IVault(vault).previewRedeem(amount);
 
-    Fee memory assetfee = fees[vaultAsset];
-    redeemAmount -= (redeemAmount * (assetfee.useAssetFee ? assetfee.outBps : globalFee.outBps)) / 10_000;
+    redeemAmount = previewRedeemFees(vaultAsset, redeemAmount);
   }
 }

@@ -14,14 +14,13 @@
     "test:fork": "yarn hardhat test test/fork/**/*.test.ts",
     "test:forge": "yarn hardhat forge:forge-test",
     "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
-    "prettify": "yarn lint-staged --allow-empty"
+    "prettify": "yarn lint-staged --allow-empty",
+    "install:forge": "forge install"
   },
   "lint-staged": {
     "*.{sol,ts,tsx}": "prettier --write"
   },
   "devDependencies": {
-    "@ecmendenhall/ds-test": "^0.0.1",
-    "@ecmendenhall/forge-std": "0.0.2",
     "@float-capital/solidity-coverage": "0.7.17",
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@openzeppelin/contracts": "4.7.1",
@@ -40,7 +39,6 @@
     "@anthonymartin/hardhat-deploy": "0.9.9",
     "@balancer-labs/v2-solidity-utils": "2.0.0",
     "@chainlink/contracts": "0.1.9",
-    "@ecmendenhall/ds-test": "^0.0.1",
     "@ethersproject/hardware-wallets": "5.5.0",
     "@makerdao/multicall": "^0.12.0",
     "@nomiclabs/hardhat-ethers": "2.0.4",

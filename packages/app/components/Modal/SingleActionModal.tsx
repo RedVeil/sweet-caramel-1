@@ -42,10 +42,24 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
 
   useEffect(() => {
     if (visible !== open) setOpen(visible);
+
     return () => {
       setOpen(false);
     };
   }, [visible]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        dismiss()
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, []);
 
   const dismiss = () => {
     setOpen(keepOpen);
