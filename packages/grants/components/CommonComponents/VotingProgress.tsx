@@ -8,13 +8,13 @@ interface ProgressProps {
 const VotingProgress: React.FC<ProgressProps> = ({ progress, labels }) => {
   return (
     <div className="py-5">
-      <div className="bg-blue-100 rounded-xl h-6 relative" style={{ padding: "2px" }}>
+      <div className="bg-[#C294FC] rounded-xl h-6 relative" style={{ padding: "2px" }}>
         <div className="flex justify-between absolute w-full pr-1 top-1/2 transform -translate-y-1/2">
           <CheckCircleIcon className="w-5 h-5 text-white" />
-          <XCircleIcon className="w-5 h-5 text-gray-900" />
+          <XCircleIcon className="w-5 h-5 text-white" />
         </div>
         <div
-          className="h-full bg-blue-800 rounded-xl transition-all ease-in-out duration-500"
+          className="h-full bg-[#5F3699] rounded-xl transition-all ease-in-out duration-500"
           style={{ width: `${progress}%` }}
         ></div>
       </div>

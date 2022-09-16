@@ -3,7 +3,7 @@ import { Menu } from "@headlessui/react";
 import { DocumentAddIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useWeb3React } from "@web3-react/core";
-import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
+import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
 import Button from "components/CommonComponents/Button";
 import ConnectWalletButtons from "components/CommonComponents/ConnectWalletButtons";
 import { connectors } from "context/Web3/connectors";
@@ -39,8 +39,8 @@ const Navigation = () => {
           <Menu.Button className="cursor-pointer hidden lg:flex relative flex-shrink-0">
             <p className="text-gray-500 hover:text-gray-900  font-semibold">Vote Now</p>
             <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
-            <BeneficiaryFilter
-              filterList={filterList}
+            <BeneficiaryOptions
+              options={filterList}
               switchFilter={switchFilter}
               position="absolute top-10 left-1/2 transform -translate-x-1/2 z-20"
               width="w-60"

@@ -15,7 +15,7 @@ const PopUpModal: FC<PopUpModalProps> = ({ children, visible, onClosePopUpModal 
   return (
     <>
       <Transition show={visible}>
-        <div className="fixed top-0 z-40 h-screen w-screen">
+        <div className="fixed top-0 z-40 h-screen w-screen left-0">
           <Transition.Child
             enter="transition ease-out duration-300 transform"
             enterFrom="opacity-0 translate-y-full"

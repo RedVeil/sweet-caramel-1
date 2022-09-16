@@ -1,16 +1,17 @@
-import { Menu } from "@headlessui/react";
-import { ViewGridIcon } from "@heroicons/react/outline";
-import { ChevronDownIcon } from "@heroicons/react/solid";
-import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
-import BeneficiaryPage from "components/Beneficiaries/BeneficiaryPage";
-import { MobileBeneficiaryCategoryFilter } from "components/Beneficiaries/MobileBeneficiaryCategoryFilter";
-import TutorialSlider from "components/Beneficiaries/TutorialSlider";
+
 import FacebookPixel from "components/FacebookPixel";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import Image from "next/image";
-import Link from "next/link";
+import TutorialSlider from "components/Beneficiaries/TutorialSlider";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import SecondaryActionButton from "components/SecondaryActionButton";
+import Link from 'next/link';
+import { IpfsClient } from "@popcorn/utils";
+import Image from "next/image";
+import { ContractsContext } from "context/Web3/contracts";
+import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
+import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
+import Button from "components/CommonComponents/Button";
 
 export enum filterValues {
   all = "All",
@@ -20,46 +21,72 @@ export enum filterValues {
   openSource = "Open Source",
 }
 
-const filterList = [
-  {
-    id: "1",
-    value: filterValues.all,
-  },
-  {
-    id: "2",
-    value: filterValues.environment,
-  },
-  {
-    id: "3",
-    value: filterValues.education,
-  },
-  {
-    id: "4",
-    value: filterValues.inequality,
-  },
-  {
-    id: "5",
-    value: filterValues.openSource,
-  },
-];
+const INITIAL_OFFSET = 9
 
 const IndexPage = () => {
   const router = useRouter();
-  const [showBeneficiaryCategories, setShowBeneficiaryCategories] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<{ id: string, value: string }>({ id: '1', value: "All" });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { contracts } = useContext(ContractsContext);
+  const [beneficiaries, setBeneficiaries] = useState<BeneficiaryApplication[]>([]);
+  const [filteredBeneficiaries, setFilteredBeneficiaries] = useState<BeneficiaryApplication[]>([]);
+  const [offset, setOffset] = useState<number>(INITIAL_OFFSET);
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.pathname !== "/") {
       router.replace(window.location.pathname);
     }
   }, [router.pathname]);
-  const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>(filterList[0]);
+
+  useEffect(() => {
+    if (contracts?.beneficiaryRegistry) {
+      BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient)
+        .getAllBeneficiaryApplications()
+        .then((beneficiaries) => {
+          setBeneficiaries(beneficiaries);
+          setFilteredBeneficiaries(beneficiaries.slice(0, offset));
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          setIsLoading(false);
+        });
+    }
+    setIsLoading(false);
+  }, [contracts]);
+
+  useEffect(() => {
+    const filteringBeneficiaries = beneficiaries?.filter((beneficiary: BeneficiaryApplication) => {
+
+      if (categoryFilter.value === "All") {
+        return beneficiary;
+      }
+      return beneficiary?.proposalCategory?.toLowerCase() === categoryFilter.value.toLowerCase();
+    });
+    setOffset(INITIAL_OFFSET);
+    setFilteredBeneficiaries(filteringBeneficiaries?.slice(0, INITIAL_OFFSET));
+  }, [categoryFilter]);
 
   const switchFilter = (value: { id: string; value: string }) => {
     setCategoryFilter(value);
   };
+
+  const seeMore = () => {
+    const newOffset = offset + INITIAL_OFFSET;
+    setOffset(newOffset);
+    setFilteredBeneficiaries(beneficiaries.slice(0, newOffset));
+  };
+
   return (
     <>
       <FacebookPixel />
-      <section className="bg-customYellow p-6 md:p-8 rounded-lg">
+      <section className="bg-customYellow p-6 md:p-8 rounded-lg relative">
+        <div className="absolute left-1/2 -top-[12px] transform -translate-x-1/2 -translate-y-[12px] hidden lg:block">
+          <Link href="/applications" passHref>
+            <Button variant="primary">
+              Beneficiary Applications
+            </Button>
+          </Link>
+        </div>
         <div className="hidden md:block">
           <div className="flex w-full justify-end">
             <div className="mr-10">
@@ -139,40 +166,21 @@ const IndexPage = () => {
       </section>
 
       <section>
-        <div className="flex justify-between relative mb-10">
-          <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%]">
+        <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10">
+          <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%] mb-4 md:mb-0">
             Eligible Beneficiaries At A Glance
           </h1>
-          <div>
-            <Menu>
-              <Menu.Button className="bg-white rounded-4xl border border-[#E5E7EB]">
-                <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between rounded-3xxl">
-                  <div className="flex items-center">
-                    <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
-                    <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">
-                      {categoryFilter.value}
-                    </p>
-                  </div>
-                  <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
-                </div>
-                <BeneficiaryFilter
-                  filterList={filterList}
-                  switchFilter={switchFilter}
-                  position="absolute top-14 right-0 z-40"
-                  width="w-44"
-                  selectedItem={categoryFilter.id}
-                />
-              </Menu.Button>
-            </Menu>
-          </div>
-          {/* //TODO: add filter for mobile here */}
+          <BeneficiaryFilter
+            categoryFilter={categoryFilter}
+            switchFilter={switchFilter}
+          />
         </div>
-        <MobileBeneficiaryCategoryFilter
-          filterList={filterList}
-          visible={showBeneficiaryCategories}
-          onClose={setShowBeneficiaryCategories}
+        <BeneficiaryGrid
+          isLoading={isLoading}
+          beneficiaries={filteredBeneficiaries}
+          offset={offset}
+          seeMore={seeMore}
         />
-        <BeneficiaryPage categoryFilter={categoryFilter.id} />
       </section>
     </>
   );

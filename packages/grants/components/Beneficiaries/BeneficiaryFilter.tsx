@@ -1,59 +1,96 @@
-import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import React, { FC } from 'react'
+import { ViewGridIcon } from "@heroicons/react/outline";
+import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
+import { Menu } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/solid";
+import { MobileBeneficiaryCategoryFilter } from './MobileBeneficiaryCategoryFilter';
 
-interface FilterProps {
-  filterList: Array<string> | { [key: string]: string }[];
-  selectedItem: string | { name: string; link: string };
-  switchFilter: (item: string | { [key: string]: string }) => void;
-  position: string;
-  width: string;
+export enum filterValues {
+  all = "All",
+  environment = "Environment",
+  education = "Education ",
+  inequality = "Inequality",
+  openSource = "Open Source",
 }
 
-const BeneficiaryFilter: React.FC<FilterProps> = ({ filterList, switchFilter, position, width, selectedItem }) => {
-  const checkActiveItem = (item: any) => {
-    if (typeof selectedItem === "string") {
-      return selectedItem === item;
-    } else {
-      return selectedItem.link === item.link;
-    }
-  };
+export const categories = [
+  {
+    id: '1',
+    value: filterValues.all,
+  },
+  {
+    id: '2',
+    value: filterValues.environment,
+  },
+  {
+    id: '3',
+    value: filterValues.education,
+  },
+  {
+    id: '4',
+    value: filterValues.inequality,
+  },
+  {
+    id: '5',
+    value: filterValues.openSource,
+  }
+]
+
+interface IFilter {
+  categoryFilter: { id: string, value: string };
+  switchFilter: (item: { id: string, value: string }) => void;
+  isApplication?: boolean
+}
+
+const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplication }) => {
+  const [openFilter, setOpenFilter] = React.useState(false);
   return (
-    <Transition
-      as={Fragment}
-      enter="transition ease-out duration-100"
-      enterFrom="transform opacity-0 scale-95"
-      enterTo="transform opacity-100 scale-100"
-      leave="transition ease-in duration-75"
-      leaveFrom="transform opacity-100 scale-100"
-      leaveTo="transform opacity-0 scale-95"
-    >
-      {/* absolute top-14 right-0 w-44 */}
-      <Menu.Items
-        className={`${position} ${width} bg-white rounded-2xl shadow-md border-gray-200 border focus:outline-none`}
-      >
-        {filterList.map((item, index: number) => (
-          <Menu.Item key={index}>
-            {({ active }) => (
-              <a
-                className={`${
-                  active || checkActiveItem(item) ? "bg-gray-100 text-black-900" : "bg-white text-gray-500 "
-                } group text-center px-2 py-4 block w-full cursor-pointer border-b border-gray-200 first:rounded-t-2xl last:rounded-b-2xl`}
-                target="_blank"
-                onClick={() => switchFilter(item)}
-              >
-                <>
-                  {console.log(item)}
-                  <p className="font-semibold leading-none">
-                    {typeof item === "string" ? item : item.name || item.value}
-                  </p>
-                </>
-              </a>
-            )}
-          </Menu.Item>
-        ))}
-      </Menu.Items>
-    </Transition>
-  );
-};
+    <>
+      <div className="hidden md:block">
+        <Menu>
+          <Menu.Button className="bg-white rounded-4xl border border-[#E5E7EB]">
+            <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between">
+              <div className="flex items-center">
+                <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
+                <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">
+                  {categoryFilter.value}
+                </p>
+              </div>
+              <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <BeneficiaryOptions
+              options={categories}
+              switchFilter={switchFilter}
+              position="absolute top-14 right-0 z-40"
+              width="w-44"
+              selectedItem={categoryFilter.id}
+            />
+          </Menu.Button>
+        </Menu>
+      </div>
+      <div className="block md:hidden">
+        <button
+          onClick={() => setOpenFilter(true)}
+          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${isApplication ? 'justify-center' : 'justify-between'}`}
+        >
+          <div className="flex items-center">
+            <ViewGridIcon className="text-primaryDark w-5 h-5" />
+            <p className="font-medium ml-1 leading-none text-primaryDark">
+              {categoryFilter.value}
+            </p>
+          </div>
+          <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
+        </button>
+      </div>
+      <MobileBeneficiaryCategoryFilter
+        categories={categories}
+        visible={openFilter}
+        onClose={setOpenFilter}
+        selectedItem={categoryFilter}
+        switchFilter={switchFilter}
+      />
+    </>
+  )
+}
 
 export default BeneficiaryFilter;

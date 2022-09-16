@@ -3,40 +3,44 @@ import WheelPicker, { PickerData } from "react-simple-wheel-picker";
 import PopUpModal from "../Modal/PopUpModal";
 
 interface Props {
-  filterList: { id: string; value: string }[];
+  categories: PickerData[];
   visible: boolean;
   onClose: React.Dispatch<React.SetStateAction<boolean>>;
-  // selectedItem: string | { name: string; link: string };
-  // switchFilter: (item: string | { [key: string]: string }) => void;
-  // position: string;
-  // width: string;
+  selectedItem: PickerData;
+  switchFilter: (item: PickerData) => void;
 }
 
-export const MobileBeneficiaryCategoryFilter: React.FC<Props> = ({ filterList, onClose, visible }) => {
+export const MobileBeneficiaryCategoryFilter: React.FC<Props> = (props) => {
+  const { categories, visible, onClose, selectedItem, switchFilter } = props;
+  const [selectedCategory, setSelectedCategory] = React.useState<PickerData>(selectedItem);
+
   const handleOnChange = (value: PickerData) => {
-    console.log(value);
+    setSelectedCategory(value);
   };
 
   return (
-    <div className="absolute left-0">
-      <PopUpModal visible={false} onClosePopUpModal={() => onClose(false)}>
-        <div>
+    <PopUpModal visible={visible} onClosePopUpModal={() => {
+      switchFilter(selectedCategory);
+      onClose(false);
+    }}>
+      {selectedItem.id && (
+        <>
           <p className=" text-black mb-3">Categories</p>
           <div className="wheelPicker">
             <WheelPicker
-              data={filterList}
-              onChange={handleOnChange}
+              data={categories}
+              onChange={(newValue: PickerData) => handleOnChange(newValue)}
               height={200}
               titleText="Enter value same as aria-label"
               itemHeight={30}
-              selectedID={filterList[0].id}
+              selectedID={selectedItem.id}
               color="#e5e7eb"
               activeColor="#111827"
               backgroundColor="#fff"
             />
           </div>
-        </div>
-      </PopUpModal>
-    </div>
-  );
-};
+        </>
+      )}
+    </PopUpModal>
+  )
+}
