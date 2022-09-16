@@ -195,6 +195,26 @@ input[type="number"] {
   font-weight: 400;
   line-height: 20px;
 }
+
+.scrollable__select {
+  max-height: 200px;
+}
+
+.scrollable__select::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollable__select::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 8px;
+}
+
+.scrollable__select::-webkit-scrollbar-thumb {
+  background: #636363;
+  border-radius: 8px;
+}
+
 .wheelPicker ul {
   border: 1px solid #e5e7eb;
   box-shadow: inset 0px -4px 11px rgba(0, 0, 0, 0.1), inset 0px 4px 11px rgba(0, 0, 0, 0.1) !important;

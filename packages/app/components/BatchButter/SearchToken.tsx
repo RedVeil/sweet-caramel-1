@@ -1,11 +1,13 @@
 import { FC, Dispatch, useState, SetStateAction, useEffect, useRef } from "react"
 import { SearchIcon } from "@heroicons/react/outline";
-import { SelectTokenProps } from "components/BatchButter/SelectToken";
 import Image from "next/image";
-import WheelPicker, { PickerDataWithIcon } from "components/WheelPicker/WheelPicker";
 import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
-interface SearchTokenProps extends Omit<SelectTokenProps, "allowSelection"> {
-  setNewTokenKey: Dispatch<SetStateAction<string | null>>;
+
+interface SearchTokenProps {
+  options: Tokens;
+  selectedToken: TokenMetadata;
+  notSelectable: string[];
+  selectToken: Dispatch<SetStateAction<BatchProcessTokenKey>>;
   setShowSelectTokenModal: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -15,71 +17,35 @@ export const SearchToken: FC<SearchTokenProps> = ({
   selectToken,
   setShowSelectTokenModal,
   selectedToken,
-  setNewTokenKey,
 }) => {
   const quickOptionsTokens = ["dai", "usdt", "usdc", "eth", "wbtc"];
   const [search, setSearch] = useState("");
-  const [filteredOptions, setFilteredOptions] = useState<PickerDataWithIcon[]>([]);
-  const wheelPickerRef = useRef(null)
-
-  const saveFilteredTokensToState = (tokens: string[]) => {
-    const transformedTokens: PickerDataWithIcon[] = tokens.map((token) => {
-      return {
-        value: options[token].name,
-        id: token,
-        icon: options[token].img,
-      };
-    });
-    setFilteredOptions(transformedTokens);
-  };
+  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
 
   const formatTokens = () => {
     const tokens = Object.keys(options).filter((token) => !notSelectable.includes(token));
-    saveFilteredTokensToState(tokens);
+    setFilteredOptions([selectedToken.key, ...tokens]);
   };
 
   useEffect(() => {
     formatTokens();
   }, [options, notSelectable, selectedToken])
 
-  useEffect(() => {
-    const wheelPicker = wheelPickerRef.current
-    if (wheelPicker) {
-      wheelPicker.addEventListener("click", (e) => {
-        const target = e.target as HTMLElement
-        if (target && target?.parentElement) {
-          const tokenKey = target?.parentElement?.getAttribute("data-itemid")
-          if (tokenKey) {
-            selectToken(tokenKey as BatchProcessTokenKey)
-            setShowSelectTokenModal(false)
-          }
-        }
-      })
-    }
-    return () => {
-      if (wheelPicker) {
-        wheelPicker.removeEventListener('click', () => { })
-      }
-
-    }
-  }, [wheelPickerRef?.current])
-
-
-  const handleChange = (value: PickerDataWithIcon) => {
-    setNewTokenKey(value.id);
-  };
-
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    const filtered = Object.keys(options).filter((token) => {
-      const tokenName = options[token].name.toLowerCase();
-      const searchValue = value.toLowerCase();
-      return tokenName.includes(searchValue);
-    });
-    const newOptions = Object.keys(options).filter(
-      (token) => filtered.includes(token) && !notSelectable.includes(token),
-    );
-    saveFilteredTokensToState(newOptions);
+    if (value.trim().length > 0) {
+      const filtered = Object.keys(options).filter((token) => {
+        const tokenName = options[token].name.toLowerCase();
+        const searchValue = value.toLowerCase();
+        return tokenName.includes(searchValue);
+      });
+      const newOptions = Object.keys(options).filter(
+        (token) => filtered.includes(token) && !notSelectable.includes(token),
+      );
+      setFilteredOptions(newOptions);
+    } else {
+      formatTokens();
+    }
   };
 
   return (
@@ -122,21 +88,25 @@ export const SearchToken: FC<SearchTokenProps> = ({
             </button>
           </div>
         ))}
-      <div className="wheelPicker mt-4" ref={wheelPickerRef}>
-        {filteredOptions?.length > 0 && (
-          <WheelPicker
-            dataWithIcons={filteredOptions}
-            onChange={handleChange}
-            height={200}
-            selectedID={filteredOptions[0].id}
-            titleText="Enter value same as aria-label"
-            itemHeight={30}
-            renderWithIcon
-            color="#e5e7eb"
-            activeColor="#111827"
-            backgroundColor="#fff"
-          />
-        )}
+      <div className="mt-4">
+        <ul className="scrollable__select py-6 overflow-y-auto shadow-scrollableSelect rounded-lg p-6 border border-customPaleGray">
+          {filteredOptions.map((option) => (
+            <li className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray rounded-lg">
+              <button
+                onClick={() => {
+                  selectToken(options[option].key);
+                  setShowSelectTokenModal(false);
+                }}
+                className={`flex items-center py-3 px-3 ${selectedToken.key === options[option].key ? 'text-black font-semibold' : 'text-primary font-normal'}`}
+              >
+                <span className="w-5 h-5 inline-flex mr-3 flex-shrink-0">
+                  <img src={`/images/tokens/${options[option].img}`} alt={options[option].name} className="h-full w-full object-contain" />
+                </span>
+                <span>{options[option].name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );
