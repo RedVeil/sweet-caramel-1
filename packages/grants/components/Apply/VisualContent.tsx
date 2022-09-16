@@ -49,22 +49,22 @@ const VisualContent = ({
         numMaxFiles={4}
         maxFileSizeMB={15}
       >
-        <form className="mt-10">
+        <form className="mt-6 md:mt-10">
           <div>
-            <div className="mt-1 flex justify-between items-center p-6 md:p-20 border-2 border-gray-300 border-dashed rounded-lg">
-              <div className="text-left">
+            <div className="mt-1 flex flex-col md:flex-row md:justify-between md:items-center p-6 md:p-14 border-2 border-gray-300 border-dashed rounded-lg">
+              <div className="text-left order-2 md:order-1">
                 <p className="text-customPurple">
                   {" "}
                   Upload a file <span className=" text-primaryDark">or drag and drop</span>
                 </p>
-                <ul className=" list-disc">
+                <ul className="pl-4 list-disc">
                   <li className=" text-secondaryDark">High Resolution PNG, JPG, GIF up to 10MB</li>
                   <li className=" text-secondaryDark">Animated Gifs </li>
                   <li className=" text-secondaryDark">Videos (mp4, MOV) up to 15MB</li>
                 </ul>
               </div>
               <svg
-                className="h-12 w-12 text-gray-400"
+                className="h-12 w-12 text-gray-400 order-1 md:order-2"
                 stroke="currentColor"
                 fill="none"
                 viewBox="0 0 48 48"
@@ -84,7 +84,7 @@ const VisualContent = ({
 
       <div className="grid grid-cols-12 gap-5 mt-10">
         {formData?.files?.additionalImages?.map((image, i) => (
-          <div className="col-span-3" key={image.hash}>
+          <div className="col-span-12 md:col-span-3" key={image.hash}>
             <VisualContentCard
               {...image}
               index={i}

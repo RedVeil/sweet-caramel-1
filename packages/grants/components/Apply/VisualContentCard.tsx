@@ -26,34 +26,32 @@ const VisualContentCard: React.FC<VisualContentCardProps> = ({
       {fileName.includes(".mp4") || fileName.includes(".mov") ? (
         <video
           src={`https://popcorn.mypinata.cloud/ipfs/${hash}`}
-          className=" h-60 rounded-2xl w-full mb-3 object-cover"
+          className=" h-60 rounded-lg w-full mb-3 object-cover"
           controls
         ></video>
       ) : (
         <img
           src={`https://popcorn.mypinata.cloud/ipfs/${hash}`}
           alt=""
-          className=" h-60 rounded-2xl w-full mb-3 object-cover"
+          className=" h-60 rounded-lg w-full mb-3 object-cover"
         />
       )}
       <div className="grid grid-cols-3">
         <div className="col-span-2">
-          <p className=" text-gray-900 font-semibold w-full text-ellipsis whitespace-nowrap overflow-hidden">
-            {fileName}
-          </p>
+          <p className=" text-black leading-5 w-full text-ellipsis whitespace-nowrap overflow-hidden">{fileName}</p>
         </div>
         <div className="col-span-1 flex justify-end">
           <TrashIcon className=" w-6 h-6 text-gray-400" onClick={removeImage} />
         </div>
       </div>
-      <p className=" text-gray-400 mb-5">{size ? convertToKB(size) : ""}kb</p>
+      <p className="text-primaryDark leading-4 mb-5">{size ? `${convertToKB(size)}kb` : "-"}</p>
       <input
         type="text"
         name={`description-${hash}`}
         id={`description-${hash}`}
         value={description}
         placeholder="Type description here.."
-        className=" border-gray-300 rounded-md shadow-sm placeholder:text-gray-600 text-gray-900 w-full"
+        className=" border-gray-300 rounded placeholder:text-primaryDark text-black w-full"
         onChange={(e) => updateDescription(e.target.value, index)}
       />
     </div>
