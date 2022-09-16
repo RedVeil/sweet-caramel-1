@@ -68,7 +68,7 @@ export default function SelectToken({
       <SingleActionModal
         image={<Image src="/images/blackCircle.svg" width={88} height={88} />}
         visible={showSelectTokenModal}
-        title="Search a token"
+        title="Select a token"
         keepOpen={false}
         content={(
           <div className="mt-8">
@@ -100,7 +100,7 @@ export default function SelectToken({
           setNewTokenKey(null);
           setShowPopUp(false);
         }}>
-          <p className="text-base text-black font-normal mb-2">Search a token</p>
+          <p className="text-base text-black font-normal mb-2">Select a token</p>
           <SearchToken
             options={options}
             notSelectable={notSelectable}
