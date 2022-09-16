@@ -75,43 +75,39 @@ export default function StakeInterface({
         <div className="col-span-12 md:col-span-5">
           <TokenIcon token={stakingToken?.name} />
           <h1 className="text-black text-5xl md:text-6xl leading-12 mt-9">{stakingToken?.name}</h1>
-          <div className="flex flex-wrap md:flex-col">
-            <div className="flex justify-between md:justify-start">
-              <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
-                <StatusWithLabel
-                  content={
-                    stakingPool?.apy.lt(constants.Zero)
-                      ? "New 🍿✨"
-                      : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
-                  }
-                  label={
-                    <>
-                      <span className="lowercase">v</span>APR
-                    </>
-                  }
-                  green
-                  infoIconProps={{
-                    id: "vAPR",
-                    title: "vAPR",
-                    content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
-                  }}
-                />
-              </div>
-              <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
-                <StatusWithLabel
-                  content={
-                    stakingPool && stakedTokenPrice
-                      ? `$${formatAndRoundBigNumber(
-                          stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
-                          18,
-                        )}`
-                      : "..."
-                  }
-                  label="TVL"
-                />
-              </div>
+          <div className="flex flex-wrap">
+            <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
+              <StatusWithLabel
+                content={
+                  stakingPool?.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
+                }
+                label={
+                  <>
+                    <span className="lowercase">v</span>APR
+                  </>
+                }
+                green
+                infoIconProps={{
+                  id: "vAPR",
+                  title: "vAPR",
+                  content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
+                }}
+              />
             </div>
-            <div className="mt-6 md:mt-8">
+            <div className="block mt-6 md:mt-8 pr-8 md:pr-6 md:pl-6 md:border-l md:border-customLightGray">
+              <StatusWithLabel
+                content={
+                  stakingPool && stakedTokenPrice
+                    ? `$${formatAndRoundBigNumber(
+                        stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
+                        18,
+                      )}`
+                    : "..."
+                }
+                label="TVL"
+              />
+            </div>
+            <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
               <StatusWithLabel
                 content={`${
                   stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
