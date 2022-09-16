@@ -1,8 +1,9 @@
-import { FC, Dispatch, useState, SetStateAction, useEffect } from "react"
+import { FC, Dispatch, useState, SetStateAction, useEffect, useRef } from "react"
 import { SearchIcon } from "@heroicons/react/outline";
 import { SelectTokenProps } from "components/BatchButter/SelectToken";
 import Image from "next/image";
 import WheelPicker, { PickerDataWithIcon } from "components/WheelPicker/WheelPicker";
+
 interface SearchTokenProps extends Omit<SelectTokenProps, "allowSelection"> {
   setNewTokenKey: Dispatch<SetStateAction<string | null>>
   setShowSelectTokenModal: Dispatch<SetStateAction<boolean>>
@@ -12,6 +13,7 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
   const quickOptionsTokens = ['dai', 'usdt', 'usdc', "eth", "wbtc"]
   const [search, setSearch] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<PickerDataWithIcon[]>([]);
+  const wheelPickerRef = useRef(null)
 
   const saveFilteredTokensToState = (tokens: string[]) => {
     const transformedTokens: PickerDataWithIcon[] = tokens.map((token) => {
@@ -32,6 +34,7 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
   useEffect(() => {
     formatTokens()
   }, [options, notSelectable, selectedToken])
+
 
   const handleChange = (value: PickerDataWithIcon) => {
     setNewTokenKey(value.id)
@@ -61,7 +64,7 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="block w-full h-14 md:h-14 pb-0 border-customLightGray pl-14 focus:border-customLightGray focus:ring-customLightGray rounded-5xl text-base md:text-xl placeholder:text-base md:placeholder:text-xl pt-0"
-          placeholder="Search a name"
+          placeholder="Search"
         />
       </div>
       {Object.keys(options)
@@ -90,12 +93,13 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
             </button>
           </div>
         ))}
-      <div className="wheelPicker custom-wheel__picker mt-4">
+      <div className="wheelPicker mt-4" ref={wheelPickerRef}>
         {filteredOptions?.length > 0 && (
           <WheelPicker
             dataWithIcons={filteredOptions}
             onChange={handleChange}
             height={200}
+            ref={wheelPickerRef}
             selectedID={filteredOptions[0].id}
             titleText="Enter value same as aria-label"
             itemHeight={30}
