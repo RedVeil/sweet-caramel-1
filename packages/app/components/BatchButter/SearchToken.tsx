@@ -3,7 +3,7 @@ import { SearchIcon } from "@heroicons/react/outline";
 import { SelectTokenProps } from "components/BatchButter/SelectToken";
 import Image from "next/image";
 import WheelPicker, { PickerDataWithIcon } from "components/WheelPicker/WheelPicker";
-
+import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
 interface SearchTokenProps extends Omit<SelectTokenProps, "allowSelection"> {
   setNewTokenKey: Dispatch<SetStateAction<string | null>>
   setShowSelectTokenModal: Dispatch<SetStateAction<boolean>>
@@ -34,6 +34,28 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
   useEffect(() => {
     formatTokens()
   }, [options, notSelectable, selectedToken])
+
+  useEffect(() => {
+    const wheelPicker = wheelPickerRef.current
+    if (wheelPicker) {
+      wheelPicker.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement
+        if (target && target?.parentElement) {
+          const tokenKey = target?.parentElement?.getAttribute("data-itemid")
+          if (tokenKey) {
+            selectToken(tokenKey as BatchProcessTokenKey)
+            setShowSelectTokenModal(false)
+          }
+        }
+      })
+    }
+    return () => {
+      if (wheelPicker) {
+        wheelPicker.removeEventListener('click', () => { })
+      }
+
+    }
+  }, [wheelPickerRef?.current])
 
 
   const handleChange = (value: PickerDataWithIcon) => {
@@ -99,7 +121,6 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
             dataWithIcons={filteredOptions}
             onChange={handleChange}
             height={200}
-            ref={wheelPickerRef}
             selectedID={filteredOptions[0].id}
             titleText="Enter value same as aria-label"
             itemHeight={30}
