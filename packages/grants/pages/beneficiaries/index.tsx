@@ -1,14 +1,12 @@
 import { Menu } from "@headlessui/react";
 import { ViewGridIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
-import BeneficiaryPage from "components/Beneficiaries/BeneficiaryPage";
+import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
 import { filterValues } from "pages";
 import { useState } from "react";
 
 const filterList = [
   filterValues.all,
-  filterValues.environment,
   filterValues.education,
   filterValues.inequality,
   filterValues.openSource,
@@ -40,8 +38,8 @@ export default function BeneficiaryIndexPage(): JSX.Element {
                 </div>
                 <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
               </div>
-              <BeneficiaryFilter
-                filterList={filterList}
+              <BeneficiaryOptions
+                options={filterList}
                 switchFilter={switchFilter}
                 position="absolute top-36 left-1/2 transform -translate-x-1/2 md:left-0 md:translate-x-0 z-40"
                 width="w-44"
@@ -50,7 +48,7 @@ export default function BeneficiaryIndexPage(): JSX.Element {
             </Menu.Button>
           </Menu>
         </div>
-        <BeneficiaryPage categoryFilter={categoryFilter} />
+        {/* <BeneficiaryPage categoryFilter={categoryFilter} /> */}
       </div>
     </section>
   );

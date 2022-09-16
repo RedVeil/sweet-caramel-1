@@ -45,6 +45,9 @@ const CardBody: React.FC<CardBodyProps> = ({
     }
     return ProposalStatus[status];
   };
+
+  const isCompleted = (status: ProposalStatus) => formatStatus(status) === 'Completed'
+
   return (
     <div className="bg-white rounded-lg transition duration-500 ease-in-out transform hover:scale-102 border border-customLightGray">
       <div className="relative">
@@ -62,10 +65,15 @@ const CardBody: React.FC<CardBodyProps> = ({
         </div>
         {isApplication && (
           <div className="flex justify-between px-4 absolute top-5 w-full">
-            <div className=" bg-gray-600 bg-opacity-50 rounded-4xl px-4 py-2 text-white font-semibold">
-              {formatTimeUntilDeadline(stageDeadline)}
+            <div>
+              {!isCompleted(status) && (
+                <div className="bg-primary bg-opacity-75 rounded-4xl px-4 py-2 text-white">
+                  {formatTimeUntilDeadline(stageDeadline)}
+                </div>
+              )}
             </div>
-            <div className=" bg-white bg-opacity-90 rounded-4xl px-4 py-2 text-gray-900 font-semibold">
+            <div className={`bg-white bg-opacity-90 rounded-4xl px-4 py-2 ${isCompleted(status) ? "text-white bg-secondaryLight" : "text-black bg-white"
+              }`}>
               {formatStatus(status)} {status == 0 ? "Vote" : status == 1 ? "Period" : ""}
             </div>
           </div>

@@ -19,30 +19,28 @@ export const MobileBeneficiaryCategoryFilter: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className="absolute left-0">
-      <PopUpModal visible={visible} onClosePopUpModal={() => {
-        switchFilter(selectedCategory);
-        onClose(false);
-      }}>
-        {selectedItem.id && (
-          <>
-            <p className=" text-black mb-3">Categories</p>
-            <div className="wheelPicker">
-              <WheelPicker
-                data={categories}
-                onChange={handleOnChange}
-                height={200}
-                titleText="Enter value same as aria-label"
-                itemHeight={30}
-                selectedID={selectedItem.id}
-                color="#e5e7eb"
-                activeColor="#111827"
-                backgroundColor="#fff"
-              />
-            </div>
-          </>
-        )}
-      </PopUpModal>
-    </div>
+    <PopUpModal visible={visible} onClosePopUpModal={() => {
+      switchFilter(selectedCategory);
+      onClose(false);
+    }}>
+      {selectedItem.id && (
+        <>
+          <p className=" text-black mb-3">Categories</p>
+          <div className="wheelPicker">
+            <WheelPicker
+              data={categories}
+              onChange={(newValue: PickerData) => handleOnChange(newValue)}
+              height={200}
+              titleText="Enter value same as aria-label"
+              itemHeight={30}
+              selectedID={selectedItem.id}
+              color="#e5e7eb"
+              activeColor="#111827"
+              backgroundColor="#fff"
+            />
+          </div>
+        </>
+      )}
+    </PopUpModal>
   )
 }

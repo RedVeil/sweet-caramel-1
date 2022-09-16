@@ -1,16 +1,16 @@
-import { Menu } from "@headlessui/react";
-import { ViewGridIcon } from "@heroicons/react/outline";
-import { ChevronDownIcon } from "@heroicons/react/solid";
-import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
-import Beneficiaries from "components/Beneficiaries/Beneficiaries";
+
 import FacebookPixel from "components/FacebookPixel";
 import TutorialSlider from "components/Beneficiaries/TutorialSlider";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import Link from 'next/link';
+import { IpfsClient } from "@popcorn/utils";
 import Image from "next/image";
-import { MobileBeneficiaryCategoryFilter } from "components/Beneficiaries/MobileBeneficiaryCategoryFilter";
+import { ContractsContext } from "context/Web3/contracts";
+import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
+import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
 import Button from "components/CommonComponents/Button";
 
 export enum filterValues {
@@ -21,42 +21,61 @@ export enum filterValues {
   openSource = "Open Source",
 }
 
-const categories = [
-  {
-    id: '1',
-    value: filterValues.all,
-  },
-  {
-    id: '2',
-    value: filterValues.environment,
-  },
-  {
-    id: '3',
-    value: filterValues.education,
-  },
-  {
-    id: '4',
-    value: filterValues.inequality,
-  },
-  {
-    id: '5',
-    value: filterValues.openSource,
-  }
-]
+const INITIAL_OFFSET = 9
 
 const IndexPage = () => {
   const router = useRouter();
-  const [showBeneficiaryCategories, setShowBeneficiaryCategories] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<{ id: string, value: string }>({ id: '1', value: "All" });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { contracts } = useContext(ContractsContext);
+  const [beneficiaries, setBeneficiaries] = useState<BeneficiaryApplication[]>([]);
+  const [filteredBeneficiaries, setFilteredBeneficiaries] = useState<BeneficiaryApplication[]>([]);
+  const [offset, setOffset] = useState<number>(INITIAL_OFFSET);
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.pathname !== "/") {
       router.replace(window.location.pathname);
     }
   }, [router.pathname]);
-  const [categoryFilter, setCategoryFilter] = useState<{ id: string, value: string }>(categories[0]);
+
+  useEffect(() => {
+    if (contracts?.beneficiaryRegistry) {
+      BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient)
+        .getAllBeneficiaryApplications()
+        .then((beneficiaries) => {
+          setBeneficiaries(beneficiaries);
+          setFilteredBeneficiaries(beneficiaries.slice(0, offset));
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          setIsLoading(false);
+        });
+    }
+    setIsLoading(false);
+  }, [contracts]);
+
+  useEffect(() => {
+    const filteringBeneficiaries = beneficiaries?.filter((beneficiary: BeneficiaryApplication) => {
+
+      if (categoryFilter.value === "All") {
+        return beneficiary;
+      }
+      return beneficiary?.proposalCategory?.toLowerCase() === categoryFilter.value.toLowerCase();
+    });
+    setOffset(INITIAL_OFFSET);
+    setFilteredBeneficiaries(filteringBeneficiaries?.slice(0, INITIAL_OFFSET));
+  }, [categoryFilter]);
 
   const switchFilter = (value: { id: string, value: string }) => {
     setCategoryFilter(value);
   };
+
+  const seeMore = () => {
+    const newOffset = offset + INITIAL_OFFSET;
+    setOffset(newOffset);
+    setFilteredBeneficiaries(beneficiaries.slice(0, newOffset));
+  };
+
   return (
     <>
       <FacebookPixel />
@@ -144,54 +163,20 @@ const IndexPage = () => {
 
       <section>
         <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10">
-          <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%]">
+          <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%] mb-4 md:mb-0">
             Eligible Beneficiaries At A Glance
           </h1>
-          <div className="hidden md:block">
-            <Menu>
-              <Menu.Button className="bg-white rounded-4xl border border-[#E5E7EB]">
-                <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between">
-                  <div className="flex items-center">
-                    <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
-                    <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">
-                      {categoryFilter.value}
-                    </p>
-                  </div>
-                  <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
-                </div>
-                <BeneficiaryFilter
-                  filterList={categories}
-                  switchFilter={switchFilter}
-                  position="absolute top-14 right-0 z-40"
-                  width="w-44"
-                  selectedItem={categoryFilter.id}
-                />
-              </Menu.Button>
-            </Menu>
-          </div>
-          <div className="block md:hidden mt-5">
-            <button
-              onClick={() => setShowBeneficiaryCategories(true)}
-              className="w-full py-3 px-5  flex flex-row items-center justify-between rounded-4xl border border-[#E5E7EB]"
-            >
-              <div className="flex items-center">
-                <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
-                <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">
-                  {categoryFilter.value}
-                </p>
-              </div>
-              <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
-            </button>
-          </div>
+          <BeneficiaryFilter
+            categoryFilter={categoryFilter}
+            switchFilter={switchFilter}
+          />
         </div>
-        <MobileBeneficiaryCategoryFilter
-          categories={categories}
-          visible={showBeneficiaryCategories}
-          onClose={setShowBeneficiaryCategories}
-          selectedItem={categoryFilter}
-          switchFilter={switchFilter}
+        <BeneficiaryGrid
+          isLoading={isLoading}
+          beneficiaries={filteredBeneficiaries}
+          offset={offset}
+          seeMore={seeMore}
         />
-        <Beneficiaries categoryFilter={categoryFilter.value} />
       </section>
     </>
   );

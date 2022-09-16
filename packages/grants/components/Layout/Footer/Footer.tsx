@@ -99,7 +99,7 @@ const Footer = () => {
           </a>
         </div>
       </div>
-      <div className="col-span-12 md:col-span-4 flex flex-col md:flex-row space-x-5 md:space-x-0 md:justify-between order-2 md:order-3 mt-12 md:mt-0">
+      <div className="col-span-12 md:col-span-4 flex flex-col md:flex-row space-x-0 md:space-x-5 md:justify-between order-2 md:order-3 mt-12 md:mt-0">
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Site</p>
           <div className="flex flex-col">

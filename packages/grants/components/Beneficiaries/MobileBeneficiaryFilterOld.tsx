@@ -24,9 +24,8 @@ const MobileBeneficiaryFilter: React.FC<FilterProps> = ({ filterList, switchFilt
           <Menu.Item key={index}>
             {({ active }) => (
               <a
-                className={`${
-                  active ? "bg-gray-100" : "bg-white"
-                } group text-left py-4 block w-full cursor-pointer first:rounded-t-2xl last:rounded-b-2xl`}
+                className={`${active ? "bg-gray-100" : "bg-white"
+                  } group text-left py-4 block w-full cursor-pointer first:rounded-t-2xl last:rounded-b-2xl`}
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >
