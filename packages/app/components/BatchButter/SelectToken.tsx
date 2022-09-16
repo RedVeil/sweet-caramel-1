@@ -79,7 +79,6 @@ export default function SelectToken({
               selectToken={selectToken}
               setShowSelectTokenModal={setShowSelectTokenModal}
               selectedToken={selectedToken}
-              setNewTokenKey={setNewTokenKey}
             />
           </div>
         }
@@ -111,7 +110,6 @@ export default function SelectToken({
             selectToken={selectToken}
             setShowSelectTokenModal={setShowPopUp}
             selectedToken={selectedToken}
-            setNewTokenKey={setNewTokenKey}
           />
         </PopUpModal>
       </div>
