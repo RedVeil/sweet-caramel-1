@@ -121,9 +121,6 @@ p {
 .hr-line {
   width: 1px;
 }
-.apply-card {
-  padding-top: 400px;
-}
 .rs-slider-progress-bar {
   background-color: #1e40af !important;
 }
@@ -134,17 +131,11 @@ p {
   border-color: #1e40af !important;
 }
 @media screen and (max-width: 767px) {
-  .apply-card {
-    padding-top: 850px;
-  }
   .apply-overlay {
     height: 800px;
   }
 }
 @media screen and (max-width: 400px) {
-  .apply-card {
-    padding-top: 1000px;
-  }
   .apply-overlay {
     height: 800px;
   }
@@ -184,12 +175,6 @@ p {
   content: "";
   position: absolute;
   left: 40%;
-}
-
-@media screen and (min-width: 768px) and (max-width: 1024px) {
-  .apply-card {
-    padding-top: 500px;
-  }
 }
 
 .apply-overlay {

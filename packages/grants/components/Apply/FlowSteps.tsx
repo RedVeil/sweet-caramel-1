@@ -19,16 +19,16 @@ const FlowSteps: React.FC<FlowStepsProps> = ({ active }) => {
         <div className="flex gap-3 items-center pr-5 md:pr-0" key={step.id}>
           <div
             className={`${
-              active == step.id ? "bg-blue-50" : "bg-gray-100"
+              active == step.id ? "bg-black" : "bg-gray-100"
             } rounded-xl h-10 w-10 flex justify-center items-center`}
           >
-            <p className={`${active == step.id ? "text-blue-600 font-semibold" : "text-gray-500 "} text-lg`}>
+            <p className={`${active == step.id ? "text-white font-medium" : "text-tokenTextGray "} text-lg`}>
               {step.id + 1}
             </p>
           </div>
           <p
             className={`${
-              active == step.id ? "text-blue-600 font-semibold" : "text-gray-500 "
+              active == step.id ? "text-black font-medium" : "text-tokenTextGray "
             } text-lg whitespace-nowrap`}
           >
             {step.title}

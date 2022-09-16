@@ -1,8 +1,8 @@
 import React from "react";
 
-const AvatarIcon = () => {
+const AvatarIcon: React.FC<{ size: number }> = ({ size }) => {
   return (
-    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={size} viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_5532_81752)">
         <rect width="120" height="120" rx="60" fill="#D1D5DB" />
         <path

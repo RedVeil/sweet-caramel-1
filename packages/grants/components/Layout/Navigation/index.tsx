@@ -1,15 +1,15 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { Dialog, Menu, Transition } from "@headlessui/react";
+import { Menu } from "@headlessui/react";
 import { DocumentAddIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useWeb3React } from "@web3-react/core";
 import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
+import Button from "components/CommonComponents/Button";
+import ConnectWalletButtons from "components/CommonComponents/ConnectWalletButtons";
 import { connectors } from "context/Web3/connectors";
 import Link from "next/link";
 import router from "next/router";
-import { Fragment, useState } from "react";
-import ConnectWalletButtons from "components/CommonComponents/ConnectWalletButtons";
-import Button from 'components/CommonComponents/Button';
+import { useState } from "react";
 
 const Navigation = () => {
   const [menuVisible, toggleMenu] = useState<boolean>(false);

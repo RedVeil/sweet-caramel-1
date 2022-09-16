@@ -1,6 +1,6 @@
-import React from 'react'
-import PopUpModal from '../Modal/PopUpModal';
+import React from "react";
 import WheelPicker, { PickerData } from "react-simple-wheel-picker";
+import PopUpModal from "../Modal/PopUpModal";
 
 interface Props {
   categories: PickerData[];

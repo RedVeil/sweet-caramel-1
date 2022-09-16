@@ -82,18 +82,21 @@ const Header = () => {
           <div className="block w-5 absolute">
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "rotate-45" : "-translate-y-1.5"
-                }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
+                menuVisible ? "rotate-45" : "-translate-y-1.5"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "opacity-0" : "opacity-100"
-                }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
+                menuVisible ? "opacity-0" : "opacity-100"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "-rotate-45" : "translate-y-1.5"
-                }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
+                menuVisible ? "-rotate-45" : "translate-y-1.5"
+              }`}
             ></span>
           </div>
         </button>

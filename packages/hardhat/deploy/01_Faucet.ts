@@ -1,5 +1,3 @@
-
-
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -8,7 +6,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const addresses = await getNamedAccounts();
   if (["hardhat", "local"].includes(hre.network.name)) {
-
     //Faucet
     await deploy("Faucet", {
       from: addresses.deployer,

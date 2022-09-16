@@ -41,16 +41,15 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
     },
     {
       title: "Step 3 - Organization get funded",
-      content:
-        "Grants are awarded to a set number of top-ranking beneficiaries as voted on by the $POP-token holders.",
-    }
+      content: "Grants are awarded to a set number of top-ranking beneficiaries as voted on by the $POP-token holders.",
+    },
   ];
   return (
     <div className="relative">
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map((step, index) => (
           <div key={index}>
-            <div className=" bg-pink rounded-lg p-8 flex flex-col justify-between text-black">
+            <div className=" bg-customPink rounded-lg p-8 flex flex-col justify-between text-black">
               <h6 className="text-base text-black">Learn how it works</h6>
 
               <div className="py-6 text-black">

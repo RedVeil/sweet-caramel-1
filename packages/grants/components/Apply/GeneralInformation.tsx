@@ -61,8 +61,8 @@ const GeneralInformation = ({
   }, []);
 
   return (
-    <div className="rounded-6xl p-10 mt-20 shadow-custom-lg">
-      <h6 className="font-semibold text-3xl text-center mb-12">General Information</h6>
+    <div className="rounded-lg px-6 py-10 md:p-10 mt-20 border border-customLightGray">
+      <h6 className="text-3xl mb-12">General Information</h6>
 
       <div className="relative">
         <CoverPhotoUpload
@@ -83,7 +83,7 @@ const GeneralInformation = ({
 
       <form className="mt-32">
         <div className="mb-10">
-          <label htmlFor="org-name" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="org-name" className="block  text-black leading-5">
             Organization Name
           </label>
           <TextInput
@@ -98,7 +98,7 @@ const GeneralInformation = ({
         </div>
 
         <div className="mb-10">
-          <label htmlFor="eth-address" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="eth-address" className="block  text-black leading-5">
             Ethereum Address
           </label>
           <TextInput
@@ -113,7 +113,7 @@ const GeneralInformation = ({
         </div>
 
         <div className="mb-10">
-          <label htmlFor="title" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="title" className="block  text-black leading-5">
             Title of Your Application
           </label>
           <TextInput
@@ -128,13 +128,13 @@ const GeneralInformation = ({
         </div>
 
         <div className="mb-10">
-          <label htmlFor="category" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="category" className="block  text-black leading-5">
             Proposal Category
           </label>
           <select
             id="category"
             name="category"
-            className="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
             value={formData.proposalCategory}
             onChange={(e) => updateSelectInput(e.target.value)}
           >
@@ -147,7 +147,7 @@ const GeneralInformation = ({
         </div>
 
         <div className="mb-10">
-          <label htmlFor="mission" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="mission" className="block  text-black leading-5">
             Organization Mission
           </label>
           <TextInput
@@ -163,7 +163,7 @@ const GeneralInformation = ({
         </div>
 
         <div className="mb-10">
-          <label htmlFor="email" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="email" className="block  text-black leading-5">
             Email
           </label>
           <TextInput
@@ -178,11 +178,11 @@ const GeneralInformation = ({
         </div>
 
         <div className="mb-10">
-          <label htmlFor="website" className="block text-lg font-semibold text-gray-900">
+          <label htmlFor="website" className="block  text-black leading-5">
             Website
           </label>
           <div className="mt-1 flex rounded-md shadow-sm">
-            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm py-3">
+            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-customLightGray bg-opacity-20 text-secondaryDark text-sm py-3">
               http://
             </span>
             <TextInput
@@ -198,11 +198,11 @@ const GeneralInformation = ({
 
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="linkedin" className="block text-lg font-semibold text-gray-900">
+            <label htmlFor="linkedin" className="block  text-black leading-5">
               LinkedIn
             </label>
             <div className="mt-1 flex rounded-md shadow-sm">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm py-3">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-customLightGray bg-opacity-20 text-secondaryDark text-sm py-3">
                 http://
               </span>
               <TextInput
@@ -217,11 +217,11 @@ const GeneralInformation = ({
           </div>
 
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="twitter" className="block text-lg font-semibold text-gray-900">
+            <label htmlFor="twitter" className="block  text-black leading-5">
               Twitter
             </label>
             <div className="mt-1 flex rounded-md shadow-sm">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm py-3">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-customLightGray bg-opacity-20 text-secondaryDark text-sm py-3">
                 http://
               </span>
               <TextInput
@@ -236,11 +236,11 @@ const GeneralInformation = ({
           </div>
 
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="instagram" className="block text-lg font-semibold text-gray-900">
+            <label htmlFor="instagram" className="block  text-black leading-5">
               Telegram
             </label>
             <div className="mt-1 flex rounded-md shadow-sm">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm py-3">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-customLightGray bg-opacity-20 text-secondaryDark text-sm py-3">
                 http://
               </span>
               <TextInput
@@ -255,11 +255,11 @@ const GeneralInformation = ({
           </div>
 
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="github" className="block text-lg font-semibold text-gray-900">
+            <label htmlFor="github" className="block  text-black leading-5">
               Signal
             </label>
             <div className="mt-1 flex rounded-md shadow-sm">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm py-3">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-customLightGray bg-opacity-20 text-secondaryDark text-sm py-3">
                 http://
               </span>
               <TextInput

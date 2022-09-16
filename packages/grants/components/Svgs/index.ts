@@ -1,12 +1,12 @@
 import DiscordIcon from "./DiscordIcon";
-import TelegramIcon from "./TelegramIcon";
+import FacebookIcon from "./FacebookIcon";
+import GithubIcon from "./GithubIcon";
 import MediumIcon from "./MediumIcon";
 import RedditIcon from "./RedditIcon";
-import YoutubeIcon from "./YoutubeIcon";
+import RightArrowIcon from "./RightArrowIcon";
+import TelegramIcon from "./TelegramIcon";
 import TwitterIcon from "./TwitterIcon";
-import GithubIcon from "./GithubIcon";
-import RightArrowIcon from './RightArrowIcon';
-import FacebookIcon from './FacebookIcon';
+import YoutubeIcon from "./YoutubeIcon";
 
 export {
   DiscordIcon,
@@ -17,5 +17,5 @@ export {
   TwitterIcon,
   GithubIcon,
   RightArrowIcon,
-  FacebookIcon
-}
+  FacebookIcon,
+};

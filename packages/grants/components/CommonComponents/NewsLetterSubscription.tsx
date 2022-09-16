@@ -1,7 +1,7 @@
 import SecondaryButton from "components/SecondaryActionButton";
-import React, { useState, KeyboardEvent } from "react";
+import React, { KeyboardEvent, useState } from "react";
 
-const NewsLetterSubscription = ({ title, buttonLabel }: { title: string, buttonLabel: string }) => {
+const NewsLetterSubscription = ({ title, buttonLabel }: { title: string; buttonLabel: string }) => {
   const [subscribeEmail, setSubscribeEmail] = useState<string>("");
   const [subscribing, setSubscribing] = useState<boolean>(false);
   const [subscriptionSuccessful, setSubscriptionSuccessful] = useState<boolean>(false);

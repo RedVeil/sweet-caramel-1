@@ -1,7 +1,7 @@
-import { ethers } from "ethers";
-import { parseEther } from "ethers/lib/utils";
 import { DeploymentsExtension } from "@anthonymartin/hardhat-deploy/dist/types";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { ethers } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { ButterBatchProcessing } from "../typechain";
@@ -28,8 +28,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address,
       signer
     );
-    await keeperIncentive.updateIncentive(butterBatch.address, 0, 0, true, true, (await deployments.get("TestPOP")).address, 1, 0);
-    await keeperIncentive.updateIncentive(butterBatch.address, 1, 0, true, true, (await deployments.get("TestPOP")).address, 1, 0);
+    await keeperIncentive.updateIncentive(
+      butterBatch.address,
+      0,
+      0,
+      true,
+      true,
+      (
+        await deployments.get("TestPOP")
+      ).address,
+      1,
+      0
+    );
+    await keeperIncentive.updateIncentive(
+      butterBatch.address,
+      1,
+      0,
+      true,
+      true,
+      (
+        await deployments.get("TestPOP")
+      ).address,
+      1,
+      0
+    );
 
     await createDemoData(butterBatch, hre, deployments, signer, signerAddress, deploy, addresses);
   }

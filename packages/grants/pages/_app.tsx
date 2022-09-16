@@ -1,24 +1,23 @@
-import type { ReactElement, ReactNode } from 'react'
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Debug } from "components/Debug";
+import { Layout } from "components/Layout/Layout";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
 import SwapChainModal from "components/SwapChainModal";
-import type { NextPage } from 'next'
-import type { AppProps } from 'next/app'
+import type { NextPage } from "next";
+import type { AppProps } from "next/app";
 import Head from "next/head";
 import Router from "next/router";
+import type { ReactElement, ReactNode } from "react";
 import React, { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { StateProvider } from "../context/store";
 import ContractsWrapper from "../context/Web3/contracts";
 import ElectionsProvider from "../context/Web3/elections";
 import "../styles/globals.css";
-import { Layout } from 'components/Layout/Layout';
-
 
 function getLibrary(provider: any): Web3Provider {
   const library = new Web3Provider(provider);
@@ -27,13 +26,12 @@ function getLibrary(provider: any): Web3Provider {
 }
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-  getLayout?: (page: ReactElement) => ReactNode
-}
+  getLayout?: (page: ReactElement) => ReactNode;
+};
 
 type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout
-}
-
+  Component: NextPageWithLayout;
+};
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const [loading, setLoading] = useState(false);

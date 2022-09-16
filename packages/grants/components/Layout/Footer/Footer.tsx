@@ -1,15 +1,8 @@
 import NewsLetterSubscription from "components/CommonComponents/NewsLetterSubscription";
-import {
-  DiscordIcon,
-  TelegramIcon,
-  MediumIcon,
-  RedditIcon,
-  YoutubeIcon,
-  TwitterIcon
-} from "components/Svgs";
+import { DiscordIcon, MediumIcon, RedditIcon, TelegramIcon, TwitterIcon, YoutubeIcon } from "components/Svgs";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const Footer = () => {
   const [telegramColor, setTelegramColor] = useState("#645F4B");
@@ -51,8 +44,8 @@ const Footer = () => {
       </div>
       <div className="col-span-12 md:col-span-4 flex flex-col justify-between order-3 md:order-2 mt-12 md:mt-0">
         <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
-          Popcorn is an audited, non-custodial DeFi wealth manager with yield-generating
-          products that simultaneously fund nonprofit and social impact organizations.
+          Popcorn is an audited, non-custodial DeFi wealth manager with yield-generating products that simultaneously
+          fund nonprofit and social impact organizations.
         </p>
         <div className="flex justify-between order-1 md:order-2">
           <a

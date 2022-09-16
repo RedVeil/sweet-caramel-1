@@ -66,7 +66,7 @@ const IndexPage = () => {
     setFilteredBeneficiaries(filteringBeneficiaries?.slice(0, INITIAL_OFFSET));
   }, [categoryFilter]);
 
-  const switchFilter = (value: { id: string, value: string }) => {
+  const switchFilter = (value: { id: string; value: string }) => {
     setCategoryFilter(value);
   };
 
@@ -121,11 +121,15 @@ const IndexPage = () => {
           </p>
           <div className="flex justify-between items-start my-10">
             <div>
-              <p className="leading-[140%] text-base text-primaryDark">Eligible <br /> Beneficiaries</p>
+              <p className="leading-[140%] text-base text-primaryDark">
+                Eligible <br /> Beneficiaries
+              </p>
               <h2 className="text-2xl text-black leading-[110%]">240</h2>
             </div>
             <div>
-              <p className="leading-[140%] text-base text-primaryDark">Total Fund <br /> Raised</p>
+              <p className="leading-[140%] text-base text-primaryDark">
+                Total Fund <br /> Raised
+              </p>
               <h2 className="text-2xl text-black leading-[110%]">500k USD</h2>
             </div>
           </div>

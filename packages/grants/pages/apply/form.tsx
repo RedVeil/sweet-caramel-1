@@ -153,7 +153,8 @@ const ApplyForm = () => {
       dispatch(
         setSingleActionModal({
           content: `In order to create a proposal you need to post a Bond of ${formatAndRoundBigNumber(
-            proposalBond, 18
+            proposalBond,
+            18,
           )} POP`,
           title: "You need more POP",
           visible: true,
@@ -269,7 +270,7 @@ const ApplyForm = () => {
 
   return (
     <main className="container mx-auto py-20">
-      <div className="px-5 lg:px-36">
+      <div className="lg:px-36">
         {showErrors ? (
           <div className="bg-red-50 rounded-3xl p-5">
             <div className="flex items-center gap-2">

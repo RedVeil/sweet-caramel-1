@@ -1,12 +1,9 @@
-import { parseEther } from "@ethersproject/units";
-import { ethers } from "hardhat";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
+import { parseEther } from "@ethersproject/units";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getVaultStakingPools } from "../lib/utils/getStakingPools";
-import { addContractToRegistry, FaucetController } from "./utils";
-import { ADDRESS_ZERO } from "../lib/utils/constants";
-
+import { FaucetController } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
