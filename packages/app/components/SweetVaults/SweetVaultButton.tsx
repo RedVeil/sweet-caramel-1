@@ -22,7 +22,7 @@ export default function SweetVaultButton({
   return !inputAmount || !allowance || inputAmount?.gt(allowance) ? (
     <div className="space-y-4">
       <MainActionButton label={`Approve ${selectedToken?.name}`} handleClick={approve} />
-      <MainActionButton label={mainActionLabel} handleClick={() => { }} disabled={true} />
+      <MainActionButton label={mainActionLabel} handleClick={() => {}} disabled={true} />
     </div>
   ) : (
     <div className="">

@@ -12,7 +12,6 @@ import useNetWorth from "hooks/useNetWorth";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
-
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
   const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);

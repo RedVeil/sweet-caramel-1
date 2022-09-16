@@ -1,14 +1,5 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  createRef,
-  useState,
-  useCallback,
-  FocusEvent,
-  RefObject
-} from "react";
 import { PickerData } from "components/WheelPicker/WheelPicker";
+import { createRef, FocusEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useScrollAnimation from "./useScrollAnimation";
 
 export type PickerItemRef = { [key: string]: RefObject<HTMLLIElement> };
@@ -21,10 +12,7 @@ const setRefs = (data: PickerData[]) => {
     }, {} as PickerItemRef);
 };
 
-const calculatePercentageOfRootWithoutItem = (
-  rootHeight: number,
-  itemHeight: number
-) => {
+const calculatePercentageOfRootWithoutItem = (rootHeight: number, itemHeight: number) => {
   return 100 - (itemHeight / rootHeight) * 100;
 };
 
@@ -40,7 +28,7 @@ const useObserver = (
   data: PickerData[],
   selectedID: string,
   itemHeight: number,
-  onChange: (data: PickerData) => void
+  onChange: (data: PickerData) => void,
 ) => {
   const root = useRef<HTMLUListElement | null>(null);
   const refs = useMemo(setRefs(data), [data]);
@@ -60,14 +48,12 @@ const useObserver = (
       setActiveID(id);
       onChange({ id, value });
     },
-    [data, onChange, onScroll]
+    [data, onChange, onScroll],
   );
 
   useEffect(() => {
-    const observerCallback: IntersectionObserverCallback = (
-      entries: IntersectionObserverEntry[]
-    ): void => {
-      entries.forEach(entry => {
+    const observerCallback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[]): void => {
+      entries.forEach((entry) => {
         if (!entry.isIntersecting) {
           return;
         }
@@ -88,9 +74,9 @@ const useObserver = (
       observer.current = new IntersectionObserver(observerCallback, {
         root: root.current,
         rootMargin: calculateRootMargin(root.current.clientHeight, itemHeight),
-        threshold: [0.3, 0.79]
+        threshold: [0.3, 0.79],
       });
-      data.forEach(item => {
+      data.forEach((item) => {
         const elm = refs[item.id].current;
         if (elm && observer.current) {
           observer.current.observe(elm);
@@ -116,7 +102,7 @@ const useObserver = (
     root,
     refs,
     activeID,
-    onFocus: handleOnFocus
+    onFocus: handleOnFocus,
   };
 };
 

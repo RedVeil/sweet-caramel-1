@@ -1,9 +1,9 @@
-import { useState } from "react"
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
-import Image from "next/image";
-import SingleActionModal from "components/Modal/SingleActionModal";
 import PopUpModal from "components/Modal/PopUpModal";
+import SingleActionModal from "components/Modal/SingleActionModal";
+import Image from "next/image";
+import { useState } from "react";
 import { SearchToken } from "./SearchToken";
 
 export interface SelectTokenProps {
@@ -21,18 +21,18 @@ export default function SelectToken({
   notSelectable,
   selectToken,
 }: SelectTokenProps): JSX.Element {
-  const [newTokenKey, setNewTokenKey] = useState('usdc')
-  const [showSelectTokenModal, setShowSelectTokenModal] = useState(false)
+  const [newTokenKey, setNewTokenKey] = useState("usdc");
+  const [showSelectTokenModal, setShowSelectTokenModal] = useState(false);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
   const openPopUp = () => {
-    const mediaQuery = window.matchMedia('(min-width: 768px)')
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
     if (mediaQuery.matches) {
-      setShowSelectTokenModal(true)
+      setShowSelectTokenModal(true);
     } else {
-      setShowPopUp(true)
+      setShowPopUp(true);
     }
-  }
+  };
 
   return (
     <>
@@ -40,7 +40,7 @@ export default function SelectToken({
         <span
           className={`flex flex-row items-center justify-end ${allowSelection ? "cursor-pointer group" : ""}`}
           onClick={() => {
-            allowSelection && openPopUp()
+            allowSelection && openPopUp();
           }}
         >
           <div className="w-5 h-5 md:mr-2 relative">
@@ -52,7 +52,9 @@ export default function SelectToken({
               priority={true}
             />
           </div>
-          <p className="font-medium text-lg leading-none hidden md:block text-black group-hover:text-primary">{selectedToken.name}</p>
+          <p className="font-medium text-lg leading-none hidden md:block text-black group-hover:text-primary">
+            {selectedToken.name}
+          </p>
 
           {allowSelection && (
             <>
@@ -62,7 +64,6 @@ export default function SelectToken({
               />
             </>
           )}
-
         </span>
       </div>
       <SingleActionModal
@@ -70,7 +71,7 @@ export default function SelectToken({
         visible={showSelectTokenModal}
         title="Select a token"
         keepOpen={false}
-        content={(
+        content={
           <div className="mt-8">
             <SearchToken
               options={options}
@@ -81,25 +82,28 @@ export default function SelectToken({
               setNewTokenKey={setNewTokenKey}
             />
           </div>
-        )}
+        }
         onDismiss={{
           onClick: () => {
             if (newTokenKey) {
-              selectToken && selectToken(newTokenKey as BatchProcessTokenKey)
+              selectToken && selectToken(newTokenKey as BatchProcessTokenKey);
             }
-            setNewTokenKey(null)
+            setNewTokenKey(null);
             setShowSelectTokenModal(false);
           },
         }}
       />
       <div className="fixed z-100 left-0">
-        <PopUpModal visible={showPopUp} onClosePopUpModal={() => {
-          if (newTokenKey) {
-            selectToken && selectToken(newTokenKey as BatchProcessTokenKey)
-          }
-          setNewTokenKey(null);
-          setShowPopUp(false);
-        }}>
+        <PopUpModal
+          visible={showPopUp}
+          onClosePopUpModal={() => {
+            if (newTokenKey) {
+              selectToken && selectToken(newTokenKey as BatchProcessTokenKey);
+            }
+            setNewTokenKey(null);
+            setShowPopUp(false);
+          }}
+        >
           <p className="text-base text-black font-normal mb-2">Select a token</p>
           <SearchToken
             options={options}

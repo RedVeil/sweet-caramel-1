@@ -5,12 +5,19 @@ import Image from "next/image";
 import WheelPicker, { PickerDataWithIcon } from "components/WheelPicker/WheelPicker";
 import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
 interface SearchTokenProps extends Omit<SelectTokenProps, "allowSelection"> {
-  setNewTokenKey: Dispatch<SetStateAction<string | null>>
-  setShowSelectTokenModal: Dispatch<SetStateAction<boolean>>
+  setNewTokenKey: Dispatch<SetStateAction<string | null>>;
+  setShowSelectTokenModal: Dispatch<SetStateAction<boolean>>;
 }
 
-export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, selectToken, setShowSelectTokenModal, selectedToken, setNewTokenKey }) => {
-  const quickOptionsTokens = ['dai', 'usdt', 'usdc', "eth", "wbtc"]
+export const SearchToken: FC<SearchTokenProps> = ({
+  notSelectable,
+  options,
+  selectToken,
+  setShowSelectTokenModal,
+  selectedToken,
+  setNewTokenKey,
+}) => {
+  const quickOptionsTokens = ["dai", "usdt", "usdc", "eth", "wbtc"];
   const [search, setSearch] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<PickerDataWithIcon[]>([]);
   const wheelPickerRef = useRef(null)
@@ -21,18 +28,18 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
         value: options[token].name,
         id: token,
         icon: options[token].img,
-      }
-    })
-    setFilteredOptions(transformedTokens)
-  }
+      };
+    });
+    setFilteredOptions(transformedTokens);
+  };
 
   const formatTokens = () => {
     const tokens = Object.keys(options).filter((token) => !notSelectable.includes(token));
-    saveFilteredTokensToState(tokens)
-  }
+    saveFilteredTokensToState(tokens);
+  };
 
   useEffect(() => {
-    formatTokens()
+    formatTokens();
   }, [options, notSelectable, selectedToken])
 
   useEffect(() => {
@@ -59,8 +66,8 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
 
 
   const handleChange = (value: PickerDataWithIcon) => {
-    setNewTokenKey(value.id)
-  }
+    setNewTokenKey(value.id);
+  };
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -69,8 +76,10 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
       const searchValue = value.toLowerCase();
       return tokenName.includes(searchValue);
     });
-    const newOptions = Object.keys(options).filter((token) => filtered.includes(token) && !notSelectable.includes(token));
-    saveFilteredTokensToState(newOptions)
+    const newOptions = Object.keys(options).filter(
+      (token) => filtered.includes(token) && !notSelectable.includes(token),
+    );
+    saveFilteredTokensToState(newOptions);
   };
 
   return (
@@ -109,9 +118,7 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
                   priority={true}
                 />
               </span>
-              <span>
-                {options[selectableToken].name}
-              </span>
+              <span>{options[selectableToken].name}</span>
             </button>
           </div>
         ))}
@@ -132,5 +139,5 @@ export const SearchToken: FC<SearchTokenProps> = ({ notSelectable, options, sele
         )}
       </div>
     </>
-  )
-}
+  );
+};

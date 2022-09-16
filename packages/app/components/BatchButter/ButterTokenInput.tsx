@@ -41,9 +41,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   const displayAmount = localButterPageState.depositAmount.isZero()
     ? ""
     : formatUnits(
-      localButterPageState.depositAmount,
-      localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
-    );
+        localButterPageState.depositAmount,
+        localButterPageState.tokens[localButterPageState.selectedToken.input].decimals,
+      );
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -102,7 +102,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         <div>
           <div className="mt-1 relative flex items-center gap-2 md:gap-0 md:space-x-2">
             <div
-              className={`w-full flex px-5 py-4 items-center rounded-lg border ${depositDisabled?.disabled ? " border-customRed" : "border-customLightGray "}`}
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${
+                depositDisabled?.disabled ? " border-customRed" : "border-customLightGray "
+              }`}
             >
               <input
                 name="tokenInput"

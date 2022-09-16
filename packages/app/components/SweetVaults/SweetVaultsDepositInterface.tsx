@@ -69,7 +69,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   const [tokenList, setTokenList] = useState<Token[]>([]);
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string>(
     defaultTokenList?.find((token) => token.symbol == sweetVault?.metadata?.defaultDepositTokenSymbol)?.address ||
-    sweetVault?.metadata?.underlyingToken?.address,
+      sweetVault?.metadata?.underlyingToken?.address,
   );
   const [selectedToken, setSelectedToken] = useState<Token>(sweetVault?.metadata?.underlyingToken);
   const {
@@ -217,11 +217,14 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
               }
               approve={() =>
                 approve(
-                  selectedToken === sweetVault?.metadata?.underlyingToken ? (sweetVault?.contract as Vault) : zapper?.zapper,
+                  selectedToken === sweetVault?.metadata?.underlyingToken
+                    ? (sweetVault?.contract as Vault)
+                    : zapper?.zapper,
                   selectedToken,
                   revalidate,
                   signer,
-                  approveToken)
+                  approveToken,
+                )
               }
               inputAmount={inputAmount}
               allowance={selectedToken?.allowance}
@@ -247,7 +250,9 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
               }
               approve={() =>
                 approve(
-                  selectedToken === sweetVault?.metadata?.underlyingToken ? (sweetVault?.contract as Vault) : zapper?.zapper,
+                  selectedToken === sweetVault?.metadata?.underlyingToken
+                    ? (sweetVault?.contract as Vault)
+                    : zapper?.zapper,
                   { contract: sweetVault?.contract, ...sweetVault?.metadata },
                   selectedTokenAddress === sweetVault?.metadata?.address ? revalidate : mutate,
                   signer,

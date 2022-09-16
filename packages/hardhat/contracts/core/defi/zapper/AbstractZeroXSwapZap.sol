@@ -33,7 +33,7 @@ abstract contract AbstractZeroXSwapZap {
     }
 
     if (swapTarget == WETH) {
-      IWETH(WETH).deposit{ value: amount }();
+      toTokenAddress == WETH ? IWETH(WETH).deposit{ value: amount }() : IWETH(WETH).withdraw(amount);
       return amount;
     }
 
@@ -65,7 +65,7 @@ abstract contract AbstractZeroXSwapZap {
   }
 
   function _getBalance(address token) internal view returns (uint256 balance) {
-    if (token == address(0)) {
+    if (token == ETH) {
       balance = address(this).balance;
     } else {
       balance = IERC20(token).balanceOf(address(this));
@@ -73,7 +73,7 @@ abstract contract AbstractZeroXSwapZap {
   }
 
   function _pullTokens(address token, uint256 amount) internal returns (uint256) {
-    if (token == address(0)) {
+    if (token == ETH) {
       require(msg.value > 0, "No eth sent");
       return msg.value;
     }

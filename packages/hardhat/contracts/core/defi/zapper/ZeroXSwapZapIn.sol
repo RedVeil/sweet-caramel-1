@@ -28,16 +28,21 @@ contract ZeroXSwapZapIn is IZapIn, AbstractZeroXSwapZap {
     bytes calldata swapData,
     address affiliate
   ) external payable returns (uint256 tokensBought) {
-    uint256 amount = _pullTokens(fromTokenAddress, incomingTokenQty);
     if (fromTokenAddress == address(0)) {
       fromTokenAddress = ETH;
     }
+    if (toTokenAddress == address(0)) {
+      toTokenAddress = ETH;
+    }
+
+    uint256 amount = _pullTokens(fromTokenAddress, incomingTokenQty);
+
     tokensBought = _fillQuote(fromTokenAddress, toTokenAddress, amount, swapTarget, swapData);
     require(tokensBought >= minTokensOut, "Received less than minTokensOut");
 
     emit zapIn(msg.sender, toTokenAddress, tokensBought, affiliate);
 
-    if (toTokenAddress == address(0)) {
+    if (toTokenAddress == ETH) {
       payable(msg.sender).transfer(tokensBought);
     } else {
       IERC20(toTokenAddress).safeTransfer(msg.sender, tokensBought);

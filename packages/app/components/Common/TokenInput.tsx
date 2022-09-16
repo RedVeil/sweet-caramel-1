@@ -64,8 +64,9 @@ export const TokenInput: React.FC<TokenInputProps> = ({
       <div className="flex items-center gap-2 md:gap-0 md:space-x-2 w-full">
         <div className="w-full">
           <div
-            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
-              }`}
+            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${
+              balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
+            }`}
           >
             <input
               name="tokenInput"
@@ -107,9 +108,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
         {balance && (
           <div className="flex items-center">
             <img src="/images/wallet.svg" alt="3x" width="20" height="20" className="mr-2" />
-            <p className="text-secondaryLight leading-6">
-              {formatAndRoundBigNumber(balance, token?.decimals)}
-            </p>
+            <p className="text-secondaryLight leading-6">{formatAndRoundBigNumber(balance, token?.decimals)}</p>
           </div>
         )}
         <div className="">

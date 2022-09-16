@@ -22,27 +22,31 @@ contract ZeroXSwapZapOut is IZapOut, AbstractZeroXSwapZap {
     address,
     uint256 incomingTokenQty,
     address fromTokenAddress,
-    address toToken,
+    address toTokenAddress,
     uint256 minToTokens,
     address swapTarget,
     bytes calldata swapCallData,
     address,
     bool
   ) external payable returns (uint256 toTokensBought) {
-    incomingTokenQty = _pullTokens(fromTokenAddress, incomingTokenQty);
     if (fromTokenAddress == address(0)) {
       fromTokenAddress = ETH;
     }
+    if (toTokenAddress == address(0)) {
+      toTokenAddress = ETH;
+    }
 
-    toTokensBought = _fillQuote(fromTokenAddress, toToken, incomingTokenQty, swapTarget, swapCallData);
+    incomingTokenQty = _pullTokens(fromTokenAddress, incomingTokenQty);
+
+    toTokensBought = _fillQuote(fromTokenAddress, toTokenAddress, incomingTokenQty, swapTarget, swapCallData);
     require(toTokensBought >= minToTokens, "High Slippage");
 
-    emit zapOut(msg.sender, fromTokenAddress, toToken, toTokensBought);
+    emit zapOut(msg.sender, fromTokenAddress, toTokenAddress, toTokensBought);
 
-    if (toToken == address(0)) {
+    if (toTokenAddress == ETH) {
       payable(msg.sender).transfer(toTokensBought);
     } else {
-      IERC20(toToken).safeTransfer(msg.sender, toTokensBought);
+      IERC20(toTokenAddress).safeTransfer(msg.sender, toTokensBought);
     }
   }
 }

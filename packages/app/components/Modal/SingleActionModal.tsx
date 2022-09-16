@@ -51,14 +51,14 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        dismiss()
+        dismiss();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-    }
+    };
   }, []);
 
   const dismiss = () => {
@@ -110,8 +110,9 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                 </span>
                 <Dialog.Panel className="absolute flex top-0 w-full h-full justify-center sm:items-center items-end pb-20">
                   <div
-                    className={`inline-block align-bottom bg-white rounded-lg p-6 md:p-10 mb-12 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6 ${isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-md"
-                      }`}
+                    className={`inline-block align-bottom bg-white rounded-lg p-6 md:p-10 mb-12 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6 ${
+                      isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-md"
+                    }`}
                   >
                     {!isTerms && (
                       <div className="flex justify-end">

@@ -1,11 +1,6 @@
-import React, {
-  forwardRef,
-  useMemo,
-  FocusEventHandler,
-  MouseEventHandler
-} from "react";
+import React, { FocusEventHandler, forwardRef, MouseEventHandler, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
-import { OPTION_ID } from "./WheelPicker"
+import { OPTION_ID } from "./WheelPicker";
 
 const Item = styled.li`
   position: relative;
@@ -71,32 +66,16 @@ export interface WheelPickerItemProps {
 }
 
 const WheelPickerItem = forwardRef<HTMLLIElement, WheelPickerItemProps>((props, ref) => {
-  const {
-    id,
-    value,
-    icon,
-    activeID,
-    height,
-    color,
-    activeColor,
-    fontSize,
-    onClick,
-    onFocus,
-    renderWithIcon
-  } = props;
+  const { id, value, icon, activeID, height, color, activeColor, fontSize, onClick, onFocus, renderWithIcon } = props;
 
   const selected = useMemo(() => id === activeID, [id, activeID]);
-  const textColor = useMemo(() => (selected ? activeColor : color), [
-    activeColor,
-    color,
-    selected
-  ]);
+  const textColor = useMemo(() => (selected ? activeColor : color), [activeColor, color, selected]);
   const textStyle = useMemo(
     () => ({
       color: textColor,
-      fontSize
+      fontSize,
     }),
-    [fontSize, textColor]
+    [fontSize, textColor],
   );
   return (
     <Item
@@ -116,11 +95,7 @@ const WheelPickerItem = forwardRef<HTMLLIElement, WheelPickerItemProps>((props, 
       <span style={{ width: ICON_WIDTH }}></span>
       {renderWithIcon && icon && (
         <div className="w-5 h-5 inline-flex ml-3 flex-shrink-0">
-          <img
-            src={`/images/tokens/${icon}`}
-            alt={value.toString()}
-            className="h-full w-full object-contain"
-          />
+          <img src={`/images/tokens/${icon}`} alt={value.toString()} className="h-full w-full object-contain" />
         </div>
       )}
       <Text style={textStyle}>{value}</Text>

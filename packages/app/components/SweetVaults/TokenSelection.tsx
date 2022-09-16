@@ -19,7 +19,9 @@ export default function TokenSelection({ tokenList, selectedToken, selectToken }
         onClick={() => (selectToken ? setDropdown(!showDropdown) : {})}
       >
         <img className="w-5 mr-1" src={selectedToken?.icon}></img>
-        <p className="font-semibold leading-none mt-0.5 text-gray-700 group-hover:text-blue-700 hidden md:block">{selectedToken?.symbol}</p>
+        <p className="font-semibold leading-none mt-0.5 text-gray-700 group-hover:text-blue-700 hidden md:block">
+          {selectedToken?.symbol}
+        </p>
         {
           //TODO potentially make this an explicit flag
           selectToken && (

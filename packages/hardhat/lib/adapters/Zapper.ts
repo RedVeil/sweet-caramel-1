@@ -5,6 +5,7 @@ import { VaultsV1Zapper } from "../../typechain/VaultsV1Zapper";
 import erc20abi from "../external/erc20/abi.json";
 
 const TRI_CRYPTO_POOL_ADDRESS = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
+const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const USDT_DECIMALS = 6;
 
@@ -33,23 +34,27 @@ export class Zapper {
 
     let buyToken = from;
     let swapData = "0x";
+    let swapTarget = this.swapTarget;
 
-    if (stableSwapAddress.toLowerCase() !== constants.AddressZero.toLowerCase()) {
-      ({ buyToken, swapData } = await this.getDataForCurveZapIn(
-        stableSwapAddress,
-        vault,
-        from,
-        buyToken,
-        fromAmount,
-        slippagePercentage,
-        swapData
-      ));
-    } else {
+    if (stableSwapAddress.toLowerCase() === constants.AddressZero.toLowerCase()) {
       ({ buyToken, swapData } = await this.getDataForSwapZapIn(
         buyToken,
         vaultAsset,
         vault,
         from,
+        fromAmount,
+        slippagePercentage,
+        swapData
+      ));
+    } else if (stableSwapAddress.toLowerCase() === WETH.toLowerCase()) {
+      buyToken = { address: WETH, decimals: 18 };
+      swapTarget = WETH;
+    } else {
+      ({ buyToken, swapData } = await this.getDataForCurveZapIn(
+        stableSwapAddress,
+        vault,
+        from,
+        buyToken,
         fromAmount,
         slippagePercentage,
         swapData
@@ -63,7 +68,7 @@ export class Zapper {
       vaultAsset,
       fromAmount,
       0,
-      this.swapTarget,
+      swapTarget,
       swapData,
       stake,
       { value: from.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? fromAmount : 0 }
@@ -82,6 +87,8 @@ export class Zapper {
 
     let sellToken = to;
     let swapData = "0x";
+    let swapTarget = this.swapTarget;
+
     if (stableSwapAddress.toLowerCase() === constants.AddressZero.toLowerCase()) {
       ({ sellToken, swapData } = await this.getDataForSwapZapOut(
         sellToken,
@@ -92,6 +99,9 @@ export class Zapper {
         slippagePercentage,
         swapData
       ));
+    } else if (stableSwapAddress.toLowerCase() === WETH.toLowerCase()) {
+      sellToken = { address: WETH, decimals: 18 };
+      swapTarget = WETH;
     } else {
       ({ sellToken, swapData } = await this.getDataForCurveZapOut(
         stableSwapAddress,
@@ -112,7 +122,7 @@ export class Zapper {
       sellToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? constants.AddressZero : sellToken.address,
       to.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? constants.AddressZero : to.address,
       0,
-      this.swapTarget,
+      swapTarget,
       swapData,
       unstake
     );

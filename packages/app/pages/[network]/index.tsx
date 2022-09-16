@@ -1,11 +1,6 @@
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
 import Hero from "components/landing/Hero";
 import Products from "components/landing/Products";
 import SecuritySection from "components/landing/SecuritySection";
-import { formatUnits } from "ethers/lib/utils";
-import { getSetTokenTVL } from "hooks/set/useSetTokenTVL";
-import { getStakingTVL } from "hooks/staking/useStakingTVL";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 

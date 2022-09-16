@@ -1,23 +1,21 @@
+import { useCallback, useState } from "react";
 import { setScrollAnimation } from "./useScrollAnimation";
-import { useState, useCallback } from "react";
 
 const useHandleKeyboard = (itemHeight: number) => {
-  const [pressedKeys, setPressedKeys] = useState<{ [key: number]: boolean }>(
-    {}
-  );
+  const [pressedKeys, setPressedKeys] = useState<{ [key: number]: boolean }>({});
 
   const onKeyUp = useCallback(
     (e: React.KeyboardEvent<HTMLUListElement>) => {
       const code = e.keyCode;
       if (pressedKeys[code]) {
         e.persist();
-        setPressedKeys(prev => ({
+        setPressedKeys((prev) => ({
           ...prev,
-          [code]: false
+          [code]: false,
         }));
       }
     },
-    [pressedKeys]
+    [pressedKeys],
   );
 
   const onKeyPress = useCallback(
@@ -27,29 +25,21 @@ const useHandleKeyboard = (itemHeight: number) => {
 
       if (!pressedKeys[code] && code === 16) {
         e.persist();
-        setPressedKeys(prev => ({
+        setPressedKeys((prev) => ({
           ...prev,
-          [e.keyCode]: true
+          [e.keyCode]: true,
         }));
       }
 
       if ((!pressedKeys[16] && code === 9) || code === 40) {
         e.preventDefault();
-        const animate = setScrollAnimation(
-          target,
-          target.scrollTop,
-          itemHeight
-        );
+        const animate = setScrollAnimation(target, target.scrollTop, itemHeight);
         requestAnimationFrame(animate);
       }
 
       if ((pressedKeys[16] && code === 9) || code === 38) {
         e.preventDefault();
-        const animate = setScrollAnimation(
-          target,
-          target.scrollTop,
-          itemHeight * -1
-        );
+        const animate = setScrollAnimation(target, target.scrollTop, itemHeight * -1);
         requestAnimationFrame(animate);
       }
 
@@ -58,12 +48,12 @@ const useHandleKeyboard = (itemHeight: number) => {
         target.blur();
       }
     },
-    [itemHeight, pressedKeys]
+    [itemHeight, pressedKeys],
   );
 
   return {
     onKeyUp,
-    onKeyPress
+    onKeyPress,
   };
 };
 

@@ -1,15 +1,8 @@
-import React, {
-  useMemo,
-  useImperativeHandle,
-  forwardRef,
-  useState,
-  useEffect,
-  useCallback
-} from "react";
-import styled from "styled-components";
 import WheelPickerItem from "components/WheelPicker/WheelPickerItem";
-import useObserver from "hooks/wheelPicker/useObserver";
 import useHandleKeyboard from "hooks/wheelPicker/useHandleKeyboard";
+import useObserver from "hooks/wheelPicker/useObserver";
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import styled from "styled-components";
 
 export const OPTION_ID = "wheel-picker-option-";
 
@@ -25,12 +18,12 @@ const List = styled.ul`
   text-align: center;
   padding: 0 20px;
   ${(props: {
-  height: number;
-  width: string;
-  backgroundColor: string;
-  shadowColor: string;
-  focusColor: string;
-}): string => `
+    height: number;
+    width: string;
+    backgroundColor: string;
+    shadowColor: string;
+    focusColor: string;
+  }): string => `
     height: ${props.height}px;
     width: ${props.width};
     background-color: ${props.backgroundColor};
@@ -63,10 +56,9 @@ const setStyles = (styles: {
     backgroundColor: styles.backgroundColor || "#555",
     shadowColor: styles.shadowColor || "#333",
     width: styles.width ? `${styles.width}px` : "100%",
-    focusColor: styles.focusColor ? styles.focusColor : "blue"
+    focusColor: styles.focusColor ? styles.focusColor : "blue",
   };
 };
-
 
 // picker data interface
 export interface PickerDataWithoutIcon {
@@ -80,7 +72,6 @@ export interface PickerDataWithIcon extends PickerDataWithoutIcon {
 }
 
 export type PickerData = PickerDataWithoutIcon | PickerDataWithIcon;
-
 
 // wheel ref interface
 export interface WheelPickerRef {
@@ -107,10 +98,11 @@ interface CommonWheelPickerProps {
   focusColor?: string;
 }
 
-export type WheelPickerProps = CommonWheelPickerProps & (
-  | { renderWithIcon?: never; dataWithIcons?: never; data: PickerDataWithoutIcon[] }
-  | { renderWithIcon: true; data?: never; dataWithIcons: PickerDataWithIcon[] }
-)
+export type WheelPickerProps = CommonWheelPickerProps &
+  (
+    | { renderWithIcon?: never; dataWithIcons?: never; data: PickerDataWithoutIcon[] }
+    | { renderWithIcon: true; data?: never; dataWithIcons: PickerDataWithIcon[] }
+  );
 
 const WheelPicker = forwardRef<WheelPickerRef, WheelPickerProps>((props, ref) => {
   const {
@@ -132,42 +124,27 @@ const WheelPicker = forwardRef<WheelPickerRef, WheelPickerProps>((props, ref) =>
     renderWithIcon,
   } = props;
 
-  const data = renderWithIcon ? props.dataWithIcons : props.data
+  const data = renderWithIcon ? props.dataWithIcons : props.data;
 
   const [_itemHeight, setItemHeight] = useState(itemHeight);
   const { onKeyUp, onKeyPress } = useHandleKeyboard(_itemHeight);
-  const { root, refs, activeID, onFocus } = useObserver(
-    data,
-    selectedID,
-    _itemHeight,
-    onChange
+  const { root, refs, activeID, onFocus } = useObserver(data, selectedID, _itemHeight, onChange);
+
+  const styles = useMemo(
+    () =>
+      setStyles({
+        width,
+        color,
+        activeColor,
+        fontSize,
+        backgroundColor,
+        shadowColor,
+        focusColor,
+      }),
+    [activeColor, backgroundColor, color, focusColor, fontSize, shadowColor, width],
   );
 
-  const styles = useMemo(() =>
-    setStyles({
-      width,
-      color,
-      activeColor,
-      fontSize,
-      backgroundColor,
-      shadowColor,
-      focusColor
-    }),
-    [
-      activeColor,
-      backgroundColor,
-      color,
-      focusColor,
-      fontSize,
-      shadowColor,
-      width
-    ]
-  );
-
-  const spaceHeight = useMemo(() => calculateSpaceHeight(height, _itemHeight), [
-    _itemHeight,
-    height
-  ]);
+  const spaceHeight = useMemo(() => calculateSpaceHeight(height, _itemHeight), [_itemHeight, height]);
 
   const ariaActivedescendant = useMemo(() => {
     return `${OPTION_ID}${activeID}`;
@@ -179,7 +156,7 @@ const WheelPicker = forwardRef<WheelPickerRef, WheelPickerProps>((props, ref) =>
         root.current.scrollTo(0, e.currentTarget.offsetTop - spaceHeight);
       }
     },
-    [root, spaceHeight]
+    [root, spaceHeight],
   );
 
   useImperativeHandle(
@@ -190,15 +167,15 @@ const WheelPicker = forwardRef<WheelPickerRef, WheelPickerProps>((props, ref) =>
       },
       blur: () => {
         root.current && root.current.blur();
-      }
+      },
     }),
-    [root]
+    [root],
   );
 
   useEffect(() => {
     const adjustItemHeight = () => {
       let maxHeight = itemHeight;
-      Object.keys(refs).forEach(id => {
+      Object.keys(refs).forEach((id) => {
         const elm = refs[id].current;
         if (!elm) {
           return;

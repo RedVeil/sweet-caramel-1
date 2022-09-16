@@ -1,6 +1,6 @@
-import { RefObject, useRef, useCallback } from "react";
-import { PickerItemRef } from "./useObserver";
 import { PickerData } from "components/WheelPicker/WheelPicker";
+import { RefObject, useCallback, useRef } from "react";
+import { PickerItemRef } from "./useObserver";
 
 const easeOutCubic = (t: number, b: number, c: number, d: number) => {
   t /= d;
@@ -8,21 +8,12 @@ const easeOutCubic = (t: number, b: number, c: number, d: number) => {
   return c * (t * t * t + 1) + b;
 };
 
-export const setScrollAnimation = (
-  root: HTMLUListElement,
-  currentPosition: number,
-  changingValue: number
-) => {
+export const setScrollAnimation = (root: HTMLUListElement, currentPosition: number, changingValue: number) => {
   let start = 1;
   let isStop = false;
   const animation = () => {
     if (isStop) return;
-    const offset = easeOutCubic(
-      start / 100,
-      currentPosition,
-      changingValue,
-      0.1
-    );
+    const offset = easeOutCubic(start / 100, currentPosition, changingValue, 0.1);
     requestAnimationFrame(animation);
     root.scrollTo(0, offset);
     const target = currentPosition + changingValue;
@@ -33,11 +24,7 @@ export const setScrollAnimation = (
   return animation;
 };
 
-const useScrollAnimation = (
-  root: RefObject<HTMLUListElement>,
-  refs: PickerItemRef
-) => {
-
+const useScrollAnimation = (root: RefObject<HTMLUListElement>, refs: PickerItemRef) => {
   const timer = useRef<number | null>(null);
 
   const onScroll = useCallback(
@@ -55,18 +42,14 @@ const useScrollAnimation = (
           () => {
             const basicOffsetTop = basicElm.offsetTop;
             const targetOffsetTop = currentElm.offsetTop - basicOffsetTop;
-            const animation = setScrollAnimation(
-              _root,
-              _root.scrollTop,
-              targetOffsetTop - _root.scrollTop
-            );
+            const animation = setScrollAnimation(_root, _root.scrollTop, targetOffsetTop - _root.scrollTop);
             requestAnimationFrame(animation);
           },
-          hasAnimation ? 300 : 0
+          hasAnimation ? 300 : 0,
         );
       }
     },
-    [refs, root]
+    [refs, root],
   );
 
   return onScroll;
