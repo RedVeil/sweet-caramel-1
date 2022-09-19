@@ -35,7 +35,7 @@ const Footer = () => {
     setFunction("#645F4B");
   };
   return (
-    <footer className="grid grid-cols-12 md:gap-8 2xl:gap-14 pb-10 mt-12 md:mt-20">
+    <footer className="grid grid-cols-12 md:gap-8 2xl:gap-14 pb-10 mt-12 md:mt-20 px-6 lg:px-8">
       <div className="col-span-12 md:col-span-4 order-1 md:order-1">
         <div className="bg-customYellow rounded-lg py-3 text-center font-medium text-black">
           Have you got questions? Let’s chat :)

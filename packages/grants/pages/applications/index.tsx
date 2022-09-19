@@ -1,19 +1,19 @@
+import { FilterIcon } from "@heroicons/react/outline";
 import { BeneficiaryGovernanceAdapter, Proposal, ProposalStatus, ProposalType } from "@popcorn/hardhat/lib/adapters";
 import { IpfsClient } from "@popcorn/utils";
+import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
+import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
 import Button from "components/CommonComponents/Button";
+import PopUpModal from "components/Modal/PopUpModal";
 import { ContractsContext } from "context/Web3/contracts";
+import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import Image from "next/image"
-import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
-import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
-import { FilterIcon } from "@heroicons/react/outline";
-import PopUpModal from "components/Modal/PopUpModal";
 
-const INITIAL_OFFSET = 9
+const INITIAL_OFFSET = 9;
 
 const BeneficiaryApplications = () => {
-  const switchFilter = (value: { id: string, value: string }) => {
+  const switchFilter = (value: { id: string; value: string }) => {
     setCategoryFilter(value);
   };
   const applicationTypes = [
@@ -25,7 +25,7 @@ const BeneficiaryApplications = () => {
   const { contracts } = useContext(ContractsContext);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
-  const [categoryFilter, setCategoryFilter] = useState<{ id: string, value: string }>({ id: '1', value: "All" });
+  const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
   const [statusFilter, setStatusFilter] = useState(applicationTypes[0]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [offset, setOffset] = useState<number>(INITIAL_OFFSET);
@@ -78,25 +78,25 @@ const BeneficiaryApplications = () => {
 
   return (
     <>
-      <section className="flex justify-between mt-4">
+      <section className="flex justify-between mt-4 px-6 lg:px-8">
         <div>
-          <h1 className="text-5xl lg:text-6xl text-black text-normal leading-[100%]">Beneficiary <br /> Applications</h1>
-          <p className="lg:hidden text-black leading-[140%] text-base mt-2">Vote for any eligible beneficiary’s proposal</p>
+          <h1 className="text-5xl lg:text-6xl text-black text-normal leading-[100%]">
+            Beneficiary <br /> Applications
+          </h1>
+          <p className="lg:hidden text-black leading-[140%] text-base mt-2">
+            Vote for any eligible beneficiary’s proposal
+          </p>
         </div>
         <div className="hidden lg:block">
           <Image src="/images/beneficiaryApplicationsHero.png" alt="smiley" height="360" width="640" />
         </div>
       </section>
 
-      <section className="pt-12 lg:pt-20">
+      <section className="pt-12 lg:pt-20 px-6 lg:px-8">
         <div className="flex justify-between pb-10 relative items-center">
           {/* category filter */}
           <div className="relative w-1/2 pr-2">
-            <BeneficiaryFilter
-              categoryFilter={categoryFilter}
-              switchFilter={switchFilter}
-              isApplication
-            />
+            <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={switchFilter} isApplication />
           </div>
 
           {/* status filter */}
@@ -120,7 +120,7 @@ const BeneficiaryApplications = () => {
                 className="w-full !text-base !items-center"
               >
                 <FilterIcon className="h-5 w-5" />
-                {statusFilter.label === 'Challenge Period' ? 'Challenge' : statusFilter.label}
+                {statusFilter.label === "Challenge Period" ? "Challenge" : statusFilter.label}
               </Button>
             </div>
           </div>
@@ -148,7 +148,7 @@ const BeneficiaryApplications = () => {
                   }}
                   className="!border-[#E5E7EB] !text-sm w-full"
                 >
-                  {type.label === 'Challenge Period' ? 'Challenge' : type.label}
+                  {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>
               </div>
             ))}
