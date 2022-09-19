@@ -197,7 +197,7 @@ input[type="number"] {
 }
 
 .scrollable__select {
-  max-height: 200px;
+  height: 200px;
 }
 
 .scrollable__select::-webkit-scrollbar,
@@ -208,16 +208,16 @@ input[type="number"] {
   border: 10px solid transparent;
 }
 
-.scrollable__select::-webkit-scrollbar-thumb {        
+.scrollable__select::-webkit-scrollbar-thumb {
   box-shadow: inset 0 0 0 10px;
 }
 
 .scrollable__select:hover {
-  color: #D9D9D9;
+  color: #d9d9d9;
 }
 
 .scrollable__select {
-  color: #D9D9D9;
+  color: #d9d9d9;
 }
 
 .wheelPicker ul {
