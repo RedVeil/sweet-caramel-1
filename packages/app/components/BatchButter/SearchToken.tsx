@@ -33,13 +33,14 @@ export const SearchToken: FC<SearchTokenProps> = ({
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
+    const newNonSelectable = notSelectable.filter((token) => token !== selectedToken.key);
     if (value.trim().length > 0) {
       const filtered = Object.keys(options).filter((token) => {
         const tokenName = options[token].name.toLowerCase();
         const searchValue = value.toString().toLowerCase();
         return tokenName.includes(searchValue);
       });
-      const newOptions = Object.keys(options).filter(token => filtered.includes(token));
+      const newOptions = Object.keys(options).filter(token => filtered.includes(token) && !newNonSelectable.includes(token));
       setFilteredOptions(newOptions);
     } else {
       formatTokens();
