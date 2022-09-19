@@ -21,7 +21,6 @@ export default function SelectToken({
   notSelectable,
   selectToken,
 }: SelectTokenProps): JSX.Element {
-  const [newTokenKey, setNewTokenKey] = useState("usdc");
   const [showSelectTokenModal, setShowSelectTokenModal] = useState(false);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
@@ -84,10 +83,6 @@ export default function SelectToken({
         }
         onDismiss={{
           onClick: () => {
-            if (newTokenKey) {
-              selectToken && selectToken(newTokenKey as BatchProcessTokenKey);
-            }
-            setNewTokenKey(null);
             setShowSelectTokenModal(false);
           },
         }}
@@ -96,10 +91,6 @@ export default function SelectToken({
         <PopUpModal
           visible={showPopUp}
           onClosePopUpModal={() => {
-            if (newTokenKey) {
-              selectToken && selectToken(newTokenKey as BatchProcessTokenKey);
-            }
-            setNewTokenKey(null);
             setShowPopUp(false);
           }}
         >
