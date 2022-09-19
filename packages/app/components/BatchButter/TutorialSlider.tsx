@@ -36,22 +36,20 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
     },
     {
       title: "Step 2 – Wait for the batch to process",
-      content: `Your deposits will be held in ${
-        isThreeX ? "3X" : "Butter"
-      }’s batch processing queue. Note: To minimise gas fees, deposits are processed approximately every 24 hours. You are able to withdraw your deposits during this phase.`,
+      content: `Your deposits will be held in ${isThreeX ? "3X" : "Butter"
+        }’s batch processing queue. Note: To minimise gas fees, deposits are processed approximately every 24 hours. You are able to withdraw your deposits during this phase.`,
     },
     {
       title: `Step 3 – Claim your minted ${isThreeX ? "3X" : "Butter"}!`,
-      content: `Once the batch has been processed, you will be able to claim the new minted ${
-        isThreeX ? "3X" : "Butter"
-      } tokens!`,
+      content: `Once the batch has been processed, you will be able to claim the new minted ${isThreeX ? "3X" : "Butter"
+        } tokens!`,
     },
   ];
   return (
     <div className="relative">
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map((step, index) => (
-          <div className="pl-2">
+          <div className="pl-2" key={index}>
             <div className=" bg-customPurple rounded-lg h-110 p-8 flex flex-col justify-between text-white">
               <h6>How It Works</h6>
 
@@ -65,6 +63,7 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
                   <div
                     className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-3 w-3 transition-all`}
                     onClick={() => gotoSlide(index)}
+                    key={index}
                   ></div>
                 ))}
               </div>

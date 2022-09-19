@@ -35,9 +35,9 @@ const MobileCardSlider = ({ children }) => {
       <div className="flex justify-center pt-6 gap-5">
         {children.map((child, index) => (
           <div
-            className={`${
-              currentSlide == index ? activeDot : inactiveDot
-            } rounded-full h-5 w-5 border border-black transition-all`}
+            key={index}
+            className={`${currentSlide == index ? activeDot : inactiveDot
+              } rounded-full h-5 w-5 border border-black transition-all`}
             onClick={() => gotoSlide(index)}
           ></div>
         ))}
