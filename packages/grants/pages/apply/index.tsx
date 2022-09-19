@@ -80,7 +80,7 @@ const ApplyPage = () => {
   const context = useWeb3React<Web3Provider>();
   const { library, account, activate, active } = context;
   return (
-    <main>
+    <main className="px-6 lg:px-8">
       <div className="relative">
         <div className="flex justify-between items-center py-10 md:py-18">
           <h1 className="text-black text-6xl leading-12">
@@ -146,10 +146,10 @@ const ApplyPage = () => {
       </div>
 
       <div className="my-10 md:my-20">
-        <h3 className=" text-gray-900 text-3xl leading-10 mb-6 md:mb-20 ">List of Requirements</h3>
+        <h3 className=" text-gray-900 text-3xl leading-10 mb-8 md:mb-20 ">List of Requirements</h3>
         <div className="flex flex-col md:flex-row md:flex-wrap md:gap-28 md:mb-10">
           {requirements.map((requirement, index) => (
-            <div className="mb-6 md:mb-0 md:basis-1/4 grow" key={index}>
+            <div className="mb-8 md:mb-0 md:basis-1/4 grow" key={index}>
               <div className="w-20 h-20 rounded-full border-3 border-black flex justify-center items-center mb-4 md:mb-6">
                 <div className="w-8 h-8 text-gray-900">{requirement.icon}</div>
               </div>
