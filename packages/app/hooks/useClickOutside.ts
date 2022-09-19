@@ -16,7 +16,6 @@ const useClickOutside = <E extends Event = Event>(
 
   useEffect(() => {
     const handler = (event) => {
-      // console.log('event', event);
       const { current: el } = ref;
       el && !el.contains(event.target) && savedCallback.current(event);
     };

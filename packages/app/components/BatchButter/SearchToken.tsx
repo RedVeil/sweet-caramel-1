@@ -89,7 +89,7 @@ export const SearchToken: FC<SearchTokenProps> = ({
       <div className="mt-4">
         <ul className="scrollable__select py-6 overflow-y-auto shadow-scrollableSelect rounded-lg p-6 border border-customPaleGray">
           {filteredOptions.map((option) => (
-            <li className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray rounded-lg" key={option}>
+            <li className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray hover:bg-opacity-40 rounded-lg" key={option}>
               <button
                 onClick={() => {
                   selectToken(options[option].key);
