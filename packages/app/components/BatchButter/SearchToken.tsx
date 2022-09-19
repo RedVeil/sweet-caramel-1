@@ -36,12 +36,10 @@ export const SearchToken: FC<SearchTokenProps> = ({
     if (value.trim().length > 0) {
       const filtered = Object.keys(options).filter((token) => {
         const tokenName = options[token].name.toLowerCase();
-        const searchValue = value.toLowerCase();
+        const searchValue = value.toString().toLowerCase();
         return tokenName.includes(searchValue);
       });
-      const newOptions = Object.keys(options).filter(
-        (token) => filtered.includes(token) && !notSelectable.includes(token),
-      );
+      const newOptions = Object.keys(options).filter(token => filtered.includes(token));
       setFilteredOptions(newOptions);
     } else {
       formatTokens();
@@ -91,7 +89,7 @@ export const SearchToken: FC<SearchTokenProps> = ({
       <div className="mt-4">
         <ul className="scrollable__select py-6 overflow-y-auto shadow-scrollableSelect rounded-lg p-6 border border-customPaleGray">
           {filteredOptions.map((option) => (
-            <li className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray rounded-lg">
+            <li className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray rounded-lg" key={option}>
               <button
                 onClick={() => {
                   selectToken(options[option].key);
