@@ -15,7 +15,7 @@ export function isDepositDisabled(
     ?.mul(pageState.isThreeX ? data?.tokens?.threeX?.price : data?.tokens?.butter?.price)
     .div(parseEther("1"));
   const tvlLimit = parseEther("1000000"); // 1m
-  if (!pageState.redeeming && pageState?.depositAmount.add(tvl).gte(tvlLimit)) {
+  if (pageState.isThreeX && !pageState.redeeming && pageState?.depositAmount.add(tvl).gte(tvlLimit)) {
     return { disabled: true, errorMessage: "*Exceeds TVL-Limit" };
   }
 
