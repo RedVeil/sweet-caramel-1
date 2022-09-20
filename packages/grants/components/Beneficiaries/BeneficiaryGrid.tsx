@@ -34,16 +34,16 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
         {!isLoading && data.length <= 0 ? (
           <div className="col-span-12">
             <NotFoundError
-              image="/images/emptyBeneficiariesState.svg"
+              image="/images/no-beneficiaries.svg"
               title="There are no Beneficiary Applications currently"
             >
-              <p className="text-gray-700">
+              <p className="text-primaryDark">
                 Check back at a later date or follow our{" "}
-                <a href="https://discord.gg/w9zeRTSZsq" target="_blank" className="text-blue-600 font-semibold">
+                <a href="https://discord.gg/w9zeRTSZsq" target="_blank" className="text-[#9B55FF]">
                   Discord
                 </a>{" "}
                 or{" "}
-                <a href="https://twitter.com/Popcorn_DAO" target="_blank" className="text-blue-600 font-semibold">
+                <a href="https://twitter.com/Popcorn_DAO" target="_blank" className="text-[#9B55FF]">
                   Twitter
                 </a>{" "}
                 for more information.
