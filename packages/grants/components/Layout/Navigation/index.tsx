@@ -16,8 +16,8 @@ const Navigation = () => {
   const [selectedFilter, setSelectedFilter] = useState<{ name: string; link: string }>({ name: "", link: "" });
   const filterList = [
     { name: "Beneficiary Applications", link: "/applications" },
-    { name: "Reported Beneficiaries", link: "/beneficiaries" },
-    { name: "Grant Rounds", link: "/grants" },
+    // { name: "Reported Beneficiaries", link: "/beneficiaries" },
+    // { name: "Grant Rounds", link: "/grants" },
   ];
 
   const switchFilter = (filter: { name: string; link: string }) => {
