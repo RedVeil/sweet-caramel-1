@@ -40,9 +40,9 @@ const BeneficiaryApplications = () => {
           setIsLoading(false);
         });
     }
+    setIsLoading(false);
   }, [contracts]);
 
-  // rewrite this in a cleaner way
   useEffect(() => {
     const filteringProposals = proposals
       ?.filter((proposal: Proposal) => {

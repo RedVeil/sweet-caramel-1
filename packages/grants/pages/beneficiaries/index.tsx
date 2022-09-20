@@ -24,6 +24,7 @@ export default function BeneficiaryIndexPage(): JSX.Element {
           setFilteredBeneficiaries(beneficiaries)
         }).finally(() => setIsLoading(false));
     }
+    setIsLoading(false);
   }, [contracts]);
 
   useEffect(() => {
