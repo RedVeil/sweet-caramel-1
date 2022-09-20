@@ -7,6 +7,7 @@ remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',
   'forge-std/=lib/forge-std/src/'
 ]
+fs_permissions = [{ access = "read", path = "./"}, { access = "read", path = "./packages/hardhat/"}]
 verbosity = 2
 fuzz_runs = 256
 fuzz_max_global_rejects = 100000000

@@ -15,7 +15,8 @@
     "test:forge": "yarn hardhat forge:forge-test",
     "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
     "prettify": "yarn lint-staged --allow-empty",
-    "install:forge": "forge install"
+    "install:forge": "forge install",
+    "deploy-local:forge": "anvil && source .env & forge script script/* --rpc-url http://localhost:8545 --broadcast -vvvv"
   },
   "lint-staged": {
     "*.{sol,ts,tsx}": "prettier --write"
