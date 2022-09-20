@@ -10,7 +10,6 @@ interface FilterProps {
 }
 
 const BeneficiaryOptions: React.FC<FilterProps> = ({ options, switchFilter, position, width, selectedItem }) => {
-
   const checkActiveItem = (item: any) => {
     if (typeof selectedItem === "string") {
       return selectedItem === item;
@@ -28,20 +27,20 @@ const BeneficiaryOptions: React.FC<FilterProps> = ({ options, switchFilter, posi
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
     >
-      {/* absolute top-14 right-0 w-44 */}
       <Menu.Items
-        className={`${position} ${width} bg-white rounded-2xl shadow-md border-gray-200 border focus:outline-none`}
+        className={`${position} ${width} bg-white rounded border-gray-200 shadow-dropdown border focus:outline-none`}
       >
         {options.map((item, index: number) => (
           <Menu.Item key={index}>
             {({ active }) => (
               <a
-                className={`${active || checkActiveItem(item) ? "bg-gray-100 text-black-900" : "bg-white text-gray-500 "
-                  } group text-center px-2 py-4 block w-full cursor-pointer border-b border-gray-200 first:rounded-t-2xl last:rounded-b-2xl`}
+                className={`${
+                  active || checkActiveItem(item) ? "bg-warmGray text-black font-medium" : "bg-white text-[#55503D] "
+                } group px-6 py-4 block w-full cursor-pointer border-b border-gray-200 first:rounded-t last:rounded-b text-left`}
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >
-                <p className="font-semibold leading-none">{typeof item === "string" ? item : (item.name || item.value)}</p>
+                <p className="leading-none">{typeof item === "string" ? item : item.name || item.value}</p>
               </a>
             )}
           </Menu.Item>

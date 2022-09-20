@@ -1,9 +1,9 @@
-import React, { FC } from 'react'
-import { ViewGridIcon } from "@heroicons/react/outline";
-import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
 import { Menu } from "@headlessui/react";
+import { ViewGridIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { MobileBeneficiaryCategoryFilter } from './MobileBeneficiaryCategoryFilter';
+import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
+import React, { FC } from "react";
+import { MobilePopupSelect } from "../CommonComponents/MobilePopupSelect";
 
 export enum filterValues {
   all = "All",
@@ -15,31 +15,31 @@ export enum filterValues {
 
 export const categories = [
   {
-    id: '1',
+    id: "1",
     value: filterValues.all,
   },
   {
-    id: '2',
+    id: "2",
     value: filterValues.environment,
   },
   {
-    id: '3',
+    id: "3",
     value: filterValues.education,
   },
   {
-    id: '4',
+    id: "4",
     value: filterValues.inequality,
   },
   {
-    id: '5',
+    id: "5",
     value: filterValues.openSource,
-  }
-]
+  },
+];
 
 interface IFilter {
-  categoryFilter: { id: string, value: string };
-  switchFilter: (item: { id: string, value: string }) => void;
-  isApplication?: boolean
+  categoryFilter: { id: string; value: string };
+  switchFilter: (item: { id: string; value: string }) => void;
+  isApplication?: boolean;
 }
 
 const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplication }) => {
@@ -52,9 +52,7 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
             <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between">
               <div className="flex items-center">
                 <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
-                <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">
-                  {categoryFilter.value}
-                </p>
+                <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">{categoryFilter.value}</p>
               </div>
               <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
             </div>
@@ -71,18 +69,18 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
       <div className="block md:hidden">
         <button
           onClick={() => setOpenFilter(true)}
-          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${isApplication ? 'justify-center' : 'justify-between'}`}
+          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${
+            isApplication ? "justify-center" : "justify-between"
+          }`}
         >
           <div className="flex items-center">
             <ViewGridIcon className="text-primaryDark w-5 h-5" />
-            <p className="font-medium ml-1 leading-none text-primaryDark">
-              {categoryFilter.value}
-            </p>
+            <p className="font-medium ml-1 leading-none text-primaryDark">{categoryFilter.value}</p>
           </div>
           <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
-      <MobileBeneficiaryCategoryFilter
+      <MobilePopupSelect
         categories={categories}
         visible={openFilter}
         onClose={setOpenFilter}
@@ -90,7 +88,7 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
         switchFilter={switchFilter}
       />
     </>
-  )
-}
+  );
+};
 
 export default BeneficiaryFilter;

@@ -1,14 +1,31 @@
 import { BeneficiaryApplication } from "@popcorn/hardhat";
+import CustomDropdown from "components/CommonComponents/CustomDropdown";
 import TextInput from "components/CommonComponents/TextInput";
 import { isAddress } from "ethers/lib/utils";
 import { filterValues } from "pages";
-import React, { useEffect } from "react";
-import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
+import React, { useEffect, useState } from "react";
 import inputExists, { isValidEmail } from "utils/isValidInput";
 import CoverPhotoUpload from "./CoverPhotoUpload";
 import ProfileImageUpload from "./ProfileImageUpload";
 
-const filterList = [filterValues.environment, filterValues.education, filterValues.inequality, filterValues.openSource];
+const filterList = [
+  {
+    id: "1",
+    value: filterValues.environment,
+  },
+  {
+    id: "2",
+    value: filterValues.education,
+  },
+  {
+    id: "3",
+    value: filterValues.inequality,
+  },
+  {
+    id: "4",
+    value: filterValues.openSource,
+  },
+];
 
 const GeneralInformation = ({
   form,
@@ -58,9 +75,13 @@ const GeneralInformation = ({
     if (!formData.proposalCategory) {
       updateSelectInput(filterValues.environment);
     }
-    console.log("test deployment");
   }, []);
 
+  const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
+  const switchFilter = (value: { id: string; value: string }) => {
+    setCategoryFilter(value);
+    updateSelectInput(value.value);
+  };
   return (
     <>
       <h6 className="text-2xl md:text-3xl mb-12">General Information</h6>
@@ -132,19 +153,11 @@ const GeneralInformation = ({
           <label htmlFor="category" className="block  text-black leading-5">
             Proposal Category
           </label>
-          <select
-            id="category"
-            name="category"
-            className="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-            value={formData.proposalCategory}
-            onChange={(e) => updateSelectInput(e.target.value)}
-          >
-            {filterList.map((filter) => (
-              <option key={filter} value={filter}>
-                {capitalizeFirstLetter(filter)}
-              </option>
-            ))}
-          </select>
+          <CustomDropdown
+            categoryFilter={categoryFilter}
+            switchFilter={switchFilter}
+            categories={filterList}
+          ></CustomDropdown>
         </div>
 
         <div className="mb-10">

@@ -11,6 +11,7 @@ module.exports = {
 				"custom-lg": "0px 10px 40px rgba(11, 44, 74, 0.1)",
 				"voting-card": "0px 4px 14px rgba(101, 135, 169, 0.11), 0px 4px 14px rgba(101, 135, 169, 0.11)",
 				"voting-card-mobile": "0px -21px 14px rgba(101, 135, 169, 0.11), 0px 4px 14px rgba(101, 135, 169, 0.11)",
+				"dropdown": "0px 6px 8px -1px rgba(0, 0, 0, 0.07)"
 			},
 			borderRadius: {
 				"4xl": "2rem",
