@@ -36,12 +36,11 @@ const BeneficiaryOptions: React.FC<FilterProps> = ({ options, switchFilter, posi
           <Menu.Item key={index}>
             {({ active }) => (
               <a
-                className={`${active || checkActiveItem(item) ? "bg-gray-100 text-black-900" : "bg-white text-gray-500 "
-                  } group text-center px-2 py-4 block w-full cursor-pointer border-b border-gray-200 first:rounded-t-2xl last:rounded-b-2xl`}
+                className="font-normal text-primary bg-white group text-center px-2 py-4 block w-full cursor-pointer border-b hover:bg-warmGray hover:border-warmGray first:rounded-t-2xl last:rounded-b-2xl last:border-0 hover:text-black"
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >
-                <p className="font-semibold leading-none">{typeof item === "string" ? item : (item.name || item.value)}</p>
+                <p className="leading-none text-lg">{typeof item === "string" ? item : (item.name || item.value)}</p>
               </a>
             )}
           </Menu.Item>
