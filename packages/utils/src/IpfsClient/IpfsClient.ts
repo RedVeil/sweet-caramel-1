@@ -69,6 +69,7 @@ export const IpfsClient: IIpfsClient = {
           hash: result.data.IpfsHash,
           status: result.status,
           fileName: file.name,
+          fileSize: result.data.PinSize,
         };
       })
       .catch((error) => {
