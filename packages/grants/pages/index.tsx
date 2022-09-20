@@ -3,7 +3,6 @@ import { IpfsClient } from "@popcorn/utils";
 import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
 import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
 import TutorialSlider from "components/Beneficiaries/TutorialSlider";
-import Button from "components/CommonComponents/Button";
 import FacebookPixel from "components/FacebookPixel";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { ContractsContext } from "context/Web3/contracts";
@@ -77,13 +76,8 @@ const IndexPage = () => {
   return (
     <>
       <FacebookPixel />
-      <section className="px-6 lg:px-8">
+      <div className="px-6 lg:px-8">
         <section className="bg-customYellow p-6 md:p-8 rounded-lg relative">
-          <div className="absolute left-1/2 -top-[12px] transform -translate-x-1/2 -translate-y-[12px] hidden lg:block">
-            <Link href="/applications" passHref>
-              <Button variant="primary">Beneficiary Applications</Button>
-            </Link>
-          </div>
           <div className="hidden md:block">
             <div className="flex w-full justify-end">
               <div className="mr-10">
@@ -176,7 +170,7 @@ const IndexPage = () => {
             seeMore={seeMore}
           />
         </section>
-      </section>
+      </div>
     </>
   );
 };
