@@ -29,8 +29,10 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = (props) => {
               src={`https://popcorn.mypinata.cloud/ipfs/${props.localState}`}
               alt=""
               className="rounded-full object-cover"
-              width={size}
-              height={size}
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+              }}
             />
           )}
           <div className="bg-white w-11 h-11 rounded-full border border-primary flex justify-center items-center absolute left-14 top-14 md:left-20 md:top-20">

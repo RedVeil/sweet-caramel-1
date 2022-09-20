@@ -34,7 +34,7 @@ const ImpactReports = ({
     });
   };
   return (
-    <div className=" rounded-lg px-6 py-10 md:p-10 mt-10 md:mt-20 border border-customLightGray">
+    <>
       <h6 className="text-2xl md:text-3xl">Impact Reports</h6>
 
       <form className="mt-6 md:mt-14">
@@ -62,7 +62,7 @@ const ImpactReports = ({
         </div>
       </form>
       {formData?.files?.impactReports.map(({ fileName, hash }, i) => (
-        <div className="border border-gray-200 rounded-2xl flex justify-between py-3 px-4 items-center my-4" key={hash}>
+        <div className="border border-gray-200 rounded-lg flex justify-between py-3 px-4 items-center my-4" key={hash}>
           <div className="flex gap-2">
             <div>
               <PaperClipIcon className="h-5 w-5 text-gray-400" />
@@ -79,7 +79,7 @@ const ImpactReports = ({
           </button>
         </div>
       ))}
-    </div>
+    </>
   );
 };
 

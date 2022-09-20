@@ -269,7 +269,7 @@ const ApplyForm = () => {
   };
 
   return (
-    <main className="container mx-auto py-20">
+    <main className="container mx-auto pt-20">
       <div className="lg:px-36">
         {showErrors ? (
           <div className="bg-red-50 rounded-3xl p-5">
@@ -288,17 +288,24 @@ const ApplyForm = () => {
         ) : (
           <FlowSteps active={activeForm} />
         )}
-        {activeForm == FormSteps.GENERAL_INFORMATION && <GeneralInformation form={[formData, setFormData]} />}
-        {activeForm == FormSteps.PROOFS && <ProofsForm form={[formData, setFormData]} />}
-        {activeForm == FormSteps.IMPACT_REPORTS && <ImpactReports form={[formData, setFormData]} />}
-        {activeForm == FormSteps.VISUAL_CONTENT && <VisualContent form={[formData, setFormData]} />}
-        <div className="flex justify-center gap-8 mt-10 md:mt-20 mb-20 md:mb-40">
+        <div className="rounded-lg px-6 py-10 md:p-10 mt-10 md:mt-20 mx-6 md:mx-0 border border-customLightGray">
+          {activeForm == FormSteps.GENERAL_INFORMATION && <GeneralInformation form={[formData, setFormData]} />}
+          {activeForm == FormSteps.PROOFS && <ProofsForm form={[formData, setFormData]} />}
+          {activeForm == FormSteps.IMPACT_REPORTS && <ImpactReports form={[formData, setFormData]} />}
+          {activeForm == FormSteps.VISUAL_CONTENT && <VisualContent form={[formData, setFormData]} />}
+        </div>
+        <div className="flex justify-center gap-8 mt-10 md:mt-20 px-6">
           {activeForm !== FormSteps.GENERAL_INFORMATION && (
-            <Button variant="secondary" className="py-2 px-6" onClick={prevActiveForm}>
+            <Button variant="secondary" className="py-2 px-6 w-full md:w-auto" onClick={prevActiveForm}>
               Back
             </Button>
           )}
-          <Button variant="primary" className="py-2 px-6" onClick={nextActiveForm} disabled={uploading}>
+          <Button
+            variant="primary"
+            className="py-2 px-6 w-full md:w-auto"
+            onClick={nextActiveForm}
+            disabled={uploading}
+          >
             {activeForm == FormSteps.VISUAL_CONTENT ? "Finish" : "Next"}
           </Button>
         </div>
