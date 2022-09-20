@@ -8,10 +8,9 @@ interface IFilter {
   categoryFilter: { id: string; value: string };
   switchFilter: (item: { id: string; value: string }) => void;
   categories: Array<{ id: string; value: string }>;
-  children: JSX.Element | JSX.Element[];
 }
 
-const CustomDropdown: FC<IFilter> = ({ categoryFilter, switchFilter, categories, children }) => {
+const CustomDropdown: FC<IFilter> = ({ categoryFilter, switchFilter, categories }) => {
   const [openFilter, setOpenFilter] = React.useState(false);
   return (
     <>
@@ -29,6 +28,8 @@ const CustomDropdown: FC<IFilter> = ({ categoryFilter, switchFilter, categories,
               switchFilter={switchFilter}
               position="absolute top-12 left-0 z-40"
               width="w-full"
+              borderRadius="rounded"
+              borderRadiusFirstLast="first:rounded-t last:rounded-b"
               selectedItem={categoryFilter.id}
             />
           </Menu.Button>

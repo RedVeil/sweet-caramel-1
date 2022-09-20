@@ -7,9 +7,19 @@ interface FilterProps {
   switchFilter: (item: string | { [key: string]: string }) => void;
   position: string;
   width: string;
+  borderRadius: string;
+  borderRadiusFirstLast: string;
 }
 
-const BeneficiaryOptions: React.FC<FilterProps> = ({ options, switchFilter, position, width, selectedItem }) => {
+const BeneficiaryOptions: React.FC<FilterProps> = ({
+  options,
+  switchFilter,
+  position,
+  width,
+  selectedItem,
+  borderRadius,
+  borderRadiusFirstLast,
+}) => {
   const checkActiveItem = (item: any) => {
     if (typeof selectedItem === "string") {
       return selectedItem === item;
@@ -28,7 +38,7 @@ const BeneficiaryOptions: React.FC<FilterProps> = ({ options, switchFilter, posi
       leaveTo="transform opacity-0 scale-95"
     >
       <Menu.Items
-        className={`${position} ${width} bg-white rounded border-gray-200 shadow-dropdown border focus:outline-none`}
+        className={`${position} ${width} ${borderRadius} bg-white border-gray-200 shadow-dropdown border focus:outline-none`}
       >
         {options.map((item, index: number) => (
           <Menu.Item key={index}>
@@ -36,7 +46,7 @@ const BeneficiaryOptions: React.FC<FilterProps> = ({ options, switchFilter, posi
               <a
                 className={`${
                   active || checkActiveItem(item) ? "bg-warmGray text-black font-medium" : "bg-white text-[#55503D] "
-                } group px-6 py-4 block w-full cursor-pointer border-b border-gray-200 first:rounded-t last:rounded-b text-left`}
+                } group px-6 py-4 block w-full cursor-pointer border-b border-gray-200 ${borderRadiusFirstLast} text-left`}
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >

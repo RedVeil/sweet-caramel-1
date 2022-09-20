@@ -61,6 +61,8 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
               switchFilter={switchFilter}
               position="absolute top-14 right-0 z-40"
               width="w-44"
+              borderRadius="rounded-3xl"
+              borderRadiusFirstLast="first:rounded-t-3xl last:rounded-b-3xl"
               selectedItem={categoryFilter.id}
             />
           </Menu.Button>
