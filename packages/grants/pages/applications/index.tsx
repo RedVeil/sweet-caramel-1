@@ -77,8 +77,8 @@ const BeneficiaryApplications = () => {
   };
 
   return (
-    <>
-      <section className="flex justify-between mt-4 px-6 lg:px-8">
+    <div className="px-6 lg:px-8">
+      <section className="flex justify-between mt-4">
         <div>
           <h1 className="text-5xl lg:text-6xl text-black text-normal leading-[100%]">
             Beneficiary <br /> Applications
@@ -92,7 +92,7 @@ const BeneficiaryApplications = () => {
         </div>
       </section>
 
-      <section className="pt-12 lg:pt-20 px-6 lg:px-8">
+      <section className="pt-12 lg:pt-20">
         <div className="flex justify-between pb-10 relative items-center">
           {/* category filter */}
           <div className="relative w-1/2 pr-2">
@@ -155,7 +155,7 @@ const BeneficiaryApplications = () => {
           </div>
         </>
       </PopUpModal>
-    </>
+    </div>
   );
 };
 
