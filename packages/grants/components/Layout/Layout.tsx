@@ -5,7 +5,7 @@ import { FC, PropsWithChildren } from "react";
 export const Layout: FC<PropsWithChildren<any>> = ({ children }) => {
   return (
     <div className="font-khTeka mx-auto w-full">
-      <header className="h-[112px] flex items-center w-full px-6 lg:px-8">
+      <header className="h-[112px] px-6 lg:px-8">
         <Navigation />
       </header>
       <main>{children}</main>

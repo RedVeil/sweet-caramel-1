@@ -49,7 +49,7 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
       <div className="hidden md:block">
         <Menu>
           <Menu.Button className="bg-white rounded-4xl border border-[#E5E7EB]">
-            <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between">
+            <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between relative">
               <div className="flex items-center">
                 <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
                 <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">{categoryFilter.value}</p>

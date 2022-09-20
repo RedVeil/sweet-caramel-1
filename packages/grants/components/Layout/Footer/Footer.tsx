@@ -96,10 +96,10 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Site</p>
           <div className="flex flex-col">
-            <Link href={`/${router?.query?.network}/set/3x`}>
+            <Link href="/applications">
               <a className=" text-primary hover:text-black leading-6 mt-4">Beneficiary Applications</a>
             </Link>
-            <Link href={`/${router?.query?.network}/set/butter`}>
+            <Link href="/beneficiaries">
               <a className=" text-primary hover:text-black leading-6 mt-4">Eligible Beneficiaries</a>
             </Link>
           </div>

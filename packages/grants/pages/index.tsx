@@ -19,8 +19,6 @@ export enum filterValues {
   openSource = "Open Source",
 }
 
-const INITIAL_OFFSET = 9;
-
 const IndexPage = () => {
   const router = useRouter();
   const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
@@ -28,7 +26,6 @@ const IndexPage = () => {
   const { contracts } = useContext(ContractsContext);
   const [beneficiaries, setBeneficiaries] = useState<BeneficiaryApplication[]>([]);
   const [filteredBeneficiaries, setFilteredBeneficiaries] = useState<BeneficiaryApplication[]>([]);
-  const [offset, setOffset] = useState<number>(INITIAL_OFFSET);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.pathname !== "/") {
@@ -42,7 +39,7 @@ const IndexPage = () => {
         .getAllBeneficiaryApplications()
         .then((beneficiaries) => {
           setBeneficiaries(beneficiaries);
-          setFilteredBeneficiaries(beneficiaries.slice(0, offset));
+          setFilteredBeneficiaries(beneficiaries);
           setIsLoading(false);
         })
         .catch((err) => {
@@ -59,19 +56,8 @@ const IndexPage = () => {
       }
       return beneficiary?.proposalCategory?.toLowerCase() === categoryFilter.value.toLowerCase();
     });
-    setOffset(INITIAL_OFFSET);
-    setFilteredBeneficiaries(filteringBeneficiaries?.slice(0, INITIAL_OFFSET));
+    setFilteredBeneficiaries(filteringBeneficiaries);
   }, [categoryFilter]);
-
-  const switchFilter = (value: { id: string; value: string }) => {
-    setCategoryFilter(value);
-  };
-
-  const seeMore = () => {
-    const newOffset = offset + INITIAL_OFFSET;
-    setOffset(newOffset);
-    setFilteredBeneficiaries(beneficiaries.slice(0, newOffset));
-  };
 
   return (
     <>
@@ -156,19 +142,14 @@ const IndexPage = () => {
           </div>
         </section>
 
-        <section>
-          <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10">
+        <section className="relative">
+          <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10 relative">
             <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%] mb-4 md:mb-0">
               Eligible Beneficiaries At A Glance
             </h1>
-            <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={switchFilter} />
+            <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
           </div>
-          <BeneficiaryGrid
-            isLoading={isLoading}
-            beneficiaries={filteredBeneficiaries}
-            offset={offset}
-            seeMore={seeMore}
-          />
+          <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />
         </section>
       </div>
     </>
