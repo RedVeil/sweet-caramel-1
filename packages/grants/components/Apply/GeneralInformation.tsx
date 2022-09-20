@@ -58,6 +58,7 @@ const GeneralInformation = ({
     if (!formData.proposalCategory) {
       updateSelectInput(filterValues.environment);
     }
+    console.log("test deployment");
   }, []);
 
   return (
