@@ -14,7 +14,7 @@ const Button: React.FC<ButtonProps> = ({ variant, children, className, onClick, 
       case "primary":
         if (disabled)
           return "bg-customLightGray border-customLightGray text-secondaryLight hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
-        return "bg-warmGray border-ctaYellow text-black hover:bg-primary hover:border-primary hover:text-white active:bg-white active:border-primary active:text-primary";
+        return "bg-warmGray border-warmGray text-black hover:bg-primary hover:border-primary hover:text-white active:bg-white active:border-primary active:text-primary";
       case "secondary":
         if (disabled)
           return "bg-customLightGray border-customLightGray text-secondaryLight hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";

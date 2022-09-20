@@ -19,7 +19,7 @@ const ProofsForm = ({
     });
   };
   return (
-    <div className=" rounded-lg px-6 py-10 md:p-10 mt-10 md:mt-20 border border-customLightGray">
+    <>
       <h6 className="text-2xl md:text-3xl">Proof of Ownership</h6>
 
       <form className="mt-6 md:mt-14">
@@ -42,7 +42,7 @@ const ProofsForm = ({
           />
         </div>
       </form>
-    </div>
+    </>
   );
 };
 
