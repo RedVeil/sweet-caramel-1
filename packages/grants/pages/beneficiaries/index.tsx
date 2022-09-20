@@ -1,23 +1,41 @@
-import { Menu } from "@headlessui/react";
-import { ViewGridIcon } from "@heroicons/react/outline";
-import { ChevronDownIcon } from "@heroicons/react/solid";
-import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
-import { filterValues } from "pages";
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
+import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
 import Image from "next/image";
+import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
+import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
+import { IpfsClient } from "@popcorn/utils";
+import { ContractsContext } from "context/Web3/contracts";
 
-const filterList = [
-  filterValues.all,
-  filterValues.education,
-  filterValues.inequality,
-  filterValues.openSource,
-];
 
 export default function BeneficiaryIndexPage(): JSX.Element {
-  const [categoryFilter, setCategoryFilter] = useState<string>(filterValues.all);
-  const switchFilter = (value: string) => {
-    setCategoryFilter(value);
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { contracts } = useContext(ContractsContext);
+  const [beneficiaries, setBeneficiaries] = useState<BeneficiaryApplication[]>([]);
+  const [filteredBeneficiaries, setFilteredBeneficiaries] = useState<BeneficiaryApplication[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
+
+  useEffect(() => {
+    if (contracts?.beneficiaryRegistry) {
+      setIsLoading(true);
+      BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient)
+        .getAllBeneficiaryApplications()
+        .then((beneficiaries) => {
+          setBeneficiaries(beneficiaries)
+          setFilteredBeneficiaries(beneficiaries)
+        }).finally(() => setIsLoading(false));
+    }
+  }, [contracts]);
+
+  useEffect(() => {
+    const filteringBeneficiaries = beneficiaries?.filter((beneficiary: BeneficiaryApplication) => {
+      if (categoryFilter.value === "All") {
+        return beneficiary;
+      }
+      return beneficiary?.proposalCategory?.toLowerCase() === categoryFilter.value.toLowerCase();
+    });
+    setFilteredBeneficiaries(filteringBeneficiaries);
+  }, [categoryFilter]);
+
 
   return (
     <div className="px-6 lg:px-8">
@@ -34,37 +52,19 @@ export default function BeneficiaryIndexPage(): JSX.Element {
           <Image src="/images/beneficiaryApplicationsHero.png" alt="smiley" height="360" width="640" />
         </div>
       </section>
-      <section className="container mx-auto">
-        <div className="px-5 pt-32 pb-10 md:px-10">
-          <h1 className="text-center md:text-left text-gray-900 font-semibold text-3xl md:text-5xl mb-2">
-            Eligible Beneficiaries
-          </h1>
-          <p className=" text-center md:text-left text-lg md:text-2xl text-gray-900">
-            Explore and learn more about our Eligible Beneficiaries.
-          </p>
-
-          <div className="flex justify-center md:justify-start relative pt-32">
-            <Menu>
-              <Menu.Button className="bg-white rounded-3xl shadow-custom-lg">
-                <div className="w-32 md:w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between rounded-3xxl">
-                  <div className="flex items-center">
-                    <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
-                    <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">{categoryFilter}</p>
-                  </div>
-                  <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
-                </div>
-                <BeneficiaryOptions
-                  options={filterList}
-                  switchFilter={switchFilter}
-                  position="absolute top-36 left-1/2 transform -translate-x-1/2 md:left-0 md:translate-x-0 z-40"
-                  width="w-44"
-                  selectedItem={categoryFilter}
-                />
-              </Menu.Button>
-            </Menu>
+      <section>
+        <div className="flex flex-col md:flex-row justify-between relative md:mb-10">
+          <div className="relative my-10 md:my-0">
+            <BeneficiaryFilter
+              categoryFilter={categoryFilter}
+              switchFilter={setCategoryFilter}
+            />
           </div>
-          {/* <BeneficiaryPage categoryFilter={categoryFilter} /> */}
         </div>
+        <BeneficiaryGrid
+          isLoading={isLoading}
+          data={filteredBeneficiaries}
+        />
       </section>
     </div>
   );

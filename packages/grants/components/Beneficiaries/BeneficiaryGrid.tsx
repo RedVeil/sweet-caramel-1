@@ -1,18 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import CardBody from 'components/CommonComponents/CardBody';
 import { CardLoader } from 'components/CommonComponents/CardLoader';
 import NotFoundError from 'components/CommonComponents/NotFoundError';
 import Link from 'next/link';
 import Button from 'components/CommonComponents/Button';
+
+const INITIAL_OFFSET = 9;
+
 interface IBeneficiaryGridProps {
   isLoading: boolean;
-  beneficiaries: any[];
+  data: any[];
   isApplication?: boolean;
-  offset: number;
-  seeMore: () => void;
 }
 
-export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = ({ isLoading, beneficiaries, isApplication, offset, seeMore }) => {
+export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
+  const { isLoading, data, isApplication } = props
+  const [offset, setOffset] = useState<number>(INITIAL_OFFSET);
+
+  const seeMore = () => {
+    const newOffset = offset + INITIAL_OFFSET;
+    setOffset(newOffset);
+  };
+
   return (
     <>
       <div className="grid grid-cols-12 gap-x-0 gap-y-10 md:gap-x-10">
@@ -22,7 +31,7 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = ({ isLoading, be
               <CardLoader key={i} />
             </div>
           ))}
-        {!isLoading && beneficiaries.length <= 0 ? (
+        {!isLoading && data.length <= 0 ? (
           <div className="col-span-12">
             <NotFoundError
               image="/images/emptyBeneficiariesState.svg"
@@ -42,8 +51,8 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = ({ isLoading, be
             </NotFoundError>
           </div>
         ) : (
-          beneficiaries.map((beneficiary) => (
-            <div className="col-span-12 md:col-span-6 lg:col-span-4" key={beneficiary.id}>
+          data?.slice(0, offset)?.map((beneficiary, index) => (
+            <div className="col-span-12 md:col-span-6 lg:col-span-4" key={index}>
               {isApplication ? (
                 <Link passHref href={`/applications/${beneficiary.id}`}>
                   <a>
@@ -68,12 +77,12 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = ({ isLoading, be
           ))
         )}
       </div>
-      {beneficiaries?.length > 0 && (
+      {data?.length > 0 && (
         <div className="flex justify-center mt-12 lg:mt-20">
           <Button
             variant="secondary"
             onClick={seeMore}
-            disabled={beneficiaries.length <= offset}
+            disabled={data.length <= offset}
           >
             See more
           </Button>

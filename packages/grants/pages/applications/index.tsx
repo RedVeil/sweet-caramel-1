@@ -10,12 +10,7 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const INITIAL_OFFSET = 9;
-
 const BeneficiaryApplications = () => {
-  const switchFilter = (value: { id: string; value: string }) => {
-    setCategoryFilter(value);
-  };
   const applicationTypes = [
     { label: "All", status: ProposalStatus.All },
     { label: "Open Vote", status: ProposalStatus.Open },
@@ -27,19 +22,17 @@ const BeneficiaryApplications = () => {
   const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
   const [statusFilter, setStatusFilter] = useState(applicationTypes[0]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [offset, setOffset] = useState<number>(INITIAL_OFFSET);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [openMobileFilter, setOpenMobileFilter] = useState<boolean>(false);
 
   useEffect(() => {
     if (contracts?.beneficiaryGovernance) {
-      setIsLoading(true);
       new BeneficiaryGovernanceAdapter(contracts?.beneficiaryGovernance, IpfsClient)
         .getAllProposals(ProposalType.Nomination)
         .then((res) => {
           const sortedProposals = res.sort(sortProposals);
           setProposals(sortedProposals);
-          setFilteredProposals(sortedProposals.slice(0, offset));
+          setFilteredProposals(sortedProposals)
           setIsLoading(false);
         })
         .catch((err) => {
@@ -49,6 +42,7 @@ const BeneficiaryApplications = () => {
     }
   }, [contracts]);
 
+  // rewrite this in a cleaner way
   useEffect(() => {
     const filteringProposals = proposals
       ?.filter((proposal: Proposal) => {
@@ -70,12 +64,6 @@ const BeneficiaryApplications = () => {
   const sortProposals = (currentDate: { stageDeadline: Date }, nextDate: { stageDeadline: Date }) =>
     nextDate.stageDeadline.getTime() - currentDate.stageDeadline.getTime();
 
-  const seeMore = () => {
-    let newOffset = offset + 9;
-    setOffset(newOffset);
-    setFilteredProposals(proposals.slice(0, newOffset));
-  };
-
   return (
     <div className="px-6 lg:px-8">
       <section className="flex justify-between mt-4">
@@ -92,11 +80,17 @@ const BeneficiaryApplications = () => {
         </div>
       </section>
 
-      <section className="pt-12 lg:pt-20">
-        <div className="flex justify-between pb-10 relative items-center">
+      <section className="pt-12 lg:pt-20 relative">
+        <div className="flex justify-between pb-10 items-center relative">
           {/* category filter */}
-          <div className="relative w-1/2 pr-2">
-            <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={switchFilter} isApplication />
+          <div className="w-1/2 pr-2">
+            <div className="block relative md:absolute top-0">
+              <BeneficiaryFilter
+                categoryFilter={categoryFilter}
+                switchFilter={setCategoryFilter}
+                isApplication
+              />
+            </div>
           </div>
 
           {/* status filter */}
@@ -127,10 +121,8 @@ const BeneficiaryApplications = () => {
         </div>
         <BeneficiaryGrid
           isLoading={isLoading}
-          beneficiaries={filteredProposals}
+          data={filteredProposals}
           isApplication
-          offset={offset}
-          seeMore={seeMore}
         />
       </section>
 

@@ -51,15 +51,13 @@ const CardBody: React.FC<CardBodyProps> = ({
   return (
     <div className="bg-white rounded-lg transition duration-500 ease-in-out transform hover:scale-102 border border-customLightGray">
       <div className="relative">
-        <div className="w-full h-[200px]">
+        <div className="w-full h-[200px] relative">
           <Image
             className="rounded-t-lg relative"
             src={`${process.env.IPFS_URL}${image?.image}`}
             alt={image?.description}
             objectFit="cover"
             objectPosition="top"
-            height="200"
-            width="100%"
             layout="fill"
           />
         </div>
