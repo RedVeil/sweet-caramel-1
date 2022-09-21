@@ -130,7 +130,7 @@ export default task(
 
         const tx = await rewardsDistributionContract
           .connect(signer)
-          .distributeRewards(periodTotalRewards, { gasLimit: 1000000 });
+          .distributeRewards(periodTotalRewards);
         const receipt = await tx.wait(2);
         console.log({ receipt });
       } else {
