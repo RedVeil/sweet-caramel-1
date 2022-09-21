@@ -191,3 +191,10 @@ p {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
+
+.slick-slide > div {
+  margin: 0 10px;
+}
+.slick-list {
+  margin: 0 -10px;
+}

@@ -81,44 +81,46 @@ const BeneficiaryApplications = () => {
       </section>
 
       <section className="pt-12 lg:pt-20 relative">
-        <div className="flex justify-between pb-10 items-center relative">
-          {/* category filter */}
-          <div className="w-1/2 pr-2">
-            <div className="block relative md:absolute top-0">
-              <BeneficiaryFilter
-                categoryFilter={categoryFilter}
-                switchFilter={setCategoryFilter}
-                isApplication
-              />
+        {proposals.length > 0 && (
+          <div className="flex justify-between pb-10 items-center relative">
+            {/* category filter */}
+            <div className="w-1/2 lg:w-auto pr-2">
+              <div className="block relative md:absolute top-0">
+                <BeneficiaryFilter
+                  categoryFilter={categoryFilter}
+                  switchFilter={setCategoryFilter}
+                  isApplication
+                />
+              </div>
             </div>
-          </div>
 
-          {/* status filter */}
-          <div className="w-1/2 lg:w-auto pl-2 lg:pl-0">
-            <div className="hidden md:flex space-x-4">
-              {applicationTypes.map((type) => (
+            {/* status filter */}
+            <div className="w-1/2 lg:w-auto pl-2 lg:pl-0">
+              <div className="hidden md:flex space-x-4">
+                {applicationTypes.map((type) => (
+                  <Button
+                    key={type.status}
+                    variant={type.status === statusFilter.status ? "primary" : "secondary"}
+                    onClick={() => setStatusFilter(type)}
+                    className={`flex-shrink-0 ${type.status === statusFilter.status ? "!border-0 !bg-primary !text-white" : "!border-[#E5E7EB] text-[#55503D] !font-normal"}`}
+                  >
+                    {type.label}
+                  </Button>
+                ))}
+              </div>
+              <div className="block md:hidden">
                 <Button
-                  key={type.status}
-                  variant={type.status === statusFilter.status ? "primary" : "secondary"}
-                  onClick={() => setStatusFilter(type)}
-                  className="!border-[#E5E7EB]"
+                  variant="primary"
+                  onClick={() => setOpenMobileFilter(true)}
+                  className="w-full !text-base !items-center"
                 >
-                  {type.label}
+                  <FilterIcon className="h-5 w-5" />
+                  {statusFilter.label === "Challenge Period" ? "Challenge" : statusFilter.label}
                 </Button>
-              ))}
-            </div>
-            <div className="block md:hidden">
-              <Button
-                variant="primary"
-                onClick={() => setOpenMobileFilter(true)}
-                className="w-full !text-base !items-center"
-              >
-                <FilterIcon className="h-5 w-5" />
-                {statusFilter.label === "Challenge Period" ? "Challenge" : statusFilter.label}
-              </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
         <BeneficiaryGrid
           isLoading={isLoading}
           data={filteredProposals}

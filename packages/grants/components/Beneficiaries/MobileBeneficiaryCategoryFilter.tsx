@@ -1,44 +1,44 @@
 import React from "react";
-import WheelPicker, { PickerData } from "react-simple-wheel-picker";
 import PopUpModal from "../Modal/PopUpModal";
+import { List, ListItem } from "../CommonComponents/ScrollableSelect";
+
+interface Category {
+  id: string;
+  value: string;
+}
 
 interface Props {
-  categories: PickerData[];
+  categories: Category[];
   visible: boolean;
   onClose: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedItem: PickerData;
-  switchFilter: (item: PickerData) => void;
+  selectedItem: Category;
+  switchFilter: (item: Category) => void;
 }
 
 export const MobileBeneficiaryCategoryFilter: React.FC<Props> = (props) => {
   const { categories, visible, onClose, selectedItem, switchFilter } = props;
-  const [selectedCategory, setSelectedCategory] = React.useState<PickerData>(selectedItem);
 
-  const handleOnChange = (value: PickerData) => {
-    setSelectedCategory(value);
+  const handleOnChange = (value: Category) => {
+    switchFilter(value);
+    onClose(false);
   };
 
   return (
-    <PopUpModal visible={visible} onClosePopUpModal={() => {
-      switchFilter(selectedCategory);
-      onClose(false);
-    }}>
+    <PopUpModal visible={visible} onClosePopUpModal={() => onClose(false)}>
       {selectedItem.id && (
         <>
           <p className=" text-black mb-3">Categories</p>
-          <div className="wheelPicker">
-            <WheelPicker
-              data={categories}
-              onChange={(newValue: PickerData) => handleOnChange(newValue)}
-              height={200}
-              titleText="Enter value same as aria-label"
-              itemHeight={30}
-              selectedID={selectedItem.id}
-              color="#e5e7eb"
-              activeColor="#111827"
-              backgroundColor="#fff"
-            />
-          </div>
+          <List selected={selectedItem.id}>
+            {categories.map((category) => (
+              <ListItem
+                key={category.id}
+                value={category.id}
+                onClick={() => handleOnChange(category)}
+              >
+                {category.value}
+              </ListItem>
+            ))}
+          </List>
         </>
       )}
     </PopUpModal>

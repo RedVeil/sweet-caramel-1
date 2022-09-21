@@ -1,69 +1,20 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Web3Provider } from "@ethersproject/providers";
-import { DocumentAddIcon } from "@heroicons/react/outline";
-import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
-import { connectors } from "context/Web3/connectors";
-import PopUpModal from "components/Modal/PopUpModal";
+import { DocumentAddIcon, ChevronLeftIcon } from "@heroicons/react/outline";
 import { DiscordIcon, MediumIcon, RedditIcon, TelegramIcon, TwitterIcon, YoutubeIcon } from "components/Svgs";
-import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useRef, useState } from "react";
-import WheelPicker, { PickerData } from "react-simple-wheel-picker";
+import { Fragment, useEffect, useState } from "react";
 import Button from "components/CommonComponents/Button";
 import Link from "next/link";
 import NavbarLink from "./NavbarLink";
-import { ChevronLeftIcon } from "@heroicons/react/outline";
-
-
-const networkData = [
-  {
-    id: JSON.stringify(ChainId.Ethereum),
-    value: networkMap[ChainId.Ethereum],
-  },
-  {
-    id: JSON.stringify(ChainId.Arbitrum),
-    value: networkMap[ChainId.Arbitrum],
-  },
-  {
-    id: JSON.stringify(ChainId.BNB),
-    value: networkMap[ChainId.BNB],
-  },
-  {
-    id: JSON.stringify(ChainId.Rinkeby),
-    value: networkMap[ChainId.Rinkeby],
-  },
-  {
-    id: JSON.stringify(ChainId.Localhost),
-    value: networkMap[ChainId.Localhost],
-  },
-  {
-    id: JSON.stringify(ChainId.Polygon),
-    value: networkMap[ChainId.Polygon],
-  },
-];
 
 export const MobileMenu: React.FC = () => {
-  const context = useWeb3React<Web3Provider>();
   const router = useRouter();
-  const { account, deactivate, activate } = context;
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [showVoteMenu, setShowVoteMenu] = useState<boolean>(false);
-  const [showPopUp, setShowPopUp] = useState<boolean>(false);
-
-  const selectedNetwork = useRef(parseInt(networkData[0].id));
 
   useEffect(() => {
     toggleMenu(false);
   }, [router?.pathname]);
-
-  const handleOnChange = (newChainId: PickerData) => {
-    selectedNetwork.current = parseInt(newChainId.id);
-  };
-
-  const closePopUp = () => {
-    // setChain(selectedNetwork?.current);
-    setShowPopUp(false);
-  };
 
   return (
     <>
@@ -78,18 +29,6 @@ export const MobileMenu: React.FC = () => {
         <div className="flex items-center space-x-6">
           {!menuVisible && (
             <>
-              <div className="relative w-full hidden">
-                <button
-                  className={`w-full px-4 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-4xl cursor-pointer relative space-x-2`}
-                  onClick={() => setShowPopUp(true)}
-                >
-                  {/* <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-3 h-3 object-contain" /> */}
-                  <span
-                    className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                      } block h-2 w-2 rounded-full border`}
-                  ></span>
-                </button>
-              </div>
               <Link href="/apply" passHref>
                 <button className="bg-transparent border-primary text-primary rounded-4xl text-base flex flex-row items-center justify-center font-medium px-5 py-1.5 border transition-all ease-in-out duration-500">
                   <DocumentAddIcon className="text-primary w-5 h-5" />
@@ -213,46 +152,6 @@ export const MobileMenu: React.FC = () => {
           </div>
         </Dialog>
       </Transition.Root>
-
-
-      {/* connect wallet and switch network */}
-      <PopUpModal visible={showPopUp} onClosePopUpModal={closePopUp}>
-        <div>
-          <p className=" text-black  mb-3">Connect to Wallet</p>
-          {!account ? (
-            <Button
-              variant="primary"
-              className="w-full"
-              onClick={() => activate(connectors.Injected)}
-            >
-              Connect Wallet
-            </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              className="w-full"
-              onClick={() => deactivate()}
-            >
-              Disconnect
-            </Button>
-          )}
-          <hr className="my-6" />
-          <p className=" text-black mb-3">Select Network</p>
-          <div className="wheelPicker">
-            <WheelPicker
-              data={networkData}
-              onChange={handleOnChange}
-              height={200}
-              titleText="Enter value same as aria-label"
-              itemHeight={30}
-              selectedID={JSON.stringify(selectedNetwork.current)}
-              color="#e5e7eb"
-              activeColor="#111827"
-              backgroundColor="#fff"
-            />
-          </div>
-        </div>
-      </PopUpModal>
 
       <Transition.Root show={showVoteMenu} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 overflow-hidden" onClose={() => toggleMenu(false)}>

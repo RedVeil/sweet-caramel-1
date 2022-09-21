@@ -48,24 +48,22 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
     <div className="relative">
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map((step, index) => (
-          <div key={index}>
-            <div className=" bg-customPink rounded-lg p-8 flex flex-col justify-between text-black">
-              <h6 className="text-base text-black">Learn how it works</h6>
+          <div className=" bg-customPink rounded-lg p-8 !flex flex-col justify-between text-black h-[280px]" key={index}>
+            <h6 className="text-base text-black">Learn how it works</h6>
 
-              <div className="py-6 text-black">
-                <h3 className="font-medium text-2xl mb-2 leading-[110%]">{step.title}</h3>
-                <p className="leading-[140%]">{step.content}</p>
-              </div>
+            <div className="text-black">
+              <h3 className="font-medium text-2xl mb-2 leading-[110%]">{step.title}</h3>
+              <p className="leading-[140%]">{step.content}</p>
+            </div>
 
-              <div className="flex justify-end pt-6 space-x-4">
-                {tutorialSteps.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-3 w-3 transition-all`}
-                    onClick={() => gotoSlide(index)}
-                  ></div>
-                ))}
-              </div>
+            <div className="flex justify-end space-x-4">
+              {tutorialSteps.map((_, index) => (
+                <div
+                  key={index}
+                  className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-3 w-3 transition-all`}
+                  onClick={() => gotoSlide(index)}
+                ></div>
+              ))}
             </div>
           </div>
         ))}

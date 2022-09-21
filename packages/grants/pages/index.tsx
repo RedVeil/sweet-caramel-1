@@ -132,9 +132,9 @@ const IndexPage = () => {
               </div>
             </div>
 
-            <Link href="/rewards" passHref>
+            <Link href="/applications" passHref>
               <a target="_blank">
-                <div className="border-t border-customLightGray pt-2 px-1">
+                <div className="border-t border-customLightGray pt-2">
                   <SecondaryActionButton label="Participate Now" />
                 </div>
               </a>
@@ -143,14 +143,16 @@ const IndexPage = () => {
         </section>
 
         <section className="relative">
-          <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10 relative">
+          <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10">
             <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%] mb-4 md:mb-0">
               Eligible Beneficiaries At A Glance
             </h1>
-            <BeneficiaryFilter
-              categoryFilter={categoryFilter}
-              switchFilter={setCategoryFilter}
-            />
+            {beneficiaries.length > 0 && (
+              <BeneficiaryFilter
+                categoryFilter={categoryFilter}
+                switchFilter={setCategoryFilter}
+              />
+            )}
           </div>
           <BeneficiaryGrid
             isLoading={isLoading}
