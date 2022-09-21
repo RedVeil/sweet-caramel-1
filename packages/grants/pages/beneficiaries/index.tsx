@@ -53,11 +53,13 @@ export default function BeneficiaryIndexPage(): JSX.Element {
         </div>
       </section>
       <section>
-        <div className="flex flex-col md:flex-row justify-between relative md:mb-10">
-          <div className="relative my-10 md:my-0">
-            <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
+        {beneficiaries.length > 0 && (
+          <div className="flex flex-col md:flex-row justify-between relative md:mb-10">
+            <div className="relative my-10 md:my-0">
+              <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
+            </div>
           </div>
-        </div>
+        )}
         <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />
       </section>
     </div>
