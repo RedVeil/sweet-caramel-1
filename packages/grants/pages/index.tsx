@@ -22,7 +22,7 @@ export enum filterValues {
 const IndexPage = () => {
   const router = useRouter();
   const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { contracts } = useContext(ContractsContext);
   const [beneficiaries, setBeneficiaries] = useState<BeneficiaryApplication[]>([]);
   const [filteredBeneficiaries, setFilteredBeneficiaries] = useState<BeneficiaryApplication[]>([]);
@@ -35,6 +35,7 @@ const IndexPage = () => {
 
   useEffect(() => {
     if (contracts?.beneficiaryRegistry) {
+      setIsLoading(true);
       BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient)
         .getAllBeneficiaryApplications()
         .then((beneficiaries) => {
@@ -46,7 +47,6 @@ const IndexPage = () => {
           setIsLoading(false);
         });
     }
-    setIsLoading(false);
   }, [contracts]);
 
   useEffect(() => {

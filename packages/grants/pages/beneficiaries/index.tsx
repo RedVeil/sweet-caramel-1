@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
 export default function BeneficiaryIndexPage(): JSX.Element {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { contracts } = useContext(ContractsContext);
   const [beneficiaries, setBeneficiaries] = useState<BeneficiaryApplication[]>([]);
   const [filteredBeneficiaries, setFilteredBeneficiaries] = useState<BeneficiaryApplication[]>([]);
@@ -24,7 +24,6 @@ export default function BeneficiaryIndexPage(): JSX.Element {
         })
         .finally(() => setIsLoading(false));
     }
-    setIsLoading(false);
   }, [contracts]);
 
   useEffect(() => {

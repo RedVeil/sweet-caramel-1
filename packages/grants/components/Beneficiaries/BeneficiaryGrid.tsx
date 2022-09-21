@@ -27,7 +27,7 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
       <div className="grid grid-cols-12 gap-x-0 gap-y-10 md:gap-x-10">
         {isLoading &&
           [1, 2, 3].map((i) => (
-            <div className="col-span-12 md:col-span-6 lg:col-span-4" key={i}>
+            <div className="col-span-12 md:col-span-6 lg:col-span-4 mt-4" key={i}>
               <CardLoader key={i} />
             </div>
           ))}

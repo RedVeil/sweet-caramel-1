@@ -22,11 +22,12 @@ const BeneficiaryApplications = () => {
   const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
   const [statusFilter, setStatusFilter] = useState(applicationTypes[0]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [openMobileFilter, setOpenMobileFilter] = useState<boolean>(false);
 
   useEffect(() => {
     if (contracts?.beneficiaryGovernance) {
+      setIsLoading(true)
       new BeneficiaryGovernanceAdapter(contracts?.beneficiaryGovernance, IpfsClient)
         .getAllProposals(ProposalType.Nomination)
         .then((res) => {
@@ -40,7 +41,6 @@ const BeneficiaryApplications = () => {
           setIsLoading(false);
         });
     }
-    setIsLoading(false);
   }, [contracts]);
 
   useEffect(() => {
