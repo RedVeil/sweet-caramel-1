@@ -5,7 +5,7 @@ import NotFoundError from "components/CommonComponents/NotFoundError";
 import Link from "next/link";
 import React, { useState } from "react";
 
-const INITIAL_OFFSET = 9;
+const INITIAL_OFFSET = 12;
 
 interface IBeneficiaryGridProps {
   isLoading: boolean;
@@ -77,10 +77,10 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
           ))
         )}
       </div>
-      {data?.length > 0 && (
+      {data?.length > offset && (
         <div className="flex justify-center mt-12 lg:mt-20">
-          <Button variant="secondary" onClick={seeMore} disabled={data.length <= offset}>
-            See more
+          <Button variant="secondary" onClick={seeMore} disabled={data.length <= offset} className="w-full lg:w-auto">
+            Load more
           </Button>
         </div>
       )}
