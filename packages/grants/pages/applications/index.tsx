@@ -82,7 +82,7 @@ const BeneficiaryApplications = () => {
 
       <section className="pt-12 lg:pt-20 relative">
         {proposals.length > 0 && (
-          <div className="flex justify-between pb-10 items-center relative">
+          <div className="flex justify-between pb-12 lg:pb-10 items-center relative">
             {/* category filter */}
             <div className="w-1/2 lg:w-auto pr-2">
               <div className="block relative md:absolute top-0">
@@ -102,7 +102,7 @@ const BeneficiaryApplications = () => {
                     key={type.status}
                     variant={type.status === statusFilter.status ? "primary" : "secondary"}
                     onClick={() => setStatusFilter(type)}
-                    className={`flex-shrink-0 ${type.status === statusFilter.status ? "!border-0 !bg-primary !text-white" : "!border-[#E5E7EB] text-[#55503D] !font-normal"}`}
+                    className={`flex-shrink-0 ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : "!border-[#E5E7EB] text-[#55503D] !font-normal"}`}
                   >
                     {type.label}
                   </Button>
@@ -112,7 +112,7 @@ const BeneficiaryApplications = () => {
                 <Button
                   variant="primary"
                   onClick={() => setOpenMobileFilter(true)}
-                  className="w-full !text-base !items-center"
+                  className="w-full !text-base !items-center !bg-[#827D69] !text-white"
                 >
                   <FilterIcon className="h-5 w-5" />
                   {statusFilter.label === "Challenge Period" ? "Challenge" : statusFilter.label}
@@ -135,12 +135,12 @@ const BeneficiaryApplications = () => {
             {applicationTypes.map((type) => (
               <div className="col-span-3" key={type.status}>
                 <Button
-                  variant={type.status === statusFilter.status ? "primary" : "secondary"}
+                  variant={type.status === statusFilter.status ? "primary !bg-[#827D69]" : "secondary"}
                   onClick={() => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
-                  className="!border-[#E5E7EB] !text-sm w-full"
+                  className={`!border-[#E5E7EB] !text-sm w-full ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""}`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>

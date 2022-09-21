@@ -51,10 +51,10 @@ export default function BeneficiaryIndexPage(): JSX.Element {
           <Image src="/images/beneficiaryApplicationsHero.png" alt="smiley" height="360" width="640" />
         </div>
       </section>
-      <section>
+      <section className="mt-12 lg:mt-20">
         {beneficiaries.length > 0 && (
-          <div className="flex flex-col md:flex-row justify-between relative md:mb-10">
-            <div className="relative my-10 md:my-0">
+          <div className="flex flex-col md:flex-row justify-between relative pb-12 lg:pb-10">
+            <div className="relative">
               <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
             </div>
           </div>
