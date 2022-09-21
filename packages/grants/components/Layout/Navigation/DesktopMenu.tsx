@@ -45,11 +45,17 @@ const DesktopMenu = () => {
               switchFilter={switchFilter}
               position="absolute top-10 left-1/2 transform -translate-x-1/2 z-20"
               width="w-60"
+              borderRadius="rounded-3xl"
+              borderRadiusFirstLast="first:rounded-t-4xl last:rounded-b-3xl"
               selectedItem={selectedFilter}
             />
           </Menu.Button>
         </Menu>
-        <NavbarLink label="Eligible Beneficiaries" url="/beneficiaries" isActive={router.pathname === "/beneficiaries"} />
+        <NavbarLink
+          label="Eligible Beneficiaries"
+          url="/beneficiaries"
+          isActive={router.pathname === "/beneficiaries"}
+        />
         <Link href="/apply" passHref>
           <a>
             <Button variant="secondary" className="md:w-44 py-3 px-0">

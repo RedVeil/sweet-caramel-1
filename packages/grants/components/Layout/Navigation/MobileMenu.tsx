@@ -90,7 +90,7 @@ export const MobileMenu: React.FC = () => {
                         />
                       </div>
                       <div className="py-6">
-                        <Button variant="secondary" className="w-full" onClick={() => router.push('/apply')}>
+                        <Button variant="secondary" className="w-full" onClick={() => router.push("/apply")}>
                           Create Proposal
                         </Button>
                       </div>
@@ -172,17 +172,18 @@ export const MobileMenu: React.FC = () => {
                   <div className="h-screen px-6 py-12">
                     <div className="relative flex items-center justify-center" style={{ height: "5%" }}>
                       <button className="absolute -left-3 transform -translate-y-1/2 top-1/2">
-                        <ChevronLeftIcon
-                          className="text-black h-10"
-                          onClick={() => setShowVoteMenu(false)}
-                        />
+                        <ChevronLeftIcon className="text-black h-10" onClick={() => setShowVoteMenu(false)} />
                       </button>
                       <p className="text-black text-center font-medium">Vote Now</p>
                       <div />
                     </div>
                     <ul className="flex flex-col gap-10 justify-center" style={{ height: "95%" }}>
                       <li className="mt-1" onClick={() => setShowVoteMenu(false)}>
-                        <NavbarLink label="Beneficiary Applications" url="/applications" isActive={router.pathname === `/applications`} />
+                        <NavbarLink
+                          label="Beneficiary Applications"
+                          url="/applications"
+                          isActive={router.pathname === `/applications`}
+                        />
                       </li>
                     </ul>
                   </div>

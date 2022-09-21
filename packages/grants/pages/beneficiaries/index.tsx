@@ -1,11 +1,10 @@
-import { useState, useContext, useEffect } from "react";
 import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
-import Image from "next/image";
+import { IpfsClient } from "@popcorn/utils";
 import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
 import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
-import { IpfsClient } from "@popcorn/utils";
 import { ContractsContext } from "context/Web3/contracts";
-
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
 
 export default function BeneficiaryIndexPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -20,9 +19,10 @@ export default function BeneficiaryIndexPage(): JSX.Element {
       BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient)
         .getAllBeneficiaryApplications()
         .then((beneficiaries) => {
-          setBeneficiaries(beneficiaries)
-          setFilteredBeneficiaries(beneficiaries)
-        }).finally(() => setIsLoading(false));
+          setBeneficiaries(beneficiaries);
+          setFilteredBeneficiaries(beneficiaries);
+        })
+        .finally(() => setIsLoading(false));
     }
     setIsLoading(false);
   }, [contracts]);
@@ -36,7 +36,6 @@ export default function BeneficiaryIndexPage(): JSX.Element {
     });
     setFilteredBeneficiaries(filteringBeneficiaries);
   }, [categoryFilter]);
-
 
   return (
     <div className="px-6 lg:px-8">
@@ -56,16 +55,10 @@ export default function BeneficiaryIndexPage(): JSX.Element {
       <section>
         <div className="flex flex-col md:flex-row justify-between relative md:mb-10">
           <div className="relative my-10 md:my-0">
-            <BeneficiaryFilter
-              categoryFilter={categoryFilter}
-              switchFilter={setCategoryFilter}
-            />
+            <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
           </div>
         </div>
-        <BeneficiaryGrid
-          isLoading={isLoading}
-          data={filteredBeneficiaries}
-        />
+        <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />
       </section>
     </div>
   );

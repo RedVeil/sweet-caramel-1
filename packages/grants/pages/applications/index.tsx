@@ -32,7 +32,7 @@ const BeneficiaryApplications = () => {
         .then((res) => {
           const sortedProposals = res.sort(sortProposals);
           setProposals(sortedProposals);
-          setFilteredProposals(sortedProposals)
+          setFilteredProposals(sortedProposals);
           setIsLoading(false);
         })
         .catch((err) => {

@@ -2,9 +2,9 @@ import { BeneficiaryImage, ProposalStatus } from "@popcorn/hardhat/lib/adapters"
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import VotingProgress from "components/CommonComponents/VotingProgress";
 import { BigNumber } from "ethers";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { formatTimeUntilDeadline } from "../../utils/formatTimeUntilDeadline";
-import Image from "next/image";
 export interface CardBodyProps {
   image: BeneficiaryImage;
   organizationName: string;
@@ -46,7 +46,7 @@ const CardBody: React.FC<CardBodyProps> = ({
     return ProposalStatus[status];
   };
 
-  const isCompleted = (status: ProposalStatus) => formatStatus(status) === 'Completed'
+  const isCompleted = (status: ProposalStatus) => formatStatus(status) === "Completed";
 
   return (
     <div className="bg-white rounded-lg transition duration-500 ease-in-out transform hover:scale-102 border border-customLightGray">
@@ -70,8 +70,11 @@ const CardBody: React.FC<CardBodyProps> = ({
                 </div>
               )}
             </div>
-            <div className={`bg-white bg-opacity-90 rounded-4xl px-4 py-2 ${isCompleted(status) ? "text-white bg-secondaryLight" : "text-black bg-white"
-              }`}>
+            <div
+              className={`bg-white bg-opacity-90 rounded-4xl px-4 py-2 ${
+                isCompleted(status) ? "text-white bg-secondaryLight" : "text-black bg-white"
+              }`}
+            >
               {formatStatus(status)} {status == 0 ? "Vote" : status == 1 ? "Period" : ""}
             </div>
           </div>

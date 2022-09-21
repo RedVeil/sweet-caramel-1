@@ -20,6 +20,7 @@ interface IPFSUploadFuncProps {
   setLocalState: (
     input: string | string[] | UploadResult[] | ImpactReport[] | BeneficiaryImage[] | AdditionalImages[],
   ) => void;
+  children: JSX.Element | JSX.Element[];
 }
 
 const isValidFileSize = (file: File, maxFileSizeMB: number) => {

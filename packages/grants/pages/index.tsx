@@ -1,4 +1,3 @@
-import { useContext, useEffect, useState } from "react";
 import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
@@ -10,6 +9,7 @@ import { ContractsContext } from "context/Web3/contracts";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
 
 export enum filterValues {
   all = "All",
@@ -39,7 +39,7 @@ const IndexPage = () => {
         .getAllBeneficiaryApplications()
         .then((beneficiaries) => {
           setBeneficiaries(beneficiaries);
-          setFilteredBeneficiaries(beneficiaries)
+          setFilteredBeneficiaries(beneficiaries);
           setIsLoading(false);
         })
         .catch((err) => {
@@ -56,7 +56,7 @@ const IndexPage = () => {
       }
       return beneficiary?.proposalCategory?.toLowerCase() === categoryFilter.value.toLowerCase();
     });
-    setFilteredBeneficiaries(filteringBeneficiaries)
+    setFilteredBeneficiaries(filteringBeneficiaries);
   }, [categoryFilter]);
 
   return (
@@ -154,10 +154,7 @@ const IndexPage = () => {
               />
             )}
           </div>
-          <BeneficiaryGrid
-            isLoading={isLoading}
-            data={filteredBeneficiaries}
-          />
+          <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />
         </section>
       </div>
     </>

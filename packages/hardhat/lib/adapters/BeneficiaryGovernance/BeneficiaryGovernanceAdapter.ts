@@ -19,23 +19,21 @@ export interface BeneficiaryImage {
   image: string;
   description: string;
   hash?: string;
+  fileSize?: number;
 }
 
 export interface ImpactReport {
   fileName: string;
   reportCid: string;
   hash?: string;
+  fileSize?: number;
 }
 export interface AdditionalImages {
   fileName: string;
   hash: string;
   description: string;
   image?: string;
-}
-export interface AdditionalImages {
-  fileName: string;
-  hash: string;
-  description: string;
+  fileSize?: number;
 }
 export interface BeneficiaryApplication {
   organizationName: string;

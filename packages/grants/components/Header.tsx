@@ -45,6 +45,8 @@ const Header = () => {
               switchFilter={switchFilter}
               position="absolute top-10 left-1/2 transform -translate-x-1/2 z-20"
               width="w-60"
+              borderRadius="rounded-3xl"
+              borderRadiusFirstLast="first:rounded-t-4xl last:rounded-b-3xl"
               selectedItem={selectedFilter}
             />
           </Menu.Button>

@@ -129,14 +129,18 @@ const ApplyPage = () => {
             <div className="flex justify-center">
               {account ? (
                 <Link href="/apply/form">
-                  <a>
-                    <Button variant="secondary" className="py-3 px-5 mt-10">
+                  <a className="w-full md:w-auto">
+                    <Button variant="secondary" className="py-3 px-5 mt-10 w-full">
                       Start Your Application
                     </Button>
                   </a>
                 </Link>
               ) : (
-                <Button variant="secondary" className="py-3 px-5 mt-10" onClick={() => activate(connectors.Injected)}>
+                <Button
+                  variant="secondary"
+                  className="py-3 px-5 mt-10 w-full md:w-auto"
+                  onClick={() => activate(connectors.Injected)}
+                >
                   Connect Wallet
                 </Button>
               )}

@@ -15,7 +15,7 @@ interface Props {
   switchFilter: (item: Category) => void;
 }
 
-export const MobileBeneficiaryCategoryFilter: React.FC<Props> = (props) => {
+export const MobilePopupSelect: React.FC<Props> = (props) => {
   const { categories, visible, onClose, selectedItem, switchFilter } = props;
 
   const handleOnChange = (value: Category) => {
@@ -42,5 +42,5 @@ export const MobileBeneficiaryCategoryFilter: React.FC<Props> = (props) => {
         </>
       )}
     </PopUpModal>
-  )
-}
+  );
+};

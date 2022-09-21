@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
-import CardBody from 'components/CommonComponents/CardBody';
-import { CardLoader } from 'components/CommonComponents/CardLoader';
-import NotFoundError from 'components/CommonComponents/NotFoundError';
-import Link from 'next/link';
-import Button from 'components/CommonComponents/Button';
+import Button from "components/CommonComponents/Button";
+import CardBody from "components/CommonComponents/CardBody";
+import { CardLoader } from "components/CommonComponents/CardLoader";
+import NotFoundError from "components/CommonComponents/NotFoundError";
+import Link from "next/link";
+import React, { useState } from "react";
 
 const INITIAL_OFFSET = 9;
 
@@ -14,7 +14,7 @@ interface IBeneficiaryGridProps {
 }
 
 export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
-  const { isLoading, data, isApplication } = props
+  const { isLoading, data, isApplication } = props;
   const [offset, setOffset] = useState<number>(INITIAL_OFFSET);
 
   const seeMore = () => {
@@ -79,15 +79,11 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
       </div>
       {data?.length > 0 && (
         <div className="flex justify-center mt-12 lg:mt-20">
-          <Button
-            variant="secondary"
-            onClick={seeMore}
-            disabled={data.length <= offset}
-          >
+          <Button variant="secondary" onClick={seeMore} disabled={data.length <= offset}>
             See more
           </Button>
         </div>
       )}
     </>
-  )
-}
+  );
+};

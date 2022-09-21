@@ -2,7 +2,7 @@ import { TrashIcon } from "@heroicons/react/outline";
 import React from "react";
 interface VisualContentCardProps {
   fileName?: string;
-  size?: number;
+  fileSize?: number;
   description?: string;
   hash?: string;
   index: number;
@@ -14,7 +14,7 @@ const convertToKB = (bytes: number) => {
 };
 const VisualContentCard: React.FC<VisualContentCardProps> = ({
   fileName,
-  size,
+  fileSize,
   description,
   hash,
   removeImage,
@@ -40,11 +40,11 @@ const VisualContentCard: React.FC<VisualContentCardProps> = ({
         <div className="col-span-2">
           <p className=" text-black leading-5 w-full text-ellipsis whitespace-nowrap overflow-hidden">{fileName}</p>
         </div>
-        <div className="col-span-1 flex justify-end">
+        <div className="col-span-1 flex justify-end cursor-pointer">
           <TrashIcon className=" w-6 h-6 text-gray-400" onClick={removeImage} />
         </div>
       </div>
-      <p className="text-primaryDark leading-4 mb-5">{size ? `${convertToKB(size)}kb` : "-"}</p>
+      <p className="text-primaryDark leading-4 mb-5">{fileSize ? `${convertToKB(fileSize)}kb` : "-"}</p>
       <input
         type="text"
         name={`description-${hash}`}
