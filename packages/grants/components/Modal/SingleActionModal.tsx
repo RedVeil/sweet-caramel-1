@@ -64,10 +64,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
         dismiss();
       }
     };
-    window.addEventListener("keydown", () => {
-      console.log('clicking')
-      handleKeyDown()
-    });
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);

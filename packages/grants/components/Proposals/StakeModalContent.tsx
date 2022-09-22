@@ -123,7 +123,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           </ol>
         </div>
       </div>
-      <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={lockPop}>
+      <Button variant="tertiary" className="w-full py-2 mt-10" disabled={wait} onClick={lockPop}>
         Stake
       </Button>
     </div>
