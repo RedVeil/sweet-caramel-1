@@ -38,7 +38,6 @@ const mappingOfHardhatContractNamesToOurName = {
   GrantElections: "grantElections",
   RewardsManager: "rewardsManager",
   GovStaking: "govStaking",
-  ZeroXZapper: "zeroXZapper",
   Faucet: "faucet",
   VaultsV1Zapper: "vaultsV1Zapper",
   VaultsV1Controller: "vaultsV1Controller",
