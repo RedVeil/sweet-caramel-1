@@ -53,23 +53,26 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
     };
   }, [visible]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        dismiss();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
   const dismiss = () => {
     setOpen(keepOpen);
     setTimeout(onDismiss.onClick, 1000);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event?.key === "Escape") {
+        dismiss();
+      }
+    };
+    window.addEventListener("keydown", () => {
+      console.log('clicking')
+      handleKeyDown()
+    });
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   useClickOutside<MouseEvent>(modalRef, dismiss);
 

@@ -21,12 +21,12 @@ const useClickOutside = <E extends Event = Event>(
     };
 
     for (const eventName of events) {
-      document.addEventListener(eventName, handler);
+      window.addEventListener(eventName, handler);
     }
 
     return () => {
       for (const eventName of events) {
-        document.removeEventListener(eventName, handler);
+        window.removeEventListener(eventName, handler);
       }
     };
   }, [events, ref]);
