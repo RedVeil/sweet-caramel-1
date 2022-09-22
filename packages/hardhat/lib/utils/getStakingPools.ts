@@ -8,11 +8,12 @@ export type Pool = {
 };
 
 export async function getVaultStakingPools(chainId: number, addresses, deployments): Promise<Pool[]> {
-  const { crvSEth } = addresses;
+  const { crvSEth, usdt, crv3Crypto } = addresses;
   switch (chainId) {
     case 1:
       return [];
     case 1337:
+    case 31337:
       return [
         {
           poolName: "sEthSweetVaultStaking",
@@ -21,14 +22,18 @@ export async function getVaultStakingPools(chainId: number, addresses, deploymen
           inputToken: crvSEth,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
-      ];
-    case 31337:
-      return [
         {
-          poolName: "sEthSweetVaultStaking",
+          poolName: "usdtSweetVaultStaking",
           contract: "Staking",
-          vaultName: "sEthSweetVault",
-          inputToken: crvSEth,
+          vaultName: "usdtSweetVault",
+          inputToken: usdt,
+          rewardsToken: (await deployments.get("TestPOP")).address,
+        },
+        {
+          poolName: "crv3CryptoSweetVaultStaking",
+          contract: "Staking",
+          vaultName: "triCryptoSweetVault",
+          inputToken: crv3Crypto,
           rewardsToken: (await deployments.get("TestPOP")).address,
         },
       ];

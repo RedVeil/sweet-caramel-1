@@ -23,8 +23,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
         contract: "Faucet",
       });
-
-      await createDemoSweetVaults(hre, signer, addresses, vaultStakingPools[i]);
+      if (vaultStakingPools[i].vaultName === "sEthSweetVault") {
+        await createDemoSweetVaults(hre, signer, addresses, vaultStakingPools[i]);
+      }
     }
   }
 };
@@ -38,14 +39,15 @@ async function createDemoSweetVaults(hre: HardhatRuntimeEnvironment, signer, add
     const vault = await hre.ethers.getContractAt(
       "Vault",
       (
-        await hre.deployments.get("sEthSweetVault")
+        await hre.deployments.get(poolInfo.vaultName)
       ).address,
       signer
     );
     const underlyingToken = await hre.ethers.getContractAt("MockERC20", poolInfo.inputToken, signer);
+    console.log("create demo SweetVault", await vault.name(), "with underlying", await underlyingToken.name());
     await underlyingToken.approve(vault.address, parseEther("10"));
-    await vault.depositAndStake(parseEther("10"));
     console.log(await (await underlyingToken.balanceOf(addresses.deployer)).toString());
+    await vault.depositAndStake(parseEther("10"));
   };
 
   const { deployer } = addresses;

@@ -9,11 +9,10 @@ import { addContractToRegistry } from "./utils";
 const CURVE_ZAP_IN = "0x5Ce9b49B7A1bE9f2c3DC2B2A5BaCEA56fa21FBeE";
 const CURVE_ZAP_OUT = "0xE03A338d5c305613AfC3877389DD3B0617233387";
 
-
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { deployer, crvSEth, crvZapIn, crvZapOut } = await getNamedAccounts();
+  const { deployer, crvSEth, usdt, crv3Crypto } = await getNamedAccounts();
 
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
 
@@ -36,6 +35,24 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
   await aclRegistry.grantRole(ethers.utils.id("ApprovedContract"), (await deployments.get("VaultsV1Zapper")).address);
 
+  console.log("Deploying ZeroXSwapZapIn");
+  await deploy("ZeroXSwapZapIn", {
+    from: deployer,
+    args: [],
+    log: true,
+    autoMine: true,
+  });
+  await addContractToRegistry("ZeroXSwapZapIn", deployments, signer, hre);
+
+  console.log("Deploying ZeroXSwapZapOut");
+  await deploy("ZeroXSwapZapOut", {
+    from: deployer,
+    args: [],
+    log: true,
+    autoMine: true,
+  });
+  await addContractToRegistry("ZeroXSwapZapOut", deployments, signer, hre);
+
   if (["hardhat", "local"].includes(hre.network.name)) {
     console.log("Adding sEth vault");
     const vaultsV1Zapper = await ethers.getContractAt(
@@ -51,6 +68,40 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     console.log("Setting sEth zaps");
     await vaultsV1Zapper.connect(signer).updateZaps(crvSEth, CURVE_ZAP_IN, CURVE_ZAP_OUT);
+
+    console.log("Adding Stargate Vault");
+    const vaultsV1ZapperStargate = await ethers.getContractAt(
+      "VaultsV1Zapper",
+      (
+        await deployments.get("VaultsV1Zapper")
+      ).address
+    );
+    await vaultsV1ZapperStargate.connect(signer).updateVault(usdt, (await deployments.get("usdtSweetVault")).address);
+    await vaultsV1ZapperStargate.connect(signer).setFee(usdt, true, 0, 0);
+    await vaultsV1ZapperStargate
+      .connect(signer)
+      .updateZaps(
+        usdt,
+        (
+          await deployments.get("ZeroXSwapZapIn")
+        ).address,
+        (
+          await deployments.get("ZeroXSwapZapOut")
+        ).address
+      );
+
+    console.log("Adding 3crypto Vault");
+    const vaultsV1ZapperTriCrypto = await ethers.getContractAt(
+      "VaultsV1Zapper",
+      (
+        await deployments.get("VaultsV1Zapper")
+      ).address
+    );
+    await vaultsV1ZapperTriCrypto
+      .connect(signer)
+      .updateVault(usdt, (await deployments.get("triCryptoSweetVault")).address);
+    await vaultsV1ZapperTriCrypto.connect(signer).setFee(crv3Crypto, true, 0, 0);
+    await vaultsV1ZapperTriCrypto.connect(signer).updateZaps(crv3Crypto, CURVE_ZAP_IN, CURVE_ZAP_OUT);
   }
 };
 export default main;
