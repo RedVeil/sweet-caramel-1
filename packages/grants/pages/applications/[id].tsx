@@ -85,7 +85,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   const openStakeModal = () => {
     dispatch(
       setSingleActionModal({
-        content: (
+        children: (
           <StakeModalContent
             beneficiary={proposal.application}
             onCloseStakeModal={closeStakeModal}
@@ -93,6 +93,9 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           />
         ),
         visible: true,
+        onDismiss: {
+          onClick: () => dispatch(setSingleActionModal({ visible: false }))
+        }
       }),
     );
   };
@@ -305,9 +308,8 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
               {profileTabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`rounded-3xl px-5 py-3 font-semibold text-lg ${
-                    currentTab == tab ? "text-blue-600 bg-blue-50" : "text-gray-500 bg-white"
-                  }`}
+                  className={`rounded-3xl px-5 py-3 font-semibold text-lg ${currentTab == tab ? "text-blue-600 bg-blue-50" : "text-gray-500 bg-white"
+                    }`}
                   onClick={() => setCurrentTab(tab)}
                 >
                   {capitalize(tab)}
