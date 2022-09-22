@@ -1,8 +1,11 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
 import Button from "components/CommonComponents/Button";
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useState, useRef } from "react";
 import * as Icon from "react-feather";
+import { XIcon } from "@heroicons/react/outline";
+import useClickOutside from "hooks/useClickOutside";
+
 
 export interface SingleActionModalProps {
   title: string;
@@ -12,15 +15,19 @@ export interface SingleActionModalProps {
   type?: "info" | "error" | "alert";
   image?: React.ReactElement;
   onConfirm?: { label: string; onClick: Function };
-  onDismiss?: { label: string; onClick: Function };
+  onDismiss: { label?: string; onClick: Function };
   keepOpen?: boolean;
+  showCloseButton?: boolean;
 }
+
 export const DefaultSingleActionModalProps: SingleActionModalProps = {
   content: "",
   title: "",
   visible: false,
   type: "info",
   keepOpen: false,
+  showCloseButton: true,
+  onDismiss: { onClick: () => { } }
 };
 
 export const SingleActionModal: React.FC<SingleActionModalProps> = ({
@@ -33,9 +40,11 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   onConfirm,
   onDismiss,
   keepOpen,
+  showCloseButton = true,
 }) => {
   const [open, setOpen] = useState(visible);
   const cancelButtonRef = useRef();
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (visible !== open) setOpen(visible);
@@ -44,14 +53,29 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
     };
   }, [visible]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        dismiss();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   const dismiss = () => {
     setOpen(keepOpen);
-    setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
+    setTimeout(onDismiss.onClick, 1000);
   };
+
+  useClickOutside<MouseEvent>(modalRef, dismiss);
 
   const confirm = () => {
     setOpen(keepOpen);
-    setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
+    setTimeout(onConfirm.onClick, 1000);
   };
 
   if (!visible) return <></>;
@@ -63,39 +87,32 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
         static
         className="fixed z-50 inset-0 overflow-y-auto"
         initialFocus={cancelButtonRef}
-        open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => (keepOpen ? {} : setOpen(false))}
       >
-        <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div
-              className="fixed z-50 inset-0 overflow-y-auto"
-              aria-labelledby="modal-title"
-              role="dialog"
-              aria-modal="true"
+        <div className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity" />
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
             >
-              <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div
-                  className="fixed inset-0 -z-10 bg-gray-500 bg-opacity-75 transition-opacity"
-                  aria-hidden="true"
-                ></div>
-
-                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
-                  &#8203;
-                </span>
-
-                <div className="inline-block align-bottom bg-white rounded-4xl px-5 pt-6 pb-5 mb-12 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-8">
+              <div ref={modalRef}>
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-10 sm:align-middle w-88 md:max-w-md">
+                  {showCloseButton && (
+                    <button className="flex justify-end">
+                      <XIcon className="w-10 h-10 text-black mb-10" onClick={() => dismiss()} />
+                    </button>
+                  )}
                   <div>
                     {image ? (
-                      <div className="flex justify-center">{image}</div>
+                      <div className="flex justify-center">
+                        <>{image}</>
+                      </div>
                     ) : (
                       <>
                         {(type && type == "error" && (
@@ -137,20 +154,25 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                       <h3 className="text-2xl leading-6 font-semibold text-gray-900 mt-5 mb-2" id="modal-title">
                         {title}
                       </h3>
-                      <div>{children ? children : <p className="text-base md:text-sm text-gray-500">{content}</p>}</div>
+                      <div>{children ? children : (
+                        <p className="text-base md:text-sm text-gray-500">
+                          <>{content}</>
+                        </p>
+                      )}
+                      </div>
+                    </div>
+                    <div className="mt-5">
+                      {onConfirm && (
+                        <Button variant="primary" onClick={confirm} className="py-2 px-5 w-full">
+                          {onConfirm?.label}
+                        </Button>
+                      )}
                     </div>
                   </div>
-                  <div className="mt-5">
-                    {onConfirm && (
-                      <Button variant="primary" onClick={confirm} className="py-2 px-5 w-full">
-                        {onConfirm?.label}
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                </Dialog.Panel>
               </div>
-            </div>
-          </Transition.Child>
+            </Transition.Child>
+          </div>
         </div>
       </Dialog>
     </Transition.Root>
