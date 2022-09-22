@@ -54,7 +54,7 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
                 <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
                 <p className="text-xs md:text-sm font-medium ml-1 leading-none text-gray-400">{categoryFilter.value}</p>
               </div>
-              <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
+              <ChevronDownIcon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
             </div>
             <BeneficiaryOptions
               options={categories}
@@ -71,15 +71,14 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
       <div className="block md:hidden">
         <button
           onClick={() => setOpenFilter(true)}
-          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${
-            isApplication ? "justify-center" : "justify-between"
-          }`}
+          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${isApplication ? "justify-center" : "justify-between"
+            }`}
         >
           <div className="flex items-center">
             <ViewGridIcon className="text-primaryDark w-5 h-5" />
             <p className="font-medium ml-1 leading-none text-primaryDark">{categoryFilter.value}</p>
           </div>
-          <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
+          <ChevronDownIcon className="w-5 h-5 text-[#55503D] flex-shrink-0" aria-hidden="true" />
         </button>
       </div>
       <MobilePopupSelect

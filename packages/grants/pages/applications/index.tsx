@@ -22,11 +22,12 @@ const BeneficiaryApplications = () => {
   const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
   const [statusFilter, setStatusFilter] = useState(applicationTypes[0]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [openMobileFilter, setOpenMobileFilter] = useState<boolean>(false);
 
   useEffect(() => {
     if (contracts?.beneficiaryGovernance) {
+      setIsLoading(true)
       new BeneficiaryGovernanceAdapter(contracts?.beneficiaryGovernance, IpfsClient)
         .getAllProposals(ProposalType.Nomination)
         .then((res) => {
@@ -40,7 +41,6 @@ const BeneficiaryApplications = () => {
           setIsLoading(false);
         });
     }
-    setIsLoading(false);
   }, [contracts]);
 
   useEffect(() => {
@@ -81,41 +81,51 @@ const BeneficiaryApplications = () => {
       </section>
 
       <section className="pt-12 lg:pt-20 relative">
-        <div className="flex justify-between pb-10 items-center relative">
-          {/* category filter */}
-          <div className="w-1/2 pr-2">
-            <div className="block relative md:absolute top-0">
-              <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} isApplication />
+        {proposals.length > 0 && (
+          <div className="flex justify-between pb-12 lg:pb-10 items-center relative">
+            {/* category filter */}
+            <div className="w-1/2 lg:w-auto pr-2">
+              <div className="block relative md:absolute top-0">
+                <BeneficiaryFilter
+                  categoryFilter={categoryFilter}
+                  switchFilter={setCategoryFilter}
+                  isApplication
+                />
+              </div>
             </div>
-          </div>
 
-          {/* status filter */}
-          <div className="w-1/2 lg:w-auto pl-2 lg:pl-0">
-            <div className="hidden md:flex space-x-4">
-              {applicationTypes.map((type) => (
+            {/* status filter */}
+            <div className="w-1/2 lg:w-auto pl-2 lg:pl-0">
+              <div className="hidden md:flex space-x-4">
+                {applicationTypes.map((type) => (
+                  <Button
+                    key={type.status}
+                    variant={type.status === statusFilter.status ? "primary" : "secondary"}
+                    onClick={() => setStatusFilter(type)}
+                    className={`flex-shrink-0 ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : "!border-[#E5E7EB] text-[#55503D] !font-normal"}`}
+                  >
+                    {type.label}
+                  </Button>
+                ))}
+              </div>
+              <div className="block md:hidden">
                 <Button
-                  key={type.status}
-                  variant={type.status === statusFilter.status ? "primary" : "secondary"}
-                  onClick={() => setStatusFilter(type)}
-                  className="!border-[#E5E7EB]"
+                  variant="primary"
+                  onClick={() => setOpenMobileFilter(true)}
+                  className="w-full !text-base !items-center !bg-[#827D69] !text-white"
                 >
-                  {type.label}
+                  <FilterIcon className="h-5 w-5" />
+                  {statusFilter.label === "Challenge Period" ? "Challenge" : statusFilter.label}
                 </Button>
-              ))}
-            </div>
-            <div className="block md:hidden">
-              <Button
-                variant="primary"
-                onClick={() => setOpenMobileFilter(true)}
-                className="w-full !text-base !items-center"
-              >
-                <FilterIcon className="h-5 w-5" />
-                {statusFilter.label === "Challenge Period" ? "Challenge" : statusFilter.label}
-              </Button>
+              </div>
             </div>
           </div>
-        </div>
-        <BeneficiaryGrid isLoading={isLoading} data={filteredProposals} isApplication />
+        )}
+        <BeneficiaryGrid
+          isLoading={isLoading}
+          data={filteredProposals}
+          isApplication
+        />
       </section>
 
       <PopUpModal visible={openMobileFilter} onClosePopUpModal={() => setOpenMobileFilter(false)}>
@@ -125,12 +135,12 @@ const BeneficiaryApplications = () => {
             {applicationTypes.map((type) => (
               <div className="col-span-3" key={type.status}>
                 <Button
-                  variant={type.status === statusFilter.status ? "primary" : "secondary"}
+                  variant={type.status === statusFilter.status ? "primary !bg-[#827D69]" : "secondary"}
                   onClick={() => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
-                  className="!border-[#E5E7EB] !text-sm w-full"
+                  className={`!border-[#E5E7EB] !text-sm w-full ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""}`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>

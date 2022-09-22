@@ -3,7 +3,7 @@ import React from "react";
 const DisconnectWalletIcon = () => {
   return (
     <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g clip-path="url(#clip0_6520_4758)">
+      <g clipPath="url(#clip0_6520_4758)">
         <path
           d="M21 17.5V7.5C21 6.39543 20.1046 5.5 19 5.5H11L19 19.5C20.1046 19.5 21 18.6046 21 17.5Z"
           fill="#2563EB"

@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
 export default function BeneficiaryIndexPage(): JSX.Element {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { contracts } = useContext(ContractsContext);
   const [beneficiaries, setBeneficiaries] = useState<BeneficiaryApplication[]>([]);
   const [filteredBeneficiaries, setFilteredBeneficiaries] = useState<BeneficiaryApplication[]>([]);
@@ -24,7 +24,6 @@ export default function BeneficiaryIndexPage(): JSX.Element {
         })
         .finally(() => setIsLoading(false));
     }
-    setIsLoading(false);
   }, [contracts]);
 
   useEffect(() => {
@@ -52,12 +51,14 @@ export default function BeneficiaryIndexPage(): JSX.Element {
           <Image src="/images/beneficiaryApplicationsHero.png" alt="smiley" height="360" width="640" />
         </div>
       </section>
-      <section>
-        <div className="flex flex-col md:flex-row justify-between relative md:mb-10">
-          <div className="relative my-10 md:my-0">
-            <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
+      <section className="mt-12 lg:mt-20">
+        {beneficiaries.length > 0 && (
+          <div className="flex flex-col md:flex-row justify-between relative pb-12 lg:pb-10">
+            <div className="relative">
+              <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
+            </div>
           </div>
-        </div>
+        )}
         <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />
       </section>
     </div>

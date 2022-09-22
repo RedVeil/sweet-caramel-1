@@ -44,9 +44,8 @@ const BeneficiaryOptions: React.FC<FilterProps> = ({
           <Menu.Item key={index}>
             {({ active }) => (
               <a
-                className={`${
-                  active || checkActiveItem(item) ? "bg-warmGray text-black font-medium" : "bg-white text-[#55503D] "
-                } group px-6 py-4 block w-full cursor-pointer border-b border-gray-200 ${borderRadiusFirstLast} text-left`}
+                className={`${active || checkActiveItem(item) ? "bg-warmGray text-black font-medium" : "bg-white text-[#55503D] "
+                  } group px-6 py-4 block w-full cursor-pointer border-b border-gray-200 ${borderRadiusFirstLast} text-left`}
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >
