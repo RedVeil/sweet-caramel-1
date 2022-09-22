@@ -7,7 +7,7 @@ interface ProgressProps {
 }
 const VotingProgress: React.FC<ProgressProps> = ({ progress, labels }) => {
   return (
-    <div className="py-5">
+    <div className="py-6">
       <div className="bg-[#C294FC] rounded-xl h-6 relative" style={{ padding: "2px" }}>
         <div className="flex justify-between absolute w-full pr-1 top-1/2 transform -translate-y-1/2">
           <CheckCircleIcon className="w-5 h-5 text-white" />
@@ -18,11 +18,11 @@ const VotingProgress: React.FC<ProgressProps> = ({ progress, labels }) => {
           style={{ width: `${progress}%` }}
         ></div>
       </div>
-      <div className="flex justify-between my-1">
-        <p className="text-gray-400">
+      <div className="flex justify-between mt-4">
+        <p className="text-tokenTextGray leading-5">
           {progress}% {labels[0]}
         </p>
-        <p className="text-gray-400">
+        <p className="text-tokenTextGray leading-5">
           {100 - progress}% {labels[1]}
         </p>
       </div>

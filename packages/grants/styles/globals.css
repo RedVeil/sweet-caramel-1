@@ -24,9 +24,6 @@ a {
 * {
   box-sizing: border-box;
 }
-p {
-  font-size: 0.95rem;
-}
 
 @layer base {
   @font-face {
