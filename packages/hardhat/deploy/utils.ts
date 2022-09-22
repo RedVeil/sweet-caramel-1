@@ -74,7 +74,19 @@ export const FaucetController = async (hre, signer) => {
       await _faucet.sendTokens(addresses.usdc, amount, recipient);
     },
 
+    sendUsdt: async (recipient, amount: number) => {
+      const addresses = await hre.getNamedAccounts();
+      console.log("sending usdt...");
+      await _faucet.sendTokens(addresses.usdt, amount, recipient);
+    },
+
+    sendCrv3CryptoLPTokens: async (recipient, amount) => {
+      console.log("sending 3Crypto...");
+      return _faucet.sendCrv3CryptoLPTokens(amount, recipient);
+    },
+
     sendCrvSethLPTokens: async (recipient, amount) => {
+      console.log("sending crvSEth...");
       return _faucet.sendCrvSethLPTokens(amount, recipient);
     },
   };

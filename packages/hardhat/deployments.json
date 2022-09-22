@@ -20375,7 +20375,7 @@
       ]
     },
     "ParticipationReward": {
-      "address": "0x22b1c5C2C9251622f7eFb76E356104E5aF0e996A",
+      "address": "0x3949c97925e5Aa13e34ddb18EAbf0B70ABB0C7d4",
       "abi": [
         {
           "inputs": [
@@ -20989,7 +20989,7 @@
       ]
     },
     "VaultsV1Zapper": {
-      "address": "0x696358bBb1a743052E0E87BeD78AAd9d18f0e1F4",
+      "address": "0x0724F18B2aA7D6413D3fDcF6c0c27458a8170Dd9",
       "abi": [
         {
           "inputs": [
@@ -21490,7 +21490,7 @@
       ]
     },
     "ZeroXSwapZapIn": {
-      "address": "0x5c932424AcBfab036969b3B9D94bA9eCbae7565D",
+      "address": "0x04F339eC4D75Cf2833069e6e61b60eF56461CD7C",
       "abi": [
         {
           "anonymous": false,
@@ -21584,7 +21584,7 @@
       ]
     },
     "ZeroXSwapZapOut": {
-      "address": "0x9e7F7d0E8b8F38e3CF2b3F7dd362ba2e9E82baa4",
+      "address": "0x89372b32b8AF3F1272e2efb3088616318D2834cA",
       "abi": [
         {
           "anonymous": false,
@@ -21683,7 +21683,7 @@
       ]
     },
     "GovStaking": {
-      "address": "0x44863F234b137A395e5c98359d16057A9A1fAc55",
+      "address": "0x6212cb549De37c25071cF506aB7E115D140D9e42",
       "abi": [
         {
           "inputs": [
@@ -22276,7 +22276,7 @@
       ]
     },
     "RewardsManager": {
-      "address": "0xb04CB6c52E73CF3e2753776030CE85a36549c9C2",
+      "address": "0x0bF7dE8d71820840063D4B8653Fd3F0618986faF",
       "abi": [
         {
           "inputs": [
@@ -22569,7 +22569,7 @@
       ]
     },
     "RandomNumberConsumer": {
-      "address": "0xf4AE7E15B1012edceD8103510eeB560a9343AFd3",
+      "address": "0x43cA9bAe8dF108684E5EAaA720C25e1b32B0A075",
       "abi": [
         {
           "inputs": [
@@ -22702,7 +22702,7 @@
       ]
     },
     "BeneficiaryGovernance": {
-      "address": "0xc981ec845488b8479539e6B22dc808Fb824dB00a",
+      "address": "0x59C4e2c6a6dC27c259D6d067a039c831e1ff4947",
       "abi": [
         {
           "inputs": [
@@ -23198,7 +23198,7 @@
       ]
     },
     "BeneficiaryRegistry": {
-      "address": "0x43cA9bAe8dF108684E5EAaA720C25e1b32B0A075",
+      "address": "0xAe2563b4315469bF6bdD41A6ea26157dE57Ed94e",
       "abi": [
         {
           "inputs": [
@@ -23333,7 +23333,7 @@
       ]
     },
     "GrantElections": {
-      "address": "0x59C4e2c6a6dC27c259D6d067a039c831e1ff4947",
+      "address": "0x85495222Fd7069B987Ca38C2142732EbBFb7175D",
       "abi": [
         {
           "inputs": [
@@ -24088,7 +24088,7 @@
       ]
     },
     "ButterWhaleProcessing": {
-      "address": "0xAe2563b4315469bF6bdD41A6ea26157dE57Ed94e",
+      "address": "0x2498e8059929e18e2a2cED4e32ef145fa2F4a744",
       "abi": [
         {
           "inputs": [
@@ -24856,7 +24856,7 @@
       ]
     },
     "ButterFeeConverter": {
-      "address": "0x3abBB0D6ad848d64c8956edC9Bf6f18aC22E1485",
+      "address": "0x245e77E56b1514D77910c9303e4b44dDb44B788c",
       "abi": [
         {
           "inputs": [
@@ -25203,7 +25203,7 @@
       ]
     },
     "ThreeXWhaleProcessing": {
-      "address": "0x2498e8059929e18e2a2cED4e32ef145fa2F4a744",
+      "address": "0x4ea0Be853219be8C9cE27200Bdeee36881612FF2",
       "abi": [
         {
           "inputs": [
@@ -26440,7 +26440,7 @@
       ]
     },
     "VaultsV1Registry": {
-      "address": "0x46d4674578a2daBbD0CEAB0500c6c7867999db34",
+      "address": "0x12456Fa31e57F91B70629c1196337074c966492a",
       "abi": [
         {
           "inputs": [
@@ -27129,7 +27129,7 @@
       ]
     },
     "VaultsV1Factory": {
-      "address": "0xfB12F7170FF298CDed84C793dAb9aBBEcc01E798",
+      "address": "0xD5bFeBDce5c91413E41cc7B24C8402c59A344f7c",
       "abi": [
         {
           "inputs": [
@@ -27452,7 +27452,7 @@
       ]
     },
     "VaultsV1Controller": {
-      "address": "0xC220Ed128102d888af857d137a54b9B7573A41b2",
+      "address": "0x38628490c3043E5D0bbB26d5a0a62fC77342e9d5",
       "abi": [
         {
           "inputs": [
