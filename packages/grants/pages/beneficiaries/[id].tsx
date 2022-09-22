@@ -56,7 +56,7 @@ const BeneficiaryPage = () => {
           </button>
         </div>
       </Hero>
-      <div className="container mx-auto pb-20 md:pb-60">
+      <div className="container mx-auto">
         <div className="grid grid-cols-12 px-5 lg:px-10">
           <div className="col-span-12 py-20">
             <div className="flex items-center gap-3">

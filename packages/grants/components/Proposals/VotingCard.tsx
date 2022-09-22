@@ -33,11 +33,11 @@ const VotingCard: React.FC<VotingCardProps> = ({
   rejectApplication,
   hasVoted,
 }) => {
-  const [showVotes, setShowVotes] = useState<boolean>(true);
+  const [showVotes, setShowVotes] = useState<boolean>(false);
   const [progress, setProgress] = useState(50);
   useEffect(() => {
-    if (window.matchMedia("(max-width: 999px)").matches) {
-      setShowVotes(false);
+    if (window.matchMedia("(min-width: 1000px)").matches) {
+      setShowVotes(true);
     }
   }, []);
 
@@ -56,21 +56,36 @@ const VotingCard: React.FC<VotingCardProps> = ({
     setShowVotes(!showVotes);
   };
 
+  const getPopModalHeight = () => {
+    let height;
+    if (!hasVoted && !hasStaked) {
+      if (showVotes) {
+        height = "450px";
+      } else height = "250px";
+    } else {
+      if (showVotes) {
+        height = "500px";
+      } else height = "300px";
+    }
+    return height;
+  };
+
   return (
     <div
-      className="bg-white rounded-t-4xl shadow-voting-card-mobile md:shadow-voting-card text-center p-8 transition-all duration-1000 ease-in-out"
-      style={{ height: `${showVotes ? "100%" : "250px"}` }}
+      className="bg-white rounded-t-4xl shadow-voting-card-mobile md:shadow-voting-card p-8 transition-all duration-1000 ease-in-out"
+      style={{ height: getPopModalHeight() }}
     >
       <div
-        className={`lg:hidden flex mb-5 justify-center transition-all duration-300 transform ${!showVotes ? " rotate-180" : ""
-          }`}
+        className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${
+          !showVotes ? " rotate-180" : ""
+        }`}
       >
         <CaretIcon className="animate-bounce" onClick={toggleVotes} />
       </div>
-      <h5 className="text-gray-900 text-2xl font-semibold mb-2">
+      <h5 className="text-black text-3xl leading-8 mb-2">
         {ProposalStatus[status]} {status == 0 ? "Vote" : status == 1 ? "Period" : ""}
       </h5>
-      <p className="text-gray-400 mb-6">{formatTimeUntilDeadline(stageDeadline)}</p>
+      <p className="text-tokenTextGray leading-6 mb-6">{formatTimeUntilDeadline(stageDeadline)}</p>
 
       <Transition
         show={showVotes}
@@ -81,18 +96,18 @@ const VotingCard: React.FC<VotingCardProps> = ({
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <h6 className="text-gray-900 font-semibold mb-1">Becoming an Eligible Beneficiary</h6>
-        <p className="text-gray-500">
+        <h6 className="text-primaryDark font-medium mb-1">Becoming an Eligible Beneficiary</h6>
+        <p className="text-primaryDark">
           The organization is currently in the first phase of voting and users have 48 hours to cast their vote.
         </p>
         <VotingProgress progress={progress} labels={["Yes", "No"]} />
       </Transition>
       {!hasVoted && hasStaked && (
-        <div className="flex gap-2">
-          <Button variant="primary" className="px-3 py-3 w-1/2" onClick={acceptApplication}>
+        <div>
+          <Button variant="primary" className="px-3 py-3 w-full" onClick={acceptApplication}>
             Accept
           </Button>
-          <Button variant="secondary" className="px-3 py-3 w-1/2" onClick={rejectApplication}>
+          <Button variant="secondary" className="px-3 py-3 w-full mt-4" onClick={rejectApplication}>
             Reject
           </Button>
         </div>

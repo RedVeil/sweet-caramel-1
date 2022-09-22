@@ -1,5 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
+import { Transition } from "@headlessui/react";
 import { ShareIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon } from "@heroicons/react/solid";
 import { BeneficiaryGovernanceAdapter, Proposal, ProposalType } from "@popcorn/hardhat/lib/adapters";
 import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
 import { IpfsClient } from "@popcorn/utils";
@@ -11,6 +13,7 @@ import VotePeriodCard from "components/Proposals/VotePeriodCard";
 import VotingCard from "components/Proposals/VotingCard";
 import { ContractsContext } from "context/Web3/contracts";
 import { utils } from "ethers";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -42,6 +45,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   const [lockedPop, setLockedPop] = useState(0);
   const [expired, setExpired] = useState<boolean>(false);
   const [hasStaked, setHasStaked] = useState<boolean>(false);
+  const [showPopUp, setShowPopUp] = useState<boolean>(true);
 
   const profileTabs = ["about", "gallery", "reports"];
 
@@ -263,63 +267,112 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
     }
   }, [contracts]);
 
+  const isElemTop = (ele: Element) => {
+    const { bottom, height, top } = ele.getBoundingClientRect();
+    if (top <= 100) {
+      setShowPopUp(false);
+    } else setShowPopUp(true);
+  };
+
+  useEffect(() => {
+    const profileContent = document.querySelector("#profileContent");
+    window.addEventListener("scroll", () => isElemTop(profileContent));
+  }, []);
+
   return (
     <section className="relative">
+      <div className="md:hidden mb-10 px-6">
+        <Link href={"/applications"}>
+          <a className="flex space-x-2">
+            <ChevronLeftIcon className="text-secondaryLight w-4" />
+            <p className="text-primary">Beneficiary Application</p>
+          </a>
+        </Link>
+      </div>
       <Hero
         bgImage={`https:/popcorn.mypinata.cloud/ipfs/${proposal?.application?.files?.headerImage?.image}`}
         className="relative"
       >
         <RWebShare
           data={{
+            text: "Popcorn is a regenerative yield optimizing protocol",
             url: router.asPath,
             title: `Share ${proposal?.application?.organizationName}'s Proposal`,
           }}
         >
-          <button className=" opacity-80 bg-white border-gray-200 rounded-3xl text-gray-900 font-semibold flex px-5 py-3 absolute gap-3 bottom-10 left-2/3 md:left-10 xl:left-28 ml-2 shadow-white-button">
+          <button className=" opacity-80 bg-white border-gray-200 rounded-3xl text-gray-900 font-semibold hidden md:flex px-5 py-3 absolute gap-3 bottom-10 left-8 shadow-white-button ">
             <ShareIcon className="w-6 h-6" />
             Share
           </button>
         </RWebShare>
       </Hero>
-      <div className="container mx-auto pb-20 md:pb-60">
-        <div className="grid grid-cols-12 px-5 lg:px-10 md:gap-12">
-          <div className="col-span-12 lg:col-span-7 xl:col-span-8 py-20">
-            <div className="flex items-center gap-3">
-              <img
-                src={`${process.env.IPFS_URL}${proposal?.application?.files?.profileImage?.image}`}
-                alt={proposal?.application?.files?.profileImage?.description || "profile-image"}
-                className=" w-20 h-20 rounded-full object-cover"
-              />
-              <div>
-                <p className="text-gray-400 text-lg uppercase">{proposal?.application?.proposalCategory}</p>
-                <h3 className="text-gray-900 text-3xl md:text-5xl font-semibold my-2">
-                  {proposal?.application?.projectName}
-                </h3>
-                <p className="text-gray-900 text-lg">by {proposal?.application?.organizationName}</p>
+      <div className="container mx-auto">
+        <div className="grid grid-cols-12 md:gap-12">
+          <div className="col-span-12 lg:col-span-7 xl:col-span-8 md:pt-8">
+            <div className="hidden md:block">
+              <Link href={"/applications"}>
+                <a className="flex space-x-2">
+                  <ChevronLeftIcon className="text-secondaryLight w-4" />
+                  <p className="text-primary">Beneficiary Application</p>
+                </a>
+              </Link>
+            </div>
+            <div className="pt-10 md:pt-20 px-6 md:px-0">
+              <div className="md:hidden mb-10">
+                <VotePeriodCard stageDeadline={proposal?.stageDeadline} startTime={proposal?.startTime} />
+              </div>
+              <div className="flex items-center gap-3">
+                <img
+                  src={`${process.env.IPFS_URL}${proposal?.application?.files?.profileImage?.image}`}
+                  alt={proposal?.application?.files?.profileImage?.description || "profile-image"}
+                  className=" w-36 h-36 rounded-full object-cover hidden md:block"
+                />
+                <div>
+                  <p className="text-customLightGray text-2xl leading-7 uppercase">
+                    {proposal?.application?.proposalCategory}
+                  </p>
+                  <h3 className="text-black text-5xl md:text-6xl my-4 leading-11">
+                    {proposal?.application?.projectName}
+                  </h3>
+                  <p className="text-primaryDark text-2xl leading-7">by {proposal?.application?.organizationName}</p>
+                </div>
+              </div>
+              <div className="py-10 flex">
+                <RWebShare
+                  data={{
+                    text: "Popcorn is a regenerative yield optimizing protocol",
+                    url: router.asPath,
+                    title: `Share ${proposal?.application?.organizationName}'s Proposal`,
+                  }}
+                >
+                  <button className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center">
+                    <ShareIcon className="w-6 h-6 text-primary" />
+                  </button>
+                </RWebShare>
+              </div>
+              <div className="flex justify-between md:justify-start md:space-x-4 pb-18 md:pb-20 md:pt-14">
+                {profileTabs.map((tab) => (
+                  <button
+                    key={tab}
+                    className={`rounded-[28px] px-5 py-3 text-lg border ${
+                      currentTab == tab
+                        ? "text-white bg-[#827D69] border-[#827D69]"
+                        : "text-[#55503D] bg-white border-customLightGray"
+                    }`}
+                    onClick={() => setCurrentTab(tab)}
+                  >
+                    {capitalize(tab)}
+                  </button>
+                ))}
+              </div>
+              <div id="profileContent">
+                {currentTab == "about" && <AboutTab {...proposal?.application} pageType="proposal" />}
+                {currentTab == "gallery" && (
+                  <GalleryTab additionalImages={proposal?.application.files.additionalImages} rowsPercent={50} />
+                )}
+                {currentTab == "reports" && <ReportsTab reports={proposal?.application.files.impactReports} />}
               </div>
             </div>
-            <div className="md:hidden my-16">
-              <VotePeriodCard stageDeadline={proposal?.stageDeadline} startTime={proposal?.startTime} />
-            </div>
-            <div className="flex justify-center gap-10 md:gap-20 pb-18 md:py-24">
-              {profileTabs.map((tab) => (
-                <button
-                  key={tab}
-                  className={`rounded-3xl px-5 py-3 font-semibold text-lg ${
-                    currentTab == tab ? "text-blue-600 bg-blue-50" : "text-gray-500 bg-white"
-                  }`}
-                  onClick={() => setCurrentTab(tab)}
-                >
-                  {capitalize(tab)}
-                </button>
-              ))}
-            </div>
-
-            {currentTab == "about" && <AboutTab {...proposal?.application} pageType="proposal" />}
-            {currentTab == "gallery" && (
-              <GalleryTab additionalImages={proposal?.application.files.additionalImages} rowsPercent={50} />
-            )}
-            {currentTab == "reports" && <ReportsTab reports={proposal?.application.files.impactReports} />}
           </div>
 
           <div className="hidden lg:block col-span-12 lg:col-span-5 xl:col-span-4">
@@ -344,19 +397,29 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 lg:hidden w-full">
-        <VotingCard
-          votes={proposal?.votes}
-          stageDeadline={proposal?.stageDeadline}
-          hasStaked={hasStaked}
-          openStakeModal={openStakeModal}
-          account={account}
-          status={proposal?.status}
-          hasVoted={hasVoted}
-          acceptApplication={openAcceptApplicationModal}
-          rejectApplication={openRejectApplicationModal}
-        />
-      </div>
+      <Transition
+        show={showPopUp}
+        enter="transition-opacity duration-100"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-100"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="fixed bottom-0 z-20 lg:hidden w-full">
+          <VotingCard
+            votes={proposal?.votes}
+            stageDeadline={proposal?.stageDeadline}
+            hasStaked={hasStaked}
+            openStakeModal={openStakeModal}
+            account={account}
+            status={proposal?.status}
+            hasVoted={hasVoted}
+            acceptApplication={openAcceptApplicationModal}
+            rejectApplication={openRejectApplicationModal}
+          />
+        </div>
+      </Transition>
     </section>
   );
 };
@@ -368,6 +431,11 @@ const Hero = styled.div<HeroProps>`
   background-image: ${({ bgImage }) => `url(${bgImage})` || ""};
   background-size: cover;
   background-position: center;
+  @media screen and (max-width: 767px) {
+    margin: 0 24px;
+    border-radius: 8px;
+    height: 185px;
+  }
 `;
 
 export default ProposalPage;
