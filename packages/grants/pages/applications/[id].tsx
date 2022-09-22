@@ -345,7 +345,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                     title: `Share ${proposal?.application?.organizationName}'s Proposal`,
                   }}
                 >
-                  <button className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center">
+                  <button className="border border-primary bg-white h-12 w-12 rounded-full flex md:hidden justify-center items-center">
                     <ShareIcon className="w-6 h-6 text-primary" />
                   </button>
                 </RWebShare>
