@@ -90,12 +90,14 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
             beneficiary={proposal.application}
             onCloseStakeModal={closeStakeModal}
             hasExpired={expired}
+            closePopUp={() => dispatch(setSingleActionModal({ visible: false }))}
           />
         ),
         visible: true,
         onDismiss: {
           onClick: () => dispatch(setSingleActionModal({ visible: false }))
-        }
+        },
+        showCloseButton: false
       }),
     );
   };
