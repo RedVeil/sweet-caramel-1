@@ -211,14 +211,9 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   const openVoteAcceptedModal = () => {
     dispatch(
       setSingleActionModal({
-        image: <img src="/images/voted yes.svg" alt="Voted yes confirmed" />,
+        image: <img src="/images/accept.svg" alt="Voted yes confirmed" />,
         title: "Vote Accepted",
-        content: (
-          <p className="text-gray-500">
-            You have accepted this application to become an eligible beneficiary in the Open Vote. If it passes this
-            round, the organization will enter the second phase, Challenge Period
-          </p>
-        ),
+        content: "You have accepted this application to become an eligible beneficiary in the Open Vote. If it passes this round, the organization will enter the second phase, Challenge Period",
         visible: true,
         onConfirm: {
           label: "Done",
@@ -227,6 +222,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
             dispatch(setSingleActionModal(false));
           },
         },
+        showCloseButton: true,
       }),
     );
   };
