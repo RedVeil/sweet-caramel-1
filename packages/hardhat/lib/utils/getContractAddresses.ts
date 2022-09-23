@@ -27,7 +27,7 @@ const stakingContractNames = [
 
 const defaultTokenList = ["dai", "usdc", "usdt", "sUSD", "eth", "wbtc"];
 
-const sweetVaultNames = ["triCryptoSweetVault"]; //"sEthSweetVault", "usdtSweetVault",
+const sweetVaultNames = ["sEthSweetVault", "usdtSweetVault", "triCryptoSweetVault"];
 
 export const mapAccountsFromNamedAccounts = (chainId): ContractAddresses => {
   let contracts: ContractAddresses;
