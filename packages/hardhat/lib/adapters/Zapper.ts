@@ -3,6 +3,7 @@ import { BigNumber, ethers, constants, utils } from "ethers";
 import { ERC20, Vault } from "../../typechain";
 import { VaultsV1Zapper } from "../../typechain/VaultsV1Zapper";
 import erc20abi from "../external/erc20/abi.json";
+import { ETH_ADDRESS } from "../external/SetToken/utils/constants";
 
 const TRI_CRYPTO_POOL_ADDRESS = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
 const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
@@ -20,7 +21,7 @@ export class Zapper {
   private swapTarget = "0xDef1C0ded9bec7F1a1670819833240f027b25EfF";
   private endpoint = "https://api.0x.org/swap/v1/quote";
 
-  constructor(private client: AxiosStatic, public zapper: VaultsV1Zapper) {}
+  constructor(private client: AxiosStatic, public zapper: VaultsV1Zapper) { }
 
   public async zapIn(
     from: Token,
@@ -244,15 +245,13 @@ export class Zapper {
     sellAmount: BigNumber,
     slippagePercentage: number
   ): string {
-    return `${this.endpoint}?buyToken=${
-      buyToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
-        ? "ETH"
-        : buyToken.address
-    }&sellToken=${
-      sellToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
+    return `${this.endpoint}?buyToken=${buyToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
+      ? "ETH"
+      : buyToken.address
+      }&sellToken=${sellToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
         ? "ETH"
         : sellToken.address
-    }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
+      }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
   }
 
   public async getPoolAddress(lpTokenAddress: string, provider): Promise<string> {
@@ -269,17 +268,20 @@ export class Zapper {
   }
 
   public async getCoinAddresses(stableSwapAddress: string, provider): Promise<string[]> {
+    // The Tri Crypto pool is not registered which is why we have to return the addresses manually
+    if (stableSwapAddress === TRI_CRYPTO_POOL_ADDRESS) {
+      return ["0xdAC17F958D2ee523a2206206994597C13D831ec7", "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", ETH_ADDRESS]
+    }
     const curveRegistry = new ethers.Contract(
       this.crvRegistryAddress,
       [
-        "function get_n_coins(address pool) external view returns (uint256[2])",
         "function get_underlying_coins(address pool) external view returns (address[8])",
       ],
       provider
     );
-    const [tokenAmount, underlyingTokenAmount] = await curveRegistry.get_n_coins(stableSwapAddress);
     const addresses = await curveRegistry.get_underlying_coins(stableSwapAddress);
-    return addresses.slice(0, underlyingTokenAmount);
+    const tokenLength = addresses.findIndex(i => i === constants.AddressZero)
+    return addresses.slice(0, tokenLength);
   }
 
   public async getCoins(stableSwapAddress: string, provider): Promise<ERC20[]> {

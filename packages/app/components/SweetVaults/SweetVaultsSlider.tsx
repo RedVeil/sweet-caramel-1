@@ -35,7 +35,7 @@ const SweetVaultsSlider: React.FC<SliderProps> = ({ tutorialSteps }) => {
     <div className="w-full">
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map(({ title, content }, index) => (
-          <div className="border border-customLightGray rounded-lg p-8">
+          <div className="border border-customLightGray rounded-lg p-8" key={title}>
             <div className="flex justify-end mb-7">
               <img src="/images/do good.svg" alt="" />
             </div>

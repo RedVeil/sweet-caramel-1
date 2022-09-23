@@ -40,13 +40,16 @@ async function calcOutputAmount(
   const assetPerShare = Number(
     formatUnits(await sweetVault?.contract?.assetsPerShare(), sweetVault?.metadata.decimals),
   );
+  console.log("output")
   if (!!defaultTokenList?.find((token) => token.address === buyToken?.address)) {
+    console.log("found")
     const poolAddress = await zapper.getPoolAddress(sweetVault?.metadata.underlyingToken?.address, rpcProvider);
     const sellToken = await zapper.getIntermediateToken(
       poolAddress,
       poolToken.map((token) => token.contract),
       true,
     );
+    console.log("sellTOken", sellToken)
     const query = zapper.constructSwapUrl(buyToken, sellToken?.token, parseUnits("1", sellToken?.token?.decimals), 0);
     const data = await (await fetch(query)).json();
     return Number(data.price);

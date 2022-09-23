@@ -40,7 +40,7 @@ export default function TokenSelection({ tokenList, selectedToken, selectToken }
           <div className="flex flex-col w-40 h-full px-2 pt-2 pb-2 space-y-1 bg-white shadow-md rounded-md">
             {tokenList.map((selectableToken) => (
               <a
-                key={selectableToken?.name}
+                key={selectableToken?.symbol}
                 className="cursor-pointer group h-full flex flex-row items-center hover:bg-gray-100 rounded-md"
                 onClick={() => {
                   selectToken(selectableToken);
@@ -48,7 +48,7 @@ export default function TokenSelection({ tokenList, selectedToken, selectToken }
                 }}
               >
                 {selectableToken?.icon && <Image src={selectableToken?.icon} priority={true} width="20" height="20" />}
-                <p className="font-semibold group-hover:text-blue-700 mt-1.5 ml-2">{selectableToken?.name}</p>
+                <p className="font-semibold group-hover:text-blue-700 mt-1.5 ml-2">{selectableToken?.symbol}</p>
               </a>
             ))}
           </div>

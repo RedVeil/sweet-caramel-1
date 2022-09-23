@@ -4,6 +4,7 @@ import { ERC20, Vault, VaultsV1Zapper } from "@popcorn/hardhat/typechain";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
 import { ContractTransaction } from "ethers/lib/ethers";
 import toast from "react-hot-toast";
+import { constants } from "ethers";
 
 export async function depositAndStake(
   amount: BigNumber,
@@ -41,10 +42,11 @@ async function zapInOrDepositAndStake(
     return sweetVault?.contract?.connect(signer).depositAndStake(amount);
   } else {
     toast.loading(`Zapping ${selectedToken?.name} into vault...`);
+    const poolAddress = await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider);
     return zapper.zapIn(
       { address: selectedToken?.address, decimals: selectedToken?.decimals },
       sweetVault?.contract as Vault,
-      await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
+      sweetVault?.metadata?.underlyingToken?.address === poolAddress ? constants.AddressZero : poolAddress,
       amount,
       slippage / 100,
       true,
@@ -87,10 +89,11 @@ async function unstakeAndZapOutOrWithdraw(
   if (selectedToken?.address === sweetVault?.metadata?.underlyingToken?.address) {
     return sweetVault?.contract?.connect(signer).unstakeAndRedeem(amount);
   } else {
+    const poolAddress = await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider);
     return zapper.zapOut(
       { address: selectedToken?.address, decimals: selectedToken?.decimals },
       sweetVault?.contract as Vault,
-      await zapper.getPoolAddress(sweetVault?.metadata?.underlyingToken?.address, provider),
+      sweetVault?.metadata?.underlyingToken?.address === poolAddress ? constants.AddressZero : poolAddress,
       amount,
       slippage / 100,
       true,

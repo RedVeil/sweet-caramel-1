@@ -9,6 +9,7 @@ const {
   pop,
   usdt,
   sUSD,
+  wbtc,
   threeCrv,
   butter,
   yFrax,
@@ -164,10 +165,18 @@ const config: OverrideConfig = [
     },
   },
   {
+    addresses: wbtc,
+    metadata: {
+      name: "Wrapped Bitcoin",
+      symbol: "WBTC",
+      icon: "/images/tokens/wbtc.png",
+    },
+  },
+  {
     addresses: crvSEth,
     metadata: {
-      name: "crv-sETH/ETH LP",
-      symbol: "crv-sETH/ETH",
+      name: "crvETH",
+      symbol: "crvETH",
       icon: "/images/tokens/crvSeth.png",
     },
   },
@@ -184,7 +193,7 @@ const config: OverrideConfig = [
     metadata: {
       name: "3Crypto",
       symbol: "3Crypto",
-      icon: "/images/tokens/sEth.webp",
+      icon: "/images/tokens/triCrypto.png",
     },
   },
   {

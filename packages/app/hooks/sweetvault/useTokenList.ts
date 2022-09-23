@@ -4,6 +4,7 @@ import { SWRResponse } from "swr";
 import { Token } from "../../../utils/src/types/index";
 
 export default function useTokenList(stableAddresses: string[], spender?: string): SWRResponse<Token[], Error> {
+  console.log(stableAddresses)
   const cmcStables = useMultipleERC20(stableAddresses);
   return useGetMultipleToken(cmcStables, spender);
 }
