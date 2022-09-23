@@ -21,7 +21,10 @@ const {
   crvAlusd,
   crvSEth,
   sEth,
+  crv3Crypto,
   sEthSweetVault,
+  usdtSweetVault,
+  triCryptoSweetVault,
   popStaking,
   popUsdcArrakisVault,
   popUsdcUniV3Pool,
@@ -177,16 +180,49 @@ const config: OverrideConfig = [
     },
   },
   {
+    addresses: crv3Crypto,
+    metadata: {
+      name: "3Crypto",
+      symbol: "3Crypto",
+      icon: "/images/tokens/sEth.webp",
+    },
+  },
+  {
     addresses: sEthSweetVault,
     metadata: {
       name: "ETH/sETH Vault",
       symbol: "pop-ETH/sETH",
-      icon: "/images/tokens/crvSeth.png",
       displayText: {
         strategy: `Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.`,
         token: `This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform.`,
       },
       curveLink: "https://curve.fi/seth/deposit",
+      defaultDepositTokenSymbol: "ETH",
+    },
+  },
+  {
+    addresses: usdtSweetVault,
+    metadata: {
+      name: "USDT Vault",
+      symbol: "pop-USDT",
+      displayText: {
+        strategy: `Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.`,
+        token: `This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform.`,
+      },
+      curveLink: "https://curve.fi/3pool",
+      defaultDepositTokenSymbol: "USDT",
+    },
+  },
+  {
+    addresses: triCryptoSweetVault,
+    metadata: {
+      name: "3Crypto Vault",
+      symbol: "pop-3Crypto",
+      displayText: {
+        strategy: `Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.`,
+        token: `This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform.`,
+      },
+      curveLink: "https://curve.fi/tricrypto2/deposit",
       defaultDepositTokenSymbol: "ETH",
     },
   },

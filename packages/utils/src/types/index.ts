@@ -16,10 +16,16 @@ export interface ContractAddresses {
   dai?: Address;
   usdc?: Address;
   usdt?: Address;
+  wbtc?: Address;
+  crv3Crypto?: Address;
   threeCrv?: Address;
   crvSEth?: Address;
   sEthSweetVault?: Address;
   sEthSweetVaultStaking?: Address;
+  usdtSweetVault?: Address;
+  usdtSweetVaultStaking?: Address;
+  triCryptoSweetVault?: Address;
+  triCryptoSweetVaultStaking?: Address;
   threePool?: Address;
   popUsdcLp?: Address;
   popUsdcUniV3Pool?: Address;

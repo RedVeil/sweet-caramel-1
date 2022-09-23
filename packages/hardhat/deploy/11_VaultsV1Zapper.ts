@@ -69,16 +69,17 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log("Setting sEth zaps");
     await vaultsV1Zapper.connect(signer).updateZaps(crvSEth, CURVE_ZAP_IN, CURVE_ZAP_OUT);
 
-    console.log("Adding Stargate Vault");
-    const vaultsV1ZapperStargate = await ethers.getContractAt(
-      "VaultsV1Zapper",
+    console.log((
+      await deployments.get("ZeroXSwapZapIn")
+    ).address,
       (
-        await deployments.get("VaultsV1Zapper")
-      ).address
-    );
-    await vaultsV1ZapperStargate.connect(signer).updateVault(usdt, (await deployments.get("usdtSweetVault")).address);
-    await vaultsV1ZapperStargate.connect(signer).setFee(usdt, true, 0, 0);
-    await vaultsV1ZapperStargate
+        await deployments.get("ZeroXSwapZapOut")
+      ).address)
+
+    console.log("Adding Stargate Vault");
+    await vaultsV1Zapper.connect(signer).updateVault(usdt, (await deployments.get("usdtSweetVault")).address);
+    await vaultsV1Zapper.connect(signer).setFee(usdt, true, 0, 0);
+    await vaultsV1Zapper
       .connect(signer)
       .updateZaps(
         usdt,
@@ -91,17 +92,11 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       );
 
     console.log("Adding 3crypto Vault");
-    const vaultsV1ZapperTriCrypto = await ethers.getContractAt(
-      "VaultsV1Zapper",
-      (
-        await deployments.get("VaultsV1Zapper")
-      ).address
-    );
-    await vaultsV1ZapperTriCrypto
+    await vaultsV1Zapper
       .connect(signer)
-      .updateVault(usdt, (await deployments.get("triCryptoSweetVault")).address);
-    await vaultsV1ZapperTriCrypto.connect(signer).setFee(crv3Crypto, true, 0, 0);
-    await vaultsV1ZapperTriCrypto.connect(signer).updateZaps(crv3Crypto, CURVE_ZAP_IN, CURVE_ZAP_OUT);
+      .updateVault(crv3Crypto, (await deployments.get("triCryptoSweetVault")).address);
+    await vaultsV1Zapper.connect(signer).setFee(crv3Crypto, true, 0, 0);
+    await vaultsV1Zapper.connect(signer).updateZaps(crv3Crypto, CURVE_ZAP_IN, CURVE_ZAP_OUT);
   }
 };
 export default main;

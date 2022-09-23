@@ -69,7 +69,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   const [tokenList, setTokenList] = useState<Token[]>([]);
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string>(
     defaultTokenList?.find((token) => token.symbol == sweetVault?.metadata?.defaultDepositTokenSymbol)?.address ||
-      sweetVault?.metadata?.underlyingToken?.address,
+    sweetVault?.metadata?.underlyingToken?.address,
   );
   const [selectedToken, setSelectedToken] = useState<Token>(sweetVault?.metadata?.underlyingToken);
   const {
@@ -80,9 +80,14 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   const approveToken = useApproveERC20();
 
   useEffect(() => {
-    if (sweetVault?.metadata && poolToken?.length) {
-      const list = [sweetVault?.metadata.underlyingToken, ...poolToken, ...defaultTokenList];
-      setTokenList(list.filter((token, index) => list.findIndex((obj) => obj.address === token.address) === index));
+    if (sweetVault?.metadata) {
+      let allTokens;
+      if (poolToken?.length > 0) {
+        allTokens = [sweetVault?.metadata.underlyingToken, ...poolToken, ...defaultTokenList];
+      } else {
+        allTokens = [sweetVault?.metadata.underlyingToken, ...defaultTokenList];
+      }
+      setTokenList(allTokens.filter((token, index) => allTokens.findIndex((obj) => obj.address === token.address) === index));
     }
   }, [sweetVault?.metadata, sweetVault?.metadata?.underlyingToken, poolToken, defaultTokenList]);
 

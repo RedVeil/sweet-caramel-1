@@ -1,9 +1,29 @@
-import { parseEther } from "@ethersproject/units";
+import { parseEther, parseUnits } from "@ethersproject/units";
 import { useContractMetadata } from "@popcorn/app/contractMetadataOverride";
 import { ERC20__factory, Vault } from "@popcorn/hardhat/typechain";
 import getToken from "./getToken";
 import { Address, SweetVaultMetadata } from "./types";
 import { SweetVaultWithMetadata } from "./types/index";
+
+function getBestVault(yVaultData, underlyingTokenAddress) {
+  const possibleVaults = yVaultData.filter(
+    (vault) => vault?.token?.address.toLowerCase() === underlyingTokenAddress.toLowerCase(),
+  )
+  if (possibleVaults.length === 1) {
+    return possibleVaults[0];
+  } else {
+    return possibleVaults.sort((a, b) => a.inception - b.inception)[possibleVaults.length - 1]
+  }
+}
+
+function getVaultName(vault): string {
+  const splitName = vault.display_name.split(" ")
+  if (splitName.length > 1) {
+    return splitName[1]
+  } else {
+    return splitName[0]
+  }
+}
 
 export default async function getSweetVault(
   account: Address | null,
@@ -19,29 +39,27 @@ export default async function getSweetVault(
       console.log("Error while fetching yearn vaults", ex.toString());
     });
   const underlyingTokenAddress = await sweetVault.token();
-  const vault = yVaultData.find(
-    (vault) => vault?.token?.address.toLowerCase() === underlyingTokenAddress.toLowerCase(),
-  );
-
+  const vault = getBestVault(yVaultData, underlyingTokenAddress);
   const staking = ERC20__factory.connect(await sweetVault.staking(), signerOrProvider);
+  const decimals = await sweetVault.decimals();
 
   const { metadata } = useContractMetadata({
     chainId: chainId,
     address: sweetVault.address,
     metadata: {
-      name: vault.display_name.split(" ")[1],
+      name: getVaultName(vault),
       symbol: vault.token.symbol,
       balance: account ? await staking.balanceOf(account) : parseEther("0"),
       allowance: account ? await sweetVault.allowance(account, sweetVault.address) : parseEther("0"),
-      decimals: await sweetVault.decimals(),
+      decimals: decimals,
       icon: vault.icon,
       pricePerShare: pricePerShare,
       tvl: pricePerShare
         .mul(totalSupply)
-        .div(parseEther("1"))
+        .div(parseUnits("1", decimals))
         .mul(parseEther(vault.tvl.price.toString()))
-        .div(parseEther("1")),
-      apy: (vault?.apy?.net_apy / 2) * 100 * (98.5 / 100),
+        .div(parseUnits("1", decimals)),
+      apy: vault?.apy?.net_apy * 100 * (98.5 / 100),
       underlyingToken: await getToken(
         ERC20__factory.connect(underlyingTokenAddress, signerOrProvider),
         signerOrProvider,
@@ -49,7 +67,7 @@ export default async function getSweetVault(
         account,
         sweetVault.address,
       ),
-      deposited: account ? (await staking.balanceOf(account)).mul(pricePerShare).div(parseEther("1")) : parseEther("0"),
+      deposited: account ? (await staking.balanceOf(account)).mul(pricePerShare).div(parseUnits("1", decimals)) : parseEther("0"),
       stakingAdress: staking.address,
     } as SweetVaultMetadata,
   });

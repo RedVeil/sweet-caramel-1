@@ -50,7 +50,6 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   const metadata = sweetVault ? sweetVault.metadata : ({} as SweetVaultMetadata);
   const { name, underlyingToken, deposited, tvl, apy, curveLink, icon, displayText } = metadata;
   const vaultLoading = !sweetVault;
-
   const stakingApy = formatAndRoundBigNumber(stakingPool?.apy, 3);
 
   const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying assets (${apy?.toLocaleString() || "-"
@@ -77,8 +76,6 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   async function revalidate(): Promise<void> {
     await Promise.all([revalidateTokenList(), revalidateVault(), revalidatePoolToken()]);
   }
-
-  console.log(name, deposited.toString())
 
   if (vaultLoading) {
     return (
