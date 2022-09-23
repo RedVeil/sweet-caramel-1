@@ -77,9 +77,8 @@ const VotingCard: React.FC<VotingCardProps> = ({
       mobileHeight={getPopModalHeight()}
     >
       <div
-        className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${
-          !showVotes ? " rotate-180" : ""
-        }`}
+        className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${!showVotes ? " rotate-180" : ""
+          }`}
       >
         <ChevronDownIcon className="animate-bounce text-secondaryLight w-5" onClick={toggleVotes} />
       </div>
