@@ -169,6 +169,11 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                           {onConfirm?.label}
                         </Button>
                       )}
+                      {onDismiss?.label && (
+                        <Button variant="secondary" onClick={() => onDismiss.onClick()} className="py-2 px-5 w-full mt-4">
+                          {onDismiss?.label}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Dialog.Panel>
