@@ -33,7 +33,7 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ size, image, description, fil
           </button>
         </RWebShare>
       </div>
-      <p className="mt-4">{description}</p>
+      {description && <p className="mt-4">{description}</p>}
     </Card>
   );
 };
@@ -42,7 +42,7 @@ interface CardProps {
   size: string;
 }
 const Card = styled.div<CardProps>`
-  margin: 30px 0px;
+  margin: 0px 0px 30px;
   padding: 0;
   border-radius: 16px;
   position: relative;

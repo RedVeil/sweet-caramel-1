@@ -7,7 +7,7 @@ const ReportsTab = ({ reports }: { reports: ImpactReport[] }) => {
   return (
     <>
       {reports.length > 0 ? (
-        <div className="border border-gray-200 rounded-2xl my-4 lg:mx-5">
+        <div className="border border-customLightGray rounded-lg my-4">
           {reports.map((report) => (
             <div
               className=" flex justify-between py-3 px-4 items-center border-b border-gray-200 last:border-none"
