@@ -270,7 +270,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
 
   const isElemTop = (ele: Element) => {
     const { bottom, height, top } = ele.getBoundingClientRect();
-    if (top <= 100) {
+    if (top <= 300) {
       setShowPopUp(false);
     } else setShowPopUp(true);
   };
@@ -301,23 +301,23 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
             title: `Share ${proposal?.application?.organizationName}'s Proposal`,
           }}
         >
-          <button className=" opacity-80 bg-white border-gray-200 rounded-3xl text-gray-900 font-semibold hidden md:flex px-5 py-3 absolute gap-3 bottom-10 left-8 shadow-white-button ">
+          <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 absolute gap-3 bottom-10 left-8 shadow-white-button ">
             <ShareIcon className="w-6 h-6" />
             Share
           </button>
         </RWebShare>
       </Hero>
+      <div className="hidden md:block mx-8 mt-8">
+        <Link href={"/applications"}>
+          <a className="flex space-x-2">
+            <ChevronLeftIcon className="text-secondaryLight w-4" />
+            <p className="text-primary">Beneficiary Application</p>
+          </a>
+        </Link>
+      </div>
       <div className="container mx-auto">
         <div className="grid grid-cols-12 md:gap-12">
-          <div className="col-span-12 lg:col-span-7 xl:col-span-8 md:pt-8">
-            <div className="hidden md:block">
-              <Link href={"/applications"}>
-                <a className="flex space-x-2">
-                  <ChevronLeftIcon className="text-secondaryLight w-4" />
-                  <p className="text-primary">Beneficiary Application</p>
-                </a>
-              </Link>
-            </div>
+          <div className="col-span-12 lg:col-span-7 xl:col-span-8">
             <div className="pt-10 md:pt-20 px-6 md:px-0">
               <div className="md:hidden mb-10">
                 <VotePeriodCard stageDeadline={proposal?.stageDeadline} startTime={proposal?.startTime} />
@@ -329,13 +329,13 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                   className=" w-36 h-36 rounded-full object-cover hidden md:block"
                 />
                 <div>
-                  <p className="text-customLightGray text-2xl leading-7 uppercase">
+                  <p className="text-customLightGray text-base leading-7 uppercase">
                     {proposal?.application?.proposalCategory}
                   </p>
                   <h3 className="text-black text-5xl md:text-6xl my-4 leading-11">
                     {proposal?.application?.projectName}
                   </h3>
-                  <p className="text-primaryDark text-2xl leading-7">by {proposal?.application?.organizationName}</p>
+                  <p className="text-primaryDark text-base leading-7">by {proposal?.application?.organizationName}</p>
                 </div>
               </div>
               <div className="py-10 flex">
@@ -351,7 +351,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                   </button>
                 </RWebShare>
               </div>
-              <div className="flex justify-between md:justify-start md:space-x-4 pb-18 md:pb-20 md:pt-14">
+              <div className="flex justify-between md:justify-start md:space-x-4 pb-10 md:pb-20 md:pt-14">
                 {profileTabs.map((tab) => (
                   <button
                     key={tab}
@@ -378,7 +378,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           <div className="hidden lg:block col-span-12 lg:col-span-5 xl:col-span-4">
             <div className="absolute h-4/6 top-80">
               <div className="sticky top-40">
-                <div className="w-96">
+                <div className="w-[25rem] shadow-voting-card rounded-4xl">
                   <VotingCard
                     votes={proposal?.votes}
                     stageDeadline={proposal?.stageDeadline}

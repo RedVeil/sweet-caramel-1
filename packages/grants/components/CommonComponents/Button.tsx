@@ -13,11 +13,11 @@ const Button: React.FC<ButtonProps> = ({ variant, children, className, onClick, 
     switch (variant) {
       case "primary":
         if (disabled)
-          return "bg-customLightGray border-customLightGray text-secondaryLight hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
+          return "bg-customLightGray border-customLightGray text-white hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
         return "bg-warmGray border-warmGray text-black hover:bg-primary hover:border-primary hover:text-white";
       case "secondary":
         if (disabled)
-          return "bg-customLightGray border-customLightGray text-secondaryLight hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
+          return "bg-customLightGray border-customLightGray text-white hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
         return "px-8 py-3 font-medium bg-transparent border border-primary text-primary hover:bg-primary hover:border-primary hover:text-white";
       case "tertiary":
         if (disabled) return "bg-customLightGray border-customLightGray text-secondaryLight hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";

@@ -1,11 +1,12 @@
 import { Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/outline";
 import { ProposalStatus } from "@popcorn/hardhat/lib/adapters";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import Button from "components/CommonComponents/Button";
 import VotingProgress from "components/CommonComponents/VotingProgress";
-import CaretIcon from "components/Svgs/CaretIcon";
 import { BigNumber } from "ethers";
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 import { formatTimeUntilDeadline } from "../../utils/formatTimeUntilDeadline";
 
 interface VotingCardProps {
@@ -60,26 +61,26 @@ const VotingCard: React.FC<VotingCardProps> = ({
     let height;
     if (!hasVoted && !hasStaked) {
       if (showVotes) {
-        height = "450px";
-      } else height = "250px";
+        height = "430px";
+      } else height = "226px";
     } else {
       if (showVotes) {
-        height = "500px";
-      } else height = "300px";
+        height = "490px";
+      } else height = "286px";
     }
     return height;
   };
 
   return (
-    <div
-      className="bg-white rounded-t-4xl shadow-voting-card-mobile md:shadow-voting-card p-8 transition-all duration-1000 ease-in-out"
-      style={{ height: getPopModalHeight() }}
+    <VotingCardCon
+      className={`bg-white rounded-t-4xl shadow-voting-card-mobile md:shadow-none p-6 md:p-8 transition-all duration-1000 ease-in-out md:h-full`}
+      mobileHeight={getPopModalHeight()}
     >
       <div
         className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${!showVotes ? " rotate-180" : ""
           }`}
       >
-        <CaretIcon className="animate-bounce" onClick={toggleVotes} />
+        <ChevronDownIcon className="animate-bounce text-secondaryLight w-5" onClick={toggleVotes} />
       </div>
       <h5 className="text-black text-3xl leading-8 mb-2">
         {ProposalStatus[status]} {status == 0 ? "Vote" : status == 1 ? "Period" : ""}
@@ -116,8 +117,18 @@ const VotingCard: React.FC<VotingCardProps> = ({
           Stake to vote
         </Button>
       )}
-    </div>
+    </VotingCardCon>
   );
 };
+
+interface CardProps {
+  mobileHeight: string;
+}
+const VotingCardCon = styled.div<CardProps>`
+  height: 100%;
+  @media screen and (max-width: 999px) {
+    height: ${({ mobileHeight }) => mobileHeight};
+  }
+`;
 
 export default VotingCard;

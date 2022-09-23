@@ -43,10 +43,10 @@ const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startT
   const InactiveIndicator = <div className="w-8 h-8 rounded-full border-2 border-customLightGray bg-white"></div>;
 
   return (
-    <div className="bg-gray-50 rounded-4xl md:rounded-t-none p-10 md:border-t border-customLightGray">
+    <div className="bg-gray-50 rounded-lg md:rounded-t-none md:rounded-b-4xl p-10 md:border-t border-customLightGray">
       <div className="flex items-center justify-center mb-5">
         {ActiveIndicator}
-        <div className="w-40">
+        <div className="w-28 xs:w-44 bg-customLightGray h-0.5">
           <hr className="transition ease-in border border-customPurple" style={{ width: `${timeLeftProgress}%` }} />
         </div>
         {timeLeftProgress < 100 ? InactiveIndicator : ActiveIndicator}

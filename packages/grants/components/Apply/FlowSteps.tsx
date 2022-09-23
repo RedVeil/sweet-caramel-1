@@ -14,9 +14,12 @@ const FlowSteps: React.FC<FlowStepsProps> = ({ active }) => {
     { id: FormSteps.VISUAL_CONTENT, title: "Visual Content" },
   ];
   return (
-    <div className="flex justify-between overflow-x-scroll lg:overflow-x-hidden">
+    <div className="flex justify-between overflow-x-hidden lg:overflow-x-hidden mx-6 md:mx-0">
       {stepList.map((step) => (
-        <div className="flex gap-3 items-center pr-5 md:pr-0" key={step.id}>
+        <div
+          className={`gap-3 items-center pr-5 md:pr-0 ${step.id < active ? "hidden md:flex" : "flex"}`}
+          key={step.id}
+        >
           <div
             className={`${
               active == step.id ? "bg-black" : "bg-gray-100"
