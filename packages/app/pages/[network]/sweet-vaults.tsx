@@ -80,10 +80,7 @@ export default function index(): JSX.Element {
         </div>
         <div className="col-span-12 md:col-span-6 md:col-end-13">
           <div className="rounded-lg bg-customRed hidden md:flex flex-col justify-between p-8 w-full h-full">
-            <h2 className=" text-4xl leading-10">
-              Blockchain-enabled <br /> wealth management <br />
-              and social impact.
-            </h2>
+            <h2 className=" text-4xl leading-10">{/* removed text for now - @am */}</h2>
             <div className="flex justify-end mt-14">
               <img src="/images/sweetVaults.svg" className="" />
             </div>

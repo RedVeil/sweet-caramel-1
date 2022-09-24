@@ -321,9 +321,7 @@ export default function StakeInterface({
           </div>
 
           <div className="bg-customLightYellow rounded-lg p-8 hidden md:flex flex-col justify-between mt-8">
-            <h2 className=" text-6xl leading-11">
-              Blockchain-enabled <br /> wealth management and <br /> social impact.
-            </h2>
+            <h2 className=" text-6xl leading-11">{/* removed text for now - @am */}</h2>
             <div className="flex justify-end mt-28">
               <img src="/images/hands.svg" alt="" className=" h-28 w-28" />
             </div>
