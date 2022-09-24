@@ -31,6 +31,7 @@ import useButterWhaleData from "hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
@@ -89,7 +90,6 @@ export default function Butter(): JSX.Element {
     contractAddresses,
     connect,
     setChain,
-    pushWithinChain,
     signer,
   } = useWeb3();
   const { dispatch } = useContext(store);
@@ -102,6 +102,7 @@ export default function Butter(): JSX.Element {
     error: errorFetchingButterBatchData,
     mutate: refetchButterBatchData,
   } = useButterBatchData();
+  const router = useRouter();
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
   const loadingButterBatchData = !butterPageState.selectedToken;
@@ -133,7 +134,7 @@ export default function Butter(): JSX.Element {
           onDismiss: {
             label: "Go Back",
             onClick: () => {
-              pushWithinChain("/");
+              router.back();
               dispatch(setDualActionWideModal(false));
             },
           },

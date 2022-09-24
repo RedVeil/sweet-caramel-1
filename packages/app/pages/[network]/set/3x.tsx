@@ -30,6 +30,7 @@ import useThreeXWhale from "hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useThreeXZapper from "hooks/set/useThreeXZapper";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
@@ -56,6 +57,7 @@ export default function ThreeX(): JSX.Element {
     setChain,
     pushWithinChain,
   } = useWeb3();
+  const router = useRouter();
   const { dispatch } = useContext(store);
   const threeX = useSetToken(contractAddresses.threeX);
   const threeXZapper = useThreeXZapper();
@@ -93,7 +95,7 @@ export default function ThreeX(): JSX.Element {
           onDismiss: {
             label: "Go Back",
             onClick: () => {
-              pushWithinChain("/");
+              router.back();
               dispatch(setDualActionWideModal(false));
             },
           },

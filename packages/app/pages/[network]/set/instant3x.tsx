@@ -10,6 +10,7 @@ import { isDepositDisabled } from "helper/isDepositDisabled";
 import useThreeXWhale from "hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
@@ -37,6 +38,7 @@ export default function Instant3x() {
     error: errorFetchingThreeXWhaleData,
     mutate: refetchThreeXData,
   } = useThreeXWhaleData();
+  const router = useRouter();
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXWhaleData && !errorFetchingThreeXWhaleData;
 
@@ -60,7 +62,7 @@ export default function Instant3x() {
           onDismiss: {
             label: "Go Back",
             onClick: () => {
-              pushWithinChain("/");
+              router.back();
               dispatch(setDualActionWideModal(false));
             },
           },

@@ -17,6 +17,7 @@ import useButterWhaleData from "hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
+import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
@@ -35,6 +36,7 @@ export default function InstantButter() {
     pushWithinChain,
   } = useWeb3();
   const { dispatch } = useContext(store);
+  const router = useRouter();
   const butterWhaleProcessing = useButterWhaleProcessing();
   const { data: butterData, error: errorFetchingButterData, mutate: refetchButterData } = useButterWhaleData();
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
@@ -67,7 +69,7 @@ export default function InstantButter() {
           onDismiss: {
             label: "Go Back",
             onClick: () => {
-              pushWithinChain("/");
+              router.back();
               dispatch(setDualActionWideModal(false));
             },
           },
