@@ -99,9 +99,9 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         ),
         visible: true,
         onDismiss: {
-          onClick: () => dispatch(setSingleActionModal({ visible: false }))
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
         },
-        showCloseButton: false
+        showCloseButton: false,
       }),
     );
   };
@@ -120,7 +120,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           },
         },
         onDismiss: {
-          onClick: () => dispatch(setSingleActionModal({ visible: false }))
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
         },
       }),
     );
@@ -200,7 +200,8 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
       setSingleActionModal({
         image: <img src="/images/accept.svg" alt="Voted yes confirmed" />,
         title: "Vote Accepted",
-        content: "You have accepted this application to become an eligible beneficiary in the Open Vote. If it passes this round, the organization will enter the second phase, Challenge Period",
+        content:
+          "You have accepted this application to become an eligible beneficiary in the Open Vote. If it passes this round, the organization will enter the second phase, Challenge Period",
         visible: true,
         onConfirm: {
           label: "Done",
@@ -210,7 +211,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           },
         },
         onDismiss: {
-          onClick: () => dispatch(setSingleActionModal({ visible: false }))
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
         },
       }),
     );
@@ -219,10 +220,12 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   const openVoteRejectedModal = () => {
     dispatch(
       setSingleActionModal({
-        image: (<>
-          <img src="/images/vote-rejected.svg" alt="Voted yes confirmed" className="hidden lg:block" />
-          <img src="/images/accept.svg" alt="Voted yes confirmed" className="md:hidden" />
-        </>),
+        image: (
+          <>
+            <img src="/images/vote-rejected.svg" alt="Voted yes confirmed" className="hidden lg:block" />
+            <img src="/images/accept.svg" alt="Voted yes confirmed" className="md:hidden" />
+          </>
+        ),
         title: "Vote Rejected",
         content: `You have rejected the proposal of "${proposal?.application?.projectName}" beneficiary from ${proposal?.application?.organizationName}. If a majority of the community votes to reject this beneficiary, they will no longer be eligible.`,
         visible: true,
@@ -234,7 +237,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           },
         },
         onDismiss: {
-          onClick: () => dispatch(setSingleActionModal({ visible: false }))
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
         },
       }),
     );
@@ -275,7 +278,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         <Link href={"/applications"}>
           <a className="flex space-x-2">
             <ChevronLeftIcon className="text-secondaryLight w-4" />
-            <p className="text-primary">Beneficiary Application</p>
+            <p className="text-primary">Beneficiary Applications</p>
           </a>
         </Link>
       </div>
@@ -300,7 +303,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         <Link href={"/applications"}>
           <a className="flex space-x-2">
             <ChevronLeftIcon className="text-secondaryLight w-4" />
-            <p className="text-primary">Beneficiary Application</p>
+            <p className="text-primary">Beneficiary Applications</p>
           </a>
         </Link>
       </div>
@@ -344,10 +347,11 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                 {profileTabs.map((tab) => (
                   <button
                     key={tab}
-                    className={`rounded-[28px] px-5 py-3 text-lg border ${currentTab == tab
-                      ? "text-white bg-[#827D69] border-[#827D69]"
-                      : "text-[#55503D] bg-white border-customLightGray"
-                      }`}
+                    className={`rounded-[28px] px-5 py-3 text-lg border ${
+                      currentTab == tab
+                        ? "text-white bg-[#827D69] border-[#827D69]"
+                        : "text-[#55503D] bg-white border-customLightGray"
+                    }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {capitalize(tab)}

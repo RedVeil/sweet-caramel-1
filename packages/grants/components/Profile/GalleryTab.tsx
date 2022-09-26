@@ -15,24 +15,28 @@ interface GalleryTabProps {
 
 const GalleryTab: React.FC<GalleryTabProps> = ({ additionalImages, rowsPercent }) => {
   const setImageSize = (hash: string) => {
-    const img = document.createElement("img");
-    img.setAttribute("src", `${process.env.IPFS_URL}${hash}`);
-    img.style.objectFit = "cover";
+    let arr = ["small", "large", "medium"];
+    let rand = Math.floor(Math.random() * arr.length) + 1;
+    let imgSize = arr[rand - 1];
+    // const img = document.createElement("img");
+    // img.setAttribute("src", `${process.env.IPFS_URL}${hash}`);
+    // img.style.objectFit = "cover";
 
-    let imgSize: string;
-    let imgHeight = img.naturalHeight;
-    let imgWidth = img.naturalWidth;
-    if (imgHeight > imgWidth) {
-      imgSize = "large";
-    } else if (imgWidth - imgHeight <= 300) {
-      imgSize = "medium";
-    } else {
-      imgSize = "small";
-    }
+    // let imgSize: string;
+    // let imgHeight = img.naturalHeight;
+    // let imgWidth = img.naturalWidth;
+    // if (imgHeight > imgWidth) {
+    // 	imgSize = "large";
+    // } else if (imgWidth - imgHeight <= 300) {
+    // 	imgSize = "medium";
+    // } else {
+    // 	imgSize = "small";
+    // }
     return imgSize;
   };
   return (
     <>
+      {/* {hash || image} */}
       {additionalImages.length > 0 ? (
         <GalleryLayout rowsPercent={rowsPercent}>
           {additionalImages?.map(({ hash, description, fileName, image }) => (
