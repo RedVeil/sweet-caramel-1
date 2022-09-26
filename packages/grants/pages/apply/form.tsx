@@ -165,6 +165,9 @@ const ApplyForm = () => {
               dispatch(setSingleActionModal(false));
             },
           },
+          onDismiss: {
+            onClick: () => dispatch(setSingleActionModal({ visible: false }))
+          },
         }),
       );
       return false;
@@ -227,12 +230,20 @@ const ApplyForm = () => {
   };
 
   const openModal = () => {
-    const icon = <img src="/images/submitFormModalIcon.svg" alt="Submit Modal Icon" className="w-32 h-32" />;
     dispatch(
-      setDualActionModal({
+      setSingleActionModal({
+        image: <img src="/images/accept-application.svg" alt="Submit Modal Icon" />,
         title: "Submit Application",
-        content: `By confirming the proposal submission, you commit to locking 2000 POP for the duration of the proposal process.
-				If the nomination does not pass, the token that were locked at the time of submission will be kept in the contract. After a successful nomination, the tokens will be claimable by nominating user.`,
+        children: (
+          <div className="text-base md:text-sm text-primaryDark mt-4">
+            <p className="leading-[140%]">
+              By confirming the proposal submission, you commit to locking 2000 POP for the duration of the proposal process
+            </p>
+            <p className="leading-[140%] mt-4">
+              If the nomination does not pass, the token that were locked at the time of submission will be kept in the contract. After a successful nomination, the tokens will be claimable by nominating user.
+            </p>
+          </div>
+        ),
         onConfirm: {
           label: "Lock & Submit",
           onClick: () => uploadJsonToIpfs(formData),
@@ -241,29 +252,32 @@ const ApplyForm = () => {
           label: "Cancel",
           onClick: () => {
             setUploading(false);
-            dispatch(setDualActionModal(false));
+            dispatch(setSingleActionModal(false));
           },
         },
-        icon,
       }),
     );
   };
 
   const congratsModal = () => {
-    const image = <img src="/images/confetti.svg" alt="Confetti image" className="w-28 h-16" />;
     dispatch(
       setSingleActionModal({
-        title: "Congratulations ",
+        image: <img src="/images/accept.svg" alt="Congratulations" />,
+        title: "Congratulations",
         content: `The application for becoming an eligible beneficiary has been submitted. You will be notified once the proposal is listed and ready to be voted by the community.`,
         onConfirm: {
-          label: "Done",
+          label: "Continue",
           onClick: () => {
             clearLocalStorage();
             dispatch(setSingleActionModal(false));
             router.push("/");
           },
         },
-        image,
+        onDismiss: {
+          onClick: () => {
+            dispatch(setSingleActionModal(false));
+          },
+        },
       }),
     );
   };
