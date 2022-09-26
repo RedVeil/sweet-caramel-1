@@ -17,6 +17,7 @@ export const SingleActionModalContainer: React.FC = () => {
       onDismiss={singleActionModal.onDismiss}
       onConfirm={singleActionModal.onConfirm}
       keepOpen={singleActionModal.keepOpen}
+      showCloseButton={singleActionModal.showCloseButton}
     />
   );
 };

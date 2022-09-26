@@ -20,7 +20,7 @@ import toast from "react-hot-toast";
 import { RWebShare } from "react-web-share";
 import styled from "styled-components";
 import StakeModalContent from "../../components/Proposals/StakeModalContent";
-import { setDualActionModal, setSingleActionModal } from "../../context/actions";
+import { setSingleActionModal } from "../../context/actions";
 import { store } from "../../context/store";
 import capitalize from "../../utils/capitalizeFirstLetter";
 
@@ -110,7 +110,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
     setHasStaked(true);
     dispatch(
       setSingleActionModal({
-        image: <img src="/images/stakeCheckIcon.svg" alt="Confirmed Stake" />,
+        image: <img src="/images/accept.svg" alt="Confirmed Stake" />,
         title: "You are now staked and ready to vote",
         visible: true,
         onConfirm: {
@@ -119,24 +119,19 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
             dispatch(setSingleActionModal(false));
           },
         },
+        onDismiss: {
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
+        },
       }),
     );
   };
 
   const openAcceptApplicationModal = () => {
     dispatch(
-      setDualActionModal({
-        icon: <img src="/images/stakeCheckIcon.svg" alt="Confirmed Stake" />,
+      setSingleActionModal({
+        image: <img src="/images/accept-application.svg" alt="Confirmed Stake" />,
         title: "Accept Application",
-        content: (
-          <p className="font-semibold text-gray-500">
-            You are about to{" "}
-            <span className="text-gray-900">
-              accept the {proposal?.application?.organizationName} beneficiary application
-            </span>{" "}
-            in the Open Vote round.
-          </p>
-        ),
+        content: `You are about to accept the "${proposal?.application?.organizationName}" beneficiary application in the Open Vote round.`,
         visible: true,
         onConfirm: {
           label: "Accept",
@@ -147,7 +142,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onDismiss: {
           label: "Cancel",
           onClick: () => {
-            dispatch(setDualActionModal(false));
+            dispatch(setSingleActionModal(false));
           },
         },
       }),
@@ -156,18 +151,10 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
 
   const openRejectApplicationModal = () => {
     dispatch(
-      setDualActionModal({
-        icon: <img src="/images/stakeRejectIcon.svg" alt="Confirmed Stake" />,
+      setSingleActionModal({
+        image: <img src="/images/reject-application.svg" alt="Confirmed Stake" />,
         title: "Reject Application",
-        content: (
-          <p className="font-semibold text-gray-500">
-            You are about to{" "}
-            <span className="text-gray-900">
-              reject the {proposal?.application?.organizationName} beneficiary application
-            </span>{" "}
-            in the Open Vote round.
-          </p>
-        ),
+        content: `You are about to reject the "${proposal?.application?.organizationName}" beneficiary application in the Open Vote round.`,
         visible: true,
         onConfirm: {
           label: "Reject",
@@ -178,7 +165,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onDismiss: {
           label: "Cancel",
           onClick: () => {
-            dispatch(setDualActionModal(false));
+            dispatch(setSingleActionModal(false));
           },
         },
       }),
@@ -194,7 +181,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         toast.dismiss();
         toast.success("Voted successfully!");
         setHasVoted(true);
-        dispatch(setDualActionModal(false));
+        dispatch(setSingleActionModal(false));
         if (selectedVote === VoteOptions.Yea) {
           openVoteAcceptedModal();
         } else {
@@ -204,21 +191,17 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
       .catch((err) => {
         toast.dismiss();
         toast.error(err.data.message.split("'")[1]);
-        dispatch(setDualActionModal(false));
+        dispatch(setSingleActionModal(false));
       });
   };
 
   const openVoteAcceptedModal = () => {
     dispatch(
       setSingleActionModal({
-        image: <img src="/images/voted yes.svg" alt="Voted yes confirmed" />,
+        image: <img src="/images/accept.svg" alt="Voted yes confirmed" />,
         title: "Vote Accepted",
-        content: (
-          <p className="text-gray-500">
-            You have accepted this application to become an eligible beneficiary in the Open Vote. If it passes this
-            round, the organization will enter the second phase, Challenge Period
-          </p>
-        ),
+        content:
+          "You have accepted this application to become an eligible beneficiary in the Open Vote. If it passes this round, the organization will enter the second phase, Challenge Period",
         visible: true,
         onConfirm: {
           label: "Done",
@@ -227,6 +210,9 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
             dispatch(setSingleActionModal(false));
           },
         },
+        onDismiss: {
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
+        },
       }),
     );
   };
@@ -234,22 +220,24 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   const openVoteRejectedModal = () => {
     dispatch(
       setSingleActionModal({
-        image: <img src="/images/voted no.svg" alt="Voted yes confirmed" />,
-        title: "Vote Rejected",
-        content: (
-          <p className="text-gray-500">
-            You have rejected the proposal of "{proposal?.application?.projectName}" beneficiary from{" "}
-            {proposal?.application?.organizationName}. If a majority of the community votes to reject this beneficiary,
-            they will no longer be eligible.
-          </p>
+        image: (
+          <>
+            <img src="/images/vote-rejected.svg" alt="Voted yes confirmed" className="hidden lg:block" />
+            <img src="/images/accept.svg" alt="Voted yes confirmed" className="md:hidden" />
+          </>
         ),
+        title: "Vote Rejected",
+        content: `You have rejected the proposal of "${proposal?.application?.projectName}" beneficiary from ${proposal?.application?.organizationName}. If a majority of the community votes to reject this beneficiary, they will no longer be eligible.`,
         visible: true,
         onConfirm: {
-          label: "Done",
+          label: "Continue",
           onClick: () => {
             fetchPageDetails();
             dispatch(setSingleActionModal(false));
           },
+        },
+        onDismiss: {
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
         },
       }),
     );

@@ -1,11 +1,10 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
-import Button from "components/CommonComponents/Button";
-import React, { Fragment, useEffect, useState, useRef } from "react";
-import * as Icon from "react-feather";
 import { XIcon } from "@heroicons/react/outline";
+import Button from "components/CommonComponents/Button";
 import useClickOutside from "hooks/useClickOutside";
-
+import React, { Fragment, useEffect, useRef, useState } from "react";
+import * as Icon from "react-feather";
 
 export interface SingleActionModalProps {
   title: string;
@@ -27,7 +26,7 @@ export const DefaultSingleActionModalProps: SingleActionModalProps = {
   type: "info",
   keepOpen: false,
   showCloseButton: true,
-  onDismiss: { onClick: () => { } }
+  onDismiss: { onClick: () => {} },
 };
 
 export const SingleActionModal: React.FC<SingleActionModalProps> = ({
@@ -91,7 +90,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
       >
         <div className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity" />
         <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <div className="flex min-h-full justify-center p-4 items-center sm:p-0">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -104,13 +103,15 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
               <div ref={modalRef}>
                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-10 sm:align-middle w-88 md:max-w-[512px]">
                   {showCloseButton && (
-                    <button className="flex justify-end">
-                      <XIcon className="w-10 h-10 text-black mb-10" onClick={() => dismiss()} />
-                    </button>
+                    <div className="w-full flex justify-end mb-5">
+                      <button>
+                        <XIcon className="w-10 h-10 text-black" onClick={() => dismiss()} />
+                      </button>
+                    </div>
                   )}
                   <div>
                     {image ? (
-                      <div className="flex justify-center">
+                      <div>
                         <>{image}</>
                       </div>
                     ) : (
@@ -150,21 +151,33 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                           ))}
                       </>
                     )}
-                    <div className="text-center">
-                      <h3 className="text-2xl leading-6 font-semibold text-gray-900 mt-5 mb-2" id="modal-title">
+                    <div className="my-6 lg:my-10">
+                      <h3 className="text-4xl lg:text-6xl leading-[110%] font-normal text-black mb-2" id="modal-title">
                         {title}
                       </h3>
-                      <div>{children ? children : (
-                        <p className="text-base md:text-sm text-gray-500">
-                          <>{content}</>
-                        </p>
-                      )}
+                      <div>
+                        {children ? (
+                          children
+                        ) : (
+                          <p className="text-base md:text-sm text-primaryDark mt-4">
+                            <>{content}</>
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="mt-5">
                       {onConfirm && (
                         <Button variant="primary" onClick={confirm} className="py-2 px-5 w-full">
                           {onConfirm?.label}
+                        </Button>
+                      )}
+                      {onDismiss?.label && (
+                        <Button
+                          variant="secondary"
+                          onClick={() => onDismiss.onClick()}
+                          className="py-2 px-5 w-full mt-4"
+                        >
+                          {onDismiss?.label}
                         </Button>
                       )}
                     </div>

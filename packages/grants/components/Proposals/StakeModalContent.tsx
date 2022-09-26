@@ -1,4 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
+import { XIcon } from "@heroicons/react/outline";
 import Slider from "@mui/material/Slider";
 import { styled } from "@mui/material/styles";
 import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
@@ -9,7 +10,6 @@ import { utils } from "ethers";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { getNamedAccountsByChainId } from "../../../hardhat/lib/utils/getNamedAccounts";
-import { XIcon } from "@heroicons/react/outline";
 
 interface StakeModalProps {
   beneficiary: BeneficiaryApplication;
@@ -62,7 +62,9 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
     <div className="text-left text-base text-gray-900 relative">
       <div className="flex justify-between">
         <div className="basis-11/12 md:basis-9/12">
-          <p className="text-base text-primaryDark">In order to participate in the Open Vote, you need vote credits. Stake your POP to gain voice credits</p>
+          <p className="text-base text-primaryDark">
+            In order to participate in the Open Vote, you need vote credits. Stake your POP to gain voice credits
+          </p>
         </div>
         <button className="flex justify-end">
           <XIcon className="w-10 h-10 text-black" onClick={() => closePopUp()} />
@@ -76,7 +78,11 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
             {Math.floor(popToLock)}/{Math.floor(popBalance)}
           </p>
         </div>
-        <div className={`${popToLock?.toString() === '0' ? 'ml-4' : ''} ${popToLock?.toString() === popBalance?.toString() ? 'mr-4' : ''}`}>
+        <div
+          className={`${popToLock?.toString() === "0" ? "ml-4" : ""} ${
+            popToLock?.toString() === popBalance?.toString() ? "mr-4" : ""
+          }`}
+        >
           <CustomSlider
             aria-label="pop lock slider"
             min={0}
@@ -109,8 +115,8 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           </label>
           <ol className="pt-4 text-left list-decimal pl-5 space-y-4 text-primaryDark text-base">
             <li>
-              Your staked tokens will be locked for a period of <span className="font-[500] text-black">3 months.</span> You will be
-              unable to access your tokens during this period.
+              Your staked tokens will be locked for a period of <span className="font-[500] text-black">3 months.</span>{" "}
+              You will be unable to access your tokens during this period.
             </li>
             <li>
               Your staked tokens must be re-staked or withdrawn after the 3-month lock time expires or they will be
@@ -123,7 +129,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           </ol>
         </div>
       </div>
-      <Button variant="tertiary" className="w-full py-2 mt-10" disabled={wait} onClick={lockPop}>
+      <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={lockPop}>
         Stake
       </Button>
     </div>
