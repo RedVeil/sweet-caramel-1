@@ -18,7 +18,6 @@ const defaultChain = ChainId[Number(process.env.CHAIN_ID)];
 
 module.exports = {
   reactStrictMode: true,
-  target: "serverless",
   env: {
     RPC_URL: process.env.RPC_URL,
     CHAIN_ID: process.env.CHAIN_ID,
@@ -58,6 +57,7 @@ module.exports = {
       { source: "/butter/:path*", destination: `/${defaultChain}/butter/:path*` },
     ];
   },
+
   webpack: (config, options) => {
     /** Allows import modules from packages in workspace. */
     //config.externals = { ...config.externals, electron: 'electron' };
