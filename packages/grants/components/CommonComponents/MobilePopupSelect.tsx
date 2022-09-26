@@ -1,6 +1,6 @@
 import React from "react";
-import PopUpModal from "../Modal/PopUpModal";
 import { List, ListItem } from "../CommonComponents/ScrollableSelect";
+import PopUpModal from "../Modal/PopUpModal";
 
 interface Category {
   id: string;
@@ -18,7 +18,8 @@ interface Props {
 export const MobilePopupSelect: React.FC<Props> = (props) => {
   const { categories, visible, onClose, selectedItem, switchFilter } = props;
 
-  const handleOnChange = (value: Category) => {
+  const handleOnChange = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, value: Category) => {
+    e.preventDefault();
     switchFilter(value);
     onClose(false);
   };
@@ -30,11 +31,7 @@ export const MobilePopupSelect: React.FC<Props> = (props) => {
           <p className=" text-black mb-3">Categories</p>
           <List selected={selectedItem.id}>
             {categories.map((category) => (
-              <ListItem
-                key={category.id}
-                value={category.id}
-                onClick={() => handleOnChange(category)}
-              >
+              <ListItem key={category.id} value={category.id} onClick={(e) => handleOnChange(e, category)}>
                 {category.value}
               </ListItem>
             ))}
