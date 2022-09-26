@@ -25,22 +25,20 @@ const AboutTab: React.FC<AboutTabProps> = ({ missionStatement, beneficiaryAddres
     };
   };
   return (
-    <div className={`grid grid-cols-12 ${pageType === "beneficiary" ? "md:gap-14" : ""}`}>
-      <div className={benClasses().firstDiv}>
+    <div className={`grid grid-cols-12`}>
+      <div className="col-span-12 md:pb-28">
         <h6 className=" text-gray-900 text-3xl mb-5">Overview</h6>
         <p className=" text-primaryDark leading-6">{missionStatement || ""}</p>
       </div>
 
-      <div className={benClasses().secondDiv}>
-        <div
-          className={`grid md:gap-14 ${pageType === "beneficiary" ? "grid-cols-6 md:pb-14" : "grid-cols-2 md:pb-20"}`}
-        >
-          <div className={`${pageType === "beneficiary" ? "col-span-6" : "col-span-2 md:col-span-1"} mt-14 md:mt-0`}>
+      <div className="col-span-12">
+        <div className={`grid md:gap-14 grid-cols-2 md:pb-20`}>
+          <div className={`col-span-2 md:col-span-1 mt-14 md:mt-0`}>
             <h6 className=" text-black text-3xl leading-8 mb-4">Ethereum Address</h6>
             <p className=" text-primaryDark leading-6 break-all">{beneficiaryAddress || ""}</p>
           </div>
 
-          <div className={`${pageType === "beneficiary" ? "col-span-6" : "col-span-2 md:col-span-1"} mt-14 md:mt-0`}>
+          <div className={`col-span-2 md:col-span-1 mt-14 md:mt-0`}>
             <h6 className=" text-black text-3xl leading-8 mb-4">Proof of Ownership</h6>
             <a href={links?.proofOfOwnership} className=" text-primaryDark leading-6 break-all">
               {links?.proofOfOwnership}
@@ -48,9 +46,9 @@ const AboutTab: React.FC<AboutTabProps> = ({ missionStatement, beneficiaryAddres
           </div>
         </div>
 
-        <div className={`grid md:gap-14 ${pageType === "beneficiary" ? "grid-cols-6" : "grid-cols-2"}`}>
+        <div className={`grid md:gap-14 grid-cols-2`}>
           {links?.website && (
-            <div className={`${pageType === "beneficiary" ? "col-span-6" : "col-span-2 md:col-span-1"}  mt-14 md:mt-0`}>
+            <div className={`col-span-2 md:col-span-1 mt-14 md:mt-0`}>
               <h6 className=" text-black text-3xl leading-8 mb-4">Website</h6>
               <a href={links?.website} className=" text-primaryDark leading-6">
                 {links?.website}
@@ -58,7 +56,7 @@ const AboutTab: React.FC<AboutTabProps> = ({ missionStatement, beneficiaryAddres
             </div>
           )}
 
-          <div className={`${pageType === "beneficiary" ? "col-span-6" : "col-span-2 md:col-span-1"} mt-14 md:mt-0`}>
+          <div className={`col-span-2 md:col-span-1 mt-14 md:mt-0`}>
             <h6 className=" text-black text-3xl leading-8 mb-4">Follow us on socials</h6>
             <div className="flex gap-6 md:gap-8">
               {links?.twitterUrl && (

@@ -1,10 +1,11 @@
-import { ExclamationIcon, ShareIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon, ShareIcon } from "@heroicons/react/outline";
 import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import AboutTab from "components/Profile/AboutTab";
 import GalleryTab from "components/Profile/GalleryTab";
 import ReportsTab from "components/Profile/ReportsTab";
 import { ContractsContext } from "context/Web3/contracts";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import { RWebShare } from "react-web-share";
@@ -29,33 +30,49 @@ const BeneficiaryPage = () => {
       BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient)
         .getBeneficiaryApplication(beneficiaryAddress)
         .then((beneficiaryApplication) => {
-          console.log(beneficiaryApplication);
-
           setBeneficiary(beneficiaryApplication);
         });
     }
   }, [contracts, beneficiaryAddress]);
   return (
     <section className="relative">
+      <div className="md:hidden mb-10 px-6">
+        <Link href={"/beneficiaries"}>
+          <a className="flex space-x-2">
+            <ChevronLeftIcon className="text-secondaryLight w-4" />
+            <p className="text-primary">Eligible Beneficiaries</p>
+          </a>
+        </Link>
+      </div>
       <Hero bgImage={`${process.env.IPFS_URL}${beneficiary?.files?.headerImage?.image}`} className="relative">
-        <div className="flex gap-4 absolute bottom-10 right-5 md:right-10 xl:right-28 md:mr-1">
+        <div className="flex absolute gap-4 bottom-10 left-8">
           <RWebShare
             data={{
+              text: "Popcorn is a regenerative yield optimizing protocol",
               url: router.asPath,
               title: `Share ${beneficiary?.organizationName}'s Proposal`,
             }}
           >
-            <button className=" opacity-80 bg-white border-gray-200 rounded-3xl text-gray-900 font-semibold flex px-5 py-3 gap-3 shadow-white-button">
+            <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
               <ShareIcon className="w-6 h-6" />
               Share
             </button>
           </RWebShare>
-          <button className=" opacity-80 bg-white border-gray-200 rounded-3xl text-gray-900 font-semibold flex px-5 py-3 gap-3 shadow-white-button">
-            <ExclamationIcon className="w-6 h-6" />
-            Report
-          </button>
+          {/*TODO: Will be implemented later */}
+          {/* <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
+						<ExclamationIcon className="w-6 h-6" />
+						Report
+					</button> */}
         </div>
       </Hero>
+      <div className="hidden md:block mx-8 mt-8">
+        <Link href={"/beneficiaries"}>
+          <a className="flex space-x-2">
+            <ChevronLeftIcon className="text-secondaryLight w-4" />
+            <p className="text-primary">Eligible Beneficiaries</p>
+          </a>
+        </Link>
+      </div>
       <div className="container mx-auto">
         <div className="grid grid-cols-12 px-5 lg:px-10">
           <div className="col-span-12 py-20">
@@ -63,20 +80,35 @@ const BeneficiaryPage = () => {
               <img
                 src={`${process.env.IPFS_URL}${beneficiary?.files?.profileImage?.image}`}
                 alt={beneficiary?.files?.profileImage?.description || "profile-image"}
-                className=" w-20 h-20 rounded-full object-cover"
+                className=" w-36 h-36 rounded-full object-cover hidden md:block"
               />
               <div>
-                <p className="text-gray-400 text-lg uppercase">{beneficiary?.proposalCategory}</p>
-                <h3 className="text-gray-900 text-3xl md:text-5xl font-semibold my-2">{beneficiary?.projectName}</h3>
-                <p className="text-gray-900 text-lg">by {beneficiary?.organizationName}</p>
+                <p className="text-customLightGray text-base leading-7 uppercase">{beneficiary?.proposalCategory}</p>
+                <h3 className="text-black text-5xl md:text-6xl my-4 leading-11">{beneficiary?.projectName}</h3>
+                <p className="text-primaryDark text-base leading-7">by {beneficiary?.organizationName}</p>
               </div>
             </div>
-            <div className="flex justify-center gap-10 md:gap-20 pb-18 md:py-24 mt-16 md:mt-0">
+            <div className="py-10 flex">
+              <RWebShare
+                data={{
+                  text: "Popcorn is a regenerative yield optimizing protocol",
+                  url: router.asPath,
+                  title: `Share ${beneficiary?.organizationName}'s Proposal`,
+                }}
+              >
+                <button className="border border-primary bg-white h-12 w-12 rounded-full flex md:hidden justify-center items-center">
+                  <ShareIcon className="w-6 h-6 text-primary" />
+                </button>
+              </RWebShare>
+            </div>
+            <div className="flex justify-between md:justify-start md:space-x-4 pb-10 md:pb-20 md:pt-14">
               {profileTabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`rounded-3xl px-5 py-3 font-semibold text-lg ${
-                    currentTab == tab ? "text-blue-600 bg-blue-50" : "text-gray-500 bg-white"
+                  className={`rounded-[28px] px-5 py-3 text-lg border ${
+                    currentTab == tab
+                      ? "text-white bg-[#827D69] border-[#827D69]"
+                      : "text-[#55503D] bg-white border-customLightGray"
                   }`}
                   onClick={() => setCurrentTab(tab)}
                 >
@@ -100,10 +132,15 @@ interface HeroProps {
   bgImage: string;
 }
 const Hero = styled.div<HeroProps>`
-  height: 80vh;
+  height: 65vh;
   background-image: ${({ bgImage }) => `url(${bgImage})` || ""};
   background-size: cover;
   background-position: center;
+  @media screen and (max-width: 767px) {
+    margin: 0 24px;
+    border-radius: 8px;
+    height: 185px;
+  }
 `;
 
 export default BeneficiaryPage;

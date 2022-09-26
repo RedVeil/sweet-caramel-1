@@ -44,12 +44,14 @@ interface CardProps {
 const Card = styled.div<CardProps>`
   margin: 0px 0px 30px;
   padding: 0;
-  border-radius: 16px;
+  border-radius: 8px;
   position: relative;
   display: flex;
   flex-direction: column;
+  height: 256px;
   @media screen and (min-width: 768px) {
     margin: 10px 20px;
+    height: auto;
     grid-row-end: ${({ size }) => (size == "small" ? "span 35" : size == "medium" ? "span 50" : "span 65")};
   }
 `;
