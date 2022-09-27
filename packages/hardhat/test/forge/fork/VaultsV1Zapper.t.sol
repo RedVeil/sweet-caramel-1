@@ -12,6 +12,7 @@ import "../../../contracts/core/utils/KeeperIncentiveV2.sol";
 import "../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../contracts/core/dao/Staking.sol";
 import "../../../contracts/core/defi/vault/VaultsV1Registry.sol";
+import "../../../contracts/core/dao/RewardsEscrow.sol";
 
 interface ICurveSETHPool {
   function calc_withdraw_one_coin(uint256 _burn_amount, int128 i) external returns (uint256);
@@ -80,7 +81,8 @@ contract VaultsV1ZapperTest is Test {
       }),
       IContractRegistry(CONTRACT_REGISTRY)
     );
-    staking = new Staking(IERC20(POP), IERC20(address(vault)), IRewardsEscrow(REWARDS_ESCROW));
+    RewardsEscrow vaultsRewardsEscrow = new RewardsEscrow(IERC20(POP));
+    staking = new Staking(IERC20(POP), IERC20(address(vault)), vaultsRewardsEscrow);
 
     contractRegistry = IContractRegistry(CONTRACT_REGISTRY);
 

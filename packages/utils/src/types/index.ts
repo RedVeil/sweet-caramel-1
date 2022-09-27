@@ -101,6 +101,7 @@ export interface ContractAddresses {
   balancerLBPFactory?: Address;
   merkleOrchard?: Address;
   rewardsEscrow?: Address;
+  vaultsRewardsEscrow: Address;
   all: Set<Address>;
   has: (contract: string) => boolean;
 }

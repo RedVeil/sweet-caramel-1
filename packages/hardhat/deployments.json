@@ -3,7 +3,7 @@
   "chainId": "1337",
   "contracts": {
     "ACLRegistry": {
-      "address": "0x3fdc08D815cc4ED3B7F69Ee246716f2C8bCD6b07",
+      "address": "0x8E45C0936fa1a65bDaD3222bEFeC6a03C83372cE",
       "abi": [
         {
           "inputs": [],
@@ -377,7 +377,7 @@
       ]
     },
     "ContractRegistry": {
-      "address": "0x4000F8820522AC96C4221b299876e3e53bCc8525",
+      "address": "0x10e38eE9dd4C549b61400Fc19347D00eD3edAfC4",
       "abi": [
         {
           "inputs": [
@@ -646,7 +646,7 @@
       ]
     },
     "KeeperIncentive": {
-      "address": "0x9338CA7d556248055f5751d85cDA7aD6eF254433",
+      "address": "0xd753c12650c280383Ce873Cc3a898F6f53973d16",
       "abi": [
         {
           "inputs": [
@@ -1577,7 +1577,7 @@
       ]
     },
     "TestPOP": {
-      "address": "0x7Cf4be31f546c04787886358b9486ca3d62B9acf",
+      "address": "0xd30bF3219A0416602bE8D482E0396eF332b0494E",
       "abi": [
         {
           "inputs": [
@@ -1922,7 +1922,441 @@
       ]
     },
     "RewardsEscrow": {
-      "address": "0x0c626FC4A447b01554518550e30600136864640B",
+      "address": "0xAD2935E147b61175D5dc3A9e7bDa93B0975A43BA",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "contract IERC20",
+              "name": "_pop",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            }
+          ],
+          "name": "AddAuthorizedContract",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "Locked",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            }
+          ],
+          "name": "RemoveAuthorizedContract",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "RewardsClaimed",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "index",
+              "type": "uint256"
+            }
+          ],
+          "name": "TokenAdded",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "POP",
+          "outputs": [
+            {
+              "internalType": "contract IERC20",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_staking",
+              "type": "address"
+            }
+          ],
+          "name": "addAuthorizedContract",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "authorized",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_escrowId",
+              "type": "bytes32"
+            }
+          ],
+          "name": "claimReward",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32[]",
+              "name": "_escrowIdsByAddress",
+              "type": "bytes32[]"
+            }
+          ],
+          "name": "claimRewards",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "escrowIdsByAddress",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "name": "escrows",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "start",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastUpdateTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "end",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialBalance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_escrowId",
+              "type": "bytes32"
+            }
+          ],
+          "name": "getClaimableAmount",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_account",
+              "type": "address"
+            }
+          ],
+          "name": "getEscrowIdsByUser",
+          "outputs": [
+            {
+              "internalType": "bytes32[]",
+              "name": "",
+              "type": "bytes32[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32[]",
+              "name": "_escrowIds",
+              "type": "bytes32[]"
+            }
+          ],
+          "name": "getEscrows",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "start",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lastUpdateTime",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "end",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "initialBalance",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "balance",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct RewardsEscrow.Escrow[]",
+              "name": "",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_escrowId",
+              "type": "bytes32"
+            }
+          ],
+          "name": "isClaimable",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_account",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_duration",
+              "type": "uint256"
+            }
+          ],
+          "name": "lock",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "owner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_staking",
+              "type": "address"
+            }
+          ],
+          "name": "removeAuthorizedContract",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "renounceOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "transferOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    },
+    "VaultsRewardsEscrow": {
+      "address": "0x00CAC06Dd0BB4103f8b62D280fE9BCEE8f26fD59",
       "abi": [
         {
           "inputs": [
@@ -2356,7 +2790,7 @@
       ]
     },
     "RewardsDistribution": {
-      "address": "0x2A590C461Db46bca129E8dBe5C3998A8fF402e76",
+      "address": "0xb007167714e2940013EC3bb551584130B7497E22",
       "abi": [
         {
           "inputs": [
@@ -2749,7 +3183,7 @@
       ]
     },
     "PopLocker": {
-      "address": "0x2F54D1563963fC04770E85AF819c89Dc807f6a06",
+      "address": "0xeC827421505972a2AE9C320302d3573B42363C26",
       "abi": [
         {
           "inputs": [
@@ -4020,7 +4454,7 @@
       ]
     },
     "butterStaking": {
-      "address": "0x325c8Df4CFb5B068675AFF8f62aA668D1dEc3C4B",
+      "address": "0x1D13fF25b10C9a6741DFdce229073bed652197c7",
       "abi": [
         {
           "inputs": [
@@ -5017,7 +5451,7 @@
       ]
     },
     "threeXStaking": {
-      "address": "0xa62835D1A6bf5f521C4e2746E1F51c923b8f3483",
+      "address": "0xa779C1D17bC5230c07afdC51376CAC1cb3Dd5314",
       "abi": [
         {
           "inputs": [
@@ -6014,7 +6448,7 @@
       ]
     },
     "ButterBatchProcessing": {
-      "address": "0x00CAC06Dd0BB4103f8b62D280fE9BCEE8f26fD59",
+      "address": "0x707531c9999AaeF9232C8FEfBA31FBa4cB78d84a",
       "abi": [
         {
           "inputs": [
@@ -7276,7 +7710,7 @@
       ]
     },
     "ButterBatchZapper": {
-      "address": "0xb007167714e2940013EC3bb551584130B7497E22",
+      "address": "0xdB05A386810c809aD5a77422eb189D36c7f24402",
       "abi": [
         {
           "inputs": [
@@ -7471,7 +7905,7 @@
       ]
     },
     "Faucet": {
-      "address": "0xa779C1D17bC5230c07afdC51376CAC1cb3Dd5314",
+      "address": "0x3a622DB2db50f463dF562Dc5F341545A64C580fc",
       "abi": [
         {
           "inputs": [
@@ -7941,7 +8375,7 @@
       ]
     },
     "BeneficiaryVaults": {
-      "address": "0x24432a08869578aAf4d1eadA12e1e78f171b1a2b",
+      "address": "0x0F527785e39B22911946feDf580d87a4E00465f0",
       "abi": [
         {
           "inputs": [
@@ -8274,7 +8708,7 @@
       ]
     },
     "ThreeXBatchProcessing": {
-      "address": "0xbf2ad38fd09F37f50f723E35dd84EEa1C282c5C9",
+      "address": "0x9C85258d9A00C01d00ded98065ea3840dF06f09c",
       "abi": [
         {
           "inputs": [
@@ -9737,7 +10171,7 @@
       ]
     },
     "ThreeXBatchVault": {
-      "address": "0xFC4EE541377F3b6641c23CBE82F6f04388290421",
+      "address": "0x398E4948e373Db819606A459456176D31C3B1F91",
       "abi": [
         {
           "inputs": [
@@ -10509,7 +10943,7 @@
       ]
     },
     "ThreeXZapper": {
-      "address": "0xccA9728291bC98ff4F97EF57Be3466227b0eb06C",
+      "address": "0xeC1BB74f5799811c0c1Bff94Ef76Fb40abccbE4a",
       "abi": [
         {
           "inputs": [
@@ -10743,7 +11177,7 @@
       ]
     },
     "XPop": {
-      "address": "0xd038A2EE73b64F30d65802Ad188F27921656f28F",
+      "address": "0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953",
       "abi": [
         {
           "inputs": [
@@ -11231,7 +11665,7 @@
       ]
     },
     "xPopRedemption": {
-      "address": "0x666432Ccb747B2220875cE185f487Ed53677faC9",
+      "address": "0x7bdd3b028C4796eF0EAf07d11394d0d9d8c24139",
       "abi": [
         {
           "inputs": [
@@ -11427,7 +11861,7 @@
       ]
     },
     "Region": {
-      "address": "0x6732128F9cc0c4344b2d4DC6285BCd516b7E59E6",
+      "address": "0x52173b6ac069619c206b9A0e75609fC92860AB2A",
       "abi": [
         {
           "inputs": [
@@ -11607,7 +12041,7 @@
       ]
     },
     "VaultFeeController": {
-      "address": "0xAe9Ed85dE2670e3112590a2BB17b7283ddF44d9c",
+      "address": "0x532802f2F9E0e3EE9d5Ba70C35E1F43C0498772D",
       "abi": [
         {
           "inputs": [
@@ -11873,7 +12307,7 @@
       ]
     },
     "sEthSweetVault": {
-      "address": "0x75b0B516B47A27b1819D21B26203Abf314d42CCE",
+      "address": "0xd977422c9eE9B646f64A4C4389a6C98ad356d8C4",
       "abi": [
         {
           "inputs": [
@@ -13710,7 +14144,7 @@
       ]
     },
     "sEthSweetVaultStaking": {
-      "address": "0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf",
+      "address": "0x1eB5C49630E08e95Ba7f139BcF4B9BA171C9a8C7",
       "abi": [
         {
           "inputs": [
@@ -14707,7 +15141,7 @@
       ]
     },
     "ParticipationReward": {
-      "address": "0x6533158b042775e2FdFeF3cA1a782EFDbB8EB9b1",
+      "address": "0xA3f7BF5b0fa93176c260BBa57ceE85525De2BaF4",
       "abi": [
         {
           "inputs": [
@@ -15321,7 +15755,7 @@
       ]
     },
     "VaultsV1Zapper": {
-      "address": "0xD2D5e508C82EFc205cAFA4Ad969a4395Babce026",
+      "address": "0xD855cE0C298537ad5b5b96060Cf90e663696bbf6",
       "abi": [
         {
           "inputs": [
@@ -15822,7 +16256,7 @@
       ]
     },
     "GovStaking": {
-      "address": "0xB468647B04bF657C9ee2de65252037d781eABafD",
+      "address": "0xeE1eb820BeeCED56657bA74fa8D70748D7A6756C",
       "abi": [
         {
           "inputs": [
@@ -16415,7 +16849,7 @@
       ]
     },
     "RewardsManager": {
-      "address": "0x773330693cb7d5D233348E25809770A32483A940",
+      "address": "0x9e7F7d0E8b8F38e3CF2b3F7dd362ba2e9E82baa4",
       "abi": [
         {
           "inputs": [
@@ -16708,7 +17142,7 @@
       ]
     },
     "RandomNumberConsumer": {
-      "address": "0xd977422c9eE9B646f64A4C4389a6C98ad356d8C4",
+      "address": "0x3de00f44ce68FC56DB0e0E33aD4015C6e78eCB39",
       "abi": [
         {
           "inputs": [
@@ -16841,7 +17275,7 @@
       ]
     },
     "BeneficiaryGovernance": {
-      "address": "0x6e0a5725dD4071e46356bD974E13F35DbF9ef367",
+      "address": "0xB1c05b498Cb58568B2470369FEB98B00702063dA",
       "abi": [
         {
           "inputs": [
@@ -17337,7 +17771,7 @@
       ]
     },
     "BeneficiaryRegistry": {
-      "address": "0xa31F4c0eF2935Af25370D9AE275169CCd9793DA3",
+      "address": "0x44863F234b137A395e5c98359d16057A9A1fAc55",
       "abi": [
         {
           "inputs": [
@@ -17472,7 +17906,7 @@
       ]
     },
     "GrantElections": {
-      "address": "0xb830887eE23d3f9Ed8c27dbF7DcFe63037765475",
+      "address": "0x1c39BA375faB6a9f6E0c01B9F49d488e101C2011",
       "abi": [
         {
           "inputs": [
@@ -18227,7 +18661,7 @@
       ]
     },
     "ButterWhaleProcessing": {
-      "address": "0xD855cE0C298537ad5b5b96060Cf90e663696bbf6",
+      "address": "0x6212cb549De37c25071cF506aB7E115D140D9e42",
       "abi": [
         {
           "inputs": [
@@ -18995,7 +19429,7 @@
       ]
     },
     "ButterFeeConverter": {
-      "address": "0x5A569Ad19272Afa97103fD4DbadF33B2FcbaA175",
+      "address": "0x0bF7dE8d71820840063D4B8653Fd3F0618986faF",
       "abi": [
         {
           "inputs": [
@@ -19342,7 +19776,7 @@
       ]
     },
     "ThreeXWhaleProcessing": {
-      "address": "0xeE1eb820BeeCED56657bA74fa8D70748D7A6756C",
+      "address": "0x97fd63D049089cd70D9D139ccf9338c81372DE68",
       "abi": [
         {
           "inputs": [
@@ -20579,7 +21013,7 @@
       ]
     },
     "VaultsV1Registry": {
-      "address": "0x04F339eC4D75Cf2833069e6e61b60eF56461CD7C",
+      "address": "0x49149a233de6E4cD6835971506F47EE5862289c1",
       "abi": [
         {
           "inputs": [
@@ -21268,7 +21702,7 @@
       ]
     },
     "VaultsV1Factory": {
-      "address": "0x89372b32b8AF3F1272e2efb3088616318D2834cA",
+      "address": "0x30426D33a78afdb8788597D5BFaBdADc3Be95698",
       "abi": [
         {
           "inputs": [
@@ -21591,7 +22025,7 @@
       ]
     },
     "VaultsV1Controller": {
-      "address": "0x92A00fc48Ad3dD4A8b5266a8F467a52Ac784fC83",
+      "address": "0x3abBB0D6ad848d64c8956edC9Bf6f18aC22E1485",
       "abi": [
         {
           "inputs": [

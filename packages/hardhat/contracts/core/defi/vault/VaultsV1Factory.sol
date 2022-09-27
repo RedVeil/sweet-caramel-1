@@ -83,7 +83,7 @@ contract VaultsV1Factory is Owned {
     Staking staking = new Staking(
       pop,
       IERC20(address(vault)),
-      IRewardsEscrow(IContractRegistry(_vaultParams.contractRegistry).getContract(keccak256("RewardsEscrow")))
+      IRewardsEscrow(IContractRegistry(_vaultParams.contractRegistry).getContract(keccak256("VaultsRewardsEscrow")))
     );
 
     contractAddresses = [address(vault), address(staking)];
