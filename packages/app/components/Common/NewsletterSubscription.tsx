@@ -16,7 +16,8 @@ const NewsletterSubscription = ({ title, buttonLabel }) => {
       return;
     setSubscribing(true);
     try {
-      await fetch("/api/signup", {
+      await fetch("https://www.popcorn.network/api/signup", {
+        mode: "no-cors",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
