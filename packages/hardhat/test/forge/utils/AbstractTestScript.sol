@@ -16,6 +16,8 @@ import "../../../contracts/core/defi/butter/ButterBatchProcessingZapper.sol";
 import "../../../contracts/core/defi/butter/ButterWhaleProcessing.sol";
 import "../../../contracts/core/interfaces/IButterBatchProcessing.sol";
 
+import "../../../contracts/externals/interfaces/Curve3Pool.sol";
+
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -34,6 +36,7 @@ abstract contract AbstractTestScript is Test {
   string json = vm.readFile(path);
 
   ButterBatchProcessing.CurvePoolTokenPair[] public crvDependencies;
+  ButterWhaleProcessing.CurvePoolTokenPair[] public crvDependenciesWhale;
   mapping(string => IERC20) public erc20Contracts;
   mapping(string => IStaking) public stakingContracts;
 
@@ -42,25 +45,25 @@ abstract contract AbstractTestScript is Test {
   ContractRegistry public contractRegistry;
   IACLRegistry public aclRegistry;
   KeeperIncentiveV2 public keeperIncentiveV2;
-  IStaking public staking;
-  ISetToken public setToken;
-  IERC20 public pop;
+
   ISetToken public butter;
-  IButterBatchProcessing public butterBatchProcessing;
+  ButterBatchProcessing public butterBatchProcessing;
   ButterBatchProcessingZapper public butterBatchProcessingZapper;
   ButterWhaleProcessing public butterWhaleProcessing;
 
   IERC20 public threeCrv = IERC20(getMainnetContractAddress("threeCrv"));
-  CurveMetapool public threePool = CurveMetapool(getMainnetContractAddress("threePool"));
-  IBasicIssuanceModule public setBasicIssuanceModule =
-    IBasicIssuanceModule(getMainnetContractAddress("setBasicIssuanceModule"));
+  CurveMetapool public curveMetaPool = CurveMetapool(getMainnetContractAddress("threePool"));
+  Curve3Pool public curve3Pool = Curve3Pool(getMainnetContractAddress("threePool"));
+  IBasicIssuanceModule public setBasicIssuanceModule = IBasicIssuanceModule(getMainnetContractAddress("setBasicIssuanceModule"));
+  IRewardsEscrow public rewardsEscrow = RewardsEscrow(getMainnetContractAddress("rewardsEscrow"));
+
   address[] public yTokenAddresses = [
     getMainnetContractAddress("yFrax"),
     getMainnetContractAddress("yRai"),
     getMainnetContractAddress("yMusd"),
     getMainnetContractAddress("yAlusd")
   ];
-  IRewardsEscrow public rewardsEscrow = RewardsEscrow(getMainnetContractAddress("rewardsEscrow"));
+  
 
   function instantiateOrDeployRegistryContracts(bool _instantiate) public {
     if (_instantiate) {
@@ -101,7 +104,7 @@ abstract contract AbstractTestScript is Test {
   function instantiateOrDeployButter(bool _instantiate) public {
     if (_instantiate) {
       butter = ISetToken(getMainnetContractAddress("butter"));
-      butterBatchProcessing = IButterBatchProcessing(getMainnetContractAddress("butterBatch"));
+      butterBatchProcessing = ButterBatchProcessing(getMainnetContractAddress("butterBatch"));
       butterBatchProcessingZapper = ButterBatchProcessingZapper(getMainnetContractAddress("butterBatchZapper"));
       butterWhaleProcessing = ButterWhaleProcessing(getMainnetContractAddress("butterWhaleProcessing"));
     } else {
@@ -130,20 +133,45 @@ abstract contract AbstractTestScript is Test {
         )
       );
 
-      butterBatchProcessing = IButterBatchProcessing(
-        address(
-          new ButterBatchProcessing(
-            contractRegistry,
-            stakingContracts["butter"],
-            butter,
-            threeCrv,
-            threePool,
-            setBasicIssuanceModule,
-            yTokenAddresses,
-            crvDependencies,
-            ButterBatchProcessing.ProcessingThreshold(1e18, 1e18, 1e17)
-          )
+      crvDependenciesWhale.push(
+        ButterWhaleProcessing.CurvePoolTokenPair(
+          CurveMetapool(getMainnetContractAddress("crvMusdMetapool")),
+          IERC20(getMainnetContractAddress("crvMusd"))
         )
+      );
+      crvDependenciesWhale.push(
+        ButterWhaleProcessing.CurvePoolTokenPair(
+          CurveMetapool(getMainnetContractAddress("crvAlusdMetapool")),
+          IERC20(getMainnetContractAddress("crvAlusd"))
+        )
+      );
+
+      butter = ISetToken(address(new ERC20("Butter", "BTR")));
+      butterBatchProcessing = new ButterBatchProcessing(
+        contractRegistry,
+        stakingContracts["butter"],
+        butter,
+        threeCrv,
+        curveMetaPool,
+        setBasicIssuanceModule,
+        yTokenAddresses,
+        crvDependencies,
+        ButterBatchProcessing.ProcessingThreshold(1e18, 1e18, 1e17)
+      );
+      butterBatchProcessingZapper = new ButterBatchProcessingZapper(
+        contractRegistry,
+        curve3Pool,
+        threeCrv
+      );
+      butterWhaleProcessing = new ButterWhaleProcessing(
+        contractRegistry,
+        stakingContracts["butter"],
+        butter,
+        threeCrv,
+        curve3Pool,
+        setBasicIssuanceModule,
+        yTokenAddresses,
+        crvDependenciesWhale
       );
     }
   }
