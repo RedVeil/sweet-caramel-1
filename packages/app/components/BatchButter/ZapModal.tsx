@@ -38,7 +38,6 @@ export default function ZapModal({
   return (
     <div className="flex flex-col mt-4">
       <OutputToken outputToken={tokenOptions} selectToken={selectToken} selectedToken={selectedToken} />
-      {console.log(batchId)}
       {selectedToken !== tokenOptions[0] && (
         <div className="mt-6">
           <div>
