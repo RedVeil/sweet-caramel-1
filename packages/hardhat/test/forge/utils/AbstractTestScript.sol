@@ -18,7 +18,7 @@ import "../../../contracts/core/interfaces/IButterBatchProcessing.sol";
 
 import "../../../contracts/externals/interfaces/Curve3Pool.sol";
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -73,8 +73,14 @@ abstract contract AbstractTestScript is Test {
     } else {
       vm.startPrank(ACL_ADMIN);
       aclRegistry = new ACLRegistry();
+      grantRole("DAO", ACL_ADMIN);
+      grantRole("KEEPER", ACL_ADMIN);
+      grantRole("INCENTIVE_MANAGER_ROLE", ACL_ADMIN);
+
       contractRegistry = new ContractRegistry(aclRegistry);
       keeperIncentiveV2 = new KeeperIncentiveV2(contractRegistry, 0, 0);
+
+      addContract("KeeperIncentive", address(keeperIncentiveV2), "1");
       vm.stopPrank();
     }
   }
@@ -84,7 +90,12 @@ abstract contract AbstractTestScript is Test {
       if (_instantiate) {
         erc20Contracts[keys[j]] = IERC20(getMainnetContractAddress(keys[j]));
       } else {
-        erc20Contracts[keys[j]] = new ERC20(keys[j], keys[j]);
+        erc20Contracts[keys[j]] = IERC20(
+          address(
+            new ERC20(keys[j], keys[j])
+          )
+        );
+        addContract(keys[j], address(erc20Contracts[keys[j]]), "1");
       }
     }
   }
@@ -97,6 +108,7 @@ abstract contract AbstractTestScript is Test {
         stakingContracts[keys[j]] = IStaking(
           address(new Staking(erc20Contracts["pop"], erc20Contracts[keys[j]], rewardsEscrow))
         );
+        addContract(keys[j], address(stakingContracts[keys[j]]), "1");
       }
     }
   }
@@ -158,11 +170,22 @@ abstract contract AbstractTestScript is Test {
         crvDependencies,
         ButterBatchProcessing.ProcessingThreshold(1e18, 1e18, 1e17)
       );
+
+      butterBatchProcessing.setSlippage(7, 200);
+      butterBatchProcessing.setApprovals();
+      createIncentive(address(butterBatchProcessing), 0, true, false, address(erc20Contracts["pop"]), 1, 0);
+      addContract("ButterBatchProcessing", address(butterBatchProcessing), "");
+      
       butterBatchProcessingZapper = new ButterBatchProcessingZapper(
         contractRegistry,
         curve3Pool,
         threeCrv
       );
+      butterBatchProcessingZapper.setApprovals();
+      
+      grantRole("ApprovedContract", address(butterBatchProcessingZapper));
+      grantRole("ButterZapper", address(butterBatchProcessingZapper));
+
       butterWhaleProcessing = new ButterWhaleProcessing(
         contractRegistry,
         stakingContracts["butter"],
@@ -173,6 +196,7 @@ abstract contract AbstractTestScript is Test {
         yTokenAddresses,
         crvDependenciesWhale
       );
+      butterWhaleProcessing.setApprovals();
     }
   }
 
@@ -181,4 +205,41 @@ abstract contract AbstractTestScript is Test {
     string memory fullKey = string.concat(".", _contractKey, ".mainnet");
     return json.readAddress(fullKey);
   }
+
+  function grantRole(string memory _role, address _account) public {
+    vm.prank(ACL_ADMIN);
+    aclRegistry.grantRole(keccak256(abi.encode(_role)), _account);
+  }
+
+  function addContract(
+    string memory _name,
+    address _account,
+    string memory _version
+  ) public {
+    vm.prank(ACL_ADMIN);
+    contractRegistry.addContract(keccak256(abi.encode(_name)), _account, keccak256(abi.encode(_version)));
+  }
+
+  function createIncentive(
+    address _address,
+    uint256 _reward,
+    bool _enabled,
+    bool _openToEveryone,
+    address _rewardToken,
+    uint256 _cooldown,
+    uint256 _burnPercentage
+  ) public {
+    vm.prank(ACL_ADMIN);
+    keeperIncentiveV2.createIncentive(
+      _address,
+      _reward,
+      _enabled,
+      _openToEveryone,
+      _rewardToken,
+      _cooldown,
+      _burnPercentage
+    );
+  }
 }
+
+
