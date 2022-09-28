@@ -1,49 +1,34 @@
-import { FC, Dispatch, useState, SetStateAction, useEffect, useRef } from "react"
 import { SearchIcon } from "@heroicons/react/outline";
+import { Token } from "@popcorn/utils/types";
+import PLACEHOLDER_IMAGE_URL from "helper/placeholderImageUrl";
+import useWeb3 from "hooks/useWeb3";
 import Image from "next/image";
-import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
+import { FC, useState } from "react";
 
 interface SearchTokenProps {
-  options: Tokens;
-  selectedToken: TokenMetadata;
-  notSelectable: string[];
-  selectToken: Dispatch<SetStateAction<BatchProcessTokenKey>>;
-  setShowSelectTokenModal: Dispatch<SetStateAction<boolean>>;
+  selectToken: (token: Token) => void;
+  selectedToken: Token;
+  options: Token[];
 }
 
-export const SearchToken: FC<SearchTokenProps> = ({
-  notSelectable,
-  options,
-  selectToken,
-  setShowSelectTokenModal,
-  selectedToken,
-}) => {
-  const quickOptionsTokens = ["dai", "usdt", "usdc", "eth", "wbtc"];
+export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, selectedToken }) => {
+  const { contractAddresses } = useWeb3();
+  const quickOptionsTokens = [
+    contractAddresses.dai,
+    contractAddresses.usdt,
+    contractAddresses.usdc,
+    contractAddresses.eth,
+    contractAddresses.wbtc,
+  ];
   const [search, setSearch] = useState("");
-  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
-
-  const formatTokens = () => {
-    const tokens = Object.keys(options).filter((token) => !notSelectable.includes(token));
-    setFilteredOptions([selectedToken.key, ...tokens]);
-  };
-
-  useEffect(() => {
-    formatTokens();
-  }, [options, notSelectable, selectedToken])
+  const [filteredOptions, setFilteredOptions] = useState<Token[]>(options);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    const newNonSelectable = notSelectable.filter((token) => token !== selectedToken.key);
     if (value.trim().length > 0) {
-      const filtered = Object.keys(options).filter((token) => {
-        const tokenName = options[token].name.toLowerCase();
-        const searchValue = value.toString().toLowerCase();
-        return tokenName.includes(searchValue);
-      });
-      const newOptions = Object.keys(options).filter(token => filtered.includes(token) && !newNonSelectable.includes(token));
-      setFilteredOptions(newOptions);
+      setFilteredOptions(options.filter((option) => option.name.toLowerCase().includes(value.toLowerCase())));
     } else {
-      formatTokens();
+      setFilteredOptions(options);
     }
   };
 
@@ -63,46 +48,53 @@ export const SearchToken: FC<SearchTokenProps> = ({
           placeholder="Search"
         />
       </div>
-      {Object.keys(options)
-        .filter((key) => !notSelectable.includes(key) && quickOptionsTokens.includes(key))
-        .map((selectableToken) => (
-          <div className="inline-flex mr-2 my-3" key={selectableToken}>
+      {options
+        .filter((option) => quickOptionsTokens.includes(option.address))
+        .map((quickOption) => (
+          <div className="inline-flex mr-2 my-3" key={quickOption?.symbol}>
             <button
-              className="flex items-center rounded-lg border border-customLightGray font-medium text-gray-800 py-2 px-3 md:py-2.5 md:px-4 text-base md:text-lg"
+              className="flex items-center rounded-lg border border-customLightGray font-medium text-gray-800 py-2 px-3 md:py-2.5 md:px-4 text-base md:text-lg hover:bg-customPaleGray"
               onClick={() => {
-                selectToken && selectToken(options[selectableToken].key);
-                setShowSelectTokenModal(false);
+                selectToken(quickOption);
               }}
             >
               <span className="w-5 h-5 relative mr-2">
                 <Image
-                  src={`/images/tokens/${options[selectableToken].img}`}
-                  alt={options[selectableToken].img}
+                  src={quickOption?.icon || PLACEHOLDER_IMAGE_URL}
+                  alt={quickOption?.icon}
                   layout="fill"
                   objectFit="contain"
                   priority={true}
                 />
               </span>
-              <span>{options[selectableToken].name}</span>
+              <span>{quickOption.name}</span>
             </button>
           </div>
         ))}
       <div className="mt-4">
         <ul className="scrollable__select py-6 overflow-y-auto shadow-scrollableSelect rounded-lg p-6 border border-customPaleGray">
           {filteredOptions.map((option) => (
-            <li className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray hover:bg-opacity-40 rounded-lg" key={option}>
-              <button
-                onClick={() => {
-                  selectToken(options[option].key);
-                  setShowSelectTokenModal(false);
-                }}
-                className={`flex items-center py-3 px-3 ${selectedToken.key === options[option].key ? 'text-black font-semibold' : 'text-primary font-normal'}`}
+            <li
+              className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray hover:bg-opacity-40 rounded-lg"
+              key={option.symbol}
+              onClick={() => {
+                selectToken(option);
+              }}
+            >
+              <span
+                className={`flex items-center py-3 px-3 ${
+                  selectedToken.address === option.address ? "text-black font-semibold" : "text-primary font-normal"
+                }`}
               >
                 <span className="w-5 h-5 inline-flex mr-3 flex-shrink-0">
-                  <img src={`/images/tokens/${options[option].img}`} alt={options[option].name} className="h-full w-full object-contain" />
+                  <img
+                    src={option.icon || PLACEHOLDER_IMAGE_URL}
+                    alt={option.symbol}
+                    className="h-full w-full object-contain"
+                  />
                 </span>
-                <span>{options[option].name}</span>
-              </button>
+                <span>{option.symbol}</span>
+              </span>
             </li>
           ))}
         </ul>

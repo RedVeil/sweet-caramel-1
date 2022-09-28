@@ -9,7 +9,6 @@ import { addContractToRegistry } from "./utils";
 const CURVE_ZAP_IN = "0x5Ce9b49B7A1bE9f2c3DC2B2A5BaCEA56fa21FBeE";
 const CURVE_ZAP_OUT = "0xE03A338d5c305613AfC3877389DD3B0617233387";
 
-
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;

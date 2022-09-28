@@ -1,8 +1,7 @@
-import { Dispatch, useContext, useState } from "react";
-import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
+import { useContext, useState } from "react";
+import { AccountBatch, BatchType, Token } from "@popcorn/utils/src/types";
 import { setSingleActionModal } from "context/actions";
 import { store } from "context/store";
-import { ButterPageState } from "pages/[network]/set/butter";
 import ClaimableBatch from "./ClaimableBatch";
 import EmptyClaimableBatch from "./EmptyClaimableBatch";
 import MobileClaimableBatch from "./MobileClaimableBatch";
@@ -13,20 +12,24 @@ import useWindowSize from "hooks/useWindowSize";
 import PopUpModal from "components/Modal/PopUpModal";
 
 interface ClaimableBatchesProps {
+  options: Token[];
+  slippage: number;
+  setSlippage: (slippage: number) => void;
   batches: AccountBatch[];
   claim: Function;
   claimAndStake: Function;
   withdraw: Function;
-  butterPageState: [ButterPageState, Dispatch<ButterPageState>];
   isThreeX?: boolean;
 }
 
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
+  options,
+  slippage,
+  setSlippage,
   batches,
   claim,
   claimAndStake,
   withdraw,
-  butterPageState,
   isThreeX = false,
 }) => {
   const { dispatch } = useContext(store);
@@ -34,27 +37,11 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   const [currentBatch, setCurrentBatch] = useState<AccountBatch>({} as AccountBatch)
   const [handleClaimPopup, setHandleClaimPopup] = useState(false)
 
-  const [localButterPageState, setButterPageState] = butterPageState;
-  const tokenOptions =
-    localButterPageState?.tokens &&
-    (isThreeX
-      ? [localButterPageState.tokens.usdc, localButterPageState.tokens.dai, localButterPageState.tokens.usdt]
-      : [
-        localButterPageState.tokens.threeCrv,
-        localButterPageState.tokens.dai,
-        localButterPageState.tokens.usdc,
-        localButterPageState.tokens.usdt,
-      ]);
-
-  function setSlippage(slippage: number): void {
-    setButterPageState({ ...localButterPageState, slippage: slippage });
-  }
-
   const renderZapModal = (batch: AccountBatch, isWithdraw: boolean = false) => {
     return (
       <ZapModal
-        tokenOptions={tokenOptions}
-        slippage={localButterPageState.slippage}
+        tokenOptions={options}
+        slippage={slippage}
         setSlippage={setSlippage}
         slippageOptions={[0.1, 0.5, 1]}
         closeModal={() => {
@@ -135,7 +122,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         </thead>
         {batches?.length > 0 ? (
           <tbody>
-            {batches?.map((batch, i) => (
+            {batches?.map((batch) => (
               <ClaimableBatch
                 key={batch.batchId}
                 batch={batch}
@@ -158,7 +145,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         </div>
         {batches?.length > 0 ? (
           <div>
-            {batches?.map((batch, i) => (
+            {batches?.map((batch) => (
               <MobileClaimableBatch
                 key={batch.batchId}
                 batch={batch}

@@ -38,7 +38,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: addresses.deployer,
     args: [
       contractRegistryAddress,
-      addresses.butterStaking,
+      (await deployments.get("butterStaking")).address,
       addresses.butter,
       addresses.threeCrv,
       addresses.threePool,

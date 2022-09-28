@@ -63,7 +63,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     const Staking = await deploy(vaultStakingPools[i].poolName, {
       from: addresses.deployer,
-      args: [vaultStakingPools[i].rewardsToken, VaultDeployed.address, addresses.rewardsEscrow],
+      args: [vaultStakingPools[i].rewardsToken, VaultDeployed.address, addresses.vaultsRewardsEscrow],
       log: true,
       autoMine: true,
       contract: "Staking",

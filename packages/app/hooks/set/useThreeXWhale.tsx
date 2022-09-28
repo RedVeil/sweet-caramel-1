@@ -9,5 +9,5 @@ export default function useThreeXWhale(): ThreeXWhaleProcessing {
   return useMemo(() => {
     if (isButterSupportedOnCurrentNetwork(chainId))
       return ThreeXWhaleProcessing__factory.connect(contractAddresses.threeXWhale, signerOrProvider);
-  }, [signerOrProvider, contractAddresses.threeXBatch, account]);
+  }, [signerOrProvider, contractAddresses.threeXWhale, account]);
 }

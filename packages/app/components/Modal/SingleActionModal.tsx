@@ -86,7 +86,6 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
         initialFocus={cancelButtonRef}
         onClose={() => (keepOpen ? {} : setOpen(false))}
       >
-
         <div className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity" />
 
         <div className="fixed inset-0 z-10 overflow-y-auto">

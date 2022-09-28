@@ -1,21 +1,27 @@
 import { formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
-import { BatchMetadata } from "@popcorn/utils/types";
+import { Token } from "@popcorn/utils/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import useGetYearnAPY from "hooks/set/useGetYearnAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useWeb3 from "hooks/useWeb3";
 
 export interface ButterStatsProps {
-  butterData: BatchMetadata;
+  token: Token;
+  totalSupply: BigNumber;
   center?: boolean;
   isThreeX?: boolean;
   addresses: string[];
 }
 
-export default function ButterStats({ butterData, center = false, isThreeX = false, addresses }: ButterStatsProps) {
-  const isReady = typeof butterData !== "undefined";
+export default function ButterStats({
+  token,
+  totalSupply,
+  center = false,
+  isThreeX = false,
+  addresses,
+}: ButterStatsProps) {
   const SocialImpactInfoProps = {
     content:
       "Approximately one-third of all fees collected by Popcorn are donated to social impact and non-profit organizations selected by POP token holders.",
@@ -27,13 +33,11 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
   const { data: butterStaking } = useStakingPool(
     isThreeX ? contractAddresses.threeXStaking : contractAddresses.butterStaking,
   );
-  const supply = isReady && butterData.totalSupply;
-  const setToken = isThreeX ? butterData?.tokens?.threeX : butterData?.tokens?.butter;
 
   const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
     butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
   }%) and is boosted with POP (${
-    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, butterData?.tokens?.butter?.decimals) : "-"
+    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
   }%). You must stake your ${
     isThreeX ? "3X" : "BTR"
   } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
@@ -43,10 +47,7 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
       <StatusWithLabel
         content={
           butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-            ? formatAndRoundBigNumber(
-                butterStaking.apy.add(parseUnits(String(butterAPY))),
-                butterData?.tokens?.butter?.decimals,
-              ) + "%"
+            ? formatAndRoundBigNumber(butterStaking.apy.add(parseUnits(String(butterAPY))), token?.decimals) + "%"
             : "..."
         }
         label={
@@ -63,11 +64,8 @@ export default function ButterStats({ butterData, center = false, isThreeX = fal
       <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
       <StatusWithLabel
         content={
-          setToken && supply
-            ? `$${formatAndRoundBigNumber(
-                supply.mul(setToken.price).div(parseEther("1")),
-                butterData?.tokens?.butter?.decimals,
-              )}`
+          token && totalSupply
+            ? `$${formatAndRoundBigNumber(totalSupply.mul(token.price).div(parseEther("1")), token.decimals)}`
             : "$ ..."
         }
         label="Total Deposits"
