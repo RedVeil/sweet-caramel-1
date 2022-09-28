@@ -1,11 +1,11 @@
-import { TokenMetadata } from "@popcorn/utils/types";
+import { Token } from "@popcorn/utils/types";
 import { Dispatch } from "react";
 import PseudoRadioButton from "./PseudoRadioButton";
 
 interface OutputTokenProps {
-  outputToken: TokenMetadata[];
-  selectToken: Dispatch<TokenMetadata>;
-  selectedToken: TokenMetadata;
+  outputToken: Token[];
+  selectToken: Dispatch<Token>;
+  selectedToken: Token;
 }
 
 const OutputToken: React.FC<OutputTokenProps> = ({ outputToken, selectToken, selectedToken }) => {
@@ -14,7 +14,7 @@ const OutputToken: React.FC<OutputTokenProps> = ({ outputToken, selectToken, sel
       <div className="flex flex-row flex-wrap gap-4 md:gap-0 md:space-x-4 h-28 md:h-full">
         {outputToken.map((token) => (
           <PseudoRadioButton
-            key={token.key}
+            key={token.symbol}
             label={token.name}
             isActive={selectedToken === token}
             handleClick={() => {

@@ -4,13 +4,15 @@ import {
   adjustDepositDecimals,
   ChainId,
   formatAndRoundBigNumber,
-  getMinMintAmount,
+  getIndexForToken,
+  getMinZapAmount,
   isButterSupportedOnCurrentNetwork,
   percentageToBps,
   prepareHotSwap,
 } from "@popcorn/utils";
-import { BatchProcessTokenKey, BatchType, SelectedToken, Tokens } from "@popcorn/utils/src/types";
+import { BatchType, SelectedToken, Token } from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
+import { Pages } from "components/BatchButter/ButterTokenInput";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
@@ -32,10 +34,9 @@ import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
-import abi from "../../../public/ButterBatchZapperAbi.json";
 
 export enum TOKEN_INDEX {
   dai,
@@ -43,8 +44,8 @@ export enum TOKEN_INDEX {
   usdt,
 }
 
-export function getZapDepositAmount(depositAmount: BigNumber, tokenKey: string): [BigNumber, BigNumber, BigNumber] {
-  switch (tokenKey) {
+export function getZapDepositAmount(depositAmount: BigNumber, token: Token): [BigNumber, BigNumber, BigNumber] {
+  switch (token.symbol) {
     case "dai":
       return [depositAmount, constants.Zero, constants.Zero];
     case "usdc":
@@ -62,7 +63,7 @@ export interface ButterPageState {
   useUnclaimedDeposits: boolean;
   slippage: number;
   initalLoad: boolean;
-  tokens: Tokens;
+  tokens: Token[];
   instant: boolean;
   isThreeX: boolean;
 }
@@ -105,7 +106,7 @@ export default function Butter(): JSX.Element {
   const router = useRouter();
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
-  const loadingButterBatchData = !butterPageState.selectedToken;
+  const loadingButterBatchData = !butterPageState.selectedToken?.input || !butterPageState.selectedToken?.output;
   const butterYearnAddresses = [
     contractAddresses.yFrax,
     contractAddresses.yRai,
@@ -114,6 +115,20 @@ export default function Butter(): JSX.Element {
   ];
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
 
+  const threeCrv = useMemo(
+    () =>
+      (butterPageState.instant ? butterWhaleData : butterBatchData)?.tokens?.find(
+        (token) => token.address === contractAddresses.threeCrv,
+      ),
+    [butterPageState, butterBatchData, butterWhaleData],
+  );
+  const butter = useMemo(
+    () =>
+      (butterPageState.instant ? butterWhaleData : butterBatchData)?.tokens?.find(
+        (token) => token.address === contractAddresses.butter,
+      ),
+    [butterPageState, butterBatchData, butterWhaleData],
+  );
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
       return;
@@ -154,26 +169,42 @@ export default function Butter(): JSX.Element {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterBatchData?.tokens?.threeCrv?.key,
-          output: butterBatchData?.tokens?.butter?.key,
+          input: threeCrv,
+          output: butter,
         },
         tokens: butterBatchData?.tokens,
         redeeming: false,
         initalLoad: false,
       });
     } else {
-      setButterPageState({
-        ...butterPageState,
-        tokens: butterPageState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens,
-      });
+      setButterPageState((prevState) => ({
+        ...prevState,
+        selectedToken: {
+          input: (prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens).find(
+            (token) => token.address === prevState.selectedToken.input.address,
+          ),
+          output: (prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens).find(
+            (token) => token.address === prevState.selectedToken.output.address,
+          ),
+        },
+        tokens: prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens,
+      }));
     }
   }, [butterBatchData, butterWhaleData]);
 
   useEffect(() => {
-    setButterPageState({
-      ...butterPageState,
-      tokens: butterPageState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens,
-    });
+    setButterPageState((prevState) => ({
+      ...prevState,
+      selectedToken: {
+        input: (prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens)?.find(
+          (token) => token.address === prevState.selectedToken.input.address,
+        ),
+        output: prevState.instant
+          ? butterWhaleData?.tokens?.find((token) => token.address === prevState.selectedToken.output.address)
+          : threeCrv,
+      },
+      tokens: prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens,
+    }));
   }, [butterPageState.instant]);
 
   useEffect(() => {
@@ -184,8 +215,8 @@ export default function Butter(): JSX.Element {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterPageState?.tokens?.butter?.key,
-          output: butterPageState?.tokens?.threeCrv?.key,
+          input: butter,
+          output: threeCrv,
         },
         useZap: false,
         depositAmount: constants.Zero,
@@ -195,8 +226,8 @@ export default function Butter(): JSX.Element {
       setButterPageState({
         ...butterPageState,
         selectedToken: {
-          input: butterPageState?.tokens?.threeCrv?.key,
-          output: butterPageState?.tokens?.butter?.key,
+          input: threeCrv,
+          output: butter,
         },
         useZap: false,
         depositAmount: constants.Zero,
@@ -212,15 +243,15 @@ export default function Butter(): JSX.Element {
     return butterBatchData?.claimableRedeemBatches.length > 0;
   };
 
-  function selectToken(token: BatchProcessTokenKey): void {
-    const zapToken = ["dai", "usdc", "usdt"];
+  function selectToken(token: Token): void {
+    const zapToken = [contractAddresses.dai, contractAddresses.usdc, contractAddresses.usdt];
     const newSelectedToken = { ...butterPageState.selectedToken };
     if (butterPageState.redeeming) {
       newSelectedToken.output = token;
     } else {
       newSelectedToken.input = token;
     }
-    if (zapToken.includes(newSelectedToken.output) || zapToken.includes(newSelectedToken.input)) {
+    if (zapToken.includes(newSelectedToken.output.address) || zapToken.includes(newSelectedToken.input.address)) {
       setButterPageState({
         ...butterPageState,
         selectedToken: newSelectedToken,
@@ -240,7 +271,7 @@ export default function Butter(): JSX.Element {
   }
 
   function handleMintSuccess(res) {
-    onContractSuccess(res, `${butterPageState.tokens[butterPageState.selectedToken.input].name} deposited!`, () => {
+    onContractSuccess(res, `${butterPageState.selectedToken.input.symbol} deposited!`, () => {
       setButterPageState({ ...butterPageState, depositAmount: constants.Zero });
       toggleModal(
         ModalType.MultiChoice,
@@ -305,18 +336,18 @@ export default function Butter(): JSX.Element {
   }
 
   async function instantMint(depositAmount: BigNumber, stakeImmidiate = false): Promise<ethers.ContractTransaction> {
-    toast.loading(`Depositing ${butterPageState.tokens[butterPageState.selectedToken.input].name}...`);
+    toast.loading(`Depositing ${butterPageState.selectedToken.input.symbol}...`);
     if (butterPageState.useZap) {
       const virtualPriceValue = await virtualPrice();
-      const minMintAmount = getMinMintAmount(
+      const min3CrvAmount = getMinZapAmount(
         depositAmount,
         butterPageState.slippage,
         virtualPriceValue,
-        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
+        await butterPageState.selectedToken.input.contract.decimals(),
       );
       return butterWhaleProcessing.zapMint(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
-        minMintAmount,
+        min3CrvAmount,
         percentageToBps(butterPageState.slippage),
         stakeImmidiate,
       );
@@ -324,12 +355,12 @@ export default function Butter(): JSX.Element {
     return butterWhaleProcessing.mint(depositAmount, percentageToBps(butterPageState.slippage), stakeImmidiate);
   }
   async function instantRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading(`Withdrawing ${butterPageState.tokens[butterPageState.selectedToken.output].name}...`);
+    toast.loading(`Withdrawing ${butterPageState.selectedToken.output.symbol}...`);
     if (butterPageState.useZap) {
       return butterWhaleProcessing.zapRedeem(
         depositAmount,
-        TOKEN_INDEX[butterPageState.selectedToken.output],
-        adjustDepositDecimals(depositAmount, butterPageState.selectedToken.output)
+        getIndexForToken(butterPageState.selectedToken.output),
+        (await adjustDepositDecimals(depositAmount, butterPageState.selectedToken.output))
           .mul(100 - butterPageState.slippage)
           .div(100),
         butterPageState.slippage,
@@ -338,14 +369,14 @@ export default function Butter(): JSX.Element {
     return butterWhaleProcessing.redeem(depositAmount, percentageToBps(butterPageState.slippage));
   }
   async function batchMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading(`Depositing ${butterPageState.tokens[butterPageState.selectedToken.input].name} ...`);
+    toast.loading(`Depositing ${butterPageState.selectedToken.input.symbol} ...`);
     if (butterPageState.useZap) {
       const virtualPriceValue = await virtualPrice();
-      const minMintAmount = getMinMintAmount(
+      const minMintAmount = getMinZapAmount(
         depositAmount,
         butterPageState.slippage,
         virtualPriceValue,
-        ["usdc", "usdt"].includes(butterPageState.selectedToken.input) ? 6 : 18,
+        await butterPageState.selectedToken.input.contract.decimals(),
       );
       return butterBatchZapper.zapIntoBatch(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
@@ -384,7 +415,7 @@ export default function Butter(): JSX.Element {
     batchType: BatchType,
     stakeImmidiate = false,
   ): Promise<void> {
-    depositAmount = adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
+    depositAmount = await adjustDepositDecimals(depositAmount, butterPageState.selectedToken.input);
     if (butterPageState.instant && butterPageState.redeeming) {
       await instantRedeem(depositAmount).then(
         (res) =>
@@ -482,19 +513,36 @@ export default function Butter(): JSX.Element {
       );
     });
   }
-  async function claim(batchId: string, useZap?: boolean, outputToken?: string): Promise<void> {
+  async function claim(batchId: string, useZap?: boolean, outputToken?: Token): Promise<void> {
     toast.loading("Claiming Batch...");
     let call;
     if (useZap) {
+      console.log(
+        batchId,
+        getIndexForToken(outputToken),
+        (
+          await adjustDepositDecimals(
+            butterBatchData?.accountBatches
+              .find((batch) => batch.batchId === batchId)
+              .accountClaimableTokenBalance.mul(threeCrv.price)
+              .div(outputToken.price),
+            outputToken,
+          )
+        )
+          .mul(100 - butterPageState.slippage)
+          .div(100),
+      );
       call = butterBatchZapper.claimAndSwapToStable(
         batchId,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(
-          butterBatchData?.accountBatches
-            .find((batch) => batch.batchId === batchId)
-            .accountClaimableTokenBalance.mul(butterBatchData?.tokens?.threeCrv.price)
-            .div(butterBatchData?.tokens[outputToken].price),
-          outputToken,
+        getIndexForToken(outputToken),
+        (
+          await adjustDepositDecimals(
+            butterBatchData?.accountBatches
+              .find((batch) => batch.batchId === batchId)
+              .accountClaimableTokenBalance.mul(threeCrv.price)
+              .div(outputToken.price),
+            outputToken,
+          )
         )
           .mul(100 - butterPageState.slippage)
           .div(100),
@@ -516,16 +564,14 @@ export default function Butter(): JSX.Element {
       .catch((err) => onContractError(err));
   }
 
-  async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: string): Promise<void> {
+  async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: Token): Promise<void> {
     let call;
     if (useZap) {
-      call = new ethers.Contract(contractAddresses.butterBatchZapper, abi, signer).zapOutOfBatch(
+      call = butterBatchZapper.zapOutOfBatch(
         batchId,
         amount,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(amount, outputToken)
-          .mul(100 - butterPageState.slippage)
-          .div(100),
+        getIndexForToken(outputToken),
+        (await adjustDepositDecimals(amount, outputToken)).mul(100 - butterPageState.slippage).div(100),
       );
     } else {
       call = butterBatch.withdrawFromBatch(batchId, amount, account);
@@ -549,10 +595,9 @@ export default function Butter(): JSX.Element {
     return butterBatch.address;
   }
 
-  async function approve(contractKey: string): Promise<void> {
+  async function approve(token: Token): Promise<void> {
     toast.loading("Approving Token...");
-    const selectedTokenContract = butterBatchData?.tokens[contractKey].contract;
-    await selectedTokenContract.approve(getCurrentContractAddress(), ethers.constants.MaxUint256).then(
+    await token.contract.approve(getCurrentContractAddress(), ethers.constants.MaxUint256).then(
       (res) =>
         onContractSuccess(res, "Token approved!", () => {
           refetchButterBatchData();
@@ -566,12 +611,8 @@ export default function Butter(): JSX.Element {
       return constants.Zero;
     }
     return butterPageState.redeeming
-      ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance
-          .mul(butterBatchData?.tokens?.butter.price)
-          .div(parseEther("1"))
-      : butterBatchData?.currentBatches.mint.suppliedTokenBalance
-          .mul(butterBatchData?.tokens?.threeCrv.price)
-          .div(parseEther("1"));
+      ? butterBatchData?.currentBatches.redeem.suppliedTokenBalance.mul(butter.price).div(parseEther("1"))
+      : butterBatchData?.currentBatches.mint.suppliedTokenBalance.mul(threeCrv.price).div(parseEther("1"));
   }
 
   return (
@@ -582,7 +623,7 @@ export default function Butter(): JSX.Element {
           <p className="mt-4 leading-5 text-primaryDark">
             Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
           </p>
-          <ButterStats butterData={butterBatchData} addresses={butterYearnAddresses} />
+          <ButterStats token={butter} totalSupply={butterBatchData?.totalSupply} addresses={butterYearnAddresses} />
         </div>
         <div className="col-span-5 col-end-13 hidden md:block">
           <TutorialSlider isThreeX={false} />
@@ -636,13 +677,40 @@ export default function Butter(): JSX.Element {
               <div className="md:pr-8">
                 {butterBatchData && butterPageState.selectedToken && (
                   <MintRedeemInterface
-                    token={butterBatchData?.tokens}
-                    selectToken={selectToken}
-                    mainAction={handleMainAction}
                     approve={approve}
-                    depositDisabled={isDepositDisabled(butterBatchData, butterPageState)}
+                    mainAction={handleMainAction}
+                    options={butterPageState.tokens}
+                    selectedToken={butterPageState.selectedToken}
+                    selectToken={selectToken}
+                    page={Pages.butter}
+                    instant={butterPageState.instant}
+                    setInstant={(val) => setButterPageState((prevState) => ({ ...prevState, instant: val }))}
+                    depositAmount={butterPageState.depositAmount}
+                    setDepositAmount={(val) =>
+                      setButterPageState((prevState) => ({ ...prevState, depositAmount: val }))
+                    }
+                    depositDisabled={isDepositDisabled(
+                      butterWhaleData.totalSupply,
+                      butter,
+                      butterPageState.selectedToken,
+                      butterPageState.redeeming,
+                      butterPageState.depositAmount,
+                      butterPageState.useUnclaimedDeposits,
+                    )}
+                    withdrawMode={butterPageState.redeeming}
+                    setWithdrawMode={(val) => {
+                      setButterPageState((prevState) => ({ ...prevState, redeeming: val }));
+                    }}
+                    showSlippageAdjust={
+                      butterPageState.instant || (butterPageState.redeeming && butterPageState.useZap)
+                    }
+                    slippage={butterPageState.slippage}
+                    setSlippage={(val) => setButterPageState((prevState) => ({ ...prevState, slippage: val }))}
                     hasUnclaimedBalances={hasClaimableBalances()}
-                    butterPageState={[butterPageState, setButterPageState]}
+                    useUnclaimedDeposits={butterPageState.useUnclaimedDeposits}
+                    setUseUnclaimedDeposits={(val) =>
+                      setButterPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
+                    }
                   />
                 )}
               </div>
@@ -655,14 +723,7 @@ export default function Butter(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="Butter Value"
-                content={`$${
-                  butterBatchData?.tokens?.butter
-                    ? formatAndRoundBigNumber(
-                        butterBatchData?.tokens?.butter?.price,
-                        butterPageState?.tokens?.butter?.decimals,
-                      )
-                    : "-"
-                }`}
+                content={`$${butter ? formatAndRoundBigNumber(butter?.price, butter?.decimals) : "-"}`}
                 icon={"Butter"}
                 info={{
                   title: "Underlying Tokens",
@@ -687,11 +748,18 @@ export default function Butter(): JSX.Element {
           <div className="w-full pb-12 mx-auto mt-10">
             <div className="md:overflow-x-hidden md:max-h-108">
               <ClaimableBatches
+                options={[
+                  threeCrv,
+                  butterBatchData?.tokens?.find((token) => token.address === contractAddresses.dai),
+                  butterBatchData?.tokens?.find((token) => token.address === contractAddresses.usdc),
+                  butterBatchData?.tokens?.find((token) => token.address === contractAddresses.usdt),
+                ]}
+                slippage={butterPageState.slippage}
+                setSlippage={(val) => setButterPageState((prevState) => ({ ...prevState, slippage: val }))}
                 batches={butterBatchData?.accountBatches}
                 claim={claim}
                 claimAndStake={claimAndStake}
                 withdraw={withdraw}
-                butterPageState={[butterPageState, setButterPageState]}
               />
             </div>
           </div>

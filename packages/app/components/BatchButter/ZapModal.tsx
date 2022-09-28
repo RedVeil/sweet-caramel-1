@@ -1,5 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { TokenMetadata } from "@popcorn/utils/types";
+import { Token } from "@popcorn/utils/types";
 import MainActionButton from "components/MainActionButton";
 import TertiaryActionButton from "components/TertiaryActionButton";
 import { Dispatch, useState } from "react";
@@ -7,7 +7,7 @@ import OutputToken from "./OutputToken";
 import SlippageSettings from "./SlippageSettings";
 
 interface ZapModalProps {
-  tokenOptions: TokenMetadata[];
+  tokenOptions: Token[];
   slippage: number;
   setSlippage: Dispatch<number>;
   slippageOptions: number[];
@@ -31,7 +31,7 @@ export default function ZapModal({
   withdrawAmount,
   isWithdraw = false,
 }: ZapModalProps): JSX.Element {
-  const [selectedToken, selectToken] = useState<TokenMetadata>(tokenOptions[0]);
+  const [selectedToken, selectToken] = useState<Token>(tokenOptions[0]);
 
   return (
     <div className="flex flex-col mt-4 mx-4">
@@ -52,8 +52,8 @@ export default function ZapModal({
           label={isWithdraw ? "Withdraw" : "Claim"}
           handleClick={() => {
             isWithdraw
-              ? withdraw(batchId, withdrawAmount, selectedToken !== tokenOptions[0], selectedToken.key)
-              : claim(batchId, selectedToken !== tokenOptions[0], selectedToken.key);
+              ? withdraw(batchId, withdrawAmount, selectedToken !== tokenOptions[0], selectedToken)
+              : claim(batchId, selectedToken !== tokenOptions[0], selectedToken);
             closeModal();
           }}
         ></MainActionButton>

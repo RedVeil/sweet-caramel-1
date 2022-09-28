@@ -7,9 +7,13 @@
     "bsc": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
     "arbitrum": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c"
   },
-  "ETH": {
+  "eth": {
     "hardhat": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     "mainnet": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+  },
+  "wbtc": {
+    "hardhat": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+    "mainnet": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
   },
   "popUsdcLpStaking": {
     "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",

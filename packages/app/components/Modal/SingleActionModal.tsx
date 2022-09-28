@@ -86,7 +86,6 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
         initialFocus={cancelButtonRef}
         onClose={() => (keepOpen ? {} : setOpen(false))}
       >
-
         <div className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity" />
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -101,8 +100,11 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
               leaveTo="opacity-0"
             >
               <div ref={modalRef}>
-                <Dialog.Panel className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-10 sm:align-middle ${isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-md"
-                  }`}>
+                <Dialog.Panel
+                  className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-10 sm:align-middle ${
+                    isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-md"
+                  }`}
+                >
                   {!isTerms && (
                     <div className="flex justify-end">
                       <XIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />

@@ -1,8 +1,7 @@
-import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
+import { AccountBatch, BatchType, Token } from "@popcorn/utils/src/types";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
-import { ButterPageState } from "pages/[network]/set/butter";
-import { Dispatch, useContext } from "react";
+import { useContext } from "react";
 import ClaimableBatch from "./ClaimableBatch";
 import EmptyClaimableBatch from "./EmptyClaimableBatch";
 import MobileClaimableBatch from "./MobileClaimableBatch";
@@ -10,38 +9,27 @@ import MobileEmptyClaimableBatches from "./MobileEmptyClaimableBatches";
 import ZapModal from "./ZapModal";
 
 interface ClaimableBatchesProps {
+  options: Token[];
+  slippage: number;
+  setSlippage: (slippage: number) => void;
   batches: AccountBatch[];
   claim: Function;
   claimAndStake: Function;
   withdraw: Function;
-  butterPageState: [ButterPageState, Dispatch<ButterPageState>];
   isThreeX?: boolean;
 }
 
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
+  options,
+  slippage,
+  setSlippage,
   batches,
   claim,
   claimAndStake,
   withdraw,
-  butterPageState,
   isThreeX = false,
 }) => {
   const { dispatch } = useContext(store);
-  const [localButterPageState, setButterPageState] = butterPageState;
-  const tokenOptions =
-    localButterPageState?.tokens &&
-    (isThreeX
-      ? [localButterPageState.tokens.usdc, localButterPageState.tokens.dai, localButterPageState.tokens.usdt]
-      : [
-          localButterPageState.tokens.threeCrv,
-          localButterPageState.tokens.dai,
-          localButterPageState.tokens.usdc,
-          localButterPageState.tokens.usdt,
-        ]);
-
-  function setSlippage(slippage: number): void {
-    setButterPageState({ ...localButterPageState, slippage: slippage });
-  }
 
   function handleClaim(batch: AccountBatch) {
     if (batch.batchType === BatchType.Redeem) {
@@ -50,8 +38,8 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
           title: "Choose an Output Token",
           content: (
             <ZapModal
-              tokenOptions={tokenOptions}
-              slippage={localButterPageState.slippage}
+              tokenOptions={options}
+              slippage={slippage}
               setSlippage={setSlippage}
               slippageOptions={[0.1, 0.5, 1]}
               closeModal={() => dispatch(setDualActionWideModal(false))}
@@ -75,8 +63,8 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
           title: "Choose an Output Token",
           content: (
             <ZapModal
-              tokenOptions={tokenOptions}
-              slippage={localButterPageState.slippage}
+              tokenOptions={options}
+              slippage={slippage}
               setSlippage={setSlippage}
               slippageOptions={[0.1, 0.5, 1]}
               closeModal={() => dispatch(setDualActionWideModal(false))}

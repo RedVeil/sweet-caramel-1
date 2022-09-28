@@ -1,5 +1,5 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20, ISetToken, Vault } from "../../../hardhat/typechain";
+import { ERC20, Vault } from "../../../hardhat/typechain";
 
 export type Address = string;
 export interface ContractAddresses {
@@ -17,6 +17,8 @@ export interface ContractAddresses {
   usdc?: Address;
   usdt?: Address;
   threeCrv?: Address;
+  eth?: Address;
+  wbtc?: Address;
   crvSEth?: Address;
   sEthSweetVault?: Address;
   sEthSweetVaultStaking?: Address;
@@ -152,6 +154,8 @@ export type Token = {
   allowance?: BigNumber;
   description?: string;
   icon?: string;
+  claimableBalance?: BigNumber;
+  price?: BigNumber;
 };
 
 export type ERC20Metadata = {
@@ -215,35 +219,13 @@ export type HotSwapParameter = {
 };
 
 export type SelectedToken = {
-  input: BatchProcessTokenKey;
-  output: BatchProcessTokenKey;
-};
-
-export type Tokens = {
-  butter?: TokenMetadata;
-  threeX?: TokenMetadata;
-  dai: TokenMetadata;
-  usdc: TokenMetadata;
-  usdt: TokenMetadata;
-  susd?: TokenMetadata;
-  threeCrv?: TokenMetadata;
+  input: Token;
+  output: Token;
 };
 
 export type ButterTokenKey = "butter" | "threeCrv" | "dai" | "usdc" | "usdt";
 
 export type BatchProcessTokenKey = ButterTokenKey | ThreeXTokenKey;
-
-export type TokenMetadata = {
-  key: BatchProcessTokenKey;
-  claimableBalance?: BigNumber;
-  price: BigNumber;
-  img?: string;
-  contract: ERC20 | ISetToken;
-  name: string;
-  decimals: number;
-  balance?: BigNumber;
-  allowance?: BigNumber;
-};
 
 export type BatchMetadata = {
   accountBatches: AccountBatch[];
@@ -251,7 +233,7 @@ export type BatchMetadata = {
   totalSupply: BigNumber;
   claimableMintBatches: AccountBatch[];
   claimableRedeemBatches: AccountBatch[];
-  tokens: Tokens;
+  tokens: Token[];
 };
 
 export type ThreeXTokenKey = "threeX" | "dai" | "usdc" | "usdt" | "susd";
