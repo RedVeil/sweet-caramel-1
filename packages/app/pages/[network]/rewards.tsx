@@ -98,7 +98,7 @@ export default function index(): JSX.Element {
             dispatch(
               setMultiChoiceActionModal({
                 image: <img src="/images/modalImages/vestingImage.svg" />,
-                title: "A Vesting Record is generated when you claim your staking rewards.",
+                title: "A Vesting Record has been created",
                 content:
                   "You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the next 365 days",
                 onConfirm: {
@@ -335,9 +335,9 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowsFetchResult ||
-                !userEscrowsFetchResult?.data ||
-                userEscrowsFetchResult?.error ||
-                userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                  !userEscrowsFetchResult?.data ||
+                  userEscrowsFetchResult?.error ||
+                  userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>
