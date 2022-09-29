@@ -11,14 +11,23 @@ import "../../../contracts/core/interfaces/IStaking.sol";
 import "../../../contracts/core/interfaces/IRewardsEscrow.sol";
 import "../../../contracts/core/dao/RewardsEscrow.sol";
 
-import "../../../contracts/core/defi/butter/ButterBatchProcessing.sol";
-import "../../../contracts/core/defi/butter/ButterBatchProcessingZapper.sol";
-import "../../../contracts/core/defi/butter/ButterWhaleProcessing.sol";
-import "../../../contracts/core/interfaces/IButterBatchProcessing.sol";
+import { ButterBatchProcessing } from "../../../contracts/core/defi/butter/ButterBatchProcessing.sol";
+import { ButterBatchProcessingZapper } from "../../../contracts/core/defi/butter/ButterBatchProcessingZapper.sol";
+import { ButterWhaleProcessing } from "../../../contracts/core/defi/butter/ButterWhaleProcessing.sol";
+// import "../../interfaces/IBatchStorage.sol";
+
+import { ThreeXBatchProcessing, IOracle } from "../../../contracts/core/defi/three-x/ThreeXBatchProcessing.sol";
+import { ThreeXWhaleProcessing } from "../../../contracts/core/defi/three-x/ThreeXWhaleProcessing.sol";
+import { AbstractBatchController } from "../../../contracts/core/defi/three-x/controller/AbstractBatchController.sol";
+import "../../../contracts/core/interfaces/IBatchStorage.sol";
 
 import "../../../contracts/externals/interfaces/Curve3Pool.sol";
+import "../../../contracts/externals/interfaces/ISetToken.sol";
+import "../../../contracts/externals/interfaces/CurveContracts.sol";
+import "../../../contracts/externals/interfaces/IBasicIssuanceModule.sol";
+import "../../../contracts/externals/interfaces/IAngleRouter.sol";
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -51,10 +60,19 @@ abstract contract AbstractTestScript is Test {
   ButterBatchProcessingZapper public butterBatchProcessingZapper;
   ButterWhaleProcessing public butterWhaleProcessing;
 
+  ISetToken public threeX;
+  ThreeXBatchProcessing public threeXBatchProcessing;
+  ThreeXWhaleProcessing public threeXWhaleProcessing;
+
+  ThreeXBatchProcessing.ComponentDependencies[] public componentDependencies3X;
+  BatchTokens public mintBatchTokens;
+  BatchTokens public redeemBatchTokens;
+
   IERC20 public threeCrv = IERC20(getMainnetContractAddress("threeCrv"));
   CurveMetapool public curveMetaPool = CurveMetapool(getMainnetContractAddress("threePool"));
   Curve3Pool public curve3Pool = Curve3Pool(getMainnetContractAddress("threePool"));
-  IBasicIssuanceModule public setBasicIssuanceModule = IBasicIssuanceModule(getMainnetContractAddress("setBasicIssuanceModule"));
+  IBasicIssuanceModule public setBasicIssuanceModule =
+    IBasicIssuanceModule(getMainnetContractAddress("setBasicIssuanceModule"));
   IRewardsEscrow public rewardsEscrow = RewardsEscrow(getMainnetContractAddress("rewardsEscrow"));
 
   address[] public yTokenAddresses = [
@@ -63,7 +81,6 @@ abstract contract AbstractTestScript is Test {
     getMainnetContractAddress("yMusd"),
     getMainnetContractAddress("yAlusd")
   ];
-  
 
   function instantiateOrDeployRegistryContracts(bool _instantiate) public {
     if (_instantiate) {
@@ -90,11 +107,7 @@ abstract contract AbstractTestScript is Test {
       if (_instantiate) {
         erc20Contracts[keys[j]] = IERC20(getMainnetContractAddress(keys[j]));
       } else {
-        erc20Contracts[keys[j]] = IERC20(
-          address(
-            new ERC20(keys[j], keys[j])
-          )
-        );
+        erc20Contracts[keys[j]] = IERC20(address(new ERC20(keys[j], keys[j])));
         addContract(keys[j], address(erc20Contracts[keys[j]]), "1");
       }
     }
@@ -168,21 +181,17 @@ abstract contract AbstractTestScript is Test {
         setBasicIssuanceModule,
         yTokenAddresses,
         crvDependencies,
-        ButterBatchProcessing.ProcessingThreshold(1e18, 1e18, 1e17)
+        ButterBatchProcessing.ProcessingThreshold(1 ether, 1 ether, 1e17)
       );
 
       butterBatchProcessing.setSlippage(7, 200);
       butterBatchProcessing.setApprovals();
       createIncentive(address(butterBatchProcessing), 0, true, false, address(erc20Contracts["pop"]), 1, 0);
       addContract("ButterBatchProcessing", address(butterBatchProcessing), "");
-      
-      butterBatchProcessingZapper = new ButterBatchProcessingZapper(
-        contractRegistry,
-        curve3Pool,
-        threeCrv
-      );
+
+      butterBatchProcessingZapper = new ButterBatchProcessingZapper(contractRegistry, curve3Pool, threeCrv);
       butterBatchProcessingZapper.setApprovals();
-      
+
       grantRole("ApprovedContract", address(butterBatchProcessingZapper));
       grantRole("ButterZapper", address(butterBatchProcessingZapper));
 
@@ -197,6 +206,65 @@ abstract contract AbstractTestScript is Test {
         crvDependenciesWhale
       );
       butterWhaleProcessing.setApprovals();
+    }
+  }
+
+  address[] public tokensFor3X;
+
+  function instantiateOrDeploy3X(bool _instantiate) public {
+    if (_instantiate) {
+      threeX = ISetToken(getMainnetContractAddress("threeX"));
+      threeXBatchProcessing = ThreeXBatchProcessing(getMainnetContractAddress("threeXBatch"));
+      threeXWhaleProcessing = ThreeXWhaleProcessing(getMainnetContractAddress("threeXWhale"));
+    } else {
+      threeX = ISetToken(address(new ERC20("ThreeX", "3X")));
+      mintBatchTokens = BatchTokens({ sourceToken: erc20Contracts["usdc"], targetToken: threeX });
+      redeemBatchTokens = BatchTokens({ targetToken: erc20Contracts["usdc"], sourceToken: threeX });
+
+      componentDependencies3X.push(
+        ThreeXBatchProcessing.ComponentDependencies({
+          lpToken: IERC20(getMainnetContractAddress("crvSusd")),
+          utilityPool: CurveMetapool(getMainnetContractAddress("crvSusdUtilityPool")),
+          oracle: IOracle(address(0)),
+          curveMetaPool: CurveMetapool(getMainnetContractAddress("crvSusdMetapool")),
+          angleRouter: IAngleRouter(address(0))
+        })
+      );
+      componentDependencies3X.push(
+        ThreeXBatchProcessing.ComponentDependencies({
+          lpToken: IERC20(getMainnetContractAddress("crv3Eur")),
+          utilityPool: CurveMetapool(address(0)),
+          oracle: IOracle(getMainnetContractAddress("eurOracle")),
+          curveMetaPool: CurveMetapool(getMainnetContractAddress("crv3EurMetapool")),
+          angleRouter: IAngleRouter(getMainnetContractAddress("angleRouter"))
+        })
+      );
+      threeXWhaleProcessing = new ThreeXWhaleProcessing(
+        contractRegistry,
+        setBasicIssuanceModule,
+        stakingContracts["threeXStaking"],
+        curve3Pool,
+        [erc20Contracts["dai"], erc20Contracts["usdc"], erc20Contracts["usdt"]]
+      );
+      threeXWhaleProcessing.setApprovals();
+
+      tokensFor3X.push(getMainnetContractAddress("ySusd"));
+      tokensFor3X.push(getMainnetContractAddress("y3Eur"));
+      threeXBatchProcessing = new ThreeXBatchProcessing(
+        contractRegistry,
+        stakingContracts["threeXStaking"],
+        mintBatchTokens,
+        redeemBatchTokens,
+        setBasicIssuanceModule,
+        tokensFor3X,
+        componentDependencies3X,
+        IERC20(getMainnetContractAddress("agEur")),
+        AbstractBatchController.ProcessingThreshold({
+          batchCooldown: 1800,
+          mintThreshold: 20000 ether,
+          redeemThreshold: 200 ether
+        })
+      );
     }
   }
 
@@ -241,5 +309,3 @@ abstract contract AbstractTestScript is Test {
     );
   }
 }
-
-
