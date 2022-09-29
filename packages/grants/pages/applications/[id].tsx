@@ -11,6 +11,7 @@ import GalleryTab from "components/Profile/GalleryTab";
 import ReportsTab from "components/Profile/ReportsTab";
 import VotePeriodCard from "components/Proposals/VotePeriodCard";
 import VotingCard from "components/Proposals/VotingCard";
+import EditIcon from "components/Svgs/EditIcon";
 import { ContractsContext } from "context/Web3/contracts";
 import { utils } from "ethers";
 import Link from "next/link";
@@ -190,7 +191,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
       })
       .catch((err) => {
         toast.dismiss();
-        toast.error(err.data.message.split("'")[1]);
+        toast.error(err.data.message.split("'")[1] || err.data);
         dispatch(setSingleActionModal(false));
       });
   };
@@ -272,6 +273,10 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
     window.addEventListener("scroll", () => isElemTop(profileContent));
   }, []);
 
+  const saveProfileID = () => {
+    localStorage.setItem("profileID", proposalId);
+  };
+
   return (
     <section className="relative">
       <div className="md:hidden mb-10 px-6">
@@ -286,18 +291,33 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         bgImage={`https:/popcorn.mypinata.cloud/ipfs/${proposal?.application?.files?.headerImage?.image}`}
         className="relative"
       >
-        <RWebShare
-          data={{
-            text: "Popcorn is a regenerative yield optimizing protocol",
-            url: router.asPath,
-            title: `Share ${proposal?.application?.organizationName}'s Proposal`,
-          }}
-        >
-          <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 absolute gap-3 bottom-10 left-8 shadow-white-button ">
-            <ShareIcon className="w-6 h-6" />
-            Share
-          </button>
-        </RWebShare>
+        <div className="hidden md:flex space-x-6 absolute bottom-10 left-8">
+          <RWebShare
+            data={{
+              text: "Popcorn is a regenerative yield optimizing protocol",
+              url: router.asPath,
+              title: `Share ${proposal?.application?.organizationName}'s Proposal`,
+            }}
+          >
+            <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex px-5 py-3 gap-3 shadow-white-button ">
+              <ShareIcon className="w-6 h-6" />
+              Share
+            </button>
+          </RWebShare>
+          {account && account == proposal?.application?.beneficiaryAddress && (
+            <Link href="/profile/edit">
+              <a>
+                <button
+                  className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex items-center px-5 py-3 gap-3 shadow-white-button "
+                  onClick={saveProfileID}
+                >
+                  <EditIcon color="#000000" />
+                  Edit Profile
+                </button>
+              </a>
+            </Link>
+          )}
+        </div>
       </Hero>
       <div className="hidden md:block mx-8 mt-8">
         <Link href={"/applications"}>
@@ -330,7 +350,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                   <p className="text-primaryDark text-base leading-7">by {proposal?.application?.organizationName}</p>
                 </div>
               </div>
-              <div className="py-10 flex">
+              <div className="py-10 flex md:hidden space-x-6">
                 <RWebShare
                   data={{
                     text: "Popcorn is a regenerative yield optimizing protocol",
@@ -338,10 +358,22 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                     title: `Share ${proposal?.application?.organizationName}'s Proposal`,
                   }}
                 >
-                  <button className="border border-primary bg-white h-12 w-12 rounded-full flex md:hidden justify-center items-center">
+                  <button className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center">
                     <ShareIcon className="w-6 h-6 text-primary" />
                   </button>
                 </RWebShare>
+                {account && account == proposal?.application?.beneficiaryAddress && (
+                  <Link href="/profile/edit">
+                    <a>
+                      <button
+                        className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center"
+                        onClick={saveProfileID}
+                      >
+                        <EditIcon color="#645F4B" />
+                      </button>
+                    </a>
+                  </Link>
+                )}
               </div>
               <div className="flex justify-between md:justify-start md:space-x-4 pb-10 md:pb-20 md:pt-14">
                 {profileTabs.map((tab) => (

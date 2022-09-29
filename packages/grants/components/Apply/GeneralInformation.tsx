@@ -27,11 +27,12 @@ const filterList = [
   },
 ];
 
-const GeneralInformation = ({
-  form,
-}: {
+interface GIProps {
   form: [formData: BeneficiaryApplication, setFormData: React.Dispatch<BeneficiaryApplication>];
-}) => {
+  isEdit?: boolean;
+}
+
+const GeneralInformation: React.FC<GIProps> = ({ form, isEdit = false }) => {
   const [formData, setFormData] = form;
   const updateInput = (value: string, formKey: string): void => {
     setFormData({
@@ -84,7 +85,7 @@ const GeneralInformation = ({
   };
   return (
     <>
-      <h6 className="text-2xl md:text-3xl mb-12">General Information</h6>
+      <h6 className="text-2xl md:text-3xl mb-6 md:mb-12">General Information</h6>
 
       <div className="relative">
         <CoverPhotoUpload
@@ -116,6 +117,7 @@ const GeneralInformation = ({
             updateInput={updateInput}
             formKey={"organizationName"}
             inputDescription={"* The official company name of your non-profit organization"}
+            disabled={isEdit}
           />
         </div>
 
@@ -131,6 +133,7 @@ const GeneralInformation = ({
             isValid={isAddress}
             updateInput={updateInput}
             inputDescription={"* The associated ETH address to receive fundings"}
+            disabled={isEdit}
           />
         </div>
 

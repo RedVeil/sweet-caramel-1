@@ -74,7 +74,7 @@ const ImpactReports = ({
               {fileName}
             </a>
           </div>
-          <button className="text-customPurple text-sm" onClick={() => removeImpactReport(i)}>
+          <button className="text-primary text-sm" onClick={() => removeImpactReport(i)}>
             Delete
           </button>
         </div>

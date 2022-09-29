@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ShareIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon, ExclamationIcon, ShareIcon } from "@heroicons/react/outline";
 import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import AboutTab from "components/Profile/AboutTab";
@@ -59,10 +59,14 @@ const BeneficiaryPage = () => {
             </button>
           </RWebShare>
           {/*TODO: Will be implemented later */}
-          {/* <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
-						<ExclamationIcon className="w-6 h-6" />
-						Report
-					</button> */}
+          <Link href="/profile/edit">
+            <a>
+              <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
+                <ExclamationIcon className="w-6 h-6" />
+                Report
+              </button>
+            </a>
+          </Link>
         </div>
       </Hero>
       <div className="hidden md:block mx-8 mt-8">
