@@ -1,6 +1,6 @@
 import Button from "components/CommonComponents/Button";
 import React from "react";
-import DisconnectWalletIcon from "../Svgs/DisconnectWalletIcon";
+import Image from "next/image";
 import WalletIcon from "../Svgs/WalletIcon";
 interface Props {
   connected: boolean;
@@ -12,7 +12,7 @@ const ConnectWalletButtons: React.FC<Props> = ({ connected, connectWallet, disco
     <>
       {!connected && (
         <Button variant="primary" onClick={connectWallet}>
-          <span className="hidden md:inline">Connect Wallet</span>
+          <span className="hidden md:inline">Connect to Polygon</span>
           <span className="md:hidden">
             <WalletIcon />
           </span>
@@ -20,15 +20,20 @@ const ConnectWalletButtons: React.FC<Props> = ({ connected, connectWallet, disco
       )}
       {connected && (
         <button
-          className="px-8 py-3 font-medium text-base transition-all ease-in-out duration-500 w-full flex flex-row items-center justify-center bg-white border border-primary text-primary rounded-4xl hover:bg-primary hover:text-white "
+          className="px-8 py-3 font-medium text-base transition-all ease-in-out duration-500 w-full flex flex-row items-center justify-center bg-white border border-primary text-primary rounded-4xl"
           onClick={disconnectWallet}
         >
-          <div className="hidden md:flex md:justify-center md:gap-5">
-            <span>Disconnect</span> <img className="w-6 h-6" src="/images/metamaskImg.svg" />
+          <div className="w-4 h-4 relative">
+            <Image
+              src="/images/polygonLogo.png"
+              alt="polygon logo"
+              layout="fill"
+              objectFit="contain"
+              priority={true}
+            />
           </div>
-          <span className="md:hidden">
-            <DisconnectWalletIcon />
-          </span>
+          <span className="mx-2">Polygon</span>
+          <span className="block h-2 w-2 rounded-full border border-green-400 bg-green-400"></span>
         </button>
       )}
     </>
