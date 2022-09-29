@@ -6,15 +6,41 @@ import { Fragment, useEffect, useState } from "react";
 import Button from "components/CommonComponents/Button";
 import Link from "next/link";
 import NavbarLink from "./NavbarLink";
+import Image from "next/image";
+import PopUpModal from "components/Modal/PopUpModal";
+import { useWeb3React } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
+import { connectors } from "context/Web3/connectors";
 
 export const MobileMenu: React.FC = () => {
   const router = useRouter();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [showVoteMenu, setShowVoteMenu] = useState<boolean>(false);
+  const [showPopUp, setSowPopup] = useState<boolean>(false);
+  const context = useWeb3React<Web3Provider>();
+  const { account, activate, active, deactivate } = context;
 
   useEffect(() => {
     toggleMenu(false);
   }, [router?.pathname]);
+
+  const handleConnectWallet = async () => {
+    try {
+      await activate(connectors.Injected);
+      setSowPopup(false);
+    } catch (ex) {
+      console.log(ex);
+    }
+  };
+
+  const handleDisconnectWallet = async () => {
+    try {
+      deactivate();
+      setSowPopup(false);
+    } catch (ex) {
+      console.log(ex);
+    }
+  };
 
   return (
     <>
@@ -26,39 +52,53 @@ export const MobileMenu: React.FC = () => {
             </a>
           </Link>
         </div>
-        <div className="flex items-center space-x-6">
-          {!menuVisible && (
-            <>
-              <Link href="/apply" passHref>
-                <button className="bg-transparent border-primary text-primary rounded-4xl text-base flex flex-row items-center justify-center font-medium px-5 py-1.5 border transition-all ease-in-out duration-500">
-                  <DocumentAddIcon className="text-primary w-5 h-5" />
-                </button>
-              </Link>
-            </>
-          )}
-          <button
-            className="text-gray-500 w-10 relative focus:outline-none bg-white"
-            onClick={() => toggleMenu(!menuVisible)}
-          >
-            <div className="block w-10">
-              <span
-                aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                  }`}
-              ></span>
-              <span
-                aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
-                  }`}
-              ></span>
-              <span
-                aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                  }`}
-              ></span>
-            </div>
-          </button>
-        </div>
+        {!menuVisible && (
+          <>
+            <button
+              className="bg-transparent border-[#C8C8C8] text-primary rounded-4xl text-base flex flex-row items-center justify-center font-medium px-5 py-1.5 border transition-all ease-in-out duration-500"
+              onClick={() => setSowPopup(true)}
+            >
+              <div className="w-4 h-4 relative mr-2">
+                <Image
+                  src="/images/polygonLogo.png"
+                  alt="polygon logo"
+                  layout="fill"
+                  objectFit="contain"
+                  priority={true}
+                />
+              </div>
+              <span className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"} block h-2 w-2 rounded-full border`}></span>
+            </button>
+            <Link href="/apply" passHref>
+              <button className="bg-transparent border-primary text-primary rounded-4xl text-base flex flex-row items-center justify-center font-medium px-5 py-1.5 border transition-all ease-in-out duration-500">
+                <DocumentAddIcon className="text-primary w-5 h-5" />
+              </button>
+            </Link>
+          </>
+        )}
+        <button
+          className="text-gray-500 w-10 relative focus:outline-none bg-white"
+          onClick={() => toggleMenu(!menuVisible)}
+        >
+          <div className="block w-10">
+            <span
+              aria-hidden="true"
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+                }`}
+            ></span>
+            <span
+              aria-hidden="true"
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
+                }`}
+            ></span>
+            <span
+              aria-hidden="true"
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+                }`}
+            ></span>
+          </div>
+        </button>
+
       </div>
 
       <Transition.Root show={menuVisible} as={Fragment}>
@@ -193,6 +233,19 @@ export const MobileMenu: React.FC = () => {
           </div>
         </Dialog>
       </Transition.Root>
+
+      <PopUpModal visible={showPopUp} onClosePopUpModal={() => setSowPopup(false)}>
+        <div className="py-4">
+          <p className="mb-2">{account ? 'Disconnect from' : "Connect to"} wallet</p>
+          <Button
+            variant={account ? "secondary" : "primary"}
+            className="w-full"
+            onClick={account ? handleDisconnectWallet : handleConnectWallet}
+          >
+            {account ? 'Disconnect from' : "Connect to"} Polygon
+          </Button>
+        </div>
+      </PopUpModal>
     </>
   );
 };
