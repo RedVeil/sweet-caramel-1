@@ -22,9 +22,9 @@ const customJestConfig = {
     "^hooks\/(.*)$": "<rootDir>/hooks/$1",
     "^context\/(.*)$": "<rootDir>/context/$1",
     "^helper\/(.*)$": "<rootDir>/helper/$1",
-    "^@popcorn/ui\/(.*)$": "<rootDir>/../ui/src",
-    "^@popcorn/utils\/(.*)$": "<rootDir>/../utils",
-    "^@popcorn/hardhat\/(.*)$": "<rootDir>/../hardhat",
+    "^@popcorn/ui\/(.*)$": "<rootDir>/../ui/src/$1",
+    "^@popcorn/utils\/(.*)$": "<rootDir>/../utils/$1",
+    "^@popcorn/hardhat\/(.*)$": "<rootDir>/../hardhat/$1",
     /*   "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
       "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.js" */
   },
