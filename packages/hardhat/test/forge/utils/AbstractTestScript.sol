@@ -18,7 +18,9 @@ import { ButterWhaleProcessing } from "../../../contracts/core/defi/butter/Butte
 
 import { ThreeXBatchProcessing, IOracle } from "../../../contracts/core/defi/three-x/ThreeXBatchProcessing.sol";
 import { ThreeXWhaleProcessing } from "../../../contracts/core/defi/three-x/ThreeXWhaleProcessing.sol";
+import { ThreeXBatchVault } from "../../../contracts/core/defi/three-x/ThreeXBatchVault.sol";
 import { AbstractBatchController } from "../../../contracts/core/defi/three-x/controller/AbstractBatchController.sol";
+import { AbstractBatchStorage } from "../../../contracts/core/defi/three-x/storage/AbstractBatchStorage.sol";
 import "../../../contracts/core/interfaces/IBatchStorage.sol";
 
 import "../../../contracts/externals/interfaces/Curve3Pool.sol";
@@ -63,6 +65,7 @@ abstract contract AbstractTestScript is Test {
   ISetToken public threeX;
   ThreeXBatchProcessing public threeXBatchProcessing;
   ThreeXWhaleProcessing public threeXWhaleProcessing;
+  ThreeXBatchVault public threeXBatchVault = ThreeXBatchVault(getMainnetContractAddress("threeXBatchVault"));
 
   ThreeXBatchProcessing.ComponentDependencies[] public componentDependencies3X;
   BatchTokens public mintBatchTokens;
@@ -218,9 +221,9 @@ abstract contract AbstractTestScript is Test {
       threeXWhaleProcessing = ThreeXWhaleProcessing(getMainnetContractAddress("threeXWhale"));
     } else {
       threeX = ISetToken(address(new ERC20("ThreeX", "3X")));
+
       mintBatchTokens = BatchTokens({ sourceToken: erc20Contracts["usdc"], targetToken: threeX });
       redeemBatchTokens = BatchTokens({ targetToken: erc20Contracts["usdc"], sourceToken: threeX });
-
       componentDependencies3X.push(
         ThreeXBatchProcessing.ComponentDependencies({
           lpToken: IERC20(getMainnetContractAddress("crvSusd")),
@@ -239,6 +242,7 @@ abstract contract AbstractTestScript is Test {
           angleRouter: IAngleRouter(getMainnetContractAddress("angleRouter"))
         })
       );
+
       threeXWhaleProcessing = new ThreeXWhaleProcessing(
         contractRegistry,
         setBasicIssuanceModule,
@@ -246,7 +250,21 @@ abstract contract AbstractTestScript is Test {
         curve3Pool,
         [erc20Contracts["dai"], erc20Contracts["usdc"], erc20Contracts["usdt"]]
       );
+
       threeXWhaleProcessing.setApprovals();
+      vm.startPrank(ACL_ADMIN);
+      vm.warp(block.timestamp - 3 days);
+      threeXBatchProcessing.grantClientAccess(address(threeXWhaleProcessing));
+      vm.warp(block.timestamp + 3 days);
+      threeXBatchVault.addClient(address(threeXWhaleProcessing));
+      threeXWhaleProcessing.setBatchStorage(AbstractBatchStorage(address(threeXBatchVault)));
+      threeXWhaleProcessing.acceptClientAccess(address(threeXBatchVault));
+      threeXWhaleProcessing.setFee("mint", 0, address(0), threeX);
+      threeXWhaleProcessing.setFee("redeem", 0, address(0), erc20Contracts["usdc"]);
+      grantRole("ApprovedContract", address(this));
+      grantRole("ApprovedContract", address(threeXWhaleProcessing));
+      grantRole("Keeper", address(threeXWhaleProcessing));
+      vm.stopPrank();
 
       tokensFor3X.push(getMainnetContractAddress("ySusd"));
       tokensFor3X.push(getMainnetContractAddress("y3Eur"));
@@ -265,6 +283,10 @@ abstract contract AbstractTestScript is Test {
           redeemThreshold: 200 ether
         })
       );
+      threeXBatchProcessing.setBatchStorage(AbstractBatchStorage(address(threeXBatchVault)));
+      threeXBatchProcessing.setApprovals();
+      createIncentive(address(threeXBatchProcessing), 0, true, false, address(erc20Contracts["pop"]), 1, 0);
+      threeXBatchProcessing.setSlippage(100, 100);
     }
   }
 
