@@ -116,16 +116,30 @@ abstract contract AbstractTestScript is Test {
     }
   }
 
+  function getERC20Contract(string memory key) public returns (IERC20) {
+    IERC20 erc20contract = erc20Contracts[key];
+    if (address(erc20contract) == address(0)) {
+      return IERC20(getMainnetContractAddress(key));
+    }
+  }
+
   function instantiateOrDeployStaking(bool _instantiate, string[] memory keys) public {
     for (uint256 j = 0; j < keys.length; j++) {
       if (_instantiate) {
         stakingContracts[keys[j]] = IStaking(getMainnetContractAddress(keys[j]));
       } else {
         stakingContracts[keys[j]] = IStaking(
-          address(new Staking(erc20Contracts["pop"], erc20Contracts[keys[j]], rewardsEscrow))
+          address(new Staking(getERC20Contract("pop"), getERC20Contract(keys[j]), rewardsEscrow))
         );
         addContract(keys[j], address(stakingContracts[keys[j]]), "1");
       }
+    }
+  }
+
+  function getStakingContract(string memory key) public returns (IERC20) {
+    IStaking stakingContract = stakingContracts[key];
+    if (address(stakingContract) == address(0)) {
+      return IStaking(getMainnetContractAddress(key));
     }
   }
 
@@ -177,7 +191,7 @@ abstract contract AbstractTestScript is Test {
       butter = ISetToken(address(new ERC20("Butter", "BTR")));
       butterBatchProcessing = new ButterBatchProcessing(
         contractRegistry,
-        stakingContracts["butter"],
+        getStakingContract("butter"),
         butter,
         threeCrv,
         curveMetaPool,
@@ -189,7 +203,7 @@ abstract contract AbstractTestScript is Test {
 
       butterBatchProcessing.setSlippage(7, 200);
       butterBatchProcessing.setApprovals();
-      createIncentive(address(butterBatchProcessing), 0, true, false, address(erc20Contracts["pop"]), 1, 0);
+      createIncentive(address(butterBatchProcessing), 0, true, false, address(getERC20Contract("pop")), 1, 0);
       addContract("ButterBatchProcessing", address(butterBatchProcessing), "");
 
       butterBatchProcessingZapper = new ButterBatchProcessingZapper(contractRegistry, curve3Pool, threeCrv);
@@ -200,7 +214,7 @@ abstract contract AbstractTestScript is Test {
 
       butterWhaleProcessing = new ButterWhaleProcessing(
         contractRegistry,
-        stakingContracts["butter"],
+        getStakingContract("butter"),
         butter,
         threeCrv,
         curve3Pool,
@@ -222,8 +236,8 @@ abstract contract AbstractTestScript is Test {
     } else {
       threeX = ISetToken(address(new ERC20("ThreeX", "3X")));
 
-      mintBatchTokens = BatchTokens({ sourceToken: erc20Contracts["usdc"], targetToken: threeX });
-      redeemBatchTokens = BatchTokens({ targetToken: erc20Contracts["usdc"], sourceToken: threeX });
+      mintBatchTokens = BatchTokens({ sourceToken: getERC20Contract("usdc"), targetToken: threeX });
+      redeemBatchTokens = BatchTokens({ targetToken: getERC20Contract("usdc"), sourceToken: threeX });
       componentDependencies3X.push(
         ThreeXBatchProcessing.ComponentDependencies({
           lpToken: IERC20(getMainnetContractAddress("crvSusd")),
@@ -246,9 +260,9 @@ abstract contract AbstractTestScript is Test {
       threeXWhaleProcessing = new ThreeXWhaleProcessing(
         contractRegistry,
         setBasicIssuanceModule,
-        stakingContracts["threeXStaking"],
+        getStakingContract("threeXStaking"),
         curve3Pool,
-        [erc20Contracts["dai"], erc20Contracts["usdc"], erc20Contracts["usdt"]]
+        [getERC20Contract("dai"), getERC20Contract("usdc"), getERC20Contract("usdt")]
       );
 
       threeXWhaleProcessing.setApprovals();
@@ -260,7 +274,7 @@ abstract contract AbstractTestScript is Test {
       threeXWhaleProcessing.setBatchStorage(AbstractBatchStorage(address(threeXBatchVault)));
       threeXWhaleProcessing.acceptClientAccess(address(threeXBatchVault));
       threeXWhaleProcessing.setFee("mint", 0, address(0), threeX);
-      threeXWhaleProcessing.setFee("redeem", 0, address(0), erc20Contracts["usdc"]);
+      threeXWhaleProcessing.setFee("redeem", 0, address(0), getERC20Contract("usdc"));
       grantRole("ApprovedContract", address(this));
       grantRole("ApprovedContract", address(threeXWhaleProcessing));
       grantRole("Keeper", address(threeXWhaleProcessing));
@@ -270,7 +284,7 @@ abstract contract AbstractTestScript is Test {
       tokensFor3X.push(getMainnetContractAddress("y3Eur"));
       threeXBatchProcessing = new ThreeXBatchProcessing(
         contractRegistry,
-        stakingContracts["threeXStaking"],
+        getStakingContract("threeXStaking"),
         mintBatchTokens,
         redeemBatchTokens,
         setBasicIssuanceModule,
@@ -285,7 +299,7 @@ abstract contract AbstractTestScript is Test {
       );
       threeXBatchProcessing.setBatchStorage(AbstractBatchStorage(address(threeXBatchVault)));
       threeXBatchProcessing.setApprovals();
-      createIncentive(address(threeXBatchProcessing), 0, true, false, address(erc20Contracts["pop"]), 1, 0);
+      createIncentive(address(threeXBatchProcessing), 0, true, false, address(getERC20Contract("pop")), 1, 0);
       threeXBatchProcessing.setSlippage(100, 100);
     }
   }
