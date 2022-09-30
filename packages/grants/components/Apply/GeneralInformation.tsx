@@ -1,8 +1,8 @@
 import { BeneficiaryApplication } from "@popcorn/hardhat";
+import { filterValues } from "components/Beneficiaries/BeneficiaryFilter";
 import CustomDropdown from "components/CommonComponents/CustomDropdown";
 import TextInput from "components/CommonComponents/TextInput";
 import { isAddress } from "ethers/lib/utils";
-import { filterValues } from "pages";
 import React, { useEffect, useState } from "react";
 import inputExists, { isValidEmail } from "utils/isValidInput";
 import CoverPhotoUpload from "./CoverPhotoUpload";

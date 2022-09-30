@@ -11,14 +11,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 
-export enum filterValues {
-  all = "All",
-  environment = "Environment",
-  education = "Education ",
-  inequality = "Inequality",
-  openSource = "Open Source",
-}
-
 const IndexPage = () => {
   const router = useRouter();
   const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
@@ -148,10 +140,7 @@ const IndexPage = () => {
               Eligible Beneficiaries At A Glance
             </h1>
             {beneficiaries.length > 0 && (
-              <BeneficiaryFilter
-                categoryFilter={categoryFilter}
-                switchFilter={setCategoryFilter}
-              />
+              <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
             )}
           </div>
           <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />

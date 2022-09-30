@@ -28,5 +28,17 @@ export type { IIpfsClient, UploadResult } from "./IpfsClient/IpfsClient";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
 export { default as localStringOptions } from "./localStringOptions";
 export { default as useFetch } from "./useFetch";
-export { getTokenMetadataOverride, getContractMetadata, useContractMetadata, generateTokenMetadataOverride } from "./contractMetadataOverride"
-export type { ContractMetadata, TokenContractMetadataOverride, NetworkKeys, OverrideObject, OverrideConfig } from "./contractMetadataOverride";
+export {
+  getTokenMetadataOverride,
+  getContractMetadata,
+  useContractMetadata,
+  generateTokenMetadataOverride,
+} from "./contractMetadataOverride";
+export type {
+  ContractMetadata,
+  TokenContractMetadataOverride,
+  NetworkKeys,
+  OverrideObject,
+  OverrideConfig,
+} from "./contractMetadataOverride";
+export { verifyEmail } from "./verifyEmail";

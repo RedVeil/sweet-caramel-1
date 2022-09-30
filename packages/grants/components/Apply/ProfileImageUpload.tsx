@@ -14,9 +14,13 @@ interface ProfileImageUploadProps {
 const ProfileImageUpload: React.FC<ProfileImageUploadProps> = (props) => {
   const [size, setSize] = useState<number>(120);
   useEffect(() => {
-    if (window.matchMedia("(max-width: 767px)").matches) {
-      setSize(88);
-    }
+    const resizeImage = () => {
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        setSize(88);
+      } else setSize(120);
+    };
+    resizeImage();
+    window.addEventListener("resize", () => resizeImage());
   }, []);
   return (
     <IPFSUploadFunc {...props}>
