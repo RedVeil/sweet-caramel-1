@@ -5,11 +5,8 @@ import MailIcon from "components/Svgs/MailIcon";
 import WhatsAppIcon from "components/Svgs/WhatsAppIcon";
 import React from "react";
 
-const ICON_COLOR = "#645F4B";
-const ICON_SIZE = 35;
-
 const ICON_PROPS = {
-  color: "#645F4B",
+  color: "fill-primary",
   size: "35",
 };
 

@@ -1,16 +1,16 @@
+import { Web3Provider } from "@ethersproject/providers";
 import { Dialog, Transition } from "@headlessui/react";
-import { DocumentAddIcon, ChevronLeftIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon, DocumentAddIcon } from "@heroicons/react/outline";
+import { useWeb3React } from "@web3-react/core";
+import Button from "components/CommonComponents/Button";
+import PopUpModal from "components/Modal/PopUpModal";
 import { DiscordIcon, MediumIcon, RedditIcon, TelegramIcon, TwitterIcon, YoutubeIcon } from "components/Svgs";
+import { connectors } from "context/Web3/connectors";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
-import Button from "components/CommonComponents/Button";
-import Link from "next/link";
 import NavbarLink from "./NavbarLink";
-import Image from "next/image";
-import PopUpModal from "components/Modal/PopUpModal";
-import { useWeb3React } from "@web3-react/core";
-import { Web3Provider } from "@ethersproject/providers";
-import { connectors } from "context/Web3/connectors";
 
 export const MobileMenu: React.FC = () => {
   const router = useRouter();
@@ -67,7 +67,11 @@ export const MobileMenu: React.FC = () => {
                   priority={true}
                 />
               </div>
-              <span className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"} block h-2 w-2 rounded-full border`}></span>
+              <span
+                className={`${
+                  account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                } block h-2 w-2 rounded-full border`}
+              ></span>
             </button>
             <Link href="/apply" passHref>
               <button className="bg-transparent border-primary text-primary rounded-4xl text-base flex flex-row items-center justify-center font-medium px-5 py-1.5 border transition-all ease-in-out duration-500">
@@ -83,22 +87,24 @@ export const MobileMenu: React.FC = () => {
           <div className="block w-10">
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "opacity-0" : "opacity-100"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+              }`}
             ></span>
           </div>
         </button>
-
       </div>
 
       <Transition.Root show={menuVisible} as={Fragment}>
@@ -166,22 +172,22 @@ export const MobileMenu: React.FC = () => {
                       </div>
                       <div className="flex justify-between pb-12 mt-11">
                         <a href="https://twitter.com/Popcorn_DAO">
-                          <TwitterIcon color={"#645F4B"} size={"30"} />
+                          <TwitterIcon color="fill-primary" size={"30"} />
                         </a>
                         <a href="https://discord.gg/w9zeRTSZsq">
-                          <DiscordIcon color={"#645F4B"} size={"30"} />
+                          <DiscordIcon color="fill-primary" size={"30"} />
                         </a>
                         <a href="https://t.me/popcorndaochat">
-                          <TelegramIcon color={"#645F4B"} size={"30"} />
+                          <TelegramIcon color="fill-primary" size={"30"} />
                         </a>
                         <a href="https://medium.com/popcorndao">
-                          <MediumIcon color={"#645F4B"} size={"30"} />
+                          <MediumIcon color="fill-primary" size={"30"} />
                         </a>
                         <a href="https://www.reddit.com/r/popcorndao/">
-                          <RedditIcon color={"#645F4B"} size={"30"} />
+                          <RedditIcon color="fill-primary" size={"30"} />
                         </a>
                         <a href="https://www.youtube.com/channel/UCe8n8mGG4JR7nhFT4v9APyA">
-                          <YoutubeIcon color={"#645F4B"} size={"30"} />
+                          <YoutubeIcon color="fill-primary" size={"30"} />
                         </a>
                       </div>
                     </div>
@@ -236,13 +242,13 @@ export const MobileMenu: React.FC = () => {
 
       <PopUpModal visible={showPopUp} onClosePopUpModal={() => setSowPopup(false)}>
         <div className="py-4">
-          <p className="mb-2">{account ? 'Disconnect from' : "Connect to"} wallet</p>
+          <p className="mb-2">{account ? "Disconnect from" : "Connect to"} wallet</p>
           <Button
             variant={account ? "secondary" : "primary"}
             className="w-full"
             onClick={account ? handleDisconnectWallet : handleConnectWallet}
           >
-            {account ? 'Disconnect from' : "Connect to"} Polygon
+            {account ? "Disconnect from" : "Connect to"} Polygon
           </Button>
         </div>
       </PopUpModal>
