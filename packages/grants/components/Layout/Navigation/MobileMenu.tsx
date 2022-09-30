@@ -18,7 +18,7 @@ export const MobileMenu: React.FC = () => {
   const [showVoteMenu, setShowVoteMenu] = useState<boolean>(false);
   const [showPopUp, setSowPopup] = useState<boolean>(false);
   const context = useWeb3React<Web3Provider>();
-  const { account, activate, active, deactivate } = context;
+  const { account, activate, deactivate } = context;
 
   useEffect(() => {
     toggleMenu(false);

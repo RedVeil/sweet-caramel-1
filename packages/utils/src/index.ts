@@ -5,6 +5,9 @@ export {
   percentageToBps,
   prepareHotSwap,
 } from "./butterHelpers";
+export {
+  isChainIdPolygonOrLocal
+} from './polygonHelpers'
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
 export {

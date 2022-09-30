@@ -26,7 +26,7 @@ export const DefaultSingleActionModalProps: SingleActionModalProps = {
   type: "info",
   keepOpen: false,
   showCloseButton: true,
-  onDismiss: { onClick: () => {} },
+  onDismiss: { onClick: () => { } },
 };
 
 export const SingleActionModal: React.FC<SingleActionModalProps> = ({
@@ -151,7 +151,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                           ))}
                       </>
                     )}
-                    <div className="my-6 lg:my-10">
+                    <div className="my-6 lg:mt-10">
                       <h3 className="text-4xl lg:text-6xl leading-[110%] font-normal text-black mb-2" id="modal-title">
                         {title}
                       </h3>
@@ -162,7 +162,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                       )}
                       <div>{children}</div>
                     </div>
-                    <div className="mt-5">
+                    <div className={`${onConfirm || onDismiss?.label ? "mt-5" : ''}`}>
                       {onConfirm && (
                         <Button variant="primary" onClick={confirm} className="py-2 px-5 w-full">
                           {onConfirm?.label}
