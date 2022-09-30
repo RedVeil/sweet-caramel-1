@@ -13,7 +13,7 @@ interface CustomSlippageInputProps {
 }
 
 export const CustomSlippageInput: React.FC<CustomSlippageInputProps> = (props) => {
-  const { value, setValue, setSlippage } = props
+  const { value, setValue, setSlippage } = props;
 
   const onUpdate = (nextUserInput: string) => {
     if (inputRegex.test(escapeRegExp(nextUserInput))) {
@@ -89,11 +89,7 @@ const SlippageContent: React.FC<SlippageSettingsProps> = ({ slippage, setSlippag
           </div>
         </div>
 
-        <CustomSlippageInput
-          value={value}
-          setValue={setValue}
-          setSlippage={setSlippage}
-        />
+        <CustomSlippageInput value={value} setValue={setValue} setSlippage={setSlippage} />
       </div>
     </div>
   );

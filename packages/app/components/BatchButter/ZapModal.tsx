@@ -1,12 +1,12 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { Token } from "@popcorn/utils/types";
+import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import MainActionButton from "components/MainActionButton";
 import TertiaryActionButton from "components/TertiaryActionButton";
 import { Dispatch, useState } from "react";
 import OutputToken from "./OutputToken";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import PseudoRadioButton from "./PseudoRadioButton";
-import { CustomSlippageInput } from "./SlippageSettings"
+import { CustomSlippageInput } from "./SlippageSettings";
 interface ZapModalProps {
   tokenOptions: Token[];
   slippage: number;
@@ -77,11 +77,7 @@ export default function ZapModal({
                 content="Input a custom slippage tolerance amount"
               />
             </div>
-            <CustomSlippageInput
-              value={slippageValue}
-              setValue={setSlippageValue}
-              setSlippage={setSlippage}
-            />
+            <CustomSlippageInput value={slippageValue} setValue={setSlippageValue} setSlippage={setSlippage} />
           </div>
         </div>
       )}
@@ -95,10 +91,7 @@ export default function ZapModal({
             closeModal();
           }}
         ></MainActionButton>
-        <TertiaryActionButton
-          label="Cancel"
-          handleClick={closeModal}
-        ></TertiaryActionButton>
+        <TertiaryActionButton label="Cancel" handleClick={closeModal}></TertiaryActionButton>
       </div>
     </div>
   );

@@ -35,12 +35,6 @@ contract Vault is
     uint256 performance;
   }
 
-  struct KeeperConfig {
-    uint256 minWithdrawalAmount; // minimum amount required of accrued fees for calling withdrawAccruedFees
-    uint256 incentiveVigBps; // percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves
-    uint256 keeperPayout; // amount paid out to keeper per invocation of incentivized function - withdrawAccruedFees()
-  }
-
   address public staking;
   address public zapper;
 
@@ -78,6 +72,7 @@ contract Vault is
     address yearnRegistry_,
     IContractRegistry contractRegistry_,
     address staking_,
+    address zapper_,
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
   )
@@ -95,6 +90,8 @@ contract Vault is
       staking = staking_;
       _approve(address(this), staking_, type(uint256).max);
     }
+
+    zapper = zapper_;
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
@@ -540,7 +537,7 @@ contract Vault is
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function setFees(FeeStructure memory newFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
     // prettier-ignore
     require(
       newFees.deposit < 1e18 &&
@@ -554,19 +551,19 @@ contract Vault is
   }
 
   /**
-   * @notice Set whether to use locally configured fees. Caller must have DAO_ROLE from ACLRegistry.
+   * @notice Set whether to use locally configured fees. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    * @param _useLocalFees `true` to use local fees, `false` to use the VaultFeeController contract.
    */
-  function setUseLocalFees(bool _useLocalFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setUseLocalFees(bool _useLocalFees) external onlyRole(VAULTS_CONTROLLER) {
     emit UseLocalFees(_useLocalFees);
     useLocalFees = _useLocalFees;
   }
 
   /**
-   * @notice Set staking contract for this vault. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
+   * @notice Set staking contract for this vault. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    * @param _staking Address of the staking contract.
    */
-  function setStaking(address _staking) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setStaking(address _staking) external onlyRole(VAULTS_CONTROLLER) {
     emit StakingUpdated(staking, _staking);
 
     if (staking != address(0)) _approve(address(this), staking, 0);
@@ -579,19 +576,44 @@ contract Vault is
    * @notice Sets the zapper contract which is allowed to unstake and withdraw for a user without addtitional approvals
    * @param _zapper Address of the new zapper contract.
    */
-  function setZapper(address _zapper) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setZapper(address _zapper) external onlyRole(VAULTS_CONTROLLER) {
     emit ZapperUpdated(zapper, _zapper);
     zapper = _zapper;
   }
 
   /**
-   * @notice Used to update the yearn registry. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
+   * @notice Used to update the yearn registry. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    * @param _registry The new _registry address.
    */
-  function setRegistry(address _registry) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setRegistry(address _registry) external onlyRole(VAULTS_CONTROLLER) {
     emit RegistryUpdated(address(registry), _registry);
 
     _setRegistry(_registry);
+  }
+
+  /**
+   * @notice Change keeper config. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function setKeeperConfig(KeeperConfig memory _config) external onlyRole(VAULTS_CONTROLLER) {
+    require(_config.incentiveVigBps < 1e18, "invalid vig");
+    require(_config.minWithdrawalAmount > 0, "invalid min withdrawal");
+    emit KeeperConfigUpdated(keeperConfig, _config);
+
+    keeperConfig = _config;
+  }
+
+  /**
+   * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function pauseContract() external onlyRole(VAULTS_CONTROLLER) {
+    _pause();
+  }
+
+  /**
+   * @notice Unpause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function unpauseContract() external onlyRole(VAULTS_CONTROLLER) {
+    _unpause();
   }
 
   /**
@@ -611,6 +633,7 @@ contract Vault is
     uint256 preBal = assetToken.balanceOf(address(this));
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 
+    //TODO check this calculation
     _withdraw(address(this), _feeController().feeRecipient(), (accruedFees * 1e18 - incentiveVig) / 1e18, true);
     _withdraw(address(this), address(this), tipAmount, true);
 
@@ -628,29 +651,6 @@ contract Vault is
     keeperIncentive.tip(address(assetToken), msg.sender, 0, postBal);
 
     _burn(address(this), balance);
-  }
-
-  /**
-   * @notice Change keeper config. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
-   */
-  function setKeeperConfig(KeeperConfig memory _config) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
-    require(_config.incentiveVigBps < 1e18, "invalid vig");
-    require(_config.minWithdrawalAmount > 0, "invalid min withdrawal");
-    keeperConfig = _config;
-  }
-
-  /**
-   * @notice Pause deposits. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
-   */
-  function pauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
-    _pause();
-  }
-
-  /**
-   * @notice Unpause deposits. Caller must have DAO_ROLE from ACLRegistry.
-   */
-  function unpauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
-    _unpause();
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */

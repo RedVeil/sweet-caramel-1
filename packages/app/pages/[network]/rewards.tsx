@@ -335,9 +335,9 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowsFetchResult ||
-                  !userEscrowsFetchResult?.data ||
-                  userEscrowsFetchResult?.error ||
-                  userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                !userEscrowsFetchResult?.data ||
+                userEscrowsFetchResult?.error ||
+                userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>

@@ -149,8 +149,9 @@ describe("sEth Zapper Test", function () {
     await expectValue((await contracts.vault.balanceOf(owner.address)).lt(vaultBal), true);
     await expectValue((await contracts.dai.balanceOf(owner.address)).gt(daiBal), true);
   });
+
   it("zapOut should unstake and swap into underlying asset", async () => {
-    await contracts.staking.connect(owner).setVault(contracts.vault.address);
+    await contracts.staking.connect(dao).setVault(contracts.vault.address);
     await contracts.vault.connect(dao).setStaking(contracts.staking.address);
     await zapper.zapIn(
       { address: contracts.dai.address, decimals: 18 },

@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./IEIP4626.sol";
 import "../defi/vault/Vault.sol";
+import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 
 interface IVaultsV1 is IEIP4626 {
   /* ========== STRUCTS ========== */
@@ -15,16 +16,14 @@ interface IVaultsV1 is IEIP4626 {
     uint256 performance;
   }
 
-  struct KeeperConfig {
-    uint256 minWithdrawalAmount;
-    uint256 incentiveVigBps;
-    uint256 keeperPayout;
-  }
-
   /* ========== VIEWS ========== */
   function assetsPerShare() external view returns (uint256);
 
   function asset() external view override returns (address);
+
+  function staking() external view returns (address);
+
+  function zapper() external view returns (address);
 
   function totalAssets() external view override(IEIP4626) returns (uint256);
 
@@ -116,11 +115,13 @@ interface IVaultsV1 is IEIP4626 {
 
   function setStaking(address _staking) external;
 
+  function setZapper(address _zapper) external;
+
   function setRegistry(address _registry) external;
 
   function withdrawAccruedFees() external;
 
-  function setKeeperConfig(Vault.KeeperConfig memory _config) external;
+  function setKeeperConfig(KeeperConfig memory _config) external;
 
   function pauseContract() external;
 

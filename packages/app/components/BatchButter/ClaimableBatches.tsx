@@ -1,15 +1,15 @@
-import { useContext, useState } from "react";
 import { AccountBatch, BatchType, Token } from "@popcorn/utils/src/types";
+import PopUpModal from "components/Modal/PopUpModal";
 import { setSingleActionModal } from "context/actions";
 import { store } from "context/store";
+import useWindowSize from "hooks/useWindowSize";
+import Image from "next/image";
+import { useContext, useState } from "react";
 import ClaimableBatch from "./ClaimableBatch";
 import EmptyClaimableBatch from "./EmptyClaimableBatch";
 import MobileClaimableBatch from "./MobileClaimableBatch";
 import MobileEmptyClaimableBatches from "./MobileEmptyClaimableBatches";
 import ZapModal from "./ZapModal";
-import Image from "next/image";
-import useWindowSize from "hooks/useWindowSize";
-import PopUpModal from "components/Modal/PopUpModal";
 
 interface ClaimableBatchesProps {
   options: Token[];
@@ -34,8 +34,8 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
 }) => {
   const { dispatch } = useContext(store);
   const { width: windowWidth } = useWindowSize();
-  const [currentBatch, setCurrentBatch] = useState<AccountBatch>({} as AccountBatch)
-  const [handleClaimPopup, setHandleClaimPopup] = useState(false)
+  const [currentBatch, setCurrentBatch] = useState<AccountBatch>({} as AccountBatch);
+  const [handleClaimPopup, setHandleClaimPopup] = useState(false);
 
   const renderZapModal = (batch: AccountBatch, isWithdraw: boolean = false) => {
     return (
@@ -45,17 +45,17 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         setSlippage={setSlippage}
         slippageOptions={[0.1, 0.5, 1]}
         closeModal={() => {
-          dispatch(setSingleActionModal(false))
-          setHandleClaimPopup(false)
+          dispatch(setSingleActionModal(false));
+          setHandleClaimPopup(false);
         }}
         withdraw={withdraw}
         claim={claim}
-        batchId={batch.batchId ?? '0'}
+        batchId={batch.batchId ?? "0"}
         withdrawAmount={batch.accountSuppliedTokenBalance}
         isWithdraw={isWithdraw}
       />
-    )
-  }
+    );
+  };
 
   function handleClaim(batch: AccountBatch) {
     if (batch.batchType === BatchType.Redeem) {
@@ -72,13 +72,12 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
             ),
             onDismiss: {
               onClick: () => dispatch(setSingleActionModal(false)),
-            }
+            },
           }),
         );
-      }
-      else {
-        setCurrentBatch(batch)
-        setHandleClaimPopup(true)
+      } else {
+        setCurrentBatch(batch);
+        setHandleClaimPopup(true);
       }
     }
   }
@@ -89,14 +88,10 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         setSingleActionModal({
           image: <Image src="/images/blackCircle.svg" width={88} height={88} />,
           title: "Choose an Output Token",
-          children: (
-            <>
-              {renderZapModal(batch, true)}
-            </>
-          ),
+          children: <>{renderZapModal(batch, true)}</>,
           onDismiss: {
             onClick: () => dispatch(setSingleActionModal(false)),
-          }
+          },
         }),
       );
     } else {
@@ -162,10 +157,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
       </div>
 
       <div className="fixed z-100 left-0">
-        <PopUpModal
-          visible={handleClaimPopup}
-          onClosePopUpModal={() => setHandleClaimPopup(false)}
-        >
+        <PopUpModal visible={handleClaimPopup} onClosePopUpModal={() => setHandleClaimPopup(false)}>
           <p className="text-base text-black font-normal mb-2">Select a token</p>
           {renderZapModal(currentBatch)}
         </PopUpModal>

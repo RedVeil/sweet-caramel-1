@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/Test.sol";
 import "forge-std/console.sol";
-
+import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.sol";
 import "../../../contracts/core/defi/vault/Vault.sol";
 import "../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../contracts/core/interfaces/IContractRegistry.sol";
@@ -24,7 +24,7 @@ interface IYearnSethVault is IERC20 {
 }
 
 /// @dev Block number 15176500
-contract VaultTest is Test {
+contract VaultInitalizationTest is Test {
   IERC20 internal asset;
   IYearnSethVault internal yearn;
 
@@ -47,13 +47,14 @@ contract VaultTest is Test {
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),
       address(0),
+      address(0),
       Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,
         management: MANAGEMENT_FEE,
         performance: PERFORMANCE_FEE
       }),
-      Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
+      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
 
     feeController = new VaultFeeController(

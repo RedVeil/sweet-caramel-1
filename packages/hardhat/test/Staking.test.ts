@@ -76,6 +76,7 @@ describe("Staking", function () {
 
     const aclRegistry = await (await (await ethers.getContractFactory("ACLRegistry")).deploy()).deployed();
     await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
+    await aclRegistry.grantRole(ethers.utils.id("VaultsController"), owner.address);
 
     const contractRegistry = await (
       await (await ethers.getContractFactory("ContractRegistry")).deploy(aclRegistry.address)
@@ -88,6 +89,7 @@ describe("Staking", function () {
         depositToken.address,
         yearnRegistry.address,
         contractRegistry.address,
+        ADDRESS_ZERO,
         ADDRESS_ZERO,
         {
           deposit: 0,
