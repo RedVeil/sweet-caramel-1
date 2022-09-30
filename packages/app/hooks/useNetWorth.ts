@@ -10,7 +10,7 @@ import usePopLocker from "./staking/usePopLocker";
 import useStakingPool from "./staking/useStakingPool";
 import useTokenBalance from "./tokens/useTokenBalance";
 import useGetPopTokenPriceInUSD from "./useGetPopTokenPriceInUSD";
-import useGetUserEscrows from "./useGetUserEscrows";
+import { useGetUserEscrows, useGetUserVaultsEscrows } from "./useGetUserEscrows";
 import useWeb3 from "./useWeb3";
 
 function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumber {
@@ -58,6 +58,11 @@ export default function useNetWorth(): BigNumber {
   const { data: bnbEscrow } = useGetUserEscrows(ChainId.BNB, PRC_PROVIDERS[ChainId.BNB]);
   const { data: arbitrumEscrow } = useGetUserEscrows(ChainId.Arbitrum, PRC_PROVIDERS[ChainId.Arbitrum]);
 
+  const { data: mainnetVaultEscrow } = useGetUserVaultsEscrows(ChainId.Ethereum, PRC_PROVIDERS[ChainId.Ethereum]);
+  const { data: polygonVaultEscrow } = useGetUserVaultsEscrows(ChainId.Polygon, PRC_PROVIDERS[ChainId.Polygon]);
+  const { data: bnbVaultEscrow } = useGetUserVaultsEscrows(ChainId.BNB, PRC_PROVIDERS[ChainId.BNB]);
+  const { data: arbitrumVaultEscrow } = useGetUserVaultsEscrows(ChainId.Arbitrum, PRC_PROVIDERS[ChainId.Arbitrum]);
+
   // // raise popPrice by 1e12
   const raisedPopPrice = useMemo(() => (popPrice ? popPrice.mul(parseEther("0.000001")) : constants.Zero), [popPrice]);
 
@@ -88,28 +93,56 @@ export default function useNetWorth(): BigNumber {
   const mainnetEscrowHoldings = useMemo(
     () =>
       mainnetEscrow
-        ? getHoldingValue(mainnetEscrow?.totalClaimablePop?.add(mainnetEscrow?.totalVestingPop), raisedPopPrice)
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(mainnetEscrow?.totalClaimablePop || "0")
+              .add(mainnetEscrow?.totalVestingPop || "0")
+              .add(mainnetVaultEscrow?.totalClaimablePop || "0")
+              .add(mainnetVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
         : constants.Zero,
     [mainnetEscrow],
   );
   const polygonEscrowHoldings = useMemo(
     () =>
       polygonEscrow
-        ? getHoldingValue(polygonEscrow?.totalClaimablePop?.add(polygonEscrow?.totalVestingPop), raisedPopPrice)
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(polygonEscrow?.totalClaimablePop || "0")
+              .add(polygonEscrow?.totalVestingPop || "0")
+              .add(polygonVaultEscrow?.totalClaimablePop || "0")
+              .add(polygonVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
         : constants.Zero,
     [polygonEscrow],
   );
   const bnbEscrowHoldings = useMemo(
     () =>
       bnbEscrow
-        ? getHoldingValue(bnbEscrow?.totalClaimablePop?.add(bnbEscrow?.totalVestingPop), raisedPopPrice)
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(bnbEscrow?.totalClaimablePop || "0")
+              .add(bnbEscrow?.totalVestingPop || "0")
+              .add(bnbVaultEscrow?.totalClaimablePop || "0")
+              .add(bnbVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
         : constants.Zero,
     [bnbEscrow],
   );
   const arbitrumEscrowHoldings = useMemo(
     () =>
       arbitrumEscrow
-        ? getHoldingValue(arbitrumEscrow?.totalClaimablePop?.add(arbitrumEscrow?.totalVestingPop), raisedPopPrice)
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(arbitrumEscrow?.totalClaimablePop || "0")
+              .add(arbitrumEscrow?.totalVestingPop || "0")
+              .add(arbitrumVaultEscrow?.totalClaimablePop || "0")
+              .add(arbitrumVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
         : constants.Zero,
     [arbitrumEscrow],
   );

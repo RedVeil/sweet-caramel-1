@@ -16,7 +16,7 @@ import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools
 import usePopLocker from "hooks/staking/usePopLocker";
 import useClaimEscrows from "hooks/useClaimEscrows";
 import useClaimStakingReward from "hooks/useClaimStakingReward";
-import useGetUserEscrows, { Escrow } from "hooks/useGetUserEscrows";
+import { Escrow, useGetUserEscrows, useGetUserVaultsEscrows } from "hooks/useGetUserEscrows";
 import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
@@ -86,6 +86,31 @@ export default function index(): JSX.Element {
     { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
     any
   > = useGetUserEscrows(chainId);
+  const userVaultsEscrowsFetchResults: SWRResponse<
+    { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
+    any
+  > = useGetUserVaultsEscrows(chainId);
+
+  const [userEscrowData, setUserEscrowData] =
+    useState<{ escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber }>();
+
+  useEffect(() => {
+    if (!userEscrowsFetchResult?.data && !userVaultsEscrowsFetchResults?.data) {
+      console.log("Missing data", userEscrowsFetchResult?.data, userVaultsEscrowsFetchResults?.data);
+      return;
+    }
+    setUserEscrowData({
+      escrows: []
+        .concat(userEscrowsFetchResult?.data?.escrows || [])
+        .concat(userVaultsEscrowsFetchResults?.data?.escrows || []),
+      totalClaimablePop: userEscrowsFetchResult?.data?.totalClaimablePop.add(
+        userVaultsEscrowsFetchResults?.data?.totalClaimablePop || "0",
+      ),
+      totalVestingPop: BigNumber.from("0")
+        .add(userEscrowsFetchResult?.data?.totalVestingPop || "0")
+        .add(userVaultsEscrowsFetchResults?.data?.totalVestingPop || "0"),
+    });
+  }, [userEscrowsFetchResult?.data, userVaultsEscrowsFetchResults?.data]);
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
     toast.loading("Claiming Rewards...");
@@ -135,7 +160,7 @@ export default function index(): JSX.Element {
 
   const claimAllEscrows = async () => {
     toast.loading("Claiming Escrows...");
-    const escrowsIds = userEscrowsFetchResult?.data?.escrows.map((escrow) => escrow.id);
+    const escrowsIds = userEscrowData?.escrows.map((escrow) => escrow.id);
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
     if (numberOfEscrows && numberOfEscrows > 0) {
       claimVestedPopFromEscrows(escrowsIds).then(
@@ -334,10 +359,10 @@ export default function index(): JSX.Element {
             )}
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
-                {!userEscrowsFetchResult ||
-                !userEscrowsFetchResult?.data ||
+                {!userEscrowData ||
                 userEscrowsFetchResult?.error ||
-                userEscrowsFetchResult?.data?.totalClaimablePop?.isZero() ? (
+                userVaultsEscrowsFetchResults?.error ||
+                userEscrowData?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>
@@ -345,10 +370,7 @@ export default function index(): JSX.Element {
                       <div className="flex flex-col h-full">
                         <div className="flex flex-col md:flex-row gap-8 md:gap-0 md:space-x-8 w-full my-8">
                           <RewardSummaryCard
-                            content={`${formatAndRoundBigNumber(
-                              userEscrowsFetchResult?.data?.totalVestingPop,
-                              18,
-                            )} POP`}
+                            content={`${formatAndRoundBigNumber(userEscrowData?.totalVestingPop, 18)} POP`}
                             title={"Total Vesting"}
                             iconUri="/images/lock.svg"
                             infoIconProps={{
@@ -360,10 +382,7 @@ export default function index(): JSX.Element {
                             }}
                           />
                           <RewardSummaryCard
-                            content={`${formatAndRoundBigNumber(
-                              userEscrowsFetchResult?.data?.totalClaimablePop,
-                              18,
-                            )} POP`}
+                            content={`${formatAndRoundBigNumber(userEscrowData?.totalClaimablePop, 18)} POP`}
                             title={"Total Claimable"}
                             iconUri="/images/yellowCircle.svg"
                             button={true}
@@ -378,37 +397,29 @@ export default function index(): JSX.Element {
                           />
                         </div>
                         <div className="flex flex-col border-t border-customLightGray overflow-hidden">
-                          {userEscrowsFetchResult?.data?.escrows
-                            .slice(0, visibleEscrows)
-                            .map((vestingEscrow, index) => {
-                              return (
-                                <VestingRecordComponent
-                                  vestingEscrow={vestingEscrow}
-                                  index={index}
-                                  claim={claimSingleEscrow}
-                                  key={vestingEscrow.end.toString()}
-                                />
-                              );
-                            })}
-                          {userEscrowsFetchResult?.data?.escrows?.length > 0 &&
-                            userEscrowsFetchResult?.data?.escrows?.length > visibleEscrows && (
+                          {userEscrowData?.escrows.slice(0, visibleEscrows).map((vestingEscrow, index) => {
+                            return (
+                              <VestingRecordComponent
+                                vestingEscrow={vestingEscrow}
+                                index={index}
+                                claim={claimSingleEscrow}
+                                key={vestingEscrow.end.toString()}
+                              />
+                            );
+                          })}
+                          {userEscrowData?.escrows?.length > 0 && userEscrowData?.escrows?.length > visibleEscrows && (
+                            <div
+                              className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}
+                            >
                               <div
-                                className={`flex flex-row justify-center px-8 py-4 w-full bg-rewardsBg mx-auto rounded-b-3xl`}
+                                className="flex flex-row items-center justify-center cursor-pointer group"
+                                onClick={() => incrementVisibleEscrows(visibleEscrows, userEscrowData?.escrows?.length)}
                               >
-                                <div
-                                  className="flex flex-row items-center justify-center cursor-pointer group"
-                                  onClick={() =>
-                                    incrementVisibleEscrows(
-                                      visibleEscrows,
-                                      userEscrowsFetchResult?.data?.escrows?.length,
-                                    )
-                                  }
-                                >
-                                  <h1 className="text-base font-medium group-hover:text-blue-600">Load more</h1>
-                                  <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
-                                </div>
+                                <h1 className="text-base font-medium group-hover:text-blue-600">Load more</h1>
+                                <ChevronDown className="w-4 h-4 ml-2 group-hover:text-blue-600" />
                               </div>
-                            )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
