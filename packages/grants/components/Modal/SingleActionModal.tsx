@@ -155,15 +155,12 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                       <h3 className="text-4xl lg:text-6xl leading-[110%] font-normal text-black mb-2" id="modal-title">
                         {title}
                       </h3>
-                      <div>
-                        {children ? (
-                          children
-                        ) : (
-                          <p className="text-base md:text-sm text-primaryDark mt-4">
-                            <>{content}</>
-                          </p>
-                        )}
-                      </div>
+                      {content && (
+                        <p className="text-base md:text-sm text-primaryDark mt-4">
+                          <>{content}</>
+                        </p>
+                      )}
+                      <div>{children}</div>
                     </div>
                     <div className={`${onConfirm || onDismiss?.label ? "mt-5" : ''}`}>
                       {onConfirm && (

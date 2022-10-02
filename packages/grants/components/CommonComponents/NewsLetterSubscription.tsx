@@ -1,3 +1,4 @@
+import { verifyEmail } from "@popcorn/utils";
 import SecondaryButton from "components/SecondaryActionButton";
 import React, { KeyboardEvent, useState } from "react";
 
@@ -7,13 +8,7 @@ const NewsLetterSubscription = ({ title, buttonLabel }: { title: string; buttonL
   const [subscriptionSuccessful, setSubscriptionSuccessful] = useState<boolean>(false);
 
   const subscribeToNewsLetter = async () => {
-    if (
-      subscribeEmail === "" ||
-      subscribeEmail.match(
-        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      ) === null
-    )
-      return;
+    if (subscribeEmail === "" || verifyEmail(subscribeEmail)) return;
     setSubscribing(true);
     try {
       await fetch("/api/signup", {

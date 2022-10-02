@@ -46,7 +46,8 @@ module.exports = {
 		ADDR_YFRAX: process.env.ADDR_YFRAX,
 		ADDR_YUSDN: process.env.ADDR_YUSDN,
 		ADDR_YUST: process.env.ADDR_YUST,
-		INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID
+		INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID,
+		GRANTS_BASE_URL: process.env.GRANTS_BASE_URL
 	},
 	poweredByHeader: false,
 	webpack: (config, options) => {

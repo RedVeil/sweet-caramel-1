@@ -6,6 +6,7 @@ import { BeneficiaryGovernanceAdapter, Proposal, ProposalType } from "@popcorn/h
 import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
 import { IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
+import SocialShare from "components/CommonComponents/SocialShare";
 import AboutTab from "components/Profile/AboutTab";
 import GalleryTab from "components/Profile/GalleryTab";
 import ReportsTab from "components/Profile/ReportsTab";
@@ -18,7 +19,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { RWebShare } from "react-web-share";
 import styled from "styled-components";
 import StakeModalContent from "../../components/Proposals/StakeModalContent";
 import { setSingleActionModal } from "context/actions";
@@ -277,6 +277,31 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
     localStorage.setItem("profileID", proposalId);
   };
 
+  const shareImage = () => {
+    return <img src="/images/shareModal.svg" />;
+  };
+
+  const shareProfile = () => {
+    dispatch(
+      setSingleActionModal({
+        content: `Share this profile to anyone and help to promote this impact project.`,
+        title: "Share & Spread Awareness",
+        visible: true,
+        image: <img src="/images/shareModal.svg" />,
+        onDismiss: {
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
+        },
+        children: (
+          <SocialShare
+            url={`${process.env.GRANTS_BASE_URL}${router.asPath}`}
+            title={`Share ${proposal?.application?.organizationName}'s Proposal`}
+            text={"Vote for my Popcorn DAO beneficiary application"}
+          />
+        ),
+      }),
+    );
+  };
+
   return (
     <section className="relative">
       <div className="md:hidden mb-10 px-6">
@@ -292,7 +317,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         className="relative"
       >
         <div className="hidden md:flex space-x-6 absolute bottom-10 left-8">
-          <RWebShare
+          {/* <RWebShare
             data={{
               text: "Popcorn is a regenerative yield optimizing protocol",
               url: router.asPath,
@@ -303,7 +328,14 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
               <ShareIcon className="w-6 h-6" />
               Share
             </button>
-          </RWebShare>
+          </RWebShare> */}
+          <button
+            className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex px-5 py-3 gap-3 shadow-white-button "
+            onClick={shareProfile}
+          >
+            <ShareIcon className="w-6 h-6" />
+            Share
+          </button>
           {account && account == proposal?.application?.beneficiaryAddress && (
             <Link href="/profile/edit">
               <a>
@@ -351,17 +383,12 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                 </div>
               </div>
               <div className="py-10 flex md:hidden space-x-6">
-                <RWebShare
-                  data={{
-                    text: "Popcorn is a regenerative yield optimizing protocol",
-                    url: router.asPath,
-                    title: `Share ${proposal?.application?.organizationName}'s Proposal`,
-                  }}
+                <button
+                  className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center"
+                  onClick={shareProfile}
                 >
-                  <button className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center">
-                    <ShareIcon className="w-6 h-6 text-primary" />
-                  </button>
-                </RWebShare>
+                  <ShareIcon className="w-6 h-6 text-primary" />
+                </button>
                 {account && account == proposal?.application?.beneficiaryAddress && (
                   <Link href="/profile/edit">
                     <a>

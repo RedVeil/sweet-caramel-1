@@ -61,22 +61,22 @@ const AboutTab: React.FC<AboutTabProps> = ({ missionStatement, beneficiaryAddres
             <div className="flex gap-6 md:gap-8">
               {links?.twitterUrl && (
                 <a href={links?.twitterUrl} className="flex justify-center items-center">
-                  <TwitterIcon color="#645F4B" size="32" />
+                  <TwitterIcon color="fill-primary" size="32" />
                 </a>
               )}
               {links?.telegramUrl && (
                 <a href={links?.telegramUrl} className="flex justify-center items-center">
-                  <TelegramIcon color="#645F4B" size="32" />
+                  <TelegramIcon color="fill-primary" size="32" />
                 </a>
               )}
               {links?.signalUrl && (
                 <a href={links?.signalUrl} className="flex justify-center items-center">
-                  <SignalIcon color="#645F4B" size="32" />
+                  <SignalIcon color="fill-primary" size="32" />
                 </a>
               )}
               {links?.linkedinUrl && (
                 <a href={links?.linkedinUrl} className="flex justify-center items-center">
-                  <LinkedInIcon color="#645F4B" size="32" />
+                  <LinkedInIcon color="fill-primary" size="32" />
                 </a>
               )}
             </div>
