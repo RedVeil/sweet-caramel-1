@@ -14,10 +14,11 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 const EditPage = () => {
-  const [activeForm, setActiveForm] = useState<FormSteps>(FormSteps.GENERAL_INFORMATION);
-  const [proposalId, setProposalId] = useState<string>(null);
   const { contracts } = useContext(ContractsContext);
   const { account } = useWeb3React<Web3Provider>();
+
+  const [activeForm, setActiveForm] = useState<FormSteps>(FormSteps.GENERAL_INFORMATION);
+  const [proposalId, setProposalId] = useState<string>(null);
   const [proposal, setProposal] = useState<Proposal>();
   const [formData, setFormData] = useState<BeneficiaryApplication>(defaultFormData);
   const [showPopUp, setShowPopUp] = useState<boolean>(true);

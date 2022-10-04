@@ -33,25 +33,16 @@ interface ApplyFormProps {
 
 const ApplyForm: React.FC<ApplyFormProps> = ({ form, activeForm, onNextActiveForm, onPrevActiveForm }) => {
   const { library, account, activate, active } = useWeb3React<Web3Provider>();
-  const [errorList, setErrorList] = useState<Array<string>>([]);
-  const [showErrors, setShowErrors] = useState<boolean>(false);
   const { dispatch } = useContext(store);
   const { contracts } = useContext(ContractsContext);
-  const [proposalBond, setProposalBond] = useState<BigNumber>();
   const router = useRouter();
-  const [uploading, setUploading] = useState<boolean>(false);
+
   const [formData, setFormData] = form;
 
-  // useEffect(() => {
-  // 	const formData = localStorage.getItem("editBeneficiaryApplicationForm");
-  // 	if (formData !== null) setFormData(JSON.parse(formData));
-  // 	const currentStep: FormSteps = parseInt(localStorage.getItem("beneficiaryApplicationStep"));
-  // 	if (currentStep) setActiveForm(currentStep);
-  // }, []);
-
-  // useEffect(() => {
-  // 	localStorage.setItem("beneficiaryApplicationForm", JSON.stringify(formData));
-  // }, [formData]);
+  const [errorList, setErrorList] = useState<Array<string>>([]);
+  const [showErrors, setShowErrors] = useState<boolean>(false);
+  const [proposalBond, setProposalBond] = useState<BigNumber>();
+  const [uploading, setUploading] = useState<boolean>(false);
 
   useEffect(() => {
     if (contracts) {

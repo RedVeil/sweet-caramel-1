@@ -27,12 +27,12 @@ const filterList = [
   },
 ];
 
-interface GIProps {
+interface GeneralInformationProps {
   form: [formData: BeneficiaryApplication, setFormData: React.Dispatch<BeneficiaryApplication>];
   isEdit?: boolean;
 }
 
-const GeneralInformation: React.FC<GIProps> = ({ form, isEdit = false }) => {
+const GeneralInformation: React.FC<GeneralInformationProps> = ({ form, isEdit = false }) => {
   const [formData, setFormData] = form;
   const updateInput = (value: string, formKey: string): void => {
     setFormData({
