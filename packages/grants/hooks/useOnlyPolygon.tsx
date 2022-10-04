@@ -39,6 +39,7 @@ export const useOnlyPolygon = () => {
     if (!isChainIdPolygonOrLocal(currentUserChainId)) {
       dispatch(
         setSingleActionModal({
+          image: <img src="/images/inconsistentNetwork.svg" />,
           title: "Network Inconsistency",
           visible: true,
           children: (
