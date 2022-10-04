@@ -123,7 +123,7 @@ export default function index(): JSX.Element {
             dispatch(
               setMultiChoiceActionModal({
                 image: <img src="/images/modalImages/vestingImage.svg" />,
-                title: "A Vesting Record has been created",
+                title: "Sweet!",
                 content:
                   "You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the next 365 days",
                 onConfirm: {
