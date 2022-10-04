@@ -24,7 +24,7 @@ export default function index(): JSX.Element {
   const { dispatch } = useContext(store);
   const [searchValue, setSearchValue] = useState("");
   const [currentVaults, setCurrentVaults] = useState<string[]>();
-  const [slicePosition, setSlicePosition] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const sliceAmount = 4;
 
   useEffect(() => {
@@ -60,14 +60,13 @@ export default function index(): JSX.Element {
   }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
-    updateCurrentPage(slicePosition);
+    updateCurrentPage(currentPage);
   }, [contractAddresses?.sweetVaults]);
 
   const updateCurrentPage = (e) => {
     if (contractAddresses.sweetVaults && contractAddresses.sweetVaults.length >= e) {
-      setSlicePosition(e);
       let vaults = [...contractAddresses?.sweetVaults];
-      setCurrentVaults(vaults.splice(e, sliceAmount));
+      setCurrentVaults(vaults.slice(e, e + sliceAmount));
     }
   };
 
@@ -109,7 +108,8 @@ export default function index(): JSX.Element {
                 sliceAmount={sliceAmount}
                 onUpdatePage={(e) => updateCurrentPage(e)}
                 lengthOfData={contractAddresses?.sweetVaults?.length}
-                currentIndex={slicePosition}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
               />
             )}
           </div>
