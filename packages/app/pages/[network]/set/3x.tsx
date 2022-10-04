@@ -126,41 +126,51 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: usdc,
-              output: threeX,
-            },
-            tokens: threeXData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-          }
-        : {
-            ...state,
-            selectedToken: {
-              input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-                (token) => token.address === state.selectedToken.input.address,
-              ),
-              output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-                (token) => token.address === state.selectedToken.output.address,
-              ),
-            },
-            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          ...state,
+          selectedToken: {
+            input: usdc,
+            output: threeX,
           },
+          tokens: threeXData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+        }
+        : {
+          ...state,
+          selectedToken: {
+            input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.input.address,
+            ),
+            output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.output.address,
+            ),
+          },
+          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+        },
     );
   }, [threeXData, threeXWhaleData]);
 
   useEffect(() => {
+    function selectOutputToken(state: ButterPageState): Token {
+      if (state.instant) {
+        return threeXWhaleData?.tokens?.find((token) => token.address === state.selectedToken.output.address)
+      } else {
+        if (state.redeeming) {
+          return usdc
+        } else {
+          return threeX
+        }
+      }
+    }
+
     setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
         input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens)?.find(
           (token) => token.address === state.selectedToken.input.address,
         ),
-        output: state.instant
-          ? threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address)
-          : usdc,
+        output: selectOutputToken(state)
       },
       tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
     }));

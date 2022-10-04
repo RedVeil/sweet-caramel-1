@@ -48,7 +48,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       contractRegistry,
       ADDRESS_ZERO,
       FEE_STRUCTURE,
-      KEEPER_CONFIG,
+      KEEPER_SETTINGS,
     });
     const VaultDeployed = await deploy(vaultStakingPools[i].vaultName, {
       from: addresses.deployer,

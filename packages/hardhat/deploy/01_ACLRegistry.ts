@@ -1,6 +1,6 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DAO_ROLE, KEEPER_ROLE, INCENTIVE_MANAGER_ROLE } from "../lib/acl/roles";
+import { DAO_ROLE, KEEPER_ROLE, INCENTIVE_MANAGER_ROLE, VAULTS_CONTROLLER } from "../lib/acl/roles";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -29,6 +29,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await aclRegistry.grantRole(DAO_ROLE, await signer.getAddress());
   await aclRegistry.grantRole(KEEPER_ROLE, await signer.getAddress());
   await aclRegistry.grantRole(INCENTIVE_MANAGER_ROLE, await signer.getAddress());
+  await aclRegistry.grantRole(VAULTS_CONTROLLER, await signer.getAddress());
 
 };
 

@@ -60,7 +60,6 @@ export const getMinZapAmount = (
   let depositAmountInOutputDecimals: BigNumber;
   // Raise or lower the mintAmount based on the difference in decimals between inputToken/outputToken
   const difDecimals = inputDecimals - outputDecimals;
-
   if (difDecimals === 0) {
     depositAmountInOutputDecimals = depositAmount;
   } else if (difDecimals > 0) {
@@ -71,7 +70,6 @@ export const getMinZapAmount = (
 
   const depositValue = depositAmountInOutputDecimals.mul(parseEther("1")).div(virtualPrice);
   const delta = depositValue.mul(percentageToBps(slippage)).div(10000);
-
   return depositValue.sub(delta);
 };
 

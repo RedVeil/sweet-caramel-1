@@ -106,9 +106,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         <div>
           <div className="mt-1 relative flex items-center gap-2 md:gap-0 md:space-x-2">
             <div
-              className={`w-full flex px-5 py-4 items-center rounded-lg border ${
-                depositDisabled?.disabled ? " border-customRed" : "border-customLightGray "
-              }`}
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${depositDisabled?.disabled ? " border-customRed" : "border-customLightGray "
+                }`}
             >
               <input
                 name="tokenInput"
@@ -156,13 +155,10 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               setUseUnclaimedDeposits(!useUnclaimedDeposits);
             }}
             infoTitle="About Unclaimed Balances"
-            infoText={`When a batch is minted but the ${
-              pageToDisplayToken(page).output
-            } has not been claimed yet, it can be redeemed without having to claim it first. By checking “use unclaimed balances” you will be able to redeem unclaimed balances of ${
-              pageToDisplayToken(page).output
-            }. This process applies also for unclaimed ${pageToDisplayToken(page).input}, which can be converted to ${
-              pageToDisplayToken(page).output
-            } without having to claim it.`}
+            infoText={`When a batch is minted but the ${pageToDisplayToken(page).output
+              } has not been claimed yet, it can be redeemed without having to claim it first. By checking “use unclaimed balances” you will be able to redeem unclaimed balances of ${pageToDisplayToken(page).output
+              }. This process applies also for unclaimed ${pageToDisplayToken(page).input}, which can be converted to ${pageToDisplayToken(page).output
+              } without having to claim it.`}
             label="Use only unclaimed balances"
           />
         )}
@@ -208,7 +204,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         </div>
       </div>
       <div>
-        <p className="text-base font-medium text-primary">{`Estimated ${selectedToken.output.name} Amount`}</p>
+        <p className="text-base font-medium text-primary">{`Estimated ${selectedToken.output.symbol} Amount`}</p>
         <div>
           <div className="w-full flex px-5 py-4 items-center rounded-lg border">
             <input

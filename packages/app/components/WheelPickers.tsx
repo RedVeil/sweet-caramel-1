@@ -42,17 +42,12 @@ export const WheelPicker = forwardRef<HTMLUListElement, WheelPickerProps>((props
   useEffect(() => {
     const divs = document.getElementsByClassName("div");
 
-    const ul = document.getElementById("ul");
-    console.log("🚀 ~ file: WheelPicker.tsx ~ line 25 ~ useEffect ~ ul", ul.scrollHeight, ul.clientHeight);
     // calculate the total height of the element by multiplying the length of data times props.itemHeight
-
     const totalHeight = data.length * props.itemHeight;
-    console.log("🚀 ~ file: WheelPicker.tsx ~ line 26 ~ useEffect ~ totalHeight", totalHeight);
 
     // get height difference between the total height and the height of the element and divide by 2
     if (height > totalHeight) {
       const heightDiff = (height - totalHeight) / 2;
-      console.log("🚀 ~ file: WheelPicker.tsx ~ line 30 ~ useEffect ~ heightDiff", heightDiff);
       for (let i = 0; i < divs.length; i++) {
         divs[i].setAttribute("style", `height: ${heightDiff + 20}px`);
       }

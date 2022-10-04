@@ -46,11 +46,12 @@ export enum TOKEN_INDEX {
 
 export function getZapDepositAmount(depositAmount: BigNumber, token: Token): [BigNumber, BigNumber, BigNumber] {
   switch (token.symbol) {
-    case "dai":
+    case "DAI":
+      console.log(token.symbol)
       return [depositAmount, constants.Zero, constants.Zero];
-    case "usdc":
+    case "USDC":
       return [constants.Zero, depositAmount, constants.Zero];
-    case "usdt":
+    case "USDT":
       return [constants.Zero, constants.Zero, depositAmount];
   }
 }
@@ -193,19 +194,30 @@ export default function Butter(): JSX.Element {
   }, [butterBatchData, butterWhaleData]);
 
   useEffect(() => {
+    function selectOutputToken(state: ButterPageState): Token {
+      if (state.instant) {
+        return butterWhaleData?.tokens?.find((token) => token.address === state.selectedToken.output.address)
+      } else {
+        if (state.redeeming) {
+          return threeCrv
+        } else {
+          return butter
+        }
+      }
+    }
+
     setButterPageState((prevState) => ({
       ...prevState,
       selectedToken: {
         input: (prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens)?.find(
           (token) => token.address === prevState.selectedToken.input.address,
         ),
-        output: prevState.instant
-          ? butterWhaleData?.tokens?.find((token) => token.address === prevState.selectedToken.output.address)
-          : threeCrv,
+        output: selectOutputToken(prevState)
       },
       tokens: prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens,
     }));
   }, [butterPageState.instant]);
+
 
   useEffect(() => {
     if (!butterBatchData || !butterBatchData?.tokens) {
@@ -244,6 +256,7 @@ export default function Butter(): JSX.Element {
   };
 
   function selectToken(token: Token): void {
+    console.log(token.symbol)
     const zapToken = [contractAddresses.dai, contractAddresses.usdc, contractAddresses.usdt];
     const newSelectedToken = { ...butterPageState.selectedToken };
     if (butterPageState.redeeming) {
@@ -372,12 +385,15 @@ export default function Butter(): JSX.Element {
     toast.loading(`Depositing ${butterPageState.selectedToken.input.symbol} ...`);
     if (butterPageState.useZap) {
       const virtualPriceValue = await virtualPrice();
+      console.log(depositAmount.toString())
+      console.log(virtualPriceValue.toString())
       const minMintAmount = getMinZapAmount(
         depositAmount,
         butterPageState.slippage,
         virtualPriceValue,
         await butterPageState.selectedToken.input.contract.decimals(),
       );
+      console.log(getZapDepositAmount(depositAmount, butterPageState.selectedToken.input).toString())
       return butterBatchZapper.zapIntoBatch(
         getZapDepositAmount(depositAmount, butterPageState.selectedToken.input),
         minMintAmount,
