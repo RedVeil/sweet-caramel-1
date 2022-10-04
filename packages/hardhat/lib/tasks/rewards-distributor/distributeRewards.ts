@@ -128,7 +128,9 @@ export default task(
         }
         console.log(`distributing ${formatEther(periodTotalRewards)} POP rewards`);
 
-        const tx = await rewardsDistributionContract.connect(signer).distributeRewards(periodTotalRewards);
+        const tx = await rewardsDistributionContract
+          .connect(signer)
+          .distributeRewards({ gasLimit: 1000000 });
         const receipt = await tx.wait(2);
         console.log({ receipt });
       } else {

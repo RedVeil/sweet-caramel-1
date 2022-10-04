@@ -19,6 +19,7 @@ const forge = {
       "VaultsV1Registry.t.sol": 15008113,
       "VaultsV1Factory.t.sol": 15008113,
       "VaultsV1Controller.t.sol": 15008113,
+      "RewardsDistribution.t.sol": 15008113,
     },
     forkDirectory: "fork",
   },
