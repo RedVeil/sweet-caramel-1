@@ -22,5 +22,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.dependencies = ["setup"];
-main.tags = ["core", "vault", "vaults-v1-registry"];
+main.dependencies = ["setup", "contract-registry"];
+main.tags = ["core", "vault", "vaults-registry"];

@@ -22,7 +22,16 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
 
+  await deploy("VaultsRewardsEscrow", {
+    from: deployer,
+    args: [popAddress],
+    log: true,
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "RewardsEscrow",
+  });
+
   await addContractToRegistry("RewardsEscrow", deployments, signer, hre);
+  await addContractToRegistry("VaultsRewardsEscrow", deployments, signer, hre);
 };
 export default main;
 

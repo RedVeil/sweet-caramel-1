@@ -20,7 +20,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("ThreeXWhaleProcessing", {
     from: addresses.deployer,
-    args: [contractRegistryAddress, addresses.setBasicIssuanceModule, threeXStaking, threePool, [dai, usdc, usdt]],
+    args: [
+      contractRegistryAddress,
+      addresses.setBasicIssuanceModule,
+      (await deployments.get("threeXStaking")).address,
+      threePool,
+      [dai, usdc, usdt],
+    ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });

@@ -2,14 +2,15 @@ import { parseEther } from "@ethersproject/units";
 import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
 import ThreeXBatchAdapter from "@popcorn/hardhat/lib/adapters/ThreeXBatchAdapter";
 import {
-  IBasicIssuanceModule,
   Curve3Pool,
+  ERC20,
+  IBasicIssuanceModule,
   ISetToken,
   ThreeXBatchProcessing,
   ThreeXWhaleProcessing,
   ThreeXZapper,
 } from "@popcorn/hardhat/typechain";
-import { AccountBatch, Address, BatchMetadata, BatchType, Token, Tokens } from "@popcorn/utils/src/types";
+import { AccountBatch, Address, BatchMetadata, BatchType, Token } from "@popcorn/utils/src/types";
 import { BigNumber, ethers } from "ethers";
 
 interface Stables {
@@ -22,80 +23,75 @@ async function getToken(
   butterAdapter: ButterBatchAdapter,
   account: string,
   tokens: Stables,
+  threeXClaimableBalance: BigNumber,
+  usdcClaimableBalance: BigNumber,
   threePool: Curve3Pool,
   threeX: ISetToken,
   setBasicIssuanceModule: IBasicIssuanceModule,
   mainContract: ThreeXBatchProcessing,
   instantContract?: ThreeXWhaleProcessing,
   zapperContract?: ThreeXZapper,
-): Promise<Tokens> {
+): Promise<Token[]> {
   const defaultErc20Decimals = 18;
-  return {
-    threeX: {
+  return [
+    {
       name: "3X",
-      key: "threeX",
+      address: threeX.address,
+      symbol: "3X",
       balance: await threeX.balanceOf(account),
       allowance: await threeX.allowance(account, instantContract ? instantContract.address : mainContract.address),
-      claimableBalance: BigNumber.from("0"),
+      claimableBalance: threeXClaimableBalance,
       price: await mainContract.valueOfComponents(
         ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(threeX.address, parseEther("1"))),
       ),
       decimals: defaultErc20Decimals,
-      img: "3X.svg",
-      contract: threeX,
+      icon: "/images/tokens/3X.svg",
+      contract: threeX as unknown as ERC20,
     },
-    dai: {
-      name: "DAI",
-      key: "dai",
-      balance: await tokens.dai.contract.balanceOf(account),
-      allowance: await tokens.dai.contract.allowance(
-        account,
-        instantContract ? instantContract.address : zapperContract?.address,
-      ),
+    {
+      ...tokens.dai,
       price: await butterAdapter.getStableCoinPrice(threePool, [
         parseEther("1"),
         BigNumber.from("0"),
         BigNumber.from("0"),
       ]),
+      balance: await tokens.dai.contract.balanceOf(account),
+      allowance: await tokens.dai.contract.allowance(
+        account,
+        instantContract ? instantContract.address : zapperContract?.address,
+      ),
       decimals: defaultErc20Decimals,
-      img: "dai.webp",
-      contract: tokens.dai.contract,
     },
-    usdc: {
-      name: "USDC",
-      key: "usdc",
+    {
+      ...tokens.usdc,
+      price: await butterAdapter.getStableCoinPrice(threePool, [
+        BigNumber.from("0"),
+        BigNumber.from(1e6),
+        BigNumber.from("0"),
+      ]),
       balance: (await tokens.usdc.contract.balanceOf(account)).mul(BigNumber.from(1e12)),
       allowance: await tokens.usdc.contract.allowance(
         account,
         instantContract ? instantContract.address : mainContract.address,
       ),
+      decimals: defaultErc20Decimals,
+      claimableBalance: usdcClaimableBalance,
+    },
+    {
+      ...tokens.usdt,
       price: await butterAdapter.getStableCoinPrice(threePool, [
         BigNumber.from("0"),
-        BigNumber.from(1e6),
         BigNumber.from("0"),
+        BigNumber.from(1e6),
       ]),
-      decimals: defaultErc20Decimals,
-      img: "usdc.webp",
-      contract: tokens.usdc.contract,
-    },
-    usdt: {
-      name: "USDT",
-      key: "usdt",
       balance: (await tokens.usdt.contract.balanceOf(account)).mul(BigNumber.from(1e12)),
       allowance: await tokens.usdt.contract.allowance(
         account,
         instantContract ? instantContract.address : zapperContract?.address,
       ),
-      price: await butterAdapter.getStableCoinPrice(threePool, [
-        BigNumber.from("0"),
-        BigNumber.from("0"),
-        BigNumber.from(1e6),
-      ]),
       decimals: defaultErc20Decimals,
-      img: "usdt.webp",
-      contract: tokens.usdt.contract,
     },
-  };
+  ];
 }
 function getClaimableBalance(claimableBatches: AccountBatch[]): BigNumber {
   return claimableBatches.reduce(
@@ -128,6 +124,8 @@ export async function getData(
     threeXBatchAdapter,
     account,
     { dai, usdc, usdt },
+    getClaimableBalance(claimableMintBatches),
+    getClaimableBalance(claimableRedeemBatches).mul(BigNumber.from(1e12)),
     threePool,
     butter,
     setBasicIssuanceModule,
@@ -135,9 +133,6 @@ export async function getData(
     null,
     zapperContract,
   );
-
-  tokenResponse.threeX.claimableBalance = getClaimableBalance(claimableMintBatches);
-  tokenResponse.usdc.claimableBalance = getClaimableBalance(claimableRedeemBatches).mul(BigNumber.from(1e12));
 
   const response: BatchMetadata = {
     accountBatches,
@@ -175,15 +170,14 @@ export async function getDataWhale(
     threeXBatchAdapter,
     account,
     { dai, usdc, usdt },
+    getClaimableBalance(claimableMintBatches),
+    getClaimableBalance(claimableRedeemBatches).mul(BigNumber.from(1e12)),
     threePool,
     butter,
     setBasicIssuanceModule,
     batchContract,
     instantContract,
   );
-
-  tokenResponse.threeX.claimableBalance = getClaimableBalance(claimableMintBatches);
-  tokenResponse.usdc.claimableBalance = getClaimableBalance(claimableRedeemBatches).mul(BigNumber.from(1e12));
 
   const response: BatchMetadata = {
     accountBatches,

@@ -1,9 +1,9 @@
 import { Zapper } from "@popcorn/hardhat/lib/adapters";
 import { Vault } from "@popcorn/hardhat/typechain";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
+import SelectToken from "components/BatchButter/SelectToken";
 import SlippageSettings from "components/BatchButter/SlippageSettings";
 import FakeInputField from "components/FakeInputField";
-import TokenSelection from "components/SweetVaults/TokenSelection";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { approve, depositAndStake, unstakeAndRedeem } from "helper/VaultActions";
@@ -190,11 +190,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
           <FakeInputField
             inputValue={assetsPerShare * Number(formatUnits(inputAmount, sweetVault?.metadata?.decimals))}
             children={
-              <TokenSelection
-                tokenList={tokenList.filter((token) => token?.address !== selectedTokenAddress)}
-                selectedToken={selectedToken}
-                selectToken={selectToken}
-              />
+              <SelectToken options={tokenList} selectedToken={selectedToken} selectToken={selectToken} allowSelection />
             }
           />
         )}

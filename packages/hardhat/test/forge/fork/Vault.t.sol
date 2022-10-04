@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/Test.sol";
-
+import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.sol";
 import "../../../contracts/core/defi/vault/Vault.sol";
 import "../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../contracts/core/interfaces/IContractRegistry.sol";
@@ -41,7 +41,7 @@ address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 
-contract VaultTest is Test {
+contract VaultFuzzTest is Test {
   IERC20 internal asset;
   User internal alice;
   User internal bob;
@@ -76,13 +76,14 @@ contract VaultTest is Test {
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),
       address(0),
+      address(0),
       Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,
         management: MANAGEMENT_FEE,
         performance: PERFORMANCE_FEE
       }),
-      Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
+      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
     alice = new User(vault, asset);
     bob = new User(vault, asset);
@@ -97,11 +98,11 @@ contract VaultTest is Test {
       IContractRegistry(CONTRACT_REGISTRY)
     );
 
-    vm.prank(ACL_ADMIN);
+    vm.startPrank(ACL_ADMIN);
+    IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(alice));
-
-    vm.prank(ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(bob));
+    vm.stopPrank();
 
     deal(address(asset), address(alice), 10_000_000 ether);
     deal(address(asset), address(bob), 10_000_000 ether);

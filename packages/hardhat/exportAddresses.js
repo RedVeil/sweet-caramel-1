@@ -32,6 +32,7 @@ const mappingOfHardhatContractNamesToOurName = {
   ButterBatchProcessing: "butterBatch",
   ButterBatchZapper: "butterBatchZapper",
   RewardsEscrow: "rewardsEscrow",
+  VaultsRewardsEscrow: "vaultsRewardsEscrow",
   RewardsDistribution: "rewardsDistribution",
   BeneficiaryRegistry: "beneficiaryRegistry",
   BeneficiaryGovernance: "beneficiaryGovernance",

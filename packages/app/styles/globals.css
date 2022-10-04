@@ -345,6 +345,16 @@ img {
   background-color: #fff;
 }
 
+.wheelPicker ul::-webkit-scrollbar {
+  display: none!important;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.wheelPicker ul{
+  -ms-overflow-style: none!important;  /* IE and Edge */
+  scrollbar-width: none!important;  /* Firefox */
+}
+
 @media screen and (max-width: 320px) {
   .wheelPicker li[aria-selected="true"] span:nth-child(2) {
     left: 50%;

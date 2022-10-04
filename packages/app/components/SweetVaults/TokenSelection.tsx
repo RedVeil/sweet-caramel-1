@@ -9,6 +9,8 @@ interface TokenSelectionProps {
   selectToken?: Function;
 }
 
+// UNUSED ONLY KEPT FOR REFERENCE
+// TODO: Remove before merging
 export default function TokenSelection({ tokenList, selectedToken, selectToken }: TokenSelectionProps): JSX.Element {
   const [showDropdown, setDropdown] = useState<boolean>(false);
 

@@ -1,6 +1,6 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import { Token } from "@popcorn/utils/src/types";
-import TokenSelection from "components/SweetVaults/TokenSelection";
+import { Token } from "@popcorn/utils/types";
+import SelectToken from "components/BatchButter/SelectToken";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
@@ -14,7 +14,7 @@ export interface TokenInputProps {
   balance?: BigNumber;
   readonly?: boolean;
   tokenList?: Token[];
-  selectToken?: any;
+  selectToken?: (token: Token) => void;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
@@ -89,11 +89,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               readOnly={readonly}
             />
             {tokenList.length > 0 ? (
-              <TokenSelection
-                selectedToken={token}
-                tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
-                selectToken={selectToken}
-              />
+              <SelectToken allowSelection={true} options={tokenList} selectedToken={token} selectToken={selectToken} />
             ) : (
               <div className="inline-flex items-center">
                 <img className="w-5 md:mr-2 mb-0.5" src={token?.icon}></img>

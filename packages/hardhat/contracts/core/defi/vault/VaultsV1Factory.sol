@@ -7,31 +7,23 @@ import { VaultMetadata } from "./VaultsV1Registry.sol";
 import "../../utils/Owned.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IRewardsEscrow.sol";
-import "../../dao/Staking.sol";
-
-/**
- * @notice Factory that deploys V1 Vaults
- * @dev deployVaultV1 can only be called by VaultsV1Controller
- */
+import "./VaultStaking.sol";
+import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 
 struct VaultParams {
   address token;
   address yearnRegistry;
   IContractRegistry contractRegistry;
   address staking;
+  address zapper;
   Vault.FeeStructure feeStructure;
-  Vault.KeeperConfig keeperConfig;
-  bool enabled;
-  address stakingAddress;
-  address submitter;
-  string metadataCID;
-  address[8] swapTokenAddresses;
-  address swapAddress;
-  uint256 exchange;
-  address zapIn;
-  address zapOut;
+  KeeperConfig keeperConfig;
 }
 
+/**
+ * @notice Factory that deploys V1 Vaults
+ * @dev deployVaultV1 can only be called by VaultsV1Controller
+ */
 contract VaultsV1Factory is Owned {
   /* ========== EVENTS ========== */
 
@@ -48,46 +40,30 @@ contract VaultsV1Factory is Owned {
 
   /**
    * @notice Deploys V1 Vault
-   * @param _vaultParams - struct containing Vault contructor params  (address token_, address yearnRegistry_,
-    IContractRegistry contractRegistry_, address staking_, FeeStructure feeStructure_)
-    @dev the submitter in the VaultMetadata is function caller from Controller
+   * @param _vaultParams - struct containing Vault contructor params
+   * @dev This should always be called through the VaultV1Controller
    */
   function deployVaultV1(VaultParams memory _vaultParams)
     external
     onlyOwner
-    returns (VaultMetadata memory metadata, address[2] memory contractAddresses)
+    returns (address[2] memory contractAddresses)
   {
     Vault vault = new Vault(
       _vaultParams.token,
       _vaultParams.yearnRegistry,
       _vaultParams.contractRegistry,
       _vaultParams.staking,
+      _vaultParams.zapper,
       _vaultParams.feeStructure,
       _vaultParams.keeperConfig
     );
 
-    metadata = VaultMetadata({
-      vaultAddress: address(vault),
-      vaultType: 1,
-      enabled: _vaultParams.enabled,
-      stakingAddress: _vaultParams.stakingAddress,
-      submitter: _vaultParams.submitter,
-      metadataCID: _vaultParams.metadataCID,
-      swapTokenAddresses: _vaultParams.swapTokenAddresses,
-      swapAddress: _vaultParams.swapAddress,
-      exchange: _vaultParams.exchange,
-      zapIn: _vaultParams.zapIn,
-      zapOut: _vaultParams.zapOut
-    });
-
-    Staking staking = new Staking(
-      pop,
-      IERC20(address(vault)),
-      IRewardsEscrow(IContractRegistry(_vaultParams.contractRegistry).getContract(keccak256("RewardsEscrow")))
-    );
-
-    contractAddresses = [address(vault), address(staking)];
-
-    emit VaultV1Deployment(address(vault), address(staking));
+    address stakingAddress = _vaultParams.staking;
+    if (stakingAddress == address(0)) {
+      VaultStaking staking = new VaultStaking(IERC20(address(vault)), _vaultParams.contractRegistry);
+      stakingAddress = address(staking);
+    }
+    contractAddresses = [address(vault), stakingAddress];
+    emit VaultV1Deployment(address(vault), stakingAddress);
   }
 }

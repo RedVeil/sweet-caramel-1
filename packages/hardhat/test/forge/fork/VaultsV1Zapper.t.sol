@@ -12,6 +12,8 @@ import "../../../contracts/core/utils/KeeperIncentiveV2.sol";
 import "../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../contracts/core/dao/Staking.sol";
 import "../../../contracts/core/defi/vault/VaultsV1Registry.sol";
+import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.sol";
+import "../../../contracts/core/dao/RewardsEscrow.sol";
 
 interface ICurveSETHPool {
   function calc_withdraw_one_coin(uint256 _burn_amount, int128 i) external returns (uint256);
@@ -68,8 +70,9 @@ contract VaultsV1ZapperTest is Test {
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),
       address(0),
+      address(0),
       Vault.FeeStructure(0, 0, 0, 0),
-      Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
+      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
     feeController = new VaultFeeController(
       VaultFeeController.FeeStructure({
@@ -80,7 +83,8 @@ contract VaultsV1ZapperTest is Test {
       }),
       IContractRegistry(CONTRACT_REGISTRY)
     );
-    staking = new Staking(IERC20(POP), IERC20(address(vault)), IRewardsEscrow(REWARDS_ESCROW));
+    RewardsEscrow vaultsRewardsEscrow = new RewardsEscrow(IERC20(POP));
+    staking = new Staking(IERC20(POP), IERC20(address(vault)), vaultsRewardsEscrow);
 
     contractRegistry = IContractRegistry(CONTRACT_REGISTRY);
 
@@ -91,12 +95,13 @@ contract VaultsV1ZapperTest is Test {
         vaultAddress: address(vault),
         vaultType: 1,
         enabled: true,
-        stakingAddress: address(staking),
+        staking: address(staking),
         submitter: address(this),
         metadataCID: "someCID",
         swapTokenAddresses: swapTokenAddresses,
         swapAddress: address(0),
         exchange: 1,
+        vaultZapper: address(zapper),
         zapIn: CURVE_ZAP_IN,
         zapOut: CURVE_ZAP_OUT
       })
@@ -106,6 +111,8 @@ contract VaultsV1ZapperTest is Test {
     feeController.setFeeRecipient(address(0x1234));
     vm.label(address(0x1234), "FeeRecipient");
 
+    IACLRegistry(ACL_REGISTRY).grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), address(ACL_ADMIN));
+    IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), address(DAO));
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(zapper));
 
     vault.setUseLocalFees(true);
@@ -118,7 +125,7 @@ contract VaultsV1ZapperTest is Test {
 
     staking.setVault(address(vault));
 
-    keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 2000 ether);
+    keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 0);
 
     vm.startPrank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).updateContract(
@@ -136,6 +143,7 @@ contract VaultsV1ZapperTest is Test {
       address(vaultsV1Registry),
       keccak256("1")
     );
+    keeperIncentive.createIncentive(address(zapper), 0, true, true, CURVE_SETH_LP, 1, 0);
     vm.stopPrank();
 
     deal(DAI, address(this), 10000 ether);
@@ -640,29 +648,37 @@ contract VaultsV1ZapperTest is Test {
     assertEq(accumulated, expectedFee);
   }
 
-  function test_withdraw_fee() public {
-    vm.prank(DAO);
+  function test_set_keeper_config() public {
+    vm.startPrank(DAO);
     zapper.setFee(CURVE_SETH_LP, true, 100, 0);
+    zapper.setKeeperConfig(
+      CURVE_SETH_LP,
+      KeeperConfig({ minWithdrawalAmount: 10, incentiveVigBps: 12, keeperPayout: 8 })
+    );
+    vm.stopPrank();
+
+    (uint256 minWithdrawalAmount, uint256 incentiveVigBps, uint256 keeperPayout) = zapper.keeperConfigs(CURVE_SETH_LP);
+    assertEq(minWithdrawalAmount, 10);
+    assertEq(incentiveVigBps, 12);
+    assertEq(keeperPayout, 8);
+  }
+
+  function test_withdraw_fee() public {
+    vm.startPrank(DAO);
+    zapper.setFee(CURVE_SETH_LP, true, 100, 0);
+    zapper.setKeeperConfig(
+      CURVE_SETH_LP,
+      KeeperConfig({ minWithdrawalAmount: 1, incentiveVigBps: 1e16, keeperPayout: 0 })
+    );
+    vm.stopPrank();
 
     zapIntoSethVault(false);
 
     uint256 feeBal = IERC20(CURVE_SETH_LP).balanceOf(address(zapper));
-
-    // Preview amount of SETH we receive in exchange for our LP tokens.
-    uint256 ETHAmount = ICurveSETHPool(CURVE_SETH_POOL).calc_withdraw_one_coin(feeBal, 0);
-    emit log_named_uint("ETH amount", ETHAmount);
+    uint256 tipAmount = (feeBal * 1e16) / 1e18;
 
     vm.prank(DAO);
-    zapper.withdrawFees(
-      CURVE_SETH_LP,
-      CURVE_SETH_POOL,
-      ETH,
-      DAI,
-      0,
-      ZEROX_ROUTER,
-      // https://api.0x.org/swap/v1/quote?buyToken=0x6B175474E89094C44Da98b954EedeAC495271d0F&sellToken=ETH&sellAmount=6012487690124989
-      hex"d9627aa4000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000155c5360fc7ebd00000000000000000000000000000000000000000000000088d7b0d31046f84400000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000000006b175474e89094c44da98b954eedeac495271d0f869584cd000000000000000000000000100000000000000000000000000000000000001100000000000000000000000000000000000000000000008c8d33d4c8630898f7"
-    );
+    zapper.withdrawFees(CURVE_SETH_LP);
 
     // Check that fee balance was set to 0
     assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), 0);
@@ -670,6 +686,7 @@ contract VaultsV1ZapperTest is Test {
     assertEq(accumulated, 0);
 
     // Check that dai was transfered to feeController recipient
-    assertEq(IERC20(DAI).balanceOf(feeController.feeRecipient()), 9960145787584510263);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(feeController.feeRecipient()), feeBal - tipAmount);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(keeperIncentive)), tipAmount);
   }
 }

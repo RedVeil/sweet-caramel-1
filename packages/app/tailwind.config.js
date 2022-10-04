@@ -128,6 +128,7 @@ module.exports = {
         customPurple: "#9B55FF",
         customDarkGray: "#1F2937",
         customLightGray: "#D7D7D7",
+        customBrown: "#827D69",
         rewardsGreen: "#1FBC67",
         rewardsLightGreen: "#7CE59D",
 

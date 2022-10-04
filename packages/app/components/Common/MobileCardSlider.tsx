@@ -36,8 +36,9 @@ const MobileCardSlider = ({ children }) => {
         {children.map((child, index) => (
           <div
             key={index}
-            className={`${currentSlide == index ? activeDot : inactiveDot
-              } rounded-full h-5 w-5 border border-black transition-all`}
+            className={`${
+              currentSlide == index ? activeDot : inactiveDot
+            } rounded-full h-5 w-5 border border-black transition-all`}
             onClick={() => gotoSlide(index)}
           ></div>
         ))}

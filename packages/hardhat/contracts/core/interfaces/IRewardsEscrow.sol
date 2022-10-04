@@ -9,4 +9,8 @@ interface IRewardsEscrow {
     uint256 _amount,
     uint256 duration
   ) external;
+
+  function addAuthorizedContract(address _staking) external;
+
+  function removeAuthorizedContract(address _staking) external;
 }

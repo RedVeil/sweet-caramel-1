@@ -9,10 +9,8 @@ import useThreeXData from "./set/useThreeXData";
 import usePopLocker from "./staking/usePopLocker";
 import useStakingPool from "./staking/useStakingPool";
 import useTokenBalance from "./tokens/useTokenBalance";
-import useGetButterTokenPriceInUSD from "./useGetButterTokenPriceInUSD";
 import useGetPopTokenPriceInUSD from "./useGetPopTokenPriceInUSD";
-import useGetThreeXTokenPrice from "./useGetTreeXTokenPrice";
-import useGetUserEscrows from "./useGetUserEscrows";
+import { useGetUserEscrows, useGetUserVaultsEscrows } from "./useGetUserEscrows";
 import useWeb3 from "./useWeb3";
 
 function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumber {
@@ -23,7 +21,7 @@ function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumb
 }
 
 export default function useNetWorth(): BigNumber {
-  const { account } = useWeb3();
+  const { account, contractAddresses } = useWeb3();
 
   const { pop, butter, threeX, butterStaking, threeXStaking, popStaking } = useMemo(
     () => getChainRelevantContracts(ChainId.Ethereum),
@@ -33,14 +31,8 @@ export default function useNetWorth(): BigNumber {
     () => getChainRelevantContracts(ChainId.Polygon),
     [],
   );
-  const { pop: bnbPopAddress } = useMemo(
-    () => getChainRelevantContracts(ChainId.BNB),
-    [],
-  );
-  const { pop: arbitrumPopAddress } = useMemo(
-    () => getChainRelevantContracts(ChainId.Arbitrum),
-    [],
-  );
+  const { pop: bnbPopAddress } = useMemo(() => getChainRelevantContracts(ChainId.BNB), []);
+  const { pop: arbitrumPopAddress } = useMemo(() => getChainRelevantContracts(ChainId.Arbitrum), []);
 
   const erc20 = useCallback((address: string, rpcProvider) => ERC20__factory.connect(address, rpcProvider), []);
 
@@ -52,13 +44,24 @@ export default function useNetWorth(): BigNumber {
   const { data: butterBatchData } = useButterBatchData(PRC_PROVIDERS[ChainId.Ethereum]);
   const { data: threeXBatchData } = useThreeXData(PRC_PROVIDERS[ChainId.Ethereum]);
   const { data: mainnetPopBalance } = useTokenBalance(erc20(pop, PRC_PROVIDERS[ChainId.Ethereum]), account);
-  const { data: polygonPopBalance } = useTokenBalance(erc20(polygonPopAddress, PRC_PROVIDERS[ChainId.Polygon]), account);
+  const { data: polygonPopBalance } = useTokenBalance(
+    erc20(polygonPopAddress, PRC_PROVIDERS[ChainId.Polygon]),
+    account,
+  );
   const { data: bnbPopBalance } = useTokenBalance(erc20(bnbPopAddress, PRC_PROVIDERS[ChainId.BNB]), account);
-  const { data: arbitrumPopBalance } = useTokenBalance(erc20(arbitrumPopAddress, PRC_PROVIDERS[ChainId.Arbitrum]), account);
-  const { data: mainnetEscrow } = useGetUserEscrows(ChainId.Ethereum, PRC_PROVIDERS[ChainId.Ethereum])
-  const { data: polygonEscrow } = useGetUserEscrows(ChainId.Polygon, PRC_PROVIDERS[ChainId.Polygon])
-  const { data: bnbEscrow } = useGetUserEscrows(ChainId.BNB, PRC_PROVIDERS[ChainId.BNB])
-  const { data: arbitrumEscrow } = useGetUserEscrows(ChainId.Arbitrum, PRC_PROVIDERS[ChainId.Arbitrum])
+  const { data: arbitrumPopBalance } = useTokenBalance(
+    erc20(arbitrumPopAddress, PRC_PROVIDERS[ChainId.Arbitrum]),
+    account,
+  );
+  const { data: mainnetEscrow } = useGetUserEscrows(ChainId.Ethereum, PRC_PROVIDERS[ChainId.Ethereum]);
+  const { data: polygonEscrow } = useGetUserEscrows(ChainId.Polygon, PRC_PROVIDERS[ChainId.Polygon]);
+  const { data: bnbEscrow } = useGetUserEscrows(ChainId.BNB, PRC_PROVIDERS[ChainId.BNB]);
+  const { data: arbitrumEscrow } = useGetUserEscrows(ChainId.Arbitrum, PRC_PROVIDERS[ChainId.Arbitrum]);
+
+  const { data: mainnetVaultEscrow } = useGetUserVaultsEscrows(ChainId.Ethereum, PRC_PROVIDERS[ChainId.Ethereum]);
+  const { data: polygonVaultEscrow } = useGetUserVaultsEscrows(ChainId.Polygon, PRC_PROVIDERS[ChainId.Polygon]);
+  const { data: bnbVaultEscrow } = useGetUserVaultsEscrows(ChainId.BNB, PRC_PROVIDERS[ChainId.BNB]);
+  const { data: arbitrumVaultEscrow } = useGetUserVaultsEscrows(ChainId.Arbitrum, PRC_PROVIDERS[ChainId.Arbitrum]);
 
   // // raise popPrice by 1e12
   const raisedPopPrice = useMemo(() => (popPrice ? popPrice.mul(parseEther("0.000001")) : constants.Zero), [popPrice]);
@@ -87,49 +90,92 @@ export default function useNetWorth(): BigNumber {
     () => (polygonPopStaking ? getHoldingValue(polygonPopStaking.userStake, raisedPopPrice) : constants.Zero),
     [polygonPopStaking],
   );
-  const butterHoldings = useMemo(
-    () => (butterBatchData ? getHoldingValue(butterBatchData?.tokens?.butter?.balance?.add(butterBatchData?.tokens?.butter?.claimableBalance), butterBatchData?.tokens?.butter?.price) : constants.Zero),
-    [butterBatchData],
-  );
-  const threeXHoldings = useMemo(
-    () => (threeXBatchData ? getHoldingValue(threeXBatchData?.tokens?.threeX?.balance?.add(threeXBatchData?.tokens?.threeX?.claimableBalance), threeXBatchData?.tokens?.threeX?.price) : constants.Zero),
-    [threeXBatchData],
-  );
-  const butterStakingHoldings = useMemo(
-    () =>
-      butterStakingPool && butterBatchData ? getHoldingValue(butterStakingPool.userStake, butterBatchData?.tokens?.butter?.price) : constants.Zero,
-    [butterStakingPool, butterBatchData],
-  );
-  const threeXStakingHoldings = useMemo(
-    () =>
-      threeXStakingPool && threeXBatchData ? getHoldingValue(threeXStakingPool.userStake, threeXBatchData?.tokens?.threeX?.price) : constants.Zero,
-    [threeXStakingPool, threeXBatchData],
-  );
   const mainnetEscrowHoldings = useMemo(
-    () => (mainnetEscrow ? getHoldingValue(mainnetEscrow?.totalClaimablePop?.add(mainnetEscrow?.totalVestingPop), raisedPopPrice) : constants.Zero),
+    () =>
+      mainnetEscrow
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(mainnetEscrow?.totalClaimablePop || "0")
+              .add(mainnetEscrow?.totalVestingPop || "0")
+              .add(mainnetVaultEscrow?.totalClaimablePop || "0")
+              .add(mainnetVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
+        : constants.Zero,
     [mainnetEscrow],
   );
   const polygonEscrowHoldings = useMemo(
-    () => (polygonEscrow ? getHoldingValue(polygonEscrow?.totalClaimablePop?.add(polygonEscrow?.totalVestingPop), raisedPopPrice) : constants.Zero),
+    () =>
+      polygonEscrow
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(polygonEscrow?.totalClaimablePop || "0")
+              .add(polygonEscrow?.totalVestingPop || "0")
+              .add(polygonVaultEscrow?.totalClaimablePop || "0")
+              .add(polygonVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
+        : constants.Zero,
     [polygonEscrow],
   );
   const bnbEscrowHoldings = useMemo(
-    () => (bnbEscrow ? getHoldingValue(bnbEscrow?.totalClaimablePop?.add(bnbEscrow?.totalVestingPop), raisedPopPrice) : constants.Zero),
+    () =>
+      bnbEscrow
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(bnbEscrow?.totalClaimablePop || "0")
+              .add(bnbEscrow?.totalVestingPop || "0")
+              .add(bnbVaultEscrow?.totalClaimablePop || "0")
+              .add(bnbVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
+        : constants.Zero,
     [bnbEscrow],
   );
   const arbitrumEscrowHoldings = useMemo(
-    () => (arbitrumEscrow ? getHoldingValue(arbitrumEscrow?.totalClaimablePop?.add(arbitrumEscrow?.totalVestingPop), raisedPopPrice) : constants.Zero),
+    () =>
+      arbitrumEscrow
+        ? getHoldingValue(
+            BigNumber.from("0")
+              .add(arbitrumEscrow?.totalClaimablePop || "0")
+              .add(arbitrumEscrow?.totalVestingPop || "0")
+              .add(arbitrumVaultEscrow?.totalClaimablePop || "0")
+              .add(arbitrumVaultEscrow?.totalVestingPop || "0"),
+            raisedPopPrice,
+          )
+        : constants.Zero,
     [arbitrumEscrow],
   );
-  const butterRedeemBatchHoldings = useMemo(
-    () => (butterBatchData ? getHoldingValue(butterBatchData?.tokens?.threeCrv?.claimableBalance, butterBatchData?.tokens?.threeCrv?.price) : constants.Zero),
-    [butterBatchData],
-  );
-  const threeXRedeemBatchHoldings = useMemo(
-    () => (threeXBatchData ? getHoldingValue(threeXBatchData?.tokens?.usdc?.claimableBalance, threeXBatchData?.tokens?.usdc?.price) : constants.Zero),
-    [threeXBatchData],
-  );
-
+  const butterHoldings = useMemo(() => {
+    if (!butterBatchData) return constants.Zero;
+    const butter = butterBatchData?.tokens.find((token) => token.address === contractAddresses.butter);
+    return getHoldingValue(butter?.balance?.add(butter?.claimableBalance), butter?.price);
+  }, [butterBatchData]);
+  const threeXHoldings = useMemo(() => {
+    if (!threeXBatchData) return constants.Zero;
+    const threeX = butterBatchData?.tokens.find((token) => token.address === contractAddresses.threeX);
+    return getHoldingValue(threeX?.balance?.add(threeX?.claimableBalance), threeX?.price);
+  }, [threeXBatchData]);
+  const butterStakingHoldings = useMemo(() => {
+    if (!butterStakingPool || !butterBatchData) return constants.Zero;
+    const butter = butterBatchData?.tokens.find((token) => token.address === contractAddresses.butter);
+    return getHoldingValue(butterStakingPool.userStake, butter?.price);
+  }, [butterStakingPool, butterBatchData]);
+  const threeXStakingHoldings = useMemo(() => {
+    if (!threeXStakingPool || !threeXBatchData) return constants.Zero;
+    const threeX = threeXBatchData?.tokens.find((token) => token.address === contractAddresses.threeX);
+    return getHoldingValue(threeXStakingPool.userStake, threeX?.price);
+  }, [threeXStakingPool, threeXBatchData]);
+  const butterRedeemBatchHoldings = useMemo(() => {
+    if (!butterBatchData) return constants.Zero;
+    const threeCrv = butterBatchData?.tokens.find((token) => token.address === contractAddresses.threeCrv);
+    return getHoldingValue(threeCrv?.claimableBalance, threeCrv?.price);
+  }, [butterBatchData]);
+  const threeXRedeemBatchHoldings = useMemo(() => {
+    if (!threeXBatchData) return constants.Zero;
+    const usdc = threeXBatchData?.tokens.find((token) => token.address === contractAddresses.usdc);
+    return getHoldingValue(usdc?.claimableBalance, usdc?.price);
+  }, [threeXBatchData]);
 
   return [
     mainnetPopHoldings,
@@ -147,6 +193,6 @@ export default function useNetWorth(): BigNumber {
     bnbEscrowHoldings,
     arbitrumEscrowHoldings,
     butterRedeemBatchHoldings,
-    threeXRedeemBatchHoldings
+    threeXRedeemBatchHoldings,
   ].reduce((total, num) => total.add(num));
 }

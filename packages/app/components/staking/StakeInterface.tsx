@@ -9,6 +9,7 @@ import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber, constants } from "ethers";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
 
@@ -51,6 +52,7 @@ export default function StakeInterface({
 }: StakeInterfaceProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const [state, setState] = form;
+  const router = useRouter();
 
   const toggleInterface = () =>
     setState({
@@ -224,8 +226,8 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                <Link href="/rewards" passHref>
-                  <a target="_blank">
+                <Link href={`/${router?.query?.network}/rewards`} passHref>
+                  <a target="_self">
                     <div className="border-t border-customLightGray pt-2 px-1">
                       <SecondaryActionButton label="Claim Page" />
                     </div>
@@ -307,8 +309,8 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                    <Link href="/rewards" passHref>
-                      <a target="_blank">
+                    <Link href={`/${router?.query?.network}/rewards`} passHref>
+                      <a target="_self">
                         <div className="border-t border-customLightGray pt-2 px-1">
                           <SecondaryActionButton label="Claim Page" />
                         </div>
@@ -321,9 +323,7 @@ export default function StakeInterface({
           </div>
 
           <div className="bg-customLightYellow rounded-lg p-8 hidden md:flex flex-col justify-between mt-8">
-            <h2 className=" text-6xl leading-11">
-              Blockchain-enabled <br /> wealth management and <br /> social impact.
-            </h2>
+            <h2 className=" text-6xl leading-11">{/* removed text for now - @am */}</h2>
             <div className="flex justify-end mt-28">
               <img src="/images/hands.svg" alt="" className=" h-28 w-28" />
             </div>

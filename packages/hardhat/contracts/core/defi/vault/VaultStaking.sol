@@ -1,7 +1,7 @@
 /// SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.10
+// Docgen-SOLC: 0.8.0
 
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -9,26 +9,30 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "../defi/vault/Vault.sol";
+import "./Vault.sol";
+import "../../utils/ACLAuth.sol";
+import "../../utils/ContractRegistryAccess.sol";
 
-import "../interfaces/IStaking.sol";
-import "../interfaces/IRewardsEscrow.sol";
+import "../../interfaces/IStaking.sol";
+import "../../interfaces/IRewardsEscrow.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
+contract VaultStaking is IStaking, ACLAuth, ContractRegistryAccess, ReentrancyGuard, Pausable, ERC20 {
   using SafeERC20 for IERC20;
 
   /* ========== STATE VARIABLES ========== */
 
-  IERC20 public rewardsToken;
+  bytes32 constant REWARDS_ESCROW_ID = keccak256("RewardsEscrow");
+  bytes32 constant REWARDS_DISTRIBUTION_ID = keccak256("RewardsDistribution");
+  bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
+
+  IERC20 internal constant pop = IERC20(0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4);
   IERC20 public stakingToken;
 
   // Link a vault which is allowed to burn IOU for the user
   address public vault;
 
-  IRewardsEscrow public rewardsEscrow;
   uint256 public periodFinish = 0;
   uint256 public rewardRate = 0;
   uint256 public rewardsDuration = 7 days;
@@ -40,30 +44,31 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
   mapping(address => uint256) public userRewardPerTokenPaid;
   mapping(address => uint256) public rewards;
-  mapping(address => bool) public rewardDistributors;
 
   /* ========== CONSTRUCTOR ========== */
 
-  constructor(
-    IERC20 _rewardsToken,
-    IERC20 _stakingToken,
-    IRewardsEscrow _rewardsEscrow
-  )
+  constructor(IERC20 _stakingToken, IContractRegistry contractRegistry_)
     ERC20(
       IERC20Metadata(address(_stakingToken)).name(),
       string(abi.encodePacked("X", IERC20Metadata(address(_stakingToken)).symbol()))
     )
+    ContractRegistryAccess(contractRegistry_)
   {
-    rewardsToken = _rewardsToken;
     stakingToken = _stakingToken;
-    rewardsEscrow = _rewardsEscrow;
 
-    rewardDistributors[msg.sender] = true;
     escrowDuration = 365 days;
-    _rewardsToken.safeIncreaseAllowance(address(_rewardsEscrow), type(uint256).max);
+    pop.safeIncreaseAllowance(contractRegistry_.getContract(REWARDS_ESCROW_ID), type(uint256).max);
   }
 
   /* ========== VIEWS ========== */
+
+  function balanceOf(address account) public view override(IStaking, ERC20) returns (uint256) {
+    return super.balanceOf(account);
+  }
+
+  function rewardsToken() public pure returns (IERC20) {
+    return pop;
+  }
 
   function lastTimeRewardApplicable() public view override returns (uint256) {
     return block.timestamp < periodFinish ? block.timestamp : periodFinish;
@@ -84,10 +89,6 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     return rewardRate * rewardsDuration;
   }
 
-  function balanceOf(address account) public view override(IStaking, ERC20) returns (uint256) {
-    return super.balanceOf(account);
-  }
-
   function paused() public view override(IStaking, Pausable) returns (bool) {
     return super.paused();
   }
@@ -95,8 +96,6 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
   /* ========== MUTATIVE FUNCTIONS ========== */
 
   function stakeFor(uint256 amount, address account) external {
-    // QUESTION: Do we want to check allowances to stakeFor as with withdrawFor?
-    // require(allowance(account, msg.sender) <= amount, "not approved to stake amount");
     _stake(amount, account);
   }
 
@@ -144,8 +143,8 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
       uint256 payout = reward / uint256(10);
       uint256 escrowed = payout * uint256(9);
 
-      rewardsToken.safeTransfer(msg.sender, payout);
-      rewardsEscrow.lock(msg.sender, escrowed, escrowDuration);
+      pop.safeTransfer(msg.sender, payout);
+      IRewardsEscrow(_getContract(REWARDS_ESCROW_ID)).lock(msg.sender, escrowed, escrowDuration);
       emit RewardPaid(msg.sender, reward);
     }
   }
@@ -157,13 +156,8 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
   /* ========== RESTRICTED FUNCTIONS ========== */
 
-  function setEscrowDuration(uint256 duration) external onlyOwner {
-    emit EscrowDurationUpdated(escrowDuration, duration);
-    escrowDuration = duration;
-  }
-
   function notifyRewardAmount(uint256 reward) external override updateReward(address(0)) {
-    require(rewardDistributors[msg.sender], "not authorized");
+    require(msg.sender == _getContract(REWARDS_DISTRIBUTION_ID), "only rewardsDistribution");
 
     if (block.timestamp >= periodFinish) {
       rewardRate = reward / rewardsDuration;
@@ -175,13 +169,13 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
     // handle the transfer of reward tokens via `transferFrom` to reduce the number
     // of transactions required and ensure correctness of the reward amount
-    IERC20(rewardsToken).safeTransferFrom(msg.sender, address(this), reward);
+    IERC20(pop).safeTransferFrom(msg.sender, address(this), reward);
 
     // Ensure the provided reward amount is not more than the balance in the contract.
     // This keeps the reward rate in the right range, preventing overflows due to
     // very high values of rewardRate in the earned and rewardsPerToken functions;
     // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
-    uint256 balance = rewardsToken.balanceOf(address(this));
+    uint256 balance = pop.balanceOf(address(this));
     require(rewardRate <= balance / rewardsDuration, "Provided reward too high");
 
     lastUpdateTime = block.timestamp;
@@ -190,21 +184,12 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     emit RewardAdded(reward);
   }
 
-  // Modify approval for an address to call notifyRewardAmount
-  function approveRewardDistributor(address _distributor, bool _approved) external onlyOwner {
-    emit RewardDistributorUpdated(_distributor, _approved);
-    rewardDistributors[_distributor] = _approved;
+  function setEscrowDuration(uint256 duration) external onlyRole(VAULTS_CONTROLLER) {
+    emit EscrowDurationUpdated(escrowDuration, duration);
+    escrowDuration = duration;
   }
 
-  // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
-  function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
-    require(tokenAddress != address(stakingToken), "Cannot withdraw the staking token");
-    require(tokenAddress != address(rewardsToken), "Cannot withdraw the rewards token");
-    IERC20(tokenAddress).safeTransfer(owner(), tokenAmount);
-    emit Recovered(tokenAddress, tokenAmount);
-  }
-
-  function setRewardsDuration(uint256 _rewardsDuration) external onlyOwner {
+  function setRewardsDuration(uint256 _rewardsDuration) external onlyRole(VAULTS_CONTROLLER) {
     require(
       block.timestamp > periodFinish,
       "Previous rewards period must be complete before changing the duration for the new period"
@@ -213,12 +198,7 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     emit RewardsDurationUpdated(rewardsDuration);
   }
 
-  function setRewardsEscrow(address _rewardsEscrow) external onlyOwner {
-    emit RewardsEscrowUpdated(address(rewardsEscrow), _rewardsEscrow);
-    rewardsEscrow = IRewardsEscrow(_rewardsEscrow);
-  }
-
-  function setVault(address _vault) external onlyOwner {
+  function setVault(address _vault) external onlyRole(VAULTS_CONTROLLER) {
     emit VaultUpdated(vault, _vault);
     vault = _vault;
   }
@@ -226,27 +206,25 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
   /**
    * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function pauseContract() external onlyOwner {
+  function pauseContract() external onlyRole(VAULTS_CONTROLLER) {
     _pause();
   }
 
   /**
    * @notice Unpause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function unpauseContract() external onlyOwner {
+  function unpauseContract() external onlyRole(VAULTS_CONTROLLER) {
     _unpause();
   }
 
   /* ========== ERC20 OVERRIDE ========== */
 
-  error nonTransferable();
-
   function _transfer(
     address, /* from */
     address, /* to */
     uint256 /* amount */
-  ) internal override(ERC20) {
-    revert nonTransferable();
+  ) internal pure override(ERC20) {
+    revert("Token is nontransferable");
   }
 
   /* ========== MODIFIERS ========== */
@@ -255,6 +233,8 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     _updateReward(account);
     _;
   }
+
+  /* ========== INTERNAL FUNCTIONS ========== */
 
   function _updateReward(address account) internal {
     rewardPerTokenStored = rewardPerToken();
@@ -265,8 +245,7 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     }
   }
 
-  /* ========== EVENTS ========== */
-
-  event RewardsEscrowUpdated(address _previous, address _new);
-  event Recovered(address token, uint256 amount);
+  function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
+    return super._getContract(_name);
+  }
 }

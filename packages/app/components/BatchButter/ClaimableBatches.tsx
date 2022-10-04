@@ -1,8 +1,10 @@
-import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
-import { setDualActionWideModal } from "context/actions";
+import { AccountBatch, BatchType, Token } from "@popcorn/utils/src/types";
+import PopUpModal from "components/Modal/PopUpModal";
+import { setSingleActionModal } from "context/actions";
 import { store } from "context/store";
-import { ButterPageState } from "pages/[network]/set/butter";
-import { Dispatch, useContext } from "react";
+import useWindowSize from "hooks/useWindowSize";
+import Image from "next/image";
+import { useContext, useState } from "react";
 import ClaimableBatch from "./ClaimableBatch";
 import EmptyClaimableBatch from "./EmptyClaimableBatch";
 import MobileClaimableBatch from "./MobileClaimableBatch";
@@ -10,83 +12,86 @@ import MobileEmptyClaimableBatches from "./MobileEmptyClaimableBatches";
 import ZapModal from "./ZapModal";
 
 interface ClaimableBatchesProps {
+  options: Token[];
+  slippage: number;
+  setSlippage: (slippage: number) => void;
   batches: AccountBatch[];
   claim: Function;
   claimAndStake: Function;
   withdraw: Function;
-  butterPageState: [ButterPageState, Dispatch<ButterPageState>];
   isThreeX?: boolean;
 }
 
 const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
+  options,
+  slippage,
+  setSlippage,
   batches,
   claim,
   claimAndStake,
   withdraw,
-  butterPageState,
   isThreeX = false,
 }) => {
   const { dispatch } = useContext(store);
-  const [localButterPageState, setButterPageState] = butterPageState;
-  const tokenOptions =
-    localButterPageState?.tokens &&
-    (isThreeX
-      ? [localButterPageState.tokens.usdc, localButterPageState.tokens.dai, localButterPageState.tokens.usdt]
-      : [
-          localButterPageState.tokens.threeCrv,
-          localButterPageState.tokens.dai,
-          localButterPageState.tokens.usdc,
-          localButterPageState.tokens.usdt,
-        ]);
+  const { width: windowWidth } = useWindowSize();
+  const [currentBatch, setCurrentBatch] = useState<AccountBatch>({} as AccountBatch);
+  const [handleClaimPopup, setHandleClaimPopup] = useState(false);
 
-  function setSlippage(slippage: number): void {
-    setButterPageState({ ...localButterPageState, slippage: slippage });
-  }
+  const renderZapModal = (batch: AccountBatch, isWithdraw: boolean = false) => {
+    return (
+      <ZapModal
+        tokenOptions={options}
+        slippage={slippage}
+        setSlippage={setSlippage}
+        slippageOptions={[0.1, 0.5, 1]}
+        closeModal={() => {
+          dispatch(setSingleActionModal(false));
+          setHandleClaimPopup(false);
+        }}
+        withdraw={withdraw}
+        claim={claim}
+        batchId={batch.batchId ?? "0"}
+        withdrawAmount={batch.accountSuppliedTokenBalance}
+        isWithdraw={isWithdraw}
+      />
+    );
+  };
 
   function handleClaim(batch: AccountBatch) {
     if (batch.batchType === BatchType.Redeem) {
-      dispatch(
-        setDualActionWideModal({
-          title: "Choose an Output Token",
-          content: (
-            <ZapModal
-              tokenOptions={tokenOptions}
-              slippage={localButterPageState.slippage}
-              setSlippage={setSlippage}
-              slippageOptions={[0.1, 0.5, 1]}
-              closeModal={() => dispatch(setDualActionWideModal(false))}
-              withdraw={withdraw}
-              claim={claim}
-              batchId={batch.batchId}
-              withdrawAmount={batch.accountSuppliedTokenBalance}
-            />
-          ),
-        }),
-      );
-    } else {
-      claim(batch.batchId);
+      if (windowWidth > 768) {
+        dispatch(
+          setSingleActionModal({
+            image: <Image src="/images/blackCircle.svg" width={88} height={88} />,
+            title: "Claim",
+            children: (
+              <div className="pt-6">
+                <p>Choose an output token</p>
+                {renderZapModal(batch)}
+              </div>
+            ),
+            onDismiss: {
+              onClick: () => dispatch(setSingleActionModal(false)),
+            },
+          }),
+        );
+      } else {
+        setCurrentBatch(batch);
+        setHandleClaimPopup(true);
+      }
     }
   }
 
   function handleWithdraw(batch: AccountBatch) {
     if (batch.batchType === BatchType.Mint) {
       dispatch(
-        setDualActionWideModal({
+        setSingleActionModal({
+          image: <Image src="/images/blackCircle.svg" width={88} height={88} />,
           title: "Choose an Output Token",
-          content: (
-            <ZapModal
-              tokenOptions={tokenOptions}
-              slippage={localButterPageState.slippage}
-              setSlippage={setSlippage}
-              slippageOptions={[0.1, 0.5, 1]}
-              closeModal={() => dispatch(setDualActionWideModal(false))}
-              withdraw={withdraw}
-              claim={claim}
-              batchId={batch.batchId}
-              withdrawAmount={batch.accountSuppliedTokenBalance}
-              isWithdraw
-            />
-          ),
+          children: <>{renderZapModal(batch, true)}</>,
+          onDismiss: {
+            onClick: () => dispatch(setSingleActionModal(false)),
+          },
         }),
       );
     } else {
@@ -112,7 +117,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         </thead>
         {batches?.length > 0 ? (
           <tbody>
-            {batches?.map((batch, i) => (
+            {batches?.map((batch) => (
               <ClaimableBatch
                 key={batch.batchId}
                 batch={batch}
@@ -135,7 +140,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         </div>
         {batches?.length > 0 ? (
           <div>
-            {batches?.map((batch, i) => (
+            {batches?.map((batch) => (
               <MobileClaimableBatch
                 key={batch.batchId}
                 batch={batch}
@@ -149,6 +154,13 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
         ) : (
           <MobileEmptyClaimableBatches />
         )}
+      </div>
+
+      <div className="fixed z-100 left-0">
+        <PopUpModal visible={handleClaimPopup} onClosePopUpModal={() => setHandleClaimPopup(false)}>
+          <p className="text-base text-black font-normal mb-2">Select a token</p>
+          {renderZapModal(currentBatch)}
+        </PopUpModal>
       </div>
     </>
   );
