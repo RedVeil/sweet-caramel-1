@@ -23,6 +23,11 @@ import { AbstractBatchController } from "../../../contracts/core/defi/three-x/co
 import { AbstractBatchStorage } from "../../../contracts/core/defi/three-x/storage/AbstractBatchStorage.sol";
 import "../../../contracts/core/interfaces/IBatchStorage.sol";
 
+import { Vault } from "../../../contracts/core/defi/vault/Vault.sol";
+import { VaultParams, VaultsV1Factory } from "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
+import { VaultFeeController } from "../../../contracts/core/defi/vault/VaultFeeController.sol";
+import "../../../contracts/core/defi/vault/VaultsV1Controller.sol";
+
 import "../../../contracts/externals/interfaces/Curve3Pool.sol";
 import "../../../contracts/externals/interfaces/ISetToken.sol";
 import "../../../contracts/externals/interfaces/CurveContracts.sol";
@@ -35,6 +40,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "forge-std/StdJson.sol";
 import "forge-std/Test.sol";
+import { console } from "forge-std/console.sol";
 
 // This contract can be used for deployments as well as forge tests
 abstract contract AbstractTestScript is Test {
@@ -50,6 +56,7 @@ abstract contract AbstractTestScript is Test {
   ButterWhaleProcessing.CurvePoolTokenPair[] public crvDependenciesWhale;
   mapping(string => IERC20) public erc20Contracts;
   mapping(string => IStaking) public stakingContracts;
+  mapping(string => Vault) public vaultContracts;
 
   address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 
@@ -70,6 +77,23 @@ abstract contract AbstractTestScript is Test {
   ThreeXBatchProcessing.ComponentDependencies[] public componentDependencies3X;
   BatchTokens public mintBatchTokens;
   BatchTokens public redeemBatchTokens;
+
+  Vault public vault;
+  VaultsV1Controller public vaultsV1Controller;
+  VaultsV1Registry public vaultsV1Registry;
+  VaultsV1Factory public vaultsV1Factory;
+  VaultFeeController internal feeController;
+  VaultParams public vaultParams;
+  address public vaultAssetAddress = getMainnetContractAddress("crv3Crypto");
+  address public vaultsV1ControllerOwner = address(this);
+  address[8] public swapTokenAddresses;
+  address constant CURVE_ZAP_IN = 0x5Ce9b49B7A1bE9f2c3DC2B2A5BaCEA56fa21FBeE;
+  address constant CURVE_ZAP_OUT = 0xE03A338d5c305613AfC3877389DD3B0617233387;
+  uint256 constant DEPOSIT_FEE = 50 * 1e14;
+  uint256 constant WITHDRAWAL_FEE = 50 * 1e14;
+  uint256 constant MANAGEMENT_FEE = 200 * 1e14;
+  uint256 constant PERFORMANCE_FEE = 2000 * 1e14;
+  address public notOwner = address(0x1234);
 
   IERC20 public threeCrv = IERC20(getMainnetContractAddress("threeCrv"));
   CurveMetapool public curveMetaPool = CurveMetapool(getMainnetContractAddress("threePool"));
@@ -103,6 +127,10 @@ abstract contract AbstractTestScript is Test {
       addContract("KeeperIncentive", address(keeperIncentiveV2), "1");
       vm.stopPrank();
     }
+
+    vm.label(address(keeperIncentiveV2), "KeeperIncentive");
+    vm.label(address(aclRegistry), "ACLRegistry");
+    vm.label(address(contractRegistry), "contractRegistry");
   }
 
   function instantiateOrDeployERC20(bool _instantiate, string[] memory keys) public {
@@ -117,10 +145,11 @@ abstract contract AbstractTestScript is Test {
   }
 
   function getERC20Contract(string memory key) public returns (IERC20) {
-    IERC20 erc20contract = erc20Contracts[key];
-    if (address(erc20contract) == address(0)) {
+    IERC20 erc20Contract = erc20Contracts[key];
+    if (address(erc20Contract) == address(0)) {
       return IERC20(getMainnetContractAddress(key));
     }
+    return erc20Contract;
   }
 
   function instantiateOrDeployStaking(bool _instantiate, string[] memory keys) public {
@@ -136,11 +165,108 @@ abstract contract AbstractTestScript is Test {
     }
   }
 
-  function getStakingContract(string memory key) public returns (IERC20) {
+  function getStakingContract(string memory key) public returns (IStaking) {
     IStaking stakingContract = stakingContracts[key];
     if (address(stakingContract) == address(0)) {
       return IStaking(getMainnetContractAddress(key));
     }
+    return stakingContract;
+  }
+
+  function instantiateOrDeployVault(
+    bool _instantiate,
+    bool _deployFromController,
+    string memory key,
+    bool _endorsed
+  ) public {
+    if (_instantiate) {
+      vault = Vault(getMainnetContractAddress(key));
+      vaultsV1Factory = VaultsV1Factory(getMainnetContractAddress("vaultsV1Factory"));
+      vaultsV1Registry = VaultsV1Registry(getMainnetContractAddress("vaultsV1Registry"));
+      vaultsV1Controller = VaultsV1Controller(getMainnetContractAddress("vaultsV1Controller"));
+    } else {
+      vaultAssetAddress = address(getERC20Contract(key)); // This has the flexibility of instantiating if we havent deployed this contract or picking up the deployed ERC20 if it we have deployed in this script
+
+      vaultsV1Factory = new VaultsV1Factory(address(this));
+      vaultsV1Registry = new VaultsV1Registry(address(this));
+      vaultsV1Controller = new VaultsV1Controller(address(this), contractRegistry);
+
+      addContract("VaultsV1Factory", address(vaultsV1Factory), "1");
+      addContract("VaultsV1Registry", address(vaultsV1Registry), "1");
+      addContract("VaultsV1Controller", address(vaultsV1Controller), "1");
+      grantRole("VaultsController", address(vaultsV1Controller));
+      grantRole("INCENTIVE_MANAGER_ROLE", address(vaultsV1Controller));
+
+      vm.label(address(this), "VaultsV1ControllerOwner");
+      vm.label(notOwner, "notOwner");
+      vm.label(address(vaultsV1Controller), "VaultsV1Controller");
+      vm.label(address(vaultsV1Factory), "VaultsV1Factory");
+
+      for (uint256 i = 0; i < 8; i++) {
+        swapTokenAddresses[i] = address(uint160(i));
+      }
+      vaultParams = VaultParams({
+        token: vaultAssetAddress,
+        yearnRegistry: getMainnetContractAddress("yearnRegistry"),
+        contractRegistry: contractRegistry,
+        staking: address(0),
+        feeStructure: Vault.FeeStructure({
+          deposit: DEPOSIT_FEE,
+          withdrawal: WITHDRAWAL_FEE,
+          management: MANAGEMENT_FEE,
+          performance: PERFORMANCE_FEE
+        }),
+        keeperConfig: Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 }),
+        enabled: true,
+        stakingAddress: address(0x1111),
+        submitter: vaultsV1ControllerOwner,
+        metadataCID: "someCID",
+        swapTokenAddresses: swapTokenAddresses,
+        swapAddress: address(0x2222),
+        exchange: 1,
+        zapIn: CURVE_ZAP_IN,
+        zapOut: CURVE_ZAP_OUT
+      });
+
+      if (_deployFromController) {
+        address deployedVault = vaultsV1Controller.deployVaultFromV1Factory(vaultParams, _endorsed);
+        VaultMetadata memory metadata = vaultsV1Registry.getVault(deployedVault);
+        vaultContracts[key] = Vault(deployedVault);
+      } else {
+        vault = new Vault(
+          vaultAssetAddress,
+          getMainnetContractAddress("yearnRegistry"),
+          contractRegistry,
+          address(0),
+          Vault.FeeStructure({
+            deposit: DEPOSIT_FEE,
+            withdrawal: WITHDRAWAL_FEE,
+            management: MANAGEMENT_FEE,
+            performance: PERFORMANCE_FEE
+          }),
+          Vault.KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
+        );
+        vaultContracts[key] = vault;
+        feeController = new VaultFeeController(
+          VaultFeeController.FeeStructure({
+            deposit: DEPOSIT_FEE,
+            withdrawal: WITHDRAWAL_FEE,
+            management: MANAGEMENT_FEE,
+            performance: PERFORMANCE_FEE
+          }),
+          contractRegistry
+        );
+        addContract("VaultFeeController", address(feeController), "1");
+      }
+    }
+  }
+
+  function getVault(string memory key) public returns (Vault) {
+    Vault vault = vaultContracts[key];
+    if (address(vault) == address(0)) {
+      return Vault(getMainnetContractAddress(key));
+    }
+    return vault;
   }
 
   function instantiateOrDeployButter(bool _instantiate) public {
