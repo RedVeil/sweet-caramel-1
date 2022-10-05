@@ -135,7 +135,7 @@ module.exports = {
 				"10xl": "8rem",
 			},
 			backgroundImage: (theme) => ({
-				"hero-pattern": "url('/images/popcorn_playing.gif')",
+				"landing-page": "url('/images/oleksandr-voloshchenko-HPFTpb8aIg0-unsplash 1.png')",
 			}),
 			animation: { "spin-slow": "spin 3s linear infinite" },
 			fontFamily: {
