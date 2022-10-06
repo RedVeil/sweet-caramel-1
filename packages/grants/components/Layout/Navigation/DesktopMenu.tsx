@@ -36,6 +36,7 @@ const DesktopMenu = () => {
         </a>
       </Link>
       <div className="flex items-center space-x-4 md:space-x-10">
+        <NavbarLink label="Popcorn Grants" url="/" isActive={router.pathname === "/"} />
         <Menu>
           <Menu.Button className="cursor-pointer hidden lg:flex relative flex-shrink-0 items-center">
             <p className="text-primary hover:text-black font-normal text-lg">Vote Now</p>

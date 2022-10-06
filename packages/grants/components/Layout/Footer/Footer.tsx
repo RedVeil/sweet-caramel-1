@@ -47,32 +47,50 @@ const Footer = () => {
           </a>
         </div>
       </div>
-      <div className="col-span-12 md:col-span-4 flex flex-col md:flex-row space-x-0 md:space-x-5 md:justify-between order-2 md:order-3 mt-12 md:mt-0">
-        <div>
-          <p className="text-gray-900 font-medium leading-6 tracking-1">Site</p>
-          <div className="flex flex-col">
-            <Link href="/applications">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Beneficiary Applications</a>
-            </Link>
-            <Link href="/beneficiaries">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Eligible Beneficiaries</a>
-            </Link>
+      <div className="col-span-12 md:col-span-4 flex flex-col-reverse md:flex-col order-2 md:order-3 mt-12 md:mt-0">
+        <div className="grid grid-cols-2 gap-y-8 md:gap-16 mt-8 md:mt-0">
+          <div className="col-span-2 md:col-span-1">
+            <p className="text-gray-900 font-medium leading-6 tracking-1">Contact Us</p>
+            <div className="flex flex-col">
+              <a className=" text-primary hover:text-black leading-6 mt-4" href="mailto:info@popcorn.foundation">
+                info@popcorn.foundation
+              </a>
+            </div>
           </div>
-        </div>
-        <div className="mt-8 mt-md:0">
-          <p className="text-gray-900 font-medium leading-6 tracking-1">Contact Us</p>
-          <div className="flex flex-col">
-            <a className=" text-primary hover:text-black leading-6 mt-4" href="mailto:info@popcorn.foundation">
-              info@popcorn.foundation
-            </a>
-          </div>
-          <div className="flex flex-col mt-8">
+          <div className="col-span-2 md:col-span-1">
             <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
             <div className="flex flex-col">
               <Link href="https://immunefi.com/bounty/popcornnetwork" passHref>
                 <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
                   Immunefi
                 </a>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
+          <div className="grid grid-cols-2 md:gap-16">
+            <div className="col-span-2 md:col-span-1 flex flex-col">
+              <Link href="/">
+                <a className=" text-primary hover:text-black leading-6 mt-4">Home</a>
+              </Link>
+              <Link href="/applications">
+                <a className=" text-primary hover:text-black leading-6 mt-4">Beneficiary Applications</a>
+              </Link>
+              <Link href="/beneficiaries">
+                <a className=" text-primary hover:text-black leading-6 mt-4">Eligible Beneficiaries</a>
+              </Link>
+            </div>
+            <div className="col-span-2 md:col-span-1 flex flex-col">
+              {/* <Link href="/">
+              <a className=" text-primary hover:text-black leading-6 mt-4">Grant Rounds</a>
+            </Link>
+            <Link href="/applications">
+              <a className=" text-primary hover:text-black leading-6 mt-4">FAQ</a>
+            </Link> */}
+              <Link href="/applications">
+                <a className=" text-primary hover:text-black leading-6 mt-4">Create Proposal</a>
               </Link>
             </div>
           </div>
