@@ -8,7 +8,20 @@ import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 
-const uploadError = (errMsg: string) => toast.error(errMsg);
+const uploadError = (errMsg: string) =>
+  toast((t) => (
+    <div className="flex space-x-6">
+      <div className="self-start">
+        <img src="/images/XIcon.svg" width={20} height={20} />
+      </div>
+      <div>
+        <p className="font-medium mb-2">{errMsg}</p>
+        <button className="text-customPurple" onClick={() => toast.dismiss(t.id)}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  ));
 const isSuccessfulUpload = (res: UploadResult): boolean => res.status >= 200 && res.status < 300;
 const isFailedUpload = (res: UploadResult): boolean => res.status !== 200;
 
@@ -48,7 +61,7 @@ const uploadSingleFile = async (
     toast.success("Successful upload to IPFS");
   } else {
     toast.dismiss();
-    uploadError(`Upload was unsuccessful with status ${res.status}. ${res.errorDetails}`);
+    uploadError(`Upload Failed`);
   }
 };
 
@@ -65,10 +78,7 @@ const uploadMultipleFiles = async (files: File[], setLocalState: (input: UploadR
     toast.success(`${fileType === "image/*" ? "Images" : "Files"} successfully uploaded to IPFS`);
   } else if (uploadResults.every(isFailedUpload)) {
     toast.dismiss();
-    uploadError(
-      `Uploads were unsuccessful with status ${uploadResults[0].status}: 
-			${uploadResults[0].errorDetails}`,
-    );
+    uploadError("Upload Failed");
   } else {
     const successfulUploads = uploadResults.filter(isSuccessfulUpload);
     const unsuccessfulUploads = uploadResults.filter(isFailedUpload);
@@ -76,10 +86,7 @@ const uploadMultipleFiles = async (files: File[], setLocalState: (input: UploadR
     toast.success(
       `${successfulUploads.length} ${fileType === "image/*" ? "images" : "files"} were successfully upload to IPFS`,
     );
-    uploadError(
-      `${successfulUploads.length} ${fileType === "image/*" ? "images" : "files"} were unsuccessfully uploaded to IPFS 
-			with status ${unsuccessfulUploads[0].status}: ${unsuccessfulUploads[0].errorDetails}`,
-    );
+    uploadError(`Upload Failed`);
   }
 };
 
