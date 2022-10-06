@@ -42,7 +42,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       console.log("adding pop as rewards tokens with reward distributor ...");
       const addRewardTx = await popLocker
         .connect(signer)
-        .addReward(pop, (await hre.deployments.get("RewardsDistribution")).address, true);
+        .addReward(inputToken, (await hre.deployments.get("RewardsDistribution")).address, true);
       if (!["hardhat", "local"].includes(hre.network.name)) {
         await addRewardTx.wait(2);
       }
