@@ -75,7 +75,7 @@ export const MobileMenu: React.FC = () => {
             </button>
             <Link href="/apply" passHref>
               <button className="bg-transparent border-primary text-primary rounded-4xl text-base flex flex-row items-center justify-center font-medium px-5 py-1.5 border transition-all ease-in-out duration-500">
-                <DocumentAddIcon className="text-primary w-5 h-5" />
+                <DocumentAddIcon className="text-primary w-5 h-4" />
               </button>
             </Link>
           </>
