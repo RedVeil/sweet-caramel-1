@@ -59,7 +59,7 @@ const IndexPage = () => {
       <FacebookPixel />
       <div className="px-6 lg:px-8">
         <div className="grid grid-cols-12 md:gap-8">
-          <div className="col-span-12 md:col-span-8">
+          <div className="col-span-12 md:col-span-7">
             <section className="bg-landing-page bg-cover p-6 md:p-8 rounded-lg relative h-[386px] md:h-full">
               <div className="flex flex-col justify-between h-full">
                 <div>
@@ -74,19 +74,19 @@ const IndexPage = () => {
                 <div className="flex justify-between items-end">
                   <div className="flex w-full">
                     <div className="mr-10">
-                      <p className="capitalize text-customLightGray">Eligible beneficiaries</p>
+                      <p className="capitalize text-customLightGray leading-5 md:leading-6">Eligible beneficiaries</p>
                       <h1 className=" text-2xl md:text-6xl text-white leading-[100%]">240</h1>
                     </div>
                     <div>
-                      <p className="capitalize text-customLightGray">total funds raised</p>
-                      <h1 className=" text-2xl md:text-6xl text-white leading-[100%]">500k USD</h1>
+                      <p className="capitalize text-customLightGray leading-5 md:leading-6">total funds raised</p>
+                      <h1 className=" text-2xl md:text-6xl text-white leading-[100%]">$500k</h1>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
           </div>
-          <div className="col-span-12 md:col-span-4">
+          <div className="col-span-12 md:col-span-5">
             <section className="hidden md:block">
               <TutorialSlider />
             </section>
@@ -107,8 +107,7 @@ const IndexPage = () => {
                   <div>
                     <h2 className="text-black leading-[100%] text-3xl">Beneficiary Applications</h2>
                     <p className="text-primaryDark text-base leading-6 mt-4">
-                      Vote for any proposal to become an <br />
-                      eligible beneficiary
+                      Vote for any proposal to become an eligible beneficiary
                     </p>
                   </div>
                 </div>

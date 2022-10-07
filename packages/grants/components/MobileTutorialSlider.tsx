@@ -47,9 +47,10 @@ const MobileTutorialSlider: React.FC<MobileTutorialSlider> = ({ onCloseMenu }) =
       content: "Grants are awarded to a set number of top-ranking beneficiaries as voted on by the $POP-token holders.",
     },
   ];
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   return (
-    <div className="h-screen px-6 py-12 bg-white">
+    <div className="px-6 py-12 bg-white">
       <div className="relative">
         <ChevronLeftIcon
           className="text-black h-10 w-10 absolute left-0 transform -translate-y-1/2 top-1/2"
@@ -60,8 +61,8 @@ const MobileTutorialSlider: React.FC<MobileTutorialSlider> = ({ onCloseMenu }) =
       <div className="mt-20 mobileTutorialSlider">
         <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
           {tutorialSteps.map((step, index) => (
-            <div>
-              <div className="px-2 flex flex-col justify-between h-112">
+            <div className="h-screen">
+              <div className={`"px-2 flex flex-col justify-between ${isIOS ? "h-112" : "h-[70%]"}`}>
                 <div>
                   <h1 className="text-black text-5xl leading-11">{step.title}</h1>
                   <p className=" text-black leading-5 mt-4">{step.content}</p>

@@ -68,7 +68,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div>
+        <div className="md:mt-8">
           <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
           <div className="grid grid-cols-2 md:gap-16">
             <div className="col-span-2 md:col-span-1 flex flex-col">
