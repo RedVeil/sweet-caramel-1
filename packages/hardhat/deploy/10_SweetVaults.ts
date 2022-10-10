@@ -59,7 +59,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
       contract: "Vault",
     });
-    await VaultDeployed.initialize(
+    const vault = await ethers.getContractAt("Vault", VaultDeployed.address);
+    await vault.initialize(
       vaultStakingPools[i].inputToken,
       addresses.yearnRegistry,
       contractRegistry,
@@ -76,8 +77,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       autoMine: true,
       contract: "Staking",
     });
-
-    const vault = await ethers.getContractAt("Vault", VaultDeployed.address);
 
     await addContractToRegistry(vaultStakingPools[i].vaultName, deployments, signer, hre);
     await vault.connect(signer).setStaking(Staking.address);
