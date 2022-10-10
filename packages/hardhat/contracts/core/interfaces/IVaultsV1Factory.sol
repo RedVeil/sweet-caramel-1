@@ -31,4 +31,8 @@ interface IVaultsV1Factory {
     address _swapAddress,
     uint256 _exchange
   ) external returns (VaultMetadata memory, address);
+
+  function setVaultImplementation(address implementation) external;
+
+  function setStakingImplementation(address implementation) external;
 }

@@ -1,9 +1,9 @@
 import { expect } from "chai";
 import { deployMockContract, MockContract } from "ethereum-waffle";
-import { BigNumber } from "ethers";
+import { BigNumber, ContractTransaction } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { ContractTransaction } from "ethers";
 import { ethers, waffle } from "hardhat";
+
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
@@ -80,26 +80,25 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   const Vault = await ethers.getContractFactory("Vault");
-  const vault = await (
-    await Vault.deploy(
-      depositToken.address,
-      yearnRegistry.address,
-      contractRegistry.address,
-      ADDRESS_ZERO,
-      ADDRESS_ZERO,
-      {
-        deposit: 0,
-        withdrawal: FEE_MULTIPLIER.mul(50),
-        management: FEE_MULTIPLIER.mul(200),
-        performance: FEE_MULTIPLIER.mul(2000),
-      },
-      {
-        minWithdrawalAmount: parseEther("100"),
-        incentiveVigBps: 0,
-        keeperPayout: 0,
-      }
-    )
-  ).deployed();
+  const vault = await (await Vault.deploy()).deployed();
+  await vault.initialize(
+    depositToken.address,
+    yearnRegistry.address,
+    contractRegistry.address,
+    ADDRESS_ZERO,
+    ADDRESS_ZERO,
+    {
+      deposit: 0,
+      withdrawal: FEE_MULTIPLIER.mul(50),
+      management: FEE_MULTIPLIER.mul(200),
+      performance: FEE_MULTIPLIER.mul(2000),
+    },
+    {
+      minWithdrawalAmount: parseEther("100"),
+      incentiveVigBps: 0,
+      keeperPayout: 0,
+    }
+  );
 
   const Staking = await ethers.getContractFactory("Staking");
   const staking = await (await Staking.deploy(rewardsToken.address, vault.address, rewardsEscrow.address)).deployed();
@@ -173,11 +172,12 @@ describe("Vault", function () {
     contracts = await deployContracts();
   });
 
-  describe("constructor", async function () {
+  describe("initialize", async function () {
     it("reverts if yearn registry address is zero", async function () {
       const Vault = await ethers.getContractFactory("Vault");
+      const vault = await (await Vault.deploy()).deployed();
       await expectRevert(
-        Vault.deploy(
+        vault.initialize(
           contracts.depositToken.address,
           ethers.constants.AddressZero,
           contracts.contractRegistry.address,
@@ -201,7 +201,8 @@ describe("Vault", function () {
 
     it("approves staking when staking address is nonzero", async function () {
       const Vault = await ethers.getContractFactory("Vault");
-      const vault = await Vault.deploy(
+      const vault = await (await Vault.deploy()).deployed();
+      await vault.initialize(
         contracts.depositToken.address,
         contracts.yearnRegistry.address,
         contracts.contractRegistry.address,
@@ -219,14 +220,14 @@ describe("Vault", function () {
           keeperPayout: 9,
         }
       );
-      await vault.deployed();
       expectValue(await vault.allowance(vault.address, contracts.staking.address), ethers.constants.MaxUint256);
     });
 
     it("reverts if contract registry address is zero", async function () {
       const Vault = await ethers.getContractFactory("Vault");
+      const vault = await (await Vault.deploy()).deployed();
       await expectRevert(
-        Vault.deploy(
+        vault.initialize(
           contracts.depositToken.address,
           contracts.yearnRegistry.address,
           ethers.constants.AddressZero,
@@ -252,10 +253,11 @@ describe("Vault", function () {
       expectValue(await contracts.vault.allowance(contracts.vault.address, contracts.staking.address), MAX_UINT_256);
     });
 
-    it("sets feesUpdatedAt to deployment block timestamp", async function () {
+    it("sets feesUpdatedAt to initialization block timestamp", async function () {
       let deployBlock = await waffle.provider.getBlock(contracts.vault.deployTransaction.blockNumber);
       let deployTimestamp = deployBlock.timestamp;
-      expectValue(await contracts.vault.feesUpdatedAt(), deployTimestamp);
+      let initializationTimestamp = deployTimestamp + 1;
+      expectValue(await contracts.vault.feesUpdatedAt(), initializationTimestamp);
     });
   });
 
@@ -878,10 +880,7 @@ describe("Vault", function () {
       expectValue(await contracts.vault.balanceOf(contracts.vault.address), expectedFeeInShares);
       await expectBigNumberCloseTo(await contracts.vault.pricePerShare(), parseEther("1.8"));
       await expectValue(await contracts.vault.balanceOf(depositor.address), parseEther("444.444444444444444445"));
-      await expectValue(
-        await contracts.vault.totalSupply(),
-        parseEther("555.555555555555555556")
-      );
+      await expectValue(await contracts.vault.totalSupply(), parseEther("555.555555555555555556"));
     });
 
     it("returns the amount of shares needed to receive given amount of vaulted assets (withdrawalFee + perfFee)", async function () {
@@ -1195,7 +1194,7 @@ describe("Vault", function () {
 
       let withdrawAmount = DEPOSIT_AMOUNT.div(2);
       let expectedFeeInShares = parseEther("111.111111111111111111");
-      let expectedAssetsReturned = parseEther("900")
+      let expectedAssetsReturned = parseEther("900");
       await expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned.sub(10));
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
 
@@ -1490,7 +1489,7 @@ describe("Vault", function () {
       await expectEvent(
         await contracts.vault
           .connect(depositor)
-        ["depositAndStakeFor(uint256,address)"](DEPOSIT_AMOUNT, receiver.address),
+          ["depositAndStakeFor(uint256,address)"](DEPOSIT_AMOUNT, receiver.address),
         contracts.staking,
         "Staked",
         [receiver.address, DEPOSIT_AMOUNT]
@@ -1637,7 +1636,7 @@ describe("Vault", function () {
     it("updates feesUpdatedAt", async function () {
       const depositTx = await contracts.vault
         .connect(depositor)
-      ["mint(uint256,address)"](DEPOSIT_AMOUNT, depositor.address);
+        ["mint(uint256,address)"](DEPOSIT_AMOUNT, depositor.address);
       const depositTxBlock = await waffle.provider.getBlock(depositTx.blockNumber);
 
       expectValue(await contracts.vault.feesUpdatedAt(), depositTxBlock.timestamp);
@@ -1782,7 +1781,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
+          ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
         "ERC20: transfer amount exceeds balance"
       );
     });
@@ -1791,7 +1790,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, ethers.constants.AddressZero, depositor.address),
+          ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, ethers.constants.AddressZero, depositor.address),
         "Invalid receiver"
       );
     });
@@ -1799,7 +1798,7 @@ describe("Vault", function () {
     it("redeems (uint256,address,address) shares for specified token amount", async function () {
       await contracts.vault
         .connect(depositor)
-      ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, depositor.address, depositor.address);
+        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT, depositor.address, depositor.address);
 
       expectValue(await contracts.depositToken.balanceOf(depositor.address), DEPOSIT_AMOUNT.sub(parseEther("5")));
     });
@@ -1814,7 +1813,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor).approve(receiver.address, DEPOSIT_AMOUNT);
       await contracts.vault
         .connect(receiver)
-      ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
+        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
 
       expectValue(await contracts.depositToken.balanceOf(receiver.address), parseEther("990.025"));
       expectValue(await contracts.vault.allowance(depositor.address, receiver.address), parseEther("5"));
@@ -1824,7 +1823,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(receiver)
-        ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address),
+          ["redeem(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address),
         "reverted with panic code 0x11"
       );
     });
@@ -1894,11 +1893,11 @@ describe("Vault", function () {
     it("withdraws (uint256,address,address) shares for specified token amount", async function () {
       await contracts.vault
         .connect(depositor)
-      ["withdraw(uint256,address,address)"](
-        DEPOSIT_AMOUNT.sub(parseEther("5")),
-        depositor.address,
-        depositor.address
-      );
+        ["withdraw(uint256,address,address)"](
+          DEPOSIT_AMOUNT.sub(parseEther("5")),
+          depositor.address,
+          depositor.address
+        );
       await expectValue(await contracts.depositToken.balanceOf(depositor.address), parseEther("995"));
     });
 
@@ -1906,11 +1905,11 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-        ["withdraw(uint256,address,address)"](
-          DEPOSIT_AMOUNT.sub(parseEther("5")),
-          ethers.constants.AddressZero,
-          depositor.address
-        ),
+          ["withdraw(uint256,address,address)"](
+            DEPOSIT_AMOUNT.sub(parseEther("5")),
+            ethers.constants.AddressZero,
+            depositor.address
+          ),
         "Invalid receiver"
       );
     });
@@ -1925,7 +1924,7 @@ describe("Vault", function () {
       await contracts.vault.connect(depositor).approve(receiver.address, DEPOSIT_AMOUNT);
       await contracts.vault
         .connect(receiver)
-      ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
+        ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.sub(parseEther("5")), receiver.address, depositor.address);
 
       expectValue(await contracts.depositToken.balanceOf(receiver.address), parseEther("995"));
       await expectBigNumberCloseTo(
@@ -1938,11 +1937,11 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(receiver)
-        ["withdraw(uint256,address,address)"](
-          DEPOSIT_AMOUNT.sub(parseEther("5")),
-          receiver.address,
-          depositor.address
-        ),
+          ["withdraw(uint256,address,address)"](
+            DEPOSIT_AMOUNT.sub(parseEther("5")),
+            receiver.address,
+            depositor.address
+          ),
         "reverted with panic code 0x11"
       );
     });
@@ -1951,7 +1950,7 @@ describe("Vault", function () {
       await expectRevert(
         contracts.vault
           .connect(depositor)
-        ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
+          ["withdraw(uint256,address,address)"](DEPOSIT_AMOUNT.add(1), depositor.address, depositor.address),
         "ERC20: transfer amount exceeds balance"
       );
     });
@@ -2471,11 +2470,11 @@ describe("Vault", function () {
         await timeTravel(365 * DAY);
         await contracts.vault
           .connect(depositor)
-        ["redeem(uint256,address,address)"](
-          await contracts.vault.connect(depositor).balanceOf(depositor.address),
-          depositor.address,
-          depositor.address
-        );
+          ["redeem(uint256,address,address)"](
+            await contracts.vault.connect(depositor).balanceOf(depositor.address),
+            depositor.address,
+            depositor.address
+          );
 
         await expectBigNumberCloseTo(
           await contracts.vault.balanceOf(contracts.vault.address),

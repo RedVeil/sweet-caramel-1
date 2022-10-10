@@ -65,12 +65,18 @@ contract VaultsV1RegistryTest is Test {
   address[8] public swapTokenAddresses;
 
   function setUp() public {
+    address vaultImplementation = address(new Vault());
+    address stakingImplementation = address(new VaultStaking());
+
     vaultsV1Factory = new VaultsV1Factory(address(this));
     vaultsV1Registry = new VaultsV1Registry(address(this));
     vaultsV1Controller = new VaultsV1Controller(address(this), IContractRegistry(CONTRACT_REGISTRY));
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 2000 ether);
     rewardsEscrow = new RewardsEscrow(IERC20(POP));
     rewardsEscrow.transferOwnership(address(vaultsV1Controller));
+
+    vaultsV1Factory.setVaultImplementation(vaultImplementation);
+    vaultsV1Factory.setStakingImplementation(stakingImplementation);
 
     vm.startPrank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).addContract(
@@ -153,7 +159,8 @@ contract VaultsV1RegistryTest is Test {
   }
 
   function helper__deployVault(uint256 _vaultType) public returns (Vault, VaultMetadata memory) {
-    Vault vault = new Vault(
+    Vault vault = new Vault();
+    vault.initialize(
       CRV_3CRYPTO,
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),

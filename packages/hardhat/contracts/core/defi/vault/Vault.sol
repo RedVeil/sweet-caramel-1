@@ -2,13 +2,13 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./AffiliateToken.sol";
 import "../../utils/ACLAuth.sol";
-import "../../utils/ContractRegistryAccess.sol";
+import "../../utils/ContractRegistryAccessUpgradeable.sol";
 import "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IEIP4626.sol";
 import "../../interfaces/IContractRegistry.sol";
@@ -20,11 +20,11 @@ import "../../interfaces/IVaultsV1.sol";
 contract Vault is
   IEIP4626,
   AffiliateToken,
-  ReentrancyGuard,
-  Pausable,
+  ReentrancyGuardUpgradeable,
+  PausableUpgradeable,
   ACLAuth,
   KeeperIncentivized,
-  ContractRegistryAccess
+  ContractRegistryAccessUpgradeable
 {
   // Fees are set in 1e18 for 100% (1 BPS = 1e14)
   // Raise Fees in BPS by 1e14 to get an accurate value
@@ -38,7 +38,7 @@ contract Vault is
   address public staking;
   address public zapper;
 
-  bytes32 public immutable contractName;
+  bytes32 public contractName;
 
   uint256 constant MINUTES_PER_YEAR = 525_600;
   bytes32 constant FEE_CONTROLLER_ID = keccak256("VaultFeeController");
@@ -67,7 +67,7 @@ contract Vault is
 
   /* ========== CONSTRUCTOR ========== */
 
-  constructor(
+  function initialize(
     address token_,
     address yearnRegistry_,
     IContractRegistry contractRegistry_,
@@ -75,16 +75,16 @@ contract Vault is
     address zapper_,
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
-  )
-    AffiliateToken(
+  ) external initializer {
+    require(address(yearnRegistry_) != address(0), "Zero address");
+
+    __AffiliateToken_init(
       token_,
       yearnRegistry_,
       string(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault")),
       string(abi.encodePacked("pop-", IERC20Metadata(token_).symbol()))
-    )
-    ContractRegistryAccess(contractRegistry_)
-  {
-    require(address(yearnRegistry_) != address(0), "Zero address");
+    );
+    __ContractRegistryAccess_init(contractRegistry_);
 
     if (staking_ != address(0)) {
       staking = staking_;
@@ -92,7 +92,6 @@ contract Vault is
     }
 
     zapper = zapper_;
-
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
     contractName = keccak256(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault"));
@@ -690,7 +689,7 @@ contract Vault is
   function _getContract(bytes32 _name)
     internal
     view
-    override(ACLAuth, KeeperIncentivized, ContractRegistryAccess)
+    override(ACLAuth, KeeperIncentivized, ContractRegistryAccessUpgradeable)
     returns (address)
   {
     return super._getContract(_name);

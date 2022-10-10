@@ -40,6 +40,8 @@ contract VaultsV1ControllerTest is Test {
   event VaultStatusChanged(address vaultAddress, bool endorsed, bool enabled);
   /* VaultsV1Factory events */
   event VaultV1Deployment(address vault, address vaultStaking);
+  event VaultImplementationUpdated(address oldVaultImplementation, address newVaultImplementation);
+  event StakingImplementationUpdated(address oldStakingImplementation, address newStakingImplementation);
   /* Vault events */
   event Paused(address account);
   event Unpaused(address account);
@@ -68,6 +70,8 @@ contract VaultsV1ControllerTest is Test {
   KeeperIncentiveV2 public keeperIncentive;
   VaultsV1Zapper public vaultZapper;
   RewardsEscrow public rewardsEscrow;
+  address public vaultImplementation;
+  address public stakingImplementation;
 
   address public vaultsV1ControllerOwner = address(this);
   address public notOwner = address(0x1234);
@@ -110,6 +114,9 @@ contract VaultsV1ControllerTest is Test {
   }
 
   function setUp() public {
+    vaultImplementation = address(new Vault());
+    stakingImplementation = address(new VaultStaking());
+
     vaultsV1Factory = new VaultsV1Factory(address(this));
     vaultsV1Registry = new VaultsV1Registry(address(this));
     vaultsV1Controller = new VaultsV1Controller(address(this), IContractRegistry(CONTRACT_REGISTRY));
@@ -117,6 +124,9 @@ contract VaultsV1ControllerTest is Test {
     vaultZapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
     rewardsEscrow = new RewardsEscrow(IERC20(POP));
     rewardsEscrow.transferOwnership(address(vaultsV1Controller));
+
+    vaultsV1Factory.setVaultImplementation(vaultImplementation);
+    vaultsV1Factory.setStakingImplementation(stakingImplementation);
 
     vm.startPrank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).addContract(
@@ -207,7 +217,8 @@ contract VaultsV1ControllerTest is Test {
   }
 
   function helper__deployVault(uint256 _vaultType) public returns (Vault, VaultMetadata memory) {
-    Vault vault = new Vault(
+    Vault vault = new Vault();
+    vault.initialize(
       CRV_3CRYPTO,
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),
@@ -413,13 +424,13 @@ contract VaultsV1ControllerTest is Test {
 
     emit log_named_address("VaultV1Deployment", deployedVault);
 
-    assertEq(address(Vault(deployedVault).staking()), address(0x566B72091192CCd7013AdF77E2a1b349564acC21));
+    assertEq(address(Vault(deployedVault).staking()), address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a));
 
     VaultMetadata memory metadata = vaultsV1Registry.getVault(deployedVault);
     assertEq(metadata.vaultAddress, deployedVault);
     assertEq(metadata.vaultType, 1);
     assertEq(metadata.enabled, true);
-    assertEq(metadata.staking, address(0x566B72091192CCd7013AdF77E2a1b349564acC21));
+    assertEq(metadata.staking, address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a));
     assertEq(metadata.vaultZapper, address(vaultZapper));
     assertEq(metadata.submitter, address(this));
     assertEq(metadata.metadataCID, "someCID");
@@ -436,7 +447,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], deployedVault);
     assertTrue(vaultsV1Registry.endorsed(deployedVault));
 
-    IStaking staking = IStaking(0x566B72091192CCd7013AdF77E2a1b349564acC21);
+    IStaking staking = IStaking(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a);
     assertEq(address(staking.rewardsToken()), 0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4);
     assertEq(address(staking.stakingToken()), deployedVault);
     assertEq(address(staking.vault()), deployedVault);
@@ -447,7 +458,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(zapIn, CURVE_ZAP_IN);
     assertEq(zapOut, CURVE_ZAP_OUT);
 
-    assertTrue(rewardsEscrow.authorized(address(0x566B72091192CCd7013AdF77E2a1b349564acC21)));
+    assertTrue(rewardsEscrow.authorized(address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a)));
   }
 
   function test__deployVaultFromV1FactoryWithStakingEvents() public acceptOwnerships {
@@ -459,12 +470,12 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
 
     emit VaultV1Deployment(
-      0x037FC82298142374d974839236D2e2dF6B5BdD8F,
-      address(0x566B72091192CCd7013AdF77E2a1b349564acC21)
+      0xdd36aa107BcA36Ba4606767D873B13B4770F3b12,
+      address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a)
     );
-    emit VaultAdded(0x037FC82298142374d974839236D2e2dF6B5BdD8F, 1, true, "someCID");
-    emit VaultStatusChanged(0x037FC82298142374d974839236D2e2dF6B5BdD8F, true, true);
-    emit VaultV1Deployed(0x037FC82298142374d974839236D2e2dF6B5BdD8F, true);
+    emit VaultAdded(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12, 1, true, "someCID");
+    emit VaultStatusChanged(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12, true, true);
+    emit VaultV1Deployed(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12, true);
 
     vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
@@ -1099,12 +1110,13 @@ contract VaultsV1ControllerTest is Test {
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
-    VaultStaking newStaking = new VaultStaking(IERC20(address(vault)), IContractRegistry(CONTRACT_REGISTRY));
+    VaultStaking newStaking = new VaultStaking();
+    newStaking.initialize(IERC20(address(vault)), IContractRegistry(CONTRACT_REGISTRY));
 
     // Actual test
     VaultMetadata memory oldMetadata = vaultsV1Registry.getVault(vault);
 
-    assertEq(Vault(vault).staking(), address(0x566B72091192CCd7013AdF77E2a1b349564acC21));
+    assertEq(Vault(vault).staking(), address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a));
 
     vaultsV1Controller.setVaultStaking(vault, address(newStaking));
 
@@ -1119,10 +1131,10 @@ contract VaultsV1ControllerTest is Test {
     assertEq(newMetadata.swapAddress, oldMetadata.swapAddress);
     assertEq(newMetadata.exchange, oldMetadata.exchange);
 
-    assertEq(IStaking(0x566B72091192CCd7013AdF77E2a1b349564acC21).vault(), address(0));
+    assertEq(IStaking(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a).vault(), address(0));
     assertEq(newStaking.vault(), vault);
 
-    assertFalse(rewardsEscrow.authorized(address(0x566B72091192CCd7013AdF77E2a1b349564acC21)));
+    assertFalse(rewardsEscrow.authorized(address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a)));
     assertTrue(rewardsEscrow.authorized(address(newStaking)));
   }
 
@@ -1139,19 +1151,20 @@ contract VaultsV1ControllerTest is Test {
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
-    VaultStaking newStaking = new VaultStaking(IERC20(address(vault)), IContractRegistry(CONTRACT_REGISTRY));
+    VaultStaking newStaking = new VaultStaking();
+    newStaking.initialize(IERC20(address(vault)), IContractRegistry(CONTRACT_REGISTRY));
 
     // Actual test
-    assertEq(Vault(vault).staking(), address(0x566B72091192CCd7013AdF77E2a1b349564acC21));
+    assertEq(Vault(vault).staking(), address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a));
 
-    vm.expectEmit(false, false, false, true, address(0x566B72091192CCd7013AdF77E2a1b349564acC21));
+    vm.expectEmit(false, false, false, true, address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a));
     emit VaultUpdated(vault, address(0));
 
     vm.expectEmit(false, false, false, true, address(newStaking));
     emit VaultUpdated(address(0), vault);
 
     vm.expectEmit(false, false, false, true, vault);
-    emit StakingUpdated(address(0x566B72091192CCd7013AdF77E2a1b349564acC21), address(newStaking));
+    emit StakingUpdated(address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a), address(newStaking));
 
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     emit VaultUpdated(vault, 1, true, "someCID");
@@ -1291,6 +1304,44 @@ contract VaultsV1ControllerTest is Test {
 
     vaultsV1Controller.setVaultZapper(vault, newZapper);
     assertEq(Vault(vault).zapper(), newZapper);
+  }
+
+  /* Setting Factory Vault Implementation */
+
+  function test__setFactoryVaultImplementationNotOwnerReverts() public acceptOwnerships {
+    vm.prank(notOwner);
+    vm.expectRevert("Only the contract owner may perform this action");
+    vaultsV1Controller.setFactoryVaultImplementation(address(0x4444));
+  }
+
+  function test__setFactoryVaultImplementation() public acceptOwnerships {
+    vaultsV1Controller.setFactoryVaultImplementation(address(0x4444));
+    assertEq(vaultsV1Factory.vaultImplementation(), address(0x4444));
+  }
+
+  function test__setFactoryVaultImplementationEvent() public acceptOwnerships {
+    vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    emit VaultImplementationUpdated(vaultImplementation, address(0x4444));
+    vaultsV1Controller.setFactoryVaultImplementation(address(0x4444));
+  }
+
+  /* Setting Factory Staking Implementation */
+
+  function test__setFactoryStakingImplementationNotOwnerReverts() public acceptOwnerships {
+    vm.prank(notOwner);
+    vm.expectRevert("Only the contract owner may perform this action");
+    vaultsV1Controller.setFactoryStakingImplementation(address(0x4444));
+  }
+
+  function test__setFactoryStakingImplementation() public acceptOwnerships {
+    vaultsV1Controller.setFactoryStakingImplementation(address(0x4444));
+    assertEq(vaultsV1Factory.stakingImplementation(), address(0x4444));
+  }
+
+  function test__setFactoryStakingImplementationEvent() public acceptOwnerships {
+    vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    emit StakingImplementationUpdated(stakingImplementation, address(0x4444));
+    vaultsV1Controller.setFactoryStakingImplementation(address(0x4444));
   }
 
   /* Setting vault registry */

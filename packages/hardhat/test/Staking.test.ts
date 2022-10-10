@@ -1,13 +1,15 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { deployMockContract } from "ethereum-waffle";
 import { BigNumber, constants, ContractTransaction } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { ethers } from "hardhat";
+
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
+import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
 import { ADDRESS_ZERO } from "../lib/external/SetToken/utils/constants";
 import { expectEvent, expectRevert, expectValue } from "../lib/utils/expectValue";
 import { DAYS, timeTravel } from "../lib/utils/test";
-import { MockERC20, Staking, Vault, RewardsEscrow } from "../typechain";
-import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
+import { MockERC20, RewardsEscrow, Staking, Vault } from "../typechain";
 
 let stakingFund: BigNumber;
 
@@ -84,45 +86,41 @@ describe("Staking", function () {
 
     // Setup & deploy Vault
     const Vault = await ethers.getContractFactory("Vault");
-    vault = await (
-      await Vault.deploy(
-        depositToken.address,
-        yearnRegistry.address,
-        contractRegistry.address,
-        ADDRESS_ZERO,
-        ADDRESS_ZERO,
-        {
-          deposit: 0,
-          withdrawal: FEE_MULTIPLIER.mul(50),
-          management: FEE_MULTIPLIER.mul(200),
-          performance: FEE_MULTIPLIER.mul(2000),
-        },
-        {
-          minWithdrawalAmount: parseEther("100"),
-          incentiveVigBps: 0,
-          keeperPayout: 0,
-        }
-      )
-    ).deployed();
+    vault = await (await Vault.deploy()).deployed();
+    await vault.initialize(
+      depositToken.address,
+      yearnRegistry.address,
+      contractRegistry.address,
+      ADDRESS_ZERO,
+      ADDRESS_ZERO,
+      {
+        deposit: 0,
+        withdrawal: FEE_MULTIPLIER.mul(50),
+        management: FEE_MULTIPLIER.mul(200),
+        performance: FEE_MULTIPLIER.mul(2000),
+      },
+      {
+        minWithdrawalAmount: parseEther("100"),
+        incentiveVigBps: 0,
+        keeperPayout: 0,
+      }
+    );
 
-    const vaultFeeController = await (
-      await (
-        await ethers.getContractFactory("VaultFeeController")
-      ).deploy(
-        {
-          deposit: 0,
-          withdrawal: FEE_MULTIPLIER.mul(50),
-          management: FEE_MULTIPLIER.mul(200),
-          performance: FEE_MULTIPLIER.mul(2000),
-        },
-        contractRegistry.address
-      )
-    ).deployed();
+    const vaultFeeController = await await (
+      await ethers.getContractFactory("VaultFeeController")
+    ).deploy(
+      {
+        deposit: 0,
+        withdrawal: FEE_MULTIPLIER.mul(50),
+        management: FEE_MULTIPLIER.mul(200),
+        performance: FEE_MULTIPLIER.mul(2000),
+      },
+      contractRegistry.address
+    );
 
     await contractRegistry
       .connect(owner)
       .addContract(ethers.utils.id("VaultFeeController"), vaultFeeController.address, ethers.utils.id("1"));
-
   });
 
   describe("constructor", function () {
@@ -469,7 +467,11 @@ describe("Staking", function () {
 
           beforeEach(async () => {
             const stakingFactory = await ethers.getContractFactory("Staking");
-            const vaultStaking = (await stakingFactory.deploy(mockPop.address, vault.address, rewardsEscrow.address)) as Staking;
+            const vaultStaking = (await stakingFactory.deploy(
+              mockPop.address,
+              vault.address,
+              rewardsEscrow.address
+            )) as Staking;
             await vaultStaking.deployed();
 
             await vault.connect(owner).setStaking(vaultStaking.address);

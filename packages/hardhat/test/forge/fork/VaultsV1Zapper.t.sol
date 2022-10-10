@@ -65,7 +65,8 @@ contract VaultsV1ZapperTest is Test {
 
   function setUp() public {
     zapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
-    vault = new Vault(
+    vault = new Vault();
+    vault.initialize(
       CURVE_SETH_LP,
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),

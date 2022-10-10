@@ -71,7 +71,8 @@ contract VaultFuzzTest is Test {
 
   function setUp() public {
     asset = IERC20(CRV_3CRYPTO);
-    vault = new Vault(
+    address vaultAddress = address(new Vault());
+    Vault(vaultAddress).initialize(
       CRV_3CRYPTO,
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),
@@ -85,6 +86,8 @@ contract VaultFuzzTest is Test {
       }),
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
+    vault = Vault(vaultAddress);
+
     alice = new User(vault, asset);
     bob = new User(vault, asset);
 
@@ -107,8 +110,8 @@ contract VaultFuzzTest is Test {
     deal(address(asset), address(alice), 10_000_000 ether);
     deal(address(asset), address(bob), 10_000_000 ether);
 
-    alice.approve(address(vault), type(uint256).max);
-    bob.approve(address(vault), type(uint256).max);
+    alice.approve(vaultAddress, type(uint256).max);
+    bob.approve(vaultAddress, type(uint256).max);
 
     vm.prank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).addContract(

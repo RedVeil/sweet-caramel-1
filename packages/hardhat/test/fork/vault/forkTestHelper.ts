@@ -6,7 +6,16 @@ import { VaultStaking } from "packages/hardhat/typechain/VaultStaking";
 import { ADDRESS_ZERO } from "../../../lib/external/SetToken/utils/constants";
 import { getNamedAccountsByChainId } from "../../../lib/utils/getNamedAccounts";
 import { impersonateSigner } from "../../../lib/utils/test";
-import { ACLRegistry, ContractRegistry, ERC20, Faucet, MockERC20, RewardsEscrow, Staking, Vault } from "../../../typechain";
+import {
+  ACLRegistry,
+  ContractRegistry,
+  ERC20,
+  Faucet,
+  MockERC20,
+  RewardsEscrow,
+  Staking,
+  Vault,
+} from "../../../typechain";
 
 export interface Contracts {
   faucet: Faucet;
@@ -16,7 +25,7 @@ export interface Contracts {
   staking: VaultStaking;
 }
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
-const DAO_ADDRESS = "0x92a1cb552d0e177f3a135b4c87a4160c8f2a485f"
+const DAO_ADDRESS = "0x92a1cb552d0e177f3a135b4c87a4160c8f2a485f";
 
 export const accounts = getNamedAccountsByChainId(1);
 
@@ -48,7 +57,8 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
   const contractRegistry = await ethers.getContractAt("ContractRegistry", accounts.contractRegistry);
 
   const Vault = await ethers.getContractFactory("Vault");
-  const vault = await Vault.deploy(
+  const vault = await (await Vault.deploy()).deployed();
+  await vault.initialize(
     assetAddress,
     accounts.yearnRegistry,
     accounts.contractRegistry,
@@ -66,7 +76,6 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
       keeperPayout: 0,
     }
   );
-  await vault.deployed();
 
   const vaultFeeController = await (
     await (
@@ -90,9 +99,10 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
   await aclRegistry.connect(dao).grantRole(ethers.utils.id("VaultsController"), DAO_ADDRESS);
 
   const Staking = await ethers.getContractFactory("VaultStaking");
-  const staking = await Staking.deploy(vault.address, contractRegistry.address);
-  await staking.connect(dao).setVault(vault.address)
-  await vault.connect(dao).setStaking(staking.address)
+  const staking = await (await Staking.deploy()).deployed();
+  await staking.initialize(vault.address, contractRegistry.address);
+  await staking.connect(dao).setVault(vault.address);
+  await vault.connect(dao).setStaking(staking.address);
 
   return {
     faucet,

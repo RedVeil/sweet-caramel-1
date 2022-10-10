@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
 import "../../../contracts/core/defi/vault/VaultsV1Registry.sol";
 import "../../../contracts/core/defi/vault/Vault.sol";
+import "../../../contracts/core/defi/vault/VaultStaking.sol";
 import "../../../contracts/core/utils/ContractRegistryAccess.sol";
 import "../../../contracts/core/interfaces/IStaking.sol";
 import { VaultParams } from "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
@@ -26,10 +27,14 @@ address constant POP = 0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4;
 
 contract VaultsV1FactoryTest is Test {
   event VaultV1Deployment(address vault, address vaultStaking);
+  event VaultImplementationUpdated(address oldVaultImplementation, address newVaultImplementation);
+  event StakingImplementationUpdated(address oldStakingImplementation, address newStakingImplementation);
 
   VaultsV1Controller public vaultsV1Controller;
   VaultsV1Factory public vaultsV1Factory;
   VaultsV1Registry public vaultsV1Registry;
+  address public vaultImplementation;
+  address public stakingImplementation;
   address public vaultsV1ControllerOwner = address(this);
   address public notOwner = address(0x1234);
 
@@ -60,6 +65,11 @@ contract VaultsV1FactoryTest is Test {
     vaultsV1Factory = new VaultsV1Factory(address(this));
     vaultsV1Registry = new VaultsV1Registry(address(this));
     vaultsV1Controller = new VaultsV1Controller(address(this), IContractRegistry(CONTRACT_REGISTRY));
+    vaultImplementation = address(new Vault());
+    stakingImplementation = address(new VaultStaking());
+
+    vaultsV1Factory.setVaultImplementation(vaultImplementation);
+    vaultsV1Factory.setStakingImplementation(stakingImplementation);
 
     vm.startPrank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).addContract(
@@ -133,6 +143,15 @@ contract VaultsV1FactoryTest is Test {
     assertTrue(vault.staking() == address(0));
   }
 
+  function test__deployMultipleVaults() public {
+    address[2] memory contractAddresses1 = vaultsV1Factory.deployVaultV1(vaultParams);
+    address[2] memory contractAddresses2 = vaultsV1Factory.deployVaultV1(vaultParams);
+
+    // Check that the vault got deployed
+    assertTrue(contractAddresses1[0] != contractAddresses2[0]);
+    assertTrue(contractAddresses1[1] != contractAddresses2[1]);
+  }
+
   function test__deployVaultV1WithoutStaking() public {
     vaultParams.staking = address(0x4444);
 
@@ -149,5 +168,43 @@ contract VaultsV1FactoryTest is Test {
     // Test Staking Properties
     Vault vault = Vault(contractAddresses[0]);
     assertTrue(vault.staking() == address(0x4444));
+  }
+
+  /* Setting Factory Vault Implementation */
+
+  function test__setVaultImplementationNotOwnerReverts() public {
+    vm.stopPrank();
+    vm.expectRevert("Only the contract owner may perform this action");
+    vaultsV1Factory.setVaultImplementation(address(0x4444));
+  }
+
+  function test__setVaultImplementation() public {
+    vaultsV1Factory.setVaultImplementation(address(0x4444));
+    assertEq(vaultsV1Factory.vaultImplementation(), address(0x4444));
+  }
+
+  function test__setVaultImplementationEvent() public {
+    vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    emit VaultImplementationUpdated(vaultImplementation, address(0x4444));
+    vaultsV1Factory.setVaultImplementation(address(0x4444));
+  }
+
+  /* Setting Factory Staking Implementation */
+
+  function test__setStakingImplementationNotOwnerReverts() public {
+    vm.stopPrank();
+    vm.expectRevert("Only the contract owner may perform this action");
+    vaultsV1Factory.setStakingImplementation(address(0x4444));
+  }
+
+  function test__setStakingImplementation() public {
+    vaultsV1Factory.setStakingImplementation(address(0x4444));
+    assertEq(vaultsV1Factory.stakingImplementation(), address(0x4444));
+  }
+
+  function test__setStakingImplementationEvent() public {
+    vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    emit StakingImplementationUpdated(stakingImplementation, address(0x4444));
+    vaultsV1Factory.setStakingImplementation(address(0x4444));
   }
 }

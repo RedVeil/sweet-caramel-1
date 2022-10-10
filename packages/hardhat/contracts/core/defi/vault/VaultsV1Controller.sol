@@ -420,6 +420,16 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     IVaultsV1Zapper(_zapper).setKeeperConfig(_asset, _keeperConfig);
   }
 
+  /* ========== VAULTFACTORY MANAGEMENT FUNCTIONS ========== */
+
+  function setFactoryVaultImplementation(address _vaultImplementation) external onlyOwner {
+    _vaultsV1Factory().setVaultImplementation(_vaultImplementation);
+  }
+
+  function setFactoryStakingImplementation(address _stakingImplementation) external onlyOwner {
+    _vaultsV1Factory().setStakingImplementation(_stakingImplementation);
+  }
+
   /* ========== OWNERSHIP FUNCTIONS ========== */
 
   /**

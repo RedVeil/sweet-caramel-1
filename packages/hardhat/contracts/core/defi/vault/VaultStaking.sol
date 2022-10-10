@@ -4,21 +4,28 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { ERC20Upgradeable } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 
 import "./Vault.sol";
 import "../../utils/ACLAuth.sol";
-import "../../utils/ContractRegistryAccess.sol";
+import "../../utils/ContractRegistryAccessUpgradeable.sol";
 
 import "../../interfaces/IStaking.sol";
 import "../../interfaces/IRewardsEscrow.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract VaultStaking is IStaking, ACLAuth, ContractRegistryAccess, ReentrancyGuard, Pausable, ERC20 {
+contract VaultStaking is
+  IStaking,
+  ACLAuth,
+  ContractRegistryAccessUpgradeable,
+  ReentrancyGuardUpgradeable,
+  PausableUpgradeable,
+  ERC20Upgradeable
+{
   using SafeERC20 for IERC20;
 
   /* ========== STATE VARIABLES ========== */
@@ -47,22 +54,22 @@ contract VaultStaking is IStaking, ACLAuth, ContractRegistryAccess, ReentrancyGu
 
   /* ========== CONSTRUCTOR ========== */
 
-  constructor(IERC20 _stakingToken, IContractRegistry contractRegistry_)
-    ERC20(
+  function initialize(IERC20 _stakingToken, IContractRegistry contractRegistry_) external initializer {
+    __ERC20_init(
       IERC20Metadata(address(_stakingToken)).name(),
       string(abi.encodePacked("X", IERC20Metadata(address(_stakingToken)).symbol()))
-    )
-    ContractRegistryAccess(contractRegistry_)
-  {
-    stakingToken = _stakingToken;
+    );
+    __ContractRegistryAccess_init(contractRegistry_);
 
+    stakingToken = _stakingToken;
     escrowDuration = 365 days;
+
     pop.safeIncreaseAllowance(contractRegistry_.getContract(REWARDS_ESCROW_ID), type(uint256).max);
   }
 
   /* ========== VIEWS ========== */
 
-  function balanceOf(address account) public view override(IStaking, ERC20) returns (uint256) {
+  function balanceOf(address account) public view override(IStaking, ERC20Upgradeable) returns (uint256) {
     return super.balanceOf(account);
   }
 
@@ -89,7 +96,7 @@ contract VaultStaking is IStaking, ACLAuth, ContractRegistryAccess, ReentrancyGu
     return rewardRate * rewardsDuration;
   }
 
-  function paused() public view override(IStaking, Pausable) returns (bool) {
+  function paused() public view override(IStaking, PausableUpgradeable) returns (bool) {
     return super.paused();
   }
 
@@ -223,7 +230,7 @@ contract VaultStaking is IStaking, ACLAuth, ContractRegistryAccess, ReentrancyGu
     address, /* from */
     address, /* to */
     uint256 /* amount */
-  ) internal pure override(ERC20) {
+  ) internal pure override(ERC20Upgradeable) {
     revert("Token is nontransferable");
   }
 
@@ -245,7 +252,12 @@ contract VaultStaking is IStaking, ACLAuth, ContractRegistryAccess, ReentrancyGu
     }
   }
 
-  function _getContract(bytes32 _name) internal view override(ACLAuth, ContractRegistryAccess) returns (address) {
+  function _getContract(bytes32 _name)
+    internal
+    view
+    override(ACLAuth, ContractRegistryAccessUpgradeable)
+    returns (address)
+  {
     return super._getContract(_name);
   }
 }

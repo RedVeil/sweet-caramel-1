@@ -42,7 +42,8 @@ contract VaultInitalizationTest is Test {
 
   function setUp() public {
     asset = IERC20(CRV_ECRV);
-    vault = new Vault(
+    vault = new Vault();
+    vault.initialize(
       CRV_ECRV,
       YEARN_REGISTRY,
       IContractRegistry(CONTRACT_REGISTRY),

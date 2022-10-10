@@ -40,6 +40,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   await addContractToRegistry("VaultFeeController", deployments, signer, hre);
 
+
+
   for (var i = 0; i < vaultStakingPools.length; i++) {
     console.log({
       vaultName: vaultStakingPools[i].vaultName,
@@ -52,19 +54,20 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     });
     const VaultDeployed = await deploy(vaultStakingPools[i].vaultName, {
       from: addresses.deployer,
-      args: [
-        vaultStakingPools[i].inputToken,
-        addresses.yearnRegistry,
-        contractRegistry,
-        ADDRESS_ZERO,
-        ADDRESS_ZERO,
-        FEE_STRUCTURE,
-        KEEPER_SETTINGS,
-      ],
+      args: [],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
       contract: "Vault",
     });
+    await VaultDeployed.initialize(
+      vaultStakingPools[i].inputToken,
+      addresses.yearnRegistry,
+      contractRegistry,
+      ADDRESS_ZERO,
+      ADDRESS_ZERO,
+      FEE_STRUCTURE,
+      KEEPER_SETTINGS,
+    );
 
     const Staking = await deploy(vaultStakingPools[i].poolName, {
       from: addresses.deployer,
