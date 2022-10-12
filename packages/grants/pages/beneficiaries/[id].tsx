@@ -25,6 +25,7 @@ const BeneficiaryPage = () => {
     const { id } = router.query;
     if (id && id !== beneficiaryAddress) setBeneficiaryAddress(id as string);
   }, [router, beneficiaryAddress]);
+
   useEffect(() => {
     if (contracts?.beneficiaryRegistry && beneficiaryAddress) {
       BeneficiaryRegistryAdapter(contracts.beneficiaryRegistry, IpfsClient)
@@ -109,11 +110,10 @@ const BeneficiaryPage = () => {
               {profileTabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`rounded-[28px] px-5 py-3 text-lg border ${
-                    currentTab == tab
-                      ? "text-white bg-[#827D69] border-[#827D69]"
-                      : "text-[#55503D] bg-white border-customLightGray"
-                  }`}
+                  className={`rounded-[28px] px-5 py-3 text-lg border ${currentTab == tab
+                    ? "text-white bg-[#827D69] border-[#827D69]"
+                    : "text-[#55503D] bg-white border-customLightGray"
+                    }`}
                   onClick={() => setCurrentTab(tab)}
                 >
                   {capitalize(tab)}

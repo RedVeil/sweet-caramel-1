@@ -4,9 +4,10 @@ import { ERC20 } from "@popcorn/hardhat/typechain";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { constants } from "ethers";
+import useStakingPool from "hooks/staking/useStakingPool";
 import useSweetVault from "hooks/sweetvault/useSweetVault";
 import useTokenList from "hooks/sweetvault/useTokenList";
-import useZeroXZapper from "hooks/sweetvault/useZeroXZapper";
+import useVaultsV1Zapper from "hooks/sweetvault/useVaultsV1Zapper";
 import useGetMultipleToken from "hooks/tokens/useGetMultipleToken";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -17,6 +18,7 @@ import StatusWithLabel from "../Common/StatusWithLabel";
 import SweetVaultsDepositInterface from "./SweetVaultsDepositInterface";
 import SweetVaultsMobileTutorialSlider from "./SweetVaultsMobileTutorialSlider";
 import SweetVaultsSlider from "./SweetVaultsSlider";
+
 export interface SweetVaultProps {
   address: string;
   searchString: string;
@@ -29,7 +31,7 @@ async function getCoins(zapper, underlyingAddress, provider): Promise<ERC20[]> {
 const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
   const { signerOrProvider, contractAddresses, account, rpcProvider } = useWeb3();
   const [expanded, setExpanded] = useState<boolean>(false);
-  const zapper = useZeroXZapper();
+  const zapper = useVaultsV1Zapper();
   const [poolCoins, setPoolCoins] = useState<ERC20[]>(null);
   const {
     data: tokenList,
@@ -37,16 +39,25 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
     mutate: revalidateTokenList,
   } = useTokenList(contractAddresses.defaultTokenList, zapper?.zapper?.address);
   const { data: sweetVault, error: sweetVaultError, mutate: revalidateVault } = useSweetVault(address);
+  const { data: stakingPool } = useStakingPool(sweetVault?.metadata?.stakingAdress);
   const {
     data: poolToken,
     error: poolTokenError,
     mutate: revalidatePoolToken,
   } = useGetMultipleToken(poolCoins, zapper?.zapper?.address);
-
-  const vaultLoading = !sweetVault;
+  const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
 
   const metadata = sweetVault ? sweetVault.metadata : ({} as SweetVaultMetadata);
   const { name, underlyingToken, deposited, tvl, apy, curveLink, icon, displayText } = metadata;
+  const vaultLoading = !sweetVault;
+
+  const stakingApy = formatAndRoundBigNumber(stakingPool?.apy, 3);
+
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying assets (${
+    apy?.toLocaleString() || "-"
+  }%) and is boosted with POP (${
+    stakingApy || "-"
+  }%). You must stake your ${name} to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   const tutorialSteps = [
     {
@@ -59,17 +70,15 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
     },
   ];
 
-  async function revalidate(): Promise<void> {
-    await Promise.all([revalidateTokenList(), revalidateVault(), revalidatePoolToken()]);
-  }
-
   useEffect(() => {
     if (zapper && underlyingToken?.address) {
       getCoins(zapper, underlyingToken?.address, signerOrProvider).then((res) => setPoolCoins(res));
     }
   }, [address, zapper, underlyingToken]);
 
-  const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
+  async function revalidate(): Promise<void> {
+    await Promise.all([revalidateTokenList(), revalidateVault(), revalidatePoolToken()]);
+  }
 
   if (vaultLoading) {
     return (
@@ -120,24 +129,32 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
           </div>
         </div>
         <div className="grid grid-cols-12 md:gap-x-10 gap-y-6 mt-6 relative z-30 bg-white">
-          <div className="col-span-12 md:col-span-6">
+          <div className="col-span-6">
             <StatusWithLabel
               content={formatAndRoundBigNumber(underlyingToken?.balance, underlyingToken?.decimals)}
               label="Your Wallet"
               green
             />
           </div>
-          <div className="col-span-12 md:col-span-6">
+          <div className="col-span-6">
             <StatusWithLabel
               content={formatAndRoundBigNumber(deposited, sweetVault?.metadata?.decimals)}
               label="Your Deposit"
             />
           </div>
-          <div className="col-span-6 md:col-span-6">
-            <StatusWithLabel content={apy?.toLocaleString() + "%"} label="Est apy." />
+          <div className="col-span-6">
+            <StatusWithLabel
+              content={(apy + Number(stakingApy))?.toLocaleString() + "%"}
+              label="Est apy."
+              infoIconProps={{
+                id: "vAPR",
+                title: "How we calculate the vAPR",
+                content: apyInfoText,
+              }}
+            />
           </div>
-          <div className="col-span-6 md:col-span-6">
-            <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="tvl" />
+          <div className="col-span-6">
+            <StatusWithLabel content={"$" + formatAndRoundBigNumber(tvl, 18)} label="TVL" />
           </div>
         </div>
         <Transition
@@ -165,7 +182,7 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
               <div className="hidden md:block">
                 <SweetVaultsSlider tutorialSteps={tutorialSteps} />
               </div>
-              <div onClick={(e) => e.stopPropagation()} className="flex gap-6">
+              <div onClick={(e) => e.stopPropagation()} className="flex gap-6 md:gap-0 md:space-x-6">
                 {curveLink && (
                   <Link href={curveLink} passHref>
                     <a className="block border border-customLightGray rounded-lg px-6 py-6 mt-8 basis-1/2 md:basis-full">

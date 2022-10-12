@@ -1,9 +1,9 @@
 import { expect } from "chai";
 import { deployMockContract, MockContract } from "ethereum-waffle";
-import { BigNumber } from "ethers";
+import { BigNumber, ContractTransaction } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { ContractTransaction } from "ethers";
 import { ethers, waffle } from "hardhat";
+
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
@@ -49,7 +49,8 @@ let owner: SignerWithAddress,
   depositor: SignerWithAddress,
   depositor2: SignerWithAddress,
   receiver: SignerWithAddress,
-  rewardsManager: SignerWithAddress;
+  rewardsManager: SignerWithAddress,
+  zapper: SignerWithAddress;
 let contracts: Contracts;
 
 async function deployContracts(): Promise<Contracts> {
@@ -79,25 +80,25 @@ async function deployContracts(): Promise<Contracts> {
   ).deployed();
 
   const Vault = await ethers.getContractFactory("Vault");
-  const vault = await (
-    await Vault.deploy(
-      depositToken.address,
-      yearnRegistry.address,
-      contractRegistry.address,
-      ADDRESS_ZERO,
-      {
-        deposit: 0,
-        withdrawal: FEE_MULTIPLIER.mul(50),
-        management: FEE_MULTIPLIER.mul(200),
-        performance: FEE_MULTIPLIER.mul(2000),
-      },
-      {
-        minWithdrawalAmount: parseEther("100"),
-        incentiveVigBps: 0,
-        keeperPayout: 0,
-      }
-    )
-  ).deployed();
+  const vault = await (await Vault.deploy()).deployed();
+  await vault.initialize(
+    depositToken.address,
+    yearnRegistry.address,
+    contractRegistry.address,
+    ADDRESS_ZERO,
+    ADDRESS_ZERO,
+    {
+      deposit: 0,
+      withdrawal: FEE_MULTIPLIER.mul(50),
+      management: FEE_MULTIPLIER.mul(200),
+      performance: FEE_MULTIPLIER.mul(2000),
+    },
+    {
+      minWithdrawalAmount: parseEther("100"),
+      incentiveVigBps: 0,
+      keeperPayout: 0,
+    }
+  );
 
   const Staking = await ethers.getContractFactory("Staking");
   const staking = await (await Staking.deploy(rewardsToken.address, vault.address, rewardsEscrow.address)).deployed();
@@ -121,6 +122,8 @@ async function deployContracts(): Promise<Contracts> {
   const blockLockHelper = await (await VaultBlockLockHelper.deploy(vault.address, depositToken.address)).deployed();
 
   await aclRegistry.grantRole(ethers.utils.id("DAO"), owner.address);
+  await aclRegistry.grantRole(ethers.utils.id("VaultsController"), owner.address);
+
   await aclRegistry.grantRole(ethers.utils.id("INCENTIVE_MANAGER_ROLE"), owner.address);
   await aclRegistry.grantRole(ethers.utils.id("ApprovedContract"), blockLockHelper.address);
   await contractRegistry
@@ -165,19 +168,21 @@ async function deployContracts(): Promise<Contracts> {
 
 describe("Vault", function () {
   beforeEach(async function () {
-    [owner, depositor, depositor2, receiver, rewardsManager] = await ethers.getSigners();
+    [owner, depositor, depositor2, receiver, rewardsManager, zapper] = await ethers.getSigners();
     contracts = await deployContracts();
   });
 
-  describe("constructor", async function () {
+  describe("initialize", async function () {
     it("reverts if yearn registry address is zero", async function () {
       const Vault = await ethers.getContractFactory("Vault");
+      const vault = await (await Vault.deploy()).deployed();
       await expectRevert(
-        Vault.deploy(
+        vault.initialize(
           contracts.depositToken.address,
           ethers.constants.AddressZero,
           contracts.contractRegistry.address,
           contracts.staking.address,
+          ADDRESS_ZERO,
           {
             deposit: 0,
             withdrawal: FEE_MULTIPLIER.mul(50),
@@ -196,11 +201,13 @@ describe("Vault", function () {
 
     it("approves staking when staking address is nonzero", async function () {
       const Vault = await ethers.getContractFactory("Vault");
-      const vault = await Vault.deploy(
+      const vault = await (await Vault.deploy()).deployed();
+      await vault.initialize(
         contracts.depositToken.address,
         contracts.yearnRegistry.address,
         contracts.contractRegistry.address,
         contracts.staking.address,
+        ADDRESS_ZERO,
         {
           deposit: 0,
           withdrawal: FEE_MULTIPLIER.mul(50),
@@ -213,18 +220,19 @@ describe("Vault", function () {
           keeperPayout: 9,
         }
       );
-      await vault.deployed();
       expectValue(await vault.allowance(vault.address, contracts.staking.address), ethers.constants.MaxUint256);
     });
 
     it("reverts if contract registry address is zero", async function () {
       const Vault = await ethers.getContractFactory("Vault");
+      const vault = await (await Vault.deploy()).deployed();
       await expectRevert(
-        Vault.deploy(
+        vault.initialize(
           contracts.depositToken.address,
           contracts.yearnRegistry.address,
           ethers.constants.AddressZero,
           contracts.staking.address,
+          ADDRESS_ZERO,
           {
             deposit: 0,
             withdrawal: FEE_MULTIPLIER.mul(50),
@@ -245,10 +253,11 @@ describe("Vault", function () {
       expectValue(await contracts.vault.allowance(contracts.vault.address, contracts.staking.address), MAX_UINT_256);
     });
 
-    it("sets feesUpdatedAt to deployment block timestamp", async function () {
+    it("sets feesUpdatedAt to initialization block timestamp", async function () {
       let deployBlock = await waffle.provider.getBlock(contracts.vault.deployTransaction.blockNumber);
       let deployTimestamp = deployBlock.timestamp;
-      expectValue(await contracts.vault.feesUpdatedAt(), deployTimestamp);
+      let initializationTimestamp = deployTimestamp + 1;
+      expectValue(await contracts.vault.feesUpdatedAt(), initializationTimestamp);
     });
   });
 
@@ -871,10 +880,7 @@ describe("Vault", function () {
       expectValue(await contracts.vault.balanceOf(contracts.vault.address), expectedFeeInShares);
       await expectBigNumberCloseTo(await contracts.vault.pricePerShare(), parseEther("1.8"));
       await expectValue(await contracts.vault.balanceOf(depositor.address), parseEther("444.444444444444444445"));
-      await expectValue(
-        await contracts.vault.totalSupply(),
-        parseEther("555.555555555555555556")
-      );
+      await expectValue(await contracts.vault.totalSupply(), parseEther("555.555555555555555556"));
     });
 
     it("returns the amount of shares needed to receive given amount of vaulted assets (withdrawalFee + perfFee)", async function () {
@@ -1188,7 +1194,7 @@ describe("Vault", function () {
 
       let withdrawAmount = DEPOSIT_AMOUNT.div(2);
       let expectedFeeInShares = parseEther("111.111111111111111111");
-      let expectedAssetsReturned = parseEther("900")
+      let expectedAssetsReturned = parseEther("900");
       await expectValue(await contracts.vault.previewRedeem(withdrawAmount), expectedAssetsReturned.sub(10));
       await contracts.vault.connect(depositor)["redeem(uint256)"](withdrawAmount);
 
@@ -1987,13 +1993,13 @@ describe("Vault", function () {
         );
       });
       it("unstake and redeem for does not require allowance when called by zapper", async () => {
-        receiverBalanceBefore = await contracts.vault.balanceOf(receiver.address);
-        await contracts.vault.connect(owner).setZapper(receiver.address);
+        receiverBalanceBefore = await contracts.vault.balanceOf(zapper.address);
+        await contracts.vault.connect(owner).setZapper(zapper.address);
         tx = await contracts.vault
-          .connect(receiver)
-          .unstakeAndRedeemFor(WITHDRAW_AMOUNT, receiver.address, depositor.address);
+          .connect(zapper)
+          .unstakeAndRedeemFor(WITHDRAW_AMOUNT, zapper.address, depositor.address);
         await expectValue(
-          await contracts.depositToken.balanceOf(receiver.address),
+          await contracts.depositToken.balanceOf(zapper.address),
           receiverBalanceBefore.add(EXPECTED_RETURN)
         );
       });

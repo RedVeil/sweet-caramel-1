@@ -4,7 +4,7 @@ import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import MainActionButton from "components/MainActionButton";
 import Navbar from "components/NavBar/NavBar";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";

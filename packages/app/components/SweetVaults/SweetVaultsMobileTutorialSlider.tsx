@@ -53,7 +53,7 @@ const SweetVaultsMobileTutorialSlider: React.FC<SliderProps> = ({ onCloseMenu, t
                   <p className=" text-black text-xl leading-8 mt-4">{step.content}</p>
                 </div>
 
-                <div className="flex justify-center pt-6 gap-5">
+                <div className="flex justify-center pt-6 gap-5 md:gap-0 md:space-x-5">
                   {tutorialSteps.map((steps, index) => (
                     <div
                       className={`${

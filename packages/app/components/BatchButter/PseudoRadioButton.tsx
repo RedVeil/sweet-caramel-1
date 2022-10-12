@@ -1,19 +1,27 @@
 interface PseudoRadioButtonProps {
-  label: string;
+  label: string | React.ReactNode;
   handleClick: Function;
   isActive: boolean;
+  activeClass?: string;
+  extraClasses?: string;
 }
 
-const PseudoRadioButton: React.FC<PseudoRadioButtonProps> = ({ label, handleClick, isActive }) => {
+const PseudoRadioButton: React.FC<PseudoRadioButtonProps> = ({
+  label,
+  handleClick,
+  isActive,
+  activeClass,
+  extraClasses,
+}) => {
   return (
     <button
-      className={`py-2 w-20 xs:w-24 border rounded-lg text-lg leading-8 hover:bg-warmGray hover:text-black hover:border-warmGray ${
-        isActive ? "bg-warmGray border-warmGray text-black" : "border-customLightGray"
+      className={`py-2 px-3 h-12 border w-full rounded-lg text-lg leading-8 ${extraClasses} ${
+        isActive ? `${activeClass}` : "border-customLightGray"
       }`}
       type="button"
       onClick={() => handleClick()}
     >
-      <p>{label}</p>
+      {label}
     </button>
   );
 };

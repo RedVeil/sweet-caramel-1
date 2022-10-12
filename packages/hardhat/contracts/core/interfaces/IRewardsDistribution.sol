@@ -24,5 +24,5 @@ interface IRewardsDistribution {
   function distributionsLength() external view returns (uint256);
 
   // Mutative Functions
-  function distributeRewards(uint256 amount) external returns (bool);
+  function distributeRewards() external returns (bool);
 }

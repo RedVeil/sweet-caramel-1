@@ -7,7 +7,7 @@ import "rc-slider/assets/index.css";
 import { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import NavBar from "../../components/NavBar/NavBar";
-import { connectors } from "../../context/Web3/connectors";
+import { connectors } from "../../context/Web3/connector";
 import { ContractsContext } from "../../context/Web3/contracts";
 
 const ONE_WEEK = 604800;

@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 
 import { VaultAPI } from "./BaseStrategy.sol";
 
@@ -28,7 +29,7 @@ interface RegistryAPI {
  *  A good starting point to build a wrapper is https://github.com/yearn/brownie-wrapper-mix
  *
  */
-abstract contract BaseWrapper {
+abstract contract BaseWrapper is Initializable {
   using Math for uint256;
   using SafeERC20 for IERC20;
 
@@ -49,7 +50,7 @@ abstract contract BaseWrapper {
   // VaultsAPI.depositLimit is unlimited
   uint256 constant UNCAPPED_DEPOSITS = type(uint256).max;
 
-  constructor(address _token, address _registry) {
+  function __BaseWrapper_init(address _token, address _registry) internal onlyInitializing {
     // Recommended to use a token with a `Registry.latestVault(_token) != address(0)`
     token = IERC20(_token);
     // Recommended to use `v2.registry.ychad.eth`

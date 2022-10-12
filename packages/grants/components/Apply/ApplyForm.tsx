@@ -7,7 +7,7 @@ import ImpactReports from "components/Apply/ImpactReports";
 import ProofsForm from "components/Apply/ProofsForm";
 import VisualContent from "components/Apply/VisualContent";
 import Button from "components/CommonComponents/Button";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, ethers } from "ethers";
 import { isAddress } from "ethers/lib/utils";
@@ -36,9 +36,7 @@ const ApplyForm: React.FC<ApplyFormProps> = ({ form, activeForm, onNextActiveFor
   const { dispatch } = useContext(store);
   const { contracts } = useContext(ContractsContext);
   const router = useRouter();
-
   const [formData, setFormData] = form;
-
   const [errorList, setErrorList] = useState<Array<string>>([]);
   const [showErrors, setShowErrors] = useState<boolean>(false);
   const [proposalBond, setProposalBond] = useState<BigNumber>();

@@ -8,7 +8,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
 
-  await mintPOP((await deployments.get("TestPOP")).address, signer, hre.config.namedAccounts.deployer as string, hre);
+  await mintPOP((await deployments.get("TestPOP")).address, signer, await signer.getAddress(), hre);
 };
 
 const mintPOP = async (address: string, signer: any, recipient: string, hre: HardhatRuntimeEnvironment) => {

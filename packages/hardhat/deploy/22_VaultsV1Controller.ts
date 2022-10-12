@@ -40,5 +40,5 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("VaultsV1Registry and VaultsV1Factory ownership sucessfully transferred to VaultsV1Controller");
 };
 export default main;
-main.dependencies = ["setup"];
+main.dependencies = ["setup", "contract-registry", "vaults-registry", "vaults-v1-factory"];
 main.tags = ["core", "vault", "vaults-v1-controller"];

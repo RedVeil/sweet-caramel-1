@@ -24,7 +24,7 @@ export default function index(): JSX.Element {
   const { dispatch } = useContext(store);
   const [searchValue, setSearchValue] = useState("");
   const [currentVaults, setCurrentVaults] = useState<string[]>();
-  const [slicePosition, setSlicePosition] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const sliceAmount = 4;
 
   useEffect(() => {
@@ -36,6 +36,7 @@ export default function index(): JSX.Element {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, Sweet Vaults is only available on Ethereum.",
+          image: <img src="/images/modalImages/comingSoon.svg" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -59,14 +60,13 @@ export default function index(): JSX.Element {
   }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
-    updateCurrentPage(slicePosition);
+    updateCurrentPage(currentPage);
   }, [contractAddresses?.sweetVaults]);
 
   const updateCurrentPage = (e) => {
     if (contractAddresses.sweetVaults && contractAddresses.sweetVaults.length >= e) {
-      setSlicePosition(e);
       let vaults = [...contractAddresses?.sweetVaults];
-      setCurrentVaults(vaults.splice(e, sliceAmount));
+      setCurrentVaults(vaults.slice(e, e + sliceAmount));
     }
   };
 
@@ -79,10 +79,7 @@ export default function index(): JSX.Element {
         </div>
         <div className="col-span-12 md:col-span-6 md:col-end-13">
           <div className="rounded-lg bg-customRed hidden md:flex flex-col justify-between p-8 w-full h-full">
-            <h2 className=" text-4xl leading-10">
-              Blockchain-enabled <br /> wealth management <br />
-              and social impact.
-            </h2>
+            <h2 className=" text-4xl leading-10">{/* removed text for now - @am */}</h2>
             <div className="flex justify-end mt-14">
               <img src="/images/sweetVaults.svg" className="" />
             </div>
@@ -111,7 +108,8 @@ export default function index(): JSX.Element {
                 sliceAmount={sliceAmount}
                 onUpdatePage={(e) => updateCurrentPage(e)}
                 lengthOfData={contractAddresses?.sweetVaults?.length}
-                currentIndex={slicePosition}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
               />
             )}
           </div>

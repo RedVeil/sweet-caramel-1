@@ -16,17 +16,16 @@ import {
   RewardsManager,
   RewardsManager__factory,
 } from "@popcorn/hardhat/typechain";
+import { ChainId, networkMap } from "@popcorn/utils";
 import { ContractAddresses } from "@popcorn/utils/types";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import {
-  NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from "@web3-react/injected-connector";
 import activateRPCNetwork from "helper/activateRPCNetwork";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { setSingleActionModal } from "../actions";
 import { store } from "../store";
-import { ChainId, networkMap } from "./connectors";
 
 export interface Contracts {
   staking?: GovStaking;
@@ -51,12 +50,9 @@ interface ContractsWrapperProps {
 }
 
 function getErrorMessage(error: Error) {
-  if (error instanceof NoEthereumProviderError) {
-    return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
-  } else if (error instanceof UnsupportedChainIdError) {
-    return `You're connected to an unsupported network. Please connect to ${
-      networkMap[Number(process.env.CHAIN_ID) as ChainId]
-    }.`;
+  if (error instanceof UnsupportedChainIdError) {
+    return `You're connected to an unsupported network. Please connect to ${networkMap[Number(process.env.CHAIN_ID) as ChainId]
+      }.`;
   } else if (error instanceof UserRejectedRequestErrorInjected) {
     return "Please authorize this website to access your Ethereum account.";
   } else {

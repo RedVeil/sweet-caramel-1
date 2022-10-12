@@ -18,4 +18,4 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 export default main;
 main.dependencies = ["setup"];
-main.tags = ["frontend", "xpop"];
+main.tags = ["frontend", "xpop", "grants"];

@@ -4,7 +4,6 @@ import { DocumentAddIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useWeb3React } from "@web3-react/core";
 import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
-import { connectors } from "context/Web3/connectors";
 import Link from "next/link";
 import router from "next/router";
 import { Fragment, useState } from "react";
@@ -84,21 +83,18 @@ const Header = () => {
           <div className="block w-5 absolute">
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "rotate-45" : "-translate-y-1.5"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "rotate-45" : "-translate-y-1.5"
+                }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "opacity-0" : "opacity-100"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "opacity-0" : "opacity-100"
+                }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${
-                menuVisible ? "-rotate-45" : "translate-y-1.5"
-              }`}
+              className={`block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out ${menuVisible ? "-rotate-45" : "translate-y-1.5"
+                }`}
             ></span>
           </div>
         </button>

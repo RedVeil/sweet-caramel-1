@@ -10,7 +10,10 @@ import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IVaultsV1Factory.sol";
 import "../../interfaces/IVaultsV1.sol";
-import "../../dao/Staking.sol";
+import "../../interfaces/IVaultsV1Zapper.sol";
+import "../../interfaces/IStaking.sol";
+import "../../interfaces/IRewardsEscrow.sol";
+import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 
 /**
  * @notice controls deploying, registering vaults, adding vault types, updating registry vaults, endorsing and enabling registry vaults, and pausing/unpausing vaults
@@ -21,6 +24,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   /* ========== STATE VARIABLES ========== */
 
   bytes32 public constant contractName = keccak256("VaultsV1Controller");
+  bytes32 internal constant VAULT_REWARDS_ESCROW = keccak256("VaultRewardsEscrow");
 
   /* ========== EVENTS ========== */
 
@@ -33,50 +37,69 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     ContractRegistryAccess(_contractRegistry)
   {}
 
+  /* ========== VAULT DEPLOYMENT ========== */
+
   /**
    * @notice deploys and registers V1 Vault from VaultsV1Factory
-   * @param _vaultParams - struct containing Vault contructor params (address token_, address yearnRegistry_,
+   * @param _vaultParams - struct containing Vault constructor params (address token_, address yearnRegistry_,
     IContractRegistry contractRegistry_, address staking_, FeeStructure feeStructure_)
-    @param _enabled - bool if vault enabled or disabled
-    @param _stakingAddress - address of the staking contract for the vault
-    @param _metadataCID - ipfs CID of vault metadata
-    @param _swapTokenAddresses - array of underlying tokens to recieve LP tokens
-    @param _exchange - number that marks exchange
-    @param _endorse - bool if vault is to be endorsed after registration
-    @dev the submitter in the VaultMetadata from the factory will be function caller
+   * @param _endorse - bool if vault is to be endorsed after registration
+   * @param _metadataCID - ipfs CID of vault metadata
+   * @param _swapTokenAddresses - underlying assets to deposit and recieve LP token
+   * @param _swapAddress - ex: stableSwapAddress for Curve
+   * @param _exchange - number specifying exchange (1 = curve)
+   * @param _zapIn - address of inbound zap contract
+   * @param _zapOut - address of outbound zap contract
+   * @dev the submitter in the VaultMetadata from the factory will be function caller
+   * @dev !Important If _vaultParams.zapper is defined we need to parse in _zapIn and _zapOut since the zapper doesnt work otherwise
    */
   function deployVaultFromV1Factory(
     VaultParams memory _vaultParams,
-    bool _enabled,
-    address _stakingAddress,
+    bool _endorse,
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
     uint256 _exchange,
-    bool _endorse
+    address _zapIn,
+    address _zapOut
   ) external onlyOwner returns (address) {
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
 
-    (VaultMetadata memory metadata, address[2] memory contractAddresses) = _vaultsV1Factory().deployVaultV1(
-      _vaultParams,
-      _enabled,
-      _stakingAddress,
-      msg.sender,
-      _metadataCID,
-      _swapTokenAddresses,
-      _swapAddress,
-      _exchange
-    );
+    address[2] memory contractAddresses = _vaultsV1Factory().deployVaultV1(_vaultParams);
 
     _handleKeeperSetup(contractAddresses[0], _vaultParams.keeperConfig, _vaultParams.token);
 
+    if (_vaultParams.staking == address(0)) {
+      Vault(contractAddresses[0]).setStaking(contractAddresses[1]);
+      IStaking(contractAddresses[1]).setVault(contractAddresses[0]);
+    }
+
+    IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(contractAddresses[1]);
+
+    if (_vaultParams.zapper != address(0)) {
+      require(_zapIn != address(0) && _zapOut != address(0), "set zaps");
+      IVaultsV1Zapper(_vaultParams.zapper).updateVault(_vaultParams.token, contractAddresses[0]);
+      IVaultsV1Zapper(_vaultParams.zapper).updateZaps(_vaultParams.token, _zapIn, _zapOut);
+    }
+
+    VaultMetadata memory metadata = VaultMetadata({
+      vaultAddress: contractAddresses[0],
+      vaultType: 1,
+      enabled: true,
+      staking: contractAddresses[1],
+      vaultZapper: _vaultParams.zapper,
+      submitter: msg.sender,
+      metadataCID: _metadataCID,
+      swapTokenAddresses: _swapTokenAddresses,
+      swapAddress: _swapAddress,
+      exchange: _exchange,
+      zapIn: _zapIn,
+      zapOut: _zapOut
+    });
+
     vaultsV1Registry.registerVault(metadata);
 
-    Vault(contractAddresses[0]).setStaking(contractAddresses[1]);
-
-    if (_endorse) {
-      vaultsV1Registry.toggleEndorseVault(contractAddresses[0]);
-    }
+    if (_endorse) vaultsV1Registry.toggleEndorseVault(contractAddresses[0]);
 
     emit VaultV1Deployed(contractAddresses[0], _endorse);
     return contractAddresses[0];
@@ -90,7 +113,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    */
   function _handleKeeperSetup(
     address _vault,
-    Vault.KeeperConfig memory _keeperConfig,
+    KeeperConfig memory _keeperConfig,
     address _asset
   ) internal {
     IVaultsV1(_vault).setKeeperConfig(_keeperConfig);
@@ -104,6 +127,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
       0
     );
   }
+
+  /* ========== VAULT MANAGEMENT FUNCTIONS ========== */
 
   /**
    * @notice updates the VaultMetadata in registry
@@ -146,7 +171,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   /**
-   * @notice set fees in BPS. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry
+   * @notice set fees in BPS.
    * @param _vault - address of the vault
    * @param _newFees - new fee structure for the vault
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
@@ -156,7 +181,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   /**
-   * @notice Set whether to use locally configured fees. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.
+   * @notice Set whether to use locally configured fees.
    * @param _vault - address of the vault
    * @param _useLocalFees `true` to use local fees, `false` to use the VaultFeeController contract.
    */
@@ -165,21 +190,79 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   /**
-   * @notice Set staking contract for a vault. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.
+   * @notice Set staking contract for a vault.
    * @param _vault - address of the vault
    * @param _staking Address of the staking contract.
    */
   function setVaultStaking(address _vault, address _staking) external onlyOwner {
+    address oldStaking = IVaultsV1(_vault).staking();
+    if (oldStaking != address(0)) {
+      IStaking(oldStaking).setVault(address(0));
+      IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).removeAuthorizedContract(oldStaking);
+    }
+
+    if (_staking != address(0)) {
+      IStaking(_staking).setVault(_vault);
+      IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
+    }
+
     IVaultsV1(_vault).setStaking(_staking);
+
+    VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
+
+    VaultMetadata memory vaultMetadata = vaultsV1Registry.getVault(_vault);
+
+    vaultMetadata.staking = _staking;
+
+    vaultsV1Registry.updateVault(vaultMetadata);
   }
 
   /**
-   * @notice Used to update the yearn registry. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.
+   * @notice Set VaultsZapper contract for a vault.
+   * @param _vault - address of the vault
+   * @param _zapper Address of the VaultZapper contract.
+   * @dev This function will update the oldZapper contract used by a Vault and remove the asset->vault relationship
+   * @dev This function will update the new zapper contract used and either remove or update the asset->vault relationship if `_zapper`==`address(0)`
+   */
+  function setVaultZapper(address _vault, address _zapper) external onlyOwner {
+    address asset = IVaultsV1(_vault).asset();
+
+    address oldZapper = IVaultsV1(_vault).zapper();
+    if (oldZapper != address(0)) IVaultsV1Zapper(oldZapper).removeVault(asset);
+
+    if (_zapper == address(0)) {
+      IVaultsV1Zapper(_zapper).removeVault(asset);
+    } else {
+      IVaultsV1Zapper(_zapper).updateVault(asset, _vault);
+    }
+
+    IVaultsV1(_vault).setZapper(_zapper);
+
+    VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
+
+    VaultMetadata memory vaultMetadata = vaultsV1Registry.getVault(_vault);
+
+    vaultMetadata.vaultZapper = _zapper;
+
+    vaultsV1Registry.updateVault(vaultMetadata);
+  }
+
+  /**
+   * @notice Used to update the yearn registry.
    * @param _vault - address of the vault
    * @param _registry The new _registry address.
    */
   function setVaultRegistry(address _vault, address _registry) external onlyOwner {
     IVaultsV1(_vault).setRegistry(_registry);
+  }
+
+  /**
+   * @notice Sets keeperConfig for a vault
+   * @param _vault - address of the newly deployed vault
+   * @param _keeperConfig - the keeperConfig struct from the VaultParams used in vault deployment
+   */
+  function setVaultKeeperConfig(address _vault, KeeperConfig memory _keeperConfig) external onlyOwner {
+    IVaultsV1(_vault).setKeeperConfig(_keeperConfig);
   }
 
   /**
@@ -228,6 +311,127 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     }
   }
 
+  /* ========== VAULTSTAKING MANAGEMENT FUNCTIONS ========== */
+
+  function setStakingEscrowDurations(address[] calldata _stakingContracts, uint256[] calldata _escrowDurations)
+    external
+    onlyOwner
+  {
+    for (uint256 i = 0; i < _stakingContracts.length; i++) {
+      IStaking(_stakingContracts[i]).setEscrowDuration(_escrowDurations[i]);
+    }
+  }
+
+  function setStakingRewardsDurations(address[] calldata _stakingContracts, uint256[] calldata _rewardsDurations)
+    external
+    onlyOwner
+  {
+    for (uint256 i = 0; i < _stakingContracts.length; i++) {
+      IStaking(_stakingContracts[i]).setRewardsDuration(_rewardsDurations[i]);
+    }
+  }
+
+  function pauseStakingContracts(address[] calldata _stakingContracts) external onlyOwner {
+    for (uint256 i = 0; i < _stakingContracts.length; i++) {
+      IStaking(_stakingContracts[i]).pauseContract();
+    }
+  }
+
+  function unpauseStakingContracts(address[] calldata _stakingContracts) external onlyOwner {
+    for (uint256 i = 0; i < _stakingContracts.length; i++) {
+      IStaking(_stakingContracts[i]).unpauseContract();
+    }
+  }
+
+  /* ========== VAULTZAPPER MANAGEMENT FUNCTIONS ========== */
+
+  /**
+   * @notice Set zapIn and zapOut contracts on the VaultsV1Zapper for a certain asset
+   * @param _vault - address of the vault
+   * @param _zapper - address of the vaultsZapper contract.
+   * @param _zapIn - address of the zapIn contract used by VaultsV1Zapper (Should be ZeroXCurveZapper or SwapZapper)
+   * @param _zapOut - address of the zapOut contract used by VaultsV1Zapper (Should be ZeroXCurveZapper or SwapZapper)
+   */
+  function setZapperZaps(
+    address _vault,
+    address _zapper,
+    address _zapIn,
+    address _zapOut
+  ) external onlyOwner {
+    address asset = IVaultsV1(_vault).asset();
+
+    IVaultsV1Zapper(_zapper).updateZaps(asset, _zapIn, _zapOut);
+
+    VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
+
+    VaultMetadata memory vaultMetadata = vaultsV1Registry.getVault(_vault);
+
+    vaultMetadata.zapIn = _zapIn;
+    vaultMetadata.zapOut = _zapOut;
+
+    vaultsV1Registry.updateVault(vaultMetadata);
+  }
+
+  /**
+   * @notice Changes the fee for a certain vault asset on the VaultsZapper
+   * @param _zapper Address of the VaultZapper
+   * @param _inBps DepositFee in BPS
+   * @param _outBps WithdrawlFee in BPS
+   * @dev Per default both of these values are not set. Therefore a fee has to be explicitly be set with this function
+   */
+  function setZapperGlobalFee(
+    address _zapper,
+    uint256 _inBps,
+    uint256 _outBps
+  ) external onlyOwner {
+    IVaultsV1Zapper(_zapper).setGlobalFee(_inBps, _outBps);
+  }
+
+  /**
+   * @notice Changes the fee for a certain vault asset on the VaultsZapper
+   * @param _zapper Address of the VaultZapper
+   * @param _asset Address of the underlying asset of a vault
+   * @param _useAssetFee Switch to toggle an asset specific fee on or off
+   * @param _inBps DepositFee in BPS
+   * @param _outBps WithdrawlFee in BPS
+   * @dev Per default both of these values are not set. Therefore a fee has to be explicitly be set with this function
+   */
+  function setZapperAssetFee(
+    address _zapper,
+    address _asset,
+    bool _useAssetFee,
+    uint256 _inBps,
+    uint256 _outBps
+  ) external onlyOwner {
+    IVaultsV1Zapper(_zapper).setFee(_asset, _useAssetFee, _inBps, _outBps);
+  }
+
+  /**
+   * @notice Sets keeperConfig for a VaultsZapper
+   * @param _zapper Address of the VaultZapper
+   * @param _asset Address of the underlying asset of a vault
+   * @param _keeperConfig - the keeperConfig struct from the VaultParams used in vault deployment
+   */
+  function setZapperKeeperConfig(
+    address _zapper,
+    address _asset,
+    KeeperConfig memory _keeperConfig
+  ) external onlyOwner {
+    IVaultsV1Zapper(_zapper).setKeeperConfig(_asset, _keeperConfig);
+  }
+
+  /* ========== VAULTFACTORY MANAGEMENT FUNCTIONS ========== */
+
+  function setFactoryVaultImplementation(address _vaultImplementation) external onlyOwner {
+    _vaultsV1Factory().setVaultImplementation(_vaultImplementation);
+  }
+
+  function setFactoryStakingImplementation(address _stakingImplementation) external onlyOwner {
+    _vaultsV1Factory().setStakingImplementation(_stakingImplementation);
+  }
+
+  /* ========== OWNERSHIP FUNCTIONS ========== */
+
   /**
    * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts to controller
    * @dev registry and factory must nominate controller as new owner first
@@ -246,6 +450,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     _vaultsV1Registry().nominateNewOwner(_newOwner);
     _vaultsV1Factory().nominateNewOwner(_newOwner);
   }
+
+  /* ========== INTERNAL FUNCTIONS ========== */
 
   /**
    * @notice helper function to get VaultsV1Registry contract

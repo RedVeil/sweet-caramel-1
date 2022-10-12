@@ -9,6 +9,7 @@ remappings = [
     'forge-std/=node_modules/@popcorn/hardhat/lib/forge-std/src/',
     '@ensdomains/=node_modules/@ensdomains/',
     '@openzeppelin/=node_modules/@openzeppelin/',
+    'openzeppelin-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/',
     '@popcorn/=node_modules/@popcorn/',
     '@setprotocol/=node_modules/@setprotocol/',
     '@uniswap/=node_modules/@uniswap/',

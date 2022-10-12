@@ -1,6 +1,6 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import { Token } from "@popcorn/utils/src/types";
-import TokenSelection from "components/SweetVaults/TokenSelection";
+import { Token } from "@popcorn/utils/types";
+import SelectToken from "components/BatchButter/SelectToken";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "helper/inputRegex";
@@ -14,7 +14,7 @@ export interface TokenInputProps {
   balance?: BigNumber;
   readonly?: boolean;
   tokenList?: Token[];
-  selectToken?: any;
+  selectToken?: (token: Token) => void;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
@@ -57,14 +57,11 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   return (
     <>
       {balance && (
-        <label htmlFor="tokenInput" className="flex justify-between items-center font-medium text-gray-700 w-full mb-2">
+        <label htmlFor="tokenInput" className="font-medium text-gray-700 w-full mb-2">
           <p className="font-medium text-primary">{label}</p>
-          <p className="text-secondaryLight leading-6">
-            {formatAndRoundBigNumber(balance, token?.decimals)} {token?.symbol}
-          </p>
         </label>
       )}
-      <div className="flex items-center gap-2 w-full">
+      <div className="flex items-center gap-2 md:gap-0 md:space-x-2 w-full">
         <div className="w-full">
           <div
             className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${
@@ -92,21 +89,29 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               readOnly={readonly}
             />
             {tokenList.length > 0 ? (
-              <TokenSelection
-                selectedToken={token}
-                tokenList={tokenList.filter((selectableToken) => selectableToken?.address !== token?.address)}
-                selectToken={selectToken}
-              />
+              <SelectToken allowSelection={true} options={tokenList} selectedToken={token} selectToken={selectToken} />
             ) : (
-              <p className="inline-flex items-center font-semibold text-gray-700 mx-4">{token?.symbol}</p>
+              <div className="inline-flex items-center">
+                <img className="w-5 md:mr-2 mb-0.5" src={token?.icon}></img>
+                <p className="hidden md:block font-semibold text-gray-700">{token?.symbol}</p>
+              </div>
             )}
           </div>
         </div>
+      </div>
+      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
+      <div className="flex items-center justify-between mt-2">
+        {balance && (
+          <div className="flex items-center">
+            <img src="/images/wallet.svg" alt="3x" width="20" height="20" className="mr-2" />
+            <p className="text-secondaryLight leading-6">{formatAndRoundBigNumber(balance, token?.decimals)}</p>
+          </div>
+        )}
         <div className="">
           {!readonly && balance && (
             <>
               <div
-                className="px-5 py-4 leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white text-lg transition-all"
+                className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
                 role="button"
                 onClick={setMaxAmount}
               >
@@ -116,7 +121,6 @@ export const TokenInput: React.FC<TokenInputProps> = ({
           )}
         </div>
       </div>
-      {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
     </>
   );
 };

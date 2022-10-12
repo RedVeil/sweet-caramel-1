@@ -1,11 +1,11 @@
 import { AxiosStatic } from "axios";
 import { BigNumber, ethers, constants, utils } from "ethers";
 import { ERC20, Vault } from "../../typechain";
-
-import { ZeroXZapper } from "../../typechain/ZeroXZapper";
+import { VaultsV1Zapper } from "../../typechain/VaultsV1Zapper";
 import erc20abi from "../external/erc20/abi.json";
 
 const TRI_CRYPTO_POOL_ADDRESS = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
+const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const USDT_DECIMALS = 6;
 
@@ -20,7 +20,7 @@ export class Zapper {
   private swapTarget = "0xDef1C0ded9bec7F1a1670819833240f027b25EfF";
   private endpoint = "https://api.0x.org/swap/v1/quote";
 
-  constructor(private client: AxiosStatic, public zapper: ZeroXZapper) {}
+  constructor(private client: AxiosStatic, public zapper: VaultsV1Zapper) { }
 
   public async zapIn(
     from: Token,
@@ -30,24 +30,45 @@ export class Zapper {
     slippagePercentage: number,
     stake: boolean
   ): Promise<any> {
-    const curveLPAddress = await vault.asset();
-    const coins = await this.getCoins(stableSwapAddress, vault.provider);
+    const vaultAsset = await vault.asset();
 
     let buyToken = from;
     let swapData = "0x";
-    if (!coins.map((coin) => coin.address).includes(from.address)) {
-      buyToken = (await this.getIntermediateToken(stableSwapAddress, coins)).token;
-      swapData = await (await this.getQuote(from, fromAmount, buyToken, slippagePercentage)).data.data;
+    let swapTarget = this.swapTarget;
+
+    if (stableSwapAddress.toLowerCase() === constants.AddressZero.toLowerCase()) {
+      ({ buyToken, swapData } = await this.getDataForSwapZapIn(
+        buyToken,
+        vaultAsset,
+        vault,
+        from,
+        fromAmount,
+        slippagePercentage,
+        swapData
+      ));
+    } else if (stableSwapAddress.toLowerCase() === WETH.toLowerCase()) {
+      buyToken = { address: WETH, decimals: 18 };
+      swapTarget = WETH;
+    } else {
+      ({ buyToken, swapData } = await this.getDataForCurveZapIn(
+        stableSwapAddress,
+        vault,
+        from,
+        buyToken,
+        fromAmount,
+        slippagePercentage,
+        swapData
+      ));
     }
 
     return this.zapper.zapIn(
       from.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? constants.AddressZero : from.address,
       buyToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? constants.AddressZero : buyToken.address,
       stableSwapAddress,
-      curveLPAddress,
+      vaultAsset,
       fromAmount,
       0,
-      this.swapTarget,
+      swapTarget,
       swapData,
       stake,
       { value: from.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? fromAmount : 0 }
@@ -62,31 +83,131 @@ export class Zapper {
     slippagePercentage: number,
     unstake: boolean
   ) {
-    const curveLPAddress = await vault.asset();
-    const coins = await this.getCoins(stableSwapAddress, vault.provider);
+    const vaultAsset = await vault.asset();
 
     let sellToken = to;
     let swapData = "0x";
-    if (!coins.map((coin) => coin.address).includes(to.address)) {
-      const { token, i } = await this.getIntermediateToken(stableSwapAddress, coins, true);
-      sellToken = token;
-      let swapAmount = await this.getSwapAmount(curveLPAddress, stableSwapAddress, sellAmount, i);
-      swapData = await (await this.getQuote(sellToken, swapAmount, to, slippagePercentage)).data.data;
+    let swapTarget = this.swapTarget;
+
+    if (stableSwapAddress.toLowerCase() === constants.AddressZero.toLowerCase()) {
+      ({ sellToken, swapData } = await this.getDataForSwapZapOut(
+        sellToken,
+        vaultAsset,
+        vault,
+        sellAmount,
+        to,
+        slippagePercentage,
+        swapData
+      ));
+    } else if (stableSwapAddress.toLowerCase() === WETH.toLowerCase()) {
+      sellToken = { address: WETH, decimals: 18 };
+      swapTarget = WETH;
+    } else {
+      ({ sellToken, swapData } = await this.getDataForCurveZapOut(
+        stableSwapAddress,
+        vault,
+        to,
+        sellToken,
+        vaultAsset,
+        sellAmount,
+        swapData,
+        slippagePercentage
+      ));
     }
+
     return this.zapper.zapOut(
-      curveLPAddress,
+      vaultAsset,
       stableSwapAddress,
       sellAmount,
       sellToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? constants.AddressZero : sellToken.address,
       to.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? constants.AddressZero : to.address,
       0,
-      this.swapTarget,
+      swapTarget,
       swapData,
       unstake
     );
   }
 
-  private async getSwapAmount(curveLPAddress: string, stableSwapAddress: string, sellAmount: BigNumber, i: number) {
+  private async getDataForCurveZapIn(
+    stableSwapAddress: string,
+    vault: Vault,
+    from: Token,
+    buyToken: Token,
+    fromAmount: BigNumber,
+    slippagePercentage: number,
+    swapData: string
+  ) {
+    const coins = await this.getCoins(stableSwapAddress, vault.provider);
+
+    if (!coins.map((coin) => coin.address).includes(from.address)) {
+      buyToken = (await this.getIntermediateToken(stableSwapAddress, coins)).token;
+      const quote = await (await this.getQuote(from, fromAmount, buyToken, slippagePercentage)).data;
+      swapData = quote.data;
+    }
+    return { buyToken, swapData };
+  }
+  private async getDataForCurveZapOut(
+    stableSwapAddress: string,
+    vault: Vault,
+    to: Token,
+    sellToken: Token,
+    vaultAsset: string,
+    sellAmount: BigNumber,
+    swapData: string,
+    slippagePercentage: number
+  ) {
+    const coins = await this.getCoins(stableSwapAddress, vault.provider);
+
+    if (!coins.map((coin) => coin.address).includes(to.address)) {
+      const { token, i } = await this.getIntermediateToken(stableSwapAddress, coins, true);
+      sellToken = token;
+      const swapAmount = await this.getSwapAmountCurveZapper(vaultAsset, stableSwapAddress, sellAmount, i);
+      swapData = await (await this.getQuote(sellToken, swapAmount, to, slippagePercentage)).data.data;
+    }
+    return { sellToken, swapData };
+  }
+  private async getDataForSwapZapOut(
+    sellToken: Token,
+    vaultAsset: string,
+    vault: Vault,
+    sellAmount: BigNumber,
+    to: Token,
+    slippagePercentage: number,
+    swapData: string
+  ) {
+    const swapAmount = await this.getSwapAmountSwapZapper(vault, sellAmount, vaultAsset);
+    // Vault inherits the decimals of it's asset so it can be used here
+    sellToken = { address: vaultAsset, decimals: await vault.decimals() };
+    const quote = await (await this.getQuote(sellToken, swapAmount, to, slippagePercentage)).data;
+    swapData = quote.data;
+    return { sellToken, swapData };
+  }
+  private async getDataForSwapZapIn(
+    buyToken: Token,
+    vaultAsset: string,
+    vault: Vault,
+    from: Token,
+    fromAmount: BigNumber,
+    slippagePercentage: number,
+    swapData: string
+  ) {
+    // Vault inherits the decimals of it's asset so it can be used here
+    buyToken = { address: vaultAsset, decimals: await vault.decimals() };
+    const quote = await (await this.getQuote(from, fromAmount, buyToken, slippagePercentage)).data;
+    swapData = quote.data;
+    return { buyToken, swapData };
+  }
+
+  private async getSwapAmountSwapZapper(vault: Vault, sellAmount: BigNumber, vaultAsset: string) {
+    const redeemedAssets = await vault.previewRedeem(sellAmount);
+    return this.zapper.previewRedeemFees(vaultAsset, redeemedAssets);
+  }
+  private async getSwapAmountCurveZapper(
+    curveLPAddress: string,
+    stableSwapAddress: string,
+    sellAmount: BigNumber,
+    i: number
+  ) {
     let swapAmount;
     let error;
     try {
@@ -123,11 +244,13 @@ export class Zapper {
     sellAmount: BigNumber,
     slippagePercentage: number
   ): string {
-    return `${this.endpoint}?buyToken=${
-      buyToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? "ETH" : buyToken.address
-    }&sellToken=${
-      sellToken.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? "ETH" : sellToken.address
-    }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
+    return `${this.endpoint}?buyToken=${buyToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
+        ? "ETH"
+        : buyToken.address
+      }&sellToken=${sellToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
+        ? "ETH"
+        : sellToken.address
+      }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
   }
 
   public async getPoolAddress(lpTokenAddress: string, provider): Promise<string> {

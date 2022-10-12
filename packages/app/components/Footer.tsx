@@ -51,7 +51,7 @@ const Footer = () => {
         <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
           Popcorn is a multi-chain regenerative yield optimizing protocol.
         </p>
-        <div className="flex justify-between md:justify-start md:gap-7 order-1 md:order-2">
+        <div className="flex justify-between md:justify-start md:space-x-7 order-1 md:order-2">
           <a
             href="https://twitter.com/Popcorn_DAO"
             onMouseEnter={() => onHoverIcon(setTwitterColor)}

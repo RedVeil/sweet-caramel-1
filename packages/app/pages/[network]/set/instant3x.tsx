@@ -1,5 +1,6 @@
 import { adjustDepositDecimals, ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import { BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
+import { BatchType, Token } from "@popcorn/utils/src/types";
+import { Pages } from "components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
@@ -10,13 +11,12 @@ import { isDepositDisabled } from "helper/isDepositDisabled";
 import useThreeXWhale from "hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useWeb3 from "hooks/useWeb3";
-import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
 import { instantMint, instantRedeem } from "./3x";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
-
-const ZAP_TOKEN = ["dai", "usdt"];
 
 export default function Instant3x() {
   const {
@@ -29,6 +29,7 @@ export default function Instant3x() {
     connect,
     setChain,
     pushWithinChain,
+    signer,
   } = useWeb3();
   const { dispatch } = useContext(store);
   const threeXWhale = useThreeXWhale();
@@ -37,8 +38,21 @@ export default function Instant3x() {
     error: errorFetchingThreeXWhaleData,
     mutate: refetchThreeXData,
   } = useThreeXWhaleData();
+  const router = useRouter();
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXWhaleData && !errorFetchingThreeXWhaleData;
+
+  const ZAP_TOKEN = [contractAddresses.dai, contractAddresses.usdt];
+
+  const threeX = useMemo(
+    () => threeXWhaleData?.tokens?.find((token) => token.address === contractAddresses.threeX),
+    [threeXPageState, threeXWhaleData],
+  );
+
+  const usdc = useMemo(
+    () => threeXWhaleData?.tokens?.find((token) => token.address === contractAddresses.usdc),
+    [threeXPageState, threeXWhaleData],
+  );
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -49,6 +63,7 @@ export default function Instant3x() {
         setDualActionWideModal({
           title: "Coming Soon",
           content: "Currently, 3X is only available on Ethereum.",
+          image: <img src="/images/modalImages/comingSoon.svg" />,
           onConfirm: {
             label: "Switch Network",
             onClick: () => {
@@ -59,7 +74,7 @@ export default function Instant3x() {
           onDismiss: {
             label: "Go Back",
             onClick: () => {
-              pushWithinChain("/");
+              router.back();
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -80,8 +95,8 @@ export default function Instant3x() {
         ? {
             ...state,
             selectedToken: {
-              input: threeXWhaleData?.tokens?.usdc?.key,
-              output: threeXWhaleData?.tokens?.threeX?.key,
+              input: usdc,
+              output: threeX,
             },
             tokens: threeXWhaleData?.tokens,
             redeeming: false,
@@ -91,6 +106,10 @@ export default function Instant3x() {
           }
         : {
             ...state,
+            selectedToken: {
+              input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
+              output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
+            },
             tokens: threeXWhaleData?.tokens,
           },
     );
@@ -103,8 +122,8 @@ export default function Instant3x() {
     setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
-        input: state.redeeming ? state?.tokens?.threeX?.key : state?.tokens?.usdc?.key,
-        output: state.redeeming ? state?.tokens?.usdc?.key : state?.tokens?.threeX?.key,
+        input: state.redeeming ? threeX : usdc,
+        output: state.redeeming ? usdc : threeX,
       },
       useZap: false,
       depositAmount: constants.Zero,
@@ -112,7 +131,7 @@ export default function Instant3x() {
     }));
   }, [threeXPageState.redeeming]);
 
-  function selectToken(token: BatchProcessTokenKey): void {
+  function selectToken(token: Token): void {
     setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
@@ -120,7 +139,7 @@ export default function Instant3x() {
         output: state.redeeming ? token : state.selectedToken.output,
       },
       useUnclaimedDeposits: false,
-      useZap: ZAP_TOKEN.includes(token),
+      useZap: ZAP_TOKEN.includes(token.address),
       depositAmount: BigNumber.from("0"),
     }));
   }
@@ -130,14 +149,14 @@ export default function Instant3x() {
     _batchType: BatchType,
     stakeImmidiate = false,
   ): Promise<void> {
-    depositAmount = adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
+    depositAmount = await adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
     if (threeXPageState.redeeming) {
-      await instantRedeem(threeXWhale, depositAmount, threeXPageState, threeXWhaleData).then(
+      await instantRedeem(threeXWhale, depositAmount, threeXPageState, signer).then(
         (res) => onContractSuccess(res, "3x redeemed!"),
         (err) => onContractError(err),
       );
     } else {
-      await instantMint(threeXWhale, depositAmount, threeXPageState, threeXWhaleData, stakeImmidiate).then(
+      await instantMint(threeXWhale, depositAmount, threeXPageState, threeX.price, stakeImmidiate, signer).then(
         (res) => onContractSuccess(res, "3x minted!"),
         (err) => onContractError(err),
       );
@@ -146,10 +165,9 @@ export default function Instant3x() {
     setThreeXPageState((state) => ({ ...state, depositAmount: constants.Zero }));
   }
 
-  async function approve(contractKey: string): Promise<void> {
+  async function approve(token: Token): Promise<void> {
     toast.loading("Approving Token...");
-    const selectedTokenContract = threeXWhaleData?.tokens[contractKey].contract;
-    await selectedTokenContract
+    await token.contract
       .approve(threeXWhale.address, ethers.constants.MaxUint256)
       .then((res) =>
         onContractSuccess(res, "Token approved!", () => {
@@ -171,7 +189,8 @@ export default function Instant3x() {
           </p>
           <div className="mx-auto">
             <ButterStats
-              butterData={threeXWhaleData}
+              token={threeX}
+              totalSupply={threeXWhaleData?.totalSupply}
               addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]}
               center
               isThreeX
@@ -181,14 +200,29 @@ export default function Instant3x() {
         <div className="mt-10">
           {threeXWhaleData && threeXPageState.selectedToken ? (
             <MintRedeemInterface
-              token={threeXWhaleData?.tokens}
+              options={threeXWhaleData.tokens}
               selectToken={selectToken}
               mainAction={handleMainAction}
               approve={approve}
-              depositDisabled={isDepositDisabled(threeXWhaleData, threeXPageState)}
-              hasUnclaimedBalances={false}
-              butterPageState={[threeXPageState, setThreeXPageState]}
-              isInstantPage
+              depositDisabled={isDepositDisabled(
+                threeXWhaleData.totalSupply,
+                threeX,
+                threeXPageState.selectedToken,
+                threeXPageState.redeeming,
+                threeXPageState.depositAmount,
+                threeXPageState.useUnclaimedDeposits,
+                true,
+              )}
+              page={Pages.instantThreeX}
+              instant
+              depositAmount={threeXPageState.depositAmount}
+              setDepositAmount={(val) => setThreeXPageState((prevState) => ({ ...prevState, depositAmount: val }))}
+              showSlippageAdjust={true}
+              slippage={threeXPageState.slippage}
+              setSlippage={(val) => setThreeXPageState((prevState) => ({ ...prevState, slippage: val }))}
+              withdrawMode={threeXPageState.redeeming}
+              setWithdrawMode={(val) => setThreeXPageState((prevState) => ({ ...prevState, redeeming: val }))}
+              selectedToken={threeXPageState.selectedToken}
             />
           ) : (
             <>

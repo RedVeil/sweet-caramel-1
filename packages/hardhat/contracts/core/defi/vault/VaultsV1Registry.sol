@@ -5,23 +5,25 @@ pragma solidity ^0.8.0;
 import "../../interfaces/IEIP4626.sol";
 import "../../utils/Owned.sol";
 
-/**
- * @notice Registry for vaults deployed through VaultsV1Factory
- * @dev all mutative functions can only be called by VaultsV1Controller
- */
-
 struct VaultMetadata {
   address vaultAddress; // address of vault
   uint256 vaultType; // version of vault
   bool enabled; // is the vault enabled
-  address stakingAddress; // address of vault staking contract
+  address staking; // address of vault staking contract
+  address vaultZapper; // address of vault zapper contract
   address submitter; // address of vault submitter
   string metadataCID; // ipfs CID of vault metadata
   address[8] swapTokenAddresses; // underlying assets to deposit and recieve LP token
   address swapAddress; // ex: stableSwapAddress for Curve
   uint256 exchange; // number specifying exchange (1 = curve)
+  address zapIn; // address of inbound zap contract
+  address zapOut; // address of outbount zap contract
 }
 
+/**
+ * @notice Registry for vaults deployed through VaultsV1Factory
+ * @dev all mutative functions can only be called by VaultsV1Controller
+ */
 contract VaultsV1Registry is Owned {
   /* ========== STATE VARIABLES ========== */
 
@@ -113,20 +115,12 @@ contract VaultsV1Registry is Owned {
   }
 
   function _registerVault(VaultMetadata memory params) internal {
-    vaults[params.vaultAddress] = VaultMetadata(
-      params.vaultAddress,
-      params.vaultType,
-      params.enabled,
-      params.stakingAddress,
-      params.submitter,
-      params.metadataCID,
-      params.swapTokenAddresses,
-      params.swapAddress,
-      params.exchange
-    );
+    vaults[params.vaultAddress] = params;
+
     vaultAddresses.push(params.vaultAddress);
     assetVaults[IEIP4626(params.vaultAddress).asset()].push(params.vaultAddress);
     typeVaults[params.vaultType].push(params.vaultAddress);
+
     emit VaultAdded(params.vaultAddress, params.vaultType, params.enabled, params.metadataCID);
   }
 
@@ -137,15 +131,21 @@ contract VaultsV1Registry is Owned {
    */
   function updateVault(VaultMetadata memory _vaultMetadata) external onlyOwner {
     VaultMetadata storage updatedVault = vaults[_vaultMetadata.vaultAddress];
+
     require(updatedVault.vaultAddress != address(0), "vault address not registered");
     require(_vaultMetadata.vaultType == updatedVault.vaultType, "cannot change vault type");
     require(_vaultMetadata.submitter == updatedVault.submitter, "cannot change submitter");
+
     updatedVault.enabled = _vaultMetadata.enabled;
-    updatedVault.stakingAddress = _vaultMetadata.stakingAddress;
+    updatedVault.staking = _vaultMetadata.staking;
+    updatedVault.vaultZapper = _vaultMetadata.vaultZapper;
     updatedVault.metadataCID = _vaultMetadata.metadataCID;
     updatedVault.swapTokenAddresses = _vaultMetadata.swapTokenAddresses;
     updatedVault.swapAddress = _vaultMetadata.swapAddress;
     updatedVault.exchange = _vaultMetadata.exchange;
+    updatedVault.zapIn = _vaultMetadata.zapIn;
+    updatedVault.zapOut = _vaultMetadata.zapOut;
+
     emit VaultUpdated(
       _vaultMetadata.vaultAddress,
       _vaultMetadata.vaultType,

@@ -11,7 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 import NavBar from "../../components/NavBar/NavBar";
 import { setDualActionModal } from "../../context/actions";
 import { store } from "../../context/store";
-import { connectors } from "../../context/Web3/connectors";
+import { connectors } from "../../context/Web3/connector";
 import { ContractsContext } from "../../context/Web3/contracts";
 import { ElectionsContext } from "../../context/Web3/elections";
 

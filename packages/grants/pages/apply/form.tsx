@@ -9,7 +9,7 @@ import ImpactReports from "components/Apply/ImpactReports";
 import ProofsForm from "components/Apply/ProofsForm";
 import VisualContent from "components/Apply/VisualContent";
 import Button from "components/CommonComponents/Button";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, ethers } from "ethers";
 import { isAddress } from "ethers/lib/utils";

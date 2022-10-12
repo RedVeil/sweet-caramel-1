@@ -51,7 +51,7 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
     <div className="relative">
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map((step, index) => (
-          <div className="pl-2">
+          <div className="pl-2" key={index}>
             <div className=" bg-customPurple rounded-lg h-110 p-8 flex flex-col justify-between text-white">
               <h6>How It Works</h6>
 
@@ -60,11 +60,12 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
                 <p>{step.content}</p>
               </div>
 
-              <div className="flex justify-end pt-6 gap-5">
+              <div className="flex justify-end pt-6 gap-5 md:gap-0 md:space-x-5">
                 {tutorialSteps.map((steps, index) => (
                   <div
                     className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-3 w-3 transition-all`}
                     onClick={() => gotoSlide(index)}
+                    key={index}
                   ></div>
                 ))}
               </div>

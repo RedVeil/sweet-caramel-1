@@ -14,7 +14,11 @@ const FEE_STRUCTURE = {
   management: FEE_MULTIPLIER.mul(200),
   performance: FEE_MULTIPLIER.mul(2000),
 };
-const KEEPER_CONFIG = { minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 };
+const KEEPER_SETTINGS = {
+  minWithdrawalAmount: parseEther("100"),
+  incentiveVigBps: 1,
+  keeperPayout: 9,
+};
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -34,6 +38,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   await addContractToRegistry("VaultFeeController", deployments, signer, hre);
 
+
+
   for (var i = 0; i < vaultStakingPools.length; i++) {
     console.log({
       vaultName: vaultStakingPools[i].vaultName,
@@ -42,64 +48,42 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       contractRegistry,
       ADDRESS_ZERO,
       FEE_STRUCTURE,
+      KEEPER_SETTINGS,
     });
     const VaultDeployed = await deploy(vaultStakingPools[i].vaultName, {
       from: addresses.deployer,
-      args: [
-        vaultStakingPools[i].inputToken,
-        addresses.yearnRegistry,
-        contractRegistry,
-        ADDRESS_ZERO,
-        FEE_STRUCTURE,
-        KEEPER_CONFIG,
-      ],
+      args: [],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
       contract: "Vault",
     });
+    const vault = await ethers.getContractAt("Vault", VaultDeployed.address);
+    await vault.initialize(
+      vaultStakingPools[i].inputToken,
+      addresses.yearnRegistry,
+      contractRegistry,
+      ADDRESS_ZERO,
+      ADDRESS_ZERO,
+      FEE_STRUCTURE,
+      KEEPER_SETTINGS,
+    );
 
     const Staking = await deploy(vaultStakingPools[i].poolName, {
       from: addresses.deployer,
-      args: [vaultStakingPools[i].rewardsToken, VaultDeployed.address, addresses.rewardsEscrow],
+      args: [vaultStakingPools[i].rewardsToken, VaultDeployed.address, addresses.vaultsRewardsEscrow],
       log: true,
       autoMine: true,
       contract: "Staking",
     });
 
-    const vault = await ethers.getContractAt("Vault", VaultDeployed.address);
-
     await addContractToRegistry(vaultStakingPools[i].vaultName, deployments, signer, hre);
     await vault.connect(signer).setStaking(Staking.address);
+
+    const staking = await ethers.getContractAt("Staking", Staking.address);
+    await staking.connect(signer).setVault(vault.address);
   }
 };
 
 export default main;
 main.dependencies = ["setup", "test-tokens", "contract-registry", "acl-registry", "test-pop", "faucet"];
 main.tags = ["frontend", "sweet-vaults"];
-
-async function createDemoSweetVaults(hre: HardhatRuntimeEnvironment, signer, addresses, poolInfo) {
-  const makeDeposit = async () => {
-    const vault = await hre.ethers.getContractAt(
-      "Vault",
-      (
-        await hre.deployments.get("sEthSweetVault")
-      ).address,
-      signer
-    );
-    const underlyingToken = await hre.ethers.getContractAt("MockERC20", poolInfo.inputToken, signer);
-    await underlyingToken.approve(vault.address, parseEther("10"));
-    await vault["deposit(uint256)"](parseEther("10"));
-    console.log(await (await underlyingToken.balanceOf(addresses.deployer)).toString());
-  };
-
-  const { deployer } = addresses;
-  const faucet = await FaucetController(hre, signer);
-
-  await Promise.all([
-    faucet.sendDai(deployer, 1000),
-    faucet.sendUsdc(deployer, 10),
-    faucet.sendCrvSethLPTokens(addresses.deployer, 100),
-  ]);
-
-  await makeDeposit();
-}

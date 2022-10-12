@@ -26,7 +26,7 @@ export default function TokenIcon({ token, fullsize = false, imageSize }: TokenI
     case "Butter (V2)":
       return <img src="/images/icons/BTR.svg" alt="butter" className={imageSize ? imageSize : "w-10 h-10"} />;
     case "3X":
-      return <img src="/images/tokens/3X.svg" alt="3x" className="w-10 h-10" />;
+      return <img src="/images/tokens/3X.svg" alt="3X" className="w-10 h-10" />;
     case "Popcorn":
     default:
       return (

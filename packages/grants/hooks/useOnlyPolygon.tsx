@@ -7,7 +7,6 @@ import toTitleCase from "helper/toTitleCase";
 import { store } from "context/store";
 import { setSingleActionModal } from "context/actions";
 import Button from "components/CommonComponents/Button";
-import injectedModule from '@web3-onboard/injected-wallets'
 import { useSetChain } from "@web3-onboard/react";
 
 export const useOnlyPolygon = () => {

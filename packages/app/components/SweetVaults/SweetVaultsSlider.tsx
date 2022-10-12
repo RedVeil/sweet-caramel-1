@@ -44,7 +44,7 @@ const SweetVaultsSlider: React.FC<SliderProps> = ({ tutorialSteps }) => {
               <h5 className="text-black text-xl leading-8 my-2">{title}</h5>
               <p className="text-primaryDark text-xl leading-8">{content}</p>
             </div>
-            <div className="flex justify-end pt-6 gap-5">
+            <div className="flex justify-end pt-6 gap-5 md:gap-0 md:space-x-6">
               {tutorialSteps.map((steps, index) => (
                 <div
                   className={`${currentSlide == index ? activeDot : inactiveDot} rounded-full h-5 w-5 transition-all`}

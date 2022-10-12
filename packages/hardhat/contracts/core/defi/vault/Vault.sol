@@ -2,13 +2,13 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./AffiliateToken.sol";
 import "../../utils/ACLAuth.sol";
-import "../../utils/ContractRegistryAccess.sol";
+import "../../utils/ContractRegistryAccessUpgradeable.sol";
 import "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IEIP4626.sol";
 import "../../interfaces/IContractRegistry.sol";
@@ -20,11 +20,11 @@ import "../../interfaces/IVaultsV1.sol";
 contract Vault is
   IEIP4626,
   AffiliateToken,
-  ReentrancyGuard,
-  Pausable,
+  ReentrancyGuardUpgradeable,
+  PausableUpgradeable,
   ACLAuth,
   KeeperIncentivized,
-  ContractRegistryAccess
+  ContractRegistryAccessUpgradeable
 {
   // Fees are set in 1e18 for 100% (1 BPS = 1e14)
   // Raise Fees in BPS by 1e14 to get an accurate value
@@ -35,16 +35,10 @@ contract Vault is
     uint256 performance;
   }
 
-  struct KeeperConfig {
-    uint256 minWithdrawalAmount; // minimum amount required of accrued fees for calling withdrawAccruedFees
-    uint256 incentiveVigBps; // percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves
-    uint256 keeperPayout; // amount paid out to keeper per invocation of incentivized function - withdrawAccruedFees()
-  }
-
   address public staking;
   address public zapper;
 
-  bytes32 public immutable contractName;
+  bytes32 public contractName;
 
   uint256 constant MINUTES_PER_YEAR = 525_600;
   bytes32 constant FEE_CONTROLLER_ID = keccak256("VaultFeeController");
@@ -73,29 +67,31 @@ contract Vault is
 
   /* ========== CONSTRUCTOR ========== */
 
-  constructor(
+  function initialize(
     address token_,
     address yearnRegistry_,
     IContractRegistry contractRegistry_,
     address staking_,
+    address zapper_,
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
-  )
-    AffiliateToken(
+  ) external initializer {
+    require(address(yearnRegistry_) != address(0), "Zero address");
+
+    __AffiliateToken_init(
       token_,
       yearnRegistry_,
       string(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault")),
       string(abi.encodePacked("pop-", IERC20Metadata(token_).symbol()))
-    )
-    ContractRegistryAccess(contractRegistry_)
-  {
-    require(address(yearnRegistry_) != address(0), "Zero address");
+    );
+    __ContractRegistryAccess_init(contractRegistry_);
 
     if (staking_ != address(0)) {
       staking = staking_;
       _approve(address(this), staking_, type(uint256).max);
     }
 
+    zapper = zapper_;
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
     contractName = keccak256(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault"));
@@ -540,7 +536,7 @@ contract Vault is
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function setFees(FeeStructure memory newFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
     // prettier-ignore
     require(
       newFees.deposit < 1e18 &&
@@ -554,19 +550,19 @@ contract Vault is
   }
 
   /**
-   * @notice Set whether to use locally configured fees. Caller must have DAO_ROLE from ACLRegistry.
+   * @notice Set whether to use locally configured fees. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    * @param _useLocalFees `true` to use local fees, `false` to use the VaultFeeController contract.
    */
-  function setUseLocalFees(bool _useLocalFees) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setUseLocalFees(bool _useLocalFees) external onlyRole(VAULTS_CONTROLLER) {
     emit UseLocalFees(_useLocalFees);
     useLocalFees = _useLocalFees;
   }
 
   /**
-   * @notice Set staking contract for this vault. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
+   * @notice Set staking contract for this vault. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    * @param _staking Address of the staking contract.
    */
-  function setStaking(address _staking) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setStaking(address _staking) external onlyRole(VAULTS_CONTROLLER) {
     emit StakingUpdated(staking, _staking);
 
     if (staking != address(0)) _approve(address(this), staking, 0);
@@ -579,19 +575,44 @@ contract Vault is
    * @notice Sets the zapper contract which is allowed to unstake and withdraw for a user without addtitional approvals
    * @param _zapper Address of the new zapper contract.
    */
-  function setZapper(address _zapper) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setZapper(address _zapper) external onlyRole(VAULTS_CONTROLLER) {
     emit ZapperUpdated(zapper, _zapper);
     zapper = _zapper;
   }
 
   /**
-   * @notice Used to update the yearn registry. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
+   * @notice Used to update the yearn registry. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    * @param _registry The new _registry address.
    */
-  function setRegistry(address _registry) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
+  function setRegistry(address _registry) external onlyRole(VAULTS_CONTROLLER) {
     emit RegistryUpdated(address(registry), _registry);
 
     _setRegistry(_registry);
+  }
+
+  /**
+   * @notice Change keeper config. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function setKeeperConfig(KeeperConfig memory _config) external onlyRole(VAULTS_CONTROLLER) {
+    require(_config.incentiveVigBps < 1e18, "invalid vig");
+    require(_config.minWithdrawalAmount > 0, "invalid min withdrawal");
+    emit KeeperConfigUpdated(keeperConfig, _config);
+
+    keeperConfig = _config;
+  }
+
+  /**
+   * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function pauseContract() external onlyRole(VAULTS_CONTROLLER) {
+    _pause();
+  }
+
+  /**
+   * @notice Unpause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function unpauseContract() external onlyRole(VAULTS_CONTROLLER) {
+    _unpause();
   }
 
   /**
@@ -611,6 +632,7 @@ contract Vault is
     uint256 preBal = assetToken.balanceOf(address(this));
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 
+    //TODO check this calculation
     _withdraw(address(this), _feeController().feeRecipient(), (accruedFees * 1e18 - incentiveVig) / 1e18, true);
     _withdraw(address(this), address(this), tipAmount, true);
 
@@ -628,29 +650,6 @@ contract Vault is
     keeperIncentive.tip(address(assetToken), msg.sender, 0, postBal);
 
     _burn(address(this), balance);
-  }
-
-  /**
-   * @notice Change keeper config. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
-   */
-  function setKeeperConfig(KeeperConfig memory _config) external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
-    require(_config.incentiveVigBps < 1e18, "invalid vig");
-    require(_config.minWithdrawalAmount > 0, "invalid min withdrawal");
-    keeperConfig = _config;
-  }
-
-  /**
-   * @notice Pause deposits. Caller must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry.
-   */
-  function pauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
-    _pause();
-  }
-
-  /**
-   * @notice Unpause deposits. Caller must have DAO_ROLE from ACLRegistry.
-   */
-  function unpauseContract() external onlyRoles(DAO_ROLE, VAULTS_CONTROLLER) {
-    _unpause();
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */
@@ -690,7 +689,7 @@ contract Vault is
   function _getContract(bytes32 _name)
     internal
     view
-    override(ACLAuth, KeeperIncentivized, ContractRegistryAccess)
+    override(ACLAuth, KeeperIncentivized, ContractRegistryAccessUpgradeable)
     returns (address)
   {
     return super._getContract(_name);

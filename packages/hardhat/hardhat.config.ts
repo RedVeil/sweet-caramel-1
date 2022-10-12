@@ -13,7 +13,25 @@ module.exports = {
   solidity: {
     compilers: [
       {
+        version: "0.8.17",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+        },
+      },
+      {
         version: "0.8.13",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+        },
+      },
+      {
+        version: "0.8.10",
         settings: {
           optimizer: {
             enabled: true,
@@ -89,8 +107,8 @@ module.exports = {
       chainId: 1337,
       forking: Boolean(parseInt(process.env.FORKING || "0"))
         ? {
-          url: process.env.RPC_URL,
-        }
+            url: process.env.RPC_URL,
+          }
         : undefined,
     },
     localhost: {
@@ -114,6 +132,7 @@ module.exports = {
       gasPrice: 50,
       timeout: 60000,
       url: process.env.RPC_URL || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      tags: ["grants"],
     },
     polygontest: {
       url: process.env.RPC_URL || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -134,6 +153,12 @@ module.exports = {
       url: process.env.RPC_URL || "https://rinkeby.arbitrum.io/rpc",
       // `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
     },
+    goerli: {
+      timeout: 60000,
+      url: process.env.RPC_URL || `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      chainId: 5,
+      tags: ["grants"],
+    }
   },
   gasReporter: {
     currency: "USD",

@@ -5,12 +5,14 @@ import {
   adjustDepositDecimals,
   ChainId,
   formatAndRoundBigNumber,
-  getMinMintAmount,
+  getIndexForToken,
+  getMinZapAmount,
   isButterSupportedOnCurrentNetwork,
   prepareHotSwap,
 } from "@popcorn/utils";
-import { BatchMetadata, BatchProcessTokenKey, BatchType } from "@popcorn/utils/src/types";
+import { BatchType, Token } from "@popcorn/utils/src/types";
 import BatchProgress from "components/BatchButter/BatchProgress";
+import { Pages } from "components/BatchButter/ButterTokenInput";
 import ClaimableBatches from "components/BatchButter/ClaimableBatches";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
@@ -30,24 +32,18 @@ import useThreeXWhale from "hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useThreeXZapper from "hooks/set/useThreeXZapper";
 import useWeb3 from "hooks/useWeb3";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { Fragment, useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
 import { isDepositDisabled } from "../../../helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
-export enum TOKEN_INDEX {
-  dai,
-  usdc,
-  usdt,
-}
-
-const ZAP_TOKEN = ["dai", "usdt"];
-
 export default function ThreeX(): JSX.Element {
   const {
     signerOrProvider,
     account,
+    signer,
     chainId,
     onContractSuccess,
     onContractError,
@@ -56,11 +52,13 @@ export default function ThreeX(): JSX.Element {
     setChain,
     pushWithinChain,
   } = useWeb3();
+  const router = useRouter();
   const { dispatch } = useContext(store);
-  const threeX = useSetToken(contractAddresses.threeX);
+  const threeXSetToken = useSetToken(contractAddresses.threeX);
   const threeXZapper = useThreeXZapper();
   const threeXBatch = useThreeXBatch();
   const threeXWhale = useThreeXWhale();
+  const ZAP_TOKEN = [contractAddresses.dai, contractAddresses.usdt];
   const { data: threeXData, error: errorFetchingThreeXData, mutate: refetchThreeXBatchData } = useThreeXData();
   const {
     data: threeXWhaleData,
@@ -72,6 +70,22 @@ export default function ThreeX(): JSX.Element {
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
 
   const refetchThreeXData = () => Promise.all([refetchThreeXBatchData(), refetchThreeXWhaleData()]);
+
+  const threeX = useMemo(
+    () =>
+      (threeXPageState.instant ? threeXWhaleData : threeXData)?.tokens?.find(
+        (token) => token.address === contractAddresses.threeX,
+      ),
+    [threeXPageState, threeXWhaleData, threeXData],
+  );
+
+  const usdc = useMemo(
+    () =>
+      (threeXPageState.instant ? threeXWhaleData : threeXData)?.tokens?.find(
+        (token) => token.address === contractAddresses.usdc,
+      ),
+    [threeXPageState, threeXWhaleData, threeXData],
+  );
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -93,7 +107,7 @@ export default function ThreeX(): JSX.Element {
           onDismiss: {
             label: "Go Back",
             onClick: () => {
-              pushWithinChain("/");
+              router.back();
               dispatch(setDualActionWideModal(false));
             },
           },
@@ -112,29 +126,51 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: threeXData?.tokens?.usdc?.key,
-              output: threeXData?.tokens?.threeX?.key,
-            },
-            tokens: threeXData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-          }
-        : {
-            ...state,
-            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          ...state,
+          selectedToken: {
+            input: usdc,
+            output: threeX,
           },
+          tokens: threeXData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+        }
+        : {
+          ...state,
+          selectedToken: {
+            input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.input.address,
+            ),
+            output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.output.address,
+            ),
+          },
+          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+        },
     );
   }, [threeXData, threeXWhaleData]);
 
   useEffect(() => {
+    function selectOutputToken(state: ButterPageState): Token {
+      if (state.instant) {
+        return threeXWhaleData?.tokens?.find((token) => token.address === state.selectedToken.output.address)
+      } else {
+        if (state.redeeming) {
+          return usdc
+        } else {
+          return threeX
+        }
+      }
+    }
+
     setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
-        input: state?.selectedToken?.input,
-        output: state.redeeming ? state?.tokens?.usdc?.key : state?.tokens?.threeX?.key,
+        input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens)?.find(
+          (token) => token.address === state.selectedToken.input.address,
+        ),
+        output: selectOutputToken(state)
       },
       tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
     }));
@@ -147,8 +183,8 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
-        input: state.redeeming ? state?.tokens?.threeX?.key : state?.tokens?.usdc?.key,
-        output: state.redeeming ? state?.tokens?.usdc?.key : state?.tokens?.threeX?.key,
+        input: state.redeeming ? threeX : usdc,
+        output: state.redeeming ? usdc : threeX,
       },
       useZap: false,
       depositAmount: constants.Zero,
@@ -163,7 +199,7 @@ export default function ThreeX(): JSX.Element {
     return threeXData?.claimableRedeemBatches.length > 0;
   };
 
-  function selectToken(token: BatchProcessTokenKey): void {
+  function selectToken(token: Token): void {
     setThreeXPageState((state) => ({
       ...state,
       selectedToken: {
@@ -171,22 +207,22 @@ export default function ThreeX(): JSX.Element {
         output: state.redeeming ? token : state.selectedToken.output,
       },
       useUnclaimedDeposits: false,
-      useZap: ZAP_TOKEN.includes(token),
+      useZap: ZAP_TOKEN.includes(token.address),
       depositAmount: BigNumber.from("0"),
     }));
   }
 
   async function handleMainAction(depositAmount: BigNumber, batchType: BatchType, stakeImmidiate = false) {
     // Lower depositAmount decimals to 1e6 if the inputToken is USDC/USDT
-    depositAmount = adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
+    depositAmount = await adjustDepositDecimals(depositAmount, threeXPageState.selectedToken.input);
 
     if (threeXPageState.instant && threeXPageState.redeeming) {
-      await instantRedeem(threeXWhale, depositAmount, threeXPageState, threeXData).then(
+      await instantRedeem(threeXWhale, depositAmount, threeXPageState, signer).then(
         (res) => onContractSuccess(res, "3x redeemed!"),
         (err) => onContractError(err),
       );
     } else if (threeXPageState.instant) {
-      await instantMint(threeXWhale, depositAmount, threeXPageState, threeXData, stakeImmidiate).then(
+      await instantMint(threeXWhale, depositAmount, threeXPageState, threeX.price, stakeImmidiate, signer).then(
         (res) => onContractSuccess(res, "3x minted!"),
         (err) => onContractError(err),
       );
@@ -213,40 +249,47 @@ export default function ThreeX(): JSX.Element {
     const batches = threeXData?.claimableMintBatches;
     const hotSwapParameter = prepareHotSwap(batches, depositAmount);
     toast.loading("Depositing Funds...");
-    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, false);
+    return threeXBatch
+      .connect(signer)
+      .moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, false);
   }
   async function hotswapMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
     const batches = threeXData?.claimableRedeemBatches;
     const hotSwapParameter = prepareHotSwap(batches, depositAmount);
     toast.loading("Depositing Funds...");
-    return threeXBatch.moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, true);
+    return threeXBatch
+      .connect(signer)
+      .moveUnclaimedIntoCurrentBatch(hotSwapParameter.batchIds, hotSwapParameter.amounts, true);
   }
 
   async function batchMint(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
-    toast.loading(`Depositing ${threeXPageState.tokens[threeXPageState.selectedToken.input].name} ...`);
+    toast.loading(`Depositing ${threeXPageState.selectedToken.input.name} ...`);
     if (threeXPageState.useZap) {
-      const minMintAmount = getMinMintAmount(
+      const minUsdcAmount = getMinZapAmount(
         depositAmount,
         threeXPageState.slippage,
         parseEther("1"),
-        threeXPageState.selectedToken.input === "dai" ? 18 : 6,
+        threeXPageState.selectedToken.input.address === contractAddresses.dai ? 18 : 6,
         6,
       );
-      return threeXZapper.zapIntoBatch(
-        depositAmount,
-        TOKEN_INDEX[threeXPageState.selectedToken.input],
-        TOKEN_INDEX.usdc,
-        minMintAmount,
-      );
+
+      return threeXZapper
+        .connect(signer)
+        .zapIntoBatch(
+          depositAmount,
+          getIndexForToken(threeXPageState.selectedToken.input),
+          getIndexForToken(usdc),
+          minUsdcAmount,
+        );
     }
-    return threeXBatch.depositForMint(depositAmount, account);
+    return threeXBatch.connect(signer).depositForMint(depositAmount, account);
   }
   async function batchRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
     toast.loading("Depositing 3X...");
-    return threeXBatch.depositForRedeem(depositAmount);
+    return threeXBatch.connect(signer).depositForRedeem(depositAmount);
   }
   function handleMintSuccess(res) {
-    onContractSuccess(res, `${threeXPageState.tokens[threeXPageState.selectedToken.input].name} deposited!`, () => {
+    onContractSuccess(res, `${threeXPageState.selectedToken.input.name} deposited!`, () => {
       toggleModal(
         ModalType.MultiChoice,
         {
@@ -308,26 +351,28 @@ export default function ThreeX(): JSX.Element {
     });
   }
 
-  async function claim(batchId: string, useZap?: boolean, outputToken?: BatchProcessTokenKey): Promise<void> {
+  async function claim(batchId: string, useZap?: boolean, outputToken?: Token): Promise<void> {
     toast.loading("Claiming Batch...");
     let call;
     if (useZap) {
-      call = threeXZapper.claimAndSwapToStable(
+      call = threeXZapper.connect(signer).claimAndSwapToStable(
         batchId,
-        TOKEN_INDEX.usdc,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(
-          threeXData?.accountBatches
-            .find((batch) => batch.batchId === batchId)
-            .accountClaimableTokenBalance.mul(threeXData?.tokens?.usdc.price)
-            .div(threeXData?.tokens[outputToken].price),
-          outputToken,
+        getIndexForToken(usdc),
+        getIndexForToken(outputToken),
+        (
+          await adjustDepositDecimals(
+            threeXData?.accountBatches
+              .find((batch) => batch.batchId === batchId)
+              .accountClaimableTokenBalance.mul(usdc.price)
+              .div(outputToken.price),
+            outputToken,
+          )
         )
           .mul(100 - threeXPageState.slippage)
           .div(100),
       );
     } else {
-      call = threeXBatch.claim(batchId, account);
+      call = threeXBatch.connect(signer).claim(batchId, account);
     }
     await call
       .then((res) =>
@@ -350,7 +395,7 @@ export default function ThreeX(): JSX.Element {
                           params: {
                             type: "ERC20",
                             options: {
-                              address: threeX.address,
+                              address: threeXSetToken.address,
                               symbol: "3X",
                               decimals: 18,
                             },
@@ -393,17 +438,13 @@ export default function ThreeX(): JSX.Element {
   async function claimAndStake(batchId: string): Promise<void> {
     toast.loading("Claiming and staking 3X...");
     await threeXBatch
+      .connect(signer)
       .claimAndStake(batchId)
       .then((res) => onContractSuccess(res, `Staked claimed 3X`, () => refetchThreeXData()))
       .catch((err) => onContractError(err));
   }
 
-  async function handleWithdraw(
-    batchId: string,
-    amount: BigNumber,
-    useZap?: boolean,
-    outputToken?: BatchProcessTokenKey,
-  ) {
+  async function handleWithdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: Token) {
     withdraw(batchId, amount, useZap, outputToken)
       .then((res) =>
         onContractSuccess(res, "Funds withdrawn!", () => {
@@ -413,19 +454,19 @@ export default function ThreeX(): JSX.Element {
       .catch((err) => onContractError(err));
   }
 
-  async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: BatchProcessTokenKey) {
+  async function withdraw(batchId: string, amount: BigNumber, useZap?: boolean, outputToken?: Token) {
     if (useZap) {
-      return threeXZapper.zapOutOfBatch(
-        batchId,
-        amount,
-        TOKEN_INDEX.usdc,
-        TOKEN_INDEX[outputToken],
-        adjustDepositDecimals(amount, outputToken)
-          .mul(100 - threeXPageState.slippage)
-          .div(100),
-      );
+      return threeXZapper
+        .connect(signer)
+        .zapOutOfBatch(
+          batchId,
+          amount,
+          getIndexForToken(usdc),
+          getIndexForToken(outputToken),
+          (await adjustDepositDecimals(amount, outputToken)).mul(100 - threeXPageState.slippage).div(100),
+        );
     } else {
-      return threeXBatch["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account);
+      return threeXBatch.connect(signer)["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account);
     }
   }
 
@@ -439,16 +480,12 @@ export default function ThreeX(): JSX.Element {
     }
   }
 
-  async function approve(contractKey: string): Promise<void> {
+  async function approve(token: Token): Promise<void> {
     toast.loading("Approving Token...");
-    const selectedTokenContract = threeXPageState?.tokens[contractKey].contract;
-    await selectedTokenContract
+    await token.contract
+      .connect(signer)
       .approve(getCurrentlyActiveContract().address, ethers.constants.MaxUint256)
-      .then((res) =>
-        onContractSuccess(res, "Token approved!", () => {
-          refetchThreeXData();
-        }),
-      )
+      .then((res) => onContractSuccess(res, "Token approved!", refetchThreeXData))
       .catch((err) => onContractError(err));
   }
 
@@ -457,12 +494,8 @@ export default function ThreeX(): JSX.Element {
       return BigNumber.from("0");
     }
     return threeXPageState.redeeming
-      ? threeXData?.currentBatches.redeem.suppliedTokenBalance
-          .mul(threeXData?.tokens?.threeX.price)
-          .div(parseEther("1"))
-      : threeXData?.currentBatches.mint.suppliedTokenBalance
-          .mul(threeXData?.tokens?.usdc.price)
-          .div(BigNumber.from(1_000_000));
+      ? threeXData?.currentBatches.redeem.suppliedTokenBalance.mul(threeX?.price).div(parseEther("1"))
+      : threeXData?.currentBatches.mint.suppliedTokenBalance.mul(usdc?.price).div(BigNumber.from(1_000_000));
   }
 
   return (
@@ -474,7 +507,8 @@ export default function ThreeX(): JSX.Element {
             Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
           </p>
           <ButterStats
-            butterData={threeXData}
+            token={threeX}
+            totalSupply={threeXData?.totalSupply}
             addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]}
             isThreeX
           />
@@ -511,16 +545,41 @@ export default function ThreeX(): JSX.Element {
               </>
             ) : (
               <div className="md:pr-8 order-2 md:order-1">
-                {threeXData && threeXPageState.tokens && threeXPageState.selectedToken && (
+                {threeXData && threeXPageState?.tokens && threeXPageState.selectedToken && (
                   <MintRedeemInterface
-                    token={threeXPageState?.tokens}
-                    selectToken={selectToken}
                     mainAction={handleMainAction}
                     approve={approve}
-                    depositDisabled={isDepositDisabled(threeXData, threeXPageState)}
+                    options={threeXPageState?.tokens}
+                    selectedToken={threeXPageState.selectedToken}
+                    selectToken={selectToken}
+                    depositDisabled={isDepositDisabled(
+                      threeXData.totalSupply,
+                      threeX,
+                      threeXPageState.selectedToken,
+                      threeXPageState.redeeming,
+                      threeXPageState.depositAmount,
+                      threeXPageState.useUnclaimedDeposits,
+                      true,
+                    )}
+                    page={Pages.threeX}
+                    instant={threeXPageState.instant}
+                    setInstant={(val) => setThreeXPageState((prevState) => ({ ...prevState, instant: val }))}
+                    depositAmount={threeXPageState.depositAmount}
+                    setDepositAmount={(val) =>
+                      setThreeXPageState((prevState) => ({ ...prevState, depositAmount: val }))
+                    }
+                    showSlippageAdjust={
+                      threeXPageState.instant || (threeXPageState.redeeming && threeXPageState.useZap)
+                    }
+                    slippage={threeXPageState.slippage}
+                    setSlippage={(val) => setThreeXPageState((prevState) => ({ ...prevState, slippage: val }))}
+                    withdrawMode={threeXPageState.redeeming}
+                    setWithdrawMode={(val) => setThreeXPageState((prevState) => ({ ...prevState, redeeming: val }))}
                     hasUnclaimedBalances={hasClaimableBalances()}
-                    butterPageState={[threeXPageState, setThreeXPageState]}
-                    isThreeXPage
+                    useUnclaimedDeposits={threeXPageState.useUnclaimedDeposits}
+                    setUseUnclaimedDeposits={(val) =>
+                      setThreeXPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
+                    }
                   />
                 )}
               </div>
@@ -549,11 +608,7 @@ export default function ThreeX(): JSX.Element {
             <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
               <StatInfoCard
                 title="3X Value"
-                content={`${
-                  threeXData?.tokens?.threeX
-                    ? formatAndRoundBigNumber(threeXData?.tokens?.threeX?.price, threeXData?.tokens?.threeX?.decimals)
-                    : "-"
-                }`}
+                content={`${threeX ? formatAndRoundBigNumber(threeX?.price, threeX?.decimals) : "-"}`}
                 icon={"3X"}
                 info={{
                   title: "Underlying Tokens",
@@ -576,20 +631,24 @@ export default function ThreeX(): JSX.Element {
           <div className="w-full pb-12 mx-auto mt-10">
             <div className="md:overflow-x-hidden md:max-h-108">
               <ClaimableBatches
+                options={[
+                  usdc,
+                  threeXPageState?.tokens?.find((token) => token.address === contractAddresses.dai),
+                  threeXPageState?.tokens?.find((token) => token.address === contractAddresses.usdt),
+                ]}
+                slippage={threeXPageState.slippage}
+                setSlippage={(val) => setThreeXPageState((prevState) => ({ ...prevState, slippage: val }))}
                 batches={threeXData?.accountBatches}
                 claim={claim}
                 claimAndStake={claimAndStake}
                 withdraw={handleWithdraw}
-                butterPageState={[threeXPageState, setThreeXPageState]}
                 isThreeX
               />
             </div>
           </div>
         </div>
       </div>
-      <div className="py-6 hidden md:block">
-        <img src="/images/nature.png" alt="" className="rounded-lg w-full object-cover" />
-      </div>
+      {/* <FooterLandScapeImage/> */}
 
       <Transition.Root show={showMobileTutorial} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 overflow-hidden z-40" onClose={() => toggleMobileTutorial(false)}>
@@ -617,19 +676,20 @@ export async function instantMint(
   threeXWhale: ThreeXWhaleProcessing,
   depositAmount: BigNumber,
   threeXPageState: ButterPageState,
-  threeXData: BatchMetadata,
+  threeXPrice: BigNumber,
   stakeImmidiate: boolean,
+  signer: string | ethers.providers.Provider | ethers.Signer,
 ): Promise<ethers.ContractTransaction> {
   toast.loading("Minting 3X...");
-  return threeXWhale["mint(uint256,int128,int128,uint256,bool)"](
+  return threeXWhale.connect(signer)["mint(uint256,int128,int128,uint256,bool)"](
     depositAmount,
-    TOKEN_INDEX[threeXPageState.selectedToken.input],
-    TOKEN_INDEX.usdc,
-    getMinMintAmount(
+    getIndexForToken(threeXPageState.selectedToken.input),
+    1, // TokenIndex USDC
+    getMinZapAmount(
       depositAmount,
       threeXPageState.slippage,
-      threeXData.tokens.threeX.price,
-      threeXPageState.selectedToken.input === "dai" ? 18 : 6,
+      threeXPrice,
+      await threeXPageState.selectedToken.input.contract.decimals(),
       18,
     ),
     stakeImmidiate,
@@ -640,13 +700,13 @@ export async function instantRedeem(
   threeXWhale: ThreeXWhaleProcessing,
   depositAmount: BigNumber,
   threeXPageState: ButterPageState,
-  threeXData: BatchMetadata,
+  signer: string | ethers.providers.Provider | ethers.Signer,
 ): Promise<ethers.ContractTransaction> {
   toast.loading("Depositing 3X...");
-  return threeXWhale["redeem(uint256,int128,int128,uint256)"](
+  return threeXWhale.connect(signer)["redeem(uint256,int128,int128,uint256)"](
     depositAmount,
-    TOKEN_INDEX.usdc,
-    TOKEN_INDEX[threeXPageState.selectedToken.output],
+    1, // TokenIndex USDC
+    getIndexForToken(threeXPageState.selectedToken.output),
     0,
   );
 }

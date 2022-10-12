@@ -1,76 +1,111 @@
 import { ChevronDownIcon } from "@heroicons/react/outline";
-import { BatchProcessTokenKey, TokenMetadata, Tokens } from "@popcorn/utils/src/types";
-import { useState } from "react";
+import { Token } from "@popcorn/utils/types";
+import PopUpModal from "components/Modal/PopUpModal";
+import SingleActionModal from "components/Modal/SingleActionModal";
+import PLACEHOLDER_IMAGE_URL from "helper/placeholderImageUrl";
 import Image from "next/image";
+import { useState } from "react";
+import { SearchToken } from "./SearchToken";
 
-interface SelectTokenProps {
+export interface SelectTokenProps {
   allowSelection: boolean;
-  options: Tokens;
-  selectedToken: TokenMetadata;
-  notSelectable: string[];
-  selectToken?: (token: BatchProcessTokenKey) => void;
+  options: Token[];
+  selectedToken: Token;
+  selectToken?: (token: Token) => void;
 }
 
 export default function SelectToken({
   allowSelection,
   options,
   selectedToken,
-  notSelectable,
   selectToken,
 }: SelectTokenProps): JSX.Element {
-  const [showDropdown, setDropdown] = useState<boolean>(false);
+  const [showSelectTokenModal, setShowSelectTokenModal] = useState(false);
+  const [showPopUp, setShowPopUp] = useState<boolean>(false);
+
+  const openPopUp = () => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    if (mediaQuery.matches) {
+      setShowSelectTokenModal(true);
+    } else {
+      setShowPopUp(true);
+    }
+  };
 
   return (
-    <div className="relative w-auto justify-end" onMouseLeave={() => setDropdown(false)}>
-      <span
-        className={`flex flex-row items-center justify-end ${allowSelection ? "cursor-pointer group" : "mr-4"}`}
-        onClick={() => setDropdown(allowSelection ? !showDropdown : false)}
-      >
-        <div className="w-5 h-5 mr-2 relative">
-          <Image
-            src={`/images/tokens/${selectedToken?.img}`}
-            alt={selectedToken?.img}
-            layout="fill" // required
-            objectFit="contain"
-            priority={true}
-          />
-        </div>
-        <p className="font-medium text-lg leading-none text-black group-hover:text-primary">{selectedToken.name}</p>
-
-        {allowSelection && (
-          <>
-            <ChevronDownIcon
-              className={`w-10 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${showDropdown ? " rotate-180" : ""
-                }`}
+    <>
+      <div className="relative w-auto justify-end">
+        <span
+          className={`flex flex-row items-center justify-end ${allowSelection ? "cursor-pointer group" : ""}`}
+          onClick={() => {
+            allowSelection && openPopUp();
+          }}
+        >
+          <div className="w-5 h-5 md:mr-2 relative">
+            <Image
+              src={selectedToken?.icon || PLACEHOLDER_IMAGE_URL}
+              alt={selectedToken?.icon}
+              layout="fill" // required
+              objectFit="contain"
+              priority={true}
             />
-          </>
-        )}
-      </span>
-      <div className={`${showDropdown ? "block" : "hidden"} absolute z-20 flex flex-col w-full h-28 px-2 pt-2 pb-2 space-y-1 bg-white shadow-md rounded-b-md top-6`}>
-        {Object.keys(options)
-          .filter((key) => !notSelectable.includes(key))
-          .map((selectableToken) => (
-            <a
-              key={selectableToken}
-              className="cursor-pointer group h-full flex flex-row items-center hover:bg-gray-100 rounded-md"
-              onClick={() => {
-                selectToken && selectToken(options[selectableToken].key);
-                setDropdown(false);
-              }}
-            >
-              <div className="w-5 h-5 mx-2 relative">
-                <Image
-                  src={`/images/tokens/${options[selectableToken].img}`}
-                  alt={options[selectableToken].img}
-                  layout="fill" // required
-                  objectFit="contain"
-                  priority={true}
-                />
-              </div>
-              <p className="font-semibold group-hover:text-blue-700 mt-1.5">{options[selectableToken].name}</p>
-            </a>
-          ))}
+          </div>
+          <p className="font-medium text-lg leading-none hidden md:block text-black group-hover:text-primary">
+            {selectedToken?.symbol}
+          </p>
+
+          {allowSelection && (
+            <>
+              <ChevronDownIcon
+                className={`w-6 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${
+                  showPopUp || showSelectTokenModal ? " rotate-180" : ""
+                }`}
+              />
+            </>
+          )}
+        </span>
       </div>
-    </div>
+      <SingleActionModal
+        image={<Image src="/images/blackCircle.svg" width={88} height={88} />}
+        visible={showSelectTokenModal}
+        title="Select a token"
+        keepOpen={false}
+        content={
+          <div className="mt-8">
+            <SearchToken
+              options={options}
+              selectToken={(token) => {
+                selectToken(token);
+                setShowSelectTokenModal(false);
+              }}
+              selectedToken={selectedToken}
+            />
+          </div>
+        }
+        onDismiss={{
+          onClick: () => {
+            setShowSelectTokenModal(false);
+          },
+        }}
+      />
+      <div className="fixed z-100 left-0">
+        <PopUpModal
+          visible={showPopUp}
+          onClosePopUpModal={() => {
+            setShowPopUp(false);
+          }}
+        >
+          <p className="text-base text-black font-normal mb-2">Select a token</p>
+          <SearchToken
+            options={options}
+            selectToken={(token) => {
+              selectToken(token);
+              setShowSelectTokenModal(false);
+            }}
+            selectedToken={selectedToken}
+          />
+        </PopUpModal>
+      </div>
+    </>
   );
 }

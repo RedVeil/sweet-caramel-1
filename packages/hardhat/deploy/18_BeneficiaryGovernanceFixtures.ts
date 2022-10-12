@@ -374,7 +374,7 @@ main.dependencies = [
   "beneficiary-registry",
   "grant-elections",
 ];
-main.tags = ["core", "beneficiary-governance-demo-data"];
+main.tags = ["core", "beneficiary-governance-demo-data", "grants"];
 
 async function getActiveBeneficiaries(beneficiaryRegistry: BeneficiaryRegistry) {
   return (await beneficiaryRegistry.getBeneficiaryList()).filter(

@@ -1,7 +1,6 @@
-import { ERC20 } from "@popcorn/hardhat/typechain";
+import { ERC20, ERC20__factory } from "@popcorn/hardhat/typechain";
 import { constants } from "ethers/lib/ethers";
 import { getSanitizedTokenDisplayName } from "../../app/helper/displayHelper";
-import { ERC20__factory } from "../../hardhat/typechain/factories/ERC20__factory";
 import { getTokenMetadataOverride } from "./contractMetadataOverride";
 import { Token } from "./types";
 

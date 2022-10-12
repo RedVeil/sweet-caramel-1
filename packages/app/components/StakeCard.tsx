@@ -21,17 +21,19 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
       className="border-b border-b-customLightGray py-8 md:p-8 cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative"
       onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
     >
-      {badge && (
-        <div className="absolute -top-4 w-full">
-          <Badge badge={badge} />
-        </div>
-      )}
       <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center">
+        <div className="flex items-center">
           <TokenIcon token={getSanitizedTokenDisplayName(stakedToken?.name)} fullsize />
-          <h3 className="text-3xl md:text-4xl ml-2 font-normal leading-9">
-            {getSanitizedTokenDisplayName(stakedToken?.name)}
-          </h3>
+          <div className="flex flex-col md:flex-row md:items-center ml-2 md:ml-0">
+            <h3 className="text-3xl md:text-4xl md:ml-2 mb-2 md:mb-0 font-normal leading-9">
+              {getSanitizedTokenDisplayName(stakedToken?.name)}
+            </h3>
+            {badge && (
+              <div className="md:pl-2">
+                <Badge badge={badge} />
+              </div>
+            )}
+          </div>
         </div>
         <div className="hidden smmd:block">
           <MainActionButton
@@ -44,13 +46,20 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         <div className="w-1/2 md:w-1/4 mt-6 md:mt-0">
           <p className="text-primaryLight leading-6">vAPR</p>
           <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-            {stakingPool.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool.apy, stakedToken.decimals) + "%"}
+            {stakingPool.apy.lt(constants.Zero)
+              ? "New 🍿✨"
+              : formatAndRoundBigNumber(stakingPool.apy, stakedToken.decimals) + "%"}
           </p>
         </div>
         <div className="w-1/2 md:w-1/4 mt-6 md:mt-0">
           <p className="text-primaryLight leading-6">TVL</p>
           <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-            {tokenPrice ? `$ ${formatAndRoundBigNumber(stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther), stakedToken?.decimals)}` : "..."}
+            {tokenPrice
+              ? `$ ${formatAndRoundBigNumber(
+                  stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
+                  stakedToken?.decimals,
+                )}`
+              : "..."}
           </p>
         </div>
         <div className="w-full md:w-1/2 mt-6 md:mt-0">

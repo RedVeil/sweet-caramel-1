@@ -1,4 +1,4 @@
-import { ChainId, connectors } from "context/Web3/connectors";
+import { ChainId, connectors } from "context/Web3/connector";
 
 export default async function activateRPCNetwork(
   activate: (connector: any) => Promise<void>,

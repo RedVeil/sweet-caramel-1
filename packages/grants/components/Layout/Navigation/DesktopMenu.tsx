@@ -6,7 +6,7 @@ import { useWeb3React } from "@web3-react/core";
 import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
 import Button from "components/CommonComponents/Button";
 import ConnectWalletButtons from "components/CommonComponents/ConnectWalletButtons";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";

@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Faucet } from "../typechain/Faucet";
 import { parseEther } from "ethers/lib/utils";
 
 export const addContractToRegistry = async (
@@ -17,15 +16,21 @@ export const addContractToRegistry = async (
     signer
   );
 
-  const contract = await contractRegistry.getContract(ethers.utils.id(contractName));
+  const contract = await contractRegistry.getContract(ethers.utils.id(contractName)) as string
+  const deployedAddress = (
+    await deployments.get(contractName)
+  ).address
+
+  if (contract.toLowerCase() === deployedAddress.toLowerCase()) {
+    console.log(`Skip Adding ${contractName} to registry - Identical Address`)
+    return;
+  }
 
   console.log(`Adding contract ${contractName} to registry`);
   if (contract === ethers.constants.AddressZero) {
     await contractRegistry.addContract(
       ethers.utils.id(contractName),
-      (
-        await deployments.get(contractName)
-      ).address,
+      deployedAddress,
       ethers.utils.id("1"),
       { gasLimit: 1000000 }
     );
@@ -34,9 +39,7 @@ export const addContractToRegistry = async (
 
     const tx = await contractRegistry.updateContract(
       ethers.utils.id(contractName),
-      (
-        await deployments.get(contractName)
-      ).address,
+      deployedAddress,
       ethers.utils.id("2" + new Date().getTime().toString()),
       { gasLimit: 1000000 }
     );
@@ -48,7 +51,7 @@ export const addContractToRegistry = async (
 
 export const FaucetController = async (hre, signer) => {
   const initialize = await (() =>
-    async function (hre: HardhatRuntimeEnvironment, signer): Promise<Faucet> {
+    async function (hre: HardhatRuntimeEnvironment, signer) {
       const faucetAddress = (await hre.deployments.get("Faucet")).address;
       if ((await hre.ethers.provider.getBalance(faucetAddress)).lt(parseEther("100000"))) {
         await hre.network.provider.send("hardhat_setBalance", [

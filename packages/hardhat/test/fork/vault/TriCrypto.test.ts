@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Signer, BigNumber } from "ethers/lib/ethers";
+import { Signer } from "ethers/lib/ethers";
 import { parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
 
@@ -8,20 +8,19 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Zapper } from "../../../lib/adapters/Zapper";
 import { expectValue } from "../../../lib/utils/expectValue";
 import { impersonateSigner } from "../../../lib/utils/test";
-import { ERC20, ZeroXZapper } from "../../../typechain";
+import { ERC20, VaultsV1Zapper, } from "../../../typechain";
 import { accounts, Contracts, deployContracts } from "./forkTestHelper";
 
 const ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 const SETH_ADDRESS = "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb";
 const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
-const SETH_POOL = "0xc5424B857f758E906013F3555Dad202e4bdB4567";
 
 const TRI_CRYPTO_ASSET = "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff";
 const TRI_CRYPTO_POOL = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
 interface ZapperModuleContracts extends Contracts {
-  zeroXZapper?: ZeroXZapper;
+  zeroXZapper?: VaultsV1Zapper;
   seth?: ERC20;
   dai?: ERC20;
   usdt?: ERC20;
@@ -32,7 +31,7 @@ let contracts: ZapperModuleContracts;
 let zapper: Zapper;
 let dao: Signer;
 
-describe("Zapper Module Network Tests", function () {
+describe("Tri Crypto Zapper Test", function () {
   beforeEach(async function () {
     await network.provider.request({
       method: "hardhat_reset",
@@ -66,8 +65,8 @@ describe("Zapper Module Network Tests", function () {
     await contracts.faucet.sendTokens(USDT_ADDRESS, 10, owner.address);
     await contracts.faucet.sendCrv3CryptoLPTokens(10, owner.address);
 
-    const ZeroXZapper = await ethers.getContractFactory("ZeroXZapper");
-    contracts.zeroXZapper = await ZeroXZapper.deploy(contracts.contractRegistry.address);
+    const ZeroXZapper = await ethers.getContractFactory("VaultsV1Zapper");
+    contracts.zeroXZapper = await ZeroXZapper.deploy(contracts.contractRegistry.address) as VaultsV1Zapper
 
     dao = await impersonateSigner("0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f");
 
@@ -75,6 +74,13 @@ describe("Zapper Module Network Tests", function () {
     await aclRegistry.connect(dao).grantRole(await aclRegistry.APPROVED_CONTRACT_ROLE(), contracts.zeroXZapper.address);
 
     await contracts.zeroXZapper.connect(dao).updateVault(contracts.asset.address, contracts.vault.address);
+    await contracts.zeroXZapper
+      .connect(dao)
+      .updateZaps(
+        contracts.asset.address,
+        "0x5Ce9b49B7A1bE9f2c3DC2B2A5BaCEA56fa21FBeE",
+        "0xE03A338d5c305613AfC3877389DD3B0617233387"
+      );
 
     zapper = new Zapper(axios, contracts.zeroXZapper);
 

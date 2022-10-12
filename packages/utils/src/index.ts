@@ -1,6 +1,7 @@
 export {
   adjustDepositDecimals,
-  getMinMintAmount,
+  getIndexForToken,
+  getMinZapAmount,
   isButterSupportedOnCurrentNetwork,
   percentageToBps,
   prepareHotSwap,

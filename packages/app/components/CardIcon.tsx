@@ -24,7 +24,7 @@ export default function CardIcon({ icon }: CardIconProps): JSX.Element {
     case "Butter":
       return <img src="/images/icons/BTR.svg" alt="butter" className="w-18 h-18" />;
     case "3X":
-      return <img src="/images/tokens/threexBig.svg" alt="3x" className="w-18 h-18" />;
+      return <img src="/images/tokens/threexBig.svg" alt="3X" className="w-18 h-18" />;
     default:
       return (
         <div

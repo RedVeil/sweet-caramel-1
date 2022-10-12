@@ -1,20 +1,31 @@
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
+import { VaultStaking } from "packages/hardhat/typechain/VaultStaking";
 
 import { ADDRESS_ZERO } from "../../../lib/external/SetToken/utils/constants";
 import { getNamedAccountsByChainId } from "../../../lib/utils/getNamedAccounts";
 import { impersonateSigner } from "../../../lib/utils/test";
-import { ContractRegistry, ERC20, Faucet, MockERC20, RewardsEscrow, Staking, Vault } from "../../../typechain";
+import {
+  ACLRegistry,
+  ContractRegistry,
+  ERC20,
+  Faucet,
+  MockERC20,
+  RewardsEscrow,
+  Staking,
+  Vault,
+} from "../../../typechain";
 
 export interface Contracts {
   faucet: Faucet;
   asset: ERC20;
   vault: Vault;
   contractRegistry: ContractRegistry;
-  staking: Staking;
+  staking: VaultStaking;
 }
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
+const DAO_ADDRESS = "0x92a1cb552d0e177f3a135b4c87a4160c8f2a485f";
 
 export const accounts = getNamedAccountsByChainId(1);
 
@@ -42,13 +53,16 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
   const ERC20 = await ethers.getContractFactory("@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20");
   const asset = (await ERC20.attach(assetAddress)) as ERC20;
 
+  const aclRegistry = await ethers.getContractAt("ACLRegistry", accounts.aclRegistry);
   const contractRegistry = await ethers.getContractAt("ContractRegistry", accounts.contractRegistry);
 
   const Vault = await ethers.getContractFactory("Vault");
-  const vault = await Vault.deploy(
+  const vault = await (await Vault.deploy()).deployed();
+  await vault.initialize(
     assetAddress,
     accounts.yearnRegistry,
     accounts.contractRegistry,
+    ADDRESS_ZERO,
     ADDRESS_ZERO,
     {
       deposit: 0,
@@ -62,7 +76,6 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
       keeperPayout: 0,
     }
   );
-  await vault.deployed();
 
   const vaultFeeController = await (
     await (
@@ -77,19 +90,20 @@ export async function deployContracts(assetAddress: string): Promise<Contracts> 
       accounts.contractRegistry
     )
   ).deployed();
-
-  const Staking = await ethers.getContractFactory("Staking");
-  const mockPop = (await (await ethers.getContractFactory("MockERC20")).deploy("TestPOP", "TPOP", 18)) as MockERC20;
-  const rewardsEscrow = (await (
-    await (await ethers.getContractFactory("RewardsEscrow")).deploy(mockPop.address)
-  ).deployed()) as RewardsEscrow;
-  const staking = await Staking.deploy(mockPop.address, vault.address, rewardsEscrow.address);
-
-  const dao = await impersonateSigner("0x92a1cb552d0e177f3a135b4c87a4160c8f2a485f");
+  const dao = await impersonateSigner(DAO_ADDRESS);
 
   await contractRegistry
     .connect(dao)
     .addContract(ethers.utils.id("VaultFeeController"), vaultFeeController.address, ethers.utils.id("1"));
+
+  await aclRegistry.connect(dao).grantRole(ethers.utils.id("VaultsController"), DAO_ADDRESS);
+
+  const Staking = await ethers.getContractFactory("VaultStaking");
+  const staking = await (await Staking.deploy()).deployed();
+  await staking.initialize(vault.address, contractRegistry.address);
+  await staking.connect(dao).setVault(vault.address);
+  await vault.connect(dao).setStaking(staking.address);
+
   return {
     faucet,
     asset,

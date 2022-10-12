@@ -25,7 +25,7 @@ export function ElectionsProvider({ children }: ElectionsProviderProps): React.R
   async function getElectionMetadata(electionsContract: GrantElections) {
     setElections(
       await Promise.all(
-        [0, 1, 2].map(async (term) => await GrantElectionAdapter(electionsContract).getElectionMetadata(term)),
+        [0].map(async (term) => await GrantElectionAdapter(electionsContract).getElectionMetadata(term)),
       ),
     );
   }

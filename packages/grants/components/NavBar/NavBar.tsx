@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { connectors } from "../../context/Web3/connectors";
+import { connectors } from "../../context/Web3/connector";
 import { GrantsMenu } from "./GrantsMenu";
 import NavbarLink from "./NavbarLinks";
 import { ProposalsMenu } from "./ProposalsMenu";

@@ -11,12 +11,15 @@ const forge = {
     blocks: {
       "Vault.t.sol": 14837370,
       "VaultInitialization.t.sol": 15176500,
-      "ZeroXZapper.t.sol": 15414618,
+      "VaultsV1Zapper.t.sol": 15414618,
+      "ZeroXSwapZapIn.t.sol": 15521406,
+      "ZeroXSwapZapOut.t.sol": 15521406,
       "ThreeXWhaleProcessing.t.sol": 15008113,
       "ButterFeeConverter.t.sol": 15008113,
       "VaultsV1Registry.t.sol": 15008113,
       "VaultsV1Factory.t.sol": 15008113,
       "VaultsV1Controller.t.sol": 15008113,
+      "RewardsDistribution.t.sol": 15008113,
     },
     forkDirectory: "fork",
   },
@@ -53,7 +56,8 @@ export default task("forge:forge-test", "run forge tests").setAction(async (args
   for (let file of files) {
     let blockNumber = forge.fork.blocks[file];
     const shellCommand =
-      command + ` --fork-url ${rpcUrl} --fork-block-number ${blockNumber} --match-path test/forge/fork/${file} --no-match-contract 'Abstract|SimulateThreeXBatchSlippage'`;
+      command +
+      ` --fork-url ${rpcUrl} --fork-block-number ${blockNumber} --match-path test/forge/fork/${file} --no-match-contract 'Abstract|SimulateThreeXBatchSlippage'`;
     await executeCommand(shellCommand);
   }
 });

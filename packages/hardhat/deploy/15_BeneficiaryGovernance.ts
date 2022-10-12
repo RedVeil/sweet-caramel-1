@@ -28,17 +28,21 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await addContractToRegistry("BeneficiaryGovernance", deployments, signer, hre);
 
-  aclRegistry.grantRole(
+  let tx = await aclRegistry.grantRole(
     ethers.utils.id("BeneficiaryGovernance"),
     (await deployments.get("BeneficiaryGovernance")).address
   );
-  await participationReward.addControllerContract(
+  await tx.wait();
+
+  tx = await participationReward.addControllerContract(
     ethers.utils.id("BeneficiaryGovernance"),
     (
       await deployments.get("BeneficiaryGovernance")
     ).address
   );
+  await tx.wait();
+
 };
 export default main;
 main.dependencies = ["setup", "contract-registry", "acl-registry", "participation-reward"];
-main.tags = ["core", "beneficiary-governance"];
+main.tags = ["core", "beneficiary-governance", "grants"];

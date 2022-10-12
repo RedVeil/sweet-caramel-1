@@ -10,18 +10,6 @@ export default function web3Onboard(): void {
     wallets: [walletConnect(), injected(), gnosisModule(), CoinbaseWallet()],
     chains: [
       {
-        id: ChainIdHex.Ethereum,
-        token: "ETH",
-        label: "Ethereum Mainnet",
-        rpcUrl: RPC_URLS[ChainId.Ethereum],
-      },
-      {
-        id: ChainIdHex.Rinkeby,
-        token: "rETH",
-        label: "Ethereum Rinkeby Testnet",
-        rpcUrl: RPC_URLS[ChainId.Rinkeby],
-      },
-      {
         id: ChainIdHex.Arbitrum,
         token: "AETH",
         label: "Arbitrum One",
@@ -40,12 +28,6 @@ export default function web3Onboard(): void {
         rpcUrl: RPC_URLS[ChainId.Mumbai],
       },
       {
-        id: ChainIdHex.BNB,
-        token: "BNB",
-        label: "BNB",
-        rpcUrl: RPC_URLS[ChainId.BNB],
-      },
-      {
         id: ChainIdHex.Hardhat,
         token: "ETH",
         label: "Hardhat",
@@ -56,6 +38,12 @@ export default function web3Onboard(): void {
         token: "ETH",
         label: "Localhost",
         rpcUrl: RPC_URLS[ChainId.Localhost],
+      },
+      {
+        id: ChainIdHex.Goerli,
+        token: "GoerliETH",
+        label: "Goerli",
+        rpcUrl: RPC_URLS[ChainId.Goerli],
       },
     ],
     appMetadata: {

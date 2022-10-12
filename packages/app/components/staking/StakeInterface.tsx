@@ -9,6 +9,7 @@ import TokenIcon from "components/TokenIcon";
 import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber, constants } from "ethers";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
 
@@ -51,6 +52,7 @@ export default function StakeInterface({
 }: StakeInterfaceProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const [state, setState] = form;
+  const router = useRouter();
 
   const toggleInterface = () =>
     setState({
@@ -75,40 +77,43 @@ export default function StakeInterface({
         <div className="col-span-12 md:col-span-5">
           <TokenIcon token={stakingToken?.name} />
           <h1 className="text-black text-5xl md:text-6xl leading-12 mt-9">{stakingToken?.name}</h1>
-          <div className="flex flex-wrap md:flex-col">
-            <div className="flex justify-between md:justify-start">
-              <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
-                <StatusWithLabel
-                  content={
-                    stakingPool?.apy.lt(constants.Zero)
-                      ? "New 🍿✨"
-                      : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
-                  }
-                  label={
-                    <>
-                      <span className="lowercase">v</span>APR
-                    </>
-                  }
-                  green
-                  infoIconProps={{
-                    id: "vAPR",
-                    title: "vAPR",
-                    content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
-                  }}
-                />
-              </div>
-              <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
-                <StatusWithLabel
-                  content={
-                    stakingPool && stakedTokenPrice ? `$${formatAndRoundBigNumber(stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther), 18)}` : "..."
-                  }
-                  label="TVL"
-                />
-              </div>
-            </div>
-            <div className="mt-6 md:mt-8">
+          <div className="flex flex-wrap">
+            <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
               <StatusWithLabel
-                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"} POP / day`}
+                content={
+                  stakingPool?.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
+                }
+                label={
+                  <>
+                    <span className="lowercase">v</span>APR
+                  </>
+                }
+                green
+                infoIconProps={{
+                  id: "vAPR",
+                  title: "vAPR",
+                  content: "This is a variable annual percentage rate. 90% of POP rewards are vested over one year.",
+                }}
+              />
+            </div>
+            <div className="block mt-6 md:mt-8 pr-8 md:pr-6 md:pl-6 md:border-l md:border-customLightGray">
+              <StatusWithLabel
+                content={
+                  stakingPool && stakedTokenPrice
+                    ? `$${formatAndRoundBigNumber(
+                        stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
+                        18,
+                      )}`
+                    : "..."
+                }
+                label="TVL"
+              />
+            </div>
+            <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
+              <StatusWithLabel
+                content={`${
+                  stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
+                } POP / day`}
                 label="EMISSION RATE"
               />
             </div>
@@ -156,7 +161,7 @@ export default function StakeInterface({
         <div className="md:w-2/3 md:ml-8 order-1 md:order-2">
           <div className="w-full md:grid grid-cols-12 gap-8 hidden">
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
-              <div className="flex gap-6 items-center pb-6">
+              <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
                 <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
                 <div>
                   <div className="flex">
@@ -169,7 +174,10 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.userStake ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals) : "0"} {stakingToken?.symbol}
+                    {stakingPool.userStake
+                      ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
+                      : "0"}{" "}
+                    {stakingToken?.symbol}
                   </p>
                 </div>
               </div>
@@ -178,25 +186,25 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                  <Link
-                    href={getTokenOnNetwork(
-                      stakingPool.tokenAddress?.toLowerCase(),
-                      chainId,
-                      getChainRelevantContracts(chainId),
-                    )}
-                    passHref
-                  >
-                    <a target="_blank">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Get Token" />
-                      </div>
-                    </a>
-                  </Link>
-                )}
+                <Link
+                  href={getTokenOnNetwork(
+                    stakingPool.tokenAddress?.toLowerCase(),
+                    chainId,
+                    getChainRelevantContracts(chainId),
+                  )}
+                  passHref
+                >
+                  <a target="_blank">
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Get Token" />
+                    </div>
+                  </a>
+                </Link>
+              )}
             </div>
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
-              <div className="flex gap-6 items-center pb-6">
+              <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
                 <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
                 <div>
                   <div className="flex">
@@ -218,14 +226,14 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                  <Link href="/rewards" passHref>
-                    <a target="_blank">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Claim Page" />
-                      </div>
-                    </a>
-                  </Link>
-                )}
+                <Link href={`/${router?.query?.network}/rewards`} passHref>
+                  <a target="_self">
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Claim Page" />
+                    </div>
+                  </a>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -233,7 +241,7 @@ export default function StakeInterface({
             <MobileCardSlider>
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
-                  <div className="flex gap-6">
+                  <div className="flex gap-6 md:gap-0 md:space-x-6">
                     <TokenIcon token={stakingToken?.name} />
                     <div className="pb-6">
                       <div className="flex">
@@ -246,7 +254,10 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.userStake ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals) : "0"} {stakingToken?.symbol}
+                        {stakingPool.userStake
+                          ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
+                          : "0"}{" "}
+                        {stakingToken?.symbol}
                       </p>
                     </div>
                   </div>
@@ -255,27 +266,27 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                      <Link
-                        href={getTokenOnNetwork(
-                          stakingPool.tokenAddress?.toLowerCase(),
-                          chainId,
-                          getChainRelevantContracts(chainId),
-                        )}
-                        passHref
-                      >
-                        <a target="_blank">
-                          <div className="border-t border-customLightGray pt-2 px-1">
-                            <SecondaryActionButton label="Get Token" />
-                          </div>
-                        </a>
-                      </Link>
-                    )}
+                    <Link
+                      href={getTokenOnNetwork(
+                        stakingPool.tokenAddress?.toLowerCase(),
+                        chainId,
+                        getChainRelevantContracts(chainId),
+                      )}
+                      passHref
+                    >
+                      <a target="_blank">
+                        <div className="border-t border-customLightGray pt-2 px-1">
+                          <SecondaryActionButton label="Get Token" />
+                        </div>
+                      </a>
+                    </Link>
+                  )}
                 </div>
               </div>
 
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
-                  <div className="flex gap-6">
+                  <div className="flex gap-6 md:gap-0 md:space-x-6">
                     <TokenIcon token={stakingToken?.name} />
                     <div className="pb-6">
                       <div className="flex">
@@ -288,7 +299,8 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
+                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
+                        POP
                       </p>
                     </div>
                   </div>
@@ -297,23 +309,21 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                      <Link href="/rewards" passHref>
-                        <a target="_blank">
-                          <div className="border-t border-customLightGray pt-2 px-1">
-                            <SecondaryActionButton label="Claim Page" />
-                          </div>
-                        </a>
-                      </Link>
-                    )}
+                    <Link href={`/${router?.query?.network}/rewards`} passHref>
+                      <a target="_self">
+                        <div className="border-t border-customLightGray pt-2 px-1">
+                          <SecondaryActionButton label="Claim Page" />
+                        </div>
+                      </a>
+                    </Link>
+                  )}
                 </div>
               </div>
             </MobileCardSlider>
           </div>
 
           <div className="bg-customLightYellow rounded-lg p-8 hidden md:flex flex-col justify-between mt-8">
-            <h2 className=" text-6xl leading-11">
-              Blockchain-enabled <br /> wealth management and <br /> social impact.
-            </h2>
+            <h2 className=" text-6xl leading-11">{/* removed text for now - @am */}</h2>
             <div className="flex justify-end mt-28">
               <img src="/images/hands.svg" alt="" className=" h-28 w-28" />
             </div>
@@ -329,9 +339,7 @@ export default function StakeInterface({
           <img src="/images/hands.svg" alt="" className=" h-12 w-12" />
         </div>
       </div>
-      <div className="py-6 hidden md:block mt-10">
-        <img src="/images/nature.png" alt="" className=" rounded-lg w-full object-cover" />
-      </div>
+      {/* <FooterLandScapeImage/> */}
     </>
   );
 }

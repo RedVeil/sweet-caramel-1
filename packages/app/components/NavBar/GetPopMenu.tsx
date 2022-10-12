@@ -53,7 +53,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                         address: contractAddresses.pop,
                         symbol: "POP",
                         decimals: 18,
-                        image: "https://popcorn.network/images/icons/pop_64x64.png",
+                        image: "https://www.popcorn.network/images/icons/circle/circle_yellow_64x64.png",
                       },
                     },
                   })

@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/outline";
 import { useWeb3React } from "@web3-react/core";
 import Button from "components/CommonComponents/Button";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import Link from "next/link";
 import React from "react";
 

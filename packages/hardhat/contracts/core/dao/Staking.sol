@@ -1,7 +1,7 @@
 /// SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.10
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -13,11 +13,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../defi/vault/Vault.sol";
 
-import "../interfaces/IStakingRewards.sol";
+import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
+contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
   using SafeERC20 for IERC20;
 
   /* ========== STATE VARIABLES ========== */
@@ -82,6 +82,14 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
   function getRewardForDuration() external view override returns (uint256) {
     return rewardRate * rewardsDuration;
+  }
+
+  function balanceOf(address account) public view override(IStaking, ERC20) returns (uint256) {
+    return super.balanceOf(account);
+  }
+
+  function paused() public view override(IStaking, Pausable) returns (bool) {
+    return super.paused();
   }
 
   /* ========== MUTATIVE FUNCTIONS ========== */
@@ -215,6 +223,20 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
     vault = _vault;
   }
 
+  /**
+   * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function pauseContract() external onlyOwner {
+    _pause();
+  }
+
+  /**
+   * @notice Unpause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function unpauseContract() external onlyOwner {
+    _unpause();
+  }
+
   /* ========== ERC20 OVERRIDE ========== */
 
   error nonTransferable();
@@ -245,14 +267,6 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
   /* ========== EVENTS ========== */
 
-  event RewardAdded(uint256 reward);
-  event Staked(address indexed user, uint256 amount);
   event RewardsEscrowUpdated(address _previous, address _new);
-  event Withdrawn(address indexed user, uint256 amount);
-  event RewardPaid(address indexed user, uint256 reward);
-  event RewardsDurationUpdated(uint256 newDuration);
-  event EscrowDurationUpdated(uint256 _previousDuration, uint256 _newDuration);
   event Recovered(address token, uint256 amount);
-  event RewardDistributorUpdated(address indexed distributor, bool approved);
-  event VaultUpdated(address oldVault, address newVault);
 }

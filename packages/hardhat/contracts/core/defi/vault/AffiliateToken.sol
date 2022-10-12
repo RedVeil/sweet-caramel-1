@@ -2,15 +2,16 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { ERC20Upgradeable } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { VaultAPI, BaseWrapper } from "../../../externals/yearn/BaseWrapper.sol";
 
-contract AffiliateToken is ERC20, BaseWrapper {
+contract AffiliateToken is ERC20Upgradeable, BaseWrapper {
   /// @notice The EIP-712 typehash for the contract's domain
   bytes32 public constant DOMAIN_TYPEHASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-  bytes32 public immutable DOMAIN_SEPARATOR;
+  bytes32 public DOMAIN_SEPARATOR;
 
   /// @notice The EIP-712 typehash for the permit struct used by the contract
   bytes32 public constant PERMIT_TYPEHASH =
@@ -30,17 +31,20 @@ contract AffiliateToken is ERC20, BaseWrapper {
     _;
   }
 
-  constructor(
+  function __AffiliateToken_init(
     address _token,
     address _registry,
     string memory name,
     string memory symbol
-  ) BaseWrapper(_token, _registry) ERC20(name, symbol) {
+  ) internal onlyInitializing {
+    __ERC20_init(name, symbol);
+    __BaseWrapper_init(_token, _registry);
+
     DOMAIN_SEPARATOR = keccak256(
       abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), keccak256(bytes("1")), _getChainId(), address(this))
     );
     affiliate = msg.sender;
-    __decimals = uint8(ERC20(address(token)).decimals());
+    __decimals = uint8(ERC20Upgradeable(address(token)).decimals());
   }
 
   function decimals() public view override returns (uint8) {

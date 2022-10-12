@@ -14,7 +14,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         await deployments.get("XPop")
       ).address,
       signer,
-      hre.config.namedAccounts.deployer as string,
+      await signer.getAddress(),
       hre
     );
     await mintPOP(

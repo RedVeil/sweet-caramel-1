@@ -32,7 +32,7 @@ async function createDemoSweetVaults(hre: HardhatRuntimeEnvironment, signer, add
     );
     const underlyingToken = await hre.ethers.getContractAt("MockERC20", poolInfo.inputToken, signer);
     await underlyingToken.approve(vault.address, parseEther("10"));
-    await vault["deposit(uint256)"](parseEther("10"));
+    await vault.depositAndStake(parseEther("10"));
     console.log(await (await underlyingToken.balanceOf(addresses.deployer)).toString());
   };
 
