@@ -3,7 +3,7 @@ import { ERC20__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 import { parseEther } from "ethers/lib/utils";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect, useState } from "react";
 import useButterBatchData from "./set/useButterBatchData";
 import useThreeXData from "./set/useThreeXData";
 import usePopLocker from "./staking/usePopLocker";
@@ -20,9 +20,9 @@ function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumb
     : tokenAmount.mul(tokenPrice).div(constants.WeiPerEther);
 }
 
-export default function useNetWorth(): BigNumber {
-  const { account, contractAddresses } = useWeb3();
 
+export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumber } {
+  const { account, contractAddresses } = useWeb3();
   const { pop, butter, threeX, butterStaking, threeXStaking, popStaking } = useMemo(
     () => getChainRelevantContracts(ChainId.Ethereum),
     [],
@@ -94,13 +94,13 @@ export default function useNetWorth(): BigNumber {
     () =>
       mainnetEscrow
         ? getHoldingValue(
-            BigNumber.from("0")
-              .add(mainnetEscrow?.totalClaimablePop || "0")
-              .add(mainnetEscrow?.totalVestingPop || "0")
-              .add(mainnetVaultEscrow?.totalClaimablePop || "0")
-              .add(mainnetVaultEscrow?.totalVestingPop || "0"),
-            raisedPopPrice,
-          )
+          BigNumber.from("0")
+            .add(mainnetEscrow?.totalClaimablePop || "0")
+            .add(mainnetEscrow?.totalVestingPop || "0")
+            .add(mainnetVaultEscrow?.totalClaimablePop || "0")
+            .add(mainnetVaultEscrow?.totalVestingPop || "0"),
+          raisedPopPrice,
+        )
         : constants.Zero,
     [mainnetEscrow],
   );
@@ -108,13 +108,13 @@ export default function useNetWorth(): BigNumber {
     () =>
       polygonEscrow
         ? getHoldingValue(
-            BigNumber.from("0")
-              .add(polygonEscrow?.totalClaimablePop || "0")
-              .add(polygonEscrow?.totalVestingPop || "0")
-              .add(polygonVaultEscrow?.totalClaimablePop || "0")
-              .add(polygonVaultEscrow?.totalVestingPop || "0"),
-            raisedPopPrice,
-          )
+          BigNumber.from("0")
+            .add(polygonEscrow?.totalClaimablePop || "0")
+            .add(polygonEscrow?.totalVestingPop || "0")
+            .add(polygonVaultEscrow?.totalClaimablePop || "0")
+            .add(polygonVaultEscrow?.totalVestingPop || "0"),
+          raisedPopPrice,
+        )
         : constants.Zero,
     [polygonEscrow],
   );
@@ -122,13 +122,13 @@ export default function useNetWorth(): BigNumber {
     () =>
       bnbEscrow
         ? getHoldingValue(
-            BigNumber.from("0")
-              .add(bnbEscrow?.totalClaimablePop || "0")
-              .add(bnbEscrow?.totalVestingPop || "0")
-              .add(bnbVaultEscrow?.totalClaimablePop || "0")
-              .add(bnbVaultEscrow?.totalVestingPop || "0"),
-            raisedPopPrice,
-          )
+          BigNumber.from("0")
+            .add(bnbEscrow?.totalClaimablePop || "0")
+            .add(bnbEscrow?.totalVestingPop || "0")
+            .add(bnbVaultEscrow?.totalClaimablePop || "0")
+            .add(bnbVaultEscrow?.totalVestingPop || "0"),
+          raisedPopPrice,
+        )
         : constants.Zero,
     [bnbEscrow],
   );
@@ -136,13 +136,13 @@ export default function useNetWorth(): BigNumber {
     () =>
       arbitrumEscrow
         ? getHoldingValue(
-            BigNumber.from("0")
-              .add(arbitrumEscrow?.totalClaimablePop || "0")
-              .add(arbitrumEscrow?.totalVestingPop || "0")
-              .add(arbitrumVaultEscrow?.totalClaimablePop || "0")
-              .add(arbitrumVaultEscrow?.totalVestingPop || "0"),
-            raisedPopPrice,
-          )
+          BigNumber.from("0")
+            .add(arbitrumEscrow?.totalClaimablePop || "0")
+            .add(arbitrumEscrow?.totalVestingPop || "0")
+            .add(arbitrumVaultEscrow?.totalClaimablePop || "0")
+            .add(arbitrumVaultEscrow?.totalVestingPop || "0"),
+          raisedPopPrice,
+        )
         : constants.Zero,
     [arbitrumEscrow],
   );
@@ -177,22 +177,69 @@ export default function useNetWorth(): BigNumber {
     return getHoldingValue(usdc?.claimableBalance, usdc?.price);
   }, [threeXBatchData]);
 
-  return [
-    mainnetPopHoldings,
-    polygonPopHoldings,
-    bnbPopHoldings,
-    arbitrumPopHoldings,
-    mainnetPopStakingHoldings,
-    polygonPopStakingHoldings,
-    butterHoldings,
-    threeXHoldings,
-    butterStakingHoldings,
-    threeXStakingHoldings,
-    mainnetEscrowHoldings,
-    polygonEscrowHoldings,
-    bnbEscrowHoldings,
-    arbitrumEscrowHoldings,
-    butterRedeemBatchHoldings,
-    threeXRedeemBatchHoldings,
-  ].reduce((total, num) => total.add(num));
+  const calculateEthereumHoldings = (): BigNumber => {
+    return [
+      mainnetPopHoldings,
+      mainnetPopStakingHoldings,
+      butterHoldings,
+      threeXHoldings,
+      butterStakingHoldings,
+      threeXStakingHoldings,
+      mainnetEscrowHoldings,
+      butterRedeemBatchHoldings,
+      threeXRedeemBatchHoldings,
+    ].reduce((total, num) => total.add(num));
+  }
+
+  const calculatePolygonHoldings = (): BigNumber => {
+    return [
+      polygonPopHoldings,
+      polygonPopStakingHoldings,
+      polygonEscrowHoldings,
+    ].reduce((total, num) => total.add(num));
+  }
+
+  const calculateArbitrumHoldings = (): BigNumber => {
+    return [
+      arbitrumPopHoldings,
+      arbitrumEscrowHoldings,
+    ].reduce((total, num) => total.add(num));
+  }
+
+  const calculateBnbHoldings = (): BigNumber => {
+    return [
+      bnbPopHoldings,
+      bnbEscrowHoldings
+    ].reduce((total, num) => total.add(num));
+  }
+
+  const calculateTotalHoldings = () => {
+    return [
+      mainnetPopHoldings,
+      polygonPopHoldings,
+      bnbPopHoldings,
+      arbitrumPopHoldings,
+      mainnetPopStakingHoldings,
+      polygonPopStakingHoldings,
+      butterHoldings,
+      threeXHoldings,
+      butterStakingHoldings,
+      threeXStakingHoldings,
+      mainnetEscrowHoldings,
+      polygonEscrowHoldings,
+      bnbEscrowHoldings,
+      arbitrumEscrowHoldings,
+      butterRedeemBatchHoldings,
+      threeXRedeemBatchHoldings,
+    ].reduce((total, num) => total.add(num))
+  }
+
+
+  return {
+    [ChainId.Ethereum]: calculateEthereumHoldings(),
+    [ChainId.Polygon]: calculatePolygonHoldings(),
+    [ChainId.BNB]: calculateBnbHoldings(),
+    [ChainId.Arbitrum]: calculateArbitrumHoldings(),
+    totalNetWorth: calculateTotalHoldings(),
+  }
 }
