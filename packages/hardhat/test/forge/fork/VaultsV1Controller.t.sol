@@ -11,7 +11,6 @@ import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.s
 import "../../../contracts/core/defi/vault/VaultStaking.sol";
 import "../../../contracts/core/defi/vault/Vault.sol";
 import "../../../contracts/core/dao/RewardsEscrow.sol";
-import "../../../contracts/core/defi/vault/AffiliateToken.sol";
 import "../../../contracts/core/defi/vault/VaultsV1Controller.sol";
 import "../../../contracts/core/defi/zapper/VaultsV1Zapper.sol";
 import "../../../contracts/core/utils/KeeperIncentiveV2.sol";
@@ -1345,45 +1344,45 @@ contract VaultsV1ControllerTest is Test {
   }
 
   /* Setting vault registry */
-  function test__setVaultRegistryNotOwnerReverts() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true);
-    address registryBefore = address(AffiliateToken(Vault(vault)).registry());
-    address newRegistry = address(0x8888);
-    assertTrue(registryBefore != newRegistry);
-    assertEq(registryBefore, YEARN_REGISTRY);
-    vm.prank(notOwner);
-    vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.setVaultRegistry(vault, newRegistry);
-    // check no changes
-    address registryAfter = address(AffiliateToken(Vault(vault)).registry());
-    assertTrue(registryAfter != newRegistry);
-    assertEq(registryAfter, registryBefore);
-    assertEq(registryAfter, YEARN_REGISTRY);
-  }
+  // function test__setVaultRegistryNotOwnerReverts() public acceptOwnerships {
+  //   address vault = helper__deployThroughFactory(true);
+  //   address registryBefore = address(AffiliateToken(Vault(vault)).registry());
+  //   address newRegistry = address(0x8888);
+  //   assertTrue(registryBefore != newRegistry);
+  //   assertEq(registryBefore, YEARN_REGISTRY);
+  //   vm.prank(notOwner);
+  //   vm.expectRevert("Only the contract owner may perform this action");
+  //   vaultsV1Controller.setVaultRegistry(vault, newRegistry);
+  //   // check no changes
+  //   address registryAfter = address(AffiliateToken(Vault(vault)).registry());
+  //   assertTrue(registryAfter != newRegistry);
+  //   assertEq(registryAfter, registryBefore);
+  //   assertEq(registryAfter, YEARN_REGISTRY);
+  // }
 
-  function test__setVaultRegistry() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true);
-    address registryBefore = address(AffiliateToken(Vault(vault)).registry());
-    address newRegistry = address(0x8888);
-    assertTrue(registryBefore != newRegistry);
-    assertEq(registryBefore, YEARN_REGISTRY);
-    vaultsV1Controller.setVaultRegistry(vault, newRegistry);
-    address registryAfter = address(AffiliateToken(Vault(vault)).registry());
-    assertEq(registryAfter, newRegistry);
-    assertEq(registryAfter, address(0x8888));
-  }
+  // function test__setVaultRegistry() public acceptOwnerships {
+  //   address vault = helper__deployThroughFactory(true);
+  //   address registryBefore = address(AffiliateToken(Vault(vault)).registry());
+  //   address newRegistry = address(0x8888);
+  //   assertTrue(registryBefore != newRegistry);
+  //   assertEq(registryBefore, YEARN_REGISTRY);
+  //   vaultsV1Controller.setVaultRegistry(vault, newRegistry);
+  //   address registryAfter = address(AffiliateToken(Vault(vault)).registry());
+  //   assertEq(registryAfter, newRegistry);
+  //   assertEq(registryAfter, address(0x8888));
+  // }
 
-  function test__setVaultRegistryEvent() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true);
-    address registryBefore = address(AffiliateToken(Vault(vault)).registry());
-    address newRegistry = address(0x8888);
-    assertEq(registryBefore, YEARN_REGISTRY);
-    vm.expectEmit(false, false, false, true, vault);
-    emit RegistryUpdated(registryBefore, newRegistry);
-    vaultsV1Controller.setVaultRegistry(vault, newRegistry);
-    address registryAfter = address(AffiliateToken(Vault(vault)).registry());
-    assertEq(registryAfter, newRegistry);
-  }
+  // function test__setVaultRegistryEvent() public acceptOwnerships {
+  //   address vault = helper__deployThroughFactory(true);
+  //   address registryBefore = address(AffiliateToken(Vault(vault)).registry());
+  //   address newRegistry = address(0x8888);
+  //   assertEq(registryBefore, YEARN_REGISTRY);
+  //   vm.expectEmit(false, false, false, true, vault);
+  //   emit RegistryUpdated(registryBefore, newRegistry);
+  //   vaultsV1Controller.setVaultRegistry(vault, newRegistry);
+  //   address registryAfter = address(AffiliateToken(Vault(vault)).registry());
+  //   assertEq(registryAfter, newRegistry);
+  // }
 
   /* Pausing VaultsV1Registry registered vaults */
 

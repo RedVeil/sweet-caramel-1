@@ -4,22 +4,20 @@ pragma solidity ^0.8.0;
 
 import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
+import "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./AffiliateToken.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/ContractRegistryAccessUpgradeable.sol";
 import "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IEIP4626.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IVaultFeeController.sol";
-import "../../interfaces/IStaking.sol";
 import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IVaultsV1.sol";
 
 contract Vault is
   IEIP4626,
-  AffiliateToken,
   ReentrancyGuardUpgradeable,
   PausableUpgradeable,
   ACLAuth,
@@ -34,9 +32,6 @@ contract Vault is
     uint256 management;
     uint256 performance;
   }
-
-  address public staking;
-  address public zapper;
 
   bytes32 public contractName;
 
@@ -59,39 +54,27 @@ contract Vault is
   event PerformanceFee(uint256 amount);
   event ManagementFee(uint256 amount);
   event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
-  event StakingUpdated(address beforeAddress, address afterAddress);
-  event RegistryUpdated(address beforeAddress, address afterAddress);
   event UseLocalFees(bool useLocalFees);
-  event ZapperUpdated(address zapper, address _zapper);
   event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
 
   /* ========== CONSTRUCTOR ========== */
 
   function initialize(
     address token_,
-    address yearnRegistry_,
+    IERC4626 strategy_,
     IContractRegistry contractRegistry_,
-    address staking_,
-    address zapper_,
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
   ) external initializer {
     require(address(yearnRegistry_) != address(0), "Zero address");
 
-    __AffiliateToken_init(
+    __ERC4626Upgradeable_init(
       token_,
-      yearnRegistry_,
       string(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault")),
       string(abi.encodePacked("pop-", IERC20Metadata(token_).symbol()))
     );
     __ContractRegistryAccess_init(contractRegistry_);
 
-    if (staking_ != address(0)) {
-      staking = staking_;
-      _approve(address(this), staking_, type(uint256).max);
-    }
-
-    zapper = zapper_;
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
     contractName = keccak256(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault"));
@@ -101,28 +84,11 @@ contract Vault is
   /* ========== VIEWS ========== */
 
   /**
-   * @notice Returns amount of underlying `asset` token represented by 1 vault share.
-   * @return Price per vault share in underlying token.
-   * @dev Return value units are defined by underlying `asset` token.
-   */
-  function assetsPerShare() public view returns (uint256) {
-    return _shareValue(10**decimals());
-  }
-
-  /**
-   * @notice Underlying token managed by the vault.
-   * @return Address of the underlying token used by the vault for accounting, depositing, and withdrawing.
-   */
-  function asset() external view override returns (address) {
-    return address(token);
-  }
-
-  /**
    * @return Total amount of underlying `asset` token managed by vault.
    * @dev This function overrides the parent Yearn vault's `totalAssets` to return only assets managed by the vault
    *   wrapper, rather than the parent Yearn vault.
    */
-  function totalAssets() public view override(IEIP4626, BaseWrapper) returns (uint256) {
+  function totalAssets() public view override(IEIP4626) returns (uint256) {
     return totalVaultBalance(address(this));
   }
 
@@ -256,13 +222,7 @@ contract Vault is
   /**
    * @return Maximum amount of underlying `asset` token that may be deposited for a given address.
    */
-  function maxDeposit(address) public view override returns (uint256) {
-    VaultAPI _bestVault = bestVault();
-    uint256 _totalAssets = _bestVault.totalAssets();
-    uint256 _depositLimit = _bestVault.depositLimit();
-    if (_totalAssets >= _depositLimit) return 0;
-    return _depositLimit - _totalAssets;
-  }
+  function maxDeposit(address) public view override returns (uint256) {}
 
   /**
    * @return Maximum amount of vault shares that may be minted to given address.
@@ -327,26 +287,6 @@ contract Vault is
   }
 
   /**
-   * @notice Deposit exactly `assets` amount of tokens, issuing vault shares to caller and staking in the staking contract.
-   * @param assets Quantity of tokens to deposit.
-   * @return shares of the vault issued to `receiver`.
-   */
-  function depositAndStake(uint256 assets) external returns (uint256) {
-    return depositAndStakeFor(assets, msg.sender);
-  }
-
-  /**
-   * @notice Deposit exactly `assets` amount of tokens, issuing vault shares to `receiver` and staking in the staking contract.
-   * @param assets Quantity of tokens to deposit.
-   * @return shares of the vault issued to `receiver`.
-   */
-  function depositAndStakeFor(uint256 assets, address receiver) public returns (uint256 shares) {
-    require(staking != address(0), "staking is disabled");
-    shares = deposit(assets, address(this));
-    IStaking(staking).stakeFor(shares, receiver);
-  }
-
-  /**
    * @notice Mint exactly `shares` vault shares to `msg.sender`. Caller must approve a sufficient number of underlying
    *   `asset` tokens to mint the requested quantity of vault shares.
    * @param shares Quantity of shares to mint.
@@ -386,31 +326,6 @@ contract Vault is
     _mint(address(this), feeShares);
 
     emit Deposit(msg.sender, receiver, assets, shares);
-  }
-
-  /**
-   * @notice Mint exactly `shares` vault shares to `msg.sender` and sends to the staking contract.
-   * Caller must approve a sufficient number of underlying `asset` tokens to mint the
-   * requested quantity of vault shares.
-   * @param shares Quantity of shares to mint.
-   * @return assets of underlying that have been deposited.
-   */
-  function mintAndStake(uint256 shares) external returns (uint256) {
-    return mintAndStakeFor(shares, msg.sender);
-  }
-
-  /**
-   * @notice Mint exactly `shares` vault shares to `receiver` and sends to the staking contract.
-   * Caller must approve a sufficient number of underlying `asset` tokens to mint the
-   * requested quantity of vault shares.
-   * @param shares Quantity of shares to mint.
-   * @return assets of underlying that have been deposited.
-   */
-  function mintAndStakeFor(uint256 shares, address receiver) public returns (uint256 assets) {
-    require(staking != address(0), "staking is disabled");
-    assets = mint(shares, address(this));
-    IStaking(staking).stakeFor(shares, receiver);
-    return assets;
   }
 
   /**
@@ -477,7 +392,7 @@ contract Vault is
   ) public override nonReentrant takeFees returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
-    if (msg.sender != owner && msg.sender != zapper) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
+    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
     _transfer(owner, address(this), shares);
 
@@ -490,38 +405,6 @@ contract Vault is
     _withdraw(address(this), receiver, assets, true);
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
-  }
-
-  /**
-   * @notice Unstake `shares` from the corresponding staking contract and redeem them for `msg.sender`.
-   * Caller must approve a sufficient number of `shares` tokens to redeem the requested quantity.
-   * @param shares Quantity of shares to redeem.
-   * @return assets of underlying that have been withdrawn.
-   */
-  function unstakeAndRedeem(uint256 shares) external returns (uint256) {
-    return unstakeAndRedeemFor(shares, msg.sender, msg.sender);
-  }
-
-  /**
-   * @notice Unstake `shares` from the corresponding staking contract and redeem them for `msg.sender`.
-   * Caller must approve a sufficient number of `shares` tokens to redeem the requested quantity.
-   * @param shares Quantity of shares to redeem.
-   * @param receiver Receiver of underlying assets.
-   * @param owner Owner of burned vault shares.
-   * @return assets of underlying that have been withdrawn.
-   */
-  function unstakeAndRedeemFor(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) public returns (uint256 assets) {
-    require(staking != address(0), "staking is disabled");
-
-    IStaking(staking).withdrawFor(shares, owner, owner);
-
-    assets = redeem(shares, receiver, owner);
-
-    emit UnstakedAndWithdrawn(shares, owner, receiver);
   }
 
   /**
@@ -556,28 +439,6 @@ contract Vault is
   function setUseLocalFees(bool _useLocalFees) external onlyRole(VAULTS_CONTROLLER) {
     emit UseLocalFees(_useLocalFees);
     useLocalFees = _useLocalFees;
-  }
-
-  /**
-   * @notice Set staking contract for this vault. Caller must have VAULTS_CONTROLLER from ACLRegistry.
-   * @param _staking Address of the staking contract.
-   */
-  function setStaking(address _staking) external onlyRole(VAULTS_CONTROLLER) {
-    emit StakingUpdated(staking, _staking);
-
-    if (staking != address(0)) _approve(address(this), staking, 0);
-    staking = _staking;
-
-    if (_staking != address(0)) _approve(address(this), _staking, type(uint256).max);
-  }
-
-  /**
-   * @notice Sets the zapper contract which is allowed to unstake and withdraw for a user without addtitional approvals
-   * @param _zapper Address of the new zapper contract.
-   */
-  function setZapper(address _zapper) external onlyRole(VAULTS_CONTROLLER) {
-    emit ZapperUpdated(zapper, _zapper);
-    zapper = _zapper;
   }
 
   /**
