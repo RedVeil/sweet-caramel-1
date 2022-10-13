@@ -13,6 +13,7 @@ import NotificationsContainer from "components/Notifications/NotificationsContai
 import OfacCheck from "components/OfacCheck";
 import SoftLaunchCheck from "components/SoftLaunchCheck";
 import { FeatureToggleProvider } from "context/FeatureToggleContext";
+import { PortfolioContextProvider } from "context/PortfolioContext";
 import web3Onboard from "helper/web3Onboard";
 import Head from "next/head";
 import Router from "next/router";
@@ -102,18 +103,20 @@ export default function MyApp(props) {
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
         <Web3ReactProvider getLibrary={getLibrary}>
           <FeatureToggleProvider>
-            <SoftLaunchCheck loading={loading} />
-            <OfacCheck />
-            <MobileFullScreenModalContainer />
-            <SingleActionModalContainer />
-            <MultiChoiceActionModalContainer />
-            <DualActionModalContainer />
-            <DualActionWideModalContainer />
-            <NetworkChangePromptModalContainer />
-            {getLayout(<Component {...pageProps} />)}
-            <FeatureTogglePanel />
-            <NotificationsContainer />
-            <Debug />
+            <PortfolioContextProvider>
+              <SoftLaunchCheck loading={loading} />
+              <OfacCheck />
+              <MobileFullScreenModalContainer />
+              <SingleActionModalContainer />
+              <MultiChoiceActionModalContainer />
+              <DualActionModalContainer />
+              <DualActionWideModalContainer />
+              <NetworkChangePromptModalContainer />
+              {getLayout(<Component {...pageProps} />)}
+              <FeatureTogglePanel />
+              <NotificationsContainer />
+              <Debug />
+            </PortfolioContextProvider>
           </FeatureToggleProvider>
         </Web3ReactProvider>
       </StateProvider>

@@ -1,10 +1,17 @@
+import useNetWorth from "hooks/useNetWorth";
+import { formatUnits } from "ethers/lib/utils";
 import React from "react";
 
 const NetWorthCard = () => {
+  const formatter = Intl.NumberFormat("en", {
+    //@ts-ignore
+    notation: "compact",
+  });
+  const networth = useNetWorth()
   return (
     <div className="bg-warmGray rounded-lg p-6">
       <h6 className="font-medium">My Net Worth </h6>
-      <p className=" text-[40px] mt-6 font-light">$46,000.00</p>
+      <p className=" text-[40px] mt-6 font-light">${formatter.format(parseInt(formatUnits(networth.totalNetWorth)))}</p>
 
       <div className="flex text-white text-xs my-6">
         <div className="bg-customLightPurple py-6 px-4 w-2/4 rounded-tl-5xl rounded-bl-5xl">50%</div>
