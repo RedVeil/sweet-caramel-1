@@ -45,8 +45,13 @@ contract VaultInitalizationTest is Test {
 
   function setUp() public {
     asset = ERC20(CRV_ECRV);
-    yearnWrapper = new YearnWrapper(VaultAPI(YEARN_SETH_VAULT));
 
+    address yearnWrapperAddress = address(new YearnWrapper());
+    yearnWrapper = YearnWrapper(yearnWrapperAddress);
+    yearnWrapper.initialize(VaultAPI(YEARN_SETH_VAULT));
+
+    address vaultAddress = address(new Vault());
+    vault = Vault(vaultAddress);
     vault.initialize(
       asset,
       yearnWrapper,

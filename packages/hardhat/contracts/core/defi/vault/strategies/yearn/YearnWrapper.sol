@@ -2,6 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { VaultAPI } from "../../../../../externals/interfaces/yearn/IVaultAPI.sol";
@@ -9,14 +10,16 @@ import "../../../../interfaces/IERC4626.sol";
 import "../../../../interfaces/IYearnVaultWrapper.sol";
 
 // Needs to extract VaultAPI interface out of BaseStrategy to avoid collision
-contract YearnWrapper is ERC20, IYearnVaultWrapper, IERC4626 {
+contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
   VaultAPI public immutable yVault;
   address public immutable token;
   uint256 public immutable _decimals;
 
-  constructor(VaultAPI _vault)
-    ERC20(string(abi.encodePacked(_vault.name(), "4626adapter")), string(abi.encodePacked(_vault.symbol(), "4626")))
-  {
+  function initialize(VaultAPI _vault) external initializer {
+    __ERC20_init(
+      string(abi.encodePacked(_vault.name(), "4626adapter")),
+      string(abi.encodePacked(_vault.symbol(), "4626"))
+    );
     yVault = _vault;
     token = yVault.token();
     _decimals = uint8(_vault.decimals());

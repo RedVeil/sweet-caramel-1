@@ -76,10 +76,14 @@ contract VaultFuzzTest is Test {
 
   function setUp() public {
     asset = ERC20(CRV_3CRYPTO);
-    yearnWrapper = new YearnWrapper(VaultAPI(YEARN_VAULT));
+
+    address yearnWrapperAddress = address(new YearnWrapper());
+    yearnWrapper = YearnWrapper(yearnWrapperAddress);
+    yearnWrapper.initialize(VaultAPI(YEARN_VAULT));
 
     address vaultAddress = address(new Vault());
-    Vault(vaultAddress).initialize(
+    vault = Vault(vaultAddress);
+    vault.initialize(
       asset,
       yearnWrapper,
       IContractRegistry(CONTRACT_REGISTRY),
@@ -91,7 +95,6 @@ contract VaultFuzzTest is Test {
       }),
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
-    vault = Vault(vaultAddress);
 
     alice = new User(vault, asset);
     bob = new User(vault, asset);
