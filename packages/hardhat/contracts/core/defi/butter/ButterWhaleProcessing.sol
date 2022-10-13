@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
-import "../../../externals/interfaces/yearn/IYearnVault.sol";
+import "../../../externals/interfaces/yearn/IVault.sol";
 import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";

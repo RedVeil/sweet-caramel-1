@@ -196,22 +196,17 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    * @param _staking Address of the staking contract.
    */
   function setVaultStaking(address _vault, address _staking) external onlyOwner {
-    address oldStaking = IVaultsV1(_vault).staking();
-    if (oldStaking != address(0)) {
-      IStaking(oldStaking).setVault(address(0));
-      IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).removeAuthorizedContract(oldStaking);
-    }
-
-    if (_staking != address(0)) {
-      IStaking(_staking).setVault(_vault);
-      IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
-    }
-
-    IVaultsV1(_vault).setStaking(_staking);
-
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
 
     VaultMetadata memory vaultMetadata = vaultsV1Registry.getVault(_vault);
+
+    if (vaultMetadata.staking != address(0)) {
+      IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).removeAuthorizedContract(vaultMetadata.staking);
+    }
+
+    if (_staking != address(0)) {
+      IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
+    }
 
     vaultMetadata.staking = _staking;
 
@@ -228,8 +223,11 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   function setVaultZapper(address _vault, address _zapper) external onlyOwner {
     address asset = IVaultsV1(_vault).asset();
 
-    address oldZapper = IVaultsV1(_vault).zapper();
-    if (oldZapper != address(0)) IVaultsV1Zapper(oldZapper).removeVault(asset);
+    VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
+
+    VaultMetadata memory vaultMetadata = vaultsV1Registry.getVault(_vault);
+
+    if (vaultMetadata.vaultZapper != address(0)) IVaultsV1Zapper(vaultMetadata.vaultZapper).removeVault(asset);
 
     if (_zapper == address(0)) {
       IVaultsV1Zapper(_zapper).removeVault(asset);
@@ -237,24 +235,9 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
       IVaultsV1Zapper(_zapper).updateVault(asset, _vault);
     }
 
-    IVaultsV1(_vault).setZapper(_zapper);
-
-    VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
-
-    VaultMetadata memory vaultMetadata = vaultsV1Registry.getVault(_vault);
-
     vaultMetadata.vaultZapper = _zapper;
 
     vaultsV1Registry.updateVault(vaultMetadata);
-  }
-
-  /**
-   * @notice Used to update the yearn registry.
-   * @param _vault - address of the vault
-   * @param _registry The new _registry address.
-   */
-  function setVaultRegistry(address _vault, address _registry) external onlyOwner {
-    IVaultsV1(_vault).setRegistry(_registry);
   }
 
   /**
@@ -441,6 +424,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   function acceptRegistryFactoryOwnership() external onlyOwner {
     _vaultsV1Registry().acceptOwnership();
     _vaultsV1Factory().acceptOwnership();
+    _vaultStakingFactory().acceptOwnership();
   }
 
   /**
@@ -450,6 +434,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   function transferRegistryFactoryOwnership(address _newOwner) external onlyOwner {
     _vaultsV1Registry().nominateNewOwner(_newOwner);
     _vaultsV1Factory().nominateNewOwner(_newOwner);
+    _vaultStakingFactory().nominateNewOwner(_newOwner);
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */

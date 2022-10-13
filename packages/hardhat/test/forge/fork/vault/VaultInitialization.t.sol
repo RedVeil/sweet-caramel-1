@@ -2,13 +2,15 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Test } from "forge-std/Test.sol";
 import "forge-std/console.sol";
-import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.sol";
-import "../../../contracts/core/defi/vault/Vault.sol";
-import "../../../contracts/core/defi/vault/VaultFeeController.sol";
-import "../../../contracts/core/interfaces/IContractRegistry.sol";
-import "../../../contracts/core/interfaces/IACLRegistry.sol";
+import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
+import "../../../../contracts/core/defi/vault/Vault.sol";
+import "../../../../contracts/core/defi/vault/VaultFeeController.sol";
+import "../../../../contracts/core/interfaces/IContractRegistry.sol";
+import "../../../../contracts/core/interfaces/IACLRegistry.sol";
+import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
 
 address constant CRV_ECRV = 0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c;
 address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
@@ -25,11 +27,12 @@ interface IYearnSethVault is IERC20 {
 
 /// @dev Block number 15176500
 contract VaultInitalizationTest is Test {
-  IERC20 internal asset;
+  ERC20 internal asset;
   IYearnSethVault internal yearn;
 
   VaultFeeController internal feeController;
   Vault internal vault;
+  YearnWrapper internal yearnWrapper;
 
   uint256 constant DEPOSIT_FEE = 50 * 1e14;
   uint256 constant WITHDRAWAL_FEE = 50 * 1e14;
@@ -41,14 +44,13 @@ contract VaultInitalizationTest is Test {
   address constant deployer = address(44);
 
   function setUp() public {
-    asset = IERC20(CRV_ECRV);
-    vault = new Vault();
+    asset = ERC20(CRV_ECRV);
+    yearnWrapper = new YearnWrapper(VaultAPI(YEARN_SETH_VAULT));
+
     vault.initialize(
-      CRV_ECRV,
-      YEARN_REGISTRY,
+      asset,
+      yearnWrapper,
       IContractRegistry(CONTRACT_REGISTRY),
-      address(0),
-      address(0),
       Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,

@@ -2,24 +2,24 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-
-import "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
-import "../../../contracts/core/defi/vault/VaultStakingFactory.sol";
-import { VaultParams } from "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
-import "../../../contracts/core/defi/vault/VaultsV1Registry.sol";
-import { VaultMetadata } from "../../../contracts/core/defi/vault/VaultsV1Registry.sol";
-import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.sol";
-import "../../../contracts/core/defi/vault/VaultStaking.sol";
-import "../../../contracts/core/defi/vault/Vault.sol";
-import "../../../contracts/core/dao/RewardsEscrow.sol";
-import "../../../contracts/core/defi/vault/VaultsV1Controller.sol";
-import "../../../contracts/core/defi/zapper/VaultsV1Zapper.sol";
-import "../../../contracts/core/utils/KeeperIncentiveV2.sol";
-import "../../../contracts/core/interfaces/IContractRegistry.sol";
-import "../../../contracts/core/interfaces/IACLRegistry.sol";
-import "../../../contracts/core/interfaces/IVaultsV1.sol";
-import "../../../contracts/core/interfaces/IVaultsV1Zapper.sol";
-import "../../../contracts/core/interfaces/IRewardsEscrow.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
+import "../../../../contracts/core/defi/vault/VaultStakingFactory.sol";
+import { VaultParams } from "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
+import "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
+import { VaultMetadata } from "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
+import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
+import "../../../../contracts/core/defi/vault/VaultStaking.sol";
+import "../../../../contracts/core/defi/vault/Vault.sol";
+import "../../../../contracts/core/dao/RewardsEscrow.sol";
+import "../../../../contracts/core/defi/vault/VaultsV1Controller.sol";
+import "../../../../contracts/core/defi/zapper/VaultsV1Zapper.sol";
+import "../../../../contracts/core/utils/KeeperIncentiveV2.sol";
+import "../../../../contracts/core/interfaces/IContractRegistry.sol";
+import "../../../../contracts/core/interfaces/IACLRegistry.sol";
+import "../../../../contracts/core/interfaces/IVaultsV1.sol";
+import "../../../../contracts/core/interfaces/IVaultsV1Zapper.sol";
+import "../../../../contracts/core/interfaces/IRewardsEscrow.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
@@ -257,7 +257,7 @@ contract VaultsV1ControllerTest is Test {
     bool _endorsed
   ) public returns (address[] memory) {
     uint256 prevAmount = vaultsV1Registry.getTotalVaults();
-    vaultParams.asset = _asset;
+    vaultParams.asset = ERC20(_asset);
     address[] memory deployedVaults = new address[](_amount);
     for (uint256 i = 0; i < _amount; i++) {
       address deployedVault = vaultsV1Controller.deployVaultFromV1Factory(

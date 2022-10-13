@@ -9,7 +9,7 @@ import "../../../../interfaces/IERC4626.sol";
 import "../../../../interfaces/IYearnVaultWrapper.sol";
 
 // Needs to extract VaultAPI interface out of BaseStrategy to avoid collision
-contract VaultWrapper is ERC20, IYearnVaultWrapper, IERC4626 {
+contract YearnWrapper is ERC20, IYearnVaultWrapper, IERC4626 {
   VaultAPI public immutable yVault;
   address public immutable token;
   uint256 public immutable _decimals;

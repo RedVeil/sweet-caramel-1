@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/Test.sol";
-import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.sol";
-import "../../../contracts/core/defi/vault/Vault.sol";
-import "../../../contracts/core/defi/vault/VaultFeeController.sol";
-import "../../../contracts/core/interfaces/IContractRegistry.sol";
-import "../../../contracts/core/interfaces/IACLRegistry.sol";
-import "../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
+import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
+import "../../../../contracts/core/defi/vault/Vault.sol";
+import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
+import "../../../../contracts/core/defi/vault/VaultFeeController.sol";
+import "../../../../contracts/core/interfaces/IContractRegistry.sol";
+import "../../../../contracts/core/interfaces/IACLRegistry.sol";
+import "../../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
 
 contract User {
   Vault internal vault;
@@ -41,13 +43,15 @@ address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
+address constant YEARN_VAULT = 0xE537B5cc158EB71037D4125BDD7538421981E6AA;
 
 contract VaultFuzzTest is Test {
-  IERC20 internal asset;
+  ERC20 internal asset;
   User internal alice;
   User internal bob;
   VaultFeeController internal feeController;
   Vault internal vault;
+  YearnWrapper internal yearnWrapper;
 
   uint256 constant DEPOSIT_FEE = 50 * 1e14;
   uint256 constant WITHDRAWAL_FEE = 50 * 1e14;
@@ -71,14 +75,14 @@ contract VaultFuzzTest is Test {
   }
 
   function setUp() public {
-    asset = IERC20(CRV_3CRYPTO);
+    asset = ERC20(CRV_3CRYPTO);
+    yearnWrapper = new YearnWrapper(VaultAPI(YEARN_VAULT));
+
     address vaultAddress = address(new Vault());
     Vault(vaultAddress).initialize(
-      CRV_3CRYPTO,
-      YEARN_REGISTRY,
+      asset,
+      yearnWrapper,
       IContractRegistry(CONTRACT_REGISTRY),
-      address(0),
-      address(0),
       Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,
@@ -170,7 +174,7 @@ contract VaultFuzzTest is Test {
   }
 
   function _assert_preview_deposit_equals_actual_shares(uint256 depositAmount, uint256 vaultIncrease) internal {
-    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
+    asset.transfer(yearnWrapper.vault(), vaultIncrease);
 
     uint256 expectedShares = vault.previewDeposit(depositAmount);
     uint256 actualShares = alice.deposit(depositAmount);
@@ -206,7 +210,7 @@ contract VaultFuzzTest is Test {
     uint256 depositAmount,
     uint256 vaultIncrease
   ) internal {
-    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
+    asset.transfer(yearnWrapper.vault(), vaultIncrease);
 
     uint256 shares = alice.deposit(depositAmount);
     vm.warp(block.timestamp + timeJump);
@@ -256,7 +260,7 @@ contract VaultFuzzTest is Test {
   ) internal {
     uint256 prevAssetsPerShare = vault.convertToAssets(1 ether);
 
-    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
+    asset.transfer(yearnWrapper.vault(), vaultIncrease);
     alice.deposit(depositAmount);
 
     assertGe(vault.convertToAssets(1 ether), prevAssetsPerShare);
@@ -302,7 +306,7 @@ contract VaultFuzzTest is Test {
     uint256 prevHWM = vault.vaultShareHWM();
     uint256 prevAssets = vault.assetsCheckpoint();
 
-    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
+    asset.transfer(yearnWrapper.vault(), vaultIncrease);
     alice.deposit(depositAmount);
 
     assertGe(vault.vaultShareHWM(), prevHWM);
