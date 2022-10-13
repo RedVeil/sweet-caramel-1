@@ -11,8 +11,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "../defi/vault/Vault.sol";
-
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 
@@ -24,9 +22,6 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
   IERC20 public rewardsToken;
   IERC20 public stakingToken;
-
-  // Link a vault which is allowed to burn IOU for the user
-  address public vault;
 
   IRewardsEscrow public rewardsEscrow;
   uint256 public periodFinish = 0;
@@ -116,7 +111,7 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     address owner,
     address receiver
   ) external {
-    if (msg.sender != vault) _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
+    _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
     _withdraw(amount, owner, receiver);
   }
 
@@ -216,11 +211,6 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
   function setRewardsEscrow(address _rewardsEscrow) external onlyOwner {
     emit RewardsEscrowUpdated(address(rewardsEscrow), _rewardsEscrow);
     rewardsEscrow = IRewardsEscrow(_rewardsEscrow);
-  }
-
-  function setVault(address _vault) external onlyOwner {
-    emit VaultUpdated(vault, _vault);
-    vault = _vault;
   }
 
   /**

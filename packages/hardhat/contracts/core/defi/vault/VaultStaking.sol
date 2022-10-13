@@ -37,9 +37,6 @@ contract VaultStaking is
   IERC20 internal constant pop = IERC20(0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4);
   IERC20 public stakingToken;
 
-  // Link a vault which is allowed to burn IOU for the user
-  address public vault;
-
   uint256 public periodFinish = 0;
   uint256 public rewardRate = 0;
   uint256 public rewardsDuration = 7 days;
@@ -122,7 +119,7 @@ contract VaultStaking is
     address owner,
     address receiver
   ) external {
-    if (msg.sender != vault) _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
+    _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
     _withdraw(amount, owner, receiver);
   }
 
@@ -203,11 +200,6 @@ contract VaultStaking is
     );
     rewardsDuration = _rewardsDuration;
     emit RewardsDurationUpdated(rewardsDuration);
-  }
-
-  function setVault(address _vault) external onlyRole(VAULTS_CONTROLLER) {
-    emit VaultUpdated(vault, _vault);
-    vault = _vault;
   }
 
   /**
