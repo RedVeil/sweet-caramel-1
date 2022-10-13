@@ -39,9 +39,11 @@ contract VaultsV1ControllerTest is Test {
   event VaultTypeAdded(uint256 vaultTypes);
   event VaultStatusChanged(address vaultAddress, bool endorsed, bool enabled);
   /* VaultsV1Factory events */
-  event VaultV1Deployment(address vault, address vaultStaking);
+  event VaultV1Deployment(address vault);
   event VaultImplementationUpdated(address oldVaultImplementation, address newVaultImplementation);
-  event StakingImplementationUpdated(address oldStakingImplementation, address newStakingImplementation);
+  /* VaultStakingFactory events */
+  event VaultStakingDeployment(address staking);
+  event StakingImplementationUpdated(address oldVaultStakingImplementation, address newVaultStakingImplementation);
   /* Vault events */
   event Paused(address account);
   event Unpaused(address account);
@@ -1343,55 +1345,14 @@ contract VaultsV1ControllerTest is Test {
 
   function test__setFactoryStakingImplementation() public acceptOwnerships {
     vaultsV1Controller.setFactoryStakingImplementation(address(0x4444));
-    assertEq(vaultsV1Factory.stakingImplementation(), address(0x4444));
+    assertEq(vaultStakingFactory.stakingImplementation(), address(0x4444));
   }
 
   function test__setFactoryStakingImplementationEvent() public acceptOwnerships {
-    vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
     emit StakingImplementationUpdated(stakingImplementation, address(0x4444));
     vaultsV1Controller.setFactoryStakingImplementation(address(0x4444));
   }
-
-  /* Setting vault registry */
-  // function test__setVaultRegistryNotOwnerReverts() public acceptOwnerships {
-  //   address vault = helper__deployThroughFactory(true);
-  //   address registryBefore = address(AffiliateToken(Vault(vault)).registry());
-  //   address newRegistry = address(0x8888);
-  //   assertTrue(registryBefore != newRegistry);
-  //   assertEq(registryBefore, YEARN_REGISTRY);
-  //   vm.prank(notOwner);
-  //   vm.expectRevert("Only the contract owner may perform this action");
-  //   vaultsV1Controller.setVaultRegistry(vault, newRegistry);
-  //   // check no changes
-  //   address registryAfter = address(AffiliateToken(Vault(vault)).registry());
-  //   assertTrue(registryAfter != newRegistry);
-  //   assertEq(registryAfter, registryBefore);
-  //   assertEq(registryAfter, YEARN_REGISTRY);
-  // }
-
-  // function test__setVaultRegistry() public acceptOwnerships {
-  //   address vault = helper__deployThroughFactory(true);
-  //   address registryBefore = address(AffiliateToken(Vault(vault)).registry());
-  //   address newRegistry = address(0x8888);
-  //   assertTrue(registryBefore != newRegistry);
-  //   assertEq(registryBefore, YEARN_REGISTRY);
-  //   vaultsV1Controller.setVaultRegistry(vault, newRegistry);
-  //   address registryAfter = address(AffiliateToken(Vault(vault)).registry());
-  //   assertEq(registryAfter, newRegistry);
-  //   assertEq(registryAfter, address(0x8888));
-  // }
-
-  // function test__setVaultRegistryEvent() public acceptOwnerships {
-  //   address vault = helper__deployThroughFactory(true);
-  //   address registryBefore = address(AffiliateToken(Vault(vault)).registry());
-  //   address newRegistry = address(0x8888);
-  //   assertEq(registryBefore, YEARN_REGISTRY);
-  //   vm.expectEmit(false, false, false, true, vault);
-  //   emit RegistryUpdated(registryBefore, newRegistry);
-  //   vaultsV1Controller.setVaultRegistry(vault, newRegistry);
-  //   address registryAfter = address(AffiliateToken(Vault(vault)).registry());
-  //   assertEq(registryAfter, newRegistry);
-  // }
 
   /* Pausing VaultsV1Registry registered vaults */
 
@@ -1842,34 +1803,49 @@ contract VaultsV1ControllerTest is Test {
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsV1Controller.acceptRegistryFactoryOwnership();
+
     assertTrue(vaultsV1Registry.owner() != address(vaultsV1Controller));
     assertEq(vaultsV1Registry.owner(), address(this));
     assertEq(vaultsV1Registry.nominatedOwner(), address(vaultsV1Controller));
     assertTrue(vaultsV1Factory.owner() != address(vaultsV1Controller));
     assertEq(vaultsV1Factory.owner(), address(this));
     assertEq(vaultsV1Factory.nominatedOwner(), address(vaultsV1Controller));
+    assertTrue(vaultStakingFactory.owner() != address(vaultsV1Controller));
+    assertEq(vaultStakingFactory.owner(), address(this));
+    assertEq(vaultStakingFactory.nominatedOwner(), address(vaultsV1Controller));
   }
 
   function test__acceptRegistryFactoryOwnership() public {
     vaultsV1Factory.nominateNewOwner(address(vaultsV1Controller));
     vaultsV1Registry.nominateNewOwner(address(vaultsV1Controller));
+    vaultStakingFactory.nominateNewOwner(address(vaultsV1Controller));
+
     vaultsV1Controller.acceptRegistryFactoryOwnership();
+
     assertEq(vaultsV1Registry.owner(), address(vaultsV1Controller));
     assertEq(vaultsV1Registry.nominatedOwner(), address(0));
     assertEq(vaultsV1Factory.owner(), address(vaultsV1Controller));
     assertEq(vaultsV1Factory.nominatedOwner(), address(0));
+    assertEq(vaultStakingFactory.owner(), address(0));
+    assertEq(vaultStakingFactory.nominatedOwner(), address(vaultsV1Controller));
   }
 
   function test__acceptRegistryFactoryOwnershipEvents() public {
     vaultsV1Factory.nominateNewOwner(address(vaultsV1Controller));
     vaultsV1Registry.nominateNewOwner(address(vaultsV1Controller));
+    vaultStakingFactory.nominateNewOwner(address(vaultsV1Controller));
+
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
     emit OwnerChanged(address(this), address(vaultsV1Controller));
     emit OwnerChanged(address(this), address(vaultsV1Controller));
+    emit OwnerChanged(address(this), address(vaultsV1Controller));
+
     vaultsV1Controller.acceptRegistryFactoryOwnership();
     assertEq(vaultsV1Registry.owner(), address(vaultsV1Controller));
     assertEq(vaultsV1Factory.owner(), address(vaultsV1Controller));
+    assertEq(vaultStakingFactory.owner(), address(vaultsV1Controller));
   }
 
   /* Nominating new ownership of VaultsV1Registry and VaultsV1Factory */
@@ -1878,35 +1854,50 @@ contract VaultsV1ControllerTest is Test {
     address newOwner = address(0x8888);
     assertEq(vaultsV1Registry.nominatedOwner(), address(0));
     assertEq(vaultsV1Factory.nominatedOwner(), address(0));
+    assertEq(vaultStakingFactory.nominatedOwner(), address(0));
+
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsV1Controller.transferRegistryFactoryOwnership(newOwner);
+
     assertEq(vaultsV1Registry.nominatedOwner(), address(0));
     assertEq(vaultsV1Factory.nominatedOwner(), address(0));
+    assertEq(vaultStakingFactory.nominatedOwner(), address(0));
   }
 
   function test__transferRegistryFactoryOwnership() public acceptOwnerships {
     address newOwner = address(0x8888);
     assertEq(vaultsV1Registry.nominatedOwner(), address(0));
     assertEq(vaultsV1Factory.nominatedOwner(), address(0));
+    assertEq(vaultStakingFactory.nominatedOwner(), address(0));
+
     vaultsV1Controller.transferRegistryFactoryOwnership(newOwner);
     assertEq(vaultsV1Registry.nominatedOwner(), newOwner);
     assertEq(vaultsV1Registry.nominatedOwner(), address(0x8888));
     assertEq(vaultsV1Factory.nominatedOwner(), newOwner);
     assertEq(vaultsV1Factory.nominatedOwner(), address(0x8888));
+    assertEq(vaultStakingFactory.nominatedOwner(), newOwner);
+    assertEq(vaultStakingFactory.nominatedOwner(), address(0x8888));
   }
 
   function test__transferRegistryFactoryOwnershipEvent() public acceptOwnerships {
     address newOwner = address(0x8888);
     assertEq(vaultsV1Registry.nominatedOwner(), address(0));
     assertEq(vaultsV1Factory.nominatedOwner(), address(0));
+    assertEq(vaultStakingFactory.nominatedOwner(), address(0));
+
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
     emit OwnerNominated(newOwner);
     emit OwnerNominated(newOwner);
+    emit OwnerNominated(newOwner);
+
     vaultsV1Controller.transferRegistryFactoryOwnership(newOwner);
+
     assertEq(vaultsV1Registry.nominatedOwner(), newOwner);
     assertEq(vaultsV1Factory.nominatedOwner(), newOwner);
+    assertEq(vaultStakingFactory.nominatedOwner(), newOwner);
   }
 
   /* Setting Zaps on VaultsV1Zapper */
