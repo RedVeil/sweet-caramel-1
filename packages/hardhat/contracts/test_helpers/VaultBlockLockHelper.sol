@@ -3,9 +3,9 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../core/interfaces/IEIP4626.sol";
+import "../core/interfaces/IERC4626.sol";
 
-interface PopcornVault is IEIP4626, IERC20 {
+interface PopcornVault is IERC4626, IERC20 {
   function deposit(uint256 amount) external returns (uint256);
 
   function withdraw(uint256 amount) external returns (uint256);

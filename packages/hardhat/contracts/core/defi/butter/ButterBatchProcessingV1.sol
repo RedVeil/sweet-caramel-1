@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/KeeperIncentivizedV1.sol";
-import "../../../externals/interfaces/YearnVault.sol";
+import "../../../externals/interfaces/yearn/IYearnVault.sol";
 import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/CurveContracts.sol";
@@ -26,7 +26,7 @@ import "../../interfaces/IKeeperIncentiveV1.sol";
  * We batch this process and allow users to pool their funds. Then we pay a keeper to mint or redeem Butter regularly.
  */
 contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIncentivizedV1, ContractRegistryAccess {
-  using SafeERC20 for YearnVault;
+  using SafeERC20 for IVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
 
@@ -403,22 +403,22 @@ contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIn
       //Deposit crvLPToken to get yToken
       _sendToYearn(
         curvePoolTokenPairs[tokenAddresses[i]].crvLPToken.balanceOf(address(this)),
-        YearnVault(tokenAddresses[i])
+        IVault(tokenAddresses[i])
       );
 
       //Approve yToken for minting
-      YearnVault(tokenAddresses[i]).safeIncreaseAllowance(
+      IVault(tokenAddresses[i]).safeIncreaseAllowance(
         address(setBasicIssuanceModule),
-        YearnVault(tokenAddresses[i]).balanceOf(address(this))
+        IVault(tokenAddresses[i]).balanceOf(address(this))
       );
     }
     //Get the minimum amount of butter that we can mint with our balances of yToken
-    uint256 butterAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
+    uint256 butterAmount = (IVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
 
     for (uint256 i = 1; i < tokenAddresses.length; i++) {
       butterAmount = Math.min(
         butterAmount,
-        (YearnVault(tokenAddresses[i]).balanceOf(address(this)) * 1e18) / quantities[i]
+        (IVault(tokenAddresses[i]).balanceOf(address(this)) * 1e18) / quantities[i]
       );
     }
 
@@ -482,7 +482,7 @@ contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIn
 
     for (uint256 i; i < tokenAddresses.length; i++) {
       //Deposit yToken to receive crvLPToken
-      _withdrawFromYearn(YearnVault(tokenAddresses[i]).balanceOf(address(this)), YearnVault(tokenAddresses[i]));
+      _withdrawFromYearn(IVault(tokenAddresses[i]).balanceOf(address(this)), IVault(tokenAddresses[i]));
 
       uint256 crvLPTokenBalance = curvePoolTokenPairs[tokenAddresses[i]].crvLPToken.balanceOf(address(this));
 
@@ -520,7 +520,7 @@ contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIn
     for (uint256 i; i < tokenAddresses.length; i++) {
       IERC20 curveLpToken = curvePoolTokenPairs[tokenAddresses[i]].crvLPToken;
       CurveMetapool curveMetapool = curvePoolTokenPairs[tokenAddresses[i]].curveMetaPool;
-      YearnVault yearnVault = YearnVault(tokenAddresses[i]);
+      IVault yearnVault = IVault(tokenAddresses[i]);
 
       _maxApprove(curveLpToken, address(curveMetapool));
       _maxApprove(curveLpToken, address(yearnVault));
@@ -564,7 +564,7 @@ contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIn
     uint256 value;
     for (uint256 i = 0; i < _tokenAddresses.length; i++) {
       value +=
-        (((YearnVault(_tokenAddresses[i]).pricePerShare() *
+        (((IVault(_tokenAddresses[i]).pricePerShare() *
           curvePoolTokenPairs[_tokenAddresses[i]].curveMetaPool.get_virtual_price()) / 1e18) * _quantities[i]) /
         1e18;
     }
@@ -598,14 +598,14 @@ contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIn
     uint256 _threePoolPrice
   ) internal view returns (uint256 poolAllocation, uint256 ratio) {
     //Calculate the virtualPrice of one yToken
-    uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() *
+    uint256 componentValuePerShare = (IVault(_component).pricePerShare() *
       curvePoolTokenPairs[_component].curveMetaPool.get_virtual_price()) / 1e18;
 
     //Calculate the value of quantity (of yToken) in virtualPrice
     uint256 componentValuePerSet = (_quantity * componentValuePerShare) / 1e18;
 
     //Calculate the value of leftover yToken in virtualPrice
-    uint256 componentValueHeldByContract = (YearnVault(_component).balanceOf(address(this)) * componentValuePerShare) /
+    uint256 componentValueHeldByContract = (IVault(_component).balanceOf(address(this)) * componentValuePerShare) /
       1e18;
 
     ratio = (componentValuePerSet * 1e18) / _setValue;
@@ -772,7 +772,7 @@ contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIn
    * @param _amount The amount of crvLPToken that get deposited
    * @param _yearnVault The yearn Vault in which we deposit
    */
-  function _sendToYearn(uint256 _amount, YearnVault _yearnVault) internal {
+  function _sendToYearn(uint256 _amount, IVault _yearnVault) internal {
     //Mints yToken and sends them to msg.sender (this contract)
     _yearnVault.deposit(_amount);
   }
@@ -782,7 +782,7 @@ contract ButterBatchProcessingV1 is Pausable, ReentrancyGuard, ACLAuth, KeeperIn
    * @param _amount The amount of crvLPToken which we deposit
    * @param _yearnVault The yearn Vault in which we deposit
    */
-  function _withdrawFromYearn(uint256 _amount, YearnVault _yearnVault) internal {
+  function _withdrawFromYearn(uint256 _amount, IVault _yearnVault) internal {
     //Takes yToken and sends crvLPToken to this contract
     _yearnVault.withdraw(_amount);
   }

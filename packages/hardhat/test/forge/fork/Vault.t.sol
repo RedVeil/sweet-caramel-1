@@ -8,6 +8,7 @@ import "../../../contracts/core/defi/vault/Vault.sol";
 import "../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../contracts/core/interfaces/IContractRegistry.sol";
 import "../../../contracts/core/interfaces/IACLRegistry.sol";
+import "../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
 
 contract User {
   Vault internal vault;
@@ -130,21 +131,21 @@ contract VaultFuzzTest is Test {
     // First deposit
     alice.deposit(amount);
 
-    uint256 valueBefore = vault.assetsPerShare();
+    uint256 valueBefore = vault.convertToAssets(1 ether);
     alice.deposit(amount);
-    uint256 valueAfter = vault.assetsPerShare();
+    uint256 valueAfter = vault.convertToAssets(1 ether);
 
     assertWithin(valueAfter, valueBefore, tolerance);
 
-    valueBefore = vault.assetsPerShare();
+    valueBefore = vault.convertToAssets(1 ether);
     alice.deposit(amount);
-    valueAfter = vault.assetsPerShare();
+    valueAfter = vault.convertToAssets(1 ether);
 
     assertWithin(valueAfter, valueBefore, tolerance);
 
-    valueBefore = vault.assetsPerShare();
+    valueBefore = vault.convertToAssets(1 ether);
     alice.deposit(amount);
-    valueAfter = vault.assetsPerShare();
+    valueAfter = vault.convertToAssets(1 ether);
 
     assertWithin(valueAfter, valueBefore, tolerance);
   }
@@ -169,7 +170,7 @@ contract VaultFuzzTest is Test {
   }
 
   function _assert_preview_deposit_equals_actual_shares(uint256 depositAmount, uint256 vaultIncrease) internal {
-    asset.transfer(address(vault.allVaults()[0]), vaultIncrease);
+    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
 
     uint256 expectedShares = vault.previewDeposit(depositAmount);
     uint256 actualShares = alice.deposit(depositAmount);
@@ -205,7 +206,7 @@ contract VaultFuzzTest is Test {
     uint256 depositAmount,
     uint256 vaultIncrease
   ) internal {
-    asset.transfer(address(vault.allVaults()[0]), vaultIncrease);
+    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
 
     uint256 shares = alice.deposit(depositAmount);
     vm.warp(block.timestamp + timeJump);
@@ -253,12 +254,12 @@ contract VaultFuzzTest is Test {
     uint256 depositAmount,
     uint256 vaultIncrease
   ) internal {
-    uint256 prevAssetsPerShare = vault.assetsPerShare();
+    uint256 prevAssetsPerShare = vault.convertToAssets(1 ether);
 
-    asset.transfer(address(vault.allVaults()[0]), vaultIncrease);
+    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
     alice.deposit(depositAmount);
 
-    assertGe(vault.assetsPerShare(), prevAssetsPerShare);
+    assertGe(vault.convertToAssets(1 ether), prevAssetsPerShare);
 
     vm.warp(block.timestamp + timeJump);
   }
@@ -301,7 +302,7 @@ contract VaultFuzzTest is Test {
     uint256 prevHWM = vault.vaultShareHWM();
     uint256 prevAssets = vault.assetsCheckpoint();
 
-    asset.transfer(address(vault.allVaults()[0]), vaultIncrease);
+    asset.transfer(IYearnVaultWrapper(address(vault.strategy())).vault(), vaultIncrease);
     alice.deposit(depositAmount);
 
     assertGe(vault.vaultShareHWM(), prevHWM);

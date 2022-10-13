@@ -11,7 +11,7 @@ import { KeeperConfig } from "../../../contracts/core/utils/KeeperIncentivized.s
 import "../../../contracts/core/defi/vault/Vault.sol";
 import "../../../contracts/core/defi/vault/VaultsV1Controller.sol";
 import "../../../contracts/core/interfaces/IContractRegistry.sol";
-import "../../../contracts/core/interfaces/IEIP4626.sol";
+import "../../../contracts/core/interfaces/IERC4626.sol";
 import "../../../contracts/core/utils/KeeperIncentiveV2.sol";
 import "../../../contracts/core/dao/RewardsEscrow.sol";
 import "../../../contracts/core/interfaces/IRewardsEscrow.sol";
@@ -722,11 +722,11 @@ contract VaultsV1RegistryTest is Test {
     assertEq(_3CRVRegistryVaults.length, _3CRVVaults);
     for (uint256 i = 0; i < _3CRYPTOVaults; i++) {
       assertEq(_3CRYPTORegistryVaults[i], _3CRYPTOVaultAddresses[i]);
-      assertEq(IEIP4626(_3CRYPTORegistryVaults[i]).asset(), CRV_3CRYPTO);
+      assertEq(IERC4626(_3CRYPTORegistryVaults[i]).asset(), CRV_3CRYPTO);
     }
     for (uint256 i = 0; i < _3CRVVaults; i++) {
       assertEq(_3CRVRegistryVaults[i], _3CRVVaultAddresses[i]);
-      assertEq(IEIP4626(_3CRVRegistryVaults[i]).asset(), CRV_3CRV);
+      assertEq(IERC4626(_3CRVRegistryVaults[i]).asset(), CRV_3CRV);
     }
   }
 

@@ -4,20 +4,20 @@ pragma solidity ^0.8.0;
 
 import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
-import "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/ContractRegistryAccessUpgradeable.sol";
 import "../../utils/KeeperIncentivized.sol";
-import "../../interfaces/IEIP4626.sol";
+import "../../interfaces/IERC4626.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IVaultFeeController.sol";
 import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IVaultsV1.sol";
 
 contract Vault is
-  IEIP4626,
+  IERC4626,
+  ERC20Upgradeable,
   ReentrancyGuardUpgradeable,
   PausableUpgradeable,
   ACLAuth,
@@ -40,7 +40,8 @@ contract Vault is
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   /* ========== STATE VARIABLES ========== */
-
+  ERC20 internal asset;
+  IERC4626 public strategy;
   FeeStructure public feeStructure;
   bool public useLocalFees;
   uint256 public vaultShareHWM = 1e18;
@@ -57,48 +58,43 @@ contract Vault is
   event UseLocalFees(bool useLocalFees);
   event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
 
-  /* ========== CONSTRUCTOR ========== */
+  /* ========== INITIALIZE ========== */
 
   function initialize(
-    address token_,
+    ERC20 asset_,
     IERC4626 strategy_,
     IContractRegistry contractRegistry_,
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
   ) external initializer {
-    require(address(yearnRegistry_) != address(0), "Zero address");
-
-    __ERC4626Upgradeable_init(
-      token_,
-      string(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault")),
-      string(abi.encodePacked("pop-", IERC20Metadata(token_).symbol()))
+    __ERC20_init(
+      string(abi.encodePacked("Popcorn ", asset_.name(), " Vault")),
+      string(abi.encodePacked("pop-", asset_.symbol()))
     );
     __ContractRegistryAccess_init(contractRegistry_);
 
+    asset = asset_;
+    strategy = strategy_;
+
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
-    contractName = keccak256(abi.encodePacked("Popcorn ", IERC20Metadata(token_).name(), " Vault"));
+    contractName = keccak256(abi.encodePacked("Popcorn ", asset_.name(), " Vault"));
     keeperConfig = keeperConfig_;
   }
 
   /* ========== VIEWS ========== */
-
   /**
-   * @return Total amount of underlying `asset` token managed by vault.
-   * @dev This function overrides the parent Yearn vault's `totalAssets` to return only assets managed by the vault
-   *   wrapper, rather than the parent Yearn vault.
+   * @return Address of the underlying `asset` token managed by vault.
    */
-  function totalAssets() public view override(IEIP4626) returns (uint256) {
-    return totalVaultBalance(address(this));
+  function asset() external view override returns (address) {
+    return address(asset);
   }
 
   /**
-   * @notice Return vault balance of `owner` address, denominated in underlying `asset` token.
-   * @param owner Address of owner.
-   * @return Balance of `owner` address, denominated in underlying `asset` token.
+   * @return Total amount of underlying `asset` token managed by vault.
    */
-  function assetsOf(address owner) public view returns (uint256) {
-    return (balanceOf(owner) * assetsPerShare()) / 1e18;
+  function totalAssets() public view override(IERC4626) returns (uint256) {
+    return strategy.totalAssets();
   }
 
   /**
@@ -159,7 +155,7 @@ contract Vault is
 
     assets += (assets * withdrawalFee) / (1e18 - withdrawalFee);
 
-    shares = _convertToShares(assets + 10, accruedManagementFee() + accruedPerformanceFee());
+    shares = _convertToShares(assets, accruedManagementFee() + accruedPerformanceFee());
   }
 
   /**
@@ -172,7 +168,6 @@ contract Vault is
     assets = _convertToAssets(shares, accruedManagementFee() + accruedPerformanceFee());
 
     assets -= (assets * getWithdrawalFee()) / 1e18;
-    assets -= 10;
   }
 
   /* ========== VIEWS ( FEES ) ========== */
@@ -198,7 +193,7 @@ contract Vault is
    *   HWM in a fee period, issue fee shares to the vault equal to the performance fee.
    */
   function accruedPerformanceFee() public view returns (uint256) {
-    uint256 shareValue = assetsPerShare();
+    uint256 shareValue = _convertToAssets(1 ether, 0);
 
     if (shareValue > vaultShareHWM) {
       uint256 performanceFee = useLocalFees ? feeStructure.performance : _feeController().getPerformanceFee();
@@ -253,7 +248,7 @@ contract Vault is
    * @return Quantity of vault shares issued to caller.
    * @dev This overrides `deposit(uint256)` from the parent `AffiliateToken` contract. It therefore needs to be public since the `AffiliateToken` function is public
    */
-  function deposit(uint256 assets) public override returns (uint256) {
+  function deposit(uint256 assets) public returns (uint256) {
     return deposit(assets, msg.sender);
   }
 
@@ -277,7 +272,7 @@ contract Vault is
 
     shares = _convertToShares(assets, 0) - feeShares;
 
-    _deposit(msg.sender, address(this), assets, true);
+    strategy.deposit(assets, address(this));
 
     _mint(receiver, shares);
 
@@ -319,7 +314,7 @@ contract Vault is
 
     assets = _convertToAssets(shares + feeShares, 0);
 
-    _deposit(msg.sender, address(this), assets, true);
+    strategy.deposit(assets, address(this));
 
     _mint(receiver, shares);
 
@@ -334,7 +329,7 @@ contract Vault is
    * @return shares of vault burned in exchange for underlying `asset` tokens.
    * @dev This overrides `withdraw(uint256)` from the parent `AffiliateToken` contract.
    */
-  function withdraw(uint256 assets) public override returns (uint256) {
+  function withdraw(uint256 assets) public returns (uint256) {
     return withdraw(assets, msg.sender, msg.sender);
   }
 
@@ -364,7 +359,7 @@ contract Vault is
 
     _burn(address(this), shares);
 
-    _withdraw(address(this), receiver, assets, true);
+    strategy.withdraw(assets, receiver, owner);
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
   }
@@ -402,7 +397,7 @@ contract Vault is
 
     _burn(address(this), shares - feeShares);
 
-    _withdraw(address(this), receiver, assets, true);
+    strategy.withdraw(assets, receiver, owner);
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
   }
@@ -442,16 +437,6 @@ contract Vault is
   }
 
   /**
-   * @notice Used to update the yearn registry. Caller must have VAULTS_CONTROLLER from ACLRegistry.
-   * @param _registry The new _registry address.
-   */
-  function setRegistry(address _registry) external onlyRole(VAULTS_CONTROLLER) {
-    emit RegistryUpdated(address(registry), _registry);
-
-    _setRegistry(_registry);
-  }
-
-  /**
    * @notice Change keeper config. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
   function setKeeperConfig(KeeperConfig memory _config) external onlyRole(VAULTS_CONTROLLER) {
@@ -488,14 +473,14 @@ contract Vault is
 
     require(accruedFees >= minWithdrawalAmount, "insufficient withdrawal amount");
 
-    IERC20 assetToken = IERC20(IEIP4626(address(this)).asset());
+    IERC20 assetToken = IERC20(IERC4626(address(this)).asset());
 
     uint256 preBal = assetToken.balanceOf(address(this));
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 
     //TODO check this calculation
-    _withdraw(address(this), _feeController().feeRecipient(), (accruedFees * 1e18 - incentiveVig) / 1e18, true);
-    _withdraw(address(this), address(this), tipAmount, true);
+    strategy.withdraw((accruedFees * 1e18 - incentiveVig) / 1e18, _feeController().feeRecipient(), address(this));
+    strategy.withdraw(tipAmount, address(this), address(this));
 
     uint256 postBal = assetToken.balanceOf(address(this));
 
@@ -516,7 +501,7 @@ contract Vault is
   /* ========== INTERNAL FUNCTIONS ========== */
 
   function _convertToShares(uint256 assets, uint256 fees) internal view returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
+    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply() is non-zero.
     uint256 currentAssets = totalAssets();
     if (fees >= currentAssets && currentAssets != 0) {
       fees = currentAssets - 1;
@@ -532,7 +517,7 @@ contract Vault is
     if (fees >= currentAssets && currentAssets != 0) {
       fees = currentAssets - 1;
     }
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
+    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply() is non-zero.
     return supply == 0 ? shares : (shares * (currentAssets - fees)) / supply;
   }
 
@@ -562,7 +547,7 @@ contract Vault is
     uint256 managementFee = accruedManagementFee();
     uint256 totalFee = managementFee + accruedPerformanceFee();
     uint256 currentAssets = totalAssets();
-    uint256 shareValue = assetsPerShare();
+    uint256 shareValue = _convertToAssets(1 ether, 0);
 
     if (shareValue > vaultShareHWM) vaultShareHWM = shareValue;
 

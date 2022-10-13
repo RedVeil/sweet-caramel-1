@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IEIP4626 {
+interface IERC4626 {
   function asset() external view returns (address);
 
   function totalAssets() external view returns (uint256);

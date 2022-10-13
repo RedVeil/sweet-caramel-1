@@ -175,7 +175,7 @@ contract VaultInitalizationTest is Test {
 
     // Alice's vault shares are equal to her
     // deposit amount minus fees
-    assertEq(vault.assetsOf(address(alice)), 0.995000000000004151 ether);
+    assertEq(vault.convertToAssets(vault.balanceOf(address(alice))), 0.995000000000004151 ether);
   }
 
   function test_fuzz_initial_deposit_size(

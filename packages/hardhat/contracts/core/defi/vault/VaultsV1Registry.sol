@@ -2,7 +2,7 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "../../interfaces/IEIP4626.sol";
+import "../../interfaces/IERC4626.sol";
 import "../../utils/Owned.sol";
 
 struct VaultMetadata {
@@ -118,7 +118,7 @@ contract VaultsV1Registry is Owned {
     vaults[params.vaultAddress] = params;
 
     vaultAddresses.push(params.vaultAddress);
-    assetVaults[IEIP4626(params.vaultAddress).asset()].push(params.vaultAddress);
+    assetVaults[IERC4626(params.vaultAddress).asset()].push(params.vaultAddress);
     typeVaults[params.vaultType].push(params.vaultAddress);
 
     emit VaultAdded(params.vaultAddress, params.vaultType, params.enabled, params.metadataCID);

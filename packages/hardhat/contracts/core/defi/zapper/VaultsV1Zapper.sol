@@ -15,7 +15,7 @@ import "../../interfaces/IZapOut.sol";
 import "../../interfaces/IWETH.sol";
 import { VaultMetadata } from "../vault/VaultsV1Registry.sol";
 
-interface IVault is IEIP4626 {
+interface IVault is IERC4626 {
   function deposit(uint256 assets, address receiver) external returns (uint256);
 
   function redeem(

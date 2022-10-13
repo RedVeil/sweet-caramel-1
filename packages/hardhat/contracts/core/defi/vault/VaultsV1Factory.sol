@@ -3,20 +3,18 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/Clones.sol";
-import "./Vault.sol";
-import { VaultMetadata } from "./VaultsV1Registry.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../utils/Owned.sol";
+import "./Vault.sol";
+import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IRewardsEscrow.sol";
-import "./VaultStaking.sol";
-import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
+import "../../interfaces/IERC4626.sol";
 
 struct VaultParams {
-  address token;
-  address yearnRegistry;
+  ERC20 asset;
+  IERC4626 strategy;
   IContractRegistry contractRegistry;
-  address staking;
-  address zapper;
   Vault.FeeStructure feeStructure;
   KeeperConfig keeperConfig;
 }
@@ -28,16 +26,13 @@ struct VaultParams {
 contract VaultsV1Factory is Owned {
   /* ========== EVENTS ========== */
 
-  event VaultV1Deployment(address vault, address vaultStaking);
+  event VaultV1Deployment(address vault);
   event VaultImplementationUpdated(address oldVaultImplementation, address newVaultImplementation);
-  event StakingImplementationUpdated(address oldStakingImplementation, address newStakingImplementation);
 
   /* ========== STATE VARIABLES ========== */
 
-  IERC20 internal constant pop = IERC20(0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4);
   bytes32 public constant contractName = keccak256("VaultsV1Factory");
   address public vaultImplementation;
-  address public stakingImplementation;
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -48,39 +43,20 @@ contract VaultsV1Factory is Owned {
    * @param _vaultParams - struct containing Vault contructor params
    * @dev This should always be called through the VaultV1Controller
    */
-  function deployVaultV1(VaultParams memory _vaultParams)
-    external
-    onlyOwner
-    returns (address[2] memory contractAddresses)
-  {
-    address vault = Clones.clone(vaultImplementation);
+  function deployVaultV1(VaultParams memory _vaultParams) external onlyOwner returns (address vault) {
+    vault = Clones.clone(vaultImplementation);
     Vault(vault).initialize(
-      _vaultParams.token,
-      _vaultParams.yearnRegistry,
+      _vaultParams.asset,
+      _vaultParams.strategy,
       _vaultParams.contractRegistry,
-      _vaultParams.staking,
-      _vaultParams.zapper,
       _vaultParams.feeStructure,
       _vaultParams.keeperConfig
     );
-
-    address stakingAddress = _vaultParams.staking;
-    if (stakingAddress == address(0)) {
-      stakingAddress = Clones.clone(stakingImplementation);
-
-      VaultStaking(stakingAddress).initialize(IERC20(address(vault)), _vaultParams.contractRegistry);
-    }
-    contractAddresses = [vault, stakingAddress];
-    emit VaultV1Deployment(vault, stakingAddress);
+    emit VaultV1Deployment(vault);
   }
 
   function setVaultImplementation(address _vaultImplementation) external onlyOwner {
     emit VaultImplementationUpdated(vaultImplementation, _vaultImplementation);
     vaultImplementation = _vaultImplementation;
-  }
-
-  function setStakingImplementation(address _stakingImplementation) external onlyOwner {
-    emit StakingImplementationUpdated(stakingImplementation, _stakingImplementation);
-    stakingImplementation = _stakingImplementation;
   }
 }

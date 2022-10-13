@@ -4,11 +4,11 @@ pragma solidity ^0.8.0;
 
 import "./VaultsV1Registry.sol";
 import "./VaultsV1Factory.sol";
+import "./VaultStakingFactory.sol";
 import "../../utils/Owned.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IContractRegistry.sol";
-import "../../interfaces/IVaultsV1Factory.sol";
 import "../../interfaces/IVaultsV1.sol";
 import "../../interfaces/IVaultsV1Zapper.sol";
 import "../../interfaces/IStaking.sol";
@@ -43,11 +43,13 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    * @notice deploys and registers V1 Vault from VaultsV1Factory
    * @param _vaultParams - struct containing Vault constructor params (address token_, address yearnRegistry_,
     IContractRegistry contractRegistry_, address staking_, FeeStructure feeStructure_)
+   * @param _staking - Adds a staking contract to the registry for this particular vault. (If address(0) it will deploy a new VaultStaking contract)
    * @param _endorse - bool if vault is to be endorsed after registration
    * @param _metadataCID - ipfs CID of vault metadata
    * @param _swapTokenAddresses - underlying assets to deposit and recieve LP token
    * @param _swapAddress - ex: stableSwapAddress for Curve
    * @param _exchange - number specifying exchange (1 = curve)
+   * @param _zapper - Zapper address
    * @param _zapIn - address of inbound zap contract
    * @param _zapOut - address of outbound zap contract
    * @dev the submitter in the VaultMetadata from the factory will be function caller
@@ -55,39 +57,39 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    */
   function deployVaultFromV1Factory(
     VaultParams memory _vaultParams,
+    address _staking,
     bool _endorse,
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
     uint256 _exchange,
+    address _zapper,
     address _zapIn,
     address _zapOut
-  ) external onlyOwner returns (address) {
+  ) external onlyOwner returns (address vault) {
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
 
-    address[2] memory contractAddresses = _vaultsV1Factory().deployVaultV1(_vaultParams);
+    vault = _vaultsV1Factory().deployVaultV1(_vaultParams);
 
-    _handleKeeperSetup(contractAddresses[0], _vaultParams.keeperConfig, _vaultParams.token);
-
-    if (_vaultParams.staking == address(0)) {
-      Vault(contractAddresses[0]).setStaking(contractAddresses[1]);
-      IStaking(contractAddresses[1]).setVault(contractAddresses[0]);
+    if (_staking == address(0)) {
+      _staking = _vaultStakingFactory().deployVaultStaking(vault);
     }
+    _handleKeeperSetup(vault, _vaultParams.keeperConfig, address(_vaultParams.asset));
 
-    IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(contractAddresses[1]);
+    IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
 
-    if (_vaultParams.zapper != address(0)) {
+    if (_zapper != address(0)) {
       require(_zapIn != address(0) && _zapOut != address(0), "set zaps");
-      IVaultsV1Zapper(_vaultParams.zapper).updateVault(_vaultParams.token, contractAddresses[0]);
-      IVaultsV1Zapper(_vaultParams.zapper).updateZaps(_vaultParams.token, _zapIn, _zapOut);
+      IVaultsV1Zapper(_zapper).updateVault(address(_vaultParams.asset), vault);
+      IVaultsV1Zapper(_zapper).updateZaps(address(_vaultParams.asset), _zapIn, _zapOut);
     }
 
     VaultMetadata memory metadata = VaultMetadata({
-      vaultAddress: contractAddresses[0],
+      vaultAddress: vault,
       vaultType: 1,
       enabled: true,
-      staking: contractAddresses[1],
-      vaultZapper: _vaultParams.zapper,
+      staking: _staking,
+      vaultZapper: _zapper,
       submitter: msg.sender,
       metadataCID: _metadataCID,
       swapTokenAddresses: _swapTokenAddresses,
@@ -99,10 +101,9 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
     vaultsV1Registry.registerVault(metadata);
 
-    if (_endorse) vaultsV1Registry.toggleEndorseVault(contractAddresses[0]);
+    if (_endorse) vaultsV1Registry.toggleEndorseVault(vault);
 
-    emit VaultV1Deployed(contractAddresses[0], _endorse);
-    return contractAddresses[0];
+    emit VaultV1Deployed(vault, _endorse);
   }
 
   /**
@@ -427,7 +428,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   function setFactoryStakingImplementation(address _stakingImplementation) external onlyOwner {
-    _vaultsV1Factory().setStakingImplementation(_stakingImplementation);
+    _vaultStakingFactory().setStakingImplementation(_stakingImplementation);
   }
 
   /* ========== OWNERSHIP FUNCTIONS ========== */
@@ -465,6 +466,13 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    */
   function _vaultsV1Factory() private view returns (VaultsV1Factory) {
     return VaultsV1Factory(_getContract(keccak256("VaultsV1Factory")));
+  }
+
+  /**
+   * @notice helper function to get VaultStakingFactory contract
+   */
+  function _vaultStakingFactory() private view returns (VaultStakingFactory) {
+    return VaultStakingFactory(_getContract(keccak256("VaultStakingFactory")));
   }
 
   /**

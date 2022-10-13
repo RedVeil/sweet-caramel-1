@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
+import "../../../contracts/core/defi/vault/VaultStakingFactory.sol";
 import { VaultParams } from "../../../contracts/core/defi/vault/VaultsV1Factory.sol";
 import "../../../contracts/core/defi/vault/VaultsV1Registry.sol";
 import { VaultMetadata } from "../../../contracts/core/defi/vault/VaultsV1Registry.sol";
@@ -66,6 +67,7 @@ contract VaultsV1ControllerTest is Test {
   VaultsV1Controller public vaultsV1Controller;
   VaultsV1Registry public vaultsV1Registry;
   VaultsV1Factory public vaultsV1Factory;
+  VaultStakingFactory public vaultStakingFactory;
   KeeperIncentiveV2 public keeperIncentive;
   VaultsV1Zapper public vaultZapper;
   RewardsEscrow public rewardsEscrow;
@@ -85,11 +87,9 @@ contract VaultsV1ControllerTest is Test {
 
   VaultParams public vaultParams =
     VaultParams({
-      token: CRV_3CRYPTO,
-      yearnRegistry: YEARN_REGISTRY,
+      asset: ERC20(CRV_3CRYPTO),
+      strategy: IERC4626(address(0x4444)),
       contractRegistry: IContractRegistry(CONTRACT_REGISTRY),
-      staking: address(0x1111),
-      zapper: address(0x7777),
       feeStructure: Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,
@@ -117,6 +117,8 @@ contract VaultsV1ControllerTest is Test {
     stakingImplementation = address(new VaultStaking());
 
     vaultsV1Factory = new VaultsV1Factory(address(this));
+    vaultStakingFactory = new VaultStakingFactory(address(this), IContractRegistry(CONTRACT_REGISTRY));
+
     vaultsV1Registry = new VaultsV1Registry(address(this));
     vaultsV1Controller = new VaultsV1Controller(address(this), IContractRegistry(CONTRACT_REGISTRY));
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 2000 ether);
@@ -125,7 +127,7 @@ contract VaultsV1ControllerTest is Test {
     rewardsEscrow.transferOwnership(address(vaultsV1Controller));
 
     vaultsV1Factory.setVaultImplementation(vaultImplementation);
-    vaultsV1Factory.setStakingImplementation(stakingImplementation);
+    vaultStakingFactory.setStakingImplementation(stakingImplementation);
 
     vm.startPrank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).addContract(
@@ -167,8 +169,6 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       swapTokenAddresses[i] = address(uint160(i));
     }
-
-    vaultParams.zapper = address(vaultZapper);
   }
 
   /* ========== HELPER FUNCTIONS ========== */
@@ -187,6 +187,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x2222),
       1,
+      address(vaultZapper),
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
@@ -205,6 +206,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x2222),
       1,
+      address(vaultZapper),
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
@@ -255,7 +257,7 @@ contract VaultsV1ControllerTest is Test {
     bool _endorsed
   ) public returns (address[] memory) {
     uint256 prevAmount = vaultsV1Registry.getTotalVaults();
-    vaultParams.token = _asset;
+    vaultParams.asset = _asset;
     address[] memory deployedVaults = new address[](_amount);
     for (uint256 i = 0; i < _amount; i++) {
       address deployedVault = vaultsV1Controller.deployVaultFromV1Factory(
@@ -265,6 +267,7 @@ contract VaultsV1ControllerTest is Test {
         swapTokenAddresses,
         address(0x2222),
         1,
+        address(vaultZapper),
         CURVE_ZAP_IN,
         CURVE_ZAP_OUT
       );
@@ -288,6 +291,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x2222),
       1,
+      address(vaultZapper),
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
@@ -303,6 +307,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x2222),
       1,
+      address(vaultZapper),
       address(0),
       address(0)
     );
@@ -317,6 +322,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x2222),
       1,
+      address(vaultZapper),
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
@@ -344,13 +350,13 @@ contract VaultsV1ControllerTest is Test {
     assertEq(metadata.zapOut, CURVE_ZAP_OUT);
 
     assertEq(vaultsV1Registry.getRegisteredAddresses()[0], deployedVault);
-    assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.token)[0], deployedVault);
+    assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.asset)[0], deployedVault);
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], deployedVault);
     assertTrue(vaultsV1Registry.endorsed(deployedVault));
 
-    assertEq(vaultZapper.vaults(vaultParams.token), deployedVault);
+    assertEq(vaultZapper.vaults(vaultParams.asset), deployedVault);
 
-    (address zapIn, address zapOut) = vaultZapper.zaps(vaultParams.token);
+    (address zapIn, address zapOut) = vaultZapper.zaps(vaultParams.asset);
     assertEq(zapIn, CURVE_ZAP_IN);
     assertEq(zapOut, CURVE_ZAP_OUT);
 
@@ -365,6 +371,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x7777),
       1,
+      address(vaultZapper),
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
@@ -391,13 +398,13 @@ contract VaultsV1ControllerTest is Test {
     assertEq(metadata.zapOut, CURVE_ZAP_OUT);
 
     assertEq(vaultsV1Registry.getRegisteredAddresses()[0], deployedVault);
-    assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.token)[0], deployedVault);
+    assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.asset)[0], deployedVault);
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], deployedVault);
     assertFalse(vaultsV1Registry.endorsed(deployedVault));
 
-    assertEq(vaultZapper.vaults(vaultParams.token), deployedVault);
+    assertEq(vaultZapper.vaults(vaultParams.asset), deployedVault);
 
-    (address zapIn, address zapOut) = vaultZapper.zaps(vaultParams.token);
+    (address zapIn, address zapOut) = vaultZapper.zaps(vaultParams.asset);
     assertEq(zapIn, CURVE_ZAP_IN);
     assertEq(zapOut, CURVE_ZAP_OUT);
 
@@ -415,6 +422,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x7777),
       1,
+      address(vaultZapper),
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
@@ -442,7 +450,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(metadata.zapOut, CURVE_ZAP_OUT);
 
     assertEq(vaultsV1Registry.getRegisteredAddresses()[0], deployedVault);
-    assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.token)[0], deployedVault);
+    assertEq(vaultsV1Registry.getVaultsByAsset(vaultParams.asset)[0], deployedVault);
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], deployedVault);
     assertTrue(vaultsV1Registry.endorsed(deployedVault));
 
@@ -451,9 +459,9 @@ contract VaultsV1ControllerTest is Test {
     assertEq(address(staking.stakingToken()), deployedVault);
     assertEq(address(staking.vault()), deployedVault);
 
-    assertEq(vaultZapper.vaults(vaultParams.token), deployedVault);
+    assertEq(vaultZapper.vaults(vaultParams.asset), deployedVault);
 
-    (address zapIn, address zapOut) = vaultZapper.zaps(vaultParams.token);
+    (address zapIn, address zapOut) = vaultZapper.zaps(vaultParams.asset);
     assertEq(zapIn, CURVE_ZAP_IN);
     assertEq(zapOut, CURVE_ZAP_OUT);
 
@@ -483,6 +491,7 @@ contract VaultsV1ControllerTest is Test {
       swapTokenAddresses,
       address(0x7777),
       1,
+      address(vaultZapper),
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
@@ -1278,8 +1287,8 @@ contract VaultsV1ControllerTest is Test {
     assertEq(newMetadata.swapAddress, oldMetadata.swapAddress);
     assertEq(newMetadata.exchange, oldMetadata.exchange);
 
-    assertEq(vaultZapper.vaults(vaultParams.token), address(0));
-    assertEq(newZapper.vaults(vaultParams.token), vault);
+    assertEq(vaultZapper.vaults(vaultParams.asset), address(0));
+    assertEq(newZapper.vaults(vaultParams.asset), vault);
   }
 
   function test__setVaultZapperEvent() public acceptOwnerships {
@@ -1290,10 +1299,10 @@ contract VaultsV1ControllerTest is Test {
     assertEq(Vault(vault).zapper(), address(vaultZapper));
 
     vm.expectEmit(false, false, false, true, address(vaultZapper));
-    emit RemovedVault(vaultParams.token, vault);
+    emit RemovedVault(vaultParams.asset, vault);
 
     vm.expectEmit(false, false, false, true, newZapper);
-    emit UpdatedVault(vaultParams.token, vault);
+    emit UpdatedVault(vaultParams.asset, vault);
 
     vm.expectEmit(false, false, false, true, vault);
     emit ZapperUpdated(address(vaultZapper), newZapper);
@@ -1923,7 +1932,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(newMetadata.zapIn, zapIn);
     assertEq(newMetadata.zapOut, zapOut);
 
-    (address _zapIn, address _zapOut) = vaultZapper.zaps(vaultParams.token);
+    (address _zapIn, address _zapOut) = vaultZapper.zaps(vaultParams.asset);
     assertEq(_zapIn, zapIn);
     assertEq(_zapOut, zapOut);
   }
@@ -1980,7 +1989,7 @@ contract VaultsV1ControllerTest is Test {
 
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.setZapperAssetFee(address(vaultZapper), vaultParams.token, true, inFee, outFee);
+    vaultsV1Controller.setZapperAssetFee(address(vaultZapper), vaultParams.asset, true, inFee, outFee);
   }
 
   function test__setZapperAssetFee() public acceptOwnerships {
@@ -1988,9 +1997,9 @@ contract VaultsV1ControllerTest is Test {
     uint256 outFee = 20;
 
     // Actual test
-    vaultsV1Controller.setZapperAssetFee(address(vaultZapper), vaultParams.token, true, inFee, outFee);
+    vaultsV1Controller.setZapperAssetFee(address(vaultZapper), vaultParams.asset, true, inFee, outFee);
 
-    (bool _useAssetFee, uint256 _accumulated, uint256 _inFee, uint256 _outFee) = vaultZapper.fees(vaultParams.token);
+    (bool _useAssetFee, uint256 _accumulated, uint256 _inFee, uint256 _outFee) = vaultZapper.fees(vaultParams.asset);
     assertEq(_useAssetFee, true);
     assertEq(_accumulated, uint256(0));
     assertEq(_inFee, inFee);
@@ -2003,9 +2012,9 @@ contract VaultsV1ControllerTest is Test {
 
     // Actual test
     vm.expectEmit(false, false, false, true, address(vaultZapper));
-    emit FeeUpdated(vaultParams.token, true, inFee, outFee);
+    emit FeeUpdated(vaultParams.asset, true, inFee, outFee);
 
-    vaultsV1Controller.setZapperAssetFee(address(vaultZapper), vaultParams.token, true, inFee, outFee);
+    vaultsV1Controller.setZapperAssetFee(address(vaultZapper), vaultParams.asset, true, inFee, outFee);
   }
 
   /* Setting zapper keeperConfig */
@@ -2018,7 +2027,7 @@ contract VaultsV1ControllerTest is Test {
 
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.setZapperKeeperConfig(address(vaultZapper), vaultParams.token, newKeeperConfig);
+    vaultsV1Controller.setZapperKeeperConfig(address(vaultZapper), vaultParams.asset, newKeeperConfig);
   }
 
   function test__setZapperKeeperConfig() public acceptOwnerships {
@@ -2029,10 +2038,10 @@ contract VaultsV1ControllerTest is Test {
     });
 
     // Actual test
-    vaultsV1Controller.setZapperKeeperConfig(address(vaultZapper), vaultParams.token, newKeeperConfig);
+    vaultsV1Controller.setZapperKeeperConfig(address(vaultZapper), vaultParams.asset, newKeeperConfig);
 
     (uint256 minWithdrawalAmount, uint256 incentiveVigBps, uint256 keeperPayout) = vaultZapper.keeperConfigs(
-      vaultParams.token
+      vaultParams.asset
     );
 
     assertEq(minWithdrawalAmount, newKeeperConfig.minWithdrawalAmount);
@@ -2054,7 +2063,7 @@ contract VaultsV1ControllerTest is Test {
       newKeeperConfig
     );
 
-    vaultsV1Controller.setZapperKeeperConfig(address(vaultZapper), vaultParams.token, newKeeperConfig);
+    vaultsV1Controller.setZapperKeeperConfig(address(vaultZapper), vaultParams.asset, newKeeperConfig);
   }
 
   function test__setStakingEscrowDurationsNotOwnerReverts() public acceptOwnerships {

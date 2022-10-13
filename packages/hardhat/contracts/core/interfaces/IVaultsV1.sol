@@ -2,11 +2,11 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "./IEIP4626.sol";
+import "./IERC4626.sol";
 import "../defi/vault/Vault.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 
-interface IVaultsV1 is IEIP4626 {
+interface IVaultsV1 is IERC4626 {
   /* ========== STRUCTS ========== */
 
   struct FeeStructure {
@@ -25,7 +25,7 @@ interface IVaultsV1 is IEIP4626 {
 
   function zapper() external view returns (address);
 
-  function totalAssets() external view override(IEIP4626) returns (uint256);
+  function totalAssets() external view override(IERC4626) returns (uint256);
 
   function assetsOf(address owner) external view returns (uint256);
 
