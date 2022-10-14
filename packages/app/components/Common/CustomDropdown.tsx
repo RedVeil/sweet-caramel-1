@@ -6,12 +6,12 @@ import React, { FC } from "react";
 import { MobilePopupSelect } from "./MobilePopupSelect";
 
 interface IFilter {
-  categoryFilter: { id: string; value: string };
-  switchFilter: (item: { id: string; value: string }) => void;
+  selectedItem: { id: string; value: string };
+  setSelectedItem: (item: { id: string; value: string }) => void;
   categories: Array<{ id: string; value: string }>;
 }
 
-const CustomDropdown: FC<IFilter> = ({ categoryFilter, switchFilter, categories }) => {
+const CustomDropdown: FC<IFilter> = ({ selectedItem, setSelectedItem, categories }) => {
   const [openFilter, setOpenFilter] = React.useState(false);
   return (
     <>
@@ -21,18 +21,18 @@ const CustomDropdown: FC<IFilter> = ({ categoryFilter, switchFilter, categories 
             <div className="cursor-pointer h-full flex flex-row items-center justify-between relative w-full text-[#55503D]">
               <div className="flex items-center">
                 <ViewGridIcon className="w-5 h-5 mr-3" />
-                <p className="leading-none text-black">{categoryFilter.value}</p>
+                <p className="leading-none text-black">{selectedItem.value}</p>
               </div>
               <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
             </div>
             <DropdownOptions
               options={categories}
-              switchFilter={switchFilter}
+              switchFilter={setSelectedItem}
               position="absolute top-12 left-0 z-40"
               width="w-full"
               borderRadius="rounded"
               borderRadiusFirstLast="first:rounded-t last:rounded-b"
-              selectedItem={categoryFilter.id}
+              selectedItem={selectedItem.id}
             />
           </Menu.Button>
         </Menu>
@@ -46,7 +46,7 @@ const CustomDropdown: FC<IFilter> = ({ categoryFilter, switchFilter, categories 
           className="w-full py-3 px-5 flex flex-row items-center justify-between mt-1 space-x-1 rounded border border-gray-300"
         >
           <div className="flex items-center">
-            <p className="ml-1 leading-none text-black text-base">{categoryFilter.value}</p>
+            <p className="ml-1 leading-none text-black text-base">{selectedItem.value}</p>
           </div>
           <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -56,8 +56,8 @@ const CustomDropdown: FC<IFilter> = ({ categoryFilter, switchFilter, categories 
           categories={categories}
           visible={openFilter}
           onClose={setOpenFilter}
-          selectedItem={categoryFilter}
-          switchFilter={switchFilter}
+          selectedItem={selectedItem}
+          switchFilter={setSelectedItem}
         />
       </div>
     </>

@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
+import { networkLogos } from "@popcorn/utils";
 import MainActionButton from "components/MainActionButton";
 import PopUpModal from "components/Modal/PopUpModal";
 import DiscordIcon from "components/SVGIcons/DiscordIcon";
@@ -9,66 +9,31 @@ import TelegramIcon from "components/SVGIcons/TelegramIcon";
 import TwitterIcon from "components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "components/TertiaryActionButton";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { getProductLinks } from "helper/getProductLinks";
+import useAvailableNetworks from "hooks/useAvailableNetworks";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import WheelPicker from "react-simple-wheel-picker";
 import MobileProductsMenu from "./MobileProductsMenu";
 import NavbarLink from "./NavbarLinks";
-const networkData = [
-  {
-    id: JSON.stringify(ChainId.Ethereum),
-    value: networkMap[ChainId.Ethereum],
-  },
-  {
-    id: JSON.stringify(ChainId.Arbitrum),
-    value: networkMap[ChainId.Arbitrum],
-  },
-  {
-    id: JSON.stringify(ChainId.BNB),
-    value: networkMap[ChainId.BNB],
-  },
-  {
-    id: JSON.stringify(ChainId.Polygon),
-    value: networkMap[ChainId.Polygon],
-  },
-];
+
 
 export const MobileMenu: React.FC = () => {
   const { account, connect, disconnect, setChain, pushWithinChain } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
-  const [availableNetworks, setAvailableNetworks] = useState(networkData);
+  const { availableNetworks } = useAvailableNetworks();
   const router = useRouter();
   const products = getProductLinks(router, pushWithinChain);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
-  const selectedNetwork = useRef(parseInt(networkData[0].id));
-
-  const { showLocalNetwork } = useContext(FeatureToggleContext).features;
+  const selectedNetwork = useRef(parseInt(availableNetworks[0].id));
 
   useEffect(() => {
     toggleMenu(false);
   }, [router?.pathname]);
-
-  useEffect(() => {
-    if (showLocalNetwork && availableNetworks.length <= networkData.length) {
-      setAvailableNetworks([
-        ...availableNetworks,
-        {
-          id: JSON.stringify(ChainId.Rinkeby),
-          value: networkMap[ChainId.Rinkeby],
-        },
-        {
-          id: JSON.stringify(ChainId.Localhost),
-          value: networkMap[ChainId.Localhost],
-        },
-      ]);
-    }
-  }, []);
 
   const handleOnChange = (newChainId) => {
     selectedNetwork.current = parseInt(newChainId.id);
@@ -98,9 +63,8 @@ export const MobileMenu: React.FC = () => {
               >
                 <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-3 h-3 object-contain" />
                 <span
-                  className={`${
-                    account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                  } block h-2 w-2 rounded-full border`}
+                  className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                    } block h-2 w-2 rounded-full border`}
                 ></span>
               </div>
             </div>
@@ -112,21 +76,18 @@ export const MobileMenu: React.FC = () => {
             <div className="block w-10">
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+                  }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "opacity-0" : "opacity-100"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
+                  }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+                  }`}
               ></span>
             </div>
           </button>

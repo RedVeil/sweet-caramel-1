@@ -1,6 +1,7 @@
 import CustomDropdown from "components/Common/CustomDropdown";
 import React from "react";
 import { usePortfolio } from "context/PortfolioContext"
+import useAvailableNetworks from "hooks/useAvailableNetworks";
 
 type categoryFilterType = {
   id: string;
@@ -15,11 +16,16 @@ interface PortfolioMenuTabsProps {
 
 
 const PortfolioMenuTabs: React.FC<PortfolioMenuTabsProps> = ({ categoryFilter, onSetCategoryFilter, categories }) => {
-  const { setSelectedNetwork } = usePortfolio();
+  const { availableNetworks } = useAvailableNetworks();
+  const { setSelectedNetwork, selectedNetwork } = usePortfolio();
   return (
     <div className="grid grid-cols-12 mt-20 gap-8">
       <div className="col-span-12 md:col-span-3">
-        <CustomDropdown categoryFilter={categoryFilter} switchFilter={onSetCategoryFilter} categories={categories} />
+        <CustomDropdown
+          selectedItem={selectedNetwork}
+          setSelectedItem={setSelectedNetwork}
+          categories={[{ id: "All", value: "All", ...availableNetworks }]}
+        />
       </div>
       <div className="col-span-12 md:col-span-4 md:col-end-13">
         <div className="flex justify-end space-x-4">

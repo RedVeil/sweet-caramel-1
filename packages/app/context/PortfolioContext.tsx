@@ -3,8 +3,8 @@ import { createContext, useState, useContext, useRef, Dispatch, SetStateAction }
 
 
 interface IPortfolioContext {
-  selectedNetwork: ChainId | null;
-  setSelectedNetwork: Dispatch<SetStateAction<ChainId | null>>;
+  selectedNetwork: { id: string, value: string };
+  setSelectedNetwork: Dispatch<SetStateAction<{ id: string, value: string }>>;
 }
 
 const initialState: IPortfolioContext = {
@@ -15,7 +15,10 @@ const initialState: IPortfolioContext = {
 export const PortfolioContext = createContext<IPortfolioContext>(initialState);
 
 export const PortfolioContextProvider: React.FC = ({ children }) => {
-  const [selectedNetwork, setSelectedNetwork] = useState<ChainId | null>(null);
+  const [selectedNetwork, setSelectedNetwork] = useState<{ id: string, value: string }>({
+    id: "All",
+    value: "All",
+  });
 
   return (
     <PortfolioContext.Provider
