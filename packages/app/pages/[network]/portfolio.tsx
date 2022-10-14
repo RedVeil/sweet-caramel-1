@@ -2,38 +2,13 @@ import NetWorthCard from "components/Portfolio/NetWorthCard";
 import PortfolioCardCon from "components/Portfolio/PortfolioCardCon";
 import PortfolioHero from "components/Portfolio/PortfolioHero";
 import PortfolioMenuTabs from "components/Portfolio/PortfolioMenuTabs";
-import React, { useState } from "react";
-const allNetworks = [
-  {
-    id: "0",
-    value: "All Networks",
-  },
-  {
-    id: "1337",
-    value: "Ethereum",
-  },
-  {
-    id: "1",
-    value: "Localhost",
-  },
-  {
-    id: "137",
-    value: "Polygon",
-  },
-];
+import React from "react";
+
 const portfolio = () => {
-  const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({
-    id: "0",
-    value: "All Networks",
-  });
   return (
     <>
       <PortfolioHero />
-      <PortfolioMenuTabs
-        categoryFilter={categoryFilter}
-        onSetCategoryFilter={setCategoryFilter}
-        categories={allNetworks}
-      />
+      <PortfolioMenuTabs />
       <div className="grid grid-cols-12 gap-8 mt-10">
         <div className="col-span-12 md:col-span-3">
           <NetWorthCard />

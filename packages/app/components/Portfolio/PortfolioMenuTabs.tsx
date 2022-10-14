@@ -3,19 +3,8 @@ import React from "react";
 import { usePortfolio } from "context/PortfolioContext"
 import useAvailableNetworks from "hooks/useAvailableNetworks";
 
-type categoryFilterType = {
-  id: string;
-  value: string;
-};
 
-interface PortfolioMenuTabsProps {
-  categoryFilter: categoryFilterType;
-  onSetCategoryFilter: (item: categoryFilterType) => void;
-  categories: Array<categoryFilterType>;
-}
-
-
-const PortfolioMenuTabs: React.FC<PortfolioMenuTabsProps> = ({ categoryFilter, onSetCategoryFilter, categories }) => {
+const PortfolioMenuTabs: React.FC = () => {
   const { availableNetworks } = useAvailableNetworks();
   const { setSelectedNetwork, selectedNetwork } = usePortfolio();
   return (
@@ -24,7 +13,7 @@ const PortfolioMenuTabs: React.FC<PortfolioMenuTabsProps> = ({ categoryFilter, o
         <CustomDropdown
           selectedItem={selectedNetwork}
           setSelectedItem={setSelectedNetwork}
-          categories={[{ id: "All", value: "All", ...availableNetworks }]}
+          categories={[{ id: "All", value: "All" }, ...availableNetworks]}
         />
       </div>
       <div className="col-span-12 md:col-span-4 md:col-end-13">

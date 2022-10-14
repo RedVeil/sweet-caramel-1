@@ -1,5 +1,7 @@
 import useNetWorth from "hooks/useNetWorth";
 import { formatUnits } from "ethers/lib/utils";
+import { usePortfolio } from "context/PortfolioContext"
+import { BigNumber } from "ethers/lib/ethers";
 import React from "react";
 
 const NetWorthCard = () => {
@@ -8,10 +10,12 @@ const NetWorthCard = () => {
     notation: "compact",
   });
   const networth = useNetWorth()
+  const { selectedNetwork } = usePortfolio();
+  const netWorthValue = selectedNetwork.id === "All" ? networth.totalNetWorth : networth[selectedNetwork.id] ?? BigNumber.from("0")
   return (
     <div className="bg-warmGray rounded-lg p-6">
       <h6 className="font-medium">My Net Worth </h6>
-      <p className=" text-[40px] mt-6 font-light">${formatter.format(parseInt(formatUnits(networth.totalNetWorth)))}</p>
+      <p className=" text-[40px] mt-6 font-light">${formatter.format(parseInt(formatUnits(netWorthValue)))}</p>
 
       <div className="flex text-white text-xs my-6">
         <div className="bg-customLightPurple py-6 px-4 w-2/4 rounded-tl-5xl rounded-bl-5xl">50%</div>

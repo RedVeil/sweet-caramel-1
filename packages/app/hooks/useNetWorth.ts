@@ -3,7 +3,7 @@ import { ERC20__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 import { parseEther } from "ethers/lib/utils";
-import { useCallback, useMemo, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import useButterBatchData from "./set/useButterBatchData";
 import useThreeXData from "./set/useThreeXData";
 import usePopLocker from "./staking/usePopLocker";
