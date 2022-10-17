@@ -66,7 +66,7 @@ export default function Hero(): JSX.Element {
                 />
               </div>
               <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
-                ${formatter.format(parseInt(formatUnits(totalNetWorth)))}
+                ${formatter.format(parseInt(formatUnits(totalNetWorth.total)))}
               </p>
             </div>
           )}
