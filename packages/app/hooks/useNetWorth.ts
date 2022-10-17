@@ -21,7 +21,7 @@ function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumb
 }
 
 
-export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumber } {
+export default function useNetWorth(): { [key: string | keyof ChainId]: { total: BigNumber, vesting: BigNumber, inWallet: BigNumber } } {
   const { account, contractAddresses } = useWeb3();
   const { pop, butter, threeX, butterStaking, threeXStaking, popStaking } = useMemo(
     () => getChainRelevantContracts(ChainId.Ethereum),
@@ -213,7 +213,7 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
     ].reduce((total, num) => total.add(num));
   }
 
-  const calculateTotalHoldings = () => {
+  const calculateTotalHoldings = (): BigNumber => {
     return [
       mainnetPopHoldings,
       polygonPopHoldings,
@@ -234,12 +234,49 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
     ].reduce((total, num) => total.add(num))
   }
 
+  const calculateTotalPopHoldings = (): BigNumber => {
+    return [
+      mainnetPopHoldings,
+      polygonPopHoldings,
+      bnbPopHoldings,
+      arbitrumPopHoldings
+    ].reduce((total, num) => total.add(num))
+  }
+
+  const calculateTotalEscrowHoldings = (): BigNumber => {
+    return [
+      mainnetEscrowHoldings,
+      polygonEscrowHoldings,
+      bnbEscrowHoldings,
+      arbitrumEscrowHoldings
+    ].reduce((total, num) => total.add(num))
+  }
 
   return {
-    [ChainId.Ethereum]: calculateEthereumHoldings(),
-    [ChainId.Polygon]: calculatePolygonHoldings(),
-    [ChainId.BNB]: calculateBnbHoldings(),
-    [ChainId.Arbitrum]: calculateArbitrumHoldings(),
-    totalNetWorth: calculateTotalHoldings(),
+    [ChainId.Ethereum]: {
+      total: calculateEthereumHoldings(),
+      inWallet: mainnetPopHoldings,
+      vesting: mainnetEscrowHoldings
+    },
+    [ChainId.Polygon]: {
+      total: calculatePolygonHoldings(),
+      inWallet: polygonPopHoldings,
+      vesting: polygonEscrowHoldings
+    },
+    [ChainId.BNB]: {
+      total: calculateBnbHoldings(),
+      inWallet: bnbPopHoldings,
+      vesting: bnbEscrowHoldings
+    },
+    [ChainId.Arbitrum]: {
+      total: calculateArbitrumHoldings(),
+      inWallet: arbitrumPopHoldings,
+      vesting: arbitrumEscrowHoldings
+    },
+    totalNetWorth: {
+      total: calculateTotalHoldings(),
+      inWallet: calculateTotalPopHoldings(),
+      vesting: calculateTotalEscrowHoldings()
+    },
   }
 }
