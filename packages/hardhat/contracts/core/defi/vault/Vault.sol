@@ -16,7 +16,6 @@ import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IVaultsV1.sol";
 
 contract Vault is
-  IERC4626,
   ERC20Upgradeable,
   ReentrancyGuardUpgradeable,
   PausableUpgradeable,
@@ -40,7 +39,7 @@ contract Vault is
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   /* ========== STATE VARIABLES ========== */
-  ERC20 internal asset;
+  ERC20 public asset;
   IERC4626 public strategy;
   FeeStructure public feeStructure;
   bool public useLocalFees;
@@ -50,7 +49,14 @@ contract Vault is
   KeeperConfig public keeperConfig;
 
   /* ========== EVENTS ========== */
-
+  event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
+  event Withdraw(
+    address indexed caller,
+    address indexed receiver,
+    address indexed owner,
+    uint256 assets,
+    uint256 shares
+  );
   event WithdrawalFee(address indexed to, uint256 amount);
   event PerformanceFee(uint256 amount);
   event ManagementFee(uint256 amount);
@@ -76,6 +82,9 @@ contract Vault is
     asset = asset_;
     strategy = strategy_;
 
+    asset.approve(address(strategy_), type(uint256).max);
+    strategy_.approve(address(strategy_), type(uint256).max);
+
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
     contractName = keccak256(abi.encodePacked("Popcorn ", asset_.name(), " Vault"));
@@ -83,17 +92,11 @@ contract Vault is
   }
 
   /* ========== VIEWS ========== */
-  /**
-   * @return Address of the underlying `asset` token managed by vault.
-   */
-  function asset() external view override returns (address) {
-    return address(asset);
-  }
 
   /**
    * @return Total amount of underlying `asset` token managed by vault.
    */
-  function totalAssets() public view override(IERC4626) returns (uint256) {
+  function totalAssets() public view returns (uint256) {
     return strategy.totalAssets();
   }
 
@@ -102,7 +105,7 @@ contract Vault is
    * @param shares Exact amount of shares
    * @return Exact amount of assets
    */
-  function convertToAssets(uint256 shares) external view override returns (uint256) {
+  function convertToAssets(uint256 shares) external view returns (uint256) {
     return _convertToAssets(shares, 0);
   }
 
@@ -111,7 +114,7 @@ contract Vault is
    * @param assets Exact amount of assets
    * @return Exact amount of shares
    */
-  function convertToShares(uint256 assets) external view override returns (uint256) {
+  function convertToShares(uint256 assets) external view returns (uint256) {
     return _convertToShares(assets, 0);
   }
 
@@ -123,7 +126,7 @@ contract Vault is
    * @return shares of the vault issued in exchange to the user for `assets`
    * @dev This method accounts for issuance of accrued fee shares.
    */
-  function previewDeposit(uint256 assets) public view override returns (uint256 shares) {
+  function previewDeposit(uint256 assets) public view returns (uint256 shares) {
     shares = _convertToShares(
       assets - ((assets * getDepositFee()) / 1e18),
       accruedManagementFee() + accruedPerformanceFee()
@@ -136,7 +139,7 @@ contract Vault is
    * @return assets quantity of underlying needed in exchange to mint `shares`.
    * @dev This method accounts for issuance of accrued fee shares.
    */
-  function previewMint(uint256 shares) public view override returns (uint256 assets) {
+  function previewMint(uint256 shares) public view returns (uint256 assets) {
     uint256 depositFee = getDepositFee();
 
     shares += (shares * depositFee) / (1e18 - depositFee);
@@ -150,7 +153,7 @@ contract Vault is
    * @return shares to be burned in exchange for `assets`
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
-  function previewWithdraw(uint256 assets) external view override returns (uint256 shares) {
+  function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
     uint256 withdrawalFee = getWithdrawalFee();
 
     assets += (assets * withdrawalFee) / (1e18 - withdrawalFee);
@@ -164,7 +167,7 @@ contract Vault is
    * @return assets quantity of underlying returned in exchange for `shares`.
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
-  function previewRedeem(uint256 shares) public view override returns (uint256 assets) {
+  function previewRedeem(uint256 shares) public view returns (uint256 assets) {
     assets = _convertToAssets(shares, accruedManagementFee() + accruedPerformanceFee());
 
     assets -= (assets * getWithdrawalFee()) / 1e18;
@@ -217,26 +220,26 @@ contract Vault is
   /**
    * @return Maximum amount of underlying `asset` token that may be deposited for a given address.
    */
-  function maxDeposit(address) public view override returns (uint256) {}
+  function maxDeposit(address) public view returns (uint256) {}
 
   /**
    * @return Maximum amount of vault shares that may be minted to given address.
    */
-  function maxMint(address) external view override returns (uint256) {
+  function maxMint(address) external view returns (uint256) {
     return previewDeposit(maxDeposit(address(0)));
   }
 
   /**
    * @return Maximum amount of underlying `asset` token that can be withdrawn by `caller` address.
    */
-  function maxWithdraw(address caller) external view override returns (uint256) {
+  function maxWithdraw(address caller) external view returns (uint256) {
     return previewRedeem(balanceOf(caller));
   }
 
   /**
    * @return Maximum amount of shares that may be redeemed by `caller` address.
    */
-  function maxRedeem(address caller) external view override returns (uint256) {
+  function maxRedeem(address caller) external view returns (uint256) {
     return balanceOf(caller);
   }
 
@@ -246,7 +249,7 @@ contract Vault is
    * @notice Deposit exactly `assets` amount of tokens, issuing vault shares to caller.
    * @param assets Quantity of tokens to deposit.
    * @return Quantity of vault shares issued to caller.
-   * @dev This overrides `deposit(uint256)` from the parent `AffiliateToken` contract. It therefore needs to be public since the `AffiliateToken` function is public
+   * @dev This s `deposit(uint256)` from the parent `AffiliateToken` contract. It therefore needs to be public since the `AffiliateToken` function is public
    */
   function deposit(uint256 assets) public returns (uint256) {
     return deposit(assets, msg.sender);
@@ -260,7 +263,6 @@ contract Vault is
    */
   function deposit(uint256 assets, address receiver)
     public
-    override
     nonReentrant
     whenNotPaused
     takeFees
@@ -298,14 +300,7 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(uint256 shares, address receiver)
-    public
-    override
-    nonReentrant
-    whenNotPaused
-    takeFees
-    returns (uint256 assets)
-  {
+  function mint(uint256 shares, address receiver) public nonReentrant whenNotPaused takeFees returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
     uint256 depositFee = getDepositFee();
@@ -327,7 +322,7 @@ contract Vault is
    * @notice Burn shares from caller in exchange for exactly `assets` amount of underlying token.
    * @param assets Quantity of underlying `asset` token to withdraw.
    * @return shares of vault burned in exchange for underlying `asset` tokens.
-   * @dev This overrides `withdraw(uint256)` from the parent `AffiliateToken` contract.
+   * @dev This s `withdraw(uint256)` from the parent `AffiliateToken` contract.
    */
   function withdraw(uint256 assets) public returns (uint256) {
     return withdraw(assets, msg.sender, msg.sender);
@@ -344,7 +339,7 @@ contract Vault is
     uint256 assets,
     address receiver,
     address owner
-  ) public override nonReentrant takeFees returns (uint256 shares) {
+  ) public nonReentrant takeFees returns (uint256 shares) {
     require(receiver != address(0), "Invalid receiver");
 
     shares = _convertToShares(assets, 0);
@@ -384,7 +379,7 @@ contract Vault is
     uint256 shares,
     address receiver,
     address owner
-  ) public override nonReentrant takeFees returns (uint256 assets) {
+  ) public nonReentrant takeFees returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);

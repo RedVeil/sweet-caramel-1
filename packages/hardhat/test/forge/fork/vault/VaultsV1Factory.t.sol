@@ -19,12 +19,14 @@ contract VaultsV1FactoryTest is Test {
   VaultsV1Factory internal vaultsV1Factory;
 
   address internal vaultImplementation;
-  address internal notOwner = address(0x1234);
+  address internal notOwner = makeAddr("notOwner");
+  address internal STRATEGY = makeAddr("strategy");
+  address NEW_IMPLEMENTATION = makeAddr("implementation");
 
   VaultParams public vaultParams =
     VaultParams({
-      asset: CRV_3CRYPTO,
-      strategy: address(0x4444),
+      asset: ERC20(CRV_3CRYPTO),
+      strategy: IERC4626(STRATEGY),
       contractRegistry: IContractRegistry(CONTRACT_REGISTRY),
       feeStructure: Vault.FeeStructure({
         deposit: 50 * 1e14,
@@ -49,7 +51,7 @@ contract VaultsV1FactoryTest is Test {
   /* ========== FUNCTIONS TESTS ========== */
 
   function test__deployVaultV1NotOwnerReverts() public {
-    vm.stopPrank();
+    vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
     address vault = vaultsV1Factory.deployVaultV1(vaultParams);
@@ -77,19 +79,19 @@ contract VaultsV1FactoryTest is Test {
   /* Setting Factory Vault Implementation */
 
   function test__setVaultImplementationNotOwnerReverts() public {
-    vm.stopPrank();
+    vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Factory.setVaultImplementation(address(0x4444));
+    vaultsV1Factory.setVaultImplementation(NEW_IMPLEMENTATION);
   }
 
   function test__setVaultImplementation() public {
-    vaultsV1Factory.setVaultImplementation(address(0x4444));
-    assertEq(vaultsV1Factory.vaultImplementation(), address(0x4444));
+    vaultsV1Factory.setVaultImplementation(NEW_IMPLEMENTATION);
+    assertEq(vaultsV1Factory.vaultImplementation(), NEW_IMPLEMENTATION);
   }
 
   function test__setVaultImplementationEvent() public {
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
-    emit VaultImplementationUpdated(vaultImplementation, address(0x4444));
-    vaultsV1Factory.setVaultImplementation(address(0x4444));
+    emit VaultImplementationUpdated(vaultImplementation, NEW_IMPLEMENTATION);
+    vaultsV1Factory.setVaultImplementation(NEW_IMPLEMENTATION);
   }
 }

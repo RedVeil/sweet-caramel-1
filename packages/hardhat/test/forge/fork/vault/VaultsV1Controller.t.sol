@@ -22,6 +22,7 @@ import "../../../../contracts/core/interfaces/IVaultsV1Zapper.sol";
 import "../../../../contracts/core/interfaces/IRewardsEscrow.sol";
 import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
 import "../../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
+import "../../../../contracts/core/interfaces/IERC4626.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
@@ -218,7 +219,7 @@ contract VaultsV1ControllerTest is Test {
     Vault vault = new Vault();
     vault.initialize(
       asset,
-      yearnWrapper,
+      IERC4626(address(yearnWrapper)),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({
         deposit: DEPOSIT_FEE,

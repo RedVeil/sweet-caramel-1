@@ -11,6 +11,7 @@ import "../../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../../contracts/core/interfaces/IContractRegistry.sol";
 import "../../../../contracts/core/interfaces/IACLRegistry.sol";
 import "../../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
+import "../../../../contracts/core/interfaces/IERC4626.sol";
 
 contract User {
   Vault internal vault;
@@ -85,7 +86,7 @@ contract VaultFuzzTest is Test {
     vault = Vault(vaultAddress);
     vault.initialize(
       asset,
-      yearnWrapper,
+      IERC4626(yearnWrapperAddress),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({
         deposit: DEPOSIT_FEE,

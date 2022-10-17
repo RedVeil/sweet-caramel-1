@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.0
-
 pragma solidity ^0.8.0;
 
-interface IERC4626 {
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IERC4626 is IERC20 {
   function asset() external view returns (address);
 
   function totalAssets() external view returns (uint256);

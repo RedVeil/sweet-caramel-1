@@ -14,6 +14,8 @@ import "../../../../contracts/core/dao/Staking.sol";
 import "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
 import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
 import "../../../../contracts/core/dao/RewardsEscrow.sol";
+import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
+import "../../../../contracts/core/interfaces/IERC4626.sol";
 
 interface ICurveSETHPool {
   function calc_withdraw_one_coin(uint256 _burn_amount, int128 i) external returns (uint256);
@@ -50,6 +52,8 @@ contract VaultsV1ZapperTest is Test {
 
   address constant DAO = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 
+  address constant YEARN_VAULT = 0x986b4AFF588a109c09B50A03f42E4110E29D353F;
+
   uint256 constant DEPOSIT_FEE = 50 * 1e14;
   uint256 constant WITHDRAWAL_FEE = 50 * 1e14;
   uint256 constant MANAGEMENT_FEE = 200 * 1e14;
@@ -65,14 +69,15 @@ contract VaultsV1ZapperTest is Test {
 
   function setUp() public {
     zapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
-    vault = new Vault();
+    address yearnWrapperAddress = address(new YearnWrapper());
+    YearnWrapper(yearnWrapperAddress).initialize(VaultAPI(YEARN_VAULT));
+    address vaultAddress = address(new Vault());
+    vault = Vault(vaultAddress);
     vault.initialize(
-      CURVE_SETH_LP,
-      YEARN_REGISTRY,
+      ERC20(CURVE_SETH_LP),
+      IERC4626(yearnWrapperAddress),
       IContractRegistry(CONTRACT_REGISTRY),
-      address(0),
-      address(0),
-      Vault.FeeStructure(0, 0, 0, 0),
+      Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
     feeController = new VaultFeeController(
@@ -84,47 +89,18 @@ contract VaultsV1ZapperTest is Test {
       }),
       IContractRegistry(CONTRACT_REGISTRY)
     );
-    RewardsEscrow vaultsRewardsEscrow = new RewardsEscrow(IERC20(POP));
-    staking = new Staking(IERC20(POP), IERC20(address(vault)), vaultsRewardsEscrow);
-
     contractRegistry = IContractRegistry(CONTRACT_REGISTRY);
-
-    address[8] memory swapTokenAddresses;
-    vaultsV1Registry = new VaultsV1Registry(address(this));
-    vaultsV1Registry.registerVault(
-      VaultMetadata({
-        vaultAddress: address(vault),
-        vaultType: 1,
-        enabled: true,
-        staking: address(staking),
-        submitter: address(this),
-        metadataCID: "someCID",
-        swapTokenAddresses: swapTokenAddresses,
-        swapAddress: address(0),
-        exchange: 1,
-        vaultZapper: address(zapper),
-        zapIn: CURVE_ZAP_IN,
-        zapOut: CURVE_ZAP_OUT
-      })
-    );
 
     vm.startPrank(DAO);
     feeController.setFeeRecipient(address(0x1234));
     vm.label(address(0x1234), "FeeRecipient");
-
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), address(ACL_ADMIN));
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), address(DAO));
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(zapper));
-
     vault.setUseLocalFees(true);
-
     zapper.updateVault(CURVE_SETH_LP, address(vault));
     zapper.updateZaps(CURVE_SETH_LP, CURVE_ZAP_IN, CURVE_ZAP_OUT);
-
-    vault.setStaking((address(staking)));
     vm.stopPrank();
-
-    staking.setVault(address(vault));
 
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 0);
 
@@ -139,19 +115,12 @@ contract VaultsV1ZapperTest is Test {
       address(feeController),
       keccak256("1")
     );
-    IContractRegistry(CONTRACT_REGISTRY).addContract(
-      vaultsV1Registry.contractName(),
-      address(vaultsV1Registry),
-      keccak256("1")
-    );
     keeperIncentive.createIncentive(address(zapper), 0, true, true, CURVE_SETH_LP, 1, 0);
     vm.stopPrank();
 
     deal(DAI, address(this), 10000 ether);
     IERC20(DAI).approve(address(zapper), type(uint256).max);
-
     deal(address(this), 20000 ether);
-
     ICurveSETHPool(CURVE_SETH_POOL).exchange{ value: 1100 ether }(0, 1, 1100 ether, 0);
     IERC20(SETH).approve(address(zapper), type(uint256).max);
   }

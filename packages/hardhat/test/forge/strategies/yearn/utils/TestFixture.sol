@@ -75,7 +75,8 @@ contract TestFixture is ExtendedDSTest {
     strategy = MockStrategy(_strategy);
 
     address yearnWrapperAddress = address(new YearnWrapper());
-    vaultWrapper = IERC4626(address(YearnWrapper(yearnWrapperAddress).initialize(VaultAPI(vault))));
+    YearnWrapper(yearnWrapperAddress).initialize(VaultAPI(vault));
+    vaultWrapper = IERC4626(yearnWrapperAddress);
 
     // NOTE: assume Token is priced to 1 for simplicity
     minFuzzAmt = 10**vault.decimals() / 10;

@@ -10,10 +10,19 @@ import "../../../../interfaces/IERC4626.sol";
 import "../../../../interfaces/IYearnVaultWrapper.sol";
 
 // Needs to extract VaultAPI interface out of BaseStrategy to avoid collision
-contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
-  VaultAPI public immutable yVault;
-  address public immutable token;
-  uint256 public immutable _decimals;
+contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
+  VaultAPI public yVault;
+  address public token;
+  uint256 public _decimals;
+
+  event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
+  event Withdraw(
+    address indexed caller,
+    address indexed receiver,
+    address indexed owner,
+    uint256 assets,
+    uint256 shares
+  );
 
   function initialize(VaultAPI _vault) external initializer {
     __ERC20_init(
@@ -42,7 +51,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
     return uint8(_decimals);
   }
 
-  function asset() external view override returns (address) {
+  function asset() external view returns (address) {
     return token;
   }
 
@@ -50,13 +59,13 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
                       DEPOSIT/WITHDRAWAL LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function deposit(uint256 assets, address receiver) public override returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver) public returns (uint256 shares) {
     (assets, shares) = _deposit(assets, receiver, msg.sender);
 
     emit Deposit(msg.sender, receiver, assets, shares);
   }
 
-  function mint(uint256 shares, address receiver) public override returns (uint256 assets) {
+  function mint(uint256 shares, address receiver) public returns (uint256 assets) {
     assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
 
     (assets, shares) = _deposit(assets, receiver, msg.sender);
@@ -68,7 +77,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
     uint256 assets,
     address receiver,
     address owner
-  ) public override returns (uint256 shares) {
+  ) public returns (uint256 shares) {
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
     (uint256 _withdrawn, uint256 _burntShares) = _withdraw(assets, receiver, msg.sender);
@@ -81,7 +90,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
     uint256 shares,
     address receiver,
     address owner
-  ) public override returns (uint256 assets) {
+  ) public returns (uint256 assets) {
     require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -96,31 +105,31 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
                           ACCOUNTING LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function totalAssets() public view override returns (uint256) {
+  function totalAssets() public view returns (uint256) {
     return yVault.totalAssets();
   }
 
-  function convertToShares(uint256 assets) public view override returns (uint256) {
+  function convertToShares(uint256 assets) public view returns (uint256) {
     return (assets * (10**_decimals)) / yVault.pricePerShare();
   }
 
-  function convertToAssets(uint256 shares) public view override returns (uint256) {
+  function convertToAssets(uint256 shares) public view returns (uint256) {
     return (shares * yVault.pricePerShare()) / (10**_decimals);
   }
 
-  function previewDeposit(uint256 assets) public view override returns (uint256) {
+  function previewDeposit(uint256 assets) public view returns (uint256) {
     return convertToShares(assets);
   }
 
-  function previewMint(uint256 shares) public view override returns (uint256) {
+  function previewMint(uint256 shares) public view returns (uint256) {
     return (shares * yVault.pricePerShare()) / (10**_decimals);
   }
 
-  function previewWithdraw(uint256 assets) public view override returns (uint256) {
+  function previewWithdraw(uint256 assets) public view returns (uint256) {
     return (assets * (10**_decimals)) / yVault.pricePerShare();
   }
 
-  function previewRedeem(uint256 shares) public view override returns (uint256) {
+  function previewRedeem(uint256 shares) public view returns (uint256) {
     return (shares * yVault.pricePerShare()) / (10**_decimals);
   }
 
@@ -128,7 +137,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function maxDeposit(address _account) public view override returns (uint256) {
+  function maxDeposit(address _account) public view returns (uint256) {
     _account; // TODO can acc custom logic per depositor <--- Remove
     VaultAPI _bestVault = yVault;
     uint256 _totalAssets = _bestVault.totalAssets();
@@ -137,15 +146,15 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper, IERC4626 {
     return _depositLimit - _totalAssets;
   }
 
-  function maxMint(address _account) external view override returns (uint256) {
+  function maxMint(address _account) external view returns (uint256) {
     return convertToShares(maxDeposit(_account));
   }
 
-  function maxWithdraw(address owner) external view override returns (uint256) {
+  function maxWithdraw(address owner) external view returns (uint256) {
     return convertToAssets(this.balanceOf(owner));
   }
 
-  function maxRedeem(address owner) external view override returns (uint256) {
+  function maxRedeem(address owner) external view returns (uint256) {
     return this.balanceOf(owner);
   }
 

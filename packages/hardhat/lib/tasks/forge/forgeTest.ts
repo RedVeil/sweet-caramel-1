@@ -9,16 +9,18 @@ import util from "util";
 const forge = {
   fork: {
     blocks: {
-      "Vault.t.sol": 14837370,
-      "VaultInitialization.t.sol": 15176500,
-      "VaultsV1Zapper.t.sol": 15414618,
+      "vault/Vault.t.sol": 14837370,
+      "vault/VaultInitialization.t.sol": 15176500,
+      "vault/VaultsV1Zapper.t.sol": 15414618,
       "ZeroXSwapZapIn.t.sol": 15521406,
       "ZeroXSwapZapOut.t.sol": 15521406,
       "ThreeXWhaleProcessing.t.sol": 15008113,
       "ButterFeeConverter.t.sol": 15008113,
-      "VaultsV1Registry.t.sol": 15008113,
-      "VaultsV1Factory.t.sol": 15008113,
-      "VaultsV1Controller.t.sol": 15008113,
+      "vault/VaultsV1Registry.t.sol": 15008113,
+      "vault/VaultsV1Factory.t.sol": 15008113,
+      "vault/VaultStakingFactory.t.sol": 15008113,
+      "YearnVaultWrapper.t.sol": 15008113,
+      "vault/VaultsV1Controller.t.sol": 15008113,
       "RewardsDistribution.t.sol": 15008113,
     },
     forkDirectory: "fork",
@@ -52,7 +54,7 @@ export default task("forge:forge-test", "run forge tests").setAction(async (args
 
   const dirPath = path.join(__dirname, "../../../", "/test/forge", forge.fork.forkDirectory);
   const files = fs.readdirSync(dirPath).filter((file) => file.includes(".sol"));
-
+  console.log(files)
   for (let file of files) {
     let blockNumber = forge.fork.blocks[file];
     const shellCommand =
