@@ -18,6 +18,9 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import WheelPicker from "react-simple-wheel-picker";
 import MobileProductsMenu from "./MobileProductsMenu";
 import NavbarLink from "./NavbarLinks";
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
+
+
 const networkData = [
   {
     id: JSON.stringify(ChainId.Ethereum),
@@ -79,6 +82,8 @@ export const MobileMenu: React.FC = () => {
     setShowPopUp(false);
   };
 
+  const { showNewsletterModal } = useSubscribeToNewsletter();
+
   return (
     <>
       <div className="flex flex-row justify-between items-center px-6 py-6 font-khTeka">
@@ -98,9 +103,8 @@ export const MobileMenu: React.FC = () => {
               >
                 <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-3 h-3 object-contain" />
                 <span
-                  className={`${
-                    account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                  } block h-2 w-2 rounded-full border`}
+                  className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                    } block h-2 w-2 rounded-full border`}
                 ></span>
               </div>
             </div>
@@ -112,21 +116,18 @@ export const MobileMenu: React.FC = () => {
             <div className="block w-10">
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+                  }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "opacity-0" : "opacity-100"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
+                  }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+                  }`}
               ></span>
             </div>
           </button>
@@ -172,6 +173,13 @@ export const MobileMenu: React.FC = () => {
                           label="Rewards"
                           url="/rewards"
                           isActive={router.pathname === "/[network]/rewards"}
+                        />
+                      </div>
+                      <div className="py-6">
+                        <TertiaryActionButton
+                          label="Newsletter Sign Up"
+                          handleClick={showNewsletterModal}
+                          className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
                         />
                       </div>
                     </div>

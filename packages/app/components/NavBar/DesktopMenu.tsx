@@ -4,6 +4,7 @@ import { ChainId, networkLogos } from "@popcorn/utils";
 import MainActionButton from "components/MainActionButton";
 import TertiaryActionButton from "components/TertiaryActionButton";
 import { getProductLinks } from "helper/getProductLinks";
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -14,6 +15,7 @@ import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export default function DesktopMenu(): JSX.Element {
   const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain } = useWeb3();
+  const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
 
   return (
@@ -55,6 +57,13 @@ export default function DesktopMenu(): JSX.Element {
             <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/[network]/rewards"} />
           </li>
         </ul>
+        <div className="relative flex flex-container flex-row z-10">
+          <TertiaryActionButton
+            label="Newsletter Sign Up"
+            handleClick={showNewsletterModal}
+            className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
+          />
+        </div>
         <div className="relative flex flex-container flex-row z-10">
           <Menu>
             <Menu.Button>
