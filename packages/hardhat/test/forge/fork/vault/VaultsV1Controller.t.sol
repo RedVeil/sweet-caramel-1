@@ -106,6 +106,7 @@ contract VaultsV1ControllerTest is Test {
   modifier acceptOwnerships() {
     vaultsV1Factory.nominateNewOwner(address(vaultsV1Controller));
     vaultsV1Registry.nominateNewOwner(address(vaultsV1Controller));
+    vaultStakingFactory.nominateNewOwner(address(vaultsV1Controller));
     vaultsV1Controller.acceptRegistryFactoryOwnership();
     assertEq(vaultsV1Registry.owner(), address(vaultsV1Controller));
     assertEq(vaultsV1Factory.owner(), address(vaultsV1Controller));
@@ -122,7 +123,7 @@ contract VaultsV1ControllerTest is Test {
     yearnWrapper = YearnWrapper(yearnWrapperAddress);
     yearnWrapper.initialize(VaultAPI(YEARN_VAULT));
 
-    VaultParams({
+    vaultParams = VaultParams({
       asset: asset,
       strategy: IERC4626(address(yearnWrapper)),
       contractRegistry: IContractRegistry(CONTRACT_REGISTRY),
@@ -169,6 +170,11 @@ contract VaultsV1ControllerTest is Test {
       address(vaultsV1Controller),
       keccak256("1")
     );
+    IContractRegistry(CONTRACT_REGISTRY).addContract(
+      vaultStakingFactory.contractName(),
+      address(vaultStakingFactory),
+      keccak256("1")
+    );
     IContractRegistry(CONTRACT_REGISTRY).updateContract(
       keccak256("KeeperIncentive"),
       address(keeperIncentive),
@@ -184,6 +190,7 @@ contract VaultsV1ControllerTest is Test {
     vm.label(address(vaultsV1Controller), "VaultsV1Controller");
     vm.label(address(vaultsV1Factory), "VaultsV1Factory");
     vm.label(address(keeperIncentive), "KeeperIncentive");
+    vm.label(address(vaultStakingFactory), "VaultStakingFactory");
 
     for (uint256 i = 0; i < 8; i++) {
       swapTokenAddresses[i] = address(uint160(i));
@@ -238,7 +245,7 @@ contract VaultsV1ControllerTest is Test {
       submitter: address(this),
       metadataCID: CID,
       swapTokenAddresses: swapTokenAddresses,
-      swapAddress: DEFAULT_STAKING,
+      swapAddress: SWAP_ADDRESS,
       exchange: 1,
       zapIn: CURVE_ZAP_IN,
       zapOut: CURVE_ZAP_OUT
@@ -341,7 +348,7 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       assertEq(metadata.swapTokenAddresses[i], swapTokenAddresses[i]);
     }
-    assertEq(metadata.swapAddress, DEFAULT_STAKING);
+    assertEq(metadata.swapAddress, SWAP_ADDRESS);
     assertEq(metadata.exchange, 1);
     assertEq(metadata.zapIn, CURVE_ZAP_IN);
     assertEq(metadata.zapOut, CURVE_ZAP_OUT);
@@ -423,14 +430,17 @@ contract VaultsV1ControllerTest is Test {
     );
 
     assertTrue(deployedVault != address(0));
+    VaultStaking newStaking = new VaultStaking();
+    newStaking.initialize(IERC20(address(deployedVault)), IContractRegistry(CONTRACT_REGISTRY));
 
+    vaultsV1Controller.setVaultStaking(deployedVault, address(newStaking));
     emit log_named_address("VaultV1Deployment", deployedVault);
 
     VaultMetadata memory metadata = vaultsV1Registry.getVault(deployedVault);
     assertEq(metadata.vaultAddress, deployedVault);
     assertEq(metadata.vaultType, 1);
     assertEq(metadata.enabled, true);
-    assertEq(metadata.staking, address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a));
+    assertEq(metadata.staking, address(newStaking));
     assertEq(metadata.vaultZapper, address(vaultZapper));
     assertEq(metadata.submitter, address(this));
     assertEq(metadata.metadataCID, CID);
@@ -447,7 +457,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], deployedVault);
     assertTrue(vaultsV1Registry.endorsed(deployedVault));
 
-    IStaking staking = IStaking(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a);
+    IStaking staking = IStaking(newStaking);
     assertEq(address(staking.rewardsToken()), 0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4);
     assertEq(address(staking.stakingToken()), deployedVault);
 
@@ -457,7 +467,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(zapIn, CURVE_ZAP_IN);
     assertEq(zapOut, CURVE_ZAP_OUT);
 
-    assertTrue(rewardsEscrow.authorized(address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a)));
+    assertTrue(rewardsEscrow.authorized(address(newStaking)));
   }
 
   function test__deployVaultFromV1FactoryWithStakingEvents() public acceptOwnerships {
@@ -467,11 +477,11 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
 
-    emit VaultV1Deployment(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12);
-    emit VaultStakingDeployment(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12);
-    emit VaultAdded(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12, 1, true, CID);
-    emit VaultStatusChanged(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12, true, true);
-    emit VaultV1Deployed(0xdd36aa107BcA36Ba4606767D873B13B4770F3b12, true);
+    emit VaultV1Deployment(0x73A1564465e54a58De2Dbc3b5032fD013fc95aD4);
+    emit VaultStakingDeployment(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38);
+    emit VaultAdded(0x73A1564465e54a58De2Dbc3b5032fD013fc95aD4, 1, true, CID);
+    emit VaultStatusChanged(0x73A1564465e54a58De2Dbc3b5032fD013fc95aD4, true, true);
+    emit VaultV1Deployed(0x73A1564465e54a58De2Dbc3b5032fD013fc95aD4, true);
 
     vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
@@ -564,7 +574,7 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       assertEq(vaultsV1RegistryMetadata.swapTokenAddresses[i], swapTokenAddresses[i]);
     }
-    assertEq(vaultsV1RegistryMetadata.swapAddress, DEFAULT_STAKING);
+    assertEq(vaultsV1RegistryMetadata.swapAddress, SWAP_ADDRESS);
     assertEq(vaultsV1RegistryMetadata.exchange, 1);
     assertEq(vaultsV1RegistryMetadata.zapIn, CURVE_ZAP_IN);
     assertEq(vaultsV1RegistryMetadata.zapOut, CURVE_ZAP_OUT);
@@ -616,7 +626,7 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       assertEq(vaultsV1RegistryMetadata.swapTokenAddresses[i], swapTokenAddresses[i]);
     }
-    assertEq(vaultsV1RegistryMetadata.swapAddress, DEFAULT_STAKING);
+    assertEq(vaultsV1RegistryMetadata.swapAddress, SWAP_ADDRESS);
     assertEq(vaultsV1RegistryMetadata.exchange, 1);
     assertEq(vaultsV1RegistryMetadata.zapIn, CURVE_ZAP_IN);
     assertEq(vaultsV1RegistryMetadata.zapOut, CURVE_ZAP_OUT);
@@ -723,7 +733,7 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       assertEq(vaultsV1RegistryMetadata.swapTokenAddresses[i], swapTokenAddresses[i]);
     }
-    assertEq(vaultsV1RegistryMetadata.swapAddress, DEFAULT_STAKING);
+    assertEq(vaultsV1RegistryMetadata.swapAddress, SWAP_ADDRESS);
     assertEq(vaultsV1RegistryMetadata.exchange, 1);
     assertEq(vaultsV1RegistryMetadata.zapIn, CURVE_ZAP_IN);
     assertEq(vaultsV1RegistryMetadata.zapOut, CURVE_ZAP_OUT);
@@ -768,7 +778,7 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < 8; i++) {
       assertEq(vaultsV1RegistryMetadata.swapTokenAddresses[i], swapTokenAddresses[i]);
     }
-    assertEq(vaultsV1RegistryMetadata.swapAddress, DEFAULT_STAKING);
+    assertEq(vaultsV1RegistryMetadata.swapAddress, SWAP_ADDRESS);
     assertEq(vaultsV1RegistryMetadata.exchange, 1);
     assertEq(vaultsV1RegistryMetadata.zapIn, CURVE_ZAP_IN);
     assertEq(vaultsV1RegistryMetadata.zapOut, CURVE_ZAP_OUT);
@@ -1148,16 +1158,7 @@ contract VaultsV1ControllerTest is Test {
     VaultStaking newStaking = new VaultStaking();
     newStaking.initialize(IERC20(address(vault)), IContractRegistry(CONTRACT_REGISTRY));
 
-    // Actual test
-    vm.expectEmit(false, false, false, true, address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a));
-    emit VaultUpdated(vault, address(0));
-
-    vm.expectEmit(false, false, false, true, address(newStaking));
-    emit VaultUpdated(address(0), vault);
-
-    vm.expectEmit(false, false, false, true, vault);
-    emit StakingUpdated(address(0xD457ECDAD18BA6917097BcA0c5A1D6A97da8C26a), address(newStaking));
-
+    // Actual Test
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     emit VaultUpdated(vault, 1, true, CID);
 
@@ -1280,9 +1281,6 @@ contract VaultsV1ControllerTest is Test {
 
     vm.expectEmit(false, false, false, true, newZapper);
     emit UpdatedVault(CRV_3CRYPTO, vault);
-
-    vm.expectEmit(false, false, false, true, vault);
-    emit ZapperUpdated(address(vaultZapper), newZapper);
 
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     emit VaultUpdated(vault, 1, true, CID);
@@ -1777,6 +1775,7 @@ contract VaultsV1ControllerTest is Test {
   function test__acceptRegistryFactoryOwnershipNotOwnerReverts() public {
     vaultsV1Factory.nominateNewOwner(address(vaultsV1Controller));
     vaultsV1Registry.nominateNewOwner(address(vaultsV1Controller));
+    vaultStakingFactory.nominateNewOwner(address(vaultsV1Controller));
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsV1Controller.acceptRegistryFactoryOwnership();
@@ -1803,8 +1802,8 @@ contract VaultsV1ControllerTest is Test {
     assertEq(vaultsV1Registry.nominatedOwner(), address(0));
     assertEq(vaultsV1Factory.owner(), address(vaultsV1Controller));
     assertEq(vaultsV1Factory.nominatedOwner(), address(0));
-    assertEq(vaultStakingFactory.owner(), address(0));
-    assertEq(vaultStakingFactory.nominatedOwner(), address(vaultsV1Controller));
+    assertEq(vaultStakingFactory.owner(), address(vaultsV1Controller));
+    assertEq(vaultStakingFactory.nominatedOwner(), address(0));
   }
 
   function test__acceptRegistryFactoryOwnershipEvents() public {
