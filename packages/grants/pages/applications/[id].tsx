@@ -13,6 +13,8 @@ import ReportsTab from "components/Profile/ReportsTab";
 import VotePeriodCard from "components/Proposals/VotePeriodCard";
 import VotingCard from "components/Proposals/VotingCard";
 import EditIcon from "components/Svgs/EditIcon";
+import { setSingleActionModal } from "context/actions";
+import { store } from "context/store";
 import { ContractsContext } from "context/Web3/contracts";
 import { utils } from "ethers";
 import Link from "next/link";
@@ -20,10 +22,8 @@ import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import styled from "styled-components";
-import StakeModalContent from "../../components/Proposals/StakeModalContent";
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
 import capitalize from "utils/capitalizeFirstLetter";
+import StakeModalContent from "../../components/Proposals/StakeModalContent";
 
 export interface ProposalPageProps {
   proposalType: ProposalType;
@@ -312,10 +312,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           </a>
         </Link>
       </div>
-      <Hero
-        bgImage={`https:/popcorn.mypinata.cloud/ipfs/${proposal?.application?.files?.headerImage?.image}`}
-        className="relative"
-      >
+      <Hero bgImage={`${process.env.IPFS_URL}${proposal?.application?.files?.headerImage?.image}`} className="relative">
         <div className="hidden md:flex space-x-6 absolute bottom-10 left-8">
           {/* <RWebShare
             data={{
@@ -406,10 +403,11 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                 {profileTabs.map((tab) => (
                   <button
                     key={tab}
-                    className={`rounded-[28px] px-5 py-3 text-lg border ${currentTab == tab
-                      ? "text-white bg-[#827D69] border-[#827D69]"
-                      : "text-[#55503D] bg-white border-customLightGray"
-                      }`}
+                    className={`rounded-[28px] px-5 py-3 text-lg border ${
+                      currentTab == tab
+                        ? "text-white bg-[#827D69] border-[#827D69]"
+                        : "text-[#55503D] bg-white border-customLightGray"
+                    }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {capitalize(tab)}
