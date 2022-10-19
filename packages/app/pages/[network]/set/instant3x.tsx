@@ -2,7 +2,6 @@ import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import { Pages } from "components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
-import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
@@ -19,6 +18,7 @@ import toast from "react-hot-toast";
 import { useChainIdFromUrl } from "../../../hooks/useChainIdFromUrl";
 import { instantMint, instantRedeem } from "./3x";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
+import SetStats from "components/SetStats";
 
 export default function Instant3x() {
   const {
@@ -95,25 +95,25 @@ export default function Instant3x() {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: usdc,
-              output: threeX,
-            },
-            tokens: threeXWhaleData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-            instant: true,
-          }
-        : {
-            ...state,
-            selectedToken: {
-              input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
-              output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
-            },
-            tokens: threeXWhaleData?.tokens,
+          ...state,
+          selectedToken: {
+            input: usdc,
+            output: threeX,
           },
+          tokens: threeXWhaleData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+          instant: true,
+        }
+        : {
+          ...state,
+          selectedToken: {
+            input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
+            output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
+          },
+          tokens: threeXWhaleData?.tokens,
+        },
     );
   }, [threeXWhaleData]);
 
@@ -190,14 +190,7 @@ export default function Instant3x() {
             Stake your 3X to earn boosted APY.
           </p>
           <div className="mx-auto">
-            <ButterStats
-              token={threeX}
-              totalSupply={threeXWhaleData?.totalSupply}
-              addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]}
-              chainId={chainId}
-              center
-              isThreeX
-            />
+            <SetStats token={threeX} />
           </div>
         </div>
         <div className="mt-10">

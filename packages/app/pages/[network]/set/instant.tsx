@@ -8,8 +8,8 @@ import {
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import { Pages } from "components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
-import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
+import SetStats from "components/SetStats";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
@@ -262,13 +262,7 @@ export default function InstantButter() {
             Stake your BTR to earn boosted APY.
           </p>
           <div className="mx-auto">
-            <ButterStats
-              token={butter}
-              totalSupply={butterData?.totalSupply}
-              addresses={butterYearnAddresses}
-              chainId={chainId}
-              center
-            />
+            <SetStats token={butter} />
           </div>
         </div>
         <div className="mt-10">

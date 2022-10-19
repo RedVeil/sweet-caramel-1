@@ -17,8 +17,8 @@ import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "components/BatchButter/StatInfoCard";
 import TutorialSlider from "components/BatchButter/TutorialSlider";
-import ButterStats from "components/ButterStats";
 import { ConnectWallet } from "components/ConnectWallet";
+import SetStats from "components/SetStats";
 import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
 import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
@@ -633,12 +633,7 @@ export default function Butter(): JSX.Element {
           <p className="mt-4 leading-5 text-primaryDark">
             Mint BTR and earn interest on multiple stablecoins at once. Stake BTR to earn boosted APY.
           </p>
-          <ButterStats
-            token={butter}
-            totalSupply={butterBatchData?.totalSupply}
-            addresses={[addr.yFrax, addr.yRai, addr.yMusd, addr.yAlusd]}
-            chainId={chainId}
-          />
+          <SetStats token={butter} />
         </div>
         <div className="col-span-5 col-end-13 hidden md:block">
           <TutorialSlider isThreeX={false} />

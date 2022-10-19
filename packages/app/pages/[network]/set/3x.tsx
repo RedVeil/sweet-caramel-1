@@ -17,8 +17,8 @@ import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "components/BatchButter/StatInfoCard";
 import TutorialSlider from "components/BatchButter/TutorialSlider";
-import ButterStats from "components/ButterStats";
 import { ConnectWallet } from "components/ConnectWallet";
+import SetStats from "components/SetStats";
 import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
 import { SwitchNetwork } from "components/SwitchNetwork";
 import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
@@ -125,28 +125,28 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: usdc,
-              output: threeX,
-            },
-            tokens: threeXData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-          }
-        : {
-            ...state,
-            selectedToken: {
-              input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-                (token) => token.address === state.selectedToken.input.address,
-              ),
-              output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-                (token) => token.address === state.selectedToken.output.address,
-              ),
-            },
-            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          ...state,
+          selectedToken: {
+            input: usdc,
+            output: threeX,
           },
+          tokens: threeXData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+        }
+        : {
+          ...state,
+          selectedToken: {
+            input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.input.address,
+            ),
+            output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.output.address,
+            ),
+          },
+          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+        },
     );
   }, [threeXData, threeXWhaleData]);
 
@@ -505,13 +505,7 @@ export default function ThreeX(): JSX.Element {
           <p className="mt-4 leading-5 text-primaryDark">
             Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
           </p>
-          <ButterStats
-            token={threeX}
-            totalSupply={threeXData?.totalSupply}
-            addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]}
-            chainId={chainId}
-            isThreeX
-          />
+          <SetStats token={threeX} />
         </div>
         <div className="col-span-5 col-end-13 hidden md:block">
           <TutorialSlider isThreeX />

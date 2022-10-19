@@ -4,26 +4,18 @@ import StatusWithLabel from "components/Common/StatusWithLabel";
 import { BigNumber, constants } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import useGetYearnAPY from "hooks/set/useGetYearnAPY";
+import useSetComponentAddresses from "hooks/set/useSetComponentAddresses";
 import useStakingPool from "hooks/staking/useStakingPool";
+import useTotalTokenSupply from "hooks/tokens/useTotalTokenSupply";
 import { useDeployment } from "hooks/useDeployment";
 
-export interface ButterStatsProps {
+export interface SetStatsProps {
   token: Token;
-  totalSupply: BigNumber;
-  center?: boolean;
-  isThreeX?: boolean;
-  addresses: string[];
-  chainId: ChainId;
 }
 
-export default function ButterStats({
+export default function SetStats({
   token,
-  totalSupply,
-  center = false,
-  isThreeX = false,
-  addresses: yearnAddresses,
-  chainId,
-}: ButterStatsProps) {
+}: SetStatsProps) {
   const SocialImpactInfoProps = {
     content:
       "Approximately one-third of all fees collected by Popcorn are donated to social impact and non-profit organizations selected by POP token holders.",
@@ -31,13 +23,15 @@ export default function ButterStats({
     title: "Social Impact",
   };
 
-  const { threeXStaking: threeXStakingAddress, butterStaking: butterStakingAddress } = useDeployment(chainId);
-  const { data: butterAPY } = useGetYearnAPY(yearnAddresses, chainId);
-  const { data: butterStaking } = useStakingPool(isThreeX ? threeXStakingAddress : butterStakingAddress, chainId);
+  const { threeX, threeXStaking: threeXStakingAddress, butterStaking: butterStakingAddress } = useDeployment(ChainId.Ethereum);
+  const yearnAddresses = useSetComponentAddresses(token?.address);
+  const { data: butterAPY } = useGetYearnAPY(yearnAddresses, ChainId.Ethereum);
+  const { data: butterStaking } = useStakingPool(token?.address === threeX ? threeXStakingAddress : butterStakingAddress, ChainId.Ethereum);
+  const tokenSupply = useTotalTokenSupply(token?.address, ChainId.Ethereum);
 
   const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
     }%) and is boosted with POP (${butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
-    }%). You must stake your ${isThreeX ? "3X" : "BTR"
+    }%). You must stake your ${token?.symbol
     } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
@@ -45,7 +39,7 @@ export default function ButterStats({
       <StatusWithLabel
         content={
           butterStaking?.apy?.add(parseUnits(String(butterAPY || 0))).gte(constants.Zero)
-            ? formatAndRoundBigNumber(butterStaking.apy.add(parseUnits(String(butterAPY))), token?.decimals) + "%"
+            ? formatAndRoundBigNumber(butterStaking.apy.add(parseUnits(String(butterAPY || 0))), token?.decimals) + "%"
             : "..."
         }
         label={
@@ -62,8 +56,8 @@ export default function ButterStats({
       <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
       <StatusWithLabel
         content={
-          token && totalSupply && token?.price.gt(constants.Zero)
-            ? `$${formatAndRoundBigNumber(totalSupply.mul(token.price).div(parseEther("1")), token.decimals)}`
+          token && tokenSupply && token?.price.gt(constants.Zero)
+            ? `$${formatAndRoundBigNumber(tokenSupply.mul(token.price).div(parseEther("1")), token.decimals)}`
             : "$ ..."
         }
         label="Total Deposits"
@@ -71,7 +65,7 @@ export default function ButterStats({
       <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
 
       <>
-        {isThreeX ? (
+        {token?.address === threeX ? (
           <StatusWithLabel content={"$1m"} label="TVL Limit" />
         ) : (
           <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
