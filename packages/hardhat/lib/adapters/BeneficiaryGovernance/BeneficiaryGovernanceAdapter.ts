@@ -1,5 +1,5 @@
-import { IIpfsClient } from "@popcorn/utils";
-import { BigNumber, Contract } from "ethers";
+import { getIpfsHashFromBytes32, IIpfsClient } from "@popcorn/utils";
+import { BigNumber, Contract, ethers } from "ethers";
 
 export enum ProposalStatus {
   Open,
@@ -76,8 +76,9 @@ export class BeneficiaryGovernanceAdapter {
 
   public async getProposal(id: number): Promise<Proposal> {
     const proposal = await this.contract.proposals(id);
+    const application = getIpfsHashFromBytes32(ethers.utils.toUtf8String(proposal.applicationCid));
     return {
-      application: await this.IpfsClient.get(proposal.applicationCid),
+      application: await this.IpfsClient.get(application),
       id: id.toString(),
       proposalType: proposal.proposalType,
       status: Number(proposal.status.toString()),
