@@ -180,7 +180,7 @@ contract VaultsV1ZapperTest is Test {
     // We get back 482 vault shares. This checks out: CVXSETH is about $2, so we should
     // expect to receive something close to but less than 500 LP tokens in exchange
     // for 1000 DAI.
-    assertEq(vaultBalance, 589399193870234992);
+    assertEq(vaultBalance, 304138537526120630);
   }
 
   function test_zap_in_swap_dai_for_eth_and_stake() public {
@@ -253,7 +253,7 @@ contract VaultsV1ZapperTest is Test {
     // bonus for depositing SETH. For all our Curve based zappers, we'll need to
     // calculate off-chain which token would be more advantageous to swap into
     // based on the current Curve pool balance.
-    assertEq(vaultBalance, 593083788992255652);
+    assertEq(vaultBalance, 306039842080727748);
   }
 
   function test_zap_in_direct_deposit_eth() public {
@@ -281,7 +281,7 @@ contract VaultsV1ZapperTest is Test {
     uint256 vaultBalance = vault.balanceOf(address(this));
 
     // We get back a little under 1000 vault shares for our 1000 CVXSETH.
-    assertEq(vaultBalance, 980062232137761444922);
+    assertEq(vaultBalance, 505726334659001399300);
   }
 
   function test_zap_in_direct_deposit_seth() public {
@@ -307,7 +307,7 @@ contract VaultsV1ZapperTest is Test {
 
     // Again, we get a bonus from the Curve pool for depositing SETH
     // rather than CVXSETH.
-    assertEq(vaultBalance, 994795838107459813307);
+    assertEq(vaultBalance, 513329089156654739577);
   }
 
   function test_zap_out_to_dai_via_seth() public {
@@ -315,7 +315,7 @@ contract VaultsV1ZapperTest is Test {
     zapIntoSethVault(false);
 
     uint256 vaultBalance = vault.balanceOf(address(this));
-    assertEq(vaultBalance, 589399193870234992);
+    assertEq(vaultBalance, 304138537526120630);
 
     // Approve the zapper to spend our vault shares.
     vault.approve(address(zapper), vaultBalance);
@@ -376,7 +376,7 @@ contract VaultsV1ZapperTest is Test {
     zapIntoSethVault(true);
 
     uint256 stakingBalance = staking.balanceOf(address(this));
-    assertEq(stakingBalance, 589399193870234992);
+    assertEq(stakingBalance, 304138537526120630);
 
     // Approve the zapper to spend our vault shares.
     vault.approve(address(zapper), stakingBalance);
@@ -437,7 +437,7 @@ contract VaultsV1ZapperTest is Test {
     zapIntoSethVault(false);
 
     uint256 vaultBalance = vault.balanceOf(address(this));
-    assertEq(vaultBalance, 589399193870234992);
+    assertEq(vaultBalance, 304138537526120630);
 
     // Approve the zapper to spend our vault shares.
     vault.approve(address(zapper), vaultBalance);
@@ -498,7 +498,7 @@ contract VaultsV1ZapperTest is Test {
 
     zapIntoSethVault(false);
 
-    uint256 expectedVaultBalanceWithoutFees = 589399193870234992;
+    uint256 expectedVaultBalanceWithoutFees = 304138537526120630;
     uint256 expectedFee = expectedVaultBalanceWithoutFees / 100;
 
     assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
@@ -516,7 +516,7 @@ contract VaultsV1ZapperTest is Test {
     zapIntoSethVault(false);
 
     uint256 vaultBalance = vault.balanceOf(address(this));
-    assertEq(vaultBalance, 589399193870234992);
+    assertEq(vaultBalance, 304138537526120630);
 
     // Approve the zapper to spend our vault shares.
     vault.approve(address(zapper), vaultBalance);
@@ -563,12 +563,13 @@ contract VaultsV1ZapperTest is Test {
     vm.prank(DAO);
     zapper.setGlobalFee(50, 0);
 
+    uint256 assetsAfterSwap = 589399193870234992;
+    uint256 expectedVaultBalance = vault.previewDeposit(assetsAfterSwap);
+    uint256 expectedFee = assetsAfterSwap / 200;
+
     zapIntoSethVault(false);
 
-    uint256 expectedVaultBalanceWithoutFees = 589399193870234992;
-    uint256 expectedFee = expectedVaultBalanceWithoutFees / 200;
-
-    assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
+    assertEq(vault.balanceOf(address(this)), expectedVaultBalance);
 
     // Make sure the fee was taken
     assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
@@ -586,15 +587,15 @@ contract VaultsV1ZapperTest is Test {
 
     zapIntoSethVault(false);
 
-    uint256 expectedVaultBalanceWithoutFees = 589399193870234992;
-    uint256 expectedFee = expectedVaultBalanceWithoutFees / 200;
-
+    uint256 expectedVaultBalanceWithoutFees = 304138537526120630;
+    uint256 expectedFee = expectedVaultBalanceWithoutFees / 100;
+    uint256 assets = 589399193870234992;
     assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
 
     // Make sure the fee was taken
-    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), assets / 100);
     (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
-    assertEq(accumulated, expectedFee);
+    assertEq(accumulated, assets / 100);
   }
 
   function test_global_fee_with_enabled_asset_fee() public {
@@ -607,7 +608,7 @@ contract VaultsV1ZapperTest is Test {
 
     zapIntoSethVault(false);
 
-    uint256 expectedVaultBalanceWithoutFees = 589399193870234992;
+    uint256 expectedVaultBalanceWithoutFees = 304138537526120630;
     uint256 expectedFee = expectedVaultBalanceWithoutFees / 100;
 
     assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);

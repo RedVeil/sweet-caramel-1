@@ -89,6 +89,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
   event UpdatedVault(address vaultAsset, address vault);
   event RemovedVault(address vaultAsset, address vault);
   event ZapsUpdated(address zapIn, address zapOut);
+  event log(uint256 amount);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -162,7 +163,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
       swapData,
       address(this)
     );
-
+    emit log(amountOut);
     Fee memory assetfee = fees[vaultAsset];
     uint256 amountOutAfterFees = _takeFee(
       vaultAsset,
