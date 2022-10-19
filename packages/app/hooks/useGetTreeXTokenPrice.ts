@@ -1,12 +1,12 @@
 import { parseEther } from "@ethersproject/units";
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { IBasicIssuanceModule, ThreeXBatchProcessing } from "@popcorn/hardhat/typechain";
+import { ChainId } from "@popcorn/utils/connectors";
 import { Address } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
 import useBasicIssuanceModule from "hooks/set/useBasicIssuanceModule";
-import useWeb3 from "hooks/useWeb3";
 import useSWR from "swr";
 import useThreeXBatch from "./set/useThreeXBatch";
+import { useDeployment } from "./useDeployment";
 
 async function getTokenPrice(
   basicIssuanceModule: IBasicIssuanceModule,
@@ -18,11 +18,12 @@ async function getTokenPrice(
   );
 }
 
-export default function useGetThreeXTokenPrice() {
-  const { chainId } = useWeb3();
-  const threeXBatch = useThreeXBatch();
-  const basicIssuanceModule = useBasicIssuanceModule();
-  const { threeX } = getChainRelevantContracts(chainId);
+export default function useGetThreeXTokenPrice(chainId: ChainId) {
+  const { threeXBatch: threeXBatchAddress, setBasicIssuanceModule, threeX } = useDeployment(chainId);
+
+  const threeXBatch = useThreeXBatch(threeXBatchAddress, chainId);
+  const basicIssuanceModule = useBasicIssuanceModule(setBasicIssuanceModule, chainId);
+
   const shouldFetch = threeXBatch && basicIssuanceModule && threeX && chainId;
   return useSWR(shouldFetch ? ["getTokenPrice", threeXBatch, basicIssuanceModule, threeX] : null, async () =>
     getTokenPrice(basicIssuanceModule, threeXBatch, threeX),

@@ -1,4 +1,4 @@
-import { adjustDepositDecimals, ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import { Pages } from "components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
@@ -10,11 +10,13 @@ import { BigNumber, constants, ethers } from "ethers";
 import { isDepositDisabled } from "helper/isDepositDisabled";
 import useThreeXWhale from "hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
+import { useAdjustDepositDecimals } from "hooks/useAdjustDepositDecimals";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
+import { useChainIdFromUrl } from "../../../hooks/useChainIdFromUrl";
 import { instantMint, instantRedeem } from "./3x";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
@@ -22,23 +24,23 @@ export default function Instant3x() {
   const {
     signerOrProvider,
     account,
-    chainId,
     onContractSuccess,
     onContractError,
     contractAddresses,
     connect,
     setChain,
-    pushWithinChain,
     signer,
   } = useWeb3();
+  const chainId = useChainIdFromUrl();
   const { dispatch } = useContext(store);
-  const threeXWhale = useThreeXWhale();
+  const threeXWhale = useThreeXWhale(contractAddresses.threeXWhale, chainId);
   const {
     data: threeXWhaleData,
     error: errorFetchingThreeXWhaleData,
     mutate: refetchThreeXData,
-  } = useThreeXWhaleData();
+  } = useThreeXWhaleData(chainId);
   const router = useRouter();
+  const adjustDepositDecimals = useAdjustDepositDecimals(chainId);
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXWhaleData && !errorFetchingThreeXWhaleData;
 
@@ -192,6 +194,7 @@ export default function Instant3x() {
               token={threeX}
               totalSupply={threeXWhaleData?.totalSupply}
               addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]}
+              chainId={chainId}
               center
               isThreeX
             />
@@ -200,6 +203,7 @@ export default function Instant3x() {
         <div className="mt-10">
           {threeXWhaleData && threeXPageState.selectedToken ? (
             <MintRedeemInterface
+              chainId={chainId}
               options={threeXWhaleData.tokens}
               selectToken={selectToken}
               mainAction={handleMainAction}

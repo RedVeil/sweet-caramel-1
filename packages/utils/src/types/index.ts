@@ -1,7 +1,9 @@
 import { BigNumber, Contract } from "ethers";
 import { ERC20, Vault } from "../../../hardhat/typechain";
+import { ChainId } from "../connectors";
 
 export type Address = string;
+
 export interface ContractAddresses {
   staking?: Array<Address>;
   sweetVaults?: Array<Address>;
@@ -31,7 +33,6 @@ export interface ContractAddresses {
   butterBatch?: Address;
   butterBatchZapper?: Address;
   butterWhaleProcessing?: Address;
-  butterDependency?: ButterDependencyAddresses;
   threeX?: Address;
   threeXBatch?: Address;
   threeXWhale?: Address;
@@ -103,7 +104,7 @@ export interface ContractAddresses {
   balancerLBPFactory?: Address;
   merkleOrchard?: Address;
   rewardsEscrow?: Address;
-  vaultsRewardsEscrow: Address;
+  vaultsRewardsEscrow?: Address;
   all: Set<Address>;
   has: (contract: string) => boolean;
 }
@@ -146,7 +147,7 @@ export type LockedBalance = {
 
 export type Token = {
   contract: ERC20;
-  address: Address;
+  address: string;
   name: string;
   symbol: string;
   decimals: number;
@@ -156,6 +157,7 @@ export type Token = {
   icon?: string;
   claimableBalance?: BigNumber;
   price?: BigNumber;
+  [key: string]: any;
 };
 
 export type ERC20Metadata = {
@@ -167,6 +169,14 @@ export type ERC20Metadata = {
   allowance?: BigNumber;
   description?: string;
   icon?: string;
+};
+
+export type ContractMetadata = {
+  name?: string;
+  symbol?: string;
+  description?: string;
+  icon?: string;
+  platform?: string;
 };
 
 export type SweetVaultMetadata = ERC20Metadata & {
@@ -191,6 +201,8 @@ export type SweetVaultMetadata = ERC20Metadata & {
 // contract w/ metadata pattern
 export type SweetVaultWithMetadata = {
   contract: Vault;
+  address: string;
+  chainId: ChainId;
   metadata: SweetVaultMetadata;
 };
 

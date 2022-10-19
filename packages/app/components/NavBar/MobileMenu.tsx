@@ -11,6 +11,7 @@ import YoutubeIcon from "components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "components/TertiaryActionButton";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { getProductLinks } from "helper/getProductLinks";
+import useNetworkName from "hooks/useNetworkName";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -41,7 +42,7 @@ const networkData = [
 ];
 
 export const MobileMenu: React.FC = () => {
-  const { account, connect, disconnect, setChain, pushWithinChain } = useWeb3();
+  const { account, connect, disconnect, setChain, pushWithinChain, connectedChainId } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
   const [availableNetworks, setAvailableNetworks] = useState(networkData);
@@ -50,6 +51,7 @@ export const MobileMenu: React.FC = () => {
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
   const selectedNetwork = useRef(parseInt(networkData[0].id));
+  const networkName = useNetworkName();
 
   const { showLocalNetwork } = useContext(FeatureToggleContext).features;
 
@@ -88,7 +90,7 @@ export const MobileMenu: React.FC = () => {
     <>
       <div className="flex flex-row justify-between items-center px-6 py-6 font-khTeka">
         <div>
-          <Link href={`/${router?.query?.network}/`} passHref>
+          <Link href={`/`} passHref>
             <a>
               <img src="/images/icons/popLogo.svg" alt="Logo" className="w1010 h-10" />
             </a>
@@ -152,7 +154,7 @@ export const MobileMenu: React.FC = () => {
                   <div className="h-full w-full flex flex-col justify-between pt-18 px-6 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col w-full">
                       <div className="pt-6 pb-6">
-                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/[network]`} />
+                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/`} />
                       </div>
                       <div className="py-6">
                         {products.length < 2 ? (
@@ -164,14 +166,14 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-6">
                         <NavbarLink
                           label="Staking"
-                          url="/staking"
+                          url={`/${networkName}/staking`}
                           isActive={router.pathname === "/[network]/staking"}
                         />
                       </div>
                       <div className="py-6">
                         <NavbarLink
                           label="Rewards"
-                          url="/rewards"
+                          url={`/${networkName}/rewards`}
                           isActive={router.pathname === "/[network]/rewards"}
                         />
                       </div>

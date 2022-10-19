@@ -1,14 +1,14 @@
 import { ISetToken, ISetToken__factory } from "@popcorn/hardhat/typechain";
-import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import useWeb3 from "hooks/useWeb3";
+import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { useMemo } from "react";
+import { useRpcProvider } from "../useRpcProvider";
 
-export default function useSetToken(tokenAddress: string, rpcProvider?): ISetToken {
-  const { signerOrProvider, chainId } = useWeb3();
+export default function useSetToken(tokenAddress: string, chainId: ChainId): ISetToken {
+  const provider = useRpcProvider(chainId);
 
   return useMemo(() => {
     if (tokenAddress && isButterSupportedOnCurrentNetwork(chainId)) {
-      return ISetToken__factory.connect(tokenAddress, rpcProvider ? rpcProvider : signerOrProvider);
+      return ISetToken__factory.connect(tokenAddress, provider);
     }
-  }, [signerOrProvider, tokenAddress]);
+  }, [chainId, tokenAddress]);
 }

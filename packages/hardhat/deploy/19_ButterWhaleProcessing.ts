@@ -1,13 +1,9 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
 
   const YTOKEN_ADDRESSES = [addresses.yFrax, addresses.yRai, addresses.yMusd, addresses.yAlusd];
   const CRV_DEPENDENCIES = [
@@ -35,7 +31,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //Whale Butter
   console.log("deploying whale butter...");
   const deployed = await deploy("ButterWhaleProcessing", {
-    from: addresses.deployer,
+    from: await signer.getAddress(),
     args: [
       contractRegistryAddress,
       (await deployments.get("butterStaking")).address,

@@ -1,9 +1,9 @@
 import { RewardsEscrow } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
 import useSWR from "swr";
-import { getChainRelevantContracts } from "../../hardhat/lib/utils/getContractAddresses";
+import { ChainId } from "../../utils/src/connectors";
+import { useRpcProvider } from "./useRpcProvider";
 import useVestingEscrow from "./useVestingEscrow";
-import useWeb3 from "./useWeb3";
 
 export type Escrow = {
   start: BigNumber;
@@ -30,7 +30,7 @@ const getEscrowsByIds = async (vestingEscrow: RewardsEscrow, escrowIds: string[]
   return result;
 };
 
-const getUserEscrows = () => async (_: any, account: string, vestingEscrow: RewardsEscrow) => {
+const getUserEscrows = async (_: any, account: string, vestingEscrow: RewardsEscrow) => {
   const escrowIds: string[] = await vestingEscrow.getEscrowIdsByUser(account);
   if (escrowIds.length === 0) {
     return { escrows: new Array(0), totalClaimablePop: constants.Zero, totalVestingPop: constants.Zero };
@@ -62,23 +62,14 @@ const getUserEscrows = () => async (_: any, account: string, vestingEscrow: Rewa
   };
 };
 
-export function useGetUserEscrows(chainId, rpcProvider?) {
-  const contractAddresses = getChainRelevantContracts(chainId);
-  return getEscrow(contractAddresses.rewardsEscrow, rpcProvider);
-}
-
-export function useGetUserVaultsEscrows(chainId, rpcProvider?) {
-  const contractAddresses = getChainRelevantContracts(chainId);
-  return getEscrow(contractAddresses.vaultsRewardsEscrow, rpcProvider);
-}
-
-function getEscrow(address, rpcProvider?) {
-  const { account } = useWeb3();
-  const vestingEscrow = useVestingEscrow(address, rpcProvider);
-  const shouldFetch = !!vestingEscrow && !!account;
-  return useSWR(shouldFetch ? [`getUserEscrows-${address}`, account, vestingEscrow] : null, getUserEscrows(), {
+export function useGetUserEscrows(address: string, account: string, chainId: ChainId) {
+  const provider = useRpcProvider(chainId);
+  const vestingEscrow = useVestingEscrow(address, chainId);
+  const shouldFetch = !!vestingEscrow && !!account && !!provider;
+  return useSWR(shouldFetch ? ["getUserEscrows", account, vestingEscrow, chainId, provider] : null, getUserEscrows, {
     refreshInterval: 2000,
   });
 }
+export default useGetUserEscrows;
 
 const BAD_ESCROW_IDS = ["0xb5e39b26e424fc1affd47eaa035ac492b765b6dae4985c2762d829f986b43418"];

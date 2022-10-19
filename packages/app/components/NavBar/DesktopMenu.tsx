@@ -4,6 +4,7 @@ import { ChainId, networkLogos } from "@popcorn/utils";
 import MainActionButton from "components/MainActionButton";
 import TertiaryActionButton from "components/TertiaryActionButton";
 import { getProductLinks } from "helper/getProductLinks";
+import useNetworkName from "hooks/useNetworkName";
 import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
@@ -14,15 +15,16 @@ import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export default function DesktopMenu(): JSX.Element {
-  const { chainId, account, connect, disconnect, wallet, setChain, pushWithinChain } = useWeb3();
+  const { connectedChainId, account, connect, disconnect, setChain, pushWithinChain } = useWeb3();
   const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
+  const networkName = useNetworkName();
 
   return (
     <div className="flex flex-row items-center justify-between w-full p-8 z-30">
       <div className="flex flex-row items-center">
         <div>
-          <Link href={`/${router?.query?.network}/`} passHref>
+          <Link href={`/`} passHref>
             <a>
               <img src="/images/icons/popLogo.svg" alt="Logo" className="w-10 h-10" />
             </a>
@@ -32,7 +34,7 @@ export default function DesktopMenu(): JSX.Element {
       <div className="flex flex-container flex-row w-fit-content gap-6 md:gap-0 md:space-x-6">
         <ul className="flex items-center flex-row gap-16 md:gap-0 md:space-x-16 mr-10">
           <li>
-            <NavbarLink label="Popcorn" url="/" isActive={router.pathname === "/[network]"} />
+            <NavbarLink label="Popcorn" url="/" isActive={router.pathname === "/"} />
           </li>
           <li className="relative flex flex-container flex-row z-10">
             <Menu>
@@ -54,7 +56,11 @@ export default function DesktopMenu(): JSX.Element {
             </Menu>
           </li>
           <li>
-            <NavbarLink label="Rewards" url="/rewards" isActive={router.pathname === "/[network]/rewards"} />
+            <NavbarLink
+              label="Rewards"
+              url={`/${networkName}/rewards`}
+              isActive={router.pathname === "/[network]/rewards"}
+            />
           </li>
         </ul>
         <div className="relative flex flex-container flex-row z-10">
@@ -76,20 +82,25 @@ export default function DesktopMenu(): JSX.Element {
             </Menu.Button>
           </Menu>
         </div>
-        <div className="relative flex flex-container flex-row z-10">
-          <Menu>
-            <Menu.Button>
-              <div
-                className={`h-full px-6 flex flex-row items-center justify-between border border-customLightGray rounded-4xl text-primary cursor-pointer`}
-              >
-                <img src={networkLogos[chainId]} alt={""} className="w-4.5 h-4 mr-4" />
-                <p className="leading-none mt-0.5">{ChainId[chainId]}</p>
-                <ChevronDownIcon className="w-5 h-5 ml-4 text-primary" aria-hidden="true" />
-              </div>
-            </Menu.Button>
-            <NetworkOptionsMenu currentChain={chainId} switchNetwork={(newChainId) => setChain(newChainId)} />
-          </Menu>
-        </div>
+        {account && (
+          <div className="relative flex flex-container flex-row z-10">
+            <Menu>
+              <Menu.Button>
+                <div
+                  className={`h-full px-6 flex flex-row items-center justify-between border border-customLightGray rounded-4xl text-primary cursor-pointer`}
+                >
+                  <img src={networkLogos[connectedChainId]} alt={""} className="w-4.5 h-4 mr-4" />
+                  <p className="leading-none mt-0.5">{ChainId[connectedChainId]}</p>
+                  <ChevronDownIcon className="w-5 h-5 ml-4 text-primary" aria-hidden="true" />
+                </div>
+              </Menu.Button>
+              <NetworkOptionsMenu
+                currentChain={connectedChainId}
+                switchNetwork={(newChainId) => setChain(newChainId)}
+              />
+            </Menu>
+          </div>
+        )}
         {!account ? (
           <MainActionButton
             label="Connect Wallet"

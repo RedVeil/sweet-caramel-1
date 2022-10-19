@@ -1,11 +1,11 @@
-import { formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import { BigNumber, constants } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import useGetYearnAPY from "hooks/set/useGetYearnAPY";
 import useStakingPool from "hooks/staking/useStakingPool";
-import useWeb3 from "hooks/useWeb3";
+import { useDeployment } from "hooks/useDeployment";
 
 export interface ButterStatsProps {
   token: Token;
@@ -13,6 +13,7 @@ export interface ButterStatsProps {
   center?: boolean;
   isThreeX?: boolean;
   addresses: string[];
+  chainId: ChainId;
 }
 
 export default function ButterStats({
@@ -20,7 +21,8 @@ export default function ButterStats({
   totalSupply,
   center = false,
   isThreeX = false,
-  addresses,
+  addresses: yearnAddresses,
+  chainId,
 }: ButterStatsProps) {
   const SocialImpactInfoProps = {
     content:
@@ -28,25 +30,21 @@ export default function ButterStats({
     id: "socialImpact",
     title: "Social Impact",
   };
-  const { contractAddresses } = useWeb3();
-  const { data: butterAPY } = useGetYearnAPY(addresses);
-  const { data: butterStaking } = useStakingPool(
-    isThreeX ? contractAddresses.threeXStaking : contractAddresses.butterStaking,
-  );
 
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
-    butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-  }%) and is boosted with POP (${
-    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
-  }%). You must stake your ${
-    isThreeX ? "3X" : "BTR"
-  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+  const { threeXStaking: threeXStakingAddress, butterStaking: butterStakingAddress } = useDeployment(chainId);
+  const { data: butterAPY } = useGetYearnAPY(yearnAddresses, chainId);
+  const { data: butterStaking } = useStakingPool(isThreeX ? threeXStakingAddress : butterStakingAddress, chainId);
+
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
+    }%) and is boosted with POP (${butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
+    }%). You must stake your ${isThreeX ? "3X" : "BTR"
+    } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
     <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-0 md:space-x-6">
       <StatusWithLabel
         content={
-          butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
+          butterStaking?.apy?.add(parseUnits(String(butterAPY || 0))).gte(constants.Zero)
             ? formatAndRoundBigNumber(butterStaking.apy.add(parseUnits(String(butterAPY))), token?.decimals) + "%"
             : "..."
         }
@@ -64,7 +62,7 @@ export default function ButterStats({
       <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
       <StatusWithLabel
         content={
-          token && totalSupply
+          token && totalSupply && token?.price.gt(constants.Zero)
             ? `$${formatAndRoundBigNumber(totalSupply.mul(token.price).div(parseEther("1")), token.decimals)}`
             : "$ ..."
         }

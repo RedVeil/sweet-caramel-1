@@ -6,7 +6,7 @@ interface InfoIconProps {
   content: string;
 }
 
-interface StatusWithLabelProps {
+export interface StatusWithLabelProps {
   content: string;
   label: string | React.ReactElement;
   infoIconProps?: InfoIconProps;

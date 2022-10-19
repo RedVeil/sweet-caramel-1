@@ -1,5 +1,6 @@
 import { Zapper } from "@popcorn/hardhat/lib/adapters";
 import { Vault } from "@popcorn/hardhat/typechain";
+import { ChainId } from "@popcorn/utils";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
 import SelectToken from "components/BatchButter/SelectToken";
 import SlippageSettings from "components/BatchButter/SlippageSettings";
@@ -27,6 +28,7 @@ export interface SweetVaultsDepositInterfaceProps {
   zapper: Zapper;
   poolToken: Token[];
   defaultTokenList: Token[];
+  chainId: ChainId;
 }
 
 async function calcOutputAmount(
@@ -60,6 +62,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   zapper,
   poolToken,
   defaultTokenList,
+  chainId,
 }) => {
   const { account, signer, rpcProvider, onContractSuccess, onContractError } = useWeb3();
   const [interactionType, setInteractionType] = useState<InteractionType>(InteractionType.Deposit);
@@ -76,8 +79,8 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
     data: vaultZapperAllowance,
     error,
     mutate,
-  } = useTokenAllowance(sweetVault?.contract, account, zapper?.zapper?.address);
-  const approveToken = useApproveERC20();
+  } = useTokenAllowance(sweetVault?.contract.address, chainId, account, zapper?.zapper?.address);
+  const approveToken = useApproveERC20(chainId);
 
   useEffect(() => {
     if (sweetVault?.metadata && poolToken?.length) {
@@ -129,6 +132,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
         </div>
         {interactionType === InteractionType.Deposit ? (
           <TokenInput
+            chainId={chainId}
             label={"Deposit"}
             token={selectedToken}
             amount={inputAmount}
@@ -140,6 +144,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
           />
         ) : (
           <TokenInput
+            chainId={chainId}
             label={"Withdraw"}
             token={{ contract: sweetVault?.contract, ...sweetVault?.metadata }}
             amount={inputAmount}
@@ -183,7 +188,13 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
           <FakeInputField
             inputValue={assetsPerShare * Number(formatUnits(inputAmount, sweetVault?.metadata?.decimals))}
             children={
-              <SelectToken options={tokenList} selectedToken={selectedToken} selectToken={selectToken} allowSelection />
+              <SelectToken
+                chainId={chainId}
+                options={tokenList}
+                selectedToken={selectedToken}
+                selectToken={selectToken}
+                allowSelection
+              />
             }
           />
         )}

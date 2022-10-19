@@ -9,6 +9,7 @@ export function CheckMarkToggleWithInfo({
   label,
   onChange,
   image,
+  className,
 }: {
   disabled?: boolean;
   value: boolean;
@@ -17,9 +18,10 @@ export function CheckMarkToggleWithInfo({
   infoText: string;
   label: string;
   image?: React.ReactElement;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-row items-center mt-3">
+    <div className={`flex flex-row items-center mt-3  ${className}`}>
       <label className={`flex flex-row items-center  group ${disabled ? "cursor-default" : "cursor-pointer"}`}>
         <input
           type="checkbox"

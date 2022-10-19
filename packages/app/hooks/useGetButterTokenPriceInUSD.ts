@@ -1,12 +1,12 @@
 import { parseEther } from "@ethersproject/units";
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { IBasicIssuanceModule, ButterBatchProcessing } from "@popcorn/hardhat/typechain";
-import { Address, ContractAddresses } from "@popcorn/utils/types";
+import { ButterBatchProcessing, IBasicIssuanceModule } from "@popcorn/hardhat/typechain";
+import { ChainId } from "@popcorn/utils/connectors";
+import { Address } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
 import useBasicIssuanceModule from "hooks/set/useBasicIssuanceModule";
 import useButterBatch from "hooks/set/useButterBatch";
-import useWeb3 from "hooks/useWeb3";
 import useSWR from "swr";
+import { useDeployment } from "./useDeployment";
 
 export async function getTokenPrice(
   basicIssuanceModule: IBasicIssuanceModule,
@@ -21,11 +21,10 @@ export async function getTokenPrice(
   return butterBatch.valueOfComponents(...requiredComponentsForIssue);
 }
 
-export default function useGetButterTokenPriceInUSD() {
-  const { chainId } = useWeb3();
-  const butterBatch = useButterBatch();
-  const basicIssuanceModule = useBasicIssuanceModule();
-  const contractAddresses: ContractAddresses = getChainRelevantContracts(chainId);
+export default function useGetButterTokenPriceInUSD(chainId: ChainId) {
+  const contractAddresses = useDeployment(chainId);
+  const butterBatch = useButterBatch(contractAddresses.butterBatch, chainId);
+  const basicIssuanceModule = useBasicIssuanceModule(contractAddresses.setBasicIssuanceModule, chainId);
   const butterAddress = contractAddresses.butter;
   const shouldFetch = butterBatch && basicIssuanceModule && butterAddress && chainId;
   return useSWR(

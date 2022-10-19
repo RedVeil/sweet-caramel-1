@@ -1,17 +1,15 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
+
+const contract_name = "KeeperIncentive";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
 
-  await deploy("KeeperIncentive", {
-    from: deployer,
+  const deployed = await deploy("KeeperIncentive", {
+    from: await signer.getAddress(),
     args: [(await deployments.get("ContractRegistry")).address, BigNumber.from("0"), BigNumber.from("0")],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks

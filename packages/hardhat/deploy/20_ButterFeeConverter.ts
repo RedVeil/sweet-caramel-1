@@ -2,14 +2,10 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
 
   const contractRegistry = await deployments.get("ContractRegistry");
 
@@ -18,7 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   console.log("Deploying ButterFeeConverter...");
   await deploy("ButterFeeConverter", {
-    from: addresses.deployer,
+    from: await signer.getAddress(),
     args: [
       addresses.butter,
       addresses.setStreamingFeeModule,

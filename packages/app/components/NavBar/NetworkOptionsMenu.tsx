@@ -47,16 +47,22 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
         {showLocalNetwork && (
           <>
             <NetworkOptionsMenuItem
-              chainId={ChainId.Localhost}
+              chainId={ChainId.Hardhat}
               switchNetwork={(chainId) => switchNetwork(chainId)}
               currentChainId={currentChain}
-              key={ChainId.Localhost}
+              key={ChainId.Hardhat}
             />
             <NetworkOptionsMenuItem
               chainId={ChainId.Rinkeby}
               switchNetwork={(chainId) => switchNetwork(chainId)}
               currentChainId={currentChain}
               key={ChainId.Rinkeby}
+            />
+            <NetworkOptionsMenuItem
+              chainId={ChainId.RemoteFork}
+              switchNetwork={(chainId) => switchNetwork(chainId)}
+              currentChainId={currentChain}
+              key={ChainId.RemoteFork}
             />
           </>
         )}

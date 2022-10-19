@@ -1,7 +1,9 @@
 import { ChevronDownIcon } from "@heroicons/react/outline";
+import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
 import PopUpModal from "components/Modal/PopUpModal";
 import SingleActionModal from "components/Modal/SingleActionModal";
+import TokenIcon from "components/TokenIcon";
 import PLACEHOLDER_IMAGE_URL from "helper/placeholderImageUrl";
 import Image from "next/image";
 import { useState } from "react";
@@ -12,6 +14,7 @@ export interface SelectTokenProps {
   options: Token[];
   selectedToken: Token;
   selectToken?: (token: Token) => void;
+  chainId: ChainId;
 }
 
 export default function SelectToken({
@@ -19,6 +22,7 @@ export default function SelectToken({
   options,
   selectedToken,
   selectToken,
+  chainId,
 }: SelectTokenProps): JSX.Element {
   const [showSelectTokenModal, setShowSelectTokenModal] = useState(false);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
@@ -41,14 +45,8 @@ export default function SelectToken({
             allowSelection && openPopUp();
           }}
         >
-          <div className="w-5 h-5 md:mr-2 relative">
-            <Image
-              src={selectedToken?.icon || PLACEHOLDER_IMAGE_URL}
-              alt={selectedToken?.icon}
-              layout="fill" // required
-              objectFit="contain"
-              priority={true}
-            />
+          <div className="md:mr-2 relative">
+            <TokenIcon token={selectedToken?.address} imageSize="w-5 h-5" chainId={chainId} />
           </div>
           <p className="font-medium text-lg leading-none hidden md:block text-black group-hover:text-primary">
             {selectedToken?.symbol}
@@ -57,9 +55,8 @@ export default function SelectToken({
           {allowSelection && (
             <>
               <ChevronDownIcon
-                className={`w-6 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${
-                  showPopUp || showSelectTokenModal ? " rotate-180" : ""
-                }`}
+                className={`w-6 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${showPopUp || showSelectTokenModal ? " rotate-180" : ""
+                  }`}
               />
             </>
           )}
@@ -73,6 +70,7 @@ export default function SelectToken({
         content={
           <div className="mt-8">
             <SearchToken
+              chainId={chainId}
               options={options}
               selectToken={(token) => {
                 selectToken(token);
@@ -97,6 +95,7 @@ export default function SelectToken({
         >
           <p className="text-base text-black font-normal mb-2">Select a token</p>
           <SearchToken
+            chainId={chainId}
             options={options}
             selectToken={(token) => {
               selectToken(token);

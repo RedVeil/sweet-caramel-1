@@ -6,19 +6,22 @@
   ],
   "scripts": {
     "dev": "yarn lerna run --parallel dev",
-    "build": "yarn lerna run --parallel build",
-    "app:build": "yarn lerna run --scope={@popcorn/app,@popcorn/hardhat} build",
-    "grants:build": "yarn lerna run --scope={@popcorn/grants,@popcorn/hardhat} build",
+    "build": "cd packages/hardhat; yarn build; cd ../app; yarn build",
+    "app:build": "cd packages/hardhat; yarn build; cd ../app; yarn build",
+    "grants:build": "cd packages/hardhat; yarn build; cd ../grants; yarn build",
     "app:start": "yarn lerna run --scope @popcorn/app start",
     "start": "yarn lerna run --scope @popcorn/app start",
     "pretify": "prettier --write .",
     "test": "yarn lerna run test",
     "test:fork": "yarn lerna run test:fork",
     "test:forge": "yarn lerna run test:forge",
-    "install:forge":"yarn lerna run install:forge",
+    "install:forge": "yarn lerna run install:forge",
     "coverage": "yarn lerna run coverage",
     "prepare": "husky install",
-    "netlify-build": "lerna run --scope @popcorn/hardhat compile && cd packages/app && yarn next build && cd .. && cd grants && yarn next build"
+    "netlify-build": "cd packages/hardhat; yarn build; cd ../app; yarn build"
+  },
+  "lint-staged": {
+    "*.{sol,ts,tsx}": "prettier --write"
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "3.9.2",

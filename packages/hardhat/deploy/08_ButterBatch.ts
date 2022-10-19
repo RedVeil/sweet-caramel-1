@@ -2,17 +2,12 @@ import { BigNumber, ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 import { INCENTIVE_MANAGER_ROLE } from "../lib/acl/roles";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-  const signerAddress = await signer.getAddress();
-  const pop = addresses.pop;
+  const { deploy, deployments, addresses, signer, log } = await getSetup(hre);
+  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name) ? addresses.pop : (await deployments.get("TestPOP")).address;
 
   const YTOKEN_ADDRESSES = [addresses.yFrax, addresses.yRai, addresses.yMusd, addresses.yAlusd];
   const CRV_DEPENDENCIES = [
@@ -34,7 +29,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
   ];
 
-  console.log(
+  log(
     JSON.stringify(
       {
         YTOKEN_ADDRESSES,
@@ -49,9 +44,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
 
   //Butter Batch
-  console.log("deploying butterBatch...");
+  log("deploying butterBatch...");
   const deployed = await deploy("ButterBatchProcessing", {
-    from: addresses.deployer,
+    from: await signer.getAddress(),
     args: [
       contractRegistryAddress,
       addresses.butterStaking,
@@ -68,10 +63,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "ButterBatchProcessing",
   });
 
-  console.log("adding butterBatch to contract registry...");
   await addContractToRegistry("ButterBatchProcessing", deployments, signer, hre);
 
-  console.log("setting approvals for ButterBatchProcessing");
+  log("setting approvals for ButterBatchProcessing");
   const butterBatchProcessing = await hre.ethers.getContractAt(
     "ButterBatchProcessing",
     (
@@ -98,9 +92,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
   if (!Boolean(parseInt(process.env.UPDATE_ONLY || "0"))) {
     //Butter Batch Zapper
-    console.log("deploying butterBatchZapper...");
-    await deploy("ButterBatchZapper", {
-      from: addresses.deployer,
+    log("deploying butterBatchZapper...");
+    const zapper = await deploy("ButterBatchZapper", {
+      from: await signer.getAddress(),
       args: [contractRegistryAddress, addresses.threePool, addresses.threeCrv],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
@@ -108,11 +102,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     });
     await addContractToRegistry("ButterBatchZapper", deployments, signer, hre);
 
-    console.log("granting ButterZapper role to ButterBatchZapper");
+    log("granting ButterZapper role to ButterBatchZapper");
     await aclRegistry.grantRole(ethers.utils.id("ButterZapper"), (await deployments.get("ButterBatchZapper")).address);
     await aclRegistry.grantRole(INCENTIVE_MANAGER_ROLE, await signer.getAddress());
 
-    console.log("granting ApprovedContract role to ButterBatchZapper");
+    log("granting ApprovedContract role to ButterBatchZapper");
     await aclRegistry.grantRole(
       ethers.utils.id("ApprovedContract"),
       (
@@ -120,10 +114,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address
     );
 
-    console.log("creating incentive 1 ...");
+    log("creating incentive 1 ...");
     await keeperIncentive.createIncentive(butterBatchProcessing.address, 0, true, true, pop, 60 * 60 * 24, 0);
 
-    console.log("creating incentive 2 ...");
+    log("creating incentive 2 ...");
     await keeperIncentive.createIncentive(butterBatchProcessing.address, 0, true, true, pop, 60 * 60 * 24, 0);
   }
 
@@ -134,7 +128,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ).address
   );
 
-  console.log("setting approvals for ButterBatchZapper ...");
+  log("setting approvals for ButterBatchZapper ...");
 
   await zapperContract.setApprovals();
 };

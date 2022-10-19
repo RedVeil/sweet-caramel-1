@@ -1,22 +1,20 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
-import { ERC20__factory, IGUni__factory } from "@popcorn/hardhat/typechain";
+import { ERC20__factory } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
-import { Address, ContractAddresses } from "@popcorn/utils/types";
 import { BigNumber, Contract, ethers } from "ethers";
-import useWeb3 from "hooks/useWeb3";
 import useSWR from "swr";
+import { useDeployment } from "./useDeployment";
+import { useRpcProvider } from "./useRpcProvider";
 
 export const getPopUsdcLpTokenPrice = async (
   provider: Web3Provider | ethers.providers.JsonRpcSigner,
-  contractAddresses: ContractAddresses,
-  chaindId: ChainId,
-  token: Address,
+  chainId: ChainId,
+  token: string,
+  usdc: string,
+  pop: string,
 ) => {
-  const [popUsdcLp, usdcAmount, popAmount] =
-    contractAddresses.popUsdcArrakisVault.toLocaleLowerCase() === token.toLocaleLowerCase()
-      ? await getGUniAssets(provider, token)
-      : await getPool2Assets(provider, contractAddresses);
+  const [popUsdcLp, usdcAmount, popAmount] = await getPool2Assets(provider, token, chainId, usdc, pop);
   try {
     const totalSupply = await popUsdcLp.totalSupply();
     const popPrice = usdcAmount.mul(parseEther("1")).div(popAmount);
@@ -28,33 +26,25 @@ export const getPopUsdcLpTokenPrice = async (
   }
 };
 
-const getGUniAssets = async (
-  provider: Web3Provider | ethers.providers.JsonRpcSigner,
-  token: Address,
-): Promise<[Contract, BigNumber, BigNumber]> => {
-  const popUsdcLp = IGUni__factory.connect(token, provider);
-  const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
-  return [popUsdcLp, usdcAmount, popAmount];
-};
-
 const getPool2Assets = async (
   provider: Web3Provider | ethers.providers.JsonRpcSigner,
-  contractAddresses: ContractAddresses,
+  address: string,
+  chainId: ChainId,
+  usdc: string,
+  pop: string,
 ): Promise<[Contract, BigNumber, BigNumber]> => {
-  const popUsdcLp = ERC20__factory.connect(contractAddresses.popUsdcLp, provider);
-  let usdcAmount = await ERC20__factory.connect(contractAddresses.usdc, provider).balanceOf(
-    contractAddresses.popUsdcLp,
-  );
-  const popAmount = await ERC20__factory.connect(contractAddresses.pop, provider).balanceOf(
-    contractAddresses.popUsdcLp,
-  );
+  const popUsdcLp = ERC20__factory.connect(address, provider);
+
+  let usdcAmount = await ERC20__factory.connect(usdc, provider).balanceOf(address);
+  const popAmount = await ERC20__factory.connect(pop, provider).balanceOf(address);
   return [popUsdcLp, usdcAmount, popAmount];
 };
 
-export default function useGetPopUsdcLpTokenPriceInUSD(token: Address) {
-  const { signerOrProvider, chainId, contractAddresses } = useWeb3();
-  const shouldFetch = signerOrProvider && contractAddresses && contractAddresses.popUsdcArrakisVault;
-  return useSWR(shouldFetch ? ["getPopUsdcLpTokenPrice", signerOrProvider, chainId, token] : null, async () =>
-    getPopUsdcLpTokenPrice(signerOrProvider, contractAddresses, chainId, token),
+export default function useGetPopUsdcLpTokenPriceInUSD(token: string, chainId: ChainId) {
+  const provider = useRpcProvider(chainId);
+  const { usdc, pop } = useDeployment(chainId);
+  const shouldFetch = provider && [ChainId.Ethereum, ChainId.Polygon, ChainId.Hardhat].includes(chainId);
+  return useSWR(shouldFetch ? ["getPopUsdcLpTokenPrice", provider, chainId, token, usdc, pop] : null, async () =>
+    getPopUsdcLpTokenPrice(provider, chainId, token, usdc, pop),
   );
 }
