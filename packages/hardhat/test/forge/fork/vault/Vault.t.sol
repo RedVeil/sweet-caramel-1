@@ -13,6 +13,13 @@ import "../../../../contracts/core/interfaces/IACLRegistry.sol";
 import "../../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
 import "../../../../contracts/core/interfaces/IERC4626.sol";
 
+address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
+address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
+address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
+address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
+address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
+address constant YEARN_VAULT = 0xE537B5cc158EB71037D4125BDD7538421981E6AA;
+
 contract User {
   Vault internal vault;
   IERC20 internal asset;
@@ -38,13 +45,6 @@ contract User {
     return vault.withdraw(assets);
   }
 }
-
-address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
-address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
-address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
-address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
-address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
-address constant YEARN_VAULT = 0xE537B5cc158EB71037D4125BDD7538421981E6AA;
 
 contract VaultFuzzTest is Test {
   ERC20 internal asset;

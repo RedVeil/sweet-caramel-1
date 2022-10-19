@@ -105,8 +105,8 @@ contract Vault is
    * @param shares Exact amount of shares
    * @return Exact amount of assets
    */
-  function convertToAssets(uint256 shares) external view returns (uint256) {
-    return _convertToAssets(shares, 0);
+  function convertToAssets(uint256 shares) public view returns (uint256) {
+    return strategy.convertToAssets(shares);
   }
 
   /**
@@ -114,8 +114,8 @@ contract Vault is
    * @param assets Exact amount of assets
    * @return Exact amount of shares
    */
-  function convertToShares(uint256 assets) external view returns (uint256) {
-    return _convertToShares(assets, 0);
+  function convertToShares(uint256 assets) public view returns (uint256) {
+    return strategy.convertToShares(assets);
   }
 
   /* ========== VIEWS ( PREVIEWS ) ========== */
@@ -127,10 +127,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewDeposit(uint256 assets) public view returns (uint256 shares) {
-    shares = _convertToShares(
-      assets - ((assets * getDepositFee()) / 1e18),
-      accruedManagementFee() + accruedPerformanceFee()
-    );
+    shares = convertToShares(assets - ((assets * getDepositFee()) / 1e18));
   }
 
   /**
@@ -144,7 +141,7 @@ contract Vault is
 
     shares += (shares * depositFee) / (1e18 - depositFee);
 
-    assets = _convertToAssets(shares, accruedManagementFee() + accruedPerformanceFee());
+    assets = convertToAssets(shares);
   }
 
   /**
@@ -158,7 +155,7 @@ contract Vault is
 
     assets += (assets * withdrawalFee) / (1e18 - withdrawalFee);
 
-    shares = _convertToShares(assets, accruedManagementFee() + accruedPerformanceFee());
+    shares = convertToShares(assets);
   }
 
   /**
@@ -168,7 +165,7 @@ contract Vault is
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
   function previewRedeem(uint256 shares) public view returns (uint256 assets) {
-    assets = _convertToAssets(shares, accruedManagementFee() + accruedPerformanceFee());
+    assets = convertToAssets(shares);
 
     assets -= (assets * getWithdrawalFee()) / 1e18;
   }
@@ -196,7 +193,7 @@ contract Vault is
    *   HWM in a fee period, issue fee shares to the vault equal to the performance fee.
    */
   function accruedPerformanceFee() public view returns (uint256) {
-    uint256 shareValue = _convertToAssets(1 ether, 0);
+    uint256 shareValue = convertToAssets(1 ether);
 
     if (shareValue > vaultShareHWM) {
       uint256 performanceFee = useLocalFees ? feeStructure.performance : _feeController().getPerformanceFee();
@@ -261,18 +258,14 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(uint256 assets, address receiver)
-    public
-    nonReentrant
-    whenNotPaused
-    takeFees
-    returns (uint256 shares)
-  {
+  function deposit(uint256 assets, address receiver) public nonReentrant whenNotPaused returns (uint256 shares) {
     require(receiver != address(0), "Invalid receiver");
 
-    uint256 feeShares = _convertToShares((assets * getDepositFee()) / 1e18, 0);
+    uint256 feeShares = convertToShares((assets * getDepositFee()) / 1e18);
 
-    shares = _convertToShares(assets, 0) - feeShares;
+    shares = convertToShares(assets) - feeShares;
+
+    asset.transferFrom(msg.sender, address(this), assets);
 
     strategy.deposit(assets, address(this));
 
@@ -300,14 +293,16 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(uint256 shares, address receiver) public nonReentrant whenNotPaused takeFees returns (uint256 assets) {
+  function mint(uint256 shares, address receiver) public nonReentrant whenNotPaused returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
     uint256 depositFee = getDepositFee();
 
     uint256 feeShares = (shares * depositFee) / (1e18 - depositFee);
 
-    assets = _convertToAssets(shares + feeShares, 0);
+    assets = convertToAssets(shares + feeShares);
+
+    asset.transferFrom(msg.sender, address(this), assets);
 
     strategy.deposit(assets, address(this));
 
@@ -339,10 +334,10 @@ contract Vault is
     uint256 assets,
     address receiver,
     address owner
-  ) public nonReentrant takeFees returns (uint256 shares) {
+  ) public nonReentrant returns (uint256 shares) {
     require(receiver != address(0), "Invalid receiver");
 
-    shares = _convertToShares(assets, 0);
+    shares = convertToShares(assets);
 
     uint256 withdrawalFee = getWithdrawalFee();
 
@@ -379,7 +374,7 @@ contract Vault is
     uint256 shares,
     address receiver,
     address owner
-  ) public nonReentrant takeFees returns (uint256 assets) {
+  ) public nonReentrant returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -388,7 +383,7 @@ contract Vault is
 
     uint256 feeShares = (shares * getWithdrawalFee()) / 1e18;
 
-    assets = _convertToAssets(shares - feeShares, 0);
+    assets = convertToAssets(shares - feeShares);
 
     _burn(address(this), shares - feeShares);
 
@@ -403,6 +398,16 @@ contract Vault is
   function takeManagementAndPerformanceFees() external nonReentrant takeFees {}
 
   /* ========== RESTRICTED FUNCTIONS ========== */
+
+  //TODO add migration function
+  // - should be controlled by VaultsController
+  // - should take fees if possible
+  // - should pull all funds from oldStrategy
+  // - should remove allowance to oldStrategy
+  // - should slot in newStrategy
+  // - should approve newStrategy
+  // - should deposit into newStrategy
+  // - should adjust HWM and assetsCheckpoint
 
   /**
    * @notice Set fees in BPS. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.
@@ -462,7 +467,7 @@ contract Vault is
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
     uint256 balance = balanceOf(address(this));
-    uint256 accruedFees = _convertToAssets(balance, 0);
+    uint256 accruedFees = convertToAssets(balance);
     uint256 minWithdrawalAmount = keeperConfig.minWithdrawalAmount;
     uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
@@ -481,9 +486,6 @@ contract Vault is
 
     require(postBal >= preBal, "insufficient tip balance");
 
-    // from test postBal = 2
-    // from test tipAmount = 238
-
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
 
     assetToken.approve(address(keeperIncentive), postBal);
@@ -494,27 +496,6 @@ contract Vault is
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */
-
-  function _convertToShares(uint256 assets, uint256 fees) internal view returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply() is non-zero.
-    uint256 currentAssets = totalAssets();
-    if (fees >= currentAssets && currentAssets != 0) {
-      fees = currentAssets - 1;
-    }
-    return supply == 0 ? assets : (assets * supply) / (currentAssets - fees);
-  }
-
-  function _convertToAssets(uint256 shares, uint256 fees) internal view returns (uint256) {
-    uint256 currentAssets = totalAssets();
-    if (currentAssets == 0) {
-      fees = 0;
-    }
-    if (fees >= currentAssets && currentAssets != 0) {
-      fees = currentAssets - 1;
-    }
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply() is non-zero.
-    return supply == 0 ? shares : (shares * (currentAssets - fees)) / supply;
-  }
 
   /**
    * @notice Return current fee controller.
@@ -542,16 +523,12 @@ contract Vault is
     uint256 managementFee = accruedManagementFee();
     uint256 totalFee = managementFee + accruedPerformanceFee();
     uint256 currentAssets = totalAssets();
-    uint256 shareValue = _convertToAssets(1 ether, 0);
+    uint256 shareValue = convertToAssets(1 ether);
 
     if (shareValue > vaultShareHWM) vaultShareHWM = shareValue;
 
     if (totalFee > 0 && currentAssets > 0) {
-      uint256 supply = totalSupply();
-      if (totalFee >= currentAssets) {
-        totalFee = currentAssets - 1;
-      }
-      _mint(address(this), supply == 0 ? totalFee : (totalFee * supply) / (currentAssets - totalFee));
+      _mint(address(this), convertToShares(totalFee));
     }
 
     if (managementFee > 0 || currentAssets == 0) {
