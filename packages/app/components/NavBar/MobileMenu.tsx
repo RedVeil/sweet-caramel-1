@@ -11,6 +11,7 @@ import YoutubeIcon from "components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "components/TertiaryActionButton";
 import { getProductLinks } from "helper/getProductLinks";
 import useAvailableNetworks from "hooks/useAvailableNetworks";
+import useNetworkName from "hooks/useNetworkName";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -18,18 +19,18 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import WheelPicker from "react-simple-wheel-picker";
 import MobileProductsMenu from "./MobileProductsMenu";
 import NavbarLink from "./NavbarLinks";
-
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
 
 export const MobileMenu: React.FC = () => {
-  const { account, connect, disconnect, setChain, pushWithinChain } = useWeb3();
+  const { account, connect, disconnect, setChain, pushWithinChain, connectedChainId } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
   const { availableNetworks } = useAvailableNetworks();
   const router = useRouter();
   const products = getProductLinks(router, pushWithinChain);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
-
   const selectedNetwork = useRef(parseInt(availableNetworks[0].id));
+  const networkName = useNetworkName();
 
   useEffect(() => {
     toggleMenu(false);
@@ -44,11 +45,13 @@ export const MobileMenu: React.FC = () => {
     setShowPopUp(false);
   };
 
+  const { showNewsletterModal } = useSubscribeToNewsletter();
+
   return (
     <>
       <div className="flex flex-row justify-between items-center px-6 py-6 font-khTeka">
         <div>
-          <Link href={`/${router?.query?.network}/`} passHref>
+          <Link href={`/`} passHref>
             <a>
               <img src="/images/icons/popLogo.svg" alt="Logo" className="w1010 h-10" />
             </a>
@@ -112,7 +115,7 @@ export const MobileMenu: React.FC = () => {
                   <div className="h-full w-full flex flex-col justify-between pt-18 px-6 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col w-full">
                       <div className="pt-6 pb-6">
-                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/[network]`} />
+                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/`} />
                       </div>
                       <div className="py-6">
                         {products.length < 2 ? (
@@ -124,15 +127,22 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-6">
                         <NavbarLink
                           label="Staking"
-                          url="/staking"
+                          url={`/${networkName}/staking`}
                           isActive={router.pathname === "/[network]/staking"}
                         />
                       </div>
                       <div className="py-6">
                         <NavbarLink
                           label="Rewards"
-                          url="/rewards"
+                          url={`/${networkName}/rewards`}
                           isActive={router.pathname === "/[network]/rewards"}
+                        />
+                      </div>
+                      <div className="py-6">
+                        <TertiaryActionButton
+                          label="Newsletter Sign Up"
+                          handleClick={showNewsletterModal}
+                          className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
                         />
                       </div>
                     </div>

@@ -5,27 +5,20 @@ import Pagination from "components/SweetVaults/Pagination";
 import SweetVault from "components/SweetVaults/SweetVault";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
+import { useSweetVaults } from "hooks/useSweetVaults";
 import useWeb3 from "hooks/useWeb3";
 import React, { useContext, useEffect, useState } from "react";
+import { useChainIdFromUrl } from "../../hooks/useChainIdFromUrl";
 
 export default function index(): JSX.Element {
-  const {
-    signerOrProvider,
-    account,
-    chainId,
-    onContractSuccess,
-    onContractError,
-    contractAddresses,
-    connect,
-    setChain,
-    pushWithinChain,
-    signer,
-  } = useWeb3();
+  const { signerOrProvider, account, setChain, pushWithinChain } = useWeb3();
+  const chainId = useChainIdFromUrl();
   const { dispatch } = useContext(store);
   const [searchValue, setSearchValue] = useState("");
   const [currentVaults, setCurrentVaults] = useState<string[]>();
   const [currentPage, setCurrentPage] = useState<number>(0);
   const sliceAmount = 4;
+  const sweetVaults = useSweetVaults(chainId);
 
   useEffect(() => {
     if (!signerOrProvider || !chainId) {
@@ -61,11 +54,11 @@ export default function index(): JSX.Element {
 
   useEffect(() => {
     updateCurrentPage(currentPage);
-  }, [contractAddresses?.sweetVaults]);
+  }, [sweetVaults]);
 
   const updateCurrentPage = (e) => {
-    if (contractAddresses.sweetVaults && contractAddresses.sweetVaults.length >= e) {
-      let vaults = [...contractAddresses?.sweetVaults];
+    if (sweetVaults && sweetVaults.length >= e) {
+      let vaults = [...sweetVaults];
       setCurrentVaults(vaults.slice(e, e + sliceAmount));
     }
   };
@@ -94,20 +87,20 @@ export default function index(): JSX.Element {
         <div className="col-span-12 md:col-span-8 space-y-6 border-t border-customLightGray">
           <div className="hidden md:block">
             {currentVaults?.map((address) => (
-              <SweetVault key={address} address={address} searchString={searchValue} />
+              <SweetVault chainId={chainId} key={address} address={address} searchString={searchValue} />
             ))}
           </div>
           <div className="md:hidden">
-            {contractAddresses?.sweetVaults?.map((address) => (
-              <SweetVault key={address} address={address} searchString={searchValue} />
+            {sweetVaults?.map((address) => (
+              <SweetVault chainId={chainId} key={address} address={address} searchString={searchValue} />
             ))}
           </div>
           <div className="hidden md:block">
-            {contractAddresses?.sweetVaults?.length && (
+            {sweetVaults?.length && (
               <Pagination
                 sliceAmount={sliceAmount}
                 onUpdatePage={(e) => updateCurrentPage(e)}
-                lengthOfData={contractAddresses?.sweetVaults?.length}
+                lengthOfData={sweetVaults?.length}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
               />

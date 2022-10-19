@@ -1,30 +1,30 @@
 import type { TransactionResponse } from "@ethersproject/providers";
+import { ChainId } from "@popcorn/utils";
 import { isAddress } from "ethers/lib/utils";
 import { useCallback } from "react";
 // import ERC20ABI from "abis/ERC20.json";
 import useVestingEscrow from "./useVestingEscrow";
 import useWeb3 from "./useWeb3";
 
-export default function useClaimEscrows() {
-  const { account, chainId, contractAddresses } = useWeb3();
-  const vestingEscrow = useVestingEscrow(contractAddresses.rewardsEscrow);
+export default function useClaimEscrows(address: string, chainId: ChainId) {
+  const { account, signer } = useWeb3();
+  const vestingEscrow = useVestingEscrow(address, chainId);
   return useCallback(
     async (escrowIds: string[]): Promise<TransactionResponse | null> => {
       if (
-        !contractAddresses.rewardsEscrow ||
         !escrowIds.length ||
         !account ||
         !chainId ||
-        !isAddress(contractAddresses.rewardsEscrow) ||
+        !isAddress(address) ||
         !vestingEscrow ||
         (await vestingEscrow.provider.getNetwork()).chainId !== chainId
       ) {
         return null;
       }
       if (escrowIds.length === 1) {
-        return vestingEscrow.claimReward(escrowIds[0]);
+        return vestingEscrow.connect(signer).claimReward(escrowIds[0]);
       } else {
-        return vestingEscrow.claimRewards(escrowIds);
+        return vestingEscrow.connect(signer).claimRewards(escrowIds);
       }
     },
     [account, chainId, vestingEscrow],

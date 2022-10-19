@@ -20,7 +20,7 @@ export class Zapper {
   private swapTarget = "0xDef1C0ded9bec7F1a1670819833240f027b25EfF";
   private endpoint = "https://api.0x.org/swap/v1/quote";
 
-  constructor(private client: AxiosStatic, public zapper: VaultsV1Zapper) { }
+  constructor(private client: AxiosStatic, public zapper: VaultsV1Zapper) {}
 
   public async zapIn(
     from: Token,
@@ -244,13 +244,15 @@ export class Zapper {
     sellAmount: BigNumber,
     slippagePercentage: number
   ): string {
-    return `${this.endpoint}?buyToken=${buyToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
+    return `${this.endpoint}?buyToken=${
+      buyToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
         ? "ETH"
         : buyToken.address
-      }&sellToken=${sellToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
+    }&sellToken=${
+      sellToken.address.toLowerCase() === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLowerCase()
         ? "ETH"
         : sellToken.address
-      }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
+    }&sellAmount=${sellAmount.toString()}&slippagePercentage=${slippagePercentage}`;
   }
 
   public async getPoolAddress(lpTokenAddress: string, provider): Promise<string> {

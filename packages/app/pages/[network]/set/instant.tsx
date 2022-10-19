@@ -1,5 +1,4 @@
 import {
-  adjustDepositDecimals,
   ChainId,
   getIndexForToken,
   getMinZapAmount,
@@ -9,40 +8,38 @@ import {
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import { Pages } from "components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
-import ButterStats from "components/ButterStats";
 import MainActionButton from "components/MainActionButton";
+import SetStats from "components/SetStats";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { isDepositDisabled } from "helper/isDepositDisabled";
 import useButterWhaleData from "hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
+import { useAdjustDepositDecimals } from "hooks/useAdjustDepositDecimals";
+import { useDeployment } from "hooks/useDeployment";
 import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
+import { useChainIdFromUrl } from "../../../hooks/useChainIdFromUrl";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE, getZapDepositAmount } from "./butter";
 
 export default function InstantButter() {
-  const {
-    signerOrProvider,
-    account,
-    chainId,
-    onContractSuccess,
-    onContractError,
-    contractAddresses,
-    connect,
-    setChain,
-    pushWithinChain,
-  } = useWeb3();
+  const { signerOrProvider, account, onContractSuccess, onContractError, connect, setChain } = useWeb3();
+
   const { dispatch } = useContext(store);
   const router = useRouter();
-  const butterWhaleProcessing = useButterWhaleProcessing();
-  const { data: butterData, error: errorFetchingButterData, mutate: refetchButterData } = useButterWhaleData();
+  const chainId = useChainIdFromUrl();
+  const contractAddresses = useDeployment(chainId);
+  const adjustDepositDecimals = useAdjustDepositDecimals(chainId);
+
+  const butterWhaleProcessing = useButterWhaleProcessing(contractAddresses.butterWhaleProcessing, chainId);
+  const { data: butterData, error: errorFetchingButterData, mutate: refetchButterData } = useButterWhaleData(chainId);
   const [butterPageState, setButterPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
-  const virtualPrice = useThreeCurveVirtualPrice(contractAddresses?.butterDependency?.threePool);
+  const virtualPrice = useThreeCurveVirtualPrice(contractAddresses.threePool);
   const loadingButterBatchData = !butterData && !errorFetchingButterData;
   const butterYearnAddresses = [
     contractAddresses.yFrax,
@@ -265,12 +262,13 @@ export default function InstantButter() {
             Stake your BTR to earn boosted APY.
           </p>
           <div className="mx-auto">
-            <ButterStats token={butter} totalSupply={butterData?.totalSupply} addresses={butterYearnAddresses} center />
+            <SetStats token={butter} />
           </div>
         </div>
         <div className="mt-10">
           {butterData && butterPageState.selectedToken ? (
             <MintRedeemInterface
+              chainId={chainId}
               mainAction={handleMainAction}
               approve={approve}
               options={butterPageState.tokens}

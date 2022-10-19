@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.0
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
@@ -640,14 +640,10 @@ contract Vault is
 
     require(postBal >= preBal, "insufficient tip balance");
 
-    // from test postBal = 2
-    // from test tipAmount = 238
+    IKeeperIncentiveV2 incentive = _keeperIncentive();
+    assetToken.approve(address(incentive), postBal);
 
-    IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
-
-    assetToken.approve(address(keeperIncentive), postBal);
-
-    keeperIncentive.tip(address(assetToken), msg.sender, 0, postBal);
+    incentive.tip(address(assetToken), msg.sender, 0, postBal);
 
     _burn(address(this), balance);
   }

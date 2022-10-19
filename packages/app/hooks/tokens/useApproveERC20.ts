@@ -1,16 +1,16 @@
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { Address } from "@popcorn/utils/src/types";
+import { ChainId } from "@popcorn/utils";
 import { constants } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import useWeb3 from "hooks/useWeb3";
 import { useCallback } from "react";
 
-export default function useApproveERC20() {
-  const { signerOrProvider, account, chainId, onContractSuccess, onContractError } = useWeb3();
+export default function useApproveERC20(chainId: ChainId) {
+  const { signerOrProvider, account, onContractSuccess, onContractError } = useWeb3();
   return useCallback(
     async (
       erc20: ERC20,
-      spender: Address,
+      spender: string,
       successMessage: string,
       successCallback?: () => void,
       finalCallback?: () => void,

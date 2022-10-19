@@ -40,7 +40,7 @@ export async function getVaultStakingPools(chainId: number, addresses, deploymen
 }
 
 export async function getStakingPools(chainId: number, addresses, deployments): Promise<Pool[]> {
-  const { pop, popUsdcLp, butter, threeX } = addresses;
+  const { pop, butter, threeX, popUsdcArrakisVault } = addresses;
   switch (chainId) {
     case 1:
       return [
@@ -52,7 +52,7 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
         {
           poolName: "popUsdcLPStaking",
           contract: "Staking",
-          inputToken: popUsdcLp,
+          inputToken: popUsdcArrakisVault,
           rewardsToken: pop,
         },
         {
@@ -61,12 +61,12 @@ export async function getStakingPools(chainId: number, addresses, deployments): 
           inputToken: threeX,
           rewardsToken: pop,
         },
-        //{
-        //  poolName: "butterStaking",
-        //  contract: "Staking",
-        //  inputToken: butter,
-        //  rewardsToken: pop,
-        //},
+        {
+          poolName: "butterStaking",
+          contract: "Staking",
+          inputToken: butter,
+          rewardsToken: pop,
+        },
       ];
     case 1337:
       return [

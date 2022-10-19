@@ -1,27 +1,29 @@
-import { Address } from "@popcorn/utils/types";
+import { ChainId } from "@popcorn/utils";
 import { BigNumber, ethers } from "ethers";
 import useGetButterTokenPriceInUSD from "hooks/useGetButterTokenPriceInUSD";
 import useGetPopTokenPriceInUSD from "hooks/useGetPopTokenPriceInUSD";
 import useGetPopUsdcLpTokenPriceInUSD from "hooks/useGetPopUsdcLpTokenPriceInUSD";
+import { useDeployment } from "./useDeployment";
 import useGetThreeXTokenPrice from "./useGetTreeXTokenPrice";
-import useWeb3 from "./useWeb3";
 
-export default function useTokenPrice(token: Address | undefined): BigNumber | undefined {
+export default function useTokenPrice(address: string | undefined, chainId: ChainId): BigNumber | undefined {
+  const { pop, butter, popUsdcArrakisVault, popUsdcLp, threeX } = useDeployment(chainId);
+
   const { data: popPrice, error: err1 } = useGetPopTokenPriceInUSD();
-  const { data: popUsdcLpPrice, error: err2 } = useGetPopUsdcLpTokenPriceInUSD(token);
-  const { data: butterPrice, error: err3 } = useGetButterTokenPriceInUSD();
-  const { data: threeXPrice } = useGetThreeXTokenPrice();
-  const { contractAddresses } = useWeb3();
-  if (!token) return undefined;
-  switch (token.toLowerCase()) {
-    case contractAddresses.pop?.toLowerCase():
+  const { data: popUsdcLpPrice, error: err2 } = useGetPopUsdcLpTokenPriceInUSD(address, chainId);
+  const { data: butterPrice, error: err3 } = useGetButterTokenPriceInUSD(chainId);
+  const { data: threeXPrice } = useGetThreeXTokenPrice(chainId);
+
+  if (!address) return undefined;
+  switch (address.toLowerCase()) {
+    case pop?.toLowerCase():
       return popPrice ? ethers.utils.parseEther(ethers.utils.formatUnits(popPrice, 6)) : undefined;
-    case contractAddresses.butter?.toLowerCase():
+    case butter?.toLowerCase():
       return butterPrice;
-    case contractAddresses.popUsdcArrakisVault?.toLowerCase():
-    case contractAddresses.popUsdcLp?.toLowerCase():
+    case popUsdcArrakisVault?.toLowerCase():
+    case popUsdcLp?.toLowerCase():
       return popUsdcLpPrice ? ethers.utils.parseEther(ethers.utils.formatUnits(popUsdcLpPrice, 6)) : undefined;
-    case contractAddresses.threeX?.toLowerCase():
+    case threeX?.toLowerCase():
       return threeXPrice;
   }
 }

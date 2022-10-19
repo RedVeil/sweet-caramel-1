@@ -40,8 +40,10 @@ packages
 
 1. Install packages:
    - `curl -L https://foundry.paradigm.xyz | bash` 
+   - in packages/hardhat `foundryup`
+   - in packages/hardhat `cargo build --manifest-path packages/hardhat/lib/utils/exporter/Cargo.toml --release`
    - `yarn install`
-   - in /packages/hardhat `foundryup`
+
 
 2. Update .env
    1. `RPC_URL` is used to run a local node and can be set to `http://localhost:8545` 

@@ -1,4 +1,3 @@
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { ChainId } from "@popcorn/utils";
 import ConnectDepositCard from "components/Common/ConnectDepositCard";
 import SliderContainer from "components/Common/SliderContainer";
@@ -8,18 +7,21 @@ import { constants } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
 import useSetTokenTVL from "hooks/set/useSetTokenTVL";
 import useStakingTVL from "hooks/staking/useStakingTVL";
+import { useDeployment } from "hooks/useDeployment";
 import useNetWorth from "hooks/useNetWorth";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
-  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
+  const { Ethereum, Polygon } = ChainId;
+  const eth = useDeployment(Ethereum);
+
   const { total } = useNetWorth();
-  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
-  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
-  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
-  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch);
+  const { data: mainnetStakingTVL } = useStakingTVL(Ethereum);
+  const { data: polygonStakingTVL } = useStakingTVL(Polygon);
+  const { data: butterTVL } = useSetTokenTVL(eth.butter, eth.butterBatch, Ethereum);
+  const { data: threeXTVL } = useSetTokenTVL(eth.threeX, eth.threeXBatch, Ethereum);
   const tvl = useMemo(
     () =>
       [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce(

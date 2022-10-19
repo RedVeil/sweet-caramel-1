@@ -1,6 +1,6 @@
 import { parseEther, parseUnits } from "@ethersproject/units";
 import { SelectedToken, Token } from "@popcorn/utils/src/types";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 function isBalanceInsufficient(depositAmount: BigNumber, inputTokenBalance: BigNumber): boolean {
   return depositAmount.gt(inputTokenBalance);
@@ -15,7 +15,7 @@ export function isDepositDisabled(
   useTVLLimit?: boolean,
 ): { disabled: boolean; errorMessage: string } {
   // Check TVL-Limit
-  const tvl = totalSupply?.mul(mainToken.price).div(parseEther("1"));
+  const tvl = totalSupply?.mul(mainToken?.price || constants.Zero).div(parseEther("1"));
   const tvlLimit = parseEther("1000000"); // 1m
   if (useTVLLimit && !withdrawMode && depositAmount.add(tvl).gte(tvlLimit)) {
     return { disabled: true, errorMessage: "*Exceeds TVL-Limit" };

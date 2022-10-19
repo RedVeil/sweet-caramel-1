@@ -1,5 +1,4 @@
 import { parseEther } from "@ethersproject/units";
-import { useContractMetadata } from "@popcorn/app/contractMetadataOverride";
 import { ERC20__factory, Vault } from "@popcorn/hardhat/typechain";
 import getToken from "./getToken";
 import { Address, SweetVaultMetadata } from "./types";
@@ -25,8 +24,9 @@ export default async function getSweetVault(
 
   const staking = ERC20__factory.connect(await sweetVault.staking(), signerOrProvider);
 
-  const { metadata } = useContractMetadata({
-    chainId: chainId,
+  return {
+    contract: sweetVault,
+    chainId,
     address: sweetVault.address,
     metadata: {
       name: vault.display_name.split(" ")[1],
@@ -52,10 +52,5 @@ export default async function getSweetVault(
       deposited: account ? (await staking.balanceOf(account)).mul(pricePerShare).div(parseEther("1")) : parseEther("0"),
       stakingAdress: staking.address,
     } as SweetVaultMetadata,
-  });
-
-  return {
-    contract: sweetVault,
-    metadata,
   };
 }

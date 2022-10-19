@@ -10,25 +10,26 @@ import { constants } from "ethers";
 import { ModalType, toggleModal } from "helper/modalHelpers";
 import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
 import usePopLocker from "hooks/staking/usePopLocker";
+import { useDeployment } from "hooks/useDeployment";
+import { useStakingContracts } from "hooks/useStakingContracts";
 import useWeb3 from "hooks/useWeb3";
 import React, { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { NotAvailable } from "../../../components/Rewards/NotAvailable";
+import { useChainIdFromUrl } from "../../../hooks/useChainIdFromUrl";
 
 const MIGRATION_LINKS: AlertCardLink[] = [
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
 ];
 
 export default function index(): JSX.Element {
-  const {
-    contractAddresses: { popStaking, staking, pop, popUsdcArrakisVaultStaking },
-    chainId,
-    pushWithinChain,
-    account,
-  } = useWeb3();
+  const { pushWithinChain, account } = useWeb3();
+  const chainId = useChainIdFromUrl();
+  const { pop, popStaking, popUsdcArrakisVaultStaking } = useDeployment(chainId);
+  const stakingAddresses = useStakingContracts(chainId);
   const { dispatch } = useContext(store);
-  const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking);
-  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
+  const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking, chainId);
+  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(stakingAddresses, chainId);
   const [modalClosed, closeModal] = useState<boolean>(false);
   const { features } = useContext(FeatureToggleContext);
 
@@ -132,6 +133,7 @@ export default function index(): JSX.Element {
             {pageAvailable() && !!popLocker && !!stakingPools && (
               <>
                 <StakeCard
+                  chainId={chainId}
                   key={popLocker.address}
                   stakingPool={popLocker}
                   stakedToken={popLocker.stakingToken}
@@ -140,17 +142,18 @@ export default function index(): JSX.Element {
                 {displayedStakingPools?.map((stakingPool) => (
                   <div key={stakingPool.address}>
                     <StakeCard
+                      chainId={chainId}
                       stakingPool={stakingPool}
                       stakedToken={stakingPool.stakingToken}
                       onSelectPool={onSelectPool}
                       badge={
                         features["migrationAlert"] &&
-                        stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
+                          stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
                           ? {
-                              text: "Migration Required",
-                              textColor: "text-white",
-                              bgColor: "bg-red-500",
-                            }
+                            text: "Migration Required",
+                            textColor: "text-white",
+                            bgColor: "bg-red-500",
+                          }
                           : undefined
                       }
                     />

@@ -31,14 +31,6 @@ export function prepareHotSwap(batches: AccountBatch[], depositAmount: BigNumber
   return { batchIds: batchIds, amounts: amounts };
 }
 
-export async function adjustDepositDecimals(depositAmount: BigNumber, token: Token): Promise<BigNumber> {
-  if (["usdc", "usdt"].includes(token.name.toLowerCase())) {
-    return depositAmount.div(BigNumber.from(1e12));
-  } else {
-    return depositAmount;
-  }
-}
-
 export function getIndexForToken(token: Token) {
   switch (token.symbol) {
     case "DAI":

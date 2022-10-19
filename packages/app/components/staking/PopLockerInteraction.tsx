@@ -8,7 +8,6 @@ import { formatDate } from "../../../utils/src/DateTime";
 import { InteractionType } from "./StakeInterface";
 import { StakingInteractionProps } from "./StakingInteraction";
 
-
 interface PopLockerInteractionProps extends StakingInteractionProps {
   restake: () => void;
 }
@@ -22,6 +21,7 @@ export default function PopLockerInteraction({
   stake,
   withdraw,
   restake,
+  chainId,
 }: PopLockerInteractionProps): JSX.Element {
   const [state, setState] = form;
   const { type, amount, termsAccepted } = { ...state };
@@ -113,6 +113,7 @@ export default function PopLockerInteraction({
         <>
           <div className="pt-16 pb-10">
             <TokenInput
+              chainId={chainId}
               label={withdrawal ? "Unstake Amount" : "Stake Amount"}
               token={stakingPool?.stakingToken}
               amount={amount}

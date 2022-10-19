@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -41,6 +41,8 @@ jobs:
         name: "build"
         with:
           cmd: app:build # will run `yarn app:build` command
+        env:
+          CI: true
       - uses: borales/actions-yarn@v3.0.0
         name: "run tests"
         with:
