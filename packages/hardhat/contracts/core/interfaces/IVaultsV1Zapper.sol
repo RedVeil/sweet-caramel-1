@@ -30,8 +30,7 @@ interface IVaultsV1Zapper {
     uint256 incomingTokenQty,
     uint256 minToTokens,
     address swapTarget,
-    bytes calldata swapData,
-    bool stake
+    bytes calldata swapData
   ) external payable;
 
   function zapOut(
@@ -42,8 +41,7 @@ interface IVaultsV1Zapper {
     address buyToken,
     uint256 minTokensBought,
     address swapTarget,
-    bytes calldata swapCallData,
-    bool unstake
+    bytes calldata swapCallData
   ) external;
 
   function updateVault(address underlyingToken, address vault) external;

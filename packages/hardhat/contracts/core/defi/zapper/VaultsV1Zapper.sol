@@ -132,8 +132,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
     uint256 incomingTokenQty,
     uint256 minPoolTokens,
     address swapTarget,
-    bytes memory swapData,
-    bool stake
+    bytes memory swapData
   ) public payable override {
     address vault = vaults[vaultAsset];
     require(vault != address(0), "Invalid vault");
@@ -163,7 +162,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
       swapData,
       address(this)
     );
-    emit log(amountOut);
+
     Fee memory assetfee = fees[vaultAsset];
     uint256 amountOutAfterFees = _takeFee(
       vaultAsset,
@@ -173,11 +172,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
 
     IERC20(vaultAsset).safeApprove(address(vault), amountOutAfterFees);
 
-    if (stake) {
-      IVaultsV1(vault).depositAndStakeFor(amountOutAfterFees, msg.sender);
-    } else {
-      IVaultsV1(vault).deposit(amountOutAfterFees, msg.sender);
-    }
+    IVaultsV1(vault).deposit(amountOutAfterFees, msg.sender);
   }
 
   function zapOut(
@@ -188,17 +183,13 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
     address toToken,
     uint256 minToTokens,
     address swapTarget,
-    bytes calldata swapCallData,
-    bool unstake
+    bytes calldata swapCallData
   ) public override {
     address vault = vaults[vaultAsset];
     require(vault != address(0), "Invalid vault");
 
-    if (unstake) {
-      IVaultsV1(vault).unstakeAndRedeemFor(amount, address(this), msg.sender);
-    } else {
-      IVaultsV1(vault).redeem(amount, address(this), msg.sender);
-    }
+    IVaultsV1(vault).redeem(amount, address(this), msg.sender);
+
     // For some reason the value returned of redeem is sometimes a few WEI off which is why i opted for this solution
     uint256 withdrawn = IERC20(vaultAsset).balanceOf(address(this));
 
