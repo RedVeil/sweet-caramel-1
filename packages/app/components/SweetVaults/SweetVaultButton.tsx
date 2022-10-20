@@ -1,6 +1,6 @@
 import { Token } from "@popcorn/utils/types";
 import MainActionButton from "components/MainActionButton";
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 
 interface SweetVaultButtonProps {
   mainActionLabel: string;
@@ -9,6 +9,7 @@ interface SweetVaultButtonProps {
   inputAmount: BigNumber;
   allowance: BigNumber;
   selectedToken: Token;
+  disabled: boolean;
 }
 
 export default function SweetVaultButton({
@@ -18,19 +19,16 @@ export default function SweetVaultButton({
   inputAmount,
   allowance,
   selectedToken,
+  disabled,
 }: SweetVaultButtonProps): JSX.Element {
   return !inputAmount || !allowance || inputAmount?.gt(allowance) ? (
     <div className="space-y-4">
-      <MainActionButton label={`Approve ${selectedToken?.name}`} handleClick={approve} />
+      <MainActionButton disabled={disabled} label={`Approve ${selectedToken?.name}`} handleClick={approve} />
       <MainActionButton label={mainActionLabel} handleClick={() => {}} disabled={true} />
     </div>
   ) : (
     <div className="">
-      <MainActionButton
-        label={mainActionLabel}
-        handleClick={mainAction}
-        disabled={inputAmount?.eq(constants.Zero) || inputAmount?.gt(selectedToken?.balance)}
-      />
+      <MainActionButton label={mainActionLabel} handleClick={mainAction} disabled={disabled} />
     </div>
   );
 }

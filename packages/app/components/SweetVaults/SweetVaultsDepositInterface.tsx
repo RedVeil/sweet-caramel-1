@@ -1,4 +1,5 @@
 import { Zapper } from "@popcorn/hardhat/lib/adapters";
+import { networkMap } from "@popcorn/hardhat/lib/utils/constants";
 import { Vault } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
@@ -31,6 +32,20 @@ export interface SweetVaultsDepositInterfaceProps {
   chainId: ChainId;
 }
 
+async function getAssetPerShare(chainId: number, assetAddress: string, shareAddress: string) {
+  const chainString = (chainId = 1337 ? "ethereum" : networkMap[chainId].toLowerCase());
+  const url = `https://coins.llama.fi/prices/current/${chainString}:${assetAddress},${chainString}:${shareAddress}`;
+  const result = await fetch(url);
+  const parsed = await result.json();
+  const assetPrice = parsed.coins[`${chainString}:${assetAddress}`]?.price;
+  const sharePrice = parsed.coins[`${chainString}:${shareAddress}`]?.price;
+  if (assetPrice && sharePrice) {
+    // asset per share - if asset is 1$ and share is 2$, we get 2 assets per share so we have to do share price / input price
+    return sharePrice / assetPrice;
+  }
+  return 0;
+}
+
 async function calcOutputAmount(
   sweetVault: SweetVaultWithMetadata,
   zapper: Zapper,
@@ -38,10 +53,8 @@ async function calcOutputAmount(
   poolToken: Token[],
   defaultTokenList: Token[],
   rpcProvider,
+  chainId: number,
 ): Promise<number> {
-  const assetPerShare = Number(
-    formatUnits(await sweetVault?.contract?.assetsPerShare(), sweetVault?.metadata.decimals),
-  );
   if (!!defaultTokenList?.find((token) => token.address === buyToken?.address)) {
     const poolAddress = await zapper.getPoolAddress(sweetVault?.metadata.underlyingToken?.address, rpcProvider);
     const sellToken = await zapper.getIntermediateToken(
@@ -53,6 +66,11 @@ async function calcOutputAmount(
     const data = await (await fetch(query)).json();
     return Number(data.price);
   }
+  const assetPerShare = await getAssetPerShare(
+    chainId,
+    sweetVault.metadata.underlyingToken.address,
+    sweetVault.contract.address,
+  );
   return assetPerShare;
 }
 
@@ -64,7 +82,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   defaultTokenList,
   chainId,
 }) => {
-  const { account, signer, rpcProvider, onContractSuccess, onContractError } = useWeb3();
+  const { account, signer, rpcProvider, onContractSuccess, onContractError, chainId } = useWeb3();
   const [interactionType, setInteractionType] = useState<InteractionType>(InteractionType.Deposit);
   const [inputAmount, setInputAmount] = useState<BigNumber>(constants.Zero);
   const [assetsPerShare, setAssetsPerShare] = useState<number>(1);
@@ -95,8 +113,8 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
 
   useEffect(() => {
     if (sweetVault && zapper && selectedToken && poolToken && defaultTokenList) {
-      calcOutputAmount(sweetVault, zapper, selectedToken, poolToken, defaultTokenList, rpcProvider).then((res) =>
-        setAssetsPerShare(res),
+      calcOutputAmount(sweetVault, zapper, selectedToken, poolToken, defaultTokenList, rpcProvider, chainId).then(
+        (res) => setAssetsPerShare(res),
       );
     }
   }, [selectedToken]);
@@ -174,7 +192,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
       <div>
         {interactionType === InteractionType.Deposit ? (
           <FakeInputField
-            inputValue={Number(formatUnits(inputAmount, selectedToken?.decimals)) / assetsPerShare}
+            inputValue={assetsPerShare ? Number(formatUnits(inputAmount, selectedToken?.decimals)) / assetsPerShare : 0}
             children={
               <span className="flex flex-row items-center justify-end">
                 <Image priority={true} className="w-5 mr-1" src={sweetVault?.metadata?.icon} width="20" height="20" />
@@ -236,6 +254,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
               inputAmount={inputAmount}
               allowance={selectedToken?.allowance}
               selectedToken={selectedToken}
+              disabled={inputAmount?.eq(constants.Zero) || inputAmount?.gt(selectedToken?.balance) || !assetsPerShare}
             />
           ) : (
             <SweetVaultButton
@@ -273,6 +292,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
                   : vaultZapperAllowance
               }
               selectedToken={{ contract: sweetVault?.contract, ...sweetVault?.metadata }}
+              disabled={inputAmount?.eq(constants.Zero) || inputAmount?.gt(selectedToken?.balance) || !assetsPerShare}
             />
           )}
         </div>
