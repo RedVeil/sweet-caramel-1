@@ -18,7 +18,7 @@ import { Token } from "./Token.sol";
 
 // Artifact paths for deploying from the deps folder, assumes that the command is run from
 // the project root.
-string constant vaultArtifact = "artifacts/Vault.json";
+string constant vaultArtifact = "test/forge/strategies/yearn/utils/Vault.json";
 
 // Base fixture deploying Vault
 contract TestFixture is ExtendedDSTest {

@@ -3,6 +3,7 @@ src = 'contracts'
 test = 'test'
 out = 'artifacts'
 libs = ['node_modules', '../../node_modules', "lib"]
+fs_permissions = [{ access = "read-write", path = "./"}]
 remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',
   'forge-std/=lib/forge-std/src/'
@@ -16,6 +17,7 @@ src = 'contracts'
 test = 'test'
 out = 'artifacts'
 libs = ['node_modules', '../../node_modules', "lib"]
+fs_permissions = [{ access = "read-write", path = "./"}]
 remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',
   'forge-std/=lib/forge-std/src/'
