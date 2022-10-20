@@ -183,22 +183,32 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   /**
-   * @notice set fees in BPS.
-   * @param _vault - address of the vault
+   * @notice Sets the same fees across all vaults
+   * @param _vaults - addresses of the vaults to change
    * @param _newFees - new fee structure for the vault
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function setVaultFees(address _vault, IVaultsV1.FeeStructure memory _newFees) external onlyOwner {
-    IVaultsV1(_vault).setFees(_newFees);
+  //TODO change function name
+  function setSameVaultFees(address[] memory _vaults, IVaultsV1.FeeStructure memory _newFees) external onlyOwner {
+    for (uint8 i; i < _vaults.length; i++) {
+      IVaultsV1(_vaults[i]).setFees(_newFees);
+    }
   }
 
   /**
-   * @notice Set whether to use locally configured fees.
-   * @param _vault - address of the vault
-   * @param _useLocalFees `true` to use local fees, `false` to use the VaultFeeController contract.
+   * @notice Sets different fees per vault
+   * @param _vaults - addresses of the vaults to change
+   * @param _newFees - new fee structures for these vaults
+   * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function setVaultUseLocalFees(address _vault, bool _useLocalFees) external onlyOwner {
-    IVaultsV1(_vault).setUseLocalFees(_useLocalFees);
+  //TODO change function name
+  function setIndividualVaultFees(address[] memory _vaults, IVaultsV1.FeeStructure[] memory _newFees)
+    external
+    onlyOwner
+  {
+    for (uint8 i; i < _vaults.length; i++) {
+      IVaultsV1(_vaults[i]).setFees(_newFees[i]);
+    }
   }
 
   /**

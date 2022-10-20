@@ -9,7 +9,6 @@ import "../../../../contracts/core/interfaces/IACLRegistry.sol";
 import "../../../../contracts/core/defi/vault/Vault.sol";
 import "../../../../contracts/core/defi/zapper/VaultsV1Zapper.sol";
 import "../../../../contracts/core/utils/KeeperIncentiveV2.sol";
-import "../../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../../contracts/core/dao/Staking.sol";
 import "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
 import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
@@ -63,10 +62,10 @@ contract VaultsV1ZapperTest is Test {
   Vault internal vault;
   KeeperIncentiveV2 internal keeperIncentive;
   IContractRegistry internal contractRegistry;
-  VaultFeeController internal feeController;
   Staking internal staking;
   VaultsV1Registry internal vaultsV1Registry;
   YearnWrapper internal yearnWrapper;
+  address internal feeRecipient = address(0x1234);
 
   function setUp() public {
     zapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
@@ -82,24 +81,14 @@ contract VaultsV1ZapperTest is Test {
       Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
-    feeController = new VaultFeeController(
-      VaultFeeController.FeeStructure({
-        deposit: DEPOSIT_FEE,
-        withdrawal: WITHDRAWAL_FEE,
-        management: MANAGEMENT_FEE,
-        performance: PERFORMANCE_FEE
-      }),
-      IContractRegistry(CONTRACT_REGISTRY)
-    );
+
     contractRegistry = IContractRegistry(CONTRACT_REGISTRY);
 
     vm.startPrank(DAO);
-    feeController.setFeeRecipient(address(0x1234));
     vm.label(address(0x1234), "FeeRecipient");
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), address(ACL_ADMIN));
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), address(DAO));
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(zapper));
-    vault.setUseLocalFees(true);
     zapper.updateVault(CURVE_SETH_LP, address(vault));
     zapper.updateZaps(CURVE_SETH_LP, CURVE_ZAP_IN, CURVE_ZAP_OUT);
     vm.stopPrank();
@@ -112,11 +101,7 @@ contract VaultsV1ZapperTest is Test {
       address(keeperIncentive),
       keccak256("2")
     );
-    IContractRegistry(CONTRACT_REGISTRY).addContract(
-      keccak256("VaultFeeController"),
-      address(feeController),
-      keccak256("1")
-    );
+    IContractRegistry(CONTRACT_REGISTRY).addContract(keccak256("FeeRecipient"), feeRecipient, keccak256("1"));
     keeperIncentive.createIncentive(address(zapper), 0, true, true, CURVE_SETH_LP, 1, 0);
     vm.stopPrank();
 
@@ -539,7 +524,7 @@ contract VaultsV1ZapperTest is Test {
     assertEq(accumulated, 0);
 
     // Check that dai was transfered to feeController recipient
-    assertEq(IERC20(CURVE_SETH_LP).balanceOf(feeController.feeRecipient()), feeBal - tipAmount);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(feeRecipient), feeBal - tipAmount);
     assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(keeperIncentive)), tipAmount);
   }
 }

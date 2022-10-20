@@ -113,8 +113,6 @@ interface IVaultsV1 is IERC4626 {
 
   function setFees(FeeStructure memory newFees) external;
 
-  function setUseLocalFees(bool _useLocalFees) external;
-
   function setStaking(address _staking) external;
 
   function setZapper(address _zapper) external;

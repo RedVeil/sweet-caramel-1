@@ -55,7 +55,6 @@ contract VaultsV1ControllerTest is Test {
   event Paused(address account);
   event Unpaused(address account);
   event FeesUpdated(Vault.FeeStructure previousFees, IVaultsV1.FeeStructure newFees);
-  event UseLocalFees(bool useLocalFees);
   event StakingUpdated(address beforeAddress, address afterAddress);
   event ZapperUpdated(address beforeAddress, address afterAddress);
   event RegistryUpdated(address beforeAddress, address afterAddress);
@@ -961,113 +960,184 @@ contract VaultsV1ControllerTest is Test {
     assertFalse(vaultsV1Registry.getVault(vault).enabled);
   }
 
-  /* Setting vault fees */
+  /* Setting Same vault fees */
 
-  function test__setVaultFeesNotOwnerReverts() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    (uint256 depositBefore, uint256 withdrawalBefore, uint256 managementBefore, uint256 performanceBefore) = Vault(
-      vault
-    ).feeStructure();
-    assertEq(depositBefore, DEPOSIT_FEE);
-    assertEq(withdrawalBefore, WITHDRAWAL_FEE);
-    assertEq(managementBefore, MANAGEMENT_FEE);
-    assertEq(performanceBefore, PERFORMANCE_FEE);
+  function test__setSameVaultFeesNotOwnerReverts() public acceptOwnerships {
+    address[] memory vaultArray = new address[](1);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
     IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
       deposit: DEPOSIT_FEE * 2,
       withdrawal: WITHDRAWAL_FEE * 2,
       management: MANAGEMENT_FEE * 2,
       performance: PERFORMANCE_FEE * 2
     });
+
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.setVaultFees(vault, newFeeStructure);
-    // check no changes
-    (uint256 depositAfter, uint256 withdrawalAfter, uint256 managementAfter, uint256 performanceAfter) = Vault(vault)
-      .feeStructure();
-    assertEq(depositAfter, depositBefore);
-    assertEq(withdrawalAfter, withdrawalBefore);
-    assertEq(managementAfter, managementBefore);
-    assertEq(performanceAfter, performanceBefore);
+    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
   }
 
-  function test__setVaultFeesInvalidFeeStructureReverts() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    (uint256 depositBefore, uint256 withdrawalBefore, uint256 managementBefore, uint256 performanceBefore) = Vault(
-      vault
-    ).feeStructure();
-    assertEq(depositBefore, DEPOSIT_FEE);
-    assertEq(withdrawalBefore, WITHDRAWAL_FEE);
-    assertEq(managementBefore, MANAGEMENT_FEE);
-    assertEq(performanceBefore, PERFORMANCE_FEE);
+  function test__setSameVaultFeesInvalidFeeStructureReverts() public acceptOwnerships {
+    address[] memory vaultArray = new address[](1);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
     IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
       deposit: 1e18,
       withdrawal: 1e18,
       management: 1e18,
       performance: 1e18
     });
+
     vm.expectRevert("Invalid FeeStructure");
-    vaultsV1Controller.setVaultFees(vault, newFeeStructure);
-    // check no changes
-    (uint256 depositAfter, uint256 withdrawalAfter, uint256 managementAfter, uint256 performanceAfter) = Vault(vault)
-      .feeStructure();
-    assertEq(depositAfter, depositBefore);
-    assertEq(withdrawalAfter, withdrawalBefore);
-    assertEq(managementAfter, managementBefore);
-    assertEq(performanceAfter, performanceBefore);
+    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
   }
 
-  function test__setVaultFees() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    (uint256 depositBefore, uint256 withdrawalBefore, uint256 managementBefore, uint256 performanceBefore) = Vault(
-      vault
-    ).feeStructure();
-    assertEq(depositBefore, DEPOSIT_FEE);
-    assertEq(withdrawalBefore, WITHDRAWAL_FEE);
-    assertEq(managementBefore, MANAGEMENT_FEE);
-    assertEq(performanceBefore, PERFORMANCE_FEE);
+  function test__setSameVaultFees() public acceptOwnerships {
+    address[] memory vaultArray = new address[](2);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    vaultArray[1] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
     IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
       deposit: DEPOSIT_FEE * 2,
       withdrawal: WITHDRAWAL_FEE * 2,
       management: MANAGEMENT_FEE * 2,
       performance: PERFORMANCE_FEE * 2
     });
-    vaultsV1Controller.setVaultFees(vault, newFeeStructure);
-    (uint256 depositAfter, uint256 withdrawalAfter, uint256 managementAfter, uint256 performanceAfter) = Vault(vault)
-      .feeStructure();
-    assertEq(depositAfter, newFeeStructure.deposit);
-    assertEq(depositAfter, DEPOSIT_FEE * 2);
-    assertEq(withdrawalAfter, newFeeStructure.withdrawal);
-    assertEq(withdrawalAfter, WITHDRAWAL_FEE * 2);
-    assertEq(managementAfter, newFeeStructure.management);
-    assertEq(managementAfter, MANAGEMENT_FEE * 2);
-    assertEq(performanceAfter, newFeeStructure.performance);
-    assertEq(performanceAfter, PERFORMANCE_FEE * 2);
+    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
+
+    (uint256 depositAfter1, uint256 withdrawalAfter1, uint256 managementAfter1, uint256 performanceAfter1) = Vault(
+      vaultArray[0]
+    ).feeStructure();
+
+    assertEq(depositAfter1, newFeeStructure.deposit);
+    assertEq(withdrawalAfter1, newFeeStructure.withdrawal);
+    assertEq(managementAfter1, newFeeStructure.management);
+    assertEq(performanceAfter1, newFeeStructure.performance);
+
+    (uint256 depositAfter2, uint256 withdrawalAfter2, uint256 managementAfter2, uint256 performanceAfter2) = Vault(
+      vaultArray[1]
+    ).feeStructure();
+    assertEq(depositAfter2, newFeeStructure.deposit);
+    assertEq(withdrawalAfter2, newFeeStructure.withdrawal);
+    assertEq(managementAfter2, newFeeStructure.management);
+    assertEq(performanceAfter2, newFeeStructure.performance);
   }
 
-  function test__setVaultFeesEvent() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    (uint256 depositBefore, uint256 withdrawalBefore, uint256 managementBefore, uint256 performanceBefore) = Vault(
-      vault
-    ).feeStructure();
-    assertEq(depositBefore, DEPOSIT_FEE);
-    assertEq(withdrawalBefore, WITHDRAWAL_FEE);
-    assertEq(managementBefore, MANAGEMENT_FEE);
-    assertEq(performanceBefore, PERFORMANCE_FEE);
+  function test__setSameVaultFeesEvent() public acceptOwnerships {
+    address[] memory vaultArray = new address[](1);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
     IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
       deposit: DEPOSIT_FEE * 2,
       withdrawal: WITHDRAWAL_FEE * 2,
       management: MANAGEMENT_FEE * 2,
       performance: PERFORMANCE_FEE * 2
     });
-    vm.expectEmit(false, false, false, true, vault);
+
+    vm.expectEmit(false, false, false, true, vaultArray[0]);
     emit FeesUpdated(vaultParams.feeStructure, newFeeStructure);
-    vaultsV1Controller.setVaultFees(vault, newFeeStructure);
-    (uint256 depositAfter, uint256 withdrawalAfter, uint256 managementAfter, uint256 performanceAfter) = Vault(vault)
-      .feeStructure();
-    assertEq(depositAfter, newFeeStructure.deposit);
-    assertEq(withdrawalAfter, newFeeStructure.withdrawal);
-    assertEq(managementAfter, newFeeStructure.management);
-    assertEq(performanceAfter, newFeeStructure.performance);
+    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
+  }
+
+  /* Setting individual vault fees */
+
+  function test__setIndividualVaultFeesNotOwnerReverts() public acceptOwnerships {
+    address[] memory vaultArray = new address[](1);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
+    IVaultsV1.FeeStructure[] memory newFeeStructure = new IVaultsV1.FeeStructure[](1);
+    newFeeStructure[0] = IVaultsV1.FeeStructure({
+      deposit: DEPOSIT_FEE * 2,
+      withdrawal: WITHDRAWAL_FEE * 2,
+      management: MANAGEMENT_FEE * 2,
+      performance: PERFORMANCE_FEE * 2
+    });
+
+    vm.prank(notOwner);
+    vm.expectRevert("Only the contract owner may perform this action");
+    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
+  }
+
+  function test__setIndividualVaultFeesInvalidFeeStructureReverts() public acceptOwnerships {
+    address[] memory vaultArray = new address[](1);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
+    IVaultsV1.FeeStructure[] memory newFeeStructure = new IVaultsV1.FeeStructure[](1);
+    newFeeStructure[0] = IVaultsV1.FeeStructure({
+      deposit: 1e18,
+      withdrawal: 1e18,
+      management: 1e18,
+      performance: 1e18
+    });
+
+    vm.expectRevert("Invalid FeeStructure");
+    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
+  }
+
+  function test__setIndividualVaultFees() public acceptOwnerships {
+    address[] memory vaultArray = new address[](2);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    vaultArray[1] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
+    IVaultsV1.FeeStructure[] memory newFeeStructure = new IVaultsV1.FeeStructure[](2);
+    newFeeStructure[0] = IVaultsV1.FeeStructure({
+      deposit: DEPOSIT_FEE * 2,
+      withdrawal: WITHDRAWAL_FEE * 2,
+      management: MANAGEMENT_FEE * 2,
+      performance: PERFORMANCE_FEE * 2
+    });
+    newFeeStructure[1] = IVaultsV1.FeeStructure({
+      deposit: DEPOSIT_FEE * 3,
+      withdrawal: WITHDRAWAL_FEE * 3,
+      management: MANAGEMENT_FEE * 3,
+      performance: PERFORMANCE_FEE * 3
+    });
+
+    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
+
+    (uint256 depositAfter1, uint256 withdrawalAfter1, uint256 managementAfter1, uint256 performanceAfter1) = Vault(
+      vaultArray[0]
+    ).feeStructure();
+
+    assertEq(depositAfter1, newFeeStructure[0].deposit);
+    assertEq(withdrawalAfter1, newFeeStructure[0].withdrawal);
+    assertEq(managementAfter1, newFeeStructure[0].management);
+    assertEq(performanceAfter1, newFeeStructure[0].performance);
+
+    (uint256 depositAfter2, uint256 withdrawalAfter2, uint256 managementAfter2, uint256 performanceAfter2) = Vault(
+      vaultArray[1]
+    ).feeStructure();
+    assertEq(depositAfter2, newFeeStructure[1].deposit);
+    assertEq(withdrawalAfter2, newFeeStructure[1].withdrawal);
+    assertEq(managementAfter2, newFeeStructure[1].management);
+    assertEq(performanceAfter2, newFeeStructure[1].performance);
+  }
+
+  function test__setIndividualVaultFeesEvent() public acceptOwnerships {
+    address[] memory vaultArray = new address[](2);
+    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    vaultArray[1] = helper__deployThroughFactory(true, DEFAULT_STAKING);
+
+    IVaultsV1.FeeStructure[] memory newFeeStructure = new IVaultsV1.FeeStructure[](2);
+    newFeeStructure[0] = IVaultsV1.FeeStructure({
+      deposit: DEPOSIT_FEE * 2,
+      withdrawal: WITHDRAWAL_FEE * 2,
+      management: MANAGEMENT_FEE * 2,
+      performance: PERFORMANCE_FEE * 2
+    });
+    newFeeStructure[1] = IVaultsV1.FeeStructure({
+      deposit: DEPOSIT_FEE * 3,
+      withdrawal: WITHDRAWAL_FEE * 3,
+      management: MANAGEMENT_FEE * 3,
+      performance: PERFORMANCE_FEE * 3
+    });
+
+    vm.expectEmit(false, false, false, true, vaultArray[0]);
+    emit FeesUpdated(vaultParams.feeStructure, newFeeStructure[0]);
+    vm.expectEmit(false, false, false, true, vaultArray[1]);
+    emit FeesUpdated(vaultParams.feeStructure, newFeeStructure[1]);
+    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
   }
 
   /* Change strategy for a Vault */
@@ -1086,7 +1156,6 @@ contract VaultsV1ControllerTest is Test {
     IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
 
     // Set up for testing
-    vaultsV1Controller.setVaultUseLocalFees(vault, true);
     deal(address(asset), address(this), 1 ether);
     asset.approve(vault, 1 ether);
     Vault(vault).deposit(1 ether);
@@ -1106,7 +1175,6 @@ contract VaultsV1ControllerTest is Test {
     IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
 
     // Set up for testing
-    vaultsV1Controller.setVaultUseLocalFees(vault, true);
     deal(address(asset), address(this), 1 ether);
     asset.approve(vault, 1 ether);
     Vault(vault).deposit(1 ether);
@@ -1114,33 +1182,6 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, vault);
     emit ChangedStrategy(IERC4626(address(yearnWrapper)), newStrategy);
     vaultsV1Controller.changeVaultStrategy(vault, newStrategy);
-  }
-
-  /* Setting vault use local fees */
-
-  function test__setVaultUseLocalFeesNotOwnerReverts() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    assertFalse(Vault(vault).useLocalFees());
-    vm.prank(notOwner);
-    vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.setVaultUseLocalFees(vault, true);
-    assertFalse(Vault(vault).useLocalFees());
-  }
-
-  function test__setVaultUseLocalFees() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    assertFalse(Vault(vault).useLocalFees());
-    vaultsV1Controller.setVaultUseLocalFees(vault, true);
-    assertTrue(Vault(vault).useLocalFees());
-  }
-
-  function test__setVaultUseLocalFeesEvent() public acceptOwnerships {
-    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    assertFalse(Vault(vault).useLocalFees());
-    vm.expectEmit(false, false, false, true, vault);
-    emit UseLocalFees(true);
-    vaultsV1Controller.setVaultUseLocalFees(vault, true);
-    assertTrue(Vault(vault).useLocalFees());
   }
 
   /* Setting vault staking */

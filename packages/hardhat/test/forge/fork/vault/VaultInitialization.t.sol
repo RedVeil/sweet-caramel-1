@@ -7,7 +7,6 @@ import { Test } from "forge-std/Test.sol";
 import "forge-std/console.sol";
 import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
 import "../../../../contracts/core/defi/vault/Vault.sol";
-import "../../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../../contracts/core/interfaces/IContractRegistry.sol";
 import "../../../../contracts/core/interfaces/IACLRegistry.sol";
 import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
@@ -31,7 +30,7 @@ contract VaultInitalizationTest is Test {
   ERC20 internal asset;
   IYearnSethVault internal yearn;
 
-  VaultFeeController internal feeController;
+  address internal feeRecipient = address(0x1234);
   Vault internal vault;
   YearnWrapper internal yearnWrapper;
 
@@ -66,16 +65,6 @@ contract VaultInitalizationTest is Test {
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
 
-    feeController = new VaultFeeController(
-      VaultFeeController.FeeStructure({
-        deposit: DEPOSIT_FEE,
-        withdrawal: WITHDRAWAL_FEE,
-        management: MANAGEMENT_FEE,
-        performance: PERFORMANCE_FEE
-      }),
-      IContractRegistry(CONTRACT_REGISTRY)
-    );
-
     vm.prank(ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(alice));
 
@@ -101,11 +90,7 @@ contract VaultInitalizationTest is Test {
     asset.approve(address(vault), type(uint256).max);
 
     vm.prank(ACL_ADMIN);
-    IContractRegistry(CONTRACT_REGISTRY).addContract(
-      keccak256("VaultFeeController"),
-      address(feeController),
-      keccak256("1")
-    );
+    IContractRegistry(CONTRACT_REGISTRY).addContract(keccak256("FeeRecipient"), feeRecipient, keccak256("1"));
 
     yearn = IYearnSethVault(YEARN_SETH_VAULT);
 

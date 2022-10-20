@@ -7,7 +7,6 @@ import { Test } from "forge-std/Test.sol";
 import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
 import "../../../../contracts/core/defi/vault/Vault.sol";
 import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
-import "../../../../contracts/core/defi/vault/VaultFeeController.sol";
 import "../../../../contracts/core/interfaces/IContractRegistry.sol";
 import "../../../../contracts/core/interfaces/IACLRegistry.sol";
 import "../../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
@@ -50,9 +49,9 @@ contract VaultFuzzTest is Test {
   ERC20 internal asset;
   User internal alice;
   User internal bob;
-  VaultFeeController internal feeController;
   Vault internal vault;
   YearnWrapper internal yearnWrapper;
+  address internal feeRecipient = address(0x1234);
 
   uint256 constant DEPOSIT_FEE = 50 * 1e14;
   uint256 constant WITHDRAWAL_FEE = 50 * 1e14;
@@ -100,16 +99,6 @@ contract VaultFuzzTest is Test {
     alice = new User(vault, asset);
     bob = new User(vault, asset);
 
-    feeController = new VaultFeeController(
-      VaultFeeController.FeeStructure({
-        deposit: DEPOSIT_FEE,
-        withdrawal: WITHDRAWAL_FEE,
-        management: MANAGEMENT_FEE,
-        performance: PERFORMANCE_FEE
-      }),
-      IContractRegistry(CONTRACT_REGISTRY)
-    );
-
     vm.startPrank(ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(alice));
@@ -123,11 +112,7 @@ contract VaultFuzzTest is Test {
     bob.approve(vaultAddress, type(uint256).max);
 
     vm.prank(ACL_ADMIN);
-    IContractRegistry(CONTRACT_REGISTRY).addContract(
-      keccak256("VaultFeeController"),
-      address(feeController),
-      keccak256("1")
-    );
+    IContractRegistry(CONTRACT_REGISTRY).addContract(keccak256("FeeRecipient"), feeRecipient, keccak256("1"));
   }
 
   function test_assets_per_share_constant_after_deposit(uint80 amount) public {
@@ -238,7 +223,6 @@ contract VaultFuzzTest is Test {
 
     vm.startPrank(ACL_ADMIN);
     vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }));
-    vault.setUseLocalFees(true);
     vm.stopPrank();
 
     uint256 totalVaultIncrease = totalAmount / 2;

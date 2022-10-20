@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/KeeperIncentivized.sol";
-import "../../interfaces/IVaultFeeController.sol";
 import "../../interfaces/IVaultsV1.sol";
 import "../../interfaces/IVaultsV1Zapper.sol";
 import "../../interfaces/IZapIn.sol";
@@ -71,7 +70,6 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
 
   /* ========== STATE VARIABLES ========== */
 
-  bytes32 constant FEE_CONTROLLER_ID = keccak256("VaultFeeController");
   bytes32 constant VAULTS_V1_REGISTRY = keccak256("VaultsV1Registry");
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
@@ -315,10 +313,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
 
     uint256 tipAmount = (feeBal * keeperConfig.incentiveVigBps) / 1e18;
 
-    IERC20(vaultAsset).safeTransfer(
-      IVaultFeeController(_getContract(FEE_CONTROLLER_ID)).feeRecipient(),
-      feeBal - tipAmount
-    );
+    IERC20(vaultAsset).safeTransfer(_getContract(keccak256("FeeRecipient")), feeBal - tipAmount);
 
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(KEEPER_INCENTIVE));
 

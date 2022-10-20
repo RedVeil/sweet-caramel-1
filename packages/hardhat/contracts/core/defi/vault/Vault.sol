@@ -11,7 +11,6 @@ import "../../utils/ContractRegistryAccessUpgradeable.sol";
 import "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IERC4626.sol";
 import "../../interfaces/IContractRegistry.sol";
-import "../../interfaces/IVaultFeeController.sol";
 import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IVaultsV1.sol";
 
@@ -35,14 +34,12 @@ contract Vault is
   bytes32 public contractName;
 
   uint256 constant MINUTES_PER_YEAR = 525_600;
-  bytes32 constant FEE_CONTROLLER_ID = keccak256("VaultFeeController");
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   /* ========== STATE VARIABLES ========== */
   ERC20 public asset;
   IERC4626 public strategy;
   FeeStructure public feeStructure;
-  bool public useLocalFees;
   uint256 public vaultShareHWM = 1e18;
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
@@ -61,7 +58,6 @@ contract Vault is
   event PerformanceFee(uint256 amount);
   event ManagementFee(uint256 amount);
   event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
-  event UseLocalFees(bool useLocalFees);
   event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
   event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
 
@@ -128,7 +124,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewDeposit(uint256 assets) public view returns (uint256 shares) {
-    shares = convertToShares(assets - ((assets * getDepositFee()) / 1e18));
+    shares = convertToShares(assets - ((assets * feeStructure.deposit) / 1e18));
   }
 
   /**
@@ -138,7 +134,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewMint(uint256 shares) public view returns (uint256 assets) {
-    uint256 depositFee = getDepositFee();
+    uint256 depositFee = feeStructure.deposit;
 
     shares += (shares * depositFee) / (1e18 - depositFee);
 
@@ -152,7 +148,7 @@ contract Vault is
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
   function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
-    uint256 withdrawalFee = getWithdrawalFee();
+    uint256 withdrawalFee = feeStructure.withdrawal;
 
     assets += (assets * withdrawalFee) / (1e18 - withdrawalFee);
 
@@ -168,7 +164,7 @@ contract Vault is
   function previewRedeem(uint256 shares) public view returns (uint256 assets) {
     assets = convertToAssets(shares);
 
-    assets -= (assets * getWithdrawalFee()) / 1e18;
+    assets -= (assets * feeStructure.withdrawal) / 1e18;
   }
 
   /* ========== VIEWS ( FEES ) ========== */
@@ -181,10 +177,8 @@ contract Vault is
    *  calculating a definite integral using the trapezoid rule.
    */
   function accruedManagementFee() public view returns (uint256) {
-    uint256 managementFee = useLocalFees ? feeStructure.management : _feeController().getManagementFee();
-
     uint256 area = (totalAssets() + assetsCheckpoint) * ((block.timestamp - feesUpdatedAt) / 1 minutes);
-    return (((managementFee * area) / 2) / MINUTES_PER_YEAR) / 1e18;
+    return (((feeStructure.management * area) / 2) / MINUTES_PER_YEAR) / 1e18;
   }
 
   /**
@@ -197,20 +191,10 @@ contract Vault is
     uint256 shareValue = convertToAssets(1 ether);
 
     if (shareValue > vaultShareHWM) {
-      uint256 performanceFee = useLocalFees ? feeStructure.performance : _feeController().getPerformanceFee();
-
-      return (performanceFee * (shareValue - vaultShareHWM) * totalSupply()) / 1e36;
+      return (feeStructure.performance * (shareValue - vaultShareHWM) * totalSupply()) / 1e36;
     } else {
       return 0;
     }
-  }
-
-  function getDepositFee() internal view returns (uint256) {
-    return useLocalFees ? feeStructure.deposit : _feeController().getDepositFee();
-  }
-
-  function getWithdrawalFee() internal view returns (uint256) {
-    return useLocalFees ? feeStructure.withdrawal : _feeController().getWithdrawalFee();
   }
 
   /* ========== VIEWS ( MAX ) ========== */
@@ -218,27 +202,29 @@ contract Vault is
   /**
    * @return Maximum amount of underlying `asset` token that may be deposited for a given address.
    */
-  function maxDeposit(address) public view returns (uint256) {}
+  function maxDeposit(address caller) public view returns (uint256) {
+    return strategy.maxDeposit(caller);
+  }
 
   /**
    * @return Maximum amount of vault shares that may be minted to given address.
    */
-  function maxMint(address) external view returns (uint256) {
-    return previewDeposit(maxDeposit(address(0)));
+  function maxMint(address caller) external view returns (uint256) {
+    return strategy.maxMint(caller);
   }
 
   /**
    * @return Maximum amount of underlying `asset` token that can be withdrawn by `caller` address.
    */
   function maxWithdraw(address caller) external view returns (uint256) {
-    return previewRedeem(balanceOf(caller));
+    return strategy.maxWithdraw(caller);
   }
 
   /**
    * @return Maximum amount of shares that may be redeemed by `caller` address.
    */
   function maxRedeem(address caller) external view returns (uint256) {
-    return balanceOf(caller);
+    return strategy.maxRedeem(caller);
   }
 
   /* ========== MUTATIVE FUNCTIONS ========== */
@@ -262,7 +248,7 @@ contract Vault is
   function deposit(uint256 assets, address receiver) public nonReentrant whenNotPaused returns (uint256 shares) {
     require(receiver != address(0), "Invalid receiver");
 
-    uint256 feeShares = convertToShares((assets * getDepositFee()) / 1e18);
+    uint256 feeShares = convertToShares((assets * feeStructure.deposit) / 1e18);
 
     shares = convertToShares(assets) - feeShares;
 
@@ -297,7 +283,7 @@ contract Vault is
   function mint(uint256 shares, address receiver) public nonReentrant whenNotPaused returns (uint256 assets) {
     require(receiver != address(0), "Invalid receiver");
 
-    uint256 depositFee = getDepositFee();
+    uint256 depositFee = feeStructure.deposit;
 
     uint256 feeShares = (shares * depositFee) / (1e18 - depositFee);
 
@@ -340,7 +326,7 @@ contract Vault is
 
     shares = convertToShares(assets);
 
-    uint256 withdrawalFee = getWithdrawalFee();
+    uint256 withdrawalFee = feeStructure.withdrawal;
 
     uint256 feeShares = (shares * withdrawalFee) / (1e18 - withdrawalFee);
 
@@ -382,7 +368,7 @@ contract Vault is
 
     _transfer(owner, address(this), shares);
 
-    uint256 feeShares = (shares * getWithdrawalFee()) / 1e18;
+    uint256 feeShares = (shares * feeStructure.withdrawal) / 1e18;
 
     assets = convertToAssets(shares - feeShares);
 
@@ -444,15 +430,6 @@ contract Vault is
   }
 
   /**
-   * @notice Set whether to use locally configured fees. Caller must have VAULTS_CONTROLLER from ACLRegistry.
-   * @param _useLocalFees `true` to use local fees, `false` to use the VaultFeeController contract.
-   */
-  function setUseLocalFees(bool _useLocalFees) external onlyRole(VAULTS_CONTROLLER) {
-    emit UseLocalFees(_useLocalFees);
-    useLocalFees = _useLocalFees;
-  }
-
-  /**
    * @notice Change keeper config. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
   function setKeeperConfig(KeeperConfig memory _config) external onlyRole(VAULTS_CONTROLLER) {
@@ -479,7 +456,7 @@ contract Vault is
 
   /**
    * @notice Transfer accrued fees to rewards manager contract. Caller must be a registered keeper.
-   * @dev we send funds now to the feeRecipient which is set on the feeController. We must make sure that this is not address(0) before withdrawing fees
+   * @dev we send funds now to the feeRecipient which is set on in the contract registry. We must make sure that this is not address(0) before withdrawing fees
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
     uint256 balance = balanceOf(address(this));
@@ -495,7 +472,11 @@ contract Vault is
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 
     //TODO check this calculation
-    strategy.withdraw((accruedFees * 1e18 - incentiveVig) / 1e18, _feeController().feeRecipient(), address(this));
+    strategy.withdraw(
+      (accruedFees * 1e18 - incentiveVig) / 1e18,
+      _getContract(keccak256("FeeRecipient")),
+      address(this)
+    );
     strategy.withdraw(tipAmount, address(this), address(this));
 
     uint256 postBal = assetToken.balanceOf(address(this));
@@ -512,14 +493,6 @@ contract Vault is
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */
-
-  /**
-   * @notice Return current fee controller.
-   * @return Current fee controller registered in contract registry.
-   */
-  function _feeController() internal view returns (IVaultFeeController) {
-    return IVaultFeeController(_getContract(FEE_CONTROLLER_ID));
-  }
 
   /**
    * @notice Override for ACLAuth and ContractRegistryAccess.
