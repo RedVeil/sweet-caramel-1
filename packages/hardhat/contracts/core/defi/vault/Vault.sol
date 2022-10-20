@@ -63,6 +63,7 @@ contract Vault is
   event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
   event UseLocalFees(bool useLocalFees);
   event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
+  event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
 
   /* ========== INITIALIZE ========== */
 
@@ -399,15 +400,30 @@ contract Vault is
 
   /* ========== RESTRICTED FUNCTIONS ========== */
 
-  //TODO add migration function
-  // - should be controlled by VaultsController
-  // - should take fees if possible
-  // - should pull all funds from oldStrategy
-  // - should remove allowance to oldStrategy
-  // - should slot in newStrategy
-  // - should approve newStrategy
-  // - should deposit into newStrategy
-  // - should adjust HWM and assetsCheckpoint
+  /**
+   * @notice Set a new Strategy for this Vault.
+   * @param newStrategy A new ERC4626 that should be used as a yield strategy for this asset.
+   * @dev This migration function will remove all assets from the old Vault and move them into the new vault
+   * @dev Additionally it will zero old allowances and set new ones
+   * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new strategy
+   */
+  function changeStrategy(IERC4626 newStrategy) external onlyRole(VAULTS_CONTROLLER) {
+    strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
+
+    asset.approve(address(strategy), 0);
+    strategy.approve(address(strategy), 0);
+
+    emit ChangedStrategy(strategy, newStrategy);
+    strategy = newStrategy;
+
+    asset.approve(address(strategy), type(uint256).max);
+    strategy.approve(address(strategy), type(uint256).max);
+
+    strategy.deposit(asset.balanceOf(address(this)), address(this));
+
+    vaultShareHWM = convertToAssets(1 ether);
+    assetsCheckpoint = totalAssets();
+  }
 
   /**
    * @notice Set fees in BPS. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.

@@ -13,6 +13,7 @@ import "../../interfaces/IVaultsV1.sol";
 import "../../interfaces/IVaultsV1Zapper.sol";
 import "../../interfaces/IStaking.sol";
 import "../../interfaces/IRewardsEscrow.sol";
+import "../../interfaces/IERC4626.sol";
 import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 
 /**
@@ -169,6 +170,16 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     for (uint256 i = 0; i < _vaultAddresses.length; i++) {
       vaultsV1Registry.toggleEnableVault(_vaultAddresses[i]);
     }
+  }
+
+  /**
+   * @notice set fees in BPS.
+   * @param _vault - address of the vault
+   * @param _newStrategy - new strategy to use for the vault
+   * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
+   */
+  function changeVaultStrategy(address _vault, IERC4626 _newStrategy) external onlyOwner {
+    IVaultsV1(_vault).changeStrategy(_newStrategy);
   }
 
   /**

@@ -109,6 +109,8 @@ interface IVaultsV1 is IERC4626 {
 
   /* ========== RESTRICTED FUNCTIONS ========== */
 
+  function changeStrategy(IERC4626 newStrategy) external;
+
   function setFees(FeeStructure memory newFees) external;
 
   function setUseLocalFees(bool _useLocalFees) external;

@@ -137,8 +137,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function maxDeposit(address _account) public view returns (uint256) {
-    _account; // TODO can acc custom logic per depositor <--- Remove
+  function maxDeposit(address) public view returns (uint256) {
     VaultAPI _bestVault = yVault;
     uint256 _totalAssets = _bestVault.totalAssets();
     uint256 _depositLimit = _bestVault.depositLimit();

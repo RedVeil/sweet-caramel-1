@@ -48,13 +48,12 @@ contract VaultsV1ControllerTest is Test {
   /* VaultStakingFactory events */
   event VaultStakingDeployment(address staking);
   event StakingImplementationUpdated(address oldVaultStakingImplementation, address newVaultStakingImplementation);
-  /* Vault events */
-  event Paused(address account);
-  event Unpaused(address account);
   /* Owned events */
   event OwnerNominated(address newOwner);
   event OwnerChanged(address owner, address nominatedOwner);
   /* Vault events */
+  event Paused(address account);
+  event Unpaused(address account);
   event FeesUpdated(Vault.FeeStructure previousFees, IVaultsV1.FeeStructure newFees);
   event UseLocalFees(bool useLocalFees);
   event StakingUpdated(address beforeAddress, address afterAddress);
@@ -62,6 +61,7 @@ contract VaultsV1ControllerTest is Test {
   event RegistryUpdated(address beforeAddress, address afterAddress);
   event KeeperConfigUpdated(KeeperConfig oldConfig, KeeperConfig newConfig);
   event ZapsUpdated(address zapIn, address zapOut);
+  event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
   /* VaultZapper events */
   event UpdatedVault(address vaultAsset, address vault);
   event RemovedVault(address vaultAsset, address vault);
@@ -119,9 +119,7 @@ contract VaultsV1ControllerTest is Test {
     vaultImplementation = address(new Vault());
     stakingImplementation = address(new VaultStaking());
 
-    address yearnWrapperAddress = address(new YearnWrapper());
-    yearnWrapper = YearnWrapper(yearnWrapperAddress);
-    yearnWrapper.initialize(VaultAPI(YEARN_VAULT));
+    yearnWrapper = YearnWrapper(helper__deployYearnWrapper(YEARN_VAULT));
 
     vaultParams = VaultParams({
       asset: asset,
@@ -198,11 +196,17 @@ contract VaultsV1ControllerTest is Test {
   }
 
   /* ========== HELPER FUNCTIONS ========== */
+
   function helper__addVaultTypesToRegistry(uint256 _vaultTypes) public {
     for (uint256 i = 2; i <= _vaultTypes; i++) {
       vaultsV1Controller.addVaultTypeToRegistry(i);
     }
     assertEq(vaultsV1Registry.vaultTypes(), _vaultTypes);
+  }
+
+  function helper__deployYearnWrapper(address yearnVault) public returns (address yearnWrapperAddress) {
+    yearnWrapperAddress = address(new YearnWrapper());
+    YearnWrapper(yearnWrapperAddress).initialize(VaultAPI(yearnVault));
   }
 
   function helper__deployThroughFactory(bool _endorsed, address _staking) public returns (address) {
@@ -1064,6 +1068,52 @@ contract VaultsV1ControllerTest is Test {
     assertEq(withdrawalAfter, newFeeStructure.withdrawal);
     assertEq(managementAfter, newFeeStructure.management);
     assertEq(performanceAfter, newFeeStructure.performance);
+  }
+
+  /* Change strategy for a Vault */
+
+  function test__changeVaultStrategyNotOwnerReverts() public acceptOwnerships {
+    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+
+    vm.prank(notOwner);
+    vm.expectRevert("Only the contract owner may perform this action");
+    vaultsV1Controller.changeVaultStrategy(vault, newStrategy);
+  }
+
+  function test__changeVaultStrategy() public acceptOwnerships {
+    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+
+    // Set up for testing
+    vaultsV1Controller.setVaultUseLocalFees(vault, true);
+    deal(address(asset), address(this), 1 ether);
+    asset.approve(vault, 1 ether);
+    Vault(vault).deposit(1 ether);
+
+    vaultsV1Controller.changeVaultStrategy(vault, newStrategy);
+    assertEq(address(Vault(vault).strategy()), address(newStrategy));
+
+    assertEq(yearnWrapper.allowance(vault, address(yearnWrapper)), 0);
+    assertEq(asset.allowance(vault, address(yearnWrapper)), 0);
+
+    assertEq(newStrategy.allowance(vault, address(newStrategy)), type(uint256).max);
+    assertEq(asset.allowance(vault, address(newStrategy)), type(uint256).max);
+  }
+
+  function test__changeVaultStrategyEvent() public acceptOwnerships {
+    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+
+    // Set up for testing
+    vaultsV1Controller.setVaultUseLocalFees(vault, true);
+    deal(address(asset), address(this), 1 ether);
+    asset.approve(vault, 1 ether);
+    Vault(vault).deposit(1 ether);
+
+    vm.expectEmit(false, false, false, true, vault);
+    emit ChangedStrategy(IERC4626(address(yearnWrapper)), newStrategy);
+    vaultsV1Controller.changeVaultStrategy(vault, newStrategy);
   }
 
   /* Setting vault use local fees */
