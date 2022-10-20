@@ -66,10 +66,12 @@ contract VaultsV1ZapperTest is Test {
   VaultFeeController internal feeController;
   Staking internal staking;
   VaultsV1Registry internal vaultsV1Registry;
+  YearnWrapper internal yearnWrapper;
 
   function setUp() public {
     zapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
-    address yearnWrapperAddress = address(new YearnWrapper());
+    yearnWrapper = new YearnWrapper();
+    address yearnWrapperAddress = address(yearnWrapper);
     YearnWrapper(yearnWrapperAddress).initialize(VaultAPI(YEARN_VAULT));
     address vaultAddress = address(new Vault());
     vault = Vault(vaultAddress);
@@ -504,9 +506,9 @@ contract VaultsV1ZapperTest is Test {
     assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
 
     // Make sure the fee was taken
-    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), yearnWrapper.convertToAssets(expectedFee));
     (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
-    assertEq(accumulated, expectedFee);
+    assertEq(accumulated, yearnWrapper.convertToAssets(expectedFee));
   }
 
   function test_zap_out_fee() public {
@@ -563,18 +565,16 @@ contract VaultsV1ZapperTest is Test {
     vm.prank(DAO);
     zapper.setGlobalFee(50, 0);
 
-    uint256 assetsAfterSwap = 589399193870234992;
-    uint256 expectedVaultBalance = vault.previewDeposit(assetsAfterSwap);
-    uint256 expectedFee = assetsAfterSwap / 200;
-
     zapIntoSethVault(false);
 
-    assertEq(vault.balanceOf(address(this)), expectedVaultBalance);
+    uint256 expectedVaultBalanceWithoutFees = 304138537526120630;
+    uint256 expectedFee = expectedVaultBalanceWithoutFees / 200;
+    assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
 
     // Make sure the fee was taken
-    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), yearnWrapper.convertToAssets(expectedFee));
     (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
-    assertEq(accumulated, expectedFee);
+    assertEq(accumulated, yearnWrapper.convertToAssets(expectedFee));
   }
 
   function test_global_fee_with_disabled_asset_fee() public {
@@ -588,14 +588,13 @@ contract VaultsV1ZapperTest is Test {
     zapIntoSethVault(false);
 
     uint256 expectedVaultBalanceWithoutFees = 304138537526120630;
-    uint256 expectedFee = expectedVaultBalanceWithoutFees / 100;
-    uint256 assets = 589399193870234992;
+    uint256 expectedFee = expectedVaultBalanceWithoutFees / 200;
     assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
 
     // Make sure the fee was taken
-    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), assets / 100);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), yearnWrapper.convertToAssets(expectedFee));
     (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
-    assertEq(accumulated, assets / 100);
+    assertEq(accumulated, yearnWrapper.convertToAssets(expectedFee));
   }
 
   function test_global_fee_with_enabled_asset_fee() public {
@@ -614,9 +613,9 @@ contract VaultsV1ZapperTest is Test {
     assertEq(vault.balanceOf(address(this)), expectedVaultBalanceWithoutFees - expectedFee);
 
     // Make sure the fee was taken
-    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), expectedFee);
+    assertEq(IERC20(CURVE_SETH_LP).balanceOf(address(zapper)), yearnWrapper.convertToAssets(expectedFee));
     (, uint256 accumulated, , ) = zapper.fees(CURVE_SETH_LP);
-    assertEq(accumulated, expectedFee);
+    assertEq(accumulated, yearnWrapper.convertToAssets(expectedFee));
   }
 
   function test_set_keeper_config() public {
