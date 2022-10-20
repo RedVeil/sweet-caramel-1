@@ -34,6 +34,7 @@ contract VaultsV1RegistryTest is Test {
   VaultsV1Controller internal vaultsV1Controller;
   KeeperIncentiveV2 internal keeperIncentive;
   RewardsEscrow internal rewardsEscrow;
+  YearnWrapper internal yearnWrapper;
 
   address internal vaultsV1ControllerOwner = address(this);
   address internal notOwner = makeAddr("notOwner");
@@ -50,9 +51,16 @@ contract VaultsV1RegistryTest is Test {
   address internal ZAP_OUT = makeAddr("zapOut");
 
   address[8] internal swapTokenAddresses;
+  address internal asset;
+  address internal yearnWrapperAddress;
 
   function setUp() public {
+    asset = address(ERC20(CRV_3CRYPTO));
     vaultsV1Registry = new VaultsV1Registry(address(this));
+
+    yearnWrapperAddress = address(new YearnWrapper());
+    yearnWrapper = YearnWrapper(yearnWrapperAddress);
+    yearnWrapper.initialize(VaultAPI(YEARN_VAULT));
 
     for (uint256 i = 0; i < 8; i++) {
       swapTokenAddresses[i] = address(uint160(i));
@@ -71,7 +79,7 @@ contract VaultsV1RegistryTest is Test {
     vault = address(new Vault());
     Vault(vault).initialize(
       ERC20(asset),
-      IERC4626(YEARN_WRAPPER),
+      IERC4626(yearnWrapperAddress),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({ deposit: 1, withdrawal: 1, management: 1, performance: 1 }),
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
@@ -234,6 +242,8 @@ contract VaultsV1RegistryTest is Test {
 
   function test__registerVault() public {
     helper__addVaultTypesToRegistry(3);
+    address vault = helper__deployVault(asset);
+    DEFAULT_VAULT_ADDRESS = vault;
     vaultsV1Registry.registerVault(
       VaultMetadata({
         vaultAddress: DEFAULT_VAULT_ADDRESS,
@@ -255,7 +265,7 @@ contract VaultsV1RegistryTest is Test {
     assertEq(vaultsV1RegistryMetadata.vaultType, 1);
     assertEq(vaultsV1RegistryMetadata.enabled, true);
     assertEq(vaultsV1RegistryMetadata.staking, STAKING);
-    assertEq(vaultsV1RegistryMetadata.submitter, address(this));
+    assertEq(vaultsV1RegistryMetadata.submitter, msg.sender);
     assertEq(vaultsV1RegistryMetadata.metadataCID, CID);
     for (uint256 i = 0; i < 8; i++) {
       assertEq(vaultsV1RegistryMetadata.swapTokenAddresses[i], swapTokenAddresses[i]);
@@ -298,6 +308,9 @@ contract VaultsV1RegistryTest is Test {
 
   function test__registerVaultEvent() public {
     helper__addVaultTypesToRegistry(3);
+
+    address vault = helper__deployVault(asset);
+    DEFAULT_VAULT_ADDRESS = vault;
 
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     emit VaultAdded(DEFAULT_VAULT_ADDRESS, 1, true, CID);
@@ -428,7 +441,7 @@ contract VaultsV1RegistryTest is Test {
       enabled: false,
       staking: address(0x4444),
       vaultZapper: address(0x6666),
-      submitter: address(this),
+      submitter: msg.sender,
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
@@ -446,7 +459,7 @@ contract VaultsV1RegistryTest is Test {
     assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
     assertEq(vaultsV1RegistryMetadata.enabled, false);
     assertEq(vaultsV1RegistryMetadata.staking, address(0x4444));
-    assertEq(vaultsV1RegistryMetadata.submitter, address(this));
+    assertEq(vaultsV1RegistryMetadata.submitter, msg.sender);
     assertEq(vaultsV1RegistryMetadata.metadataCID, "differentCID");
     for (uint256 i = 0; i < 8; i++) {
       assertEq(vaultsV1RegistryMetadata.swapTokenAddresses[i], newSwapTokenAddresses[i]);
@@ -469,7 +482,7 @@ contract VaultsV1RegistryTest is Test {
       enabled: true,
       staking: address(0x4444),
       vaultZapper: address(0x6666),
-      submitter: address(this),
+      submitter: msg.sender,
       metadataCID: "differentCID",
       swapTokenAddresses: newSwapTokenAddresses,
       swapAddress: address(0x8888),
@@ -558,7 +571,7 @@ contract VaultsV1RegistryTest is Test {
     address vault = helper__deployVaultAndRegister(1, true);
 
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
-    emit VaultStatusChanged(vault, true, false);
+    emit VaultStatusChanged(vault, false, false);
     vaultsV1Registry.toggleEnableVault(vault);
   }
 
