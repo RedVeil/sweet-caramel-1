@@ -1,12 +1,12 @@
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 
-interface InfoIconProps {
+export interface InfoIconProps {
   id: string;
   title: string;
   content: string;
 }
 
-interface StatusWithLabelProps {
+export interface StatusWithLabelProps {
   content: string;
   label: string | React.ReactElement;
   infoIconProps?: InfoIconProps;

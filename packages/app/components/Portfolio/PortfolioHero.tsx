@@ -1,7 +1,31 @@
+import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
+import { ChainId } from "@popcorn/utils";
 import StatusWithLabel from "components/Common/StatusWithLabel";
-import React from "react";
+import { constants } from "ethers/lib/ethers";
+import { formatUnits } from "ethers/lib/utils";
+import useSetTokenTVL from "hooks/set/useSetTokenTVL";
+import useStakingTVL from "hooks/staking/useStakingTVL";
+import { useMemo } from "react";
 
 const PortfolioHero = () => {
+  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
+  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
+  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
+  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
+  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch);
+  const tvl = useMemo(
+    () =>
+      [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce(
+        (total, num) => total.add(num ? num : constants.Zero),
+        constants.Zero,
+      ),
+    [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL],
+  );
+
+  let formatter = Intl.NumberFormat("en", {
+    //@ts-ignore
+    notation: "compact",
+  });
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-12 md:col-span-4">
@@ -15,22 +39,22 @@ const PortfolioHero = () => {
         </p>
         <div className="flex">
           <StatusWithLabel
-            content={`$3.4M`}
-            label="Total Deposits"
+            content={`$${formatter.format(parseInt(formatUnits(tvl)))}`}
+            label="Total Popcorn TVL"
             infoIconProps={{
-              id: "vAPR",
-              title: "How we calculate the vAPR",
-              content: "Hello",
+              id: "portfolio-tvl",
+              title: "Total value locked (TVL)",
+              content: "Total value locked (TVL) is the amount of user funds deposited in popcorn products.",
             }}
           />
           <div className="bg-gray-300 h-16 hidden md:block mx-6" style={{ width: "1px" }}></div>
           <StatusWithLabel
-            content={`$3.4M`}
-            label="Total Deposits"
+            content={`Coming Soon`}
+            label="Total Social Impact"
             infoIconProps={{
-              id: "vAPR",
-              title: "How we calculate the vAPR",
-              content: "Hello",
+              id: "social-impact-id",
+              title: "Total Social Impact",
+              content: "This is how much we've spent making social impact.",
             }}
           />
         </div>

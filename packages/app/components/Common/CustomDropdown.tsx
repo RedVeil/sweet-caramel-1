@@ -28,10 +28,10 @@ const CustomDropdown: FC<IFilter> = ({ selectedItem, setSelectedItem, categories
             <DropdownOptions
               options={categories}
               switchFilter={setSelectedItem}
-              position="absolute top-12 left-0 z-40"
+              position="absolute top-16 left-0 z-40"
               width="w-full"
-              borderRadius="rounded"
-              borderRadiusFirstLast="first:rounded-t last:rounded-b"
+              borderRadius="rounded-3xl"
+              borderRadiusFirstLast="first:rounded-t-3xl last:rounded-b-3xl"
               selectedItem={selectedItem.id}
             />
           </Menu.Button>

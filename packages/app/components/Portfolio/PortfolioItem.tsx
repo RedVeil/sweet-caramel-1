@@ -1,17 +1,19 @@
 import { Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import Badge from "components/Common/Badge";
-import StatusWithLabel from "components/Common/StatusWithLabel";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import StatusWithLabel, { StatusWithLabelProps } from "components/Common/StatusWithLabel";
 import React, { useState } from "react";
-import PortfolioProductItem from "./PortfolioProductItem";
 
-const PortfolioItem = () => {
-  const badge = {
-    text: "5 contracts",
-    textColor: "text-black",
-    bgColor: "bg-customYellow",
+interface PortfolioItemProps {
+  title: string;
+  badge: {
+    text: string;
+    textColor: string;
+    bgColor: string;
   };
+  statusLabels: Array<StatusWithLabelProps>;
+}
+const PortfolioItem: React.FC<PortfolioItemProps> = ({ title, statusLabels, badge, children }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   return (
@@ -23,7 +25,7 @@ const PortfolioItem = () => {
     >
       <div className="flex justify-between">
         <div className="flex flex-col md:flex-row md:items-center">
-          <h3 className="text-3xl md:text-4xl mb-2 md:mb-0 font-normal leading-9">Staking</h3>
+          <h3 className="text-3xl md:text-4xl mb-2 md:mb-0 font-normal leading-9">{title}</h3>
           {
             <div className="md:pl-2">
               <Badge badge={badge} />
@@ -38,39 +40,12 @@ const PortfolioItem = () => {
       </div>
 
       <div className="grid grid-cols-12 mt-10 mb-6">
-        <div className="col-span-12 md:col-span-3">
-          <StatusWithLabel
-            content="1,3M"
-            label="TVL"
-            infoIconProps={{
-              id: "vAPR",
-              title: "How we calculate the vAPR",
-              content: "Hi!!!",
-            }}
-          />
-        </div>
-        <div className="col-span-12 md:col-span-3">
-          <StatusWithLabel
-            content="55.39%"
-            label="vAPR"
-            infoIconProps={{
-              id: "vAPR",
-              title: "How we calculate the vAPR",
-              content: "Hi!!!",
-            }}
-          />
-        </div>
-        <div className="col-span-12 md:col-span-3">
-          <StatusWithLabel
-            content="$10,000"
-            label="Deposited"
-            infoIconProps={{
-              id: "vAPR",
-              title: "How we calculate the vAPR",
-              content: "Hi!!!",
-            }}
-          />
-        </div>
+        {statusLabels.map(({ content, label, infoIconProps }) => (
+          <div className="col-span-12 md:col-span-3" key={infoIconProps.id}>
+            {" "}
+            <StatusWithLabel content={content} label={label} infoIconProps={infoIconProps} />
+          </div>
+        ))}
       </div>
       <Transition
         show={expanded}
@@ -81,21 +56,7 @@ const PortfolioItem = () => {
         leaveFrom="transform translate-y-0 opacity-100"
         leaveTo="transform -translate-y-10 md:-translate-y-16 opacity-0"
       >
-        <div className="py-6">
-          <PortfolioProductItem />
-          <div
-            className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6 group"
-            role="button"
-          >
-            <p className=" text-primary leading-6 mb-2">Total Unclaimed Rewards</p>
-            <p className="text-primary text-2xl leading-6">$1,500.00</p>
-            <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0  py-6 md:py-2 md:mt-4">
-              <div>
-                <SecondaryActionButton label="Rewards Page" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="py-6">{children}</div>
       </Transition>
     </div>
   );
