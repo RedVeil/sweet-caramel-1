@@ -70,10 +70,10 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   ) external onlyOwner returns (address vault) {
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
 
-    vault = _vaultsV1Factory().deployVaultV1(_vaultParams);
+    vault = _vaultsV1Factory().deploy(_vaultParams);
 
     if (_staking == address(0)) {
-      _staking = _vaultStakingFactory().deployVaultStaking(vault);
+      _staking = _vaultStakingFactory().deploy(vault);
     }
     _handleKeeperSetup(vault, _vaultParams.keeperConfig, address(_vaultParams.asset));
 
@@ -173,26 +173,20 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   /**
-   * @notice set fees in BPS.
+   * @notice Propose a new Strategy.
    * @param _vault - address of the vault
-   * @param _newStrategy - new strategy to use for the vault
-   * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
+   * @param _newStrategy - new strategy to be proposed for the vault
    */
-  function changeVaultStrategy(address _vault, IERC4626 _newStrategy) external onlyOwner {
-    IVaultsV1(_vault).changeStrategy(_newStrategy);
+  function proposeNewVaultStrategy(address _vault, IERC4626 _newStrategy) external onlyOwner {
+    IVaultsV1(_vault).proposeNewStrategy(_newStrategy);
   }
 
   /**
-   * @notice Sets the same fees across all vaults
-   * @param _vaults - addresses of the vaults to change
-   * @param _newFees - new fee structure for the vault
-   * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
+   * @notice Change strategy of a vault to the previously proposed strategy.
+   * @param _vault - address of the vault
    */
-  //TODO change function name
-  function setSameVaultFees(address[] memory _vaults, IVaultsV1.FeeStructure memory _newFees) external onlyOwner {
-    for (uint8 i; i < _vaults.length; i++) {
-      IVaultsV1(_vaults[i]).setFees(_newFees);
-    }
+  function changeVaultStrategy(address _vault) external onlyOwner {
+    IVaultsV1(_vault).changeStrategy();
   }
 
   /**
@@ -201,11 +195,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    * @param _newFees - new fee structures for these vaults
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  //TODO change function name
-  function setIndividualVaultFees(address[] memory _vaults, IVaultsV1.FeeStructure[] memory _newFees)
-    external
-    onlyOwner
-  {
+  function setVaultFees(address[] memory _vaults, IVaultsV1.FeeStructure[] memory _newFees) external onlyOwner {
     for (uint8 i; i < _vaults.length; i++) {
       IVaultsV1(_vaults[i]).setFees(_newFees[i]);
     }
@@ -428,11 +418,11 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   /* ========== VAULTFACTORY MANAGEMENT FUNCTIONS ========== */
 
   function setFactoryVaultImplementation(address _vaultImplementation) external onlyOwner {
-    _vaultsV1Factory().setVaultImplementation(_vaultImplementation);
+    _vaultsV1Factory().setImplementation(_vaultImplementation);
   }
 
   function setFactoryStakingImplementation(address _stakingImplementation) external onlyOwner {
-    _vaultStakingFactory().setStakingImplementation(_stakingImplementation);
+    _vaultStakingFactory().setImplementation(_stakingImplementation);
   }
 
   /* ========== OWNERSHIP FUNCTIONS ========== */

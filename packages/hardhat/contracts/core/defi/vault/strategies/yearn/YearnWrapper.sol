@@ -8,12 +8,16 @@ import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { VaultAPI } from "../../../../../externals/interfaces/yearn/IVaultAPI.sol";
 import "../../../../interfaces/IERC4626.sol";
 import "../../../../interfaces/IYearnVaultWrapper.sol";
+import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
 
 // Needs to extract VaultAPI interface out of BaseStrategy to avoid collision
 contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
+  using FixedPointMathLib for uint256;
+
   VaultAPI public yVault;
   address public token;
-  uint256 public _decimals;
+  uint256 internal scalar;
+  uint256 internal _decimals;
 
   event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
   event Withdraw(
@@ -31,7 +35,10 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     );
     yVault = _vault;
     token = yVault.token();
-    _decimals = uint8(_vault.decimals());
+    _decimals = _vault.decimals();
+    scalar = 10**18 - _vault.decimals(); // !Assumes the vault uses 18 decimals or less
+
+    IERC20(token).approve(address(_vault), type(uint256).max);
   }
 
   function vault() external view returns (address) {
@@ -106,7 +113,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view returns (uint256) {
-    return yVault.totalAssets();
+    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10**_decimals);
   }
 
   function convertToShares(uint256 assets) public view returns (uint256) {
@@ -170,11 +177,6 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     }
 
     SafeERC20.safeTransferFrom(_token, depositor, address(this), amount);
-
-    if (_token.allowance(address(this), address(_vault)) < amount) {
-      _token.approve(address(_vault), 0); // Avoid issues with some tokens requiring 0
-      _token.approve(address(_vault), type(uint256).max); // Vaults are trusted
-    }
 
     // beforeDeposit custom logic
 

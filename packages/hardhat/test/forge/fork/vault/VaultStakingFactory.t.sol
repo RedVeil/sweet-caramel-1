@@ -28,7 +28,7 @@ contract VaultStakingFactoryTest is Test {
 
     VAULT = helper__deployVault(CRV_3CRYPTO);
 
-    vaultStakingFactory.setStakingImplementation(stakingImplementation);
+    vaultStakingFactory.setImplementation(stakingImplementation);
 
     vm.label(address(this), "VaultsV1ControllerOwner");
     vm.label(notOwner, "notOwner");
@@ -48,27 +48,27 @@ contract VaultStakingFactoryTest is Test {
     );
   }
 
-  function test__deployVaultStakingNotOwnerReverts() public {
+  function test__deployNotOwnerReverts() public {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    address staking = vaultStakingFactory.deployVaultStaking(VAULT);
+    address staking = vaultStakingFactory.deploy(VAULT);
     assertEq(staking, address(0), "staking deployment failed");
   }
 
-  function test__deployVaultStaking() public {
+  function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
     emit VaultStakingDeployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F);
 
-    address staking = vaultStakingFactory.deployVaultStaking(VAULT);
+    address staking = vaultStakingFactory.deploy(VAULT);
 
     // Check that the staking got deployed
     assertEq(staking, address(0x037FC82298142374d974839236D2e2dF6B5BdD8F));
   }
 
   function test__deployMultipleVaultStakingContracts() public {
-    address staking1 = vaultStakingFactory.deployVaultStaking(VAULT);
-    address staking2 = vaultStakingFactory.deployVaultStaking(helper__deployVault(CRV_ECRV));
+    address staking1 = vaultStakingFactory.deploy(VAULT);
+    address staking2 = vaultStakingFactory.deploy(helper__deployVault(CRV_ECRV));
 
     // Check that the staking got deployed
     assertTrue(staking1 != staking2);
@@ -76,20 +76,20 @@ contract VaultStakingFactoryTest is Test {
 
   /* Setting Factory Staking Implementation */
 
-  function test__setStakingImplementationNotOwnerReverts() public {
+  function test__setImplementationNotOwnerReverts() public {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultStakingFactory.setStakingImplementation(NEW_IMPLEMENTATION);
+    vaultStakingFactory.setImplementation(NEW_IMPLEMENTATION);
   }
 
-  function test__setStakingImplementation() public {
-    vaultStakingFactory.setStakingImplementation(NEW_IMPLEMENTATION);
+  function test__setImplementation() public {
+    vaultStakingFactory.setImplementation(NEW_IMPLEMENTATION);
     assertEq(vaultStakingFactory.stakingImplementation(), NEW_IMPLEMENTATION);
   }
 
-  function test__setStakingImplementationEvent() public {
+  function test__setImplementationEvent() public {
     vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
     emit StakingImplementationUpdated(stakingImplementation, NEW_IMPLEMENTATION);
-    vaultStakingFactory.setStakingImplementation(NEW_IMPLEMENTATION);
+    vaultStakingFactory.setImplementation(NEW_IMPLEMENTATION);
   }
 }

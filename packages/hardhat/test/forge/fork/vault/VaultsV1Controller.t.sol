@@ -61,6 +61,8 @@ contract VaultsV1ControllerTest is Test {
   event KeeperConfigUpdated(KeeperConfig oldConfig, KeeperConfig newConfig);
   event ZapsUpdated(address zapIn, address zapOut);
   event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
+  event NewStrategyProposed(IERC4626 newStrategy, uint256 timestamp);
+
   /* VaultZapper events */
   event UpdatedVault(address vaultAsset, address vault);
   event RemovedVault(address vaultAsset, address vault);
@@ -143,8 +145,8 @@ contract VaultsV1ControllerTest is Test {
     rewardsEscrow = new RewardsEscrow(IERC20(POP));
     rewardsEscrow.transferOwnership(address(vaultsV1Controller));
 
-    vaultsV1Factory.setVaultImplementation(vaultImplementation);
-    vaultStakingFactory.setStakingImplementation(stakingImplementation);
+    vaultsV1Factory.setImplementation(vaultImplementation);
+    vaultStakingFactory.setImplementation(stakingImplementation);
 
     vm.startPrank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).addContract(
@@ -960,89 +962,9 @@ contract VaultsV1ControllerTest is Test {
     assertFalse(vaultsV1Registry.getVault(vault).enabled);
   }
 
-  /* Setting Same vault fees */
+  /* Setting vault fees */
 
-  function test__setSameVaultFeesNotOwnerReverts() public acceptOwnerships {
-    address[] memory vaultArray = new address[](1);
-    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
-
-    IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
-      deposit: DEPOSIT_FEE * 2,
-      withdrawal: WITHDRAWAL_FEE * 2,
-      management: MANAGEMENT_FEE * 2,
-      performance: PERFORMANCE_FEE * 2
-    });
-
-    vm.prank(notOwner);
-    vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
-  }
-
-  function test__setSameVaultFeesInvalidFeeStructureReverts() public acceptOwnerships {
-    address[] memory vaultArray = new address[](1);
-    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
-
-    IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
-      deposit: 1e18,
-      withdrawal: 1e18,
-      management: 1e18,
-      performance: 1e18
-    });
-
-    vm.expectRevert("Invalid FeeStructure");
-    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
-  }
-
-  function test__setSameVaultFees() public acceptOwnerships {
-    address[] memory vaultArray = new address[](2);
-    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
-    vaultArray[1] = helper__deployThroughFactory(true, DEFAULT_STAKING);
-
-    IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
-      deposit: DEPOSIT_FEE * 2,
-      withdrawal: WITHDRAWAL_FEE * 2,
-      management: MANAGEMENT_FEE * 2,
-      performance: PERFORMANCE_FEE * 2
-    });
-    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
-
-    (uint256 depositAfter1, uint256 withdrawalAfter1, uint256 managementAfter1, uint256 performanceAfter1) = Vault(
-      vaultArray[0]
-    ).feeStructure();
-
-    assertEq(depositAfter1, newFeeStructure.deposit);
-    assertEq(withdrawalAfter1, newFeeStructure.withdrawal);
-    assertEq(managementAfter1, newFeeStructure.management);
-    assertEq(performanceAfter1, newFeeStructure.performance);
-
-    (uint256 depositAfter2, uint256 withdrawalAfter2, uint256 managementAfter2, uint256 performanceAfter2) = Vault(
-      vaultArray[1]
-    ).feeStructure();
-    assertEq(depositAfter2, newFeeStructure.deposit);
-    assertEq(withdrawalAfter2, newFeeStructure.withdrawal);
-    assertEq(managementAfter2, newFeeStructure.management);
-    assertEq(performanceAfter2, newFeeStructure.performance);
-  }
-
-  function test__setSameVaultFeesEvent() public acceptOwnerships {
-    address[] memory vaultArray = new address[](1);
-    vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
-
-    IVaultsV1.FeeStructure memory newFeeStructure = IVaultsV1.FeeStructure({
-      deposit: DEPOSIT_FEE * 2,
-      withdrawal: WITHDRAWAL_FEE * 2,
-      management: MANAGEMENT_FEE * 2,
-      performance: PERFORMANCE_FEE * 2
-    });
-
-    vm.expectEmit(false, false, false, true, vaultArray[0]);
-    emit FeesUpdated(vaultParams.feeStructure, newFeeStructure);
-    vaultsV1Controller.setSameVaultFees(vaultArray, newFeeStructure);
-  }
-
-  /* Setting individual vault fees */
-
-  function test__setIndividualVaultFeesNotOwnerReverts() public acceptOwnerships {
+  function test__setVaultFeesNotOwnerReverts() public acceptOwnerships {
     address[] memory vaultArray = new address[](1);
     vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
 
@@ -1056,10 +978,10 @@ contract VaultsV1ControllerTest is Test {
 
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
+    vaultsV1Controller.setVaultFees(vaultArray, newFeeStructure);
   }
 
-  function test__setIndividualVaultFeesInvalidFeeStructureReverts() public acceptOwnerships {
+  function test__setVaultFeesInvalidFeeStructureReverts() public acceptOwnerships {
     address[] memory vaultArray = new address[](1);
     vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
 
@@ -1072,10 +994,10 @@ contract VaultsV1ControllerTest is Test {
     });
 
     vm.expectRevert("Invalid FeeStructure");
-    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
+    vaultsV1Controller.setVaultFees(vaultArray, newFeeStructure);
   }
 
-  function test__setIndividualVaultFees() public acceptOwnerships {
+  function test__setVaultFees() public acceptOwnerships {
     address[] memory vaultArray = new address[](2);
     vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
     vaultArray[1] = helper__deployThroughFactory(true, DEFAULT_STAKING);
@@ -1094,7 +1016,7 @@ contract VaultsV1ControllerTest is Test {
       performance: PERFORMANCE_FEE * 3
     });
 
-    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
+    vaultsV1Controller.setVaultFees(vaultArray, newFeeStructure);
 
     (uint256 depositAfter1, uint256 withdrawalAfter1, uint256 managementAfter1, uint256 performanceAfter1) = Vault(
       vaultArray[0]
@@ -1114,7 +1036,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(performanceAfter2, newFeeStructure[1].performance);
   }
 
-  function test__setIndividualVaultFeesEvent() public acceptOwnerships {
+  function test__setVaultFeesEvent() public acceptOwnerships {
     address[] memory vaultArray = new address[](2);
     vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
     vaultArray[1] = helper__deployThroughFactory(true, DEFAULT_STAKING);
@@ -1137,7 +1059,39 @@ contract VaultsV1ControllerTest is Test {
     emit FeesUpdated(vaultParams.feeStructure, newFeeStructure[0]);
     vm.expectEmit(false, false, false, true, vaultArray[1]);
     emit FeesUpdated(vaultParams.feeStructure, newFeeStructure[1]);
-    vaultsV1Controller.setIndividualVaultFees(vaultArray, newFeeStructure);
+    vaultsV1Controller.setVaultFees(vaultArray, newFeeStructure);
+  }
+
+  /* Propose strategy for a Vault */
+
+  function test__proposeNewVaultStrategyNotOwnerReverts() public acceptOwnerships {
+    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+
+    vm.prank(notOwner);
+    vm.expectRevert("Only the contract owner may perform this action");
+    vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
+  }
+
+  function test__proposeNewVaultStrategy() public acceptOwnerships {
+    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+    uint256 expectedTimestamp = block.timestamp;
+
+    vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
+
+    assertEq(address(Vault(vault).proposedStrategy()), address(newStrategy));
+    assertEq(Vault(vault).proposalTimeStamp(), expectedTimestamp);
+  }
+
+  function test__proposeNewVaultStrategyEvent() public acceptOwnerships {
+    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+    uint256 expectedTimestamp = block.timestamp;
+
+    vm.expectEmit(false, false, false, true, vault);
+    emit NewStrategyProposed(newStrategy, expectedTimestamp);
+    vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
   }
 
   /* Change strategy for a Vault */
@@ -1145,22 +1099,34 @@ contract VaultsV1ControllerTest is Test {
   function test__changeVaultStrategyNotOwnerReverts() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
     IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+    vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
 
     vm.prank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Controller.changeVaultStrategy(vault, newStrategy);
+    vaultsV1Controller.changeVaultStrategy(vault);
   }
 
-  function test__changeVaultStrategy() public acceptOwnerships {
+  function test__changeVaultStrategyBefore3DaysReverts() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
     IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+    vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
+
+    vm.expectRevert("!3days");
+    vaultsV1Controller.changeVaultStrategy(vault);
+  }
+
+  function test__changeVaultStrategyOnly() public acceptOwnerships {
+    address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
+    IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+    vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
 
     // Set up for testing
+    skip(3 days);
     deal(address(asset), address(this), 1 ether);
     asset.approve(vault, 1 ether);
     Vault(vault).deposit(1 ether);
 
-    vaultsV1Controller.changeVaultStrategy(vault, newStrategy);
+    vaultsV1Controller.changeVaultStrategy(vault);
     assertEq(address(Vault(vault).strategy()), address(newStrategy));
 
     assertEq(yearnWrapper.allowance(vault, address(yearnWrapper)), 0);
@@ -1173,15 +1139,17 @@ contract VaultsV1ControllerTest is Test {
   function test__changeVaultStrategyEvent() public acceptOwnerships {
     address vault = helper__deployThroughFactory(true, DEFAULT_STAKING);
     IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
+    vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
 
     // Set up for testing
+    skip(3 days);
     deal(address(asset), address(this), 1 ether);
     asset.approve(vault, 1 ether);
     Vault(vault).deposit(1 ether);
 
     vm.expectEmit(false, false, false, true, vault);
     emit ChangedStrategy(IERC4626(address(yearnWrapper)), newStrategy);
-    vaultsV1Controller.changeVaultStrategy(vault, newStrategy);
+    vaultsV1Controller.changeVaultStrategy(vault);
   }
 
   /* Setting vault staking */

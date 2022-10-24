@@ -2,6 +2,7 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -13,6 +14,7 @@ import "../../interfaces/IERC4626.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IKeeperIncentiveV2.sol";
 import "../../interfaces/IVaultsV1.sol";
+import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
 
 contract Vault is
   ERC20Upgradeable,
@@ -22,6 +24,9 @@ contract Vault is
   KeeperIncentivized,
   ContractRegistryAccessUpgradeable
 {
+  using SafeERC20 for ERC20;
+  using FixedPointMathLib for uint256;
+
   // Fees are set in 1e18 for 100% (1 BPS = 1e14)
   // Raise Fees in BPS by 1e14 to get an accurate value
   struct FeeStructure {
@@ -45,6 +50,9 @@ contract Vault is
   uint256 public feesUpdatedAt;
   KeeperConfig public keeperConfig;
 
+  IERC4626 public proposedStrategy;
+  uint256 public proposalTimeStamp;
+
   /* ========== EVENTS ========== */
   event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
   event Withdraw(
@@ -60,6 +68,7 @@ contract Vault is
   event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
   event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
   event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
+  event NewStrategyProposed(IERC4626 newStrategy, uint256 timestamp);
 
   /* ========== INITIALIZE ========== */
 
@@ -70,10 +79,7 @@ contract Vault is
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
   ) external initializer {
-    __ERC20_init(
-      string(abi.encodePacked("Popcorn ", asset_.name(), " Vault")),
-      string(abi.encodePacked("pop-", asset_.symbol()))
-    );
+    __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
     __ContractRegistryAccess_init(contractRegistry_);
 
     asset = asset_;
@@ -84,7 +90,7 @@ contract Vault is
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
-    contractName = keccak256(abi.encodePacked("Popcorn ", asset_.name(), " Vault"));
+    contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), ERC20(address(strategy_)).name(), "Vault"));
     keeperConfig = keeperConfig_;
   }
 
@@ -94,16 +100,7 @@ contract Vault is
    * @return Total amount of underlying `asset` token managed by vault.
    */
   function totalAssets() public view returns (uint256) {
-    return strategy.totalAssets();
-  }
-
-  /**
-   * @notice Amount of assets the vault would exchange for given amount of shares, in an ideal scenario.
-   * @param shares Exact amount of shares
-   * @return Exact amount of assets
-   */
-  function convertToAssets(uint256 shares) public view returns (uint256) {
-    return strategy.convertToAssets(shares);
+    return strategy.totalAssets(); //strategy.convertToAssets(strategy.balanceOf(address(this)));
   }
 
   /**
@@ -112,7 +109,20 @@ contract Vault is
    * @return Exact amount of shares
    */
   function convertToShares(uint256 assets) public view returns (uint256) {
-    return strategy.convertToShares(assets);
+    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
+
+    return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+  }
+
+  /**
+   * @notice Amount of assets the vault would exchange for given amount of shares, in an ideal scenario.
+   * @param shares Exact amount of shares
+   * @return Exact amount of assets
+   */
+  function convertToAssets(uint256 shares) public view returns (uint256) {
+    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
+
+    return supply == 0 ? shares : shares.mulDivDown(totalAssets(), supply);
   }
 
   /* ========== VIEWS ( PREVIEWS ) ========== */
@@ -124,7 +134,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewDeposit(uint256 assets) public view returns (uint256 shares) {
-    shares = convertToShares(assets - ((assets * feeStructure.deposit) / 1e18));
+    shares = convertToShares(assets - assets.mulDivDown(feeStructure.deposit, 1e18));
   }
 
   /**
@@ -136,7 +146,7 @@ contract Vault is
   function previewMint(uint256 shares) public view returns (uint256 assets) {
     uint256 depositFee = feeStructure.deposit;
 
-    shares += (shares * depositFee) / (1e18 - depositFee);
+    shares += shares.mulDivUp(depositFee, 1e18 - depositFee);
 
     assets = convertToAssets(shares);
   }
@@ -147,10 +157,12 @@ contract Vault is
    * @return shares to be burned in exchange for `assets`
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
-  function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
+  function previewWithdraw(uint256 assets) external returns (uint256 shares) {
     uint256 withdrawalFee = feeStructure.withdrawal;
 
-    assets += (assets * withdrawalFee) / (1e18 - withdrawalFee);
+    uint256 supply = totalSupply();
+
+    assets += assets.mulDivUp(withdrawalFee, 1e18 - withdrawalFee);
 
     shares = convertToShares(assets);
   }
@@ -164,7 +176,7 @@ contract Vault is
   function previewRedeem(uint256 shares) public view returns (uint256 assets) {
     assets = convertToAssets(shares);
 
-    assets -= (assets * feeStructure.withdrawal) / 1e18;
+    assets -= assets.mulDivDown(feeStructure.withdrawal, 1e18);
   }
 
   /* ========== VIEWS ( FEES ) ========== */
@@ -178,7 +190,7 @@ contract Vault is
    */
   function accruedManagementFee() public view returns (uint256) {
     uint256 area = (totalAssets() + assetsCheckpoint) * ((block.timestamp - feesUpdatedAt) / 1 minutes);
-    return (((feeStructure.management * area) / 2) / MINUTES_PER_YEAR) / 1e18;
+    return (feeStructure.management.mulDivDown(area, 2) / MINUTES_PER_YEAR) / 1e18;
   }
 
   /**
@@ -191,7 +203,7 @@ contract Vault is
     uint256 shareValue = convertToAssets(1 ether);
 
     if (shareValue > vaultShareHWM) {
-      return (feeStructure.performance * (shareValue - vaultShareHWM) * totalSupply()) / 1e36;
+      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e36);
     } else {
       return 0;
     }
@@ -248,17 +260,17 @@ contract Vault is
   function deposit(uint256 assets, address receiver) public nonReentrant whenNotPaused returns (uint256 shares) {
     require(receiver != address(0), "Invalid receiver");
 
-    uint256 feeShares = convertToShares((assets * feeStructure.deposit) / 1e18);
+    uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
 
     shares = convertToShares(assets) - feeShares;
 
-    asset.transferFrom(msg.sender, address(this), assets);
-
-    strategy.deposit(assets, address(this));
+    if (feeShares > 0) _mint(address(this), feeShares);
 
     _mint(receiver, shares);
 
-    _mint(address(this), feeShares);
+    asset.safeTransferFrom(msg.sender, address(this), assets);
+
+    strategy.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
   }
@@ -285,17 +297,17 @@ contract Vault is
 
     uint256 depositFee = feeStructure.deposit;
 
-    uint256 feeShares = (shares * depositFee) / (1e18 - depositFee);
+    uint256 feeShares = shares.mulDivDown(depositFee, 1e18 - depositFee);
 
     assets = convertToAssets(shares + feeShares);
 
-    asset.transferFrom(msg.sender, address(this), assets);
-
-    strategy.deposit(assets, address(this));
+    if (feeShares > 0) _mint(address(this), feeShares);
 
     _mint(receiver, shares);
 
-    _mint(address(this), feeShares);
+    asset.safeTransferFrom(msg.sender, address(this), assets);
+
+    strategy.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
   }
@@ -328,15 +340,17 @@ contract Vault is
 
     uint256 withdrawalFee = feeStructure.withdrawal;
 
-    uint256 feeShares = (shares * withdrawalFee) / (1e18 - withdrawalFee);
+    uint256 feeShares = shares.mulDivDown(withdrawalFee, 1e18 - withdrawalFee);
 
-    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - (shares + feeShares));
+    shares += feeShares;
 
-    _transfer(owner, address(this), (shares + feeShares));
+    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
-    _burn(address(this), shares);
+    _burn(owner, shares);
 
-    strategy.withdraw(assets, receiver, owner);
+    _mint(address(this), feeShares);
+
+    strategy.withdraw(assets, receiver, address(this));
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
   }
@@ -366,15 +380,15 @@ contract Vault is
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
-    _transfer(owner, address(this), shares);
-
-    uint256 feeShares = (shares * feeStructure.withdrawal) / 1e18;
+    uint256 feeShares = shares.mulDivDown(feeStructure.withdrawal, 1e18);
 
     assets = convertToAssets(shares - feeShares);
 
-    _burn(address(this), shares - feeShares);
+    _burn(owner, shares);
 
-    strategy.withdraw(assets, receiver, owner);
+    _mint(address(this), feeShares);
+
+    strategy.withdraw(assets, receiver, address(this));
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
   }
@@ -387,23 +401,34 @@ contract Vault is
   /* ========== RESTRICTED FUNCTIONS ========== */
 
   /**
-   * @notice Set a new Strategy for this Vault.
+   * @notice Propose a new strategy for this vault
    * @param newStrategy A new ERC4626 that should be used as a yield strategy for this asset.
+   * @dev The new strategy can be actived 3 Days after proposal. This allows user to rage quit.
+   */
+  function proposeNewStrategy(IERC4626 newStrategy) external onlyRole(VAULTS_CONTROLLER) {
+    proposedStrategy = newStrategy;
+    proposalTimeStamp = block.timestamp;
+
+    emit NewStrategyProposed(newStrategy, block.timestamp);
+  }
+
+  /**
+   * @notice Set a new Strategy for this Vault.
    * @dev This migration function will remove all assets from the old Vault and move them into the new vault
    * @dev Additionally it will zero old allowances and set new ones
    * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new strategy
    */
-  function changeStrategy(IERC4626 newStrategy) external onlyRole(VAULTS_CONTROLLER) {
+  function changeStrategy() external takeFees onlyRole(VAULTS_CONTROLLER) {
+    require(block.timestamp > proposalTimeStamp + 3 days, "!3days");
+
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 
     asset.approve(address(strategy), 0);
-    strategy.approve(address(strategy), 0);
 
-    emit ChangedStrategy(strategy, newStrategy);
-    strategy = newStrategy;
+    emit ChangedStrategy(strategy, proposedStrategy);
+    strategy = proposedStrategy;
 
     asset.approve(address(strategy), type(uint256).max);
-    strategy.approve(address(strategy), type(uint256).max);
 
     strategy.deposit(asset.balanceOf(address(this)), address(this));
 
@@ -466,12 +491,9 @@ contract Vault is
 
     require(accruedFees >= minWithdrawalAmount, "insufficient withdrawal amount");
 
-    IERC20 assetToken = IERC20(IERC4626(address(this)).asset());
-
-    uint256 preBal = assetToken.balanceOf(address(this));
+    uint256 preBal = asset.balanceOf(address(this));
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 
-    //TODO check this calculation
     strategy.withdraw(
       (accruedFees * 1e18 - incentiveVig) / 1e18,
       _getContract(keccak256("FeeRecipient")),
@@ -479,15 +501,15 @@ contract Vault is
     );
     strategy.withdraw(tipAmount, address(this), address(this));
 
-    uint256 postBal = assetToken.balanceOf(address(this));
+    uint256 postBal = asset.balanceOf(address(this));
 
     require(postBal >= preBal, "insufficient tip balance");
 
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
 
-    assetToken.approve(address(keeperIncentive), postBal);
+    asset.approve(address(keeperIncentive), postBal);
 
-    keeperIncentive.tip(address(assetToken), msg.sender, 0, postBal);
+    keeperIncentive.tip(address(asset), msg.sender, 0, postBal);
 
     _burn(address(this), balance);
   }

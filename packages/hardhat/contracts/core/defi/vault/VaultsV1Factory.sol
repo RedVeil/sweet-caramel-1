@@ -18,10 +18,11 @@ struct VaultParams {
   Vault.FeeStructure feeStructure;
   KeeperConfig keeperConfig;
 }
+//TODO create ICloneFactory
 
 /**
  * @notice Factory that deploys V1 Vaults
- * @dev deployVaultV1 can only be called by VaultsV1Controller
+ * @dev deploy can only be called by VaultsV1Controller
  */
 contract VaultsV1Factory is Owned {
   /* ========== EVENTS ========== */
@@ -43,7 +44,7 @@ contract VaultsV1Factory is Owned {
    * @param _vaultParams - struct containing Vault contructor params
    * @dev This should always be called through the VaultV1Controller
    */
-  function deployVaultV1(VaultParams memory _vaultParams) external onlyOwner returns (address vault) {
+  function deploy(VaultParams memory _vaultParams) external onlyOwner returns (address vault) {
     vault = Clones.clone(vaultImplementation);
     Vault(vault).initialize(
       _vaultParams.asset,
@@ -55,7 +56,7 @@ contract VaultsV1Factory is Owned {
     emit VaultV1Deployment(vault);
   }
 
-  function setVaultImplementation(address _vaultImplementation) external onlyOwner {
+  function setImplementation(address _vaultImplementation) external onlyOwner {
     emit VaultImplementationUpdated(vaultImplementation, _vaultImplementation);
     vaultImplementation = _vaultImplementation;
   }

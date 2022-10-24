@@ -41,7 +41,7 @@ contract VaultsV1FactoryTest is Test {
     vaultsV1Factory = new VaultsV1Factory(address(this));
     vaultImplementation = address(new Vault());
 
-    vaultsV1Factory.setVaultImplementation(vaultImplementation);
+    vaultsV1Factory.setImplementation(vaultImplementation);
 
     vm.label(address(this), "VaultsV1ControllerOwner");
     vm.label(notOwner, "notOwner");
@@ -50,27 +50,27 @@ contract VaultsV1FactoryTest is Test {
 
   /* ========== FUNCTIONS TESTS ========== */
 
-  function test__deployVaultV1NotOwnerReverts() public {
+  function test__deployNotOwnerReverts() public {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    address vault = vaultsV1Factory.deployVaultV1(vaultParams);
+    address vault = vaultsV1Factory.deploy(vaultParams);
     assertEq(vault, address(0), "vault deployment failed");
   }
 
-  function test__deployVaultV1() public {
+  function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
     emit VaultV1Deployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F);
 
-    address vault = vaultsV1Factory.deployVaultV1(vaultParams);
+    address vault = vaultsV1Factory.deploy(vaultParams);
 
     // Check that the vault got deployed
     assertEq(vault, address(0x037FC82298142374d974839236D2e2dF6B5BdD8F));
   }
 
   function test__deployMultipleVaults() public {
-    address vault1 = vaultsV1Factory.deployVaultV1(vaultParams);
-    address vault2 = vaultsV1Factory.deployVaultV1(vaultParams);
+    address vault1 = vaultsV1Factory.deploy(vaultParams);
+    address vault2 = vaultsV1Factory.deploy(vaultParams);
 
     // Check that the vault got deployed
     assertTrue(vault1 != vault2);
@@ -78,20 +78,20 @@ contract VaultsV1FactoryTest is Test {
 
   /* Setting Factory Vault Implementation */
 
-  function test__setVaultImplementationNotOwnerReverts() public {
+  function test__setImplementationNotOwnerReverts() public {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Factory.setVaultImplementation(NEW_IMPLEMENTATION);
+    vaultsV1Factory.setImplementation(NEW_IMPLEMENTATION);
   }
 
-  function test__setVaultImplementation() public {
-    vaultsV1Factory.setVaultImplementation(NEW_IMPLEMENTATION);
+  function test__setImplementation() public {
+    vaultsV1Factory.setImplementation(NEW_IMPLEMENTATION);
     assertEq(vaultsV1Factory.vaultImplementation(), NEW_IMPLEMENTATION);
   }
 
-  function test__setVaultImplementationEvent() public {
+  function test__setImplementationEvent() public {
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
     emit VaultImplementationUpdated(vaultImplementation, NEW_IMPLEMENTATION);
-    vaultsV1Factory.setVaultImplementation(NEW_IMPLEMENTATION);
+    vaultsV1Factory.setImplementation(NEW_IMPLEMENTATION);
   }
 }
