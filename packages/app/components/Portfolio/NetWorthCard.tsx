@@ -11,7 +11,7 @@ const NetWorthCard = () => {
   });
   const networth = useNetWorth()
   const { selectedNetwork } = usePortfolio();
-  const netWorthValue = selectedNetwork.id === "All" ? networth.totalNetWorth : networth[selectedNetwork.id] ?? BigNumber.from("0")
+  const netWorthValue = selectedNetwork.id === "All" ? networth.total : networth[selectedNetwork.id] ?? BigNumber.from("0")
   return (
     <div className="bg-warmGray rounded-lg p-6">
       <h6 className="font-medium">My Net Worth </h6>

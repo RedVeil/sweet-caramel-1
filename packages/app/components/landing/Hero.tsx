@@ -15,7 +15,7 @@ import { useMemo } from "react";
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
   const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
-  const { totalNetWorth } = useNetWorth();
+  const { total } = useNetWorth();
   const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
   const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
   const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
@@ -66,7 +66,7 @@ export default function Hero(): JSX.Element {
                 />
               </div>
               <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
-                ${formatter.format(parseInt(formatUnits(totalNetWorth)))}
+                ${formatter.format(parseInt(formatUnits(total)))}
               </p>
             </div>
           )}

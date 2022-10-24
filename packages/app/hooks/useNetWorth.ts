@@ -213,7 +213,7 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
     ].reduce((total, num) => total.add(num));
   }
 
-  const calculateTotalHoldings = () => {
+  const calculateTotalHoldings = (): BigNumber => {
     return [
       mainnetPopHoldings,
       polygonPopHoldings,
@@ -234,12 +234,11 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
     ].reduce((total, num) => total.add(num))
   }
 
-
   return {
     [ChainId.Ethereum]: calculateEthereumHoldings(),
     [ChainId.Polygon]: calculatePolygonHoldings(),
     [ChainId.BNB]: calculateBnbHoldings(),
     [ChainId.Arbitrum]: calculateArbitrumHoldings(),
-    totalNetWorth: calculateTotalHoldings(),
+    total: calculateTotalHoldings(),
   }
 }
