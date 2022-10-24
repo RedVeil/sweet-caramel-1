@@ -18,6 +18,9 @@ import {
   VaultFeeController,
 } from "../typechain";
 import { DAYS, getErc20, impersonateSigner, sendEth, setTimestamp, timeTravel, transferErc20 } from "../lib/utils/test";
+const Web3 = require("web3");
+
+let web3 = new Web3(process.env.RPC_URL);
 
 const MINUTE = 60;
 const DAY = 60 * 60 * 24;
@@ -218,7 +221,37 @@ const prepareManager = async () => {
   });
 };
 
-async function mm() {}
+// test values
+const TEST_VALUE = "0";
+const TEST_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+const depositEncoding = web3.eth.abi.encodeFunctionCall(
+  {
+    name: "deposit",
+    type: "function",
+    inputs: [
+      {
+        type: "uint256",
+        name: "assets",
+      },
+    ],
+  },
+  [TEST_VALUE]
+);
+
+const stakeEncoding = web3.eth.abi.encodeFunctionCall(
+  {
+    name: "stake",
+    type: "function",
+    inputs: [
+      {
+        type: "uint256",
+        name: "amount",
+      },
+    ],
+  },
+  [TEST_VALUE]
+);
 
 describe("Vault", () => {
   //beforeEach(async () => {
@@ -231,15 +264,22 @@ describe("Vault", () => {
 
   describe("xxx", async () => {
     it("ttt", async () => {
-      const signer = await impersonateSigner("0xF023E5eF2Eb3b8747cBaD5B3847813b66E9BFdD7");
+      [owner, depositor, depositor2, receiver, rewardsManager, zapper] = await ethers.getSigners();
+      contracts = await deployContracts();
 
       const multicall = await ethers.getContractAt(
         MULTICALLV3_ABI,
         "0xcA11bde05977b3631167028862bE2a173976CA11",
-        signer
+        owner
       );
       const res = await multicall.getBlockNumber();
       console.log(res);
+
+      const rr = await multicall.aggregate([
+        [contracts.vault.address, depositEncoding],
+        // [contracts.staking.address, stakeEncoding],
+      ]);
+      console.log(rr);
     });
   });
 });
