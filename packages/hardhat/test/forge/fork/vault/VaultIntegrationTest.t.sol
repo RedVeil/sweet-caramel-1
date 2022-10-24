@@ -45,7 +45,7 @@ contract User {
   }
 }
 
-contract VaultTest is Test {
+contract VaultIntegrationTest is Test {
   ERC20 internal asset;
   User internal alice;
   User internal bob;
@@ -114,61 +114,6 @@ contract VaultTest is Test {
 
     vm.prank(ACL_ADMIN);
     IContractRegistry(CONTRACT_REGISTRY).addContract(keccak256("FeeRecipient"), feeRecipient, keccak256("1"));
-  }
-
-  function test_metadata() public {
-    assertEq(vault.name(), "Popcorn Curve.fi USD-BTC-ETH Vault");
-    assertEq(vault.symbol(), "pop-crv3crypto");
-    assertEq(vault.decimals(), 18);
-  }
-
-  function test_depositOnly() public {
-    uint256 amount = 1 ether;
-    deal(address(asset), address(this), amount);
-    asset.approve(address(vault), amount);
-    uint256 shares = vault.deposit(amount, address(this));
-    emit log_uint(shares);
-    emit log_uint(yearnWrapper.balanceOf(address(vault)));
-  }
-
-  function test_singleDepositWithdraw(uint128 amount) public {
-    if (amount == 0) amount = 1;
-
-    uint256 initialTotalAssets = vault.totalAssets();
-
-    uint256 aliceAssetAmount = amount;
-
-    address alice = address(0xABCD);
-    vm.label(alice, "alice");
-
-    deal(address(asset), alice, amount);
-
-    vm.prank(alice);
-    asset.approve(address(vault), aliceAssetAmount);
-    assertEq(asset.allowance(alice, address(vault)), aliceAssetAmount);
-
-    uint256 alicePreDepositBal = asset.balanceOf(alice);
-
-    vm.prank(alice);
-    uint256 aliceShareAmount = vault.deposit(aliceAssetAmount, alice);
-
-    // Expect exchange rate to be 1:1 on initial deposit.
-    assertEq(aliceAssetAmount, aliceShareAmount);
-    assertEq(vault.previewWithdraw(aliceShareAmount), aliceAssetAmount);
-    assertEq(vault.previewDeposit(aliceAssetAmount), aliceShareAmount);
-    assertEq(vault.totalSupply(), aliceShareAmount);
-    assertEq(vault.totalAssets(), initialTotalAssets + aliceAssetAmount);
-    assertEq(vault.balanceOf(alice), aliceShareAmount);
-    assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceAssetAmount);
-    assertEq(asset.balanceOf(alice), alicePreDepositBal - aliceAssetAmount);
-
-    vm.prank(alice);
-    vault.withdraw(aliceAssetAmount, alice, alice);
-
-    assertEq(vault.totalAssets(), initialTotalAssets);
-    assertEq(vault.balanceOf(alice), 0);
-    assertEq(vault.convertToAssets(vault.balanceOf(alice)), 0);
-    assertEq(asset.balanceOf(alice), alicePreDepositBal);
   }
 
   function test_assets_per_share_constant_after_deposit(uint80 amount) public {

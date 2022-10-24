@@ -9,19 +9,20 @@ import util from "util";
 const forge = {
   fork: {
     blocks: {
-      "vault/Vault.t.sol": 15008113,
-      "vault/VaultsV1Zapper.t.sol": 15414618,
-      "ZeroXSwapZapIn.t.sol": 15521406,
-      "ZeroXSwapZapOut.t.sol": 15521406,
-      "ThreeXWhaleProcessing.t.sol": 15008113,
-      "ButterFeeConverter.t.sol": 15008113,
       "vault/VaultsV1Registry.t.sol": 15008113,
       "vault/VaultsV1Factory.t.sol": 15008113,
       "vault/VaultStakingFactory.t.sol": 15008113,
       "vault/VaultsV1Controller.t.sol": 15008113,
+      "vault/VaultIntegrationTest.t.sol": 15008113,
       "vault/VaultUnitTest.t.sol": 15008113,
       "YearnVaultWrapper.t.sol": 15008113,
+      "vault/VaultsV1Zapper.t.sol": 15414618,
+      "ZeroXSwapZapIn.t.sol": 15521406,
+      "ZeroXSwapZapOut.t.sol": 15521406,
       "RewardsDistribution.t.sol": 15008113,
+      "ThreeXWhaleProcessing.t.sol": 15008113,
+      "ButterFeeConverter.t.sol": 15008113,
+
     },
     forkDirectory: "fork",
   },
