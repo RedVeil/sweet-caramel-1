@@ -86,7 +86,7 @@ contract VaultsV1FactoryTest is Test {
 
   function test__setImplementation() public {
     vaultsV1Factory.setImplementation(NEW_IMPLEMENTATION);
-    assertEq(vaultsV1Factory.vaultImplementation(), NEW_IMPLEMENTATION);
+    assertEq(vaultsV1Factory.implementation(), NEW_IMPLEMENTATION);
   }
 
   function test__setImplementationEvent() public {

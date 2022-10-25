@@ -10,7 +10,6 @@ import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IRewardsEscrow.sol";
 import "../../interfaces/IERC4626.sol";
-import { IContractFactory } from "../../interfaces/IContractFactory.sol";
 
 struct VaultParams {
   ERC20 asset;
@@ -24,15 +23,16 @@ struct VaultParams {
  * @notice Factory that deploys V1 Vaults
  * @dev deploy can only be called by VaultsV1Controller
  */
-contract VaultsV1Factory is Owned, IContractFactory {
+contract VaultsV1Factory is Owned {
   /* ========== EVENTS ========== */
 
+  event ImplementationUpdated(address oldImplementation, address newImplementation);
   event VaultV1Deployment(address vault);
 
   /* ========== STATE VARIABLES ========== */
 
   bytes32 public constant contractName = keccak256("VaultsV1Factory");
-  address public vaultImplementation;
+  address public implementation;
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -44,7 +44,7 @@ contract VaultsV1Factory is Owned, IContractFactory {
    * @dev This should always be called through the VaultV1Controller
    */
   function deploy(VaultParams memory _vaultParams) external onlyOwner returns (address vault) {
-    vault = Clones.clone(vaultImplementation);
+    vault = Clones.clone(implementation);
     Vault(vault).initialize(
       _vaultParams.asset,
       _vaultParams.strategy,
@@ -56,7 +56,7 @@ contract VaultsV1Factory is Owned, IContractFactory {
   }
 
   function setImplementation(address _vaultImplementation) external onlyOwner {
-    emit ImplementationUpdated(vaultImplementation, _vaultImplementation);
-    vaultImplementation = _vaultImplementation;
+    emit ImplementationUpdated(implementation, _vaultImplementation);
+    implementation = _vaultImplementation;
   }
 }

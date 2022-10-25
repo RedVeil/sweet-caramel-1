@@ -75,7 +75,7 @@ contract YearnWrapperFactoryTest is Test {
 
   function test__setImplementationEvent() public {
     vm.expectEmit(false, false, false, true, address(factory));
-    emit VaultImplementationUpdated(implementation, NEW_IMPLEMENTATION);
+    emit ImplementationUpdated(implementation, NEW_IMPLEMENTATION);
     factory.setImplementation(NEW_IMPLEMENTATION);
   }
 }

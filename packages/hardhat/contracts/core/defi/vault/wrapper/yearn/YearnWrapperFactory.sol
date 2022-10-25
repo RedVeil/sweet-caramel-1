@@ -6,15 +6,15 @@ import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 import { Owned } from "../../../../utils/Owned.sol";
 import { VaultAPI } from "../../../../../externals/interfaces/yearn/IVaultAPI.sol";
 import { YearnWrapper } from "./YearnWrapper.sol";
-import { IContractFactory } from "../../../../interfaces/IContractFactory.sol";
 
 /**
  * @notice Factory that deploys YearnWrappers
  * @dev deploy can only be called by VaultsV1Controller
  */
-contract YearnWrapperFactory is Owned, IContractFactory {
+contract YearnWrapperFactory is Owned {
   /* ========== EVENTS ========== */
 
+  event ImplementationUpdated(address oldImplementation, address newImplementation);
   event YearnWrapperDeployment(address yearnWrapper);
 
   /* ========== STATE VARIABLES ========== */
@@ -31,14 +31,14 @@ contract YearnWrapperFactory is Owned, IContractFactory {
    * @param vault - address of the underlying yearn vault
    * @dev This should always be called through the VaultV1Controller
    */
-  function deploy(VaultAPI vault) external onlyOwner returns (address wrapperAddress) {
+  function deploy(address vault) external onlyOwner returns (address wrapperAddress) {
     wrapperAddress = Clones.clone(implementation);
 
-    YearnWrapper(wrapperAddress).initialize(vault);
+    YearnWrapper(wrapperAddress).initialize(VaultAPI(vault));
     emit YearnWrapperDeployment(wrapperAddress);
   }
 
-  function setImplementation(address _implementation) external override onlyOwner {
+  function setImplementation(address _implementation) external onlyOwner {
     emit ImplementationUpdated(implementation, _implementation);
     implementation = _implementation;
   }

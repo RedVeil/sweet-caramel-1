@@ -8,7 +8,7 @@ import { VaultAPI } from "../../../../../contracts/externals/interfaces/yearn/IV
 import { IVault } from "../../../../../contracts/externals/interfaces/yearn/IVault.sol";
 import "forge-std/console.sol";
 import { Vm } from "forge-std/Vm.sol";
-import { YearnWrapper } from "../../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
+import { YearnWrapper } from "../../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
 import { ExtendedDSTest } from "./ExtendedDSTest.sol";
 import { IERC4626 } from "../../../../../contracts/core/interfaces/IERC4626.sol";
 

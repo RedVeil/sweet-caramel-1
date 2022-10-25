@@ -418,8 +418,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
   /* ========== FACTORY MANAGEMENT FUNCTIONS ========== */
 
-  function setFactoryImplementation(address _factory, address _implementation) external onlyOwner {
-    IContractFactory(_factory).setImplementation(_implementation);
+  function setFactoryImplementation(bytes32 _factoryName, address _implementation) external onlyOwner {
+    IContractFactory(_getContract(_factoryName)).setImplementation(_implementation);
   }
 
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
@@ -436,24 +436,24 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   /* ========== OWNERSHIP FUNCTIONS ========== */
 
   /**
+   * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
+   * @dev newOwner address must call acceptOwnership on registry and factory
+   */
+  function transferFactoryAndRegistryOwnership(bytes32[] memory _factoryNames, address _newOwner) external onlyOwner {
+    for (uint8 i; i < _factoryNames.length; i++) {
+      IContractFactory(_getContract(_factoryNames[i])).nominateNewOwner(_newOwner);
+    }
+  }
+
+  /**
    * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts to controller
    * @dev registry and factory must nominate controller as new owner first
    * acceptance function should be called when deploying controller contract
    */
-  function acceptRegistryFactoryOwnership() external onlyOwner {
-    _vaultsV1Registry().acceptOwnership();
-    _vaultsV1Factory().acceptOwnership();
-    _vaultStakingFactory().acceptOwnership();
-  }
-
-  /**
-   * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
-   * @dev newOwner address must call acceptOwnership on registry and factory
-   */
-  function transferRegistryFactoryOwnership(address _newOwner) external onlyOwner {
-    _vaultsV1Registry().nominateNewOwner(_newOwner);
-    _vaultsV1Factory().nominateNewOwner(_newOwner);
-    _vaultStakingFactory().nominateNewOwner(_newOwner);
+  function acceptFactoryAndRegistryOwnership(bytes32[] memory _factoryNames) external onlyOwner {
+    for (uint8 i; i < _factoryNames.length; i++) {
+      IContractFactory(_getContract(_factoryNames[i])).acceptOwnership();
+    }
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */

@@ -13,7 +13,7 @@ address constant CRV_ECRV = 0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c;
 
 contract VaultStakingFactoryTest is Test {
   event VaultStakingDeployment(address staking);
-  event StakingImplementationUpdated(address oldVaultStakingImplementation, address newVaultStakingImplementation);
+  event ImplementationUpdated(address oldVaultStakingImplementation, address newVaultStakingImplementation);
 
   VaultStakingFactory internal vaultStakingFactory;
 
@@ -84,12 +84,12 @@ contract VaultStakingFactoryTest is Test {
 
   function test__setImplementation() public {
     vaultStakingFactory.setImplementation(NEW_IMPLEMENTATION);
-    assertEq(vaultStakingFactory.stakingImplementation(), NEW_IMPLEMENTATION);
+    assertEq(vaultStakingFactory.implementation(), NEW_IMPLEMENTATION);
   }
 
   function test__setImplementationEvent() public {
     vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
-    emit StakingImplementationUpdated(stakingImplementation, NEW_IMPLEMENTATION);
+    emit ImplementationUpdated(stakingImplementation, NEW_IMPLEMENTATION);
     vaultStakingFactory.setImplementation(NEW_IMPLEMENTATION);
   }
 }

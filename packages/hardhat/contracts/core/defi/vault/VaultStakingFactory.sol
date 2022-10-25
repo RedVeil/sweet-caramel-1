@@ -12,21 +12,21 @@ import "./VaultStaking.sol";
 import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IERC4626.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IContractFactory } from "../../interfaces/IContractFactory.sol";
 
 /**
  * @notice Factory that deploys VaultStaking
  * @dev deploy can only be called by VaultsV1Controller
  */
-contract VaultStakingFactory is Owned, IContractFactory {
+contract VaultStakingFactory is Owned {
   /* ========== EVENTS ========== */
 
+  event ImplementationUpdated(address oldImplementation, address newImplementation);
   event VaultStakingDeployment(address vaultStaking);
 
   /* ========== STATE VARIABLES ========== */
 
   bytes32 public constant contractName = keccak256("VaultStakingFactory");
-  address public stakingImplementation;
+  address public implementation;
   IContractRegistry internal contractRegistry;
 
   /* ========== CONSTRUCTOR ========== */
@@ -41,14 +41,14 @@ contract VaultStakingFactory is Owned, IContractFactory {
    * @dev This should always be called through the VaultV1Controller
    */
   function deploy(address vault) external onlyOwner returns (address stakingAddress) {
-    stakingAddress = Clones.clone(stakingImplementation);
+    stakingAddress = Clones.clone(implementation);
 
     VaultStaking(stakingAddress).initialize(IERC20(address(vault)), contractRegistry);
     emit VaultStakingDeployment(stakingAddress);
   }
 
   function setImplementation(address _stakingImplementation) external onlyOwner {
-    emit ImplementationUpdated(stakingImplementation, _stakingImplementation);
-    stakingImplementation = _stakingImplementation;
+    emit ImplementationUpdated(implementation, _stakingImplementation);
+    implementation = _stakingImplementation;
   }
 }
