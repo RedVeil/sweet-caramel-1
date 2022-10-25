@@ -36,7 +36,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     yVault = _vault;
     token = yVault.token();
     _decimals = _vault.decimals();
-    scalar = 10**18 - _vault.decimals(); // !Assumes the vault uses 18 decimals or less
+    scalar = 10**(18 - _vault.decimals()); // !Assumes the vault uses 18 decimals or less
 
     IERC20(token).approve(address(_vault), type(uint256).max);
   }
@@ -113,11 +113,11 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view returns (uint256) {
-    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10**_decimals);
+    return ((yVault.balanceOf(address(this)) * yVault.pricePerShare()) * 1e18) / scalar;
   }
 
   function convertToShares(uint256 assets) public view returns (uint256) {
-    return (assets * (10**_decimals)) / yVault.pricePerShare();
+    return (assets * (scalar)) / yVault.pricePerShare();
   }
 
   function convertToAssets(uint256 shares) public view returns (uint256) {
