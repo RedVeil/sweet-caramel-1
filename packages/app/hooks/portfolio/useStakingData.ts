@@ -1,10 +1,13 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
-import { getSanitizedTokenDisplayName } from "helper/displayHelper";
+import useContractMetadata from "hooks/useContractMetadata";
 import useTokenPrice from "hooks/useTokenPrice";
+import useWeb3 from "hooks/useWeb3";
 
 export default function useStakingData(stakingPool) {
-  const tokenPrice = useTokenPrice(stakingPool?.stakingToken.address);
+  const { connectedChainId } = useWeb3();
+  const tokenPrice = useTokenPrice(stakingPool?.stakingToken.address, connectedChainId);
+  const metadata = useContractMetadata(stakingPool.stakedToken?.address, connectedChainId);
 
   // calculate tvl
   let tvl = tokenPrice ? stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther) : "0";
@@ -60,7 +63,7 @@ export default function useStakingData(stakingPool) {
   };
   if (stakingPool) {
     productProps = {
-      tokenName: `${getSanitizedTokenDisplayName(stakingPool.stakingToken.name)}`,
+      tokenName: `${metadata?.name ? metadata.name : stakingPool.stakedToken.name}`,
       tokenStatusLabels: [
         {
           content: `$${

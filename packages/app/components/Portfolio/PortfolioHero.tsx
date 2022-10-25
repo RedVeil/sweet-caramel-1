@@ -1,18 +1,19 @@
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { ChainId } from "@popcorn/utils";
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import { constants } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
 import useSetTokenTVL from "hooks/set/useSetTokenTVL";
 import useStakingTVL from "hooks/staking/useStakingTVL";
+import { useDeployment } from "hooks/useDeployment";
 import { useMemo } from "react";
 
 const PortfolioHero = () => {
-  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
-  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
-  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
-  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
-  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch);
+  const { Ethereum, Polygon } = ChainId;
+  const eth = useDeployment(Ethereum);
+  const { data: mainnetStakingTVL } = useStakingTVL(Ethereum);
+  const { data: polygonStakingTVL } = useStakingTVL(Polygon);
+  const { data: butterTVL } = useSetTokenTVL(eth.butter, eth.butterBatch, Ethereum);
+  const { data: threeXTVL } = useSetTokenTVL(eth.threeX, eth.threeXBatch, Ethereum);
   const tvl = useMemo(
     () =>
       [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce(

@@ -25,13 +25,20 @@ const StakingProduct = () => {
       popUsdcArrakisVault,
       threeX,
     },
-    chainId,
+    connectedChainId,
     pushWithinChain,
     account,
   } = useWeb3();
 
-  const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking);
-  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
+  const {
+    data: popLocker,
+    isValidating: popLockerIsValidating,
+    error: popError,
+  } = usePopLocker(popStaking, connectedChainId);
+  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(
+    staking,
+    connectedChainId,
+  );
 
   const { features } = useContext(FeatureToggleContext);
 
@@ -39,10 +46,10 @@ const StakingProduct = () => {
     ? stakingPools
     : stakingPools?.filter((pool) => pool.address !== popUsdcArrakisVaultStaking);
 
-  const { totalDeposited, totalTVL, totalVAPR, totalEarned, totalContracts } = useMultipleStakingData(chainId, [
-    ...(displayedStakingPools ? displayedStakingPools : []),
-    ...[popLocker ? popLocker : []],
-  ]);
+  const { totalDeposited, totalTVL, totalVAPR, totalEarned, totalContracts } = useMultipleStakingData(
+    connectedChainId,
+    [...(displayedStakingPools ? displayedStakingPools : []), ...[popLocker ? popLocker : []]],
+  );
 
   const badge = {
     text: `${totalContracts} contracts`,
