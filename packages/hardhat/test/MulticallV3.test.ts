@@ -18,6 +18,12 @@ import {
   VaultFeeController,
 } from "../typechain";
 import { DAYS, getErc20, impersonateSigner, sendEth, setTimestamp, timeTravel, transferErc20 } from "../lib/utils/test";
+import {
+  getTransferFromEncoding,
+  getStakeForEncoding,
+  getDepositEncoding,
+  getApproveEncoding,
+} from "../../utils/src/functionEncodings";
 const Web3 = require("web3");
 
 let web3 = new Web3(process.env.RPC_URL);
@@ -164,28 +170,8 @@ async function deployContracts(): Promise<Contracts> {
   };
 }
 
+// we only need aggregate from the multicall contract
 const MULTICALLV3_ABI = [
-  {
-    inputs: [],
-    name: "getBasefee",
-    outputs: [{ internalType: "uint256", name: "basefee", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getChainId",
-    outputs: [{ internalType: "uint256", name: "chainid", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getBlockNumber",
-    outputs: [{ internalType: "uint256", name: "blockNumber", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
   {
     inputs: [
       {
@@ -208,144 +194,31 @@ const MULTICALLV3_ABI = [
   },
 ];
 
-const prepareManager = async () => {
-  await network.provider.request({
-    method: "hardhat_reset",
-    params: [
-      {
-        forking: {
-          jsonRpcUrl: process.env.FORKING_RPC_URL,
-          blockNumber: 13677417,
-        },
-      },
-    ],
-  });
-};
-
-// test values
-const TEST_VALUE = "0";
-const TEST_ADDRESS = "0x0000000000000000000000000000000000000000";
+const MULTICALLV3_CONTRACT = "0xcA11bde05977b3631167028862bE2a173976CA11";
 
 describe("Vault", async () => {
   it("deposit + stake", async () => {
     [owner, depositor, depositor2, receiver, rewardsManager, zapper] = await ethers.getSigners();
     contracts = await deployContracts();
 
-    const multicall = await ethers.getContractAt(MULTICALLV3_ABI, "0xcA11bde05977b3631167028862bE2a173976CA11", owner);
-    const res = await multicall.getBlockNumber();
-    console.log(res);
+    const multicall = await ethers.getContractAt(MULTICALLV3_ABI, MULTICALLV3_CONTRACT, owner);
 
     const DEPOSIT_AMOUNT = parseEther("100");
 
-    const depositEncoding = web3.eth.abi.encodeFunctionCall(
-      {
-        name: "deposit",
-        type: "function",
-        inputs: [
-          {
-            type: "uint256",
-            name: "assets",
-          },
-          {
-            type: "address",
-            name: "receiver",
-          },
-        ],
-      },
-      [DEPOSIT_AMOUNT, multicall.address]
-    );
-
-    const approveEncoding = web3.eth.abi.encodeFunctionCall(
-      {
-        name: "approve",
-        type: "function",
-        inputs: [
-          {
-            type: "address",
-            name: "spender",
-          },
-          {
-            type: "uint256",
-            name: "amount",
-          },
-        ],
-      },
-      [contracts.vault.address, DEPOSIT_AMOUNT]
-    );
-
     await contracts.depositToken.mint(owner.address, DEPOSIT_AMOUNT);
+    // this is a big security risk!! anyone can call multicall with custom code and steal funds
     await contracts.depositToken.connect(owner).approve(multicall.address, DEPOSIT_AMOUNT);
 
-    const approveEncoding2 = web3.eth.abi.encodeFunctionCall(
-      {
-        name: "approve",
-        type: "function",
-        inputs: [
-          {
-            type: "address",
-            name: "spender",
-          },
-          {
-            type: "uint256",
-            name: "amount",
-          },
-        ],
-      },
-      [contracts.staking.address, DEPOSIT_AMOUNT]
-    );
-
-    const stakeEncoding = web3.eth.abi.encodeFunctionCall(
-      {
-        name: "stakeFor",
-        // name: "stake",
-        type: "function",
-        inputs: [
-          {
-            type: "uint256",
-            name: "amount",
-          },
-          {
-            type: "address",
-            name: "account",
-          },
-        ],
-      },
-      [DEPOSIT_AMOUNT, owner.address]
-    );
-
-    const transferEncoding = web3.eth.abi.encodeFunctionCall(
-      {
-        name: "transferFrom",
-        type: "function",
-        inputs: [
-          {
-            type: "address",
-            name: "sender",
-          },
-          {
-            type: "address",
-            name: "recipient",
-          },
-          {
-            type: "uint256",
-            name: "amount",
-          },
-        ],
-      },
-      [owner.address, multicall.address, DEPOSIT_AMOUNT]
-    );
-
-    const rr = await multicall.aggregate([
-      // TODO: transfer assets to multicall
-      [contracts.depositToken.address, transferEncoding],
-      [contracts.depositToken.address, approveEncoding],
-      [contracts.vault.address, depositEncoding],
-      [contracts.vault.address, approveEncoding2],
-      [contracts.staking.address, stakeEncoding],
+    await multicall.aggregate([
+      [contracts.depositToken.address, getTransferFromEncoding(owner.address, multicall.address, DEPOSIT_AMOUNT)],
+      [contracts.depositToken.address, getApproveEncoding(contracts.vault.address, DEPOSIT_AMOUNT)],
+      [contracts.vault.address, getDepositEncoding(DEPOSIT_AMOUNT, multicall.address)],
+      [contracts.vault.address, getApproveEncoding(contracts.staking.address, DEPOSIT_AMOUNT)],
+      [contracts.staking.address, getStakeForEncoding(DEPOSIT_AMOUNT, owner.address)],
     ]);
 
     // the owner should have his staking tokens now
     var balanceOfOwner = await contracts.staking.balanceOf(owner.address);
-    expect(parseInt(balanceOfOwner._hex)).to.be.greaterThan(0);
+    expect(parseInt(balanceOfOwner._hex)).to.equal(parseInt(DEPOSIT_AMOUNT._hex));
   });
 });
