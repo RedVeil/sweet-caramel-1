@@ -15,6 +15,7 @@ import "../../interfaces/IStaking.sol";
 import "../../interfaces/IRewardsEscrow.sol";
 import "../../interfaces/IERC4626.sol";
 import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
+import { IContractFactory } from "../../interfaces/IContractFactory.sol";
 
 /**
  * @notice controls deploying, registering vaults, adding vault types, updating registry vaults, endorsing and enabling registry vaults, and pausing/unpausing vaults
@@ -415,14 +416,21 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     IVaultsV1Zapper(_zapper).setKeeperConfig(_asset, _keeperConfig);
   }
 
-  /* ========== VAULTFACTORY MANAGEMENT FUNCTIONS ========== */
+  /* ========== FACTORY MANAGEMENT FUNCTIONS ========== */
 
-  function setFactoryVaultImplementation(address _vaultImplementation) external onlyOwner {
-    _vaultsV1Factory().setImplementation(_vaultImplementation);
+  function setFactoryImplementation(address _factory, address _implementation) external onlyOwner {
+    IContractFactory(_factory).setImplementation(_implementation);
   }
 
-  function setFactoryStakingImplementation(address _stakingImplementation) external onlyOwner {
-    _vaultStakingFactory().setImplementation(_stakingImplementation);
+  /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
+
+  function deployStrategy(bytes32 _factoryName, bytes memory _deploymentParams)
+    external
+    onlyOwner
+    returns (address strategy)
+  {
+    (bool success, bytes memory result) = _getContract(_factoryName).call(_deploymentParams);
+    strategy = abi.decode(result, (address));
   }
 
   /* ========== OWNERSHIP FUNCTIONS ========== */

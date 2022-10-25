@@ -15,7 +15,7 @@ import "../../../../contracts/core/interfaces/IERC4626.sol";
 import "../../../../contracts/core/utils/KeeperIncentiveV2.sol";
 import "../../../../contracts/core/dao/RewardsEscrow.sol";
 import "../../../../contracts/core/interfaces/IRewardsEscrow.sol";
-import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
+import "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
 import "../../../../contracts/core/interfaces/IERC4626.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;

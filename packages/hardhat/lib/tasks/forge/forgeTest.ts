@@ -16,6 +16,7 @@ const forge = {
       "vault/VaultIntegrationTest.t.sol": 15008113,
       "vault/VaultUnitTest.t.sol": 15008113,
       "YearnVaultWrapper.t.sol": 15008113,
+      "vault/YearnWrapperFactory.t.sol": 15008113,
       "vault/VaultsV1Zapper.t.sol": 15414618,
       "ZeroXSwapZapIn.t.sol": 15521406,
       "ZeroXSwapZapOut.t.sol": 15521406,

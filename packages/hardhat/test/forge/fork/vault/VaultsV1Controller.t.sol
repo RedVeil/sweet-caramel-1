@@ -20,7 +20,7 @@ import "../../../../contracts/core/interfaces/IACLRegistry.sol";
 import "../../../../contracts/core/interfaces/IVaultsV1.sol";
 import "../../../../contracts/core/interfaces/IVaultsV1Zapper.sol";
 import "../../../../contracts/core/interfaces/IRewardsEscrow.sol";
-import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
+import "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
 import "../../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
 import "../../../../contracts/core/interfaces/IERC4626.sol";
 

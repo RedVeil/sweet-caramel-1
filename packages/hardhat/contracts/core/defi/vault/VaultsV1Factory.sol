@@ -10,6 +10,7 @@ import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IContractRegistry.sol";
 import "../../interfaces/IRewardsEscrow.sol";
 import "../../interfaces/IERC4626.sol";
+import { IContractFactory } from "../../interfaces/IContractFactory.sol";
 
 struct VaultParams {
   ERC20 asset;
@@ -18,17 +19,15 @@ struct VaultParams {
   Vault.FeeStructure feeStructure;
   KeeperConfig keeperConfig;
 }
-//TODO create ICloneFactory
 
 /**
  * @notice Factory that deploys V1 Vaults
  * @dev deploy can only be called by VaultsV1Controller
  */
-contract VaultsV1Factory is Owned {
+contract VaultsV1Factory is Owned, IContractFactory {
   /* ========== EVENTS ========== */
 
   event VaultV1Deployment(address vault);
-  event VaultImplementationUpdated(address oldVaultImplementation, address newVaultImplementation);
 
   /* ========== STATE VARIABLES ========== */
 
@@ -57,7 +56,7 @@ contract VaultsV1Factory is Owned {
   }
 
   function setImplementation(address _vaultImplementation) external onlyOwner {
-    emit VaultImplementationUpdated(vaultImplementation, _vaultImplementation);
+    emit ImplementationUpdated(vaultImplementation, _vaultImplementation);
     vaultImplementation = _vaultImplementation;
   }
 }

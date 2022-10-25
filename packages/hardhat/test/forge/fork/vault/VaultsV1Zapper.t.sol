@@ -13,7 +13,7 @@ import "../../../../contracts/core/dao/Staking.sol";
 import "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
 import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
 import "../../../../contracts/core/dao/RewardsEscrow.sol";
-import "../../../../contracts/core/defi/vault/strategies/yearn/YearnWrapper.sol";
+import "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
 import "../../../../contracts/core/interfaces/IERC4626.sol";
 
 interface ICurveSETHPool {

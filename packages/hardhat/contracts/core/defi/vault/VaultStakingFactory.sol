@@ -12,18 +12,16 @@ import "./VaultStaking.sol";
 import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 import "../../interfaces/IERC4626.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-//TODO create ICloneFactory
+import { IContractFactory } from "../../interfaces/IContractFactory.sol";
 
 /**
  * @notice Factory that deploys VaultStaking
  * @dev deploy can only be called by VaultsV1Controller
  */
-contract VaultStakingFactory is Owned {
+contract VaultStakingFactory is Owned, IContractFactory {
   /* ========== EVENTS ========== */
 
   event VaultStakingDeployment(address vaultStaking);
-  event StakingImplementationUpdated(address oldStakingImplementation, address newStakingImplementation);
 
   /* ========== STATE VARIABLES ========== */
 
@@ -50,7 +48,7 @@ contract VaultStakingFactory is Owned {
   }
 
   function setImplementation(address _stakingImplementation) external onlyOwner {
-    emit StakingImplementationUpdated(stakingImplementation, _stakingImplementation);
+    emit ImplementationUpdated(stakingImplementation, _stakingImplementation);
     stakingImplementation = _stakingImplementation;
   }
 }
