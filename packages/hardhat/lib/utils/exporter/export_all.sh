@@ -5,7 +5,7 @@ echo "Using CI exporter"
 EXPORTER=./musl-exporter
 else
 echo "Using local exporter"
-EXPORTER=./target/release/exporter
+EXPORTER=./target/debug/exporter
 fi
 
 NAMED_ACCOUNTS=../namedAccounts.json

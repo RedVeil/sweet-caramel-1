@@ -32,8 +32,8 @@
     "@types/node": "14.18.9",
     "hardhat-contract-sizer": "2.4.0",
     "hardhat-gas-reporter": "1.0.7",
-    "openzeppelin-v3": "npm:@openzeppelin/contracts@3.4.2",
     "openzeppelin-upgradeable": "npm:@openzeppelin/contracts-upgradeable@4.7.1",
+    "openzeppelin-v3": "npm:@openzeppelin/contracts@3.4.2",
     "rimraf": "3.0.2"
   },
   "dependencies": {

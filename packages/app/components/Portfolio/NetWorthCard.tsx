@@ -1,7 +1,7 @@
-import useNetWorth from "hooks/useNetWorth";
-import { formatUnits } from "ethers/lib/utils";
-import { usePortfolio } from "context/PortfolioContext"
+import { usePortfolio } from "context/PortfolioContext";
 import { BigNumber } from "ethers/lib/ethers";
+import { formatUnits } from "ethers/lib/utils";
+import useNetWorth from "hooks/netWorth/useNetWorth";
 import React from "react";
 
 const NetWorthCard = () => {
@@ -9,13 +9,16 @@ const NetWorthCard = () => {
     //@ts-ignore
     notation: "compact",
   });
-  const networth = useNetWorth()
+  const networth = useNetWorth();
   const { selectedNetwork } = usePortfolio();
-  const netWorthValue = selectedNetwork.id === "All" ? networth.total : networth[selectedNetwork.id] ?? BigNumber.from("0")
+  const netWorthValue = selectedNetwork.id === "All" ? networth.total : networth[selectedNetwork.id];
+  const fallBackAmount = BigNumber.from("0");
   return (
     <div className="bg-warmGray rounded-lg p-6">
       <h6 className="font-medium">My Net Worth </h6>
-      <p className=" text-[40px] mt-6 font-light">${formatter.format(parseInt(formatUnits(netWorthValue)))}</p>
+      <p className=" text-[40px] mt-6 font-light">
+        ${formatter.format(parseInt(formatUnits(netWorthValue?.total ?? fallBackAmount)))}
+      </p>
 
       <div className="flex text-white text-xs my-6">
         <div className="bg-customLightPurple py-6 px-4 w-2/4 rounded-tl-5xl rounded-bl-5xl">50%</div>
@@ -30,7 +33,7 @@ const NetWorthCard = () => {
         </div>
         <div className="grid grid-cols-12 ml-4 mt-1">
           <div className="col-span-6">
-            <p>$23,000.00</p>
+            <p>${formatter.format(parseInt(formatUnits(netWorthValue?.deposit ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
             <p>50%</p>
@@ -45,7 +48,7 @@ const NetWorthCard = () => {
         </div>
         <div className="grid grid-cols-12 ml-4 mt-1">
           <div className="col-span-6">
-            <p>$10,000.00</p>
+            <p>${formatter.format(parseInt(formatUnits(netWorthValue?.vesting ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
             <p>25%</p>
@@ -60,7 +63,7 @@ const NetWorthCard = () => {
         </div>
         <div className="grid grid-cols-12 ml-4 mt-1">
           <div className="col-span-6">
-            <p>$13,000.00</p>
+            <p>${formatter.format(parseInt(formatUnits(netWorthValue?.inWallet ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
             <p>25%</p>

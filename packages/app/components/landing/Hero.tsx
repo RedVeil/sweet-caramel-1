@@ -5,10 +5,10 @@ import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { constants } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
+import useNetWorth from "hooks/netWorth/useNetWorth";
 import useSetTokenTVL from "hooks/set/useSetTokenTVL";
 import useStakingTVL from "hooks/staking/useStakingTVL";
 import { useDeployment } from "hooks/useDeployment";
-import useNetWorth from "hooks/useNetWorth";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
@@ -68,7 +68,7 @@ export default function Hero(): JSX.Element {
                 />
               </div>
               <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
-                ${formatter.format(parseInt(formatUnits(total)))}
+                ${formatter.format(parseInt(formatUnits(total.total)))}
               </p>
             </div>
           )}
