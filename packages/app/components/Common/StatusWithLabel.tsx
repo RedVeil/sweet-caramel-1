@@ -1,6 +1,6 @@
 import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 
-interface InfoIconProps {
+export interface InfoIconProps {
   id: string;
   title: string;
   content: string;

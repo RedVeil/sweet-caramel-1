@@ -1,21 +1,19 @@
-import { ChainId } from '@popcorn/utils';
-import { createContext, useState, useContext, useRef, Dispatch, SetStateAction } from 'react';
-
+import { createContext, Dispatch, SetStateAction, useContext, useState } from "react";
 
 interface IPortfolioContext {
-  selectedNetwork: { id: string, value: string };
-  setSelectedNetwork: Dispatch<SetStateAction<{ id: string, value: string }>>;
+  selectedNetwork: { id: string; value: string };
+  setSelectedNetwork: Dispatch<SetStateAction<{ id: string; value: string }>>;
 }
 
 const initialState: IPortfolioContext = {
   selectedNetwork: null,
-  setSelectedNetwork: () => { },
+  setSelectedNetwork: () => {},
 };
 
 export const PortfolioContext = createContext<IPortfolioContext>(initialState);
 
 export const PortfolioContextProvider: React.FC = ({ children }) => {
-  const [selectedNetwork, setSelectedNetwork] = useState<{ id: string, value: string }>({
+  const [selectedNetwork, setSelectedNetwork] = useState<{ id: string; value: string }>({
     id: "All",
     value: "All",
   });
@@ -24,8 +22,9 @@ export const PortfolioContextProvider: React.FC = ({ children }) => {
     <PortfolioContext.Provider
       value={{
         selectedNetwork,
-        setSelectedNetwork
-      }}>
+        setSelectedNetwork,
+      }}
+    >
       {children}
     </PortfolioContext.Provider>
   );
@@ -34,7 +33,7 @@ export const PortfolioContextProvider: React.FC = ({ children }) => {
 export const usePortfolio = () => {
   const context = useContext(PortfolioContext);
   if (!context) {
-    throw new Error('usePortfolio must be used within a PortfolioContextProvider');
+    throw new Error("usePortfolio must be used within a PortfolioContextProvider");
   }
   return context;
 };
