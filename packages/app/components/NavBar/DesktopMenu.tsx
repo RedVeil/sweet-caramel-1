@@ -15,7 +15,7 @@ import NavbarLink from "./NavbarLinks";
 import NetworkOptionsMenu from "./NetworkOptionsMenu";
 
 export default function DesktopMenu(): JSX.Element {
-  const { connectedChainId, account, connect, disconnect, setChain, pushWithinChain } = useWeb3();
+  const { connectedChainId, account, connect, disconnect, pushWithinChain } = useWeb3();
   const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
   const networkName = useNetworkName();
@@ -94,10 +94,7 @@ export default function DesktopMenu(): JSX.Element {
                   <ChevronDownIcon className="w-5 h-5 ml-4 text-primary" aria-hidden="true" />
                 </div>
               </Menu.Button>
-              <NetworkOptionsMenu
-                currentChain={connectedChainId}
-                switchNetwork={(newChainId) => setChain(newChainId)}
-              />
+              <NetworkOptionsMenu />
             </Menu>
           </div>
         )}

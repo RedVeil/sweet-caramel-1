@@ -1,15 +1,12 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChainId } from "@popcorn/utils";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
+import useWeb3 from "hooks/useWeb3";
 import React, { Fragment, useContext } from "react";
 import NetworkOptionsMenuItem from "./NetworkOptionsMenuItem";
 
-interface NetworkOptionsMenuProps {
-  currentChain: number;
-  switchNetwork: (chainId: number) => void;
-}
-
-const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, switchNetwork, ...props }) => {
+function NetworkOptionsMenu(): JSX.Element {
+  const { connectedChainId, setChain } = useWeb3();
   const { showLocalNetwork } = useContext(FeatureToggleContext).features;
   return (
     <Transition
@@ -28,54 +25,54 @@ const NetworkOptionsMenu: React.FC<NetworkOptionsMenuProps> = ({ currentChain, s
         </p>
         <NetworkOptionsMenuItem
           chainId={ChainId.Ethereum}
-          switchNetwork={(chainId) => switchNetwork(chainId)}
-          currentChainId={currentChain}
+          switchNetwork={(chainId) => setChain(chainId)}
+          currentChainId={connectedChainId}
           key={ChainId.Ethereum}
         />
         <NetworkOptionsMenuItem
           chainId={ChainId.Arbitrum}
-          switchNetwork={(chainId) => switchNetwork(chainId)}
-          currentChainId={currentChain}
+          switchNetwork={(chainId) => setChain(chainId)}
+          currentChainId={connectedChainId}
           key={ChainId.Arbitrum}
         />
         <NetworkOptionsMenuItem
           chainId={ChainId.BNB}
-          switchNetwork={(chainId) => switchNetwork(chainId)}
-          currentChainId={currentChain}
+          switchNetwork={(chainId) => setChain(chainId)}
+          currentChainId={connectedChainId}
           key={ChainId.BNB}
         />
         {showLocalNetwork && (
           <>
             <NetworkOptionsMenuItem
               chainId={ChainId.Hardhat}
-              switchNetwork={(chainId) => switchNetwork(chainId)}
-              currentChainId={currentChain}
+              switchNetwork={(chainId) => setChain(chainId)}
+              currentChainId={connectedChainId}
               key={ChainId.Hardhat}
             />
             <NetworkOptionsMenuItem
               chainId={ChainId.Rinkeby}
-              switchNetwork={(chainId) => switchNetwork(chainId)}
-              currentChainId={currentChain}
+              switchNetwork={(chainId) => setChain(chainId)}
+              currentChainId={connectedChainId}
               key={ChainId.Rinkeby}
             />
             <NetworkOptionsMenuItem
               chainId={ChainId.RemoteFork}
-              switchNetwork={(chainId) => switchNetwork(chainId)}
-              currentChainId={currentChain}
+              switchNetwork={(chainId) => setChain(chainId)}
+              currentChainId={connectedChainId}
               key={ChainId.RemoteFork}
             />
           </>
         )}
         <NetworkOptionsMenuItem // this should be last otherwise the UI looks messed up. see last prop below:
           chainId={ChainId.Polygon}
-          switchNetwork={(chainId) => switchNetwork(chainId)}
-          currentChainId={currentChain}
+          switchNetwork={(chainId) => setChain(chainId)}
+          currentChainId={connectedChainId}
           key={ChainId.Polygon}
           last={true}
         />
       </Menu.Items>
     </Transition>
   );
-};
+}
 
 export default NetworkOptionsMenu;

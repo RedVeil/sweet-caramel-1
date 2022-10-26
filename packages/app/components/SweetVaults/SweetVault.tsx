@@ -60,11 +60,9 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString, chainId 
 
   const stakingApy = formatAndRoundBigNumber(stakingPool?.apy, 3);
 
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying assets (${
-    apy?.toLocaleString() || "-"
-  }%) and is boosted with POP (${
-    stakingApy || "-"
-  }%). You must stake your ${name} to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying assets (${apy?.toLocaleString() || "-"
+    }%) and is boosted with POP (${stakingApy || "-"
+    }%). You must stake your ${name} to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   const tutorialSteps = [
     {
@@ -115,9 +113,8 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString, chainId 
   } else {
     return (
       <div
-        className={`${
-          expanded ? " h-160 smlaptop:h-156" : "h-100 md:h-72 delay-200"
-        } bg-white border-b border-customLightGray cursor-pointer z-10 py-6 md:p-8 transition-all duration-700 ease-in-out hover:scale-102 transform`}
+        className={`${expanded ? " h-160 smlaptop:h-156" : "h-100 md:h-72 delay-200"
+          } bg-white border-b border-customLightGray cursor-pointer z-10 py-6 md:p-8 transition-all duration-700 ease-in-out hover:scale-102 transform`}
         onClick={() => {
           setExpanded(!expanded);
         }}
@@ -129,9 +126,8 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString, chainId 
               <h3 className=" text-4xl leading-10 ml-2 ">{name}</h3>
             </div>
             <ChevronDownIcon
-              className={`${
-                expanded ? "rotate-180" : "rotate-0"
-              } transform transition-all ease-in-out w-6 text-secondaryLight`}
+              className={`${expanded ? "rotate-180" : "rotate-0"
+                } transform transition-all ease-in-out w-6 text-secondaryLight`}
             />
           </div>
         </div>
@@ -182,7 +178,6 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString, chainId 
                   poolToken={poolToken}
                   defaultTokenList={tokenList?.filter((stable) => stable.balance.gt(constants.Zero))}
                   revalidate={revalidate}
-                  chainId={chainId}
                 />
               </div>
             )}
