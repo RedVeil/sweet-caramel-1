@@ -44,6 +44,7 @@ const MULTICALLV3_ABI = [
   },
 ];
 
+// on every chain the same
 const MULTICALLV3_CONTRACT = "0xcA11bde05977b3631167028862bE2a173976CA11";
 
 describe("Vault", async () => {
@@ -84,4 +85,10 @@ describe("Vault", async () => {
     var balanceOfMulticall = await contracts.staking.balanceOf(multicall.address);
     expect(parseInt(balanceOfMulticall._hex)).to.equal(0);
   });
+
+  it("unstake + deposit", async () => {});
+
+  it("zap + stake", async () => {});
+
+  it("unstake + zap", async () => {});
 });

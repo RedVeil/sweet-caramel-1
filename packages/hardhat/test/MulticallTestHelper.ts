@@ -17,6 +17,10 @@ import {
   VaultFeeController,
 } from "../typechain";
 
+interface DSProxyFactory {
+  build(): Promise<string>;
+}
+
 export interface Contracts {
   depositToken: MockERC20;
   rewardsToken: MockERC20;
@@ -30,6 +34,7 @@ export interface Contracts {
   blockLockHelper: VaultBlockLockHelper;
   vaultFeeController: VaultFeeController;
   rewardsEscrow: RewardsEscrow;
+  dsProxyFactory: DSProxyFactory;
 }
 
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
