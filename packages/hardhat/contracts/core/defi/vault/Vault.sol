@@ -100,7 +100,7 @@ contract Vault is
    * @return Total amount of underlying `asset` token managed by vault.
    */
   function totalAssets() public view returns (uint256) {
-    return strategy.totalAssets(); //strategy.convertToAssets(strategy.balanceOf(address(this)));
+    return strategy.totalAssets(); //strategy.convertToAssets(strategy.balanceOf(address(this))); //TODO Revert comment and run tests
   }
 
   /**
