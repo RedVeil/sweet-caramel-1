@@ -8,7 +8,9 @@ import { Anvil, getSetup, Hardhat } from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, deployments, addresses, signer } = await getSetup(hre);
-  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name) ? addresses.pop : (await deployments.get("TestPOP")).address;
+  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name)
+    ? addresses.pop
+    : (await deployments.get("TestPOP")).address;
 
   if (["hardhat", "local", "remote_fork"].includes(hre.network.name)) {
     const butterBatch = await hre.ethers.getContractAt(

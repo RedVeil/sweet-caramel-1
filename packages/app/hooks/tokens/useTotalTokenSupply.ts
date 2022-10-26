@@ -13,11 +13,13 @@ export default function useTotalTokenSupply(token: Address, chainId: ChainId) {
 
   useEffect(() => {
     if (!token) {
-      return
+      return;
     }
-    erc20(token, provider).totalSupply().then((res) => {
-      setSupply(res);
-    });
+    erc20(token, provider)
+      .totalSupply()
+      .then((res) => {
+        setSupply(res);
+      });
   }, [token]);
 
   return supply;

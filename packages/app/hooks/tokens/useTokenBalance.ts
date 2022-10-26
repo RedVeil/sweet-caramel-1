@@ -16,7 +16,7 @@ export default function useTokenBalance(
       if (!isAddress(address) || !isAddress(account) || !token) {
         return constants.Zero;
       }
-      return token?.contract.balanceOf(account)
+      return token?.contract.balanceOf(account);
     },
     {
       refreshInterval: 3 * 1000,

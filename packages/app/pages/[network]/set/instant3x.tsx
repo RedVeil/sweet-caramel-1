@@ -3,6 +3,7 @@ import { BatchType, Token } from "@popcorn/utils/src/types";
 import { Pages } from "components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
 import MainActionButton from "components/MainActionButton";
+import SetStats from "components/SetStats";
 import { setDualActionWideModal } from "context/actions";
 import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
@@ -18,7 +19,6 @@ import toast from "react-hot-toast";
 import { useChainIdFromUrl } from "../../../hooks/useChainIdFromUrl";
 import { instantMint, instantRedeem } from "./3x";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
-import SetStats from "components/SetStats";
 
 export default function Instant3x() {
   const {
@@ -95,25 +95,25 @@ export default function Instant3x() {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: usdc,
-            output: threeX,
-          },
-          tokens: threeXWhaleData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-          instant: true,
-        }
+            ...state,
+            selectedToken: {
+              input: usdc,
+              output: threeX,
+            },
+            tokens: threeXWhaleData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+            instant: true,
+          }
         : {
-          ...state,
-          selectedToken: {
-            input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
-            output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
+            ...state,
+            selectedToken: {
+              input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
+              output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
+            },
+            tokens: threeXWhaleData?.tokens,
           },
-          tokens: threeXWhaleData?.tokens,
-        },
     );
   }, [threeXWhaleData]);
 

@@ -4,7 +4,6 @@ import { Token } from "@popcorn/utils/types";
 import PopUpModal from "components/Modal/PopUpModal";
 import SingleActionModal from "components/Modal/SingleActionModal";
 import TokenIcon from "components/TokenIcon";
-import PLACEHOLDER_IMAGE_URL from "helper/placeholderImageUrl";
 import Image from "next/image";
 import { useState } from "react";
 import { SearchToken } from "./SearchToken";
@@ -55,8 +54,9 @@ export default function SelectToken({
           {allowSelection && (
             <>
               <ChevronDownIcon
-                className={`w-6 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${showPopUp || showSelectTokenModal ? " rotate-180" : ""
-                  }`}
+                className={`w-6 h-6 ml-2 text-secondaryLight group-hover:text-primary transform transition-all ease-in-out duration-200 ${
+                  showPopUp || showSelectTokenModal ? " rotate-180" : ""
+                }`}
               />
             </>
           )}

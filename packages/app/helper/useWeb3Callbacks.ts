@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import toast from "react-hot-toast";
 
 function confirmationsPerChain(chainId: ChainId): number {
-  console.log(chainId)
+  console.log(chainId);
   switch (chainId) {
     case ChainId.Polygon:
       return 2;

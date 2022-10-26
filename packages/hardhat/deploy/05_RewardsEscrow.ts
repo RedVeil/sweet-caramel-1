@@ -1,6 +1,6 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { addContractToRegistry, getSetup  } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 
 const contract_name = "RewardsEscrow";
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {

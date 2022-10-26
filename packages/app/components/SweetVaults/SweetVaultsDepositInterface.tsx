@@ -79,7 +79,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   revalidate,
   zapper,
   poolToken,
-  defaultTokenList,
+  defaultTokenList
 }) => {
   const { account, signer, rpcProvider, onContractSuccess, onContractError } = useWeb3();
   const chainId = useChainIdFromUrl();

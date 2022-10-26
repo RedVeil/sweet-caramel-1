@@ -13,7 +13,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
   await addContractToRegistry(contract_name, deployments, signer, hre);
-  
 };
 
 export default func;

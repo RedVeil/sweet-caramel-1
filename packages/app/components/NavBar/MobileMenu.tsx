@@ -12,6 +12,7 @@ import TertiaryActionButton from "components/TertiaryActionButton";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { getProductLinks } from "helper/getProductLinks";
 import useNetworkName from "hooks/useNetworkName";
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -19,8 +20,6 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import WheelPicker from "react-simple-wheel-picker";
 import MobileProductsMenu from "./MobileProductsMenu";
 import NavbarLink from "./NavbarLinks";
-import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
-
 
 const networkData = [
   {
@@ -105,8 +104,9 @@ export const MobileMenu: React.FC = () => {
               >
                 <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-3 h-3 object-contain" />
                 <span
-                  className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                    } block h-2 w-2 rounded-full border`}
+                  className={`${
+                    account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                  } block h-2 w-2 rounded-full border`}
                 ></span>
               </div>
             </div>
@@ -118,18 +118,21 @@ export const MobileMenu: React.FC = () => {
             <div className="block w-10">
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                  }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+                }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
-                  }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "opacity-0" : "opacity-100"
+                }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                  }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+                }`}
               ></span>
             </div>
           </button>
