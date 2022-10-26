@@ -3,9 +3,7 @@ import { deployMockContract, MockContract } from "ethereum-waffle";
 import { BigNumber, ContractTransaction } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, waffle } from "hardhat";
-
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-
 import yearnRegistryABI from "../contracts/mocks/abis/yearnRegistry.json";
 import { ADDRESS_ZERO, MAX_UINT_256, ZERO } from "../lib/external/SetToken/utils/constants";
 import { expectBigNumberCloseTo, expectEvent, expectRevert, expectValue } from "../lib/utils/expectValue";

@@ -34,7 +34,6 @@ export interface Contracts {
   blockLockHelper: VaultBlockLockHelper;
   vaultFeeController: VaultFeeController;
   rewardsEscrow: RewardsEscrow;
-  dsProxyFactory: DSProxyFactory;
 }
 
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
