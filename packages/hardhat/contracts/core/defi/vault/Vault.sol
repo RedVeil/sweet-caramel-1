@@ -46,7 +46,7 @@ contract Vault is
   ERC20 public asset;
   IERC4626 public strategy;
   FeeStructure public feeStructure;
-  uint256 public vaultShareHWM = 1e18;
+  uint256 public vaultShareHWM = 1e18; // NOTE -- Might be off if the asset has less than 18 decimals --> >M>ight move that into init
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
   KeeperConfig public keeperConfig;
@@ -99,21 +99,22 @@ contract Vault is
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
     asset.approve(address(strategy_), type(uint256).max);
-    strategy_.approve(address(strategy_), type(uint256).max);
+    strategy_.approve(address(strategy_), type(uint256).max); // NOTE -- check if thats still required as strategy should just burn instead of transfer
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
-    contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), ERC20(address(strategy_)).name(), "Vault"));
+    contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), ERC20(address(strategy_)).name(), "Vault")); // NOTE -- use block.timestamp instead of strategy.name + emit event with contractName
     keeperConfig = keeperConfig_;
+    //NOTE -- Add Init event with (contractName, asset)
   }
 
   /* ========== VIEWS ========== */
 
-  function decimals() public view virtual override returns (uint8) {
+  function decimals() public view override returns (uint8) {
     return _decimals;
   }
 
-  function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+  function DOMAIN_SEPARATOR() public view returns (bytes32) {
     return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
   }
 
@@ -207,6 +208,7 @@ contract Vault is
    *  the average of their current value and the value at the previous fee harvest checkpoint. This method is similar to
    *  calculating a definite integral using the trapezoid rule.
    */
+  // NOTE --> lets look at this again
   function accruedManagementFee() public view returns (uint256) {
     uint256 area = (totalAssets() + assetsCheckpoint) * ((block.timestamp - feesUpdatedAt) / 1 minutes);
     return (feeStructure.management.mulDivDown(area, 2) / MINUTES_PER_YEAR) / 1e18;
@@ -219,10 +221,10 @@ contract Vault is
    *   HWM in a fee period, issue fee shares to the vault equal to the performance fee.
    */
   function accruedPerformanceFee() public view returns (uint256) {
-    uint256 shareValue = convertToAssets(1 ether);
+    uint256 shareValue = convertToAssets(1 ether); // NOTE --> check if we have to take decimals into account
 
     if (shareValue > vaultShareHWM) {
-      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e36);
+      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e36); // NOTE --> Take decimals into account
     } else {
       return 0;
     }
@@ -334,6 +336,8 @@ contract Vault is
     strategy.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
+
+    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
   }
 
   /**
@@ -371,6 +375,8 @@ contract Vault is
     strategy.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
+
+    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
   }
 
   /**
@@ -414,6 +420,8 @@ contract Vault is
     strategy.withdraw(assets, receiver, address(this));
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
+
+    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
   }
 
   /**
@@ -467,6 +475,7 @@ contract Vault is
    * @dev The new strategy can be actived 3 Days after proposal. This allows user to rage quit.
    */
   function proposeNewStrategy(IERC4626 newStrategy) external onlyRole(VAULTS_CONTROLLER) {
+    // NOTE --> require that newStrategy.asset() matches this asset
     proposedStrategy = newStrategy;
     proposalTimeStamp = block.timestamp;
 
@@ -480,7 +489,8 @@ contract Vault is
    * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new strategy
    */
   function changeStrategy() external takeFees onlyRole(VAULTS_CONTROLLER) {
-    require(block.timestamp > proposalTimeStamp + 3 days, "!3days");
+    // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
+    require(block.timestamp > proposalTimeStamp + 3 days, "!3days"); // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
 
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 
@@ -493,8 +503,8 @@ contract Vault is
 
     strategy.deposit(asset.balanceOf(address(this)), address(this));
 
-    vaultShareHWM = convertToAssets(1 ether);
-    assetsCheckpoint = totalAssets();
+    vaultShareHWM = convertToAssets(1 ether); // NOTE --> Take decimals into account
+    assetsCheckpoint = totalAssets(); // NOTE --> Will be done by modifier
   }
 
   /**
@@ -503,6 +513,7 @@ contract Vault is
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
   function setFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
+    // NOTE --> We can make this permissionless since it can only be changed to proposedFee
     // prettier-ignore
     require(
       newFees.deposit < 1e18 &&
@@ -510,7 +521,8 @@ contract Vault is
       newFees.management < 1e18 &&
       newFees.performance < 1e18,
       "Invalid FeeStructure"
-    );
+    ); //  NOTE --> Reduce Upper Bound
+    // NOTE --> Add a proposal for fees (similar to changeStrategy)
     emit FeesUpdated(feeStructure, newFees);
     feeStructure = newFees;
   }
@@ -546,24 +558,19 @@ contract Vault is
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
     uint256 balance = balanceOf(address(this));
-    uint256 accruedFees = convertToAssets(balance);
     uint256 minWithdrawalAmount = keeperConfig.minWithdrawalAmount;
     uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
     require(accruedFees >= minWithdrawalAmount, "insufficient withdrawal amount");
 
+    // NOTE --> Tip in Shares instead of assets, Send Shares to fee recipient
+    // NOTE --> Recheck this calculation since we dont have access to assets here
     uint256 preBal = asset.balanceOf(address(this));
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 
-    strategy.withdraw(
-      (accruedFees * 1e18 - incentiveVig) / 1e18,
-      _getContract(keccak256("FeeRecipient")),
-      address(this)
-    );
-    strategy.withdraw(tipAmount, address(this), address(this));
-
     uint256 postBal = asset.balanceOf(address(this));
 
+    // NOTE --> This check is redundant since keeperIncentive.tip checks if the balance is sufficient on transfer
     require(postBal >= preBal, "insufficient tip balance");
 
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
@@ -571,8 +578,6 @@ contract Vault is
     asset.approve(address(keeperIncentive), postBal);
 
     keeperIncentive.tip(address(asset), msg.sender, 0, postBal);
-
-    _burn(address(this), balance);
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */
@@ -608,17 +613,18 @@ contract Vault is
     uint256 managementFee = accruedManagementFee();
     uint256 totalFee = managementFee + accruedPerformanceFee();
     uint256 currentAssets = totalAssets();
-    uint256 shareValue = convertToAssets(1 ether);
+    uint256 shareValue = convertToAssets(1 ether); // NOTE --> take decimals into account
 
     if (shareValue > vaultShareHWM) vaultShareHWM = shareValue;
+
+    if (managementFee > 0 || currentAssets == 0) {
+      feesUpdatedAt = block.timestamp;
+    }
 
     if (totalFee > 0 && currentAssets > 0) {
       _mint(address(this), convertToShares(totalFee));
     }
 
-    if (managementFee > 0 || currentAssets == 0) {
-      feesUpdatedAt = block.timestamp;
-    }
     _;
     assetsCheckpoint = totalAssets();
   }
