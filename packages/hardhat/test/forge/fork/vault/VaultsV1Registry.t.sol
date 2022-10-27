@@ -75,10 +75,10 @@ contract VaultsV1RegistryTest is Test {
     assertEq(vaultsV1Registry.vaultTypes(), _vaultTypes);
   }
 
-  function helper__deployVault(address asset) public returns (address vault) {
+  function helper__deployVault(address _asset) public returns (address vault) {
     vault = address(new Vault());
     Vault(vault).initialize(
-      ERC20(asset),
+      ERC20(_asset),
       IERC4626(yearnWrapperAddress),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({ deposit: 1, withdrawal: 1, management: 1, performance: 1 }),
@@ -108,14 +108,14 @@ contract VaultsV1RegistryTest is Test {
   }
 
   function helper__deployVaultsAndRegister(
-    address asset,
+    address _asset,
     uint256 _amount,
     uint256 _type,
     bool _enabled
   ) public returns (address[] memory vaultAddresses) {
     vaultAddresses = new address[](_amount);
     for (uint256 i = 0; i < _amount; i++) {
-      address vault = helper__deployVault(asset);
+      address vault = helper__deployVault(_asset);
       vaultAddresses[i] = vault;
 
       vaultsV1Registry.registerVault(
@@ -508,7 +508,7 @@ contract VaultsV1RegistryTest is Test {
   }
 
   function test__toggleEndorseVaultAddressNotRegisteredReverts() public {
-    address vault = helper__deployVaultAndRegister(1, true);
+    helper__deployVaultAndRegister(1, true);
 
     address nonRegistered = address(0x7777);
 
@@ -547,7 +547,7 @@ contract VaultsV1RegistryTest is Test {
   }
 
   function test__toggleEnableVaultAddressNotRegisteredReverts() public {
-    address vault = helper__deployVaultAndRegister(1, true);
+    helper__deployVaultAndRegister(1, true);
     address nonRegistered = address(0x7777);
 
     vm.expectRevert("vault address not registered");
@@ -587,7 +587,7 @@ contract VaultsV1RegistryTest is Test {
   // }
 
   function test__view__getVaultsByAssetNoAssetVaultsReverts() public {
-    address vault = helper__deployVaultAndRegister(1, true);
+    helper__deployVaultAndRegister(1, true);
 
     address[] memory _3CRYPTORegistryVaults = vaultsV1Registry.getVaultsByAsset(CRV_3CRYPTO);
     assertEq(_3CRYPTORegistryVaults.length, 1);
@@ -598,9 +598,9 @@ contract VaultsV1RegistryTest is Test {
 
   function test__view__getVaultsByAsset() public {
     uint256 _3CRYPTOVaults = 2;
-    address[] memory _3CRYPTOVaultAddresses = helper__deployVaultsAndRegister(CRV_3CRYPTO, _3CRYPTOVaults, 1, true);
+    helper__deployVaultsAndRegister(CRV_3CRYPTO, _3CRYPTOVaults, 1, true);
     uint256 _3CRVVaults = 3;
-    address[] memory _3CRVVaultAddresses = helper__deployVaultsAndRegister(CRV_3CRV, _3CRVVaults, 1, true);
+    helper__deployVaultsAndRegister(CRV_3CRV, _3CRVVaults, 1, true);
 
     assertEq(vaultsV1Registry.getTotalVaults(), _3CRYPTOVaults + _3CRVVaults);
 

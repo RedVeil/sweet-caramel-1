@@ -63,6 +63,7 @@ contract MockStrategy is BaseStrategyInitializable {
 
   function prepareReturn(uint256 _debtOutstanding)
     internal
+    view
     override
     returns (
       uint256 _profit,
@@ -93,13 +94,14 @@ contract MockStrategy is BaseStrategyInitializable {
     console.log("prepareReturn _debtPayment", _debtPayment);
   }
 
-  function adjustPosition(uint256 _debtOutstanding) internal override {
+  function adjustPosition(uint256) internal view override {
     // Whatever we have "free", consider it "invested" now
     console.log("called adjustPosition");
   }
 
   function liquidatePosition(uint256 _amountNeeded)
     internal
+    view
     override
     returns (uint256 _liquidatedAmount, uint256 _loss)
   {
@@ -128,7 +130,7 @@ contract MockStrategy is BaseStrategyInitializable {
     return protected;
   }
 
-  function liquidateAllPositions() internal override returns (uint256 amountFreed) {
+  function liquidateAllPositions() internal view override returns (uint256 amountFreed) {
     uint256 totalAssets = want.balanceOf(address(this));
     amountFreed = totalAssets;
   }

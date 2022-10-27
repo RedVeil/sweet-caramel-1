@@ -241,7 +241,7 @@ contract VaultsV1ControllerTest is Test {
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
-    VaultMetadata memory metadata = vaultsV1Registry.getVault(deployedVault);
+    vaultsV1Registry.getVault(deployedVault);
     return deployedVault;
   }
 

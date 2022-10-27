@@ -136,7 +136,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
     require(vault != address(0), "Invalid vault");
     uint256 amountReceived;
 
-    address zapIn = zaps[vaultAsset].zapIn;
+    address _zapIn = zaps[vaultAsset].zapIn;
 
     if (fromTokenAddress != address(0)) {
       require(msg.value == 0, "msg.value != 0");
@@ -147,10 +147,10 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
       uint256 balanceAfter = fromToken.balanceOf(address(this));
 
       amountReceived = balanceAfter - balanceBefore;
-      fromToken.safeApprove(zapIn, amountReceived);
+      fromToken.safeApprove(_zapIn, amountReceived);
     }
 
-    uint256 amountOut = IZapIn(zapIn).ZapIn{ value: msg.value }(
+    uint256 amountOut = IZapIn(_zapIn).ZapIn{ value: msg.value }(
       fromTokenAddress,
       toTokenAddress,
       pool,
@@ -238,19 +238,19 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
 
   /**
    * @notice Updates the ZapIn and ZapOut contract used for a certain asset
-   * @param vaultAsset Address of the underlying asset of a vault
-   * @param zapIn Address for the ZapIn contract
-   * @param zapOut Address for the ZapOut contract
+   * @param _vaultAsset Address of the underlying asset of a vault
+   * @param _zapIn Address for the ZapIn contract
+   * @param _zapOut Address for the ZapOut contract
    * @dev Per default both of these values are not set. Therefore a fee has to be explicitly be set with this function
    * @dev Since there can only be one vault per asset we can simply configure these zaps also based on assets
    */
   function updateZaps(
-    address vaultAsset,
-    address zapIn,
-    address zapOut
+    address _vaultAsset,
+    address _zapIn,
+    address _zapOut
   ) external override onlyRole(VAULTS_CONTROLLER) {
-    zaps[vaultAsset] = Zaps({ zapIn: zapIn, zapOut: zapOut });
-    emit ZapsUpdated(zapIn, zapOut);
+    zaps[_vaultAsset] = Zaps({ zapIn: _zapIn, zapOut: _zapOut });
+    emit ZapsUpdated(_zapIn, _zapOut);
   }
 
   /**

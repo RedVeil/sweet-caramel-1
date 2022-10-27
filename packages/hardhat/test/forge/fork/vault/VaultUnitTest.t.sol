@@ -22,6 +22,9 @@ address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 contract VaultUnitTest is Test {
   using FixedPointMathLib for uint256;
 
+  bytes32 constant PERMIT_TYPEHASH =
+    keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+
   MockERC20 underlying;
   MockERC4626 strategy;
   Vault vault;
@@ -79,6 +82,27 @@ contract VaultUnitTest is Test {
     assertEq(vault.name(), "Popcorn Mock Token Vault");
     assertEq(vault.symbol(), "pop-TKN");
     assertEq(vault.decimals(), 18);
+  }
+
+  function testPermit() public {
+    uint256 privateKey = 0xBEEF;
+    address owner = vm.addr(privateKey);
+
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+      privateKey,
+      keccak256(
+        abi.encodePacked(
+          "\x19\x01",
+          vault.DOMAIN_SEPARATOR(),
+          keccak256(abi.encode(PERMIT_TYPEHASH, owner, address(0xCAFE), 1e18, 0, block.timestamp))
+        )
+      )
+    );
+
+    vault.permit(owner, address(0xCAFE), 1e18, block.timestamp, v, r, s);
+
+    assertEq(vault.allowance(owner, address(0xCAFE)), 1e18);
+    assertEq(vault.nonces(owner), 1);
   }
 
   function test_SingleDepositWithdraw(uint128 amount) public {
@@ -649,8 +673,6 @@ contract VaultUnitTest is Test {
 
   // Change Strategy
   function testFail_changeStrategyNonVaultController() public {
-    MockERC4626 newStrategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
-
     vm.prank(alice);
     vault.changeStrategy();
   }

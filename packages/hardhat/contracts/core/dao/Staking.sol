@@ -235,7 +235,7 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     address, /* from */
     address, /* to */
     uint256 /* amount */
-  ) internal override(ERC20) {
+  ) internal pure override(ERC20) {
     revert nonTransferable();
   }
 

@@ -429,7 +429,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     onlyOwner
     returns (address strategy)
   {
-    (bool success, bytes memory result) = _getContract(_factoryName).call(_deploymentParams);
+    (, bytes memory result) = _getContract(_factoryName).call(_deploymentParams);
     strategy = abi.decode(result, (address));
   }
 

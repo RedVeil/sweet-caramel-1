@@ -16,7 +16,6 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
 
   VaultAPI public yVault;
   address public token;
-  uint256 internal scalar;
   uint256 internal _decimals;
 
   event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
@@ -36,7 +35,6 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     yVault = _vault;
     token = yVault.token();
     _decimals = _vault.decimals();
-    scalar = 10**18 - _vault.decimals(); // !Assumes the vault uses 18 decimals or less
 
     IERC20(token).approve(address(_vault), type(uint256).max);
   }

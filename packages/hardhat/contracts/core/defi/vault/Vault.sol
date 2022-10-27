@@ -42,6 +42,7 @@ contract Vault is
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   /* ========== STATE VARIABLES ========== */
+
   ERC20 public asset;
   IERC4626 public strategy;
   FeeStructure public feeStructure;
@@ -52,6 +53,13 @@ contract Vault is
 
   IERC4626 public proposedStrategy;
   uint256 public proposalTimeStamp;
+
+  //  EIP-2612 STORAGE
+  uint256 internal INITIAL_CHAIN_ID;
+  bytes32 internal INITIAL_DOMAIN_SEPARATOR;
+  mapping(address => uint256) public nonces;
+
+  uint8 internal _decimals;
 
   /* ========== EVENTS ========== */
   event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
@@ -85,6 +93,11 @@ contract Vault is
     asset = asset_;
     strategy = strategy_;
 
+    _decimals = asset_.decimals();
+
+    INITIAL_CHAIN_ID = block.chainid;
+    INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+
     asset.approve(address(strategy_), type(uint256).max);
     strategy_.approve(address(strategy_), type(uint256).max);
 
@@ -96,11 +109,19 @@ contract Vault is
 
   /* ========== VIEWS ========== */
 
+  function decimals() public view virtual override returns (uint8) {
+    return _decimals;
+  }
+
+  function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+    return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
+  }
+
   /**
    * @return Total amount of underlying `asset` token managed by vault.
    */
   function totalAssets() public view returns (uint256) {
-    return strategy.totalAssets(); //strategy.convertToAssets(strategy.balanceOf(address(this))); //TODO Revert comment and run tests
+    return strategy.convertToAssets(strategy.balanceOf(address(this)));
   }
 
   /**
@@ -157,10 +178,8 @@ contract Vault is
    * @return shares to be burned in exchange for `assets`
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
-  function previewWithdraw(uint256 assets) external returns (uint256 shares) {
+  function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
     uint256 withdrawalFee = feeStructure.withdrawal;
-
-    uint256 supply = totalSupply();
 
     assets += assets.mulDivUp(withdrawalFee, 1e18 - withdrawalFee);
 
@@ -240,6 +259,48 @@ contract Vault is
   }
 
   /* ========== MUTATIVE FUNCTIONS ========== */
+
+  function permit(
+    address owner,
+    address spender,
+    uint256 value,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) public virtual {
+    require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
+
+    // Unchecked because the only math done is incrementing
+    // the owner's nonce which cannot realistically overflow.
+    unchecked {
+      address recoveredAddress = ecrecover(
+        keccak256(
+          abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR(),
+            keccak256(
+              abi.encode(
+                keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                owner,
+                spender,
+                value,
+                nonces[owner]++,
+                deadline
+              )
+            )
+          )
+        ),
+        v,
+        r,
+        s
+      );
+
+      require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
+
+      _approve(recoveredAddress, spender, value);
+    }
+  }
 
   /**
    * @notice Deposit exactly `assets` amount of tokens, issuing vault shares to caller.
@@ -526,6 +587,19 @@ contract Vault is
     returns (address)
   {
     return super._getContract(_name);
+  }
+
+  function computeDomainSeparator() internal view virtual returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(
+          keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+          keccak256(bytes(name())),
+          keccak256("1"),
+          block.chainid,
+          address(this)
+        )
+      );
   }
 
   /* ========== MODIFIERS ========== */

@@ -496,10 +496,9 @@ abstract contract BaseStrategy {
    *
    *  This call and `harvestTrigger()` should never return `true` at the same
    *  time.
-   * @param callCostInWei The keeper's estimated gas cost to call `tend()` (in wei).
    * @return `true` if `tend()` should be called, `false` otherwise.
    */
-  function tendTrigger(uint256 callCostInWei) public view virtual returns (bool) {
+  function tendTrigger(uint256) public view virtual returns (bool) {
     // We usually don't need tend, but if there are positions that need
     // active maintainence, overriding this function is how you would
     // signal for that.
