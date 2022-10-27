@@ -5,6 +5,7 @@ import { useChainIdFromUrl } from "../../hooks/useChainIdFromUrl";
 
 export interface PortfolioProductItemProps {
   tokenName: string;
+  tokenIcon: string;
   tokenStatusLabels: Array<{
     content: string;
     label: string | React.ReactElement;
@@ -12,12 +13,12 @@ export interface PortfolioProductItemProps {
     emissions?: string;
   }>;
 }
-const PortfolioProductItem: React.FC<PortfolioProductItemProps> = ({ tokenName, tokenStatusLabels }) => {
+const PortfolioProductItem: React.FC<PortfolioProductItemProps> = ({ tokenName, tokenIcon, tokenStatusLabels }) => {
   const chainId = useChainIdFromUrl();
   return (
     <div className="bg-customLightGray bg-opacity-25 rounded-lg grid grid-cols-12 p-6 mb-4">
       <div className="col-span-12 md:col-span-4 flex items-center">
-        <TokenIcon token={tokenName} chainId={chainId} fullsize />
+        <TokenIcon token={tokenIcon} chainId={chainId} fullsize />
         <h5 className="text-xl md:ml-2 mb-2 md:mb-0">{tokenName}</h5>
       </div>
 

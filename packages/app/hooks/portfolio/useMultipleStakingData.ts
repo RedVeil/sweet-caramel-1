@@ -1,10 +1,13 @@
 import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
 import useAssetValues from "hooks/useAssetValues";
+import { SWRResponse } from "swr";
 
 export default function useMultipleStakingData(chainId, stakingPools) {
   let products = [];
-  let tokenPrices;
+  let tokenPrices: SWRResponse<{
+    [x: string]: number;
+  }>;
 
   if (stakingPools.length > 0) {
     products = stakingPools.map((stakingPool) => {
