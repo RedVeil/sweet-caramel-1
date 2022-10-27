@@ -43,5 +43,6 @@ export default function useCommonNetworthFunctions(chainId, network) {
     popHoldings,
     popStakingHoldings,
     useHoldingValue,
+    getHoldingValue,
   };
 }
