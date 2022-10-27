@@ -18,6 +18,11 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
   address public token;
   uint256 internal _decimals;
 
+  //  EIP-2612 STORAGE
+  uint256 internal INITIAL_CHAIN_ID;
+  bytes32 internal INITIAL_DOMAIN_SEPARATOR;
+  mapping(address => uint256) public nonces;
+
   event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
   event Withdraw(
     address indexed caller,
@@ -36,7 +41,18 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     token = yVault.token();
     _decimals = _vault.decimals();
 
+    INITIAL_CHAIN_ID = block.chainid;
+    INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+
     IERC20(token).approve(address(_vault), type(uint256).max);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      General Views
+   //////////////////////////////////////////////////////////////*/
+
+  function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+    return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
   }
 
   function vault() external view returns (address) {
@@ -58,6 +74,65 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
 
   function asset() external view returns (address) {
     return token;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      EIP-2612 LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function permit(
+    address owner,
+    address spender,
+    uint256 value,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) public virtual {
+    require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
+
+    // Unchecked because the only math done is incrementing
+    // the owner's nonce which cannot realistically overflow.
+    unchecked {
+      address recoveredAddress = ecrecover(
+        keccak256(
+          abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR(),
+            keccak256(
+              abi.encode(
+                keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                owner,
+                spender,
+                value,
+                nonces[owner]++,
+                deadline
+              )
+            )
+          )
+        ),
+        v,
+        r,
+        s
+      );
+
+      require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
+
+      _approve(recoveredAddress, spender, value);
+    }
+  }
+
+  function computeDomainSeparator() internal view virtual returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(
+          keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+          keccak256(bytes(name())),
+          keccak256("1"),
+          block.chainid,
+          address(this)
+        )
+      );
   }
 
   /*//////////////////////////////////////////////////////////////

@@ -3,9 +3,14 @@ pragma solidity ^0.8.12;
 
 import { TestFixture } from "./utils/TestFixture.sol";
 import { StrategyParams } from "../../../../contracts/externals/interfaces/yearn/IVault.sol";
+import { YearnWrapper } from "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
+
 import "forge-std/console.sol";
 
 contract VaultWrapperTest is TestFixture {
+  bytes32 constant PERMIT_TYPEHASH =
+    keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+
   function setUp() public override {
     super.setUp();
   }
@@ -153,5 +158,27 @@ contract VaultWrapperTest is TestFixture {
     uint256 profit = want.balanceOf(address(vault));
     assertGt(want.balanceOf(address(strategy)) + profit, _amount);
     assertGt(vault.pricePerShare(), beforePps);
+  }
+
+  function testPermit() public {
+    uint256 privateKey = 0xBEEF;
+    address owner = vm.addr(privateKey);
+    YearnWrapper wrapper = YearnWrapper(address(vaultWrapper));
+
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+      privateKey,
+      keccak256(
+        abi.encodePacked(
+          "\x19\x01",
+          wrapper.DOMAIN_SEPARATOR(),
+          keccak256(abi.encode(PERMIT_TYPEHASH, owner, address(0xCAFE), 1e18, 0, block.timestamp))
+        )
+      )
+    );
+
+    wrapper.permit(owner, address(0xCAFE), 1e18, block.timestamp, v, r, s);
+
+    assertEq(wrapper.allowance(owner, address(0xCAFE)), 1e18);
+    assertEq(wrapper.nonces(owner), 1);
   }
 }
