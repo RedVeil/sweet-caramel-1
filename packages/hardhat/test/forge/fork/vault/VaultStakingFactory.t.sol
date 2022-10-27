@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import "../../../../contracts/core/defi/vault/VaultStakingFactory.sol";
 import "../../../../contracts/core/defi/vault/VaultStaking.sol";
 import "../../../../contracts/core/interfaces/IContractRegistry.sol";
+import { MockERC4626 } from "../../mocks/MockERC4626.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
@@ -39,9 +40,11 @@ contract VaultStakingFactoryTest is Test {
 
   function helper__deployVault(address asset) public returns (address vault) {
     vault = address(new Vault());
+    MockERC4626 strategy = new MockERC4626(ERC20(asset), "Mock Token Vault", "vwTKN");
+
     Vault(vault).initialize(
       ERC20(asset),
-      IERC4626(address(0x4444)),
+      IERC4626(address(strategy)),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({ deposit: 1, withdrawal: 1, management: 1, performance: 1 }),
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
