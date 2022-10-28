@@ -557,27 +557,24 @@ contract Vault is
    * @dev we send funds now to the feeRecipient which is set on in the contract registry. We must make sure that this is not address(0) before withdrawing fees
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
-    uint256 balance = balanceOf(address(this));
-    uint256 minWithdrawalAmount = keeperConfig.minWithdrawalAmount;
+    uint256 accruedFees = balanceOf(address(this));
     uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
-    require(accruedFees >= minWithdrawalAmount, "insufficient withdrawal amount");
+    require(accruedFees >= keeperConfig.minWithdrawalAmount, "insufficient withdrawal amount");
 
-    // NOTE --> Tip in Shares instead of assets, Send Shares to fee recipient
-    // NOTE --> Recheck this calculation since we dont have access to assets here
-    uint256 preBal = asset.balanceOf(address(this));
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 
-    uint256 postBal = asset.balanceOf(address(this));
+    accruedFees -= tipAmount;
 
-    // NOTE --> This check is redundant since keeperIncentive.tip checks if the balance is sufficient on transfer
-    require(postBal >= preBal, "insufficient tip balance");
+    _burn(address(this), accruedFees);
+
+    _mint(_getContract(keccak256("FeeRecipient")), accruedFees);
 
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
 
-    asset.approve(address(keeperIncentive), postBal);
+    _approve(address(this), address(keeperIncentive), tipAmount);
 
-    keeperIncentive.tip(address(asset), msg.sender, 0, postBal);
+    keeperIncentive.tip(address(this), msg.sender, 0, tipAmount);
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */
