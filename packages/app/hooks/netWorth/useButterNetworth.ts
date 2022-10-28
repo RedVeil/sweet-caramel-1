@@ -13,7 +13,6 @@ export default function useButterNetworth(): {
 } {
   const { Ethereum } = ChainId;
   const ethereum = useDeployment(Ethereum);
-  console.log("🚀 ~ file: useButterNetworth.ts ~ line 16 ~ useButterNetworth ~ ethereum", ethereum);
   const { data: butterStakingPool } = useStakingPool(ethereum.butterStaking, Ethereum);
   const { data: butterBatchData } = useButterBatchData(Ethereum);
   const { getHoldingValue } = useCommonNetworthFunctions(ethereum, Ethereum);
@@ -29,9 +28,6 @@ export default function useButterNetworth(): {
     const butter = butterBatchData?.tokens.find((token) => token.address === ethereum.butter);
     return getHoldingValue(butterStakingPool?.userStake, butter?.price);
   }, [butterStakingPool, butterBatchData]);
-
-  console.log("ljhljkgkdgd", butterHoldings);
-
   const butterRedeemBatchHoldings = useMemo(() => {
     if (!butterBatchData) return constants.Zero;
     const threeCrv = butterBatchData?.tokens.find((token) => token.address === ethereum.threeCrv);
