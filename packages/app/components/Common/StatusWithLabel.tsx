@@ -7,7 +7,8 @@ export interface InfoIconProps {
 }
 
 export interface StatusWithLabelProps {
-  content: string;
+  content?: string;
+  image?: React.ReactElement;
   label: string | React.ReactElement;
   infoIconProps?: InfoIconProps;
   green?: boolean;
@@ -15,6 +16,7 @@ export interface StatusWithLabelProps {
 }
 
 export default function StatusWithLabel({
+  image,
   content,
   label,
   green = false,
@@ -36,22 +38,27 @@ export default function StatusWithLabel({
       ) : (
         <p className="text-primaryLight">{label}</p>
       )}
-      {content == "Coming Soon" ? (
-        <p
-          className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6 ${
-            !isSmall && "md:leading-8"
-          }`}
-        >
-          {content}
-        </p>
-      ) : (
-        <p
-          className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6  ${
-            !isSmall && "md:leading-8"
-          } `}
-        >
-          {content.split(" ")[0]} <span className=" text-tokenTextGray text-xl"> {content.split(" ")[1]}</span>
-        </p>
+      {image}
+      {content && (
+        <>
+          {content == "Coming Soon" ? (
+            <p
+              className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6 ${
+                !isSmall && "md:leading-8"
+              }`}
+            >
+              {content}
+            </p>
+          ) : (
+            <p
+              className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6  ${
+                !isSmall && "md:leading-8"
+              } `}
+            >
+              {content.split(" ")[0]} <span className=" text-tokenTextGray text-xl"> {content.split(" ")[1]}</span>
+            </p>
+          )}
+        </>
       )}
     </div>
   );

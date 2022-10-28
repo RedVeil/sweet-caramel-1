@@ -1,4 +1,4 @@
-import PopStaking from "./PopStaking";
+import StakingItems from "./StakingItems";
 
 const StakingProduct = () => {
   let formatter = Intl.NumberFormat("en", {
@@ -82,7 +82,9 @@ const StakingProduct = () => {
     // 	)}
     // </>
 
-    <PopStaking />
+    <>
+      <StakingItems />
+    </>
   );
 };
 
