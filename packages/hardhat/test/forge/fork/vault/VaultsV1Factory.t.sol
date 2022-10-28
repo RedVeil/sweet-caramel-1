@@ -27,6 +27,9 @@ contract VaultsV1FactoryTest is Test {
   VaultParams public vaultParams;
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     STRATEGY = address(new MockERC4626(ERC20(CRV_3CRYPTO), "Mock Token Vault", "vwTKN"));
     vaultsV1Factory = new VaultsV1Factory(address(this));
     vaultImplementation = address(new Vault());

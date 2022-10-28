@@ -23,6 +23,9 @@ contract YearnWrapperFactoryTest is Test {
   address NEW_IMPLEMENTATION = makeAddr("implementation");
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     factory = new YearnWrapperFactory(address(this));
     implementation = address(new YearnWrapper());
 

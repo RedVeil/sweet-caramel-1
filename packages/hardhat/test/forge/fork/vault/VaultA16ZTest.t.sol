@@ -16,10 +16,13 @@ interface IMockERC20 is IERC20 {
 }
 
 abstract contract VaultA16ZTest is ERC4626Prop {
-  function setUp() public override {
+  function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"));
+    vm.selectFork(forkId);
+
     __underlying__ = address(new MockERC20("Mock Token", "TKN"));
 
-    strategy = new MockERC4626(ERC20(__underlying__), "Mock ERC4626", "MERC4626");
+    MockERC4626 strategy = new MockERC4626(ERC20(__underlying__), "Mock ERC4626", "MERC4626");
 
     __vault__ = address(new Vault());
     Vault(__vault__).initialize(

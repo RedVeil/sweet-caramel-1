@@ -30,6 +30,9 @@ contract RewardsDistributionTest is Test {
   event RewardAdded(uint256 reward);
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 0 ether);
     rewardsDistribution = new RewardsDistribution(address(this), IContractRegistry(CONTRACT_REGISTRY), pop);
     staking = new Staking(pop, butter, IRewardsEscrow(REWARDS_ESCROW));

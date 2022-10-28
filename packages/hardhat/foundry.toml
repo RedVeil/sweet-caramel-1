@@ -12,6 +12,9 @@ verbosity = 2
 fuzz_runs = 256
 fuzz_max_global_rejects = 100000000
 
+[rpc_endpoints]
+FORKING_RPC_URL = "${FORKING_RPC_URL}"
+
 [profile.ci]
 src = 'contracts'
 test = 'test'

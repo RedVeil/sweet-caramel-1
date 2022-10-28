@@ -119,6 +119,9 @@ contract VaultsV1ControllerTest is Test {
   }
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     asset = ERC20(CRV_3CRYPTO);
 
     vaultImplementation = address(new Vault());

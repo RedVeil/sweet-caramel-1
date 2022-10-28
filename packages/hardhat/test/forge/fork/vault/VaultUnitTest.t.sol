@@ -41,6 +41,9 @@ contract VaultUnitTest is Test {
   event Unpaused(address account);
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     vm.label(feeRecipient, "feeRecipient");
     vm.label(alice, "alice");
     vm.label(bob, "bob");

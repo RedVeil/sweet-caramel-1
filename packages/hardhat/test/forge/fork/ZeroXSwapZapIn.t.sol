@@ -14,11 +14,14 @@ address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 address constant ZEROX_ROUTER = 0xDef1C0ded9bec7F1a1670819833240f027b25EfF;
 address constant NOT_ZEROX_ROUTER = 0xdef1c0dEd9bec7f1a1670819833240F027B24eFF;
 
-// Fork Block 15440734
+// Fork Block 15521406
 contract ZeroXSwapZapInTest is Test {
   ZeroXSwapZapIn internal zapIn;
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15521406);
+    vm.selectFork(forkId);
+
     zapIn = new ZeroXSwapZapIn();
     deal(address(this), 1 ether);
     deal(DAI, address(this), 100 ether);

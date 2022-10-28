@@ -12,6 +12,9 @@ contract VaultWrapperTest is TestFixture {
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
   function setUp() public override {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     super.setUp();
   }
 

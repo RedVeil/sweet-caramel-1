@@ -55,6 +55,9 @@ contract VaultsV1RegistryTest is Test {
   address internal yearnWrapperAddress;
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     asset = address(ERC20(CRV_3CRYPTO));
     vaultsV1Registry = new VaultsV1Registry(address(this));
 

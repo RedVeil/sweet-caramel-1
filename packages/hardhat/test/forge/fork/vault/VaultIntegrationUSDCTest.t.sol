@@ -75,6 +75,9 @@ contract VaultIntegrationUSDCTest is Test {
   }
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     asset = ERC20(USDC);
     vm.label(USDC, "asset");
 

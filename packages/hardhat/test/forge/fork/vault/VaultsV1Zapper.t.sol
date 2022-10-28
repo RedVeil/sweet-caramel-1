@@ -68,6 +68,9 @@ contract VaultsV1ZapperTest is Test {
   address internal feeRecipient = address(0x1234);
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15414618);
+    vm.selectFork(forkId);
+
     zapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
     yearnWrapper = new YearnWrapper();
     address yearnWrapperAddress = address(yearnWrapper);

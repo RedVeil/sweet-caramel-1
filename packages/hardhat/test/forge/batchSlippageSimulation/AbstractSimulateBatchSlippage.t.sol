@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import { Test } from "forge-std/Test.sol";
 import "solmate/src/tokens/ERC20.sol";
 
-import "../../../../contracts/core/interfaces/IBatchContract.sol";
-import "../../../../contracts/externals/interfaces/IBasicIssuanceModule.sol";
-import "../../../../contracts/externals/interfaces/ISetToken.sol";
+import "../../../contracts/core/interfaces/IBatchContract.sol";
+import "../../../contracts/externals/interfaces/IBasicIssuanceModule.sol";
+import "../../../contracts/externals/interfaces/ISetToken.sol";
 
 //TODO butter needs to be updated so that `setSlippage()` doesnt block any inputs above 2%
 abstract contract AbstractSimulateBatchSlippage is Test {
