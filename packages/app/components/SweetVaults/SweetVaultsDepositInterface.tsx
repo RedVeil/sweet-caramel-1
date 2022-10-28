@@ -1,7 +1,6 @@
 import { Zapper } from "@popcorn/hardhat/lib/adapters";
 import { networkMap } from "@popcorn/hardhat/lib/utils/constants";
 import { Vault } from "@popcorn/hardhat/typechain";
-import { ChainId } from "@popcorn/utils";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
 import SelectToken from "components/BatchButter/SelectToken";
 import SlippageSettings from "components/BatchButter/SlippageSettings";
@@ -79,7 +78,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   revalidate,
   zapper,
   poolToken,
-  defaultTokenList
+  defaultTokenList,
 }) => {
   const { account, signer, rpcProvider, onContractSuccess, onContractError } = useWeb3();
   const chainId = useChainIdFromUrl();
@@ -90,7 +89,7 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   const [tokenList, setTokenList] = useState<Token[]>([]);
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string>(
     defaultTokenList?.find((token) => token.symbol == sweetVault?.metadata?.defaultDepositTokenSymbol)?.address ||
-    sweetVault?.metadata?.underlyingToken?.address,
+      sweetVault?.metadata?.underlyingToken?.address,
   );
   const [selectedToken, setSelectedToken] = useState<Token>(sweetVault?.metadata?.underlyingToken);
   const {
