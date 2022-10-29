@@ -1,4 +1,5 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos, networkMap, numberToBigNumber } from "@popcorn/utils";
+import { BigNumber } from "ethers/lib/ethers";
 import useStakingPool from "hooks/staking/useStakingPool";
 import { useDeployment } from "hooks/useDeployment";
 import useStakingData from "./useStakingData";
@@ -10,7 +11,13 @@ export default function useButterStaking() {
 
   const butterStakingData = useStakingData(butterPool, Ethereum);
 
-  let productProps = {
+  let butterTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+    deposited: numberToBigNumber(0, 18),
+    tvl: numberToBigNumber(0, 18),
+    vAPR: numberToBigNumber(0, 18),
+  };
+
+  let butterProps = {
     tokenIcon: {
       address: "",
       chainId: Ethereum,
@@ -60,16 +67,26 @@ export default function useButterStaking() {
   };
   // combinedDeposited
   if (butterStakingData?.tvl > numberToBigNumber(0, 18)) {
-    productProps.tokenIcon.address = butterStakingData.tokenIcon.address;
-    productProps.tokenIcon.chainId = butterStakingData.tokenIcon.chainId;
-    productProps.tokenName = butterStakingData.tokenName;
-    productProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(butterStakingData.deposited, 18)}`;
+    butterProps.tokenIcon.address = butterStakingData.tokenIcon.address;
+    butterProps.tokenIcon.chainId = butterStakingData.tokenIcon.chainId;
+    butterProps.tokenName = butterStakingData.tokenName;
+    butterProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(butterStakingData.deposited, 18)}`;
 
-    productProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(butterStakingData.emissions, 18)} POP`;
+    butterProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(butterStakingData.emissions, 18)} POP`;
 
-    productProps.tokenStatusLabels[2].content = `${formatAndRoundBigNumber(butterStakingData.vAPR, 18)}%`;
+    butterProps.tokenStatusLabels[2].content = `${formatAndRoundBigNumber(butterStakingData.vAPR, 18)}%`;
 
-    productProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(butterStakingData.tvl, 18)}`;
+    butterProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(butterStakingData.tvl, 18)}`;
+
+    butterTotalBigNumberValues = {
+      deposited: butterStakingData.deposited,
+      tvl: butterStakingData.tvl,
+      vAPR: butterStakingData.vAPR,
+    };
   }
-  return productProps;
+  return {
+    butterProps,
+    butterHasValue: butterStakingData.deposited > numberToBigNumber(0, 18),
+    butterTotalBigNumberValues,
+  };
 }

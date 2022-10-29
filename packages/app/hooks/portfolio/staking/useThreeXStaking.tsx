@@ -1,4 +1,5 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos, networkMap, numberToBigNumber } from "@popcorn/utils";
+import { BigNumber } from "ethers/lib/ethers";
 import useStakingPool from "hooks/staking/useStakingPool";
 import { useDeployment } from "hooks/useDeployment";
 import useStakingData from "./useStakingData";
@@ -10,7 +11,13 @@ export default function useThreeXStaking() {
 
   const threeXStakingData = useStakingData(threeXPool, Ethereum);
 
-  let productProps = {
+  let threeXTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+    deposited: numberToBigNumber(0, 18),
+    tvl: numberToBigNumber(0, 18),
+    vAPR: numberToBigNumber(0, 18),
+  };
+
+  let threeXProps = {
     tokenIcon: {
       address: "",
       chainId: Ethereum,
@@ -60,16 +67,26 @@ export default function useThreeXStaking() {
   };
   // combinedDeposited
   if (threeXStakingData?.tvl > numberToBigNumber(0, 18)) {
-    productProps.tokenIcon.address = threeXStakingData.tokenIcon.address;
-    productProps.tokenIcon.chainId = threeXStakingData.tokenIcon.chainId;
-    productProps.tokenName = threeXStakingData.tokenName;
-    productProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(threeXStakingData.deposited, 18)}`;
+    threeXProps.tokenIcon.address = threeXStakingData.tokenIcon.address;
+    threeXProps.tokenIcon.chainId = threeXStakingData.tokenIcon.chainId;
+    threeXProps.tokenName = threeXStakingData.tokenName;
+    threeXProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(threeXStakingData.deposited, 18)}`;
 
-    productProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(threeXStakingData.emissions, 18)} POP`;
+    threeXProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(threeXStakingData.emissions, 18)} POP`;
 
-    productProps.tokenStatusLabels[2].content = `${formatAndRoundBigNumber(threeXStakingData.vAPR, 18)}%`;
+    threeXProps.tokenStatusLabels[2].content = `${formatAndRoundBigNumber(threeXStakingData.vAPR, 18)}%`;
 
-    productProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(threeXStakingData.tvl, 18)}`;
+    threeXProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(threeXStakingData.tvl, 18)}`;
+
+    threeXTotalBigNumberValues = {
+      deposited: threeXStakingData.deposited,
+      tvl: threeXStakingData.tvl,
+      vAPR: threeXStakingData.vAPR,
+    };
   }
-  return productProps;
+  return {
+    threeXProps,
+    threeXHasValue: threeXStakingData.deposited > numberToBigNumber(0, 18),
+    threeXTotalBigNumberValues,
+  };
 }

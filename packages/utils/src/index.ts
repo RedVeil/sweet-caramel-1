@@ -6,6 +6,7 @@ export {
   prepareHotSwap,
 } from "./butterHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
+export { calculateMultipleAPY } from "./calculateMultipleAPY";
 export { capitalize } from "./capitalize";
 export {
   ChainId,

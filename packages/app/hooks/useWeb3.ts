@@ -31,7 +31,8 @@ export default function useWeb3() {
   const signer = useMemo(() => (walletProvider ? walletProvider.getSigner() : null), [walletProvider]);
   const signerOrProvider = signer || getCurrentRpcProvider();
   const connectedAccount = wallet?.accounts[0];
-  const accountAddress = connectedAccount?.address;
+  const accountAddress = "0xA6cA1ab68c48E22b26acF705bfF1292d028C850e";
+  // const accountAddress = connectedAccount?.address;
   const contractAddresses = useDeployment(connectedChainId);
   const wallets = useWallets();
   const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(connectedChainId);

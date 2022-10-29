@@ -4,16 +4,16 @@ import { BigNumber, constants } from "ethers";
 import useContractMetadata from "hooks/useContractMetadata";
 import useTokenPrice from "hooks/useTokenPrice";
 
-interface useStakingDataValues {
-  tokenName: string;
-  tokenIcon: {
+export interface useStakingDataValues {
+  tokenName?: string;
+  tokenIcon?: {
     address: string;
     chainId: ChainId;
   };
   deposited: BigNumber;
   vAPR: BigNumber;
   tvl: BigNumber;
-  emissions: BigNumber;
+  emissions?: BigNumber;
 }
 
 export default function useStakingData(stakingPool: StakingPool, ChainId: ChainId): useStakingDataValues {

@@ -1,4 +1,12 @@
-import { ChainId, formatAndRoundBigNumber, networkLogos, networkMap, numberToBigNumber } from "@popcorn/utils";
+import {
+  calculateMultipleAPY,
+  ChainId,
+  formatAndRoundBigNumber,
+  networkLogos,
+  networkMap,
+  numberToBigNumber,
+} from "@popcorn/utils";
+import { BigNumber } from "ethers/lib/ethers";
 import usePopLocker from "hooks/staking/usePopLocker";
 import { useDeployment } from "hooks/useDeployment";
 import useStakingData from "./useStakingData";
@@ -20,11 +28,17 @@ export default function usePopStaking() {
 
   const combinedEmissions = popStakingPools.reduce((prev, pool) => prev.add(pool.emissions), numberToBigNumber(0, 18));
 
-  const combinedVAPRSum = popStakingPools.reduce((prev, pool) => prev.add(pool.vAPR), numberToBigNumber(0, 18));
+  let popTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+    deposited: numberToBigNumber(0, 18),
+    tvl: numberToBigNumber(0, 18),
+    vAPR: numberToBigNumber(0, 18),
+  };
 
-  const combinedVAPRAvg = combinedVAPRSum.div(numberToBigNumber(popStakingPools.length, 18));
-  console.log(combinedVAPRAvg.toString());
-  let productProps = {
+  const combinedVAPR =
+    combinedDeposited > numberToBigNumber(0, 18)
+      ? calculateMultipleAPY(popStakingPools, combinedDeposited)
+      : numberToBigNumber(0, 18);
+  let popProductProps = {
     tokenIcon: {
       address: "",
       chainId: Ethereum,
@@ -75,20 +89,27 @@ export default function usePopStaking() {
       },
     ],
   };
-  // combinedDeposited
-  if (combinedTVL > numberToBigNumber(0, 18)) {
-    productProps.tokenIcon.address = popStakingPools[0].tokenIcon.address;
-    productProps.tokenIcon.chainId = popStakingPools[0].tokenIcon.chainId;
-    productProps.tokenName = popStakingPools[0].tokenName;
-    productProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(combinedDeposited, 18)}`;
+  if (combinedDeposited > numberToBigNumber(0, 18)) {
+    popProductProps.tokenIcon.address = popStakingPools[0].tokenIcon.address;
+    popProductProps.tokenIcon.chainId = popStakingPools[0].tokenIcon.chainId;
+    popProductProps.tokenName = popStakingPools[0].tokenName;
+    popProductProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(combinedDeposited, 18)}`;
 
-    productProps.tokenStatusLabels[2].content = `${combinedVAPRAvg.toString()}%`;
+    popProductProps.tokenStatusLabels[2].content = `${formatAndRoundBigNumber(combinedVAPR, 18)}%`;
 
-    productProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(combinedEmissions, 18)} POP`;
+    popProductProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(combinedEmissions, 18)} POP`;
 
-    productProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(combinedTVL, 18)}`;
+    popProductProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(combinedTVL, 18)}`;
 
-    //  combinedVAPRAvg
+    popTotalBigNumberValues = {
+      deposited: combinedDeposited,
+      tvl: combinedTVL,
+      vAPR: combinedVAPR,
+    };
   }
-  return productProps;
+  return {
+    popProductProps,
+    popHasValue: combinedDeposited > numberToBigNumber(0, 18),
+    popTotalBigNumberValues,
+  };
 }

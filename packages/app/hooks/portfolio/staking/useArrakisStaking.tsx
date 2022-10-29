@@ -1,4 +1,5 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos, networkMap, numberToBigNumber } from "@popcorn/utils";
+import { BigNumber } from "ethers/lib/ethers";
 import useStakingPool from "hooks/staking/useStakingPool";
 import { useDeployment } from "hooks/useDeployment";
 import useStakingData from "./useStakingData";
@@ -10,7 +11,13 @@ export default function useArrakisStaking() {
 
   const popArrakisStakingData = useStakingData(popArrakisPool, Polygon);
 
-  let productProps = {
+  let arrakisTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+    deposited: numberToBigNumber(0, 18),
+    tvl: numberToBigNumber(0, 18),
+    vAPR: numberToBigNumber(0, 18),
+  };
+
+  let arrakisProps = {
     tokenIcon: {
       address: "",
       chainId: Polygon,
@@ -60,17 +67,27 @@ export default function useArrakisStaking() {
   };
   // combinedDeposited
   if (popArrakisStakingData?.tvl > numberToBigNumber(0, 18)) {
-    productProps.tokenIcon.address = popArrakisStakingData.tokenIcon.address;
-    productProps.tokenIcon.chainId = popArrakisStakingData.tokenIcon.chainId;
-    productProps.tokenName = popArrakisStakingData.tokenName;
+    arrakisProps.tokenIcon.address = popArrakisStakingData.tokenIcon.address;
+    arrakisProps.tokenIcon.chainId = popArrakisStakingData.tokenIcon.chainId;
+    arrakisProps.tokenName = popArrakisStakingData.tokenName;
 
-    productProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(popArrakisStakingData.deposited, 18)}`;
+    arrakisProps.tokenStatusLabels[1].content = `$${formatAndRoundBigNumber(popArrakisStakingData.deposited, 18)}`;
 
-    productProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(popArrakisStakingData.emissions, 18)} POP`;
+    arrakisProps.tokenStatusLabels[2].emissions = `${formatAndRoundBigNumber(popArrakisStakingData.emissions, 18)} POP`;
 
-    productProps.tokenStatusLabels[2].content = `${formatAndRoundBigNumber(popArrakisStakingData.vAPR, 18)}%`;
+    arrakisProps.tokenStatusLabels[2].content = `${formatAndRoundBigNumber(popArrakisStakingData.vAPR, 18)}%`;
 
-    productProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(popArrakisStakingData.tvl, 18)}`;
+    arrakisProps.tokenStatusLabels[3].content = `$${formatAndRoundBigNumber(popArrakisStakingData.tvl, 18)}`;
+
+    arrakisTotalBigNumberValues = {
+      deposited: popArrakisStakingData.deposited,
+      tvl: popArrakisStakingData.tvl,
+      vAPR: popArrakisStakingData.vAPR,
+    };
   }
-  return productProps;
+  return {
+    arrakisProps,
+    arrakisHasValue: popArrakisStakingData.deposited > numberToBigNumber(0, 18),
+    arrakisTotalBigNumberValues,
+  };
 }

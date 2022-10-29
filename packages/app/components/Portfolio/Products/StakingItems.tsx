@@ -1,24 +1,27 @@
-import useArrakisStaking from "hooks/portfolio/staking/useArrakisStaking";
-import useButterStaking from "hooks/portfolio/staking/useButterStaking";
-import usePopStaking from "hooks/portfolio/staking/usePopStaking";
-import useThreeXStaking from "hooks/portfolio/staking/useThreeXStaking";
+import { useStakingDataValues } from "hooks/portfolio/staking/useStakingData";
 import React from "react";
 import PortfolioProductItem from "../PortfolioProductItem";
 
-const StakingItems = () => {
-  const popProductProps = usePopStaking();
-  const butterProps = useButterStaking();
-  const threeXProps = useThreeXStaking();
-  const arrakisProps = useArrakisStaking();
+interface StakingItemsProps {
+  popProductProps: useStakingDataValues;
+  butterProps: useStakingDataValues;
+  threeXProps: useStakingDataValues;
+  arrakisProps: useStakingDataValues;
+  popHasValue: boolean;
+  butterHasValue: boolean;
+  threeXHasValue: boolean;
+  arrakisHasValue: boolean;
+}
 
+const StakingItems = (props) => {
   return (
     <>
       {/* {parseInt(deposited) > 0 && ( */}
       <div>
-        <PortfolioProductItem {...popProductProps} />
-        <PortfolioProductItem {...butterProps} />
-        <PortfolioProductItem {...threeXProps} />
-        <PortfolioProductItem {...arrakisProps} />
+        {props.popHasValue && <PortfolioProductItem {...props.popProductProps} />}
+        {props.butterHasValue && <PortfolioProductItem {...props.butterProps} />}
+        {props.threeXHasValue && <PortfolioProductItem {...props.threeXProps} />}
+        {props.arrakisHasValue && <PortfolioProductItem {...props.arrakisProps} />}
       </div>
       {/* )} */}
     </>
