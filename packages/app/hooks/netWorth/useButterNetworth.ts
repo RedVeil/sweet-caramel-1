@@ -15,24 +15,23 @@ export default function useButterNetworth(): {
   const ethereum = useDeployment(Ethereum);
   const { data: butterStakingPool } = useStakingPool(ethereum.butterStaking, Ethereum);
   const { data: butterBatchData } = useButterBatchData(Ethereum);
-  const { useHoldingValue } = useCommonNetworthFunctions(ethereum, Ethereum);
+  const { getHoldingValue } = useCommonNetworthFunctions(ethereum, Ethereum);
 
   const butterHoldings = useMemo(() => {
     if (!butterBatchData) return constants.Zero;
     const butter = butterBatchData?.tokens.find((token) => token.address === ethereum.butter);
-    return useHoldingValue(butter?.balance?.add(butter?.claimableBalance), butter?.price);
+    return getHoldingValue(butter?.balance?.add(butter?.claimableBalance), butter?.price);
   }, [butterBatchData]);
 
   const butterStakingHoldings = useMemo(() => {
     if (!butterStakingPool || !butterBatchData) return constants.Zero;
     const butter = butterBatchData?.tokens.find((token) => token.address === ethereum.butter);
-    return useHoldingValue(butterStakingPool?.userStake, butter?.price);
+    return getHoldingValue(butterStakingPool?.userStake, butter?.price);
   }, [butterStakingPool, butterBatchData]);
-
   const butterRedeemBatchHoldings = useMemo(() => {
     if (!butterBatchData) return constants.Zero;
     const threeCrv = butterBatchData?.tokens.find((token) => token.address === ethereum.threeCrv);
-    return useHoldingValue(threeCrv?.claimableBalance, threeCrv?.price);
+    return getHoldingValue(threeCrv?.claimableBalance, threeCrv?.price);
   }, [butterBatchData]);
 
   return {

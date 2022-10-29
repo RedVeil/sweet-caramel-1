@@ -93,7 +93,7 @@ export default function useWeb3() {
     signerOrProvider,
     rpcProvider: getCurrentRpcProvider(),
     signer: !signerOrProvider || "getSigner" in signerOrProvider ? null : signerOrProvider,
-    contractAddresses,
+    contractAddresses: "0xA6cA1ab68c48E22b26acF705bfF1292d028C850e",
     onContractSuccess,
     onContractError,
     chains,

@@ -42,6 +42,6 @@ export default function useCommonNetworthFunctions(chainId, network) {
     escrowHoldings,
     popHoldings,
     popStakingHoldings,
-    useHoldingValue,
+    getHoldingValue,
   };
 }
