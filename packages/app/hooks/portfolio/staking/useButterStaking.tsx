@@ -11,10 +11,11 @@ export default function useButterStaking() {
 
   const butterStakingData = useStakingData(butterPool, Ethereum);
 
-  let butterTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+  let butterTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber; earned?: BigNumber } = {
     deposited: numberToBigNumber(0, 18),
     tvl: numberToBigNumber(0, 18),
     vAPR: numberToBigNumber(0, 18),
+    earned: numberToBigNumber(0, 18),
   };
 
   let butterProps = {
@@ -82,6 +83,7 @@ export default function useButterStaking() {
       deposited: butterStakingData.deposited,
       tvl: butterStakingData.tvl,
       vAPR: butterStakingData.vAPR,
+      earned: butterStakingData.earned,
     };
   }
   return {

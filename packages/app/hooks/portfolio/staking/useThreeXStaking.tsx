@@ -11,10 +11,11 @@ export default function useThreeXStaking() {
 
   const threeXStakingData = useStakingData(threeXPool, Ethereum);
 
-  let threeXTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+  let threeXTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber; earned?: BigNumber } = {
     deposited: numberToBigNumber(0, 18),
     tvl: numberToBigNumber(0, 18),
     vAPR: numberToBigNumber(0, 18),
+    earned: numberToBigNumber(0, 18),
   };
 
   let threeXProps = {
@@ -82,6 +83,7 @@ export default function useThreeXStaking() {
       deposited: threeXStakingData.deposited,
       tvl: threeXStakingData.tvl,
       vAPR: threeXStakingData.vAPR,
+      earned: threeXStakingData.earned,
     };
   }
   return {

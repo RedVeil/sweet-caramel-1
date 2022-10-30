@@ -5,6 +5,7 @@ import useButterStaking from "hooks/portfolio/staking/useButterStaking";
 import usePopStaking from "hooks/portfolio/staking/usePopStaking";
 import useThreeXStaking from "hooks/portfolio/staking/useThreeXStaking";
 import PortfolioItem from "../PortfolioItem";
+import EarnedRewardsButton from "./EarnedRewardsButton";
 import StakingItems from "./StakingItems";
 
 const StakingProduct = () => {
@@ -12,26 +13,6 @@ const StakingProduct = () => {
     //@ts-ignore
     notation: "compact",
   });
-
-  // const { Ethereum, Polygon } = ChainId;
-  // const ethereum = useDeployment(Ethereum);
-  // const { pop, popStaking, popUsdcArrakisVaultStaking } = useDeployment(chainId);
-  // const stakingAddresses = useStakingContracts(chainId);
-
-  // const {
-  // 	data: popLocker,
-  // 	isValidating: popLockerIsValidating,
-  // 	error: popError,
-  // } = usePopLocker(popStaking, chainId);
-  // const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(
-  // 	stakingAddresses,
-  // 	chainId,
-  // );
-
-  // const { totalDeposited, totalTVL, totalVAPR, totalEarned, totalContracts } = useMultipleStakingData(
-  // 	chainId,
-  // 	[...(stakingPools ? stakingPools : []), ...[popLocker ? popLocker : []]],
-  // );
 
   const { popProductProps, popHasValue, popTotalBigNumberValues } = usePopStaking();
   const { butterProps, butterHasValue, butterTotalBigNumberValues } = useButterStaking();
@@ -70,6 +51,13 @@ const StakingProduct = () => {
   const totalTVL = formatAndRoundBigNumber(
     multiStakingData.reduce((prev, next) => {
       return prev.add(next?.tvl);
+    }, numberToBigNumber(0, 18)),
+    18,
+  );
+
+  const totalEarned = formatAndRoundBigNumber(
+    multiStakingData.reduce((prev, next) => {
+      return prev.add(next?.earned);
     }, numberToBigNumber(0, 18)),
     18,
   );
@@ -120,14 +108,14 @@ const StakingProduct = () => {
       {totalContracts > 0 && (
         <PortfolioItem title="Staking" statusLabels={statusLabels} badge={badge}>
           <StakingItems {...stakingItemProps} />
-          {/* {totalEarned && (
-						<EarnedRewardsButton
-							title="Total Unclaimed Rewards"
-							amount={totalEarned}
-							buttonLabel="Rewards Page"
-							link="/rewards"
-						/>
-					)} */}
+          {totalEarned && (
+            <EarnedRewardsButton
+              title="Total Unclaimed Rewards"
+              amount={totalEarned}
+              buttonLabel="Rewards Page"
+              link="/rewards"
+            />
+          )}
         </PortfolioItem>
       )}
     </>

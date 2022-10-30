@@ -28,10 +28,13 @@ export default function usePopStaking() {
 
   const combinedEmissions = popStakingPools.reduce((prev, pool) => prev.add(pool.emissions), numberToBigNumber(0, 18));
 
-  let popTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+  const combinedEarned = popStakingPools.reduce((prev, pool) => prev.add(pool.earned), numberToBigNumber(0, 18));
+
+  let popTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber; earned: BigNumber } = {
     deposited: numberToBigNumber(0, 18),
     tvl: numberToBigNumber(0, 18),
     vAPR: numberToBigNumber(0, 18),
+    earned: numberToBigNumber(0, 18),
   };
 
   const combinedVAPR =
@@ -105,6 +108,7 @@ export default function usePopStaking() {
       deposited: combinedDeposited,
       tvl: combinedTVL,
       vAPR: combinedVAPR,
+      earned: combinedEarned,
     };
   }
   return {

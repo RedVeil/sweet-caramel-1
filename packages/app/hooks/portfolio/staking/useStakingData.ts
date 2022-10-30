@@ -14,6 +14,7 @@ export interface useStakingDataValues {
   vAPR: BigNumber;
   tvl: BigNumber;
   emissions?: BigNumber;
+  earned?: BigNumber;
 }
 
 export default function useStakingData(stakingPool: StakingPool, ChainId: ChainId): useStakingDataValues {
@@ -37,6 +38,8 @@ export default function useStakingData(stakingPool: StakingPool, ChainId: ChainI
   };
   const tokenName = metadata?.name ? metadata.name : stakingPool?.stakingToken?.name;
 
+  const earned = tokenPrice ? stakingPool.earned.mul(tokenPrice) : numberToBigNumber(0, 18);
+
   let props = {
     tokenName,
     tokenIcon,
@@ -44,6 +47,7 @@ export default function useStakingData(stakingPool: StakingPool, ChainId: ChainI
     vAPR,
     tvl,
     emissions,
+    earned,
   };
   return props;
 }

@@ -11,10 +11,11 @@ export default function useArrakisStaking() {
 
   const popArrakisStakingData = useStakingData(popArrakisPool, Polygon);
 
-  let arrakisTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber } = {
+  let arrakisTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber; earned?: BigNumber } = {
     deposited: numberToBigNumber(0, 18),
     tvl: numberToBigNumber(0, 18),
     vAPR: numberToBigNumber(0, 18),
+    earned: numberToBigNumber(0, 18),
   };
 
   let arrakisProps = {
@@ -83,6 +84,7 @@ export default function useArrakisStaking() {
       deposited: popArrakisStakingData.deposited,
       tvl: popArrakisStakingData.tvl,
       vAPR: popArrakisStakingData.vAPR,
+      earned: popArrakisStakingData.earned,
     };
   }
   return {
