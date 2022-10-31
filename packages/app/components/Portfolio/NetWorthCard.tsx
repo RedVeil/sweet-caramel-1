@@ -2,7 +2,7 @@ import { usePortfolio } from "context/PortfolioContext";
 import { BigNumber } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
 import useNetWorth from "hooks/netWorth/useNetWorth";
-import React from "react";
+import { useCallback } from "react";
 
 const NetWorthCard = () => {
   const formatter = Intl.NumberFormat("en", {
@@ -13,6 +13,17 @@ const NetWorthCard = () => {
   const { selectedNetwork } = usePortfolio();
   const netWorthValue = selectedNetwork.id === "All" ? networth.total : networth[selectedNetwork.id];
   const fallBackAmount = BigNumber.from("0");
+
+  const calculatePercentage = useCallback((value: string) => {
+    const total = networth.total ?? fallBackAmount;
+    const current = netWorthValue?.[value] ?? fallBackAmount;
+    console.log(current, "current");
+
+    // const percentage = current.mul(100).div(total);
+    // console.log("🚀 ~ file: NetWorthCard.tsx ~ line 22 ~ calculatePercentage ~ percentage", percentage)
+    // return percentage;
+  }, []);
+
   return (
     <div className="bg-warmGray rounded-lg p-6">
       <h6 className="font-medium">My Net Worth </h6>
@@ -36,7 +47,7 @@ const NetWorthCard = () => {
             <p>${formatter.format(parseInt(formatUnits(netWorthValue?.deposit ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
-            <p>50%</p>
+            <p>{calculatePercentage("deposit")}%</p>
           </div>
         </div>
       </div>
@@ -51,7 +62,7 @@ const NetWorthCard = () => {
             <p>${formatter.format(parseInt(formatUnits(netWorthValue?.vesting ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
-            <p>25%</p>
+            <p>{calculatePercentage("vesting")}%</p>
           </div>
         </div>
       </div>
@@ -66,7 +77,7 @@ const NetWorthCard = () => {
             <p>${formatter.format(parseInt(formatUnits(netWorthValue?.inWallet ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
-            <p>25%</p>
+            <p>{calculatePercentage("inWallet")}%</p>
           </div>
         </div>
       </div>
