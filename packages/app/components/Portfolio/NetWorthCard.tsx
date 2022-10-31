@@ -70,7 +70,7 @@ const NetWorthCard = () => {
             <p>${formatter.format(parseInt(formatUnits(netWorthValue?.vesting ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
-            <p>{vestingPercentage}</p>
+            <p>{vestingPercentage}%</p>
           </div>
         </div>
       </div>
