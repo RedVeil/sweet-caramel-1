@@ -14,15 +14,21 @@ const NetWorthCard = () => {
   const netWorthValue = selectedNetwork.id === "All" ? networth.total : networth[selectedNetwork.id];
   const fallBackAmount = BigNumber.from("0");
 
-  const calculatePercentage = useCallback((value: string) => {
-    const total = networth.total ?? fallBackAmount;
-    const current = netWorthValue?.[value] ?? fallBackAmount;
-    console.log(current, "current");
+  const calculatePercentage = useCallback(
+    (value: string) => {
+      const total = netWorthValue?.total ?? fallBackAmount;
 
-    // const percentage = current.mul(100).div(total);
-    // console.log("🚀 ~ file: NetWorthCard.tsx ~ line 22 ~ calculatePercentage ~ percentage", percentage)
-    // return percentage;
-  }, []);
+      if (total.isZero()) return 0;
+
+      const current = netWorthValue?.[value] ?? fallBackAmount;
+      return current.mul(100).div(total).toString();
+    },
+    [netWorthValue],
+  );
+
+  const vestingPercentage = calculatePercentage("vesting");
+  const depositPercentage = calculatePercentage("deposit");
+  const inWalletPercentage = calculatePercentage("inWallet");
 
   return (
     <div className="bg-warmGray rounded-lg p-6">
@@ -32,9 +38,11 @@ const NetWorthCard = () => {
       </p>
 
       <div className="flex text-white text-xs my-6">
-        <div className="bg-customLightPurple py-6 px-4 w-2/4 rounded-tl-5xl rounded-bl-5xl">50%</div>
-        <div className="bg-customPurple py-6 px-2 w-1/4">25%</div>
-        <div className="bg-customDarkPurple py-6 px-2 w-1/4 rounded-tr-5xl rounded-br-5xl">25%</div>
+        <div className="bg-customLightPurple py-6 px-4 w-2/4 rounded-tl-5xl rounded-bl-5xl">
+          <p>{depositPercentage}%</p>
+        </div>
+        <div className="bg-customPurple py-6 px-2 w-1/4">{vestingPercentage}%</div>
+        <div className="bg-customDarkPurple py-6 px-2 w-1/4 rounded-tr-5xl rounded-br-5xl">{inWalletPercentage}%</div>
       </div>
 
       <div>
@@ -47,14 +55,14 @@ const NetWorthCard = () => {
             <p>${formatter.format(parseInt(formatUnits(netWorthValue?.deposit ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
-            <p>{calculatePercentage("deposit")}%</p>
+            <p>{depositPercentage}%</p>
           </div>
         </div>
       </div>
 
       <div className="mt-3">
         <div className="flex items-center">
-          <div className="bg-customLightPurple w-2 h-2 rounded-full"></div>
+          <div className="bg-customPurple w-2 h-2 rounded-full"></div>
           <p className="text-customBrown ml-2 leading-6"> Vesting</p>
         </div>
         <div className="grid grid-cols-12 ml-4 mt-1">
@@ -62,14 +70,14 @@ const NetWorthCard = () => {
             <p>${formatter.format(parseInt(formatUnits(netWorthValue?.vesting ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
-            <p>{calculatePercentage("vesting")}%</p>
+            <p>{vestingPercentage}</p>
           </div>
         </div>
       </div>
 
       <div className="mt-3">
         <div className="flex items-center">
-          <div className="bg-customLightPurple w-2 h-2 rounded-full"></div>
+          <div className="bg-customDarkPurple w-2 h-2 rounded-full"></div>
           <p className="text-customBrown ml-2 leading-6">In Wallet</p>
         </div>
         <div className="grid grid-cols-12 ml-4 mt-1">
@@ -77,7 +85,7 @@ const NetWorthCard = () => {
             <p>${formatter.format(parseInt(formatUnits(netWorthValue?.inWallet ?? fallBackAmount)))}</p>
           </div>
           <div className="col-span-6">
-            <p>{calculatePercentage("inWallet")}%</p>
+            <p>{inWalletPercentage}%</p>
           </div>
         </div>
       </div>

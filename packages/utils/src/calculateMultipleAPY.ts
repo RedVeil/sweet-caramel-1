@@ -1,11 +1,10 @@
 import { BigNumber } from "ethers/lib/ethers";
 import { useStakingDataValues } from "../../app/hooks/portfolio/staking/useStakingData";
-import { formatAndRoundBigNumber, numberToBigNumber } from "./formatBigNumber";
+import { numberToBigNumber } from "./formatBigNumber";
 
 export const calculateMultipleAPY = (stakingPools: useStakingDataValues[], totalDeposited: BigNumber): BigNumber => {
   const vAPRPercentArray = stakingPools.map((pool) => {
     const currentVAPR = pool.vAPR;
-    console.log(formatAndRoundBigNumber(pool.vAPR, 18));
 
     const percentMulByDeposited = currentVAPR.mul(pool?.deposited);
     return percentMulByDeposited.div(numberToBigNumber(100, 18));
