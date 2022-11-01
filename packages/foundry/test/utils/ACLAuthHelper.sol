@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.0;
 
-import "../core/interfaces/IContractRegistry.sol";
-import "../core/utils/ContractRegistryAccess.sol";
-import "../core/utils/ACLAuth.sol";
+import "../../src/interfaces/IContractRegistry.sol";
+import "../../src/utils/ContractRegistryAccess.sol";
+import "../../src/utils/ACLAuth.sol";
 
 contract ACLAuthHelper is ACLAuth, ContractRegistryAccess {
   OtherContract public otherContract;

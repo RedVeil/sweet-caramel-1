@@ -2,7 +2,7 @@
 pragma solidity ^0.8.12;
 
 import { TestFixture } from "./utils/TestFixture.sol";
-import { StrategyParams } from "../../../../contracts/externals/interfaces/yearn/IVault.sol";
+import { StrategyParams } from "../../../src/interfaces/external/yearn/IVault.sol";
 import { YearnWrapper } from "../../../src/vault/wrapper/yearn/YearnWrapper.sol";
 
 import "forge-std/console.sol";

@@ -2,9 +2,9 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
-import { Owned } from "../../../../utils/Owned.sol";
-import { VaultAPI } from "../../../../../externals/interfaces/yearn/IVaultAPI.sol";
+import { Clones } from "openzeppelin-contracts/proxy/Clones.sol";
+import { Owned } from "../../../utils/Owned.sol";
+import { VaultAPI } from "../../../interfaces/external/yearn/IVaultAPI.sol";
 import { YearnWrapper } from "./YearnWrapper.sol";
 
 /**

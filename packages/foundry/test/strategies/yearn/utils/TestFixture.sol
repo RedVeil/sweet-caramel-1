@@ -2,10 +2,10 @@
 pragma solidity ^0.8.12;
 pragma abicoder v2;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { VaultAPI } from "../../../../../contracts/externals/interfaces/yearn/IVaultAPI.sol";
-import { IVault } from "../../../../../contracts/externals/interfaces/yearn/IVault.sol";
+import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
+import { VaultAPI } from "../../../../src/interfaces/external/yearn/IVaultAPI.sol";
+import { IVault } from "../../../../src/interfaces/external/yearn/IVault.sol";
 import "forge-std/console.sol";
 import { Vm } from "forge-std/Vm.sol";
 import { YearnWrapper } from "../../../../src/vault/wrapper/yearn/YearnWrapper.sol";
@@ -18,7 +18,7 @@ import { Token } from "./Token.sol";
 
 // Artifact paths for deploying from the deps folder, assumes that the command is run from
 // the project root.
-string constant vaultArtifact = "test/forge/strategies/yearn/utils/Vault.json";
+string constant vaultArtifact = "test/strategies/yearn/utils/Vault.json";
 
 // Base fixture deploying Vault
 contract TestFixture is ExtendedDSTest {

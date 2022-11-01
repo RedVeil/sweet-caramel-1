@@ -2,7 +2,7 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/Clones.sol";
+import "openzeppelin-contracts/proxy/Clones.sol";
 import "./Vault.sol";
 import { VaultMetadata } from "./VaultsV1Registry.sol";
 import "../utils/Owned.sol";
@@ -11,7 +11,7 @@ import "../interfaces/IRewardsEscrow.sol";
 import "./VaultStaking.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import "../interfaces/IERC4626.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-contracts/token/ERC20/ERC20.sol";
 
 /**
  * @notice Factory that deploys VaultStaking

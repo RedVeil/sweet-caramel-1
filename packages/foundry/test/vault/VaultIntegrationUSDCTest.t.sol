@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/Test.sol";
-import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
-import "../../../src/vault/Vault.sol";
-import "../../../src/vault/wrapper/yearn/YearnWrapper.sol";
-import "../../../src/interfaces/IContractRegistry.sol";
-import "../../../src/interfaces/IACLRegistry.sol";
-import "../../../src/interfaces/IYearnVaultWrapper.sol";
-import "../../../src/interfaces/IERC4626.sol";
+import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
+import "../../src/vault/Vault.sol";
+import "../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import "../../src/interfaces/IContractRegistry.sol";
+import "../../src/interfaces/IACLRegistry.sol";
+import "../../src/interfaces/IYearnVaultWrapper.sol";
+import "../../src/interfaces/IERC4626.sol";
 
-address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
+address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
-address constant YEARN_VAULT = 0xE537B5cc158EB71037D4125BDD7538421981E6AA;
+address constant YEARN_VAULT = 0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE;
 
 contract User {
   Vault internal vault;
@@ -45,7 +45,7 @@ contract User {
   }
 }
 
-contract VaultIntegrationTest is Test {
+contract VaultIntegrationUSDCTest is Test {
   ERC20 internal asset;
   User internal alice;
   User internal bob;
@@ -58,7 +58,7 @@ contract VaultIntegrationTest is Test {
   uint256 constant MANAGEMENT_FEE = 200 * 1e14;
   uint256 constant PERFORMANCE_FEE = 2000 * 1e14;
 
-  uint256 constant MAX_DEPOSIT = 995_939 ether;
+  uint256 constant MAX_DEPOSIT = 100000000e6; // 100m
 
   function assertWithin(
     uint256 expected,
@@ -78,8 +78,8 @@ contract VaultIntegrationTest is Test {
     uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
     vm.selectFork(forkId);
 
-    asset = ERC20(CRV_3CRYPTO);
-    vm.label(CRV_3CRYPTO, "asset");
+    asset = ERC20(USDC);
+    vm.label(USDC, "asset");
 
     address yearnWrapperAddress = address(new YearnWrapper());
     vm.label(yearnWrapperAddress, "yearnWrapper");
@@ -109,8 +109,8 @@ contract VaultIntegrationTest is Test {
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("ApprovedContract"), address(bob));
     vm.stopPrank();
 
-    deal(address(asset), address(alice), 10_000_000 ether);
-    deal(address(asset), address(bob), 10_000_000 ether);
+    deal(address(asset), address(alice), 100000000e6);
+    deal(address(asset), address(bob), 100000000e6);
 
     alice.approve(vaultAddress, type(uint256).max);
     bob.approve(vaultAddress, type(uint256).max);
@@ -120,7 +120,7 @@ contract VaultIntegrationTest is Test {
   }
 
   function test_assets_per_share_constant_after_deposit(uint80 amount) public {
-    vm.assume(amount > 1e16);
+    vm.assume(amount > 1e4);
     vm.assume(amount < MAX_DEPOSIT / 4);
     vm.assume(amount % 4 == 0);
     uint256 tolerance = 100;
@@ -128,21 +128,21 @@ contract VaultIntegrationTest is Test {
     // First deposit
     alice.deposit(amount);
 
-    uint256 valueBefore = vault.convertToAssets(1 ether);
+    uint256 valueBefore = vault.convertToAssets(1e6);
     alice.deposit(amount);
-    uint256 valueAfter = vault.convertToAssets(1 ether);
+    uint256 valueAfter = vault.convertToAssets(1e6);
 
     assertWithin(valueAfter, valueBefore, tolerance);
 
-    valueBefore = vault.convertToAssets(1 ether);
+    valueBefore = vault.convertToAssets(1e6);
     alice.deposit(amount);
-    valueAfter = vault.convertToAssets(1 ether);
+    valueAfter = vault.convertToAssets(1e6);
 
     assertWithin(valueAfter, valueBefore, tolerance);
 
-    valueBefore = vault.convertToAssets(1 ether);
+    valueBefore = vault.convertToAssets(1e6);
     alice.deposit(amount);
-    valueAfter = vault.convertToAssets(1 ether);
+    valueAfter = vault.convertToAssets(1e6);
 
     assertWithin(valueAfter, valueBefore, tolerance);
   }
@@ -150,7 +150,7 @@ contract VaultIntegrationTest is Test {
   function test_preview_deposit_equals_actual_shares(uint8 steps, uint80 totalAmount) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
-    vm.assume(totalAmount > 2 ether);
+    vm.assume(totalAmount > 2e6);
     vm.assume(totalAmount < MAX_DEPOSIT);
 
     uint256 totalVaultIncrease = totalAmount / 2;
@@ -182,7 +182,7 @@ contract VaultIntegrationTest is Test {
   ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
-    vm.assume(totalAmount > 2 ether);
+    vm.assume(totalAmount > 2e6);
     vm.assume(totalAmount < MAX_DEPOSIT);
 
     uint256 totalVaultIncrease = totalAmount / 2;
@@ -222,7 +222,7 @@ contract VaultIntegrationTest is Test {
   ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
-    vm.assume(totalAmount > 10 ether);
+    vm.assume(totalAmount > 100e6);
     vm.assume(totalAmount < MAX_DEPOSIT);
 
     vm.startPrank(ACL_ADMIN);
@@ -233,7 +233,7 @@ contract VaultIntegrationTest is Test {
 
     uint256 vaultIncrease = totalAmount / steps;
 
-    alice.deposit(1 ether);
+    alice.deposit(1e6);
     vm.warp(block.timestamp + timeJump);
 
     for (uint256 i; i < steps; ++i) {
@@ -242,11 +242,11 @@ contract VaultIntegrationTest is Test {
   }
 
   function _assert_assets_per_share_increase(uint16 timeJump, uint256 vaultIncrease) internal {
-    uint256 prevAssetsPerShare = vault.convertToAssets(1 ether);
+    uint256 prevAssetsPerShare = vault.convertToAssets(1e6);
 
     asset.transfer(yearnWrapper.vault(), vaultIncrease);
 
-    assertGe(vault.convertToAssets(1 ether), prevAssetsPerShare);
+    assertGe(vault.convertToAssets(1e6), prevAssetsPerShare);
 
     vm.warp(block.timestamp + timeJump);
   }
@@ -258,7 +258,7 @@ contract VaultIntegrationTest is Test {
   ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
-    vm.assume(totalAmount > 10 ether);
+    vm.assume(totalAmount > 1000000e6);
     vm.assume(totalAmount < MAX_DEPOSIT);
 
     uint256 totalVaultIncrease = totalAmount / 2;
@@ -270,7 +270,7 @@ contract VaultIntegrationTest is Test {
     uint256 withdrawalAmount = depositAmount;
     uint256 vaultIncrease = totalVaultIncrease / steps;
 
-    alice.deposit(1 ether);
+    alice.deposit(1e6);
     vm.warp(block.timestamp + timeJump);
 
     for (uint256 i; i < steps; ++i) {

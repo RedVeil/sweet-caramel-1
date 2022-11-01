@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
+import "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
+import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 contract MockERC4626 is ERC20 {
   using SafeERC20 for ERC20;
@@ -11,6 +11,8 @@ contract MockERC4626 is ERC20 {
 
   uint256 public beforeWithdrawHookCalledCounter = 0;
   uint256 public afterDepositHookCalledCounter = 0;
+
+  uint8 internal _decimals;
 
   /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -38,6 +40,16 @@ contract MockERC4626 is ERC20 {
     string memory _symbol
   ) ERC20(_name, _symbol) {
     asset = _asset;
+
+    _decimals = _asset.decimals();
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                            GENERAL VIEWS
+    //////////////////////////////////////////////////////////////*/
+
+  function decimals() public view override returns (uint8) {
+    return _decimals;
   }
 
   /*//////////////////////////////////////////////////////////////

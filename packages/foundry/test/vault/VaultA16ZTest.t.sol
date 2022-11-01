@@ -2,12 +2,12 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import "./ERC4626.prop.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { MockERC20 } from "../../utils/mocks/MockERC20.sol";
-import { MockERC4626 } from "../../utils/mocks/MockERC4626.sol";
-import { Vault } from "../../../src/vault/Vault.sol";
-import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
-import { IContractRegistry } from "../../../src/interfaces/IContractRegistry.sol";
+import { ERC20 } from "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import { MockERC20 } from "../utils/mocks/MockERC20.sol";
+import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
+import { Vault } from "../../src/vault/Vault.sol";
+import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
+import { IContractRegistry } from "../../src/interfaces/IContractRegistry.sol";
 
 interface IMockERC20 is IERC20 {
   function mint(address to, uint256 value) external;
@@ -20,7 +20,7 @@ abstract contract VaultA16ZTest is ERC4626Prop {
     uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"));
     vm.selectFork(forkId);
 
-    __underlying__ = address(new MockERC20("Mock Token", "TKN"));
+    __underlying__ = address(new MockERC20("Mock Token", "TKN", 18));
 
     MockERC4626 strategy = new MockERC4626(ERC20(__underlying__), "Mock ERC4626", "MERC4626");
 

@@ -134,7 +134,7 @@ contract TestRenounceRoles is ACLRegistryTest {
     assertEq(aclRegistry.hasRole(ROLE, authorized), true);
 
     vm.expectEmit(true, true, true, false);
-    emit RoleRevoked(ROLE, authorized, admin);
+    emit RoleRevoked(ROLE, authorized, authorized);
 
     vm.prank(authorized);
     aclRegistry.renounceRole(ROLE, authorized);
@@ -145,9 +145,6 @@ contract TestRenounceRoles is ACLRegistryTest {
     vm.prank(admin);
     aclRegistry.grantRole(ROLE, authorized);
     assertEq(aclRegistry.hasRole(ROLE, authorized), true);
-
-    vm.expectEmit(true, true, true, false);
-    emit RoleRevoked(ROLE, authorized, admin);
 
     vm.expectRevert("you cant renounce this role");
     vm.prank(other);
@@ -210,7 +207,7 @@ contract TestRoleAdmin is ACLRegistryTest {
     assertEq(aclRegistry.hasRole(ROLE, authorized), true);
 
     vm.expectEmit(true, true, true, false);
-    emit RoleGranted(ROLE, authorized, otherAdmin);
+    emit RoleRevoked(ROLE, authorized, otherAdmin);
 
     vm.prank(otherAdmin);
     aclRegistry.revokeRole(ROLE, authorized);

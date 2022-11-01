@@ -14,8 +14,6 @@
     "*.{sol,ts,tsx}": "prettier --write"
   },
   "devDependencies": {
-    "openzeppelin-upgradeable": "npm:@openzeppelin/contracts-upgradeable@4.7.1",
-    "openzeppelin-v3": "npm:@openzeppelin/contracts@3.4.2",
     "rimraf": "3.0.2"
   },
   "dependencies": {
@@ -30,7 +28,6 @@
     "solc-0.8.10": "npm:solc@0.8.10",
     "solc-0.8.17": "npm:solc@0.8.17",
     "solidity-shell": "^0.1.0",
-    "solmate": "^6.6.1",
     "surya": "0.4.5"
   },
   "license": "MIT"

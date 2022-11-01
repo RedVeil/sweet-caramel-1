@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../core/interfaces/IACLRegistry.sol";
+import "../../src/interfaces/IACLRegistry.sol";
 
 contract ACLRegistryHelper {
   IACLRegistry public aclRegistry;
