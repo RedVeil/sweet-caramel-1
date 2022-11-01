@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 
-import "../../../contracts/core/utils/ACLRegistry.sol";
-import "../../../contracts/core/utils/ContractRegistry.sol";
-import "../../../contracts/test_helpers/ACLAuthHelper.sol";
+import "../src/utils/ACLRegistry.sol";
+import "../src/utils/ContractRegistry.sol";
+import "./utils/ACLAuthHelper.sol";
 
 contract ACLAuthTest is Test {
   // Contracts

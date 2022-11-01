@@ -11,11 +11,11 @@ import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 
 import "./Vault.sol";
-import "../../utils/ACLAuth.sol";
-import "../../utils/ContractRegistryAccessUpgradeable.sol";
+import "../utils/ACLAuth.sol";
+import "../utils/ContractRegistryAccessUpgradeable.sol";
 
-import "../../interfaces/IStaking.sol";
-import "../../interfaces/IRewardsEscrow.sol";
+import "../interfaces/IStaking.sol";
+import "../interfaces/IRewardsEscrow.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/stakingrewards
 contract VaultStaking is

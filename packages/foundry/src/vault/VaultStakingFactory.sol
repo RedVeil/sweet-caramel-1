@@ -5,12 +5,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./Vault.sol";
 import { VaultMetadata } from "./VaultsV1Registry.sol";
-import "../../utils/Owned.sol";
-import "../../interfaces/IContractRegistry.sol";
-import "../../interfaces/IRewardsEscrow.sol";
+import "../utils/Owned.sol";
+import "../interfaces/IContractRegistry.sol";
+import "../interfaces/IRewardsEscrow.sol";
 import "./VaultStaking.sol";
-import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
-import "../../interfaces/IERC4626.sol";
+import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
+import "../interfaces/IERC4626.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**

@@ -3,20 +3,18 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
-import { VaultParams } from "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
-import "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
-import { VaultMetadata } from "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
-import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
-import "../../../../contracts/core/defi/vault/Vault.sol";
-import "../../../../contracts/core/defi/vault/VaultsV1Controller.sol";
-import "../../../../contracts/core/interfaces/IContractRegistry.sol";
-import "../../../../contracts/core/interfaces/IERC4626.sol";
-import "../../../../contracts/core/utils/KeeperIncentiveV2.sol";
-import "../../../../contracts/core/dao/RewardsEscrow.sol";
-import "../../../../contracts/core/interfaces/IRewardsEscrow.sol";
-import "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
-import "../../../../contracts/core/interfaces/IERC4626.sol";
+import "../../../src/vault/VaultsV1Factory.sol";
+import { VaultParams } from "../../../src/vault/VaultsV1Factory.sol";
+import "../../../src/vault/VaultsV1Registry.sol";
+import { VaultMetadata } from "../../../src/vault/VaultsV1Registry.sol";
+import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
+import "../../../src/vault/Vault.sol";
+import "../../../src/vault/VaultsV1Controller.sol";
+import "../../../src/interfaces/IContractRegistry.sol";
+import "../../../src/interfaces/IERC4626.sol";
+import "../../../src/utils/KeeperIncentiveV2.sol";
+import "../../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import "../../../src/interfaces/IERC4626.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant CRV_3CRV = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
@@ -33,7 +31,6 @@ contract VaultsV1RegistryTest is Test {
   VaultsV1Factory internal vaultsV1Factory;
   VaultsV1Controller internal vaultsV1Controller;
   KeeperIncentiveV2 internal keeperIncentive;
-  RewardsEscrow internal rewardsEscrow;
   YearnWrapper internal yearnWrapper;
 
   address internal vaultsV1ControllerOwner = address(this);

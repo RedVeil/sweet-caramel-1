@@ -5,17 +5,17 @@ pragma solidity ^0.8.0;
 import "./VaultsV1Registry.sol";
 import "./VaultsV1Factory.sol";
 import "./VaultStakingFactory.sol";
-import "../../utils/Owned.sol";
-import "../../utils/ContractRegistryAccess.sol";
-import "../../interfaces/IKeeperIncentiveV2.sol";
-import "../../interfaces/IContractRegistry.sol";
-import "../../interfaces/IVaultsV1.sol";
-import "../../interfaces/IVaultsV1Zapper.sol";
-import "../../interfaces/IStaking.sol";
-import "../../interfaces/IRewardsEscrow.sol";
-import "../../interfaces/IERC4626.sol";
-import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
-import { IContractFactory } from "../../interfaces/IContractFactory.sol";
+import "../utils/Owned.sol";
+import "../utils/ContractRegistryAccess.sol";
+import "../interfaces/IKeeperIncentiveV2.sol";
+import "../interfaces/IContractRegistry.sol";
+import "../interfaces/IVaultsV1.sol";
+import "../interfaces/IVaultsV1Zapper.sol";
+import "../interfaces/IStaking.sol";
+import "../interfaces/IRewardsEscrow.sol";
+import "../interfaces/IERC4626.sol";
+import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
+import { IContractFactory } from "../interfaces/IContractFactory.sol";
 
 /**
  * @notice controls deploying, registering vaults, adding vault types, updating registry vaults, endorsing and enabling registry vaults, and pausing/unpausing vaults

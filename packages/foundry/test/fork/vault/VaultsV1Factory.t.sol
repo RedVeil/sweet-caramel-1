@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
-import "../../../../contracts/core/defi/vault/Vault.sol";
-import { VaultParams } from "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
-import { VaultMetadata } from "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
-import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
-import { MockERC4626 } from "../../mocks/MockERC4626.sol";
+import "../../../src/vault/VaultsV1Factory.sol";
+import "../../../src/vault/Vault.sol";
+import { VaultParams } from "../../../src/vault/VaultsV1Factory.sol";
+import { VaultMetadata } from "../../../src/vault/VaultsV1Registry.sol";
+import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
+import { MockERC4626 } from "../../utils/mocks/MockERC4626.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;

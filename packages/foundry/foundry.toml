@@ -2,7 +2,7 @@
 src = 'src'
 out = 'out'
 test = 'test'
-libs = ['node_modules', '../../node_modules', "lib"]
+libs = ['../../node_modules', "lib"]
 fs_permissions = [{ access = "read-write", path = "./"}]
 remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',
@@ -19,7 +19,7 @@ FORKING_RPC_URL = "${FORKING_RPC_URL}"
 src = 'src'
 out = 'out'
 test = 'test'
-libs = ['node_modules', '../../node_modules', "lib"]
+libs = ['../../node_modules', "lib"]
 fs_permissions = [{ access = "read-write", path = "./"}]
 remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',

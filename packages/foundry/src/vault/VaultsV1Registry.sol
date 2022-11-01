@@ -2,8 +2,8 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "../../interfaces/IERC4626.sol";
-import "../../utils/Owned.sol";
+import "../interfaces/IERC4626.sol";
+import "../utils/Owned.sol";
 
 struct VaultMetadata {
   address vaultAddress; // address of vault

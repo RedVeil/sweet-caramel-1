@@ -3,7 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "forge-std/Test.sol";
 
-import "../../../../contracts/core/interfaces/IERC4626.sol";
+import "../../../src/interfaces/IERC4626.sol";
 
 abstract contract ERC4626Prop is Test {
   uint256 __delta__;

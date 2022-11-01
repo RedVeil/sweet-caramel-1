@@ -4,12 +4,12 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../../utils/Owned.sol";
+import "../utils/Owned.sol";
 import "./Vault.sol";
-import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
-import "../../interfaces/IContractRegistry.sol";
-import "../../interfaces/IRewardsEscrow.sol";
-import "../../interfaces/IERC4626.sol";
+import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
+import "../interfaces/IContractRegistry.sol";
+import "../interfaces/IRewardsEscrow.sol";
+import "../interfaces/IERC4626.sol";
 
 struct VaultParams {
   ERC20 asset;

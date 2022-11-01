@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./IERC4626.sol";
-import "../defi/vault/Vault.sol";
+import "../vault/Vault.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 
 interface IVaultsV1 is IERC4626 {

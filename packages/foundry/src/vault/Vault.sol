@@ -7,13 +7,12 @@ import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../../utils/ACLAuth.sol";
-import "../../utils/ContractRegistryAccessUpgradeable.sol";
-import "../../utils/KeeperIncentivized.sol";
-import "../../interfaces/IERC4626.sol";
-import "../../interfaces/IContractRegistry.sol";
-import "../../interfaces/IKeeperIncentiveV2.sol";
-import "../../interfaces/IVaultsV1.sol";
+import "../utils/ACLAuth.sol";
+import "../utils/ContractRegistryAccessUpgradeable.sol";
+import "../utils/KeeperIncentivized.sol";
+import "../interfaces/IERC4626.sol";
+import "../interfaces/IContractRegistry.sol";
+import "../interfaces/IKeeperIncentiveV2.sol";
 import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
 
 contract Vault is

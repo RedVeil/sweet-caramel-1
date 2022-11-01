@@ -8,9 +8,9 @@ import { VaultAPI } from "../../../../../contracts/externals/interfaces/yearn/IV
 import { IVault } from "../../../../../contracts/externals/interfaces/yearn/IVault.sol";
 import "forge-std/console.sol";
 import { Vm } from "forge-std/Vm.sol";
-import { YearnWrapper } from "../../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
+import { YearnWrapper } from "../../../../src/vault/wrapper/yearn/YearnWrapper.sol";
 import { ExtendedDSTest } from "./ExtendedDSTest.sol";
-import { IERC4626 } from "../../../../../contracts/core/interfaces/IERC4626.sol";
+import { IERC4626 } from "../../../../src/interfaces/IERC4626.sol";
 
 // NOTE: if the name of the strat or file changes this needs to be updated
 import { MockStrategy } from "./MockStrategy.sol";

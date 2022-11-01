@@ -4,17 +4,15 @@ pragma solidity ^0.8.0;
 import { Test } from "forge-std/Test.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../../../../contracts/core/interfaces/IContractRegistry.sol";
-import "../../../../contracts/core/interfaces/IACLRegistry.sol";
-import "../../../../contracts/core/defi/vault/Vault.sol";
-import "../../../../contracts/core/defi/zapper/VaultsV1Zapper.sol";
-import "../../../../contracts/core/utils/KeeperIncentiveV2.sol";
-import "../../../../contracts/core/dao/Staking.sol";
-import "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
-import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
-import "../../../../contracts/core/dao/RewardsEscrow.sol";
-import "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
-import "../../../../contracts/core/interfaces/IERC4626.sol";
+import "../../../src/interfaces/IContractRegistry.sol";
+import "../../../src/interfaces/IACLRegistry.sol";
+import "../../../src/vault/Vault.sol";
+import "../../../src/zapper/VaultsV1Zapper.sol";
+import "../../../src/utils/KeeperIncentiveV2.sol";
+import "../../../src/vault/VaultsV1Registry.sol";
+import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
+import "../../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import "../../../src/interfaces/IERC4626.sol";
 
 interface ICurveSETHPool {
   function calc_withdraw_one_coin(uint256 _burn_amount, int128 i) external returns (uint256);
@@ -62,7 +60,6 @@ contract VaultsV1ZapperTest is Test {
   Vault internal vault;
   KeeperIncentiveV2 internal keeperIncentive;
   IContractRegistry internal contractRegistry;
-  Staking internal staking;
   VaultsV1Registry internal vaultsV1Registry;
   YearnWrapper internal yearnWrapper;
   address internal feeRecipient = address(0x1234);

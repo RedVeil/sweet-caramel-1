@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 
-import "../../../contracts/core/utils/ACLRegistry.sol";
-import "../../../contracts/core/utils/ContractRegistry.sol";
-import "../../../contracts/mocks/MockERC20.sol";
+import "../src/utils/ACLRegistry.sol";
+import "../src/utils/ContractRegistry.sol";
+import "./utils/mocks/MockERC20.sol";
 
 contract ContractRegistryTest is Test {
   // Contracts
