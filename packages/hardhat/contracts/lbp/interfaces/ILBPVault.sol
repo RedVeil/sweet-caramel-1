@@ -2,7 +2,7 @@
 // Docgen-SOLC: 0.8.0
 
 pragma solidity ^0.8.0;
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @dev This is an empty interface used to represent either ERC20-conforming token contracts or ETH (using the zero
@@ -48,7 +48,7 @@ struct ExitPoolRequest {
   bool toInternalBalance;
 }
 
-interface IVault {
+interface ILBPVault {
   function setPaused(bool paused) external;
 
   function getPool(bytes32 poolId) external returns (address, PoolSpecialization);

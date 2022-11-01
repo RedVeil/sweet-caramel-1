@@ -15,7 +15,7 @@ import { getNamedAccountsByChainId } from "../../lib/utils/getNamedAccounts";
 import { DAYS, impersonateSigner } from "../../lib/utils/test";
 import { timeTravel } from "../../lib/utils/test/timeTravel";
 import { ButterBatchProcessingV1, CurveMetapool, ERC20, Faucet, MockERC20 } from "../../typechain";
-import { YearnVault } from "../../typechain/YearnVault";
+import { IVault } from "../../typechain/IVault";
 
 const provider = waffle.provider;
 
@@ -28,8 +28,8 @@ interface Contracts {
   basicIssuanceModule: BasicIssuanceModule;
   butterBatch: ButterBatchProcessingV1;
   faucet: Faucet;
-  yFraxVault: YearnVault;
-  yMimVault: YearnVault;
+  yFraxVault: IVault;
+  yMimVault: IVault;
 }
 
 enum BatchType {
@@ -71,9 +71,7 @@ async function deployContracts(): Promise<Contracts> {
   const Faucet = await ethers.getContractFactory("Faucet");
   const faucet = await (
     await Faucet.deploy(
-      UNISWAP_ROUTER_ADDRESS,
-      CURVE_ADDRESS_PROVIDER_ADDRESS,
-      CURVE_FACTORY_METAPOOL_DEPOSIT_ZAP_ADDRESS
+      UNISWAP_ROUTER_ADDRESS
     )
   ).deployed();
   await network.provider.send("hardhat_setBalance", [
@@ -143,10 +141,10 @@ async function deployContracts(): Promise<Contracts> {
 
   const keeper = await ethers.getContractAt("KeeperIncentiveV1", KEEPER_INCENTIVE_ADDRESS);
 
-  await keeper.connect(admin).addControllerContract(butterBatch.address, true);
+  await keeper.connect(admin).addControllerContract(await butterBatch.contractName(), butterBatch.address);
 
-  const yMimVault = await ethers.getContractAt("YearnVault", Y_MIM_ADDRESS);
-  const yFraxVault = await ethers.getContractAt("YearnVault", yFrax);
+  const yMimVault = await ethers.getContractAt("IVault", Y_MIM_ADDRESS);
+  const yFraxVault = await ethers.getContractAt("IVault", yFrax);
 
   componentMap = await getComponentMap([crvMimMetapoolContract, crvFraxMetapoolContract], [yMimVault, yFraxVault]);
 

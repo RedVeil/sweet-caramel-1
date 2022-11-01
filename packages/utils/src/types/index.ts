@@ -1,5 +1,5 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20, Vault } from "../../../hardhat/typechain";
+import { ERC20 } from "../../../hardhat/typechain";
 
 export type Address = string;
 export interface ContractAddresses {
@@ -189,8 +189,9 @@ export type SweetVaultMetadata = ERC20Metadata & {
 };
 
 // contract w/ metadata pattern
+// TODO we need to find a way to get this type from /foundry or use smth else instead
 export type SweetVaultWithMetadata = {
-  contract: Vault;
+  contract: ERC20;
   metadata: SweetVaultMetadata;
 };
 
