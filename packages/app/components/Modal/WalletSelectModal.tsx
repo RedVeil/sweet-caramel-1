@@ -3,11 +3,11 @@ import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 export interface WalletSelectModalProps {
-  children?: React.ReactElement;
+  children?: JSX.Element;
   content?: string;
   visible: boolean;
   type?: "info" | "error" | "alert";
-  image?: React.ReactElement;
+  image?: JSX.Element;
   onConfirm?: { label: string; onClick: Function };
   onDismiss?: { label: string; onClick: Function };
   keepOpen?: boolean;
@@ -75,9 +75,8 @@ export const WalletSelectModal: React.FC<WalletSelectModalProps> = ({
                 aria-hidden="true"
               ></div>
               <div
-                className={`flex ${
-                  fullScreen ? "h-screen w-screen" : dimensions || "h-min md:w-min w-screen rounded-4xl"
-                } text-left overflow-hidden justify-center transform transition-all`}
+                className={`flex ${fullScreen ? "h-screen w-screen" : dimensions || "h-min md:w-min w-screen rounded-4xl"
+                  } text-left overflow-hidden justify-center transform transition-all`}
               >
                 {children && children}
               </div>

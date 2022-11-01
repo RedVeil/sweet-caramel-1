@@ -17,7 +17,7 @@ interface ElectionsProviderProps {
   children: React.ReactNode;
 }
 
-export function ElectionsProvider({ children }: ElectionsProviderProps): React.ReactElement {
+export function ElectionsProvider({ children }: ElectionsProviderProps): JSX.Element {
   const { contracts } = useContext(ContractsContext);
   const [elections, setElections] = useState<ElectionMetadata[]>([]);
   const [shouldRefresh, refresh] = useState(false);

@@ -16,7 +16,7 @@ export function CheckMarkToggleWithInfo({
   infoTitle: string;
   infoText: string;
   label: string;
-  image?: React.ReactElement;
+  image?: JSX.Element;
 }) {
   return (
     <div className="flex flex-row items-center mt-3">
@@ -29,9 +29,8 @@ export function CheckMarkToggleWithInfo({
           disabled={disabled}
         />
         <p
-          className={`text-base leading-6 ${
-            disabled ? "text-customLightGray" : "text-primaryDark group-hover:text-text-primaryDark"
-          }`}
+          className={`text-base leading-6 ${disabled ? "text-customLightGray" : "text-primaryDark group-hover:text-text-primaryDark"
+            }`}
         >
           {label}
         </p>

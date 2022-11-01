@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 
 export interface TooltipProps {
   title: string;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   id?: string;
   place?: "bottom" | "left" | "right" | "top";
   size?: number;

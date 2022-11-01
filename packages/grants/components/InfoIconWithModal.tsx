@@ -6,7 +6,7 @@ import * as Icon from "react-feather";
 export interface InfoIconWithModalProps {
   title: string;
   content?: string;
-  children?: React.ReactElement;
+  children?: JSX.Element;
 }
 export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({ title, content, children }) => {
   const { dispatch } = useContext(store);

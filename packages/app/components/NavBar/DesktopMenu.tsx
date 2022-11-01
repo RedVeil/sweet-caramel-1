@@ -1,10 +1,10 @@
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { ChainId, networkLogos } from "@popcorn/utils";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
-import { getProductLinks } from "helper/getProductLinks";
-import useWeb3 from "hooks/useWeb3";
+import MainActionButton from "../MainActionButton";
+import TertiaryActionButton from "../TertiaryActionButton";
+import { getProductLinks } from "../../helper/getProductLinks";
+import useWeb3 from "../../hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import DropDownComponent from "./DropDownComponent";

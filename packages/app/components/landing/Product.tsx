@@ -9,7 +9,7 @@ export interface ProductProps {
   description: string;
   stats: [StatWithTitleProps] | [StatWithTitleProps, StatWithTitleProps];
   route: string;
-  customContent?: React.ReactElement;
+  customContent?: JSX.Element;
   badge?: string;
 }
 

@@ -1,18 +1,18 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
-import useClickOutside from "hooks/useClickOutside";
+import MainActionButton from "../MainActionButton";
+import TertiaryActionButton from "../TertiaryActionButton";
+import useClickOutside from "../../hooks/useClickOutside";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface SingleActionModalProps {
   title: string;
-  children?: React.ReactElement | React.ReactComponentElement<any>;
-  content?: string | React.ReactElement;
+  children?: JSX.Element | React.ReactComponentElement<any>;
+  content?: string | JSX.Element;
   visible: boolean;
   type?: "info" | "error" | "alert";
-  image?: React.ReactElement;
+  image?: JSX.Element;
   onConfirm?: { label: string; onClick: Function };
   onDismiss?: { label?: string; onClick: Function };
   keepOpen?: boolean;
@@ -101,9 +101,8 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
             >
               <div ref={modalRef}>
                 <Dialog.Panel
-                  className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-10 sm:align-middle ${
-                    isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-lg"
-                  }`}
+                  className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-10 sm:align-middle ${isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-lg"
+                    }`}
                 >
                   {!isTerms && (
                     <div className="flex justify-end">

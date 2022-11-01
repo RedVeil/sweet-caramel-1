@@ -4,7 +4,7 @@ import { InfoIconWithModalProps } from "../InfoIconWithModal";
 
 interface StatInfoCardProps {
   title: string;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   icon: string;
   info?: InfoIconWithModalProps;
 }

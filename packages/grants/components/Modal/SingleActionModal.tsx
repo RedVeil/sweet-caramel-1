@@ -2,7 +2,7 @@ import React from "react";
 
 export interface SingleActionModalProps {
   title: string;
-  content: React.ReactElement | string;
+  content: JSX.Element | string;
   visible: boolean;
   type?: "info" | "error";
   onConfirm: { label: string; onClick: Function };
@@ -12,7 +12,7 @@ export const DefaultSingleActionModalProps: SingleActionModalProps = {
   title: "",
   visible: false,
   type: "info",
-  onConfirm: { label: "", onClick: () => {} },
+  onConfirm: { label: "", onClick: () => { } },
 };
 
 export const SingleActionModal: React.FC<SingleActionModalProps> = ({ title, type, visible, content, onConfirm }) => {
@@ -47,19 +47,19 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({ title, typ
                 </svg>
               </div>
             )) || (
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            )}
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                  <svg
+                    className="h-6 w-6 text-green-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
             <div className="mt-3 text-center sm:mt-5">
               <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                 {title}

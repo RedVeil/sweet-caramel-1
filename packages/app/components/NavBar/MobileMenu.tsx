@@ -1,17 +1,17 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
-import MainActionButton from "components/MainActionButton";
-import PopUpModal from "components/Modal/PopUpModal";
-import DiscordIcon from "components/SVGIcons/DiscordIcon";
-import MediumIcon from "components/SVGIcons/MediumIcon";
-import RedditIcon from "components/SVGIcons/RedditIcon";
-import TelegramIcon from "components/SVGIcons/TelegramIcon";
-import TwitterIcon from "components/SVGIcons/TwitterIcon";
-import YoutubeIcon from "components/SVGIcons/YoutubeIcon";
-import TertiaryActionButton from "components/TertiaryActionButton";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
-import { getProductLinks } from "helper/getProductLinks";
-import useWeb3 from "hooks/useWeb3";
+import MainActionButton from "../MainActionButton";
+import PopUpModal from "../Modal/PopUpModal";
+import DiscordIcon from "../SVGIcons/DiscordIcon";
+import MediumIcon from "../SVGIcons/MediumIcon";
+import RedditIcon from "../SVGIcons/RedditIcon";
+import TelegramIcon from "../SVGIcons/TelegramIcon";
+import TwitterIcon from "../SVGIcons/TwitterIcon";
+import YoutubeIcon from "../SVGIcons/YoutubeIcon";
+import TertiaryActionButton from "../TertiaryActionButton";
+import { FeatureToggleContext } from "../../context/FeatureToggleContext";
+import { getProductLinks } from "../../helper/getProductLinks";
+import useWeb3 from "../../hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
@@ -98,9 +98,8 @@ export const MobileMenu: React.FC = () => {
               >
                 <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-3 h-3 object-contain" />
                 <span
-                  className={`${
-                    account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                  } block h-2 w-2 rounded-full border`}
+                  className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                    } block h-2 w-2 rounded-full border`}
                 ></span>
               </div>
             </div>
@@ -112,21 +111,18 @@ export const MobileMenu: React.FC = () => {
             <div className="block w-10">
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+                  }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "opacity-0" : "opacity-100"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
+                  }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
-                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+                  }`}
               ></span>
             </div>
           </button>

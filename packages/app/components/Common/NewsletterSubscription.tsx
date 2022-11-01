@@ -1,4 +1,4 @@
-import SecondaryButton from "components/SecondaryActionButton";
+import SecondaryButton from "../SecondaryActionButton";
 import React, { useState } from "react";
 
 const NewsletterSubscription = ({ title, buttonLabel }) => {

@@ -4,7 +4,7 @@ import { CheckIcon } from "@heroicons/react/outline";
 import { Fragment, useEffect, useRef, useState } from "react";
 export interface DualActionWideModalProps {
   title: string;
-  content: React.ReactElement | string;
+  content: JSX.Element | string;
   visible: boolean;
   progress?: boolean;
   onDismiss?: { label: string; onClick: Function };
@@ -16,7 +16,7 @@ export const DefaultDualActionWideModalProps = {
   title: "",
   visible: false,
   progress: false,
-  onConfirm: { label: "", onClick: () => {} },
+  onConfirm: { label: "", onClick: () => { } },
 };
 
 const Example: React.FC<DualActionWideModalProps> = ({ content, title, visible, progress, onConfirm, onDismiss }) => {

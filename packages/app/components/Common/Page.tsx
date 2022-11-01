@@ -1,10 +1,9 @@
-import Footer from "components/Footer";
-import Navbar from "components/NavBar/NavBar";
-import useRestakeAlert from "hooks/useRestakeAlert";
-import React, { ReactElement } from "react";
+import Footer from "../Footer";
+import Navbar from "../NavBar/NavBar";
+import useRestakeAlert from "../../hooks/useRestakeAlert";
 import { Toaster } from "react-hot-toast";
 
-export default function Page(props: { children: ReactElement }) {
+export default function Page(props: { children: JSX.Element }) {
   useRestakeAlert();
   return (
     <div className="w-full min-h-screen h-full font-khTeka flex flex-col justify-between">

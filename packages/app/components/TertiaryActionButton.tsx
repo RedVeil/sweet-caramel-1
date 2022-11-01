@@ -7,8 +7,7 @@ interface SecondaryActionButtonProps {
 const TertiaryActionButton: React.FC<SecondaryActionButtonProps> = ({
   label,
   handleClick,
-  disabled = false,
-  children,
+  disabled = false
 }) => {
   return (
     <button

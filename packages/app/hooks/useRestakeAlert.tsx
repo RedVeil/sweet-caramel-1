@@ -1,7 +1,7 @@
-import { setMultiChoiceActionModal } from "context/actions";
-import { store } from "context/store";
+import { setMultiChoiceActionModal } from "../context/actions";
+import { store } from "../context/store";
 import { constants } from "ethers";
-import { getStorage, setStorage } from "helper/safeLocalstorageAccess";
+import { getStorage, setStorage } from "../helper/safeLocalstorageAccess";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import usePopLocker from "./staking/usePopLocker";

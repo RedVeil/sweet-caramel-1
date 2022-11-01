@@ -1,10 +1,10 @@
-import MainActionButton from "components/MainActionButton";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import MainActionButton from "../MainActionButton";
+import SecondaryActionButton from "../SecondaryActionButton";
 import React, { useEffect, useRef, useState } from "react";
 
 export interface DualActionModalProps {
   title: string;
-  content: React.ReactElement | string;
+  content: JSX.Element | string;
   visible: boolean;
   onDismiss: { label: string; onClick: Function };
   onConfirm: { label: string; onClick: Function };
@@ -14,8 +14,8 @@ export const DefaultDualActionModalProps = {
   content: "",
   title: "",
   visible: false,
-  onConfirm: { label: "", onClick: () => {} },
-  onDismiss: { label: "", onClick: () => {} },
+  onConfirm: { label: "", onClick: () => { } },
+  onDismiss: { label: "", onClick: () => { } },
 };
 
 export const DualActionModal: React.FC<DualActionModalProps> = ({ title, content, visible, onDismiss, onConfirm }) => {

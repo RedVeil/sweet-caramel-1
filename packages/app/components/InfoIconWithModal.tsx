@@ -4,9 +4,9 @@ import React, { useContext } from "react";
 
 export interface InfoIconWithModalProps {
   title: string;
-  content?: string | React.ReactElement;
-  children?: React.ReactElement;
-  image?: React.ReactElement;
+  content?: string | JSX.Element;
+  children?: JSX.Element;
+  image?: JSX.Element;
   size?: string;
 }
 

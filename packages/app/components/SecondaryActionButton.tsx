@@ -1,4 +1,4 @@
-import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
+import RightArrowIcon from "./SVGIcons/RightArrowIcon";
 import React, { useState } from "react";
 
 interface ButtonProps {

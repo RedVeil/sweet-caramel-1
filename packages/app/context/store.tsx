@@ -1,16 +1,16 @@
-import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "components/Modal/DualActionWideModal";
-import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "components/Modal/MobileFullScreenModal";
+import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "../components/Modal/DualActionWideModal";
+import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "../components/Modal/MobileFullScreenModal";
 import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
-} from "components/Modal/MultiChoiceActionModal";
+} from "../components/Modal/MultiChoiceActionModal";
 import {
   DefaultNetworkChangePromptModalProps,
   NetworkChangePromptModalProps,
-} from "components/Modal/NetworkChangePromptModal";
-import { DefaultSingleActionModalProps, SingleActionModalProps } from "components/Modal/SingleActionModal";
-import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "components/Modal/WalletSelectModal";
-import { NotificationProps } from "components/Notifications/NotificationProps";
+} from "../components/Modal/NetworkChangePromptModal";
+import { DefaultSingleActionModalProps, SingleActionModalProps } from "../components/Modal/SingleActionModal";
+import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "../components/Modal/WalletSelectModal";
+import { NotificationProps } from "../components/Notifications/NotificationProps";
 import React, { createContext, useReducer } from "react";
 import { DefaultDualActionModalProps, DualActionModalProps } from "../components/Modal/DualActionModal";
 import {

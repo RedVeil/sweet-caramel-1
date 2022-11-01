@@ -3,7 +3,7 @@ import React from "react";
 
 export interface DualActionModalProps {
   title: string;
-  content: React.ReactElement | string;
+  content: JSX.Element | string;
   visible: boolean;
   progress?: boolean;
   onDismiss: { label: string; onClick: Function };
@@ -15,8 +15,8 @@ export const DefaultDualActionModalProps = {
   title: "",
   visible: false,
   progress: false,
-  onConfirm: { label: "", onClick: () => {} },
-  onDismiss: { label: "", onClick: () => {} },
+  onConfirm: { label: "", onClick: () => { } },
+  onDismiss: { label: "", onClick: () => { } },
 };
 
 export const DualActionModal: React.FC<DualActionModalProps> = ({
@@ -66,25 +66,25 @@ export const DualActionModal: React.FC<DualActionModalProps> = ({
               <CircularProgress />
             </div>
           )) || (
-            <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-              <button
-                type="button"
-                disabled={progress}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-                onClick={() => onConfirm.onClick && onConfirm.onClick()}
-              >
-                {onConfirm.label}
-              </button>
-              <button
-                type="button"
-                disabled={progress}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
-                onClick={() => onDismiss.onClick && onDismiss.onClick()}
-              >
-                {onDismiss.label}
-              </button>
-            </div>
-          )}
+              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                <button
+                  type="button"
+                  disabled={progress}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
+                  onClick={() => onConfirm.onClick && onConfirm.onClick()}
+                >
+                  {onConfirm.label}
+                </button>
+                <button
+                  type="button"
+                  disabled={progress}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
+                  onClick={() => onDismiss.onClick && onDismiss.onClick()}
+                >
+                  {onDismiss.label}
+                </button>
+              </div>
+            )}
         </div>
       </div>
     </div>

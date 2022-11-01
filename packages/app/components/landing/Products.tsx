@@ -139,7 +139,7 @@ const Products = () => {
   );
 };
 
-const ButterExposure: React.ReactElement = (
+const ButterExposure: JSX.Element = (
   <>
     <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>
@@ -190,7 +190,7 @@ const ButterExposure: React.ReactElement = (
   </>
 );
 
-const ThreeXExposure: React.ReactElement = (
+const ThreeXExposure: JSX.Element = (
   <>
     <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>

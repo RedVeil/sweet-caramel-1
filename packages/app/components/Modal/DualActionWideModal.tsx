@@ -1,13 +1,13 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
+import MainActionButton from "../MainActionButton";
+import TertiaryActionButton from "../TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface DualActionWideModalProps {
   title: string;
-  content: React.ReactElement | string;
+  content: JSX.Element | string;
   visible: boolean;
   progress?: boolean;
   onDismiss?: { label: string; onClick: Function };

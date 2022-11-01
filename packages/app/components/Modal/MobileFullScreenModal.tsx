@@ -6,10 +6,10 @@ import * as Icon from "react-feather";
 export interface MobileFullScreenModalProps {
   title: string;
   content?: string;
-  children?: React.ReactElement;
+  children?: JSX.Element;
   visible: boolean;
   type?: "info" | "error" | "alert";
-  image?: React.ReactElement;
+  image?: JSX.Element;
   onDismiss?: Function;
 }
 export const DefaultMobileFullScreenModalProps: MobileFullScreenModalProps = {

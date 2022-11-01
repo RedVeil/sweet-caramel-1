@@ -1,4 +1,4 @@
-import { FeatureToggleContext } from "context/FeatureToggleContext";
+import { FeatureToggleContext } from "../context/FeatureToggleContext";
 import { NextRouter } from "next/router";
 import { useContext, useMemo } from "react";
 

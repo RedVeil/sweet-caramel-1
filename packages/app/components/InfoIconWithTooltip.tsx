@@ -4,7 +4,7 @@ import React from "react";
 
 export interface InfoIconWithTooltipProps {
   title?: string;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   id?: string;
   classExtras?: string;
 }

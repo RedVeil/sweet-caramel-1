@@ -4,6 +4,6 @@ export interface NotificationProps {
   type: 'success' | 'error' | 'waiting';
   title: string;
   isFlash?: boolean;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   backdrop?: boolean;
 }
