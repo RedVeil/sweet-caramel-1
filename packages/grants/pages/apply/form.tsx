@@ -181,6 +181,7 @@ const ApplyForm = () => {
     setUploading(true);
     if (await checkPreConditions()) {
       loading();
+      dispatch(setSingleActionModal(false));
       try {
         const cid = await IpfsClient.add(submissionData);
         toast.dismiss();
