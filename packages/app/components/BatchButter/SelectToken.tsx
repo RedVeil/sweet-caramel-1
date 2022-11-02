@@ -3,10 +3,10 @@ import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
 import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
 import SingleActionModal from "@popcorn/app/components/Modal/SingleActionModal";
-import TokenIcon from "components/TokenIcon";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
 import Image from "next/image";
 import { useState } from "react";
-import { SearchToken } from "./SearchToken";
+import { SearchToken } from "@popcorn/app/components/BatchButter/SearchToken";
 
 export interface SelectTokenProps {
   allowSelection: boolean;

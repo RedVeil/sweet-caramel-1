@@ -1,4 +1,4 @@
-import { Tabs } from "pages/[network]/rewards";
+import { Tabs } from "@popcorn/app/pages/[network]/rewards";
 import { Dispatch } from "react";
 
 interface TabSelectorProps {
@@ -14,8 +14,8 @@ const TabSelector: React.FC<TabSelectorProps> = ({ activeTab, setActiveTab, avai
         <div
           key={tab}
           className={`w-1/2 cursor-pointer ${activeTab === tab
-              ? "border-b border-primaryLight"
-              : "border-b border-customLightGray  group hover:border-primaryLight"
+            ? "border-b border-primaryLight"
+            : "border-b border-customLightGray  group hover:border-primaryLight"
             }`}
           onClick={(e) => setActiveTab(tab)}
         >

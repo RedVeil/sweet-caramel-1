@@ -1,7 +1,7 @@
 import { ChainId } from "@popcorn/utils";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
-import useWeb3 from "./useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export default function useNetworkName() {
   const router = useRouter();

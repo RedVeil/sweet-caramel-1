@@ -1,7 +1,7 @@
 import { ISetToken, ISetToken__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { useMemo } from "react";
-import { useRpcProvider } from "../useRpcProvider";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 
 export default function useSetToken(tokenAddress: string, chainId: ChainId): ISetToken {
   const provider = useRpcProvider(chainId);

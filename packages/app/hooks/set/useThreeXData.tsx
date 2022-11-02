@@ -6,10 +6,10 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import useSWR, { SWRResponse } from "swr";
 import { getData } from "@popcorn/app/helper/threeXDataUtils";
-import useBasicIssuanceModule from "./useBasicIssuanceModule";
-import useSetToken from "./useSetToken";
-import useThreeXBatch from "./useThreeXBatch";
-import useThreeXZapper from "./useThreeXZapper";
+import useBasicIssuanceModule from "@popcorn/app/hooks/set/useBasicIssuanceModule";
+import useSetToken from "@popcorn/app/hooks/set/useSetToken";
+import useThreeXBatch from "@popcorn/app/hooks/set/useThreeXBatch";
+import useThreeXZapper from "@popcorn/app/hooks/set/useThreeXZapper";
 
 export default function useThreeXData(chainId: ChainId): SWRResponse<BatchMetadata, Error> {
   const { account } = useWeb3();

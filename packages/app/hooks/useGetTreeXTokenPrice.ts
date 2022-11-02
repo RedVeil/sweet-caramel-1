@@ -3,10 +3,10 @@ import { IBasicIssuanceModule, ThreeXBatchProcessing } from "@popcorn/hardhat/ty
 import { ChainId } from "@popcorn/utils/connectors";
 import { Address } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
-import useBasicIssuanceModule from "hooks/set/useBasicIssuanceModule";
+import useBasicIssuanceModule from "@popcorn/app/hooks/set/useBasicIssuanceModule";
 import useSWR from "swr";
-import useThreeXBatch from "./set/useThreeXBatch";
-import { useDeployment } from "./useDeployment";
+import useThreeXBatch from "@popcorn/app/hooks/set/useThreeXBatch";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 
 async function getTokenPrice(
   basicIssuanceModule: IBasicIssuanceModule,

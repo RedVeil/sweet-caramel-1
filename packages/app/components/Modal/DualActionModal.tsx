@@ -1,5 +1,5 @@
-import MainActionButton from "../MainActionButton";
-import SecondaryActionButton from "../SecondaryActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import React, { useEffect, useRef, useState } from "react";
 
 export interface DualActionModalProps {

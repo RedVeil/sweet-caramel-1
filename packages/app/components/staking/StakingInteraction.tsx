@@ -5,7 +5,7 @@ import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TermsAndConditions from "@popcorn/app/components/StakingTermsAndConditions";
 import { BigNumber } from "ethers";
 import { Dispatch, SetStateAction } from "react";
-import { InteractionType, StakingForm } from "./StakeInterface";
+import { InteractionType, StakingForm } from "@popcorn/app/components/staking/StakeInterface";
 
 export interface StakingInteractionProps {
   stakingPool: StakingPool;

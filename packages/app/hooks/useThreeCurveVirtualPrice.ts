@@ -2,9 +2,9 @@ import { ChainId } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
 import { isAddress } from "ethers/lib/utils";
 import { useCallback, useMemo } from "react";
-import { MockCurveThreepool__factory } from "../../hardhat/typechain/factories/MockCurveThreepool__factory";
-import { useRpcProvider } from "./useRpcProvider";
-import useWeb3 from "./useWeb3";
+import { MockCurveThreepool__factory } from "@popcorn/hardhat/typechain/factories/MockCurveThreepool__factory";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export default function useThreeCurveVirtualPrice(threePoolAddress: string | undefined) {
   const { signerOrProvider, account } = useWeb3();

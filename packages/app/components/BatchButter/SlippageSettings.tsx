@@ -4,7 +4,7 @@ import { setSingleActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
 import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { Dispatch, useContext, useState } from "react";
-import PseudoRadioButton from "./PseudoRadioButton";
+import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
 
 interface CustomSlippageInputProps {
   value: string;

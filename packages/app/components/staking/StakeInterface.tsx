@@ -7,12 +7,12 @@ import TokenIcon from "@popcorn/app/components/TokenIcon";
 import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
-import useNetworkName from "hooks/useNetworkName";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import useContractMetadata from "../../hooks/useContractMetadata";
-import PopLockerInteraction from "./PopLockerInteraction";
-import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
+import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
+import PopLockerInteraction from "@popcorn/app/components/staking/PopLockerInteraction";
+import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;

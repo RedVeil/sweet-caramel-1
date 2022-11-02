@@ -3,8 +3,8 @@ import { IGUni__factory } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 import { ethers } from "ethers";
 import useSWR from "swr";
-import { useDeployment } from "./useDeployment";
-import { useRpcProvider } from "./useRpcProvider";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 
 // Returns the popPrice in 1e6
 export const getPopTokenPrice = async (provider: ethers.providers.JsonRpcProvider, address: string) => {

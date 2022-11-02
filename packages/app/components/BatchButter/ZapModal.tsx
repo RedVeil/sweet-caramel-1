@@ -4,9 +4,11 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import { Dispatch, useState } from "react";
-import OutputToken from "./OutputToken";
-import PseudoRadioButton from "./PseudoRadioButton";
-import { CustomSlippageInput } from "./SlippageSettings";
+import OutputToken from "@popcorn/app/components/BatchButter/OutputToken";
+import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
+import { CustomSlippageInput } from "@popcorn/app/components/BatchButter/SlippageSettings";
+
+
 interface ZapModalProps {
   tokenOptions: Token[];
   slippage: number;

@@ -1,7 +1,7 @@
-import MainActionButton from "components/MainActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
 import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
-import { isValidEmailAddress } from "helper/verifyEmail";
+import { store } from "@popcorn/app/context/store";
+import { isValidEmailAddress } from "@popcorn/app/helper/verifyEmail";
 import Image from "next/image";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";

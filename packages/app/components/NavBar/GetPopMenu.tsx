@@ -1,9 +1,9 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChainId } from "@popcorn/utils";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
-import useContractMetadata from "hooks/useContractMetadata";
-import { useDeployment } from "hooks/useDeployment";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { Fragment } from "react";
 
 interface GetPopMenuProps { }

@@ -1,11 +1,11 @@
 import { ERC20__factory } from "@popcorn/hardhat/typechain";
 import { getToken } from "@popcorn/utils";
 import { isAddress } from "ethers/lib/utils";
-import { useContractMetadata } from "hooks/useContractMetadata";
+import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import { useCallback, useEffect, useState } from "react";
-import { Token } from "../../../utils/src/types/index";
-import { useRpcProvider } from "../useRpcProvider";
-import useWeb3 from "../useWeb3";
+import { Token } from "@popcorn/utils/src/types/index";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export default function useERC20(address: string | null, chainId): Token {
   const { account } = useWeb3();
@@ -19,7 +19,7 @@ export default function useERC20(address: string | null, chainId): Token {
     if (isAddress(address)) {
       getToken(erc20(address, provider), provider, chainId, undefined, undefined, metadata)
         .then((token) => mounted && setToken(token))
-        .catch((err) => {});
+        .catch((err) => { });
     }
     return () => {
       mounted = false;

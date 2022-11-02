@@ -2,8 +2,8 @@ import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCar
 import SliderContainer from "@popcorn/app/components/Common/SliderContainer";
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { NetworthCard } from "./NetworthCard";
-import { TVLCard } from "./TVLCard";
+import { NetworthCard } from "@popcorn/app/components/landing/NetworthCard";
+import { TVLCard } from "@popcorn/app/components/landing/TVLCard";
 
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();

@@ -1,4 +1,4 @@
-import RightArrowIcon from "./SVGIcons/RightArrowIcon";
+import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
 import React, { useState } from "react";
 
 interface ButtonProps {

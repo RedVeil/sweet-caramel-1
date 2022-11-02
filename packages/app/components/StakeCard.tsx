@@ -3,9 +3,9 @@ import { StakingPool, Token } from "@popcorn/utils/src/types";
 import { constants } from "ethers";
 import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
-import Badge, { Badge as BadgeType } from "./Common/Badge";
-import MainActionButton from "./MainActionButton";
-import TokenIcon from "./TokenIcon";
+import Badge, { Badge as BadgeType } from "@popcorn/app/components/Common/Badge";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
 
 interface StakeCardProps {
   stakingPool: StakingPool;

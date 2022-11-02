@@ -1,10 +1,10 @@
 import { Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
-import Badge from "components/Common/Badge";
-import StatusWithLabel from "components/Common/StatusWithLabel";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import Badge from "@popcorn/app/components/Common/Badge";
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import React, { useState } from "react";
-import PortfolioProductItem from "./PortfolioProductItem";
+import PortfolioProductItem from "@popcorn/app/components/Portfolio/PortfolioProductItem";
 
 const PortfolioItem = () => {
   const badge = {
@@ -31,9 +31,8 @@ const PortfolioItem = () => {
           }
         </div>
         <ChevronDownIcon
-          className={`${
-            expanded ? "rotate-180" : "rotate-0"
-          } transform transition-all ease-in-out w-6 text-secondaryLight`}
+          className={`${expanded ? "rotate-180" : "rotate-0"
+            } transform transition-all ease-in-out w-6 text-secondaryLight`}
         />
       </div>
 

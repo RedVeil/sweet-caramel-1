@@ -1,7 +1,7 @@
 import { ButterBatchProcessingZapper, ButterBatchProcessingZapper__factory } from "@popcorn/hardhat/typechain";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import { useRpcProvider } from "hooks/useRpcProvider";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 import { useMemo } from "react";
 
 export default function useButterBatchZapper(

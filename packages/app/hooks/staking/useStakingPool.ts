@@ -2,9 +2,9 @@ import { isAddress } from "@ethersproject/address";
 import { Staking__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, getStakingPool } from "@popcorn/utils";
 import { StakingPoolMetadata } from "@popcorn/utils/getStakingPool";
-import { useDeployment } from "hooks/useDeployment";
-import { useRpcProvider } from "hooks/useRpcProvider";
-import useWeb3 from "hooks/useWeb3";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useMemo } from "react";
 import useSWR, { SWRResponse } from "swr";
 

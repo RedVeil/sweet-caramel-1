@@ -1,8 +1,8 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
-import MainActionButton from "../MainActionButton";
-import TertiaryActionButton from "../TertiaryActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface DualActionWideModalProps {

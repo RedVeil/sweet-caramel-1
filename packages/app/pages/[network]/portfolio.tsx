@@ -1,8 +1,9 @@
-import NetWorthCard from "components/Portfolio/NetWorthCard";
-import PortfolioCardCon from "components/Portfolio/PortfolioCardCon";
-import PortfolioHero from "components/Portfolio/PortfolioHero";
-import PortfolioMenuTabs from "components/Portfolio/PortfolioMenuTabs";
+import NetWorthCard from "@popcorn/app/components/Portfolio/NetWorthCard";
+import PortfolioCardCon from "@popcorn/app/components/Portfolio/PortfolioCardCon";
+import PortfolioHero from "@popcorn/app/components/Portfolio/PortfolioHero";
+import PortfolioMenuTabs from "@popcorn/app/components/Portfolio/PortfolioMenuTabs";
 import React, { useState } from "react";
+
 const allNetworks = [
   {
     id: "0",

@@ -1,8 +1,8 @@
-import StatusWithLabel from "components/Common/StatusWithLabel";
-import TokenIcon from "components/TokenIcon";
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
 import React from "react";
-import { useChainIdFromUrl } from "../../hooks/useChainIdFromUrl";
-import { useDeployment } from "../../hooks/useDeployment";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 
 const PortfolioProductItem = () => {
   const chainId = useChainIdFromUrl();

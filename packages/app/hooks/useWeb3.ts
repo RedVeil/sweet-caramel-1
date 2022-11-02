@@ -1,12 +1,12 @@
 import { ChainId, HexToChain, PRC_PROVIDERS } from "@popcorn/utils";
 import { useConnectWallet, useSetChain, useWallets } from "@web3-onboard/react";
 import { ethers } from "ethers";
-import { getStorage, removeStorage, setStorage } from "../helper/safeLocalstorageAccess";
-import toTitleCase from "../helper/toTitleCase";
-import useWeb3Callbacks from "../helper/useWeb3Callbacks";
+import { getStorage, removeStorage, setStorage } from "@popcorn/app/helper/safeLocalstorageAccess";
+import toTitleCase from "@popcorn/app/helper/toTitleCase";
+import useWeb3Callbacks from "@popcorn/app/helper/useWeb3Callbacks";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDeployment } from "./useDeployment";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 
 export default function useWeb3() {
   const router = useRouter();

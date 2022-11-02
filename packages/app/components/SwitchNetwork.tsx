@@ -1,5 +1,5 @@
-import useWeb3 from "hooks/useWeb3";
-import SecondaryActionButton from "./SecondaryActionButton";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 
 interface SwitchNetworkProps {
   chainId: number;

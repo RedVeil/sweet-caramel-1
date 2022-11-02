@@ -1,6 +1,6 @@
 import { ChainId } from "@popcorn/utils";
 import { useMemo } from "react";
-import { useDeployment } from "./useDeployment";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 
 export const useContractMetadata = (address: string, chainId: ChainId) => {
   const addresses = useDeployment(chainId);

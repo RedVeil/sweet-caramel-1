@@ -1,5 +1,5 @@
 import React from "react";
-import PortfolioItem from "./PortfolioItem";
+import PortfolioItem from "@popcorn/app/components/Portfolio/PortfolioItem";
 
 interface PortfolioCardCon {
   cardTitle: string;

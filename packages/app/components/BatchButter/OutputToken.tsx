@@ -1,7 +1,7 @@
 import { Token } from "@popcorn/utils/types";
 import Image from "next/image";
 import { Dispatch } from "react";
-import PseudoRadioButton from "./PseudoRadioButton";
+import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
 
 interface OutputTokenProps {
   outputToken: Token[];

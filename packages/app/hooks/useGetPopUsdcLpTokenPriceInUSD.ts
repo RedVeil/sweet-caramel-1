@@ -4,8 +4,8 @@ import { ERC20, ERC20__factory } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, ethers } from "ethers";
 import useSWR from "swr";
-import { useDeployment } from "./useDeployment";
-import { useRpcProvider } from "./useRpcProvider";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 
 export const getPopUsdcLpTokenPrice = async (
   provider: Web3Provider | ethers.providers.JsonRpcSigner,

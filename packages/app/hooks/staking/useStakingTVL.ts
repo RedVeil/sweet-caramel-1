@@ -1,11 +1,11 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants, ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { useDeployment } from "hooks/useDeployment";
-import { getPopTokenPrice } from "hooks/useGetPopTokenPriceInUSD";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { getPopTokenPrice } from "@popcorn/app/hooks/useGetPopTokenPriceInUSD";
 import useSWR, { SWRResponse } from "swr";
-import { ContractAddresses } from "../../../utils/src/types/index";
-import { useRpcProvider } from "../useRpcProvider";
+import { ContractAddresses } from "@popcorn/utils/src/types/index";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 
 export async function getStakingTVL(
   key,

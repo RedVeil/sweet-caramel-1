@@ -1,10 +1,10 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, ethers } from "ethers";
-import useGetButterTokenPriceInUSD from "hooks/useGetButterTokenPriceInUSD";
-import useGetPopTokenPriceInUSD from "hooks/useGetPopTokenPriceInUSD";
-import useGetPopUsdcLpTokenPriceInUSD from "hooks/useGetPopUsdcLpTokenPriceInUSD";
-import { useDeployment } from "./useDeployment";
-import useGetThreeXTokenPrice from "./useGetTreeXTokenPrice";
+import useGetButterTokenPriceInUSD from "@popcorn/app/hooks/useGetButterTokenPriceInUSD";
+import useGetPopTokenPriceInUSD from "@popcorn/app/hooks/useGetPopTokenPriceInUSD";
+import useGetPopUsdcLpTokenPriceInUSD from "@popcorn/app/hooks/useGetPopUsdcLpTokenPriceInUSD";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import useGetThreeXTokenPrice from "@popcorn/app/hooks/useGetTreeXTokenPrice";
 
 export default function useTokenPrice(address: string | undefined, chainId: ChainId): BigNumber | undefined {
   const { pop, butter, popUsdcArrakisVault, popUsdcLp, threeX } = useDeployment(chainId);

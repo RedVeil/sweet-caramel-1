@@ -1,9 +1,9 @@
 import { RewardsEscrow } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
 import useSWR from "swr";
-import { ChainId } from "../../utils/src/connectors";
-import { useRpcProvider } from "./useRpcProvider";
-import useVestingEscrow from "./useVestingEscrow";
+import { ChainId } from "@popcorn/utils/src/connectors";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
+import useVestingEscrow from "@popcorn/app/hooks/useVestingEscrow";
 
 export type Escrow = {
   start: BigNumber;

@@ -1,7 +1,7 @@
 import deployments from "@popcorn/hardhat/lib/utils/exporter/out/deployments.json";
 import { ChainId } from "@popcorn/utils";
 import { useMemo } from "react";
-import { ContractAddresses } from "../../utils/src/types/index";
+import { ContractAddresses } from "@popcorn/utils/src/types/index";
 
 export function useDeployment(chainId: ChainId): ContractAddresses {
   return useMemo(() => {

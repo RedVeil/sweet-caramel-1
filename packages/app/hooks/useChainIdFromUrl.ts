@@ -1,8 +1,8 @@
 import { ChainId } from "@popcorn/utils";
-import toTitleCase from "helper/toTitleCase";
+import toTitleCase from "@popcorn/app/helper/toTitleCase";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import useWeb3 from "./useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export function useChainIdFromUrl() {
   const { connectedChainId } = useWeb3();

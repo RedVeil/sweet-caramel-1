@@ -3,7 +3,7 @@ import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { BigNumber } from "ethers";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { useContractMetadata } from "../../hooks/useContractMetadata";
+import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 
 interface ClaimCardProps {
   disabled: boolean;

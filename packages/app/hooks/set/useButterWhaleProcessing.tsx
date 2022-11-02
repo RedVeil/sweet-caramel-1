@@ -2,7 +2,7 @@ import { ButterWhaleProcessing, ButterWhaleProcessing__factory } from "@popcorn/
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { useMemo } from "react";
-import { useRpcProvider } from "../useRpcProvider";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 
 export default function useButterWhaleProcessing(address: string, chainId: ChainId): ButterWhaleProcessing {
   const { account } = useWeb3();

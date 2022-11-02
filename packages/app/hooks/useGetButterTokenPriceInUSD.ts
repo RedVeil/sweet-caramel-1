@@ -4,9 +4,9 @@ import { ChainId } from "@popcorn/utils/connectors";
 import { Address } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
 import useBasicIssuanceModule from "hooks/set/useBasicIssuanceModule";
-import useButterBatch from "hooks/set/useButterBatch";
+import useButterBatch from "@popcorn/app/hooks/set/useButterBatch";
 import useSWR from "swr";
-import { useDeployment } from "./useDeployment";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 
 export async function getTokenPrice(
   basicIssuanceModule: IBasicIssuanceModule,

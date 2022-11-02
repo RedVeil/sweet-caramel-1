@@ -1,6 +1,6 @@
 import { ChainId } from "@popcorn/utils";
 import { Address } from "@popcorn/utils/types";
-import { useDeployment } from "hooks/useDeployment";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useMemo } from "react";
 
 export default function useSetComponentAddresses(setToken: Address): string[] {

@@ -1,13 +1,13 @@
-import useNetworkName from "hooks/useNetworkName";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import NewsletterSubscription from "./Common/NewsletterSubscription";
-import DiscordIcon from "./SVGIcons/DiscordIcon";
-import MediumIcon from "./SVGIcons/MediumIcon";
-import RedditIcon from "./SVGIcons/RedditIcon";
-import TelegramIcon from "./SVGIcons/TelegramIcon";
-import TwitterIcon from "./SVGIcons/TwitterIcon";
-import YoutubeIcon from "./SVGIcons/YoutubeIcon";
+import NewsletterSubscription from "@popcorn/app/components/Common/NewsletterSubscription";
+import DiscordIcon from "@popcorn/app/components/SVGIcons/DiscordIcon";
+import MediumIcon from "@popcorn/app/components/SVGIcons/MediumIcon";
+import RedditIcon from "@popcorn/app/components/SVGIcons/RedditIcon";
+import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
+import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
+import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
 
 const Footer = () => {
   const [telegramColor, setTelegramColor] = useState("#645F4B");

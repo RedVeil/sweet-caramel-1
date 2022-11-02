@@ -1,4 +1,4 @@
-import CustomDropdown from "components/Common/CustomDropdown";
+import CustomDropdown from "@popcorn/app/components/Common/CustomDropdown";
 import React from "react";
 
 type categoryFilterType = {

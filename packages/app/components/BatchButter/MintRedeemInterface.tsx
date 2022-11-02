@@ -6,11 +6,11 @@ import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext"
 import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
 import { useContext } from "react";
-import MainActionButton from "../MainActionButton";
-import ButterTokenInput, { ButterTokenInputProps, Pages, pageToDisplayToken } from "./ButterTokenInput";
-import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
-import MintRedeemToggle from "./MintRedeemToggle";
-import SlippageSettings from "./SlippageSettings";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import ButterTokenInput, { ButterTokenInputProps, Pages, pageToDisplayToken } from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import { CheckMarkToggleWithInfo } from "@popcorn/app/components/BatchButter/CheckMarkToggleWithInfo";
+import MintRedeemToggle from "@popcorn/app/components/BatchButter/MintRedeemToggle";
+import SlippageSettings from "@popcorn/app/components/BatchButter/SlippageSettings";
 
 interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   mainAction: (depositAmount: BigNumber, batchType: BatchType, stakeImmidiate?: boolean) => Promise<void>;

@@ -1,5 +1,5 @@
 import { ChainId } from "@popcorn/utils";
-import { useContractMetadata } from "hooks/useContractMetadata";
+import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 
 interface TokenIconProps {
   token: string;

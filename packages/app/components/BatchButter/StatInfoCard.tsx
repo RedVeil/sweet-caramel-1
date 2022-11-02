@@ -1,6 +1,6 @@
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
-import CardIcon from "../CardIcon";
-import { InfoIconWithModalProps } from "../InfoIconWithModal";
+import CardIcon from "@popcorn/app/components/CardIcon";
+import { InfoIconWithModalProps } from "@popcorn/app/components/InfoIconWithModal";
 
 interface StatInfoCardProps {
   title: string;

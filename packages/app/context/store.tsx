@@ -28,7 +28,7 @@ import {
   SINGLE_ACTION_MODAL,
   UNSET_NOTIFICATION,
   WALLET_SELECT_MODAL,
-} from "./actions";
+} from "@popcorn/app/context/actions";
 
 interface DefaultState {
   notifications: NotificationProps[];

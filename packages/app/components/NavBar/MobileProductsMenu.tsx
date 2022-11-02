@@ -1,9 +1,9 @@
 import { ChevronLeftIcon } from "@heroicons/react/outline";
 import { ChainId } from "@popcorn/utils";
-import useWeb3 from "hooks/useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useRouter } from "next/router";
 import React from "react";
-import NavbarLink from "./NavbarLinks";
+import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
 
 const MobileProductsMenu = ({ onCloseMenu }) => {
   const { connectedChainId } = useWeb3();

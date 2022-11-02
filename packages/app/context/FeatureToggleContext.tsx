@@ -1,4 +1,4 @@
-import defaultFeatureFlags from "../defaultFeatureFlags";
+import defaultFeatureFlags from "@popcorn/app/defaultFeatureFlags";
 import { createContext, useState } from "react";
 
 export const FeatureToggleContext = createContext({

@@ -1,4 +1,4 @@
-import StatusWithLabel from "components/Common/StatusWithLabel";
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
 import React from "react";
 
 const PortfolioHero = () => {

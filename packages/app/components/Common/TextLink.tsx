@@ -1,5 +1,5 @@
 import { ArrowCircleRightIcon } from "@heroicons/react/outline";
-import useNetworkName from "hooks/useNetworkName";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
 
 interface TextLinkProps {

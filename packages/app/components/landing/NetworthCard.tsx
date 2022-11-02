@@ -1,6 +1,6 @@
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { formatUnits } from "ethers/lib/utils";
-import useNetWorth from "hooks/useNetWorth";
+import useNetWorth from "@popcorn/app/hooks/useNetWorth";
 
 export function NetworthCard(): JSX.Element {
   const { totalNetWorth } = useNetWorth();

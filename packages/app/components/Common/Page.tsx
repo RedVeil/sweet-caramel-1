@@ -1,8 +1,8 @@
 import useRestakeAlert from "@popcorn/app/hooks/useRestakeAlert";
 import Footer from "@popcorn/app/components/Footer";
 import Navbar from "@popcorn/app/components/NavBar/NavBar";
-import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
-import React, { ReactElement } from "react";
+import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
+import React from "react";
 import { Toaster } from "react-hot-toast";
 
 export default function Page(props: { children: JSX.Element }) {

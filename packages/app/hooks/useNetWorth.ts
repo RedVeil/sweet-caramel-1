@@ -2,15 +2,15 @@ import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 import { parseEther } from "ethers/lib/utils";
 import { useCallback, useMemo } from "react";
-import useButterBatchData from "./set/useButterBatchData";
-import useThreeXData from "./set/useThreeXData";
-import usePopLocker from "./staking/usePopLocker";
-import useStakingPool from "./staking/useStakingPool";
-import useTokenBalance from "./tokens/useTokenBalance";
-import { useDeployment } from "./useDeployment";
-import useGetPopTokenPriceInUSD from "./useGetPopTokenPriceInUSD";
-import { useGetUserEscrows } from "./useGetUserEscrows";
-import useWeb3 from "./useWeb3";
+import useButterBatchData from "@popcorn/app/hooks/set/useButterBatchData";
+import useThreeXData from "@popcorn/app/hooks/set/useThreeXData";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import useTokenBalance from "@popcorn/app/hooks/tokens/useTokenBalance";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import useGetPopTokenPriceInUSD from "@popcorn/app/hooks/useGetPopTokenPriceInUSD";
+import { useGetUserEscrows } from "@popcorn/app/hooks/useGetUserEscrows";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumber {
   tokenAmount = tokenAmount?.gt(constants.Zero) ? tokenAmount : constants.Zero;
