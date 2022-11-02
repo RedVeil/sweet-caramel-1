@@ -1,8 +1,8 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Address, StakingPool, Token } from "@popcorn/utils/src/types";
 import { constants } from "ethers";
-import { getSanitizedTokenDisplayName } from "helper/displayHelper";
-import useTokenPrice from "hooks/useTokenPrice";
+import { getSanitizedTokenDisplayName } from "@popcorn/app/helper/displayHelper";
+import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
 import Badge, { Badge as BadgeType } from "./Common/Badge";
 import MainActionButton from "./MainActionButton";
 import TokenIcon from "./TokenIcon";
@@ -56,9 +56,9 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
           <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
             {tokenPrice
               ? `$ ${formatAndRoundBigNumber(
-                  stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
-                  stakedToken?.decimals,
-                )}`
+                stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
+                stakedToken?.decimals,
+              )}`
               : "..."}
           </p>
         </div>

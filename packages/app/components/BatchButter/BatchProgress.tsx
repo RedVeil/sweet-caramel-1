@@ -1,4 +1,4 @@
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseEther } from "ethers/lib/utils";
 import { useEffect, useState } from "react";

@@ -1,16 +1,16 @@
 import { adjustDepositDecimals, ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
-import { Pages } from "components/BatchButter/ButterTokenInput";
-import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
-import ButterStats from "components/ButterStats";
-import MainActionButton from "components/MainActionButton";
-import { setDualActionWideModal } from "context/actions";
-import { store } from "context/store";
+import { Pages } from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
+import ButterStats from "@popcorn/app/components/ButterStats";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import { setDualActionWideModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import { isDepositDisabled } from "helper/isDepositDisabled";
-import useThreeXWhale from "hooks/set/useThreeXWhale";
-import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
-import useWeb3 from "hooks/useWeb3";
+import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
+import useThreeXWhale from "@popcorn/app/hooks/set/useThreeXWhale";
+import useThreeXWhaleData from "@popcorn/app/hooks/set/useThreeXWhaleData";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
@@ -93,25 +93,25 @@ export default function Instant3x() {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: usdc,
-              output: threeX,
-            },
-            tokens: threeXWhaleData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-            instant: true,
-          }
-        : {
-            ...state,
-            selectedToken: {
-              input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
-              output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
-            },
-            tokens: threeXWhaleData?.tokens,
+          ...state,
+          selectedToken: {
+            input: usdc,
+            output: threeX,
           },
+          tokens: threeXWhaleData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+          instant: true,
+        }
+        : {
+          ...state,
+          selectedToken: {
+            input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
+            output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
+          },
+          tokens: threeXWhaleData?.tokens,
+        },
     );
   }, [threeXWhaleData]);
 

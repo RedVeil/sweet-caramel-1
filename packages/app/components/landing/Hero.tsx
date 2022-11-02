@@ -1,15 +1,15 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { ChainId } from "@popcorn/utils";
-import ConnectDepositCard from "components/Common/ConnectDepositCard";
-import SliderContainer from "components/Common/SliderContainer";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
+import SliderContainer from "@popcorn/app/components/Common/SliderContainer";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import { constants } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
-import useSetTokenTVL from "hooks/set/useSetTokenTVL";
-import useStakingTVL from "hooks/staking/useStakingTVL";
-import useNetWorth from "hooks/useNetWorth";
-import useWeb3 from "hooks/useWeb3";
+import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
+import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
+import useNetWorth from "@popcorn/app/hooks/useNetWorth";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useMemo } from "react";
 
 export default function Hero(): JSX.Element {

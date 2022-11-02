@@ -1,7 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChainId } from "@popcorn/utils";
 import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
-import useWeb3 from "../../hooks/useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { Fragment } from "react";
 
 interface GetPopMenuProps { }

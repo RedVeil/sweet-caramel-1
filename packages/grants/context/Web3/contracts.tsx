@@ -5,7 +5,7 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from "@web3-react/injected-connector";
-import activateRPCNetwork from "helper/activateRPCNetwork";
+import activateRPCNetwork from "@popcorn/app/helper/activateRPCNetwork";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { getChainRelevantContracts } from "../../../hardhat/lib/utils/getContractAddresses";
 import {

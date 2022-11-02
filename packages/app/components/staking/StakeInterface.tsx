@@ -1,12 +1,12 @@
 import { ChevronLeftIcon } from "@heroicons/react/solid";
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { formatAndRoundBigNumber, getTokenOnNetwork } from "@popcorn/utils";
-import MobileCardSlider from "components/Common/MobileCardSlider";
-import StatusWithLabel from "components/Common/StatusWithLabel";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import TokenIcon from "components/TokenIcon";
-import TokenInputToggle from "components/TokenInputToggle";
+import MobileCardSlider from "@popcorn/app/components/Common/MobileCardSlider";
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
+import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
 import { BigNumber, constants } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -101,9 +101,9 @@ export default function StakeInterface({
                 content={
                   stakingPool && stakedTokenPrice
                     ? `$${formatAndRoundBigNumber(
-                        stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
-                        18,
-                      )}`
+                      stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
+                      18,
+                    )}`
                     : "..."
                 }
                 label="TVL"
@@ -111,9 +111,8 @@ export default function StakeInterface({
             </div>
             <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
               <StatusWithLabel
-                content={`${
-                  stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
-                } POP / day`}
+                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
+                  } POP / day`}
                 label="EMISSION RATE"
               />
             </div>
@@ -186,21 +185,21 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                <Link
-                  href={getTokenOnNetwork(
-                    stakingPool.tokenAddress?.toLowerCase(),
-                    chainId,
-                    getChainRelevantContracts(chainId),
-                  )}
-                  passHref
-                >
-                  <a target="_blank">
-                    <div className="border-t border-customLightGray pt-2 px-1">
-                      <SecondaryActionButton label="Get Token" />
-                    </div>
-                  </a>
-                </Link>
-              )}
+                  <Link
+                    href={getTokenOnNetwork(
+                      stakingPool.tokenAddress?.toLowerCase(),
+                      chainId,
+                      getChainRelevantContracts(chainId),
+                    )}
+                    passHref
+                  >
+                    <a target="_blank">
+                      <div className="border-t border-customLightGray pt-2 px-1">
+                        <SecondaryActionButton label="Get Token" />
+                      </div>
+                    </a>
+                  </Link>
+                )}
             </div>
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
@@ -226,14 +225,14 @@ export default function StakeInterface({
                 chainId,
                 getChainRelevantContracts(chainId),
               ) && (
-                <Link href={`/${router?.query?.network}/rewards`} passHref>
-                  <a target="_self">
-                    <div className="border-t border-customLightGray pt-2 px-1">
-                      <SecondaryActionButton label="Claim Page" />
-                    </div>
-                  </a>
-                </Link>
-              )}
+                  <Link href={`/${router?.query?.network}/rewards`} passHref>
+                    <a target="_self">
+                      <div className="border-t border-customLightGray pt-2 px-1">
+                        <SecondaryActionButton label="Claim Page" />
+                      </div>
+                    </a>
+                  </Link>
+                )}
             </div>
           </div>
 
@@ -266,21 +265,21 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                    <Link
-                      href={getTokenOnNetwork(
-                        stakingPool.tokenAddress?.toLowerCase(),
-                        chainId,
-                        getChainRelevantContracts(chainId),
-                      )}
-                      passHref
-                    >
-                      <a target="_blank">
-                        <div className="border-t border-customLightGray pt-2 px-1">
-                          <SecondaryActionButton label="Get Token" />
-                        </div>
-                      </a>
-                    </Link>
-                  )}
+                      <Link
+                        href={getTokenOnNetwork(
+                          stakingPool.tokenAddress?.toLowerCase(),
+                          chainId,
+                          getChainRelevantContracts(chainId),
+                        )}
+                        passHref
+                      >
+                        <a target="_blank">
+                          <div className="border-t border-customLightGray pt-2 px-1">
+                            <SecondaryActionButton label="Get Token" />
+                          </div>
+                        </a>
+                      </Link>
+                    )}
                 </div>
               </div>
 
@@ -309,14 +308,14 @@ export default function StakeInterface({
                     chainId,
                     getChainRelevantContracts(chainId),
                   ) && (
-                    <Link href={`/${router?.query?.network}/rewards`} passHref>
-                      <a target="_self">
-                        <div className="border-t border-customLightGray pt-2 px-1">
-                          <SecondaryActionButton label="Claim Page" />
-                        </div>
-                      </a>
-                    </Link>
-                  )}
+                      <Link href={`/${router?.query?.network}/rewards`} passHref>
+                        <a target="_self">
+                          <div className="border-t border-customLightGray pt-2 px-1">
+                            <SecondaryActionButton label="Claim Page" />
+                          </div>
+                        </a>
+                      </Link>
+                    )}
                 </div>
               </div>
             </MobileCardSlider>

@@ -1,11 +1,11 @@
 import { formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import StatusWithLabel from "components/Common/StatusWithLabel";
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
 import { BigNumber, constants } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
-import useGetYearnAPY from "hooks/set/useGetYearnAPY";
-import useStakingPool from "hooks/staking/useStakingPool";
-import useWeb3 from "hooks/useWeb3";
+import useGetYearnAPY from "@popcorn/app/hooks/set/useGetYearnAPY";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export interface ButterStatsProps {
   token: Token;
@@ -34,13 +34,10 @@ export default function ButterStats({
     isThreeX ? contractAddresses.threeXStaking : contractAddresses.butterStaking,
   );
 
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
-    butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-  }%) and is boosted with POP (${
-    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
-  }%). You must stake your ${
-    isThreeX ? "3X" : "BTR"
-  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
+    }%) and is boosted with POP (${butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
+    }%). You must stake your ${isThreeX ? "3X" : "BTR"
+    } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
     <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-0 md:space-x-6">

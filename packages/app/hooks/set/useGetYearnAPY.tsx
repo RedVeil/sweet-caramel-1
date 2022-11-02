@@ -1,6 +1,6 @@
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import YearnVault from "helper/YearnVault";
-import useWeb3 from "hooks/useWeb3";
+import YearnVault from "@popcorn/app/helper/YearnVault";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
 
 const PERCENT = 100;

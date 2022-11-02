@@ -1,30 +1,30 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { CardLoader } from "components/CardLoader";
-import ConnectDepositCard from "components/Common/ConnectDepositCard";
-import AirDropClaim from "components/Rewards/AirdropClaim";
-import ClaimCard from "components/Rewards/ClaimCard";
-import { NotAvailable } from "components/Rewards/NotAvailable";
-import RewardSummaryCard from "components/Rewards/RewardSummaryCard";
-import VestingRecordComponent from "components/Rewards/VestingRecord";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import TabSelector from "components/TabSelector";
-import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
-import { store } from "context/store";
+import { CardLoader } from "@popcorn/app/components/CardLoader";
+import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
+import AirDropClaim from "@popcorn/app/components/Rewards/AirdropClaim";
+import ClaimCard from "@popcorn/app/components/Rewards/ClaimCard";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
+import RewardSummaryCard from "@popcorn/app/components/Rewards/RewardSummaryCard";
+import VestingRecordComponent from "@popcorn/app/components/Rewards/VestingRecord";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import TabSelector from "@popcorn/app/components/TabSelector";
+import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
 import { BigNumber, ethers } from "ethers";
-import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
-import usePopLocker from "hooks/staking/usePopLocker";
-import useClaimEscrows from "hooks/useClaimEscrows";
-import useClaimStakingReward from "hooks/useClaimStakingReward";
-import { Escrow, useGetUserEscrows, useGetUserVaultsEscrows } from "hooks/useGetUserEscrows";
-import useWeb3 from "hooks/useWeb3";
+import useGetMultipleStakingPools from "@popcorn/app/hooks/staking/useGetMultipleStakingPools";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useClaimEscrows from "@popcorn/app/hooks/useClaimEscrows";
+import useClaimStakingReward from "@popcorn/app/hooks/useClaimStakingReward";
+import { Escrow, useGetUserEscrows, useGetUserVaultsEscrows } from "@popcorn/app/hooks/useGetUserEscrows";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { toast } from "react-hot-toast";
 import { SWRResponse } from "swr";
-import useBalanceAndAllowance from "../../hooks/staking/useBalanceAndAllowance";
-import useERC20 from "../../hooks/tokens/useERC20";
+import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -360,9 +360,9 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowData ||
-                userEscrowsFetchResult?.error ||
-                userVaultsEscrowsFetchResults?.error ||
-                userEscrowData?.totalClaimablePop?.isZero() ? (
+                  userEscrowsFetchResult?.error ||
+                  userVaultsEscrowsFetchResults?.error ||
+                  userEscrowData?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>

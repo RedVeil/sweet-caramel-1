@@ -67,7 +67,10 @@
     "tailwindcss": "3.0.23",
     "typechain": "5.2.0",
     "web3": "1.7.0",
-    "typescript": "4.8.4"
+    "typescript": "4.8.4",
+    "eslint": "8.26.0",
+    "eslint-config-next": "13.0.1",
+    "eslint-plugin-react-hooks": "^4.6.0"
   },
   "devDependencies": {
     "@svgr/webpack": "5.5.0",

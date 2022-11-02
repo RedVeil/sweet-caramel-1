@@ -1,7 +1,7 @@
 import { SearchIcon } from "@heroicons/react/outline";
 import { Token } from "@popcorn/utils/types";
-import PLACEHOLDER_IMAGE_URL from "helper/placeholderImageUrl";
-import useWeb3 from "hooks/useWeb3";
+import PLACEHOLDER_IMAGE_URL from "@popcorn/app/helper/placeholderImageUrl";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import Image from "next/image";
 import { FC, useState } from "react";
 
@@ -82,9 +82,8 @@ export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, select
               }}
             >
               <span
-                className={`flex items-center py-3 px-3 ${
-                  selectedToken.address === option.address ? "text-black font-semibold" : "text-primary font-normal"
-                }`}
+                className={`flex items-center py-3 px-3 ${selectedToken.address === option.address ? "text-black font-semibold" : "text-primary font-normal"
+                  }`}
               >
                 <span className="w-5 h-5 inline-flex mr-3 flex-shrink-0">
                   <img

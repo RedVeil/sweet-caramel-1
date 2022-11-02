@@ -1,5 +1,5 @@
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
 import React, { useContext } from "react";
 
 export interface InfoIconWithModalProps {

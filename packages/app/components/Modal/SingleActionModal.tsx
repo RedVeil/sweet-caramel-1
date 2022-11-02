@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
 import MainActionButton from "../MainActionButton";
 import TertiaryActionButton from "../TertiaryActionButton";
-import useClickOutside from "../../hooks/useClickOutside";
+import useClickOutside from "@popcorn/app/hooks/useClickOutside";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface SingleActionModalProps {

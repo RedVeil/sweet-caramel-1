@@ -1,19 +1,19 @@
 import { ChainId } from "@popcorn/utils";
 import { Address } from "@popcorn/utils/src/types";
-import AlertCard, { AlertCardLink } from "components/Common/AlertCard";
-import ConnectDepositCard from "components/Common/ConnectDepositCard";
-import StakeCard from "components/StakeCard";
-import { setMultiChoiceActionModal } from "context/actions";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
-import { store } from "context/store";
+import AlertCard, { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
+import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
+import StakeCard from "@popcorn/app/components/StakeCard";
+import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
+import { store } from "@popcorn/app/context/store";
 import { constants } from "ethers";
-import { ModalType, toggleModal } from "helper/modalHelpers";
-import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
-import usePopLocker from "hooks/staking/usePopLocker";
-import useWeb3 from "hooks/useWeb3";
+import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
+import useGetMultipleStakingPools from "@popcorn/app/hooks/staking/useGetMultipleStakingPools";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import React, { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
-import { NotAvailable } from "../../../components/Rewards/NotAvailable";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 
 const MIGRATION_LINKS: AlertCardLink[] = [
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
@@ -145,12 +145,12 @@ export default function index(): JSX.Element {
                       onSelectPool={onSelectPool}
                       badge={
                         features["migrationAlert"] &&
-                        stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
+                          stakingPool.address === "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C"
                           ? {
-                              text: "Migration Required",
-                              textColor: "text-white",
-                              bgColor: "bg-red-500",
-                            }
+                            text: "Migration Required",
+                            textColor: "text-white",
+                            bgColor: "bg-red-500",
+                          }
                           : undefined
                       }
                     />

@@ -1,10 +1,10 @@
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/types";
-import useERC20 from "hooks/tokens/useERC20";
-import useThreePool from "hooks/useThreePool";
-import useWeb3 from "hooks/useWeb3";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
+import useThreePool from "@popcorn/app/hooks/useThreePool";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
-import { getDataWhale } from "../../helper/threeXDataUtils";
+import { getDataWhale } from "@popcorn/app/helper/threeXDataUtils";
 import useThreeXWhale from "./useThreeXWhale";
 import useBasicIssuanceModule from "../set/useBasicIssuanceModule";
 import useSetToken from "../set/useSetToken";

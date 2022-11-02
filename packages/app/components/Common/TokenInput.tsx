@@ -1,9 +1,9 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import SelectToken from "components/BatchButter/SelectToken";
+import SelectToken from "@popcorn/app/components/BatchButter/SelectToken";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { escapeRegExp, inputRegex } from "helper/inputRegex";
+import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { useEffect, useState } from "react";
 
 export interface TokenInputProps {
@@ -64,9 +64,8 @@ export const TokenInput: React.FC<TokenInputProps> = ({
       <div className="flex items-center gap-2 md:gap-0 md:space-x-2 w-full">
         <div className="w-full">
           <div
-            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${
-              balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
-            }`}
+            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
+              }`}
           >
             <input
               name="tokenInput"

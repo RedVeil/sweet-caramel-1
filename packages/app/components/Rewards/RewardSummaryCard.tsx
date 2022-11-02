@@ -1,5 +1,5 @@
-import { InfoIconWithTooltip, InfoIconWithTooltipProps } from "components/InfoIconWithTooltip";
-import MainActionButton from "components/MainActionButton";
+import { InfoIconWithTooltip, InfoIconWithTooltipProps } from "@popcorn/app/components/InfoIconWithTooltip";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
 
 interface RewardSummaryCardProps {
   iconUri: string;

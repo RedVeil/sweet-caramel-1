@@ -1,6 +1,6 @@
-import Hero from "components/landing/Hero";
-import Products from "components/landing/Products";
-import SecuritySection from "components/landing/SecuritySection";
+import Hero from "@popcorn/app/components/landing/Hero";
+import Products from "@popcorn/app/components/landing/Products";
+import SecuritySection from "@popcorn/app/components/landing/SecuritySection";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 

@@ -1,6 +1,6 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChainId } from "@popcorn/utils";
-import { FeatureToggleContext } from "../../context/FeatureToggleContext";
+import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import React, { Fragment, useContext } from "react";
 import NetworkOptionsMenuItem from "./NetworkOptionsMenuItem";
 

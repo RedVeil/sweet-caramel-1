@@ -1,5 +1,5 @@
-import { InfoIconWithTooltip, InfoIconWithTooltipProps } from "components/InfoIconWithTooltip";
-import MainActionButton from "components/MainActionButton";
+import { InfoIconWithTooltip, InfoIconWithTooltipProps } from "@popcorn/app/components/InfoIconWithTooltip";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";

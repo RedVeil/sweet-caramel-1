@@ -1,6 +1,6 @@
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
-import useWeb3 from "hooks/useWeb3";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
 

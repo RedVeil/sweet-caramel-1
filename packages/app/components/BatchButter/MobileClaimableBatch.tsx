@@ -1,7 +1,7 @@
 import { BatchType } from "@popcorn/utils/src/types";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
-import { formatBatchInputToken, formatBatchOutputToken } from "helper/ClaimableBatchUtils";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
+import { formatBatchInputToken, formatBatchOutputToken } from "@popcorn/app/helper/ClaimableBatchUtils";
 import { BatchProps } from "./ClaimableBatch";
 
 const MobileClaimableBatch: React.FC<BatchProps> = ({

@@ -1,5 +1,5 @@
 import { localStringOptions } from "@popcorn/utils";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { Dispatch } from "react";
 
 interface MintRedeemToggleProps {
@@ -15,17 +15,15 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
   return (
     <div className="flex flex-row">
       <div
-        className={`w-1/2 flex items-center justify-center pb-2 ${
-          redeeming
+        className={`w-1/2 flex items-center justify-center pb-2 ${redeeming
             ? "border-b border-secondaryLight cursor-pointer group hover:border-primary"
             : "border-b border-primary"
-        }`}
+          }`}
         onClick={(e) => setRedeeming(false)}
       >
         <p
-          className={`text-center leading-none text-base ${
-            redeeming ? "text-primaryLight  group-hover:text-primary" : "text-primary font-medium"
-          }`}
+          className={`text-center leading-none text-base ${redeeming ? "text-primaryLight  group-hover:text-primary" : "text-primary font-medium"
+            }`}
         >
           Mint
         </p>
@@ -37,26 +35,23 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
             content={`Mint ${displayOutputToken} with ${displayInputToken} or stablecoins to earn interest on multiple stablecoins at once.
               As the value of the underlying assets increase, so does the redeemable value of
               ${displayOutputToken}. This process converts deposited funds into other stablecoins and deploys
-              them to automated yield-farming contracts by Yearn to generate interest. ${
-                isThreeX
-                  ? `Minting incurs a ${(0.75).toLocaleString(undefined, localStringOptions)}% (75 bps) mint fee.`
-                  : ""
+              them to automated yield-farming contracts by Yearn to generate interest. ${isThreeX
+                ? `Minting incurs a ${(0.75).toLocaleString(undefined, localStringOptions)}% (75 bps) mint fee.`
+                : ""
               }`}
           />
         </div>
       </div>
       <div
-        className={`w-1/2 flex items-center justify-center pb-2 ${
-          redeeming
+        className={`w-1/2 flex items-center justify-center pb-2 ${redeeming
             ? "border-b border-primary"
             : "border-b border-secondaryLight cursor-pointer group hover:border-primary"
-        }`}
+          }`}
         onClick={(e) => setRedeeming(true)}
       >
         <p
-          className={`text-center leading-none text-base ${
-            redeeming ? "text-primary font-medium" : "text-primaryLight group-hover:text-primary"
-          }`}
+          className={`text-center leading-none text-base ${redeeming ? "text-primary font-medium" : "text-primaryLight group-hover:text-primary"
+            }`}
         >
           Redeem
         </p>

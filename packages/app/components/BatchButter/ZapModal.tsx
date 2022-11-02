@@ -1,8 +1,8 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { Token } from "@popcorn/utils/types";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import { Dispatch, useState } from "react";
 import OutputToken from "./OutputToken";
 import PseudoRadioButton from "./PseudoRadioButton";

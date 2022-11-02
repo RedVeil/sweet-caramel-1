@@ -1,16 +1,16 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
-import { setMultiChoiceActionModal } from "context/actions";
-import { store } from "context/store";
-import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
-import useStakingPool from "hooks/staking/useStakingPool";
-import useApproveERC20 from "hooks/tokens/useApproveERC20";
-import useTokenPrice from "hooks/useTokenPrice";
-import useWeb3 from "hooks/useWeb3";
+import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import useApproveERC20 from "@popcorn/app/hooks/tokens/useApproveERC20";
+import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import StakeInterface, { defaultForm, InteractionType } from "../../../components/staking/StakeInterface";
-import StakeInterfaceLoader from "../../../components/staking/StakeInterfaceLoader";
+import StakeInterface, { defaultForm, InteractionType } from "@popcorn/app/components/staking/StakeInterface";
+import StakeInterfaceLoader from "@popcorn/app/components/staking/StakeInterfaceLoader";
 
 export default function StakingPage(): JSX.Element {
   const { account, chainId, signer, contractAddresses, onContractSuccess, onContractError, pushWithinChain } =

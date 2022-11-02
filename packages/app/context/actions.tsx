@@ -1,18 +1,18 @@
-import { DualActionModalProps } from "../components/Modal/DualActionModal";
-import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "../components/Modal/DualActionWideModal";
-import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "../components/Modal/MobileFullScreenModal";
+import { DualActionModalProps } from "@popcorn/app/components/Modal/DualActionModal";
+import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "@popcorn/app/components/Modal/DualActionWideModal";
+import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "@popcorn/app/components/Modal/MobileFullScreenModal";
 import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
-} from "../components/Modal/MultiChoiceActionModal";
+} from "@popcorn/app/components/Modal/MultiChoiceActionModal";
 import {
   DefaultNetworkChangePromptModalProps,
   NetworkChangePromptModalProps,
-} from "../components/Modal/NetworkChangePromptModal";
-import { DefaultSingleActionModalProps, SingleActionModalProps } from "../components/Modal/SingleActionModal";
-import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "../components/Modal/WalletSelectModal";
-import { DefaultDualActionModalProps } from "../components/Modal/DualActionModal";
-import { NotificationProps } from "../components/Notifications/NotificationProps";
+} from "@popcorn/app/components/Modal/NetworkChangePromptModal";
+import { DefaultSingleActionModalProps, SingleActionModalProps } from "@popcorn/app/components/Modal/SingleActionModal";
+import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "@popcorn/app/components/Modal/WalletSelectModal";
+import { DefaultDualActionModalProps } from "@popcorn/app/components/Modal/DualActionModal";
+import { NotificationProps } from "@popcorn/app/components/Notifications/NotificationProps";
 
 export const PUSH_NOTIFICATION = "notifications/PUSH_NOTIFICATION";
 export const UNSET_NOTIFICATION = "notifications/UNSET_NOTIFICATION";

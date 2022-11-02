@@ -1,8 +1,8 @@
 import { AccountBatch, BatchType, Token } from "@popcorn/utils/src/types";
-import PopUpModal from "components/Modal/PopUpModal";
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
-import useWindowSize from "hooks/useWindowSize";
+import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useWindowSize from "@popcorn/app/hooks/useWindowSize";
 import Image from "next/image";
 import { useContext, useState } from "react";
 import ClaimableBatch from "./ClaimableBatch";

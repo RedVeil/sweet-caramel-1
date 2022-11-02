@@ -1,5 +1,5 @@
 import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import useWeb3 from "hooks/useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
 
 const getAPYFromYearnVaults = (vaults) => {

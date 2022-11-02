@@ -1,7 +1,7 @@
 import { BatchType, Token } from "@popcorn/utils/src/types";
-import { InfoIconWithModal } from "components/InfoIconWithModal";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
+import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
 import { useContext } from "react";

@@ -1,6 +1,6 @@
-import WheelPickerItem from "components/WheelPicker/WheelPickerItem";
-import useHandleKeyboard from "hooks/wheelPicker/useHandleKeyboard";
-import useObserver from "hooks/wheelPicker/useObserver";
+import WheelPickerItem from "@popcorn/app/components/WheelPicker/WheelPickerItem";
+import useHandleKeyboard from "@popcorn/app/hooks/wheelPicker/useHandleKeyboard";
+import useObserver from "@popcorn/app/hooks/wheelPicker/useObserver";
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -18,12 +18,12 @@ const List = styled.ul`
   text-align: center;
   padding: 0 20px;
   ${(props: {
-    height: number;
-    width: string;
-    backgroundColor: string;
-    shadowColor: string;
-    focusColor: string;
-  }): string => `
+  height: number;
+  width: string;
+  backgroundColor: string;
+  shadowColor: string;
+  focusColor: string;
+}): string => `
     height: ${props.height}px;
     width: ${props.width};
     background-color: ${props.backgroundColor};

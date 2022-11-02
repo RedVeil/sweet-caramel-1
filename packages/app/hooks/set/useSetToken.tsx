@@ -1,6 +1,6 @@
 import { ISetToken, ISetToken__factory } from "@popcorn/hardhat/typechain";
 import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
-import useWeb3 from "hooks/useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useMemo } from "react";
 
 export default function useSetToken(tokenAddress: string, rpcProvider?): ISetToken {

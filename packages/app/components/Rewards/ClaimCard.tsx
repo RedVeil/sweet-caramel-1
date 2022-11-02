@@ -1,10 +1,10 @@
 
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import MainActionButton from "components/MainActionButton";
-import TokenIcon from "components/TokenIcon";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { BigNumber } from "ethers";
-import { getSanitizedTokenDisplayName } from "helper/displayHelper";
+import { getSanitizedTokenDisplayName } from "@popcorn/app/helper/displayHelper";
 interface ClaimCardProps {
   disabled: boolean;
   tokenName: string;

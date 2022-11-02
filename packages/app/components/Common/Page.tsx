@@ -1,6 +1,6 @@
 import Footer from "../Footer";
 import Navbar from "../NavBar/NavBar";
-import useRestakeAlert from "../../hooks/useRestakeAlert";
+import useRestakeAlert from "@popcorn/app/hooks/useRestakeAlert";
 import { Toaster } from "react-hot-toast";
 
 export default function Page(props: { children: JSX.Element }) {

@@ -1,12 +1,12 @@
 import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import useGetYearnAPY from "hooks/set/useGetYearnAPY";
-import useSetTokenTVL from "hooks/set/useSetTokenTVL";
-import useStakingPool from "hooks/staking/useStakingPool";
-import useStakingTVL from "hooks/staking/useStakingTVL";
+import useGetYearnAPY from "@popcorn/app/hooks/set/useGetYearnAPY";
+import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
 import React from "react";
 import Product from "./Product";
 
