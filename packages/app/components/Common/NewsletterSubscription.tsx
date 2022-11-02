@@ -1,7 +1,12 @@
 import SecondaryButton from "../SecondaryActionButton";
 import React, { useState } from "react";
 
-const NewsletterSubscription = ({ title, buttonLabel }) => {
+interface NewsletterSubscriptionProps {
+  title: string;
+  buttonLabel: string;
+}
+
+const NewsletterSubscription = ({ title, buttonLabel }: NewsletterSubscriptionProps) => {
   const [subscribeEmail, setSubscribeEmail] = useState<string>("");
   const [subscribing, setSubscribing] = useState<boolean>(false);
   const [subscriptionSuccessful, setSubscriptionSuccessful] = useState<boolean>(false);
