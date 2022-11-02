@@ -1,10 +1,14 @@
 import { ChevronLeftIcon } from "@heroicons/react/outline";
+import { ChainId } from "@popcorn/utils";
+import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import React from "react";
 import NavbarLink from "./NavbarLinks";
 
 const MobileProductsMenu = ({ onCloseMenu }) => {
+  const { connectedChainId } = useWeb3();
   const router = useRouter();
+  const networkName = ChainId[connectedChainId] || ChainId[ChainId.Ethereum];
   return (
     <div className="h-screen px-6 py-12">
       <div className="relative flex items-center justify-center" style={{ height: "30%" }}>
@@ -19,19 +23,27 @@ const MobileProductsMenu = ({ onCloseMenu }) => {
           <li className="mt-1" onClick={onCloseMenu}>
             <NavbarLink
               label="Sweet Vaults"
-              url="/sweet-vaults"
+              url={`/${networkName}/sweet-vaults`}
               isActive={router.pathname === `/[network]/sweet-vaults`}
             />
           </li>
         )}
         <li className="mt-1" onClick={onCloseMenu}>
-          <NavbarLink label="3X " url="/set/3x" isActive={router.pathname === `/[network]/set/3x`} />
+          <NavbarLink label="3X " url={`/${networkName}/set/3x`} isActive={router.pathname === `/[network]/set/3x`} />
         </li>
         <li className="mt-1" onClick={onCloseMenu}>
-          <NavbarLink label="Butter" url="/set/butter" isActive={router.pathname === `/[network]/set/butter`} />
+          <NavbarLink
+            label="Butter"
+            url={`/${networkName}/set/butter`}
+            isActive={router.pathname === `/[network]/set/butter`}
+          />
         </li>
         <li className="mt-1" onClick={onCloseMenu}>
-          <NavbarLink label="Staking" url="/staking" isActive={router.pathname === `/[network]/staking`} />
+          <NavbarLink
+            label="Staking"
+            url={`/${networkName}/staking`}
+            isActive={router.pathname === `/[network]/staking`}
+          />
         </li>
       </ul>
     </div>

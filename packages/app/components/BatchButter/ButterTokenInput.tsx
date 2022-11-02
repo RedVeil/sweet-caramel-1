@@ -1,12 +1,12 @@
 import { formatEther, formatUnits } from "@ethersproject/units";
-import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { SelectedToken, Token } from "@popcorn/utils/types";
 import { BigNumber, constants } from "ethers";
 import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
-import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useEffect, useRef, useState } from "react";
-import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
-import SelectToken from "./SelectToken";
+import { CheckMarkToggleWithInfo } from "@popcorn/app/components/BatchButter/CheckMarkToggleWithInfo";
+import SelectToken from "@popcorn/app/components/BatchButter/SelectToken";
 
 export enum Pages {
   "butter",
@@ -40,6 +40,7 @@ export interface ButterTokenInputProps {
   setWithdrawMode: (toggle: boolean) => void;
   page: Pages;
   instant: boolean;
+  chainId: ChainId;
 }
 
 const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
@@ -56,8 +57,10 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   setWithdrawMode,
   page,
   instant,
+  chainId,
 }) => {
-  const { contractAddresses } = useWeb3();
+  const addr = useDeployment(chainId);
+
   const [estimatedAmount, setEstimatedAmount] = useState<string>("");
 
   const displayAmount = depositAmount.isZero() ? "" : formatUnits(depositAmount, selectedToken.input.decimals);
@@ -90,10 +93,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
   }
 
   const useUnclaimedDepositsisDisabled = (): boolean => {
-    const keys =
-      page === Pages.threeX
-        ? [contractAddresses.usdc, contractAddresses.threeX]
-        : [contractAddresses.threeCrv, contractAddresses.butter];
+    const keys = page === Pages.threeX ? [addr.usdc, addr.threeX] : [addr.threeCrv, addr.butter];
     return !keys.includes(selectedToken.input.address);
   };
 
@@ -129,15 +129,12 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
                 spellCheck="false"
               />
               <SelectToken
+                chainId={chainId}
                 allowSelection={!withdrawMode}
                 selectedToken={selectedToken.input}
                 options={options.filter(
                   (option) =>
-                    !(
-                      withdrawMode
-                        ? [contractAddresses.threeCrv, contractAddresses.usdc]
-                        : [contractAddresses.butter, contractAddresses.threeX]
-                    ).includes(option.address),
+                    !(withdrawMode ? [addr.threeCrv, addr.usdc] : [addr.butter, addr.threeX]).includes(option.address),
                 )}
                 selectToken={selectToken}
               />
@@ -145,7 +142,39 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
           </div>
         </div>
 
-        {[Pages.threeX, Pages.butter].includes(page) && hasUnclaimedBalances && (
+        {depositDisabled?.disabled && <p className="text-customRed pt-2 leading-6">{depositDisabled?.errorMessage}</p>}
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex items-center">
+            <img
+              src="/images/wallet.svg"
+              alt="wallet balance of selected token"
+              width="13"
+              height="13"
+              className="mr-2"
+            />
+            <p className="text-secondaryLight">
+              {`${formatAndRoundBigNumber(
+                useUnclaimedDeposits ? selectedToken?.input?.claimableBalance : selectedToken?.input?.balance,
+                selectedToken?.input?.decimals,
+              )}`}
+            </p>
+          </div>
+          <button
+            className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
+            onClick={(e) => {
+              const maxAmount = useUnclaimedDeposits
+                ? selectedToken?.input?.claimableBalance
+                : selectedToken?.input?.balance;
+              calcOutputAmountsFromInput(maxAmount);
+              setDepositAmount(maxAmount);
+              ref.current = Number(formatEther(maxAmount)).toFixed(3);
+            }}
+          >
+            MAX
+          </button>
+        </div>
+
+        {[Pages.threeX, Pages.butter].includes(page) && hasUnclaimedBalances && !useUnclaimedDepositsisDisabled() && (
           <CheckMarkToggleWithInfo
             disabled={useUnclaimedDepositsisDisabled()}
             value={Boolean(useUnclaimedDeposits)}
@@ -160,33 +189,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               }. This process applies also for unclaimed ${pageToDisplayToken(page).input}, which can be converted to ${pageToDisplayToken(page).output
               } without having to claim it.`}
             label="Use only unclaimed balances"
+            className="pb-4"
           />
         )}
-        {depositDisabled?.disabled && <p className="text-customRed pt-2 leading-6">{depositDisabled?.errorMessage}</p>}
-        <div className="flex justify-between items-center mt-2">
-          <div className="flex items-center">
-            <img src="/images/wallet.svg" alt="3x" width="20" height="20" className="mr-2" />
-            <p className="text-secondaryLight">
-              {`${formatAndRoundBigNumber(
-                useUnclaimedDeposits ? selectedToken.input.claimableBalance : selectedToken.input.balance,
-                selectedToken.input.decimals,
-              )}`}
-            </p>
-          </div>
-          <button
-            className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
-            onClick={(e) => {
-              const maxAmount = useUnclaimedDeposits
-                ? selectedToken.input.claimableBalance
-                : selectedToken.input.balance;
-              calcOutputAmountsFromInput(maxAmount);
-              setDepositAmount(maxAmount);
-              ref.current = Number(formatEther(maxAmount)).toFixed(3);
-            }}
-          >
-            MAX
-          </button>
-        </div>
       </div>
       <div className="relative -mt-10 -mb-10">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -204,7 +209,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         </div>
       </div>
       <div>
-        <p className="text-base font-medium text-primary">{`Estimated ${selectedToken.output.symbol} Amount`}</p>
+        <p className="text-base font-medium text-primary">{`Estimated ${selectedToken?.output?.symbol} Amount`}</p>
         <div>
           <div className="w-full flex px-5 py-4 items-center rounded-lg border">
             <input
@@ -223,11 +228,10 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               readOnly
             />
             <SelectToken
+              chainId={chainId}
               allowSelection={instant && withdrawMode}
               selectedToken={selectedToken.output}
-              options={options.filter(
-                (option) => ![contractAddresses.butter, contractAddresses.threeX].includes(option.address),
-              )}
+              options={options.filter((option) => ![addr.butter, addr.threeX].includes(option.address))}
               selectToken={selectToken}
             />
           </div>

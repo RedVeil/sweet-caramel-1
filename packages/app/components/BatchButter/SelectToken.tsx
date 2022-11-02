@@ -1,8 +1,9 @@
 import { ChevronDownIcon } from "@heroicons/react/outline";
+import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
 import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
 import SingleActionModal from "@popcorn/app/components/Modal/SingleActionModal";
-import PLACEHOLDER_IMAGE_URL from "@popcorn/app/helper/placeholderImageUrl";
+import TokenIcon from "components/TokenIcon";
 import Image from "next/image";
 import { useState } from "react";
 import { SearchToken } from "./SearchToken";
@@ -12,6 +13,7 @@ export interface SelectTokenProps {
   options: Token[];
   selectedToken: Token;
   selectToken?: (token: Token) => void;
+  chainId: ChainId;
 }
 
 export default function SelectToken({
@@ -19,6 +21,7 @@ export default function SelectToken({
   options,
   selectedToken,
   selectToken,
+  chainId,
 }: SelectTokenProps): JSX.Element {
   const [showSelectTokenModal, setShowSelectTokenModal] = useState(false);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
@@ -41,14 +44,8 @@ export default function SelectToken({
             allowSelection && openPopUp();
           }}
         >
-          <div className="w-5 h-5 md:mr-2 relative">
-            <Image
-              src={selectedToken?.icon || PLACEHOLDER_IMAGE_URL}
-              alt={selectedToken?.icon}
-              layout="fill" // required
-              objectFit="contain"
-              priority={true}
-            />
+          <div className="md:mr-2 relative">
+            <TokenIcon token={selectedToken?.address} imageSize="w-5 h-5" chainId={chainId} />
           </div>
           <p className="font-medium text-lg leading-none hidden md:block text-black group-hover:text-primary">
             {selectedToken?.symbol}
@@ -72,6 +69,7 @@ export default function SelectToken({
         content={
           <div className="mt-8">
             <SearchToken
+              chainId={chainId}
               options={options}
               selectToken={(token) => {
                 selectToken(token);
@@ -96,6 +94,7 @@ export default function SelectToken({
         >
           <p className="text-base text-black font-normal mb-2">Select a token</p>
           <SearchToken
+            chainId={chainId}
             options={options}
             selectToken={(token) => {
               selectToken(token);

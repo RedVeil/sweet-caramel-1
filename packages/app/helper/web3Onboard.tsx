@@ -49,7 +49,7 @@ export default function web3Onboard(): void {
         id: ChainIdHex.Hardhat,
         token: "ETH",
         label: "Hardhat",
-        rpcUrl: RPC_URLS[ChainId.Localhost],
+        rpcUrl: RPC_URLS[ChainId.Hardhat],
       },
       {
         id: ChainIdHex.Localhost,

@@ -1,23 +1,26 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
-import MainActionButton from "../MainActionButton";
-import PopUpModal from "../Modal/PopUpModal";
-import DiscordIcon from "../SVGIcons/DiscordIcon";
-import MediumIcon from "../SVGIcons/MediumIcon";
-import RedditIcon from "../SVGIcons/RedditIcon";
-import TelegramIcon from "../SVGIcons/TelegramIcon";
-import TwitterIcon from "../SVGIcons/TwitterIcon";
-import YoutubeIcon from "../SVGIcons/YoutubeIcon";
-import TertiaryActionButton from "../TertiaryActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import DiscordIcon from "@popcorn/app/components/SVGIcons/DiscordIcon";
+import MediumIcon from "@popcorn/app/components/SVGIcons/MediumIcon";
+import RedditIcon from "@popcorn/app/components/SVGIcons/RedditIcon";
+import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
+import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
+import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { getProductLinks } from "@popcorn/app/helper/getProductLinks";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
+import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import WheelPicker from "react-simple-wheel-picker";
-import MobileProductsMenu from "./MobileProductsMenu";
-import NavbarLink from "./NavbarLinks";
+import MobileProductsMenu from "@popcorn/app/components/NavBar/MobileProductsMenu";
+import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
+
 const networkData = [
   {
     id: JSON.stringify(ChainId.Ethereum),
@@ -38,7 +41,7 @@ const networkData = [
 ];
 
 export const MobileMenu: React.FC = () => {
-  const { account, connect, disconnect, setChain, pushWithinChain } = useWeb3();
+  const { account, connect, disconnect, setChain, pushWithinChain, connectedChainId } = useWeb3();
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
   const [availableNetworks, setAvailableNetworks] = useState(networkData);
@@ -47,6 +50,7 @@ export const MobileMenu: React.FC = () => {
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
   const selectedNetwork = useRef(parseInt(networkData[0].id));
+  const networkName = useNetworkName();
 
   const { showLocalNetwork } = useContext(FeatureToggleContext).features;
 
@@ -79,11 +83,13 @@ export const MobileMenu: React.FC = () => {
     setShowPopUp(false);
   };
 
+  const { showNewsletterModal } = useSubscribeToNewsletter();
+
   return (
     <>
       <div className="flex flex-row justify-between items-center px-6 py-6 font-khTeka">
         <div>
-          <Link href={`/${router?.query?.network}/`} passHref>
+          <Link href={`/`} passHref>
             <a>
               <img src="/images/icons/popLogo.svg" alt="Logo" className="w1010 h-10" />
             </a>
@@ -147,7 +153,7 @@ export const MobileMenu: React.FC = () => {
                   <div className="h-full w-full flex flex-col justify-between pt-18 px-6 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col w-full">
                       <div className="pt-6 pb-6">
-                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/[network]`} />
+                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/`} />
                       </div>
                       <div className="py-6">
                         {products.length < 2 ? (
@@ -159,15 +165,22 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-6">
                         <NavbarLink
                           label="Staking"
-                          url="/staking"
+                          url={`/${networkName}/staking`}
                           isActive={router.pathname === "/[network]/staking"}
                         />
                       </div>
                       <div className="py-6">
                         <NavbarLink
                           label="Rewards"
-                          url="/rewards"
+                          url={`/${networkName}/rewards`}
                           isActive={router.pathname === "/[network]/rewards"}
+                        />
+                      </div>
+                      <div className="py-6">
+                        <TertiaryActionButton
+                          label="Newsletter Sign Up"
+                          handleClick={showNewsletterModal}
+                          className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
                         />
                       </div>
                     </div>

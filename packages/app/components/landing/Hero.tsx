@@ -1,75 +1,18 @@
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ChainId } from "@popcorn/utils";
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
 import SliderContainer from "@popcorn/app/components/Common/SliderContainer";
-import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
-import { constants } from "ethers/lib/ethers";
-import { formatUnits } from "ethers/lib/utils";
-import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
-import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
-import useNetWorth from "@popcorn/app/hooks/useNetWorth";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { useMemo } from "react";
+import { NetworthCard } from "./NetworthCard";
+import { TVLCard } from "./TVLCard";
 
 export default function Hero(): JSX.Element {
   const { account, connect } = useWeb3();
-  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
-  const { totalNetWorth } = useNetWorth();
-  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
-  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
-  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
-  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch);
-  const tvl = useMemo(
-    () =>
-      [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce(
-        (total, num) => total.add(num ? num : constants.Zero),
-        constants.Zero,
-      ),
-    [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL],
-  );
-
-  let formatter = Intl.NumberFormat("en", {
-    //@ts-ignore
-    notation: "compact",
-  });
-
   return (
     <section className="grid grid-cols-12 md:gap-8">
       <div className="col-span-12 md:col-span-3">
         <div className="grid grid-cols-12 w-full gap-4 md:gap-0">
-          <div className="col-span-5 md:col-span-12 rounded-lg border border-customLightGray p-6">
-            <div className="flex items-center gap-2 md:gap-0 md:space-x-2 mb-1 md:mb-2">
-              <p className="text-primaryLight leading-5 hidden md:block">Total Value Locked </p>
-              <p className="text-primaryLight leading-5 md:hidden">TVL </p>
-              <InfoIconWithTooltip
-                classExtras=""
-                id="hero-tvl"
-                title="Total value locked (TVL)"
-                content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
-              />
-            </div>
-            <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
-              ${formatter.format(parseInt(formatUnits(tvl)))}
-            </p>
-          </div>
-          {account && (
-            <div className="col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-6 md:my-8">
-              <div className="flex items-center gap-2 md:gap-0 md:space-x-2 mb-1 md:mb-2">
-                <p className="text-primaryLight leading-5 hidden md:block">My Net Worth</p>
-                <p className="text-primaryLight leading-5 md:hidden">MNW</p>
-                <InfoIconWithTooltip
-                  classExtras=""
-                  id="hero-mnw"
-                  title="Net Worth"
-                  content="This value aggregates your Popcorn-related holdings across all blockchain networks."
-                />
-              </div>
-              <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
-                ${formatter.format(parseInt(formatUnits(totalNetWorth)))}
-              </p>
-            </div>
-          )}
+          <TVLCard />
+          {account && <NetworthCard />}
         </div>
         {!account && (
           <div

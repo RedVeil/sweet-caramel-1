@@ -1,10 +1,14 @@
-import Footer from "../Footer";
-import Navbar from "../NavBar/NavBar";
 import useRestakeAlert from "@popcorn/app/hooks/useRestakeAlert";
+import Footer from "@popcorn/app/components/Footer";
+import Navbar from "@popcorn/app/components/NavBar/NavBar";
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
+import React, { ReactElement } from "react";
 import { Toaster } from "react-hot-toast";
 
 export default function Page(props: { children: JSX.Element }) {
   useRestakeAlert();
+  useSubscribeToNewsletter();
+
   return (
     <div className="w-full min-h-screen h-full font-khTeka flex flex-col justify-between">
       <div>

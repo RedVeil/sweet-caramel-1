@@ -1,5 +1,3 @@
-import { Web3Provider } from "@ethersproject/providers";
-import { Web3ReactProvider } from "@web3-react/core";
 import Page from "@popcorn/app/components/Common/Page";
 import { Debug } from "@popcorn/app/components/Debug";
 import FeatureTogglePanel from "@popcorn/app/components/DevOnly/FeatureTogglePanel";
@@ -19,15 +17,12 @@ import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { GlobalLinearProgressAndLoading } from "@popcorn/app/components/GlobalLinearProgressAndLoading";
 import { StateProvider } from "@popcorn/app/context/store";
-import "@popcorn/app/styles/globals.css";
-
-import '../styles/globals.css';
-import '@rainbow-me/rainbowkit/styles.css';
-import type { AppProps } from 'next/app';
 import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
+import "@popcorn/app/styles/globals.css";
+import '@rainbow-me/rainbowkit/styles.css';
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
@@ -60,12 +55,6 @@ const wagmiClient = createClient({
   provider,
   webSocketProvider,
 });
-
-function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider, "any");
-  library.pollingInterval = 12000;
-  return library;
-}
 
 web3Onboard();
 
@@ -141,27 +130,25 @@ export default function MyApp(props) {
       </Head>
       <StateProvider>
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
-        <Web3ReactProvider getLibrary={getLibrary}>
-          <FeatureToggleProvider>
-            <WagmiConfig client={wagmiClient}>
-              <RainbowKitProvider chains={chains}>
-                <SoftLaunchCheck loading={loading} />
-                <OfacCheck />
-                <MobileFullScreenModalContainer />
-                <SingleActionModalContainer />
-                <MultiChoiceActionModalContainer />
-                <DualActionModalContainer />
-                <DualActionWideModalContainer />
-                <NetworkChangePromptModalContainer />
-                {getLayout(<Component {...pageProps} />)}
-                <FeatureTogglePanel />
-                <NotificationsContainer />
-                <Debug />
-              </RainbowKitProvider>
-            </WagmiConfig >
-          </FeatureToggleProvider>
-        </Web3ReactProvider>
-      </StateProvider>
+        <FeatureToggleProvider>
+          <WagmiConfig client={wagmiClient}>
+            <RainbowKitProvider chains={chains}>
+              <SoftLaunchCheck loading={loading} />
+              <OfacCheck />
+              <MobileFullScreenModalContainer />
+              <SingleActionModalContainer />
+              <MultiChoiceActionModalContainer />
+              <DualActionModalContainer />
+              <DualActionWideModalContainer />
+              <NetworkChangePromptModalContainer />
+              {getLayout(<Component {...pageProps} />)}
+              <FeatureTogglePanel />
+              <NotificationsContainer />
+              <Debug />
+            </RainbowKitProvider>
+          </WagmiConfig >
+        </FeatureToggleProvider>
+      </StateProvider >
     </React.Fragment >
   );
 }

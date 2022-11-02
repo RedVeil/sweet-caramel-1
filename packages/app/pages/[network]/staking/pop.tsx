@@ -10,14 +10,17 @@ import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useApproveERC20 from "@popcorn/app/hooks/tokens/useApproveERC20";
 import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function PopStakingPage(): JSX.Element {
-  const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId, pushWithinChain } =
-    useWeb3();
+  const { account, signer, onContractSuccess, onContractError, pushWithinChain } = useWeb3();
+  const chainId = useChainIdFromUrl();
+  const { popStaking } = useDeployment(chainId);
 
   const { dispatch } = useContext(store);
 
@@ -29,12 +32,11 @@ export default function PopStakingPage(): JSX.Element {
 
   const [form, setForm] = useState(defaultForm);
   const router = useRouter();
-  const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
-  const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
+  const { data: stakingPool } = usePopLocker(popStaking, chainId);
+  const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, popStaking, chainId);
   const stakingToken = stakingPool?.stakingToken;
-  const approveToken = useApproveERC20();
-  const tokenPrice = useTokenPrice(stakingToken?.address);
-
+  const approveToken = useApproveERC20(chainId);
+  const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {

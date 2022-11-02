@@ -1,13 +1,15 @@
 import { ThreeXWhaleProcessing, ThreeXWhaleProcessing__factory } from "@popcorn/hardhat/typechain";
-import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 import { useMemo } from "react";
 
-export default function useThreeXWhale(): ThreeXWhaleProcessing {
-  const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
+export default function useThreeXWhale(address: string, chainId: ChainId): ThreeXWhaleProcessing {
+  const { account } = useWeb3();
 
+  const provider = useRpcProvider(chainId);
   return useMemo(() => {
-    if (isButterSupportedOnCurrentNetwork(chainId))
-      return ThreeXWhaleProcessing__factory.connect(contractAddresses.threeXWhale, signerOrProvider);
-  }, [signerOrProvider, contractAddresses.threeXWhale, account]);
+    if (isButterSupportedOnCurrentNetwork(chainId) && !!address)
+      return ThreeXWhaleProcessing__factory.connect(address, provider);
+  }, [provider, address, chainId, account]);
 }

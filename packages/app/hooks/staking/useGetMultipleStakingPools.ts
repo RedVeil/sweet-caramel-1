@@ -1,28 +1,31 @@
 import { Staking__factory } from "@popcorn/hardhat/typechain";
-import { getStakingPool } from "@popcorn/utils";
+import { ChainId, getStakingPool } from "@popcorn/utils";
 import { StakingPoolMetadata } from "@popcorn/utils/getStakingPool";
+import { useDeployment } from "hooks/useDeployment";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 import useSWR, { SWRResponse } from "swr";
 
 export default function useGetMultipleStakingPools(
   addresses: string[] = [],
+  chainId: ChainId,
 ): SWRResponse<StakingPoolMetadata[], Error> {
-  const { signerOrProvider, chainId, contractAddresses, account } = useWeb3();
+  const { signerOrProvider, account } = useWeb3();
+  const contractAddresses = useDeployment(chainId);
 
   const stakingContracts = useMemo(
     () => addresses.map((address) => Staking__factory.connect(address, signerOrProvider)),
     [chainId, addresses, signerOrProvider],
   );
 
-  const shouldFetch = !!stakingContracts && !!chainId && !addresses.some((address) => !contractAddresses.has(address));
+  const shouldFetch = !!stakingContracts && !!chainId;
 
   return useSWR(
-    shouldFetch ? [`getPoolInfo`, account, chainId, addresses] : null,
+    shouldFetch ? [`getPoolInfo`, account, chainId, addresses, signerOrProvider] : null,
     async (key: string) => {
       return Promise.all(
         stakingContracts.map(async (contract) =>
-          getStakingPool(key, account, contract, contractAddresses, chainId, signerOrProvider),
+          getStakingPool(key, account, contract, chainId, signerOrProvider, contractAddresses),
         ),
       );
     },

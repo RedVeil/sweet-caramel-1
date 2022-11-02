@@ -1,8 +1,8 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
-import { Address, StakingPool, Token } from "@popcorn/utils/src/types";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import { StakingPool, Token } from "@popcorn/utils/src/types";
 import { constants } from "ethers";
-import { getSanitizedTokenDisplayName } from "@popcorn/app/helper/displayHelper";
 import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
+import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import Badge, { Badge as BadgeType } from "./Common/Badge";
 import MainActionButton from "./MainActionButton";
 import TokenIcon from "./TokenIcon";
@@ -10,12 +10,14 @@ import TokenIcon from "./TokenIcon";
 interface StakeCardProps {
   stakingPool: StakingPool;
   stakedToken: Token;
-  onSelectPool: (stakingContractAddress: Address, stakingTokenAddress: Address) => void;
+  onSelectPool: (stakingContractAddress: string, stakingTokenAddress: string) => void;
   badge?: BadgeType;
+  chainId: ChainId;
 }
 
-const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge }) => {
-  const tokenPrice = useTokenPrice(stakedToken?.address);
+const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge, chainId }) => {
+  const tokenPrice = useTokenPrice(stakedToken?.address, chainId);
+  const metadata = useContractMetadata(stakedToken?.address, chainId);
   return (
     <div
       className="border-b border-b-customLightGray py-8 md:p-8 cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative"
@@ -23,10 +25,10 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
     >
       <div className="flex flex-row items-center justify-between">
         <div className="flex items-center">
-          <TokenIcon token={getSanitizedTokenDisplayName(stakedToken?.name)} fullsize />
+          <TokenIcon token={stakedToken?.address} chainId={chainId} fullsize />
           <div className="flex flex-col md:flex-row md:items-center ml-2 md:ml-0">
             <h3 className="text-3xl md:text-4xl md:ml-2 mb-2 md:mb-0 font-normal leading-9">
-              {getSanitizedTokenDisplayName(stakedToken?.name)}
+              {metadata?.name ? metadata.name : stakedToken.name}
             </h3>
             {badge && (
               <div className="md:pl-2">

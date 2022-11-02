@@ -1,8 +1,7 @@
-import { adjustDepositDecimals, ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import { Pages } from "@popcorn/app/components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
-import ButterStats from "@popcorn/app/components/ButterStats";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import { setDualActionWideModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
@@ -11,34 +10,37 @@ import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
 import useThreeXWhale from "@popcorn/app/hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "@popcorn/app/hooks/set/useThreeXWhaleData";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import SetStats from "@popcorn/app/components/SetStats";
+import { useAdjustDepositDecimals } from "hooks/useAdjustDepositDecimals";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
-import { instantMint, instantRedeem } from "./3x";
-import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { instantMint, instantRedeem } from "@popcorn/app/pages/[network]/set/3x";
+import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "@popcorn/app/pages/[network]/set/butter";
 
 export default function Instant3x() {
   const {
     signerOrProvider,
     account,
-    chainId,
     onContractSuccess,
     onContractError,
     contractAddresses,
     connect,
     setChain,
-    pushWithinChain,
     signer,
   } = useWeb3();
+  const chainId = useChainIdFromUrl();
   const { dispatch } = useContext(store);
-  const threeXWhale = useThreeXWhale();
+  const threeXWhale = useThreeXWhale(contractAddresses.threeXWhale, chainId);
   const {
     data: threeXWhaleData,
     error: errorFetchingThreeXWhaleData,
     mutate: refetchThreeXData,
-  } = useThreeXWhaleData();
+  } = useThreeXWhaleData(chainId);
   const router = useRouter();
+  const adjustDepositDecimals = useAdjustDepositDecimals(chainId);
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXWhaleData && !errorFetchingThreeXWhaleData;
 
@@ -188,18 +190,13 @@ export default function Instant3x() {
             Stake your 3X to earn boosted APY.
           </p>
           <div className="mx-auto">
-            <ButterStats
-              token={threeX}
-              totalSupply={threeXWhaleData?.totalSupply}
-              addresses={[contractAddresses.ySusd, contractAddresses.y3Eur]}
-              center
-              isThreeX
-            />
+            <SetStats token={threeX} />
           </div>
         </div>
         <div className="mt-10">
           {threeXWhaleData && threeXPageState.selectedToken ? (
             <MintRedeemInterface
+              chainId={chainId}
               options={threeXWhaleData.tokens}
               selectToken={selectToken}
               mainAction={handleMainAction}

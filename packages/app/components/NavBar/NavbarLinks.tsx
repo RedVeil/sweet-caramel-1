@@ -30,7 +30,7 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, 
   }
 
   return (
-    <Link href={`/${router?.query?.network}${url}` || ""} passHref>
+    <Link href={`${url}` || ""} passHref>
       <a
         className={className}
         target={target || "_self"}

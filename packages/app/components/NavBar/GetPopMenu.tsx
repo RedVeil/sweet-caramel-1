@@ -1,13 +1,19 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChainId } from "@popcorn/utils";
-import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
+import useContractMetadata from "hooks/useContractMetadata";
+import { useDeployment } from "hooks/useDeployment";
 import { Fragment } from "react";
 
 interface GetPopMenuProps { }
 
 const GetPopMenu: React.FC<GetPopMenuProps> = () => {
-  const { wallet, contractAddresses, chainId } = useWeb3();
+  const { wallet } = useWeb3();
+  const chainId = useChainIdFromUrl();
+  const { pop } = useDeployment(chainId);
+  const popMetadata = useContractMetadata(pop, chainId);
+  const buyLink = chainId === ChainId.Polygon ? popMetadata?.buyLinkPolygon : popMetadata?.buyLinkEthereum;
   const metaMaskConnected = wallet?.label === "MetaMask";
   const popPoolExists = [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost, ChainId.Polygon].includes(chainId);
 
@@ -28,7 +34,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
               <a
                 className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${metaMaskConnected ? "rounded-t-3xl border-b" : "rounded-3xl"
                   } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
-                href={`${getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses)}`}
+                href={buyLink}
                 target="_blank"
               >
                 <p className={`text-left text-lg px-6 ${active ? "font-medium" : ""}`}>Buy POP</p>
@@ -48,7 +54,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                     params: {
                       type: "ERC20",
                       options: {
-                        address: contractAddresses.pop,
+                        address: pop,
                         symbol: "POP",
                         decimals: 18,
                         image: "https://www.popcorn.network/images/icons/circle/circle_yellow_64x64.png",

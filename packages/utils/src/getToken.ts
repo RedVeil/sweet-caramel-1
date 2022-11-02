@@ -1,11 +1,7 @@
-import { getTokenMetadataOverride } from "@popcorn/app/contractMetadataOverride";
 import { ERC20 } from "@popcorn/hardhat/typechain";
 import { constants } from "ethers/lib/ethers";
-import { getSanitizedTokenDisplayName } from "../../app/helper/displayHelper";
 import { ERC20__factory } from "../../hardhat/typechain/factories/ERC20__factory";
 import { Token } from "./types";
-
-const TokenMetadataOverride = getTokenMetadataOverride();
 
 export default async function getToken(
   erc20: ERC20,
@@ -13,6 +9,7 @@ export default async function getToken(
   chainId: number,
   account?: string,
   spender?: string,
+  metadata?: any,
 ): Promise<Token> {
   // OVERRIDE METADATA WHERE NEEDED.
   if (erc20.address === constants.AddressZero || erc20.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
@@ -25,29 +22,19 @@ export default async function getToken(
       balance: account ? await provider.getBalance(account) : constants.Zero,
       allowance: constants.MaxUint256,
       icon: "/images/tokens/eth.png",
-    };
-  }
-  const overridingMetadata = TokenMetadataOverride[chainId][erc20.address.toLowerCase()];
-  if (overridingMetadata !== undefined) {
-    return {
-      contract: erc20,
-      address: erc20.address,
-      name: await erc20.name(),
-      symbol: await erc20.symbol(),
-      decimals: await erc20.decimals(),
-      balance: account ? await erc20.balanceOf(account) : constants.Zero,
-      allowance: account && spender ? await erc20.allowance(account, spender) : constants.Zero,
-      ...overridingMetadata,
+      ...metadata,
     };
   }
   return {
     contract: erc20,
     address: erc20.address,
-    name: getSanitizedTokenDisplayName(await erc20.name()),
+    name: await erc20.name(),
     symbol: await erc20.symbol(),
     decimals: await erc20.decimals(),
     balance: account ? await erc20.balanceOf(account) : constants.Zero,
     allowance: account && spender ? await erc20.allowance(account, spender) : constants.Zero,
+    icon: metadata?.icons?.length > 0 ? metadata.icons[0] : "/images/blackCircle.svg",
+    ...metadata,
   };
 }
 

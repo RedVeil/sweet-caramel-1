@@ -9,7 +9,7 @@ import {
   IBasicIssuanceModule,
   ISetToken,
 } from "@popcorn/hardhat/typechain";
-import { AccountBatch, Address, BatchMetadata, BatchType, Token } from "@popcorn/utils/src/types";
+import { AccountBatch, BatchMetadata, BatchType, Token } from "@popcorn/utils/src/types";
 import { BigNumber, constants, ethers } from "ethers";
 
 interface Stables {
@@ -21,7 +21,7 @@ interface Stables {
 
 interface BaseButterDependenciesInput {
   butterBatchAdapter: ButterBatchAdapter;
-  account: Address;
+  account: string;
   dai: Token;
   usdc: Token;
   usdt: Token;
@@ -73,41 +73,42 @@ export async function getData(dependencies: ButterDependenciesInput): Promise<Ba
 
   const currentBatches = await butterBatchAdapter.getCurrentBatches();
   const totalButterSupply = await butter.totalSupply();
-  const accountBatches = await butterBatchAdapter.getBatches(account);
+  const accountBatches = account ? await butterBatchAdapter.getBatches(account) : [];
 
   const claimableMintBatches = accountBatches.filter((batch) => batch.batchType == BatchType.Mint && batch.claimable);
   const claimableRedeemBatches = accountBatches.filter(
     (batch) => batch.batchType == BatchType.Redeem && batch.claimable,
   );
-
   const tokenResponse: Token[] = [
     {
       name: "BTR",
       address: butter.address,
       symbol: "BTR",
-      balance: await butter.balanceOf(account),
-      allowance: await butter.allowance(account, mainContract.address),
+      balance: account ? await butter.balanceOf(account) : constants.Zero,
+      allowance: account ? await butter.allowance(account, mainContract.address) : constants.Zero,
       price: await mainContract.valueOfComponents(
         ...(await setBasicIssuanceModule.getRequiredComponentUnitsForIssue(butter.address, parseEther("1"))),
       ),
       decimals: defaultErc20Decimals,
       icon: "/images/tokens/BTR.svg",
       contract: butter as unknown as ERC20,
-      claimableBalance: getClaimableBalance(claimableMintBatches),
+      claimableBalance: account ? getClaimableBalance(claimableMintBatches) : constants.Zero,
     },
     {
       ...threeCrv,
       price: await butterBatchAdapter.getThreeCrvPrice(threePool),
-      balance: await threeCrv.contract.balanceOf(account),
-      allowance: await threeCrv.contract.allowance(account, mainContract.address),
+      balance: account ? await threeCrv.contract.balanceOf(account) : constants.Zero,
+      allowance: account ? await threeCrv.contract.allowance(account, mainContract.address) : constants.Zero,
       decimals: defaultErc20Decimals,
-      claimableBalance: getClaimableBalance(claimableRedeemBatches),
+      claimableBalance: account ? getClaimableBalance(claimableRedeemBatches) : constants.Zero,
     },
     {
       ...dai,
       price: await butterBatchAdapter.getStableCoinPrice(threePool, [parseEther("1"), constants.Zero, constants.Zero]),
-      balance: await dai.contract.balanceOf(account),
-      allowance: await dai.contract.allowance(account, zapperContract ? zapperContract.address : mainContract.address),
+      balance: account ? await dai.contract.balanceOf(account) : constants.Zero,
+      allowance: account
+        ? await dai.contract.allowance(account, zapperContract ? zapperContract.address : mainContract.address)
+        : constants.Zero,
       decimals: defaultErc20Decimals,
     },
     {
@@ -117,8 +118,10 @@ export async function getData(dependencies: ButterDependenciesInput): Promise<Ba
         BigNumber.from(1e6),
         constants.Zero,
       ]),
-      balance: (await usdc.contract.balanceOf(account)).mul(BigNumber.from(1e12)),
-      allowance: await usdc.contract.allowance(account, zapperContract ? zapperContract.address : mainContract.address),
+      balance: account ? (await usdc.contract.balanceOf(account)).mul(BigNumber.from(1e12)) : constants.Zero,
+      allowance: account
+        ? await usdc.contract.allowance(account, zapperContract ? zapperContract.address : mainContract.address)
+        : constants.Zero,
       decimals: defaultErc20Decimals,
     },
     {
@@ -128,8 +131,10 @@ export async function getData(dependencies: ButterDependenciesInput): Promise<Ba
         constants.Zero,
         BigNumber.from(1e6),
       ]),
-      balance: (await usdt.contract.balanceOf(account)).mul(BigNumber.from(1e12)),
-      allowance: await usdt.contract.allowance(account, zapperContract ? zapperContract.address : mainContract.address),
+      balance: account ? (await usdt.contract.balanceOf(account)).mul(BigNumber.from(1e12)) : constants.Zero,
+      allowance: account
+        ? await usdt.contract.allowance(account, zapperContract ? zapperContract.address : mainContract.address)
+        : constants.Zero,
       decimals: defaultErc20Decimals,
     },
   ];

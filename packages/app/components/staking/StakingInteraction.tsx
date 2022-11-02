@@ -1,3 +1,4 @@
+import { ChainId } from "@popcorn/utils";
 import { StakingPool } from "@popcorn/utils/src/types";
 import TokenInput from "@popcorn/app/components/Common/TokenInput";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
@@ -17,6 +18,7 @@ export interface StakingInteractionProps {
   approve: () => void;
   stake: () => void;
   withdraw: () => void;
+  chainId: ChainId;
 }
 
 export default function StakingInteraction({
@@ -27,6 +29,7 @@ export default function StakingInteraction({
   approve,
   stake,
   withdraw,
+  chainId,
 }: StakingInteractionProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const [state, setState] = form;
@@ -37,6 +40,7 @@ export default function StakingInteraction({
     <>
       <div className="pt-16 pb-10">
         <TokenInput
+          chainId={chainId}
           label={withdrawal ? "Unstake Amount" : "Stake Amount"}
           token={stakingPool?.stakingToken}
           amount={amount}

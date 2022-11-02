@@ -1,15 +1,16 @@
 import { ChevronLeftIcon } from "@heroicons/react/solid";
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { formatAndRoundBigNumber, getTokenOnNetwork } from "@popcorn/utils";
 import MobileCardSlider from "@popcorn/app/components/Common/MobileCardSlider";
 import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
+import useNetworkName from "hooks/useNetworkName";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useContractMetadata from "../../hooks/useContractMetadata";
 import PopLockerInteraction from "./PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
 
@@ -51,8 +52,11 @@ export default function StakeInterface({
   stakedTokenPrice,
 }: StakeInterfaceProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
+  const popMetadata = useContractMetadata(stakingToken?.address, chainId);
+  const buyLink = chainId == ChainId.Polygon ? popMetadata?.buyLinkPolygon : popMetadata?.buyLinkEthereum;
   const [state, setState] = form;
   const router = useRouter();
+  const networkName = useNetworkName();
 
   const toggleInterface = () =>
     setState({
@@ -75,7 +79,7 @@ export default function StakeInterface({
 
       <div className="grid grid-cols-12 mt-10">
         <div className="col-span-12 md:col-span-5">
-          <TokenIcon token={stakingToken?.name} />
+          <TokenIcon token={stakingToken?.address} chainId={chainId} />
           <h1 className="text-black text-5xl md:text-6xl leading-12 mt-9">{stakingToken?.name}</h1>
           <div className="flex flex-wrap">
             <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
@@ -134,6 +138,7 @@ export default function StakeInterface({
             </div>
             {isPopLocker ? (
               <PopLockerInteraction
+                chainId={chainId}
                 stakingPool={stakingPool}
                 user={user}
                 form={form}
@@ -145,6 +150,7 @@ export default function StakeInterface({
               />
             ) : (
               <StakingInteraction
+                chainId={chainId}
                 stakingPool={stakingPool}
                 user={user}
                 form={form}
@@ -161,7 +167,7 @@ export default function StakeInterface({
           <div className="w-full md:grid grid-cols-12 gap-8 hidden">
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
-                <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
+                <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
                 <div>
                   <div className="flex">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
@@ -180,31 +186,20 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              {getTokenOnNetwork(
-                stakingPool.tokenAddress?.toLowerCase(),
-                chainId,
-                getChainRelevantContracts(chainId),
-              ) && (
-                  <Link
-                    href={getTokenOnNetwork(
-                      stakingPool.tokenAddress?.toLowerCase(),
-                      chainId,
-                      getChainRelevantContracts(chainId),
-                    )}
-                    passHref
-                  >
-                    <a target="_blank">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Get Token" />
-                      </div>
-                    </a>
-                  </Link>
-                )}
-            </div>
+              {buyLink && (
+                <Link href={buyLink} passHref>
+                  <a target="_blank">
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Get Token" />
+                    </div>
+                  </a>
+                </Link>
+              )}
+            </div >
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
-                <TokenIcon token={stakingToken?.name} imageSize="w-12 h-12" />
+                <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
                 <div>
                   <div className="flex">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>
@@ -220,28 +215,22 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              {getTokenOnNetwork(
-                stakingPool.tokenAddress?.toLowerCase(),
-                chainId,
-                getChainRelevantContracts(chainId),
-              ) && (
-                  <Link href={`/${router?.query?.network}/rewards`} passHref>
-                    <a target="_self">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Claim Page" />
-                      </div>
-                    </a>
-                  </Link>
-                )}
-            </div>
-          </div>
+              <Link href={`/${networkName}/rewards`} passHref>
+                <a target="_self">
+                  <div className="border-t border-customLightGray pt-2 px-1">
+                    <SecondaryActionButton label="Claim Page" />
+                  </div>
+                </a>
+              </Link>
+            </div >
+          </div >
 
           <div className="md:hidden">
             <MobileCardSlider>
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
                   <div className="flex gap-6 md:gap-0 md:space-x-6">
-                    <TokenIcon token={stakingToken?.name} />
+                    <TokenIcon token={stakingToken?.address} chainId={chainId} />
                     <div className="pb-6">
                       <div className="flex">
                         <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
@@ -260,33 +249,22 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  {getTokenOnNetwork(
-                    stakingPool.tokenAddress?.toLowerCase(),
-                    chainId,
-                    getChainRelevantContracts(chainId),
-                  ) && (
-                      <Link
-                        href={getTokenOnNetwork(
-                          stakingPool.tokenAddress?.toLowerCase(),
-                          chainId,
-                          getChainRelevantContracts(chainId),
-                        )}
-                        passHref
-                      >
-                        <a target="_blank">
-                          <div className="border-t border-customLightGray pt-2 px-1">
-                            <SecondaryActionButton label="Get Token" />
-                          </div>
-                        </a>
-                      </Link>
-                    )}
-                </div>
-              </div>
+                  {buyLink && (
+                    <Link href={buyLink} passHref>
+                      <a target="_blank">
+                        <div className="border-t border-customLightGray pt-2 px-1">
+                          <SecondaryActionButton label="Get Token" />
+                        </div>
+                      </a>
+                    </Link>
+                  )}
+                </div >
+              </div >
 
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
                   <div className="flex gap-6 md:gap-0 md:space-x-6">
-                    <TokenIcon token={stakingToken?.name} />
+                    <TokenIcon token={stakingToken?.address} chainId={chainId} />
                     <div className="pb-6">
                       <div className="flex">
                         <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>
@@ -303,23 +281,17 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  {getTokenOnNetwork(
-                    stakingPool.tokenAddress?.toLowerCase(),
-                    chainId,
-                    getChainRelevantContracts(chainId),
-                  ) && (
-                      <Link href={`/${router?.query?.network}/rewards`} passHref>
-                        <a target="_self">
-                          <div className="border-t border-customLightGray pt-2 px-1">
-                            <SecondaryActionButton label="Claim Page" />
-                          </div>
-                        </a>
-                      </Link>
-                    )}
-                </div>
-              </div>
-            </MobileCardSlider>
-          </div>
+                  <Link href={`/${networkName}/rewards`} passHref>
+                    <a target="_self">
+                      <div className="border-t border-customLightGray pt-2 px-1">
+                        <SecondaryActionButton label="Claim Page" />
+                      </div>
+                    </a>
+                  </Link>
+                </div >
+              </div >
+            </MobileCardSlider >
+          </div >
 
           <div className="bg-customLightYellow rounded-lg p-8 hidden md:flex flex-col justify-between mt-8">
             <h2 className=" text-6xl leading-11">{/* removed text for now - @am */}</h2>
@@ -327,13 +299,11 @@ export default function StakeInterface({
               <img src="/images/hands.svg" alt="" className=" h-28 w-28" />
             </div>
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
 
       <div className="bg-customRed rounded-lg p-6 flex md:hidden flex-col justify-between">
-        <h2 className=" text-2xl leading-6">
-          Blockchain-enabled <br /> wealth management and <br /> social impact.
-        </h2>
+        <h2 className=" text-2xl leading-6"></h2>
         <div className="flex justify-end mt-2">
           <img src="/images/hands.svg" alt="" className=" h-12 w-12" />
         </div>

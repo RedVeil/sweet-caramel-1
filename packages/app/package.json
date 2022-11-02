@@ -5,7 +5,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export": "yarn next export",
+    "jest": "jest",
+    "prettier": "prettier",
+    "prettify": "yarn lint-staged --allow-empty",
+    "netlify-build": "cd ..; cd hardhat; yarn build; cd ..; cd app; yarn next build"
+  },
+  "lint-staged": {
+    "*.{tsx,ts}": "prettier --write"
   },
   "dependencies": {
     "@popcorn/hardhat": "*",

@@ -1,29 +1,25 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 
+const contract_name = "RewardsEscrow";
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const { deployer, pop } = await getNamedAccounts();
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
+  const { pop } = addresses;
 
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-
-  const popAddress = !["mainnet", "polygon", "arbitrum", "bsc"].includes(hre.network.name)
+  const popAddress = !["mainnet", "polygon", "arbitrum", "bsc", "remote_fork"].includes(hre.network.name)
     ? (await deployments.get("TestPOP")).address
     : pop;
 
-  // todo: replace testpop with real pop
-  await deploy("RewardsEscrow", {
-    from: deployer,
+  const deployed = await deploy(contract_name, {
+    from: await signer.getAddress(),
     args: [popAddress],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
 
-  await deploy("VaultsRewardsEscrow", {
-    from: deployer,
+  const VaultsRewardsEscrow_deployed = await deploy("VaultsRewardsEscrow", {
+    from: await signer.getAddress(),
     args: [popAddress],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks

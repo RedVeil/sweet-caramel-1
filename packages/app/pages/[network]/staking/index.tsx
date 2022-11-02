@@ -14,21 +14,25 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import React, { useContext, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useStakingContracts } from "@popcorn/app/hooks/useStakingContracts";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 
 const MIGRATION_LINKS: AlertCardLink[] = [
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
 ];
 
 export default function index(): JSX.Element {
-  const {
-    contractAddresses: { popStaking, staking, pop, popUsdcArrakisVaultStaking },
-    chainId,
-    pushWithinChain,
-    account,
-  } = useWeb3();
+  const { pushWithinChain, account } = useWeb3();
+  const chainId = useChainIdFromUrl();
+  const { pop, popStaking, popUsdcArrakisVaultStaking } = useDeployment(chainId);
+  const stakingAddresses = useStakingContracts(chainId);
   const { dispatch } = useContext(store);
-  const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking);
-  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(staking);
+  const { data: popLocker, isValidating: popLockerIsValidating, error: popError } = usePopLocker(popStaking, chainId);
+  const { data: stakingPools, isValidating: stakingPoolsIsValidating } = useGetMultipleStakingPools(
+    stakingAddresses,
+    chainId,
+  );
   const [modalClosed, closeModal] = useState<boolean>(false);
   const { features } = useContext(FeatureToggleContext);
 
@@ -132,6 +136,7 @@ export default function index(): JSX.Element {
             {pageAvailable() && !!popLocker && !!stakingPools && (
               <>
                 <StakeCard
+                  chainId={chainId}
                   key={popLocker.address}
                   stakingPool={popLocker}
                   stakedToken={popLocker.stakingToken}
@@ -140,6 +145,7 @@ export default function index(): JSX.Element {
                 {displayedStakingPools?.map((stakingPool) => (
                   <div key={stakingPool.address}>
                     <StakeCard
+                      chainId={chainId}
                       stakingPool={stakingPool}
                       stakedToken={stakingPool.stakingToken}
                       onSelectPool={onSelectPool}

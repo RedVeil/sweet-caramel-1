@@ -1,5 +1,5 @@
+import useNetworkName from "hooks/useNetworkName";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import NewsletterSubscription from "./Common/NewsletterSubscription";
 import DiscordIcon from "./SVGIcons/DiscordIcon";
@@ -18,7 +18,7 @@ const Footer = () => {
   const [youtubeColor, setYoutubeColor] = useState("#645F4B");
 
   const [iconSize, setIconSize] = useState("24");
-  const router = useRouter();
+  const networkName = useNetworkName();
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) {
@@ -106,10 +106,10 @@ const Footer = () => {
                 <a className=" text-primary hover:text-black leading-6 mt-4">Sweet Vaults</a>
               </Link>
             )}
-            <Link href={`/${router?.query?.network}/set/3x`}>
+            <Link href={`/${networkName}/set/3x`}>
               <a className=" text-primary hover:text-black leading-6 mt-4">3X</a>
             </Link>
-            <Link href={`/${router?.query?.network}/set/butter`}>
+            <Link href={`/${networkName}/set/butter`}>
               <a className=" text-primary hover:text-black leading-6 mt-4">Butter</a>
             </Link>
             <Link href="/staking">

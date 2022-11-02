@@ -1,13 +1,25 @@
-import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { parseEther } from "ethers/lib/utils";
+import { getSignerFrom } from "../lib/utils/getSignerFrom";
+import { getNamedAccountsFromNetwork } from "../lib/utils/getNamedAccounts";
+import { Signer } from "ethers/lib/ethers";
+import { ethers, network } from "hardhat";
+const { Table } = require("console-table-printer");
 
 export const addContractToRegistry = async (
   contractName: string,
   deployments,
   signer,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
+  address?: string
 ) => {
+  TablePrinter.addRow({
+    contract_name: contractName,
+    address: address ? address : (await deployments.get(contractName)).address,
+  });
+  if (address) {
+    return;
+  }
   const contractRegistry = await hre.ethers.getContractAt(
     "ContractRegistry",
     (
@@ -18,7 +30,7 @@ export const addContractToRegistry = async (
 
   const contract = await contractRegistry.getContract(ethers.utils.id(contractName));
 
-  console.log(`Adding contract ${contractName} to registry`);
+  TablePrinter.log(`Adding contract ${contractName} to registry`);
   if (contract === ethers.constants.AddressZero) {
     await contractRegistry.addContract(
       ethers.utils.id(contractName),
@@ -29,7 +41,7 @@ export const addContractToRegistry = async (
       { gasLimit: 1000000 }
     );
   } else {
-    console.log(`${contractName} already exists in registry, updating entry ...`);
+    TablePrinter.log(`${contractName} already exists in registry, updating entry ...`);
 
     const tx = await contractRegistry.updateContract(
       ethers.utils.id(contractName),
@@ -39,9 +51,7 @@ export const addContractToRegistry = async (
       ethers.utils.id("2" + new Date().getTime().toString()),
       { gasLimit: 1000000 }
     );
-    if (!["hardhat", "local"].includes(hre.network.name)) {
-      await tx.wait(1);
-    }
+    await wait(tx, hre);
   }
 };
 
@@ -59,19 +69,18 @@ export const FaucetController = async (hre, signer) => {
     })();
 
   const _faucet = await initialize(hre, signer);
+  const _addresses = await getNamedAccountsFromNetwork(hre);
 
   return {
     faucet: _faucet,
     sendDai: async (recipient, amount: number) => {
-      const addresses = await hre.getNamedAccounts();
       console.log("sending dai...");
-      await _faucet.sendTokens(addresses.dai, amount, recipient);
+      await _faucet.sendTokens(_addresses.dai, amount, recipient);
     },
 
     sendUsdc: async (recipient, amount: number) => {
-      const addresses = await hre.getNamedAccounts();
       console.log("sending usdc...");
-      await _faucet.sendTokens(addresses.usdc, amount, recipient);
+      await _faucet.sendTokens(_addresses.usdc, amount, recipient);
     },
 
     sendCrvSethLPTokens: async (recipient, amount) => {
@@ -80,4 +89,79 @@ export const FaucetController = async (hre, signer) => {
   };
 };
 
+export async function wait(tx, hre) {
+  if (!["hardhat", "local", "remote_fork"].includes(hre.network.name)) {
+    await tx.wait();
+  }
+}
+
+export const Hardhat = {
+  impersonateSigner: async (address): Promise<Signer> => {
+    await network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [address],
+    });
+    return ethers.getSigner(address);
+  },
+  stopImpersonating: async (address): Promise<Signer> => {
+    await network.provider.request({
+      method: "hardhat_stopImpersonatingAccount",
+      params: [address],
+    });
+    return ethers.getSigner(address);
+  },
+  setBalance: async (address): Promise<void> => {
+    await network.provider.request({
+      method: "hardhat_setBalance",
+      params: [address, "0x152d02c7e14af6800000"],
+    });
+  },
+};
+
+export const Anvil = {
+  stopImpersonating: async (address): Promise<Signer> => {
+    await network.provider.request({
+      method: "anvil_stopImpersonatingAccount",
+      params: [address],
+    });
+    return ethers.getSigner(address);
+  },
+  impersonateSigner: async (address): Promise<Signer> => {
+    await network.provider.request({
+      method: "anvil_impersonateAccount",
+      params: [address],
+    });
+    return ethers.getSigner(address);
+  },
+  setBalance: async (address): Promise<void> => {
+    await network.provider.request({
+      method: "anvil_setBalance",
+      params: [address, "0x152d02c7e14af6800000"],
+    });
+  },
+};
+
+const _table = new Table({ title: "Deployed Contracts" });
+const _rows = [];
+export const TablePrinter = {
+  addRow: ({ contract_name, address }) => {
+    console.clear();
+    _rows.push({ contract_name, address });
+    _table.addRow({ contract_name, address });
+    _table.printTable();
+  },
+  log: (...args) => {
+    console.clear();
+    _table.printTable();
+    console.log(...args);
+  },
+};
+
+export const getSetup = async (hre: HardhatRuntimeEnvironment) => {
+  const { deployments } = hre;
+  const { deploy } = deployments;
+  const addresses = getNamedAccountsFromNetwork(hre);
+  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+  return { deploy, deployments, addresses, signer, log: TablePrinter.log };
+};
 module.exports.skip = () => true;

@@ -1,3 +1,4 @@
+import { ChainId } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
@@ -19,6 +20,7 @@ interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   instant: boolean;
   setInstant?: (instant: boolean) => void;
   showSlippageAdjust: boolean;
+  chainId: ChainId;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -41,6 +43,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   hasUnclaimedBalances,
   selectToken,
   showSlippageAdjust,
+  chainId,
 }) => {
   const { features } = useContext(FeatureToggleContext);
 
@@ -75,11 +78,12 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           hasUnclaimedBalances={hasUnclaimedBalances}
           selectToken={selectToken}
           instant={instant}
+          chainId={chainId}
         />
       </div>
       {!useUnclaimedDeposits &&
         [Pages.butter, Pages.threeX].includes(page) &&
-        !(page === Pages.threeX && !features["instant3X"]) && (
+        !(page === Pages.threeX && features["instant3X"]) && (
           <div className="mt-2">
             <CheckMarkToggleWithInfo
               label={`Use Instant ${pageToDisplayToken(page).output} (Higher Gas Fee)`}
@@ -110,8 +114,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         {!(hasUnclaimedBalances && useUnclaimedDeposits) && isAllowanceInsufficient() && (
           <div className="pt-6 space-y-6">
             <MainActionButton
-              label={`Allow Popcorn to use your ${selectedToken.input.symbol}`}
-              handleClick={() => approve(selectedToken.input)}
+              label={`Allow Popcorn to use your ${selectedToken?.input?.symbol}`}
+              handleClick={() => approve(selectedToken?.input)}
             />
             <MainActionButton
               label={withdrawMode ? "Redeem" : "Mint"}

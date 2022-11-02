@@ -1,13 +1,13 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getSetup } from "./utils";
 
+const contract_name = "TestPop";
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
 
-  await deploy("TestPOP", {
-    from: deployer,
+  const deployed = await deploy("TestPOP", {
+    from: await signer.getAddress(),
     args: ["Popcorn", "POP", 18],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks

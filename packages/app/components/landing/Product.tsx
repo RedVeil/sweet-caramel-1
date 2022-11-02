@@ -1,43 +1,20 @@
-import { InfoIconWithTooltip, InfoIconWithTooltipProps } from "@popcorn/app/components/InfoIconWithTooltip";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
+import StatusWithLabel, { StatusWithLabelProps } from "@popcorn/app/components/Common/StatusWithLabel";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import React from "react";
 
 export interface ProductProps {
   title: string;
   description: string;
-  stats: [StatWithTitleProps] | [StatWithTitleProps, StatWithTitleProps];
+  stats: [StatusWithLabelProps] | [StatusWithLabelProps, StatusWithLabelProps];
   route: string;
   customContent?: JSX.Element;
   badge?: string;
 }
 
-export interface StatWithTitleProps {
-  title: string;
-  content: string;
-  infoIcon: InfoIconWithTooltipProps;
-}
-
-export function StatWithTitle({ title, content, infoIcon }: StatWithTitleProps): JSX.Element {
-  return (
-    <>
-      <div className="flex items-center gap-2 md:gap-0 md:space-x-2 mb-1 md:mb-2">
-        <p className="text-primaryLight leading-5">{title}</p>
-        <InfoIconWithTooltip
-          title={infoIcon.title}
-          content={infoIcon.content}
-          id={infoIcon.id}
-          classExtras={infoIcon.classExtras}
-        />
-      </div>
-      <p className="text-primary text-2xl md:text-3xl leading-8">{content}</p>
-    </>
-  );
-}
-
 export default function Product({ title, description, stats, route, customContent, badge }: ProductProps): JSX.Element {
-  const router = useRouter();
+  const networkName = useNetworkName();
 
   return (
     <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
@@ -56,18 +33,18 @@ export default function Product({ title, description, stats, route, customConten
 
       <div className="col-span-12 md:col-span-3 grid grid-cols-12 order-2 md:order-3">
         <div className="col-span-6">
-          <StatWithTitle title={stats[0].title} content={stats[0].content} infoIcon={stats[0].infoIcon} />
+          <StatusWithLabel content={stats[0].content} label={stats[0].label} infoIconProps={stats[0].infoIconProps} />
         </div>
 
         <div className="col-span-6">
           {stats.length === 2 && (
-            <StatWithTitle title={stats[1].title} content={stats[1].content} infoIcon={stats[1].infoIcon} />
+            <StatusWithLabel content={stats[1].content} label={stats[1].label} infoIconProps={stats[1].infoIconProps} />
           )}
         </div>
       </div>
 
       <div className="col-span-12 md:col-span-2 order-4">
-        <Link href={`/${router?.query?.network}/${route}`} passHref>
+        <Link href={`/${networkName}/${route}`} passHref>
           <a>
             <MainActionButton label="View" />
           </a>

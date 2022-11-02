@@ -6,9 +6,10 @@ export enum ChainId {
   Arbitrum = 42161,
   Mumbai = 80001,
   Polygon = 137,
-  Localhost = 1337,
-  Hardhat = 31337,
+  Hardhat = 1337,
+  Localhost = 13378,
   BNB = 56,
+  RemoteFork = 31338,
 }
 
 export enum ChainIdHex {
@@ -17,10 +18,21 @@ export enum ChainIdHex {
   Arbitrum = "0xa4b1",
   Mumbai = "0x13881",
   Polygon = "0x89",
-  Localhost = "0x539",
-  Hardhat = "0x7a69",
+  Localhost = "0x7a69",
+  Hardhat = "0x539",
   BNB = "0x38",
 }
+
+export const HexToChain = {
+  "0x1": ChainId.Ethereum,
+  "0x4": ChainId.Rinkeby,
+  "0xa4b1": ChainId.Arbitrum,
+  "0x13881": ChainId.Mumbai,
+  "0x89": ChainId.Polygon,
+  "0x7a69": ChainId.Localhost,
+  "0x539": ChainId.Hardhat,
+  "0x38": ChainId.BNB,
+};
 
 export const supportedChainIds = [
   ChainId.Ethereum,
@@ -30,6 +42,8 @@ export const supportedChainIds = [
   ChainId.Mumbai,
   ChainId.Localhost,
   ChainId.BNB,
+  ChainId.Hardhat,
+  ChainId.RemoteFork,
 ];
 
 export const networkMap = {
@@ -40,6 +54,7 @@ export const networkMap = {
   [ChainId.Polygon]: "Polygon",
   [ChainId.Hardhat]: "Hardhat",
   [ChainId.Localhost]: "Localhost",
+  [ChainId.RemoteFork]: "RemoteFork",
   [ChainId.BNB]: "BNB",
 };
 
@@ -49,6 +64,8 @@ export const networkLogos = {
   [ChainId.Polygon]: "/images/icons/polygonLogo.png",
   [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
   [ChainId.Localhost]: "/images/icons/ethLogo.png",
+  [ChainId.Hardhat]: "/images/icons/ethLogo.png",
+  [ChainId.RemoteFork]: "/images/icons/ethLogo.png",
   [ChainId.BNB]: "/images/icons/bsc-logo.png",
 };
 export const RPC_URLS = {
@@ -59,6 +76,8 @@ export const RPC_URLS = {
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.BNB]: `https://bsc-dataseed1.binance.org`,
   [ChainId.Localhost]: `http://localhost:8545`,
+  [ChainId.Hardhat]: `http://localhost:8545`,
+  [ChainId.RemoteFork]: `http://localhost:8545`,
 };
 export const PRC_PROVIDERS = {
   [ChainId.Ethereum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Ethereum], ChainId.Ethereum),
@@ -68,6 +87,8 @@ export const PRC_PROVIDERS = {
   [ChainId.Mumbai]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Mumbai], ChainId.Mumbai),
   [ChainId.BNB]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.BNB], ChainId.BNB),
   [ChainId.Localhost]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Localhost], ChainId.Localhost),
+  [ChainId.Hardhat]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Hardhat], ChainId.Hardhat),
+  [ChainId.RemoteFork]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.RemoteFork], ChainId.RemoteFork),
 };
 
 export type HardhatConfigNetworks = {
@@ -78,14 +99,18 @@ export type HardhatConfigNetworks = {
   hardhat?: string;
   arbitrum?: string;
   localhost?: string;
+  remote_fork?: string;
 };
 
 export const HardhatConfigNetworksChainIdMapping = {
   mainnet: ChainId.Ethereum,
+  ethereum: ChainId.Ethereum,
   rinkeby: ChainId.Rinkeby,
   bsc: ChainId.BNB,
+  bnb: ChainId.BNB,
   polygon: ChainId.Polygon,
-  hardhat: ChainId.Localhost,
+  hardhat: ChainId.Hardhat,
   localhost: ChainId.Localhost,
   arbitrum: ChainId.Arbitrum,
+  remote_fork: ChainId.RemoteFork,
 };

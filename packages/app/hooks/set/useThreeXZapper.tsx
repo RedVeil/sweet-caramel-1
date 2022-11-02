@@ -1,13 +1,17 @@
 import { ThreeXZapper, ThreeXZapper__factory } from "@popcorn/hardhat/typechain";
-import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
+import { isAddress } from "ethers/lib/utils";
 import { useMemo } from "react";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 
-export default function useThreeXZapper(rpcProvider?): ThreeXZapper {
-  const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
+export default function useThreeXZapper(address: string | undefined, chainId: ChainId): ThreeXZapper {
+  const { account } = useWeb3();
+
+  const provider = useRpcProvider(chainId);
 
   return useMemo(() => {
-    if (isButterSupportedOnCurrentNetwork(chainId))
-      return ThreeXZapper__factory.connect(contractAddresses.threeXZapper, rpcProvider ? rpcProvider : signerOrProvider);
-  }, [signerOrProvider, contractAddresses.threeXZapper, account]);
+    if (isButterSupportedOnCurrentNetwork(chainId) && isAddress(address))
+      return ThreeXZapper__factory.connect(address, provider);
+  }, [provider, address, account, chainId]);
 }
