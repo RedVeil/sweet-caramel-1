@@ -156,7 +156,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                         {title}
                       </h3>
                       {content && (
-                        <p className="text-base md:text-sm text-primaryDark mt-4">
+                        <p className="text-base md:text-sm text-primaryDark mt-4 break-all">
                           <>{content}</>
                         </p>
                       )}

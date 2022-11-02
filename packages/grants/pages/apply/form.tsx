@@ -17,7 +17,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import inputExists, { isValidEmail } from "utils/isValidInput";
-import { setDualActionModal, setSingleActionModal } from "../../context/actions";
+import { setSingleActionModal } from "../../context/actions";
 import { store } from "../../context/store";
 
 export const defaultFormData: BeneficiaryApplication = {
@@ -154,13 +154,13 @@ const ApplyForm = () => {
       dispatch(setSingleActionModal(false))
       dispatch(
         setSingleActionModal({
+          image: <img src="/images/accept.svg" alt="not enough pop" />,
           content: `In order to create a proposal you need to post a Bond of ${formatAndRoundBigNumber(
             proposalBond,
             18,
           )} POP`,
           title: "You need more POP",
           visible: true,
-          type: "error",
           onConfirm: {
             label: "Close",
             onClick: () => {
@@ -197,7 +197,8 @@ const ApplyForm = () => {
       } catch (error) {
         dispatch(
           setSingleActionModal({
-            title: "Error ",
+            image: <img src="/images/accept.svg" alt="error" />,
+            title: "Error",
             content: error?.data?.message || error?.message || error,
             onConfirm: {
               label: "Close",
@@ -206,7 +207,9 @@ const ApplyForm = () => {
                 dispatch(setSingleActionModal(false));
               },
             },
-            type: "error",
+            onDismiss: {
+              onClick: () => dispatch(setSingleActionModal({ visible: false }))
+            },
           }),
         );
         setUploading(false);
