@@ -3,7 +3,7 @@ import { isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useMemo } from "react";
 
-export default function useButterBatch(rpcProvider?): ButterBatchProcessing {
+export default function useButterBatch(rpcProvider = undefined) {
   const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
 
   return useMemo(() => {

@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
-import { ERC20__factory, IGUni__factory } from "@popcorn/hardhat/typechain";
+import { ERC20, ERC20__factory, IGUni__factory } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 import { Address, ContractAddresses } from "@popcorn/utils/types";
 import { BigNumber, Contract, ethers } from "ethers";
@@ -31,16 +31,16 @@ export const getPopUsdcLpTokenPrice = async (
 const getGUniAssets = async (
   provider: Web3Provider | ethers.providers.JsonRpcSigner,
   token: Address,
-): Promise<[Contract, BigNumber, BigNumber]> => {
+): Promise<[ERC20, BigNumber, BigNumber]> => {
   const popUsdcLp = IGUni__factory.connect(token, provider);
   const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
-  return [popUsdcLp, usdcAmount, popAmount];
+  return [popUsdcLp as unknown as ERC20, usdcAmount, popAmount];
 };
 
 const getPool2Assets = async (
   provider: Web3Provider | ethers.providers.JsonRpcSigner,
   contractAddresses: ContractAddresses,
-): Promise<[Contract, BigNumber, BigNumber]> => {
+): Promise<[ERC20, BigNumber, BigNumber]> => {
   const popUsdcLp = ERC20__factory.connect(contractAddresses.popUsdcLp, provider);
   let usdcAmount = await ERC20__factory.connect(contractAddresses.usdc, provider).balanceOf(
     contractAddresses.popUsdcLp,

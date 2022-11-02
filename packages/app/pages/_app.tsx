@@ -19,7 +19,47 @@ import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { GlobalLinearProgressAndLoading } from "@popcorn/app/components/GlobalLinearProgressAndLoading";
 import { StateProvider } from "@popcorn/app/context/store";
-import "../styles/globals.css";
+import "@popcorn/app/styles/globals.css";
+
+import '../styles/globals.css';
+import '@rainbow-me/rainbowkit/styles.css';
+import type { AppProps } from 'next/app';
+import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
+import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
+
+const { chains, provider, webSocketProvider } = configureChains(
+  [
+    chain.mainnet,
+    chain.polygon,
+    chain.optimism,
+    chain.arbitrum,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
+      ? [chain.goerli, chain.kovan, chain.rinkeby, chain.ropsten]
+      : []),
+  ],
+  [
+    alchemyProvider({
+      // This is Alchemy's default API key.
+      // You can get your own at https://dashboard.alchemyapi.io
+      apiKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+    }),
+    publicProvider(),
+  ]
+);
+
+const { connectors } = getDefaultWallets({
+  appName: 'RainbowKit App',
+  chains,
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider,
+  webSocketProvider,
+});
 
 function getLibrary(provider: any): Web3Provider {
   const library = new Web3Provider(provider, "any");
@@ -34,6 +74,7 @@ const { title, description, socialShareImage } = {
   description: "Popcorn is a regenerative yield optimizing protocol.",
   socialShareImage: "https://www.popcorn.network/images/social_cover_image.png",
 };
+
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
@@ -102,21 +143,26 @@ export default function MyApp(props) {
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
         <Web3ReactProvider getLibrary={getLibrary}>
           <FeatureToggleProvider>
-            <SoftLaunchCheck loading={loading} />
-            <OfacCheck />
-            <MobileFullScreenModalContainer />
-            <SingleActionModalContainer />
-            <MultiChoiceActionModalContainer />
-            <DualActionModalContainer />
-            <DualActionWideModalContainer />
-            <NetworkChangePromptModalContainer />
-            {getLayout(<Component {...pageProps} />)}
-            <FeatureTogglePanel />
-            <NotificationsContainer />
-            <Debug />
+            <WagmiConfig client={wagmiClient}>
+              <RainbowKitProvider chains={chains}>
+                <SoftLaunchCheck loading={loading} />
+                <OfacCheck />
+                <MobileFullScreenModalContainer />
+                <SingleActionModalContainer />
+                <MultiChoiceActionModalContainer />
+                <DualActionModalContainer />
+                <DualActionWideModalContainer />
+                <NetworkChangePromptModalContainer />
+                {getLayout(<Component {...pageProps} />)}
+                <FeatureTogglePanel />
+                <NotificationsContainer />
+                <Debug />
+              </RainbowKitProvider>
+            </WagmiConfig >
           </FeatureToggleProvider>
         </Web3ReactProvider>
       </StateProvider>
-    </React.Fragment>
+    </React.Fragment >
   );
 }
+
