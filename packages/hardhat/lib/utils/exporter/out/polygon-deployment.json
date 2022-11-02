@@ -1,0 +1,124 @@
+{
+  "chainId": "137",
+  "name": "polygon",
+  "contracts": {
+    "aclRegistry": {
+      "abi": null,
+      "address": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      "metadata": null
+    },
+    "balancerVault": {
+      "abi": null,
+      "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "metadata": null
+    },
+    "contractRegistry": {
+      "abi": null,
+      "address": "0x078927eF642319963a976008A7B1161059b7E77a",
+      "metadata": null
+    },
+    "daoAgent": {
+      "abi": null,
+      "address": "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
+      "metadata": null
+    },
+    "daoTreasury": {
+      "abi": null,
+      "address": "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
+      "metadata": null
+    },
+    "keeperIncentive": {
+      "abi": null,
+      "address": "0xd928a457247649835e652416847C54C038FAF920",
+      "metadata": {
+        "contractName": "KeeperIncentive"
+      }
+    },
+    "pop": {
+      "abi": null,
+      "address": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
+      "metadata": {
+        "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
+        "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
+        "name": "Popcorn"
+      }
+    },
+    "popStaking": {
+      "abi": null,
+      "address": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+      "metadata": {
+        "contractName": "PopLocker",
+        "icons": [
+          "/images/icons/POP.svg"
+        ],
+        "name": "POP",
+        "symbol": "POP"
+      }
+    },
+    "popUsdcArrakisVault": {
+      "abi": null,
+      "address": "0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4",
+      "metadata": {
+        "icons": [
+          "/images/tokens/usdc.webp",
+          "/images/icons/POP.svg"
+        ],
+        "name": "Arrakis USDC/POP LP"
+      }
+    },
+    "popUsdcArrakisVaultStaking": {
+      "abi": null,
+      "address": "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc",
+      "metadata": null
+    },
+    "popUsdcLp": {
+      "abi": null,
+      "address": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
+      "metadata": {
+        "buyLinkEthereum": "https://beta.arrakis.finance/#/vaults/0xBBA11b41407dF8793A89b44ee4b50AfAD4508555/add",
+        "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add",
+        "name": "USDC/POP LP"
+      }
+    },
+    "popUsdcLpStaking": {
+      "abi": null,
+      "address": "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
+      "metadata": null
+    },
+    "rewardsDistribution": {
+      "abi": null,
+      "address": "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
+      "metadata": null
+    },
+    "rewardsEscrow": {
+      "abi": null,
+      "address": "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
+      "metadata": null
+    },
+    "usdc": {
+      "abi": null,
+      "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      "metadata": {
+        "icons": [
+          "/images/tokens/usdc.webp"
+        ],
+        "name": "USDC",
+        "symbol": "USDC"
+      }
+    },
+    "xPop": {
+      "abi": null,
+      "address": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      "metadata": {
+        "icons": [
+          "/images/icons/POP.svg"
+        ]
+      }
+    },
+    "xPopRedemption": {
+      "abi": null,
+      "address": "0x48168536Fc8834A9543C5A4383721148113fF75A",
+      "metadata": null
+    }
+  }
+}

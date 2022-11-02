@@ -33,8 +33,6 @@ export interface Contracts {
   grantElections?: GrantElections;
   pop?: ERC20;
   rewardsManager?: RewardsManager;
-  uniswapRouter?: IUniswapV2Router02;
-  threeCrv?: ERC20;
   beneficiaryGovernance?: BeneficiaryGovernance;
 }
 
@@ -64,11 +62,9 @@ function getErrorMessage(error: Error) {
 const initializeContracts = (contractAddresses: ContractAddresses, library: Web3Provider): Contracts => {
   const {
     pop,
-    threeCrv,
     grantElections,
     rewardsManager,
     beneficiaryRegistry,
-    uniswapRouter,
     beneficiaryGovernance,
     govStaking,
   } = contractAddresses;
@@ -79,9 +75,7 @@ const initializeContracts = (contractAddresses: ContractAddresses, library: Web3
       ? BeneficiaryRegistry__factory.connect(beneficiaryRegistry, library)
       : undefined,
     grantElections: grantElections ? GrantElections__factory.connect(grantElections, library) : undefined,
-    threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
     rewardsManager: rewardsManager ? RewardsManager__factory.connect(rewardsManager, library) : undefined,
-    uniswapRouter: uniswapRouter ? IUniswapV2Router02__factory.connect(uniswapRouter, library) : undefined,
     beneficiaryGovernance: beneficiaryGovernance
       ? BeneficiaryGovernance__factory.connect(beneficiaryGovernance, library)
       : undefined,
@@ -123,7 +117,7 @@ export default function ContractsWrapper({ children }: ContractsWrapperProps): J
   }, [error]);
 
   useEffect(() => {
-    if (!library || !chainId || chainId === undefined) {
+    if (!library || !chainId) {
       setContracts({});
     } else {
       const contractAddresses = getChainRelevantContracts(chainId);

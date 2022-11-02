@@ -142,14 +142,16 @@ const ApplyForm = () => {
   const loading = () => toast.loading("Uploading to IPFS...");
 
   const checkPreConditions = async (): Promise<boolean> => {
+    console.log('calling this function')
     if (!contracts) {
       return false;
     }
     if (!account) {
       activate(connectors.Injected);
     }
-    const balance = await contracts.pop.balanceOf(account);
-    if (proposalBond.gt(balance)) {
+    const balance = await contracts?.pop?.balanceOf(account);
+    if (proposalBond?.gt(balance)) {
+      dispatch(setSingleActionModal(false))
       dispatch(
         setSingleActionModal({
           content: `In order to create a proposal you need to post a Bond of ${formatAndRoundBigNumber(
@@ -169,7 +171,7 @@ const ApplyForm = () => {
             onClick: () => dispatch(setSingleActionModal({ visible: false }))
           },
         }),
-      );
+      )
       return false;
     }
     return true;
@@ -183,16 +185,15 @@ const ApplyForm = () => {
         const cid = await IpfsClient.add(submissionData);
         toast.dismiss();
         await (
-          await contracts.pop
-            .connect(library.getSigner())
-            .approve(contracts.beneficiaryGovernance.address, proposalBond)
-        ).wait();
+          await contracts?.pop
+            ?.connect(library.getSigner())
+            ?.approve(contracts.beneficiaryGovernance.address, proposalBond)
+        )?.wait();
 
         await contracts.beneficiaryGovernance
           .connect(library.getSigner())
           .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), getBytes32FromIpfsHash(cid), 0);
       } catch (error) {
-        dispatch(setDualActionModal(false));
         dispatch(
           setSingleActionModal({
             title: "Error ",
@@ -211,7 +212,7 @@ const ApplyForm = () => {
         return;
       }
       success();
-      dispatch(setDualActionModal(false));
+      dispatch(setSingleActionModal(false));
       congratsModal();
     }
     setUploading(false);
