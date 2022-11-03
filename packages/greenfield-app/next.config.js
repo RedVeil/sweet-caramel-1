@@ -4,6 +4,9 @@ const workspace = join(__dirname, "..");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    domains: ["rawcdn.githack.com"],
+  },
   webpack: (config, options) => {
     /** Allows import modules from packages in workspace. */
     //config.externals = { ...config.externals, electron: 'electron' };

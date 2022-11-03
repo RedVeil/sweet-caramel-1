@@ -35,7 +35,7 @@ export enum Tabs {
   Vesting = "Vesting Records",
 }
 
-export default function index(): JSX.Element {
+export default function RewardsPage(): JSX.Element {
   const { account, signerOrProvider, signer, connect, chains } = useWeb3();
   const chainId = useChainIdFromUrl();
   const {
