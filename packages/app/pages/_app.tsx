@@ -9,9 +9,7 @@ import { NetworkChangePromptModalContainer } from "@popcorn/app/components/Modal
 import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "@popcorn/app/components/Notifications/NotificationsContainer";
 import OfacCheck from "@popcorn/app/components/OfacCheck";
-import SoftLaunchCheck from "@popcorn/app/components/SoftLaunchCheck";
 import { FeatureToggleProvider } from "@popcorn/app/context/FeatureToggleContext";
-import web3Onboard from "@popcorn/app/helper/web3Onboard";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
@@ -38,7 +36,7 @@ const { chains, provider, webSocketProvider } = configureChains(
     alchemyProvider({
       // This is Alchemy's default API key.
       // You can get your own at https://dashboard.alchemyapi.io
-      apiKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+      apiKey: 'KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg',
     }),
     publicProvider(),
   ]
@@ -55,8 +53,6 @@ const wagmiClient = createClient({
   provider,
   webSocketProvider,
 });
-
-web3Onboard();
 
 const { title, description, socialShareImage } = {
   title: "Popcorn - Yield That Counts",
@@ -133,7 +129,6 @@ export default function MyApp(props) {
         <FeatureToggleProvider>
           <WagmiConfig client={wagmiClient}>
             <RainbowKitProvider chains={chains}>
-              <SoftLaunchCheck loading={loading} />
               <OfacCheck />
               <MobileFullScreenModalContainer />
               <SingleActionModalContainer />

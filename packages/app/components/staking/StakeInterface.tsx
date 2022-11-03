@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
 import PopLockerInteraction from "@popcorn/app/components/staking/PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
+import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;
@@ -57,6 +58,7 @@ export default function StakeInterface({
   const [state, setState] = form;
   const router = useRouter();
   const networkName = useNetworkName();
+  const pushWithinChain = usePushWithinChain();
 
   const toggleInterface = () =>
     setState({
@@ -64,17 +66,16 @@ export default function StakeInterface({
       type: state.type === InteractionType.Deposit ? InteractionType.Withdraw : InteractionType.Deposit,
     });
 
+
+
   return (
     <>
       <div className="-ml-2">
-        <Link href="/staking" passHref>
-          <a>
-            <div className="flex items-center">
-              <ChevronLeftIcon className="w-6 h-6 text-secondaryLight" />
-              <p className="text-primary">Staking</p>
-            </div>
-          </a>
-        </Link>
+        <div className="flex items-center cursor-pointer"
+          onClick={() => pushWithinChain("staking")}>
+          <ChevronLeftIcon className="w-6 h-6 text-secondaryLight" />
+          <p className="text-primary">Staking</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 mt-10">

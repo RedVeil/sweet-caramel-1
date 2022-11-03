@@ -17,7 +17,7 @@ export default function useERC20(address: string | null, chainId): Token {
   useEffect(() => {
     let mounted = true;
     if (isAddress(address)) {
-      getToken(erc20(address, provider), provider, chainId, undefined, undefined, metadata)
+      getToken(erc20(address, provider), provider, chainId, account, undefined, metadata)
         .then((token) => mounted && setToken(token))
         .catch((err) => { });
     }

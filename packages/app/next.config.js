@@ -34,27 +34,6 @@ module.exports = {
     domains: ["rawcdn.githack.com"],
   },
   poweredByHeader: false,
-  async rewrites() {
-    return [
-      {
-        source: "/",
-        destination: `/${defaultChain}`,
-      },
-      {
-        source: "/rewards",
-        destination: `/${defaultChain}/rewards`,
-      },
-      {
-        source: "/staking/:path*",
-        destination: `/${defaultChain}/staking/:path*`,
-      },
-      {
-        source: "/sweetvaults",
-        destination: `/${defaultChain}/sweetvaults`,
-      },
-      { source: "/butter/:path*", destination: `/${defaultChain}/butter/:path*` },
-    ];
-  },
   webpack: (config, options) => {
     /** Allows import modules from packages in workspace. */
     //config.externals = { ...config.externals, electron: 'electron' };

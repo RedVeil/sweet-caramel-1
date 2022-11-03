@@ -1,8 +1,6 @@
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { ChainId, networkLogos } from "@popcorn/utils";
 import { getProductLinks } from "@popcorn/app/helper/getProductLinks";
-import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
@@ -12,10 +10,15 @@ import { useRouter } from "next/router";
 import DropDownComponent from "@popcorn/app/components/NavBar/DropDownComponent";
 import GetPopMenu from "@popcorn/app/components/NavBar/GetPopMenu";
 import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
-import NetworkOptionsMenu from "@popcorn/app/components/NavBar/NetworkOptionsMenu";
+import { useDisconnect } from "wagmi";
+import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
+import useWeb3 from "hooks/useWeb3";
 
 export default function DesktopMenu(): JSX.Element {
-  const { connectedChainId, account, connect, disconnect, pushWithinChain } = useWeb3();
+  const { account } = useWeb3();
+  const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect()
+  const { openChainModal } = useChainModal();
   const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
   const networkName = useNetworkName();
@@ -51,7 +54,7 @@ export default function DesktopMenu(): JSX.Element {
                     aria-hidden="true"
                   />
                 </div>
-                <DropDownComponent options={getProductLinks(router, pushWithinChain)} />
+                <DropDownComponent options={getProductLinks(router)} />
               </Menu.Button>
             </Menu>
           </li>
@@ -84,29 +87,19 @@ export default function DesktopMenu(): JSX.Element {
         </div>
         {account && (
           <div className="relative flex flex-container flex-row z-10">
-            <Menu>
-              <Menu.Button>
-                <div
-                  className={`h-full px-6 flex flex-row items-center justify-between border border-customLightGray rounded-4xl text-primary cursor-pointer`}
-                >
-                  <img src={networkLogos[connectedChainId]} alt={""} className="w-4.5 h-4 mr-4" />
-                  <p className="leading-none mt-0.5">{ChainId[connectedChainId]}</p>
-                  <ChevronDownIcon className="w-5 h-5 ml-4 text-primary" aria-hidden="true" />
-                </div>
-              </Menu.Button>
-              <NetworkOptionsMenu />
-            </Menu>
+            <MainActionButton
+              label="Chain"
+              handleClick={() => { console.log("change chain"); openChainModal() }}
+            />
           </div>
         )}
         {!account ? (
           <MainActionButton
             label="Connect Wallet"
-            handleClick={() => {
-              connect();
-            }}
+            handleClick={() => { console.log("connect"); openConnectModal() }}
           />
         ) : (
-          <TertiaryActionButton label="Disconnect" handleClick={() => disconnect()} />
+          <TertiaryActionButton label="Disconnect" handleClick={() => { console.log("disconnect"); disconnect() }} />
         )}
       </div>
     </div>

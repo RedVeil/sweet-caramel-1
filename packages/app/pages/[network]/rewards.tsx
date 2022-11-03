@@ -36,8 +36,7 @@ export enum Tabs {
 }
 
 export default function index(): JSX.Element {
-  const { account, signerOrProvider, signer, connect, onContractSuccess, onContractError } = useWeb3();
-
+  const { account, signerOrProvider, signer, connect, chains } = useWeb3();
   const chainId = useChainIdFromUrl();
   const {
     xPopRedemption: xPopRedemptionAddress,
@@ -47,7 +46,6 @@ export default function index(): JSX.Element {
     pop: popAddress,
     vaultsRewardsEscrow,
   } = useDeployment(chainId);
-
   const { dispatch } = useContext(store);
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
   const xPopRedemption = useMemo(() => {
@@ -255,7 +253,7 @@ export default function index(): JSX.Element {
           {!account && (
             <div
               className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
-              onClick={() => connect()}
+              onClick={connect}
               role="button"
             >
               <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>

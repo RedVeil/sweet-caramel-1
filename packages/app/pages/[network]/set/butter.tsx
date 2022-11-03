@@ -86,7 +86,7 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
 };
 
 export default function Butter(): JSX.Element {
-  const { signerOrProvider, account, signer, setChain, connectedChain } = useWeb3();
+  const { signerOrProvider, account, signer, setChain, connectedChainId } = useWeb3();
 
   const chainId = useChainIdFromUrl();
   const addr = useDeployment(chainId);
@@ -651,10 +651,9 @@ export default function Butter(): JSX.Element {
       </div>
       <div className="flex flex-col md:flex-row mt-10">
         <div className="md:w-1/3 mb-10">
-          {!account && <ConnectWallet />}
-
           <div className="order-2 md:order-1">
-            {account && loadingButterBatchData && (
+            {/* Connected and on Ethereum BUT loading */}
+            {account && isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && loadingButterBatchData && (
               <>
                 <div className="order-2 md:hidden">
                   <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
@@ -668,49 +667,52 @@ export default function Butter(): JSX.Element {
                 </div>
               </>
             )}
-            {account && isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)) && !loadingButterBatchData ? (
+            {/* Connected and on Ethereum all data loaded */}
+            {account && isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && !loadingButterBatchData && butterBatchData && butterPageState.selectedToken && (
               <div className="md:pr-8">
-                {butterBatchData && butterPageState.selectedToken && (
-                  <MintRedeemInterface
-                    chainId={chainId}
-                    approve={approve}
-                    mainAction={handleMainAction}
-                    options={butterPageState.tokens}
-                    selectedToken={butterPageState.selectedToken}
-                    selectToken={selectToken}
-                    page={Pages.butter}
-                    instant={butterPageState.instant}
-                    setInstant={(val) => setButterPageState((prevState) => ({ ...prevState, instant: val }))}
-                    depositAmount={butterPageState.depositAmount}
-                    setDepositAmount={(val) =>
-                      setButterPageState((prevState) => ({ ...prevState, depositAmount: val }))
-                    }
-                    depositDisabled={isDepositDisabled(
-                      butterWhaleData.totalSupply,
-                      butter,
-                      butterPageState.selectedToken,
-                      butterPageState.redeeming,
-                      butterPageState.depositAmount,
-                      butterPageState.useUnclaimedDeposits,
-                    )}
-                    withdrawMode={butterPageState.redeeming}
-                    setWithdrawMode={(val) => {
-                      setButterPageState((prevState) => ({ ...prevState, redeeming: val }));
-                    }}
-                    showSlippageAdjust={butterPageState.instant || butterPageState.useZap}
-                    slippage={butterPageState.slippage}
-                    setSlippage={(val) => setButterPageState((prevState) => ({ ...prevState, slippage: val }))}
-                    hasUnclaimedBalances={hasClaimableBalances()}
-                    useUnclaimedDeposits={butterPageState.useUnclaimedDeposits}
-                    setUseUnclaimedDeposits={(val) =>
-                      setButterPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
-                    }
-                  />
-                )}
+                <MintRedeemInterface
+                  chainId={chainId}
+                  approve={approve}
+                  mainAction={handleMainAction}
+                  options={butterPageState.tokens}
+                  selectedToken={butterPageState.selectedToken}
+                  selectToken={selectToken}
+                  page={Pages.butter}
+                  instant={butterPageState.instant}
+                  setInstant={(val) => setButterPageState((prevState) => ({ ...prevState, instant: val }))}
+                  depositAmount={butterPageState.depositAmount}
+                  setDepositAmount={(val) =>
+                    setButterPageState((prevState) => ({ ...prevState, depositAmount: val }))
+                  }
+                  depositDisabled={isDepositDisabled(
+                    butterWhaleData.totalSupply,
+                    butter,
+                    butterPageState.selectedToken,
+                    butterPageState.redeeming,
+                    butterPageState.depositAmount,
+                    butterPageState.useUnclaimedDeposits,
+                  )}
+                  withdrawMode={butterPageState.redeeming}
+                  setWithdrawMode={(val) => {
+                    setButterPageState((prevState) => ({ ...prevState, redeeming: val }));
+                  }}
+                  showSlippageAdjust={butterPageState.instant || butterPageState.useZap}
+                  slippage={butterPageState.slippage}
+                  setSlippage={(val) => setButterPageState((prevState) => ({ ...prevState, slippage: val }))}
+                  hasUnclaimedBalances={hasClaimableBalances()}
+                  useUnclaimedDeposits={butterPageState.useUnclaimedDeposits}
+                  setUseUnclaimedDeposits={(val) =>
+                    setButterPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
+                  }
+                />
               </div>
-            ) : account && !loadingButterBatchData && !isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)) ? (
+            )}
+            {/* Connected BUT NOT on Ethereum */}
+            {account && !isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && (
               <SwitchNetwork chainId={chainId} />
-            ) : null}
+            )}
+            {/* NOT connected */}
+            {!account && <div className="order-2 md:order-1"><ConnectWallet /></div>}
           </div>
         </div>
 

@@ -17,13 +17,14 @@ import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useStakingContracts } from "@popcorn/app/hooks/useStakingContracts";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 
 const MIGRATION_LINKS: AlertCardLink[] = [
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
 ];
 
 export default function index(): JSX.Element {
-  const { pushWithinChain, account } = useWeb3();
+  const { account } = useWeb3();
   const chainId = useChainIdFromUrl();
   const { pop, popStaking, popUsdcArrakisVaultStaking } = useDeployment(chainId);
   const stakingAddresses = useStakingContracts(chainId);
@@ -35,6 +36,7 @@ export default function index(): JSX.Element {
   );
   const [modalClosed, closeModal] = useState<boolean>(false);
   const { features } = useContext(FeatureToggleContext);
+  const pushWithinChain = usePushWithinChain();
 
   const displayedStakingPools = features["migrationAlert"]
     ? stakingPools
@@ -84,9 +86,9 @@ export default function index(): JSX.Element {
 
   const onSelectPool = (stakingContractAddress: Address, stakingTokenAddress: Address) => {
     if (stakingTokenAddress?.toLowerCase() === pop.toLowerCase()) {
-      pushWithinChain("/staking/pop");
+      pushWithinChain("staking/pop");
     } else {
-      pushWithinChain(`/staking/${stakingContractAddress}`);
+      pushWithinChain(`staking/${stakingContractAddress}`);
     }
   };
 

@@ -16,22 +16,23 @@ import { useRouter } from "next/router";
 import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 
 export default function PopStakingPage(): JSX.Element {
-  const { account, signer, onContractSuccess, onContractError, pushWithinChain } = useWeb3();
+  const { account, signer, onContractSuccess, onContractError } = useWeb3();
   const chainId = useChainIdFromUrl();
   const { popStaking } = useDeployment(chainId);
-
   const { dispatch } = useContext(store);
+  const router = useRouter();
+  const pushWithinChain = usePushWithinChain();
 
   useEffect(() => {
     if ([ChainId.Arbitrum, ChainId.BNB].includes(chainId)) {
-      pushWithinChain("/staking");
+      pushWithinChain("staking");
     }
   }, [chainId]);
 
   const [form, setForm] = useState(defaultForm);
-  const router = useRouter();
   const { data: stakingPool } = usePopLocker(popStaking, chainId);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, popStaking, chainId);
   const stakingToken = stakingPool?.stakingToken;

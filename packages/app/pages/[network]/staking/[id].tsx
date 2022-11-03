@@ -12,9 +12,10 @@ import toast from "react-hot-toast";
 import StakeInterface, { defaultForm, InteractionType } from "@popcorn/app/components/staking/StakeInterface";
 import StakeInterfaceLoader from "@popcorn/app/components/staking/StakeInterfaceLoader";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 
 export default function StakingPage(): JSX.Element {
-  const { account, signer, onContractSuccess, onContractError, pushWithinChain } = useWeb3();
+  const { account, signer, onContractSuccess, onContractError } = useWeb3();
   const chainId = useChainIdFromUrl();
   const router = useRouter();
   const { dispatch } = useContext(store);
@@ -29,10 +30,11 @@ export default function StakingPage(): JSX.Element {
   const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
   const isLoading = !stakingPool && !tokenPrice;
   const approveToken = useApproveERC20(chainId);
+  const pushWithinChain = usePushWithinChain();
 
   useEffect(() => {
     if (stakingPoolError) {
-      pushWithinChain("/staking");
+      pushWithinChain("staking");
     }
   }, [stakingPoolError]);
 

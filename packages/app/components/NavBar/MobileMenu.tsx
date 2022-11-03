@@ -17,9 +17,10 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
-import WheelPicker from "react-simple-wheel-picker";
 import MobileProductsMenu from "@popcorn/app/components/NavBar/MobileProductsMenu";
 import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
+import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
+import { useDisconnect } from "wagmi";
 
 const networkData = [
   {
@@ -41,12 +42,16 @@ const networkData = [
 ];
 
 export const MobileMenu: React.FC = () => {
-  const { account, connect, disconnect, setChain, pushWithinChain, connectedChainId } = useWeb3();
+  const { account } = useWeb3();
+  const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect()
+  const { openChainModal } = useChainModal();
+
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
   const [availableNetworks, setAvailableNetworks] = useState(networkData);
   const router = useRouter();
-  const products = getProductLinks(router, pushWithinChain);
+  const products = getProductLinks(router);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
   const selectedNetwork = useRef(parseInt(networkData[0].id));
@@ -74,12 +79,7 @@ export const MobileMenu: React.FC = () => {
     }
   }, []);
 
-  const handleOnChange = (newChainId) => {
-    selectedNetwork.current = parseInt(newChainId.id);
-  };
-
   const closePopUp = () => {
-    setChain(selectedNetwork?.current);
     setShowPopUp(false);
   };
 
@@ -249,28 +249,14 @@ export const MobileMenu: React.FC = () => {
           {!account ? (
             <MainActionButton
               label="Connect Wallet"
-              handleClick={() => {
-                connect();
-              }}
+              handleClick={openConnectModal}
             />
           ) : (
-            <TertiaryActionButton label="Disconnect" handleClick={() => disconnect()} />
+            <TertiaryActionButton label="Disconnect" handleClick={disconnect} />
           )}
           <hr className="my-6" />
           <p className=" text-black mb-3">Select Network</p>
-          <div className="wheelPicker">
-            <WheelPicker
-              data={availableNetworks}
-              onChange={handleOnChange}
-              height={200}
-              titleText="Enter value same as aria-label"
-              itemHeight={30}
-              selectedID={JSON.stringify(selectedNetwork.current)}
-              color="#e5e7eb"
-              activeColor="#111827"
-              backgroundColor="#fff"
-            />
-          </div>
+          <TertiaryActionButton label="Change Chain" handleClick={openChainModal} />
         </div>
       </PopUpModal>
       <Transition.Root show={productsMenuVisible} as={Fragment}>

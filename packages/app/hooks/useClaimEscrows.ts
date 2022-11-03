@@ -27,6 +27,6 @@ export default function useClaimEscrows(address: string, chainId: ChainId) {
         return vestingEscrow.connect(signer).claimRewards(escrowIds);
       }
     },
-    [account, chainId, vestingEscrow],
+    [account, signer, chainId, vestingEscrow],
   );
 }
