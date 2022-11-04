@@ -23,6 +23,10 @@ import { IContractFactory } from "../interfaces/IContractFactory.sol";
  */
 
 contract VaultsV1Controller is Owned, ContractRegistryAccess {
+  /* ========== CUSTOM ERRORS ========== */
+
+  error SetZaps();
+
   /* ========== STATE VARIABLES ========== */
 
   bytes32 public constant contractName = keccak256("VaultsV1Controller");
@@ -81,7 +85,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
 
     if (_zapper != address(0)) {
-      require(_zapIn != address(0) && _zapOut != address(0), "set zaps");
+      if (_zapIn == address(0) || _zapOut == address(0)) revert SetZaps();
+
       IVaultsV1Zapper(_zapper).updateVault(address(_vaultParams.asset), vault);
       IVaultsV1Zapper(_zapper).updateZaps(address(_vaultParams.asset), _zapIn, _zapOut);
     }
@@ -287,7 +292,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    * @notice Pause deposits on all vaults in registry
    */
   function pauseAllVaultsByType(uint256 _type) external onlyOwner {
-    require(_type <= _vaultsV1Registry().vaultTypes() && _type > 0, "invalid vault type");
+    if (_type > _vaultsV1Registry().vaultTypes() || _type <= 0) revert VaultsV1Registry.InvalidVaultType();
+
     try _vaultsV1Registry().getVaultsByType(_type) returns (address[] memory registeredTypeVaults) {
       pauseVaults(registeredTypeVaults);
     } catch {
@@ -299,7 +305,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
    * @notice Unpause deposits on all vaults in registry
    */
   function unpauseAllVaultsByType(uint256 _type) external onlyOwner {
-    require(_type <= _vaultsV1Registry().vaultTypes() && _type > 0, "invalid vault type");
+    if (_type > _vaultsV1Registry().vaultTypes() || _type <= 0) revert VaultsV1Registry.InvalidVaultType();
+
     try _vaultsV1Registry().getVaultsByType(_type) returns (address[] memory registeredTypeVaults) {
       unpauseVaults(registeredTypeVaults);
     } catch {

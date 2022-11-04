@@ -23,6 +23,17 @@ contract Vault is
   KeeperIncentivized,
   ContractRegistryAccessUpgradeable
 {
+  /* ========== CUSTOM ERRORS ========== */
+
+  error PermitDeadlineExpired(uint256 deadline);
+  error InvalidSigner(address signer);
+  error InvalidReceiver();
+  error NotPassedQuitPeriod(uint256 quitPeriod);
+  error InvalidFeeStructure();
+  error InvalidVig();
+  error InvalidMinWithdrawal();
+  error InsufficientWithdrawalAmount(uint256 amount);
+
   using SafeERC20 for ERC20;
   using FixedPointMathLib for uint256;
 
@@ -270,7 +281,7 @@ contract Vault is
     bytes32 r,
     bytes32 s
   ) public virtual {
-    require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
+    if (deadline < block.timestamp) revert PermitDeadlineExpired(deadline);
 
     // Unchecked because the only math done is incrementing
     // the owner's nonce which cannot realistically overflow.
@@ -297,7 +308,7 @@ contract Vault is
         s
       );
 
-      require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
+      if (recoveredAddress == address(0) || recoveredAddress != owner) revert InvalidSigner(recoveredAddress);
 
       _approve(recoveredAddress, spender, value);
     }
@@ -320,7 +331,7 @@ contract Vault is
    * @return shares of the vault issued to `receiver`.
    */
   function deposit(uint256 assets, address receiver) public nonReentrant whenNotPaused returns (uint256 shares) {
-    require(receiver != address(0), "Invalid receiver");
+    if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
 
@@ -357,7 +368,7 @@ contract Vault is
    * @return assets of underlying that have been deposited.
    */
   function mint(uint256 shares, address receiver) public nonReentrant whenNotPaused returns (uint256 assets) {
-    require(receiver != address(0), "Invalid receiver");
+    if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = feeStructure.deposit;
 
@@ -400,7 +411,7 @@ contract Vault is
     address receiver,
     address owner
   ) public nonReentrant returns (uint256 shares) {
-    require(receiver != address(0), "Invalid receiver");
+    if (receiver == address(0)) revert InvalidReceiver();
 
     shares = convertToShares(assets);
 
@@ -444,7 +455,7 @@ contract Vault is
     address receiver,
     address owner
   ) public nonReentrant returns (uint256 assets) {
-    require(receiver != address(0), "Invalid receiver");
+    if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
@@ -488,8 +499,9 @@ contract Vault is
    * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new strategy
    */
   function changeStrategy() external takeFees onlyRole(VAULTS_CONTROLLER) {
+    if (block.timestamp < proposalTimeStamp + 3 days) revert NotPassedQuitPeriod(3 days);
     // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
-    require(block.timestamp > proposalTimeStamp + 3 days, "!3days"); // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
+    // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
 
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 
@@ -512,16 +524,14 @@ contract Vault is
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
   function setFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
+    if (
+      newFees.deposit >= 1e18 || newFees.withdrawal >= 1e18 || newFees.management >= 1e18 || newFees.performance >= 1e18
+    ) revert InvalidFeeStructure();
+
     // NOTE --> We can make this permissionless since it can only be changed to proposedFee
-    // prettier-ignore
-    require(
-      newFees.deposit < 1e18 &&
-      newFees.withdrawal < 1e18 &&
-      newFees.management < 1e18 &&
-      newFees.performance < 1e18,
-      "Invalid FeeStructure"
-    ); //  NOTE --> Reduce Upper Bound
+    // NOTE --> Reduce Upper Bound
     // NOTE --> Add a proposal for fees (similar to changeStrategy)
+
     emit FeesUpdated(feeStructure, newFees);
     feeStructure = newFees;
   }
@@ -530,8 +540,9 @@ contract Vault is
    * @notice Change keeper config. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
   function setKeeperConfig(KeeperConfig memory _config) external onlyRole(VAULTS_CONTROLLER) {
-    require(_config.incentiveVigBps < 1e18, "invalid vig");
-    require(_config.minWithdrawalAmount > 0, "invalid min withdrawal");
+    if (_config.incentiveVigBps > 1e18) revert InvalidVig();
+    if (_config.minWithdrawalAmount < 0) revert InvalidMinWithdrawal();
+
     emit KeeperConfigUpdated(keeperConfig, _config);
 
     keeperConfig = _config;
@@ -559,7 +570,7 @@ contract Vault is
     uint256 accruedFees = balanceOf(address(this));
     uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
-    require(accruedFees >= keeperConfig.minWithdrawalAmount, "insufficient withdrawal amount");
+    if (accruedFees < keeperConfig.minWithdrawalAmount) revert InsufficientWithdrawalAmount(accruedFees);
 
     uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
 

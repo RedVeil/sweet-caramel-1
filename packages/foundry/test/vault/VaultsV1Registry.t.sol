@@ -150,11 +150,11 @@ contract VaultsV1RegistryTest is Test {
   }
 
   function test__addVaultTypeIncorrectTypeReverts() public {
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.addVaultType(0);
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.addVaultType(1);
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.addVaultType(3);
     assertEq(vaultsV1Registry.vaultTypes(), 1);
   }
@@ -195,7 +195,7 @@ contract VaultsV1RegistryTest is Test {
   }
 
   function test__registerVaultInvalidVaultTypeReverts() public {
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.registerVault(
       VaultMetadata({
         vaultAddress: DEFAULT_VAULT_ADDRESS,
@@ -213,12 +213,12 @@ contract VaultsV1RegistryTest is Test {
       })
     );
 
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.getVaultsByType(2);
   }
 
   function test__registerVaultTypeZeroReverts() public {
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.registerVault(
       VaultMetadata({
         vaultAddress: DEFAULT_VAULT_ADDRESS,
@@ -236,7 +236,7 @@ contract VaultsV1RegistryTest is Test {
       })
     );
 
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.getVaultsByType(0);
   }
 
@@ -287,7 +287,7 @@ contract VaultsV1RegistryTest is Test {
     helper__addVaultTypesToRegistry(3);
     address vault = helper__deployVaultAndRegister(1, true);
 
-    vm.expectRevert("vault already registered");
+    vm.expectRevert(VaultsV1Registry.VaultAlreadyRegistered.selector);
     vaultsV1Registry.registerVault(
       VaultMetadata({
         vaultAddress: vault,
@@ -362,7 +362,7 @@ contract VaultsV1RegistryTest is Test {
     helper__addVaultTypesToRegistry(3);
     helper__deployVaultAndRegister(1, true);
 
-    vm.expectRevert("vault address not registered");
+    vm.expectRevert(VaultsV1Registry.VaultNotRegistered.selector);
     vaultsV1Registry.updateVault(
       VaultMetadata({
         vaultAddress: DEFAULT_VAULT_ADDRESS,
@@ -385,7 +385,7 @@ contract VaultsV1RegistryTest is Test {
     helper__addVaultTypesToRegistry(3);
     address vault = helper__deployVaultAndRegister(1, true);
 
-    vm.expectRevert("cannot change vault type");
+    vm.expectRevert(VaultsV1Registry.VaultTypeImmutable.selector);
     vaultsV1Registry.updateVault(
       VaultMetadata({
         vaultAddress: vault,
@@ -408,7 +408,7 @@ contract VaultsV1RegistryTest is Test {
     helper__addVaultTypesToRegistry(3);
     address vault = helper__deployVaultAndRegister(1, true);
 
-    vm.expectRevert("cannot change submitter");
+    vm.expectRevert(VaultsV1Registry.SubmitterImmutable.selector);
     vaultsV1Registry.updateVault(
       VaultMetadata({
         vaultAddress: vault,
@@ -512,7 +512,7 @@ contract VaultsV1RegistryTest is Test {
 
     address nonRegistered = address(0x7777);
 
-    vm.expectRevert("vault address not registered");
+    vm.expectRevert(VaultsV1Registry.VaultNotRegistered.selector);
     vaultsV1Registry.toggleEndorseVault(nonRegistered);
   }
 
@@ -550,7 +550,7 @@ contract VaultsV1RegistryTest is Test {
     helper__deployVaultAndRegister(1, true);
     address nonRegistered = address(0x7777);
 
-    vm.expectRevert("vault address not registered");
+    vm.expectRevert(VaultsV1Registry.VaultNotRegistered.selector);
     vaultsV1Registry.toggleEnableVault(nonRegistered);
   }
 
@@ -592,7 +592,7 @@ contract VaultsV1RegistryTest is Test {
     address[] memory _3CRYPTORegistryVaults = vaultsV1Registry.getVaultsByAsset(CRV_3CRYPTO);
     assertEq(_3CRYPTORegistryVaults.length, 1);
 
-    vm.expectRevert("no vaults for this asset");
+    vm.expectRevert(VaultsV1Registry.NoAssetVaults.selector);
     vaultsV1Registry.getVaultsByAsset(CRV_3CRV);
   }
 
@@ -614,9 +614,9 @@ contract VaultsV1RegistryTest is Test {
   function test__view__getVaultsByTypeInvalidTypeReverts() public {
     helper__addVaultTypesToRegistry(2);
     assertEq(vaultsV1Registry.vaultTypes(), 2);
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.getVaultsByType(3);
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.getVaultsByType(0);
   }
 
@@ -627,7 +627,7 @@ contract VaultsV1RegistryTest is Test {
     assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
     assertEq(vaultsV1Registry.vaultTypes(), 2);
 
-    vm.expectRevert("no vaults of this type");
+    vm.expectRevert(VaultsV1Registry.NoTypeVaults.selector);
     vaultsV1Registry.getVaultsByType(2);
   }
 
@@ -678,7 +678,7 @@ contract VaultsV1RegistryTest is Test {
     vm.assume(vaultType != vaultsV1Registry.vaultTypes() + 1);
     vm.assume(vaultType > 1);
 
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.addVaultType(vaultType);
   }
 
@@ -686,7 +686,7 @@ contract VaultsV1RegistryTest is Test {
     vm.assume(vaultType != vaultsV1Registry.vaultTypes() + 1);
     vm.assume(vaultType > 1);
 
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Registry.getVaultsByType(vaultType);
   }
 }

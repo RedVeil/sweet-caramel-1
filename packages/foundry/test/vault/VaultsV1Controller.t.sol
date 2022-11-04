@@ -158,7 +158,6 @@ contract VaultsV1ControllerTest is Test {
 
     vm.startPrank(ACL_ADMIN);
     IOwnable(address(rewardsEscrow)).transferOwnership(address(vaultsV1Controller));
-
     IContractRegistry(CONTRACT_REGISTRY).addContract(
       vaultsV1Registry.contractName(),
       address(vaultsV1Registry),
@@ -329,7 +328,7 @@ contract VaultsV1ControllerTest is Test {
   }
 
   function test__deployVaultFromV1FactoryNoZapsReverts() public acceptOwnerships {
-    vm.expectRevert("set zaps");
+    vm.expectRevert(VaultsV1Controller.SetZaps.selector);
     vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
       DEFAULT_STAKING,
@@ -533,13 +532,13 @@ contract VaultsV1ControllerTest is Test {
   }
 
   function test__addVaultTypeToRegistryIncorrectTypeReverts() public acceptOwnerships {
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.addVaultTypeToRegistry(0);
 
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.addVaultTypeToRegistry(1);
 
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.addVaultTypeToRegistry(3);
 
     assertEq(vaultsV1Registry.vaultTypes(), 1);
@@ -638,7 +637,7 @@ contract VaultsV1ControllerTest is Test {
 
     assertEq(vaultsV1Registry.getTotalVaults(), 1);
 
-    vm.expectRevert("vault address not registered");
+    vm.expectRevert(VaultsV1Registry.VaultNotRegistered.selector);
     vaultsV1Controller.updateRegistryVault(newMetadata);
 
     // check no changes
@@ -735,10 +734,10 @@ contract VaultsV1ControllerTest is Test {
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
     assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
 
-    vm.expectRevert("no vaults of this type");
+    vm.expectRevert(VaultsV1Registry.NoTypeVaults.selector);
     vaultsV1Registry.getVaultsByType(2);
 
-    vm.expectRevert("cannot change vault type");
+    vm.expectRevert(VaultsV1Registry.VaultTypeImmutable.selector);
     vaultsV1Controller.updateRegistryVault(newMetadata);
 
     // check no changes
@@ -749,7 +748,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(vaultsV1Registry.getVaultsByType(1)[0], vault);
     assertEq(vaultsV1Registry.getVaultsByType(1).length, 1);
 
-    vm.expectRevert("no vaults of this type");
+    vm.expectRevert(VaultsV1Registry.NoTypeVaults.selector);
     vaultsV1Registry.getVaultsByType(2);
 
     assertEq(vaultsV1RegistryMetadata.enabled, true);
@@ -789,7 +788,7 @@ contract VaultsV1ControllerTest is Test {
       zapOut: CURVE_ZAP_OUT
     });
 
-    vm.expectRevert("cannot change submitter");
+    vm.expectRevert(VaultsV1Registry.SubmitterImmutable.selector);
     vaultsV1Controller.updateRegistryVault(newMetadata);
 
     // check no changes
@@ -857,7 +856,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(vaultsV1Registry.getTotalVaults(), 1);
     address[] memory vaultsToToggle = new address[](1);
     vaultsToToggle[0] = nonRegistered;
-    vm.expectRevert("vault address not registered");
+    vm.expectRevert(VaultsV1Registry.VaultNotRegistered.selector);
     vaultsV1Controller.toggleEndorseRegistryVault(vaultsToToggle);
     assertFalse(vaultsV1Registry.endorsed(vault));
   }
@@ -931,7 +930,7 @@ contract VaultsV1ControllerTest is Test {
     assertEq(vaultsV1Registry.getTotalVaults(), 1);
     address[] memory vaultsToToggle = new address[](1);
     vaultsToToggle[0] = nonRegistered;
-    vm.expectRevert("vault address not registered");
+    vm.expectRevert(VaultsV1Registry.VaultNotRegistered.selector);
     vaultsV1Controller.toggleEnableRegistryVault(vaultsToToggle);
     assertTrue(vaultsV1Registry.getVault(vault).enabled);
   }
@@ -1014,7 +1013,7 @@ contract VaultsV1ControllerTest is Test {
       performance: 1e18
     });
 
-    vm.expectRevert("Invalid FeeStructure");
+    vm.expectRevert(Vault.InvalidFeeStructure.selector);
     vaultsV1Controller.setVaultFees(vaultArray, newFeeStructure);
   }
 
@@ -1132,7 +1131,7 @@ contract VaultsV1ControllerTest is Test {
     IERC4626 newStrategy = IERC4626(helper__deployYearnWrapper(YEARN_VAULT));
     vaultsV1Controller.proposeNewVaultStrategy(vault, newStrategy);
 
-    vm.expectRevert("!3days");
+    vm.expectRevert(abi.encodeWithSelector(Vault.NotPassedQuitPeriod.selector, 3 days));
     vaultsV1Controller.changeVaultStrategy(vault);
   }
 
@@ -1542,9 +1541,9 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < type2Vaults; i++) {
       assertFalse(Vault(type2VaultAddresses[i]).paused());
     }
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.pauseAllVaultsByType(0);
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.pauseAllVaultsByType(3);
     // check vaults still not paused
     for (uint256 i = 0; i < type2Vaults; i++) {
@@ -1768,9 +1767,9 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < type1Vaults; i++) {
       assertFalse(Vault(type1VaultAddresses[i]).paused());
     }
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.unpauseAllVaultsByType(0);
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.unpauseAllVaultsByType(3);
     // check vaults are still paused
     for (uint256 i = 0; i < type2Vaults; i++) {
@@ -2257,7 +2256,7 @@ contract VaultsV1ControllerTest is Test {
   function test__fuzz__addVaultTypeToRegistry(uint256 vaultType) public acceptOwnerships {
     vm.assume(vaultType != vaultsV1Registry.vaultTypes() + 1);
     vm.assume(vaultType > 1);
-    vm.expectRevert("incorrect vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.addVaultTypeToRegistry(vaultType);
     assertEq(vaultsV1Registry.vaultTypes(), 1);
   }
@@ -2284,7 +2283,7 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < type2Vaults; i++) {
       assertFalse(Vault(type2VaultAddresses[i]).paused());
     }
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.pauseAllVaultsByType(vaultType);
     // check vaults still not paused
     for (uint256 i = 0; i < type2Vaults; i++) {
@@ -2325,7 +2324,7 @@ contract VaultsV1ControllerTest is Test {
     for (uint256 i = 0; i < type1Vaults; i++) {
       assertFalse(Vault(type1VaultAddresses[i]).paused());
     }
-    vm.expectRevert("invalid vault type");
+    vm.expectRevert(VaultsV1Registry.InvalidVaultType.selector);
     vaultsV1Controller.unpauseAllVaultsByType(vaultType);
     // check vaults are still paused
     for (uint256 i = 0; i < type2Vaults; i++) {
