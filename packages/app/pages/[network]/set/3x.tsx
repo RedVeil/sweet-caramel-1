@@ -42,7 +42,7 @@ import ContentLoader from "react-content-loader";
 import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "@popcorn/app/pages/[network]/set/butter";
 
-export default function ThreeX(): JSX.Element {
+export default function ThreeXPage(): JSX.Element {
   const { signerOrProvider, account, signer, setChain, connectedChainId } = useWeb3();
 
   const chainId = useChainIdFromUrl();
@@ -390,19 +390,20 @@ export default function ThreeX(): JSX.Element {
                 </p>
                 <p>
                   <a
-                    onClick={async () =>
-                      window.ethereum.request({
-                        method: "wallet_watchAsset",
-                        params: {
-                          type: "ERC20",
-                          options: {
-                            address: threeXSetToken.address,
-                            symbol: "3X",
-                            decimals: 18,
-                          },
-                        },
-                      })
-                    }
+                    // TODO for some reason greenfield doesnt like this
+                    // onClick={async () =>
+                    //   await window.ethereum.request({
+                    //     method: "wallet_watchAsset",
+                    //     params: {
+                    //       type: "ERC20",
+                    //       options: {
+                    //         address: threeXSetToken.address,
+                    //         symbol: "3X",
+                    //         decimals: 18,
+                    //       },
+                    //     },
+                    //   })
+                    // }
                     className="text-customPurple cursor-pointer"
                   >
                     Add 3X to Wallet

@@ -49,20 +49,21 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
               <div
                 className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${popPoolExists ? "rounded-b-3xl" : "rounded-3xl"
                   } group px-2 pt-4 w-full h-14 cursor-pointer`}
-                onClick={async () =>
-                  await window.ethereum.request({
-                    method: "wallet_watchAsset",
-                    params: {
-                      type: "ERC20",
-                      options: {
-                        address: pop,
-                        symbol: "POP",
-                        decimals: 18,
-                        image: "https://www.popcorn.network/images/icons/circle/circle_yellow_64x64.png",
-                      },
-                    },
-                  })
-                }
+              // TODO for some reason greenfield doesnt like this
+              // onClick={async () =>
+              //   await window.ethereum.request({
+              //     method: "wallet_watchAsset",
+              //     params: {
+              //       type: "ERC20",
+              //       options: {
+              //         address: pop,
+              //         symbol: "POP",
+              //         decimals: 18,
+              //         image: "https://www.popcorn.network/images/icons/circle/circle_yellow_64x64.png",
+              //       },
+              //     },
+              //   })
+              // }
               >
                 <p className={`text-left text-lg px-6 ${active ? "font-medium" : ""}`}>Add to Wallet</p>
               </div>

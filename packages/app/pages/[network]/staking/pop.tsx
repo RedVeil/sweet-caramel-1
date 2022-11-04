@@ -13,7 +13,8 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useRouter } from "next/router";
-import "rc-slider/assets/index.css";
+//TODO killed css here?
+// import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";

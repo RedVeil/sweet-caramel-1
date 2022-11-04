@@ -60,9 +60,9 @@ async function getToken(
       balance: account ? await tokens.dai.contract.balanceOf(account) : ethers.constants.Zero,
       allowance: account
         ? await tokens.dai.contract.allowance(
-            account,
-            instantContract ? instantContract.address : zapperContract?.address,
-          )
+          account,
+          instantContract ? instantContract.address : zapperContract?.address,
+        )
         : ethers.constants.Zero,
       decimals: defaultErc20Decimals,
     },
@@ -78,9 +78,9 @@ async function getToken(
         : ethers.constants.Zero,
       allowance: account
         ? await tokens.usdc.contract.allowance(
-            account,
-            instantContract ? instantContract.address : mainContract.address,
-          )
+          account,
+          instantContract ? instantContract.address : mainContract.address,
+        )
         : ethers.constants.Zero,
       decimals: defaultErc20Decimals,
       claimableBalance: usdcClaimableBalance,
@@ -97,9 +97,9 @@ async function getToken(
         : ethers.constants.Zero,
       allowance: account
         ? await tokens.usdt.contract.allowance(
-            account,
-            instantContract ? instantContract.address : zapperContract?.address,
-          )
+          account,
+          instantContract ? instantContract.address : zapperContract?.address,
+        )
         : ethers.constants.Zero,
       decimals: defaultErc20Decimals,
     },

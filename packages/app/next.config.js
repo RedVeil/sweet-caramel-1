@@ -27,12 +27,6 @@ module.exports = {
   images: {
     domains: ["rawcdn.githack.com"],
   },
-  images: {
-    domains: ["rawcdn.githack.com"],
-  },
-  images: {
-    domains: ["rawcdn.githack.com"],
-  },
   poweredByHeader: false,
   webpack: (config, options) => {
     /** Allows import modules from packages in workspace. */

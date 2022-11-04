@@ -85,7 +85,7 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
   isThreeX: false,
 };
 
-export default function Butter(): JSX.Element {
+export default function ButterPage(): JSX.Element {
   const { signerOrProvider, account, signer, setChain, connectedChainId } = useWeb3();
 
   const chainId = useChainIdFromUrl();
@@ -488,19 +488,20 @@ export default function Butter(): JSX.Element {
             </p>
             <p>
               <a
-                onClick={async () =>
-                  window.ethereum.request({
-                    method: "wallet_watchAsset",
-                    params: {
-                      type: "ERC20",
-                      options: {
-                        address: addr.butter,
-                        symbol: "BTR",
-                        decimals: 18,
-                      },
-                    },
-                  })
-                }
+                // TODO for some reason greenfield doesnt like this
+                // onClick={async () =>
+                //   window.ethereum.request({
+                //     method: "wallet_watchAsset",
+                //     params: {
+                //       type: "ERC20",
+                //       options: {
+                //         address: addr.butter,
+                //         symbol: "BTR",
+                //         decimals: 18,
+                //       },
+                //     },
+                //   })
+                // }
                 className="text-customPurple cursor-pointer"
               >
                 Add BTR to Wallet

@@ -12,7 +12,7 @@ import GetPopMenu from "@popcorn/app/components/NavBar/GetPopMenu";
 import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
 import { useDisconnect } from "wagmi";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
-import useWeb3 from "hooks/useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export default function DesktopMenu(): JSX.Element {
   const { account } = useWeb3();

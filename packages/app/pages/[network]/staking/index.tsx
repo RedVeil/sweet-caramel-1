@@ -23,7 +23,7 @@ const MIGRATION_LINKS: AlertCardLink[] = [
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
 ];
 
-export default function index(): JSX.Element {
+export default function StakingOverviewPage(): JSX.Element {
   const { account } = useWeb3();
   const chainId = useChainIdFromUrl();
   const { pop, popStaking, popUsdcArrakisVaultStaking } = useDeployment(chainId);

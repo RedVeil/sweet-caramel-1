@@ -3,7 +3,7 @@ import { ButterBatchProcessing, IBasicIssuanceModule } from "@popcorn/hardhat/ty
 import { ChainId } from "@popcorn/utils/connectors";
 import { Address } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
-import useBasicIssuanceModule from "hooks/set/useBasicIssuanceModule";
+import useBasicIssuanceModule from "@popcorn/app/hooks/set/useBasicIssuanceModule";
 import useButterBatch from "@popcorn/app/hooks/set/useButterBatch";
 import useSWR from "swr";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";

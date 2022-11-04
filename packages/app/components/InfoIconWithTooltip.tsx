@@ -1,7 +1,6 @@
 import ReactTooltip from "rc-tooltip";
-import "rc-tooltip/assets/bootstrap.css";
 import React from "react";
-
+// TODO killed css here
 export interface InfoIconWithTooltipProps {
   title?: string;
   content: string | JSX.Element;
