@@ -20,7 +20,7 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import MobileProductsMenu from "@popcorn/app/components/NavBar/MobileProductsMenu";
 import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
-import { useDisconnect } from "wagmi";
+import { useDisconnect, useNetwork } from "wagmi";
 
 const networkData = [
   {
@@ -46,6 +46,7 @@ export const MobileMenu: React.FC = () => {
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect()
   const { openChainModal } = useChainModal();
+  const { chain } = useNetwork()
 
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
@@ -256,7 +257,13 @@ export const MobileMenu: React.FC = () => {
           )}
           <hr className="my-6" />
           <p className=" text-black mb-3">Select Network</p>
-          <TertiaryActionButton label="Change Chain" handleClick={openChainModal} />
+          <div
+            className={`h-12 px-6 flex flex-row items-center justify-center border border-customLightGray rounded-4xl text-primary cursor-pointer`}
+            onClick={openChainModal}
+          >
+            <img src={networkLogos[chain?.id]} alt={chain?.name} className="w-4.5 h-4 mr-4" />
+            <p className="leading-none mt-0.5">{chain?.name}</p>
+          </div>
         </div>
       </PopUpModal>
       <Transition.Root show={productsMenuVisible} as={Fragment}>

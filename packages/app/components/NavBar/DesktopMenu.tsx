@@ -10,9 +10,10 @@ import { useRouter } from "next/router";
 import DropDownComponent from "@popcorn/app/components/NavBar/DropDownComponent";
 import GetPopMenu from "@popcorn/app/components/NavBar/GetPopMenu";
 import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
-import { useDisconnect } from "wagmi";
+import { useDisconnect, useNetwork } from "wagmi";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { networkLogos } from "@popcorn/utils";
 
 export default function DesktopMenu(): JSX.Element {
   const { account } = useWeb3();
@@ -22,6 +23,7 @@ export default function DesktopMenu(): JSX.Element {
   const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
   const networkName = useNetworkName();
+  const { chain } = useNetwork()
 
   return (
     <div className="flex flex-row items-center justify-between w-full p-8 z-30">
@@ -87,19 +89,22 @@ export default function DesktopMenu(): JSX.Element {
         </div>
         {account && (
           <div className="relative flex flex-container flex-row z-10">
-            <MainActionButton
-              label="Chain"
-              handleClick={() => { console.log("change chain"); openChainModal() }}
-            />
+            <div
+              className={`h-full px-6 flex flex-row items-center justify-between border border-customLightGray rounded-4xl text-primary cursor-pointer`}
+              onClick={openChainModal}
+            >
+              <img src={networkLogos[chain?.id]} alt={chain?.name} className="w-4.5 h-4 mr-4" />
+              <p className="leading-none mt-0.5">{chain?.name}</p>
+            </div>
           </div>
         )}
         {!account ? (
           <MainActionButton
             label="Connect Wallet"
-            handleClick={() => { console.log("connect"); openConnectModal() }}
+            handleClick={openConnectModal}
           />
         ) : (
-          <TertiaryActionButton label="Disconnect" handleClick={() => { console.log("disconnect"); disconnect() }} />
+          <TertiaryActionButton label="Disconnect" handleClick={disconnect} />
         )}
       </div>
     </div>
