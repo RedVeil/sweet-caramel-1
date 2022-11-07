@@ -262,7 +262,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   }, [contracts]);
 
   const isElemTop = (ele: Element) => {
-    const { bottom, height, top } = ele.getBoundingClientRect();
+    const { top } = ele.getBoundingClientRect();
     if (top <= 300) {
       setShowPopUp(false);
     } else setShowPopUp(true);
@@ -271,14 +271,12 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   useEffect(() => {
     const profileContent = document.querySelector("#profileContent");
     window.addEventListener("scroll", () => isElemTop(profileContent));
+
+    return () => window?.removeEventListener('scroll', () => { })
   }, []);
 
   const saveProfileID = () => {
     localStorage.setItem("profileID", proposalId);
-  };
-
-  const shareImage = () => {
-    return <img src="/images/shareModal.svg" />;
   };
 
   const shareProfile = () => {
@@ -314,18 +312,6 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
       </div>
       <Hero bgImage={`${process.env.IPFS_URL}${proposal?.application?.files?.headerImage?.image}`} className="relative">
         <div className="hidden md:flex space-x-6 absolute bottom-10 left-8">
-          {/* <RWebShare
-            data={{
-              text: "Popcorn is a regenerative yield optimizing protocol",
-              url: router.asPath,
-              title: `Share ${proposal?.application?.organizationName}'s Proposal`,
-            }}
-          >
-            <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex px-5 py-3 gap-3 shadow-white-button ">
-              <ShareIcon className="w-6 h-6" />
-              Share
-            </button>
-          </RWebShare> */}
           <button
             className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex px-5 py-3 gap-3 shadow-white-button "
             onClick={shareProfile}
@@ -403,11 +389,10 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                 {profileTabs.map((tab) => (
                   <button
                     key={tab}
-                    className={`rounded-[28px] px-5 py-3 text-lg border ${
-                      currentTab == tab
-                        ? "text-white bg-[#827D69] border-[#827D69]"
-                        : "text-[#55503D] bg-white border-customLightGray"
-                    }`}
+                    className={`rounded-[28px] px-5 py-3 text-lg border ${currentTab == tab
+                      ? "text-white bg-[#827D69] border-[#827D69]"
+                      : "text-[#55503D] bg-white border-customLightGray"
+                      }`}
                     onClick={() => setCurrentTab(tab)}
                   >
                     {capitalize(tab)}

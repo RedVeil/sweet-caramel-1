@@ -11,6 +11,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { RWebShare } from "react-web-share";
 import styled from "styled-components";
 import capitalize from "../../utils/capitalizeFirstLetter";
+import { store } from "context/store";
+import { setSingleActionModal } from "context/actions";
+import SocialShare from "components/CommonComponents/SocialShare";
 
 const BeneficiaryPage = () => {
   const profileTabs = ["about", "gallery", "reports"];
@@ -20,6 +23,7 @@ const BeneficiaryPage = () => {
   const [beneficiary, setBeneficiary] = useState<BeneficiaryApplication>();
   const [beneficiaryAddress, setBeneficiaryAddress] = useState<string>();
   const [currentTab, setCurrentTab] = useState<string>("about");
+  const { dispatch } = useContext(store);
 
   useEffect(() => {
     const { id } = router.query;
@@ -35,6 +39,28 @@ const BeneficiaryPage = () => {
         });
     }
   }, [contracts, beneficiaryAddress]);
+
+  const shareProfile = () => {
+    dispatch(
+      setSingleActionModal({
+        content: `Share this profile to anyone and help to promote this impact project.`,
+        title: "Share & Spread Awareness",
+        visible: true,
+        image: <img src="/images/shareModal.svg" />,
+        onDismiss: {
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
+        },
+        children: (
+          <SocialShare
+            url={router.asPath}
+            title={`Share ${beneficiary?.organizationName}'s Proposal`}
+            text={"Popcorn is a regenerative yield optimizing protocol"}
+          />
+        ),
+      }),
+    );
+  };
+
   return (
     <section className="relative">
       <div className="md:hidden mb-10 px-6">
@@ -47,27 +73,18 @@ const BeneficiaryPage = () => {
       </div>
       <Hero bgImage={`${process.env.IPFS_URL}${beneficiary?.files?.headerImage?.image}`} className="relative">
         <div className="flex absolute gap-4 bottom-10 left-8">
-          <RWebShare
-            data={{
-              text: "Popcorn is a regenerative yield optimizing protocol",
-              url: router.asPath,
-              title: `Share ${beneficiary?.organizationName}'s Proposal`,
-            }}
-          >
-            <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
-              <ShareIcon className="w-6 h-6" />
-              Share
-            </button>
-          </RWebShare>
-          {/*TODO: Will be implemented later */}
-          <Link href="/profile/edit">
+          <button onClick={shareProfile} className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
+            <ShareIcon className="w-6 h-6" />
+            Share
+          </button>
+          {/* <Link href="/profile/edit">
             <a>
               <button className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
                 <ExclamationIcon className="w-6 h-6" />
-                Report
+                Edit Profile
               </button>
             </a>
-          </Link>
+          </Link> */}
         </div>
       </Hero>
       <div className="hidden md:block mx-8 mt-8">
@@ -110,11 +127,10 @@ const BeneficiaryPage = () => {
               {profileTabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`rounded-[28px] px-5 py-3 text-lg border ${
-                    currentTab == tab
-                      ? "text-white bg-[#827D69] border-[#827D69]"
-                      : "text-[#55503D] bg-white border-customLightGray"
-                  }`}
+                  className={`rounded-[28px] px-5 py-3 text-lg border ${currentTab == tab
+                    ? "text-white bg-[#827D69] border-[#827D69]"
+                    : "text-[#55503D] bg-white border-customLightGray"
+                    }`}
                   onClick={() => setCurrentTab(tab)}
                 >
                   {capitalize(tab)}
