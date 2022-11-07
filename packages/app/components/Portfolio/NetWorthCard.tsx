@@ -37,12 +37,14 @@ const NetWorthCard = () => {
         ${formatter.format(parseInt(formatUnits(netWorthValue?.total ?? fallBackAmount)))}
       </p>
 
-      <div className="flex text-white text-xs my-6">
-        <div className="bg-customLightPurple py-6 px-4 w-2/4 rounded-tl-5xl rounded-bl-5xl">
+      <div className="flex text-white text-xs my-6 w-full">
+        <div className={`bg-customLightPurple py-6 px-4 rounded-tl-5xl rounded-bl-5xl w-[${depositPercentage}%]`}>
           <p>{depositPercentage}%</p>
         </div>
-        <div className="bg-customPurple py-6 px-2 w-1/4">{vestingPercentage}%</div>
-        <div className="bg-customDarkPurple py-6 px-2 w-1/4 rounded-tr-5xl rounded-br-5xl">{inWalletPercentage}%</div>
+        <div className={`bg-customPurple py-6 px-2 w-[${vestingPercentage}%]`}>{vestingPercentage}%</div>
+        <div className={`bg-customDarkPurple py-6 px-2 rounded-tr-5xl rounded-br-5xl w-[${inWalletPercentage}%]`}>
+          {inWalletPercentage}%
+        </div>
       </div>
 
       <div>
