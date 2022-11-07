@@ -8,6 +8,8 @@ import { store } from "context/store";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
+import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
+import { useDeployment } from "hooks/useDeployment";
 import useTokenPrice from "hooks/useTokenPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
@@ -16,8 +18,9 @@ import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function PopStakingPage(): JSX.Element {
-  const { account, signer, contractAddresses, onContractSuccess, onContractError, chainId, pushWithinChain } =
-    useWeb3();
+  const { account, signer, onContractSuccess, onContractError, pushWithinChain } = useWeb3();
+  const chainId = useChainIdFromUrl();
+  const { popStaking } = useDeployment(chainId);
 
   const { dispatch } = useContext(store);
 
@@ -29,12 +32,11 @@ export default function PopStakingPage(): JSX.Element {
 
   const [form, setForm] = useState(defaultForm);
   const router = useRouter();
-  const { data: stakingPool } = usePopLocker(contractAddresses.popStaking);
-  const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, contractAddresses.popStaking);
+  const { data: stakingPool } = usePopLocker(popStaking, chainId);
+  const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, popStaking, chainId);
   const stakingToken = stakingPool?.stakingToken;
-  const approveToken = useApproveERC20();
-  const tokenPrice = useTokenPrice(stakingToken?.address);
-
+  const approveToken = useApproveERC20(chainId);
+  const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {
@@ -85,7 +87,7 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Withdrawing POP ...");
     stakingPool?.contract
       .connect(signer)
-    ["processExpiredLocks(bool)"](false)
+      ["processExpiredLocks(bool)"](false)
       .then((res) =>
         onContractSuccess(res, "POP withdrawn!", () => {
           balances.revalidate();
@@ -99,7 +101,7 @@ export default function PopStakingPage(): JSX.Element {
     toast.loading("Restaking POP ...");
     stakingPool.contract
       .connect(signer)
-    ["processExpiredLocks(bool)"](true)
+      ["processExpiredLocks(bool)"](true)
       .then((res) => {
         onContractSuccess(res, "POP Restaked!", () => {
           balances.revalidate();

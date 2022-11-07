@@ -1,29 +1,33 @@
 import { parseEther } from "@ethersproject/units";
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { IGUni__factory } from "@popcorn/hardhat/typechain";
-import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
-import { Address } from "@popcorn/utils/types";
+import { ChainId } from "@popcorn/utils";
 import { ethers } from "ethers";
 import useSWR from "swr";
+import { useDeployment } from "./useDeployment";
+import { useRpcProvider } from "./useRpcProvider";
 
 // Returns the popPrice in 1e6
-export const getPopTokenPrice = async (provider: ethers.providers.JsonRpcProvider, popUsdcLpAddress: Address) => {
+export const getPopTokenPrice = async (provider: ethers.providers.JsonRpcProvider, address: string) => {
   try {
-    const popUsdcLp = IGUni__factory.connect(popUsdcLpAddress, provider);
+    const popUsdcLp = IGUni__factory.connect(address, provider);
     const [usdcAmount, popAmount] = await popUsdcLp.getUnderlyingBalances();
     return usdcAmount.mul(parseEther("1")).div(popAmount);
   } catch (ex) {
-    console.log("error while querying pop price. ex - ", ex.toString());
+    console.log("error while querying pop price. ex - ", ex.toString(), address);
   }
 };
 
 // Hook to return the popPrice in 1e6
-export default function useGetPopTokenPriceInUSD() {
-  const mainnetProvider = PRC_PROVIDERS[ChainId.Ethereum];
+export default function useGetPopTokenPriceInUSD(chainId?) {
+  if (!chainId) {
+    chainId = ChainId.Ethereum;
+  }
+  const { popUsdcArrakisVault } = useDeployment(chainId);
+
+  const provider = useRpcProvider(chainId);
   // to be able to fetch pop prices on arbitrum and bnb as the pools do not exist on those chains.
-  const contractAddresses = getChainRelevantContracts(1);
-  const shouldFetch = mainnetProvider && contractAddresses && contractAddresses.popUsdcArrakisVault;
-  return useSWR(shouldFetch ? ["getPopTokenPrice", mainnetProvider] : null, async () =>
-    getPopTokenPrice(mainnetProvider, contractAddresses.popUsdcArrakisVault),
+  const shouldFetch = provider && popUsdcArrakisVault;
+  return useSWR(shouldFetch ? ["getPopTokenPrice", provider] : null, async () =>
+    getPopTokenPrice(provider, popUsdcArrakisVault),
   );
 }

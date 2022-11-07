@@ -115,6 +115,11 @@ module.exports = {
       chainId: 1337,
       url: "http://localhost:8545",
     },
+    remote_fork: {
+      chainId: 31338,
+      url: process.env.RPC_URL,
+      gasPrice: 10000000000,
+    },
     rinkeby: {
       timeout: 60000,
       url: process.env.RPC_URL || `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,

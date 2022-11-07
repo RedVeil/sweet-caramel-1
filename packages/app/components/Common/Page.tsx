@@ -1,11 +1,14 @@
 import Footer from "components/Footer";
 import Navbar from "components/NavBar/NavBar";
 import useRestakeAlert from "hooks/useRestakeAlert";
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
 import React, { ReactElement } from "react";
 import { Toaster } from "react-hot-toast";
 
 export default function Page(props: { children: ReactElement }) {
   useRestakeAlert();
+  useSubscribeToNewsletter();
+
   return (
     <div className="w-full min-h-screen h-full font-khTeka flex flex-col justify-between">
       <div>

@@ -1,21 +1,24 @@
 import { isAddress } from "@ethersproject/address";
 import { Staking__factory } from "@popcorn/hardhat/typechain";
-import { getStakingPool } from "@popcorn/utils";
+import { ChainId, getStakingPool } from "@popcorn/utils";
 import { StakingPoolMetadata } from "@popcorn/utils/getStakingPool";
+import { useDeployment } from "hooks/useDeployment";
+import { useRpcProvider } from "hooks/useRpcProvider";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 import useSWR, { SWRResponse } from "swr";
 
-export default function useStakingPool(address: string): SWRResponse<StakingPoolMetadata, Error> {
-  const { signerOrProvider, contractAddresses, account, chainId } = useWeb3();
+export default function useStakingPool(address: string, chainId: ChainId): SWRResponse<StakingPoolMetadata, Error> {
+  const { account } = useWeb3();
+  const provider = useRpcProvider(chainId);
+  const contractAddresses = useDeployment(chainId);
 
   const stakingContract = useMemo(() => {
-    if (isAddress(address) && contractAddresses.has(address))
-      return Staking__factory.connect(address, signerOrProvider);
-  }, [chainId, address, signerOrProvider]);
+    if (isAddress(address)) return Staking__factory.connect(address, provider);
+  }, [chainId, address, provider]);
 
-  const shouldFetch = !!stakingContract && contractAddresses.has(address);
-  return useSWR(shouldFetch ? [`staking-pool`, address, chainId, account] : null, async (key) => {
-    return getStakingPool(key, account, stakingContract, contractAddresses, chainId, signerOrProvider);
+  const shouldFetch = !!stakingContract;
+  return useSWR(shouldFetch ? [address, chainId, account, provider, stakingContract] : null, async (key) => {
+    return getStakingPool(key, account, stakingContract, chainId, provider, contractAddresses);
   });
 }

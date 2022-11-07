@@ -58,6 +58,9 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
   };
 
   function handleClaim(batch: AccountBatch) {
+    if (batch.batchType === BatchType.Mint) {
+      claim(batch.batchId);
+    }
     if (batch.batchType === BatchType.Redeem) {
       if (windowWidth > 768) {
         dispatch(

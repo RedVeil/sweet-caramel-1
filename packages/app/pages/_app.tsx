@@ -1,5 +1,3 @@
-import { Web3Provider } from "@ethersproject/providers";
-import { Web3ReactProvider } from "@web3-react/core";
 import Page from "components/Common/Page";
 import { Debug } from "components/Debug";
 import FeatureTogglePanel from "components/DevOnly/FeatureTogglePanel";
@@ -20,12 +18,6 @@ import React, { useEffect, useState } from "react";
 import { GlobalLinearProgressAndLoading } from "../components/GlobalLinearProgressAndLoading";
 import { StateProvider } from "../context/store";
 import "../styles/globals.css";
-
-function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider, "any");
-  library.pollingInterval = 12000;
-  return library;
-}
 
 web3Onboard();
 
@@ -100,22 +92,20 @@ export default function MyApp(props) {
       </Head>
       <StateProvider>
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
-        <Web3ReactProvider getLibrary={getLibrary}>
-          <FeatureToggleProvider>
-            <SoftLaunchCheck loading={loading} />
-            <OfacCheck />
-            <MobileFullScreenModalContainer />
-            <SingleActionModalContainer />
-            <MultiChoiceActionModalContainer />
-            <DualActionModalContainer />
-            <DualActionWideModalContainer />
-            <NetworkChangePromptModalContainer />
-            {getLayout(<Component {...pageProps} />)}
-            <FeatureTogglePanel />
-            <NotificationsContainer />
-            <Debug />
-          </FeatureToggleProvider>
-        </Web3ReactProvider>
+        <FeatureToggleProvider>
+          <SoftLaunchCheck loading={loading} />
+          <OfacCheck />
+          <MobileFullScreenModalContainer />
+          <SingleActionModalContainer />
+          <MultiChoiceActionModalContainer />
+          <DualActionModalContainer />
+          <DualActionWideModalContainer />
+          <NetworkChangePromptModalContainer />
+          {getLayout(<Component {...pageProps} />)}
+          <FeatureTogglePanel />
+          <NotificationsContainer />
+          <Debug />
+        </FeatureToggleProvider>
       </StateProvider>
     </React.Fragment>
   );

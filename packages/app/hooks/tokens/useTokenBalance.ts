@@ -1,19 +1,22 @@
 import { isAddress } from "@ethersproject/address";
-import { ERC20 } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
 import useSWR, { SWRResponse } from "swr";
+import { ChainId } from "../../../utils/src/connectors";
+import useERC20 from "./useERC20";
 
 export default function useTokenBalance(
-  token: ERC20 | undefined,
+  address: string,
   account: string | undefined | null,
+  chainId: ChainId,
 ): SWRResponse<BigNumber, Error> {
+  const token = useERC20(address, chainId);
   return useSWR(
-    [`erc20/${token?.address}/balanceOf/${account}`, account],
+    [`erc20/${address}/balanceOf/${account}`, account],
     async (key: string, account: string | undefined | null) => {
-      if (!isAddress(token?.address) || !isAddress(account) || !token) {
+      if (!isAddress(address) || !isAddress(account) || !token) {
         return constants.Zero;
       }
-      return token?.balanceOf(account) || constants.Zero;
+      return token?.contract.balanceOf(account);
     },
     {
       refreshInterval: 3 * 1000,

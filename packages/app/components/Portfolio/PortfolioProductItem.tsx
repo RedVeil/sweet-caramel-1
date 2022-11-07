@@ -1,12 +1,16 @@
 import StatusWithLabel from "components/Common/StatusWithLabel";
 import TokenIcon from "components/TokenIcon";
 import React from "react";
+import { useChainIdFromUrl } from "../../hooks/useChainIdFromUrl";
+import { useDeployment } from "../../hooks/useDeployment";
 
 const PortfolioProductItem = () => {
+  const chainId = useChainIdFromUrl();
+  const { pop } = useDeployment(chainId);
   return (
     <div className="bg-customLightGray bg-opacity-25 rounded-lg grid grid-cols-12 p-6">
       <div className="col-span-12 md:col-span-4 flex items-center">
-        <TokenIcon token="Popcorn" fullsize />
+        <TokenIcon token={pop} chainId={chainId} fullsize />
         <h5 className="text-xl md:ml-2 mb-2 md:mb-0">Popcorn</h5>
       </div>
 

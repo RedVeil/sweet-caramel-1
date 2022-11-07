@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import SecondaryActionButton from "components/SecondaryActionButton";
 import { constants } from "ethers";
 import useStakingPool from "hooks/staking/useStakingPool";
@@ -9,11 +9,13 @@ import useSweetVault from "hooks/sweetvault/useSweetVault";
 import useTokenList from "hooks/sweetvault/useTokenList";
 import useVaultsV1Zapper from "hooks/sweetvault/useVaultsV1Zapper";
 import useGetMultipleToken from "hooks/tokens/useGetMultipleToken";
+import { useDeployment } from "hooks/useDeployment";
 import useWeb3 from "hooks/useWeb3";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { SweetVaultMetadata } from "../../../utils/src/types/index";
+import { useDefaultTokenList } from "../../hooks/useDefaultTokenList";
 import StatusWithLabel from "../Common/StatusWithLabel";
 import SweetVaultsDepositInterface from "./SweetVaultsDepositInterface";
 import SweetVaultsMobileTutorialSlider from "./SweetVaultsMobileTutorialSlider";
@@ -22,29 +24,34 @@ import SweetVaultsSlider from "./SweetVaultsSlider";
 export interface SweetVaultProps {
   address: string;
   searchString: string;
+  chainId: ChainId;
 }
 
 async function getCoins(zapper, underlyingAddress, provider): Promise<ERC20[]> {
   return await zapper.getCoins(await zapper.getPoolAddress(underlyingAddress, provider), provider);
 }
 
-const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString }) => {
-  const { signerOrProvider, contractAddresses, account, rpcProvider } = useWeb3();
+const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString, chainId }) => {
+  const { signerOrProvider } = useWeb3();
   const [expanded, setExpanded] = useState<boolean>(false);
-  const zapper = useVaultsV1Zapper();
+
+  const { vaultsV1Zapper } = useDeployment(chainId);
+  const zapper = useVaultsV1Zapper(vaultsV1Zapper, chainId);
+
   const [poolCoins, setPoolCoins] = useState<ERC20[]>(null);
+  const defaultTokenList = useDefaultTokenList(chainId);
   const {
     data: tokenList,
     error: tokenListError,
     mutate: revalidateTokenList,
-  } = useTokenList(contractAddresses.defaultTokenList, zapper?.zapper?.address);
-  const { data: sweetVault, error: sweetVaultError, mutate: revalidateVault } = useSweetVault(address);
-  const { data: stakingPool } = useStakingPool(sweetVault?.metadata?.stakingAdress);
+  } = useTokenList(defaultTokenList, chainId, zapper?.zapper?.address);
+  const { data: sweetVault, error: sweetVaultError, mutate: revalidateVault } = useSweetVault(address, chainId);
+  const { data: stakingPool } = useStakingPool(sweetVault?.metadata?.stakingAdress, chainId);
   const {
     data: poolToken,
     error: poolTokenError,
     mutate: revalidatePoolToken,
-  } = useGetMultipleToken(poolCoins, zapper?.zapper?.address);
+  } = useGetMultipleToken(poolCoins, chainId, zapper?.zapper?.address);
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
 
   const metadata = sweetVault ? sweetVault.metadata : ({} as SweetVaultMetadata);

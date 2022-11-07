@@ -1,46 +1,26 @@
 import SecondaryButton from "components/SecondaryActionButton";
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
 import React, { useState } from "react";
 
 const NewsletterSubscription = ({ title, buttonLabel }) => {
   const [subscribeEmail, setSubscribeEmail] = useState<string>("");
-  const [subscribing, setSubscribing] = useState<boolean>(false);
-  const [subscriptionSuccessful, setSubscriptionSuccessful] = useState<boolean>(false);
+  const { subscribeToNewsLetter, subscribing, subscriptionSuccessful } = useSubscribeToNewsletter();
 
-  const subscribeToNewsLetter = async () => {
-    if (
-      subscribeEmail === "" ||
-      subscribeEmail.match(
-        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      ) === null
-    )
-      return;
-    setSubscribing(true);
-    try {
-      await fetch("/api/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email_address: subscribeEmail,
-          status: "subscribed",
-        }),
-      });
-      setSubscriptionSuccessful(true);
-      setSubscribing(false);
-      setTimeout(() => {
-        setSubscriptionSuccessful(false);
-      }, 5000);
-    } catch (error) {
-      setSubscribing(false);
-      console.log(error);
-    }
+  const subscribe = () => {
+    subscribeToNewsLetter({
+      email: subscribeEmail,
+      onSuccess: () => {
+        setSubscribeEmail("");
+      },
+    });
   };
+
   const onEnterKey = (e) => {
     if (e.key === "Enter") {
-      subscribeToNewsLetter();
+      subscribe();
     }
   };
+
   return (
     <div className="validate mt-12">
       <h6 className="px-1 leading-6">{title}</h6>
@@ -68,9 +48,7 @@ const NewsletterSubscription = ({ title, buttonLabel }) => {
             <p className="font-medium">Subscribed Successfully!</p>
           </div>
         )}
-        {!subscribing && !subscriptionSuccessful && (
-          <SecondaryButton label={buttonLabel} handleClick={subscribeToNewsLetter} />
-        )}
+        {!subscribing && !subscriptionSuccessful && <SecondaryButton label={buttonLabel} handleClick={subscribe} />}
       </div>
     </div>
   );

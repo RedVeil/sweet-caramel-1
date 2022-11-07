@@ -1,41 +1,30 @@
-import namedAccounts from "@popcorn/hardhat/lib/utils/namedAccounts.json";
 import { ChainId } from "@popcorn/utils";
-import { getTokenMetadataOverride } from "contractMetadataOverride";
+import { useContractMetadata } from "hooks/useContractMetadata";
 
 interface TokenIconProps {
   token: string;
   fullsize?: boolean;
   imageSize?: string;
+  chainId: ChainId;
 }
 
-const TokenMetadataOverride = getTokenMetadataOverride();
-
-export default function TokenIcon({ token, fullsize = false, imageSize }: TokenIconProps): JSX.Element {
-  switch (token) {
-    case "Arrakis USDC/POP LP":
-    case "Sushi USDC/POP LP":
-      return (
-        <div className="flex flex-row flex-shrink-0 flex-grow-0">
-          <img src="/images/tokens/usdc.webp" alt="usdc" className={imageSize ? imageSize : "w-10 h-10"} />
-          <img
-            src={TokenMetadataOverride[ChainId.Polygon][namedAccounts?.pop?.polygon]?.icon}
-            alt="pop"
-            className={`${imageSize ? imageSize : "w-10 h-10"} -ml-3`}
-          />
-        </div>
-      );
-    case "Butter (V2)":
-      return <img src="/images/icons/BTR.svg" alt="butter" className={imageSize ? imageSize : "w-10 h-10"} />;
-    case "3X":
-      return <img src="/images/tokens/3X.svg" alt="3X" className="w-10 h-10" />;
-    case "Popcorn":
-    default:
-      return (
-        <img
-          src={TokenMetadataOverride[ChainId.Polygon][namedAccounts?.pop?.polygon]?.icon}
-          alt="pop"
-          className={imageSize ? imageSize : "w-10 h-10"}
-        />
-      );
+export default function TokenIcon({
+  token: address,
+  fullsize = false,
+  imageSize,
+  chainId,
+}: TokenIconProps): JSX.Element {
+  const metadata = useContractMetadata(address, chainId);
+  if (metadata?.icons?.length > 1) {
+    return (
+      <div className="flex flex-row flex-shrink-0 flex-grow-0">
+        <img src={metadata?.icons[0]} alt="token icon" className={imageSize ? imageSize : "w-10 h-10"} />
+        <img src={metadata?.icons[1]} alt="token icon" className={`${imageSize ? imageSize : "w-10 h-10"} -ml-3`} />
+      </div>
+    );
   }
+  if (metadata?.icons?.length === 1) {
+    return <img src={metadata?.icons[0]} alt="token icon" className={imageSize ? imageSize : "w-10 h-10"} />;
+  }
+  return <></>;
 }

@@ -1,13 +1,10 @@
 import { ethers } from "hardhat";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { parseEther } from "@ethersproject/units";
-
 import { ADDRESS_ZERO } from "../lib/utils/constants";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getVaultStakingPools } from "../lib/utils/getStakingPools";
-import { addContractToRegistry, FaucetController } from "./utils";
+import { addContractToRegistry, FaucetController, getSetup } from "./utils";
 
 const FEE_MULTIPLIER = parseEther("0.0001"); // 1e14
 const FEE_STRUCTURE = {
@@ -23,24 +20,19 @@ const KEEPER_SETTINGS = {
 };
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
   const vaultStakingPools = await getVaultStakingPools(hre.network.config.chainId, addresses, deployments);
 
   const contractRegistry = await (await deployments.get("ContractRegistry")).address;
 
   await deploy("VaultFeeController", {
-    from: addresses.deployer,
+    from: await signer.getAddress(),
     args: [FEE_STRUCTURE, addresses.contractRegistry],
     log: true,
     autoMine: true,
     contract: "VaultFeeController",
   });
   await addContractToRegistry("VaultFeeController", deployments, signer, hre);
-
-
 
   for (var i = 0; i < vaultStakingPools.length; i++) {
     console.log({
@@ -53,7 +45,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       KEEPER_SETTINGS,
     });
     const VaultDeployed = await deploy(vaultStakingPools[i].vaultName, {
-      from: addresses.deployer,
+      from: await signer.getAddress(),
       args: [],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
@@ -67,12 +59,16 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ADDRESS_ZERO,
       ADDRESS_ZERO,
       FEE_STRUCTURE,
-      KEEPER_SETTINGS,
+      KEEPER_SETTINGS
     );
 
     const Staking = await deploy(vaultStakingPools[i].poolName, {
-      from: addresses.deployer,
-      args: [vaultStakingPools[i].rewardsToken, VaultDeployed.address, addresses.vaultsRewardsEscrow],
+      from: await signer.getAddress(),
+      args: [
+        vaultStakingPools[i].rewardsToken,
+        VaultDeployed.address,
+        (await deployments.get("VaultsRewardsEscrow")).address,
+      ],
       log: true,
       autoMine: true,
       contract: "Staking",

@@ -1,25 +1,20 @@
 import { SearchIcon } from "@heroicons/react/outline";
+import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import PLACEHOLDER_IMAGE_URL from "helper/placeholderImageUrl";
-import useWeb3 from "hooks/useWeb3";
-import Image from "next/image";
+import TokenIcon from "components/TokenIcon";
 import { FC, useState } from "react";
+import { useDefaultTokenList } from "../../hooks/useDefaultTokenList";
 
 interface SearchTokenProps {
   selectToken: (token: Token) => void;
   selectedToken: Token;
   options: Token[];
+  chainId: ChainId;
 }
 
-export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, selectedToken }) => {
-  const { contractAddresses } = useWeb3();
-  const quickOptionsTokens = [
-    contractAddresses.dai,
-    contractAddresses.usdt,
-    contractAddresses.usdc,
-    contractAddresses.eth,
-    contractAddresses.wbtc,
-  ];
+export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, selectedToken, chainId }) => {
+  const quickOptionsTokens = useDefaultTokenList(chainId);
+
   const [search, setSearch] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<Token[]>(options);
 
@@ -49,7 +44,7 @@ export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, select
         />
       </div>
       {options
-        .filter((option) => quickOptionsTokens.includes(option.address))
+        .filter((option) => quickOptionsTokens.find((token) => token == option.address))
         .map((quickOption) => (
           <div className="inline-flex mr-2 my-3" key={quickOption?.symbol}>
             <button
@@ -58,14 +53,8 @@ export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, select
                 selectToken(quickOption);
               }}
             >
-              <span className="w-5 h-5 relative mr-2">
-                <Image
-                  src={quickOption?.icon || PLACEHOLDER_IMAGE_URL}
-                  alt={quickOption?.icon}
-                  layout="fill"
-                  objectFit="contain"
-                  priority={true}
-                />
+              <span className="relative mr-2">
+                <TokenIcon token={quickOption?.address} imageSize="w-5 h-5" chainId={chainId} />
               </span>
               <span>{quickOption.name}</span>
             </button>
@@ -87,11 +76,7 @@ export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, select
                 }`}
               >
                 <span className="w-5 h-5 inline-flex mr-3 flex-shrink-0">
-                  <img
-                    src={option.icon || PLACEHOLDER_IMAGE_URL}
-                    alt={option.symbol}
-                    className="h-full w-full object-contain"
-                  />
+                  <img src={option.icon} alt={option.symbol} className="h-full w-full object-contain" />
                 </span>
                 <span>{option.symbol}</span>
               </span>

@@ -1,43 +1,40 @@
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
-import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
+import { ChainId, HexToChain, PRC_PROVIDERS } from "@popcorn/utils";
 import { useConnectWallet, useSetChain, useWallets } from "@web3-onboard/react";
-import { setNetworkChangePromptModal } from "context/actions";
-import { store } from "context/store";
 import { ethers } from "ethers";
 import { getStorage, removeStorage, setStorage } from "helper/safeLocalstorageAccess";
 import toTitleCase from "helper/toTitleCase";
 import useWeb3Callbacks from "helper/useWeb3Callbacks";
 import { useRouter } from "next/router";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDeployment } from "./useDeployment";
 
 export default function useWeb3() {
   const router = useRouter();
   const [{ connecting, wallet }, connect, disconnect] = useConnectWallet();
-  const [{ chains, connectedChain, settingChain }, setChain] = useSetChain();
+  const [{ chains, connectedChain: _connectedChain, settingChain }, setChain] = useSetChain();
   const [awaitingChainChange, setAwaitingChainChange] = useState<number | false>(false);
+  const [connectedChainId, setConnectedChainId] = useState<ChainId>();
+
+  const inGnosisApp = () =>
+    typeof document !== "undefined" && document?.location?.ancestorOrigins?.contains("https://gnosis-safe.io");
+
+  useEffect(() => {
+    if (typeof _connectedChain?.id == "string" && HexToChain[_connectedChain.id] !== connectedChainId) {
+      setConnectedChainId(HexToChain[_connectedChain.id]);
+    }
+  }, [connectedChainId, _connectedChain]);
 
   const walletProvider = useMemo(
     () => (wallet?.provider ? new ethers.providers.Web3Provider(wallet?.provider, "any") : null),
     [wallet?.provider],
   );
   const signer = useMemo(() => (walletProvider ? walletProvider.getSigner() : null), [walletProvider]);
-
   const signerOrProvider = signer || getCurrentRpcProvider();
   const connectedAccount = wallet?.accounts[0];
   const accountAddress = connectedAccount?.address;
-  const contractAddresses = useMemo(() => getChainRelevantContracts(getChainId()), [getChainId()]);
+  const contractAddresses = useDeployment(connectedChainId);
   const wallets = useWallets();
-  const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(getChainId());
-  const { dispatch } = useContext(store);
-
-  const isLoaded = (network: string | undefined): boolean =>
-    connectedChain?.id && typeof network === "string" && !router?.pathname?.includes("butter");
-
-  const isChainMismatch = (network: string | undefined): boolean =>
-    isLoaded(network) && ChainId[Number(connectedChain?.id)] !== toTitleCase(network);
-
-  const inGnosisApp = () =>
-    typeof document !== "undefined" && document?.location?.ancestorOrigins?.contains("https://gnosis-safe.io");
+  const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(connectedChainId);
 
   useEffect(() => {
     // Eagerconnect
@@ -56,36 +53,30 @@ export default function useWeb3() {
   }, [wallets]);
 
   useEffect(() => {
-    // Detect and alert mismatch between connected chain and URL
-    if (!connectedChain?.id) return;
-    // Never alert when on landing page
-    if (["/[network]", "/"].includes(router?.pathname)) return;
-
-    if (isChainMismatch(router?.query?.network as string) || !ChainId[Number(connectedChain?.id)]) {
-      alertChainInconsistency(
-        router?.query?.network as string,
-        ChainId[Number(connectedChain?.id)] || "an unsupported Network",
-      );
-    } else {
-      dispatch(setNetworkChangePromptModal(false));
-    }
-  }, [router?.query?.network, wallet, connectedChain?.id]);
-
-  useEffect(() => {
     // Navigate to new URL after chain is switched in wallet
     if (awaitingChainChange) {
-      if (connectedChain.id === idToHex(awaitingChainChange)) {
+      if (_connectedChain.id === idToHex(awaitingChainChange)) {
         pushNetworkChange(ChainId[awaitingChainChange], true);
       }
       setAwaitingChainChange(false);
     }
-  }, [connectedChain?.id]);
+  }, [_connectedChain?.id]);
 
   const pushWithinChain = useCallback(
     (url, shallow = false) =>
-      router.push({ pathname: `/${router?.query?.network}${url}` }, undefined, {
-        shallow: shallow,
-      }),
+      router.push(
+        {
+          pathname: `/${
+            router?.query?.network ||
+            ChainId[connectedChainId]?.toLowerCase() ||
+            ChainId[ChainId.Ethereum].toLowerCase()
+          }${url}`,
+        },
+        undefined,
+        {
+          shallow: shallow,
+        },
+      ),
     [router, router?.query?.network],
   );
 
@@ -93,7 +84,8 @@ export default function useWeb3() {
 
   return {
     account: accountAddress,
-    chainId: getChainId(),
+    connectedChainId,
+    connectedChain: _connectedChain,
     connect: handleConnect,
     disconnect: handleDisconnect,
     connecting,
@@ -104,7 +96,7 @@ export default function useWeb3() {
     onContractSuccess,
     onContractError,
     chains,
-    setChain: (newChainId) => setChainFromNumber(newChainId),
+    setChain: (newChainId: number) => setChainFromNumber(newChainId),
     settingChain,
     wallet,
     pushWithinChain,
@@ -128,11 +120,11 @@ export default function useWeb3() {
   }
 
   function getChainId(): number {
-    return Number(connectedChain?.id) || ChainId[getNonWalletChain()];
+    return Number(_connectedChain?.id) || ChainId.Ethereum;
   }
 
   async function setChainFromNumber(newChainId: number): Promise<void> {
-    if (wallet) {
+    if (wallet || (_connectedChain?.id && String(newChainId) !== _connectedChain?.id)) {
       await setChain({ chainId: idToHex(newChainId) }).then(() => setAwaitingChainChange(newChainId));
     } else {
       await pushNetworkChange(ChainId[newChainId], true);
@@ -154,45 +146,6 @@ export default function useWeb3() {
       {
         shallow: shallow,
       },
-    );
-  }
-
-  function alertChainInconsistency(intendedChain: string, actualChain: string): void {
-    dispatch(
-      setNetworkChangePromptModal({
-        content: `You are viewing a page on ${toTitleCase(intendedChain)} but your wallet is set to ${actualChain}.`,
-        title: "Network Inconsistency",
-        type: "error",
-        onChangeUrl: ChainId[actualChain]
-          ? {
-            label: `Continue on ${actualChain}`,
-            onClick: () => {
-              pushNetworkChange(toTitleCase(actualChain), true);
-              dispatch(setNetworkChangePromptModal(false));
-            },
-          }
-          : undefined,
-        onChangeNetwork: {
-          label: `Switch to ${toTitleCase(intendedChain)}`,
-          onClick: () => {
-            setChainFromNumber(ChainId[toTitleCase(intendedChain)]).then((res) =>
-              dispatch(setNetworkChangePromptModal(false)),
-            );
-          },
-        },
-        onDisconnect: {
-          label: "Disconnect Wallet",
-          onClick: async () => {
-            await handleDisconnect();
-            dispatch(setNetworkChangePromptModal(false));
-          },
-        },
-        onDismiss: {
-          onClick: () => {
-            dispatch(setNetworkChangePromptModal(false));
-          },
-        },
-      }),
     );
   }
 }

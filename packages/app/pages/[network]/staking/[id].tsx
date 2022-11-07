@@ -11,26 +11,30 @@ import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import StakeInterface, { defaultForm, InteractionType } from "../../../components/staking/StakeInterface";
 import StakeInterfaceLoader from "../../../components/staking/StakeInterfaceLoader";
+import { useChainIdFromUrl } from "../../../hooks/useChainIdFromUrl";
 
 export default function StakingPage(): JSX.Element {
-  const { account, chainId, signer, contractAddresses, onContractSuccess, onContractError, pushWithinChain } =
-    useWeb3();
+  const { account, signer, onContractSuccess, onContractError, pushWithinChain } = useWeb3();
+  const chainId = useChainIdFromUrl();
   const router = useRouter();
   const { dispatch } = useContext(store);
+  const [form, setForm] = useState(defaultForm);
+  const {
+    data: stakingPool,
+    error: stakingPoolError,
+    mutate: refetchStakingPool,
+  } = useStakingPool(router.query.id as string, chainId);
+  const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, stakingPool?.address, chainId);
+  const stakingToken = stakingPool?.stakingToken;
+  const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
+  const isLoading = !stakingPool && !tokenPrice;
+  const approveToken = useApproveERC20(chainId);
 
   useEffect(() => {
-    if (!!((router.query?.id as string) || false) && !contractAddresses.has(router.query.id as string)) {
+    if (stakingPoolError) {
       pushWithinChain("/staking");
     }
-  }, [contractAddresses, router]);
-
-  const [form, setForm] = useState(defaultForm);
-  const { data: stakingPool, mutate: refetchStakingPool } = useStakingPool(router.query.id as string);
-  const balances = useBalanceAndAllowance(stakingPool?.stakingToken, account, stakingPool?.address);
-  const stakingToken = stakingPool?.stakingToken;
-  const tokenPrice = useTokenPrice(stakingToken?.address);
-  const isLoading = !stakingPool && !tokenPrice;
-  const approveToken = useApproveERC20();
+  }, [stakingPoolError]);
 
   function stake(): void {
     toast.loading(`Staking ${stakingToken?.symbol} ...`);

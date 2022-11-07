@@ -8,7 +8,7 @@
     "jest": "jest",
     "prettier": "prettier",
     "prettify": "yarn lint-staged --allow-empty",
-    "netlify-build": "cd ../../ &&  yarn && cd packages/hardhat && yarn compile && cd .. && cd grants && yarn next build"
+    "netlify-build": "cd ../../ &&  yarn && cd packages/hardhat && yarn build && cd .. && cd grants && yarn next build"
   },
   "lint-staged": {
     "*.{tsx,ts}": "prettier --write"

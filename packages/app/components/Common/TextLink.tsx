@@ -1,6 +1,6 @@
 import { ArrowCircleRightIcon } from "@heroicons/react/outline";
+import useNetworkName from "hooks/useNetworkName";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 interface TextLinkProps {
   text: string;
@@ -19,9 +19,9 @@ export default function TextLink({
   outsideLink,
   openInNewTab,
 }: TextLinkProps) {
-  const router = useRouter();
+  const networkName = useNetworkName();
   return (
-    <Link href={outsideLink ? url : `/${router?.query?.network}${url}`} passHref>
+    <Link href={outsideLink ? url : `/${networkName}${url}`} passHref>
       <a
         className={`flex flex-shrink-0 font-medium text-primary hover:text-black whitespace-nowrap`}
         target={openInNewTab ? "_blank" : "_self"}

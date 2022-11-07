@@ -9,6 +9,7 @@ import GrantElectionAdapter, { ElectionTerm, ShareType } from "../lib/adapters/G
 import ADDRESS_CID_MAP from "../lib/utils/adresssCidMap";
 import { DAYS, timeTravel } from "../lib/utils/test";
 import { BeneficiaryGovernance, BeneficiaryRegistry, GrantElections } from "../typechain";
+import { getSetup } from "./utils";
 
 enum ProposalType {
   BeneficiaryNominationProposal,
@@ -27,8 +28,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log("Skipping BenGovFixtures to avoid time travel");
     return;
   }
+
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
   console.log("Deploying Fixtures");
-  const { deployments, ethers } = hre;
   const DEFAULT_REGION = ethers.utils.id("World");
 
   const accounts = await ethers.getSigners();
@@ -362,7 +364,16 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default main;
-main.dependencies = ["setup", "acl-registry", "contract-registry", "participation-reward", "gov-staking", "beneficiary-governance", "beneficiary-registry", "grant-elections"];
+main.dependencies = [
+  "setup",
+  "acl-registry",
+  "contract-registry",
+  "participation-reward",
+  "gov-staking",
+  "beneficiary-governance",
+  "beneficiary-registry",
+  "grant-elections",
+];
 main.tags = ["core", "beneficiary-governance-demo-data"];
 
 async function getActiveBeneficiaries(beneficiaryRegistry: BeneficiaryRegistry) {

@@ -1,3 +1,4 @@
+import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
 import { BigNumber, constants } from "ethers";
 import { useState } from "react";
@@ -10,15 +11,17 @@ interface AirDropClaimProps {
   approve: () => Promise<void>;
   balances: { balance: BigNumber; allowance: BigNumber }[];
   tokens: Token[];
+  chainId: ChainId;
 }
 
-const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, tokens }) => {
+const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, tokens, chainId }) => {
   const [inputAmount, setInputAmount] = useState<BigNumber>(BigNumber.from(0));
 
   return (
     <div className="bg-white rounded-3xl px-5 pt-14 pb-6 border border-gray-200 shadow-custom">
       <div className="flex flex-col justify-between items-start">
         <TokenInput
+          chainId={chainId}
           token={tokens[0]}
           label={"Redeem Amount"}
           balance={balances[0].balance}
@@ -35,7 +38,14 @@ const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, 
           </div>
         </div>
         <div className="w-full mt-6">
-          <TokenInput token={tokens[1]} label={""} amount={inputAmount} setAmount={(n) => setInputAmount(n)} readonly />
+          <TokenInput
+            chainId={chainId}
+            token={tokens[1]}
+            label={""}
+            amount={inputAmount}
+            setAmount={(n) => setInputAmount(n)}
+            readonly
+          />
         </div>
       </div>
       <div className="w-full text-center mt-10 space-y-4">

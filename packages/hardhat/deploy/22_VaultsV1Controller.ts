@@ -1,14 +1,9 @@
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
-
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
 
   const vaultsV1RegistryAddress = (await deployments.get("VaultsV1Registry")).address;
   const vaultsV1FactoryAddress = (await deployments.get("VaultsV1Factory")).address;
@@ -16,8 +11,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
 
   await deploy("VaultsV1Controller", {
-    from: addresses.deployer,
-    args: [addresses.deployer, contractRegistryAddress], // deployer will be owner for Owned
+    from: await signer.getAddress(),
+    args: [await signer.getAddress(), contractRegistryAddress], // deployer will be owner for Owned
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "VaultsV1Controller",
