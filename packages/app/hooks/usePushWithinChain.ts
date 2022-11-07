@@ -13,7 +13,7 @@ export default function usePushWithinChain(): (url: string, shallow?: boolean) =
       case "arbitrum-one":
         return "arbitrum";
       default:
-        return undefined;
+        return name;
     }
   };
 
