@@ -1,8 +1,21 @@
 import { useRouter } from "next/router";
 import { useCallback } from "react";
+import { useNetwork } from "wagmi";
 
 export default function usePushWithinChain(): (url: string, shallow?: boolean) => void {
   const router = useRouter();
+  const { chain } = useNetwork();
+
+  const chainUrl = (name?: string) => {
+    name = name?.toLowerCase().replace(" ", "-");
+
+    switch (name?.toLowerCase()) {
+      case "arbitrum-one":
+        return "arbitrum";
+      default:
+        return undefined;
+    }
+  };
 
   return useCallback(
     (url: string, shallow = false) => {
@@ -11,8 +24,10 @@ export default function usePushWithinChain(): (url: string, shallow?: boolean) =
         url = url.slice(1, url.length);
       }
 
-      router.push({ pathname: `/${router?.query?.network || "ethereum"}/${url}` }, undefined, { shallow: shallow });
+      router.push({ pathname: `/${router?.query?.network || chainUrl(chain?.name) || "ethereum"}/${url}` }, undefined, {
+        shallow: shallow,
+      });
     },
-    [router?.query?.network],
+    [router?.query?.network, chain?.name],
   );
 }
