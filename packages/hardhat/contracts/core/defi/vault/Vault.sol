@@ -69,6 +69,7 @@ contract Vault is
   uint256 public proposalTimeStamp;
   uint256 public quitPeriod; // default is 3 days
   FeeStructure public proposedFees;
+  uint256 proposedFeeTimeStamp;
 
   //  EIP-2612 STORAGE
   uint256 internal INITIAL_CHAIN_ID;
@@ -567,6 +568,7 @@ contract Vault is
     ) revert InvalidFeeStructure();
 
     proposedFees = newFees;
+    proposedFeeTimeStamp = block.timestamp;
 
     emit NewFeesProposed(newFees);
   }
@@ -577,6 +579,9 @@ contract Vault is
   function setFees() external {
     // NOTE --> We can make this permissionless since it can only be changed to proposedFee
     // NOTE --> Add a proposal for fees (similar to changeStrategy) --> see proposeNewFees function above
+
+    // NOTE --> Brought in quitPeriod logic for rage quitting as in changeStrategy
+    if (block.timestamp < proposedFeeTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
     emit FeesUpdated(feeStructure, proposedFees);
     feeStructure = proposedFees;
