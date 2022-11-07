@@ -15,12 +15,22 @@ import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { GlobalLinearProgressAndLoading } from "@popcorn/app/components/GlobalLinearProgressAndLoading";
 import { StateProvider } from "@popcorn/app/context/store";
-import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, getDefaultWallets, Chain } from '@rainbow-me/rainbowkit';
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import '@rainbow-me/rainbowkit/styles.css';
 import "../styles/globals.css";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+
+const bnb: Chain = {
+  id: 56,
+  name: "BNB Chain",
+  network: "bnb",
+  iconUrl: "https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png?1547034615",
+  rpcUrls: { default: "https://bsc-dataseed1.binance.org" },
+  blockExplorers: { default: { name: "BSCScan", url: "https://bscscan.com" } },
+};
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
@@ -28,22 +38,22 @@ const { chains, provider, webSocketProvider } = configureChains(
     chain.polygon,
     chain.optimism,
     chain.arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
-      ? [chain.goerli, chain.kovan, chain.rinkeby, chain.ropsten]
-      : []),
+    bnb,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [chain.goerli, chain.rinkeby, chain.localhost] : []),
   ],
   [
     alchemyProvider({
       // This is Alchemy's default API key.
       // You can get your own at https://dashboard.alchemyapi.io
-      apiKey: 'KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg',
+      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
     }),
+    jsonRpcProvider({ rpc: (chain) => ({ http: chain.rpcUrls.default }) }),
     publicProvider(),
-  ]
+  ],
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'RainbowKit App',
+  appName: 'Popcorn',
   chains,
 });
 
@@ -147,4 +157,3 @@ export default function MyApp(props) {
     </React.Fragment >
   );
 }
-
