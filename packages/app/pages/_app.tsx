@@ -15,12 +15,12 @@ import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { GlobalLinearProgressAndLoading } from "@popcorn/app/components/GlobalLinearProgressAndLoading";
 import { StateProvider } from "@popcorn/app/context/store";
-import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
-import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
+import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
 import "@popcorn/app/styles/globals.css";
-import '@rainbow-me/rainbowkit/styles.css';
+import "@rainbow-me/rainbowkit/styles.css";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
@@ -28,7 +28,7 @@ const { chains, provider, webSocketProvider } = configureChains(
     chain.polygon,
     chain.optimism,
     chain.arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
       ? [chain.goerli, chain.kovan, chain.rinkeby, chain.ropsten]
       : []),
   ],
@@ -36,14 +36,14 @@ const { chains, provider, webSocketProvider } = configureChains(
     alchemyProvider({
       // This is Alchemy's default API key.
       // You can get your own at https://dashboard.alchemyapi.io
-      apiKey: 'KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg',
+      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
     }),
     publicProvider(),
-  ]
+  ],
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'RainbowKit App',
+  appName: "RainbowKit App",
   chains,
 });
 
@@ -59,7 +59,6 @@ const { title, description, socialShareImage } = {
   description: "Popcorn is a regenerative yield optimizing protocol.",
   socialShareImage: "https://www.popcorn.network/images/social_cover_image.png",
 };
-
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
@@ -141,10 +140,9 @@ export default function MyApp(props) {
               <NotificationsContainer />
               <Debug />
             </RainbowKitProvider>
-          </WagmiConfig >
+          </WagmiConfig>
         </FeatureToggleProvider>
-      </StateProvider >
-    </React.Fragment >
+      </StateProvider>
+    </React.Fragment>
   );
 }
-
