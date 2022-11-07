@@ -226,8 +226,10 @@ contract VaultIntegrationTest is Test {
     vm.assume(totalAmount < MAX_DEPOSIT);
 
     vm.startPrank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }));
+    vault.proposeNewFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }));
     vm.stopPrank();
+
+    vault.setFees();
 
     deal(address(asset), address(this), totalAmount);
 

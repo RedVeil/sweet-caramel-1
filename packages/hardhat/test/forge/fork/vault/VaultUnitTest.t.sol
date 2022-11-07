@@ -505,7 +505,8 @@ contract VaultUnitTest is Test {
     vm.assume(amount < 283568639100782052886145506193140176214);
 
     vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    vault.proposeNewFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    vault.setFees();
 
     underlying.mint(alice, amount);
     underlying.mint(bob, amount + amount / 5);
@@ -538,7 +539,8 @@ contract VaultUnitTest is Test {
     vm.assume(amount < 216554372251204060390530395229862551237);
 
     vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 1e17, management: 0, performance: 0 }));
+    vault.proposeNewFees(Vault.FeeStructure({ deposit: 0, withdrawal: 1e17, management: 0, performance: 0 }));
+    vault.setFees();
 
     underlying.mint(alice, amount);
     underlying.mint(bob, amount);
@@ -576,7 +578,8 @@ contract VaultUnitTest is Test {
     uint256 depositAmount = 1 ether;
 
     vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 1e17, performance: 0 }));
+    vault.proposeNewFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 1e17, performance: 0 }));
+    vault.setFees();
 
     underlying.mint(alice, depositAmount);
     vm.startPrank(alice);
@@ -607,7 +610,8 @@ contract VaultUnitTest is Test {
     uint256 depositAmount = 1 ether;
 
     vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 1e17 }));
+    vault.proposeNewFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 1e17 }));
+    vault.setFees();
 
     underlying.mint(alice, depositAmount);
     vm.startPrank(alice);
@@ -636,7 +640,8 @@ contract VaultUnitTest is Test {
     uint256 depositAmount = 1 ether;
 
     vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    vault.proposeNewFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    vault.setFees();
 
     underlying.mint(alice, depositAmount);
     vm.startPrank(alice);
@@ -696,7 +701,8 @@ contract VaultUnitTest is Test {
 
     // SetUp Fees to check hwm and assetCheckpoint later
     vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 1e17 }));
+    vault.proposeNewFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 1e17 }));
+    vault.setFees();
 
     // Deposit funds for testing
     underlying.mint(alice, depositAmount);
@@ -739,7 +745,7 @@ contract VaultUnitTest is Test {
   }
 
   // Set Fees
-  function testFail_setFeesNonVaultController() public {
+  function testFail_proposeNewFeesNonVaultController() public {
     Vault.FeeStructure memory newFeeStructure = Vault.FeeStructure({
       deposit: 1,
       withdrawal: 1,
@@ -748,7 +754,8 @@ contract VaultUnitTest is Test {
     });
 
     vm.prank(alice);
-    vault.setFees(newFeeStructure);
+    vault.proposeNewFees(newFeeStructure);
+    vault.setFees();
   }
 
   function test_setFees() public {
@@ -763,7 +770,10 @@ contract VaultUnitTest is Test {
     emit FeesUpdated(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }), newFeeStructure);
 
     vm.prank(ACL_ADMIN);
-    vault.setFees(newFeeStructure);
+    vault.proposeNewFees(newFeeStructure);
+    vm.stopPrank();
+
+    vault.setFees();
 
     (uint256 deposit, uint256 withdrawal, uint256 management, uint256 performance) = vault.feeStructure();
     assertEq(deposit, 1);
