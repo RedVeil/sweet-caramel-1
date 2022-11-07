@@ -17,10 +17,19 @@ import { GlobalLinearProgressAndLoading } from "@popcorn/app/components/GlobalLi
 import { StateProvider } from "@popcorn/app/context/store";
 import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import "@popcorn/app/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
+
+const bnb = {
+  id: 56,
+  name: "BNB Chain",
+  network: "bnb",
+  rpcUrls: { default: "https://bsc-dataseed1.binance.org" },
+  blockExplorers: { default: { name: "BSCScan", url: "https://bscscan.com" } },
+};
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
@@ -28,9 +37,8 @@ const { chains, provider, webSocketProvider } = configureChains(
     chain.polygon,
     chain.optimism,
     chain.arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
-      ? [chain.goerli, chain.kovan, chain.rinkeby, chain.ropsten]
-      : []),
+    bnb,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [chain.goerli, chain.rinkeby, chain.localhost] : []),
   ],
   [
     alchemyProvider({
@@ -38,12 +46,14 @@ const { chains, provider, webSocketProvider } = configureChains(
       // You can get your own at https://dashboard.alchemyapi.io
       apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
     }),
+    jsonRpcProvider({ rpc: (chain) => ({ http: chain.rpcUrls.default }) }),
     publicProvider(),
   ],
 );
 
+console.log({ chains });
 const { connectors } = getDefaultWallets({
-  appName: "RainbowKit App",
+  appName: "Sweet Caramel",
   chains,
 });
 
@@ -118,10 +128,6 @@ export default function MyApp(props) {
         <meta name="twitter:image" content={socialShareImage} />
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap"
-          rel="stylesheet"
-        ></link>
       </Head>
       <StateProvider>
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
