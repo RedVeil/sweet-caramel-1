@@ -10,6 +10,7 @@ export enum ChainId {
   Localhost = 13378,
   BNB = 56,
   RemoteFork = 31338,
+  Optimism = 10,
 }
 
 export enum ChainIdHex {
@@ -21,6 +22,7 @@ export enum ChainIdHex {
   Localhost = "0x7a69",
   Hardhat = "0x539",
   BNB = "0x38",
+  Optimism = "0xa",
 }
 
 export const HexToChain = {
@@ -32,6 +34,7 @@ export const HexToChain = {
   "0x7a69": ChainId.Localhost,
   "0x539": ChainId.Hardhat,
   "0x38": ChainId.BNB,
+  "0xa": ChainId.Optimism,
 };
 
 export const supportedChainIds = [
@@ -44,6 +47,7 @@ export const supportedChainIds = [
   ChainId.BNB,
   ChainId.Hardhat,
   ChainId.RemoteFork,
+  ChainId.Optimism,
 ];
 
 export const networkMap = {
@@ -55,6 +59,7 @@ export const networkMap = {
   [ChainId.Hardhat]: "Hardhat",
   [ChainId.Localhost]: "Localhost",
   [ChainId.RemoteFork]: "RemoteFork",
+  [ChainId.Optimism]: "Optimism",
   [ChainId.BNB]: "BNB",
 };
 
@@ -66,6 +71,7 @@ export const networkLogos = {
   [ChainId.Localhost]: "/images/icons/ethLogo.png",
   [ChainId.Hardhat]: "/images/icons/ethLogo.png",
   [ChainId.RemoteFork]: "/images/icons/ethLogo.png",
+  [ChainId.Optimism]: "/images/icons/optimism-op-logo.svg",
   [ChainId.BNB]: "/images/icons/bsc-logo.png",
 };
 export const RPC_URLS = {
