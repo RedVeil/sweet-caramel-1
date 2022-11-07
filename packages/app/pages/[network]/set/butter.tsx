@@ -190,38 +190,6 @@ export default function ButterPage(): JSX.Element {
   }, [butterPageState.instant]);
 
   useEffect(() => {
-    if (!signerOrProvider || !chainId) {
-      return;
-    }
-    if (!isButterSupportedOnCurrentNetwork(chainId)) {
-      dispatch(
-        setDualActionWideModal({
-          title: "Coming Soon",
-          content: "Currently, Butter is only available on Ethereum.",
-          image: <img src="/images/modalImages/mint.svg" className="px-6" />,
-          onConfirm: {
-            label: "Switch Network",
-            onClick: () => {
-              setChain(ChainId.Ethereum);
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-          onDismiss: {
-            label: "Go Back",
-            onClick: () => {
-              router.back();
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-          keepOpen: true,
-        }),
-      );
-    } else {
-      dispatch(setDualActionWideModal(false));
-    }
-  }, [signerOrProvider, account, chainId]);
-
-  useEffect(() => {
     if (!butterBatchData || !butterBatchData?.tokens) {
       return;
     }
@@ -669,51 +637,59 @@ export default function ButterPage(): JSX.Element {
               </>
             )}
             {/* Connected and on Ethereum all data loaded */}
-            {account && isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && !loadingButterBatchData && butterBatchData && butterPageState.selectedToken && (
-              <div className="md:pr-8">
-                <MintRedeemInterface
-                  chainId={chainId}
-                  approve={approve}
-                  mainAction={handleMainAction}
-                  options={butterPageState.tokens}
-                  selectedToken={butterPageState.selectedToken}
-                  selectToken={selectToken}
-                  page={Pages.butter}
-                  instant={butterPageState.instant}
-                  setInstant={(val) => setButterPageState((prevState) => ({ ...prevState, instant: val }))}
-                  depositAmount={butterPageState.depositAmount}
-                  setDepositAmount={(val) =>
-                    setButterPageState((prevState) => ({ ...prevState, depositAmount: val }))
-                  }
-                  depositDisabled={isDepositDisabled(
-                    butterWhaleData.totalSupply,
-                    butter,
-                    butterPageState.selectedToken,
-                    butterPageState.redeeming,
-                    butterPageState.depositAmount,
-                    butterPageState.useUnclaimedDeposits,
-                  )}
-                  withdrawMode={butterPageState.redeeming}
-                  setWithdrawMode={(val) => {
-                    setButterPageState((prevState) => ({ ...prevState, redeeming: val }));
-                  }}
-                  showSlippageAdjust={butterPageState.instant || butterPageState.useZap}
-                  slippage={butterPageState.slippage}
-                  setSlippage={(val) => setButterPageState((prevState) => ({ ...prevState, slippage: val }))}
-                  hasUnclaimedBalances={hasClaimableBalances()}
-                  useUnclaimedDeposits={butterPageState.useUnclaimedDeposits}
-                  setUseUnclaimedDeposits={(val) =>
-                    setButterPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
-                  }
-                />
-              </div>
-            )}
+            {account &&
+              isButterSupportedOnCurrentNetwork(Number(connectedChainId)) &&
+              !loadingButterBatchData &&
+              butterBatchData &&
+              butterPageState.selectedToken && (
+                <div className="md:pr-8">
+                  <MintRedeemInterface
+                    chainId={chainId}
+                    approve={approve}
+                    mainAction={handleMainAction}
+                    options={butterPageState.tokens}
+                    selectedToken={butterPageState.selectedToken}
+                    selectToken={selectToken}
+                    page={Pages.butter}
+                    instant={butterPageState.instant}
+                    setInstant={(val) => setButterPageState((prevState) => ({ ...prevState, instant: val }))}
+                    depositAmount={butterPageState.depositAmount}
+                    setDepositAmount={(val) =>
+                      setButterPageState((prevState) => ({ ...prevState, depositAmount: val }))
+                    }
+                    depositDisabled={isDepositDisabled(
+                      butterWhaleData.totalSupply,
+                      butter,
+                      butterPageState.selectedToken,
+                      butterPageState.redeeming,
+                      butterPageState.depositAmount,
+                      butterPageState.useUnclaimedDeposits,
+                    )}
+                    withdrawMode={butterPageState.redeeming}
+                    setWithdrawMode={(val) => {
+                      setButterPageState((prevState) => ({ ...prevState, redeeming: val }));
+                    }}
+                    showSlippageAdjust={butterPageState.instant || butterPageState.useZap}
+                    slippage={butterPageState.slippage}
+                    setSlippage={(val) => setButterPageState((prevState) => ({ ...prevState, slippage: val }))}
+                    hasUnclaimedBalances={hasClaimableBalances()}
+                    useUnclaimedDeposits={butterPageState.useUnclaimedDeposits}
+                    setUseUnclaimedDeposits={(val) =>
+                      setButterPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
+                    }
+                  />
+                </div>
+              )}
             {/* Connected BUT NOT on Ethereum */}
             {account && !isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && (
               <SwitchNetwork chainId={chainId} />
             )}
             {/* NOT connected */}
-            {!account && <div className="order-2 md:order-1"><ConnectWallet /></div>}
+            {!account && (
+              <div className="order-2 md:order-1">
+                <ConnectWallet />
+              </div>
+            )}
           </div>
         </div>
 

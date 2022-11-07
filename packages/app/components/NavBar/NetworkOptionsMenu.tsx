@@ -41,6 +41,12 @@ function NetworkOptionsMenu(): JSX.Element {
           currentChainId={connectedChainId}
           key={ChainId.BNB}
         />
+        <NetworkOptionsMenuItem
+          chainId={ChainId.Optimism}
+          switchNetwork={(chainId) => setChain(chainId)}
+          currentChainId={connectedChainId}
+          key={ChainId.Optimism}
+        />
         {showLocalNetwork && (
           <>
             <NetworkOptionsMenuItem
