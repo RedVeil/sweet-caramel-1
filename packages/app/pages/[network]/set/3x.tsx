@@ -21,7 +21,7 @@ import { ConnectWallet } from "@popcorn/app/components/ConnectWallet";
 import SetStats from "@popcorn/app/components/SetStats";
 import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
 import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
-import { setDualActionWideModal, setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
