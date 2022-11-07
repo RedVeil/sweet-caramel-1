@@ -57,19 +57,6 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
     setTimeout(onDismiss.onClick, 1000);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event?.key === "Escape") {
-        dismiss();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
   useClickOutside<MouseEvent>(modalRef, dismiss);
 
   const confirm = () => {
@@ -86,7 +73,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
         static
         className="fixed z-50 inset-0 overflow-y-auto"
         initialFocus={cancelButtonRef}
-        onClose={() => (keepOpen ? {} : setOpen(false))}
+        onClose={dismiss}
       >
         <div className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity" />
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -160,7 +147,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                           <>{content}</>
                         </p>
                       )}
-                      <div>{children}</div>
+                      <div><>{children}</></div>
                     </div>
                     <div className={`${onConfirm || onDismiss?.label ? "mt-5" : ''}`}>
                       {onConfirm && (
