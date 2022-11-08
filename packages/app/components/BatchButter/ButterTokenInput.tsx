@@ -41,6 +41,7 @@ export interface ButterTokenInputProps {
   page: Pages;
   instant: boolean;
   chainId: ChainId;
+  disabled?: boolean;
 }
 
 const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
@@ -63,7 +64,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   const [estimatedAmount, setEstimatedAmount] = useState<string>("");
 
-  const displayAmount = depositAmount.isZero() ? "" : formatUnits(depositAmount, selectedToken.input.decimals);
+  const displayAmount = depositAmount.isZero()
+    ? ""
+    : formatUnits(depositAmount || "0", selectedToken?.input?.decimals || 18);
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -106,8 +109,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
         <div>
           <div className="mt-1 relative flex items-center gap-2 md:gap-0 md:space-x-2">
             <div
-              className={`w-full flex px-5 py-4 items-center rounded-lg border ${depositDisabled?.disabled ? " border-customRed" : "border-customLightGray "
-                }`}
+              className={`w-full flex px-5 py-4 items-center rounded-lg border ${
+                depositDisabled?.disabled ? " border-customRed" : "border-customLightGray "
+              }`}
             >
               <input
                 name="tokenInput"
@@ -131,8 +135,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               <SelectToken
                 chainId={chainId}
                 allowSelection={!withdrawMode}
-                selectedToken={selectedToken.input}
-                options={options.filter(
+                selectedToken={selectedToken?.input}
+                options={options?.filter(
                   (option) =>
                     !(withdrawMode ? [addr.threeCrv, addr.usdc] : [addr.butter, addr.threeX]).includes(option.address),
                 )}
@@ -184,10 +188,13 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               setUseUnclaimedDeposits(!useUnclaimedDeposits);
             }}
             infoTitle="About Unclaimed Balances"
-            infoText={`When a batch is minted but the ${pageToDisplayToken(page).output
-              } has not been claimed yet, it can be redeemed without having to claim it first. By checking “use unclaimed balances” you will be able to redeem unclaimed balances of ${pageToDisplayToken(page).output
-              }. This process applies also for unclaimed ${pageToDisplayToken(page).input}, which can be converted to ${pageToDisplayToken(page).output
-              } without having to claim it.`}
+            infoText={`When a batch is minted but the ${
+              pageToDisplayToken(page).output
+            } has not been claimed yet, it can be redeemed without having to claim it first. By checking “use unclaimed balances” you will be able to redeem unclaimed balances of ${
+              pageToDisplayToken(page).output
+            }. This process applies also for unclaimed ${pageToDisplayToken(page).input}, which can be converted to ${
+              pageToDisplayToken(page).output
+            } without having to claim it.`}
             label="Use only unclaimed balances"
             className="pb-4"
           />
@@ -230,8 +237,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
             <SelectToken
               chainId={chainId}
               allowSelection={instant && withdrawMode}
-              selectedToken={selectedToken.output}
-              options={options.filter((option) => ![addr.butter, addr.threeX].includes(option.address))}
+              selectedToken={selectedToken?.output}
+              options={options?.filter((option) => ![addr.butter, addr.threeX].includes(option.address))}
               selectToken={selectToken}
             />
           </div>

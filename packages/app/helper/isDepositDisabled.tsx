@@ -13,11 +13,13 @@ export function isDepositDisabled(
   depositAmount: BigNumber,
   useUnclaimedDeposits?: boolean,
   useTVLLimit?: boolean,
+  disabled?: boolean,
 ): { disabled: boolean; errorMessage: string } {
   // Check TVL-Limit
+  if (disabled) return;
   const tvl = totalSupply?.mul(mainToken?.price || constants.Zero).div(parseEther("1"));
   const tvlLimit = parseEther("1000000"); // 1m
-  if (useTVLLimit && !withdrawMode && depositAmount.add(tvl).gte(tvlLimit)) {
+  if (useTVLLimit && !withdrawMode && depositAmount?.add(tvl).gte(tvlLimit)) {
     return { disabled: true, errorMessage: "*Exceeds TVL-Limit" };
   }
 

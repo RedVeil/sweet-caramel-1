@@ -7,7 +7,11 @@ import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
 import { useContext } from "react";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
-import ButterTokenInput, { ButterTokenInputProps, Pages, pageToDisplayToken } from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import ButterTokenInput, {
+  ButterTokenInputProps,
+  Pages,
+  pageToDisplayToken,
+} from "@popcorn/app/components/BatchButter/ButterTokenInput";
 import { CheckMarkToggleWithInfo } from "@popcorn/app/components/BatchButter/CheckMarkToggleWithInfo";
 import MintRedeemToggle from "@popcorn/app/components/BatchButter/MintRedeemToggle";
 import SlippageSettings from "@popcorn/app/components/BatchButter/SlippageSettings";
@@ -44,6 +48,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   selectToken,
   showSlippageAdjust,
   chainId,
+  disabled,
 }) => {
   const { features } = useContext(FeatureToggleContext);
 
@@ -79,6 +84,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           selectToken={selectToken}
           instant={instant}
           chainId={chainId}
+          disabled={disabled}
         />
       </div>
       {!useUnclaimedDeposits &&
