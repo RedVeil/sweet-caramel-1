@@ -16,9 +16,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "FeeEscrow",
   });
-
   await addContractToRegistry("FeeEscrow", deployments, signer, hre);
 };
 export default main;
 main.dependencies = ["setup", "contract-registry"];
-main.tags = ["core", "fee-controller"];
+main.tags = ["core", "fee-escrow"];
