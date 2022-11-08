@@ -51,4 +51,4 @@ jobs:
           CI: true
         # - uses: borales/actions-yarn@v3.0.0
         name: "run tests"
-      - run: yarn tests
+      - run: yarn test
