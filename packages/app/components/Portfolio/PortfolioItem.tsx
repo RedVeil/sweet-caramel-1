@@ -6,7 +6,7 @@ import React, { useState } from "react";
 
 interface PortfolioItemProps {
   title: string;
-  badge: {
+  badge?: {
     text: string;
     textColor: string;
     bgColor: string;

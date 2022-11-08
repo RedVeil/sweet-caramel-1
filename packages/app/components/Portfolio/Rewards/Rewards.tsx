@@ -1,10 +1,10 @@
 import PortfolioCardCon from "../PortfolioCardCon";
-import ThreeXProduct from "../Products/ThreeXProduct";
+import Vesting from "./Vesting/Vesting";
 
 const Rewards = () => {
   return (
     <PortfolioCardCon cardTitle="Rewards">
-      <ThreeXProduct />
+      <Vesting />
     </PortfolioCardCon>
   );
 };

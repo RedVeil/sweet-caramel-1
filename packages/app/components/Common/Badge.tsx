@@ -11,6 +11,13 @@ interface BadgeProps {
 }
 
 const Badge: FC<BadgeProps> = ({ badge }) => {
-  return <div className={`py-2 px-4 rounded-lg ${badge.textColor} ${badge.bgColor}`}>{badge.text}</div>;
+  return (
+    <>
+      {badge && Object.keys(badge)?.length > 0 ? (
+        <div className={`py-2 px-4 rounded-lg ${badge.textColor} ${badge.bgColor}`}>{badge.text}</div>
+      ) : null}
+    </>
+  );
 };
+
 export default Badge;
