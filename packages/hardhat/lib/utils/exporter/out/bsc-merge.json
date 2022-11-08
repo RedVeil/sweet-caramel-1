@@ -1,0 +1,82 @@
+{
+  "chainId": "56",
+  "name": "bsc",
+  "contracts": {
+    "balancerLBPFactory": {
+      "abi": null,
+      "address": "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
+      "metadata": null
+    },
+    "balancerVault": {
+      "abi": null,
+      "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "metadata": null
+    },
+    "merkleOrchard": {
+      "abi": null,
+      "address": "0xc33e0fE411322009947931c32d2273ee645cDb5B",
+      "metadata": null
+    },
+    "pop": {
+      "abi": null,
+      "address": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
+      "metadata": {
+        "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
+        "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
+        "name": "Popcorn"
+      }
+    },
+    "popStaking": {
+      "abi": null,
+      "address": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "metadata": {
+        "contractName": "PopLocker",
+        "icons": [
+          "/images/icons/POP.svg"
+        ],
+        "name": "POP",
+        "symbol": "POP"
+      }
+    },
+    "popUsdcLpStaking": {
+      "abi": null,
+      "address": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "metadata": null
+    },
+    "rewardsEscrow": {
+      "abi": null,
+      "address": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      "metadata": null
+    },
+    "usdc": {
+      "abi": null,
+      "address": "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
+      "metadata": {
+        "icons": [
+          "/images/tokens/usdc.webp"
+        ],
+        "name": "USDC",
+        "symbol": "USDC"
+      }
+    },
+    "voting": {
+      "abi": null,
+      "address": "",
+      "metadata": null
+    },
+    "xPop": {
+      "abi": null,
+      "address": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      "metadata": {
+        "icons": [
+          "/images/icons/POP.svg"
+        ]
+      }
+    },
+    "xPopRedemption": {
+      "abi": null,
+      "address": "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
+      "metadata": null
+    }
+  }
+}
