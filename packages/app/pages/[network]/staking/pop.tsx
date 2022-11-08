@@ -7,15 +7,15 @@ import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/co
 import { store } from "@popcorn/app/context/store";
 import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
-import useApproveERC20 from "@popcorn/app/hooks/tokens/useApproveERC20";
 import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
+import { useTransaction } from "@popcorn/app/hooks/useTransaction";
+import { ethers } from "ethers";
 
 export default function PopStakingPage(): JSX.Element {
   const { account, signer, onContractSuccess, onContractError } = useWeb3();
@@ -35,7 +35,7 @@ export default function PopStakingPage(): JSX.Element {
   const { data: stakingPool } = usePopLocker(popStaking, chainId);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, popStaking, chainId);
   const stakingToken = stakingPool?.stakingToken;
-  const approveToken = useApproveERC20(chainId);
+  const transaction = useTransaction(chainId);
   const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
 
   useEffect(() => {
@@ -45,71 +45,69 @@ export default function PopStakingPage(): JSX.Element {
   }, [router?.query?.action]);
 
   function stake(): void {
-    toast.loading("Staking POP ...");
-    stakingPool?.contract
-      .connect(signer)
-      .lock(account, form.amount, 0)
-      .then((res) =>
-        onContractSuccess(res, "POP staked!", () => {
-          balances.revalidate();
-          setForm(defaultForm);
-          if (!localStorage.getItem("hideStakeSuccessPopover")) {
-            dispatch(
-              setMultiChoiceActionModal({
-                title: "Successfully staked POP",
-                children: SuccessfulStakingModal,
-                image: <img src="/images/modalImages/successfulStake.svg" />,
-                onConfirm: {
-                  label: "Continue",
-                  onClick: () => dispatch(setMultiChoiceActionModal(false)),
+    transaction(
+      () => stakingPool?.contract
+        .connect(signer)
+        .lock(account, form.amount, 0),
+      "Staking POP ...",
+      "POP staked!",
+      () => {
+        balances.revalidate();
+        setForm(defaultForm);
+        if (!localStorage.getItem("hideStakeSuccessPopover")) {
+          dispatch(
+            setMultiChoiceActionModal({
+              title: "Successfully staked POP",
+              children: SuccessfulStakingModal,
+              image: <img src="/images/modalImages/successfulStake.svg" />,
+              onConfirm: {
+                label: "Continue",
+                onClick: () => dispatch(setMultiChoiceActionModal(false)),
+              },
+              onDontShowAgain: {
+                label: "Do not remind me again",
+                onClick: () => {
+                  localStorage.setItem("hideStakeSuccessPopover", "true");
+                  dispatch(setMultiChoiceActionModal(false));
                 },
-                onDontShowAgain: {
-                  label: "Do not remind me again",
-                  onClick: () => {
-                    localStorage.setItem("hideStakeSuccessPopover", "true");
-                    dispatch(setMultiChoiceActionModal(false));
-                  },
+              },
+              onDismiss: {
+                onClick: () => {
+                  dispatch(setMultiChoiceActionModal(false));
                 },
-                onDismiss: {
-                  onClick: () => {
-                    dispatch(setMultiChoiceActionModal(false));
-                  },
-                },
-              }),
-            );
-          }
-        }),
-      )
-      .catch((err) => onContractError(err));
+              },
+            }),
+          );
+        }
+      }
+    )
   }
 
   function withdraw(): void {
-    toast.loading("Withdrawing POP ...");
-    stakingPool?.contract
-      .connect(signer)
-    ["processExpiredLocks(bool)"](false)
-      .then((res) =>
-        onContractSuccess(res, "POP withdrawn!", () => {
-          balances.revalidate();
-          setForm({ ...defaultForm, type: InteractionType.Withdraw });
-        }),
-      )
-      .catch((err) => onContractError(err));
+    transaction(
+      () => stakingPool?.contract
+        .connect(signer)
+      ["processExpiredLocks(bool)"](false),
+      "Withdrawing POP ...",
+      "POP withdrawn!",
+      () => {
+        balances.revalidate();
+        setForm({ ...defaultForm, type: InteractionType.Withdraw });
+      })
   }
 
   function restake(): void {
-    toast.loading("Restaking POP ...");
-    stakingPool.contract
-      .connect(signer)
-    ["processExpiredLocks(bool)"](true)
-      .then((res) => {
-        onContractSuccess(res, "POP Restaked!", () => {
-          balances.revalidate();
-          setForm(defaultForm);
-        });
-        dispatch(setSingleActionModal(false));
-      })
-      .catch((err) => onContractError(err));
+    transaction(
+      () => stakingPool.contract
+        .connect(signer)
+      ["processExpiredLocks(bool)"](true),
+      "Restaking POP ...",
+      "POP Restaked!",
+      () => {
+        balances.revalidate();
+        setForm(defaultForm);
+      }
+    )
   }
 
   const openTermsModal = () => {
@@ -122,11 +120,14 @@ export default function PopStakingPage(): JSX.Element {
     );
   };
 
-  function approve() {
-    toast.loading("Approving POP ...");
-    approveToken(stakingToken.contract.connect(signer), stakingPool.address, "POP approved!", () => {
-      balances.revalidate();
-    });
+
+  function approve(): void {
+    transaction(
+      () => stakingToken.contract.connect(signer).approve(stakingPool.address, ethers.constants.MaxUint256),
+      `Approving POP ...`,
+      `POPapproved!`,
+      () => balances.revalidate(),
+    );
   }
 
   return (
