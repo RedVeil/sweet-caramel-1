@@ -68,9 +68,9 @@ export const networkLogos = {
   [ChainId.Rinkeby]: "/images/icons/ethLogo.png",
   [ChainId.Polygon]: "/images/icons/polygonLogo.png",
   [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
-  [ChainId.Localhost]: "/images/icons/ethLogo.png",
-  [ChainId.Hardhat]: "/images/icons/ethLogo.png",
-  [ChainId.RemoteFork]: "/images/icons/ethLogo.png",
+  [ChainId.Localhost]: "/images/icons/testNetLogo.png",
+  [ChainId.Hardhat]: "/images/icons/testNetLogo.png",
+  [ChainId.RemoteFork]: "/images/icons/testNetLogo.png",
   [ChainId.Optimism]: "/images/icons/optimism-op-logo.svg",
   [ChainId.BNB]: "/images/icons/bsc-logo.png",
 };
