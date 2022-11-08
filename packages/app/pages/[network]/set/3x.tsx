@@ -41,6 +41,7 @@ import { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 
 import ContentLoader from "react-content-loader";
 import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "@popcorn/app/pages/[network]/set/butter";
+import { useIsConnected } from "../../../hooks/useIsConnected";
 
 export default function ThreeXPage(): JSX.Element {
   const { account, signer, connectedChainId } = useWeb3();
@@ -65,6 +66,7 @@ export default function ThreeXPage(): JSX.Element {
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXData && !errorFetchingThreeXData;
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
+  const isConnected = useIsConnected();
 
   const transaction = useTransaction(chainId);
   const adjustDepositDecimals = useAdjustDepositDecimals(chainId);
@@ -549,16 +551,13 @@ export default function ThreeXPage(): JSX.Element {
                 />
               </div>
             )}
-          {/* Connected BUT NOT on Ethereum */}
-          {account && !isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && (
-            <SwitchNetwork chainId={chainId} />
-          )}
-          {/* NOT connected */}
-          {!account && (
-            <div className="order-2 md:order-1">
-              <ConnectWallet />
-            </div>
-          )}
+          <SwitchNetwork
+            chainId={chainId}
+            hidden={isConnected && !isButterSupportedOnCurrentNetwork(Number(connectedChainId))}
+          />
+          <div className={`order-2 md:order-1 ${!isConnected ? "" : "hidden"}`}>
+            <ConnectWallet />
+          </div>
         </div>
 
         <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
