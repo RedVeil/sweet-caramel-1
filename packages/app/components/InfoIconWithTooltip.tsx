@@ -1,6 +1,6 @@
 import ReactTooltip from "rc-tooltip";
 import React from "react";
-// TODO killed css here
+
 export interface InfoIconWithTooltipProps {
   title?: string;
   content: string | JSX.Element;
@@ -10,7 +10,6 @@ export interface InfoIconWithTooltipProps {
 
 export const InfoIconWithTooltip: React.FC<InfoIconWithTooltipProps> = ({ title, content, id, classExtras }) => {
   return (
-    // shadow-lg rounded-lg border-2 border-customLightGray
     <ReactTooltip
       id={id}
       placement={"bottom"}

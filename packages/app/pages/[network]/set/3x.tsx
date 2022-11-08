@@ -94,28 +94,28 @@ export default function ThreeXPage(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-            ...state,
-            selectedToken: {
-              input: usdc,
-              output: threeX,
-            },
-            tokens: threeXData?.tokens,
-            redeeming: false,
-            initalLoad: false,
-            isThreeX: true,
-          }
-        : {
-            ...state,
-            selectedToken: {
-              input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-                (token) => token.address === state.selectedToken.input.address,
-              ),
-              output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-                (token) => token.address === state.selectedToken.output.address,
-              ),
-            },
-            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+          ...state,
+          selectedToken: {
+            input: usdc,
+            output: threeX,
           },
+          tokens: threeXData?.tokens,
+          redeeming: false,
+          initalLoad: false,
+          isThreeX: true,
+        }
+        : {
+          ...state,
+          selectedToken: {
+            input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.input.address,
+            ),
+            output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+              (token) => token.address === state.selectedToken.output.address,
+            ),
+          },
+          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
+        },
     );
   }, [threeXData, threeXWhaleData]);
 
@@ -436,7 +436,7 @@ export default function ThreeXPage(): JSX.Element {
     } else {
       return threeXBatch
         .connect(signer)
-        ["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account.address);
+      ["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account.address);
     }
   }
 
@@ -515,16 +515,15 @@ export default function ThreeXPage(): JSX.Element {
           </span>
           {/* Connected and on Ethereum all data loaded */}
           <div
-            className={`md:pr-8 order-2 md:order-1 ${
-              account?.isConnected &&
+            className={`md:pr-8 order-2 md:order-1 ${account?.isConnected &&
               isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)) &&
               !loadingThreeXData &&
               threeXData &&
               threeXPageState?.tokens &&
               threeXPageState.selectedToken
-                ? ""
-                : "hidden"
-            }`}
+              ? ""
+              : "hidden"
+              }`}
           >
             <MintRedeemInterface
               mainAction={handleMainAction}
@@ -563,10 +562,7 @@ export default function ThreeXPage(): JSX.Element {
           </div>
           <SwitchNetwork
             chainId={chainId}
-            hidden={
-              !account.isConnected ||
-              (account.isConnected && isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)))
-            }
+            hidden={account.isConnected && isButterSupportedOnCurrentNetwork(Number(connectedChain?.id))}
           />
           <div className={`order-2 md:order-1 `}>
             <ConnectWallet hidden={account.isConnected} />
