@@ -2,6 +2,8 @@ import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext"
 import { NextRouter } from "next/router";
 import { useContext, useMemo } from "react";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
+import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
+import { useNetwork } from "wagmi";
 
 interface ProductLinks {
   title: string;
@@ -10,11 +12,11 @@ interface ProductLinks {
   url: string;
 }
 
-export function getProductLinks(
-  router: NextRouter
-): ProductLinks[] {
+export function getProductLinks(router: NextRouter): ProductLinks[] {
   const { features } = useContext(FeatureToggleContext);
   const pushWithinChain = usePushWithinChain();
+  const { chain } = useNetwork();
+  const url = useChainUrl();
 
   return useMemo(() => {
     return [
@@ -22,26 +24,26 @@ export function getProductLinks(
         title: "3X",
         onClick: () => pushWithinChain(`set/3x`),
         currentlySelected: router.pathname.includes("/3x"),
-        url: "/set/3x",
+        url: url("/set/3x"),
       },
       {
         title: "Butter",
         onClick: () => pushWithinChain(`set/butter`),
         currentlySelected: router.pathname.includes("/set/butter"),
-        url: "/set/butter",
+        url: url("/set/butter"),
       },
       {
         title: "Sweet Vaults",
         onClick: () => pushWithinChain(`sweet-vaults`),
         currentlySelected: router.pathname.includes("/sweet-vaults"),
-        url: "/sweet-vaults",
+        url: url("/sweet-vaults"),
       },
       {
         title: "Staking",
         onClick: () => pushWithinChain(`staking`),
         currentlySelected: router.pathname.includes("/staking"),
-        url: "/staking",
+        url: url("/staking"),
       },
-    ].filter(product => features.sweetVaults ? true : product.title !== "Sweet Vaults")
-  }, [router, router?.query?.network, features]);
+    ].filter((product) => (features.sweetVaults ? true : product.title !== "Sweet Vaults"));
+  }, [router, router?.query?.network, features, chain?.id]);
 }

@@ -1,9 +1,7 @@
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { getProductLinks } from "@popcorn/app/helper/getProductLinks";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -12,18 +10,28 @@ import GetPopMenu from "@popcorn/app/components/NavBar/GetPopMenu";
 import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
 import { useDisconnect, useNetwork } from "wagmi";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
-import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { networkLogos } from "@popcorn/utils";
+import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
+import { useEffect, useMemo, useRef } from "react";
+import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
+import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
 
 export default function DesktopMenu(): JSX.Element {
-  const { account } = useWeb3();
   const { openConnectModal } = useConnectModal();
-  const { disconnect } = useDisconnect()
+  const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
   const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
-  const networkName = useNetworkName();
-  const { chain } = useNetwork()
+  const { chain } = useNetwork();
+  const isConnected = useIsConnected();
+  const logo = useMemo(
+    () => (isConnected && chain?.id ? networkLogos[chain.id] : networkLogos["1"]),
+    [chain?.id, isConnected],
+  );
+  const chainName = useMemo(() => (isConnected && chain?.name ? chain.name : "Ethereum"), [chain?.id, isConnected]);
+  const url = useChainUrl();
+  const productLinks = useProductLinks();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="flex flex-row items-center justify-between w-full p-8 z-30">
@@ -43,7 +51,7 @@ export default function DesktopMenu(): JSX.Element {
           </li>
           <li className="relative flex flex-container flex-row z-10">
             <Menu>
-              <Menu.Button>
+              <Menu.Button ref={menuButtonRef}>
                 <div className="group flex flex-row items-center -mr-2">
                   <p
                     className={` text-primary leading-5 text-lg 
@@ -52,25 +60,21 @@ export default function DesktopMenu(): JSX.Element {
                     Products
                   </p>
                   <ChevronDownIcon
-                    className="fill-current text-primary group-hover:text-black mb-0.5 w-5 h-5 ml-0.5"
+                    className="fill-current text-primary group-hover:text-gray mb-0.5 w-5 h-5 ml-0.5"
                     aria-hidden="true"
                   />
                 </div>
-                <DropDownComponent options={getProductLinks(router)} />
+                <DropDownComponent options={productLinks} menuRef={menuButtonRef} />
               </Menu.Button>
             </Menu>
           </li>
           <li>
-            <NavbarLink
-              label="Rewards"
-              url={`/${networkName}/rewards`}
-              isActive={router.pathname === "/[network]/rewards"}
-            />
+            <NavbarLink label="Rewards" url={url(`/rewards`)} isActive={router.pathname === "/[network]/rewards"} />
           </li>
         </ul>
         <div className="relative flex flex-container flex-row z-10">
           <TertiaryActionButton
-            label="Newsletter Sign Up"
+            label="Newsletter"
             handleClick={showNewsletterModal}
             className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
           />
@@ -87,25 +91,17 @@ export default function DesktopMenu(): JSX.Element {
             </Menu.Button>
           </Menu>
         </div>
-        {account && (
-          <div className="relative flex flex-container flex-row z-10">
-            <div
-              className={`h-full px-6 flex flex-row items-center justify-between border border-customLightGray rounded-4xl text-primary cursor-pointer`}
-              onClick={openChainModal}
-            >
-              <img src={networkLogos[chain?.id]} alt={chain?.name} className="w-4.5 h-4 mr-4" />
-              <p className="leading-none mt-0.5">{chain?.name}</p>
-            </div>
+        <div className={`relative flex flex-container flex-row z-10 ${isConnected ? "" : "hidden"}`}>
+          <div
+            className={`h-full px-6 flex flex-row items-center justify-between border border-customLightGray rounded-4xl text-primary cursor-pointer`}
+            onClick={openChainModal}
+          >
+            <img src={logo} alt={chainName} className="w-4.5 h-4 mr-4" />
+            <p className="leading-none mt-0.5">{chainName}</p>
           </div>
-        )}
-        {!account ? (
-          <MainActionButton
-            label="Connect Wallet"
-            handleClick={openConnectModal}
-          />
-        ) : (
-          <TertiaryActionButton label="Disconnect" handleClick={disconnect} />
-        )}
+        </div>
+        <MainActionButton label="Connect Wallet" handleClick={openConnectModal} hidden={isConnected ? true : false} />
+        <TertiaryActionButton label="Disconnect" handleClick={disconnect} hidden={isConnected ? false : true} />
       </div>
     </div>
   );

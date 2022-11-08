@@ -3,13 +3,16 @@ import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton
 
 interface SwitchNetworkProps {
   chainId: number;
+  hidden?: boolean;
 }
-export const SwitchNetwork = ({ chainId }: SwitchNetworkProps) => {
+export const SwitchNetwork = ({ chainId, hidden }: SwitchNetworkProps) => {
   const { setChain } = useWeb3();
 
   return (
     <div
-      className=" rounded-lg md:border md:border-customLightGray px-0 md:p-6 md:pb-0 md:mr-6"
+      className={` rounded-lg md:border md:border-customLightGray px-0 md:p-6 md:pb-0 md:mr-6 ${
+        hidden ? "hidden" : ""
+      }`}
       role="button"
       onClick={() => setChain(chainId)}
     >

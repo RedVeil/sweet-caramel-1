@@ -40,6 +40,7 @@ import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
+import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
 
 export enum TOKEN_INDEX {
   dai,
@@ -112,6 +113,7 @@ export default function ButterPage(): JSX.Element {
   const loadingButterBatchData = !butterPageState.selectedToken?.input || !butterPageState.selectedToken?.output;
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
   const transaction = useTransaction(chainId);
+  const isConnected = useIsConnected();
 
   const threeCrv = useMemo(
     () =>
@@ -680,16 +682,13 @@ export default function ButterPage(): JSX.Element {
                   />
                 </div>
               )}
-            {/* Connected BUT NOT on Ethereum */}
-            {account && !isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && (
-              <SwitchNetwork chainId={chainId} />
-            )}
-            {/* NOT connected */}
-            {!account && (
-              <div className="order-2 md:order-1">
-                <ConnectWallet />
-              </div>
-            )}
+            <SwitchNetwork
+              chainId={chainId}
+              hidden={isConnected && !isButterSupportedOnCurrentNetwork(Number(connectedChainId))}
+            />
+            <div className="order-2 md:order-1">
+              <ConnectWallet hidden={!isConnected} />
+            </div>
           </div>
         </div>
 

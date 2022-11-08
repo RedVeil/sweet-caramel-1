@@ -9,18 +9,18 @@ import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
 import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
-import { getProductLinks } from "@popcorn/app/helper/getProductLinks";
-import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
-import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import MobileProductsMenu from "@popcorn/app/components/NavBar/MobileProductsMenu";
 import NavbarLink from "@popcorn/app/components/NavBar/NavbarLinks";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useDisconnect, useNetwork } from "wagmi";
+import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
+import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
+import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
+import { useFeatures } from "@popcorn/app/hooks/useFeatures";
 
 const networkData = [
   {
@@ -42,23 +42,29 @@ const networkData = [
 ];
 
 export const MobileMenu: React.FC = () => {
-  const { account } = useWeb3();
   const { openConnectModal } = useConnectModal();
-  const { disconnect } = useDisconnect()
+  const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
-  const { chain } = useNetwork()
+  const { chain } = useNetwork();
+  const isConnected = useIsConnected();
 
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
   const [availableNetworks, setAvailableNetworks] = useState(networkData);
   const router = useRouter();
-  const products = getProductLinks(router);
+  const products = useProductLinks();
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
 
-  const selectedNetwork = useRef(parseInt(networkData[0].id));
-  const networkName = useNetworkName();
+  const url = useChainUrl();
+  const logo = useMemo(
+    () => (isConnected && chain?.id ? networkLogos[chain.id] : networkLogos["1"]),
+    [chain?.id, isConnected],
+  );
+  const chainName = useMemo(() => (isConnected && chain?.name ? chain.name : "Ethereum"), [chain?.id, isConnected]);
 
-  const { showLocalNetwork } = useContext(FeatureToggleContext).features;
+  const {
+    features: { showLocalNetwork },
+  } = useFeatures();
 
   useEffect(() => {
     toggleMenu(false);
@@ -97,20 +103,19 @@ export const MobileMenu: React.FC = () => {
           </Link>
         </div>
         <div className="flex items-center gap-4">
-          {!menuVisible && (
-            <div className="relative w-full">
-              <div
-                className={`w-full px-4 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
-                onClick={() => setShowPopUp(true)}
-              >
-                <img src={networkLogos[selectedNetwork.current]} alt={""} className="w-3 h-3 object-contain" />
-                <span
-                  className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                    } block h-2 w-2 rounded-full border`}
-                ></span>
-              </div>
+          <div className={`relative w-full ${!menuVisible ? "" : "hidden"}`}>
+            <div
+              className={`w-full px-4 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
+              onClick={() => setShowPopUp(true)}
+            >
+              <img src={logo} alt={""} className="w-3 h-3 object-contain" />
+              <span
+                className={`${
+                  isConnected ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                } block h-2 w-2 rounded-full border`}
+              ></span>
             </div>
-          )}
+          </div>
           <button
             className="text-gray-500 w-10 relative focus:outline-none bg-white"
             onClick={() => toggleMenu(!menuVisible)}
@@ -118,18 +123,21 @@ export const MobileMenu: React.FC = () => {
             <div className="block w-10">
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                  }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+                }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
-                  }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "opacity-0" : "opacity-100"
+                }`}
               ></span>
               <span
                 aria-hidden="true"
-                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                  }`}
+                className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                  menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+                }`}
               ></span>
             </div>
           </button>
@@ -154,11 +162,11 @@ export const MobileMenu: React.FC = () => {
                   <div className="h-full w-full flex flex-col justify-between pt-18 px-6 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col w-full">
                       <div className="pt-6 pb-6">
-                        <NavbarLink label="Popcorn" url="/" isActive={router.pathname === `/`} />
+                        <NavbarLink label="Popcorn" url="/" isActive={router?.pathname === `/`} />
                       </div>
                       <div className="py-6">
                         {products.length < 2 ? (
-                          <NavbarLink label={products[0].title} isActive={false} onClick={() => products[0].onClick} />
+                          <NavbarLink label={products[0].title} isActive={false} url={products[0].url} />
                         ) : (
                           <NavbarLink label="Products" isActive={false} onClick={() => toggleProductsMenu(true)} />
                         )}
@@ -166,20 +174,20 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-6">
                         <NavbarLink
                           label="Staking"
-                          url={`/${networkName}/staking`}
-                          isActive={router.pathname === "/[network]/staking"}
+                          url={url("/staking")}
+                          isActive={router?.pathname === "/[network]/staking"}
                         />
                       </div>
                       <div className="py-6">
                         <NavbarLink
                           label="Rewards"
-                          url={`/${networkName}/rewards`}
-                          isActive={router.pathname === "/[network]/rewards"}
+                          url={url("/rewards")}
+                          isActive={router?.pathname === "/[network]/rewards"}
                         />
                       </div>
                       <div className="py-6">
                         <TertiaryActionButton
-                          label="Newsletter Sign Up"
+                          label="Newsletter"
                           handleClick={showNewsletterModal}
                           className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
                         />
@@ -247,22 +255,16 @@ export const MobileMenu: React.FC = () => {
       <PopUpModal visible={showPopUp} onClosePopUpModal={closePopUp}>
         <div>
           <p className=" text-black  mb-3">Connect to Wallet</p>
-          {!account ? (
-            <MainActionButton
-              label="Connect Wallet"
-              handleClick={openConnectModal}
-            />
-          ) : (
-            <TertiaryActionButton label="Disconnect" handleClick={disconnect} />
-          )}
+          <MainActionButton label="Connect Wallet" handleClick={openConnectModal} hidden={isConnected} />
+          <TertiaryActionButton label="Disconnect" handleClick={disconnect} hidden={!isConnected} />
           <hr className="my-6" />
           <p className=" text-black mb-3">Select Network</p>
           <div
             className={`h-12 px-6 flex flex-row items-center justify-center border border-customLightGray rounded-4xl text-primary cursor-pointer`}
             onClick={openChainModal}
           >
-            <img src={networkLogos[chain?.id]} alt={chain?.name} className="w-4.5 h-4 mr-4" />
-            <p className="leading-none mt-0.5">{chain?.name}</p>
+            <img src={logo} alt={chainName} className="w-4.5 h-4 mr-4" />
+            <p className="leading-none mt-0.5">{chainName}</p>
           </div>
         </div>
       </PopUpModal>

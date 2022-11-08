@@ -18,7 +18,6 @@ import { StateProvider } from "@popcorn/app/context/store";
 import { RainbowKitProvider, getDefaultWallets, Chain } from '@rainbow-me/rainbowkit';
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
 import '@rainbow-me/rainbowkit/styles.css';
 import "../styles/globals.css";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
@@ -48,7 +47,6 @@ const { chains, provider, webSocketProvider } = configureChains(
       apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
     }),
     jsonRpcProvider({ rpc: (chain) => ({ http: chain.rpcUrls.default }) }),
-    publicProvider(),
   ],
 );
 
@@ -86,7 +84,7 @@ export default function MyApp(props) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 1890);
     Router.events.on("routeChangeStart", () => {
       setLoading(true);
     });
@@ -129,10 +127,6 @@ export default function MyApp(props) {
         <meta name="twitter:image" content={socialShareImage} />
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap"
-          rel="stylesheet"
-        ></link>
       </Head>
       <StateProvider>
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />

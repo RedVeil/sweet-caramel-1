@@ -3,10 +3,6 @@ import DesktopMenu from "@popcorn/app/components/NavBar/DesktopMenu";
 import { MobileMenu } from "@popcorn/app/components/NavBar/MobileMenu";
 
 export default function Navbar(): JSX.Element {
-  if (typeof window === "undefined") {
-    return <></>;
-  }
-
   return (
     <>
       <nav className="hidden md:flex bg-white z-10 font-landing">

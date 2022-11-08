@@ -1,21 +1,12 @@
 import { useRouter } from "next/router";
 import { useCallback } from "react";
+import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
 import { useNetwork } from "wagmi";
 
-export default function usePushWithinChain(): (url: string, shallow?: boolean) => void {
+export default function usePushWithinChain() {
   const router = useRouter();
+  const prefix = useChainUrl();
   const { chain } = useNetwork();
-
-  const chainUrl = (name?: string) => {
-    name = name?.toLowerCase().replace(" ", "-");
-
-    switch (name?.toLowerCase()) {
-      case "arbitrum-one":
-        return "arbitrum";
-      default:
-        return name;
-    }
-  };
 
   return useCallback(
     (url: string, shallow = false) => {
@@ -23,11 +14,10 @@ export default function usePushWithinChain(): (url: string, shallow?: boolean) =
       if (url[0] === "/") {
         url = url.slice(1, url.length);
       }
-
-      router.push({ pathname: `/${router?.query?.network || chainUrl(chain?.name) || "ethereum"}/${url}` }, undefined, {
+      router.push({ pathname: prefix(url) }, undefined, {
         shallow: shallow,
       });
     },
-    [router?.query?.network, chain?.name],
+    [prefix, chain?.id],
   );
 }

@@ -26,7 +26,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "wagmi": "0.6.8",
-    "@headlessui/react": "^1.6.5",
+    "@headlessui/react": "^1.7.4",
     "@heroicons/react": "1.0.5",
     "@mailchimp/mailchimp_marketing": "^3.0.75",
     "@setprotocol/set-protocol-v2": "0.1.9",
