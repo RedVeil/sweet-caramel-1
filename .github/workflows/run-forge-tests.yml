@@ -10,13 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-      fail-fast:
-        false
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,7 +20,9 @@ jobs:
         with:
           source: .env.example
           target: .env
-
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - uses: borales/actions-yarn@v3.0.0
         name: "yarn install"
         with:
