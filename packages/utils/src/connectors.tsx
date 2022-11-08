@@ -7,7 +7,7 @@ export enum ChainId {
   Mumbai = 80001,
   Polygon = 137,
   Hardhat = 1337,
-  Localhost = 13378,
+  Localhost = 1337,
   BNB = 56,
   RemoteFork = 31338,
   Optimism = 10,

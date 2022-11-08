@@ -13,6 +13,7 @@ interface StakeCardProps {
   onSelectPool: (stakingContractAddress: string, stakingTokenAddress: string) => void;
   badge?: BadgeType;
   chainId: ChainId;
+  networkLogo: string;
 }
 
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge, chainId }) => {
@@ -28,7 +29,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
           <TokenIcon token={stakedToken?.address} chainId={chainId} fullsize />
           <div className="flex flex-col md:flex-row md:items-center ml-2 md:ml-0">
             <h3 className="text-3xl md:text-4xl md:ml-2 mb-2 md:mb-0 font-normal leading-9">
-              {metadata?.name ? metadata.name : stakedToken.name}
+              {metadata?.name ? metadata.name : stakedToken?.name}
             </h3>
             {badge && (
               <div className="md:pl-2">
@@ -48,9 +49,9 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         <div className="w-1/2 md:w-1/4 mt-6 md:mt-0">
           <p className="text-primaryLight leading-6">vAPR</p>
           <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-            {stakingPool.apy.lt(constants.Zero)
+            {stakingPool?.apy.lt(constants.Zero)
               ? "New 🍿✨"
-              : formatAndRoundBigNumber(stakingPool.apy, stakedToken.decimals) + "%"}
+              : formatAndRoundBigNumber(stakingPool?.apy, stakedToken?.decimals) + "%"}
           </p>
         </div>
         <div className="w-1/2 md:w-1/4 mt-6 md:mt-0">
@@ -58,16 +59,16 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
           <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
             {tokenPrice
               ? `$ ${formatAndRoundBigNumber(
-                stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
-                stakedToken?.decimals,
-              )}`
+                  stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
+                  stakedToken?.decimals,
+                )}`
               : "..."}
           </p>
         </div>
         <div className="w-full md:w-1/2 mt-6 md:mt-0">
           <p className="text-primaryLight leading-6">Token Emissions</p>
           <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-            {formatAndRoundBigNumber(stakingPool.tokenEmission, stakedToken.decimals)}{" "}
+            {formatAndRoundBigNumber(stakingPool?.tokenEmission, stakedToken?.decimals)}{" "}
             <span className=" text-tokenTextGray text-xl"> POP / day</span>
           </p>
         </div>
