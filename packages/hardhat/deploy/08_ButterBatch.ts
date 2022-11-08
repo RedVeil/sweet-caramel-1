@@ -7,7 +7,9 @@ import { INCENTIVE_MANAGER_ROLE } from "../lib/acl/roles";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, deployments, addresses, signer, log } = await getSetup(hre);
-  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name) ? addresses.pop : (await deployments.get("TestPOP")).address;
+  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name)
+    ? addresses.pop
+    : (await deployments.get("TestPOP")).address;
 
   const YTOKEN_ADDRESSES = [addresses.yFrax, addresses.yRai, addresses.yMusd, addresses.yAlusd];
   const CRV_DEPENDENCIES = [

@@ -3,10 +3,22 @@ import NetWorthCard from "components/Portfolio/NetWorthCard";
 import PortfolioHero from "components/Portfolio/PortfolioHero";
 import PortfolioMenuTabs, { MenuTabItems } from "components/Portfolio/PortfolioMenuTabs";
 import ProductsCon from "components/Portfolio/Products/ProductsCon";
+import Rewards from "components/Portfolio/Rewards/Rewards";
 import React, { useState } from "react";
 
 const portfolio = () => {
   const [activeTab, setActiveTab] = useState(MenuTabItems.ALL);
+
+  const portfolios = [
+    {
+      component: ProductsCon,
+      show: activeTab === MenuTabItems.ALL || activeTab === MenuTabItems.PRODUCTS,
+    },
+    {
+      component: Rewards,
+      show: activeTab === MenuTabItems.ALL || activeTab === MenuTabItems.REWARDS,
+    },
+  ];
 
   return (
     <>
@@ -17,39 +29,20 @@ const portfolio = () => {
           <NetWorthCard />
         </div>
         <div className="col-span-12 md:col-span-9">
-          <Transition
-            show={activeTab == MenuTabItems.ALL || activeTab == MenuTabItems.PRODUCTS}
-            enter="transition-opacity ease-in-out duration-75"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity ease-in-out duration-150"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <ProductsCon />
-          </Transition>
-          <Transition
-            show={activeTab == MenuTabItems.ALL || activeTab == MenuTabItems.REWARDS}
-            enter="transition-opacity ease-in-out duration-75"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity ease-in-out duration-150"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            {/* <PortfolioCardCon cardTitle="Rewards" /> */}
-          </Transition>
-          <Transition
-            show={activeTab == MenuTabItems.ALL || activeTab == MenuTabItems.ASSETS}
-            enter="transition-opacity ease-in-out duration-75"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity ease-in-out duration-150"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            {/* <PortfolioCardCon cardTitle="Assets" /> */}
-          </Transition>
+          {portfolios.map((portfolio, index) => (
+            <Transition
+              key={index}
+              show={portfolio.show}
+              enter="transition-opacity ease-in-out duration-75"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="transition-opacity ease-in-out duration-150"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <portfolio.component />
+            </Transition>
+          ))}
         </div>
       </div>
     </>

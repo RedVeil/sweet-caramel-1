@@ -7,8 +7,8 @@ import { Toaster } from "react-hot-toast";
 
 export default function Page(props: { children: ReactElement }) {
   useRestakeAlert();
-  useSubscribeToNewsletter()
-  
+  useSubscribeToNewsletter();
+
   return (
     <div className="w-full min-h-screen h-full font-khTeka flex flex-col justify-between">
       <div>

@@ -125,28 +125,28 @@ export default function ThreeX(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: usdc,
-            output: threeX,
-          },
-          tokens: threeXData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-        }
+            ...state,
+            selectedToken: {
+              input: usdc,
+              output: threeX,
+            },
+            tokens: threeXData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+          }
         : {
-          ...state,
-          selectedToken: {
-            input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-              (token) => token.address === state.selectedToken.input.address,
-            ),
-            output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-              (token) => token.address === state.selectedToken.output.address,
-            ),
+            ...state,
+            selectedToken: {
+              input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+                (token) => token.address === state.selectedToken.input.address,
+              ),
+              output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+                (token) => token.address === state.selectedToken.output.address,
+              ),
+            },
+            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
           },
-          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
-        },
     );
   }, [threeXData, threeXWhaleData]);
 

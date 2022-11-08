@@ -1,7 +1,6 @@
 import { Zapper } from "@popcorn/hardhat/lib/adapters";
 import { networkMap } from "@popcorn/hardhat/lib/utils/constants";
 import { Vault } from "@popcorn/hardhat/typechain";
-import { ChainId } from "@popcorn/utils";
 import { SweetVaultWithMetadata, Token } from "@popcorn/utils/types";
 import SelectToken from "components/BatchButter/SelectToken";
 import SlippageSettings from "components/BatchButter/SlippageSettings";
@@ -11,6 +10,7 @@ import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { approve, depositAndStake, unstakeAndRedeem } from "helper/VaultActions";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
 import useTokenAllowance from "hooks/tokens/useTokenAllowance";
+import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
 import useWeb3 from "hooks/useWeb3";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -29,7 +29,6 @@ export interface SweetVaultsDepositInterfaceProps {
   zapper: Zapper;
   poolToken: Token[];
   defaultTokenList: Token[];
-  chainId: ChainId;
 }
 
 async function getAssetPerShare(chainId: number, assetAddress: string, shareAddress: string) {
@@ -80,9 +79,9 @@ const SweetVaultsDepositInterface: React.FC<SweetVaultsDepositInterfaceProps> = 
   zapper,
   poolToken,
   defaultTokenList,
-  chainId,
 }) => {
-  const { account, signer, rpcProvider, onContractSuccess, onContractError, chainId } = useWeb3();
+  const { account, signer, rpcProvider, onContractSuccess, onContractError } = useWeb3();
+  const chainId = useChainIdFromUrl();
   const [interactionType, setInteractionType] = useState<InteractionType>(InteractionType.Deposit);
   const [inputAmount, setInputAmount] = useState<BigNumber>(constants.Zero);
   const [assetsPerShare, setAssetsPerShare] = useState<number>(1);

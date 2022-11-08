@@ -23,7 +23,6 @@ import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
-import { toast } from "react-hot-toast";
 import { SWRResponse } from "swr";
 import useBalanceAndAllowance from "../../hooks/staking/useBalanceAndAllowance";
 import useERC20 from "../../hooks/tokens/useERC20";
@@ -63,7 +62,7 @@ export default function index(): JSX.Element {
   const { data: popLocker, mutate: revalidatePopLocker } = usePopLocker(popStaking, chainId);
   const stakingContracts = useStakingContracts(chainId);
   const { data: stakingPools, mutate: revalidateStakingPools } = useGetMultipleStakingPools(stakingContracts, chainId);
-  const stakingIsLoading = !popLocker && !stakingPools
+  const stakingIsLoading = !popLocker && !stakingPools;
 
   const balancesXPop = useBalanceAndAllowance(xPop?.address, account, xPopRedemptionAddress, chainId);
   const balancesPop = useBalanceAndAllowance(pop?.address, account, xPopAddress, chainId);
@@ -74,7 +73,7 @@ export default function index(): JSX.Element {
 
   const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows(rewardsEscrow, chainId);
-  const transaction = useTransaction(chainId)
+  const transaction = useTransaction(chainId);
 
   const revalidate = () => {
     revalidatePopLocker();
@@ -164,7 +163,7 @@ export default function index(): JSX.Element {
             }),
           );
         }
-      }
+      },
     );
   };
 
@@ -173,7 +172,7 @@ export default function index(): JSX.Element {
       async () => claimVestedPopFromEscrows([escrow.id]),
       "Claiming Escrow...",
       "Claimed Escrow!",
-      revalidate
+      revalidate,
     );
   };
 
@@ -185,7 +184,7 @@ export default function index(): JSX.Element {
         async () => claimVestedPopFromEscrows(escrowsIds),
         "Claiming Escrows...",
         "Claimed Escrows!",
-        revalidate
+        revalidate,
       );
     }
   };
@@ -200,26 +199,22 @@ export default function index(): JSX.Element {
 
   async function approveXpopRedemption(): Promise<void> {
     transaction(
-      async () => xPop.contract
-        .connect(signer)
-        .approve(xPopRedemptionAddress, ethers.constants.MaxUint256),
+      async () => xPop.contract.connect(signer).approve(xPopRedemptionAddress, ethers.constants.MaxUint256),
       "Approving xPOP...",
       "xPOP approved!",
-      revalidate
-    )
-
+      revalidate,
+    );
   }
   async function redeemXpop(amount: BigNumber): Promise<void> {
-    transaction(async () => xPopRedemption
-      .connect(signer)
-      .redeem(amount),
+    transaction(
+      async () => xPopRedemption.connect(signer).redeem(amount),
       "Redeeming xPOP...",
       "xPOP redeemed!",
       () => {
         revalidate();
         postRedeemSuccess();
-      }
-    )
+      },
+    );
   }
 
   const postRedeemSuccess = () => {
@@ -358,9 +353,9 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowData ||
-                  userEscrowsFetchResult?.error ||
-                  userVaultsEscrowsFetchResults?.error ||
-                  userEscrowData?.totalClaimablePop?.isZero() ? (
+                userEscrowsFetchResult?.error ||
+                userVaultsEscrowsFetchResults?.error ||
+                userEscrowData?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>

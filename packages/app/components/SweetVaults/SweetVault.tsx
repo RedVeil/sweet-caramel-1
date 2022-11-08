@@ -182,7 +182,6 @@ const SweetVault: React.FC<SweetVaultProps> = ({ address, searchString, chainId 
                   poolToken={poolToken}
                   defaultTokenList={tokenList?.filter((stable) => stable.balance.gt(constants.Zero))}
                   revalidate={revalidate}
-                  chainId={chainId}
                 />
               </div>
             )}

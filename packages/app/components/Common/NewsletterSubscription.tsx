@@ -10,14 +10,14 @@ const NewsletterSubscription = ({ title, buttonLabel }) => {
     subscribeToNewsLetter({
       email: subscribeEmail,
       onSuccess: () => {
-        setSubscribeEmail("")
-      }
+        setSubscribeEmail("");
+      },
     });
-  }
+  };
 
   const onEnterKey = (e) => {
     if (e.key === "Enter") {
-      subscribe()
+      subscribe();
     }
   };
 
@@ -48,9 +48,7 @@ const NewsletterSubscription = ({ title, buttonLabel }) => {
             <p className="font-medium">Subscribed Successfully!</p>
           </div>
         )}
-        {!subscribing && !subscriptionSuccessful && (
-          <SecondaryButton label={buttonLabel} handleClick={subscribe} />
-        )}
+        {!subscribing && !subscriptionSuccessful && <SecondaryButton label={buttonLabel} handleClick={subscribe} />}
       </div>
     </div>
   );

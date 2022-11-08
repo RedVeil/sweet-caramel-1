@@ -1,12 +1,9 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
-import { ChainId } from "@popcorn/utils";
 import { setMultiChoiceActionModal } from "context/actions";
 import { store } from "context/store";
-import toTitleCase from "helper/toTitleCase";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useApproveERC20 from "hooks/tokens/useApproveERC20";
-import { useDeployment } from "hooks/useDeployment";
 import useTokenPrice from "hooks/useTokenPrice";
 import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
@@ -22,7 +19,11 @@ export default function StakingPage(): JSX.Element {
   const router = useRouter();
   const { dispatch } = useContext(store);
   const [form, setForm] = useState(defaultForm);
-  const { data: stakingPool, error: stakingPoolError, mutate: refetchStakingPool } = useStakingPool(router.query.id as string, chainId);
+  const {
+    data: stakingPool,
+    error: stakingPoolError,
+    mutate: refetchStakingPool,
+  } = useStakingPool(router.query.id as string, chainId);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, stakingPool?.address, chainId);
   const stakingToken = stakingPool?.stakingToken;
   const tokenPrice = useTokenPrice(stakingToken?.address, chainId);

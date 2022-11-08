@@ -1,5 +1,5 @@
 import { ChainId } from "@popcorn/utils";
-import { Address, Token } from "@popcorn/utils/types";
+import { Address } from "@popcorn/utils/types";
 import { useDeployment } from "hooks/useDeployment";
 import { useMemo } from "react";
 

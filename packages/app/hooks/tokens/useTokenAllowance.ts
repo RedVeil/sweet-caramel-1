@@ -1,5 +1,4 @@
 import { isAddress } from "@ethersproject/address";
-import { ERC20 } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
 import useSWR, { SWRResponse } from "swr";
@@ -18,7 +17,7 @@ export default function useTokenAllowance(
       if (!isAddress(spender) || !isAddress(owner) || !token) {
         return constants.Zero;
       }
-      return await token?.contract.allowance(owner, spender)
+      return await token?.contract.allowance(owner, spender);
     },
     {
       refreshInterval: 3 * 1000,

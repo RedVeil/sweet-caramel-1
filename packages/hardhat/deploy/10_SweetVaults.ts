@@ -34,8 +34,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   await addContractToRegistry("VaultFeeController", deployments, signer, hre);
 
-
-
   for (var i = 0; i < vaultStakingPools.length; i++) {
     console.log({
       vaultName: vaultStakingPools[i].vaultName,
@@ -61,7 +59,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ADDRESS_ZERO,
       ADDRESS_ZERO,
       FEE_STRUCTURE,
-      KEEPER_SETTINGS,
+      KEEPER_SETTINGS
     );
 
     const Staking = await deploy(vaultStakingPools[i].poolName, {

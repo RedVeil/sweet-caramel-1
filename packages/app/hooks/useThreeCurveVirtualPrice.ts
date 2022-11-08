@@ -8,7 +8,7 @@ import useWeb3 from "./useWeb3";
 
 export default function useThreeCurveVirtualPrice(threePoolAddress: string | undefined) {
   const { signerOrProvider, account } = useWeb3();
-  const rpcProvider = useRpcProvider(ChainId.Ethereum)
+  const rpcProvider = useRpcProvider(ChainId.Ethereum);
 
   const threePool = useMemo(
     () =>

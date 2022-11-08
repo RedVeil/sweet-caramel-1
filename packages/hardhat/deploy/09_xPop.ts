@@ -14,7 +14,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "XPop",
   });
 
- await addContractToRegistry("XPop", deployments, signer, hre);
+  await addContractToRegistry("XPop", deployments, signer, hre);
 };
 
 export default main;
