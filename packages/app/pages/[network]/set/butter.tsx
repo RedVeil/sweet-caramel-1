@@ -684,10 +684,10 @@ export default function ButterPage(): JSX.Element {
               )}
             <SwitchNetwork
               chainId={chainId}
-              hidden={isConnected && !isButterSupportedOnCurrentNetwork(Number(connectedChainId))}
+              hidden={isConnected && isButterSupportedOnCurrentNetwork(Number(connectedChainId))}
             />
             <div className="order-2 md:order-1">
-              <ConnectWallet hidden={!isConnected} />
+              <ConnectWallet hidden={isConnected} />
             </div>
           </div>
         </div>

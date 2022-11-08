@@ -10,9 +10,7 @@ export const SwitchNetwork = ({ chainId, hidden }: SwitchNetworkProps) => {
 
   return (
     <div
-      className={` rounded-lg md:border md:border-customLightGray px-0 md:p-6 md:pb-0 md:mr-6 ${
-        hidden ? "hidden" : ""
-      }`}
+      className={`rounded-lg md:border md:border-customLightGray px-0 md:p-6 md:pb-0 md:mr-6 ${hidden ? "hidden" : ""}`}
       role="button"
       onClick={() => setChain(chainId)}
     >

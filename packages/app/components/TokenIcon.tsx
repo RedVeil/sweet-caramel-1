@@ -26,5 +26,6 @@ export default function TokenIcon({
   if (metadata?.icons?.length === 1) {
     return <img src={metadata?.icons[0]} alt="token icon" className={imageSize ? imageSize : "w-10 h-10"} />;
   }
-  return <></>;
+  // Per default show POP icon
+  return <img src={"/images/icons/POP.svg"} alt="token icon" className={imageSize ? imageSize : "w-10 h-10"} />;
 }
