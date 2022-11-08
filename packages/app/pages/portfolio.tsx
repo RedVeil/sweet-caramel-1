@@ -6,7 +6,7 @@ import ProductsCon from "components/Portfolio/Products/ProductsCon";
 import Rewards from "components/Portfolio/Rewards/Rewards";
 import React, { useState } from "react";
 
-const portfolio = () => {
+const Portfolio = () => {
   const [activeTab, setActiveTab] = useState(MenuTabItems.ALL);
 
   const portfolios = [
@@ -49,4 +49,4 @@ const portfolio = () => {
   );
 };
 
-export default portfolio;
+export default Portfolio;
