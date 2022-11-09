@@ -1,7 +1,6 @@
 import { BigNumber, Contract } from "ethers";
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { ChainId } from "@popcorn/utils"
-
+import { ChainId } from "@popcorn/utils";
 
 export type Address = string;
 
@@ -13,6 +12,7 @@ export interface ContractAddresses {
   butterStaking?: Address;
   threeXStaking?: Address;
   popUsdcLpStaking?: Address;
+  xenStaking?: Address;
   pop?: Address;
   xPop?: Address;
   xPopRedemption?: Address;

@@ -3,13 +3,24 @@ import { useMemo } from "react";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 
 export const useStakingContracts = (chainId: ChainId) => {
-  const { butterStaking, popUsdcLpStaking, threeXStaking, popUsdcArrakisVaultStaking, sEthSweetVaultStaking } =
-    useDeployment(chainId);
+  const {
+    butterStaking,
+    popUsdcLpStaking,
+    threeXStaking,
+    popUsdcArrakisVaultStaking,
+    sEthSweetVaultStaking,
+    xenStaking,
+  } = useDeployment(chainId);
   return useMemo(
     () =>
-      [butterStaking, popUsdcLpStaking, threeXStaking, popUsdcArrakisVaultStaking, sEthSweetVaultStaking].filter(
-        (contract) => !!contract,
-      ),
+      [
+        butterStaking,
+        popUsdcLpStaking,
+        threeXStaking,
+        popUsdcArrakisVaultStaking,
+        sEthSweetVaultStaking,
+        xenStaking,
+      ].filter((contract) => !!contract),
     [chainId],
   );
 };
