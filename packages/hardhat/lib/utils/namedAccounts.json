@@ -13,6 +13,16 @@
     },
     "metadata": null
   },
+  "xen": {
+    "addresses": {
+      "mainnet": "0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8"
+    }
+  },
+  "xenStaking": {
+    "addresses": {
+      "mainnet": "0xeB906A75838A8078B181815969b1DCBC20eaF7c0"
+    }
+  },
   "angleRouter": {
     "addresses": {
       "mainnet": "0xBB755240596530be0c1DE5DFD77ec6398471561d"

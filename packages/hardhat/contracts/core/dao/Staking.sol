@@ -1,7 +1,7 @@
 /// SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.10
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -45,8 +45,8 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     IRewardsEscrow _rewardsEscrow
   )
     ERC20(
-      IERC20Metadata(address(_stakingToken)).name(),
-      string(abi.encodePacked("X", IERC20Metadata(address(_stakingToken)).symbol()))
+      string(abi.encodePacked("Popcorn - ", IERC20Metadata(address(_stakingToken)).name(), " Staking")),
+      string(abi.encodePacked("pop-st-", IERC20Metadata(address(_stakingToken)).symbol()))
     )
   {
     rewardsToken = _rewardsToken;
