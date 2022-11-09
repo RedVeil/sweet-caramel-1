@@ -1,21 +1,12 @@
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
-import { Address } from "@popcorn/utils/src/types";
-import AlertCard, { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
+import { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
 import StakeCard from "@popcorn/app/components/StakeCard";
 import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
-import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
-import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
-import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
-import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
-import { useAllStakingPools } from "@popcorn/app/hooks/useAllStakingPools";
 import { useRouter } from "next/router";
-import { useStakingContracts } from "@popcorn/app/hooks/useStakingContracts";
-import useGetMultipleStakingPools from "@popcorn/app/hooks/staking/useGetMultipleStakingPools";
-import { useDeployment } from "@popcorn/app/hooks/useDeployment";
-import { useNetwork } from "wagmi";
+import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 
 const MIGRATION_LINKS: AlertCardLink[] = [
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
@@ -25,48 +16,23 @@ const SUPPORTED_NETWORKS = [ChainId.Ethereum, ChainId.Polygon, ChainId.Localhost
 
 export default function StakingOverviewPage(): JSX.Element {
   const [selectedNetworks, selectNetworks] = useState<ChainId[]>(SUPPORTED_NETWORKS)
+  const router = useRouter();
+  const { features } = useContext(FeatureToggleContext);
+  const stakingContracts = useAllStakingContracts();
 
   // reset when all chains get deselected
   useEffect(() => {
     if (selectedNetworks.length === 0) selectNetworks(SUPPORTED_NETWORKS)
   }, [selectedNetworks])
 
-  // Ethereum
-  const { popStaking: ethereumPopStaking } = useDeployment(ChainId.Ethereum);
-  const { data: ethereumPopLocker, isValidating: ethereumPopLockerIsValidating, error: ethereumPopLockerError } = usePopLocker(ethereumPopStaking, ChainId.Ethereum);
-  const ethereumStakingAddresses = useStakingContracts(ChainId.Ethereum);
-  const { data: ethereumStakingPools, isValidating: ethereumStakingPoolsIsValidating } = useGetMultipleStakingPools(
-    ethereumStakingAddresses,
-    ChainId.Ethereum,
-  );
-
-  // Polygon
-  const { popStaking: polygonPopStaking } = useDeployment(ChainId.Polygon);
-  const { data: polygonPopLocker, isValidating: polygonPopLockerIsValidating, error: polygonPopLockerError } = usePopLocker(polygonPopStaking, ChainId.Polygon);
-  const polygonStakingAddresses = useStakingContracts(ChainId.Polygon);
-  const { data: polygonStakingPools, isValidating: polygonStakingPoolsIsValidating } = useGetMultipleStakingPools(
-    polygonStakingAddresses,
-    ChainId.Polygon,
-  );
-
-  // Localhost
-  const { popStaking: localhostPopStaking } = useDeployment(ChainId.Localhost);
-  const { data: localhostPopLocker, isValidating: localhostPopLockerIsValidating, error: localhostPopLockerError } = usePopLocker(localhostPopStaking, ChainId.Localhost);
-  const localhostStakingAddresses = useStakingContracts(ChainId.Localhost);
-  const { data: localhostStakingPools, isValidating: localhostStakingPoolsIsValidating } = useGetMultipleStakingPools(
-    localhostStakingAddresses,
-    ChainId.Localhost,
-  );
-
-  const { features } = useContext(FeatureToggleContext);
-
-  const router = useRouter();
 
   const popLocker = useMemo(
-    () => [ethereumPopLocker, polygonPopLocker, localhostPopLocker].filter(staking => selectedNetworks.includes(staking?.contract?.provider?._network?.chainId)), [selectedNetworks, ethereumPopLocker, polygonPopLocker, localhostPopLocker])
+    () => stakingContracts?.popStaking?.filter(staking => selectedNetworks.includes(staking?.contract?.provider?._network?.chainId)),
+    [selectedNetworks, stakingContracts?.popStaking])
   const stakingPools = useMemo(
-    () => ethereumStakingPools?.concat(polygonStakingPools, localhostStakingPools).filter(staking => selectedNetworks.includes(staking?.contract?.provider?._network?.chainId)),
-    [selectedNetworks, ethereumStakingPools, polygonStakingPools, localhostStakingPools])
+    () => stakingContracts?.stakingPools?.filter(staking => selectedNetworks.includes(staking?.contract?.provider?._network?.chainId)),
+    [selectedNetworks, stakingContracts?.stakingPools])
+
 
 
   function selectNetwork(chainId: ChainId): void {
