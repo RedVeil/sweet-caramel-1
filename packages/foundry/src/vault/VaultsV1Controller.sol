@@ -30,7 +30,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   /* ========== STATE VARIABLES ========== */
 
   bytes32 public constant contractName = keccak256("VaultsV1Controller");
-  bytes32 internal constant VAULT_REWARDS_ESCROW = keccak256("VaultRewardsEscrow");
+  bytes32 internal constant VAULT_REWARDS_ESCROW = keccak256("VaultRewardsEscrow"); // TODO search for other contract names and define them in state not on call
 
   /* ========== EVENTS ========== */
 
@@ -45,6 +45,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
   /* ========== VAULT DEPLOYMENT ========== */
 
+  // TODO remove V1 from all contracts? (purely naming)
+  // TODO get rid of zapper, zapIn, zapOut
   /**
    * @notice deploys and registers V1 Vault from VaultsV1Factory
    * @param _vaultParams - struct containing Vault constructor params (address token_, address yearnRegistry_,
@@ -64,7 +66,9 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   function deployVaultFromV1Factory(
     VaultParams memory _vaultParams,
     address _staking,
-    bool _endorse,
+    bool _endorse, // TODO remove endorse,
+    bytes32 _factoryName,
+    bytes memory _deploymentParams,
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
@@ -73,7 +77,13 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     address _zapIn,
     address _zapOut
   ) external onlyOwner returns (address vault) {
+    // TODO makes this permissionless
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
+
+    if (_factoryName != "") {
+      if (_vaultParams.strategy != address(0)) revert ConflictingInterest();
+      _vaultParams.strategy = _strategyFactory().deploy(_vaultParams);
+    }
 
     vault = _vaultsV1Factory().deploy(_vaultParams);
 
@@ -82,8 +92,10 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     }
     _handleKeeperSetup(vault, _vaultParams.keeperConfig, address(_vaultParams.asset));
 
+    // TODO make RewardsEscrow permissionless and token agnostic
     IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
 
+    // TODO get rid of zapper since we would move it into multicall
     if (_zapper != address(0)) {
       if (_zapIn == address(0) || _zapOut == address(0)) revert SetZaps();
 
@@ -93,24 +105,24 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
     VaultMetadata memory metadata = VaultMetadata({
       vaultAddress: vault,
-      vaultType: 1,
+      vaultType: 1, //TODO get rid of vaultType
       enabled: true,
       staking: _staking,
-      vaultZapper: _zapper,
+      vaultZapper: _zapper, //TODO get rid of zapper
       submitter: msg.sender,
       metadataCID: _metadataCID,
       swapTokenAddresses: _swapTokenAddresses,
       swapAddress: _swapAddress,
       exchange: _exchange,
-      zapIn: _zapIn,
-      zapOut: _zapOut
+      zapIn: _zapIn, //TODO get rid of zapIn
+      zapOut: _zapOut //TODO get rid of zapOut
     });
 
     vaultsV1Registry.registerVault(metadata);
 
-    if (_endorse) vaultsV1Registry.toggleEndorseVault(vault);
+    if (_endorse) vaultsV1Registry.toggleEndorseVault(vault); // TODO remove
 
-    emit VaultV1Deployed(vault, _endorse);
+    emit VaultV1Deployed(vault, _endorse); // adjust event to not include endorse
   }
 
   /**
