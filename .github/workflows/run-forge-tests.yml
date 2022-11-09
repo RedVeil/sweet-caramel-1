@@ -23,10 +23,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: borales/actions-yarn@v3.0.0
-        name: "yarn install"
-        with:
-          cmd: install # will run `yarn install` command
+      - name: "Yarn install"
+        run: yarn install
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1

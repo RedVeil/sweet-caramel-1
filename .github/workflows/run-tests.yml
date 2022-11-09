@@ -36,19 +36,12 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "16"
-        # - uses: borales/actions-yarn@v3.0.0
-        name: "yarn install"
-      - run: yarn install
-        # with:
-        #   cmd: install # will run `yarn install` command
-        name: "yarn install"
-      - run: yarn build
-        # - uses: borales/actions-yarn@v3.0.0
-        #   name: "build"
-        #   with:
-        #     cmd: app:build # will run `yarn app:build` command
+      - name: "yarn install"
+        run: yarn install
+      - name: "yarn build"
+        run: yarn build
         env:
           CI: true
         # - uses: borales/actions-yarn@v3.0.0
-        name: "run tests"
-      - run: yarn test
+      - name: "yarn tests"
+        run: yarn test
