@@ -1,15 +1,15 @@
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
-import ClaimCard from "@popcorn/app/components/Rewards/ClaimCard";
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useState } from "react";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
-import useAllStakingContracts, { StakingType } from "hooks/staking/useAllStakingContracts";
+import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import Vesting from "components/vesting/Vesting";
 import useSelectNetwork from "hooks/useSelectNetwork";
 import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
 import SelectNetwork from "components/SelectNetwork";
+import ClaimCard from "components/rewards/ClaimCard";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -71,14 +71,10 @@ export default function RewardsPage(): JSX.Element {
               stakingContracts?.stakingPools.length > 0 &&
               stakingContracts?.stakingPools?.map(staking =>
                 <ClaimCard
-                  key={staking?.pool?.address}
-                  tokenAddress={staking?.pool?.stakingToken?.address}
+                  key={staking?.chainId + staking?.address}
                   chainId={staking?.chainId}
-                  tokenName={staking?.pool?.stakingToken?.name}
-                  claimAmount={staking?.pool?.earned}
-                  pool={staking?.pool?.contract}
-                  disabled={staking?.pool?.earned?.isZero()}
-                  isPopLocker={staking?.stakingType === StakingType.PopLocker}
+                  stakingAddress={staking?.address}
+                  stakingType={staking?.stakingType}
                 />
               )}
 

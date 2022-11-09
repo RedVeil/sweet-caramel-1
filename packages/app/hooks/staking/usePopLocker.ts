@@ -14,7 +14,9 @@ export default function usePopLocker(address: string, chainId: ChainId): SWRResp
     () => isAddress(address) && !!chainId && !!provider && PopLocker__factory.connect(address, provider),
     [chainId, address, provider],
   );
-  return useSWR(popLocker ? [`getPopLockerInfo`, address, chainId, account, provider] : null, (key) => {
+
+  const shouldFetch = popLocker && !!chainId
+  return useSWR(shouldFetch ? [`getPopLockerInfo`, address, chainId, account, provider] : null, (key) => {
     return getPopLocker(key, popLocker, chainId, account);
   });
 }

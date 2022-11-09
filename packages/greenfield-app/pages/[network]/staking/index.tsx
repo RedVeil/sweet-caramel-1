@@ -1,7 +1,7 @@
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
-import StakeCard from "@popcorn/app/components/StakeCard";
+import StakeCard from "components/staking/StakeCard";
 import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
@@ -12,7 +12,6 @@ import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
 import SelectNetwork from "components/SelectNetwork";
 
 export default function StakingOverviewPage(): JSX.Element {
-  const router = useRouter();
   const { features } = useContext(FeatureToggleContext);
   const stakingContracts = useAllStakingContracts();
   const supportedNetworks = useChainsWithStaking()
@@ -46,16 +45,15 @@ export default function StakingOverviewPage(): JSX.Element {
                 {/*eslint-enable */}
               </ContentLoader>
             </div>
-            {stakingPools && stakingPools.length > 0 && stakingPools?.map(pool =>
+            {stakingPools && stakingPools.length > 0 && stakingPools?.map(staking =>
               <StakeCard
-                key={pool?.chainId + pool?.pool?.address}
-                chainId={pool?.chainId}
-                stakingPool={pool?.pool}
-                stakedToken={pool?.pool?.stakingToken}
-                onSelectPool={() => router?.push(`/${networkMap[pool?.chainId]?.toLowerCase()}/staking/${pool?.stakingType === StakingType.PopLocker ? "pop" : pool?.pool?.address}`)}
+                key={staking?.chainId + staking?.address}
+                chainId={staking?.chainId}
+                stakingAddress={staking?.address}
+                stakingType={staking?.stakingType}
                 badge={
                   features["migrationAlert"] &&
-                    pool?.pool?.address === "0xe6f315f4e0db78185239fffb368d6d188f6b926c"
+                    staking?.address === "0xe6f315f4e0db78185239fffb368d6d188f6b926c"
                     ? {
                       text: "Migration Required",
                       textColor: "text-white",

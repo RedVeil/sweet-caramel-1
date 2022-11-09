@@ -1,7 +1,7 @@
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
-import { BigNumber, constants, Signer } from "ethers";
+import { constants, Signer } from "ethers";
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
@@ -10,30 +10,34 @@ import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { useContext } from "react";
 import { store } from "@popcorn/app/context/store";
 import { CardLoader } from "@popcorn/app/components/CardLoader";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import { StakingType } from "hooks/staking/useAllStakingContracts";
+import ContentLoader from "react-content-loader";
 
 interface ClaimCardProps {
-  disabled: boolean;
-  tokenAddress: string;
-  tokenName: string;
-  claimAmount: BigNumber;
-  pool: Staking | PopLocker;
-  isPopLocker?;
+  stakingAddress: string;
+  stakingType: StakingType;
   chainId: ChainId;
 }
 
-const ClaimCard: React.FC<ClaimCardProps> = ({
-  disabled,
-  tokenName,
-  tokenAddress,
-  claimAmount,
-  pool,
-  isPopLocker = false,
-  chainId,
-}) => {
+const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chainId }) => {
   const { account, signer } = useWeb3();
   const { dispatch } = useContext(store);
-  const metadata = useContractMetadata(tokenAddress, chainId);
   const transaction = useTransaction(chainId);
+
+  // Fetch either popLocker or stakingPool
+  const { data: popLocker, isValidating: popLockerIsValidating, error: popLockerError } = usePopLocker(stakingAddress, stakingType === StakingType.PopLocker ? chainId : undefined);
+  const { data: stakingPool, isValidating: stakingPoolIsValidating, error: stakingPoolError } = useStakingPool(
+    stakingAddress,
+    stakingType === StakingType.StakingPool ? chainId : undefined
+  );
+  const staking = stakingType === StakingType.PopLocker ? popLocker : stakingPool;
+
+  const isValidating = stakingType === StakingType.PopLocker ? popLockerIsValidating : stakingPoolIsValidating;
+  const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
+
+  const metadata = useContractMetadata(staking?.stakingToken?.address, chainId);
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean, signer: Signer, account: string) => {
     transaction(
@@ -71,37 +75,44 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
     );
   };
 
+  if (isValidating && !error) return (
+    <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+      {/*eslint-disable */}
+      <rect x="0" y="0" rx="8" ry="8" width="450" height="108" />
+      {/*eslint-enable */}
+    </ContentLoader>)
+
   return (
     <div
-      className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${!claimAmount || claimAmount?.eq(constants.Zero) ? "hidden" : ""}`}
+      className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${!staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : ""}`}
     >
       <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4" />
       <div className="flex flex-col md:flex-row justify-between pt-4 pb-6 md:px-8">
         <div className="flex flex-col justify-between">
           <div className="flex flex-row items-center">
             <div>
-              <TokenIcon token={tokenAddress} chainId={chainId} fullsize />
+              <TokenIcon token={staking?.stakingToken?.address} chainId={chainId} fullsize />
             </div>
             <h1
               className={`text-2xl md:text-4xl leading-7 md:leading-12 mt-1 ml-4 text-black line-clamp-2 overflow-hidden`}
             >
-              {metadata?.name ? metadata.name : tokenName}
+              {metadata?.name ? metadata.name : staking?.stakingToken?.name}
             </h1>
           </div>
           <div className="my-6 md:my-0">
             <p className="text-primaryLight leading-6">Rewards</p>
             <h1 className={`text-2xl md:text-3xl leading-8 text-primary`}>
-              {formatAndRoundBigNumber(claimAmount, 18)} <span className=" text-tokenTextGray text-xl"> POP</span>
+              {formatAndRoundBigNumber(staking?.earned, 18)} <span className=" text-tokenTextGray text-xl"> POP</span>
             </h1>
           </div>
         </div>
         <div>
           <MainActionButton
             handleClick={() => {
-              poolClaimHandler(pool, isPopLocker, signer, account);
+              poolClaimHandler(staking?.contract, stakingType === StakingType.PopLocker, signer, account);
             }}
             label="Claim"
-            disabled={disabled}
+            disabled={staking?.earned?.eq(constants.Zero)}
           />
         </div>
       </div>

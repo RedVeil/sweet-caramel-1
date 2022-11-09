@@ -20,7 +20,7 @@ export default function useGetMultipleStakingPools(
     [chainId, addresses, rpcProvider],
   );
 
-  const shouldFetch = !!stakingContracts && !!chainId;
+  const shouldFetch = !!stakingContracts && !!chainId
 
   return useSWR(
     shouldFetch ? [`getPoolInfo`, account, chainId, addresses, rpcProvider] : null,
