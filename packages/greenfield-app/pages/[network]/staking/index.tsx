@@ -6,46 +6,21 @@ import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext"
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { useRouter } from "next/router";
-import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
-
-const MIGRATION_LINKS: AlertCardLink[] = [
-  { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
-];
-
-const SUPPORTED_NETWORKS = [ChainId.Ethereum, ChainId.Polygon, ChainId.Localhost]
+import useAllStakingContracts, { StakingType } from "hooks/staking/useAllStakingContracts";
+import useSelectNetwork from "hooks/useSelectNetwork";
+import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
+import SelectNetwork from "components/SelectNetwork";
 
 export default function StakingOverviewPage(): JSX.Element {
-  const [selectedNetworks, selectNetworks] = useState<ChainId[]>(SUPPORTED_NETWORKS)
   const router = useRouter();
   const { features } = useContext(FeatureToggleContext);
   const stakingContracts = useAllStakingContracts();
+  const supportedNetworks = useChainsWithStaking()
+  const [selectedNetworks, selectNetwork] = useSelectNetwork(supportedNetworks)
 
-  // reset when all chains get deselected
-  useEffect(() => {
-    if (selectedNetworks.length === 0) selectNetworks(SUPPORTED_NETWORKS)
-  }, [selectedNetworks])
-
-
-  const popLocker = useMemo(
-    () => stakingContracts?.popStaking?.filter(staking => selectedNetworks.includes(staking?.contract?.provider?._network?.chainId)),
-    [selectedNetworks, stakingContracts?.popStaking])
   const stakingPools = useMemo(
-    () => stakingContracts?.stakingPools?.filter(staking => selectedNetworks.includes(staking?.contract?.provider?._network?.chainId)),
-    [selectedNetworks, stakingContracts?.stakingPools])
-
-
-
-  function selectNetwork(chainId: ChainId): void {
-    let newSelectedNetworks;
-    if (selectedNetworks.length === SUPPORTED_NETWORKS.length) {
-      newSelectedNetworks = [chainId]
-    } else if (selectedNetworks.includes(chainId)) {
-      newSelectedNetworks = selectedNetworks.filter(chain => chain !== chainId)
-    } else {
-      newSelectedNetworks = [...selectedNetworks, chainId]
-    }
-    selectNetworks(newSelectedNetworks)
-  }
+    () => stakingContracts?.stakingPools?.filter(staking => selectedNetworks.includes(staking?.chainId)),
+    [selectedNetworks, stakingContracts])
 
   return (
     <>
@@ -58,26 +33,7 @@ export default function StakingOverviewPage(): JSX.Element {
           <ConnectDepositCard />
         </div>
       </div>
-      {/*
-      {features["migrationAlert"] && chainId === ChainId.Polygon && (
-        <div className="mt-10 md:mt-20">
-          <AlertCard
-            title="Migrate your liquidity for USDC/POP from Sushiswap to Arrakis"
-            text="In PIP-2 the community decided to migrate all Polygon liquidity to Uniswap via Arrakis."
-            links={MIGRATION_LINKS}
-          />
-        </div>
-      )}
-      */}
-      <div className="flex flex-row items-center space-x-2">
-        <p className="text-lg mr-4">Selected Networks:</p>
-        {SUPPORTED_NETWORKS.map(network =>
-          <button key={network}
-            onClick={() => selectNetwork(network)}
-            className={`${selectedNetworks.includes(network) ? "bg-warmGray" : "bg-white"} h-8 w-12 border border-customLightGray rounded-4xl text-primary cursor-pointer`}>
-            <img src={networkLogos[network]} alt={ChainId[network]} className="w-4.5 h-4 mx-auto" />
-          </button>)}
-      </div>
+      <SelectNetwork supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} />
       <div className="mt-12 border-t border-t-customLightGray">
         <div className="w-full">
           <div className="h-full ">
@@ -90,25 +46,16 @@ export default function StakingOverviewPage(): JSX.Element {
                 {/*eslint-enable */}
               </ContentLoader>
             </div>
-            {popLocker?.map(pool =>
+            {stakingPools && stakingPools.length > 0 && stakingPools?.map(pool =>
               <StakeCard
-                key={pool.contract.provider._network.chainId + pool.address}
-                chainId={pool.contract.provider._network.chainId}
-                stakingPool={pool}
-                stakedToken={pool?.stakingToken}
-                onSelectPool={() => router?.push(`/${networkMap[pool.contract.provider._network.chainId]?.toLowerCase()}/staking/pop`)}
-                badge={undefined}
-              />)}
-            {stakingPools?.map(pool =>
-              <StakeCard
-                key={pool.contract.provider._network.chainId + pool.address}
-                chainId={pool.contract.provider._network.chainId}
-                stakingPool={pool}
-                stakedToken={pool?.stakingToken}
-                onSelectPool={() => router?.push(`/${networkMap[pool.contract.provider._network.chainId]?.toLowerCase()}/staking/${pool.address}`)}
+                key={pool?.chainId + pool?.pool?.address}
+                chainId={pool?.chainId}
+                stakingPool={pool?.pool}
+                stakedToken={pool?.pool?.stakingToken}
+                onSelectPool={() => router?.push(`/${networkMap[pool?.chainId]?.toLowerCase()}/staking/${pool?.stakingType === StakingType.PopLocker ? "pop" : pool?.pool?.address}`)}
                 badge={
                   features["migrationAlert"] &&
-                    pool.address === "0xe6f315f4e0db78185239fffb368d6d188f6b926c"
+                    pool?.pool?.address === "0xe6f315f4e0db78185239fffb368d6d188f6b926c"
                     ? {
                       text: "Migration Required",
                       textColor: "text-white",
@@ -120,7 +67,6 @@ export default function StakingOverviewPage(): JSX.Element {
           </div>
         </div>
       </div>
-      {/* <FooterLandScapeImage /> */}
     </>
   );
 }

@@ -21,7 +21,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
 
   return (
     <div
-      className="border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative"
+      className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${stakingPool === undefined ? "hidden" : ""}`}
       onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
     >
       <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4 mr-4" />

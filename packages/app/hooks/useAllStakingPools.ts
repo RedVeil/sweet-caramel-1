@@ -1,7 +1,6 @@
 import { ChainId } from "@popcorn/utils";
 import useGetMultipleStakingPools from "./staking/useGetMultipleStakingPools";
 import { useStakingContracts } from "./useStakingContracts";
-import { useDeployment, Deployments } from "./useDeployment";
 
 export const useAllStakingPools = () => {
   const polygonStakingAddresses = useStakingContracts(ChainId.Polygon);

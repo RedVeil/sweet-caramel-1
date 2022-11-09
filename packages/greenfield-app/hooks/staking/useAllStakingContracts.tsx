@@ -3,22 +3,13 @@ import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useStakingContracts } from "@popcorn/app/hooks/useStakingContracts";
 import { ChainId } from "@popcorn/utils";
-import { PopLockerMetadata, StakingPoolMetadata } from "@popcorn/utils/getStakingPool";
 
-interface NetworkStakingContracts {
-  popStaking: PopLockerMetadata;
-  stakingPools: StakingPoolMetadata[];
+export enum StakingType {
+  PopLocker,
+  StakingPool
 }
 
-interface StakingContracts {
-  ethereum: NetworkStakingContracts;
-  polygon: NetworkStakingContracts;
-  localhost: NetworkStakingContracts;
-  popStaking: PopLockerMetadata[];
-  stakingPools: StakingPoolMetadata[];
-}
-
-export default function useAllStakingContracts(): StakingContracts {
+export default function useAllStakingContracts() {
   // Ethereum
   const { popStaking: ethereumPopStaking } = useDeployment(ChainId.Ethereum);
   const { data: ethereumPopLocker, isValidating: ethereumPopLockerIsValidating, error: ethereumPopLockerError } = usePopLocker(ethereumPopStaking, ChainId.Ethereum);
@@ -47,23 +38,22 @@ export default function useAllStakingContracts(): StakingContracts {
     ChainId.Localhost,
   );
 
-  const popLocker = [ethereumPopLocker, polygonPopLocker, localhostPopLocker]
-  const stakingPools = ethereumStakingPools?.concat(polygonStakingPools, localhostStakingPools)
-
   return {
-    ethereum: {
-      popStaking: ethereumPopLocker,
-      stakingPools: ethereumStakingPools
-    },
-    polygon: {
-      popStaking: polygonPopLocker,
-      stakingPools: polygonStakingPools
-    },
-    localhost: {
-      popStaking: localhostPopLocker,
-      stakingPools: localhostStakingPools
-    },
-    popStaking: popLocker,
-    stakingPools: stakingPools
-  }
+    stakingPoolsIsValidating:
+      ethereumPopLockerIsValidating || polygonPopLockerIsValidating || localhostPopLockerIsValidating || polygonStakingPoolsIsValidating || ethereumStakingPoolsIsValidating || localhostStakingPoolsIsValidating,
+    stakingPools: [
+      { chainId: ChainId.Ethereum, stakingType: StakingType.PopLocker, pool: ethereumPopLocker } || {},
+      { chainId: ChainId.Polygon, stakingType: StakingType.PopLocker, pool: polygonPopLocker } || {},
+      { chainId: ChainId.Localhost, stakingType: StakingType.PopLocker, pool: localhostPopLocker } || {},
+      ...(ethereumStakingPools?.length ? ethereumStakingPools : []).map(
+        (pool) => ({ chainId: ChainId.Ethereum, stakingType: StakingType.StakingPool, pool } || {}),
+      ),
+      ...(polygonStakingPools?.length ? polygonStakingPools : []).map(
+        (pool) => ({ chainId: ChainId.Polygon, stakingType: StakingType.StakingPool, pool } || {}),
+      ),
+      ...(localhostStakingPools?.length ? localhostStakingPools : []).map(
+        (pool) => ({ chainId: ChainId.Localhost, stakingType: StakingType.StakingPool, pool } || {}),
+      ),
+    ],
+  };
 }

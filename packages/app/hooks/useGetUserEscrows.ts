@@ -1,6 +1,6 @@
 import { RewardsEscrow } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
-import useSWR from "swr";
+import useSWR, { SWRResponse } from "swr";
 import { ChainId } from "@popcorn/utils/src/connectors";
 import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 import useVestingEscrow from "@popcorn/app/hooks/useVestingEscrow";
@@ -62,12 +62,12 @@ const getUserEscrows = async (_: any, account: string, vestingEscrow: RewardsEsc
   };
 };
 
-export function useGetUserEscrows(address: string, account: string, chainId: ChainId) {
+export function useGetUserEscrows(address: string, account: string, chainId: ChainId): SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber }, Error> {
   const provider = useRpcProvider(chainId);
   const vestingEscrow = useVestingEscrow(address, chainId);
   const shouldFetch = !!vestingEscrow && !!account && !!provider;
   return useSWR(shouldFetch ? ["getUserEscrows", account, vestingEscrow, chainId, provider] : null, getUserEscrows, {
-    refreshInterval: 2000,
+    refreshInterval: 20000,
   });
 }
 export default useGetUserEscrows;
