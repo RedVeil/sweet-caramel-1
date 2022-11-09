@@ -27,6 +27,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
     stakingAddress,
     stakingType === StakingType.StakingPool ? ChainId.Ethereum : undefined
   );
+
   const staking = stakingType === StakingType.PopLocker ? popLocker : stakingPool;
   const isValidating = stakingType === StakingType.PopLocker ? popLockerIsValidating : stakingPoolIsValidating;
   const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
@@ -37,19 +38,16 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
   function onSelectPool() {
     router?.push(`/${networkMap[chainId]?.toLowerCase()}/staking/${stakingType === StakingType.PopLocker ? "pop" : stakingAddress}`)
   }
-
-  if (isValidating && !error) return (
-    <div className="my-4">
+  return (<span>
+    <div className={`my-4 ${isValidating && !error ? '' : 'hidden'}`}>
       <ContentLoader viewBox="0 0 450 60" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
         {/*eslint-disable */}
         <rect x="0" y="0" rx="8" ry="8" width="450" height="60" />
         {/*eslint-enable */}
       </ContentLoader>
     </div>
-  )
 
 
-  return (
     <div
       className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${staking === undefined ? "hidden" : ""}`}
       onClick={onSelectPool}
@@ -113,7 +111,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
         </div>
       </div>
     </div>
-  );
+  </span >);
 };
 
 export default StakeCard;

@@ -66,13 +66,10 @@ export default function StakeInterface({
       type: state.type === InteractionType.Deposit ? InteractionType.Withdraw : InteractionType.Deposit,
     });
 
-
-
   return (
     <>
       <div className="-ml-2">
-        <div className="flex items-center cursor-pointer"
-          onClick={() => pushWithinChain("staking")}>
+        <div className="flex items-center cursor-pointer" onClick={() => pushWithinChain("staking")}>
           <ChevronLeftIcon className="w-6 h-6 text-secondaryLight" />
           <p className="text-primary">Staking</p>
         </div>
@@ -106,9 +103,9 @@ export default function StakeInterface({
                 content={
                   stakingPool && stakedTokenPrice
                     ? `$${formatAndRoundBigNumber(
-                      stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
-                      18,
-                    )}`
+                        stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
+                        18,
+                      )}`
                     : "..."
                 }
                 label="TVL"
@@ -116,8 +113,9 @@ export default function StakeInterface({
             </div>
             <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
               <StatusWithLabel
-                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
-                  } POP / day`}
+                content={`${
+                  stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
+                } POP / day`}
                 label="EMISSION RATE"
               />
             </div>
@@ -187,16 +185,14 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              {buyLink && (
-                <Link href={buyLink} passHref>
-                  <a target="_blank">
-                    <div className="border-t border-customLightGray pt-2 px-1">
-                      <SecondaryActionButton label="Get Token" />
-                    </div>
-                  </a>
-                </Link>
-              )}
-            </div >
+              <Link href={buyLink || "#"} passHref>
+                <a target={`${buyLink ? "_blank" : "_self"}`}>
+                  <div className="border-t border-customLightGray pt-2 px-1">
+                    <SecondaryActionButton label="Get Token" />
+                  </div>
+                </a>
+              </Link>
+            </div>
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
@@ -223,8 +219,8 @@ export default function StakeInterface({
                   </div>
                 </a>
               </Link>
-            </div >
-          </div >
+            </div>
+          </div>
 
           <div className="md:hidden">
             <MobileCardSlider>
@@ -250,17 +246,15 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  {buyLink && (
-                    <Link href={buyLink} passHref>
-                      <a target="_blank">
-                        <div className="border-t border-customLightGray pt-2 px-1">
-                          <SecondaryActionButton label="Get Token" />
-                        </div>
-                      </a>
-                    </Link>
-                  )}
-                </div >
-              </div >
+                  <Link href={buyLink || "#"} passHref>
+                    <a target={`${buyLink ? "_blank" : "_self"}`}>
+                      <div className="border-t border-customLightGray pt-2 px-1">
+                        <SecondaryActionButton label="Get Token" />
+                      </div>
+                    </a>
+                  </Link>
+                </div>
+              </div>
 
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
@@ -289,10 +283,10 @@ export default function StakeInterface({
                       </div>
                     </a>
                   </Link>
-                </div >
-              </div >
-            </MobileCardSlider >
-          </div >
+                </div>
+              </div>
+            </MobileCardSlider>
+          </div>
 
           <div className="bg-customLightYellow rounded-lg p-8 hidden md:flex flex-col justify-between mt-8">
             <h2 className=" text-6xl leading-11">{/* removed text for now - @am */}</h2>
@@ -300,8 +294,8 @@ export default function StakeInterface({
               <img src="/images/hands.svg" alt="" className=" h-28 w-28" />
             </div>
           </div>
-        </div >
-      </div >
+        </div>
+      </div>
 
       <div className="bg-customRed rounded-lg p-6 flex md:hidden flex-col justify-between">
         <h2 className=" text-2xl leading-6"></h2>

@@ -5,8 +5,9 @@ interface ButtonProps {
   label: string;
   handleClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
+  hidden?: boolean;
 }
-const SecondaryActionButton: React.FC<ButtonProps> = ({ label, handleClick, disabled = false }) => {
+const SecondaryActionButton: React.FC<ButtonProps> = ({ label, handleClick, hidden, disabled = false }) => {
   const [arrowColor, setArrowColor] = useState("645F4B");
   const [arrowClass, setArrowClass] = useState("transform translate-x-0");
 
@@ -20,7 +21,9 @@ const SecondaryActionButton: React.FC<ButtonProps> = ({ label, handleClick, disa
   };
   return (
     <button
-      className="w-full flex justify-between items-center text-primary hover:text-black transition-all ease-in-out font-medium leading-4 md:leading-7 relative"
+      className={`${
+        hidden ? "hidden" : ""
+      } w-full flex justify-between items-center text-primary hover:text-black transition-all ease-in-out font-medium leading-4 md:leading-7 relative`}
       onMouseEnter={animateArrow}
       onClick={handleClick}
     >

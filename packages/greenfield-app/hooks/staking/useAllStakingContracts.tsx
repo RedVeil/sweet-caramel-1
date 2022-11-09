@@ -25,13 +25,13 @@ export default function useAllStakingContracts() {
       { chainId: ChainId.Ethereum, stakingType: StakingType.PopLocker, address: ethereumPopStaking } || {},
       { chainId: ChainId.Polygon, stakingType: StakingType.PopLocker, address: polygonPopStaking } || {},
       { chainId: ChainId.Localhost, stakingType: StakingType.PopLocker, address: localhostPopStaking } || {},
-      ...(ethereumStakingAddresses?.length ? ethereumStakingAddresses : []).map(
+      ...(ethereumStakingAddresses?.length ? Array.from(new Set(ethereumStakingAddresses)) : []).map(
         (address) => ({ chainId: ChainId.Ethereum, stakingType: StakingType.StakingPool, address } || {}),
       ),
       ...(polygonStakingAddresses?.length ? polygonStakingAddresses : []).map(
         (address) => ({ chainId: ChainId.Polygon, stakingType: StakingType.StakingPool, address } || {}),
       ),
-      ...(localhostStakingAddresses?.length ? localhostStakingAddresses : []).map(
+      ...(localhostStakingAddresses?.length ? Array.from(new Set(localhostStakingAddresses)) : []).map(
         (address) => ({ chainId: ChainId.Localhost, stakingType: StakingType.StakingPool, address } || {}),
       ),
     ],

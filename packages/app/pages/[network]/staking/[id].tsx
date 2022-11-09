@@ -15,7 +15,7 @@ import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { ethers } from "ethers";
 
 export default function StakingPage(): JSX.Element {
-  const { account, signer, connectedChainId } = useWeb3();
+  const { account, signer } = useWeb3();
   const chainId = useChainIdFromUrl();
   const router = useRouter();
   const { dispatch } = useContext(store);
@@ -40,9 +40,7 @@ export default function StakingPage(): JSX.Element {
 
   function stake(): void {
     transaction(
-      () => stakingPool.contract
-        .connect(signer)
-        .stake(form.amount),
+      () => stakingPool.contract.connect(signer).stake(form.amount),
       `Staking ${stakingToken?.symbol} ...`,
       `${stakingToken?.symbol} staked!`,
       () => {
@@ -74,15 +72,13 @@ export default function StakingPage(): JSX.Element {
             }),
           );
         }
-      }
-    )
+      },
+    );
   }
 
   function withdraw(): void {
     transaction(
-      () => stakingPool.contract
-        .connect(signer)
-        .withdraw(form.amount),
+      () => stakingPool.contract.connect(signer).withdraw(form.amount),
       `Withdrawing ${stakingToken?.symbol} ...`,
       `${stakingToken?.symbol} withdrawn!`,
       () => {
