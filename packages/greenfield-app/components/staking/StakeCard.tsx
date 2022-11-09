@@ -9,6 +9,7 @@ import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import { StakingType } from "hooks/staking/useAllStakingContracts";
 import { useRouter } from "next/router";
+import ContentLoader from "react-content-loader";
 
 interface StakeCardProps {
   stakingAddress: string;
@@ -27,8 +28,6 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
     stakingType === StakingType.StakingPool ? ChainId.Ethereum : undefined
   );
   const staking = stakingType === StakingType.PopLocker ? popLocker : stakingPool;
-
-  // Not in use yet (For future optimizations)
   const isValidating = stakingType === StakingType.PopLocker ? popLockerIsValidating : stakingPoolIsValidating;
   const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
 
@@ -38,6 +37,17 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
   function onSelectPool() {
     router?.push(`/${networkMap[chainId]?.toLowerCase()}/staking/${stakingType === StakingType.PopLocker ? "pop" : stakingAddress}`)
   }
+
+  if (isValidating && !error) return (
+    <div className="my-4">
+      <ContentLoader viewBox="0 0 450 60" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+        {/*eslint-disable */}
+        <rect x="0" y="0" rx="8" ry="8" width="450" height="60" />
+        {/*eslint-enable */}
+      </ContentLoader>
+    </div>
+  )
+
 
   return (
     <div

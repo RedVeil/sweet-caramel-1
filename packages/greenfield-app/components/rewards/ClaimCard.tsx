@@ -33,7 +33,6 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
     stakingType === StakingType.StakingPool ? chainId : undefined
   );
   const staking = stakingType === StakingType.PopLocker ? popLocker : stakingPool;
-
   const isValidating = stakingType === StakingType.PopLocker ? popLockerIsValidating : stakingPoolIsValidating;
   const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
 
@@ -76,11 +75,14 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
   };
 
   if (isValidating && !error) return (
-    <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-      {/*eslint-disable */}
-      <rect x="0" y="0" rx="8" ry="8" width="450" height="108" />
-      {/*eslint-enable */}
-    </ContentLoader>)
+    <div className="my-4">
+      <ContentLoader viewBox="0 0 450 80" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+        {/*eslint-disable */}
+        <rect x="0" y="0" rx="8" ry="8" width="450" height="80" />
+        {/*eslint-enable */}
+      </ContentLoader>
+    </div>
+  )
 
   return (
     <div

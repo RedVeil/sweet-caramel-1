@@ -7,6 +7,7 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { constants } from "ethers";
 import useEscrows from "hooks/vesting/useEscrows";
+import ContentLoader from "react-content-loader";
 
 interface VestingProps {
   chainId: ChainId
@@ -18,7 +19,7 @@ export default function Vesting({ chainId }: VestingProps): JSX.Element {
   } = useDeployment(chainId);
   const claimVestedPopFromEscrows = useClaimEscrows(rewardsEscrow, chainId);
   const transaction = useTransaction(chainId);
-  const { escrows, totalClaimablePop, totalVestingPop, revalidate } = useEscrows(chainId)
+  const { escrows, totalClaimablePop, totalVestingPop, revalidate, isValidating, error } = useEscrows(chainId)
 
   const claimAllEscrows = async () => {
     const escrowsIds = escrows.map((escrow) => escrow.id);
@@ -32,6 +33,15 @@ export default function Vesting({ chainId }: VestingProps): JSX.Element {
       );
     }
   };
+  if (isValidating && !error) return (
+    <div className="my-4">
+      <ContentLoader viewBox="0 0 450 100" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+        {/*eslint-disable */}
+        <rect x="0" y="0" rx="8" ry="8" width="450" height="100" />
+        {/*eslint-enable */}
+      </ContentLoader>
+    </div>
+  )
 
   return (
     <div className={`flex flex-col h-full ${totalClaimablePop.eq(constants.Zero) ? "hidden" : ""}`}>

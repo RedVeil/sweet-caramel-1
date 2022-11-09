@@ -25,6 +25,7 @@ export default function RewardsPage(): JSX.Element {
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const isSelected = (tab: Tabs) => tabSelected === tab;
 
+
   return (
     <>
       <div className="grid grid-cols-12 md:gap-8 laptop:gap-14">

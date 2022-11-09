@@ -1,19 +1,28 @@
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
-import useGetUserEscrows from "@popcorn/app/hooks/useGetUserEscrows";
+import useGetUserEscrows, { Escrow } from "@popcorn/app/hooks/useGetUserEscrows";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId } from "@popcorn/utils";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { useMemo, } from "react";
 
-export default function useEscrows(chainId: ChainId) {
+interface EscrowSummary {
+  escrows: Escrow[];
+  totalClaimablePop: BigNumber;
+  totalVestingPop: BigNumber;
+  revalidate: () => void;
+  isValidating: boolean;
+  error: Error;
+}
+
+export default function useEscrows(chainId: ChainId): EscrowSummary {
   const { account } = useWeb3()
   const {
     rewardsEscrow,
     vaultsRewardsEscrow,
   } = useDeployment(chainId);
 
-  const { data: escrowsFetchResult, isValidating, mutate: revalidateEscrowsFetchResult } = useGetUserEscrows(rewardsEscrow, account, chainId);
-  const { data: vaultsEscrowsFetchResults, mutate: revalidateVaultsEscrowsFetchResults } = useGetUserEscrows(vaultsRewardsEscrow, account, chainId);
+  const { data: escrowsFetchResult, isValidating: escrowsFetchResultIsValidating, error: escrowsFetchResultError, mutate: revalidateEscrowsFetchResult } = useGetUserEscrows(rewardsEscrow, account, chainId);
+  const { data: vaultsEscrowsFetchResults, isValidating: vaultsEscrowsFetchResultsIsValidating, error: vaultsEscrowsFetchResultsError, mutate: revalidateVaultsEscrowsFetchResults } = useGetUserEscrows(vaultsRewardsEscrow, account, chainId);
 
   return useMemo(
     () => {
@@ -30,9 +39,11 @@ export default function useEscrows(chainId: ChainId) {
         revalidate: () => {
           revalidateEscrowsFetchResult();
           revalidateVaultsEscrowsFetchResults();
-        }
+        },
+        isValidating: escrowsFetchResultIsValidating || vaultsEscrowsFetchResultsIsValidating,
+        error: escrowsFetchResultError || vaultsEscrowsFetchResultsError
       }
     },
-    [escrowsFetchResult, vaultsEscrowsFetchResults, revalidateEscrowsFetchResult, revalidateVaultsEscrowsFetchResults],
+    [escrowsFetchResult, vaultsEscrowsFetchResults, revalidateEscrowsFetchResult, revalidateVaultsEscrowsFetchResults, escrowsFetchResultIsValidating, vaultsEscrowsFetchResultsIsValidating, escrowsFetchResultError, vaultsEscrowsFetchResultsError],
   );
 }
