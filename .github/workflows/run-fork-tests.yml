@@ -24,20 +24,17 @@ jobs:
         with:
           source: .env.example
           target: .env
-      - uses: borales/actions-yarn@v3.0.0
-        name: "yarn install"
+      - uses: actions/setup-node@v3
         with:
-          cmd: install # will run `yarn install` command
-      - uses: borales/actions-yarn@v3.0.0
-        name: "build"
-        with:
-          cmd: app:build # will run `yarn app:build` command
+          node-version: 16
+      - name: "yarn install"
+        run: yarn install
+      - name: "yarn build"
+        run: yarn build
         env:
           CI: true
-      - uses: borales/actions-yarn@v3.0.0
-        name: "run tests"
-        with:
-          cmd: test:fork
+      - name: "yarn tests"
+        run: yarn test
         env:
           FORKING_ENABLED: true
           RPC_URL: ${{secrets.RPC_URL}}
