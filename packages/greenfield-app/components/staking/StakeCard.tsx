@@ -22,10 +22,10 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
   const router = useRouter();
 
   // Fetch either popLocker or stakingPool
-  const { data: popLocker, isValidating: popLockerIsValidating, error: popLockerError } = usePopLocker(stakingAddress, stakingType === StakingType.PopLocker ? ChainId.Ethereum : undefined);
+  const { data: popLocker, isValidating: popLockerIsValidating, error: popLockerError } = usePopLocker(stakingAddress, chainId);
   const { data: stakingPool, isValidating: stakingPoolIsValidating, error: stakingPoolError } = useStakingPool(
     stakingAddress,
-    stakingType === StakingType.StakingPool ? ChainId.Ethereum : undefined
+    chainId
   );
 
   const staking = stakingType === StakingType.PopLocker ? popLocker : stakingPool;

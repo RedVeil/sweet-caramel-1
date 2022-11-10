@@ -9,7 +9,6 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { useContext } from "react";
 import { store } from "@popcorn/app/context/store";
-import { CardLoader } from "@popcorn/app/components/CardLoader";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import { StakingType } from "hooks/staking/useAllStakingContracts";
@@ -73,18 +72,14 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
       },
     );
   };
-
-  if (isValidating && !error) return (
-    <div className="my-4">
+  return (<>
+    <div className={`my-4 ${isValidating && !error ? '' : 'hidden'}`}>
       <ContentLoader viewBox="0 0 450 80" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
         {/*eslint-disable */}
         <rect x="0" y="0" rx="8" ry="8" width="450" height="80" />
         {/*eslint-enable */}
       </ContentLoader>
     </div>
-  )
-
-  return (
     <div
       className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${!staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : ""}`}
     >
@@ -119,7 +114,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
         </div>
       </div>
     </div>
-  );
+  </>)
 };
 
 export default ClaimCard;

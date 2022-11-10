@@ -22,16 +22,16 @@ export default function useAllStakingContracts() {
 
   return {
     stakingPools: [
-      { chainId: ChainId.Ethereum, stakingType: StakingType.PopLocker, address: ethereumPopStaking } || {},
-      { chainId: ChainId.Polygon, stakingType: StakingType.PopLocker, address: polygonPopStaking } || {},
-      { chainId: ChainId.Localhost, stakingType: StakingType.PopLocker, address: localhostPopStaking } || {},
-      ...(ethereumStakingAddresses?.length ? Array.from(new Set(ethereumStakingAddresses)) : []).map(
+      { chainId: ChainId.Ethereum, stakingType: StakingType.PopLocker, address: ethereumPopStaking },
+      { chainId: ChainId.Polygon, stakingType: StakingType.PopLocker, address: polygonPopStaking },
+      { chainId: ChainId.Localhost, stakingType: StakingType.PopLocker, address: localhostPopStaking },
+      ...(ethereumStakingAddresses?.length ? ethereumStakingAddresses : []).map(
         (address) => ({ chainId: ChainId.Ethereum, stakingType: StakingType.StakingPool, address } || {}),
       ),
       ...(polygonStakingAddresses?.length ? polygonStakingAddresses : []).map(
         (address) => ({ chainId: ChainId.Polygon, stakingType: StakingType.StakingPool, address } || {}),
       ),
-      ...(localhostStakingAddresses?.length ? Array.from(new Set(localhostStakingAddresses)) : []).map(
+      ...(localhostStakingAddresses?.length ? localhostStakingAddresses : []).map(
         (address) => ({ chainId: ChainId.Localhost, stakingType: StakingType.StakingPool, address } || {}),
       ),
     ],

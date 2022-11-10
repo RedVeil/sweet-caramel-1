@@ -2,6 +2,7 @@ import { parseEther } from "@ethersproject/units";
 import { Dialog, Transition } from "@headlessui/react";
 import { ThreeXWhaleProcessing } from "@popcorn/hardhat/typechain";
 import {
+  ChainId,
   formatAndRoundBigNumber,
   getIndexForToken,
   getMinZapAmount,
@@ -40,13 +41,10 @@ import ContentLoader from "react-content-loader";
 import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "@popcorn/app/pages/[network]/set/butter";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
-import { useAccount, useNetwork } from "wagmi";
+import { useButterIsSupportedOnNetwork } from "@popcorn/app/hooks/useButterIsSupportedOnNetwork";
 
 export default function ThreeXPage(): JSX.Element {
-  const { signer } = useWeb3();
-  const account = useAccount();
-  const { chain: connectedChain } = useNetwork();
-
+  const { signer, account } = useWeb3();
   const chainId = useChainIdFromUrl();
   const contractAddresses = useDeployment(chainId);
 
@@ -71,6 +69,8 @@ export default function ThreeXPage(): JSX.Element {
   const adjustDepositDecimals = useAdjustDepositDecimals(chainId);
   const refetchThreeXData = () => Promise.all([refetchThreeXBatchData(), refetchThreeXWhaleData()]);
 
+  const butterIsSupportedOnNetwork = useButterIsSupportedOnNetwork();
+
   const threeX = useMemo(
     () =>
       (threeXPageState.instant ? threeXWhaleData : threeXData)?.tokens?.find(
@@ -94,28 +94,28 @@ export default function ThreeXPage(): JSX.Element {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: usdc,
-            output: threeX,
-          },
-          tokens: threeXData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-        }
+            ...state,
+            selectedToken: {
+              input: usdc,
+              output: threeX,
+            },
+            tokens: threeXData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+          }
         : {
-          ...state,
-          selectedToken: {
-            input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-              (token) => token.address === state.selectedToken.input.address,
-            ),
-            output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
-              (token) => token.address === state.selectedToken.output.address,
-            ),
+            ...state,
+            selectedToken: {
+              input: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+                (token) => token.address === state.selectedToken.input.address,
+              ),
+              output: (state.instant ? threeXWhaleData?.tokens : threeXData?.tokens).find(
+                (token) => token.address === state.selectedToken.output.address,
+              ),
+            },
+            tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
           },
-          tokens: state.instant ? threeXWhaleData?.tokens : threeXData?.tokens,
-        },
     );
   }, [threeXData, threeXWhaleData]);
 
@@ -253,7 +253,7 @@ export default function ThreeXPage(): JSX.Element {
           minUsdcAmount,
         );
     }
-    return threeXBatch.connect(signer).depositForMint(depositAmount, account.address);
+    return threeXBatch.connect(signer).depositForMint(depositAmount, account);
   }
   async function batchRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
     return threeXBatch.connect(signer).depositForRedeem(depositAmount);
@@ -340,7 +340,7 @@ export default function ThreeXPage(): JSX.Element {
                 .div(100),
             );
         } else {
-          call = async () => threeXBatch.connect(signer).claim(batchId, account.address);
+          call = async () => threeXBatch.connect(signer).claim(batchId, account);
         }
         return call();
       },
@@ -434,9 +434,7 @@ export default function ThreeXPage(): JSX.Element {
           (await adjustDepositDecimals(amount, outputToken)).mul(100 - threeXPageState.slippage).div(100),
         );
     } else {
-      return threeXBatch
-        .connect(signer)
-      ["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account.address);
+      return threeXBatch.connect(signer)["withdrawFromBatch(bytes32,uint256,address)"](batchId, amount, account);
     }
   }
 
@@ -495,13 +493,7 @@ export default function ThreeXPage(): JSX.Element {
       <div className="flex flex-col md:flex-row mt-10">
         <div className="md:w-1/3 mb-10">
           {/* Connected and on Ethereum BUT loading */}
-          <span
-            className={
-              account?.isConnected && isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)) && loadingThreeXData
-                ? ""
-                : "hidden"
-            }
-          >
+          <span className={!!account && butterIsSupportedOnNetwork && loadingThreeXData ? "" : "hidden"}>
             <div className="order-2 md:hidden">
               <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
                 <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
@@ -515,15 +507,16 @@ export default function ThreeXPage(): JSX.Element {
           </span>
           {/* Connected and on Ethereum all data loaded */}
           <div
-            className={`md:pr-8 order-2 md:order-1 ${account?.isConnected &&
-              isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)) &&
+            className={`md:pr-8 order-2 md:order-1 ${
+              !!account &&
+              butterIsSupportedOnNetwork &&
               !loadingThreeXData &&
               threeXData &&
               threeXPageState?.tokens &&
               threeXPageState.selectedToken
-              ? ""
-              : "hidden"
-              }`}
+                ? ""
+                : "hidden"
+            }`}
           >
             <MintRedeemInterface
               mainAction={handleMainAction}
@@ -560,12 +553,9 @@ export default function ThreeXPage(): JSX.Element {
               }
             />
           </div>
-          <SwitchNetwork
-            chainId={chainId}
-            hidden={account.isConnected && isButterSupportedOnCurrentNetwork(Number(connectedChain?.id))}
-          />
-          <div className={`order-2 md:order-1 `}>
-            <ConnectWallet hidden={account.isConnected} />
+          <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
+          <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+            <ConnectWallet hidden={!!isConnected} />
           </div>
         </div>
 

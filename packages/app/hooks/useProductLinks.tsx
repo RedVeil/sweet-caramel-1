@@ -28,8 +28,8 @@ export const useProductLinks = () => {
     },
     {
       title: "Staking",
-      url: url("/staking"),
-      currentlySelected: router?.pathname === "/[network]/staking",
+      url: "/staking",
+      currentlySelected: router?.pathname === "/staking",
     },
   ];
 };

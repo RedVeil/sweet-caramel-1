@@ -9,13 +9,14 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export default function usePopLocker(address: string, chainId: ChainId): SWRResponse<PopLockerMetadata, Error> {
   const { account } = useWeb3();
+  const active = [ChainId.Polygon, ChainId.Ethereum, ChainId.Localhost].includes(chainId);
   const provider = useRpcProvider(chainId);
   const popLocker = useMemo(
-    () => isAddress(address) && !!chainId && !!provider && PopLocker__factory.connect(address, provider),
+    () => isAddress(address) && active && !!chainId && !!provider && PopLocker__factory.connect(address, provider),
     [chainId, address, provider],
   );
 
-  const shouldFetch = popLocker && !!chainId
+  const shouldFetch = popLocker && !!chainId && active;
   return useSWR(shouldFetch ? [`getPopLockerInfo`, address, chainId, account, provider] : null, (key) => {
     return getPopLocker(key, popLocker, chainId, account);
   });

@@ -12,7 +12,7 @@ import { useDisconnect, useNetwork } from "wagmi";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import { networkLogos } from "@popcorn/utils";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
 import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
 

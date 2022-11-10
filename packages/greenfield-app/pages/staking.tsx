@@ -1,18 +1,12 @@
-import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
-import { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
 import StakeCard from "components/staking/StakeCard";
-import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import ContentLoader from "react-content-loader";
-import { useRouter } from "next/router";
-import useAllStakingContracts, { StakingType } from "hooks/staking/useAllStakingContracts";
+import React, { useMemo } from "react";
+import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import useSelectNetwork from "hooks/useSelectNetwork";
 import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
 import SelectNetwork from "components/SelectNetwork";
 
 export default function StakingOverviewPage(): JSX.Element {
-  const { features } = useContext(FeatureToggleContext);
   const stakingContracts = useAllStakingContracts();
   const supportedNetworks = useChainsWithStaking()
   const [selectedNetworks, selectNetwork] = useSelectNetwork(supportedNetworks)
@@ -38,20 +32,10 @@ export default function StakingOverviewPage(): JSX.Element {
           <div className="h-full ">
             {stakingPools && stakingPools.length > 0 && stakingPools?.map(staking =>
               <StakeCard
-                key={staking?.chainId + staking?.address}
+                key={staking.chainId + staking.address}
                 chainId={staking?.chainId}
                 stakingAddress={staking?.address}
                 stakingType={staking?.stakingType}
-                badge={
-                  features["migrationAlert"] &&
-                    staking?.address === "0xe6f315f4e0db78185239fffb368d6d188f6b926c"
-                    ? {
-                      text: "Migration Required",
-                      textColor: "text-white",
-                      bgColor: "bg-red-500",
-                    }
-                    : undefined
-                }
               />)}
           </div>
         </div>

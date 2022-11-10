@@ -5,7 +5,6 @@ import {
   formatAndRoundBigNumber,
   getIndexForToken,
   getMinZapAmount,
-  isButterSupportedOnCurrentNetwork,
   percentageToBps,
   prepareHotSwap,
 } from "@popcorn/utils";
@@ -18,7 +17,7 @@ import MobileTutorialSlider from "@popcorn/app/components/BatchButter/MobileTuto
 import StatInfoCard from "@popcorn/app/components/BatchButter/StatInfoCard";
 import TutorialSlider from "@popcorn/app/components/BatchButter/TutorialSlider";
 import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
-import { setDualActionWideModal, setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
@@ -40,6 +39,8 @@ import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
+import { useAccount } from "wagmi";
+import { useButterIsSupportedOnNetwork } from "@popcorn/app/hooks/useButterIsSupportedOnNetwork";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
 
 export enum TOKEN_INDEX {
@@ -87,9 +88,11 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
 };
 
 export default function ButterPage(): JSX.Element {
-  const { signerOrProvider, account, signer, setChain, connectedChainId } = useWeb3();
-
+  const { signerOrProvider, signer } = useWeb3();
+  const account = useAccount();
   const chainId = useChainIdFromUrl();
+  const isConnected = useIsConnected();
+
   const addr = useDeployment(chainId);
   const { dispatch } = useContext(store);
   const butterBatchZapper = useButterBatchZapper(addr.butterBatchZapper, chainId);
@@ -113,7 +116,8 @@ export default function ButterPage(): JSX.Element {
   const loadingButterBatchData = !butterPageState.selectedToken?.input || !butterPageState.selectedToken?.output;
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
   const transaction = useTransaction(chainId);
-  const isConnected = useIsConnected();
+
+  const butterIsSupportedOnNetwork = useButterIsSupportedOnNetwork();
 
   const threeCrv = useMemo(
     () =>
@@ -133,7 +137,7 @@ export default function ButterPage(): JSX.Element {
     if (!signerOrProvider || !chainId) {
       return;
     }
-  }, [signerOrProvider, account, chainId]);
+  }, [signerOrProvider, account.address, chainId]);
 
   useEffect(() => {
     if (!butterBatchData || !butterBatchData?.tokens || !butterWhaleData || !butterWhaleData?.tokens) {
@@ -369,7 +373,7 @@ export default function ButterPage(): JSX.Element {
         .connect(signer)
         .zapIntoBatch(getZapDepositAmount(depositAmount, butterPageState.selectedToken.input), minMintAmount);
     }
-    return butterBatch.connect(signer).depositForMint(depositAmount, account);
+    return butterBatch.connect(signer).depositForMint(depositAmount, account.address);
   }
 
   async function batchRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
@@ -524,7 +528,7 @@ export default function ButterPage(): JSX.Element {
                 .div(100),
             );
         } else {
-          call = async () => butterBatch.connect(signer).claim(batchId, account);
+          call = async () => butterBatch.connect(signer).claim(batchId, account.address);
         }
         return call();
       },
@@ -536,7 +540,7 @@ export default function ButterPage(): JSX.Element {
 
   async function claimAndStake(batchId: string): Promise<void> {
     transaction(
-      () => butterBatch.connect(signer).claimAndStake(batchId, account),
+      () => butterBatch.connect(signer).claimAndStake(batchId, account.address),
       "Claiming and staking Butter...",
       "Staked claimed Butter",
       refetchButterBatchData,
@@ -558,7 +562,7 @@ export default function ButterPage(): JSX.Element {
                 (await adjustDepositDecimals(amount, outputToken)).mul(100 - butterPageState.slippage).div(100),
               );
         } else {
-          call = async () => butterBatch.connect(signer).withdrawFromBatch(batchId, amount, account);
+          call = async () => butterBatch.connect(signer).withdrawFromBatch(batchId, amount, account.address);
         }
         return call();
       },
@@ -624,7 +628,7 @@ export default function ButterPage(): JSX.Element {
         <div className="md:w-1/3 mb-10">
           <div className="order-2 md:order-1">
             {/* Connected and on Ethereum BUT loading */}
-            {account && isButterSupportedOnCurrentNetwork(Number(connectedChainId)) && loadingButterBatchData && (
+            {account.address && butterIsSupportedOnNetwork && loadingButterBatchData && (
               <>
                 <div className="order-2 md:hidden">
                   <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
@@ -639,8 +643,8 @@ export default function ButterPage(): JSX.Element {
               </>
             )}
             {/* Connected and on Ethereum all data loaded */}
-            {account &&
-              isButterSupportedOnCurrentNetwork(Number(connectedChainId)) &&
+            {account.address &&
+              butterIsSupportedOnNetwork &&
               !loadingButterBatchData &&
               butterBatchData &&
               butterPageState.selectedToken && (
@@ -682,12 +686,9 @@ export default function ButterPage(): JSX.Element {
                   />
                 </div>
               )}
-            <SwitchNetwork
-              chainId={chainId}
-              hidden={isConnected && isButterSupportedOnCurrentNetwork(Number(connectedChainId))}
-            />
-            <div className="order-2 md:order-1">
-              <ConnectWallet hidden={isConnected} />
+            <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
+            <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+              <ConnectWallet hidden={!!isConnected} />
             </div>
           </div>
         </div>
