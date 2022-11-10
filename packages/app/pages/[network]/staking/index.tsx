@@ -1,15 +1,10 @@
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
-import { Address } from "@popcorn/utils/src/types";
-import AlertCard, { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
+import { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
 import StakeCard from "@popcorn/app/components/StakeCard";
 import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
-import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import ContentLoader from "react-content-loader";
-import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
-import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
-import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useAllStakingPools } from "@popcorn/app/hooks/useAllStakingPools";
 import { useRouter } from "next/router";
 
@@ -62,6 +57,7 @@ export default function StakingOverviewPage(): JSX.Element {
               </ContentLoader>
             </div>
             <span className={`${!stakingPools ? "hidden" : ""}`}>
+              {/* @ts-expect-error */}
               {stakingPools?.map(({ chainId, pool }) => (
                 <div key={chainId + pool.address}>
                   <StakeCard
