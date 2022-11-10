@@ -34,7 +34,7 @@ const ThreeXProduct = () => {
     () => threeXData?.tokens?.find((token) => token.address === contractAddresses.usdc),
     [threeXWhaleData, threeXData],
   );
-  const { threeX, threeXStaking: threeXStakingAddress, butterStaking: butterStakingAddress } = useDeployment(Ethereum);
+  const { threeX, threeXStaking: threeXStakingAddress } = useDeployment(Ethereum);
   const yearnAddresses = useSetComponentAddresses(threeXToken?.address);
   const { data: threeXAPY } = useGetYearnAPY(yearnAddresses, ChainId.Ethereum);
   const { data: threeXStaking } = useStakingPool(threeXStakingAddress, Ethereum);
@@ -103,7 +103,7 @@ const ThreeXProduct = () => {
             title="In Batch"
             amount={inBatch}
             buttonLabel="3X Main Page"
-            link={`/${networkName}/rewards`}
+            link={`/${networkName}/set/3x`}
           />
         )}
       </PortfolioItem>
