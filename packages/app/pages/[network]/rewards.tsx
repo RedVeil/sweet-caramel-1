@@ -128,43 +128,6 @@ export default function RewardsPage(): JSX.Element {
     });
   }, [userEscrowsFetchResult?.data, userVaultsEscrowsFetchResults?.data]);
 
-  const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
-    transaction(
-      async () => claimStakingReward(pool, isPopLocker),
-      "Claiming Reward...",
-      "Rewards Claimed!",
-      () => {
-        revalidate();
-        if (!localStorage.getItem("hideClaimModal")) {
-          dispatch(
-            setMultiChoiceActionModal({
-              image: <img src="/images/modalImages/vestingImage.svg" />,
-              title: "Sweet!",
-              content:
-                "You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the next 365 days",
-              onConfirm: {
-                label: "Continue",
-                onClick: () => dispatch(setMultiChoiceActionModal(false)),
-              },
-              onDismiss: {
-                onClick: () => {
-                  dispatch(setMultiChoiceActionModal(false));
-                },
-              },
-              onDontShowAgain: {
-                label: "Do not remind me again",
-                onClick: () => {
-                  localStorage.setItem("hideClaimModal", "true");
-                  dispatch(setMultiChoiceActionModal(false));
-                },
-              },
-            }),
-          );
-        }
-      },
-    );
-  };
-
   const claimSingleEscrow = async (escrow: Escrow) => {
     transaction(
       async () => claimVestedPopFromEscrows([escrow.id]),
@@ -293,7 +256,6 @@ export default function RewardsPage(): JSX.Element {
                 tokenName={popLocker.stakingToken.name}
                 claimAmount={popLocker.earned}
                 key={popLocker.address}
-                handler={poolClaimHandler}
                 pool={popLocker.contract}
                 disabled={popLocker.earned?.isZero()}
                 isPopLocker={true}
@@ -341,7 +303,6 @@ export default function RewardsPage(): JSX.Element {
                   tokenName={poolInfo.stakingToken.name}
                   claimAmount={poolInfo.earned}
                   key={poolInfo.address}
-                  handler={poolClaimHandler}
                   pool={poolInfo.contract}
                   disabled={poolInfo.earned?.isZero()}
                   isPopLocker={poolInfo.stakingToken.address === popAddress}
@@ -351,9 +312,9 @@ export default function RewardsPage(): JSX.Element {
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowData ||
-                  userEscrowsFetchResult?.error ||
-                  userVaultsEscrowsFetchResults?.error ||
-                  userEscrowData?.totalClaimablePop?.isZero() ? (
+                userEscrowsFetchResult?.error ||
+                userVaultsEscrowsFetchResults?.error ||
+                userEscrowData?.totalClaimablePop?.isZero() ? (
                   <NotAvailable title="No Records Available" body="No vesting records available" />
                 ) : (
                   <>

@@ -9,7 +9,6 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { useContext } from "react";
 import { store } from "@popcorn/app/context/store";
-import { CardLoader } from "@popcorn/app/components/CardLoader";
 
 interface ClaimCardProps {
   disabled: boolean;
@@ -73,7 +72,9 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
 
   return (
     <div
-      className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${!claimAmount || claimAmount?.eq(constants.Zero) ? "hidden" : ""}`}
+      className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${
+        !claimAmount || claimAmount?.eq(constants.Zero) ? "hidden" : ""
+      }`}
     >
       <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4" />
       <div className="flex flex-col md:flex-row justify-between pt-4 pb-6 md:px-8">
