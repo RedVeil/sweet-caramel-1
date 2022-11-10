@@ -24,26 +24,22 @@ const MobileProductsMenu = ({ onCloseMenu }) => {
             <NavbarLink
               label="Sweet Vaults"
               url={`/${networkName}/sweet-vaults`}
-              isActive={router.pathname === `/[network]/sweet-vaults`}
+              isActive={router?.pathname === `/[network]/sweet-vaults`}
             />
           </li>
         )}
         <li className="mt-1" onClick={onCloseMenu}>
-          <NavbarLink label="3X " url={`/${networkName}/set/3x`} isActive={router.pathname === `/[network]/set/3x`} />
+          <NavbarLink label="3X " url={`/${networkName}/set/3x`} isActive={router?.pathname === `/[network]/set/3x`} />
         </li>
         <li className="mt-1" onClick={onCloseMenu}>
           <NavbarLink
             label="Butter"
             url={`/${networkName}/set/butter`}
-            isActive={router.pathname === `/[network]/set/butter`}
+            isActive={router?.pathname === `/[network]/set/butter`}
           />
         </li>
         <li className="mt-1" onClick={onCloseMenu}>
-          <NavbarLink
-            label="Staking"
-            url={`/${networkName}/staking`}
-            isActive={router.pathname === `/[network]/staking`}
-          />
+          <NavbarLink label="Staking" url={`/staking`} isActive={router?.pathname.includes("/staking")} />
         </li>
       </ul>
     </div>

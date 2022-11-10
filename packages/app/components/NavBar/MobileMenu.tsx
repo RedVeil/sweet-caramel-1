@@ -172,18 +172,10 @@ export const MobileMenu: React.FC = () => {
                         )}
                       </div>
                       <div className="py-6">
-                        <NavbarLink
-                          label="Staking"
-                          url={url("/staking")}
-                          isActive={router?.pathname === "/[network]/staking"}
-                        />
+                        <NavbarLink label="Staking" url="/staking" isActive={router?.pathname.includes("/staking")} />
                       </div>
                       <div className="py-6">
-                        <NavbarLink
-                          label="Rewards"
-                          url={url("/rewards")}
-                          isActive={router?.pathname === "/[network]/rewards"}
-                        />
+                        <NavbarLink label="Rewards" url={"/rewards"} isActive={router?.pathname.includes("/rewards")} />
                       </div>
                       <div className="py-6">
                         <TertiaryActionButton

@@ -142,7 +142,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                       <p>
                         Choose Mint & Stake to automatically stake the token to earn POP rewards. If you select Mint you
                         will not earn POP rewards unless the token is staked in the
-                        <Link href="/ethereum/staking" passHref>
+                        <Link href="/staking" passHref>
                           <a className="font-medium text-blue-600 hover:text-blue-900"> staking </a>
                         </Link>
                         page.

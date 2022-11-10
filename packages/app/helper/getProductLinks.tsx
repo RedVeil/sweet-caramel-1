@@ -34,15 +34,15 @@ export function getProductLinks(router: NextRouter): ProductLinks[] {
       },
       {
         title: "Sweet Vaults",
-        onClick: () => pushWithinChain(`sweet-vaults`),
+        onClick: () => `/sweet-vaults`,
         currentlySelected: router.pathname.includes("/sweet-vaults"),
-        url: url("/sweet-vaults"),
+        url: "/sweet-vaults",
       },
       {
         title: "Staking",
-        onClick: () => pushWithinChain(`staking`),
+        onClick: () => router?.push(`/staking`),
         currentlySelected: router.pathname.includes("/staking"),
-        url: url("/staking"),
+        url: "/staking",
       },
     ].filter((product) => (features.sweetVaults ? true : product.title !== "Sweet Vaults"));
   }, [router, router?.query?.network, features, chain?.id]);

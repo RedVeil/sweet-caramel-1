@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
         <ul className="flex flex-row items-center mx-auto space-x-16">
           <li />
           <li>
-            <NavbarLink label="Staking" url="/staking" isActive={router.pathname === "/staking"} />
+            <NavbarLink label="Staking" url="/staking" isActive={router.pathname.includes("/staking")} />
           </li>
           <li>
             <NavbarLink
