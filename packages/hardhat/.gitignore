@@ -5,8 +5,8 @@ coverage/
 coverage.json
 deployments/
 docgen/docs
-out/
-lib/utils/exporter/out
+lib/utils/exporter/out/*
+!lib/utils/exporter/out/.gitkeep
 docgen/SUMMARY.md
 docgen/.gitbook.yaml
 deployments.json
