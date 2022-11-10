@@ -1,10 +1,6 @@
-import { ChainId, formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
-import useArrakisStaking from "hooks/portfolio/staking/useArrakisStaking";
-import useButterStaking from "hooks/portfolio/staking/useButterStaking";
-import usePopStaking from "hooks/portfolio/staking/usePopStaking";
-import useThreeXStaking from "hooks/portfolio/staking/useThreeXStaking";
 import useGetYearnAPY from "hooks/set/useGetYearnAPY";
 import useSetComponentAddresses from "hooks/set/useSetComponentAddresses";
 import useThreeXData from "hooks/set/useThreeXData";
@@ -12,6 +8,8 @@ import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
 import useStakingPool from "hooks/staking/useStakingPool";
 import useTotalTokenSupply from "hooks/tokens/useTotalTokenSupply";
 import { useDeployment } from "hooks/useDeployment";
+import useNetworkName from "hooks/useNetworkName";
+import { useCallback, useMemo } from "react";
 import PortfolioItem from "../PortfolioItem";
 import EarnedRewardsButton from "./EarnedRewardsButton";
 
@@ -20,11 +18,6 @@ const ThreeXProduct = () => {
     //@ts-ignore
     notation: "compact",
   });
-
-  const { popProductProps, popHasValue, popTotalBigNumberValues } = usePopStaking();
-  const { butterProps, butterHasValue, butterTotalBigNumberValues } = useButterStaking();
-  const { threeXProps, threeXHasValue, threeXTotalBigNumberValues } = useThreeXStaking();
-  const { arrakisProps, arrakisHasValue, arrakisTotalBigNumberValues } = useArrakisStaking();
   const { Ethereum, Polygon } = ChainId;
   const contractAddresses = useDeployment(Ethereum);
   const { data: threeXData, error: errorFetchingThreeXData, mutate: refetchThreeXBatchData } = useThreeXData(Ethereum);
@@ -33,64 +26,44 @@ const ThreeXProduct = () => {
     error: errorFetchingThreeXWhaleData,
     mutate: refetchThreeXWhaleData,
   } = useThreeXWhaleData(Ethereum);
-  const threeXToken = threeXData?.tokens?.find((token) => token.address === contractAddresses.threeX);
+  const threeXToken = useMemo(
+    () => threeXData?.tokens?.find((token) => token.address === contractAddresses.threeX),
+    [threeXWhaleData, threeXData],
+  );
+  const usdc = useMemo(
+    () => threeXData?.tokens?.find((token) => token.address === contractAddresses.usdc),
+    [threeXWhaleData, threeXData],
+  );
   const { threeX, threeXStaking: threeXStakingAddress, butterStaking: butterStakingAddress } = useDeployment(Ethereum);
   const yearnAddresses = useSetComponentAddresses(threeXToken?.address);
   const { data: threeXAPY } = useGetYearnAPY(yearnAddresses, ChainId.Ethereum);
   const { data: threeXStaking } = useStakingPool(threeXStakingAddress, Ethereum);
   const tokenSupply = useTotalTokenSupply(threeXToken?.address, Ethereum);
+  const networkName = useNetworkName();
   console.log(threeXData?.totalSupply.toString());
 
-  const stakingItemProps = {
-    popProductProps,
-    butterProps,
-    threeXProps,
-    arrakisProps,
-    popHasValue,
-    butterHasValue,
-    threeXHasValue,
-    arrakisHasValue,
-  };
-  const multiStakingData = [
-    popTotalBigNumberValues,
-    butterTotalBigNumberValues,
-    threeXTotalBigNumberValues,
-    arrakisTotalBigNumberValues,
-  ];
-
-  const stakingProductsWithDepositedValue = multiStakingData.filter(
-    (stakingData) => stakingData.deposited > numberToBigNumber(0, 18),
-  );
-
-  const totalContracts = stakingProductsWithDepositedValue.length;
-
-  const totalDepositedBigNumber = multiStakingData.reduce((prev: BigNumber, next) => {
-    return prev.add(next.deposited);
-  }, numberToBigNumber(0, 18));
-
-  const totalDeposited = formatAndRoundBigNumber(totalDepositedBigNumber, 18);
+  // const totalDeposited = formatAndRoundBigNumber(totalDepositedBigNumber, 18);
+  const totalDeposited = "0";
 
   const totalTVL = threeXToken?.price
     ? formatAndRoundBigNumber(tokenSupply.mul(threeXToken?.price).div(parseEther("1")), threeXToken?.decimals)
     : "0";
-
-  const totalEarned = formatAndRoundBigNumber(
-    multiStakingData.reduce((prev, next) => {
-      return prev.add(next?.earned);
-    }, numberToBigNumber(0, 18)),
-    18,
-  );
 
   const totalVAPR =
     threeXStaking?.apy && threeXToken
       ? formatAndRoundBigNumber(threeXStaking.apy.add(parseUnits(String(threeXAPY || 0))), threeXToken?.decimals)
       : "0";
 
-  const badge = {
-    text: `${totalContracts} contracts`,
-    textColor: "text-black",
-    bgColor: "bg-customYellow",
-  };
+  const getBatchProgressAmount = useCallback(() => {
+    if (!threeXData || !threeXToken?.price || !usdc?.price) {
+      return BigNumber.from("0");
+    }
+    return threeXToken.redeeming
+      ? threeXData?.currentBatches.redeem.suppliedTokenBalance.mul(threeXToken?.price).div(parseEther("1"))
+      : threeXData?.currentBatches.mint.suppliedTokenBalance.mul(usdc?.price).div(BigNumber.from(1_000_000));
+  }, [threeXToken?.price, usdc?.price]);
+
+  const inBatch = formatAndRoundBigNumber(getBatchProgressAmount(), threeXToken?.decimals);
 
   const statusLabels = [
     {
@@ -124,18 +97,16 @@ const ThreeXProduct = () => {
 
   return (
     <>
-      {totalContracts > 0 && (
-        <PortfolioItem title="3X" statusLabels={statusLabels} badge={badge}>
-          {totalEarned && (
-            <EarnedRewardsButton
-              title="Total Unclaimed Rewards"
-              amount={totalEarned}
-              buttonLabel="Rewards Page"
-              link="/rewards"
-            />
-          )}
-        </PortfolioItem>
-      )}
+      <PortfolioItem title="3X" statusLabels={statusLabels}>
+        {inBatch && (
+          <EarnedRewardsButton
+            title="In Batch"
+            amount={inBatch}
+            buttonLabel="3X Main Page"
+            link={`/${networkName}/rewards`}
+          />
+        )}
+      </PortfolioItem>
     </>
   );
 };
