@@ -97,7 +97,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   const useUnclaimedDepositsisDisabled = (): boolean => {
     const keys = page === Pages.threeX ? [addr.usdc, addr.threeX] : [addr.threeCrv, addr.butter];
-    return !keys.includes(selectedToken.input.address);
+    return selectedToken?.input?.address ? !keys.includes(selectedToken.input.address) : true;
   };
 
   return (
