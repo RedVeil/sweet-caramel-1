@@ -35,7 +35,7 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({ title, statusLabels, badg
         <ChevronDownIcon
           className={`${
             expanded ? "rotate-180" : "rotate-0"
-          } transform transition-all ease-in-out w-6 text-secondaryLight`}
+          } transform transition-all ease-in-out w-6 text-secondaryLight cursor-pointer`}
         />
       </div>
 
