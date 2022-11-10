@@ -1,4 +1,5 @@
 import PortfolioCardCon from "../PortfolioCardCon";
+import ButterProduct from "./ButterProduct";
 import StakingProduct from "./StakingProduct";
 import ThreeXProduct from "./ThreeXProduct";
 
@@ -7,6 +8,7 @@ const ProductsCon = () => {
     <PortfolioCardCon cardTitle="Products">
       <StakingProduct />
       <ThreeXProduct />
+      <ButterProduct />
     </PortfolioCardCon>
   );
 };
