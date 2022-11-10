@@ -1,52 +1,63 @@
-import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
-import useArrakisStaking from "hooks/portfolio/staking/useArrakisStaking";
+import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
+import { useDeployment } from "hooks/useDeployment";
+import { Escrow, useGetUserEscrows } from "hooks/useGetUserEscrows";
+import useWeb3 from "hooks/useWeb3";
+import { useEffect, useState } from "react";
+import { SWRResponse } from "swr";
 import PortfolioItem from "../../PortfolioItem";
 
 const Vesting = () => {
-  let formatter = Intl.NumberFormat("en", {
-    //@ts-ignore
-    notation: "compact",
-  });
+  const { account } = useWeb3();
+  const chainId = useChainIdFromUrl();
+  const { rewardsEscrow, vaultsRewardsEscrow } = useDeployment(chainId);
 
-  const { arrakisProps, arrakisHasValue, arrakisTotalBigNumberValues } = useArrakisStaking();
+  const userEscrowsFetchResult: SWRResponse<
+    { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
+    any
+  > = useGetUserEscrows(rewardsEscrow, account, chainId);
 
-  const stakingItemProps = {
-    arrakisProps,
-    arrakisHasValue,
-  };
+  const userVaultsEscrowsFetchResults: SWRResponse<
+    { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
+    any
+  > = useGetUserEscrows(vaultsRewardsEscrow, account, chainId);
 
-  const multiStakingData = [arrakisTotalBigNumberValues];
+  const [userEscrowData, setUserEscrowData] = useState<{ totalClaimablePop: BigNumber; totalVestingPop: BigNumber }>();
 
-  const stakingProductsWithDepositedValue = multiStakingData.filter(
-    (stakingData) => stakingData.deposited > numberToBigNumber(0, 18),
-  );
-
-  const totalContracts = stakingProductsWithDepositedValue.length;
-
-  const totalDepositedBigNumber = multiStakingData.reduce((prev: BigNumber, next) => {
-    return prev.add(next.deposited);
-  }, numberToBigNumber(0, 18));
-
-  const totalDeposited = formatAndRoundBigNumber(totalDepositedBigNumber, 18);
+  useEffect(() => {
+    if (!userEscrowsFetchResult?.data && !userVaultsEscrowsFetchResults?.data) {
+      return;
+    }
+    setUserEscrowData({
+      totalClaimablePop: userEscrowsFetchResult?.data?.totalClaimablePop.add(
+        userVaultsEscrowsFetchResults?.data?.totalClaimablePop || "0",
+      ),
+      totalVestingPop: BigNumber.from("0")
+        .add(userEscrowsFetchResult?.data?.totalVestingPop || "0")
+        .add(userVaultsEscrowsFetchResults?.data?.totalVestingPop || "0"),
+    });
+  }, [userEscrowsFetchResult?.data, userVaultsEscrowsFetchResults?.data]);
 
   const statusLabels = [
     {
-      content: `$${totalDeposited}`,
+      content: `$${formatAndRoundBigNumber(userEscrowData?.totalVestingPop, 18)}`,
       label: "Total value",
       infoIconProps: {
         id: "staking-tvl",
-        title: "How we calculate the TVL",
-        content: "How we calculate the TVL is lorem ipsum",
+        title: "Total Value",
+        content:
+          "Every time you claim rewards a new 'Vesting Record' below will be added. Rewards in each 'Vesting Record' unlock over time. Come back periodically to claim new rewards as they unlock.",
       },
     },
     {
-      content: `$${totalDeposited}`,
+      content: `$${formatAndRoundBigNumber(userEscrowData?.totalClaimablePop, 18)}`,
       label: "Claimable",
       infoIconProps: {
-        id: "staking-tvl",
-        title: "How we calculate the TVL",
-        content: "How we calculate the TVL is lorem ipsum",
+        id: "total-claimable",
+        title: "Total Claimable",
+        content:
+          "This describes the total amount of Rewards that you can currently claim across all 'Vesting Records'.",
       },
     },
   ];
