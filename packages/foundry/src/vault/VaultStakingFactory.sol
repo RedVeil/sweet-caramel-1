@@ -40,6 +40,7 @@ contract VaultStakingFactory is Owned {
    * @param vault - address of the vault
    * @dev This should always be called through the VaultV1Controller
    */
+  // TODO add implementation address
   function deploy(address vault) external onlyOwner returns (address stakingAddress) {
     stakingAddress = Clones.clone(implementation);
 

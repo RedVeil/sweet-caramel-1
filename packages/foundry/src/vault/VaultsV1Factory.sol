@@ -38,6 +38,8 @@ contract VaultsV1Factory is Owned {
 
   constructor(address _owner) Owned(_owner) {}
 
+  // TODO make factory contracts generic so they can be used for any strategy/vault/staking
+  // NOTE implementation will be passed in by user
   /**
    * @notice Deploys V1 Vault
    * @param _vaultParams - struct containing Vault contructor params
