@@ -578,7 +578,7 @@ contract Vault is
 
     _burn(address(this), accruedFees);
 
-    _mint(_getContract(keccak256("FeeRecipient")), accruedFees);
+    _mint(_getContract(keccak256("FeeRecipient")), accruedFees); // TODO makes this a state variable set on init (to allow for partners to set it)
 
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
 

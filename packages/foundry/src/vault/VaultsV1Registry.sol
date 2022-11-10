@@ -168,6 +168,7 @@ contract VaultsV1Registry is Owned {
     );
   }
 
+  //TODO get rid of vaultType
   /**
    * @notice increase the types of vaults that can be registered
    * @param _type - the next vault type to be registered

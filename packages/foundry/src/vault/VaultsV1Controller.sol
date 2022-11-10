@@ -47,6 +47,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
   // TODO remove V1 from all contracts? (purely naming)
   // TODO get rid of zapper, zapIn, zapOut
+  // TODO make fee recipient a param so partners can set their own recipient
   /**
    * @notice deploys and registers V1 Vault from VaultsV1Factory
    * @param _vaultParams - struct containing Vault constructor params (address token_, address yearnRegistry_,
@@ -140,16 +141,17 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive"))).createIncentive(
       _vault,
       _keeperConfig.keeperPayout,
-      true,
-      false,
-      _asset,
-      1 days,
+      true, // TODO make this a param
+      false, // TODO make this a param
+      _vault,
+      1 days, // TODO make this a param
       0
     );
   }
 
   /* ========== VAULT MANAGEMENT FUNCTIONS ========== */
 
+  // TODO use array params in all management functions
   /**
    * @notice updates the VaultMetadata in registry
    * @param _vaultMetadata - struct with updated values
@@ -159,6 +161,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     _vaultsV1Registry().updateVault(_vaultMetadata);
   }
 
+  //TODO get rid of vaultType
   /**
    * @notice increase the types of vaults that can be registered
    * @param _type - the next vault type to be registered
@@ -229,6 +232,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
     VaultMetadata memory vaultMetadata = vaultsV1Registry.getVault(_vault);
 
+    // TODO delete this since having more authorized contracts doesnt do any harm but a user could potentially loose rewards if they cant create an escrow
     if (vaultMetadata.staking != address(0)) {
       IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).removeAuthorizedContract(vaultMetadata.staking);
     }
@@ -242,6 +246,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     vaultsV1Registry.updateVault(vaultMetadata);
   }
 
+  // TODO delete this as it will be handled by multicall
   /**
    * @notice Set VaultsZapper contract for a vault.
    * @param _vault - address of the vault
@@ -300,6 +305,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     }
   }
 
+  // Todo delete since vaultType doesnt exist anymore
   /**
    * @notice Pause deposits on all vaults in registry
    */
@@ -313,6 +319,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     }
   }
 
+  // Todo delete since vaultType doesnt exist anymore
   /**
    * @notice Unpause deposits on all vaults in registry
    */
@@ -358,8 +365,8 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     }
   }
 
+  // TODO delete since zapper is no longer in use
   /* ========== VAULTZAPPER MANAGEMENT FUNCTIONS ========== */
-
   /**
    * @notice Set zapIn and zapOut contracts on the VaultsV1Zapper for a certain asset
    * @param _vault - address of the vault
@@ -437,12 +444,14 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
   /* ========== FACTORY MANAGEMENT FUNCTIONS ========== */
 
+  // TODO remove since implementation will be passed directly
   function setFactoryImplementation(bytes32 _factoryName, address _implementation) external onlyOwner {
     IContractFactory(_getContract(_factoryName)).setImplementation(_implementation);
   }
 
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
 
+  // TODO add implementation address
   function deployStrategy(bytes32 _factoryName, bytes memory _deploymentParams)
     external
     onlyOwner
