@@ -43,3 +43,4 @@ jobs:
         env:
           FOUNDRY_PROFILE: ci
           RPC_URL: ${{secrets.RPC_URL}}
+          FORKING_RPC_URL: ${{secrets.RPC_URL}}
