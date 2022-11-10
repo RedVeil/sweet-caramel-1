@@ -6,8 +6,6 @@ interface SwitchNetworkProps {
   hidden?: boolean;
 }
 export const SwitchNetwork = ({ chainId, hidden }: SwitchNetworkProps) => {
-  console.log({ hidden });
-
   return (
     <div
       className={`${
