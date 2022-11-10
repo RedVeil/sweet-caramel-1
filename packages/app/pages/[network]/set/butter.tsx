@@ -462,20 +462,19 @@ export default function ButterPage(): JSX.Element {
             </p>
             <p>
               <a
-                // TODO for some reason greenfield doesnt like this
-                // onClick={async () =>
-                //   window.ethereum.request({
-                //     method: "wallet_watchAsset",
-                //     params: {
-                //       type: "ERC20",
-                //       options: {
-                //         address: addr.butter,
-                //         symbol: "BTR",
-                //         decimals: 18,
-                //       },
-                //     },
-                //   })
-                // }
+                onClick={async () =>
+                  window.ethereum.request({
+                    method: "wallet_watchAsset",
+                    params: {
+                      type: "ERC20",
+                      options: {
+                        address: addr.butter,
+                        symbol: "BTR",
+                        decimals: 18,
+                      },
+                    },
+                  })
+                }
                 className="text-customPurple cursor-pointer"
               >
                 Add BTR to Wallet
