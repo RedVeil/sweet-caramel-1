@@ -33,6 +33,7 @@ contract Vault is
   error InvalidQuitPeriod();
   error NotPassedQuitPeriod(uint256 quitPeriod);
   error InvalidFeeStructure();
+  error InvalidFeeRecipient();
   error InvalidVig();
   error InvalidMinWithdrawal();
   error InsufficientWithdrawalAmount(uint256 amount);
@@ -59,10 +60,11 @@ contract Vault is
   ERC20 public asset;
   IERC4626 public strategy;
   FeeStructure public feeStructure;
-  uint256 public vaultShareHWM; // NOTE -- Might be off if the asset has less than 18 decimals --> Moved into init
+  uint256 public vaultShareHWM;
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
   KeeperConfig public keeperConfig;
+  address feeRecipient;
 
   // Proposing new strategy and feeStructure
   IERC4626 public proposedStrategy;
@@ -92,6 +94,7 @@ contract Vault is
   event PerformanceFee(uint256 amount);
   event ManagementFee(uint256 amount);
   event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
+  event FeeRecipientUpdated(address indexed previousFeeRecipient, address indexed newFeeRecipient);
   event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
   event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
   event NewStrategyProposed(IERC4626 newStrategy, uint256 timestamp);
@@ -105,8 +108,11 @@ contract Vault is
     IERC4626 strategy_,
     IContractRegistry contractRegistry_,
     FeeStructure memory feeStructure_,
+    address feeRecipient_,
     KeeperConfig memory keeperConfig_
   ) external initializer {
+    if (feeRecipient_ == address(0)) revert InvalidFeeRecipient();
+
     __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
     __ContractRegistryAccess_init(contractRegistry_);
 
@@ -121,15 +127,15 @@ contract Vault is
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
     asset.approve(address(strategy_), type(uint256).max);
-    // removed: strategy_.approve(address(strategy_), type(uint256).max); // NOTE -- check if thats still required as strategy should just burn instead of transfer
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
-    // NOTE -- use block.timestamp instead of strategy.name + emit event with contractName
+    feeRecipient = feeRecipient_;
+
+    // Note: contractNames used to access them via contractRegistry should be defined in state instead of hashed on call --> must be defined here because asset is not set until init
     contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), block.timestamp, "Vault"));
     keeperConfig = keeperConfig_;
 
-    // NOTE -- Add Init event with (contractName, asset)
     emit VaultInitialized(contractName, address(asset));
   }
 
@@ -235,7 +241,7 @@ contract Vault is
    */
   function accruedManagementFee() public view returns (uint256) {
     uint256 area = (totalAssets() + assetsCheckpoint) * (block.timestamp - feesUpdatedAt);
-    // NOTE: annualized down to seconds
+
     return (feeStructure.management.mulDivDown(area, 2) / SECONDS_PER_YEAR) / 1e18;
   }
 
@@ -250,7 +256,6 @@ contract Vault is
 
     if (shareValue > vaultShareHWM) {
       return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e36);
-      // NOTE --> Take decimals into account --> vaultShares will always be denominated in decimals of asset
     } else {
       return 0;
     }
@@ -363,7 +368,6 @@ contract Vault is
 
     emit Deposit(msg.sender, receiver, assets, shares);
 
-    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
     vaultShareHWM = convertToAssets(1 ether);
     assetsCheckpoint = totalAssets();
   }
@@ -404,7 +408,6 @@ contract Vault is
 
     emit Deposit(msg.sender, receiver, assets, shares);
 
-    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
     vaultShareHWM = convertToAssets(1 ether);
     assetsCheckpoint = totalAssets();
   }
@@ -451,7 +454,6 @@ contract Vault is
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
 
-    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
     vaultShareHWM = convertToAssets(1 ether);
     assetsCheckpoint = totalAssets();
   }
@@ -507,7 +509,8 @@ contract Vault is
    * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
    */
   function proposeNewStrategy(IERC4626 newStrategy) external onlyRole(VAULTS_CONTROLLER) {
-    // NOTE --> require that newStrategy.asset() matches this asset
+    // Note:`ProposeStrategy`-ragequit time shouldnt be configurable since that defeats the purpose
+
     if (newStrategy.asset() != address(asset)) revert VaultAssetMismatchNewStrategyAsset();
 
     proposedStrategy = newStrategy;
@@ -522,8 +525,6 @@ contract Vault is
    * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
    */
   function setQuitPeriod(uint256 _quitPeriod) external onlyRole(VAULTS_CONTROLLER) {
-    // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
-    // Question: what is a reasonable bound? 1 days < quitPeriod < 7 days?
     if (_quitPeriod < 1 days || _quitPeriod > 7 days) revert InvalidQuitPeriod();
 
     quitPeriod = _quitPeriod;
@@ -538,7 +539,6 @@ contract Vault is
    * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new strategy
    */
   function changeStrategy() external takeFees {
-    // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
     if (block.timestamp < proposalTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
@@ -552,8 +552,7 @@ contract Vault is
 
     strategy.deposit(asset.balanceOf(address(this)), address(this));
 
-    vaultShareHWM = convertToAssets(1 ether); // NOTE --> Take decimals into account
-    // removed assetsCheckpoint = totalAssets(); --> done by modifier
+    vaultShareHWM = convertToAssets(1 ether);
   }
 
   /**
@@ -562,7 +561,6 @@ contract Vault is
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
   function proposeNewFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
-    // NOTE --> Reduce Upper Bound --> TODO: need to decide on reasonable upper bound
     if (
       newFees.deposit >= 1e18 || newFees.withdrawal >= 1e18 || newFees.management >= 1e18 || newFees.performance >= 1e18
     ) revert InvalidFeeStructure();
@@ -577,10 +575,6 @@ contract Vault is
    * @notice Set fees in BPS to proposed fees from proposeNewFees function
    */
   function setFees() external {
-    // NOTE --> We can make this permissionless since it can only be changed to proposedFee
-    // NOTE --> Add a proposal for fees (similar to changeStrategy) --> see proposeNewFees function above
-
-    // NOTE --> Brought in quitPeriod logic for rage quitting as in changeStrategy
     if (block.timestamp < proposedFeeTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
     emit FeesUpdated(feeStructure, proposedFees);
@@ -597,6 +591,17 @@ contract Vault is
     emit KeeperConfigUpdated(keeperConfig, _config);
 
     keeperConfig = _config;
+  }
+
+  /**
+   * @notice Change feeRecipient. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function setFeeRecipient(address _feeRecipient) external onlyRole(VAULTS_CONTROLLER) {
+    if (_feeRecipient == address(0)) revert InvalidFeeRecipient();
+
+    emit FeeRecipientUpdated(feeRecipient, _feeRecipient);
+
+    feeRecipient = _feeRecipient;
   }
 
   /**

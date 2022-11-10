@@ -16,6 +16,7 @@ struct VaultParams {
   IERC4626 strategy;
   IContractRegistry contractRegistry;
   Vault.FeeStructure feeStructure;
+  address feeRecipient;
   KeeperConfig keeperConfig;
 }
 
@@ -50,6 +51,7 @@ contract VaultsV1Factory is Owned {
       _vaultParams.strategy,
       _vaultParams.contractRegistry,
       _vaultParams.feeStructure,
+      _vaultParams.feeRecipient,
       _vaultParams.keeperConfig
     );
     emit VaultV1Deployment(vault);
