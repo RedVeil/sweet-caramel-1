@@ -1,3 +1,4 @@
+import classnames from "classnames";
 import { usePortfolio } from "context/PortfolioContext";
 import { BigNumber } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
@@ -18,7 +19,7 @@ const NetWorthCard = () => {
     (value: string) => {
       const total = netWorthValue?.total ?? fallBackAmount;
 
-      if (total.isZero()) return 0;
+      if (total.isZero()) return "0";
 
       const current = netWorthValue?.[value] ?? fallBackAmount;
       return current.mul(100).div(total).toString();
@@ -38,10 +39,22 @@ const NetWorthCard = () => {
       </p>
 
       <div className="flex text-white text-xs my-6 w-full">
-        <div className={`bg-customLightPurple py-6 px-4 rounded-tl-5xl rounded-bl-5xl w-[${depositPercentage}%]`}>
+        <div
+          className={classnames(
+            `bg-customLightPurple py-6 px-4 rounded-tl-5xl rounded-bl-5xl w-[${depositPercentage}%]`,
+            {
+              hidden: depositPercentage === "0",
+              "rounded-br-5xl rounded-tr-5xl": "",
+            },
+          )}
+        >
           <p>{depositPercentage}%</p>
         </div>
-        <div className={`bg-customPurple py-6 px-2 w-[${vestingPercentage}%]`}>{vestingPercentage}%</div>
+        <div
+          className={`bg-customPurple py-6 px-2 w-[${vestingPercentage}%] ${vestingPercentage === "0" ? "hidden" : ""}`}
+        >
+          {vestingPercentage}%
+        </div>
         <div className={`bg-customDarkPurple py-6 px-2 rounded-tr-5xl rounded-br-5xl w-[${inWalletPercentage}%]`}>
           {inWalletPercentage}%
         </div>
