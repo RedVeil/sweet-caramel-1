@@ -11,7 +11,7 @@ export enum ChainId {
   BNB = 56,
   RemoteFork = 31338,
   Optimism = 10,
-  ALL = "All",
+  ALL = 0,
 }
 
 export enum ChainIdHex {
