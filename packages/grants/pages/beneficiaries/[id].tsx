@@ -111,17 +111,9 @@ const BeneficiaryPage = () => {
               </div>
             </div>
             <div className="py-10 flex">
-              <RWebShare
-                data={{
-                  text: "Popcorn is a regenerative yield optimizing protocol",
-                  url: router.asPath,
-                  title: `Share ${beneficiary?.organizationName}'s Proposal`,
-                }}
-              >
-                <button className="border border-primary bg-white h-12 w-12 rounded-full flex md:hidden justify-center items-center">
-                  <ShareIcon className="w-6 h-6 text-primary" />
-                </button>
-              </RWebShare>
+              <button onClick={shareProfile} className="border border-primary bg-white h-12 w-12 rounded-full flex md:hidden justify-center items-center">
+                <ShareIcon className="w-6 h-6 text-primary" />
+              </button>
             </div>
             <div className="flex justify-between md:justify-start md:space-x-4 pb-10 md:pb-20 md:pt-14">
               {profileTabs.map((tab) => (
