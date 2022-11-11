@@ -82,10 +82,11 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     // TODO makes this permissionless
     VaultsV1Registry vaultsV1Registry = _vaultsV1Registry();
 
-    if (_factoryName != "") {
+    // TODO add dynamic strategy deployment
+    /*  if (_factoryName != "") {
       if (_vaultParams.strategy != address(0)) revert ConflictingInterest();
       // _vaultParams.strategy = _strategyFactory().deploy(_vaultParams); TODO fix me
-    }
+    } */
 
     vault = _vaultsV1Factory().deploy(_vaultParams);
 
