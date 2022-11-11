@@ -19,8 +19,8 @@ import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useDisconnect, useNetwork } from "wagmi";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
 import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
-import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
 import { useFeatures } from "@popcorn/app/hooks/useFeatures";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 
 const networkData = [
   {
@@ -54,8 +54,8 @@ export const MobileMenu: React.FC = () => {
   const router = useRouter();
   const products = useProductLinks();
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
+  const chainId = useChainIdFromUrl();
 
-  const url = useChainUrl();
   const logo = useMemo(
     () => (isConnected && chain?.id ? networkLogos[chain.id] : networkLogos["1"]),
     [chain?.id, isConnected],
@@ -175,7 +175,11 @@ export const MobileMenu: React.FC = () => {
                         <NavbarLink label="Staking" url="/staking" isActive={router?.pathname.includes("/staking")} />
                       </div>
                       <div className="py-6">
-                        <NavbarLink label="Rewards" url={"/rewards"} isActive={router?.pathname.includes("/rewards")} />
+                        <NavbarLink
+                          label="Rewards"
+                          url={`/${ChainId[chainId].toLowerCase()}/rewards`}
+                          isActive={router?.pathname.includes("/rewards")}
+                        />
                       </div>
                       <div className="py-6">
                         <TertiaryActionButton

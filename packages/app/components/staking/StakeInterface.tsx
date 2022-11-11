@@ -58,7 +58,6 @@ export default function StakeInterface({
   const [state, setState] = form;
   const router = useRouter();
   const networkName = useNetworkName();
-  const pushWithinChain = usePushWithinChain();
 
   const toggleInterface = () =>
     setState({
@@ -69,7 +68,7 @@ export default function StakeInterface({
   return (
     <>
       <div className="-ml-2">
-        <div className="flex items-center cursor-pointer" onClick={() => pushWithinChain("staking")}>
+        <div className="flex items-center cursor-pointer" onClick={() => router.push("/staking")}>
           <ChevronLeftIcon className="w-6 h-6 text-secondaryLight" />
           <p className="text-primary">Staking</p>
         </div>
@@ -178,7 +177,7 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.userStake
+                    {stakingPool?.userStake
                       ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
                       : "0"}{" "}
                     {stakingToken?.symbol}
@@ -208,7 +207,7 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
+                    {stakingPool?.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
                   </p>
                 </div>
               </div>
@@ -239,7 +238,7 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.userStake
+                        {stakingPool?.userStake
                           ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
                           : "0"}{" "}
                         {stakingToken?.symbol}
@@ -271,7 +270,7 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
+                        {stakingPool?.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
                         POP
                       </p>
                     </div>

@@ -18,7 +18,9 @@ export function useSwitchChainModal(expectedChain: number, actualChain: number) 
         onChangeNetwork: {
           label: `Switch to ${expectedChainName}`,
           onClick: () => {
-            setChain(Number(expectedChain)).then((res) => dispatch(setNetworkChangePromptModal(false)));
+            setChain(Number(expectedChain)).then((res) => {
+              dispatch(setNetworkChangePromptModal(false));
+            });
           },
         },
         onDismiss: {

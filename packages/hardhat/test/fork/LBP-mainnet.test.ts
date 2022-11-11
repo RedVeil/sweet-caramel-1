@@ -158,6 +158,7 @@ describe.skip("LBP test", () => {
       const vault = await ethers.getContractAt("IVault", namedAccounts.balancerVault);
 
       const lbp = await ethers.getContractAt("ILBP", poolAddress);
+      //@ts-expect-error
       const tokens = await vault.getPoolTokens(await lbp.getPoolId());
 
       expect(tokens[0].map((token) => token.toLowerCase())).to.eql([

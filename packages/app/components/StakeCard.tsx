@@ -1,11 +1,11 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { StakingPool, Token } from "@popcorn/utils/src/types";
 import { constants } from "ethers";
-import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import Badge, { Badge as BadgeType } from "@popcorn/app/components/Common/Badge";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 
 interface StakeCardProps {
   stakingPool: StakingPool;
@@ -17,8 +17,10 @@ interface StakeCardProps {
 }
 
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge, chainId }) => {
-  const tokenPrice = useTokenPrice(stakedToken?.address, chainId);
-  const metadata = useContractMetadata(stakedToken?.address, chainId);
+  const tokenAddress = stakedToken?.address?.toLowerCase();
+  const { data: tokenPriceData } = useTokenPrices([tokenAddress], chainId);
+  const tokenPrice = tokenPriceData?.[tokenAddress];
+  const metadata = useContractMetadata(tokenAddress, chainId);
 
   return (
     <div
@@ -44,10 +46,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             </div>
           </div>
           <div className="hidden smmd:block">
-            <MainActionButton
-              label="View"
-              handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
-            />
+            <MainActionButton label="View" handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)} />
           </div>
         </div>
         <div className="flex flex-row flex-wrap items-center mt-0 md:mt-6 justify-between">
@@ -79,10 +78,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
           </div>
         </div>
         <div className="w-full mt-6 smmd:hidden">
-          <MainActionButton
-            label="View"
-            handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
-          />
+          <MainActionButton label="View" handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)} />
         </div>
       </div>
     </div>

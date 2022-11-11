@@ -18,9 +18,10 @@ import { StateProvider } from "@popcorn/app/context/store";
 import { RainbowKitProvider, getDefaultWallets, Chain } from '@rainbow-me/rainbowkit';
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { infuraProvider } from 'wagmi/providers/infura';
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import '@rainbow-me/rainbowkit/styles.css';
 import "../styles/globals.css";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 
 const bnb: Chain = {
   id: 56,
@@ -42,9 +43,10 @@ const { chains, provider, webSocketProvider } = configureChains(
   ],
   [
     alchemyProvider({
-      // This is Alchemy's default API key.
-      // You can get your own at https://dashboard.alchemyapi.io
       apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+    }),
+    infuraProvider({
+      apiKey: process.env.INFURA_PROJECT_ID,
     }),
     jsonRpcProvider({ rpc: (chain) => ({ http: chain.rpcUrls.default }) }),
   ],
