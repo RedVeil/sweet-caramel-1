@@ -6,9 +6,9 @@ import { useState } from "react";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import Vesting from "components/vesting/Vesting";
-import useSelectNetwork from "hooks/useSelectNetwork";
+import useSelectNetwork from "hooks/useNetworkFilter";
 import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
-import SelectNetwork from "components/SelectNetwork";
+import SelectNetwork from "components/FilterNetwork";
 import ClaimCard from "components/rewards/ClaimCard";
 
 export enum Tabs {

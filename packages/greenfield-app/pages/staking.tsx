@@ -2,9 +2,9 @@ import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCar
 import StakeCard from "components/staking/StakeCard";
 import React, { useMemo } from "react";
 import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
-import useSelectNetwork from "hooks/useSelectNetwork";
+import useSelectNetwork from "hooks/useNetworkFilter";
 import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
-import SelectNetwork from "components/SelectNetwork";
+import NetworkFilter from "components/NetworkFilter";
 
 export default function StakingOverviewPage(): JSX.Element {
 	const stakingContracts = useAllStakingContracts();
@@ -26,7 +26,7 @@ export default function StakingOverviewPage(): JSX.Element {
 					<ConnectDepositCard />
 				</div>
 			</div>
-			<SelectNetwork supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} />
+			<NetworkFilter supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} />
 			<div className="border-t border-t-customLightGray">
 				<div className="w-full">
 					<div className="h-full ">
