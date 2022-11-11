@@ -50,6 +50,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @param _exchange - number specifying exchange (1 = curve)
    * @dev the submitter in the VaultMetadata from the factory will be function caller
    */
+  /* solium-disable-next-line */
   function deployVaultFromFactory(
     VaultParams memory _vaultParams,
     address _staking,
@@ -77,9 +78,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
       metadataCID: _metadataCID,
       swapTokenAddresses: _swapTokenAddresses,
       swapAddress: _swapAddress,
-      exchange: _exchange,
-      zapIn: _zapIn,
-      zapOut: _zapOut
+      exchange: _exchange
     });
 
     vaultsRegistry.registerVault(metadata);
