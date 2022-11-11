@@ -64,10 +64,10 @@ export const networkMap = {
 };
 
 export const networkLogos = {
-  [ChainId.Ethereum]: "/images/icons/ethLogo.png",
+  [ChainId.Ethereum]: "/images/icons/ethereum.svg",
   [ChainId.Rinkeby]: "/images/icons/ethLogo.png",
-  [ChainId.Polygon]: "/images/icons/polygonLogo.png",
-  [ChainId.Arbitrum]: "/images/icons/arbitrum.png",
+  [ChainId.Polygon]: "/images/icons/polygon.svg",
+  [ChainId.Arbitrum]: "/images/icons/arbitrum.svg",
   [ChainId.Localhost]: "/images/icons/testNetLogo.png",
   [ChainId.Hardhat]: "/images/icons/testNetLogo.png",
   [ChainId.RemoteFork]: "/images/icons/testNetLogo.png",

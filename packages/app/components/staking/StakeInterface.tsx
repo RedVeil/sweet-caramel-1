@@ -102,9 +102,9 @@ export default function StakeInterface({
                 content={
                   stakingPool && stakedTokenPrice
                     ? `$${formatAndRoundBigNumber(
-                      stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
-                      18,
-                    )}`
+                        stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
+                        18,
+                      )}`
                     : "..."
                 }
                 label="TVL"
@@ -112,8 +112,9 @@ export default function StakeInterface({
             </div>
             <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
               <StatusWithLabel
-                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
-                  } POP / day`}
+                content={`${
+                  stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
+                } POP / day`}
                 label="EMISSION RATE"
               />
             </div>

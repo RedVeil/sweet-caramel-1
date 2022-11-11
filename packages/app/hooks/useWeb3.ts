@@ -12,7 +12,7 @@ export default function useWeb3() {
   const { address: account } = useAccount();
   const { data: signer } = useSigner();
   const { chain, chains } = useNetwork();
-  const { switchNetwork } = useSwitchNetwork()
+  const { switchNetwork } = useSwitchNetwork();
   const signerOrProvider = useMemo(() => signer || getCurrentRpcProvider(), [signer]);
   const contractAddresses = useDeployment(chain?.id);
   const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(chain?.id);
@@ -33,7 +33,6 @@ export default function useWeb3() {
   function getCurrentRpcProvider() {
     return PRC_PROVIDERS[getChainId()];
   }
-
 
   async function pushNetworkChange(network: string, shallow: boolean): Promise<boolean> {
     return router.push(
@@ -57,6 +56,6 @@ export default function useWeb3() {
     chains,
     setChain: (newChainId: number) => setChainFromNumber(newChainId),
     switchNetwork,
-    connect: openConnectModal
+    connect: openConnectModal,
   };
 }

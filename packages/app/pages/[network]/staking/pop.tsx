@@ -37,7 +37,7 @@ export default function PopStakingPage(): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const transaction = useTransaction(chainId);
   const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
-  const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()]
+  const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {
@@ -47,9 +47,7 @@ export default function PopStakingPage(): JSX.Element {
 
   function stake(): void {
     transaction(
-      () => stakingPool?.contract
-        .connect(signer)
-        .lock(account, form.amount, 0),
+      () => stakingPool?.contract.connect(signer).lock(account, form.amount, 0),
       "Staking POP ...",
       "POP staked!",
       () => {
@@ -80,35 +78,32 @@ export default function PopStakingPage(): JSX.Element {
             }),
           );
         }
-      }
-    )
+      },
+    );
   }
 
   function withdraw(): void {
     transaction(
-      () => stakingPool?.contract
-        .connect(signer)
-      ["processExpiredLocks(bool)"](false),
+      () => stakingPool?.contract.connect(signer)["processExpiredLocks(bool)"](false),
       "Withdrawing POP ...",
       "POP withdrawn!",
       () => {
         balances.revalidate();
         setForm({ ...defaultForm, type: InteractionType.Withdraw });
-      })
+      },
+    );
   }
 
   function restake(): void {
     transaction(
-      () => stakingPool.contract
-        .connect(signer)
-      ["processExpiredLocks(bool)"](true),
+      () => stakingPool.contract.connect(signer)["processExpiredLocks(bool)"](true),
       "Restaking POP ...",
       "POP Restaked!",
       () => {
         balances.revalidate();
         setForm(defaultForm);
-      }
-    )
+      },
+    );
   }
 
   const openTermsModal = () => {
@@ -120,7 +115,6 @@ export default function PopStakingPage(): JSX.Element {
       }),
     );
   };
-
 
   function approve(): void {
     transaction(

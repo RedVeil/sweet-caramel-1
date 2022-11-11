@@ -24,8 +24,9 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
 
   return (
     <div
-      className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${stakingPool === undefined ? "hidden" : ""
-        }`}
+      className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${
+        stakingPool === undefined ? "hidden" : ""
+      }`}
       onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
     >
       <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4 mr-4" />
@@ -45,10 +46,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             </div>
           </div>
           <div className="hidden smmd:block">
-            <MainActionButton
-              label="View"
-              handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)}
-            />
+            <MainActionButton label="View" handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)} />
           </div>
         </div>
         <div className="flex flex-row flex-wrap items-center mt-0 md:mt-6 justify-between">
@@ -65,9 +63,9 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
               {tokenPrice
                 ? `$ ${formatAndRoundBigNumber(
-                  stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
-                  stakedToken?.decimals,
-                )}`
+                    stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
+                    stakedToken?.decimals,
+                  )}`
                 : "..."}
             </p>
           </div>
@@ -80,10 +78,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
           </div>
         </div>
         <div className="w-full mt-6 smmd:hidden">
-          <MainActionButton
-            label="View"
-            handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)}
-          />
+          <MainActionButton label="View" handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)} />
         </div>
       </div>
     </div>

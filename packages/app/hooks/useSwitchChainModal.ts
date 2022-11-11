@@ -19,7 +19,7 @@ export function useSwitchChainModal(expectedChain: number, actualChain: number) 
           label: `Switch to ${expectedChainName}`,
           onClick: () => {
             setChain(Number(expectedChain)).then((res) => {
-              dispatch(setNetworkChangePromptModal(false))
+              dispatch(setNetworkChangePromptModal(false));
             });
           },
         },

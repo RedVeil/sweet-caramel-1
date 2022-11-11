@@ -36,13 +36,15 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
     },
     {
       title: "Step 2 – Wait for the batch to process",
-      content: `Your deposits will be held in ${isThreeX ? "3X" : "Butter"
-        }’s batch processing queue. Note: To minimise gas fees, deposits are processed approximately every 24 hours. You are able to withdraw your deposits during this phase.`,
+      content: `Your deposits will be held in ${
+        isThreeX ? "3X" : "Butter"
+      }’s batch processing queue. Note: To minimise gas fees, deposits are processed approximately every 24 hours. You are able to withdraw your deposits during this phase.`,
     },
     {
       title: `Step 3 – Claim your minted ${isThreeX ? "3X" : "Butter"}!`,
-      content: `Once the batch has been processed, you will be able to claim the new minted ${isThreeX ? "3X" : "Butter"
-        } tokens!`,
+      content: `Once the batch has been processed, you will be able to claim the new minted ${
+        isThreeX ? "3X" : "Butter"
+      } tokens!`,
     },
   ];
   return (

@@ -95,25 +95,25 @@ export default function Instant3x() {
     setThreeXPageState((state) =>
       state.initalLoad
         ? {
-          ...state,
-          selectedToken: {
-            input: usdc,
-            output: threeX,
-          },
-          tokens: threeXWhaleData?.tokens,
-          redeeming: false,
-          initalLoad: false,
-          isThreeX: true,
-          instant: true,
-        }
+            ...state,
+            selectedToken: {
+              input: usdc,
+              output: threeX,
+            },
+            tokens: threeXWhaleData?.tokens,
+            redeeming: false,
+            initalLoad: false,
+            isThreeX: true,
+            instant: true,
+          }
         : {
-          ...state,
-          selectedToken: {
-            input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
-            output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
+            ...state,
+            selectedToken: {
+              input: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.input.address),
+              output: threeXWhaleData?.tokens.find((token) => token.address === state.selectedToken.output.address),
+            },
+            tokens: threeXWhaleData?.tokens,
           },
-          tokens: threeXWhaleData?.tokens,
-        },
     );
   }, [threeXWhaleData]);
 

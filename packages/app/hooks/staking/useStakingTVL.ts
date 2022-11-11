@@ -27,12 +27,8 @@ export default function useStakingTVL(chainId: ChainId): SWRResponse<BigNumber, 
   const { pop } = useDeployment(ChainId.Ethereum);
   const { data: priceData } = useTokenPrices([pop], ChainId.Ethereum);
 
-  return useSWR(
-    [`getStakingTVL-${chainId}`, addresses.popStaking, rpcProvider, priceData?.[pop]],
-    getStakingTVL,
-    {
-      refreshInterval: 3 * 1000,
-      dedupingInterval: 3 * 1000,
-    },
-  );
+  return useSWR([`getStakingTVL-${chainId}`, addresses.popStaking, rpcProvider, priceData?.[pop]], getStakingTVL, {
+    refreshInterval: 3 * 1000,
+    dedupingInterval: 3 * 1000,
+  });
 }

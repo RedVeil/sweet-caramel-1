@@ -36,10 +36,10 @@ export default function useNetWorth(): {
 
   const { data: mainnetPriceData } = useTokenPrices([ethereum.pop, ethereum.popUsdcArrakisVault], Ethereum); // in 1e18
   const popPrice = mainnetPriceData?.[ethereum.pop];
-  const mainnetLpPrice = mainnetPriceData?.[ethereum.popUsdcArrakisVault]
+  const mainnetLpPrice = mainnetPriceData?.[ethereum.popUsdcArrakisVault];
 
   const { data: poylgonLpPriceData } = useTokenPrices([polygon.pop, polygon.popUsdcArrakisVault], Polygon); // in 1e18
-  const polygonLpPrice = poylgonLpPriceData?.[polygon.popUsdcArrakisVault]
+  const polygonLpPrice = poylgonLpPriceData?.[polygon.popUsdcArrakisVault];
 
   const { data: mainnetPopStaking } = usePopLocker(ethereum.popStaking, Ethereum);
   const { data: polygonPopStaking } = usePopLocker(polygon.popStaking, Polygon);
@@ -130,7 +130,6 @@ export default function useNetWorth(): {
     return getHoldingValue(usdc?.claimableBalance, usdc?.price);
   }, [threeXBatchData]);
 
-
   const calculateEthereumHoldings = (): BigNumber => {
     return [
       mainnetPopHoldings,
@@ -147,7 +146,7 @@ export default function useNetWorth(): {
       threeXStakingRewardsHoldings,
       mainnetLPStakingRewardsHoldings,
       mainnetPopLpHoldings,
-      mainnetPopLpStakingHoldings
+      mainnetPopLpStakingHoldings,
     ].reduce((total, num) => total.add(num));
   };
 
@@ -159,10 +158,8 @@ export default function useNetWorth(): {
       polygonPopStakingRewardsHoldings,
       polygonLPStakingRewardsHoldings,
       polygonPopLpHoldings,
-      polygonPopLpStakingHoldings
-    ].reduce((total, num) =>
-      total.add(num),
-    );
+      polygonPopLpStakingHoldings,
+    ].reduce((total, num) => total.add(num));
   };
 
   const calculateArbitrumHoldings = (): BigNumber => {
