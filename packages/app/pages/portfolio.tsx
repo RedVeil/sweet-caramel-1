@@ -1,4 +1,5 @@
 import { Transition } from "@headlessui/react";
+import Assets from "components/Portfolio/Assets/Assets";
 import NetWorthCard from "components/Portfolio/NetWorthCard";
 import PortfolioHero from "components/Portfolio/PortfolioHero";
 import PortfolioMenuTabs, { MenuTabItems } from "components/Portfolio/PortfolioMenuTabs";
@@ -17,6 +18,10 @@ const Portfolio = () => {
     {
       component: Rewards,
       show: activeTab === MenuTabItems.ALL || activeTab === MenuTabItems.REWARDS,
+    },
+    {
+      component: Assets,
+      show: activeTab === MenuTabItems.ALL || activeTab === MenuTabItems.ASSETS,
     },
   ];
 

@@ -12,8 +12,15 @@ interface PortfolioItemProps {
     bgColor: string;
   };
   statusLabels: Array<StatusWithLabelProps>;
+  showExpandIcon?: boolean;
 }
-const PortfolioItem: React.FC<PortfolioItemProps> = ({ title, statusLabels, badge, children }) => {
+const PortfolioItem: React.FC<PortfolioItemProps> = ({
+  title,
+  statusLabels,
+  badge,
+  children,
+  showExpandIcon = true,
+}) => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   return (
@@ -33,17 +40,16 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({ title, statusLabels, badg
           }
         </div>
         <ChevronDownIcon
-          className={`${
-            expanded ? "rotate-180" : "rotate-0"
-          } transform transition-all ease-in-out w-6 text-secondaryLight cursor-pointer`}
+          className={`${expanded ? "rotate-180" : "rotate-0"} ${showExpandIcon ? "" : "hidden"}
+          transform transition-all ease-in-out w-6 text-secondaryLight cursor-pointer`}
         />
       </div>
 
       <div className="grid grid-cols-12 mt-10 mb-6">
-        {statusLabels.map(({ content, label, infoIconProps }) => (
+        {statusLabels.map(({ content, label, infoIconProps, image }) => (
           <div className="col-span-12 md:col-span-3" key={infoIconProps.id}>
             {" "}
-            <StatusWithLabel content={content} label={label} infoIconProps={infoIconProps} />
+            <StatusWithLabel content={content} label={label} infoIconProps={infoIconProps} image={image} />
           </div>
         ))}
       </div>
