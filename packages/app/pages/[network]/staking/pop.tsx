@@ -7,7 +7,7 @@ import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/co
 import { store } from "@popcorn/app/context/store";
 import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
-import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
@@ -36,7 +36,8 @@ export default function PopStakingPage(): JSX.Element {
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, popStaking, chainId);
   const stakingToken = stakingPool?.stakingToken;
   const transaction = useTransaction(chainId);
-  const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
+  const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
+  const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()]
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {

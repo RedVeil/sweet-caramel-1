@@ -1,6 +1,6 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos, networkMap } from "@popcorn/utils";
 import { constants } from "ethers";
-import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import Badge, { Badge as BadgeType } from "@popcorn/app/components/Common/Badge";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
@@ -32,12 +32,13 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
   const isValidating = stakingType === StakingType.PopLocker ? popLockerIsValidating : stakingPoolIsValidating;
   const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
 
-  const tokenPrice = useTokenPrice(staking?.stakingToken?.address, chainId);
+  const { data: tokenPrice, isValidating: tokenPriceValidating, error: tokenPriceError } = useTokenPrices([staking?.stakingToken?.address], chainId);
   const metadata = useContractMetadata(staking?.stakingToken?.address, chainId);
 
   function onSelectPool() {
     router?.push(`/${networkMap[chainId]?.toLowerCase()}/staking/${stakingType === StakingType.PopLocker ? "pop" : stakingAddress}`)
   }
+
   return (<span>
     <div className={`my-4 ${isValidating && !staking && !error ? '' : 'hidden'}`}>
       <ContentLoader viewBox="0 0 450 60" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
@@ -87,9 +88,9 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
           <div className="w-1/2 md:w-1/4 mt-6 md:mt-0">
             <p className="text-primaryLight leading-6">TVL</p>
             <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-              {tokenPrice
+              {!tokenPriceValidating && !tokenPriceError && tokenPrice !== undefined
                 ? `$ ${formatAndRoundBigNumber(
-                  staking?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
+                  staking?.totalStake?.mul(tokenPrice[staking?.stakingToken?.address.toLowerCase()]).div(constants.WeiPerEther),
                   staking?.stakingToken?.decimals,
                 )}`
                 : "..."}

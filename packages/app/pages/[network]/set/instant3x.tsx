@@ -11,7 +11,7 @@ import useThreeXWhale from "@popcorn/app/hooks/set/useThreeXWhale";
 import useThreeXWhaleData from "@popcorn/app/hooks/set/useThreeXWhaleData";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import SetStats from "@popcorn/app/components/SetStats";
-import { useAdjustDepositDecimals } from "hooks/useAdjustDepositDecimals";
+import { useAdjustDepositDecimals } from "@popcorn/app/hooks/useAdjustDepositDecimals";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";

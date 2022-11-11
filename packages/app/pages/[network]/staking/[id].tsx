@@ -3,7 +3,7 @@ import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
 import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
-import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -27,7 +27,8 @@ export default function StakingPage(): JSX.Element {
   } = useStakingPool(router.query.id as string, chainId);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, stakingPool?.address, chainId);
   const stakingToken = stakingPool?.stakingToken;
-  const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
+  const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
+  const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
   const isLoading = !stakingPool && !tokenPrice;
   const pushWithinChain = usePushWithinChain();
   const transaction = useTransaction(chainId);

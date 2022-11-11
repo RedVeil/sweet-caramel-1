@@ -1,11 +1,11 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { StakingPool, Token } from "@popcorn/utils/src/types";
 import { constants } from "ethers";
-import useTokenPrice from "@popcorn/app/hooks/useTokenPrice";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import Badge, { Badge as BadgeType } from "@popcorn/app/components/Common/Badge";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 
 interface StakeCardProps {
   stakingPool: StakingPool;
@@ -17,14 +17,15 @@ interface StakeCardProps {
 }
 
 const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelectPool, badge, chainId }) => {
-  const tokenPrice = useTokenPrice(stakedToken?.address, chainId);
-  const metadata = useContractMetadata(stakedToken?.address, chainId);
+  const tokenAddress = stakedToken?.address?.toLowerCase();
+  const { data: tokenPriceData } = useTokenPrices([tokenAddress], chainId);
+  const tokenPrice = tokenPriceData?.[tokenAddress];
+  const metadata = useContractMetadata(tokenAddress, chainId);
 
   return (
     <div
-      className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${
-        stakingPool === undefined ? "hidden" : ""
-      }`}
+      className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${stakingPool === undefined ? "hidden" : ""
+        }`}
       onClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
     >
       <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4 mr-4" />
@@ -46,7 +47,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
           <div className="hidden smmd:block">
             <MainActionButton
               label="View"
-              handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
+              handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)}
             />
           </div>
         </div>
@@ -64,9 +65,9 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
             <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
               {tokenPrice
                 ? `$ ${formatAndRoundBigNumber(
-                    stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
-                    stakedToken?.decimals,
-                  )}`
+                  stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther),
+                  stakedToken?.decimals,
+                )}`
                 : "..."}
             </p>
           </div>
@@ -81,7 +82,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingPool, stakedToken, onSelec
         <div className="w-full mt-6 smmd:hidden">
           <MainActionButton
             label="View"
-            handleClick={async () => onSelectPool(stakingPool?.address, stakedToken?.address)}
+            handleClick={async () => onSelectPool(stakingPool?.address, tokenAddress)}
           />
         </div>
       </div>

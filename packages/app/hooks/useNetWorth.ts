@@ -1,6 +1,5 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
-import { parseEther } from "ethers/lib/utils";
 import { useCallback, useMemo } from "react";
 import useButterBatchData from "@popcorn/app/hooks/set/useButterBatchData";
 import useThreeXData from "@popcorn/app/hooks/set/useThreeXData";
@@ -8,9 +7,9 @@ import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import useTokenBalance from "@popcorn/app/hooks/tokens/useTokenBalance";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
-import useGetPopTokenPriceInUSD from "@popcorn/app/hooks/useGetPopTokenPriceInUSD";
 import { useGetUserEscrows } from "@popcorn/app/hooks/useGetUserEscrows";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import useTokenPrices from "./tokens/useTokenPrices";
 
 function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumber {
   tokenAmount = tokenAmount?.gt(constants.Zero) ? tokenAmount : constants.Zero;
@@ -19,7 +18,13 @@ function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumb
     : tokenAmount?.mul(tokenPrice ? tokenPrice : constants.Zero).div(constants.WeiPerEther) || constants.Zero;
 }
 
-export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumber } {
+export default function useNetWorth(): {
+  Ethereum: BigNumber;
+  Polygon: BigNumber;
+  BNB: BigNumber;
+  Arbitrum: BigNumber;
+  totalNetWorth: BigNumber;
+} {
   const { account } = useWeb3();
   const { Ethereum, Polygon, BNB, Arbitrum } = ChainId;
   const useHoldingValue = useCallback(getHoldingValue, []);
@@ -29,7 +34,13 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
   const bnb = useDeployment(BNB);
   const arbitrum = useDeployment(Arbitrum);
 
-  const { data: popPrice } = useGetPopTokenPriceInUSD(); // in 1e6
+  const { data: mainnetPriceData } = useTokenPrices([ethereum.pop, ethereum.popUsdcArrakisVault], Ethereum); // in 1e18
+  const popPrice = mainnetPriceData?.[ethereum.pop];
+  const mainnetLpPrice = mainnetPriceData?.[ethereum.popUsdcArrakisVault]
+
+  const { data: poylgonLpPriceData } = useTokenPrices([polygon.pop, polygon.popUsdcArrakisVault], Polygon); // in 1e18
+  const polygonLpPrice = poylgonLpPriceData?.[polygon.popUsdcArrakisVault]
+
   const { data: mainnetPopStaking } = usePopLocker(ethereum.popStaking, Ethereum);
   const { data: polygonPopStaking } = usePopLocker(polygon.popStaking, Polygon);
   const { data: butterStakingPool } = useStakingPool(ethereum.butterStaking, Ethereum);
@@ -45,31 +56,39 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
   const { data: bnbEscrow } = useGetUserEscrows(bnb.rewardsEscrow, account, BNB);
   const { data: arbitrumEscrow } = useGetUserEscrows(arbitrum.rewardsEscrow, account, Arbitrum);
 
-  // todo: add popUsdc staking pools
+  const { data: mainnetLpBalance } = useTokenBalance(polygon?.popUsdcArrakisVault, account, Ethereum);
+  const { data: polygonLpBalance } = useTokenBalance(ethereum?.popUsdcArrakisVault, account, Polygon);
+  const { data: mainnetLpStakingPool } = useStakingPool(ethereum.popUsdcArrakisVaultStaking, Ethereum);
+  const { data: polygonLpStakingPool } = useStakingPool(ethereum.popUsdcArrakisVaultStaking, Polygon);
+  const mainnetPopLpHoldings = useHoldingValue(mainnetLpBalance, mainnetLpPrice);
+  const polygonPopLpHoldings = useHoldingValue(polygonLpBalance, polygonLpPrice);
+  const mainnetPopLpStakingHoldings = useHoldingValue(mainnetLpStakingPool?.userStake, mainnetLpPrice);
+  const polygonPopLpStakingHoldings = useHoldingValue(polygonLpStakingPool?.userStake, polygonLpPrice);
 
   const { data: mainnetVaultEscrow } = useGetUserEscrows(ethereum.vaultsRewardsEscrow, account, Ethereum);
 
-  // // raise popPrice by 1e12
-  const raisedPopPrice = useMemo(() => (popPrice ? popPrice.mul(parseEther("0.000001")) : constants.Zero), [popPrice]);
+  const mainnetPopHoldings = useHoldingValue(mainnetPopBalance, popPrice);
+  const polygonPopHoldings = useHoldingValue(polygonPopBalance, popPrice);
+  const bnbPopHoldings = useHoldingValue(bnbPopBalance, popPrice);
+  const arbitrumPopHoldings = useHoldingValue(arbitrumPopBalance, popPrice);
+  const mainnetPopStakingHoldings = useHoldingValue(mainnetPopStaking?.userStake, popPrice);
+  const polygonPopStakingHoldings = useHoldingValue(polygonPopStaking?.userStake, popPrice);
 
-  const mainnetPopHoldings = useHoldingValue(mainnetPopBalance, raisedPopPrice);
-  const polygonPopHoldings = useHoldingValue(polygonPopBalance, raisedPopPrice);
-  const bnbPopHoldings = useHoldingValue(bnbPopBalance, raisedPopPrice);
-  const arbitrumPopHoldings = useHoldingValue(arbitrumPopBalance, raisedPopPrice);
-  const mainnetPopStakingHoldings = useHoldingValue(mainnetPopStaking?.userStake, raisedPopPrice);
-  const polygonPopStakingHoldings = useHoldingValue(polygonPopStaking?.userStake, raisedPopPrice);
+  const mainnetPopStakingRewardsHoldings = useHoldingValue(mainnetPopStaking?.earned, popPrice);
+  const polygonPopStakingRewardsHoldings = useHoldingValue(polygonPopStaking?.earned, popPrice);
+  const butterStakingRewardsHoldings = useHoldingValue(butterStakingPool?.earned, popPrice);
+  const threeXStakingRewardsHoldings = useHoldingValue(threeXStakingPool?.earned, popPrice);
+  const mainnetLPStakingRewardsHoldings = useHoldingValue(mainnetLpStakingPool?.earned, popPrice);
+  const polygonLPStakingRewardsHoldings = useHoldingValue(polygonLpStakingPool?.earned, popPrice);
 
   const polygonEscrowHoldings = useHoldingValue(
     polygonEscrow?.totalClaimablePop?.add(polygonEscrow?.totalVestingPop),
-    raisedPopPrice,
+    popPrice,
   );
-  const bnbEscrowHoldings = useHoldingValue(
-    bnbEscrow?.totalClaimablePop?.add(bnbEscrow?.totalVestingPop),
-    raisedPopPrice,
-  );
+  const bnbEscrowHoldings = useHoldingValue(bnbEscrow?.totalClaimablePop?.add(bnbEscrow?.totalVestingPop), popPrice);
   const arbitrumEscrowHoldings = useHoldingValue(
     arbitrumEscrow?.totalClaimablePop?.add(arbitrumEscrow?.totalVestingPop),
-    raisedPopPrice,
+    popPrice,
   );
   const mainnetEscrowHoldings = useHoldingValue(
     BigNumber.from("0")
@@ -77,7 +96,7 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
       .add(mainnetEscrow?.totalVestingPop || "0")
       .add(mainnetVaultEscrow?.totalClaimablePop || "0")
       .add(mainnetVaultEscrow?.totalVestingPop || "0"),
-    raisedPopPrice,
+    popPrice,
   );
 
   const butterHoldings = useMemo(() => {
@@ -111,6 +130,7 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
     return getHoldingValue(usdc?.claimableBalance, usdc?.price);
   }, [threeXBatchData]);
 
+
   const calculateEthereumHoldings = (): BigNumber => {
     return [
       mainnetPopHoldings,
@@ -122,11 +142,25 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
       mainnetEscrowHoldings,
       butterRedeemBatchHoldings,
       threeXRedeemBatchHoldings,
+      mainnetPopStakingRewardsHoldings,
+      butterStakingRewardsHoldings,
+      threeXStakingRewardsHoldings,
+      mainnetLPStakingRewardsHoldings,
+      mainnetPopLpHoldings,
+      mainnetPopLpStakingHoldings
     ].reduce((total, num) => total.add(num));
   };
 
   const calculatePolygonHoldings = (): BigNumber => {
-    return [polygonPopHoldings, polygonPopStakingHoldings, polygonEscrowHoldings].reduce((total, num) =>
+    return [
+      polygonPopHoldings,
+      polygonPopStakingHoldings,
+      polygonEscrowHoldings,
+      polygonPopStakingRewardsHoldings,
+      polygonLPStakingRewardsHoldings,
+      polygonPopLpHoldings,
+      polygonPopLpStakingHoldings
+    ].reduce((total, num) =>
       total.add(num),
     );
   };
@@ -141,30 +175,18 @@ export default function useNetWorth(): { [key: string | keyof ChainId]: BigNumbe
 
   const calculateTotalHoldings = () => {
     return [
-      mainnetPopHoldings,
-      polygonPopHoldings,
-      bnbPopHoldings,
-      arbitrumPopHoldings,
-      mainnetPopStakingHoldings,
-      polygonPopStakingHoldings,
-      butterHoldings,
-      threeXHoldings,
-      butterStakingHoldings,
-      threeXStakingHoldings,
-      mainnetEscrowHoldings,
-      polygonEscrowHoldings,
-      bnbEscrowHoldings,
-      arbitrumEscrowHoldings,
-      butterRedeemBatchHoldings,
-      threeXRedeemBatchHoldings,
+      calculateEthereumHoldings(),
+      calculatePolygonHoldings(),
+      calculateBnbHoldings(),
+      calculateArbitrumHoldings(),
     ].reduce((total, num) => total.add(num));
   };
 
   return {
-    [ChainId.Ethereum]: calculateEthereumHoldings(),
-    [ChainId.Polygon]: calculatePolygonHoldings(),
-    [ChainId.BNB]: calculateBnbHoldings(),
-    [ChainId.Arbitrum]: calculateArbitrumHoldings(),
+    Ethereum: calculateEthereumHoldings(),
+    Polygon: calculatePolygonHoldings(),
+    BNB: calculateBnbHoldings(),
+    Arbitrum: calculateArbitrumHoldings(),
     totalNetWorth: calculateTotalHoldings(),
   };
 }
