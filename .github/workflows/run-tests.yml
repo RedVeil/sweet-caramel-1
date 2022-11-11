@@ -5,8 +5,8 @@ name: Node.js CI
 
 on:
   push:
-    paths:
-      - packages/hardhat/**
+#    paths:
+#      - packages/hardhat/**
 
 jobs:
   build:
