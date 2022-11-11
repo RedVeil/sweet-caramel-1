@@ -39,7 +39,7 @@ const { chains, provider, webSocketProvider } = configureChains(
 		chain.optimism,
 		chain.arbitrum,
 		bnb,
-		...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [chain.goerli, chain.rinkeby, chain.localhost] : []),
+		...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [chain.goerli, chain.localhost] : []),
 	],
 	[
 		alchemyProvider({
