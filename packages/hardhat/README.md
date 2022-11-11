@@ -13,6 +13,7 @@
 ```
 RPC=https://rpc-node-goes-here
 FORKING_RPC_URL=https://rpc-node-goes-here
+NEXT_ALCHEMY_API_KEY="get alchemy key from alchemy.com"
 ```
 
 Then run the following
