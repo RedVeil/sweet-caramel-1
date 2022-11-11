@@ -249,8 +249,22 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== FACTORY MANAGEMENT FUNCTIONS ========== */
 
-  function setFactoryImplementation(bytes32 _factoryName, address _implementation) external onlyOwner {
-    IContractFactory(_getContract(_factoryName)).setImplementation(_implementation);
+  // function setFactoryImplementation(bytes32 _factoryName, address _implementation) external onlyOwner {
+  //   IContractFactory(_getContract(_factoryName)).setImplementation(_implementation);
+  // }
+
+  /**
+   * @notice sets implementation contract in factor
+   * @dev index of _factoryName and _implementation address arrays must match
+   */
+
+  function setFactoryImplementation(bytes32[] memory _factoryNames, address[] memory _implementations)
+    external
+    onlyOwner
+  {
+    for (uint8 i; i < _factoryNames.length; i++) {
+      IContractFactory(_getContract(_factoryName[i])).setImplementation(_implementations[i]);
+    }
   }
 
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
