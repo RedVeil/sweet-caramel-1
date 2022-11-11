@@ -36,7 +36,7 @@ jobs:
         env:
           CI: true
       - name: "yarn tests"
-        run: cd packages/hardhat; test:fork
+        run: yarn test:fork
         env:
           FORKING_ENABLED: true
           RPC_URL: ${{secrets.RPC_URL}}
