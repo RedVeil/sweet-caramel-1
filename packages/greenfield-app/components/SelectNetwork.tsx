@@ -9,13 +9,14 @@ interface SelectNetworkProps {
 	supportedNetworks: ChainId[];
 	selectedNetworks: ChainId[];
 	selectNetwork: (chainId: ChainId) => void;
+	mobileSelectNetwork: (chainId: ChainId | "ALL") => void;
 }
 
-export default function SelectNetwork({ supportedNetworks, selectedNetworks, selectNetwork }: SelectNetworkProps): JSX.Element {
+export default function SelectNetwork({ supportedNetworks, selectedNetworks, selectNetwork, mobileSelectNetwork }: SelectNetworkProps): JSX.Element {
 	const [openFilter, setOpenFilter] = useState(false);
 	const [categoryFilter, setCategoryFilter] = useState<{ id: string; value: string }>({ id: "1", value: "All" });
 	const switchFilter = (value: { id: any; value: any }) => {
-		selectNetwork(value.id);
+		mobileSelectNetwork(value.id);
 		setCategoryFilter(value)
 	};
 	const networkCategories = supportedNetworks.map(network => {
@@ -30,14 +31,6 @@ export default function SelectNetwork({ supportedNetworks, selectedNetworks, sel
 	return (
 		<>
 			<div className="hidden md:flex flex-row items-center space-x-2 mb-8">
-
-				{/* {supportedNetworks.map(network =>
-					<button key={network}
-						onClick={() => selectNetwork(network)}
-						className={`${selectedNetworks.includes(network) ? "bg-warmGray" : "bg-white"} h-14 w-18 border border-customLightGray rounded-3xl text-primary cursor-pointer flex justify-center items-center`}>
-						<Image src={networkLogos[network]} alt={ChainId[network]} height="24px" width="24px" objectFit="contain" />
-					</button>
-				)} */}
 				{supportedNetworks.map(network =>
 					<PseudoRadioButton key={network} label={<Image src={networkLogos[network]} alt={ChainId[network]} height="24px" width="24px" objectFit="contain" />} handleClick={() => selectNetwork(network)} isActive={selectedNetworks.includes(network)} activeClass="bg-warmGray" extraClasses="h-14 w-18 border border-customLightGray rounded-3xl text-primary flex justify-center items-center" />
 				)}
@@ -63,7 +56,7 @@ export default function SelectNetwork({ supportedNetworks, selectedNetworks, sel
 			</div>
 			<div className="no-select-dot absolute left-0">
 				<MobilePopupSelect
-					categories={networkCategories}
+					categories={[{ id: "ALL", value: "All" }, ...networkCategories]}
 					visible={openFilter}
 					onClose={setOpenFilter}
 					selectedItem={categoryFilter}

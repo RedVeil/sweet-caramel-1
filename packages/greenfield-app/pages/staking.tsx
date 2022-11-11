@@ -9,7 +9,7 @@ import SelectNetwork from "components/SelectNetwork";
 export default function StakingOverviewPage(): JSX.Element {
 	const stakingContracts = useAllStakingContracts();
 	const supportedNetworks = useChainsWithStaking()
-	const [selectedNetworks, selectNetwork] = useSelectNetwork(supportedNetworks)
+	const [selectedNetworks, selectNetwork, mobileSelectNetwork] = useSelectNetwork(supportedNetworks)
 
 	const stakingPools = useMemo(
 		() => stakingContracts?.stakingPools?.filter(staking => selectedNetworks.includes(staking?.chainId)),
@@ -26,7 +26,7 @@ export default function StakingOverviewPage(): JSX.Element {
 					<ConnectDepositCard />
 				</div>
 			</div>
-			<SelectNetwork supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} />
+			<SelectNetwork supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} mobileSelectNetwork={mobileSelectNetwork} />
 			<div className="border-t border-t-customLightGray">
 				<div className="w-full">
 					<div className="h-full ">
