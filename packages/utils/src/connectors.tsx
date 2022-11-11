@@ -11,6 +11,7 @@ export enum ChainId {
   BNB = 56,
   RemoteFork = 31338,
   Optimism = 10,
+  ALL = 0,
 }
 
 export enum ChainIdHex {
@@ -48,6 +49,7 @@ export const supportedChainIds = [
   ChainId.Hardhat,
   ChainId.RemoteFork,
   ChainId.Optimism,
+  ChainId.ALL,
 ];
 
 export const networkMap = {
@@ -61,9 +63,11 @@ export const networkMap = {
   [ChainId.RemoteFork]: "RemoteFork",
   [ChainId.Optimism]: "Optimism",
   [ChainId.BNB]: "BNB",
+  [ChainId.ALL]: "All Networks",
 };
 
 export const networkLogos = {
+  [ChainId.ALL]: "/images/icons/allIcon.svg",
   [ChainId.Ethereum]: "/images/icons/ethereum.svg",
   [ChainId.Goerli]: "/images/icons/testNetLogo.png",
   [ChainId.Polygon]: "/images/icons/polygon.svg",
