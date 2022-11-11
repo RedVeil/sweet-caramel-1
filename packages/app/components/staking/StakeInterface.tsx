@@ -58,7 +58,6 @@ export default function StakeInterface({
   const [state, setState] = form;
   const router = useRouter();
   const networkName = useNetworkName();
-  const pushWithinChain = usePushWithinChain();
 
   const toggleInterface = () =>
     setState({
@@ -177,7 +176,7 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.userStake
+                    {stakingPool?.userStake
                       ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
                       : "0"}{" "}
                     {stakingToken?.symbol}
@@ -207,7 +206,7 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
+                    {stakingPool?.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
                   </p>
                 </div>
               </div>
@@ -238,7 +237,7 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.userStake
+                        {stakingPool?.userStake
                           ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
                           : "0"}{" "}
                         {stakingToken?.symbol}
@@ -270,7 +269,7 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
+                        {stakingPool?.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
                         POP
                       </p>
                     </div>
