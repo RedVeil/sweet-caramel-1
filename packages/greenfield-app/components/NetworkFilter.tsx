@@ -71,6 +71,8 @@ export default function NetworkFilter({
 				<button
 					onClick={(e) => {
 						e.preventDefault();
+						console.log(networkCategories);
+
 						setOpenFilter(true);
 					}}
 					className="w-full py-3 px-5 flex flex-row items-center justify-between mt-1 space-x-1 rounded-4xl border border-gray-300"

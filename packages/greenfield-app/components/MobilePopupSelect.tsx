@@ -23,22 +23,21 @@ export const MobilePopupSelect: React.FC<Props> = (props) => {
 		e.preventDefault();
 		switchFilter(value);
 		onClose(false);
+
 	};
 
 	return (
 		<PopUpModal visible={visible} onClosePopUpModal={() => onClose(false)}>
-			{selectedItem.id && (
-				<>
-					<p className=" text-black mb-3">{title}</p>
-					<List selected={selectedItem.id}>
-						{categories.map((category) => (
-							<ListItem key={category.id} value={category.id} onClick={(e) => handleOnChange(e, category)}>
-								{category.value}
-							</ListItem>
-						))}
-					</List>
-				</>
-			)}
+			<>
+				<p className=" text-black mb-3">{title}</p>
+				<List selected={selectedItem.id}>
+					{categories.map((category) => (
+						<ListItem key={category.id} value={category.id} onClick={(e) => handleOnChange(e, category)}>
+							{category.value}
+						</ListItem>
+					))}
+				</List>
+			</>
 		</PopUpModal>
 	);
 };
