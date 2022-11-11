@@ -2,14 +2,14 @@ import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCar
 import StakeCard from "components/staking/StakeCard";
 import React, { useMemo } from "react";
 import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
-import useSelectNetwork from "hooks/useSelectNetwork";
+import useNetworkFilter from "hooks/useNetworkFilter";
 import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
-import SelectNetwork from "components/SelectNetwork";
+import NetworkFilter from "components/NetworkFilter";
 
 export default function StakingOverviewPage(): JSX.Element {
 	const stakingContracts = useAllStakingContracts();
 	const supportedNetworks = useChainsWithStaking()
-	const [selectedNetworks, selectNetwork, mobileSelectNetwork] = useSelectNetwork(supportedNetworks)
+	const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks)
 
 	const stakingPools = useMemo(
 		() => stakingContracts?.stakingPools?.filter(staking => selectedNetworks.includes(staking?.chainId)),
@@ -26,7 +26,7 @@ export default function StakingOverviewPage(): JSX.Element {
 					<ConnectDepositCard />
 				</div>
 			</div>
-			<SelectNetwork supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} mobileSelectNetwork={mobileSelectNetwork} />
+			<NetworkFilter supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} />
 			<div className="border-t border-t-customLightGray">
 				<div className="w-full">
 					<div className="h-full ">
