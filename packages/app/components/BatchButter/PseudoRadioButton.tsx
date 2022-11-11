@@ -15,7 +15,7 @@ const PseudoRadioButton: React.FC<PseudoRadioButtonProps> = ({
 }) => {
   return (
     <button
-      className={`py-2 px-3 h-12 border w-full rounded-lg text-lg leading-8 ${extraClasses ? extraClasses : ""} ${
+      className={`leading-8 ${extraClasses ? extraClasses : "py-2 px-3  h-12 border w-full rounded-lg text-lg"} ${
         isActive ? `${activeClass ? activeClass : ""}` : "border-customLightGray"
       }`}
       type="button"

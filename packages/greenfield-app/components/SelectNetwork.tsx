@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from "@heroicons/react/outline";
+import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils"
 import Image from "next/image";
 import { useState } from "react";
@@ -29,12 +30,16 @@ export default function SelectNetwork({ supportedNetworks, selectedNetworks, sel
 	return (
 		<>
 			<div className="hidden md:flex flex-row items-center space-x-2 mb-8">
-				{supportedNetworks.map(network =>
+
+				{/* {supportedNetworks.map(network =>
 					<button key={network}
 						onClick={() => selectNetwork(network)}
 						className={`${selectedNetworks.includes(network) ? "bg-warmGray" : "bg-white"} h-14 w-18 border border-customLightGray rounded-3xl text-primary cursor-pointer flex justify-center items-center`}>
 						<Image src={networkLogos[network]} alt={ChainId[network]} height="24px" width="24px" objectFit="contain" />
 					</button>
+				)} */}
+				{supportedNetworks.map(network =>
+					<PseudoRadioButton key={network} label={<Image src={networkLogos[network]} alt={ChainId[network]} height="24px" width="24px" objectFit="contain" />} handleClick={() => selectNetwork(network)} isActive={selectedNetworks.includes(network)} activeClass="bg-warmGray" extraClasses="h-14 w-18 border border-customLightGray rounded-3xl text-primary flex justify-center items-center" />
 				)}
 			</div>
 
