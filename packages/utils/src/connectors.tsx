@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 export enum ChainId {
   Ethereum = 1,
-  Rinkeby = 4,
+  Goerli = 5,
   Arbitrum = 42161,
   Mumbai = 80001,
   Polygon = 137,
@@ -16,7 +16,7 @@ export enum ChainId {
 
 export enum ChainIdHex {
   Ethereum = "0x1",
-  Rinkeby = "0x4",
+  Goerli = "0x5",
   Arbitrum = "0xa4b1",
   Mumbai = "0x13881",
   Polygon = "0x89",
@@ -28,7 +28,7 @@ export enum ChainIdHex {
 
 export const HexToChain = {
   "0x1": ChainId.Ethereum,
-  "0x4": ChainId.Rinkeby,
+  "0x5": ChainId.Goerli,
   "0xa4b1": ChainId.Arbitrum,
   "0x13881": ChainId.Mumbai,
   "0x89": ChainId.Polygon,
@@ -40,7 +40,7 @@ export const HexToChain = {
 
 export const supportedChainIds = [
   ChainId.Ethereum,
-  ChainId.Rinkeby,
+  ChainId.Goerli,
   ChainId.Arbitrum,
   ChainId.Polygon,
   ChainId.Mumbai,
@@ -54,7 +54,7 @@ export const supportedChainIds = [
 
 export const networkMap = {
   [ChainId.Ethereum]: "Ethereum",
-  [ChainId.Rinkeby]: "Rinkeby",
+  [ChainId.Goerli]: "Goerli",
   [ChainId.Arbitrum]: "Arbitrum",
   [ChainId.Mumbai]: "polygon_mumbai",
   [ChainId.Polygon]: "Polygon",
@@ -69,7 +69,7 @@ export const networkMap = {
 export const networkLogos = {
   [ChainId.ALL]: "/images/icons/allIcon.svg",
   [ChainId.Ethereum]: "/images/icons/ethereum.svg",
-  [ChainId.Rinkeby]: "/images/icons/ethLogo.png",
+  [ChainId.Goerli]: "/images/icons/testNetLogo.png",
   [ChainId.Polygon]: "/images/icons/polygon.svg",
   [ChainId.Arbitrum]: "/images/icons/arbitrum.svg",
   [ChainId.Localhost]: "/images/icons/testNetLogo.png",
@@ -80,7 +80,7 @@ export const networkLogos = {
 };
 export const RPC_URLS = {
   [ChainId.Ethereum]: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
-  [ChainId.Rinkeby]: `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.Goerli]: `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Arbitrum]: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Polygon]: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -91,7 +91,7 @@ export const RPC_URLS = {
 };
 export const PRC_PROVIDERS = {
   [ChainId.Ethereum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Ethereum], ChainId.Ethereum),
-  [ChainId.Rinkeby]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Rinkeby], ChainId.Rinkeby),
+  [ChainId.Goerli]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Goerli], ChainId.Goerli),
   [ChainId.Arbitrum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Arbitrum], ChainId.Arbitrum),
   [ChainId.Polygon]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Polygon], ChainId.Polygon),
   [ChainId.Mumbai]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Mumbai], ChainId.Mumbai),
@@ -103,7 +103,7 @@ export const PRC_PROVIDERS = {
 
 export type HardhatConfigNetworks = {
   mainnet?: string;
-  rinkeby?: string;
+  goerli?: string;
   bsc?: string;
   polygon?: string;
   hardhat?: string;
@@ -115,7 +115,7 @@ export type HardhatConfigNetworks = {
 export const HardhatConfigNetworksChainIdMapping = {
   mainnet: ChainId.Ethereum,
   ethereum: ChainId.Ethereum,
-  rinkeby: ChainId.Rinkeby,
+  goerli: ChainId.Goerli,
   bsc: ChainId.BNB,
   bnb: ChainId.BNB,
   polygon: ChainId.Polygon,

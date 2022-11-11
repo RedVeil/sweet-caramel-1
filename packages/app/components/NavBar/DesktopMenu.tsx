@@ -13,7 +13,6 @@ import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import { networkLogos } from "@popcorn/utils";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
 import { useMemo, useRef } from "react";
-import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
 import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
 
 export default function DesktopMenu(): JSX.Element {
@@ -29,7 +28,6 @@ export default function DesktopMenu(): JSX.Element {
     [chain?.id, isConnected],
   );
   const chainName = useMemo(() => (isConnected && chain?.name ? chain.name : "Ethereum"), [chain?.id, isConnected]);
-  const url = useChainUrl();
   const productLinks = useProductLinks();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
