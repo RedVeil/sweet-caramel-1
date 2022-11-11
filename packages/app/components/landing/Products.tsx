@@ -9,9 +9,11 @@ import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import React from "react";
 import Product from "@popcorn/app/components/landing/Product";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 
 const Products = () => {
   const { Ethereum, Polygon } = ChainId;
+  const networkName = useNetworkName();
 
   const {
     ySusd,
@@ -61,7 +63,7 @@ const Products = () => {
                 },
               },
             ]}
-            route="sweet-vaults"
+            route={`${networkName}/sweet-vaults`}
             badge="/images/newProductBadge.svg"
           />
         )}
@@ -91,7 +93,7 @@ const Products = () => {
               },
             },
           ]}
-          route="set/3x"
+          route={`${networkName}/set/3x`}
           customContent={ThreeXExposure}
           badge="/images/fireProductBadge.svg"
         />
@@ -122,7 +124,7 @@ const Products = () => {
               },
             },
           ]}
-          route="set/butter"
+          route={`${networkName}/set/butter`}
           customContent={ButterExposure}
         />
         <Product
@@ -142,7 +144,7 @@ const Products = () => {
               },
             },
           ]}
-          route="staking"
+          route={`staking`}
         />
       </div>
     </section>
