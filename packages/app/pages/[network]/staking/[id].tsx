@@ -34,7 +34,7 @@ export default function StakingPage(): JSX.Element {
 
   useEffect(() => {
     if (stakingPoolError) {
-      pushWithinChain("staking");
+      router.push("/staking");
     }
   }, [stakingPoolError]);
 

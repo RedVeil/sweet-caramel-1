@@ -69,7 +69,7 @@ export default function StakeInterface({
   return (
     <>
       <div className="-ml-2">
-        <div className="flex items-center cursor-pointer" onClick={() => pushWithinChain("staking")}>
+        <div className="flex items-center cursor-pointer" onClick={() => router.push("/staking")}>
           <ChevronLeftIcon className="w-6 h-6 text-secondaryLight" />
           <p className="text-primary">Staking</p>
         </div>
@@ -103,9 +103,9 @@ export default function StakeInterface({
                 content={
                   stakingPool && stakedTokenPrice
                     ? `$${formatAndRoundBigNumber(
-                        stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
-                        18,
-                      )}`
+                      stakingPool?.totalStake.mul(stakedTokenPrice).div(constants.WeiPerEther),
+                      18,
+                    )}`
                     : "..."
                 }
                 label="TVL"
@@ -113,9 +113,8 @@ export default function StakeInterface({
             </div>
             <div className="block mt-6 md:mt-8 pr-8 md:pr-0 md:pl-6 md:border-l md:border-customLightGray">
               <StatusWithLabel
-                content={`${
-                  stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
-                } POP / day`}
+                content={`${stakingPool ? formatAndRoundBigNumber(stakingPool.tokenEmission, stakingToken.decimals) : "0"
+                  } POP / day`}
                 label="EMISSION RATE"
               />
             </div>
