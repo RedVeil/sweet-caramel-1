@@ -24,6 +24,7 @@ export default function useWeb3() {
   async function setChainFromNumber(newChainId: number): Promise<void> {
     if (account || (chain?.id && newChainId !== chain?.id)) {
       switchNetwork(Number(newChainId));
+      pushNetworkChange(ChainId[newChainId], true);
     } else {
       await pushNetworkChange(ChainId[newChainId], true);
     }
