@@ -5,9 +5,7 @@ env:
 
 on:
   push:
-    paths:
-      - packages/greenfield-app
-      - packages/app
+    paths: [packages/greenfield-app, packages/app]
 
 jobs:
   Deploy:
