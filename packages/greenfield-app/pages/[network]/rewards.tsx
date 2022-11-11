@@ -2,14 +2,14 @@ import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCar
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { useRef, useState } from "react";
-import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useEffect, useRef, useState } from "react";
 import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import Vesting from "components/vesting/Vesting";
 import useSelectNetwork from "hooks/useSelectNetwork";
 import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
 import SelectNetwork from "components/SelectNetwork";
 import ClaimCard from "components/rewards/ClaimCard";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -23,6 +23,17 @@ export default function RewardsPage(): JSX.Element {
   const [selectedNetworks, selectNetwork, mobileSelectNetwork] = useSelectNetwork(supportedNetworks)
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const isSelected = (tab: Tabs) => tabSelected === tab;
+  const [hasVesting, setHasVesting] = useState<boolean>(false)
+  const rewardDiv = useRef<HTMLDivElement>();
+
+  useEffect(() => {
+    // Check if a Vesting Record shows up
+    const vestingCheck = setInterval(() => {
+      rewardDiv?.current?.childNodes?.forEach(node => { if (node.classList.value === "flex flex-col h-full ") { setHasVesting(true); clearInterval(vestingCheck) } })
+    }, 1000);
+    // If there is no vesting record after 10s dont check anymore
+    setTimeout(() => { clearInterval(vestingCheck) }, 10000)
+  }, [])
 
   return (
     <>
@@ -65,30 +76,29 @@ export default function RewardsPage(): JSX.Element {
           </div>
           <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10">
             <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={[Tabs.Staking, Tabs.Vesting]} />
-            {isSelected(Tabs.Staking) &&
-              stakingContracts?.stakingPools &&
-              stakingContracts?.stakingPools.length > 0 &&
-              stakingContracts?.stakingPools?.map(staking =>
-                <ClaimCard
-                  key={staking?.chainId + staking?.address}
-                  chainId={staking?.chainId}
-                  stakingAddress={staking?.address}
-                  stakingType={staking?.stakingType}
-                />
-              )}
+            <div className={`${isSelected(Tabs.Staking) ? "" : "hidden"}`}>
+              {stakingContracts?.stakingPools &&
+                stakingContracts?.stakingPools.length > 0 &&
+                stakingContracts?.stakingPools?.map(staking =>
+                  <ClaimCard
+                    key={staking?.chainId + staking?.address}
+                    chainId={staking?.chainId}
+                    stakingAddress={staking?.address}
+                    stakingType={staking?.stakingType}
+                  />
+                )}
+            </div>
 
-            {isSelected(Tabs.Vesting) && (
-              <div className="flex flex-col h-full mt-4">
-                <SelectNetwork
-                  supportedNetworks={supportedNetworks}
-                  selectedNetworks={selectedNetworks}
-                  selectNetwork={selectNetwork}
-                  mobileSelectNetwork={mobileSelectNetwork}
-                />
-                {supportedNetworks.filter(chain => selectedNetworks.includes(chain)).map(chain => <Vesting key={chain + "Vesting"} chainId={chain} />)}
-              </div>
-            )}
-
+            <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`} ref={rewardDiv}>
+              <SelectNetwork
+                supportedNetworks={supportedNetworks}
+                selectedNetworks={selectedNetworks}
+                selectNetwork={selectNetwork}
+                mobileSelectNetwork={mobileSelectNetwork}
+              />
+              <div className={`mb-4 ${hasVesting ? "hidden" : ""}`}><NotAvailable title="No Records Available" body="No vesting records available" /></div>
+              {supportedNetworks.filter(chain => selectedNetworks.includes(chain)).map(chain => <Vesting key={chain + "Vesting"} chainId={chain} />)}
+            </div>
           </div>
         </div>
       )}
