@@ -75,8 +75,8 @@ export const MobileMenu: React.FC = () => {
       setAvailableNetworks([
         ...availableNetworks,
         {
-          id: JSON.stringify(ChainId.Rinkeby),
-          value: networkMap[ChainId.Rinkeby],
+          id: JSON.stringify(ChainId.Goerli),
+          value: networkMap[ChainId.Goerli],
         },
         {
           id: JSON.stringify(ChainId.Localhost),
