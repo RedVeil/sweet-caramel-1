@@ -3,6 +3,7 @@ import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioBu
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import Image from "next/image";
 import { useState } from "react";
+import { chainId } from "wagmi";
 import { MobilePopupSelect } from "./MobilePopupSelect";
 
 interface NetworkFilterProps {
@@ -22,6 +23,12 @@ export default function NetworkFilter({
 		selectNetwork(value.id);
 		setCategoryFilter(value);
 	};
+	const [activeNetwork, setActiveNetwork] = useState(ChainId.ALL)
+
+	const setActiveAndSelectedNetwork = (chainId: ChainId) => {
+		setActiveNetwork(chainId)
+		selectNetwork(chainId)
+	}
 	const networkCategories = supportedNetworks.map((network) => {
 		return {
 			id: network,
@@ -48,8 +55,8 @@ export default function NetworkFilter({
 								objectFit="contain"
 							/>
 						}
-						handleClick={() => selectNetwork(network)}
-						isActive={selectedNetworks.includes(network)}
+						handleClick={() => setActiveAndSelectedNetwork(network)}
+						isActive={activeNetwork == network}
 						extraClasses="h-12 w-18 border border-customLightGray rounded-3xl text-primary flex justify-center items-center"
 					/>
 				))}
@@ -64,24 +71,14 @@ export default function NetworkFilter({
 					className="w-full py-3 px-5 flex flex-row items-center justify-between mt-1 space-x-1 rounded-4xl border border-gray-300"
 				>
 					<div className="flex items-center">
-						{supportedNetworks.map((network) => (
-							<div className="-ml-2 flex items-center" key={network}>
-								<Image
-									src={networkLogos[network]}
-									alt={ChainId[network]}
-									height="32px"
-									width="32px"
-									objectFit="contain"
-								/>
-							</div>
-						))}
+						{categoryFilter.value}
 					</div>
 					<ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
 				</button>
 			</div>
 			<div className="no-select-dot absolute left-0">
 				<MobilePopupSelect
-					categories={[{ id: "ALL", value: "All" }, ...networkCategories]}
+					categories={networkCategories}
 					visible={openFilter}
 					onClose={setOpenFilter}
 					selectedItem={categoryFilter}
