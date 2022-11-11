@@ -50,8 +50,7 @@ export default function NetworkFilter({
 						}
 						handleClick={() => selectNetwork(network)}
 						isActive={selectedNetworks.includes(network)}
-						activeClass="border-1 border-tokenTextGray"
-						extraClasses="h-14 w-18 border border-customLightGray rounded-3xl text-primary flex justify-center items-center"
+						extraClasses="h-12 w-18 border border-customLightGray rounded-3xl text-primary flex justify-center items-center"
 					/>
 				))}
 			</div>
