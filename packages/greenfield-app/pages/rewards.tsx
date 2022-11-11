@@ -80,7 +80,7 @@ export default function RewardsPage(): JSX.Element {
 			{account && (
 				<div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
 					<div className="col-span-12 md:col-span-4">
-						<div className={` ${isSelected(Tabs.Vesting) ? "" : "hidden"}`}>
+						<div className={`mb-12 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`}>
 							<NetworkFilter
 								supportedNetworks={supportedNetworks}
 								selectedNetworks={selectedNetworks}
@@ -110,7 +110,7 @@ export default function RewardsPage(): JSX.Element {
 
 						<div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`} ref={rewardDiv}>
 							<div className={`mb-4 ${hasVesting ? "hidden" : ""}`}>
-								<NotAvailable title="No Records Available" body="No vesting records available" />
+								<NotAvailable title="No Records Available" body="No vesting records available" image="/images/emptyRecord.svg" />
 							</div>
 							{supportedNetworks
 								.filter((chain) => selectedNetworks.includes(chain))
