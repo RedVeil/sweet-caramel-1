@@ -44,18 +44,30 @@ const NetWorthCard = () => {
             `bg-customLightPurple py-6 px-4 rounded-tl-5xl rounded-bl-5xl w-[${depositPercentage}%]`,
             {
               hidden: depositPercentage === "0",
-              "rounded-br-5xl rounded-tr-5xl": "",
+              "rounded-br-5xl rounded-tr-5xl": vestingPercentage === "0",
             },
           )}
         >
           <p>{depositPercentage}%</p>
         </div>
         <div
-          className={`bg-customPurple py-6 px-2 w-[${vestingPercentage}%] ${vestingPercentage === "0" ? "hidden" : ""}`}
+          className={classnames(`bg-customPurple py-6 px-2 w-[${vestingPercentage}%]`, {
+            hidden: vestingPercentage === "0",
+            "rounded-bl-5xl rounded-tl-5xl": depositPercentage === "0",
+            "rounded-br-5xl rounded-tr-5xl": inWalletPercentage === "0",
+          })}
         >
           {vestingPercentage}%
         </div>
-        <div className={`bg-customDarkPurple py-6 px-2 rounded-tr-5xl rounded-br-5xl w-[${inWalletPercentage}%]`}>
+        <div
+          className={classnames(
+            `bg-customDarkPurple py-6 px-2 rounded-tr-5xl rounded-br-5xl w-[${inWalletPercentage}%]`,
+            {
+              hidden: inWalletPercentage === "0",
+              "rounded-bl-5xl rounded-tl-5xl": vestingPercentage === "0",
+            },
+          )}
+        >
           {inWalletPercentage}%
         </div>
       </div>
