@@ -3,12 +3,11 @@ import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useState } from "react";
-import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import Vesting from "components/vesting/Vesting";
 import useSelectNetwork from "hooks/useNetworkFilter";
 import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
-import SelectNetwork from "components/FilterNetwork";
+import SelectNetwork from "components/NetworkFilter";
 import ClaimCard from "components/rewards/ClaimCard";
 
 export enum Tabs {
@@ -18,13 +17,11 @@ export enum Tabs {
 
 export default function RewardsPage(): JSX.Element {
   const { account, connect } = useWeb3();
-  const chainId = useChainIdFromUrl();
   const stakingContracts = useAllStakingContracts();
   const supportedNetworks = useChainsWithStaking()
   const [selectedNetworks, selectNetwork] = useSelectNetwork(supportedNetworks)
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const isSelected = (tab: Tabs) => tabSelected === tab;
-
 
   return (
     <>
@@ -81,8 +78,12 @@ export default function RewardsPage(): JSX.Element {
 
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full mt-4">
-                <SelectNetwork supportedNetworks={supportedNetworks} selectedNetworks={selectedNetworks} selectNetwork={selectNetwork} />
-                {supportedNetworks.filter(chain => selectedNetworks.includes(chain)).map(chain => <Vesting key={chainId + "Vesting"} chainId={chain} />)}
+                <SelectNetwork
+                  supportedNetworks={supportedNetworks}
+                  selectedNetworks={selectedNetworks}
+                  selectNetwork={selectNetwork}
+                />
+                {supportedNetworks.filter(chain => selectedNetworks.includes(chain)).map(chain => <Vesting key={chain + "Vesting"} chainId={chain} />)}
               </div>
             )}
 

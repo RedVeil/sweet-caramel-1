@@ -82,7 +82,7 @@ export default function NetworkFilter({
 			</div>
 			<div className="no-select-dot absolute left-0">
 				<MobilePopupSelect
-					categories={networkCategories}
+					categories={[{ id: "ALL", value: "All" }, ...networkCategories]}
 					visible={openFilter}
 					onClose={setOpenFilter}
 					selectedItem={categoryFilter}

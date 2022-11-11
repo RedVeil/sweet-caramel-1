@@ -23,7 +23,11 @@ export default function useEscrows(chainId: ChainId): EscrowSummary {
 
   const { data: escrowsFetchResult, isValidating: escrowsFetchResultIsValidating, error: escrowsFetchResultError, mutate: revalidateEscrowsFetchResult } = useGetUserEscrows(rewardsEscrow, account, chainId);
   const { data: vaultsEscrowsFetchResults, isValidating: vaultsEscrowsFetchResultsIsValidating, error: vaultsEscrowsFetchResultsError, mutate: revalidateVaultsEscrowsFetchResults } = useGetUserEscrows(vaultsRewardsEscrow, account, chainId);
-
+  console.log({
+    escrowsFetchResultError, vaultsEscrowsFetchResultsError,
+    or: escrowsFetchResultError || vaultsEscrowsFetchResultsError,
+    and: escrowsFetchResultError && vaultsEscrowsFetchResultsError
+  })
   return useMemo(
     () => {
       return {

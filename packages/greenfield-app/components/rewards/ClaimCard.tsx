@@ -13,6 +13,7 @@ import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import { StakingType } from "hooks/staking/useAllStakingContracts";
 import ContentLoader from "react-content-loader";
+import Image from "next/image";
 
 interface ClaimCardProps {
   stakingAddress: string;
@@ -83,11 +84,13 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
     <div
       className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${!staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : ""}`}
     >
-      <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4" />
       <div className="flex flex-col md:flex-row justify-between pt-4 pb-6 md:px-8">
         <div className="flex flex-col justify-between">
           <div className="flex flex-row items-center">
-            <div>
+            <div className="flex items-center relative">
+              <div className="absolute top-0 -left-4">
+                <Image src={networkLogos[chainId]} alt={ChainId[chainId]} height="24px" width="24px" objectFit="contain" />
+              </div>
               <TokenIcon token={staking?.stakingToken?.address} chainId={chainId} fullsize />
             </div>
             <h1
