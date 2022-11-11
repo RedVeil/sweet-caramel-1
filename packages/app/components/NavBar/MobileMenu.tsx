@@ -175,11 +175,7 @@ export const MobileMenu: React.FC = () => {
                         <NavbarLink label="Staking" url="/staking" isActive={router?.pathname.includes("/staking")} />
                       </div>
                       <div className="py-6">
-                        <NavbarLink
-                          label="Rewards"
-                          url={`/${ChainId[chainId].toLowerCase()}/rewards`}
-                          isActive={router?.pathname.includes("/rewards")}
-                        />
+                        <NavbarLink label="Rewards" url={`/rewards`} isActive={router?.pathname.includes("/rewards")} />
                       </div>
                       <div className="py-6">
                         <TertiaryActionButton

@@ -69,7 +69,7 @@ export default function DesktopMenu(): JSX.Element {
             </Menu>
           </li>
           <li>
-            <NavbarLink label="Rewards" url={url(`/rewards`)} isActive={router.pathname === "/[network]/rewards"} />
+            <NavbarLink label="Rewards" url={`/rewards`} isActive={router.pathname.includes("/rewards")} />
           </li>
         </ul>
         <div className="relative flex flex-container flex-row z-10">
