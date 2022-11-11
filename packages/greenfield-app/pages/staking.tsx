@@ -3,7 +3,7 @@ import StakeCard from "components/staking/StakeCard";
 import React, { useMemo } from "react";
 import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import useNetworkFilter from "hooks/useNetworkFilter";
-import useChainsWithStaking from "hooks/staking/useChainsWithStaking";
+import { useChainsWithStaking } from "hooks/staking/useChainsWithStaking";
 import NetworkFilter from "components/NetworkFilter";
 
 export default function StakingOverviewPage(): JSX.Element {
