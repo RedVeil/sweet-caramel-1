@@ -5,6 +5,8 @@ name: Forge Tests
 
 on:
   push:
+    paths:
+      - packages/hardhat/**
 
 jobs:
   build:

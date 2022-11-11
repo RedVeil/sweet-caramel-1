@@ -5,6 +5,8 @@ name: Node.js CI
 
 on:
   push:
+    paths:
+      - packages/hardhat/**
 
 jobs:
   build:
@@ -44,4 +46,4 @@ jobs:
           CI: true
         # - uses: borales/actions-yarn@v3.0.0
       - name: "yarn tests"
-        run: yarn test
+        run: cd packages/hardhat; yarn test

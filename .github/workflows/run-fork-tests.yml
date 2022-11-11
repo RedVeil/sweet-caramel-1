@@ -5,6 +5,8 @@ name: Solidity Fork Tests
 
 on:
   push:
+    paths:
+      - packages/hardhat/**
 
 jobs:
   build:

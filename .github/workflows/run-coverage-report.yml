@@ -5,6 +5,8 @@ name: Solidity Test Coverage
 
 on:
   push:
+    paths:
+      - packages/hardhat/**
 
 jobs:
   build:
