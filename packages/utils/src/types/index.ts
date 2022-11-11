@@ -5,6 +5,7 @@ import { ChainId } from "@popcorn/utils";
 export type Address = string;
 
 export interface ContractAddresses {
+  xen?: Address;
   staking?: Array<Address>;
   sweetVaults?: Array<Address>;
   defaultTokenList?: Array<Address>;
