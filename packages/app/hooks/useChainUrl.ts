@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNetwork } from "wagmi";
 import { useIsConnected } from "./useIsConnected";
 import useNetworkNameFromUrl from "./useNetworkNameFromUrl";

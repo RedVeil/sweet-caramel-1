@@ -211,7 +211,7 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              <Link href={`/${networkName}/rewards`} passHref>
+              <Link href={`/rewards`} passHref>
                 <a target="_self">
                   <div className="border-t border-customLightGray pt-2 px-1">
                     <SecondaryActionButton label="Claim Page" />
@@ -275,7 +275,7 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  <Link href={`/${networkName}/rewards`} passHref>
+                  <Link href={`/rewards`} passHref>
                     <a target="_self">
                       <div className="border-t border-customLightGray pt-2 px-1">
                         <SecondaryActionButton label="Claim Page" />
