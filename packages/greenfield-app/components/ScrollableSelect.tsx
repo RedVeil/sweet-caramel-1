@@ -26,7 +26,7 @@ interface ListItemProps {
 const ListItem: FC<ListItemProps> = ({ children, value, onClick }) => {
 	const { selected } = useContext(ListContext);
 	return (
-		<li value={value} className="my-1 bg-transparent text-base md:text-lg hover:bg-customPaleGray hover:bg-opacity-40 rounded-lg">
+		<li value={value} className={`my-1 bg-transparent border-3 text-base md:text-lg hover:bg-customPaleGray hover:bg-opacity-40 rounded-lg ${selected === value ? 'border-primary' : 'border-transparent'}`}>
 			<button className={`w-full flex items-center py-3 px-3 ${selected === value ? 'text-black font-[500]' : 'text-primary font-normal'}`} onClick={onClick}>
 				<>
 					{children}
