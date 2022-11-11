@@ -26,6 +26,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   /* ========== CUSTOM ERRORS ========== */
 
   error SetZaps();
+  error ConflictingInterest();
 
   /* ========== STATE VARIABLES ========== */
 
@@ -83,7 +84,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
 
     if (_factoryName != "") {
       if (_vaultParams.strategy != address(0)) revert ConflictingInterest();
-      _vaultParams.strategy = _strategyFactory().deploy(_vaultParams);
+      // _vaultParams.strategy = _strategyFactory().deploy(_vaultParams); TODO fix me
     }
 
     vault = _vaultsV1Factory().deploy(_vaultParams);
