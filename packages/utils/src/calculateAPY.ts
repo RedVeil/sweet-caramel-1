@@ -32,7 +32,7 @@ export async function calculateApy(
     case contractAddresses.threeX?.toLocaleLowerCase():
       return getButterApy(tokenPerWeek, totalStaked, contractAddresses, chainId, library);
     case contractAddresses.xen?.toLowerCase():
-      return getXenApy(tokenPerWeek, totalStaked, contractAddresses, chainId)
+      return getXenApy(tokenPerWeek, totalStaked, contractAddresses, chainId);
     default:
       return constants.Zero;
   }
@@ -42,7 +42,7 @@ export async function getXenApy(
   tokenPerWeek: BigNumber,
   totalStaked: BigNumber,
   contractAddresses: ContractAddresses,
-  chainId: number
+  chainId: number,
 ): Promise<BigNumber> {
   const tokenPrices = await getAssetValue([contractAddresses.xen, contractAddresses.pop], ChainId.Ethereum);
 
@@ -54,9 +54,7 @@ export async function getXenApy(
 
   const apy = weeklyRewardsPerDollarStaked.mul(52);
   return apy.mul(100);
-
 }
-
 
 export async function getLpTokenApy(
   tokenPerWeek: BigNumber,

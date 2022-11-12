@@ -12,7 +12,7 @@ export default function useGetMultipleStakingPools(
   chainId: ChainId,
 ): SWRResponse<StakingPoolMetadata[], Error> {
   const { account } = useWeb3();
-  const rpcProvider = useRpcProvider(chainId)
+  const rpcProvider = useRpcProvider(chainId);
   const contractAddresses = useDeployment(chainId);
 
   const stakingContracts = useMemo(
@@ -20,16 +20,13 @@ export default function useGetMultipleStakingPools(
     [chainId, addresses, rpcProvider],
   );
 
-  const shouldFetch = !!stakingContracts && !!chainId
+  const shouldFetch = !!stakingContracts && !!chainId;
 
-  return useSWR(
-    shouldFetch ? [`getPoolInfo`, account, chainId, addresses, rpcProvider] : null,
-    async (key: string) => {
-      return Promise.all(
-        stakingContracts.map(async (contract) =>
-          getStakingPool(key, account, contract, chainId, rpcProvider, contractAddresses),
-        ),
-      );
-    },
-  );
+  return useSWR(shouldFetch ? [`getPoolInfo`, account, chainId, addresses, rpcProvider] : null, async (key: string) => {
+    return Promise.all(
+      stakingContracts.map(async (contract) =>
+        getStakingPool(key, account, contract, chainId, rpcProvider, contractAddresses),
+      ),
+    );
+  });
 }

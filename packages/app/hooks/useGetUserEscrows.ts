@@ -62,7 +62,11 @@ const getUserEscrows = async (_: any, account: string, vestingEscrow: RewardsEsc
   };
 };
 
-export function useGetUserEscrows(address: string, account: string, chainId: ChainId): SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber }, Error> {
+export function useGetUserEscrows(
+  address: string,
+  account: string,
+  chainId: ChainId,
+): SWRResponse<{ escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber }, Error> {
   const provider = useRpcProvider(chainId);
   const vestingEscrow = useVestingEscrow(address, chainId);
   const shouldFetch = !!vestingEscrow && !!account && !!provider;

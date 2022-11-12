@@ -5,9 +5,13 @@ import { useDisconnect, useNetwork } from "wagmi";
 
 export default function Navbar(): JSX.Element {
   const { chain } = useNetwork();
-  const { disconnect } = useDisconnect()
+  const { disconnect } = useDisconnect();
 
-  useEffect(() => { if (chain?.unsupported) { disconnect() } }, [chain])
+  useEffect(() => {
+    if (chain?.unsupported) {
+      disconnect();
+    }
+  }, [chain]);
 
   return (
     <>
