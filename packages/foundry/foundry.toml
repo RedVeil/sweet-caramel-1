@@ -28,10 +28,6 @@ out = 'out'
 test = 'test'
 libs = ['../../node_modules', "lib"]
 fs_permissions = [{ access = "read-write", path = "./"}]
-remappings = [
-  'ds-test/=lib/forge-std/lib/ds-test/src/',
-  'forge-std/=lib/forge-std/src/'
-]
 verbosity = 2
 fuzz_max_global_rejects = 100000000
 fuzz_runs = 2500
