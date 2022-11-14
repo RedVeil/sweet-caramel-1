@@ -9,3 +9,4 @@ docgen/SUMMARY.md
 docgen/.gitbook.yaml
 deployments.json
 exporter/
+.vercel

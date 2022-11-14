@@ -27,7 +27,7 @@ jobs:
         id: build
 
       - name: Run tests
-        run: cd packages/foundry && forge test
+        run: cd packages/foundry && forge test -vvv
         env:
           FOUNDRY_PROFILE: ci
           RPC_URL: ${{secrets.RPC_URL}}

@@ -1,0 +1,67 @@
+--- 
+name: "Foundry Coverage Deployment"
+
+on: 
+  push: 
+    paths: 
+      - packages/foundry
+
+env: 
+  VERCEL_ORG_ID: "${{ secrets.VERCEL_ORG_ID }}"
+  VERCEL_PROJECT_ID: "${{ secrets.VERCEL_FOUNDRY_PROJECT_ID }}"
+
+jobs: 
+  Deploy: 
+    if: "${{ false }}"
+
+  runs-on: ubuntu-latest
+
+  steps: 
+    - name: Install missing software on ubuntu
+      run: |
+        sudo apt-get update
+        sudo apt-get install libxml2-utils
+        sudo apt-get install libz3-dev libz3-4
+        sudo apt-get install lcov
+        sudo apt-get install libcppunit-dev
+        python -m pip install pip --upgrade
+        python -m pip install lcov_cobertura
+
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+
+    - name: Run Forge build
+      run: |
+        cd packages/foundry
+        forge --version
+        forge build --sizes
+      id: build
+
+    - name: Generate coverage report
+      run: |
+        cd packges/foundry
+        forge coverage --report lcov
+        genhtml lcov.info -o coverage_report --frame --legend
+
+    - 
+      name: "Install Vercel CLI"
+      run: "npm install --global vercel@latest"
+
+    - 
+      name: "Pull Vercel Environment Information"
+      run: "vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}"
+
+    - 
+      name: "Build Project Artifacts"
+      run: "vercel build --token=${{ secrets.VERCEL_TOKEN }}"
+
+    - 
+      name: "Deploy Project Artifacts to Vercel"
+      run: "vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}"
+
