@@ -336,7 +336,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   /* ========== VAULTSTAKING MANAGEMENT FUNCTIONS ========== */
-
+  
   function setStakingEscrowDurations(address[] calldata _stakingContracts, uint256[] calldata _escrowDurations)
     external
     onlyOwner
@@ -454,6 +454,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
 
   // TODO add implementation address
+  // TODO make also permissionless so long as the factory is permissioned
   function deployStrategy(bytes32 _factoryName, bytes memory _deploymentParams)
     external
     onlyOwner
