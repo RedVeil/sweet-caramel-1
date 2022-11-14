@@ -4,7 +4,7 @@ name: "Foundry Coverage Deployment"
 on: 
   push: 
     paths: 
-      - packages/foundry
+      - packages/foundry/**
 
 env: 
   VERCEL_ORG_ID: "${{ secrets.VERCEL_ORG_ID }}"
@@ -48,6 +48,7 @@ jobs:
         cd packges/foundry
         forge coverage --report lcov
         genhtml lcov.info -o coverage_report --frame --legend
+
       env:
         FOUNDRY_PROFILE: ci
         RPC_URL: ${{secrets.RPC_URL}}
