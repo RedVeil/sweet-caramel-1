@@ -14,7 +14,7 @@ import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, ethers } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { useRouter } from "next/router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import inputExists, { isValidEmail } from "utils/isValidInput";
 import { setSingleActionModal } from "../../context/actions";
@@ -141,7 +141,7 @@ const ApplyForm = () => {
   const success = () => toast.success("Successful upload to IPFS");
   const loading = () => toast.loading("Uploading to IPFS...");
 
-  const checkPreConditions = async (): Promise<boolean> => {
+  const checkPreConditions = useCallback(async (): Promise<boolean> => {
     console.log('calling this function')
     if (!contracts) {
       return false;
@@ -175,7 +175,7 @@ const ApplyForm = () => {
       return false;
     }
     return true;
-  };
+  }, [account]);
 
   const uploadJsonToIpfs = async (submissionData: BeneficiaryApplication): Promise<void> => {
     setUploading(true);
@@ -193,7 +193,7 @@ const ApplyForm = () => {
 
         await contracts.beneficiaryGovernance
           .connect(library.getSigner())
-          .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), getBytes32FromIpfsHash(cid), 0);
+          .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), cid, 0);
       } catch (error) {
         dispatch(
           setSingleActionModal({
