@@ -19,7 +19,7 @@ interface ShareProps {
 const SocialShare: React.FC<ShareProps> = ({ title, text, url }) => {
   const socialList = [
     {
-      handleShare: (url: string) => externalOpen(`https://www.facebook.com/sharer/sharer.php?u=${url}`),
+      handleShare: (url: string) => externalOpen(`https://www.facebook.com/sharer/sharer.php?href=${url}`),
       icon: <FacebookIcon {...ICON_PROPS} />,
     },
     {
