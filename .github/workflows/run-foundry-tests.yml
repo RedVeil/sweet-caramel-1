@@ -28,8 +28,12 @@ jobs:
         with:
           version: nightly
 
+      - name: Run Forge build
+        run: cd packages/foundry && forge build
+        id: build
+
       - name: Run tests
-        run: forge test
+        run: cd packages/foundry && forge test
         env:
           FOUNDRY_PROFILE: ci
           RPC_URL: ${{secrets.RPC_URL}}
