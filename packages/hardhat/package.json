@@ -14,6 +14,7 @@
     "test:fork": "yarn hardhat test test/fork/**/*.test.ts",
     "test:forge": "yarn hardhat forge:forge-test",
     "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
+    "coverage:forge": "forge coverage --report lcov && lcov -o lcov.info --remove lcov.info 'contracts/mocks/*' 'contracts/test_helpers/*' '../../node_modules/*' 'node_modules/*' 'test/*' && mkdir -p forge_coverage && genhtml -o forge_coverage --branch-coverage lcov.info",
     "prettify": "yarn lint-staged --allow-empty",
     "install:forge": "forge install"
   },

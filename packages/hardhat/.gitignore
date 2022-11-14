@@ -2,6 +2,8 @@
 cache/
 typechain
 coverage/
+forge_coverage/
+lcov.info
 coverage.json
 deployments/
 docgen/docs
