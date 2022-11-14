@@ -33,9 +33,6 @@ jobs:
         with:
           version: nightly
 
-      - name: logging
-        run: ls && cd packages && ls && cd hardhat && ls && ls lib
-
       - name: Run Forge build
         run: cd packages/hardhat && forge build
         id: build
