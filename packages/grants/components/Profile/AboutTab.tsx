@@ -56,8 +56,9 @@ const AboutTab: React.FC<AboutTabProps> = ({ missionStatement, beneficiaryAddres
       <div className={classnames("flex flex-col", {
         "flex-col md:flex-row lg:space-x-3": isBeneficiaryPage
       })}>
-        <div className={classnames("flex-grow w-full flex-shrink-0 mb-3 lg:mb-0 mt-3", {
-          'lg:w-1/2': isBeneficiaryPage
+        <div className={classnames("flex-grow w-full flex-shrink-0", {
+          'lg:w-1/2 mb-0 lg:mb-0 mt-3': isBeneficiaryPage,
+          "mt-3": !isBeneficiaryPage
         })}>
           <div className="p-4 border border-customLightGray rounded-lg min-h-[100px] flex flex-col justify-center">
             <h6 className=" text-black text-base leading-6 font-semibold">Proof of Ownership</h6>
