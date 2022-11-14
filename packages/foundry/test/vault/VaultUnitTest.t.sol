@@ -522,14 +522,14 @@ contract VaultUnitTest is Test {
 
     vm.prank(alice);
     uint256 actualShares = vault.deposit(amount, alice);
-    assertApproxEqAbs(expectedShares, actualShares, 1);
+    assertApproxEqAbs(expectedShares, actualShares, 2);
 
     // Test PreviewMint and Mint
     uint256 expectedDeposit = vault.previewMint(amount);
 
     vm.prank(bob);
     uint256 actualDeposit = vault.mint(amount, bob);
-    assertApproxEqAbs(expectedDeposit, actualDeposit, 1);
+    assertApproxEqAbs(expectedDeposit, actualDeposit, 2);
   }
 
   function test_PreviewWithdrawRedeemTakesFeesIntoAccount(uint128 amount) public {
