@@ -22,6 +22,8 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import "@popcorn/app/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
+import { useMulticall } from "hooks/useMulticall";
+import { useProxy } from "hooks/useProxy";
 
 const bnb = {
   id: 56,
@@ -80,6 +82,8 @@ export default function MyApp(props) {
       </Page>
     ));
   const [loading, setLoading] = useState(false);
+
+  useProxy();
 
   useEffect(() => {
     setLoading(true);
