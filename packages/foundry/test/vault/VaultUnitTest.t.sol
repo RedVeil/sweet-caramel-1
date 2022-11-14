@@ -14,6 +14,7 @@ import { IContractRegistry } from "../../src/interfaces/IContractRegistry.sol";
 import { IACLRegistry } from "../../src/interfaces/IACLRegistry.sol";
 import { IERC4626 } from "../../src/interfaces/IERC4626.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
+import { console } from "forge-std/Console.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
@@ -632,23 +633,40 @@ contract VaultUnitTest is Test {
     assertEq(vault.assetsCheckpoint(), depositAmount + amount);
   }
 
-  function test_withdrawAccruedFees() public {
+  function test_withdrawAccruedDepositFees() public {
     uint256 depositAmount = 1 ether;
+
+    uint256 keeperBalBefore = vault.balanceOf(address(keeperIncentive));
+    uint256 accruedFeesBefore = vault.balanceOf(address(vault));
 
     vm.prank(ACL_ADMIN);
     vault.setFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    (uint256 depositFee, , , ) = vault.feeStructure();
 
     underlying.mint(alice, depositAmount);
+
     vm.startPrank(alice);
     underlying.approve(address(vault), depositAmount);
     vault.deposit(depositAmount, alice);
     vm.stopPrank();
 
+    uint256 accruedFeesAfter = vault.balanceOf(address(vault));
+
     vm.prank(ACL_ADMIN);
     vault.withdrawAccruedFees();
 
+    uint256 keeperBalAfter = vault.balanceOf(address(keeperIncentive));
+    uint256 keeperEarnings = keeperBalAfter - keeperBalBefore;
+    uint256 depositFeesEarned = accruedFeesAfter - accruedFeesBefore;
+
+    assertTrue(accruedFeesAfter > accruedFeesBefore);
+
+    assertTrue(keeperBalAfter > keeperBalBefore);
+
+    assertEq(depositFeesEarned, (depositAmount * depositFee) / 1e18);
+
     // Fees sub incentive tip
-    assertEq(underlying.balanceOf(feeRecipient), (depositAmount / 10) - 1);
+    assertEq(vault.balanceOf(feeRecipient), depositFeesEarned - keeperEarnings);
   }
 
   // ----- Change Strategy ----- //
