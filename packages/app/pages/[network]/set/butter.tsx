@@ -1,45 +1,47 @@
 import { parseEther } from "@ethersproject/units";
 import { Dialog, Transition } from "@headlessui/react";
+import BatchProgress from "@popcorn/app/components/BatchButter/BatchProgress";
+import { Pages } from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import ClaimableBatches from "@popcorn/app/components/BatchButter/ClaimableBatches";
+import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
+import MobileTutorialSlider from "@popcorn/app/components/BatchButter/MobileTutorialSlider";
+import StatInfoCard from "@popcorn/app/components/BatchButter/StatInfoCard";
+import TutorialSlider from "@popcorn/app/components/BatchButter/TutorialSlider";
+import { ConnectWallet } from "@popcorn/app/components/ConnectWallet";
+import SetStats from "@popcorn/app/components/SetStats";
+import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
+import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
+import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
+import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
+import useButterBatch from "@popcorn/app/hooks/set/useButterBatch";
+import useButterBatchData from "@popcorn/app/hooks/set/useButterBatchData";
+import useButterBatchZapper from "@popcorn/app/hooks/set/useButterBatchZapper";
+import useButterWhaleData from "@popcorn/app/hooks/set/useButterWhaleData";
+import useButterWhaleProcessing from "@popcorn/app/hooks/set/useButterWhaleProcessing";
+import { useAdjustDepositDecimals } from "@popcorn/app/hooks/useAdjustDepositDecimals";
+import { useButterIsSupportedOnNetwork } from "@popcorn/app/hooks/useButterIsSupportedOnNetwork";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
+import useThreeCurveVirtualPrice from "@popcorn/app/hooks/useThreeCurveVirtualPrice";
+import { useTransaction } from "@popcorn/app/hooks/useTransaction";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import {
   ChainId,
   formatAndRoundBigNumber,
   getIndexForToken,
   getMinZapAmount,
-  isButterSupportedOnCurrentNetwork,
   percentageToBps,
   prepareHotSwap,
 } from "@popcorn/utils";
 import { BatchType, SelectedToken, Token } from "@popcorn/utils/src/types";
-import BatchProgress from "components/BatchButter/BatchProgress";
-import { Pages } from "components/BatchButter/ButterTokenInput";
-import ClaimableBatches from "components/BatchButter/ClaimableBatches";
-import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
-import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
-import StatInfoCard from "components/BatchButter/StatInfoCard";
-import TutorialSlider from "components/BatchButter/TutorialSlider";
-import { ConnectWallet } from "components/ConnectWallet";
-import SetStats from "components/SetStats";
-import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
-import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
-import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import { isDepositDisabled } from "helper/isDepositDisabled";
-import { ModalType, toggleModal } from "helper/modalHelpers";
-import useButterBatch from "hooks/set/useButterBatch";
-import useButterBatchData from "hooks/set/useButterBatchData";
-import useButterBatchZapper from "hooks/set/useButterBatchZapper";
-import useButterWhaleData from "hooks/set/useButterWhaleData";
-import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
-import { useAdjustDepositDecimals } from "hooks/useAdjustDepositDecimals";
-import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
-import { useDeployment } from "hooks/useDeployment";
-import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
-import { useTransaction } from "hooks/useTransaction";
-import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
-import { SwitchNetwork } from "../../../components/SwitchNetwork";
+import { useAccount } from "wagmi";
 
 export enum TOKEN_INDEX {
   dai,
@@ -85,10 +87,12 @@ export const DEFAULT_BUTTER_PAGE_STATE: ButterPageState = {
   isThreeX: false,
 };
 
-export default function Butter(): JSX.Element {
-  const { signerOrProvider, account, signer, setChain, connectedChain } = useWeb3();
-
+export default function ButterPage(): JSX.Element {
+  const { signerOrProvider, signer } = useWeb3();
+  const account = useAccount();
   const chainId = useChainIdFromUrl();
+  const isConnected = useIsConnected();
+
   const addr = useDeployment(chainId);
   const { dispatch } = useContext(store);
   const butterBatchZapper = useButterBatchZapper(addr.butterBatchZapper, chainId);
@@ -113,6 +117,8 @@ export default function Butter(): JSX.Element {
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
   const transaction = useTransaction(chainId);
 
+  const butterIsSupportedOnNetwork = useButterIsSupportedOnNetwork();
+
   const threeCrv = useMemo(
     () =>
       (butterPageState.instant ? butterWhaleData : butterBatchData)?.tokens?.find(
@@ -131,7 +137,7 @@ export default function Butter(): JSX.Element {
     if (!signerOrProvider || !chainId) {
       return;
     }
-  }, [signerOrProvider, account, chainId]);
+  }, [signerOrProvider, account.address, chainId]);
 
   useEffect(() => {
     if (!butterBatchData || !butterBatchData?.tokens || !butterWhaleData || !butterWhaleData?.tokens) {
@@ -188,38 +194,6 @@ export default function Butter(): JSX.Element {
       tokens: prevState.instant ? butterWhaleData?.tokens : butterBatchData?.tokens,
     }));
   }, [butterPageState.instant]);
-
-  useEffect(() => {
-    if (!signerOrProvider || !chainId) {
-      return;
-    }
-    if (!isButterSupportedOnCurrentNetwork(chainId)) {
-      dispatch(
-        setDualActionWideModal({
-          title: "Coming Soon",
-          content: "Currently, Butter is only available on Ethereum.",
-          image: <img src="/images/modalImages/mint.svg" className="px-6" />,
-          onConfirm: {
-            label: "Switch Network",
-            onClick: () => {
-              setChain(ChainId.Ethereum);
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-          onDismiss: {
-            label: "Go Back",
-            onClick: () => {
-              router.back();
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-          keepOpen: true,
-        }),
-      );
-    } else {
-      dispatch(setDualActionWideModal(false));
-    }
-  }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
     if (!butterBatchData || !butterBatchData?.tokens) {
@@ -399,7 +373,7 @@ export default function Butter(): JSX.Element {
         .connect(signer)
         .zapIntoBatch(getZapDepositAmount(depositAmount, butterPageState.selectedToken.input), minMintAmount);
     }
-    return butterBatch.connect(signer).depositForMint(depositAmount, account);
+    return butterBatch.connect(signer).depositForMint(depositAmount, account.address);
   }
 
   async function batchRedeem(depositAmount: BigNumber): Promise<ethers.ContractTransaction> {
@@ -553,7 +527,7 @@ export default function Butter(): JSX.Element {
                 .div(100),
             );
         } else {
-          call = async () => butterBatch.connect(signer).claim(batchId, account);
+          call = async () => butterBatch.connect(signer).claim(batchId, account.address);
         }
         return call();
       },
@@ -565,7 +539,7 @@ export default function Butter(): JSX.Element {
 
   async function claimAndStake(batchId: string): Promise<void> {
     transaction(
-      () => butterBatch.connect(signer).claimAndStake(batchId, account),
+      () => butterBatch.connect(signer).claimAndStake(batchId, account.address),
       "Claiming and staking Butter...",
       "Staked claimed Butter",
       refetchButterBatchData,
@@ -587,7 +561,7 @@ export default function Butter(): JSX.Element {
                 (await adjustDepositDecimals(amount, outputToken)).mul(100 - butterPageState.slippage).div(100),
               );
         } else {
-          call = async () => butterBatch.connect(signer).withdrawFromBatch(batchId, amount, account);
+          call = async () => butterBatch.connect(signer).withdrawFromBatch(batchId, amount, account.address);
         }
         return call();
       },
@@ -651,10 +625,9 @@ export default function Butter(): JSX.Element {
       </div>
       <div className="flex flex-col md:flex-row mt-10">
         <div className="md:w-1/3 mb-10">
-          {!account && <ConnectWallet />}
-
           <div className="order-2 md:order-1">
-            {account && loadingButterBatchData && (
+            {/* Connected and on Ethereum BUT loading */}
+            {account.address && butterIsSupportedOnNetwork && loadingButterBatchData && (
               <>
                 <div className="order-2 md:hidden">
                   <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
@@ -668,9 +641,13 @@ export default function Butter(): JSX.Element {
                 </div>
               </>
             )}
-            {account && isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)) && !loadingButterBatchData ? (
-              <div className="md:pr-8">
-                {butterBatchData && butterPageState.selectedToken && (
+            {/* Connected and on Ethereum all data loaded */}
+            {account.address &&
+              butterIsSupportedOnNetwork &&
+              !loadingButterBatchData &&
+              butterBatchData &&
+              butterPageState.selectedToken && (
+                <div className="md:pr-8">
                   <MintRedeemInterface
                     chainId={chainId}
                     approve={approve}
@@ -706,11 +683,12 @@ export default function Butter(): JSX.Element {
                       setButterPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
                     }
                   />
-                )}
-              </div>
-            ) : account && !loadingButterBatchData && !isButterSupportedOnCurrentNetwork(Number(connectedChain?.id)) ? (
-              <SwitchNetwork chainId={chainId} />
-            ) : null}
+                </div>
+              )}
+            <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
+            <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+              <ConnectWallet hidden={!!isConnected} />
+            </div>
           </div>
         </div>
 

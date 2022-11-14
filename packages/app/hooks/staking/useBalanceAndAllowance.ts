@@ -1,8 +1,8 @@
 import { isBigNumberish } from "@ethersproject/bignumber/lib/bignumber";
+import useTokenAllowance from "@popcorn/app/hooks/tokens/useTokenAllowance";
+import useTokenBalance from "@popcorn/app/hooks/tokens/useTokenBalance";
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
-import useTokenAllowance from "hooks/tokens/useTokenAllowance";
-import useTokenBalance from "hooks/tokens/useTokenBalance";
 import { useMemo } from "react";
 
 export default function useBalanceAndAllowance(

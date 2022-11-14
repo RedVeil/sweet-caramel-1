@@ -1,9 +1,9 @@
 import { Menu } from "@headlessui/react";
 import { ViewGridIcon } from "@heroicons/react/outline";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import DropdownOptions from "components/Common/DropdownOptions";
+import DropdownOptions from "@popcorn/app/components/Common/DropdownOptions";
+import { MobilePopupSelect } from "@popcorn/app/components/Common/MobilePopupSelect";
 import React, { FC } from "react";
-import { MobilePopupSelect } from "./MobilePopupSelect";
 
 interface IFilter {
   selectedItem: { id: string; value: string };

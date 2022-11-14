@@ -1,13 +1,16 @@
 import { Menu, Transition } from "@headlessui/react";
+import NetworkOptionsMenuItem from "@popcorn/app/components/NavBar/NetworkOptionsMenuItem";
+import { useFeatures } from "@popcorn/app/hooks/useFeatures";
 import { ChainId } from "@popcorn/utils";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
-import useWeb3 from "hooks/useWeb3";
-import React, { Fragment, useContext } from "react";
-import NetworkOptionsMenuItem from "./NetworkOptionsMenuItem";
+import { switchNetwork } from "@wagmi/core";
+import React, { Fragment } from "react";
+import { useNetwork } from "wagmi";
 
 function NetworkOptionsMenu(): JSX.Element {
-  const { connectedChainId, setChain } = useWeb3();
-  const { showLocalNetwork } = useContext(FeatureToggleContext).features;
+  const { chain } = useNetwork();
+  const {
+    features: { showLocalNetwork },
+  } = useFeatures();
   return (
     <Transition
       appear={true}
@@ -25,48 +28,53 @@ function NetworkOptionsMenu(): JSX.Element {
         </p>
         <NetworkOptionsMenuItem
           chainId={ChainId.Ethereum}
-          switchNetwork={(chainId) => setChain(chainId)}
-          currentChainId={connectedChainId}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
           key={ChainId.Ethereum}
         />
         <NetworkOptionsMenuItem
           chainId={ChainId.Arbitrum}
-          switchNetwork={(chainId) => setChain(chainId)}
-          currentChainId={connectedChainId}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
           key={ChainId.Arbitrum}
         />
         <NetworkOptionsMenuItem
           chainId={ChainId.BNB}
-          switchNetwork={(chainId) => setChain(chainId)}
-          currentChainId={connectedChainId}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
           key={ChainId.BNB}
         />
-        {showLocalNetwork && (
-          <>
-            <NetworkOptionsMenuItem
-              chainId={ChainId.Hardhat}
-              switchNetwork={(chainId) => setChain(chainId)}
-              currentChainId={connectedChainId}
-              key={ChainId.Hardhat}
-            />
-            <NetworkOptionsMenuItem
-              chainId={ChainId.Rinkeby}
-              switchNetwork={(chainId) => setChain(chainId)}
-              currentChainId={connectedChainId}
-              key={ChainId.Rinkeby}
-            />
-            <NetworkOptionsMenuItem
-              chainId={ChainId.RemoteFork}
-              switchNetwork={(chainId) => setChain(chainId)}
-              currentChainId={connectedChainId}
-              key={ChainId.RemoteFork}
-            />
-          </>
-        )}
+        <NetworkOptionsMenuItem
+          chainId={ChainId.Optimism}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
+          key={ChainId.Optimism}
+        />
+        <NetworkOptionsMenuItem
+          chainId={ChainId.Hardhat}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
+          key={ChainId.Hardhat}
+          hidden={!showLocalNetwork}
+        />
+        <NetworkOptionsMenuItem
+          chainId={ChainId.Rinkeby}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
+          key={ChainId.Rinkeby}
+          hidden={!showLocalNetwork}
+        />
+        <NetworkOptionsMenuItem
+          chainId={ChainId.RemoteFork}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
+          key={ChainId.RemoteFork}
+          hidden={!showLocalNetwork}
+        />
         <NetworkOptionsMenuItem // this should be last otherwise the UI looks messed up. see last prop below:
           chainId={ChainId.Polygon}
-          switchNetwork={(chainId) => setChain(chainId)}
-          currentChainId={connectedChainId}
+          switchNetwork={(chainId) => switchNetwork({ chainId })}
+          currentChainId={chain?.id}
           key={ChainId.Polygon}
           last={true}
         />

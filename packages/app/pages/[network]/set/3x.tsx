@@ -1,54 +1,45 @@
 import { parseEther } from "@ethersproject/units";
 import { Dialog, Transition } from "@headlessui/react";
+import BatchProgress from "@popcorn/app/components/BatchButter/BatchProgress";
+import { Pages } from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import ClaimableBatches from "@popcorn/app/components/BatchButter/ClaimableBatches";
+import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
+import MobileTutorialSlider from "@popcorn/app/components/BatchButter/MobileTutorialSlider";
+import StatInfoCard from "@popcorn/app/components/BatchButter/StatInfoCard";
+import TutorialSlider from "@popcorn/app/components/BatchButter/TutorialSlider";
+import { ConnectWallet } from "@popcorn/app/components/ConnectWallet";
+import SetStats from "@popcorn/app/components/SetStats";
+import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
+import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
+import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
+import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
+import useSetToken from "@popcorn/app/hooks/set/useSetToken";
+import useThreeXBatch from "@popcorn/app/hooks/set/useThreeXBatch";
+import useThreeXData from "@popcorn/app/hooks/set/useThreeXData";
+import useThreeXWhale from "@popcorn/app/hooks/set/useThreeXWhale";
+import useThreeXWhaleData from "@popcorn/app/hooks/set/useThreeXWhaleData";
+import useThreeXZapper from "@popcorn/app/hooks/set/useThreeXZapper";
+import { useAdjustDepositDecimals } from "@popcorn/app/hooks/useAdjustDepositDecimals";
+import { useButterIsSupportedOnNetwork } from "@popcorn/app/hooks/useButterIsSupportedOnNetwork";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
+import { useTransaction } from "@popcorn/app/hooks/useTransaction";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "@popcorn/app/pages/[network]/set/butter";
 import { ThreeXWhaleProcessing } from "@popcorn/hardhat/typechain";
-import {
-  ChainId,
-  formatAndRoundBigNumber,
-  getIndexForToken,
-  getMinZapAmount,
-  isButterSupportedOnCurrentNetwork,
-  prepareHotSwap,
-} from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber, getIndexForToken, getMinZapAmount, prepareHotSwap } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
-import BatchProgress from "components/BatchButter/BatchProgress";
-import { Pages } from "components/BatchButter/ButterTokenInput";
-import ClaimableBatches from "components/BatchButter/ClaimableBatches";
-import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
-import MobileTutorialSlider from "components/BatchButter/MobileTutorialSlider";
-import StatInfoCard from "components/BatchButter/StatInfoCard";
-import TutorialSlider from "components/BatchButter/TutorialSlider";
-import { ConnectWallet } from "components/ConnectWallet";
-import SetStats from "components/SetStats";
-import RightArrowIcon from "components/SVGIcons/RightArrowIcon";
-import { SwitchNetwork } from "components/SwitchNetwork";
-import { setDualActionWideModal, setMultiChoiceActionModal } from "context/actions";
-import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import { ModalType, toggleModal } from "helper/modalHelpers";
-import useSetToken from "hooks/set/useSetToken";
-import useThreeXBatch from "hooks/set/useThreeXBatch";
-import useThreeXData from "hooks/set/useThreeXData";
-import useThreeXWhale from "hooks/set/useThreeXWhale";
-import useThreeXWhaleData from "hooks/set/useThreeXWhaleData";
-import useThreeXZapper from "hooks/set/useThreeXZapper";
-import { useAdjustDepositDecimals } from "hooks/useAdjustDepositDecimals";
-import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
-import { useDeployment } from "hooks/useDeployment";
-import { useTransaction } from "hooks/useTransaction";
-import useWeb3 from "hooks/useWeb3";
-import { useRouter } from "next/router";
 import { Fragment, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
-import { isDepositDisabled } from "../../../helper/isDepositDisabled";
-import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "./butter";
 
-export default function ThreeX(): JSX.Element {
-  const { signerOrProvider, account, signer, setChain, connectedChainId } = useWeb3();
-
+export default function ThreeXPage(): JSX.Element {
+  const { signer, account } = useWeb3();
   const chainId = useChainIdFromUrl();
   const contractAddresses = useDeployment(chainId);
-
-  const router = useRouter();
 
   const { dispatch } = useContext(store);
   const threeXSetToken = useSetToken(contractAddresses.threeX, chainId);
@@ -65,10 +56,13 @@ export default function ThreeX(): JSX.Element {
   const [threeXPageState, setThreeXPageState] = useState<ButterPageState>(DEFAULT_BUTTER_PAGE_STATE);
   const loadingThreeXData = !threeXData && !errorFetchingThreeXData;
   const [showMobileTutorial, toggleMobileTutorial] = useState<boolean>(false);
+  const isConnected = useIsConnected();
 
   const transaction = useTransaction(chainId);
   const adjustDepositDecimals = useAdjustDepositDecimals(chainId);
   const refetchThreeXData = () => Promise.all([refetchThreeXBatchData(), refetchThreeXWhaleData()]);
+
+  const butterIsSupportedOnNetwork = useButterIsSupportedOnNetwork();
 
   const threeX = useMemo(
     () =>
@@ -85,38 +79,6 @@ export default function ThreeX(): JSX.Element {
       ),
     [threeXPageState, threeXWhaleData, threeXData],
   );
-
-  useEffect(() => {
-    if (!signerOrProvider || !chainId) {
-      return;
-    }
-    if (!isButterSupportedOnCurrentNetwork(chainId)) {
-      dispatch(
-        setDualActionWideModal({
-          title: "Coming Soon",
-          content: "Currently, 3X is only available on Ethereum.",
-          image: <img src="/images/modalImages/comingSoon.svg" />,
-          onConfirm: {
-            label: "Switch Network",
-            onClick: () => {
-              setChain(ChainId.Ethereum);
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-          onDismiss: {
-            label: "Go Back",
-            onClick: () => {
-              router.back();
-              dispatch(setDualActionWideModal(false));
-            },
-          },
-          keepOpen: true,
-        }),
-      );
-    } else {
-      dispatch(setDualActionWideModal(false));
-    }
-  }, [signerOrProvider, account, chainId]);
 
   useEffect(() => {
     if (!threeXData || !threeXData?.tokens) {
@@ -391,12 +353,12 @@ export default function ThreeX(): JSX.Element {
                 <p>
                   <a
                     onClick={async () =>
-                      window.ethereum.request({
+                      await window.ethereum.request({
                         method: "wallet_watchAsset",
                         params: {
                           type: "ERC20",
                           options: {
-                            address: threeXSetToken.address,
+                            address: threeXSetToken?.address,
                             symbol: "3X",
                             decimals: 18,
                           },
@@ -523,67 +485,71 @@ export default function ThreeX(): JSX.Element {
       </div>
       <div className="flex flex-col md:flex-row mt-10">
         <div className="md:w-1/3 mb-10">
-          {account && isButterSupportedOnCurrentNetwork(Number(connectedChainId)) ? (
-            loadingThreeXData ? (
-              <>
-                <div className="order-2 md:hidden">
-                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-                    <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
-                  </ContentLoader>
-                </div>
-                <div className="order-1 hidden md:block">
-                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-                    <rect x="0" y="0" rx="8" ry="8" width="90%" height="600" />
-                  </ContentLoader>
-                </div>
-              </>
-            ) : (
-              <div className="md:pr-8 order-2 md:order-1">
-                {threeXData && threeXPageState?.tokens && threeXPageState.selectedToken && (
-                  <MintRedeemInterface
-                    mainAction={handleMainAction}
-                    approve={approve}
-                    options={threeXPageState?.tokens}
-                    selectedToken={threeXPageState.selectedToken}
-                    selectToken={selectToken}
-                    depositDisabled={isDepositDisabled(
-                      threeXData.totalSupply,
-                      threeX,
-                      threeXPageState.selectedToken,
-                      threeXPageState.redeeming,
-                      threeXPageState.depositAmount,
-                      threeXPageState.useUnclaimedDeposits,
-                      true,
-                    )}
-                    page={Pages.threeX}
-                    instant={threeXPageState.instant}
-                    setInstant={(val) => setThreeXPageState((prevState) => ({ ...prevState, instant: val }))}
-                    depositAmount={threeXPageState.depositAmount}
-                    setDepositAmount={(val) =>
-                      setThreeXPageState((prevState) => ({ ...prevState, depositAmount: val }))
-                    }
-                    showSlippageAdjust={
-                      threeXPageState.instant || (threeXPageState.redeeming && threeXPageState.useZap)
-                    }
-                    slippage={threeXPageState.slippage}
-                    setSlippage={(val) => setThreeXPageState((prevState) => ({ ...prevState, slippage: val }))}
-                    withdrawMode={threeXPageState.redeeming}
-                    setWithdrawMode={(val) => setThreeXPageState((prevState) => ({ ...prevState, redeeming: val }))}
-                    hasUnclaimedBalances={hasClaimableBalances()}
-                    useUnclaimedDeposits={threeXPageState.useUnclaimedDeposits}
-                    chainId={chainId}
-                    setUseUnclaimedDeposits={(val) =>
-                      setThreeXPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
-                    }
-                  />
-                )}
-              </div>
-            )
-          ) : account && !isButterSupportedOnCurrentNetwork(Number(connectedChainId)) ? (
-            <SwitchNetwork chainId={chainId} />
-          ) : (
-            <ConnectWallet />
-          )}
+          {/* Connected and on Ethereum BUT loading */}
+          <span className={!!account && butterIsSupportedOnNetwork && loadingThreeXData ? "" : "hidden"}>
+            <div className="order-2 md:hidden">
+              <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
+              </ContentLoader>
+            </div>
+            <div className="order-1 hidden md:block">
+              <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                <rect x="0" y="0" rx="8" ry="8" width="90%" height="600" />
+              </ContentLoader>
+            </div>
+          </span>
+          {/* Connected and on Ethereum all data loaded */}
+          <div
+            className={`md:pr-8 order-2 md:order-1 ${
+              !!account &&
+              butterIsSupportedOnNetwork &&
+              !loadingThreeXData &&
+              threeXData &&
+              threeXPageState?.tokens &&
+              threeXPageState.selectedToken
+                ? ""
+                : "hidden"
+            }`}
+          >
+            <MintRedeemInterface
+              mainAction={handleMainAction}
+              approve={approve}
+              options={threeXPageState?.tokens}
+              selectedToken={threeXPageState.selectedToken}
+              selectToken={selectToken}
+              depositDisabled={isDepositDisabled(
+                threeXData?.totalSupply,
+                threeX,
+                threeXPageState?.selectedToken,
+                threeXPageState?.redeeming,
+                threeXPageState?.depositAmount,
+                threeXPageState?.useUnclaimedDeposits,
+                true,
+                !threeXData || loadingThreeXData || !threeXPageState,
+              )}
+              page={Pages.threeX}
+              disabled={loadingThreeXData || !threeXData || !threeXPageState}
+              instant={threeXPageState?.instant}
+              setInstant={(val) => setThreeXPageState((prevState) => ({ ...prevState, instant: val }))}
+              depositAmount={threeXPageState?.depositAmount}
+              setDepositAmount={(val) => setThreeXPageState((prevState) => ({ ...prevState, depositAmount: val }))}
+              showSlippageAdjust={threeXPageState?.instant || (threeXPageState?.redeeming && threeXPageState?.useZap)}
+              slippage={threeXPageState?.slippage}
+              setSlippage={(val) => setThreeXPageState((prevState) => ({ ...prevState, slippage: val }))}
+              withdrawMode={threeXPageState?.redeeming}
+              setWithdrawMode={(val) => setThreeXPageState((prevState) => ({ ...prevState, redeeming: val }))}
+              hasUnclaimedBalances={hasClaimableBalances()}
+              useUnclaimedDeposits={threeXPageState?.useUnclaimedDeposits}
+              chainId={chainId}
+              setUseUnclaimedDeposits={(val) =>
+                setThreeXPageState((prevState) => ({ ...prevState, useUnclaimedDeposits: val }))
+              }
+            />
+          </div>
+          <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
+          <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+            <ConnectWallet hidden={!!isConnected} />
+          </div>
         </div>
 
         <div className="order-1 md:order-2 md:w-2/3 flex flex-col">

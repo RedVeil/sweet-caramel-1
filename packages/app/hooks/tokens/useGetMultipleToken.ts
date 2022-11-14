@@ -1,9 +1,9 @@
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ERC20 } from "@popcorn/hardhat/typechain";
 import { ChainId, getMultipleToken } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
 import { useMemo } from "react";
 import useSWR, { SWRResponse } from "swr";
-import useWeb3 from "../useWeb3";
 
 export default function useGetMultipleToken(
   tokenContracts: ERC20[] | null,

@@ -1,26 +1,69 @@
-import Page from "components/Common/Page";
-import { Debug } from "components/Debug";
-import FeatureTogglePanel from "components/DevOnly/FeatureTogglePanel";
-import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
-import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
-import { MobileFullScreenModalContainer } from "components/Modal/MobileFullScreenModalContainer";
-import { MultiChoiceActionModalContainer } from "components/Modal/MultiChoiceActionModalContainer";
-import { NetworkChangePromptModalContainer } from "components/Modal/NetworkChangePromptModalContainer";
-import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
-import NotificationsContainer from "components/Notifications/NotificationsContainer";
-import OfacCheck from "components/OfacCheck";
-import SoftLaunchCheck from "components/SoftLaunchCheck";
-import { FeatureToggleProvider } from "context/FeatureToggleContext";
+import Page from "@popcorn/app/components/Common/Page";
+import { Debug } from "@popcorn/app/components/Debug";
+import FeatureTogglePanel from "@popcorn/app/components/DevOnly/FeatureTogglePanel";
+import { GlobalLinearProgressAndLoading } from "@popcorn/app/components/GlobalLinearProgressAndLoading";
+import { DualActionModalContainer } from "@popcorn/app/components/Modal/DualActionModalContainer";
+import DualActionWideModalContainer from "@popcorn/app/components/Modal/DualActionWideModalContainer";
+import { MobileFullScreenModalContainer } from "@popcorn/app/components/Modal/MobileFullScreenModalContainer";
+import { MultiChoiceActionModalContainer } from "@popcorn/app/components/Modal/MultiChoiceActionModalContainer";
+import { NetworkChangePromptModalContainer } from "@popcorn/app/components/Modal/NetworkChangePromptModalContainer";
+import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
+import NotificationsContainer from "@popcorn/app/components/Notifications/NotificationsContainer";
+import OfacCheck from "@popcorn/app/components/OfacCheck";
+import { FeatureToggleProvider } from "@popcorn/app/context/FeatureToggleContext";
+import { StateProvider } from "@popcorn/app/context/store";
+import "@popcorn/app/styles/globals.css";
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
 import { PortfolioContextProvider } from "context/PortfolioContext";
-import web3Onboard from "helper/web3Onboard";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
-import { GlobalLinearProgressAndLoading } from "../components/GlobalLinearProgressAndLoading";
-import { StateProvider } from "../context/store";
-import "../styles/globals.css";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import { publicProvider } from "wagmi/providers/public";
 
-web3Onboard();
+const bnb = {
+  id: 56,
+  name: "BNB Chain",
+  network: "bnb",
+  rpcUrls: { default: "https://bsc-dataseed1.binance.org" },
+  blockExplorers: { default: { name: "BSCScan", url: "https://bscscan.com" } },
+};
+
+const { chains, provider, webSocketProvider } = configureChains(
+  [
+    chain.mainnet,
+    chain.polygon,
+    chain.optimism,
+    chain.arbitrum,
+    bnb,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [chain.goerli, chain.rinkeby, chain.localhost] : []),
+  ],
+  [
+    alchemyProvider({
+      // This is Alchemy's default API key.
+      // You can get your own at https://dashboard.alchemyapi.io
+      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+    }),
+    jsonRpcProvider({ rpc: (chain) => ({ http: chain.rpcUrls.default }) }),
+    publicProvider(),
+  ],
+);
+
+console.log({ chains });
+const { connectors } = getDefaultWallets({
+  appName: "Sweet Caramel",
+  chains,
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider,
+  webSocketProvider,
+});
 
 const { title, description, socialShareImage } = {
   title: "Popcorn - Yield That Counts",
@@ -86,27 +129,26 @@ export default function MyApp(props) {
         <meta name="twitter:image" content={socialShareImage} />
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap"
-          rel="stylesheet"
-        ></link>
       </Head>
       <StateProvider>
         <GlobalLinearProgressAndLoading loading={loading} setLoading={setLoading} />
         <PortfolioContextProvider>
           <FeatureToggleProvider>
-            <SoftLaunchCheck loading={loading} />
-            <OfacCheck />
-            <MobileFullScreenModalContainer />
-            <SingleActionModalContainer />
-            <MultiChoiceActionModalContainer />
-            <DualActionModalContainer />
-            <DualActionWideModalContainer />
-            <NetworkChangePromptModalContainer />
-            {getLayout(<Component {...pageProps} />)}
-            <FeatureTogglePanel />
-            <NotificationsContainer />
-            <Debug />
+            <WagmiConfig client={wagmiClient}>
+              <RainbowKitProvider chains={chains}>
+                <OfacCheck />
+                <MobileFullScreenModalContainer />
+                <SingleActionModalContainer />
+                <MultiChoiceActionModalContainer />
+                <DualActionModalContainer />
+                <DualActionWideModalContainer />
+                <NetworkChangePromptModalContainer />
+                {getLayout(<Component {...pageProps} />)}
+                <FeatureTogglePanel />
+                <NotificationsContainer />
+                <Debug />
+              </RainbowKitProvider>
+            </WagmiConfig>
           </FeatureToggleProvider>
         </PortfolioContextProvider>
       </StateProvider>

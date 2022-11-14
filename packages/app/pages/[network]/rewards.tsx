@@ -1,33 +1,33 @@
-import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
+import { CardLoader } from "@popcorn/app/components/CardLoader";
+import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
+import AirDropClaim from "@popcorn/app/components/Rewards/AirdropClaim";
+import ClaimCard from "@popcorn/app/components/Rewards/ClaimCard";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
+import RewardSummaryCard from "@popcorn/app/components/Rewards/RewardSummaryCard";
+import VestingRecordComponent from "@popcorn/app/components/Rewards/VestingRecord";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import TabSelector from "@popcorn/app/components/TabSelector";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
+import useGetMultipleStakingPools from "@popcorn/app/hooks/staking/useGetMultipleStakingPools";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import useClaimEscrows from "@popcorn/app/hooks/useClaimEscrows";
+import useClaimStakingReward from "@popcorn/app/hooks/useClaimStakingReward";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { Escrow, useGetUserEscrows } from "@popcorn/app/hooks/useGetUserEscrows";
+import { useStakingContracts } from "@popcorn/app/hooks/useStakingContracts";
+import { useTransaction } from "@popcorn/app/hooks/useTransaction";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { CardLoader } from "components/CardLoader";
-import ConnectDepositCard from "components/Common/ConnectDepositCard";
-import AirDropClaim from "components/Rewards/AirdropClaim";
-import ClaimCard from "components/Rewards/ClaimCard";
-import { NotAvailable } from "components/Rewards/NotAvailable";
-import RewardSummaryCard from "components/Rewards/RewardSummaryCard";
-import VestingRecordComponent from "components/Rewards/VestingRecord";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import TabSelector from "components/TabSelector";
-import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
-import { store } from "context/store";
 import { BigNumber, ethers } from "ethers";
-import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
-import usePopLocker from "hooks/staking/usePopLocker";
-import useClaimEscrows from "hooks/useClaimEscrows";
-import useClaimStakingReward from "hooks/useClaimStakingReward";
-import { useDeployment } from "hooks/useDeployment";
-import { Escrow, useGetUserEscrows } from "hooks/useGetUserEscrows";
-import { useTransaction } from "hooks/useTransaction";
-import useWeb3 from "hooks/useWeb3";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
 import { SWRResponse } from "swr";
-import useBalanceAndAllowance from "../../hooks/staking/useBalanceAndAllowance";
-import useERC20 from "../../hooks/tokens/useERC20";
-import { useChainIdFromUrl } from "../../hooks/useChainIdFromUrl";
-import { useStakingContracts } from "../../hooks/useStakingContracts";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -35,9 +35,8 @@ export enum Tabs {
   Vesting = "Vesting Records",
 }
 
-export default function index(): JSX.Element {
-  const { account, signerOrProvider, signer, connect, onContractSuccess, onContractError } = useWeb3();
-
+export default function RewardsPage(): JSX.Element {
+  const { account, signerOrProvider, signer, connect, chains } = useWeb3();
   const chainId = useChainIdFromUrl();
   const {
     xPopRedemption: xPopRedemptionAddress,
@@ -47,7 +46,6 @@ export default function index(): JSX.Element {
     pop: popAddress,
     vaultsRewardsEscrow,
   } = useDeployment(chainId);
-
   const { dispatch } = useContext(store);
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
   const xPopRedemption = useMemo(() => {
@@ -129,43 +127,6 @@ export default function index(): JSX.Element {
         .add(userVaultsEscrowsFetchResults?.data?.totalVestingPop || "0"),
     });
   }, [userEscrowsFetchResult?.data, userVaultsEscrowsFetchResults?.data]);
-
-  const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
-    transaction(
-      async () => claimStakingReward(pool, isPopLocker),
-      "Claiming Reward...",
-      "Rewards Claimed!",
-      () => {
-        revalidate();
-        if (!localStorage.getItem("hideClaimModal")) {
-          dispatch(
-            setMultiChoiceActionModal({
-              image: <img src="/images/modalImages/vestingImage.svg" />,
-              title: "Sweet!",
-              content:
-                "You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the next 365 days",
-              onConfirm: {
-                label: "Continue",
-                onClick: () => dispatch(setMultiChoiceActionModal(false)),
-              },
-              onDismiss: {
-                onClick: () => {
-                  dispatch(setMultiChoiceActionModal(false));
-                },
-              },
-              onDontShowAgain: {
-                label: "Do not remind me again",
-                onClick: () => {
-                  localStorage.setItem("hideClaimModal", "true");
-                  dispatch(setMultiChoiceActionModal(false));
-                },
-              },
-            }),
-          );
-        }
-      },
-    );
-  };
 
   const claimSingleEscrow = async (escrow: Escrow) => {
     transaction(
@@ -255,7 +216,7 @@ export default function index(): JSX.Element {
           {!account && (
             <div
               className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
-              onClick={() => connect()}
+              onClick={connect}
               role="button"
             >
               <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
@@ -295,7 +256,6 @@ export default function index(): JSX.Element {
                 tokenName={popLocker.stakingToken.name}
                 claimAmount={popLocker.earned}
                 key={popLocker.address}
-                handler={poolClaimHandler}
                 pool={popLocker.contract}
                 disabled={popLocker.earned?.isZero()}
                 isPopLocker={true}
@@ -343,7 +303,6 @@ export default function index(): JSX.Element {
                   tokenName={poolInfo.stakingToken.name}
                   claimAmount={poolInfo.earned}
                   key={poolInfo.address}
-                  handler={poolClaimHandler}
                   pool={poolInfo.contract}
                   disabled={poolInfo.earned?.isZero()}
                   isPopLocker={poolInfo.stakingToken.address === popAddress}

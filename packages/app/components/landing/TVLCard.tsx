@@ -1,10 +1,10 @@
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
+import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { ChainId } from "@popcorn/utils";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { constants } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
-import useSetTokenTVL from "hooks/set/useSetTokenTVL";
-import useStakingTVL from "hooks/staking/useStakingTVL";
-import { useDeployment } from "hooks/useDeployment";
 import { useMemo } from "react";
 
 export function TVLCard(): JSX.Element {

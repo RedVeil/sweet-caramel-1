@@ -1,4 +1,4 @@
-import { InfoIconWithModal } from "components/InfoIconWithModal";
+import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
 import { ChangeEventHandler } from "react";
 
 export function CheckMarkToggleWithInfo({

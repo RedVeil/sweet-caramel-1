@@ -1,20 +1,20 @@
 import { Menu, Transition } from "@headlessui/react";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { ChainId } from "@popcorn/utils";
-import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
-import useContractMetadata from "hooks/useContractMetadata";
-import { useDeployment } from "hooks/useDeployment";
-import useWeb3 from "hooks/useWeb3";
 import { Fragment } from "react";
+import { useAccount } from "wagmi";
 
 interface GetPopMenuProps {}
 
 const GetPopMenu: React.FC<GetPopMenuProps> = () => {
-  const { wallet } = useWeb3();
+  const { connector } = useAccount();
   const chainId = useChainIdFromUrl();
   const { pop } = useDeployment(chainId);
   const popMetadata = useContractMetadata(pop, chainId);
   const buyLink = chainId === ChainId.Polygon ? popMetadata?.buyLinkPolygon : popMetadata?.buyLinkEthereum;
-  const metaMaskConnected = wallet?.label === "MetaMask";
+  const metaMaskConnected = connector?.name === "MetaMask";
   const popPoolExists = [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost, ChainId.Polygon].includes(chainId);
 
   return (

@@ -1,6 +1,6 @@
 interface FakeInputFieldProps {
   inputValue: string | number;
-  children: React.ReactElement | React.ReactComponentElement<any>;
+  children: JSX.Element | React.ReactComponentElement<any>;
 }
 
 export default function FakeInputField({ inputValue, children }: FakeInputFieldProps): JSX.Element {

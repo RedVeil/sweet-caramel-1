@@ -1,6 +1,6 @@
 import React from "react";
 
-const SuccessfulStakingModal: React.ReactElement = (
+const SuccessfulStakingModal: JSX.Element = (
   <div>
     <p className="text-base text-primaryDark">Here's what happens when you stake</p>
     <ul className=" text-primaryDark list-disc pl-6">

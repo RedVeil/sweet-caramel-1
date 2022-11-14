@@ -1,8 +1,8 @@
 import { isAddress } from "@ethersproject/address";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
+import { ChainId } from "@popcorn/utils/src/connectors";
 import { BigNumber, constants } from "ethers";
 import useSWR, { SWRResponse } from "swr";
-import { ChainId } from "../../../utils/src/connectors";
-import useERC20 from "./useERC20";
 
 export default function useTokenBalance(
   address: string,

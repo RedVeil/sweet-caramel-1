@@ -1,7 +1,7 @@
 /// SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.10
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -10,8 +10,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "../defi/vault/Vault.sol";
 
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
@@ -24,9 +22,6 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
   IERC20 public rewardsToken;
   IERC20 public stakingToken;
-
-  // Link a vault which is allowed to burn IOU for the user
-  address public vault;
 
   IRewardsEscrow public rewardsEscrow;
   uint256 public periodFinish = 0;
@@ -50,8 +45,8 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     IRewardsEscrow _rewardsEscrow
   )
     ERC20(
-      IERC20Metadata(address(_stakingToken)).name(),
-      string(abi.encodePacked("X", IERC20Metadata(address(_stakingToken)).symbol()))
+      string(abi.encodePacked("Popcorn - ", IERC20Metadata(address(_stakingToken)).name(), " Staking")),
+      string(abi.encodePacked("pop-st-", IERC20Metadata(address(_stakingToken)).symbol()))
     )
   {
     rewardsToken = _rewardsToken;
@@ -116,7 +111,7 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     address owner,
     address receiver
   ) external {
-    if (msg.sender != vault) _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
+    _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
     _withdraw(amount, owner, receiver);
   }
 
@@ -218,11 +213,6 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     rewardsEscrow = IRewardsEscrow(_rewardsEscrow);
   }
 
-  function setVault(address _vault) external onlyOwner {
-    emit VaultUpdated(vault, _vault);
-    vault = _vault;
-  }
-
   /**
    * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
@@ -245,7 +235,7 @@ contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
     address, /* from */
     address, /* to */
     uint256 /* amount */
-  ) internal override(ERC20) {
+  ) internal pure override(ERC20) {
     revert nonTransferable();
   }
 

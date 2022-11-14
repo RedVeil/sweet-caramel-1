@@ -10,16 +10,12 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
 
-  // ContractRegistry
-  const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
-
   await deploy("FeeEscrow", {
     from: addresses.deployer,
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     contract: "FeeEscrow",
   });
-  console.log("adding FeeEscrow to contract registry...");
   await addContractToRegistry("FeeEscrow", deployments, signer, hre);
 };
 export default main;

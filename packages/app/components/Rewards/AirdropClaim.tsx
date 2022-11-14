@@ -1,10 +1,10 @@
+import TokenInput from "@popcorn/app/components/Common/TokenInput";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
 import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/src/types";
 import { BigNumber, constants } from "ethers";
 import { useState } from "react";
 import * as Icon from "react-feather";
-import TokenInput from "../Common/TokenInput";
-import MainActionButton from "../MainActionButton";
 
 interface AirDropClaimProps {
   redeem: (redeemAmount: BigNumber) => Promise<void>;

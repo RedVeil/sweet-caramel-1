@@ -1,16 +1,16 @@
+import { getData } from "@popcorn/app/helper/ButterDataUtils";
+import useBasicIssuanceModule from "@popcorn/app/hooks/set/useBasicIssuanceModule";
+import useButterBatch from "@popcorn/app/hooks/set/useButterBatch";
+import useButterBatchZapper from "@popcorn/app/hooks/set/useButterBatchZapper";
+import useSetToken from "@popcorn/app/hooks/set/useSetToken";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import useThreePool from "@popcorn/app/hooks/useThreePool";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import ButterBatchAdapter from "@popcorn/hardhat/lib/adapters/ButterBatchAdapter";
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { BatchMetadata } from "@popcorn/utils/src/types";
-import useERC20 from "hooks/tokens/useERC20";
-import { useDeployment } from "hooks/useDeployment";
-import useThreePool from "hooks/useThreePool";
-import useWeb3 from "hooks/useWeb3";
 import useSWR, { SWRResponse } from "swr";
-import { getData } from "../../helper/ButterDataUtils";
-import useBasicIssuanceModule from "./useBasicIssuanceModule";
-import useButterBatch from "./useButterBatch";
-import useButterBatchZapper from "./useButterBatchZapper";
-import useSetToken from "./useSetToken";
 
 export default function useButterBatchData(chainId: ChainId): SWRResponse<BatchMetadata, Error> {
   const { account } = useWeb3();

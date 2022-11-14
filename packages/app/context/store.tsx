@@ -1,18 +1,23 @@
-import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "components/Modal/DualActionWideModal";
-import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "components/Modal/MobileFullScreenModal";
+import { DefaultDualActionModalProps, DualActionModalProps } from "@popcorn/app/components/Modal/DualActionModal";
+import {
+  DefaultDualActionWideModalProps,
+  DualActionWideModalProps,
+} from "@popcorn/app/components/Modal/DualActionWideModal";
+import {
+  DefaultMobileFullScreenModalProps,
+  MobileFullScreenModalProps,
+} from "@popcorn/app/components/Modal/MobileFullScreenModal";
 import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
-} from "components/Modal/MultiChoiceActionModal";
+} from "@popcorn/app/components/Modal/MultiChoiceActionModal";
 import {
   DefaultNetworkChangePromptModalProps,
   NetworkChangePromptModalProps,
-} from "components/Modal/NetworkChangePromptModal";
-import { DefaultSingleActionModalProps, SingleActionModalProps } from "components/Modal/SingleActionModal";
-import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "components/Modal/WalletSelectModal";
-import { NotificationProps } from "components/Notifications/NotificationProps";
-import React, { createContext, useReducer } from "react";
-import { DefaultDualActionModalProps, DualActionModalProps } from "../components/Modal/DualActionModal";
+} from "@popcorn/app/components/Modal/NetworkChangePromptModal";
+import { DefaultSingleActionModalProps, SingleActionModalProps } from "@popcorn/app/components/Modal/SingleActionModal";
+import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "@popcorn/app/components/Modal/WalletSelectModal";
+import { NotificationProps } from "@popcorn/app/components/Notifications/NotificationProps";
 import {
   AppActions,
   CLEAR_NOTIFICATIONS,
@@ -28,7 +33,8 @@ import {
   SINGLE_ACTION_MODAL,
   UNSET_NOTIFICATION,
   WALLET_SELECT_MODAL,
-} from "./actions";
+} from "@popcorn/app/context/actions";
+import React, { createContext, useReducer } from "react";
 
 interface DefaultState {
   notifications: NotificationProps[];

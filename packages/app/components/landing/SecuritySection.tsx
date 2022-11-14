@@ -1,4 +1,4 @@
-import MobileCardSlider from "components/Common/MobileCardSlider";
+import MobileCardSlider from "@popcorn/app/components/Common/MobileCardSlider";
 import Link from "next/link";
 import React from "react";
 

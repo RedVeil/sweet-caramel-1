@@ -1,10 +1,10 @@
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import CardIcon from "../CardIcon";
-import { InfoIconWithModalProps } from "../InfoIconWithModal";
+import CardIcon from "@popcorn/app/components/CardIcon";
+import { InfoIconWithModalProps } from "@popcorn/app/components/InfoIconWithModal";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 
 interface StatInfoCardProps {
   title: string;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   icon: string;
   info?: InfoIconWithModalProps;
 }

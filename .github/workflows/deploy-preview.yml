@@ -3,11 +3,13 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-on: push
+on:
+  push:
+    paths: [packages/greenfield-app, packages/app]
 
 jobs:
   Deploy:
-     if: ${{ false }} // <- This make sure the workflow is skipped without any alert
+     if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

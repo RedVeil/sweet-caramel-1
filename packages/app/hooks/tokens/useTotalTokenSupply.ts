@@ -1,8 +1,8 @@
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 import { ERC20__factory } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 import { Address } from "@popcorn/utils/types";
 import { BigNumber } from "ethers/lib/ethers";
-import { useRpcProvider } from "hooks/useRpcProvider";
 import { useCallback, useEffect, useState } from "react";
 
 export default function useTotalTokenSupply(token: Address, chainId: ChainId) {

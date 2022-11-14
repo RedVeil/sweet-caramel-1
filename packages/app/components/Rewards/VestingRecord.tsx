@@ -1,8 +1,8 @@
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import { Escrow } from "@popcorn/app/hooks/useGetUserEscrows";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import StatusWithLabel from "components/Common/StatusWithLabel";
-import MainActionButton from "components/MainActionButton";
 import { format } from "date-fns";
-import { Escrow } from "hooks/useGetUserEscrows";
 
 interface VestingRecordProps {
   vestingEscrow: Escrow;

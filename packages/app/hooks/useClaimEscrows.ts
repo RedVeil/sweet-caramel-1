@@ -1,10 +1,10 @@
 import type { TransactionResponse } from "@ethersproject/providers";
+// import ERC20ABI from "abis/ERC20.json";
+import useVestingEscrow from "@popcorn/app/hooks/useVestingEscrow";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId } from "@popcorn/utils";
 import { isAddress } from "ethers/lib/utils";
 import { useCallback } from "react";
-// import ERC20ABI from "abis/ERC20.json";
-import useVestingEscrow from "./useVestingEscrow";
-import useWeb3 from "./useWeb3";
 
 export default function useClaimEscrows(address: string, chainId: ChainId) {
   const { account, signer } = useWeb3();
@@ -27,6 +27,6 @@ export default function useClaimEscrows(address: string, chainId: ChainId) {
         return vestingEscrow.connect(signer).claimRewards(escrowIds);
       }
     },
-    [account, chainId, vestingEscrow],
+    [account, signer, chainId, vestingEscrow],
   );
 }

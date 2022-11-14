@@ -1,8 +1,13 @@
-import SecondaryButton from "components/SecondaryActionButton";
-import useSubscribeToNewsletter from "hooks/useSubscribeToNewsletter";
+import SecondaryButton from "@popcorn/app/components/SecondaryActionButton";
+import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import React, { useState } from "react";
 
-const NewsletterSubscription = ({ title, buttonLabel }) => {
+interface NewsletterSubscriptionProps {
+  title: string;
+  buttonLabel: string;
+}
+
+const NewsletterSubscription = ({ title, buttonLabel }: NewsletterSubscriptionProps) => {
   const [subscribeEmail, setSubscribeEmail] = useState<string>("");
   const { subscribeToNewsLetter, subscribing, subscriptionSuccessful } = useSubscribeToNewsletter();
 

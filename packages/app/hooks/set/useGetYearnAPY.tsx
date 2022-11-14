@@ -1,5 +1,5 @@
+import YearnVault from "@popcorn/app/helper/YearnVault";
 import { ChainId } from "@popcorn/utils";
-import YearnVault from "helper/YearnVault";
 import useSWR, { SWRResponse } from "swr";
 
 const PERCENT = 100;

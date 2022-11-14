@@ -1,3 +1,22 @@
+import { Pages } from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import SetStats from "@popcorn/app/components/SetStats";
+import { setDualActionWideModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
+import useButterWhaleData from "@popcorn/app/hooks/set/useButterWhaleData";
+import useButterWhaleProcessing from "@popcorn/app/hooks/set/useButterWhaleProcessing";
+import { useAdjustDepositDecimals } from "@popcorn/app/hooks/useAdjustDepositDecimals";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import useThreeCurveVirtualPrice from "@popcorn/app/hooks/useThreeCurveVirtualPrice";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import {
+  ButterPageState,
+  DEFAULT_BUTTER_PAGE_STATE,
+  getZapDepositAmount,
+} from "@popcorn/app/pages/[network]/set/butter";
 import {
   ChainId,
   getIndexForToken,
@@ -6,26 +25,11 @@ import {
   percentageToBps,
 } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
-import { Pages } from "components/BatchButter/ButterTokenInput";
-import MintRedeemInterface from "components/BatchButter/MintRedeemInterface";
-import MainActionButton from "components/MainActionButton";
-import SetStats from "components/SetStats";
-import { setDualActionWideModal } from "context/actions";
-import { store } from "context/store";
 import { BigNumber, constants, ethers } from "ethers";
-import { isDepositDisabled } from "helper/isDepositDisabled";
-import useButterWhaleData from "hooks/set/useButterWhaleData";
-import useButterWhaleProcessing from "hooks/set/useButterWhaleProcessing";
-import { useAdjustDepositDecimals } from "hooks/useAdjustDepositDecimals";
-import { useDeployment } from "hooks/useDeployment";
-import useThreeCurveVirtualPrice from "hooks/useThreeCurveVirtualPrice";
-import useWeb3 from "hooks/useWeb3";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
-import { useChainIdFromUrl } from "../../../hooks/useChainIdFromUrl";
-import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE, getZapDepositAmount } from "./butter";
 
 export default function InstantButter() {
   const { signerOrProvider, account, onContractSuccess, onContractError, connect, setChain } = useWeb3();

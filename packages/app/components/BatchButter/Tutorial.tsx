@@ -1,7 +1,7 @@
+import MobileTutorialStepButton from "@popcorn/app/components/BatchButter/MobileTutorialStepButton";
 import { useState } from "react";
 import * as Icon from "react-feather";
 import { useSwipeable } from "react-swipeable";
-import MobileTutorialStepButton from "./MobileTutorialStepButton";
 
 function title(step: number, isThreeX: boolean): string {
   switch (step) {

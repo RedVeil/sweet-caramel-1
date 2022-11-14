@@ -1,10 +1,10 @@
+import SelectToken from "@popcorn/app/components/BatchButter/SelectToken";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
+import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import SelectToken from "components/BatchButter/SelectToken";
-import TokenIcon from "components/TokenIcon";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { escapeRegExp, inputRegex } from "helper/inputRegex";
 import { useEffect, useState } from "react";
 
 export interface TokenInputProps {

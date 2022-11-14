@@ -1,5 +1,5 @@
+import { setScrollAnimation } from "@popcorn/app/hooks/wheelPicker/useScrollAnimation";
 import { useCallback, useState } from "react";
-import { setScrollAnimation } from "./useScrollAnimation";
 
 const useHandleKeyboard = (itemHeight: number) => {
   const [pressedKeys, setPressedKeys] = useState<{ [key: number]: boolean }>({});

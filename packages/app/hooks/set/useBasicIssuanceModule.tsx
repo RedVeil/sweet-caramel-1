@@ -1,8 +1,8 @@
 import { isAddress } from "@ethersproject/address";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { IBasicIssuanceModule, IBasicIssuanceModule__factory } from "@popcorn/hardhat/typechain";
-import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
-import { useRpcProvider } from "../useRpcProvider";
 
 export default function useBasicIssuanceModule(address, chainId): IBasicIssuanceModule {
   const { account } = useWeb3();

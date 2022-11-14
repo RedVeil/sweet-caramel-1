@@ -1,6 +1,6 @@
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { ChainId } from "@popcorn/utils";
 import { useMemo } from "react";
-import { useDeployment } from "./useDeployment";
 
 export const useDefaultTokenList = (chainId: ChainId) => {
   const { dai, usdc, usdt, sUSD, eth } = useDeployment(chainId);

@@ -1,8 +1,8 @@
+import { setNetworkChangePromptModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { networkMap } from "@popcorn/utils/src/connectors";
-import { setNetworkChangePromptModal } from "context/actions";
-import { store } from "context/store";
 import { useCallback, useContext } from "react";
-import useWeb3 from "./useWeb3";
 
 export function useSwitchChainModal(expectedChain: number, actualChain: number) {
   const { setChain } = useWeb3();
@@ -18,7 +18,9 @@ export function useSwitchChainModal(expectedChain: number, actualChain: number) 
         onChangeNetwork: {
           label: `Switch to ${expectedChainName}`,
           onClick: () => {
-            setChain(Number(expectedChain)).then((res) => dispatch(setNetworkChangePromptModal(false)));
+            setChain(Number(expectedChain)).then((res) => {
+              dispatch(setNetworkChangePromptModal(false));
+            });
           },
         },
         onDismiss: {

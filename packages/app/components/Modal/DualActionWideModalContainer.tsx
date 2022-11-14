@@ -1,6 +1,6 @@
+import DualActionWideModal from "@popcorn/app/components/Modal/DualActionWideModal";
+import { store } from "@popcorn/app/context/store";
 import React, { useContext } from "react";
-import { store } from "../../context/store";
-import DualActionWideModal from "./DualActionWideModal";
 
 export const DualActionWideModalContainer: React.FC = () => {
   const {

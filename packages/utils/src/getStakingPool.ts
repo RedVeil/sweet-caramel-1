@@ -18,16 +18,16 @@ export async function getStakingPool(
   account: string,
   staking: Staking,
   chainId: number,
-  library,
+  rpcProvider,
   contractAddresses,
 ): Promise<StakingPoolMetadata> {
   const tokenAddress = await staking.stakingToken();
   const totalStake = await staking.totalSupply();
   const tokenPerWeek = await staking.getRewardForDuration();
-  const apy = await calculateApy(tokenAddress, tokenPerWeek, totalStake, chainId, library, contractAddresses);
+  const apy = await calculateApy(tokenAddress, tokenPerWeek, totalStake, chainId, rpcProvider, contractAddresses);
   const earned = account ? await staking.earned(account) : constants.Zero;
   const userStake = account ? await staking.balanceOf(account) : constants.Zero;
-  const stakingToken = await getTokenFromAddress(tokenAddress, library, chainId);
+  const stakingToken = await getTokenFromAddress(tokenAddress, rpcProvider, chainId);
   return {
     contract: staking,
     address: staking.address,

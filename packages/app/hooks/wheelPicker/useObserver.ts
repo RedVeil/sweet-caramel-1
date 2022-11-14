@@ -1,6 +1,6 @@
-import { PickerData } from "components/WheelPicker/WheelPicker";
+import { PickerData } from "@popcorn/app/components/WheelPicker/WheelPicker";
+import useScrollAnimation from "@popcorn/app/hooks/wheelPicker/useScrollAnimation";
 import { createRef, FocusEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import useScrollAnimation from "./useScrollAnimation";
 
 export type PickerItemRef = { [key: string]: RefObject<HTMLLIElement> };
 

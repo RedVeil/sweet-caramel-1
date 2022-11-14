@@ -1,12 +1,13 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import OutputToken from "@popcorn/app/components/BatchButter/OutputToken";
+import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
+import { CustomSlippageInput } from "@popcorn/app/components/BatchButter/SlippageSettings";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import { Token } from "@popcorn/utils/types";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
 import { Dispatch, useState } from "react";
-import OutputToken from "./OutputToken";
-import PseudoRadioButton from "./PseudoRadioButton";
-import { CustomSlippageInput } from "./SlippageSettings";
+
 interface ZapModalProps {
   tokenOptions: Token[];
   slippage: number;

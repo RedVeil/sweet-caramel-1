@@ -1,18 +1,18 @@
 import { ChevronLeftIcon } from "@heroicons/react/solid";
+import MobileCardSlider from "@popcorn/app/components/Common/MobileCardSlider";
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import PopLockerInteraction from "@popcorn/app/components/staking/PopLockerInteraction";
+import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
+import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
+import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import MobileCardSlider from "components/Common/MobileCardSlider";
-import StatusWithLabel from "components/Common/StatusWithLabel";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import TokenIcon from "components/TokenIcon";
-import TokenInputToggle from "components/TokenInputToggle";
 import { BigNumber, constants } from "ethers";
-import useNetworkName from "hooks/useNetworkName";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import useContractMetadata from "../../hooks/useContractMetadata";
-import PopLockerInteraction from "./PopLockerInteraction";
-import StakingInteraction, { StakingInteractionProps } from "./StakingInteraction";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;
@@ -67,14 +67,10 @@ export default function StakeInterface({
   return (
     <>
       <div className="-ml-2">
-        <Link href="/staking" passHref>
-          <a>
-            <div className="flex items-center">
-              <ChevronLeftIcon className="w-6 h-6 text-secondaryLight" />
-              <p className="text-primary">Staking</p>
-            </div>
-          </a>
-        </Link>
+        <div className="flex items-center cursor-pointer" onClick={() => router.push("/staking")}>
+          <ChevronLeftIcon className="w-6 h-6 text-secondaryLight" />
+          <p className="text-primary">Staking</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 mt-10">
@@ -180,22 +176,20 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.userStake
+                    {stakingPool?.userStake
                       ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
                       : "0"}{" "}
                     {stakingToken?.symbol}
                   </p>
                 </div>
               </div>
-              {buyLink && (
-                <Link href={buyLink} passHref>
-                  <a target="_blank">
-                    <div className="border-t border-customLightGray pt-2 px-1">
-                      <SecondaryActionButton label="Get Token" />
-                    </div>
-                  </a>
-                </Link>
-              )}
+              <Link href={buyLink || "#"} passHref>
+                <a target={`${buyLink ? "_blank" : "_self"}`}>
+                  <div className="border-t border-customLightGray pt-2 px-1">
+                    <SecondaryActionButton label="Get Token" />
+                  </div>
+                </a>
+              </Link>
             </div>
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
@@ -212,11 +206,11 @@ export default function StakeInterface({
                     />
                   </div>
                   <p className="text-primary text-2xl leading-6">
-                    {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
+                    {stakingPool?.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"} POP
                   </p>
                 </div>
               </div>
-              <Link href={`/${networkName}/rewards`} passHref>
+              <Link href={`/rewards`} passHref>
                 <a target="_self">
                   <div className="border-t border-customLightGray pt-2 px-1">
                     <SecondaryActionButton label="Claim Page" />
@@ -243,22 +237,20 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.userStake
+                        {stakingPool?.userStake
                           ? formatAndRoundBigNumber(stakingPool.userStake, stakingToken.decimals)
                           : "0"}{" "}
                         {stakingToken?.symbol}
                       </p>
                     </div>
                   </div>
-                  {buyLink && (
-                    <Link href={buyLink} passHref>
-                      <a target="_blank">
-                        <div className="border-t border-customLightGray pt-2 px-1">
-                          <SecondaryActionButton label="Get Token" />
-                        </div>
-                      </a>
-                    </Link>
-                  )}
+                  <Link href={buyLink || "#"} passHref>
+                    <a target={`${buyLink ? "_blank" : "_self"}`}>
+                      <div className="border-t border-customLightGray pt-2 px-1">
+                        <SecondaryActionButton label="Get Token" />
+                      </div>
+                    </a>
+                  </Link>
                 </div>
               </div>
 
@@ -277,12 +269,12 @@ export default function StakeInterface({
                         />
                       </div>
                       <p className="text-primary text-2xl">
-                        {stakingPool.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
+                        {stakingPool?.earned ? formatAndRoundBigNumber(stakingPool.earned, stakingToken.decimals) : "0"}{" "}
                         POP
                       </p>
                     </div>
                   </div>
-                  <Link href={`/${networkName}/rewards`} passHref>
+                  <Link href={`/rewards`} passHref>
                     <a target="_self">
                       <div className="border-t border-customLightGray pt-2 px-1">
                         <SecondaryActionButton label="Claim Page" />

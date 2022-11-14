@@ -1,15 +1,15 @@
+import ClaimableBatch from "@popcorn/app/components/BatchButter/ClaimableBatch";
+import EmptyClaimableBatch from "@popcorn/app/components/BatchButter/EmptyClaimableBatch";
+import MobileClaimableBatch from "@popcorn/app/components/BatchButter/MobileClaimableBatch";
+import MobileEmptyClaimableBatches from "@popcorn/app/components/BatchButter/MobileEmptyClaimableBatches";
+import ZapModal from "@popcorn/app/components/BatchButter/ZapModal";
+import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useWindowSize from "@popcorn/app/hooks/useWindowSize";
 import { AccountBatch, BatchType, Token } from "@popcorn/utils/src/types";
-import PopUpModal from "components/Modal/PopUpModal";
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
-import useWindowSize from "hooks/useWindowSize";
 import Image from "next/image";
 import { useContext, useState } from "react";
-import ClaimableBatch from "./ClaimableBatch";
-import EmptyClaimableBatch from "./EmptyClaimableBatch";
-import MobileClaimableBatch from "./MobileClaimableBatch";
-import MobileEmptyClaimableBatches from "./MobileEmptyClaimableBatches";
-import ZapModal from "./ZapModal";
 
 interface ClaimableBatchesProps {
   options: Token[];

@@ -1,19 +1,17 @@
-/* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
-// import { XIcon } from "@heroicons/react/outline";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
-import useClickOutside from "hooks/useClickOutside";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
+import useClickOutside from "@popcorn/app/hooks/useClickOutside";
 import Image from "next/image";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface SingleActionModalProps {
   title: string;
-  children?: React.ReactElement | React.ReactComponentElement<any>;
-  content?: string | React.ReactElement;
+  children?: JSX.Element | React.ReactComponentElement<any>;
+  content?: string | JSX.Element;
   visible: boolean;
   type?: "info" | "error" | "alert";
-  image?: React.ReactElement;
+  image?: JSX.Element;
   onConfirm?: { label: string; onClick: Function };
   onDismiss?: { label?: string; onClick: Function };
   keepOpen?: boolean;

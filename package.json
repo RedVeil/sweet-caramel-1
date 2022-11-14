@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "dev": "yarn lerna run --parallel dev",
-    "build": "cd packages/hardhat; yarn build; cd ../app; yarn build",
+    "build": "cd packages/hardhat; yarn build; cd ../greenfield-app; yarn build",
     "app:build": "cd packages/hardhat; yarn build; cd ../app; yarn build",
     "grants:build": "cd packages/hardhat; yarn build; cd ../grants; yarn build",
     "app:start": "yarn lerna run --scope @popcorn/app start",
@@ -33,7 +33,7 @@
     "@babel/core": "7.16.7",
     "babel-jest": "26.6.3",
     "babel-plugin-module-resolver": "4.0.0",
-    "husky": "7.0.4",
+    "husky": "^8.0.0",
     "jest": "26.6.3",
     "lint-staged": "12.2.1",
     "tsconfig-paths": "3.9.0"

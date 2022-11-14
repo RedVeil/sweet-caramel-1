@@ -1,11 +1,11 @@
+import TokenInput from "@popcorn/app/components/Common/TokenInput";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import { InteractionType, StakingForm } from "@popcorn/app/components/staking/StakeInterface";
+import TermsAndConditions from "@popcorn/app/components/StakingTermsAndConditions";
 import { ChainId } from "@popcorn/utils";
 import { StakingPool } from "@popcorn/utils/src/types";
-import TokenInput from "components/Common/TokenInput";
-import MainActionButton from "components/MainActionButton";
-import TermsAndConditions from "components/StakingTermsAndConditions";
 import { BigNumber } from "ethers";
 import { Dispatch, SetStateAction } from "react";
-import { InteractionType, StakingForm } from "./StakeInterface";
 
 export interface StakingInteractionProps {
   stakingPool: StakingPool;

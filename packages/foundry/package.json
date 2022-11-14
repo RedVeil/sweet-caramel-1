@@ -1,0 +1,34 @@
+{
+  "name": "@popcorn/foundry",
+  "version": "1.0.0",
+  "main": "index",
+  "scripts": {
+    "build": "forge build",
+    "clean": "rimraf ./out",
+    "compile": "yarn clean && forge build",
+    "test": "forge test",
+    "prettier": "prettier --write 'src/**/*.sol'",
+    "coverage": "echo `forge coverage`"
+  },
+  "lint-staged": {
+    "*.{sol,ts,tsx}": "prettier --write"
+  },
+  "devDependencies": {
+    "rimraf": "3.0.2"
+  },
+  "dependencies": {
+    "dotenv": "10.0.0",
+    "prettier": "2.5.1",
+    "prettier-plugin-solidity": "1.0.0-beta.19",
+    "sinon": "^14.0.0",
+    "solc-0.6.0": "npm:solc@0.6.0",
+    "solc-0.6.12": "npm:solc@0.6.12",
+    "solc-0.8.0": "npm:solc@0.8.0",
+    "solc-0.8.1": "npm:solc@0.8.1",
+    "solc-0.8.10": "npm:solc@0.8.10",
+    "solc-0.8.17": "npm:solc@0.8.17",
+    "solidity-shell": "^0.1.0",
+    "surya": "0.4.5"
+  },
+  "license": "MIT"
+}

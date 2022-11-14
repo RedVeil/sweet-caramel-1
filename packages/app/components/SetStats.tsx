@@ -1,13 +1,13 @@
+import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
+import useGetYearnAPY from "@popcorn/app/hooks/set/useGetYearnAPY";
+import useSetComponentAddresses from "@popcorn/app/hooks/set/useSetComponentAddresses";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import useTotalTokenSupply from "@popcorn/app/hooks/tokens/useTotalTokenSupply";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { ChainId, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import StatusWithLabel from "components/Common/StatusWithLabel";
 import { constants } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
-import useGetYearnAPY from "hooks/set/useGetYearnAPY";
-import useSetComponentAddresses from "hooks/set/useSetComponentAddresses";
-import useStakingPool from "hooks/staking/useStakingPool";
-import useTotalTokenSupply from "hooks/tokens/useTotalTokenSupply";
-import { useDeployment } from "hooks/useDeployment";
 
 export interface SetStatsProps {
   token: Token;

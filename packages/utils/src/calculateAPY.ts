@@ -1,4 +1,5 @@
 import { parseEther } from "@ethersproject/units";
+import getAssetValue from "@popcorn/app/helper/getAssetValue";
 import {
   ButterBatchProcessing__factory,
   ERC20,
@@ -30,9 +31,29 @@ export async function calculateApy(
     case contractAddresses.butter?.toLocaleLowerCase():
     case contractAddresses.threeX?.toLocaleLowerCase():
       return getButterApy(tokenPerWeek, totalStaked, contractAddresses, chainId, library);
+    case contractAddresses.xen?.toLowerCase():
+      return getXenApy(tokenPerWeek, totalStaked, contractAddresses, chainId);
     default:
       return constants.Zero;
   }
+}
+
+export async function getXenApy(
+  tokenPerWeek: BigNumber,
+  totalStaked: BigNumber,
+  contractAddresses: ContractAddresses,
+  chainId: number,
+): Promise<BigNumber> {
+  const tokenPrices = await getAssetValue([contractAddresses.xen, contractAddresses.pop], ChainId.Ethereum);
+
+  const stakeValue = totalStaked.mul(tokenPrices[contractAddresses.xen.toLowerCase()]).div(parseEther("1"));
+
+  const weeklyRewardsValue = tokenPerWeek.mul(tokenPrices[contractAddresses.pop.toLowerCase()]).div(parseEther("1"));
+
+  const weeklyRewardsPerDollarStaked = weeklyRewardsValue.mul(parseEther("1")).div(stakeValue);
+
+  const apy = weeklyRewardsPerDollarStaked.mul(52);
+  return apy.mul(100);
 }
 
 export async function getLpTokenApy(

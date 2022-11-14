@@ -1,6 +1,6 @@
+import { OPTION_ID } from "@popcorn/app/components/WheelPicker/WheelPicker";
 import React, { FocusEventHandler, forwardRef, MouseEventHandler, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
-import { OPTION_ID } from "./WheelPicker";
 
 const Item = styled.li`
   position: relative;

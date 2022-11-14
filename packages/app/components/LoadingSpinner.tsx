@@ -1,5 +1,5 @@
+import loaderAnim from "@popcorn/app/LottieAnimations/loader.json";
 import Lottie from "react-lottie";
-import loaderAnim from "../LottieAnimations/loader.json";
 
 const LoadingSpinner = () => {
   const loaderOptions = {

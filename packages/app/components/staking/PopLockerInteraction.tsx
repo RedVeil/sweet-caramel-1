@@ -1,12 +1,12 @@
+import TokenInput from "@popcorn/app/components/Common/TokenInput";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import { InteractionType } from "@popcorn/app/components/staking/StakeInterface";
+import { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
+import VestingRecordDropDown from "@popcorn/app/components/staking/VestingRecordDropDown";
+import TermsAndConditions from "@popcorn/app/components/StakingTermsAndConditions";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import TokenInput from "components/Common/TokenInput";
-import MainActionButton from "components/MainActionButton";
-import VestingRecordDropDown from "components/staking/VestingRecordDropDown";
-import TermsAndConditions from "components/StakingTermsAndConditions";
+import { formatDate } from "@popcorn/utils/src/DateTime";
 import { useEffect, useState } from "react";
-import { formatDate } from "../../../utils/src/DateTime";
-import { InteractionType } from "./StakeInterface";
-import { StakingInteractionProps } from "./StakingInteraction";
 
 interface PopLockerInteractionProps extends StakingInteractionProps {
   restake: () => void;

@@ -1,17 +1,15 @@
 import ReactTooltip from "rc-tooltip";
-import "rc-tooltip/assets/bootstrap.css";
 import React from "react";
 
 export interface InfoIconWithTooltipProps {
   title?: string;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   id?: string;
   classExtras?: string;
 }
 
 export const InfoIconWithTooltip: React.FC<InfoIconWithTooltipProps> = ({ title, content, id, classExtras }) => {
   return (
-    // shadow-lg rounded-lg border-2 border-customLightGray
     <ReactTooltip
       id={id}
       placement={"bottom"}

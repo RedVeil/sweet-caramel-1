@@ -1,6 +1,6 @@
+import SingleActionModal from "@popcorn/app/components/Modal/SingleActionModal";
+import { store } from "@popcorn/app/context/store";
 import React, { useContext } from "react";
-import { store } from "../../context/store";
-import SingleActionModal from "./SingleActionModal";
 
 export const SingleActionModalContainer: React.FC = () => {
   const {

@@ -1,17 +1,19 @@
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import Product from "@popcorn/app/components/landing/Product";
+import useGetYearnAPY from "@popcorn/app/hooks/set/useGetYearnAPY";
+import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import useGetYearnAPY from "hooks/set/useGetYearnAPY";
-import useSetTokenTVL from "hooks/set/useSetTokenTVL";
-import useStakingPool from "hooks/staking/useStakingPool";
-import useStakingTVL from "hooks/staking/useStakingTVL";
-import { useDeployment } from "hooks/useDeployment";
 import React from "react";
-import Product from "./Product";
 
 const Products = () => {
   const { Ethereum, Polygon } = ChainId;
+  const networkName = useNetworkName();
 
   const {
     ySusd,
@@ -61,7 +63,7 @@ const Products = () => {
                 },
               },
             ]}
-            route="sweet-vaults"
+            route={`${networkName}/sweet-vaults`}
             badge="/images/newProductBadge.svg"
           />
         )}
@@ -91,7 +93,7 @@ const Products = () => {
               },
             },
           ]}
-          route="set/3x"
+          route={`${networkName}/set/3x`}
           customContent={ThreeXExposure}
           badge="/images/fireProductBadge.svg"
         />
@@ -122,7 +124,7 @@ const Products = () => {
               },
             },
           ]}
-          route="set/butter"
+          route={`${networkName}/set/butter`}
           customContent={ButterExposure}
         />
         <Product
@@ -142,14 +144,14 @@ const Products = () => {
               },
             },
           ]}
-          route="staking"
+          route={`staking`}
         />
       </div>
     </section>
   );
 };
 
-const ButterExposure: React.ReactElement = (
+const ButterExposure: JSX.Element = (
   <>
     <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>
@@ -200,7 +202,7 @@ const ButterExposure: React.ReactElement = (
   </>
 );
 
-const ThreeXExposure: React.ReactElement = (
+const ThreeXExposure: JSX.Element = (
   <>
     <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>

@@ -1,10 +1,10 @@
-import MainActionButton from "components/MainActionButton";
-import SecondaryActionButton from "components/SecondaryActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import React, { useEffect, useRef, useState } from "react";
 
 export interface DualActionModalProps {
   title: string;
-  content: React.ReactElement | string;
+  content: JSX.Element | string;
   visible: boolean;
   onDismiss: { label: string; onClick: Function };
   onConfirm: { label: string; onClick: Function };

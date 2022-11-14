@@ -1,6 +1,6 @@
+import { List, ListItem } from "@popcorn/app/components/Common/ScrollableSelect";
+import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
 import React from "react";
-import { List, ListItem } from "../Common/ScrollableSelect";
-import PopUpModal from "../Modal/PopUpModal";
 
 interface Category {
   id: string;

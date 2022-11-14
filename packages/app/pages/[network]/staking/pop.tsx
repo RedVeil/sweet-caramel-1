@@ -1,42 +1,43 @@
+import StakeInterface, { defaultForm, InteractionType } from "@popcorn/app/components/staking/StakeInterface";
+import StakeInterfaceLoader from "@popcorn/app/components/staking/StakeInterfaceLoader";
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
+import TermsContent from "@popcorn/app/components/staking/TermsModalContent";
+import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
+import { useTransaction } from "@popcorn/app/hooks/useTransaction";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId } from "@popcorn/utils";
-import StakeInterface, { defaultForm, InteractionType } from "components/staking/StakeInterface";
-import StakeInterfaceLoader from "components/staking/StakeInterfaceLoader";
-import TermsContent from "components/staking/TermsModalContent";
-import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
-import { store } from "context/store";
-import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
-import usePopLocker from "hooks/staking/usePopLocker";
-import useApproveERC20 from "hooks/tokens/useApproveERC20";
-import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
-import { useDeployment } from "hooks/useDeployment";
-import useTokenPrice from "hooks/useTokenPrice";
-import useWeb3 from "hooks/useWeb3";
+import { ethers } from "ethers";
 import { useRouter } from "next/router";
-import "rc-slider/assets/index.css";
 import React, { useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 export default function PopStakingPage(): JSX.Element {
-  const { account, signer, onContractSuccess, onContractError, pushWithinChain } = useWeb3();
+  const { account, signer, onContractSuccess, onContractError } = useWeb3();
   const chainId = useChainIdFromUrl();
   const { popStaking } = useDeployment(chainId);
-
   const { dispatch } = useContext(store);
+  const router = useRouter();
+  const pushWithinChain = usePushWithinChain();
 
   useEffect(() => {
     if ([ChainId.Arbitrum, ChainId.BNB].includes(chainId)) {
-      pushWithinChain("/staking");
+      pushWithinChain("staking");
     }
   }, [chainId]);
 
   const [form, setForm] = useState(defaultForm);
-  const router = useRouter();
   const { data: stakingPool } = usePopLocker(popStaking, chainId);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, popStaking, chainId);
   const stakingToken = stakingPool?.stakingToken;
-  const approveToken = useApproveERC20(chainId);
-  const tokenPrice = useTokenPrice(stakingToken?.address, chainId);
+  const transaction = useTransaction(chainId);
+  const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
+  const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {
@@ -45,71 +46,64 @@ export default function PopStakingPage(): JSX.Element {
   }, [router?.query?.action]);
 
   function stake(): void {
-    toast.loading("Staking POP ...");
-    stakingPool?.contract
-      .connect(signer)
-      .lock(account, form.amount, 0)
-      .then((res) =>
-        onContractSuccess(res, "POP staked!", () => {
-          balances.revalidate();
-          setForm(defaultForm);
-          if (!localStorage.getItem("hideStakeSuccessPopover")) {
-            dispatch(
-              setMultiChoiceActionModal({
-                title: "Successfully staked POP",
-                children: SuccessfulStakingModal,
-                image: <img src="/images/modalImages/successfulStake.svg" />,
-                onConfirm: {
-                  label: "Continue",
-                  onClick: () => dispatch(setMultiChoiceActionModal(false)),
+    transaction(
+      () => stakingPool?.contract.connect(signer).lock(account, form.amount, 0),
+      "Staking POP ...",
+      "POP staked!",
+      () => {
+        balances.revalidate();
+        setForm(defaultForm);
+        if (!localStorage.getItem("hideStakeSuccessPopover")) {
+          dispatch(
+            setMultiChoiceActionModal({
+              title: "Successfully staked POP",
+              children: SuccessfulStakingModal,
+              image: <img src="/images/modalImages/successfulStake.svg" />,
+              onConfirm: {
+                label: "Continue",
+                onClick: () => dispatch(setMultiChoiceActionModal(false)),
+              },
+              onDontShowAgain: {
+                label: "Do not remind me again",
+                onClick: () => {
+                  localStorage.setItem("hideStakeSuccessPopover", "true");
+                  dispatch(setMultiChoiceActionModal(false));
                 },
-                onDontShowAgain: {
-                  label: "Do not remind me again",
-                  onClick: () => {
-                    localStorage.setItem("hideStakeSuccessPopover", "true");
-                    dispatch(setMultiChoiceActionModal(false));
-                  },
+              },
+              onDismiss: {
+                onClick: () => {
+                  dispatch(setMultiChoiceActionModal(false));
                 },
-                onDismiss: {
-                  onClick: () => {
-                    dispatch(setMultiChoiceActionModal(false));
-                  },
-                },
-              }),
-            );
-          }
-        }),
-      )
-      .catch((err) => onContractError(err));
+              },
+            }),
+          );
+        }
+      },
+    );
   }
 
   function withdraw(): void {
-    toast.loading("Withdrawing POP ...");
-    stakingPool?.contract
-      .connect(signer)
-      ["processExpiredLocks(bool)"](false)
-      .then((res) =>
-        onContractSuccess(res, "POP withdrawn!", () => {
-          balances.revalidate();
-          setForm({ ...defaultForm, type: InteractionType.Withdraw });
-        }),
-      )
-      .catch((err) => onContractError(err));
+    transaction(
+      () => stakingPool?.contract.connect(signer)["processExpiredLocks(bool)"](false),
+      "Withdrawing POP ...",
+      "POP withdrawn!",
+      () => {
+        balances.revalidate();
+        setForm({ ...defaultForm, type: InteractionType.Withdraw });
+      },
+    );
   }
 
   function restake(): void {
-    toast.loading("Restaking POP ...");
-    stakingPool.contract
-      .connect(signer)
-      ["processExpiredLocks(bool)"](true)
-      .then((res) => {
-        onContractSuccess(res, "POP Restaked!", () => {
-          balances.revalidate();
-          setForm(defaultForm);
-        });
-        dispatch(setSingleActionModal(false));
-      })
-      .catch((err) => onContractError(err));
+    transaction(
+      () => stakingPool.contract.connect(signer)["processExpiredLocks(bool)"](true),
+      "Restaking POP ...",
+      "POP Restaked!",
+      () => {
+        balances.revalidate();
+        setForm(defaultForm);
+      },
+    );
   }
 
   const openTermsModal = () => {
@@ -122,11 +116,13 @@ export default function PopStakingPage(): JSX.Element {
     );
   };
 
-  function approve() {
-    toast.loading("Approving POP ...");
-    approveToken(stakingToken.contract.connect(signer), stakingPool.address, "POP approved!", () => {
-      balances.revalidate();
-    });
+  function approve(): void {
+    transaction(
+      () => stakingToken.contract.connect(signer).approve(stakingPool.address, ethers.constants.MaxUint256),
+      `Approving POP ...`,
+      `POPapproved!`,
+      () => balances.revalidate(),
+    );
   }
 
   return (

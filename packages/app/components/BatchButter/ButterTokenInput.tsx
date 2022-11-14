@@ -1,12 +1,12 @@
 import { formatEther, formatUnits } from "@ethersproject/units";
+import { CheckMarkToggleWithInfo } from "@popcorn/app/components/BatchButter/CheckMarkToggleWithInfo";
+import SelectToken from "@popcorn/app/components/BatchButter/SelectToken";
+import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { ChainId, formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { SelectedToken, Token } from "@popcorn/utils/types";
 import { BigNumber, constants } from "ethers";
-import { escapeRegExp, inputRegex } from "helper/inputRegex";
-import { useDeployment } from "hooks/useDeployment";
 import { useEffect, useRef, useState } from "react";
-import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
-import SelectToken from "./SelectToken";
 
 export enum Pages {
   "butter",
@@ -41,6 +41,7 @@ export interface ButterTokenInputProps {
   page: Pages;
   instant: boolean;
   chainId: ChainId;
+  disabled?: boolean;
 }
 
 const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
@@ -63,7 +64,9 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   const [estimatedAmount, setEstimatedAmount] = useState<string>("");
 
-  const displayAmount = depositAmount.isZero() ? "" : formatUnits(depositAmount, selectedToken.input.decimals);
+  const displayAmount = depositAmount.isZero()
+    ? ""
+    : formatUnits(depositAmount || "0", selectedToken?.input?.decimals || 18);
   const ref = useRef(displayAmount);
 
   useEffect(() => {
@@ -94,7 +97,7 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
 
   const useUnclaimedDepositsisDisabled = (): boolean => {
     const keys = page === Pages.threeX ? [addr.usdc, addr.threeX] : [addr.threeCrv, addr.butter];
-    return !keys.includes(selectedToken.input.address);
+    return selectedToken?.input?.address ? !keys.includes(selectedToken.input.address) : true;
   };
 
   return (
@@ -132,8 +135,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
               <SelectToken
                 chainId={chainId}
                 allowSelection={!withdrawMode}
-                selectedToken={selectedToken.input}
-                options={options.filter(
+                selectedToken={selectedToken?.input}
+                options={options?.filter(
                   (option) =>
                     !(withdrawMode ? [addr.threeCrv, addr.usdc] : [addr.butter, addr.threeX]).includes(option.address),
                 )}
@@ -234,8 +237,8 @@ const ButterTokenInput: React.FC<ButterTokenInputProps> = ({
             <SelectToken
               chainId={chainId}
               allowSelection={instant && withdrawMode}
-              selectedToken={selectedToken.output}
-              options={options.filter((option) => ![addr.butter, addr.threeX].includes(option.address))}
+              selectedToken={selectedToken?.output}
+              options={options?.filter((option) => ![addr.butter, addr.threeX].includes(option.address))}
               selectToken={selectToken}
             />
           </div>

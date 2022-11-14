@@ -22,7 +22,6 @@ export { getERC20Contract } from "./contractHelpers";
 export { formatAndRoundBigNumber, numberToBigNumber } from "./formatBigNumber";
 export type { ContractsWithBalance, TokenBalances } from "./getBalances";
 export { getPopLocker, getStakingPool } from "./getStakingPool";
-export { default as getSweetVault } from "./getSweetVault";
 export { default as getToken, getMultipleToken, getTokenFromAddress } from "./getToken";
 export { IpfsClient } from "./IpfsClient/IpfsClient";
 export type { IIpfsClient, UploadResult } from "./IpfsClient/IpfsClient";

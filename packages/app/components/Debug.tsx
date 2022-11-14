@@ -1,7 +1,7 @@
-import { useRouter } from 'next/router';
-import React, { useContext, useEffect } from 'react';
-import { setDualActionWideModal } from '../context/actions';
-import { store } from '../context/store';
+import { setDualActionWideModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import { useRouter } from "next/router";
+import React, { useContext, useEffect } from "react";
 
 export const Debug: React.FC = () => {
   const { dispatch } = useContext(store);
@@ -19,14 +19,14 @@ export const Debug: React.FC = () => {
         ADDR_USDC: process.env.ADDR_USDC,
         ADDR_TREASURY: process.env.ADDR_TREASURY,
       };
-      console.log('env vars', envVars);
+      console.log("env vars", envVars);
       setTimeout(() => {
         dispatch(
           setDualActionWideModal({
-            title: 'Debug Info',
+            title: "Debug Info",
             content: JSON.stringify(envVars),
             onConfirm: {
-              label: 'Close',
+              label: "Close",
               onClick: () => dispatch(setDualActionWideModal(false)),
             },
           }),

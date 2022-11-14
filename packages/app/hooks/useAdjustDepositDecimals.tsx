@@ -1,8 +1,8 @@
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
 import { BigNumber } from "ethers";
 import { useCallback } from "react";
-import { useDeployment } from "./useDeployment";
 
 export function useAdjustDepositDecimals(chainId: ChainId): (depositAmount: BigNumber, token: Token) => BigNumber {
   const { usdc, usdt } = useDeployment(chainId);

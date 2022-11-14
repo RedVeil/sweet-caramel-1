@@ -1,11 +1,17 @@
-import React from "react";
-import DesktopMenu from "./DesktopMenu";
-import { MobileMenu } from "./MobileMenu";
+import DesktopMenu from "@popcorn/app/components/NavBar/DesktopMenu";
+import { MobileMenu } from "@popcorn/app/components/NavBar/MobileMenu";
+import React, { useEffect } from "react";
+import { useDisconnect, useNetwork } from "wagmi";
 
 export default function Navbar(): JSX.Element {
-  if (typeof window === "undefined") {
-    return <></>;
-  }
+  const { chain } = useNetwork();
+  const { disconnect } = useDisconnect();
+
+  useEffect(() => {
+    if (chain?.unsupported) {
+      disconnect();
+    }
+  }, [chain]);
 
   return (
     <>

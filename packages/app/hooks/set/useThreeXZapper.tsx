@@ -1,9 +1,9 @@
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ThreeXZapper, ThreeXZapper__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, isButterSupportedOnCurrentNetwork } from "@popcorn/utils";
 import { isAddress } from "ethers/lib/utils";
-import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
-import { useRpcProvider } from "../useRpcProvider";
 
 export default function useThreeXZapper(address: string | undefined, chainId: ChainId): ThreeXZapper {
   const { account } = useWeb3();

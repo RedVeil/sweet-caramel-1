@@ -1,12 +1,12 @@
 import { ChevronDownIcon } from "@heroicons/react/outline";
+import { SearchToken } from "@popcorn/app/components/BatchButter/SearchToken";
+import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import SingleActionModal from "@popcorn/app/components/Modal/SingleActionModal";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import PopUpModal from "components/Modal/PopUpModal";
-import SingleActionModal from "components/Modal/SingleActionModal";
-import TokenIcon from "components/TokenIcon";
 import Image from "next/image";
 import { useState } from "react";
-import { SearchToken } from "./SearchToken";
 
 export interface SelectTokenProps {
   allowSelection: boolean;

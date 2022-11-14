@@ -1,8 +1,8 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
+import { MobileFullScreenModalProps } from "@popcorn/app/components/Modal/MobileFullScreenModal";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import * as Icon from "react-feather";
-import { MobileFullScreenModalProps } from "./MobileFullScreenModal";
 
 export const DefaultMobileActionModalProps: MobileFullScreenModalProps = {
   content: "",

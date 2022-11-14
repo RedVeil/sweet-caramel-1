@@ -1,9 +1,9 @@
 import { SearchIcon } from "@heroicons/react/outline";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
+import { useDefaultTokenList } from "@popcorn/app/hooks/useDefaultTokenList";
 import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import TokenIcon from "components/TokenIcon";
 import { FC, useState } from "react";
-import { useDefaultTokenList } from "../../hooks/useDefaultTokenList";
 
 interface SearchTokenProps {
   selectToken: (token: Token) => void;

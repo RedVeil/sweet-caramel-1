@@ -1,9 +1,9 @@
+import { useWeb3Callbacks } from "@popcorn/app//helper/useWeb3Callbacks";
+import { useSwitchChainModal } from "@popcorn/app/hooks/useSwitchChainModal";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ContractTransaction } from "ethers/lib/ethers";
 import { useCallback } from "react";
 import toast from "react-hot-toast";
-import { useWeb3Callbacks } from "../helper/useWeb3Callbacks";
-import { useSwitchChainModal } from "./useSwitchChainModal";
-import useWeb3 from "./useWeb3";
 
 type TransactionCallback = (...args) => Promise<ContractTransaction>;
 type TransactionSubmitFunction = (

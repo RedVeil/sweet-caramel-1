@@ -1,5 +1,5 @@
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { localStringOptions } from "@popcorn/utils";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
 import { Dispatch } from "react";
 
 interface MintRedeemToggleProps {
