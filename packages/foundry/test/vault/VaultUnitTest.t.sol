@@ -14,7 +14,6 @@ import { IContractRegistry } from "../../src/interfaces/IContractRegistry.sol";
 import { IACLRegistry } from "../../src/interfaces/IACLRegistry.sol";
 import { IERC4626 } from "../../src/interfaces/IERC4626.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
-import { console } from "forge-std/Console.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
