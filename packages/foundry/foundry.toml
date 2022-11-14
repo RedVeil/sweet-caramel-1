@@ -12,6 +12,7 @@ remappings = [
   'solmate/=lib/solmate/src/'
 ]
 
+
 verbosity = 2
 fuzz_runs = 256
 fuzz_max_global_rejects = 100000000
