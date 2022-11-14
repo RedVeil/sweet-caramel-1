@@ -97,7 +97,7 @@ const BeneficiaryPage = () => {
       </div>
       <div className="container mx-auto">
         <div className="grid grid-cols-12 px-5 lg:px-10">
-          <div className="col-span-12 py-20">
+          <div className="col-span-12 py-10 md:py-20">
             <div className="flex items-center gap-3">
               <img
                 src={`${process.env.IPFS_URL}${beneficiary?.files?.profileImage?.image}`}
@@ -106,8 +106,8 @@ const BeneficiaryPage = () => {
               />
               <div>
                 <p className="text-customLightGray text-base leading-7 uppercase">{beneficiary?.proposalCategory}</p>
-                <h3 className="text-black text-5xl md:text-6xl my-4 leading-11">{beneficiary?.projectName}</h3>
-                <p className="text-primaryDark text-base leading-7">by {beneficiary?.organizationName}</p>
+                <h3 className="text-black text-5xl md:text-6xl my-2 md:my-4 leading-11">{beneficiary?.projectName}</h3>
+                <p className="text-primaryDark text-base">by {beneficiary?.organizationName}</p>
               </div>
             </div>
             <div className="py-10 flex">

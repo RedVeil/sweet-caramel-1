@@ -27,7 +27,7 @@ const AboutTab: React.FC<AboutTabProps> = ({ missionStatement, beneficiaryAddres
   return (
     <ul>
       <li className="pb-10">
-        <h6 className=" text-gray-900 text-3xl mb-5 font-semibold">Overview</h6>
+        <h6 className=" text-gray-900 text-3xl mb-5 font-semibold leading-none">Overview</h6>
         <p className=" text-primaryDark leading-6">{missionStatement || ""}</p>
       </li>
       <li className="p-4 border border-customLightGray rounded-lg mb-2">
