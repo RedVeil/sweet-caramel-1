@@ -3,62 +3,51 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/proxy/Clones.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../../utils/Owned.sol";
-import "./Vault.sol";
-import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
-import "../../interfaces/IContractRegistry.sol";
-import "../../interfaces/IRewardsEscrow.sol";
-import "../../interfaces/IERC4626.sol";
-
-struct VaultParams {
-  ERC20 asset;
-  IERC4626 strategy;
-  IContractRegistry contractRegistry;
-  Vault.FeeStructure feeStructure;
-  address feeRecipient;
-  KeeperConfig keeperConfig;
-}
 
 /**
- * @notice Factory that deploys V1 Vaults
- * @dev deploy can only be called by VaultsV1Controller
+ * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts
+ * @dev deploy functions can only be called by VaultsController
  */
-contract VaultsV1Factory is Owned {
+contract VaultsFactory is Owned {
+  /* ========== CUSTOM ERRORS ========== */
+
+  error DeploymentInitFailed();
+
   /* ========== EVENTS ========== */
 
-  event ImplementationUpdated(address oldImplementation, address newImplementation);
-  event VaultV1Deployment(address vault);
+  event Deployment(address indexed implementation);
 
   /* ========== STATE VARIABLES ========== */
 
-  bytes32 public constant contractName = keccak256("VaultsV1Factory");
-  address public implementation;
+  bytes32 public constant contractName = keccak256("VaultsFactory");
 
   /* ========== CONSTRUCTOR ========== */
 
   constructor(address _owner) Owned(_owner) {}
 
-  /**
-   * @notice Deploys V1 Vault
-   * @param _vaultParams - struct containing Vault contructor params
-   * @dev This should always be called through the VaultV1Controller
-   */
-  function deploy(VaultParams memory _vaultParams) external onlyOwner returns (address vault) {
-    vault = Clones.clone(implementation);
-    Vault(vault).initialize(
-      _vaultParams.asset,
-      _vaultParams.strategy,
-      _vaultParams.contractRegistry,
-      _vaultParams.feeStructure,
-      _vaultParams.feeRecipient,
-      _vaultParams.keeperConfig
-    );
-    emit VaultV1Deployment(vault);
-  }
+  // - All factories should be reduced to one.
+  // - Implementation should be an input param together with bytes encoded init args
+  // - Factory should clone implementation and than call the clone init function with encoded args + later return address of clone as usual
+  // - This will allow us to create Vault,VaultStaking and any wrapper in one simple factory
 
-  function setImplementation(address _vaultImplementation) external onlyOwner {
-    emit ImplementationUpdated(implementation, _vaultImplementation);
-    implementation = _vaultImplementation;
+  /**
+   * @notice Deploys Vault, VaultStaking, or Wrapper contracts
+   * @param _implementation - address of contract to clone behavior code
+   * @dev This should always be called through the VaultController
+   */
+  function deploy(address _implementation, bytes32 calldata _args)
+    external
+    onlyOwner
+    returns (address implementation, bytes32 memory returnData)
+  {
+    implementation = Clones.clone(implementation);
+
+    bytes4 selector = implementation.initialize.selector;
+
+    (bool success, bytes32 memory returnData) = implementation.call(abi.encodeWithSelector(selector, _args));
+
+    if (!success) revert DeploymentInitFailed();
+
+    emit Deployment(implementation);
   }
 }
