@@ -13,6 +13,7 @@ interface PortfolioItemProps {
   };
   statusLabels: Array<StatusWithLabelProps>;
   showExpandIcon?: boolean;
+  show: boolean;
 }
 const PortfolioItem: React.FC<PortfolioItemProps> = ({
   title,
@@ -20,12 +21,13 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({
   badge,
   children,
   showExpandIcon = true,
+  show,
 }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   return (
     <div
-      className="border-b border-customLightGray px-6 py-8"
+      className={`border-b border-customLightGray px-6 py-8 ${show ? "" : "hidden"}`}
       onClick={() => {
         setExpanded(!expanded);
       }}

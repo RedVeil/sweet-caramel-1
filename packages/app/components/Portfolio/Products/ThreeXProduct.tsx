@@ -98,7 +98,7 @@ const ThreeXProduct = () => {
 
   return (
     <>
-      <PortfolioItem title="3X" statusLabels={statusLabels}>
+      <PortfolioItem title="3X" statusLabels={statusLabels} show={totalDeposited !== "0"}>
         {inBatch && (
           <EarnedRewardsButton
             title="In Batch"

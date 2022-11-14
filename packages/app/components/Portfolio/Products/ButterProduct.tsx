@@ -104,7 +104,7 @@ const ButterProduct = () => {
 
   return (
     <>
-      <PortfolioItem title="Butter" statusLabels={statusLabels}>
+      <PortfolioItem title="Butter" statusLabels={statusLabels} show={totalDeposited !== "0"}>
         {inBatch && (
           <EarnedRewardsButton
             title="In Batch"

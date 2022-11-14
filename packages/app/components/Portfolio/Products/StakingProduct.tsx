@@ -105,19 +105,17 @@ const StakingProduct = () => {
 
   return (
     <>
-      {totalContracts > 0 && (
-        <PortfolioItem title="Staking" statusLabels={statusLabels} badge={badge}>
-          <StakingItems {...stakingItemProps} />
-          {totalEarned && (
-            <EarnedRewardsButton
-              title="Total Unclaimed Rewards"
-              amount={totalEarned}
-              buttonLabel="Rewards Page"
-              link="/rewards"
-            />
-          )}
-        </PortfolioItem>
-      )}
+      <PortfolioItem title="Staking" statusLabels={statusLabels} badge={badge} show={totalContracts > 0}>
+        <StakingItems {...stakingItemProps} />
+        {totalEarned && (
+          <EarnedRewardsButton
+            title="Total Unclaimed Rewards"
+            amount={totalEarned}
+            buttonLabel="Rewards Page"
+            link="/rewards"
+          />
+        )}
+      </PortfolioItem>
     </>
   );
 };
