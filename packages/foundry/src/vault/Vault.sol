@@ -97,7 +97,7 @@ contract Vault is
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
   ) external initializer {
-    __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
+    __ERC20_init(string.concat("Popcorn", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
     __ContractRegistryAccess_init(contractRegistry_);
 
     asset = asset_;
@@ -113,7 +113,7 @@ contract Vault is
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
-    contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), ERC20(address(strategy_)).name(), "Vault")); // NOTE -- use block.timestamp instead of strategy.name + emit event with contractName
+    contractName = keccak256(abi.encodePacked("Popcorn ", asset_.name(), ERC20(address(strategy_)).name(), "Vault")); // NOTE -- use block.timestamp instead of strategy.name + emit event with contractName
     keeperConfig = keeperConfig_;
     //NOTE -- Add Init event with (contractName, asset)
   }
@@ -503,6 +503,7 @@ contract Vault is
     // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
     // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
 
+
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 
     asset.approve(address(strategy), 0);
@@ -567,6 +568,7 @@ contract Vault is
    * @dev we send funds now to the feeRecipient which is set on in the contract registry. We must make sure that this is not address(0) before withdrawing fees
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
+    // TODO add a check that the feeRecipient is not address(0)
     uint256 accruedFees = balanceOf(address(this));
     uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
@@ -580,6 +582,7 @@ contract Vault is
 
     _mint(_getContract(keccak256("FeeRecipient")), accruedFees); // TODO makes this a state variable set on init (to allow for partners to set it)
 
+    // TODO remove shadowed keeperIncentive variable
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
 
     _approve(address(this), address(keeperIncentive), tipAmount);

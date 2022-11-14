@@ -34,6 +34,7 @@ contract VaultStaking is
   bytes32 constant REWARDS_DISTRIBUTION_ID = keccak256("RewardsDistribution");
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
+  // TODO: replace in initialize and make generic e.g. rewardTokens
   IERC20 internal constant pop = IERC20(0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4);
   IERC20 public stakingToken;
 
@@ -53,8 +54,8 @@ contract VaultStaking is
 
   function initialize(IERC20 _stakingToken, IContractRegistry contractRegistry_) external initializer {
     __ERC20_init(
-      IERC20Metadata(address(_stakingToken)).name(),
-      string(abi.encodePacked("X", IERC20Metadata(address(_stakingToken)).symbol()))
+    string(abi.encodePacked("Staked ", IERC20Metadata(address(_stakingToken)).name())),
+      string(abi.encodePacked("st-", IERC20Metadata(address(_stakingToken)).symbol()))
     );
     __ContractRegistryAccess_init(contractRegistry_);
 
