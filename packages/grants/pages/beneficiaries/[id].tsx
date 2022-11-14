@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ExclamationIcon, ShareIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon, ShareIcon } from "@heroicons/react/outline";
 import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import AboutTab from "components/Profile/AboutTab";
@@ -8,7 +8,6 @@ import { ContractsContext } from "context/Web3/contracts";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import { RWebShare } from "react-web-share";
 import styled from "styled-components";
 import capitalize from "../../utils/capitalizeFirstLetter";
 import { store } from "context/store";
@@ -111,7 +110,7 @@ const BeneficiaryPage = () => {
               </div>
             </div>
             <div className="py-10 flex">
-              <button onClick={shareProfile} className="border border-primary bg-white h-12 w-12 rounded-full flex md:hidden justify-center items-center">
+              <button onClick={shareProfile} className="border border-primary md:hidden bg-white h-12 w-12 rounded-full flex justify-center items-center">
                 <ShareIcon className="w-6 h-6 text-primary" />
               </button>
             </div>
