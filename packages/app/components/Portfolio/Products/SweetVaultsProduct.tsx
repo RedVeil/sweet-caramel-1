@@ -11,7 +11,6 @@ const SweetVaultsProduct = () => {
 
   const { Ethereum } = ChainId;
   const sweetVaults = useSweetVaults(Ethereum);
-  console.log(sweetVaults);
 
   const totalContracts = 1;
 
