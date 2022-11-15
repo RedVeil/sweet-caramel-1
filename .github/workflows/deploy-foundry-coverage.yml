@@ -16,9 +16,6 @@ jobs:
   
     runs-on: ubuntu-latest
 
-    permissions:
-      deployments: write
-
     steps: 
       - name: Install ubuntu dependencies
         run: |
@@ -33,14 +30,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-
-      - 
-        uses: chrnorm/deployment-action@v2
-        name: Create GitHub deployment
-        id: deployment
-        with:
-          token: '${{secrets.GITHUB_TOKEN}}'
-
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -83,24 +72,6 @@ jobs:
         run: |
           vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
           echo "{vercel_preview_url}={$(cat deployment-url.txt)}" >> $GITHUB_OUTPUT
+          echo "### Link to coverage report: " >> $GITHUB_STEP_SUMMARY
+          echo "[$(cat deployment-url.txt)]($(cat deployment-url.txt))" >> $GITHUB_STEP_SUMMARY
         id: vercel_deploy
-
-      - 
-        name: Update deployment status (success)
-        if: success()
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: '${{secrets.GITHUB_TOKEN}}'
-          environment-url: ${{ steps.vercel_deploy.outputs.vercel_preview_url }}
-          state: 'success'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-
-      - 
-        name: Update deployment status (failure)
-        if: failure()
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: '${{secrets.GITHUB_TOKEN}}'
-          environment-url: ${{ steps.vercel_deploy.outputs.vercel_preview_url }}
-          state: 'failure'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
