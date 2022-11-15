@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
+
 export const cache = {
   default: function () {
     return { lastBlock: 0, holders: [] };
   },
   path: function (chainId) {
-    return path.resolve(__dirname, `${chainId}-holders.json`);
+    return path.resolve(__dirname, `holders', ${chainId}-holders.json`);
   },
   exists: function (chainId) {
     return fs.existsSync(this.path(chainId));
@@ -17,3 +18,4 @@ export const cache = {
     fs.writeFile(this.path(chainId), JSON.stringify({ lastBlock: endBlock, holders }), () => {});
   },
 };
+export default cache;
