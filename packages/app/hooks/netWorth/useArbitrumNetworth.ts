@@ -2,6 +2,7 @@ import { ChainId } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
 import { useDeployment } from "hooks/useDeployment";
 import useCommonNetworthFunctions from "./useCommonNetworthFunctions";
+import useGetUserEscrows from "hooks/useGetUserEscrows";
 
 export default function useArbitrumNetworth(): {
   total: BigNumber;
@@ -11,16 +12,26 @@ export default function useArbitrumNetworth(): {
 } {
   const { Arbitrum } = ChainId;
   const arbitrum = useDeployment(Arbitrum);
-  const { escrowHoldings, popHoldings } = useCommonNetworthFunctions(arbitrum, Arbitrum);
+  const { useHoldingValue, account, popPrice, chainPopBalance: arbitrumPopBalance } = useCommonNetworthFunctions(arbitrum, Arbitrum);
+
+
+  const { data: arbitrumEscrow } = useGetUserEscrows(arbitrum.rewardsEscrow, account, Arbitrum);
+
+  const arbitrumPopHoldings = useHoldingValue(arbitrumPopBalance, popPrice);
+
+  const arbitrumEscrowHoldings = useHoldingValue(
+    arbitrumEscrow?.totalClaimablePop?.add(arbitrumEscrow?.totalVestingPop),
+    popPrice,
+  );
 
   const calculateArbitrumHoldings = (): BigNumber => {
-    return [popHoldings, escrowHoldings].reduce((total, num) => total.add(num));
+    return [arbitrumPopHoldings, arbitrumEscrowHoldings].reduce((total, num) => total.add(num));
   };
 
   return {
     total: calculateArbitrumHoldings(),
-    inWallet: popHoldings,
+    inWallet: arbitrumPopHoldings,
     deposit: BigNumber.from("0"),
-    vesting: escrowHoldings,
+    vesting: arbitrumEscrowHoldings,
   };
 }

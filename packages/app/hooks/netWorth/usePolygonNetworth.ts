@@ -12,16 +12,16 @@ export default function usePolygonNetworth(): {
   const { Polygon } = ChainId;
   const polygon = useDeployment(Polygon);
 
-  const { escrowHoldings, popHoldings, popStakingHoldings } = useCommonNetworthFunctions(polygon, Polygon);
+  const { chainEscrowHoldings, chainPopHoldings, popStakingHoldings } = useCommonNetworthFunctions(polygon, Polygon);
 
   const calculatePolygonHoldings = (): BigNumber => {
-    return [popHoldings, popStakingHoldings, escrowHoldings].reduce((total, num) => total.add(num));
+    return [chainPopHoldings, popStakingHoldings, chainEscrowHoldings].reduce((total, num) => total.add(num));
   };
 
   return {
     total: calculatePolygonHoldings(),
-    inWallet: popHoldings,
+    inWallet: chainPopHoldings,
     deposit: popStakingHoldings,
-    vesting: escrowHoldings,
+    vesting: chainEscrowHoldings,
   };
 }
