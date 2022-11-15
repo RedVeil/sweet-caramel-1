@@ -1,5 +1,5 @@
 --- 
-name: "Foundry Coverage Deployment"
+name: "Foundry Tests and Coverage"
 
 on: 
   push: 
@@ -11,6 +11,31 @@ env:
   VERCEL_PROJECT_ID: "${{ secrets.VERCEL_FOUNDRY_PROJECT_ID }}"
 
 jobs: 
+
+  Forge-Test:
+    build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/checkout@v2
+          with:
+            submodules: recursive
+
+        - name: Install Foundry
+          uses: foundry-rs/foundry-toolchain@v1
+          with:
+            version: nightly
+
+        - name: Run Forge build
+          run: cd packages/foundry && forge build
+          id: build
+
+        - name: Run tests
+          run: cd packages/foundry && forge test -vvv
+          env:
+            FOUNDRY_PROFILE: ci
+            RPC_URL: ${{secrets.RPC_URL}}
+            FORKING_RPC_URL: ${{secrets.RPC_URL}}
 
   Publish-Coverage:
   
