@@ -16,6 +16,15 @@ import "../../interfaces/IERC4626.sol";
 import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 import { IContractFactory } from "../../interfaces/IContractFactory.sol";
 
+struct VaultParams {
+  ERC20 asset;
+  IERC4626 strategy;
+  IContractRegistry contractRegistry;
+  Vault.FeeStructure feeStructure;
+  address feeRecipient;
+  KeeperConfig keeperConfig;
+}
+
 /**
  * @notice controls deploying, registering vaults, updating registry vaults, endorsing and enabling registry vaults, and pausing/unpausing vaults
  * @dev all functions can only be called by owner
@@ -39,6 +48,12 @@ contract VaultsController is Owned, ContractRegistryAccess {
   {}
 
   /* ========== VAULT DEPLOYMENT ========== */
+
+  /*
+   * - Implementation address of vault, vaultStaking and strategy must be passed in for vault creation
+   * - We need to either encode vault params later or append the strategy value to the bytes data
+   * - It should be possible to create the strategy when deploying a vault in the same transaction
+   */
 
   /**
    * @notice deploys and registers Vault from VaultsFactory
