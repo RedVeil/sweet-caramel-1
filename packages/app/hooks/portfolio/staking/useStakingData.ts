@@ -2,7 +2,7 @@ import { ChainId, numberToBigNumber } from "@popcorn/utils";
 import { StakingPool } from "@popcorn/utils/types";
 import { BigNumber, constants } from "ethers";
 import useContractMetadata from "hooks/useContractMetadata";
-import useTokenPrice from "hooks/useTokenPrice";
+import useTokenPrices from "hooks/tokens/useTokenPrices";
 
 export interface useStakingDataValues {
   tokenName?: string;
@@ -18,11 +18,13 @@ export interface useStakingDataValues {
 }
 
 export default function useStakingData(stakingPool: StakingPool, ChainId: ChainId): useStakingDataValues {
-  const tokenPrice = useTokenPrice(stakingPool?.stakingToken?.address, ChainId);
+  const tokenPrice = useTokenPrices([stakingPool?.stakingToken?.address], ChainId);
   const metadata = useContractMetadata(stakingPool?.stakingToken?.address, ChainId);
 
   // calculate tvl
-  let tvl = tokenPrice ? stakingPool?.totalStake?.mul(tokenPrice).div(constants.WeiPerEther) : numberToBigNumber(0, 18);
+  let tvl = tokenPrice
+    ? stakingPool?.totalStake?.mul(tokenPrice[0]).div(constants.WeiPerEther)
+    : numberToBigNumber(0, 18);
 
   // calculate vAPR
   const vAPR = !stakingPool?.apy || stakingPool?.apy?.lt(constants.Zero) ? numberToBigNumber(0, 18) : stakingPool?.apy;
@@ -30,7 +32,7 @@ export default function useStakingData(stakingPool: StakingPool, ChainId: ChainI
   // get Emissions
   const emissions = stakingPool ? stakingPool.tokenEmission : numberToBigNumber(0, 18);
 
-  const deposited = tokenPrice ? stakingPool?.userStake?.mul(tokenPrice) : numberToBigNumber(0, 18);
+  const deposited = tokenPrice ? stakingPool?.userStake?.mul(tokenPrice[0]) : numberToBigNumber(0, 18);
 
   const tokenIcon = {
     address: stakingPool ? stakingPool.tokenAddress : "",
@@ -38,7 +40,7 @@ export default function useStakingData(stakingPool: StakingPool, ChainId: ChainI
   };
   const tokenName = metadata?.name ? metadata.name : stakingPool?.stakingToken?.name;
 
-  const earned = tokenPrice ? stakingPool.earned.mul(tokenPrice) : numberToBigNumber(0, 18);
+  const earned = tokenPrice ? stakingPool.earned.mul(tokenPrice[0]) : numberToBigNumber(0, 18);
 
   let props = {
     tokenName,
