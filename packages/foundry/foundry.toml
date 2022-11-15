@@ -32,3 +32,4 @@ fs_permissions = [{ access = "read-write", path = "./"}]
 verbosity = 2
 fuzz_max_global_rejects = 100000000
 fuzz_runs = 2500
+

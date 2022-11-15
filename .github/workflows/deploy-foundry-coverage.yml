@@ -11,8 +11,6 @@ env:
   VERCEL_PROJECT_ID: "${{ secrets.VERCEL_FOUNDRY_PROJECT_ID }}"
 
 jobs: 
-  Deploy: 
-    if: "${{ false }}"
 
   runs-on: ubuntu-latest
 
