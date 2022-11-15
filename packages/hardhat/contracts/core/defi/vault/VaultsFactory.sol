@@ -25,10 +25,12 @@ contract VaultsFactory is Owned {
 
   constructor(address _owner) Owned(_owner) {}
 
-  // - All factories should be reduced to one.
-  // - Implementation should be an input param together with bytes encoded init args
-  // - Factory should clone implementation and than call the clone init function with encoded args + later return address of clone as usual
-  // - This will allow us to create Vault,VaultStaking and any wrapper in one simple factory
+  /* 
+  * - All factories should be reduced to one.
+  * - Implementation should be an input param together with bytes encoded init args
+  * - Factory should clone implementation and than call the clone init function with encoded args + later return address of clone as usual
+  * - This will allow us to create Vault,VaultStaking and any wrapper in one simple factory
+  /* 
 
   /**
    * @notice Deploys Vault, VaultStaking, or Wrapper contracts
