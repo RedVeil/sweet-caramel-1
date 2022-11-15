@@ -1,8 +1,10 @@
+import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 import { parseEther } from "ethers/lib/utils";
 import usePopLocker from "hooks/staking/usePopLocker";
 import useTokenBalance from "hooks/tokens/useTokenBalance";
-import useGetPopTokenPriceInUSD from "hooks/useGetPopTokenPriceInUSD";
+import useTokenPrices from "hooks/tokens/useTokenPrices";
+import { useDeployment } from "hooks/useDeployment";
 import { useGetUserEscrows } from "hooks/useGetUserEscrows";
 import useWeb3 from "hooks/useWeb3";
 import { useCallback, useMemo } from "react";
@@ -17,7 +19,10 @@ function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumb
 export default function useCommonNetworthFunctions(chainId, network) {
   const { account } = useWeb3();
   const useHoldingValue = useCallback(getHoldingValue, []);
-  const { data: popPrice } = useGetPopTokenPriceInUSD(); // in 1e6
+  // const { data: popPrice } = useGetPopTokenPriceInUSD(); // in 1e6
+  const { pop } = useDeployment(chainId);
+  const { data: priceData } = useTokenPrices([pop], chainId);
+  const popPrice = priceData?.[pop];
   const raisedPopPrice = useMemo(() => (popPrice ? popPrice.mul(parseEther("0.000001")) : constants.Zero), [popPrice]);
 
   const { data: popBalance } = useTokenBalance(network.pop, account, chainId);

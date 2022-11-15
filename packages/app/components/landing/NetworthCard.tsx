@@ -2,7 +2,7 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 import useNetWorth from "@popcorn/app/hooks/netWorth/useNetWorth";
 import { formatUnits } from "ethers/lib/utils";
 
-export function NetworthCard(hidden: boolean): JSX.Element {
+export function NetworthCard({ hidden }: { hidden: boolean }): JSX.Element {
   const { total } = useNetWorth();
   const formatter: Intl.NumberFormat = Intl.NumberFormat("en", {
     //@ts-ignore

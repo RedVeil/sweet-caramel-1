@@ -45,7 +45,7 @@ const PopInWallet = () => {
 
   return (
     <>
-      <PortfolioItem title="POP In Wallet" statusLabels={statusLabels} showExpandIcon={false}></PortfolioItem>
+      <PortfolioItem title="POP In Wallet" statusLabels={statusLabels} showExpandIcon={false} show></PortfolioItem>
     </>
   );
 };

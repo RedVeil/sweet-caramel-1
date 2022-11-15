@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
 import useERC20 from "hooks/tokens/useERC20";
 import { useDeployment } from "hooks/useDeployment";
-import useTokenPrice from "hooks/useTokenPrice";
+import useTokenPrices from "hooks/tokens/useTokenPrices";
 import useWeb3 from "hooks/useWeb3";
 import { useMemo } from "react";
 
@@ -18,7 +18,7 @@ export default function usePopInWallet() {
   const ethBalancesPop = useBalanceAndAllowance(ethPop?.address, account, ethXPopAddress, Ethereum);
 
   // alt calc for eth
-  const ethTokensPrice = useTokenPrice(ethPop?.address, Ethereum);
+  const ethTokensPrice = useTokenPrices(ethPop?.address, Ethereum);
   const EthPopValue = ethTokensPrice ? ethPop?.balance?.mul(ethTokensPrice) : numberToBigNumber(0, 18);
 
   // calculate for polygon
@@ -28,7 +28,7 @@ export default function usePopInWallet() {
   const polygonBalancesPop = useBalanceAndAllowance(polygonPop?.address, account, polygonXPopAddress, Polygon);
 
   // alt calc for polygon
-  const polyTokensPrice = useTokenPrice(polygonPop?.address, Polygon);
+  const polyTokensPrice = useTokenPrices(polygonPop?.address, Polygon);
   const polygonPopValue = polyTokensPrice ? polygonPop?.balance?.mul(polyTokensPrice) : numberToBigNumber(0, 18);
 
   // sum up the balances
