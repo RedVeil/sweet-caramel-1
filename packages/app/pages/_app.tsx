@@ -22,8 +22,6 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import "@popcorn/app/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import { useMulticall } from "hooks/useMulticall";
-import { useProxy } from "hooks/useProxy";
 
 const bnb = {
   id: 56,
@@ -40,7 +38,9 @@ const { chains, provider, webSocketProvider } = configureChains(
     chain.optimism,
     chain.arbitrum,
     bnb,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [chain.goerli, chain.rinkeby, chain.localhost] : []),
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
+      ? [chain.goerli, chain.rinkeby, chain.localhost, chain.hardhat]
+      : []),
   ],
   [
     alchemyProvider({
@@ -82,8 +82,6 @@ export default function MyApp(props) {
       </Page>
     ));
   const [loading, setLoading] = useState(false);
-
-  useProxy();
 
   useEffect(() => {
     setLoading(true);
