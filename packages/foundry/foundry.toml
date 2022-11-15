@@ -25,7 +25,6 @@ FORKING_RPC_URL = "${FORKING_RPC_URL}"
 
 
 [profile.ci]
-
 src = 'src'
 out = 'out'
 test = 'test'
