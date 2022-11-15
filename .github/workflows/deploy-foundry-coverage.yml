@@ -12,32 +12,6 @@ env:
 
 jobs: 
 
-  Forge-Test:
-    build:
-      runs-on: ubuntu-latest
-
-      steps:
-        - uses: actions/checkout@v2
-          with:
-            submodules: recursive
-
-        - name: Install Foundry
-          uses: foundry-rs/foundry-toolchain@v1
-          with:
-            version: nightly
-
-        - name: Run Forge build
-          run: cd packages/foundry && forge build
-          id: build
-
-        - name: Run tests
-          run: cd packages/foundry && forge test -vvv
-          env:
-            FOUNDRY_PROFILE: ci
-            RPC_URL: ${{secrets.RPC_URL}}
-            FORKING_RPC_URL: ${{secrets.RPC_URL}}
-
-
   Publish-Coverage:
   
     runs-on: ubuntu-latest
