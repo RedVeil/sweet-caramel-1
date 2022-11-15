@@ -1,5 +1,5 @@
 --- 
-name: "Preview Deployment"
+name: "Preview Next Deployment"
 true: 
   push: 
     paths: 
@@ -10,8 +10,6 @@ env:
   VERCEL_ORG_ID: "${{ secrets.VERCEL_ORG_ID }}"
   VERCEL_PROJECT_ID: "${{ secrets.VERCEL_PROJECT_ID }}"
 jobs: 
-  Deploy: 
-    if: "${{ false }}"
   runs-on: ubuntu-latest
   steps: 
     - 

@@ -45,6 +45,8 @@ jobs:
 
       - name: Generate coverage report
         run: |
+          ls
+          cd packages/foundry
           forge coverage --report lcov
           genhtml lcov.info -o coverage_report --frame --legend
 
