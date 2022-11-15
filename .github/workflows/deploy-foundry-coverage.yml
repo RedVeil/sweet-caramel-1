@@ -37,9 +37,13 @@ jobs:
             RPC_URL: ${{secrets.RPC_URL}}
             FORKING_RPC_URL: ${{secrets.RPC_URL}}
 
+
   Publish-Coverage:
   
     runs-on: ubuntu-latest
+
+    permissions:
+      deployments: write
 
     steps: 
       - name: Install ubuntu dependencies
@@ -55,6 +59,14 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+
+      - 
+        uses: chrnorm/deployment-action@v2
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: '${{secrets.GITHUB_TOKEN}}'
+
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -96,18 +108,25 @@ jobs:
         name: "Deploy Project Artifacts to Vercel"
         run: |
           vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
-          echo "{vercel_preview_url}={$(cat deployment-url.txt)}" >> $GITHUB_ENV
+          echo "{vercel_preview_url}={$(cat deployment-url.txt)}" >> $GITHUB_OUTPUT
         id: vercel_deploy
 
       - 
-        uses: actions/github-script@v3
+        name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@v2
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'The foundry code coverage URL is: ${{ steps.vercel_deploy.outputs.vercel_preview_url }}.'
-            });
+          token: '${{secrets.GITHUB_TOKEN}}'
+          environment-url: ${{ steps.vercel_deploy.outputs.vercel_preview_url }}
+          state: 'success'
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
+      - 
+        name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: '${{secrets.GITHUB_TOKEN}}'
+          environment-url: ${{ steps.vercel_deploy.outputs.vercel_preview_url }}
+          state: 'failure'
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
