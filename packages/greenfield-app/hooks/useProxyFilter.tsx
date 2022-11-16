@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
-import { Contract, ethers } from "ethers";
+import { Contract } from "ethers";
 
 const PROXY_FACTORY_ADDRESS = "0xD5bFeBDce5c91413E41cc7B24C8402c59A344f7c";
 
@@ -27,17 +26,20 @@ const PROXY_FACTORY_ABI = [
   },
 ];
 
-export default function useProxyFilter({ owner }) {
-  const provider = useRpcProvider(1337);
+export default function useProxyFilter(owner, provider) {
   const contract = new Contract(PROXY_FACTORY_ADDRESS, PROXY_FACTORY_ABI, provider);
 
-  const [events, setEvents] = useState();
+  const [proxyAddress, setProxyAddress] = useState();
 
   useEffect(() => {
-    contract.queryFilter(contract.filters.Created(null, owner)).then((events) => {
-      setEvents(events);
+    contract.queryFilter(contract.filters.Created(null, owner, null, null)).then((events) => {
+      /**
+       * events returns the list but we are only interested in the first proxy we find.
+       * args[2] is where the proxy address is stored.
+       */
+      events.length > 0 && setProxyAddress(events[0].args[2]);
     });
   }, [owner]);
 
-  return events;
+  return proxyAddress;
 }
