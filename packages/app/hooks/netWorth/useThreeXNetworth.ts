@@ -10,13 +10,15 @@ export default function useThreeXNetworth(): {
   threeXHoldings: BigNumber;
   threeXStakingHoldings: BigNumber;
   threeXRedeemBatchHoldings: BigNumber;
+  threeXStakingRewardsHoldings: BigNumber;
 } {
   const { Ethereum } = ChainId;
   const ethereum = useDeployment(Ethereum);
-  const { getHoldingValue } = useCommonNetworthFunctions(ethereum, Ethereum);
+  const { getHoldingValue, useHoldingValue, popPrice } = useCommonNetworthFunctions(ethereum, Ethereum);
 
   const { data: threeXStakingPool } = useStakingPool(ethereum.threeXStaking, Ethereum);
   const { data: threeXBatchData } = useThreeXData(Ethereum);
+  const threeXStakingRewardsHoldings = useHoldingValue(threeXStakingPool?.earned, popPrice);
 
   const threeXHoldings = useMemo(() => {
     if (!threeXBatchData) return constants.Zero;
@@ -40,5 +42,6 @@ export default function useThreeXNetworth(): {
     threeXHoldings,
     threeXStakingHoldings,
     threeXRedeemBatchHoldings,
+    threeXStakingRewardsHoldings,
   };
 }

@@ -70,22 +70,6 @@ export const MobileMenu: React.FC = () => {
     toggleMenu(false);
   }, [router?.pathname]);
 
-  useEffect(() => {
-    if (showLocalNetwork && availableNetworks.length <= networkData.length) {
-      setAvailableNetworks([
-        ...availableNetworks,
-        {
-          id: JSON.stringify(ChainId.Goerli),
-          value: networkMap[ChainId.Goerli],
-        },
-        {
-          id: JSON.stringify(ChainId.Localhost),
-          value: networkMap[ChainId.Localhost],
-        },
-      ]);
-    }
-  }, []);
-
   const closePopUp = () => {
     setShowPopUp(false);
   };

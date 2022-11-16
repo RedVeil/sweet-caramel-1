@@ -23,7 +23,7 @@
   "devDependencies": {
     "@float-capital/solidity-coverage": "0.7.17",
     "@nomiclabs/hardhat-ethers": "2.0.4",
-    "@openzeppelin/contracts": "4.7.1",
+    "@openzeppelin/contracts": "4.8.0",
     "@openzeppelin/test-helpers": "0.5.15",
     "@prb/math": "^2.5.0",
     "@types/chai": "4.3.0",

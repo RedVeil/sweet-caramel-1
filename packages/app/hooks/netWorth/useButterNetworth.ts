@@ -10,12 +10,15 @@ export default function useButterNetworth(): {
   butterHoldings: BigNumber;
   butterStakingHoldings: BigNumber;
   butterRedeemBatchHoldings: BigNumber;
+  butterStakingRewardsHoldings: BigNumber;
 } {
   const { Ethereum } = ChainId;
   const ethereum = useDeployment(Ethereum);
   const { data: butterStakingPool } = useStakingPool(ethereum.butterStaking, Ethereum);
   const { data: butterBatchData } = useButterBatchData(Ethereum);
-  const { getHoldingValue } = useCommonNetworthFunctions(ethereum, Ethereum);
+  const { getHoldingValue, useHoldingValue, popPrice } = useCommonNetworthFunctions(ethereum, Ethereum);
+
+  const butterStakingRewardsHoldings = useHoldingValue(butterStakingPool?.earned, popPrice);
 
   const butterHoldings = useMemo(() => {
     if (!butterBatchData) return constants.Zero;
@@ -28,6 +31,7 @@ export default function useButterNetworth(): {
     const butter = butterBatchData?.tokens.find((token) => token.address === ethereum.butter);
     return getHoldingValue(butterStakingPool?.userStake, butter?.price);
   }, [butterStakingPool, butterBatchData]);
+
   const butterRedeemBatchHoldings = useMemo(() => {
     if (!butterBatchData) return constants.Zero;
     const threeCrv = butterBatchData?.tokens.find((token) => token.address === ethereum.threeCrv);
@@ -38,5 +42,6 @@ export default function useButterNetworth(): {
     butterHoldings,
     butterStakingHoldings,
     butterRedeemBatchHoldings,
+    butterStakingRewardsHoldings,
   };
 }

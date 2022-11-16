@@ -100,7 +100,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
                 selectToken={selectToken}
               />
             ) : (
-              <div className="inline-flex items-center">
+              <div className="inline-flex items-center min-w-fit">
                 <div className="md:mr-2 mb-0.5">
                   <TokenIcon token={token?.address} imageSize="w-5 h-5" chainId={chainId} />
                 </div>

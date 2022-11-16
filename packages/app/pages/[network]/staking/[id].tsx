@@ -7,7 +7,6 @@ import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllo
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
-import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ethers } from "ethers";
@@ -24,13 +23,13 @@ export default function StakingPage(): JSX.Element {
     data: stakingPool,
     error: stakingPoolError,
     mutate: refetchStakingPool,
+    isValidating,
   } = useStakingPool(router.query.id as string, chainId);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, stakingPool?.address, chainId);
   const stakingToken = stakingPool?.stakingToken;
-  const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
+  const { data: tokenPriceData, isValidating: tokenPriceValidating } = useTokenPrices([stakingToken?.address], chainId);
   const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
-  const isLoading = !stakingPool && !tokenPrice;
-  const pushWithinChain = usePushWithinChain();
+  const isLoading = isValidating || tokenPriceValidating;
   const transaction = useTransaction(chainId);
 
   useEffect(() => {
