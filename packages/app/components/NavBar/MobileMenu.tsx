@@ -17,10 +17,30 @@ import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
 import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
+import useAvailableNetworks from "hooks/useAvailableNetworks";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useDisconnect, useNetwork } from "wagmi";
+
+const networkData = [
+  {
+    id: JSON.stringify(ChainId.Ethereum),
+    value: networkMap[ChainId.Ethereum],
+  },
+  {
+    id: JSON.stringify(ChainId.Arbitrum),
+    value: networkMap[ChainId.Arbitrum],
+  },
+  {
+    id: JSON.stringify(ChainId.BNB),
+    value: networkMap[ChainId.BNB],
+  },
+  {
+    id: JSON.stringify(ChainId.Polygon),
+    value: networkMap[ChainId.Polygon],
+  },
+];
 
 export const MobileMenu: React.FC = () => {
   const { openConnectModal } = useConnectModal();
@@ -50,22 +70,6 @@ export const MobileMenu: React.FC = () => {
   useEffect(() => {
     toggleMenu(false);
   }, [router?.pathname]);
-
-  useEffect(() => {
-    if (showLocalNetwork && availableNetworks.length <= networkData.length) {
-      setAvailableNetworks([
-        ...availableNetworks,
-        {
-          id: JSON.stringify(ChainId.Goerli),
-          value: networkMap[ChainId.Goerli],
-        },
-        {
-          id: JSON.stringify(ChainId.Localhost),
-          value: networkMap[ChainId.Localhost],
-        },
-      ]);
-    }
-  }, []);
 
   const closePopUp = () => {
     setShowPopUp(false);
