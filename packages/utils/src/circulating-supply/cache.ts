@@ -6,7 +6,7 @@ export const cache = {
     return { lastBlock: 0, holders: [] };
   },
   path: function (chainId) {
-    return path.resolve(__dirname, `holders', ${chainId}-holders.json`);
+    return path.resolve(__dirname, "holders", `${chainId}-holders.json`);
   },
   exists: function (chainId) {
     return fs.existsSync(this.path(chainId));
