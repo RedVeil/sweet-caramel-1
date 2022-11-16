@@ -67,8 +67,9 @@ export const TokenInput: React.FC<TokenInputProps> = ({
       <div className="flex items-center gap-2 md:gap-0 md:space-x-2 w-full">
         <div className="w-full">
           <div
-            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
-              }`}
+            className={`relative flex items-center px-5 py-4 border border-customLightGray rounded-lg ${
+              balance && amount?.gt(balance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
+            }`}
           >
             <input
               name="tokenInput"
@@ -99,7 +100,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
                 selectToken={selectToken}
               />
             ) : (
-              <div className="inline-flex items-center">
+              <div className="inline-flex items-center min-w-fit">
                 <div className="md:mr-2 mb-0.5">
                   <TokenIcon token={token?.address} imageSize="w-5 h-5" chainId={chainId} />
                 </div>
