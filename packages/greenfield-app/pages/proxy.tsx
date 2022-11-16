@@ -1,5 +1,4 @@
-import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
-import { Contract, ethers } from "ethers";
+import useProxyFilter from "hooks/useProxyFilter";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
 const PROXY_FACTORY_ADDRESS = "0xD5bFeBDce5c91413E41cc7B24C8402c59A344f7c";
@@ -36,18 +35,7 @@ export default function Proxy(): JSX.Element {
 
   const { data, isSuccess, write, isLoading } = useContractWrite(config);
 
-  const provider = useRpcProvider(1337);
-  const contract = new Contract(PROXY_FACTORY_ADDRESS, PROXY_FACTORY_ABI, provider);
-  console.log(contract);
-
-  const aa = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-  const ff = contract.filters.Created(null, aa);
-  console.log(3333);
-  console.log(ff);
-
-  contract.queryFilter(ff).then((events) => {
-    console.log(events);
-  });
+  const proxyAddress = useProxyFilter("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
 
   return (
     <div>
