@@ -52,12 +52,11 @@ const getHolders = async (tokenAddress, startBlock, provider: JsonRpcProvider[])
 
     cache.write([...new Set([...cache.get(network.chainId).holders, ...holders])], network.chainId, endBlock);
 
-    // await new Promise((resolve) => setTimeout(resolve, 50));
-
     if (endBlock != currentBlock) {
       return getHolderBatch(endBlock);
     }
 
+    // await new Promise((resolve) => setTimeout(resolve, 500));
     return cache.get(network.chainId).holders;
   };
   return getHolderBatch(startBlock);

@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 
-const writeQueue = [];
 export const cache = {
   default: function () {
     return { lastBlock: 0, holders: [] };
@@ -16,19 +15,8 @@ export const cache = {
     return this.exists(chainId) ? JSON.parse(fs.readFileSync(this.path(chainId), "utf8")) : this.default();
   },
   write: function (holders, chainId, endBlock) {
-    writeQueue.push(() =>
-      fs.writeFile(this.path(chainId), JSON.stringify({ lastBlock: endBlock, holders }), () => {
-        if (writeQueue.length) {
-          writeQueue.pop()();
-        }
-      }),
-    );
-    const tId = setTimeout(() => {
-      if (writeQueue.length) {
-        writeQueue.pop()();
-      }
-      clearTimeout(tId);
-    }, 1000);
+    const contents = JSON.stringify({ lastBlock: endBlock, holders });
+    fs.writeFileSync(this.path(chainId), contents);
   },
 };
 export default cache;
