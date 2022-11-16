@@ -6,7 +6,7 @@ const {
   ALCHEMY_API_KEYS_POLYGON,
   ALCHEMY_API_KEYS_ARBITRUM,
   ALCHEMY_API_KEYS_OPTIMISM,
-  QUICK_NODE_API_KEYS,
+  BNB_RPC_URLS,
 } = process.env;
 
 const config = {
@@ -15,11 +15,11 @@ const config = {
   arb_base_url: "https://arb-mainnet.g.alchemy.com/v2/",
   bnb_base_url: "https://withered-wild-feather.bsc.quiknode.pro/",
   op_base_url: "https://opt-mainnet.g.alchemy.com/v2/",
+  bnb_rpc_urls: BNB_RPC_URLS?.split(","),
   eth_keys: ALCHEMY_API_KEYS_ETHEREUM?.split(","),
   arb_keys: ALCHEMY_API_KEYS_ARBITRUM?.split(","),
   poly_keys: ALCHEMY_API_KEYS_POLYGON?.split(","),
   op_keys: ALCHEMY_API_KEYS_OPTIMISM?.split(","),
-  bnb_keys: QUICK_NODE_API_KEYS?.split(","),
 };
 
 export const PROVIDERS = {
@@ -35,10 +35,7 @@ export const PROVIDERS = {
     new JsonRpcProvider(`${config.arb_base_url}${config.arb_keys[0]}`),
     new JsonRpcProvider(`${config.arb_base_url}${config.arb_keys[1]}`),
   ],
-  bnb: [
-    new JsonRpcProvider(`${config.bnb_base_url}${config.bnb_keys[0]}/`),
-    new JsonRpcProvider(`${config.bnb_base_url}${config.bnb_keys[1]}/`),
-  ],
+  bnb: [new JsonRpcProvider(`${config.bnb_rpc_urls[0]}`), new JsonRpcProvider(`${config.bnb_rpc_urls[1]}`)],
   optimism: [
     new JsonRpcProvider(`${config.op_base_url}${config.op_keys[0]}`),
     new JsonRpcProvider(`${config.op_base_url}${config.op_keys[1]}`),

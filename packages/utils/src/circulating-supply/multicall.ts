@@ -41,12 +41,19 @@ export class Multicall {
 
     const batches = Math.ceil(this.payload.length / this.config.batchSize);
 
-    const results = await Promise.all(
-      Array.from({ length: batches }, (_, i) => {
-        const batch = this.payload.slice(i * this.config.batchSize, (i + 1) * this.config.batchSize);
-        return multi.aggregate(batch);
-      }),
-    );
+    console.log(`aggregating calls, (${batches} batches)`);
+
+    const calls = Array.from({ length: batches }, (_, i) => {
+      const batch = this.payload.slice(i * this.config.batchSize, (i + 1) * this.config.batchSize);
+      return () => multi.aggregate(batch);
+    });
+
+    let results = [];
+
+    for (let i = 0; i < calls.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      results = [...results, await calls[i]()];
+    }
 
     return results
       .reduce((_results, result) => [..._results, ...result[1]], [])
