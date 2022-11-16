@@ -10,7 +10,6 @@ import "../utils/ContractRegistryAccess.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IVault.sol";
-import "../interfaces/IVaultsZapper.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 import "../interfaces/IERC4626.sol";
@@ -22,10 +21,18 @@ import { IContractFactory } from "../interfaces/IContractFactory.sol";
  * @dev all functions can only be called by owner
  */
 
+struct VaultParams {
+  ERC20 asset;
+  IERC4626 strategy;
+  IContractRegistry contractRegistry;
+  Vault.FeeStructure feeStructure;
+  address feeRecipient;
+  KeeperConfig keeperConfig;
+}
+
 contract VaultsController is Owned, ContractRegistryAccess {
   /* ========== CUSTOM ERRORS ========== */
 
-  error SetZaps();
   error ConflictingInterest();
 
   /* ========== STATE VARIABLES ========== */
@@ -35,7 +42,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== EVENTS ========== */
 
-  event VaultDeployed(address vaultAddress, bool endorsed);
+  event VaultDeployed(address vaultAddress);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -46,20 +53,16 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== VAULT DEPLOYMENT ========== */
 
-  // TODO get rid of zapper, zapIn, zapOut
   // TODO make fee recipient a param so partners can set their own recipient
   /**
    * @notice deploys and registers Vault from VaultsFactory
-   * @param _vaultParams - struct containing Vault constructor params (address token_, address yearnRegistry_,
-    IContractRegistry contractRegistry_, address staking_, FeeStructure feeStructure_)
+   * @param _vaultParams - struct containing Vault constructor params (ERC20 asset, IERC4626 strategy, IContractRegistry contractRegistry, Vault.FeeStructure feeStructure, address feeRecipient, KeeperConfig keeperConfig)
    * @param _staking - Adds a staking contract to the registry for this particular vault. (If address(0) it will deploy a new VaultStaking contract)
-   * @param _endorse - bool if vault is to be endorsed after registration
    * @param _metadataCID - ipfs CID of vault metadata
    * @param _swapTokenAddresses - underlying assets to deposit and recieve LP token
    * @param _swapAddress - ex: stableSwapAddress for Curve
    * @param _exchange - number specifying exchange (1 = curve)
    * @dev the submitter in the VaultMetadata from the factory will be function caller
-   * @dev !Important If _vaultParams.zapper is defined we need to parse in _zapIn and _zapOut since the zapper doesnt work otherwise
    */
   function deployVaultFromFactory(
     VaultParams memory _vaultParams,
@@ -69,9 +72,8 @@ contract VaultsController is Owned, ContractRegistryAccess {
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
-    uint256 _exchange,
+    uint256 _exchange
   ) external returns (address vault) {
-
     VaultsRegistry vaultsRegistry = _vaultsRegistry();
 
     // TODO add dynamic strategy deployment
@@ -93,14 +95,12 @@ contract VaultsController is Owned, ContractRegistryAccess {
       metadataCID: _metadataCID,
       swapTokenAddresses: _swapTokenAddresses,
       swapAddress: _swapAddress,
-      exchange: _exchange,
+      exchange: _exchange
     });
 
     vaultsRegistry.registerVault(metadata);
 
-    if (_endorse) vaultsRegistry.toggleEndorseVault(vault); // TODO remove
-
-    emit VaultDeployed(vault, _endorse); // adjust event to not include endorse
+    emit VaultDeployed(vault); // adjust event to not include endorse
   }
 
   /**
