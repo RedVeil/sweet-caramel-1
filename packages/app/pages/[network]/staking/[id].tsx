@@ -98,7 +98,7 @@ export default function StakingPage(): JSX.Element {
     );
   }
 
-  return isValidating || tokenPriceValidating ? (
+  return isLoading ? (
     <StakeInterfaceLoader />
   ) : (
     <StakeInterface
