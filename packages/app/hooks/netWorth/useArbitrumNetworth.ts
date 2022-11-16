@@ -1,6 +1,6 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
-import { useDeployment } from "hooks/useDeployment";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import useCommonNetworthFunctions from "./useCommonNetworthFunctions";
 
 export default function useArbitrumNetworth(): {
@@ -16,9 +16,8 @@ export default function useArbitrumNetworth(): {
     useHoldingValue,
     popPrice,
     chainPopBalance: arbitrumPopBalance,
-    chainEscrow: arbitrumEscrow
+    chainEscrow: arbitrumEscrow,
   } = useCommonNetworthFunctions(arbitrum, Arbitrum);
-
 
   // pop holdings
   const arbitrumPopHoldings = useHoldingValue(arbitrumPopBalance, popPrice);

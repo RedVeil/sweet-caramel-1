@@ -1,6 +1,6 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
-import { useDeployment } from "hooks/useDeployment";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import useButterNetworth from "./useButterNetworth";
 import useCommonNetworthFunctions from "./useCommonNetworthFunctions";
 import useThreeXNetworth from "./useThreeXNetworth";
