@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.0
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
-import "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/security/PausableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
-import "../utils/ACLAuth.sol";
-import "../utils/ContractRegistryAccessUpgradeable.sol";
-import "../utils/KeeperIncentivized.sol";
-import "../interfaces/IERC4626.sol";
-import "../interfaces/IContractRegistry.sol";
-import "../interfaces/IKeeperIncentiveV2.sol";
-import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
+import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../../utils/ACLAuth.sol";
+import "../../utils/ContractRegistryAccessUpgradeable.sol";
+import "../../utils/KeeperIncentivized.sol";
+import "../../interfaces/IERC4626.sol";
+import "../../interfaces/IContractRegistry.sol";
+import "../../interfaces/IKeeperIncentiveV2.sol";
+import "../../interfaces/IVaultsV1.sol";
+import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
 
 contract Vault is
   ERC20Upgradeable,
@@ -28,8 +29,11 @@ contract Vault is
   error PermitDeadlineExpired(uint256 deadline);
   error InvalidSigner(address signer);
   error InvalidReceiver();
+  error VaultAssetMismatchNewStrategyAsset();
+  error InvalidQuitPeriod();
   error NotPassedQuitPeriod(uint256 quitPeriod);
   error InvalidFeeStructure();
+  error InvalidFeeRecipient();
   error InvalidVig();
   error InvalidMinWithdrawal();
   error InsufficientWithdrawalAmount(uint256 amount);
@@ -48,7 +52,7 @@ contract Vault is
 
   bytes32 public contractName;
 
-  uint256 constant MINUTES_PER_YEAR = 525_600;
+  uint256 constant SECONDS_PER_YEAR = 365.25 days;
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   /* ========== STATE VARIABLES ========== */
@@ -56,13 +60,18 @@ contract Vault is
   ERC20 public asset;
   IERC4626 public strategy;
   FeeStructure public feeStructure;
-  uint256 public vaultShareHWM = 1e18; // NOTE -- Might be off if the asset has less than 18 decimals --> >M>ight move that into init
+  uint256 public vaultShareHWM;
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
   KeeperConfig public keeperConfig;
+  address feeRecipient;
 
+  // Proposing new strategy and feeStructure
   IERC4626 public proposedStrategy;
   uint256 public proposalTimeStamp;
+  uint256 public quitPeriod; // default is 3 days
+  FeeStructure public proposedFees;
+  uint256 proposedFeeTimeStamp;
 
   //  EIP-2612 STORAGE
   uint256 internal INITIAL_CHAIN_ID;
@@ -72,6 +81,7 @@ contract Vault is
   uint8 internal _decimals;
 
   /* ========== EVENTS ========== */
+  event VaultInitialized(bytes32 contractName, address indexed asset);
   event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
   event Withdraw(
     address indexed caller,
@@ -84,9 +94,12 @@ contract Vault is
   event PerformanceFee(uint256 amount);
   event ManagementFee(uint256 amount);
   event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
+  event FeeRecipientUpdated(address indexed previousFeeRecipient, address indexed newFeeRecipient);
   event UnstakedAndWithdrawn(uint256 amount, address owner, address receiver);
   event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
   event NewStrategyProposed(IERC4626 newStrategy, uint256 timestamp);
+  event QuitPeriodSet(uint256 quitPeriod);
+  event NewFeesProposed(FeeStructure newFees);
 
   /* ========== INITIALIZE ========== */
 
@@ -95,13 +108,18 @@ contract Vault is
     IERC4626 strategy_,
     IContractRegistry contractRegistry_,
     FeeStructure memory feeStructure_,
+    address feeRecipient_,
     KeeperConfig memory keeperConfig_
   ) external initializer {
-    __ERC20_init(string.concat("Popcorn", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
+    if (feeRecipient_ == address(0)) revert InvalidFeeRecipient();
+
+    __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
     __ContractRegistryAccess_init(contractRegistry_);
 
     asset = asset_;
     strategy = strategy_;
+    quitPeriod = 3 days;
+    vaultShareHWM = 10**(asset_.decimals());
 
     _decimals = asset_.decimals();
 
@@ -109,13 +127,16 @@ contract Vault is
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
     asset.approve(address(strategy_), type(uint256).max);
-    strategy_.approve(address(strategy_), type(uint256).max); // NOTE -- check if thats still required as strategy should just burn instead of transfer
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
-    contractName = keccak256(abi.encodePacked("Popcorn ", asset_.name(), ERC20(address(strategy_)).name(), "Vault")); // NOTE -- use block.timestamp instead of strategy.name + emit event with contractName
+    feeRecipient = feeRecipient_;
+
+    // Note: contractNames used to access them via contractRegistry should be defined in state instead of hashed on call --> must be defined here because asset is not set until init
+    contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), block.timestamp, "Vault"));
     keeperConfig = keeperConfig_;
-    //NOTE -- Add Init event with (contractName, asset)
+
+    emit VaultInitialized(contractName, address(asset));
   }
 
   /* ========== VIEWS ========== */
@@ -218,10 +239,10 @@ contract Vault is
    *  the average of their current value and the value at the previous fee harvest checkpoint. This method is similar to
    *  calculating a definite integral using the trapezoid rule.
    */
-  // NOTE --> lets look at this again
   function accruedManagementFee() public view returns (uint256) {
-    uint256 area = (totalAssets() + assetsCheckpoint) * ((block.timestamp - feesUpdatedAt) / 1 minutes);
-    return (feeStructure.management.mulDivDown(area, 2) / MINUTES_PER_YEAR) / 1e18;
+    uint256 area = (totalAssets() + assetsCheckpoint) * (block.timestamp - feesUpdatedAt);
+
+    return (feeStructure.management.mulDivDown(area, 2) / SECONDS_PER_YEAR) / 1e18;
   }
 
   /**
@@ -231,10 +252,10 @@ contract Vault is
    *   HWM in a fee period, issue fee shares to the vault equal to the performance fee.
    */
   function accruedPerformanceFee() public view returns (uint256) {
-    uint256 shareValue = convertToAssets(1 ether); // NOTE --> check if we have to take decimals into account
+    uint256 shareValue = convertToAssets(1 ether);
 
     if (shareValue > vaultShareHWM) {
-      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e36); // NOTE --> Take decimals into account
+      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e36);
     } else {
       return 0;
     }
@@ -281,7 +302,7 @@ contract Vault is
     bytes32 r,
     bytes32 s
   ) public virtual {
-    if (deadline < block.timestamp) revert PermitDeadlineExpired(deadline);
+    if (deadline <= block.timestamp) revert PermitDeadlineExpired(deadline);
 
     // Unchecked because the only math done is incrementing
     // the owner's nonce which cannot realistically overflow.
@@ -347,7 +368,8 @@ contract Vault is
 
     emit Deposit(msg.sender, receiver, assets, shares);
 
-    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
+    vaultShareHWM = convertToAssets(1 ether);
+    assetsCheckpoint = totalAssets();
   }
 
   /**
@@ -386,7 +408,8 @@ contract Vault is
 
     emit Deposit(msg.sender, receiver, assets, shares);
 
-    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
+    vaultShareHWM = convertToAssets(1 ether);
+    assetsCheckpoint = totalAssets();
   }
 
   /**
@@ -431,7 +454,8 @@ contract Vault is
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
 
-    // NOTE --> potentially bring in feeCheckpoint logic (store HWM and assetCheckpoint BUT NOT feesUpdatedAt) -- We need to think about this more
+    vaultShareHWM = convertToAssets(1 ether);
+    assetsCheckpoint = totalAssets();
   }
 
   /**
@@ -480,16 +504,32 @@ contract Vault is
   /* ========== RESTRICTED FUNCTIONS ========== */
 
   /**
-   * @notice Propose a new strategy for this vault
+   * @notice Propose a new strategy for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
    * @param newStrategy A new ERC4626 that should be used as a yield strategy for this asset.
-   * @dev The new strategy can be actived 3 Days after proposal. This allows user to rage quit.
+   * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
    */
   function proposeNewStrategy(IERC4626 newStrategy) external onlyRole(VAULTS_CONTROLLER) {
-    // NOTE --> require that newStrategy.asset() matches this asset
+    // Note:`ProposeStrategy`-ragequit time shouldnt be configurable since that defeats the purpose
+
+    if (newStrategy.asset() != address(asset)) revert VaultAssetMismatchNewStrategyAsset();
+
     proposedStrategy = newStrategy;
     proposalTimeStamp = block.timestamp;
 
     emit NewStrategyProposed(newStrategy, block.timestamp);
+  }
+
+  /**
+   * @notice Set a quitPeriod for rage quitting after new strategy or fees are proposed. Caller must have VAULTS_CONTROlLER from ACLRegistry.
+   * @param _quitPeriod time to rage quit after proposal, if not set defaults to 3 days
+   * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
+   */
+  function setQuitPeriod(uint256 _quitPeriod) external onlyRole(VAULTS_CONTROLLER) {
+    if (_quitPeriod < 1 days || _quitPeriod > 7 days) revert InvalidQuitPeriod();
+
+    quitPeriod = _quitPeriod;
+
+    emit QuitPeriodSet(quitPeriod);
   }
 
   /**
@@ -498,11 +538,8 @@ contract Vault is
    * @dev Additionally it will zero old allowances and set new ones
    * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new strategy
    */
-  function changeStrategy() external takeFees onlyRole(VAULTS_CONTROLLER) {
-    if (block.timestamp < proposalTimeStamp + 3 days) revert NotPassedQuitPeriod(3 days);
-    // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
-    // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
-
+  function changeStrategy() external takeFees {
+    if (block.timestamp < proposalTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 
@@ -515,26 +552,33 @@ contract Vault is
 
     strategy.deposit(asset.balanceOf(address(this)), address(this));
 
-    vaultShareHWM = convertToAssets(1 ether); // NOTE --> Take decimals into account
-    assetsCheckpoint = totalAssets(); // NOTE --> Will be done by modifier
+    vaultShareHWM = convertToAssets(1 ether);
   }
 
   /**
-   * @notice Set fees in BPS. Caller must have DAO_ROLE or VAULTS_CONTROlLER from ACLRegistry.
+   * @notice Propose a new feeStructure for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function setFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
+  function proposeNewFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
     if (
       newFees.deposit >= 1e18 || newFees.withdrawal >= 1e18 || newFees.management >= 1e18 || newFees.performance >= 1e18
     ) revert InvalidFeeStructure();
 
-    // NOTE --> We can make this permissionless since it can only be changed to proposedFee
-    // NOTE --> Reduce Upper Bound
-    // NOTE --> Add a proposal for fees (similar to changeStrategy)
+    proposedFees = newFees;
+    proposedFeeTimeStamp = block.timestamp;
 
-    emit FeesUpdated(feeStructure, newFees);
-    feeStructure = newFees;
+    emit NewFeesProposed(newFees);
+  }
+
+  /**
+   * @notice Set fees in BPS to proposed fees from proposeNewFees function
+   */
+  function setFees() external {
+    if (block.timestamp < proposedFeeTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
+
+    emit FeesUpdated(feeStructure, proposedFees);
+    feeStructure = proposedFees;
   }
 
   /**
@@ -547,6 +591,17 @@ contract Vault is
     emit KeeperConfigUpdated(keeperConfig, _config);
 
     keeperConfig = _config;
+  }
+
+  /**
+   * @notice Change feeRecipient. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function setFeeRecipient(address _feeRecipient) external onlyRole(VAULTS_CONTROLLER) {
+    if (_feeRecipient == address(0)) revert InvalidFeeRecipient();
+
+    emit FeeRecipientUpdated(feeRecipient, _feeRecipient);
+
+    feeRecipient = _feeRecipient;
   }
 
   /**
@@ -568,7 +623,6 @@ contract Vault is
    * @dev we send funds now to the feeRecipient which is set on in the contract registry. We must make sure that this is not address(0) before withdrawing fees
    */
   function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
-    // TODO add a check that the feeRecipient is not address(0)
     uint256 accruedFees = balanceOf(address(this));
     uint256 incentiveVig = keeperConfig.incentiveVigBps;
 
@@ -580,9 +634,8 @@ contract Vault is
 
     _burn(address(this), accruedFees);
 
-    _mint(_getContract(keccak256("FeeRecipient")), accruedFees); // TODO makes this a state variable set on init (to allow for partners to set it)
+    _mint(_getContract(keccak256("FeeRecipient")), accruedFees);
 
-    // TODO remove shadowed keeperIncentive variable
     IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
 
     _approve(address(this), address(keeperIncentive), tipAmount);
@@ -623,7 +676,8 @@ contract Vault is
     uint256 managementFee = accruedManagementFee();
     uint256 totalFee = managementFee + accruedPerformanceFee();
     uint256 currentAssets = totalAssets();
-    uint256 shareValue = convertToAssets(1 ether); // NOTE --> take decimals into account
+
+    uint256 shareValue = convertToAssets(1 ether);
 
     if (shareValue > vaultShareHWM) vaultShareHWM = shareValue;
 
