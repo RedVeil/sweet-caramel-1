@@ -2,8 +2,8 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "../interfaces/IERC4626.sol";
-import "../utils/Owned.sol";
+import "../../interfaces/IERC4626.sol";
+import "../../utils/Owned.sol";
 
 struct VaultMetadata {
   address vaultAddress; // address of vault
@@ -25,16 +25,6 @@ struct VaultMetadata {
  * @dev all mutative functions can only be called by VaultsV1Controller
  */
 contract VaultsV1Registry is Owned {
-  /* ========== CUSTOM ERRORS ========== */
-
-  error VaultNotRegistered();
-  error NoAssetVaults();
-  error InvalidVaultType();
-  error NoTypeVaults();
-  error VaultAlreadyRegistered();
-  error VaultTypeImmutable();
-  error SubmitterImmutable();
-
   /* ========== STATE VARIABLES ========== */
 
   // vault address to vault metadata
@@ -75,8 +65,7 @@ contract VaultsV1Registry is Owned {
    * @param _vaultAddress - address of registered vault
    */
   function getVault(address _vaultAddress) external view returns (VaultMetadata memory) {
-    if (vaults[_vaultAddress].vaultAddress == address(0)) revert VaultNotRegistered();
-
+    require(vaults[_vaultAddress].vaultAddress != address(0), "vault address not registered");
     return vaults[_vaultAddress];
   }
 
@@ -85,8 +74,7 @@ contract VaultsV1Registry is Owned {
    * @param _asset - address of vault asset
    */
   function getVaultsByAsset(address _asset) external view returns (address[] memory) {
-    if (assetVaults[_asset].length <= 0) revert NoAssetVaults();
-
+    require(assetVaults[_asset].length > 0, "no vaults for this asset");
     return assetVaults[_asset];
   }
 
@@ -95,9 +83,8 @@ contract VaultsV1Registry is Owned {
    * @param _type - type of vault
    */
   function getVaultsByType(uint256 _type) external view returns (address[] memory) {
-    if (_type > vaultTypes || _type <= 0) revert InvalidVaultType();
-    if (typeVaults[_type].length <= 0) revert NoTypeVaults();
-
+    require(_type <= vaultTypes && _type > 0, "invalid vault type");
+    require(typeVaults[_type].length > 0, "no vaults of this type");
     return typeVaults[_type];
   }
 
@@ -122,9 +109,8 @@ contract VaultsV1Registry is Owned {
    * @param params - VaultMetadata constructed by Factory after deployVaultFromV1Factory called by Controller
    */
   function registerVault(VaultMetadata memory params) external onlyOwner {
-    if (vaults[params.vaultAddress].vaultAddress != address(0)) revert VaultAlreadyRegistered();
-    if (params.vaultType > vaultTypes || params.vaultType <= 0) revert InvalidVaultType();
-
+    require(vaults[params.vaultAddress].vaultAddress == address(0), "vault already registered");
+    require(params.vaultType <= vaultTypes && params.vaultType > 0, "invalid vault type");
     _registerVault(params);
   }
 
@@ -146,9 +132,9 @@ contract VaultsV1Registry is Owned {
   function updateVault(VaultMetadata memory _vaultMetadata) external onlyOwner {
     VaultMetadata storage updatedVault = vaults[_vaultMetadata.vaultAddress];
 
-    if (updatedVault.vaultAddress == address(0)) revert VaultNotRegistered();
-    if (_vaultMetadata.vaultType != updatedVault.vaultType) revert VaultTypeImmutable();
-    if (_vaultMetadata.submitter != updatedVault.submitter) revert SubmitterImmutable();
+    require(updatedVault.vaultAddress != address(0), "vault address not registered");
+    require(_vaultMetadata.vaultType == updatedVault.vaultType, "cannot change vault type");
+    require(_vaultMetadata.submitter == updatedVault.submitter, "cannot change submitter");
 
     updatedVault.enabled = _vaultMetadata.enabled;
     updatedVault.staking = _vaultMetadata.staking;
@@ -168,15 +154,13 @@ contract VaultsV1Registry is Owned {
     );
   }
 
-  //TODO get rid of vaultType
   /**
    * @notice increase the types of vaults that can be registered
    * @param _type - the next vault type to be registered
    * @dev _type must be exactly 1 more than current vaultTypes
    */
   function addVaultType(uint256 _type) external onlyOwner {
-    if (_type != vaultTypes + 1) revert InvalidVaultType();
-
+    require(_type == vaultTypes + 1, "incorrect vault type");
     vaultTypes = _type;
     emit VaultTypeAdded(vaultTypes);
   }
@@ -186,8 +170,7 @@ contract VaultsV1Registry is Owned {
    * @param _vaultAddress address of the vault to change endorsement
    */
   function toggleEndorseVault(address _vaultAddress) external onlyOwner {
-    if (vaults[_vaultAddress].vaultAddress == address(0)) revert VaultNotRegistered();
-
+    require(vaults[_vaultAddress].vaultAddress != address(0), "vault address not registered");
     endorsed[_vaultAddress] = !endorsed[_vaultAddress];
     emit VaultStatusChanged(_vaultAddress, endorsed[_vaultAddress], vaults[_vaultAddress].enabled);
   }
@@ -197,8 +180,7 @@ contract VaultsV1Registry is Owned {
    * @param _vaultAddress address of the vault to enable or disable
    */
   function toggleEnableVault(address _vaultAddress) external onlyOwner {
-    if (vaults[_vaultAddress].vaultAddress == address(0)) revert VaultNotRegistered();
-
+    require(vaults[_vaultAddress].vaultAddress != address(0), "vault address not registered");
     vaults[_vaultAddress].enabled = !vaults[_vaultAddress].enabled;
     emit VaultStatusChanged(_vaultAddress, endorsed[_vaultAddress], vaults[_vaultAddress].enabled);
   }

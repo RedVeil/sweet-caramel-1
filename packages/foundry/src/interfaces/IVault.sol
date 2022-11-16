@@ -6,7 +6,7 @@ import "./IERC4626.sol";
 import "../vault/Vault.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 
-interface IVaultsV1 is IERC4626 {
+interface IVault is IERC4626 {
   /* ========== STRUCTS ========== */
 
   struct FeeStructure {
