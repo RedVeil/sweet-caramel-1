@@ -117,7 +117,7 @@ module.exports = {
     },
     remote_fork: {
       chainId: 31338,
-      url: process.env.RPC_URL,
+      url: process.env.RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
       gasPrice: 10000000000,
     },
     rinkeby: {
