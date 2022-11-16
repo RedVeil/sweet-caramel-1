@@ -28,6 +28,8 @@ export default function usePopStaking() {
 
   const combinedEmissions = popStakingPools.reduce((prev, pool) => prev.add(pool.emissions), numberToBigNumber(0, 18));
 
+  console.log(popStakingPools);
+
   const combinedEarned = popStakingPools.reduce((prev, pool) => prev.add(pool.earned), numberToBigNumber(0, 18));
 
   let popTotalBigNumberValues: { deposited: BigNumber; tvl: BigNumber; vAPR: BigNumber; earned: BigNumber } = {

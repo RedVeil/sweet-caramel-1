@@ -14,6 +14,7 @@ const StakingProduct = () => {
     notation: "compact",
   });
 
+  // usePopStaking()
   const { popProductProps, popHasValue, popTotalBigNumberValues } = usePopStaking();
   const { butterProps, butterHasValue, butterTotalBigNumberValues } = useButterStaking();
   const { threeXProps, threeXHasValue, threeXTotalBigNumberValues } = useThreeXStaking();
