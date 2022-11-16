@@ -10,7 +10,6 @@ import React, { useContext, useEffect, useState } from "react";
 import StakeInterface, { defaultForm, InteractionType } from "@popcorn/app/components/staking/StakeInterface";
 import StakeInterfaceLoader from "@popcorn/app/components/staking/StakeInterfaceLoader";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
-import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { ethers } from "ethers";
 
@@ -24,13 +23,13 @@ export default function StakingPage(): JSX.Element {
     data: stakingPool,
     error: stakingPoolError,
     mutate: refetchStakingPool,
+    isValidating,
   } = useStakingPool(router.query.id as string, chainId);
   const balances = useBalanceAndAllowance(stakingPool?.stakingToken.address, account, stakingPool?.address, chainId);
   const stakingToken = stakingPool?.stakingToken;
-  const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
+  const { data: tokenPriceData, isValidating: tokenPriceValidating } = useTokenPrices([stakingToken?.address], chainId);
   const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
-  const isLoading = !stakingPool && !tokenPrice;
-  const pushWithinChain = usePushWithinChain();
+  const isLoading = isValidating || tokenPriceValidating;
   const transaction = useTransaction(chainId);
 
   useEffect(() => {
@@ -99,7 +98,7 @@ export default function StakingPage(): JSX.Element {
     );
   }
 
-  return isLoading ? (
+  return isValidating || tokenPriceValidating ? (
     <StakeInterfaceLoader />
   ) : (
     <StakeInterface
