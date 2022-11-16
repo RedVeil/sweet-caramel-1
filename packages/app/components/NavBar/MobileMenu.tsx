@@ -17,30 +17,10 @@ import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
 import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
-import useAvailableNetworks from "hooks/useAvailableNetworks";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useDisconnect, useNetwork } from "wagmi";
-
-const networkData = [
-  {
-    id: JSON.stringify(ChainId.Ethereum),
-    value: networkMap[ChainId.Ethereum],
-  },
-  {
-    id: JSON.stringify(ChainId.Arbitrum),
-    value: networkMap[ChainId.Arbitrum],
-  },
-  {
-    id: JSON.stringify(ChainId.BNB),
-    value: networkMap[ChainId.BNB],
-  },
-  {
-    id: JSON.stringify(ChainId.Polygon),
-    value: networkMap[ChainId.Polygon],
-  },
-];
 
 export const MobileMenu: React.FC = () => {
   const { openConnectModal } = useConnectModal();
@@ -51,7 +31,6 @@ export const MobileMenu: React.FC = () => {
 
   const [menuVisible, toggleMenu] = useState<boolean>(false);
   const [productsMenuVisible, toggleProductsMenu] = useState<boolean>(false);
-  const { availableNetworks } = useAvailableNetworks();
   const router = useRouter();
   const products = useProductLinks();
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
