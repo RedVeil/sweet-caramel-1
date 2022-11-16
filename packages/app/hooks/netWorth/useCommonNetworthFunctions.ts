@@ -1,12 +1,11 @@
 import { useCallback, useMemo } from "react";
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
-import usePopLocker from "hooks/staking/usePopLocker";
-import useTokenBalance from "hooks/tokens/useTokenBalance";
-import useTokenPrices from "hooks/tokens/useTokenPrices";
-import { useDeployment } from "hooks/useDeployment";
-import { useGetUserEscrows } from "hooks/useGetUserEscrows";
-import useWeb3 from "hooks/useWeb3";
+import useTokenBalance from "@popcorn/app/hooks/tokens/useTokenBalance";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useGetUserEscrows } from "@popcorn/app/hooks/useGetUserEscrows";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 function getHoldingValue(tokenAmount: BigNumber, tokenPrice: BigNumber): BigNumber {
   tokenAmount = tokenAmount ? tokenAmount : constants.Zero;

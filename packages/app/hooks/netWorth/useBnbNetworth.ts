@@ -1,6 +1,6 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
-import { useDeployment } from "hooks/useDeployment";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import useCommonNetworthFunctions from "./useCommonNetworthFunctions";
 
 export default function useBnbNetworth(): {
@@ -16,7 +16,7 @@ export default function useBnbNetworth(): {
     useHoldingValue,
     popPrice,
     chainPopBalance: bnbPopBalance,
-    chainEscrow: bnbEscrow
+    chainEscrow: bnbEscrow,
   } = useCommonNetworthFunctions(bnb, BNB);
 
   // escrow holdings
@@ -24,7 +24,6 @@ export default function useBnbNetworth(): {
 
   // pop holdings
   const bnbPopHoldings = useHoldingValue(bnbPopBalance, popPrice);
-
 
   const calculateBnbHoldings = (): BigNumber => {
     return [bnbPopHoldings, bnbEscrowHoldings].reduce((total, num) => total.add(num));
