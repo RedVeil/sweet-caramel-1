@@ -92,6 +92,7 @@ export const ProxyTest = () => {
       console.log("Success", i);
     },
   });
+  return <></>;
 }
 
 export default ProxyTest;
