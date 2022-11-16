@@ -24,12 +24,14 @@ export default function useCommonNetworthFunctions(chainId, network) {
   const { data: mainnetPriceData } = useTokenPrices([ethereum.pop, ethereum.popUsdcArrakisVault], Ethereum); // in 1e18
   const popPrice = mainnetPriceData?.[ethereum.pop];
   const { data: chainPopBalance } = useTokenBalance(chainId?.pop, account, network);
+  const { data: chainEscrow } = useGetUserEscrows(chainId.rewardsEscrow, account, network);
 
   return {
     popPrice,
     getHoldingValue,
     useHoldingValue,
     account,
-    chainPopBalance
+    chainPopBalance,
+    chainEscrow,
   };
 }
