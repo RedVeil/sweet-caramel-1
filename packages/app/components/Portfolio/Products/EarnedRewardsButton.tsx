@@ -1,4 +1,4 @@
-import SecondaryActionButton from "components/SecondaryActionButton";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import Link from "next/link";
 import React from "react";
 

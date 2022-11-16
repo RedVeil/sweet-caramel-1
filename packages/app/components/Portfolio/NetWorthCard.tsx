@@ -1,8 +1,8 @@
 import classnames from "classnames";
-import { usePortfolio } from "context/PortfolioContext";
+import { usePortfolio } from "@popcorn/app/context/PortfolioContext";
 import { BigNumber } from "ethers/lib/ethers";
 import { formatUnits } from "ethers/lib/utils";
-import useNetWorth from "hooks/netWorth/useNetWorth";
+import useNetWorth from "@popcorn/app/hooks/netWorth/useNetWorth";
 import { useCallback } from "react";
 
 const NetWorthCard = () => {

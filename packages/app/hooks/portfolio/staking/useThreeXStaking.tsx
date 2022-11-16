@@ -1,7 +1,7 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos, networkMap, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
-import useStakingPool from "hooks/staking/useStakingPool";
-import { useDeployment } from "hooks/useDeployment";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import useStakingData from "./useStakingData";
 
 export default function useThreeXStaking() {

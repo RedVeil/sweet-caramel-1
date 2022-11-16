@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
+import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { ChainId, networkMap } from "@popcorn/utils";
 
 const networkData = [

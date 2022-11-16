@@ -1,8 +1,8 @@
 import { BigNumber } from "ethers/lib/ethers";
-import { useChainIdFromUrl } from "hooks/useChainIdFromUrl";
-import { useDeployment } from "hooks/useDeployment";
-import { Escrow, useGetUserEscrows } from "hooks/useGetUserEscrows";
-import useWeb3 from "hooks/useWeb3";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { Escrow, useGetUserEscrows } from "@popcorn/app/hooks/useGetUserEscrows";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useEffect, useState } from "react";
 import { SWRResponse } from "swr";
 

@@ -1,10 +1,10 @@
 import { Transition } from "@headlessui/react";
-import Assets from "components/Portfolio/Assets/Assets";
-import NetWorthCard from "components/Portfolio/NetWorthCard";
-import PortfolioHero from "components/Portfolio/PortfolioHero";
-import PortfolioMenuTabs, { MenuTabItems } from "components/Portfolio/PortfolioMenuTabs";
-import ProductsCon from "components/Portfolio/Products/ProductsCon";
-import Rewards from "components/Portfolio/Rewards/Rewards";
+import Assets from "@popcorn/app/components/Portfolio/Assets/Assets";
+import NetWorthCard from "@popcorn/app/components/Portfolio/NetWorthCard";
+import PortfolioHero from "@popcorn/app/components/Portfolio/PortfolioHero";
+import PortfolioMenuTabs, { MenuTabItems } from "@popcorn/app/components/Portfolio/PortfolioMenuTabs";
+import ProductsCon from "@popcorn/app/components/Portfolio/Products/ProductsCon";
+import Rewards from "@popcorn/app/components/Portfolio/Rewards/Rewards";
 import React, { useState } from "react";
 
 const Portfolio = () => {

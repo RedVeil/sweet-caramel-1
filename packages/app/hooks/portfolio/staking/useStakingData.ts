@@ -1,8 +1,8 @@
 import { ChainId, numberToBigNumber } from "@popcorn/utils";
 import { StakingPool } from "@popcorn/utils/types";
 import { BigNumber, constants } from "ethers";
-import useContractMetadata from "hooks/useContractMetadata";
-import useTokenPrices from "hooks/tokens/useTokenPrices";
+import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 
 export interface useStakingDataValues {
   tokenName?: string;

@@ -1,7 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
-import Badge from "components/Common/Badge";
-import StatusWithLabel, { StatusWithLabelProps } from "components/Common/StatusWithLabel";
+import Badge from "@popcorn/app/components/Common/Badge";
+import StatusWithLabel, { StatusWithLabelProps } from "@popcorn/app/components/Common/StatusWithLabel";
 import React, { useState } from "react";
 
 interface PortfolioItemProps {

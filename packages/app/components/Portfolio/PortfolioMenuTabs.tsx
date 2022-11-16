@@ -1,6 +1,6 @@
-import CustomDropdown from "components/Common/CustomDropdown";
-import { usePortfolio } from "context/PortfolioContext";
-import useAvailableNetworks from "hooks/useAvailableNetworks";
+import CustomDropdown from "@popcorn/app/components/Common/CustomDropdown";
+import { usePortfolio } from "@popcorn/app/context/PortfolioContext";
+import useAvailableNetworks from "@popcorn/app/hooks/useAvailableNetworks";
 import React from "react";
 
 export enum MenuTabItems {

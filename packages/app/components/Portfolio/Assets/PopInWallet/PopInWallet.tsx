@@ -1,5 +1,5 @@
 import { ChainId, formatAndRoundBigNumber, networkLogos, networkMap } from "@popcorn/utils";
-import usePopInWallet from "hooks/portfolio/assets/usePopInWallet";
+import usePopInWallet from "@popcorn/app/hooks/portfolio/assets/usePopInWallet";
 import PortfolioItem from "../../PortfolioItem";
 
 const PopInWallet = () => {

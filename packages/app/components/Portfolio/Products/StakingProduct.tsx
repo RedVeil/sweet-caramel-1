@@ -1,9 +1,9 @@
 import { calculateMultipleAPY, formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
-import useArrakisStaking from "hooks/portfolio/staking/useArrakisStaking";
-import useButterStaking from "hooks/portfolio/staking/useButterStaking";
-import usePopStaking from "hooks/portfolio/staking/usePopStaking";
-import useThreeXStaking from "hooks/portfolio/staking/useThreeXStaking";
+import useArrakisStaking from "@popcorn/app/hooks/portfolio/staking/useArrakisStaking";
+import useButterStaking from "@popcorn/app/hooks/portfolio/staking/useButterStaking";
+import usePopStaking from "@popcorn/app/hooks/portfolio/staking/usePopStaking";
+import useThreeXStaking from "@popcorn/app/hooks/portfolio/staking/useThreeXStaking";
 import PortfolioItem from "../PortfolioItem";
 import EarnedRewardsButton from "./EarnedRewardsButton";
 import StakingItems from "./StakingItems";

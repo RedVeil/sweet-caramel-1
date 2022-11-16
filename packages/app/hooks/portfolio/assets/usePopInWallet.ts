@@ -1,10 +1,9 @@
 import { ChainId, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers";
-import useBalanceAndAllowance from "hooks/staking/useBalanceAndAllowance";
-import useERC20 from "hooks/tokens/useERC20";
-import { useDeployment } from "hooks/useDeployment";
-import useTokenPrices from "hooks/tokens/useTokenPrices";
-import useWeb3 from "hooks/useWeb3";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useMemo } from "react";
 
 export default function usePopInWallet() {

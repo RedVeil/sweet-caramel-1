@@ -7,8 +7,8 @@ import {
   numberToBigNumber,
 } from "@popcorn/utils";
 import { BigNumber } from "ethers/lib/ethers";
-import usePopLocker from "hooks/staking/usePopLocker";
-import { useDeployment } from "hooks/useDeployment";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import useStakingData from "./useStakingData";
 
 export default function usePopStaking() {

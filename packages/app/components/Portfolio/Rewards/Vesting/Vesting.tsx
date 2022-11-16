@@ -1,5 +1,5 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import useRewards from "hooks/portfolio/rewards/useRewards";
+import useRewards from "@popcorn/app/hooks/portfolio/rewards/useRewards";
 import PortfolioItem from "../../PortfolioItem";
 
 const Vesting = () => {

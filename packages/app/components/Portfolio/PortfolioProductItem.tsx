@@ -1,6 +1,6 @@
 import { ChainId } from "@popcorn/utils";
-import StatusWithLabel, { InfoIconProps } from "components/Common/StatusWithLabel";
-import TokenIcon from "components/TokenIcon";
+import StatusWithLabel, { InfoIconProps } from "@popcorn/app/components/Common/StatusWithLabel";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
 import React from "react";
 
 export interface PortfolioProductItemProps {

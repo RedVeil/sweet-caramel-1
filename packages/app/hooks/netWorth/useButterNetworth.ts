@@ -1,7 +1,7 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
-import useButterBatchData from "hooks/set/useButterBatchData";
-import useStakingPool from "hooks/staking/useStakingPool";
+import useButterBatchData from "@popcorn/app/hooks/set/useButterBatchData";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useMemo } from "react";
 import useCommonNetworthFunctions from "./useCommonNetworthFunctions";

@@ -1,4 +1,4 @@
-import { useStakingDataValues } from "hooks/portfolio/staking/useStakingData";
+import { useStakingDataValues } from "@popcorn/app/hooks/portfolio/staking/useStakingData";
 import React from "react";
 import PortfolioProductItem from "../PortfolioProductItem";
 
