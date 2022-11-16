@@ -2,28 +2,28 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
-import "../../src/vault/VaultsV1Factory.sol";
-import "../../src/vault/VaultStakingFactory.sol";
-import "../../src/vault/wrapper/yearn/YearnWrapperFactory.sol";
-import { VaultParams } from "../../src/vault/VaultsV1Factory.sol";
-import "../../src/vault/VaultsV1Registry.sol";
-import { VaultMetadata } from "../../src/vault/VaultsV1Registry.sol";
-import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
-import "../../src/vault/VaultStaking.sol";
-import "../../src/vault/Vault.sol";
-import "../../src/vault/VaultsV1Controller.sol";
-import "../../src/zapper/VaultsV1Zapper.sol";
-import "../../src/utils/KeeperIncentiveV2.sol";
-import "../../src/interfaces/IContractRegistry.sol";
-import "../../src/interfaces/IACLRegistry.sol";
-import "../../src/interfaces/IVaultsV1.sol";
-import "../../src/interfaces/IVaultsV1Zapper.sol";
-import "../../src/interfaces/IRewardsEscrow.sol";
-import "../../src/interfaces/IOwnable.sol";
-import "../../src/vault/wrapper/yearn/YearnWrapper.sol";
-import "../../src/interfaces/IYearnVaultWrapper.sol";
-import "../../src/interfaces/IERC4626.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
+import "../../../../contracts/core/defi/vault/VaultStakingFactory.sol";
+import "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapperFactory.sol";
+import { VaultParams } from "../../../../contracts/core/defi/vault/VaultsV1Factory.sol";
+import "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
+import { VaultMetadata } from "../../../../contracts/core/defi/vault/VaultsV1Registry.sol";
+import { KeeperConfig } from "../../../../contracts/core/utils/KeeperIncentivized.sol";
+import "../../../../contracts/core/defi/vault/VaultStaking.sol";
+import "../../../../contracts/core/defi/vault/Vault.sol";
+import "../../../../contracts/core/dao/RewardsEscrow.sol";
+import "../../../../contracts/core/defi/vault/VaultsV1Controller.sol";
+import "../../../../contracts/core/defi/zapper/VaultsV1Zapper.sol";
+import "../../../../contracts/core/utils/KeeperIncentiveV2.sol";
+import "../../../../contracts/core/interfaces/IContractRegistry.sol";
+import "../../../../contracts/core/interfaces/IACLRegistry.sol";
+import "../../../../contracts/core/interfaces/IVaultsV1.sol";
+import "../../../../contracts/core/interfaces/IVaultsV1Zapper.sol";
+import "../../../../contracts/core/interfaces/IRewardsEscrow.sol";
+import "../../../../contracts/core/defi/vault/wrapper/yearn/YearnWrapper.sol";
+import "../../../../contracts/core/interfaces/IYearnVaultWrapper.sol";
+import "../../../../contracts/core/interfaces/IERC4626.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;
@@ -80,7 +80,7 @@ contract VaultsV1ControllerTest is Test {
   YearnWrapperFactory internal yearnWrapperFactory;
   KeeperIncentiveV2 internal keeperIncentive;
   VaultsV1Zapper internal vaultZapper;
-  IRewardsEscrow internal rewardsEscrow = IRewardsEscrow(address(0xb5cb5710044D1074097c17B7535a1cF99cBfb17F));
+  RewardsEscrow internal rewardsEscrow;
   YearnWrapper internal yearnWrapper;
 
   address internal vaultImplementation;
@@ -151,13 +151,14 @@ contract VaultsV1ControllerTest is Test {
     vaultsV1Controller = new VaultsV1Controller(address(this), IContractRegistry(CONTRACT_REGISTRY));
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 2000 ether);
     vaultZapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
+    rewardsEscrow = new RewardsEscrow(IERC20(POP));
+    rewardsEscrow.transferOwnership(address(vaultsV1Controller));
 
     vaultsV1Factory.setImplementation(vaultImplementation);
     vaultStakingFactory.setImplementation(stakingImplementation);
     yearnWrapperFactory.setImplementation(yearnWrapperImplementation);
 
     vm.startPrank(ACL_ADMIN);
-    IOwnable(address(rewardsEscrow)).transferOwnership(address(vaultsV1Controller));
     IContractRegistry(CONTRACT_REGISTRY).addContract(
       vaultsV1Registry.contractName(),
       address(vaultsV1Registry),
