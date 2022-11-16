@@ -1,120 +1,59 @@
 import { setSingleActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { useProxy } from "hooks/useProxy";
+// import { useProxy } from "hooks/useProxy";
 import { useContext, useEffect, useState } from "react";
 import { useDisconnect } from "wagmi";
 import { useContractWrite, usePrepareContractWrite, useContractRead } from "wagmi";
+import { useAccount, useConnect, useEnsName } from "wagmi";
 
 const ABI = [
   {
-    inputs: [],
+    constant: true,
+    inputs: [{ name: "", type: "address" }],
+    name: "isProxy",
+    outputs: [{ name: "", type: "bool" }],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "constructor",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "proxy",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "cache",
-        type: "address",
-      },
-    ],
-    name: "Created",
-    type: "event",
-  },
-  {
-    constant: false,
-    inputs: [],
-    name: "build",
-    outputs: [
-      {
-        internalType: "address payable",
-        name: "proxy",
-        type: "address",
-      },
-    ],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-    ],
-    name: "build",
-    outputs: [
-      {
-        internalType: "address payable",
-        name: "proxy",
-        type: "address",
-      },
-    ],
-    payable: false,
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
     constant: true,
     inputs: [],
     name: "cache",
-    outputs: [
-      {
-        internalType: "contract DSProxyCache",
-        name: "",
-        type: "address",
-      },
-    ],
+    outputs: [{ name: "", type: "address" }],
     payable: false,
     stateMutability: "view",
     type: "function",
   },
   {
-    constant: true,
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "isProxy",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
+    constant: false,
+    inputs: [],
+    name: "build",
+    outputs: [{ name: "proxy", type: "address" }],
     payable: false,
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    constant: false,
+    inputs: [{ name: "owner", type: "address" }],
+    name: "build",
+    outputs: [{ name: "proxy", type: "address" }],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: "sender", type: "address" },
+      { indexed: true, name: "owner", type: "address" },
+      { indexed: false, name: "proxy", type: "address" },
+      { indexed: false, name: "cache", type: "address" },
+    ],
+    name: "Created",
+    type: "event",
   },
 ];
 
@@ -127,7 +66,7 @@ export default function OfacCheck(): JSX.Element {
   const [isLoading, setLoading] = useState(false);
   const { disconnect } = useDisconnect();
 
-  useProxy();
+  // useProxy();
 
   useEffect(() => {
     if (!account) return;
@@ -154,31 +93,50 @@ export default function OfacCheck(): JSX.Element {
     }
   }, [data, isLoading]);
 
+  const { address, isConnected } = useAccount();
+  const { data: ensName } = useEnsName({ address });
+
+  console.log(address);
+  console.log("isConnected:", isConnected);
+
   const { config } = usePrepareContractWrite({
-    addressOrName: PROXY_FACTORY_ADDRESS,
+    addressOrName: "0xA26e15C895EFc0616177B7c1e7270A4C7D51C997",
     contractInterface: ABI,
     functionName: "build",
-    args: ["0xEd6715D2172BFd50C2DBF608615c2AB497904803"],
+    // args: ["0xEd6715D2172BFd50C2DBF608615c2AB497904803"],
     onError(error) {
       console.log(2222);
       console.log("Error", error);
     },
-  });
-  console.log(config);
-  const { data: dd, isSuccess, write } = useContractWrite(config);
-  console.log(write);
-
-  const { data: data5555 } = useContractRead({
-    addressOrName: PROXY_FACTORY_ADDRESS,
-    contractInterface: ABI,
-    functionName: "isProxy",
-    args: ["0xEd6715D2172BFd50C2DBF608615c2AB497904803"],
-    onError(error) {
-      console.log("Error", error);
+    onSuccess(i) {
+      console.log("Success", i);
     },
   });
-  console.log(6565665);
-  console.log(data5555);
 
-  return <>fdsfdsfds</>;
+  console.log(config);
+  const { data: dd, isSuccess, write } = useContractWrite(config);
+  console.log(7777);
+  console.log(write);
+
+  const { data: da } = useContractRead({
+    addressOrName: "0xA26e15C895EFc0616177B7c1e7270A4C7D51C997",
+    contractInterface: ABI,
+    functionName: "cache",
+
+    onError(error) {
+      console.log(2222);
+      console.log("Error", error);
+    },
+    onSuccess(i) {
+      console.log("Success", i);
+    },
+  });
+  console.log(da);
+
+  return (
+    <>
+      fdsfdsfds
+      {/* {write && <div>ttttttt</div>} */}
+    </>
+  );
 }
