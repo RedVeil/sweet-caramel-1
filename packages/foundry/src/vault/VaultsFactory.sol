@@ -25,31 +25,24 @@ contract VaultsFactory is Owned {
 
   constructor(address _owner) Owned(_owner) {}
 
-  /* 
-  * - All factories should be reduced to one.
-  * - Implementation should be an input param together with bytes encoded init args
-  * - Factory should clone implementation and than call the clone init function with encoded args + later return address of clone as usual
-  * - This will allow us to create Vault,VaultStaking and any wrapper in one simple factory
-  /* 
-
   /**
    * @notice Deploys Vault, VaultStaking, or Wrapper contracts
    * @param _implementation - address of contract to clone behavior code
-   * @dev This should always be called through the VaultController
+   * @dev This should always be called through the VaultsController
    */
   function deploy(address _implementation, bytes calldata _args)
     external
     onlyOwner
-    returns (address implementation, bytes memory returnData)
+    returns (address clone, bytes memory returnData)
   {
-    implementation = Clones.clone(implementation);
+    clone = Clones.clone(_implementation);
 
-    bytes4 selector = implementation.initialize.selector;
+    bytes4 selector = clone.initialize.selector;
 
-    (bool success, bytes memory returnData) = implementation.call(abi.encodeWithSelector(selector, _args));
+    (bool success, bytes memory returnData) = clone.call(abi.encodeWithSelector(selector, _args));
 
     if (!success) revert DeploymentInitFailed();
 
-    emit Deployment(implementation);
+    emit Deployment(clone);
   }
 }
