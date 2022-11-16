@@ -8,7 +8,7 @@
     "compile": "yarn clean && forge build",
     "test": "forge test",
     "prettier": "prettier --write 'src/**/*.sol'",
-    "coverage": "echo `forge coverage`"
+    "coverage": "utils/coverage.sh"
   },
   "lint-staged": {
     "*.{sol,ts,tsx}": "prettier --write"
