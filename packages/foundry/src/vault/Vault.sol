@@ -97,7 +97,7 @@ contract Vault is
     FeeStructure memory feeStructure_,
     KeeperConfig memory keeperConfig_
   ) external initializer {
-    __ERC20_init(string.concat("Popcorn", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
+    __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
     __ContractRegistryAccess_init(contractRegistry_);
 
     asset = asset_;
@@ -502,7 +502,6 @@ contract Vault is
     if (block.timestamp < proposalTimeStamp + 3 days) revert NotPassedQuitPeriod(3 days);
     // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
     // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
-
 
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 

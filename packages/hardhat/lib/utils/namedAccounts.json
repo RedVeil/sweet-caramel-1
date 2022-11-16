@@ -466,7 +466,7 @@
     },
     "metadata": {
       "name": "Arrakis USDC/POP LP",
-      "icons": ["/images/tokens/usdc.webp", "/images/icons/POP.svg"]
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"]
     }
   },
   "popUsdcArrakisVaultStaking": {
@@ -692,7 +692,7 @@
       "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94"
     },
     "metadata": {
-      "icons": ["/images/tokens/usdc.webp"],
+      "icons": ["/images/tokens/usdc.svg"],
       "name": "USDC",
       "symbol": "USDC"
     }
