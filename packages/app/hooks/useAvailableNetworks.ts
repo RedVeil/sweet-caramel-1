@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from "react";
 import { FeatureToggleContext } from "context/FeatureToggleContext";
 import { ChainId, networkMap } from "@popcorn/utils";
 
@@ -30,8 +30,8 @@ const useAvailableNetworks = () => {
       setAvailableNetworks([
         ...availableNetworks,
         {
-          id: JSON.stringify(ChainId.Rinkeby),
-          value: networkMap[ChainId.Rinkeby],
+          id: JSON.stringify(ChainId.Goerli),
+          value: networkMap[ChainId.Goerli],
         },
         {
           id: JSON.stringify(ChainId.Localhost),
@@ -43,7 +43,7 @@ const useAvailableNetworks = () => {
 
   return {
     availableNetworks,
-  }
-}
+  };
+};
 
 export default useAvailableNetworks;

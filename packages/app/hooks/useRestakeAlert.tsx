@@ -1,12 +1,12 @@
 import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
+import { constants } from "ethers";
 import { getStorage, setStorage } from "@popcorn/app/helper/safeLocalstorageAccess";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { constants } from "ethers";
-import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 

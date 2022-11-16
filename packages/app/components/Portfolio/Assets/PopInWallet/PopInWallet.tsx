@@ -3,7 +3,7 @@ import usePopInWallet from "hooks/portfolio/assets/usePopInWallet";
 import PortfolioItem from "../../PortfolioItem";
 
 const PopInWallet = () => {
-  const { totalValue, totalPop } = usePopInWallet();
+  const { totalPop } = usePopInWallet();
   const { Ethereum, Polygon } = ChainId;
 
   const statusLabels = [

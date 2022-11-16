@@ -31,7 +31,7 @@ const Vesting = () => {
   return (
     <>
       {/* {totalContracts > 0 && ( */}
-      <PortfolioItem title="Vesting" statusLabels={statusLabels}>
+      <PortfolioItem title="Vesting" statusLabels={statusLabels} show>
         {/* add something here */}
       </PortfolioItem>
       {/* )} */}

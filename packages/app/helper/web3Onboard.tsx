@@ -15,12 +15,12 @@ export default function web3Onboard(): void {
         label: "Ethereum Mainnet",
         rpcUrl: RPC_URLS[ChainId.Ethereum],
       },
-      {
-        id: ChainIdHex.Rinkeby,
-        token: "rETH",
-        label: "Ethereum Rinkeby Testnet",
-        rpcUrl: RPC_URLS[ChainId.Rinkeby],
-      },
+      // {
+      //   id: ChainIdHex.Rinkeby,
+      //   token: "rETH",
+      //   label: "Ethereum Rinkeby Testnet",
+      //   rpcUrl: RPC_URLS[ChainId.Rinkeby],
+      // },
       {
         id: ChainIdHex.Arbitrum,
         token: "AETH",

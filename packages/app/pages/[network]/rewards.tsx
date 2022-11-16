@@ -264,6 +264,7 @@ export default function RewardsPage(): JSX.Element {
 
             {isSelected(Tabs.Staking) && !stakingVisible(chainId) && (
               <NotAvailable
+                image="/images/emptyRecord.svg"
                 title="No Staking Rewards"
                 body="Staking rewards are currently unavailable on this network"
               />
@@ -287,6 +288,7 @@ export default function RewardsPage(): JSX.Element {
               </div>
             ) : (
               <NotAvailable
+                image="/images/emptyRecord.svg"
                 title="No airdrops"
                 body="No airdrops found on this network"
                 visible={isSelected(Tabs.Airdrop)}
@@ -315,7 +317,11 @@ export default function RewardsPage(): JSX.Element {
                 userEscrowsFetchResult?.error ||
                 userVaultsEscrowsFetchResults?.error ||
                 userEscrowData?.totalClaimablePop?.isZero() ? (
-                  <NotAvailable title="No Records Available" body="No vesting records available" />
+                  <NotAvailable
+                    title="No Records Available"
+                    body="No vesting records available"
+                    image="/images/emptyRecord.svg"
+                  />
                 ) : (
                   <>
                     <div>
