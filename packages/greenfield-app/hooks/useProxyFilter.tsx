@@ -26,7 +26,7 @@ const PROXY_FACTORY_ABI = [
   },
 ];
 
-export default function useProxyFilter(owner, provider) {
+export default function useProxyFilter(owner: string, provider) {
   const contract = new Contract(PROXY_FACTORY_ADDRESS, PROXY_FACTORY_ABI, provider);
 
   const [proxyAddress, setProxyAddress] = useState();
