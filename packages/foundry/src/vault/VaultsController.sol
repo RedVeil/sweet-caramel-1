@@ -42,7 +42,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== EVENTS ========== */
 
-  event VaultDeployed(address vaultAddress);
+  event VaultDeployed(address indexed vault, address indexed staking, address indexed strategy);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -53,13 +53,13 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== VAULT DEPLOYMENT ========== */
 
-  // TODO make fee recipient a param so partners can set their own recipient
   /**
    * @notice deploys and registers Vault from VaultsFactory
+   * @param _cloneAddress - encoded implementation contract addresses for deploying clones of Vault, VaultStaking, and Strategy contracts
    * @param _vaultParams - struct containing Vault init params (ERC20 asset_, IERC4626 strategy_ IContractRegistry contractRegistry_, FeeStructure memory feeStructure_, address feeRecipient_, KeeperConfig, memory keeperConfig_)
    * @param _staking - Adds a staking contract to the registry for this particular vault. (If address(0) it will deploy a new VaultStaking contract)
    * @param _stakingToken - if deploying new VaultStaking contract, address of ERC20 staking token
-   * @param _deploymentParams - encoded implementation contract addresses for deploying clones of Vault and VaultStaking contracts
+   * @param _strategyParams - encoded params of initialize function for strategy contract
    * @param _metadataCID - ipfs CID of vault metadata
    * @param _swapTokenAddresses - underlying assets to deposit and recieve LP token
    * @param _swapAddress - ex: stableSwapAddress for Curve
@@ -70,10 +70,11 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @dev the submitter in the VaultMetadata from the factory will be function caller
    */
   function deployVaultFromFactory(
+    bytes memory _cloneAddresses,
     VaultParams memory _vaultParams,
     address _staking,
     IERC20 _stakingToken,
-    bytes memory _deploymentParams,
+    bytes memory _strategyParams,
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
@@ -84,8 +85,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
   ) external returns (address vault) {
     VaultsRegistry vaultsRegistry = _vaultsRegistry();
 
-    // TODO add dynamic strategy deployment
-    (vaultImplementation, stakingImplementation) = abi.decode(_deploymentParams, (address, address));
+    (vaultImplementation, stakingImplementation, strategyImplementation) = abi.decode(
+      _cloneAddresses,
+      (address, address, address)
+    );
 
     vault = _vaultsFactory().deploy(vaultImplementation, abi.encode(_vaultParams));
 
@@ -95,6 +98,9 @@ contract VaultsController is Owned, ContractRegistryAccess {
         abi.encode(_stakingToken, _vaultParams.contractRegistry)
       );
     }
+
+    address strategy = _deployStrategy(strategyImplementation, _strategyParams);
+
     _handleKeeperSetup(vault, _vaultParams.keeperConfig, _keeperEnabled, _keeperOpenToEveryone, _keeperCooldown);
 
     IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
@@ -112,7 +118,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
     vaultsRegistry.registerVault(metadata);
 
-    emit VaultDeployed(vault);
+    emit VaultDeployed(vault, _staking, strategy);
   }
 
   /**
@@ -303,33 +309,32 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
 
-  // TODO add implementation address
-  function deployStrategy(bytes32 _factoryName, bytes memory _deploymentParams) external returns (address strategy) {
-    (, bytes memory result) = _getContract(_factoryName).call(_deploymentParams);
-    strategy = abi.decode(result, (address));
+  function _deployStrategy(address _strategyImplementation, bytes memory _deploymentParams)
+    internal
+    returns (address strategy)
+  {
+    (address strategy, bytes memory returnData) = _vaultsFactory().deploy(_strategyImplementation, _deploymentParams);
   }
 
   /* ========== OWNERSHIP FUNCTIONS ========== */
 
   /**
-   * @notice transfers ownership of VaultsRegistry and VaultsFactory contracts from controller
+   * @notice transfers ownership of VaultsRegistry and VaultsFactory contracts from VaultsController
    * @dev newOwner address must call acceptOwnership on registry and factory
    */
-  function transferFactoryAndRegistryOwnership(bytes32[] memory _factoryNames, address _newOwner) external onlyOwner {
-    for (uint8 i; i < _factoryNames.length; i++) {
-      IContractFactory(_getContract(_factoryNames[i])).nominateNewOwner(_newOwner);
-    }
+  function transferFactoryAndRegistryOwnership(address _newOwner) external onlyOwner {
+    _vaultsRegistry().nominateNewOwner(_newOwner);
+    _vaultsFactory().nominateNewOwner(_newOwner);
   }
 
   /**
-   * @notice transfers ownership of VaultsRegistry and VaultsFactory contracts to controller
-   * @dev registry and factory must nominate controller as new owner first
+   * @notice transfers ownership of VaultsRegistry and VaultsFactory contracts to VaultsController
+   * @dev registry and factory must nominate VaultsController as new owner first
    * acceptance function should be called when deploying controller contract
    */
-  function acceptFactoryAndRegistryOwnership(bytes32[] memory _factoryNames) external onlyOwner {
-    for (uint8 i; i < _factoryNames.length; i++) {
-      IContractFactory(_getContract(_factoryNames[i])).acceptOwnership();
-    }
+  function acceptFactoryAndRegistryOwnership() external onlyOwner {
+    _vaultsRegistry().acceptOwnership();
+    _vaultsFactory().acceptOwnership();
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */
