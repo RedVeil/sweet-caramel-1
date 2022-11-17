@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import { Script } from "forge-std/Script.sol";
 import "forge-std/Test.sol";
+import "../test/utils/Faucet.sol";
 import "openzeppelin-contracts/mocks/ERC4626Mock.sol";
 import "openzeppelin-contracts/mocks/ERC20Mock.sol";
 import "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -19,6 +20,8 @@ contract deployMockVaultAndStaking is Script {
   /// @notice The main script entrypoint
   function run() external {
     vm.startBroadcast();
+    Faucet faucet = new Faucet(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D));
+    faucet.sendCrvSethLPTokens{ value: 1 ether }(1, tester);
     ERC4626Mock vault = new ERC4626Mock(IERC20Metadata(address(lpToken)), "MockVault sETH/ETH", "MCK-VSETH");
     ERC4626Mock staking = new ERC4626Mock(IERC20Metadata(address(vault)), "MockStaking sETH/ETH", "MCK-STK-SETH");
     vm.stopBroadcast();
