@@ -15,7 +15,7 @@ import { StateProvider } from "@popcorn/app/context/store";
 import "@popcorn/app/styles/globals.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
-import { PortfolioContextProvider } from "context/PortfolioContext";
+import { PortfolioContextProvider } from "@popcorn/app/context/PortfolioContext";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";

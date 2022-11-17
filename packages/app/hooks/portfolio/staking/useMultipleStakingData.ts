@@ -1,6 +1,6 @@
 import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
-import useAssetValues from "hooks/useAssetValues";
+import useAssetValues from "@popcorn/app/hooks/useAssetValues";
 import { SWRResponse } from "swr";
 
 export default function useMultipleStakingData(chainId, stakingPools) {
