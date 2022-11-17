@@ -28,6 +28,7 @@ contract VaultsFactory is Owned {
   /**
    * @notice Deploys Vault, VaultStaking, or Wrapper contracts
    * @param _implementation - address of contract to clone behavior code
+   * @param _args - encoded params passed into the initialize function of the clone contract
    * @dev This should always be called through the VaultsController
    */
   function deploy(address _implementation, bytes calldata _args)

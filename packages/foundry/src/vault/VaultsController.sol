@@ -56,34 +56,46 @@ contract VaultsController is Owned, ContractRegistryAccess {
   // TODO make fee recipient a param so partners can set their own recipient
   /**
    * @notice deploys and registers Vault from VaultsFactory
-   * @param _vaultParams - struct containing Vault constructor params (ERC20 asset, IERC4626 strategy, IContractRegistry contractRegistry, Vault.FeeStructure feeStructure, address feeRecipient, KeeperConfig keeperConfig)
+   * @param _vaultParams - struct containing Vault init params (ERC20 asset_, IERC4626 strategy_ IContractRegistry contractRegistry_, FeeStructure memory feeStructure_, address feeRecipient_, KeeperConfig, memory keeperConfig_)
    * @param _staking - Adds a staking contract to the registry for this particular vault. (If address(0) it will deploy a new VaultStaking contract)
+   * @param _stakingToken - if deploying new VaultStaking contract, address of ERC20 staking token
+   * @param _deploymentParams - encoded implementation contract addresses for deploying clones of Vault and VaultStaking contracts
    * @param _metadataCID - ipfs CID of vault metadata
    * @param _swapTokenAddresses - underlying assets to deposit and recieve LP token
    * @param _swapAddress - ex: stableSwapAddress for Curve
    * @param _exchange - number specifying exchange (1 = curve)
+   * @param _keeperEnabled - bool if the incentive is enabled
+   * @param _keeperOpenToEveryone - bool if the incentive is open to all
+   * @param _keeperCooldown - time period that must pass before calling keeper enabled functions
    * @dev the submitter in the VaultMetadata from the factory will be function caller
    */
   function deployVaultFromFactory(
     VaultParams memory _vaultParams,
     address _staking,
-    bytes32 _factoryName,
+    IERC20 _stakingToken,
     bytes memory _deploymentParams,
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
-    uint256 _exchange
+    uint256 _exchange,
+    bool _keeperEnabled,
+    bool _keeperOpenToEveryone,
+    uint256 _keeperCooldown
   ) external returns (address vault) {
     VaultsRegistry vaultsRegistry = _vaultsRegistry();
 
     // TODO add dynamic strategy deployment
+    (vaultImplementation, stakingImplementation) = abi.decode(_deploymentParams, (address, address));
 
-    vault = _vaultsFactory().deploy(_vaultParams);
+    vault = _vaultsFactory().deploy(vaultImplementation, abi.encode(_vaultParams));
 
     if (_staking == address(0)) {
-      _staking = _vaultStakingFactory().deploy(vault);
+      _staking = _vaultsFactory().deploy(
+        stakingImplementation,
+        abi.encode(_stakingToken, _vaultParams.contractRegistry)
+      );
     }
-    _handleKeeperSetup(vault, _vaultParams.keeperConfig, address(_vaultParams.asset));
+    _handleKeeperSetup(vault, _vaultParams.keeperConfig, _keeperEnabled, _keeperOpenToEveryone, _keeperCooldown);
 
     IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
 
@@ -100,42 +112,49 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
     vaultsRegistry.registerVault(metadata);
 
-    emit VaultDeployed(vault); // adjust event to not include endorse
+    emit VaultDeployed(vault);
   }
 
   /**
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @param _vault - address of the newly deployed vault
    * @param _keeperConfig - the keeperConfig struct from the VaultParams used in vault deployment
+   * @param _keeperEnabled - bool if the incentive is enabled
+   * @param _keeperOpenToEveryone - bool if the incentive is open to all
+   * @param _keeperCooldown - time period that must pass before calling keeper enabled functions
    * @dev avoids stack too deep in deployVaultFromFactory
    */
   function _handleKeeperSetup(
     address _vault,
     KeeperConfig memory _keeperConfig,
-    address _asset
+    bool _keeperEnabled,
+    bool _keeperOpenToEveryone,
+    uint256 _keeperCooldown
   ) internal {
     IVault(_vault).setKeeperConfig(_keeperConfig);
     IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive"))).createIncentive(
       _vault,
       _keeperConfig.keeperPayout,
-      true, // TODO make this a param
-      false, // TODO make this a param
+      _keeperEnabled,
+      _keeperOpenToEveryone,
       _vault,
-      1 days, // TODO make this a param
+      _keeperCooldown,
       0
     );
   }
 
   /* ========== VAULT MANAGEMENT FUNCTIONS ========== */
 
-  // TODO use array params in all management functions
   /**
    * @notice updates the VaultMetadata in registry
    * @param _vaultMetadata - struct with updated values
-   * @dev vaultAddress, vaultType, and submitter are immutable
+   * @dev vaultAddress and submitter are immutable
    */
-  function updateRegistryVault(VaultMetadata memory _vaultMetadata) external onlyOwner {
-    _vaultsRegistry().updateVault(_vaultMetadata);
+  function updateRegistryVault(VaultMetadata[] memory _vaultMetadata) external onlyOwner {
+    VaultsRegistry vaultsRegistry = _vaultsRegistry();
+    for (uint256 i = 0; i < _vaultMetadata.length; i++) {
+      vaultsRegistry.updateVault(_vaultMetadata[i]);
+    }
   }
 
   /**
@@ -162,19 +181,24 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /**
    * @notice Propose a new Strategy.
-   * @param _vault - address of the vault
-   * @param _newStrategy - new strategy to be proposed for the vault
+   * @param _vaults - addresses of the vaults
+   * @param _newStrategy - new strategies to be proposed for the vault
+   * @dev index of _vaults array and _newStrategies array must coincide
    */
-  function proposeNewVaultStrategy(address _vault, IERC4626 _newStrategy) external onlyOwner {
-    IVault(_vault).proposeNewStrategy(_newStrategy);
+  function proposeNewVaultStrategy(address[] memory _vaults, IERC4626[] memory _newStrategies) external onlyOwner {
+    for (uint256 i = 0; i < _vaults.length; i++) {
+      IVault(_vaults[i]).proposeNewStrategy(_newStrategies[i]);
+    }
   }
 
   /**
    * @notice Change strategy of a vault to the previously proposed strategy.
-   * @param _vault - address of the vault
+   * @param _vaults - addresses of the vaults
    */
-  function changeVaultStrategy(address _vault) external onlyOwner {
-    IVault(_vault).changeStrategy();
+  function changeVaultStrategy(address[] memory _vaults) external onlyOwner {
+    for (uint256 i = 0; i < _vaults.length; i++) {
+      IVault(_vaults[i]).changeStrategy();
+    }
   }
 
   /**
@@ -182,6 +206,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @param _vaults - addresses of the vaults to change
    * @param _newFees - new fee structures for these vaults
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
+   * @dev index of _vaults array and _newFees must coincide
    */
   function setVaultFees(address[] memory _vaults, IVault.FeeStructure[] memory _newFees) external onlyOwner {
     for (uint8 i; i < _vaults.length; i++) {
@@ -191,30 +216,35 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /**
    * @notice Set staking contract for a vault.
-   * @param _vault - address of the vault
-   * @param _staking Address of the staking contract.
+   * @param _vaults - addresses of the vaults
+   * @param _stakingContracts - addresses of the staking contracts
+   * @dev index of _vaults array and _stakingContracts must coincide
    */
-  function setVaultStaking(address _vault, address _staking) external onlyOwner {
+  function setVaultStaking(address[] memory _vaults, address[] memory _stakingContracts) external onlyOwner {
     VaultsRegistry vaultsRegistry = _vaultsRegistry();
 
-    VaultMetadata memory vaultMetadata = vaultsRegistry.getVault(_vault);
+    for (uint256 i = 0; i < _vaults.length; i++) {
+      VaultMetadata memory vaultMetadata = vaultsRegistry.getVault(_vaults[i]);
 
-    if (_staking != address(0)) {
-      IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
+      if (_stakingContracts[i] != address(0)) {
+        IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_stakingContracts[i]);
+      }
+      vaultMetadata.staking = _stakingContracts[i];
+
+      vaultsRegistry.updateVault(vaultMetadata);
     }
-
-    vaultMetadata.staking = _staking;
-
-    vaultsRegistry.updateVault(vaultMetadata);
   }
 
   /**
    * @notice Sets keeperConfig for a vault
-   * @param _vault - address of the newly deployed vault
-   * @param _keeperConfig - the keeperConfig struct from the VaultParams used in vault deployment
+   * @param _vaults - addresses of the newly deployed vaults
+   * @param _keeperConfigs - the keeperConfig structs from the VaultParams used in vault deployment
+   * @dev index of _vaults array and _keeperConfigs must coincide
    */
-  function setVaultKeeperConfig(address _vault, KeeperConfig memory _keeperConfig) external onlyOwner {
-    IVault(_vault).setKeeperConfig(_keeperConfig);
+  function setVaultKeeperConfig(address[] memory _vaults, KeeperConfig[] memory _keeperConfigs) external onlyOwner {
+    for (uint256 i = 0; i < _vaults.length; i++) {
+      IVault(_vaults[i]).setKeeperConfig(_keeperConfigs[i]);
+    }
   }
 
   /**
@@ -271,22 +301,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
-  /* ========== FACTORY MANAGEMENT FUNCTIONS ========== */
-
-  // TODO remove since implementation will be passed directly
-  function setFactoryImplementation(bytes32 _factoryName, address _implementation) external onlyOwner {
-    IContractFactory(_getContract(_factoryName)).setImplementation(_implementation);
-  }
-
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
 
   // TODO add implementation address
-  // TODO make also permissionless so long as the factory is permissioned
-  function deployStrategy(bytes32 _factoryName, bytes memory _deploymentParams)
-    external
-    onlyOwner
-    returns (address strategy)
-  {
+  function deployStrategy(bytes32 _factoryName, bytes memory _deploymentParams) external returns (address strategy) {
     (, bytes memory result) = _getContract(_factoryName).call(_deploymentParams);
     strategy = abi.decode(result, (address));
   }
@@ -328,13 +346,6 @@ contract VaultsController is Owned, ContractRegistryAccess {
    */
   function _vaultsFactory() private view returns (VaultsFactory) {
     return VaultsFactory(_getContract(keccak256("VaultsFactory")));
-  }
-
-  /**
-   * @notice helper function to get VaultStakingFactory contract
-   */
-  function _vaultStakingFactory() private view returns (VaultStakingFactory) {
-    return VaultStakingFactory(_getContract(keccak256("VaultStakingFactory")));
   }
 
   /**
