@@ -4,6 +4,7 @@ import Navbar from "@popcorn/app/components/NavBar/NavBar";
 import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import React from "react";
 import { Toaster } from "react-hot-toast";
+import GoogleAnalyticsPrompt from "@popcorn/app/components/GoogleAnalyticsPrompt";
 
 export default function Page(props: { children: JSX.Element }) {
   useRestakeAlert();
@@ -17,6 +18,7 @@ export default function Page(props: { children: JSX.Element }) {
         <div className="pt-5 md:pt-10 px-6 md:px-8">{props.children}</div>
       </div>
       <Footer />
+      <GoogleAnalyticsPrompt />
     </div>
   );
 }
