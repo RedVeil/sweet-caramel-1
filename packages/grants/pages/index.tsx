@@ -130,7 +130,11 @@ const IndexPage = () => {
               Eligible Beneficiaries At A Glance
             </h1>
             {beneficiaries.length > 0 && (
-              <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} filterPosition="right" />
+              <BeneficiaryFilter
+                categoryFilter={categoryFilter}
+                switchFilter={setCategoryFilter}
+                filterPosition="right"
+              />
             )}
           </div>
           <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />

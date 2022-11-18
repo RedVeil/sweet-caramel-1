@@ -16,7 +16,6 @@ export const useOnlyPolygon = () => {
   const { dispatch } = useContext(store);
   const [, setChain] = useSetChain();
 
-
   function getNonWalletChain(): string {
     return typeof router?.query?.network === "string"
       ? toTitleCase(router.query.network)
@@ -30,7 +29,6 @@ export const useOnlyPolygon = () => {
 
   const currentUserChainId = getChainId();
 
-
   useEffect(() => {
     if (!account || !currentUserChainId) {
       return;
@@ -43,13 +41,15 @@ export const useOnlyPolygon = () => {
           visible: true,
           children: (
             <>
-              <p className="pt-2 text-primaryDark leading-[140%]">Popcorn Grants operates on the Polygon network. Please switch your network to gain access</p>
+              <p className="pt-2 text-primaryDark leading-[140%]">
+                Popcorn Grants operates on the Polygon network. Please switch your network to gain access
+              </p>
               <Button
                 variant="primary"
                 className="w-full mt-10"
                 onClick={() => {
                   setChain(ChainId.Polygon as any);
-                  dispatch(setSingleActionModal({ visible: false }))
+                  dispatch(setSingleActionModal({ visible: false }));
                 }}
               >
                 Switch to Polygon
@@ -67,7 +67,7 @@ export const useOnlyPolygon = () => {
                 className="w-full"
                 onClick={() => {
                   deactivate();
-                  dispatch(setSingleActionModal({ visible: false }))
+                  dispatch(setSingleActionModal({ visible: false }));
                 }}
               >
                 Disconnect Wallet
@@ -77,10 +77,10 @@ export const useOnlyPolygon = () => {
           onDismiss: {
             onClick: () => dispatch(setSingleActionModal({ visible: false })),
           },
-        })
+        }),
       );
     } else {
-      dispatch(setSingleActionModal({ visible: false }))
+      dispatch(setSingleActionModal({ visible: false }));
     }
   }, [account, chainId]);
-}
+};

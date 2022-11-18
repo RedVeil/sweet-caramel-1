@@ -26,11 +26,7 @@ export default function LockPop() {
   return (
     <div className="w-full bg-gray-900 h-screen">
       <div className="bg-white w-1/3 mx-auto">
-        <StakeModalContent
-          beneficiary={null}
-          onCloseStakeModal={() => { }}
-          hasExpired={false}
-          closePopUp={() => { }} />
+        <StakeModalContent beneficiary={null} onCloseStakeModal={() => {}} hasExpired={false} closePopUp={() => {}} />
       </div>
     </div>
   );

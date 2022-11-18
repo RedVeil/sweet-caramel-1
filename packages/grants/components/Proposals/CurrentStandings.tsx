@@ -20,9 +20,13 @@ const CurrentStandings: React.FC<Proposal> = (proposal) => {
             progress={
               proposal?.votes?.for === BigNumber.from("0")
                 ? 0
-                : Number(formatUnits(
-                  proposal?.votes?.for.mul(parseEther("100")).div(proposal?.votes?.for.add(proposal?.votes?.against)),
-                ))
+                : Number(
+                    formatUnits(
+                      proposal?.votes?.for
+                        .mul(parseEther("100"))
+                        .div(proposal?.votes?.for.add(proposal?.votes?.against)),
+                    ),
+                  )
             }
             progressColor={"bg-green-300"}
           />

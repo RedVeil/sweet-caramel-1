@@ -14,8 +14,9 @@ const SwapChainModal: React.FC = () => {
     if (account && chainId !== Number(process.env.CHAIN_ID || 31337 || 1337)) {
       dispatch(
         setSingleActionModal({
-          content: `The network selected in your wallet is not supported. Please switch to ${networkMap[Number(process.env.CHAIN_ID) as ChainId]
-            }.`,
+          content: `The network selected in your wallet is not supported. Please switch to ${
+            networkMap[Number(process.env.CHAIN_ID) as ChainId]
+          }.`,
           title: "Network Error",
           visible: true,
           type: "error",

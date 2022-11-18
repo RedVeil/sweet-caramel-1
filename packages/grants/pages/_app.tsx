@@ -25,7 +25,7 @@ function getLibrary(provider: any): Web3Provider {
   return library;
 }
 
-web3Onboard()
+web3Onboard();
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;

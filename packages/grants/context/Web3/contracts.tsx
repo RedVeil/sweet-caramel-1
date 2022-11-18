@@ -19,9 +19,7 @@ import {
 import { ChainId, networkMap } from "@popcorn/utils";
 import { ContractAddresses } from "@popcorn/utils/types";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
-import {
-  UserRejectedRequestError as UserRejectedRequestErrorInjected,
-} from "@web3-react/injected-connector";
+import { UserRejectedRequestError as UserRejectedRequestErrorInjected } from "@web3-react/injected-connector";
 import activateRPCNetwork from "helper/activateRPCNetwork";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { setSingleActionModal } from "../actions";
@@ -49,8 +47,9 @@ interface ContractsWrapperProps {
 
 function getErrorMessage(error: Error) {
   if (error instanceof UnsupportedChainIdError) {
-    return `You're connected to an unsupported network. Please connect to ${networkMap[Number(process.env.CHAIN_ID) as ChainId]
-      }.`;
+    return `You're connected to an unsupported network. Please connect to ${
+      networkMap[Number(process.env.CHAIN_ID) as ChainId]
+    }.`;
   } else if (error instanceof UserRejectedRequestErrorInjected) {
     return "Please authorize this website to access your Ethereum account.";
   } else {
@@ -60,14 +59,8 @@ function getErrorMessage(error: Error) {
 }
 
 const initializeContracts = (contractAddresses: ContractAddresses, library: Web3Provider): Contracts => {
-  const {
-    pop,
-    grantElections,
-    rewardsManager,
-    beneficiaryRegistry,
-    beneficiaryGovernance,
-    govStaking,
-  } = contractAddresses;
+  const { pop, grantElections, rewardsManager, beneficiaryRegistry, beneficiaryGovernance, govStaking } =
+    contractAddresses;
   const contracts: Contracts = {
     staking: govStaking ? GovStaking__factory.connect(govStaking, library) : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,

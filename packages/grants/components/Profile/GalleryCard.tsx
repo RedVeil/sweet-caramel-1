@@ -24,13 +24,7 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ size, image, description, fil
         onDismiss: {
           onClick: () => dispatch(setSingleActionModal({ visible: false })),
         },
-        children: (
-          <SocialShare
-            url={`${process.env.IPFS_URL}${image}`}
-            title="Share this Image"
-            text=""
-          />
-        ),
+        children: <SocialShare url={`${process.env.IPFS_URL}${image}`} title="Share this Image" text="" />,
       }),
     );
   };
@@ -47,7 +41,10 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ size, image, description, fil
         ) : (
           <img src={`${process.env.IPFS_URL}${image}`} alt="" className="h-full w-full object-cover rounded-4xl" />
         )}
-        <button onClick={shareImage} className=" opacity-80 bg-white border-gray-200 rounded-full text-gray-900 flex justify-center items-center absolute right-5 bottom-5 shadow-white-button w-12 h-12">
+        <button
+          onClick={shareImage}
+          className=" opacity-80 bg-white border-gray-200 rounded-full text-gray-900 flex justify-center items-center absolute right-5 bottom-5 shadow-white-button w-12 h-12"
+        >
           <ShareIcon className="w-5 h-5" />
         </button>
       </div>

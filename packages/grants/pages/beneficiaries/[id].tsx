@@ -72,7 +72,10 @@ const BeneficiaryPage = () => {
       </div>
       <Hero bgImage={`${process.env.IPFS_URL}${beneficiary?.files?.headerImage?.image}`} className="relative">
         <div className="flex absolute gap-4 bottom-10 left-8">
-          <button onClick={shareProfile} className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
+          <button
+            onClick={shareProfile}
+            className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button "
+          >
             <ShareIcon className="w-6 h-6" />
             Share
           </button>
@@ -110,7 +113,10 @@ const BeneficiaryPage = () => {
               </div>
             </div>
             <div className="py-10 flex">
-              <button onClick={shareProfile} className="border border-primary md:hidden bg-white h-12 w-12 rounded-full flex justify-center items-center">
+              <button
+                onClick={shareProfile}
+                className="border border-primary md:hidden bg-white h-12 w-12 rounded-full flex justify-center items-center"
+              >
                 <ShareIcon className="w-6 h-6 text-primary" />
               </button>
             </div>
@@ -118,10 +124,11 @@ const BeneficiaryPage = () => {
               {profileTabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`rounded-[28px] px-5 py-3 text-lg border ${currentTab == tab
-                    ? "text-white bg-[#827D69] border-[#827D69]"
-                    : "text-[#55503D] bg-white border-customLightGray"
-                    }`}
+                  className={`rounded-[28px] px-5 py-3 text-lg border ${
+                    currentTab == tab
+                      ? "text-white bg-[#827D69] border-[#827D69]"
+                      : "text-[#55503D] bg-white border-customLightGray"
+                  }`}
                   onClick={() => setCurrentTab(tab)}
                 >
                   {capitalize(tab)}

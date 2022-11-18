@@ -68,8 +68,9 @@ export const MobileMenu: React.FC = () => {
                 />
               </div>
               <span
-                className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                  } block h-2 w-2 rounded-full border`}
+                className={`${
+                  account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                } block h-2 w-2 rounded-full border`}
               ></span>
             </button>
             <Link href="/apply" passHref>
@@ -86,18 +87,21 @@ export const MobileMenu: React.FC = () => {
           <div className="block w-10">
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "opacity-0" : "opacity-100"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+              }`}
             ></span>
           </div>
         </button>

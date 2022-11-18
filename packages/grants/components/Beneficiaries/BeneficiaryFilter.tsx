@@ -43,7 +43,7 @@ interface IFilter {
   filterPosition?: "right" | "left";
 }
 
-const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplication, filterPosition = 'left' }) => {
+const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplication, filterPosition = "left" }) => {
   const [openFilter, setOpenFilter] = React.useState(false);
   return (
     <>
@@ -73,8 +73,9 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
       <div className="block md:hidden">
         <button
           onClick={() => setOpenFilter(true)}
-          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${isApplication ? "justify-center" : "justify-between"
-            }`}
+          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${
+            isApplication ? "justify-center" : "justify-between"
+          }`}
         >
           <div className="flex items-center">
             <ViewGridIcon className="text-primaryDark w-5 h-5" />

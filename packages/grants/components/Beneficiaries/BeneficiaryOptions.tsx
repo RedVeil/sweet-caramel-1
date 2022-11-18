@@ -20,7 +20,7 @@ const BeneficiaryOptions: React.FC<FilterProps> = ({
   selectedItem,
   borderRadius,
   borderRadiusFirstLast,
-  filterPosition
+  filterPosition,
 }) => {
   const checkActiveItem = (item: any) => {
     if (typeof selectedItem === "string") {
@@ -39,13 +39,18 @@ const BeneficiaryOptions: React.FC<FilterProps> = ({
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
     >
-      <Menu.Items className={`${position} ${width} ${borderRadius} bg-white focus:outline-none ${filterPosition === 'right' ? '-mr-[1px]' : '-ml-[1px]'}`}>
+      <Menu.Items
+        className={`${position} ${width} ${borderRadius} bg-white focus:outline-none ${
+          filterPosition === "right" ? "-mr-[1px]" : "-ml-[1px]"
+        }`}
+      >
         {options.map((item, index: number) => (
           <Menu.Item key={index}>
             {({ active }) => (
               <a
-                className={`${active || checkActiveItem(item) ? "bg-warmGray text-black font-medium" : "bg-white text-[#55503D] "
-                  } group px-6 py-4 block w-full h-full cursor-pointer border-gray-200 border-b border-x first:border-t ${borderRadiusFirstLast} text-left`}
+                className={`${
+                  active || checkActiveItem(item) ? "bg-warmGray text-black font-medium" : "bg-white text-[#55503D] "
+                } group px-6 py-4 block w-full h-full cursor-pointer border-gray-200 border-b border-x first:border-t ${borderRadiusFirstLast} text-left`}
                 target="_blank"
                 onClick={() => switchFilter(item)}
               >

@@ -27,7 +27,7 @@ const BeneficiaryApplications = () => {
 
   useEffect(() => {
     if (contracts?.beneficiaryGovernance) {
-      setIsLoading(true)
+      setIsLoading(true);
       new BeneficiaryGovernanceAdapter(contracts?.beneficiaryGovernance, IpfsClient)
         .getAllProposals(ProposalType.Nomination)
         .then((res) => {
@@ -86,11 +86,7 @@ const BeneficiaryApplications = () => {
             {/* category filter */}
             <div className="w-1/2 lg:w-auto pr-2">
               <div className="block relative md:absolute top-0">
-                <BeneficiaryFilter
-                  categoryFilter={categoryFilter}
-                  switchFilter={setCategoryFilter}
-                  isApplication
-                />
+                <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} isApplication />
               </div>
             </div>
 
@@ -102,7 +98,11 @@ const BeneficiaryApplications = () => {
                     key={type.status}
                     variant={type.status === statusFilter.status ? "primary" : "secondary"}
                     onClick={() => setStatusFilter(type)}
-                    className={`flex-shrink-0 ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : "!border-[#E5E7EB] text-[#55503D] !font-normal"}`}
+                    className={`flex-shrink-0 ${
+                      type.status === statusFilter.status
+                        ? "!border-0 !bg-[#827D69] !text-white"
+                        : "!border-[#E5E7EB] text-[#55503D] !font-normal"
+                    }`}
                   >
                     {type.label}
                   </Button>
@@ -121,11 +121,7 @@ const BeneficiaryApplications = () => {
             </div>
           </div>
         )}
-        <BeneficiaryGrid
-          isLoading={isLoading}
-          data={filteredProposals}
-          isApplication
-        />
+        <BeneficiaryGrid isLoading={isLoading} data={filteredProposals} isApplication />
       </section>
 
       <PopUpModal visible={openMobileFilter} onClosePopUpModal={() => setOpenMobileFilter(false)}>
@@ -140,7 +136,9 @@ const BeneficiaryApplications = () => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
-                  className={`!border-[#E5E7EB] !text-sm w-full ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""}`}
+                  className={`!border-[#E5E7EB] !text-sm w-full ${
+                    type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
+                  }`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>

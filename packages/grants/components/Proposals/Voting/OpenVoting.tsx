@@ -60,15 +60,17 @@ const OpenVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasVotedInitial
             <RadioGroup.Option
               value={VoteOptions.Yea}
               className={({ checked }) =>
-                `rounded-tl-md rounded-tr-md relative border p-4 flex cursor-pointer focus:outline-none ${checked ? "bg-indigo-50 border-indigo-200" : "border-gray-200"
+                `rounded-tl-md rounded-tr-md relative border p-4 flex cursor-pointer focus:outline-none ${
+                  checked ? "bg-indigo-50 border-indigo-200" : "border-gray-200"
                 }`
               }
             >
               {({ active, checked }) => (
                 <>
                   <span
-                    className={`h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center ${checked ? "bg-indigo-600 border-transparent" : "bg-white border-gray-300"
-                      } ${active ? "ring-2 ring-offset-2 ring-indigo-500" : ""}`}
+                    className={`h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center ${
+                      checked ? "bg-indigo-600 border-transparent" : "bg-white border-gray-300"
+                    } ${active ? "ring-2 ring-offset-2 ring-indigo-500" : ""}`}
                     aria-hidden="true"
                   >
                     <span className="rounded-full bg-white w-1.5 h-1.5" />
@@ -96,15 +98,17 @@ const OpenVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasVotedInitial
             <RadioGroup.Option
               value={VoteOptions.Nay}
               className={({ checked }) =>
-                `rounded-bl-md rounded-br-md relative border p-4 flex cursor-pointer focus:outline-none ${checked ? "bg-indigo-50 border-indigo-200" : "border-gray-200"
+                `rounded-bl-md rounded-br-md relative border p-4 flex cursor-pointer focus:outline-none ${
+                  checked ? "bg-indigo-50 border-indigo-200" : "border-gray-200"
                 }`
               }
             >
               {({ active, checked }) => (
                 <>
                   <span
-                    className={`h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center ${checked ? "bg-indigo-600 border-transparent" : "bg-white border-gray-300"
-                      } ${active ? "ring-2 ring-offset-2 ring-indigo-500" : ""}`}
+                    className={`h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center ${
+                      checked ? "bg-indigo-600 border-transparent" : "bg-white border-gray-300"
+                    } ${active ? "ring-2 ring-offset-2 ring-indigo-500" : ""}`}
                     aria-hidden="true"
                   >
                     <span className="rounded-full bg-white w-1.5 h-1.5" />
@@ -143,34 +147,35 @@ const OpenVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasVotedInitial
               setDualActionModal(
                 account
                   ? {
-                    content: `You are about to submit a vote to ${selected == VoteOptions.Yea ? "accept" : "reject"
+                      content: `You are about to submit a vote to ${
+                        selected == VoteOptions.Yea ? "accept" : "reject"
                       } this proposal. You will not be able to vote again for this proposal after you submit your vote. \
                  Confirm to continue.`,
-                    title: "Confirm Vote",
-                    onConfirm: {
-                      label: "Confirm Vote",
-                      onClick: vote,
-                    },
-                    onDismiss: {
-                      label: "Cancel",
-                      onClick: () => dispatch(setDualActionModal(false)),
-                    },
-                  }
+                      title: "Confirm Vote",
+                      onConfirm: {
+                        label: "Confirm Vote",
+                        onClick: vote,
+                      },
+                      onDismiss: {
+                        label: "Cancel",
+                        onClick: () => dispatch(setDualActionModal(false)),
+                      },
+                    }
                   : {
-                    content: "You must connect with MetaMask before you can vote.",
-                    title: "Connect MetaMask",
-                    onConfirm: {
-                      label: "Connect",
-                      onClick: () => {
-                        activate(connectors.Injected);
-                        dispatch(setDualActionModal(false));
+                      content: "You must connect with MetaMask before you can vote.",
+                      title: "Connect MetaMask",
+                      onConfirm: {
+                        label: "Connect",
+                        onClick: () => {
+                          activate(connectors.Injected);
+                          dispatch(setDualActionModal(false));
+                        },
+                      },
+                      onDismiss: {
+                        label: "Cancel",
+                        onClick: () => dispatch(setDualActionModal(false)),
                       },
                     },
-                    onDismiss: {
-                      label: "Cancel",
-                      onClick: () => dispatch(setDualActionModal(false)),
-                    },
-                  },
               ),
             );
           }}
