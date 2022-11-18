@@ -64,7 +64,6 @@ const SlippageContent: React.FC<SlippageSettingsProps> = ({ slippage, setSlippag
             <InfoIconWithModal
               title="Slippage Tolerance"
               content="Your transaction will revert if the price changes unfavorably by more than this percentage"
-              size="w-5 h-5"
             />
           </div>
         </div>

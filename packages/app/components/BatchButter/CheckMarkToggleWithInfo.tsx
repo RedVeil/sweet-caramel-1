@@ -31,14 +31,15 @@ export function CheckMarkToggleWithInfo({
           disabled={disabled}
         />
         <p
-          className={`text-base leading-6 ${disabled ? "text-customLightGray" : "text-primaryDark group-hover:text-text-primaryDark"
-            }`}
+          className={`text-base leading-6 ${
+            disabled ? "text-customLightGray" : "text-primaryDark group-hover:text-text-primaryDark"
+          }`}
         >
           {label}
         </p>
       </label>
       <div>
-        <InfoIconWithModal title={infoTitle} image={image} size="w-5 h-5">
+        <InfoIconWithModal title={infoTitle} image={image}>
           <p>{infoText}</p>
         </InfoIconWithModal>
       </div>
