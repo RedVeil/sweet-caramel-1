@@ -5,7 +5,7 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
-import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
 import PopLockerInteraction from "@popcorn/app/components/staking/PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
+import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;
@@ -76,10 +77,13 @@ export default function StakeInterface({
 
       <div className="grid grid-cols-12 mt-10">
         <div className="col-span-12 md:col-span-5">
-          <TokenIcon token={stakingToken?.address} chainId={chainId} />
+          <div className="relative ml-4">
+            <NetworkSticker />
+            <TokenIcon token={stakingToken?.address} chainId={chainId} />
+          </div>
           <h1 className="text-black text-5xl md:text-6xl leading-12 mt-9">{stakingToken?.name}</h1>
           <div className="flex flex-wrap">
-            <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
+            <div className="block pr-8 md:pr-6 mt-6 md:mt-8">
               <StatusWithLabel
                 content={
                   stakingPool?.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
@@ -165,7 +169,10 @@ export default function StakeInterface({
           <div className="w-full md:grid grid-cols-12 gap-8 hidden">
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
-                <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                <div className="relative ml-4">
+                  <NetworkSticker />
+                  <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                </div>
                 <div>
                   <div className="flex">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
@@ -195,7 +202,10 @@ export default function StakeInterface({
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
-                <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                <div className="relative ml-4">
+                  <NetworkSticker />
+                  <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                </div>
                 <div>
                   <div className="flex">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>
@@ -226,7 +236,10 @@ export default function StakeInterface({
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
                   <div className="flex gap-6 md:gap-0 md:space-x-6">
-                    <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    <div className="relative ml-4">
+                      <NetworkSticker />
+                      <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    </div>
                     <div className="pb-6">
                       <div className="flex">
                         <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
@@ -258,7 +271,10 @@ export default function StakeInterface({
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
                   <div className="flex gap-6 md:gap-0 md:space-x-6">
-                    <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    <div className="relative ml-4">
+                      <NetworkSticker />
+                      <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    </div>
                     <div className="pb-6">
                       <div className="flex">
                         <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>

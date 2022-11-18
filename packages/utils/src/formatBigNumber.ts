@@ -15,15 +15,17 @@ export function formatAndRoundBigNumber(value: BigNumber, decimals: number): str
       return `${(formatedValue / THOUSAND).toLocaleString(undefined, {
         maximumFractionDigits: 2,
       })}k`;
-    } else if (formatedValue > 1) {
+    } else if (formatedValue >= 1) {
       return formatedValue.toLocaleString(undefined, {
         maximumFractionDigits: 2,
       });
-    } else if (formatedValue === 1) {
-      return String(formatedValue);
-    } else if (formatedValue < 1) {
+    } else if (formatedValue >= 1 / 1e6) {
       return formatedValue.toLocaleString(undefined, {
         maximumFractionDigits: 6,
+      });
+    } else if (formatedValue < 1) {
+      return formatedValue.toLocaleString(undefined, {
+        maximumFractionDigits: 12,
       });
     }
   }

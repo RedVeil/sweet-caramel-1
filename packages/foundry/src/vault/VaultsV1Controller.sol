@@ -69,8 +69,6 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     VaultParams memory _vaultParams,
     address _staking,
     bool _endorse, // TODO remove endorse,
-    bytes32 _factoryName,
-    bytes memory _deploymentParams,
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
     address _swapAddress,
@@ -336,7 +334,7 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
   }
 
   /* ========== VAULTSTAKING MANAGEMENT FUNCTIONS ========== */
-  
+
   function setStakingEscrowDurations(address[] calldata _stakingContracts, uint256[] calldata _escrowDurations)
     external
     onlyOwner
