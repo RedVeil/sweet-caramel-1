@@ -13,6 +13,9 @@ import { connectors } from "context/Web3/connector";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, ethers } from "ethers";
 import { isAddress } from "ethers/lib/utils";
+import { confirmationsPerChain } from "helper/useWeb3Callbacks";
+import useProposalBond from "hooks/useProposalBond";
+import { ImageError } from "next/dist/server/image-optimizer";
 import { useRouter } from "next/router";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -53,17 +56,19 @@ export enum FormSteps {
 }
 
 const ApplyForm = () => {
-  const { library, account, activate, active } = useWeb3React<Web3Provider>();
+  const { library, account, activate, active, chainId } = useWeb3React<Web3Provider>();
 
   const [activeForm, setActiveForm] = useState<FormSteps>(FormSteps.GENERAL_INFORMATION);
   const [formData, setFormData] = useState<BeneficiaryApplication>(defaultFormData);
   const [errorList, setErrorList] = useState<Array<string>>([]);
   const [showErrors, setShowErrors] = useState<boolean>(false);
-  const { dispatch } = useContext(store);
+  const { dispatch, state } = useContext(store);
   const { contracts } = useContext(ContractsContext);
-  const [proposalBond, setProposalBond] = useState<BigNumber>();
+  // const [proposalBond, setProposalBond] = useState<BigNumber>();
   const router = useRouter();
   const [uploading, setUploading] = useState<boolean>(false);
+
+  const { data: proposalBond } = useProposalBond(contracts?.beneficiaryGovernance);
 
   useEffect(() => {
     const formData = localStorage.getItem("beneficiaryApplicationForm");
@@ -76,11 +81,6 @@ const ApplyForm = () => {
     localStorage.setItem("beneficiaryApplicationForm", JSON.stringify(formData));
   }, [formData]);
 
-  useEffect(() => {
-    if (contracts) {
-      getProposalBond().then((proposalBond) => setProposalBond(proposalBond));
-    }
-  }, [contracts]);
 
   const errorMessages = {
     orgNameError: "Organization Name is Required",
@@ -89,14 +89,21 @@ const ApplyForm = () => {
     orgMissionError: "Organization Mission is Required",
     emailError: "Email Address is not valid",
     proofOfOwnershipError: "Proof of Ownership URL is Required",
+    imageError: "Profile and cover photo is required",
   };
 
   const checkErrors = () => {
     let errors: Array<string> = [];
-    let { orgNameError, ethAddressError, projectNameError, orgMissionError, emailError, proofOfOwnershipError } =
+    let { orgNameError, ethAddressError, projectNameError, orgMissionError, emailError, proofOfOwnershipError, imageError } =
       errorMessages;
     if (!inputExists(formData.organizationName)) {
       errors.push(orgNameError);
+    }
+    if (!inputExists(formData.files.profileImage.image)) {
+      errors.push(imageError);
+    }
+    if (!inputExists(formData.files.headerImage.image)) {
+      errors.push(imageError);
     }
     if (!isAddress(formData.beneficiaryAddress)) {
       errors.push(ethAddressError);
@@ -116,7 +123,7 @@ const ApplyForm = () => {
     return errors;
   };
 
-  const nextActiveForm = () => {
+  const nextActiveForm = useCallback(() => {
     setShowErrors(false);
     let errors = checkErrors();
     if (errors.length > 0) {
@@ -130,7 +137,7 @@ const ApplyForm = () => {
       setActiveForm(step);
       localStorage.setItem("beneficiaryApplicationStep", JSON.stringify(step));
     }
-  };
+  }, [account, library, proposalBond, activeForm]);
 
   const prevActiveForm = () => {
     let step = activeForm - 1;
@@ -143,11 +150,11 @@ const ApplyForm = () => {
 
   const checkPreConditions = useCallback(async (): Promise<boolean> => {
     console.log('calling this function')
-    if (!contracts) {
-      return false;
-    }
     if (!account) {
       activate(connectors.Injected);
+    }
+    if (!contracts) {
+      return false;
     }
     const balance = await contracts?.pop?.balanceOf(account);
     if (proposalBond?.gt(balance)) {
@@ -175,9 +182,9 @@ const ApplyForm = () => {
       return false;
     }
     return true;
-  }, [account]);
+  }, [account, contracts, proposalBond]);
 
-  const uploadJsonToIpfs = async (submissionData: BeneficiaryApplication): Promise<void> => {
+  const uploadJsonToIpfs = useCallback(async (submissionData: BeneficiaryApplication): Promise<void> => {
     setUploading(true);
     if (await checkPreConditions()) {
       loading();
@@ -189,7 +196,9 @@ const ApplyForm = () => {
           await contracts?.pop
             ?.connect(library.getSigner())
             ?.approve(contracts.beneficiaryGovernance.address, proposalBond)
-        )?.wait();
+        )?.wait(confirmationsPerChain(chainId));
+
+
 
         await contracts.beneficiaryGovernance
           .connect(library.getSigner())
@@ -220,7 +229,7 @@ const ApplyForm = () => {
       congratsModal();
     }
     setUploading(false);
-  };
+  }, [account, contracts, proposalBond]);
 
   const clearLocalStorage = () => {
     setActiveForm(FormSteps.GENERAL_INFORMATION);
@@ -234,7 +243,7 @@ const ApplyForm = () => {
     return proposalDefaultConfigurations?.proposalBond;
   };
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     dispatch(
       setSingleActionModal({
         image: <img src="/images/accept-application.svg" alt="Submit Modal Icon" />,
@@ -262,7 +271,7 @@ const ApplyForm = () => {
         },
       }),
     );
-  };
+  }, [contracts, proposalBond, account]);
 
   const congratsModal = () => {
     dispatch(
@@ -286,6 +295,14 @@ const ApplyForm = () => {
       }),
     );
   };
+
+  function connectOrFinish() {
+    if (!account) {
+      return 'Connect wallet'
+    } else {
+      return 'Finish'
+    }
+  }
 
   return (
     <main className="container mx-auto pt-20">
@@ -322,10 +339,10 @@ const ApplyForm = () => {
           <Button
             variant="primary"
             className="py-2 px-6 w-full md:w-auto"
-            onClick={nextActiveForm}
+            onClick={account ? nextActiveForm : () => activate(connectors.Injected)}
             disabled={uploading}
           >
-            {activeForm == FormSteps.VISUAL_CONTENT ? "Finish" : "Next"}
+            {activeForm == FormSteps.VISUAL_CONTENT ? connectOrFinish() : "Next"}
           </Button>
         </div>
       </div>

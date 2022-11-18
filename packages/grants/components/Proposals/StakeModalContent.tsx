@@ -13,6 +13,7 @@ import { BigNumber, constants, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import useTokenBalance from "hooks/token/useTokenBalance";
 import useTokenAllowance from "hooks/token/useTokenAllowance";
+import { confirmationsPerChain } from "helper/useWeb3Callbacks";
 
 interface StakeModalProps {
   beneficiary: BeneficiaryApplication;
@@ -39,7 +40,8 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
     const signer = library.getSigner();
     await contracts.staking.connect(signer)
       .stake(popToLock, lockDuration)
-      .then((res) => {
+      .then(async (res) => {
+        await res.wait(confirmationsPerChain(chainId));
         toast.dismiss();
         toast.success("POP staked!");
         onCloseStakeModal();
@@ -112,7 +114,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
             min={0}
             max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
             onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
-            disabled={!account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired}
+            disabled={!account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero)}
             size="small"
             step={1}
             valueLabelDisplay="off"
