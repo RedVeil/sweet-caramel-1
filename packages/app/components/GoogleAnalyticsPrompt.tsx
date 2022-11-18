@@ -9,13 +9,16 @@ type WindowWithDataLayer = Window & {
 
 declare const window: WindowWithDataLayer;
 
-const GoogleAnalyticsPrompt = () => {
+const GoogleAnalyticsPrompt = ({ acceptGoogleAnalytics }) => {
   const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(true);
 
   const handleAccept = () => {
+    window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "pageView",
+      url: window.location.pathname,
     });
+    acceptGoogleAnalytics();
     setOpenAnalyticsPrompt(false);
   };
 
@@ -40,7 +43,7 @@ const GoogleAnalyticsPrompt = () => {
           </p>
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 w-full md:w-auto">
             {/* <PrimaryButton handleClick={handleAccept}>Accept</PrimaryButton> */}
-            <MainActionButton label="Accept" />
+            <MainActionButton label="Accept" handleClick={handleAccept} />
             <TertiaryActionButton label="Decline" handleClick={handleDecline} />
           </div>
         </div>
