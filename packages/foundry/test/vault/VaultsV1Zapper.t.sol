@@ -9,7 +9,7 @@ import "../../src/interfaces/IACLRegistry.sol";
 import "../../src/vault/Vault.sol";
 import "../../src/zapper/VaultsV1Zapper.sol";
 import "../../src/utils/KeeperIncentiveV2.sol";
-import "../../src/vault/VaultsV1Registry.sol";
+import "../../src/vault/VaultsRegistry.sol";
 import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
 import "../../src/vault/wrapper/yearn/YearnWrapper.sol";
 import "../../src/interfaces/IERC4626.sol";
