@@ -10,6 +10,7 @@ import "../utils/ContractRegistryAccess.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IVault.sol";
+import "../interfaces/IVaultsV1Zapper.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 import "../interfaces/IERC4626.sol";
@@ -55,7 +56,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /**
    * @notice deploys and registers Vault from VaultsFactory
-   * @param _cloneAddress - encoded implementation contract addresses for deploying clones of Vault, VaultStaking, and Strategy contracts
+   * @param _cloneAddresses - encoded implementation contract addresses for deploying clones of Vault, VaultStaking, and Strategy contracts
    * @param _vaultParams - struct containing Vault init params (ERC20 asset_, IERC4626 strategy_ IContractRegistry contractRegistry_, FeeStructure memory feeStructure_, address feeRecipient_, KeeperConfig, memory keeperConfig_)
    * @param _staking - Adds a staking contract to the registry for this particular vault. (If address(0) it will deploy a new VaultStaking contract)
    * @param _stakingToken - if deploying new VaultStaking contract, address of ERC20 staking token
@@ -85,7 +86,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
   ) external returns (address vault) {
     VaultsRegistry vaultsRegistry = _vaultsRegistry();
 
-    (vaultImplementation, stakingImplementation, strategyImplementation) = abi.decode(
+    (address vaultImplementation, address stakingImplementation, address strategyImplementation) = abi.decode(
       _cloneAddresses,
       (address, address, address)
     );
@@ -188,7 +189,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
   /**
    * @notice Propose a new Strategy.
    * @param _vaults - addresses of the vaults
-   * @param _newStrategy - new strategies to be proposed for the vault
+   * @param _newStrategies - new strategies to be proposed for the vault
    * @dev index of _vaults array and _newStrategies array must coincide
    */
   function proposeNewVaultStrategy(address[] memory _vaults, IERC4626[] memory _newStrategies) external onlyOwner {

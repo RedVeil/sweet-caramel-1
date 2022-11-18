@@ -60,7 +60,7 @@ contract VaultsV1ZapperTest is Test {
   Vault internal vault;
   KeeperIncentiveV2 internal keeperIncentive;
   IContractRegistry internal contractRegistry;
-  VaultsV1Registry internal vaultsV1Registry;
+  VaultsRegistry internal vaultsRegistry;
   YearnWrapper internal yearnWrapper;
   address internal feeRecipient = address(0x1234);
 

@@ -2,7 +2,8 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/Clones.sol";
+import "openzeppelin-contracts/proxy/Clones.sol";
+import "../utils/Owned.sol";
 
 /**
  * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts

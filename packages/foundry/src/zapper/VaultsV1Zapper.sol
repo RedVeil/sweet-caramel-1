@@ -7,24 +7,12 @@ import "openzeppelin-contracts/access/Ownable.sol";
 import "../utils/ACLAuth.sol";
 import "../utils/ContractRegistryAccess.sol";
 import "../utils/KeeperIncentivized.sol";
-import "../interfaces/IVaultsV1.sol";
+import "../interfaces/IVault.sol";
 import "../interfaces/IVaultsV1Zapper.sol";
 import "../interfaces/IZapIn.sol";
 import "../interfaces/IZapOut.sol";
 import "../interfaces/IWETH.sol";
-import { VaultMetadata } from "../vault/VaultsV1Registry.sol";
-
-interface IVault is IERC4626 {
-  function deposit(uint256 assets, address receiver) external returns (uint256);
-
-  function redeem(
-    uint256 assets,
-    address receiver,
-    address owner
-  ) external returns (uint256);
-
-  function asset() external view returns (address);
-}
+import { VaultMetadata } from "../vault/VaultsRegistry.sol";
 
 interface ICurve {
   function calc_withdraw_one_coin(uint256 amount, int128 i) external view returns (uint256);
@@ -44,7 +32,7 @@ interface ICurve {
   ) external;
 }
 
-interface IVaultsV1Registry {
+interface IVaultsRegistry {
   function getVault(address _vaultAddress) external view returns (VaultMetadata memory);
 }
 
@@ -70,7 +58,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
 
   /* ========== STATE VARIABLES ========== */
 
-  bytes32 constant VAULTS_V1_REGISTRY = keccak256("VaultsV1Registry");
+  bytes32 constant VAULTS_REGISTRY = keccak256("VaultsRegistry");
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
 
   mapping(address => address) public vaults;
@@ -170,7 +158,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
 
     IERC20(vaultAsset).safeApprove(address(vault), amountOutAfterFees);
 
-    IVaultsV1(vault).deposit(amountOutAfterFees, msg.sender);
+    IVault(vault).deposit(amountOutAfterFees, msg.sender);
   }
 
   function zapOut(
@@ -186,7 +174,7 @@ contract VaultsV1Zapper is IVaultsV1Zapper, ACLAuth, ContractRegistryAccess, Kee
     address vault = vaults[vaultAsset];
     require(vault != address(0), "Invalid vault");
 
-    IVaultsV1(vault).redeem(amount, address(this), msg.sender);
+    IVault(vault).redeem(amount, address(this), msg.sender);
 
     // For some reason the value returned of redeem is sometimes a few WEI off which is why i opted for this solution
     uint256 withdrawn = IERC20(vaultAsset).balanceOf(address(this));

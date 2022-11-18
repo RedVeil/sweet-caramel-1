@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/proxy/Clones.sol";
 import "./Vault.sol";
-import { VaultMetadata } from "./VaultsV1Registry.sol";
+import { VaultMetadata } from "./VaultsRegistry.sol";
 import "../utils/Owned.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IRewardsEscrow.sol";
@@ -15,7 +15,7 @@ import "openzeppelin-contracts/token/ERC20/ERC20.sol";
 
 /**
  * @notice Factory that deploys VaultStaking
- * @dev deploy can only be called by VaultsV1Controller
+ * @dev deploy can only be called by VaultsController
  */
 contract VaultStakingFactory is Owned {
   /* ========== EVENTS ========== */
@@ -38,7 +38,7 @@ contract VaultStakingFactory is Owned {
   /**
    * @notice Deploys VaultStaking
    * @param vault - address of the vault
-   * @dev This should always be called through the VaultV1Controller
+   * @dev This should always be called through the VaultController
    */
   // TODO add implementation address
   function deploy(address vault) external onlyOwner returns (address stakingAddress) {

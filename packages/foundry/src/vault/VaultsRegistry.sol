@@ -2,8 +2,8 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "../../interfaces/IERC4626.sol";
-import "../../utils/Owned.sol";
+import "../interfaces/IERC4626.sol";
+import "../utils/Owned.sol";
 
 struct VaultMetadata {
   address vaultAddress; // address of vault
@@ -17,8 +17,8 @@ struct VaultMetadata {
 }
 
 /**
- * @notice Registry for vaults deployed through VaultsV1Factory
- * @dev all mutative functions can only be called by VaultsV1Controller
+ * @notice Registry for vaults deployed through VaultsFactory
+ * @dev all mutative functions can only be called by VaultsController
  */
 contract VaultsRegistry is Owned {
   /* ========== CUSTOM ERRORS ========== */
@@ -94,7 +94,7 @@ contract VaultsRegistry is Owned {
 
   /**
    * @notice registers vault and adds address to mapping array of asset
-   * @param params - VaultMetadata constructed by Factory after deployVaultFromV1Factory called by Controller
+   * @param params - VaultMetadata constructed by Factory after deployVaultFromFactory called by Controller
    */
   function registerVault(VaultMetadata memory params) external onlyOwner {
     if (vaults[params.vaultAddress].vaultAddress != address(0)) revert VaultAlreadyRegistered();

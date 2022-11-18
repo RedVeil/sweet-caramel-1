@@ -13,11 +13,11 @@ import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 
-contract VaultsV1FactoryTest is Test {
+contract VaultsFactoryTest is Test {
   event VaultV1Deployment(address vault);
   event ImplementationUpdated(address oldImplementation, address newImplementation);
 
-  VaultsV1Factory internal vaultsV1Factory;
+  VaultsFactory internal vaultsFactory;
 
   address internal vaultImplementation;
   address internal notOwner = makeAddr("notOwner");
@@ -31,10 +31,10 @@ contract VaultsV1FactoryTest is Test {
     vm.selectFork(forkId);
 
     STRATEGY = address(new MockERC4626(ERC20(CRV_3CRYPTO), "Mock Token Vault", "vwTKN"));
-    vaultsV1Factory = new VaultsV1Factory(address(this));
+    vaultsFactory = new VaultsFactory(address(this));
     vaultImplementation = address(new Vault());
 
-    vaultsV1Factory.setImplementation(vaultImplementation);
+    vaultsFactory.setImplementation(vaultImplementation);
 
     vaultParams = VaultParams({
       asset: ERC20(CRV_3CRYPTO),
@@ -49,9 +49,9 @@ contract VaultsV1FactoryTest is Test {
       keeperConfig: KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     });
 
-    vm.label(address(this), "VaultsV1ControllerOwner");
+    vm.label(address(this), "VaultsControllerOwner");
     vm.label(notOwner, "notOwner");
-    vm.label(address(vaultsV1Factory), "VaultsV1Factory");
+    vm.label(address(vaultsFactory), "VaultsFactory");
   }
 
   /* ========== FUNCTIONS TESTS ========== */
@@ -60,23 +60,23 @@ contract VaultsV1FactoryTest is Test {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    address vault = vaultsV1Factory.deploy(vaultParams);
+    address vault = vaultsFactory.deploy(vaultParams);
     assertEq(vault, address(0), "vault deployment failed");
   }
 
   function test__deploy() public {
-    vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    vm.expectEmit(false, false, false, true, address(vaultsFactory));
     emit VaultV1Deployment(0x9cC6334F1A7Bc20c9Dde91Db536E194865Af0067);
 
-    address vault = vaultsV1Factory.deploy(vaultParams);
+    address vault = vaultsFactory.deploy(vaultParams);
 
     // Check that the vault got deployed
     assertEq(vault, address(0x9cC6334F1A7Bc20c9Dde91Db536E194865Af0067));
   }
 
   function test__deployMultipleVaults() public {
-    address vault1 = vaultsV1Factory.deploy(vaultParams);
-    address vault2 = vaultsV1Factory.deploy(vaultParams);
+    address vault1 = vaultsFactory.deploy(vaultParams);
+    address vault2 = vaultsFactory.deploy(vaultParams);
 
     // Check that the vault got deployed
     assertTrue(vault1 != vault2);
@@ -87,17 +87,17 @@ contract VaultsV1FactoryTest is Test {
   function test__setImplementationNotOwnerReverts() public {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    vaultsV1Factory.setImplementation(NEW_IMPLEMENTATION);
+    vaultsFactory.setImplementation(NEW_IMPLEMENTATION);
   }
 
   function test__setImplementation() public {
-    vaultsV1Factory.setImplementation(NEW_IMPLEMENTATION);
-    assertEq(vaultsV1Factory.implementation(), NEW_IMPLEMENTATION);
+    vaultsFactory.setImplementation(NEW_IMPLEMENTATION);
+    assertEq(vaultsFactory.implementation(), NEW_IMPLEMENTATION);
   }
 
   function test__setImplementationEvent() public {
-    vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
+    vm.expectEmit(false, false, false, true, address(vaultsFactory));
     emit ImplementationUpdated(vaultImplementation, NEW_IMPLEMENTATION);
-    vaultsV1Factory.setImplementation(NEW_IMPLEMENTATION);
+    vaultsFactory.setImplementation(NEW_IMPLEMENTATION);
   }
 }
