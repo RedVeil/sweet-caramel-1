@@ -1,3 +1,4 @@
+
 export {
   getIndexForToken,
   getMinZapAmount,
@@ -5,6 +6,8 @@ export {
   percentageToBps,
   prepareHotSwap,
 } from "./butterHelpers";
+export { verifyEmail } from "./VerifyEmail";
+export { isChainIdPolygonOrLocal } from './PolygonHelpers';
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
 export {
