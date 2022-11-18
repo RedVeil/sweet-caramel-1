@@ -1,5 +1,5 @@
-import deployments from "@popcorn/hardhat/lib/utils/exporter/out/deployments.json";
 import { useMemo } from "react";
+import deployments from "@popcorn/hardhat/lib/utils/exporter/out/deployments.json";
 
 export type Deployments = typeof deployments;
 

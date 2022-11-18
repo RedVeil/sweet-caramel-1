@@ -4,7 +4,7 @@ const defaultFeatureFlags = [
   { key: "migrationAlert", prod: true, dev: true },
   { key: "instant3X", prod: false, dev: true },
   { key: "sweetVaults", prod: false, dev: true },
-
+  { key: "portfolio", prod: false, dev: true },
 ];
 
 const envEnabledDeafaultFeatureFlags: { [key: string]: boolean } = {};

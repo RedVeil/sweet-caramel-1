@@ -464,8 +464,10 @@ export default function ButterPage(): JSX.Element {
               <a
                 onClick={async () =>
                   window.ethereum.request({
+                    // @ts-ignore
                     method: "wallet_watchAsset",
                     params: {
+                      // @ts-ignore
                       type: "ERC20",
                       options: {
                         address: addr.butter,

@@ -83,6 +83,7 @@ export const RPC_URLS = {
   [ChainId.Goerli]: `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Arbitrum]: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.Polygon]: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+  [ChainId.Optimism]: `https://opt-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
   [ChainId.Mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
   [ChainId.BNB]: `https://bsc-dataseed1.binance.org`,
   [ChainId.Localhost]: `http://localhost:8545`,
@@ -99,6 +100,7 @@ export const PRC_PROVIDERS = {
   [ChainId.Localhost]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Localhost], ChainId.Localhost),
   [ChainId.Hardhat]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Hardhat], ChainId.Hardhat),
   [ChainId.RemoteFork]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.RemoteFork], ChainId.RemoteFork),
+  [ChainId.Optimism]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Optimism], ChainId.Optimism),
 };
 
 export type HardhatConfigNetworks = {

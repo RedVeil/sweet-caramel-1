@@ -361,8 +361,10 @@ export default function ThreeXPage(): JSX.Element {
                   <a
                     onClick={async () =>
                       await window.ethereum.request({
+                        // @ts-ignore
                         method: "wallet_watchAsset",
                         params: {
+                          // @ts-ignore
                           type: "ERC20",
                           options: {
                             address: threeXSetToken?.address,
