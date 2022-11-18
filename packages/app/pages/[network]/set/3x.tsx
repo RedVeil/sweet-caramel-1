@@ -469,14 +469,15 @@ export default function ThreeXPage(): JSX.Element {
   return (
     <>
       <div className="grid grid-cols-12">
-        <div className="col-span-12 md:col-span-4">
+        <div className="col-span-12 md:col-span-7">
           <h1 className="text-6xl leading-12">3X</h1>
           <p className="mt-4 leading-5 text-primaryDark">
-            Mint 3X and earn interest on multiple stablecoins at once. Stake your 3X to earn boosted APY.
+            Mint 3X and earn interest on multiple stablecoins at once. <br />
+            Stake your 3X to earn boosted APY.
           </p>
           <SetStats token={threeX} />
         </div>
-        <div className="col-span-5 col-end-13 hidden md:block">
+        <div className="col-span-5 hidden md:block">
           <TutorialSlider isThreeX />
         </div>
       </div>
