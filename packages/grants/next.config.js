@@ -49,4 +49,21 @@ module.exports = {
     GRANTS_BASE_URL: process.env.GRANTS_BASE_URL,
   },
   poweredByHeader: false,
+  webpack: (config, options) => {
+    /** Allows import modules from packages in workspace. */
+    //config.externals = { ...config.externals, electron: 'electron' };
+    config.module = {
+      ...config.module,
+      rules: [
+        ...config.module.rules,
+        {
+          test: /\.(js|jsx|ts|tsx)$/,
+          include: [workspace],
+          exclude: /node_modules/,
+          use: options.defaultLoaders.babel,
+        },
+      ],
+    };
+    return config;
+  },
 };
