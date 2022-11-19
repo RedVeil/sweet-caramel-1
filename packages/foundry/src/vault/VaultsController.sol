@@ -4,18 +4,18 @@ pragma solidity ^0.8.0;
 
 import "./VaultsRegistry.sol";
 import "./VaultsFactory.sol";
-import "./VaultStakingFactory.sol";
 import "../utils/Owned.sol";
 import "../utils/ContractRegistryAccess.sol";
+import "../interfaces/IVault.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
-import "../interfaces/IVault.sol";
 import "../interfaces/IVaultsV1Zapper.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 import "../interfaces/IERC4626.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import { IContractFactory } from "../interfaces/IContractFactory.sol";
+import "openzeppelin-contracts/token/ERC20/ERC20.sol";
 
 /**
  * @notice controls deploying, registering vaults, adding vault types, updating registry vaults, endorsing and enabling registry vaults, and pausing/unpausing vaults
@@ -26,7 +26,7 @@ struct VaultParams {
   ERC20 asset;
   IERC4626 strategy;
   IContractRegistry contractRegistry;
-  Vault.FeeStructure feeStructure;
+  IVault.FeeStructure feeStructure;
   address feeRecipient;
   KeeperConfig keeperConfig;
 }
