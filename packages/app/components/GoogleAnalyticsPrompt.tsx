@@ -2,7 +2,7 @@ import { Transition } from "@headlessui/react";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import React, { useState } from "react";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import { useFeatures } from "hooks/useFeatures";
+import { useFeatures } from "@popcorn/app/hooks/useFeatures";
 
 type WindowWithDataLayer = Window & {
   dataLayer: Record<string, any>[];
