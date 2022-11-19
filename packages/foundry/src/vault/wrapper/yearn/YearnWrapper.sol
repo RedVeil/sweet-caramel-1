@@ -59,11 +59,6 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     return address(yVault);
   }
 
-  // NOTE: this number will be different from this token's totalSupply
-  function vaultTotalSupply() external view returns (uint256) {
-    return yVault.totalSupply();
-  }
-
   /*//////////////////////////////////////////////////////////////
                       ERC20 compatibility
    //////////////////////////////////////////////////////////////*/
