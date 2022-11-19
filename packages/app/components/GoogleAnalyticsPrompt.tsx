@@ -11,10 +11,6 @@ type WindowWithDataLayer = Window & {
 declare const window: WindowWithDataLayer;
 
 const GoogleAnalyticsPrompt = ({ acceptGoogleAnalytics }) => {
-  const {
-    features: { optin_analytics: visible },
-  } = useFeatures();
-
   const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(true);
 
   const handleAccept = () => {
@@ -30,9 +26,6 @@ const GoogleAnalyticsPrompt = ({ acceptGoogleAnalytics }) => {
   const handleDecline = () => {
     setOpenAnalyticsPrompt(false);
   };
-  if (!visible) {
-    return <></>;
-  }
 
   return (
     <Transition show={openAnalyticsPrompt}>
