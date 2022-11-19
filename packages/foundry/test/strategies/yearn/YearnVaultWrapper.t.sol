@@ -85,27 +85,27 @@ contract VaultWrapperTest is TestFixture {
     assertEq(vaultWrapper.totalSupply(), _shares);
   }
 
-  function test__preview_deposit_equals_actual_shares(uint80 vaultIncrease, uint80 depositAmount) public {
-    vm.assume(vaultIncrease > 1 ether);
-    vm.assume(vaultIncrease < maxFuzzAmt);
-    vm.assume(depositAmount > 1 ether);
-    vm.assume(depositAmount < maxFuzzAmt);
+  // function test__preview_deposit_equals_actual_shares(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
 
-    deal(address(want), address(user), depositAmount + 1);
+  //   deal(address(want), address(user), depositAmount + 1);
 
-    vm.startPrank(user);
-    want.approve(address(vaultWrapper), depositAmount + 1);
-    vaultWrapper.deposit(1, user);
-    vm.stopPrank();
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), depositAmount + 1);
+  //   vaultWrapper.deposit(1, user);
+  //   vm.stopPrank();
 
-    deal(address(want), address(vault), vaultIncrease);
-    uint256 expectedShares = vaultWrapper.previewDeposit(depositAmount);
+  //   deal(address(want), address(vault), vaultIncrease);
+  //   uint256 expectedShares = vaultWrapper.previewDeposit(depositAmount);
 
-    vm.prank(user);
-    uint256 actualShares = vaultWrapper.deposit(depositAmount, user);
+  //   vm.prank(user);
+  //   uint256 actualShares = vaultWrapper.deposit(depositAmount, user);
 
-    assertWithin(actualShares, expectedShares, 1);
-  }
+  //   assertWithin(actualShares, expectedShares, 1);
+  // }
 
   function test__mint(uint256 _amount) public {
     vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
@@ -123,30 +123,30 @@ contract VaultWrapperTest is TestFixture {
     assertEq(vaultWrapper.totalSupply(), _amount);
   }
 
-  function test__preview_mint_equals_actual_assets(uint80 vaultIncrease, uint80 depositAmount) public {
-    vm.assume(vaultIncrease > 1 ether);
-    vm.assume(vaultIncrease < maxFuzzAmt);
-    vm.assume(depositAmount > 1 ether);
-    vm.assume(depositAmount < maxFuzzAmt);
+  // function test__preview_mint_equals_actual_assets(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
 
-    deal(address(want), address(user), 1);
-    vm.startPrank(user);
-    want.approve(address(vaultWrapper), 1);
-    vaultWrapper.deposit(1, user);
-    vm.stopPrank();
+  //   deal(address(want), address(user), 1);
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), 1);
+  //   vaultWrapper.deposit(1, user);
+  //   vm.stopPrank();
 
-    deal(address(want), address(vault), vaultIncrease);
+  //   deal(address(want), address(vault), vaultIncrease);
 
-    uint256 expectedAssets = vaultWrapper.previewMint(depositAmount);
-    deal(address(want), address(user), expectedAssets);
+  //   uint256 expectedAssets = vaultWrapper.previewMint(depositAmount);
+  //   deal(address(want), address(user), expectedAssets);
 
-    vm.startPrank(user);
-    want.approve(address(vaultWrapper), expectedAssets);
-    uint256 actualAssets = vaultWrapper.mint(depositAmount, user);
-    vm.stopPrank();
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), expectedAssets);
+  //   uint256 actualAssets = vaultWrapper.mint(depositAmount, user);
+  //   vm.stopPrank();
 
-    assertWithin(actualAssets, expectedAssets, 1);
-  }
+  //   assertWithin(actualAssets, expectedAssets, 1);
+  // }
 
   /*//////////////////////////////////////////////////////////////
                         WITHDRAW / REDEEM
@@ -175,26 +175,26 @@ contract VaultWrapperTest is TestFixture {
     assertEq(vaultWrapper.balanceOf(user), 0);
   }
 
-  function test_preview_withdraw_equals_actual_withdraw(uint80 vaultIncrease, uint80 depositAmount) public {
-    vm.assume(vaultIncrease > 1 ether);
-    vm.assume(vaultIncrease < maxFuzzAmt);
-    vm.assume(depositAmount > 1 ether);
-    vm.assume(depositAmount < maxFuzzAmt);
+  // function test_preview_withdraw_equals_actual_withdraw(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
 
-    deal(address(want), address(user), depositAmount);
-    vm.startPrank(user);
-    want.approve(address(vaultWrapper), depositAmount);
-    vaultWrapper.deposit(depositAmount, user);
-    vm.stopPrank();
+  //   deal(address(want), address(user), depositAmount);
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), depositAmount);
+  //   vaultWrapper.deposit(depositAmount, user);
+  //   vm.stopPrank();
 
-    deal(address(want), address(vault), vaultIncrease);
+  //   deal(address(want), address(vault), vaultIncrease);
 
-    uint256 expectedWithdraw = vaultWrapper.previewWithdraw(depositAmount);
-    vm.prank(user);
-    uint256 actualWithdraw = vaultWrapper.withdraw(depositAmount, user, user);
+  //   uint256 expectedWithdraw = vaultWrapper.previewWithdraw(depositAmount);
+  //   vm.prank(user);
+  //   uint256 actualWithdraw = vaultWrapper.withdraw(depositAmount, user, user);
 
-    assertWithin(expectedWithdraw, actualWithdraw, 100);
-  }
+  //   assertWithin(expectedWithdraw, actualWithdraw, 100);
+  // }
 
   function test__redeem(uint256 _amount) public {
     vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
@@ -219,26 +219,26 @@ contract VaultWrapperTest is TestFixture {
     assertEq(vaultWrapper.balanceOf(user), 0);
   }
 
-  function test_preview_redeem_equals_actual_redeem(uint80 vaultIncrease, uint80 depositAmount) public {
-    vm.assume(vaultIncrease > 1 ether);
-    vm.assume(vaultIncrease < maxFuzzAmt);
-    vm.assume(depositAmount > 1 ether);
-    vm.assume(depositAmount < maxFuzzAmt);
+  // function test_preview_redeem_equals_actual_redeem(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
 
-    deal(address(want), address(user), depositAmount);
-    vm.startPrank(user);
-    want.approve(address(vaultWrapper), depositAmount);
-    uint256 shares = vaultWrapper.deposit(depositAmount, user);
-    vm.stopPrank();
+  //   deal(address(want), address(user), depositAmount);
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), depositAmount);
+  //   uint256 shares = vaultWrapper.deposit(depositAmount, user);
+  //   vm.stopPrank();
 
-    deal(address(want), address(vault), vaultIncrease);
+  //   deal(address(want), address(vault), vaultIncrease);
 
-    uint256 expectedRedeem = vaultWrapper.previewRedeem(shares);
-    vm.prank(user);
-    uint256 actualRedeem = vaultWrapper.redeem(shares, user, user);
+  //   uint256 expectedRedeem = vaultWrapper.previewRedeem(shares);
+  //   vm.prank(user);
+  //   uint256 actualRedeem = vaultWrapper.redeem(shares, user, user);
 
-    assertWithin(expectedRedeem, actualRedeem, 100);
-  }
+  //   assertWithin(expectedRedeem, actualRedeem, 100);
+  // }
 
   /*//////////////////////////////////////////////////////////////
                         STRATEGY OPERATIONS
