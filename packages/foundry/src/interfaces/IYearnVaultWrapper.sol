@@ -6,6 +6,4 @@ interface IYearnVaultWrapper {
   error NotEnoughAvailableSharesForAmount();
 
   function vault() external view returns (address);
-
-  function vaultTotalSupply() external view returns (uint256);
 }
