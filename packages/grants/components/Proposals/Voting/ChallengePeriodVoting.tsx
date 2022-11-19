@@ -1,5 +1,5 @@
-import { ProposalType } from "@popcorn/hardhat";
-import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
+import { ProposalType } from "helper/types";
+import { VoteOptions } from "helper/types";
 import { useWeb3React } from "@web3-react/core";
 import { setDualActionModal } from "context/actions";
 import { store } from "context/store";
@@ -22,7 +22,7 @@ const ChallengePeriodVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasV
     toast.loading("Submitting vote...");
     contracts.beneficiaryGovernance
       .connect(library.getSigner())
-      .vote(proposal.id, VoteOptions.Nay)
+      .vote(proposal.id, VoteOptions.Yes)
       .then((res) => {
         toast.success("Voted successfully!");
         setHasVoted(true);

@@ -6,7 +6,7 @@ const workspace = join(__dirname, "..");
 
 module.exports = {
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     domains: ["popcorn.mypinata.cloud"],
@@ -49,31 +49,4 @@ module.exports = {
     GRANTS_BASE_URL: process.env.GRANTS_BASE_URL,
   },
   poweredByHeader: false,
-  webpack: (config, options) => {
-    /** Allows import modules from packages in workspace. */
-    //config.externals = { ...config.externals, electron: 'electron' };
-    config.module = {
-      ...config.module,
-      rules: [
-        ...config.module.rules,
-        {
-          test: /\.(js|jsx|ts|tsx)$/,
-          include: [workspace],
-          exclude: /node_modules/,
-          use: options.defaultLoaders.babel,
-        },
-        {
-          test: /\.svg$/,
-          use: [
-            {
-              loader: "@svgr/webpack",
-              options: { svgo: false },
-            },
-            "file-loader",
-          ],
-        },
-      ],
-    };
-    return config;
-  },
 };

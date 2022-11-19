@@ -1,4 +1,4 @@
-import { Proposal, ProposalType } from "@popcorn/hardhat/lib/adapters";
+import { Proposal, ProposalType } from "helper/types";
 import CardBody from "components/CommonComponents/CardBody";
 import Link from "next/link";
 import VotingInformation from "./Voting/VotingInformation";

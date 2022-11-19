@@ -1,7 +1,8 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { Transition } from "@headlessui/react";
 import { ChevronDownIcon, ChevronLeftIcon } from "@heroicons/react/outline";
-import { BeneficiaryApplication, BeneficiaryGovernanceAdapter, Proposal } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication, Proposal } from "helper/types";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import ApplyForm from "components/Apply/ApplyForm";

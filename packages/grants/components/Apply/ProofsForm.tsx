@@ -1,4 +1,4 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat";
+import { BeneficiaryApplication } from "helper/types";
 import TextInput from "components/CommonComponents/TextInput";
 import React from "react";
 import inputExists from "utils/isValidInput";

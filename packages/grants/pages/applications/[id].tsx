@@ -2,8 +2,8 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Transition } from "@headlessui/react";
 import { ShareIcon } from "@heroicons/react/outline";
 import { ChevronLeftIcon } from "@heroicons/react/solid";
-import { BeneficiaryGovernanceAdapter, Proposal, ProposalType } from "@popcorn/hardhat/lib/adapters";
-import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
+import { Proposal, ProposalType, VoteOptions } from "helper/types";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import SocialShare from "components/CommonComponents/SocialShare";
@@ -137,7 +137,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onConfirm: {
           label: "Accept",
           onClick: () => {
-            vote(VoteOptions.Yea);
+            vote(VoteOptions.Yes);
           },
         },
         onDismiss: {
@@ -160,7 +160,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onConfirm: {
           label: "Reject",
           onClick: () => {
-            vote(VoteOptions.Nay);
+            vote(VoteOptions.No);
           },
         },
         onDismiss: {
@@ -183,7 +183,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         toast.success("Voted successfully!");
         setHasVoted(true);
         dispatch(setSingleActionModal(false));
-        if (selectedVote === VoteOptions.Yea) {
+        if (selectedVote === VoteOptions.Yes) {
           openVoteAcceptedModal();
         } else {
           openVoteRejectedModal();

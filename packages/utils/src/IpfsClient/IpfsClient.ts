@@ -1,4 +1,4 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import axios, { AxiosResponse } from "axios";
 import { getIpfsHashFromBytes32 } from "../ipfsHashManipulation";
 

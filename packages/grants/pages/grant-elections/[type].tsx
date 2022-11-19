@@ -1,5 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { ElectionTerm, ElectionTermIntToName, GrantElectionAdapter } from "@popcorn/hardhat/lib/adapters";
+import { ElectionTerm, ElectionTermIntToName } from "helper/types";
+import { GrantElectionAdapter } from "helper/adapters";
 import { capitalize } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import ElectionSection from "components/GrantElections/ElectionSection";

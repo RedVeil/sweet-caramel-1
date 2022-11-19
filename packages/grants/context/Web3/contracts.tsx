@@ -1,5 +1,4 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import {
   BeneficiaryGovernance,
   BeneficiaryGovernance__factory,

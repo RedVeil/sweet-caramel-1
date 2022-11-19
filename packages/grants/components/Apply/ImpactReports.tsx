@@ -1,6 +1,5 @@
 import { PaperClipIcon } from "@heroicons/react/solid";
-import { BeneficiaryApplication } from "@popcorn/hardhat";
-import { ImpactReport } from "@popcorn/hardhat/lib/adapters/BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
+import { BeneficiaryApplication, ImpactReport } from "helper/types";
 import IPFSUploadFunc from "components/CommonComponents/IPFSUploadFunc";
 import React from "react";
 

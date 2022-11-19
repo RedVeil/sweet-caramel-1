@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ShareIcon } from "@heroicons/react/outline";
-import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
+import { BeneficiaryRegistryAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import SocialShare from "components/CommonComponents/SocialShare";
 import AboutTab from "components/Profile/AboutTab";

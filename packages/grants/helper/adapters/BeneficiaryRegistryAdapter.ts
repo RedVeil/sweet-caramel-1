@@ -1,5 +1,5 @@
 import { IIpfsClient } from "@popcorn/utils";
-import { BeneficiaryApplication } from "../BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
+import { BeneficiaryApplication } from "../types";
 
 export const BeneficiaryRegistryAdapter = (contract: any, IpfsClient: IIpfsClient) => {
   return {
@@ -15,7 +15,7 @@ export const BeneficiaryRegistryAdapter = (contract: any, IpfsClient: IIpfsClien
           .filter((address) => address !== "0x0000000000000000000000000000000000000000")
           .map(async (address) => {
             return contract.getBeneficiary(address);
-          })
+          }),
       );
       return await await Promise.all(ipfsHashes.map(async (cid: string) => await IpfsClient.get(cid)));
     },

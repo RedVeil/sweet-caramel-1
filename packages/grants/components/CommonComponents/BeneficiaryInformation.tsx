@@ -1,5 +1,5 @@
 import { PaperClipIcon } from "@heroicons/react/solid";
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 
 export interface BeneficiaryInformationProps {
   beneficiary: BeneficiaryApplication;

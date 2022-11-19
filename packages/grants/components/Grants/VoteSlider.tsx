@@ -1,4 +1,4 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import "rc-slider/assets/index.css";
 import { useState } from "react";
 import { ElectionProps } from "./ElectionProps";
@@ -58,8 +58,7 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
       </span>
       {electionProps.assignVotes && electionProps.voiceCredits > 0 && (
         <div className="w-11/12 ml-1 pb-3">
-          {
-            /* <Slider
+          {/* <Slider
           key={beneficiary?.beneficiaryAddress}
           className="mt-2"
           value={votesAssignedByUser}
@@ -77,9 +76,7 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
           backgroundColor: '#fff',
           height: '14px',
           width: '14px',
-        }} */
-            /> */
-          }
+        }} /> */}
         </div>
       )}
     </>

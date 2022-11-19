@@ -1,4 +1,4 @@
-import { ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { ElectionMetadata } from "helper/types";
 import Link from "next/link";
 import { Check } from "react-feather";
 import { PendingVotes } from "../../../pages/grant-elections/[type]";

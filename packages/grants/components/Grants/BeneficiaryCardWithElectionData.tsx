@@ -1,4 +1,5 @@
-import { BeneficiaryApplication, GrantElectionAdapter } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
+import { GrantElectionAdapter } from "helper/adapters";
 import Link from "next/link";
 import { ElectionProps } from "./ElectionProps";
 import GrantFunded from "./GrantFunded";
