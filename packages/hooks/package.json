@@ -1,0 +1,14 @@
+{
+  "name": "@popcorn/hooks",
+  "version": "1.0.0",
+  "description": "react hooks",
+  "main": "index.js",
+  "license": "AGPL-3",
+  "private": true,
+  "dependencies": {
+    "react": "18.2.0",
+    "@popcorn/utils": "*",
+    "@popcorn/hardhat": "*",
+    "wagmi": "0.8.4"
+  }
+}
