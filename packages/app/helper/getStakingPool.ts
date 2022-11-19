@@ -1,9 +1,8 @@
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
-import { getPopApy } from ".";
-import { calculateApy } from "./calculateAPY";
+import { getPopApy, calculateApy } from "./calculateAPY";
 import { getTokenFromAddress } from "./getToken";
-import { StakingPool } from "./types";
+import { StakingPool } from "@popcorn/utils/types";
 
 export interface PopLockerMetadata extends StakingPool {
   contract: PopLocker;

@@ -9,11 +9,10 @@
   "scripts": {
     "clean-dist": "rimraf dist/*",
     "clean": "yarn rimraf dist",
-    "build": "yarn clean-dist && tsc -b",
     "tsc": "tsc -b",
     "prettify": "yarn lint-staged --allow-empty",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build": "build-storybook"
   },
   "lint-staged": {
     "*.{tsx,ts}": "prettier --write"
@@ -31,8 +30,6 @@
     "@storybook/addon-essentials": "^6.5.13",
     "@storybook/addon-interactions": "^6.5.13",
     "@storybook/addon-links": "^6.5.13",
-    "@storybook/builder-webpack4": "^6.5.13",
-    "@storybook/manager-webpack4": "^6.5.13",
     "@storybook/react": "^6.5.13",
     "@storybook/testing-library": "^0.0.13",
     "@testing-library/jest-dom": "5.16.1",
@@ -54,7 +51,8 @@
     "styled-components": "5.3.3",
     "ts-jest": "26.5.6",
     "watch": "1.0.2",
-    "ws": "^8.10.0"
+    "ws": "latest",
+    "@mdx-js/react": "latest"
   },
   "dependencies": {
     "@heroicons/react": "1.0.5",

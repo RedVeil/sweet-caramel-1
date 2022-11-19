@@ -8,8 +8,8 @@ import {
   IGUni__factory,
 } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
-import { ChainId } from "./connectors";
-import { ContractAddresses } from "./types";
+import { ChainId } from "@popcorn/utils/connectors";
+import { ContractAddresses } from "@popcorn/utils/types";
 import getAssetValue from "@popcorn/app/helper/getAssetValue";
 
 export async function calculateApy(

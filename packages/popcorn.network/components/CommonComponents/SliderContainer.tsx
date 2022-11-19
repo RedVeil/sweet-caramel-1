@@ -2,22 +2,23 @@ import React from 'react'
 import Slider from "react-slick";
 
 interface Props {
-	slidesToShow?:number;
+	slidesToShow?: number;
+	children?: React.ReactElement[] | React.ReactComponentElement<any>[];
 }
 
 
-const SliderContainer:React.FC<Props> = ({children, slidesToShow=5}) => {
+const SliderContainer: React.FC<Props> = ({ children, slidesToShow = 5 }) => {
 	const settings = {
 		dots: false,
 		infinite: true,
 		speed: 2000,
-		autoplaySpeed:0,
+		autoplaySpeed: 0,
 		slidesToShow,
 		slidesToScroll: 1,
-		autoplay:true, 
-		easing:"easeInOut",
-		pauseOnHover:false,
-		arrows:false,
+		autoplay: true,
+		easing: "easeInOut",
+		pauseOnHover: false,
+		arrows: false,
 		responsive: [
 			{
 				breakpoint: 600,
@@ -25,12 +26,12 @@ const SliderContainer:React.FC<Props> = ({children, slidesToShow=5}) => {
 					slidesToShow: 2,
 				}
 			},
-			]
+		]
 	};
 
 	return (
 		<Slider {...settings}>
-		{children}
+			{children}
 		</Slider>
 	)
 }

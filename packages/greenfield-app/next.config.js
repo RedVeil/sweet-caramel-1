@@ -17,6 +17,9 @@ const defaultChain = ChainId[Number(process.env.CHAIN_ID)];
 
 module.exports = {
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   env: {
     RPC_URL: process.env.RPC_URL,
     CHAIN_ID: process.env.CHAIN_ID,

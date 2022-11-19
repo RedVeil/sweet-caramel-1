@@ -1,7 +1,7 @@
 import { ERC20 } from "@popcorn/hardhat/typechain";
 import { constants } from "ethers/lib/ethers";
-import { ERC20__factory } from "../../hardhat/typechain/factories/ERC20__factory";
-import { Token } from "./types";
+import { ERC20__factory } from "@popcorn/hardhat/typechain/factories/ERC20__factory";
+import { Token } from "@popcorn/utils/types";
 
 export default async function getToken(
   erc20: ERC20,

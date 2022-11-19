@@ -55,13 +55,7 @@ export default function NetworkFilter({
           <PseudoRadioButton
             key={network}
             label={
-              <Image
-                src={networkLogos[network]}
-                alt={ChainId[network]}
-                height="24px"
-                width="24px"
-                objectFit="contain"
-              />
+              <Image src={networkLogos[network]} alt={ChainId[network]} height="24" width="24" objectFit="contain" />
             }
             handleClick={() => setActiveAndSelectedNetwork(network)}
             isActive={activeNetwork == network}
