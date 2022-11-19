@@ -112,12 +112,10 @@ const IndexPage = () => {
                   </div>
                 </div>
 
-                <Link href="/applications" passHref>
-                  <a target="_blank">
-                    <div className="border-t border-customLightGray pt-2">
-                      <SecondaryActionButton label="Participate Now" />
-                    </div>
-                  </a>
+                <Link href="/applications" passHref target="_blank">
+                  <div className="border-t border-customLightGray pt-2">
+                    <SecondaryActionButton label="Participate Now" />
+                  </div>
                 </Link>
               </div>
             </section>

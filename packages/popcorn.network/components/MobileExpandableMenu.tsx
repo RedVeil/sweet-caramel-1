@@ -39,11 +39,15 @@ export const MobileExpandableMenu: React.FC = () => {
 				<div className="w-screen h-full overflow-y-auto px-6 mx-auto nav-animation flex flex-col justify-between bg-white">
 					<div>
 						<div className=" pt-32 flex flex-col gap-10">
-							{navLinks.map((link, index) => <Link key={index} href={link.link}><a className={` text-5xl leading-11 hover:text-black ${router.pathname === link.link ? 'text-black font-medium' : 'text-primary'}`} target={link.target}>{link.label}</a></Link>)}
+							{navLinks.map((link, index) => <Link
+								key={index}
+								href={link.link}
+								className={` text-5xl leading-11 hover:text-black ${router.pathname === link.link ? 'text-black font-medium' : 'text-primary'}`}
+								target={link.target}>{link.label}</Link>)}
 						</div>
 						<div className=" mt-10">
 							<TertiaryActionButton
-								label="Newsletter Sign Up"
+								label="Newsletter"
 								handleClick={showNewsletterModal}
 								className="!font-normal"
 							/>
@@ -57,11 +61,14 @@ export const MobileExpandableMenu: React.FC = () => {
 							<div className="col-span-6">
 								<p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
 								<div className="flex flex-col">
-									<Link href="/">
-										<a href="" className=" text-primary leading-6 mt-4">Popcorn</a>
+									<Link href="/" className=" text-primary leading-6 mt-4">
+										Popcorn
 									</Link>
-									<Link href="/docs/popcorn_whitepaper.pdf">
-										<a target="_blank" className=" text-primary leading-6 mt-4">Whitepaper</a>
+									<Link
+										href="/docs/popcorn_whitepaper.pdf"
+										target="_blank"
+										className=" text-primary leading-6 mt-4">
+										Whitepaper
 									</Link>
 								</div>
 							</div>
@@ -69,8 +76,8 @@ export const MobileExpandableMenu: React.FC = () => {
 							<div className="col-span-6">
 								<p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
 								<div className="flex flex-col">
-									<Link href="/immunefi">
-										<a href="" className=" text-primary leading-6 mt-4">Immunefi</a>
+									<Link href="/immunefi" className=" text-primary leading-6 mt-4">
+										Immunefi
 									</Link>
 								</div>
 							</div>

@@ -60,24 +60,24 @@ const VoteSlider: React.FC<VoteSliderProps> = ({ beneficiary, electionProps }) =
         <div className="w-11/12 ml-1 pb-3">
           {
             /* <Slider
-            key={beneficiary?.beneficiaryAddress}
-            className="mt-2"
-            value={votesAssignedByUser}
-            onChange={(value) => handleSliderChange(value)}
-            min={0}
-            max={electionProps.voiceCredits}
-            step={1}
-            marks={sliderMarks}
-            dotStyle={{ backgroundColor: "#93C5FD", border: "#93C5FD" }}
-            activeDotStyle={{ backgroundColor: "#3B82F6", border: "#3B82F6" }}
-            railStyle={{ backgroundColor: "#93C5FD", height: "4px" }}
-            trackStyle={{ backgroundColor: "#3B82F6", height: "4px" }}
-            /* handleStyle={{
-            border: '#F29F05',
-            backgroundColor: '#fff',
-            height: '14px',
-            width: '14px',
-          }} */
+          key={beneficiary?.beneficiaryAddress}
+          className="mt-2"
+          value={votesAssignedByUser}
+          onChange={(value) => handleSliderChange(value)}
+          min={0}
+          max={electionProps.voiceCredits}
+          step={1}
+          marks={sliderMarks}
+          dotStyle={{ backgroundColor: "#93C5FD", border: "#93C5FD" }}
+          activeDotStyle={{ backgroundColor: "#3B82F6", border: "#3B82F6" }}
+          railStyle={{ backgroundColor: "#93C5FD", height: "4px" }}
+          trackStyle={{ backgroundColor: "#3B82F6", height: "4px" }}
+          /* handleStyle={{
+          border: '#F29F05',
+          backgroundColor: '#fff',
+          height: '14px',
+          width: '14px',
+        }} */
             /> */
           }
         </div>

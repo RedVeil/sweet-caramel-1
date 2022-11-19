@@ -31,9 +31,7 @@ const Header = () => {
     <header className="container mx-auto flex justify-between py-4 md:py-5">
       <div className="pl-5 md:pl-10 flex gap-10 items-center">
         <Link href="/" passHref>
-          <a>
-            <img src="/images/smallLogo.svg" alt="Logo" className="h-10 flex-shrink-0 flex-grow-0" />
-          </a>
+          <img src="/images/smallLogo.svg" alt="Logo" className="h-10 flex-shrink-0 flex-grow-0" />
         </Link>
         <Menu>
           <Menu.Button className="cursor-pointer hidden lg:flex relative">
@@ -51,25 +49,19 @@ const Header = () => {
           </Menu.Button>
         </Menu>
         <Link href="/beneficiaries" passHref>
-          <a>
-            <p className="text-gray-500 hover:text-gray-900  font-semibold hidden lg:block">Eligible Beneficiaries</p>
-          </a>
+          <p className="text-gray-500 hover:text-gray-900  font-semibold hidden lg:block">Eligible Beneficiaries</p>
         </Link>
         <Link href="/" passHref>
-          <a>
-            <p className="text-gray-500 hover:text-gray-900  font-semibold hidden lg:block">FAQ</p>
-          </a>
+          <p className="text-gray-500 hover:text-gray-900  font-semibold hidden lg:block">FAQ</p>
         </Link>
       </div>
 
       <div className="pr-5 md:pr-10 flex items-center gap-5 md:gap-10">
         <Link href="/apply" passHref>
-          <a>
-            <Button variant="primary" className="md:w-44 py-3 px-8 md:px-0">
-              <span className="hidden md:inline">Create Proposal</span>
-              <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
-            </Button>
-          </a>
+          <Button variant="primary" className="md:w-44 py-3 px-8 md:px-0">
+            <span className="hidden md:inline">Create Proposal</span>
+            <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
+          </Button>
         </Link>
         <ConnectWalletButtons
           connected={account ? true : false}
@@ -135,14 +127,10 @@ const Header = () => {
                         </Menu.Button>
                       </Menu>
                       <Link href="/" passHref>
-                        <a>
-                          <p className="text-gray-500 font-semibold py-4">Eligible Beneficiaries</p>
-                        </a>
+                        <p className="text-gray-500 font-semibold py-4">Eligible Beneficiaries</p>
                       </Link>
                       <Link href="/" passHref>
-                        <a>
-                          <p className="text-gray-500 font-semibold py-4">FAQ</p>
-                        </a>
+                        <p className="text-gray-500 font-semibold py-4">FAQ</p>
                       </Link>
                     </div>
                   </div>

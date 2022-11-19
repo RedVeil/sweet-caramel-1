@@ -5,7 +5,6 @@ require("../utils/src/envLoader");
 const workspace = join(__dirname, "..");
 
 module.exports = {
-  target: "serverless",
   typescript: {
     ignoreBuildErrors: true,
   },

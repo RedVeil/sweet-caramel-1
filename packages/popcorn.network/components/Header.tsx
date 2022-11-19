@@ -26,7 +26,7 @@ const Header = ({ open, setOpen }) => {
 			<div className="col-span-12 flex justify-between items-center lg:hidden">
 				<div>
 					<Link href="/">
-						<a>	<img src="/images/logo.svg" alt="Popcorn Logo" /></a>
+						<img src="/images/logo.svg" alt="Popcorn Logo" />
 					</Link>
 				</div>
 				<div ref={node} className="lg:hidden w-full absolute">
@@ -42,18 +42,22 @@ const Header = ({ open, setOpen }) => {
 			</div>
 			<nav className="hidden lg:flex col-span-12 justify-between">
 				<div className="flex items-center gap-14">
-					{navLinks.map((link, index) => <Link key={index} href={link.link}><a className={`text-lg hover:text-black ${router.pathname === link.link ? 'text-black font-medium' : 'text-primary'}`} target={link.target}>{link.label}</a></Link>)}
+					{navLinks.map((link, index) => <Link
+						key={index}
+						href={link.link}
+						className={`text-lg hover:text-black ${router.pathname === link.link ? 'text-black font-medium' : 'text-primary'}`}
+						target={link.target}>{link.label}</Link>)}
 				</div>
 				<div className='flex items-center space-x-6'>
 					<TertiaryActionButton
-						label="Newsletter Sign Up"
+						label="Newsletter"
 						handleClick={showNewsletterModal}
 					></TertiaryActionButton>
 					<a href="https://popcorndao.finance/"><PrimaryButton>Launch App</PrimaryButton></a>
 				</div>
 			</nav>
 		</header>
-	)
+	);
 }
 
 export default Header

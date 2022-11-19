@@ -41,7 +41,7 @@ const Footer = () => {
 		setFunction("#645F4B");
 	}
 	return (
-		<footer className="grid grid-cols-12 md:gap-14 px-6 md:px-8 pb-10 mt-20 font-landing">
+        <footer className="grid grid-cols-12 md:gap-14 px-6 md:px-8 pb-10 mt-20 font-landing">
 			<div className="col-span-12 lg:col-span-3 order-1 md:order-1">
 				<div className="bg-customYellow rounded-lg py-3 text-center font-medium text-black">Subscribe to our newsletter</div>
 				<NewsletterSubscription title="Sign up" buttonLabel="Submit"/>
@@ -74,14 +74,20 @@ const Footer = () => {
 				<div>
 					<p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
 					<div className="flex flex-col">
-						<Link href="/">
-							<a href="" className=" text-primary hover:text-black leading-6 mt-4">Popcorn</a>
+						<Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+							Popcorn
 						</Link>
-						<Link href="/docs/Popcorn_whitepaper_v1.pdf">
-							<a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">Whitepaper</a>
+						<Link
+                            href="/docs/Popcorn_whitepaper_v1.pdf"
+                            target="_blank"
+                            className=" text-primary hover:text-black leading-6 mt-4">
+							Whitepaper
 						</Link>
-						<Link href="https://popcorn-dao.gitbook.io/popcorndao-gitbook/about-popcorn/welcome-to-popcorn">
-							<a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">Gitbook</a>
+						<Link
+                            href="https://popcorn-dao.gitbook.io/popcorndao-gitbook/about-popcorn/welcome-to-popcorn"
+                            target="_blank"
+                            className=" text-primary hover:text-black leading-6 mt-4">
+							Gitbook
 						</Link>
 					</div>
 				</div>
@@ -89,14 +95,18 @@ const Footer = () => {
 				<div>
 					<p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
 					<div className="flex flex-col">
-						<Link href="https://immunefi.com/bounty/popcornnetwork" passHref>
-							<a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">Immunefi</a>
+						<Link
+                            href="https://immunefi.com/bounty/popcornnetwork"
+                            passHref
+                            target="_blank"
+                            className=" text-primary hover:text-black leading-6 mt-4">
+							Immunefi
 						</Link>
 					</div>
 				</div>
 			</div>
 		</footer>
-	)
+    );
 }
 
 export default Footer

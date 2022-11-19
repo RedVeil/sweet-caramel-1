@@ -8,14 +8,14 @@ const YieldSection = ({ tvlProps }) => {
 
 
 	return (
-		<section>
+        <section>
 			<div className="hidden lg:block">
 				<Link href="/">
-					<a>
-						{' '}
-						<img src="/images/logo.svg" alt="Popcorn Logo" />
-					</a>
-				</Link>
+
+                    {' '}
+                    <img src="/images/logo.svg" alt="Popcorn Logo" />
+
+                </Link>
 			</div>
 			{
 					<div className="flex flex-wrap gap-2 mt-10">
@@ -53,7 +53,7 @@ const YieldSection = ({ tvlProps }) => {
 			</p>
 			<NewsletterSubscription title="Newsletter" buttonLabel="Sign up" />
 		</section>
-	);
+    );
 };
 
 export default YieldSection;

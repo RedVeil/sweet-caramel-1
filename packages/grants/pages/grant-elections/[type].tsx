@@ -335,10 +335,12 @@ export default function AllGrants() {
                 </div>
               </div>
               <div className="mt-6 rounded-md shadow lg:mt-0 lg:ml-10 lg:flex-shrink-0">
-                <Link href={`/grant-elections/${ElectionTermIntToName[election]}`} passHref>
-                  <a href="#" className="button button-secondary">
-                    View {ElectionTermIntToName[election]} election
-                  </a>
+                <Link
+                  href={`/grant-elections/${ElectionTermIntToName[election]}`}
+                  passHref
+                  className="button button-secondary"
+                >
+                  View{ElectionTermIntToName[election]}election
                 </Link>
               </div>
             </div>

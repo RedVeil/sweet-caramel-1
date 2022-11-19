@@ -128,12 +128,10 @@ const ApplyPage = () => {
             </div>
             <div className="flex justify-center">
               {account ? (
-                <Link href="/apply/form">
-                  <a className="w-full md:w-auto">
-                    <Button variant="secondary" className="py-3 px-5 mt-10 w-full">
-                      Start Your Application
-                    </Button>
-                  </a>
+                <Link href="/apply/form" className="w-full md:w-auto">
+                  <Button variant="secondary" className="py-3 px-5 mt-10 w-full">
+                    Start Your Application
+                  </Button>
                 </Link>
               ) : (
                 <Button

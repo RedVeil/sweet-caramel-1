@@ -7,10 +7,10 @@ interface StyledBurgerProps {
 
 const Burger = ({ open, setOpen, ...props }) => {
 	return (
-		<div className={`flex justify-between items-center w-full z-40 bg-white ${open ? 'fixed left-0 top-0 py-8 px-6' : 'static'}`}>
+        <div className={`flex justify-between items-center w-full z-40 bg-white ${open ? 'fixed left-0 top-0 py-8 px-6' : 'static'}`}>
 			{<Link href="/">
-				<a>	<img src="/images/logo.svg" alt="Popcorn Logo" /></a>
-			</Link>}
+                	<img src="/images/logo.svg" alt="Popcorn Logo" />
+            </Link>}
 			<button
 				className="text-gray-500 w-10 relative focus:outline-none bg-white"
 				onClick={() => setOpen(!open)}
@@ -34,8 +34,7 @@ const Burger = ({ open, setOpen, ...props }) => {
 				</div>
 			</button>
 		</div>
-
-	);
+    );
 };
 
 export default Burger;

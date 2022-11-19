@@ -63,7 +63,6 @@ export const Portfolio: NextPage = () => {
           alias={token.__alias}
           key={`${token.chainId}:${token.address}`}
           chainId={Number(token.chainId) as unknown as ChainId}
-          resolver={token?.priceResolver}
           state={state}
           updateWallet={_updateWallet}
           token={state.tokens[token.chainId][token.address]}

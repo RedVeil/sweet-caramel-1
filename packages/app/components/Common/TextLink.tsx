@@ -21,14 +21,14 @@ export default function TextLink({
 }: TextLinkProps) {
   const networkName = useNetworkName();
   return (
-    <Link href={outsideLink ? url : `/${networkName}${url}`} passHref>
-      <a
-        className={`flex flex-shrink-0 font-medium text-primary hover:text-black whitespace-nowrap`}
-        target={openInNewTab ? "_blank" : "_self"}
-      >
-        {text}
-        {showArrow && <ArrowCircleRightIcon height={18} className="inline self-center ml-2" />}
-      </a>
+    <Link
+      href={outsideLink ? url : `/${networkName}${url}`}
+      passHref
+      className={`flex flex-shrink-0 font-medium text-primary hover:text-black whitespace-nowrap`}
+      target={openInNewTab ? "_blank" : "_self"}
+    >
+      {text}
+      {showArrow && <ArrowCircleRightIcon height={18} className="inline self-center ml-2" />}
     </Link>
   );
 }

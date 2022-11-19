@@ -42,8 +42,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </figure>
           <span className={`${alreadyRegistered ? "hidden" : ""}`}>
-            <Link href={"/grant-elections/register"} passHref>
-              <a className="button button-secondary w-full mt-4">Register for Election</a>
+            <Link href={"/grant-elections/register"} passHref className="button button-secondary w-full mt-4">
+              Register for Election
             </Link>
           </span>
 

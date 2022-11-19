@@ -90,11 +90,9 @@ const EditPage = () => {
   return (
     <section className="px-6 md:px-8">
       <div>
-        <Link href={"/beneficiaries"}>
-          <a className="flex space-x-2">
-            <ChevronLeftIcon className="text-secondaryLight w-4" />
-            <p className="text-primary">Profile Page</p>
-          </a>
+        <Link href={"/beneficiaries"} className="flex space-x-2">
+          <ChevronLeftIcon className="text-secondaryLight w-4" />
+          <p className="text-primary">Profile Page</p>
         </Link>
       </div>
       <h1 className="text-black text-6xl hidden md:block mt-14 leading-11">Edit Profile</h1>

@@ -36,16 +36,17 @@ export default function NavbarLink({
   }
 
   return (
-    <Link href={url || ''} passHref >
-      <a
-        className={className}
-        target={target || "_self"}
-        onClick={(e) => {
-          onClick && onClick();
-        }}
-      >
-        {label}
-      </a>
-    </Link>
+    (<Link
+      href={url || ''}
+      passHref
+      className={className}
+      target={target || "_self"}
+      onClick={(e) => {
+        onClick && onClick();
+      }}>
+
+      {label}
+
+    </Link>)
   );
 }

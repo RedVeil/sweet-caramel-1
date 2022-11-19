@@ -43,9 +43,7 @@ export default function Product({ title, description, stats, route, customConten
 
       <div className="col-span-12 md:col-span-2 order-4">
         <Link href={`/${route}`} passHref>
-          <a>
-            <MainActionButton label="View" />
-          </a>
+          <MainActionButton label="View" />
         </Link>
       </div>
     </div>
