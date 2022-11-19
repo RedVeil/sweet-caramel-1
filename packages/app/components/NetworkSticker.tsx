@@ -14,8 +14,8 @@ export const NetworkSticker: FC<NetworkStickerProps> = ({ selectedChainId }) => 
       <Image
         src={networkLogos[selectedChainId ?? chainId]}
         alt={ChainId[selectedChainId ?? chainId]}
-        height="24px"
-        width="24px"
+        height="24"
+        width="24"
         objectFit="contain"
       />
     </div>

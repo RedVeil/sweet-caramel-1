@@ -58,16 +58,16 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   };
 
   if (!visible) return <></>;
-  
+
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
         as="div"
-        static 
+        static
         className="fixed z-50 inset-0 overflow-y-auto"
         initialFocus={cancelButtonRef}
         onClose={() => (keepOpen ? {} : dismiss())}
-        >
+      >
         <div className="fixed inset-0 bg-primary bg-opacity-75 transition-opacity" />
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -89,7 +89,7 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                   {!isTerms && (
                     <div className="flex justify-end mb-6 md:mb-8">
                       <button className="w-6 h-6 relative" onClick={dismiss}>
-                        <Image src="/images/closeIcon.svg" layout="fill" objectFit="contain" priority={true} />
+                        <Image src="/images/closeIcon.svg" alt="close icon" layout="fill" objectFit="contain" priority={true} />
                       </button>
                     </div>
                   )}

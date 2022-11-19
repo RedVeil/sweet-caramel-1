@@ -48,7 +48,7 @@ const useSubscribeToNewsletter = (): {
   const showNewsletterModal = () => {
     dispatch(
       setSingleActionModal({
-        image: <Image src="/images/newsletterAvatar.png" width={88} height={88} />,
+        image: <Image src="/images/newsletterAvatar.png" alt="newsletter avatar" width={88} height={88} />,
         title: "Sign up for our newsletter",
         children: (
           <form onSubmit={(e) => {
@@ -57,7 +57,7 @@ const useSubscribeToNewsletter = (): {
             subscribeToNewsLetter({
               email,
               onSuccess: () => {
-                dispatch(setSingleActionModal({visible: false}))
+                dispatch(setSingleActionModal({ visible: false }))
                 toast.success("Subscribed Successfully!")
               }
             })
@@ -68,7 +68,7 @@ const useSubscribeToNewsletter = (): {
               id="mce-EMAIL"
               ref={emailRef}
               placeholder="Enter your email"
-              style={{height: '56px'}}
+              style={{ height: '56px' }}
               className="border border-customLightGray rounded-lg h-14 w-full focus:border-customLightGray px-4 py-4 mb-6 md:mb-8"
             />
             <div style={{ position: "absolute", left: "-5000px" }} aria-hidden="true">
@@ -76,13 +76,13 @@ const useSubscribeToNewsletter = (): {
             </div>
             <PrimaryButton
               type="submit"
-            > 
+            >
               Submit
             </PrimaryButton>
           </form>
         ),
         onDismiss: {
-          onClick: () => dispatch(setSingleActionModal({visible: false})),
+          onClick: () => dispatch(setSingleActionModal({ visible: false })),
         },
         visible: true
       })
