@@ -6,8 +6,8 @@ import { DeploymentChainIds, DeploymentContractsKeys, getNamedAccounts } from "@
  * @returns value of balance in USD terms based on token price
  */
 export const useNamedAccounts = <Chain extends DeploymentChainIds>(
-  chainId: Chain,
-  contractAddresses: Array<DeploymentContractsKeys<Chain>>,
+  chainId: Chain | undefined,
+  contractAddresses: DeploymentContractsKeys<Chain>[],
 ) => {
-  return useMemo(() => getNamedAccounts(chainId, contractAddresses), [chainId, contractAddresses]);
+  return useMemo(() => (chainId && getNamedAccounts(chainId, contractAddresses)) || [], [chainId, contractAddresses]);
 };

@@ -1,13 +1,12 @@
 import { Networth } from "components/portfolio/Networth";
 import Price from "components/portfolio/Price";
 import { WalletTokenBalance } from "components/portfolio/WalletTokenBalance";
-import { useNamedAccounts } from "hooks/portfolio/useNamedAccounts";
+import { useNamedAccounts } from "@popcorn/hooks";
 import { NextPage } from "next";
 import { useCallback, useReducer } from "react";
-import { DefaultState, reducer, reset, updateToken, updateWallet } from "reducers/portfolio";
+import { DefaultState, reducer, reset, updateToken, updateWallet, updateNetworth } from "reducers/portfolio";
 import { useAccount } from "wagmi";
 import { ChainId } from "../../utils/src/connectors";
-import { updateNetworth } from "../reducers/portfolio";
 import { useFeatures } from "../../app/hooks/useFeatures";
 
 export const Portfolio: NextPage = () => {

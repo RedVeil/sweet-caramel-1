@@ -13,6 +13,7 @@
     "start": "yarn lerna run --scope @popcorn/app start",
     "pretify": "prettier --write .",
     "test": "yarn lerna run test",
+    "nuke": "rm -r node_modules; for d in packages/*/node_modules; do echo $d; rm -r $d; done",
     "test:fork": "yarn lerna run test:fork",
     "test:forge": "yarn lerna run test:forge",
     "install:forge": "yarn lerna run install:forge",

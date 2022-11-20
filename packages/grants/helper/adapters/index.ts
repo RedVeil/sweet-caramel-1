@@ -1,3 +1,1 @@
-export * from "./BeneficiaryProposalAdapter";
-export * from "./GrantElectionAdapter";
-export * from "./BeneficiaryRegistryAdapter";
+export * from "@popcorn/utils/grants/adapters";

@@ -1,4 +1,4 @@
-import { IIpfsClient } from "@popcorn/utils/IpfsClient/IpfsClient";
+import { IIpfsClient } from "../../IpfsClient";
 import { Contract } from "ethers";
 import { Proposal, ProposalType } from "../types";
 export class BeneficiaryGovernanceAdapter {

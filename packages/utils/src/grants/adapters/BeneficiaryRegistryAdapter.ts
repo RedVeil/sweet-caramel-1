@@ -5,7 +5,7 @@ export const BeneficiaryRegistryAdapter = (contract: any, IpfsClient: IIpfsClien
   return {
     getBeneficiaryApplication: async (id: string): Promise<BeneficiaryApplication> => {
       const ipfsHash = await contract.getBeneficiary(id);
-      const beneficiaryApplication = await IpfsClient.get(ipfsHash);
+      const beneficiaryApplication = await IpfsClient.get<BeneficiaryApplication>(ipfsHash);
       return beneficiaryApplication;
     },
     getAllBeneficiaryApplications: async (): Promise<BeneficiaryApplication[]> => {

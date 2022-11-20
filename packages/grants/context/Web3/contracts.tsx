@@ -117,11 +117,17 @@ export default function ContractsWrapper({ children }: ContractsWrapperProps): J
   ]);
 
   useEffect(() => {
-    if (!library && !chainId) {
-    } else if (contractAddresses.length && Object.entries(contracts).length) {
+    console.log({ contractAddresses });
+    if (
+      !!library &&
+      !!chainId &&
+      contractAddresses.length &&
+      typeof error === undefined &&
+      Object.entries(contracts).length
+    ) {
       setContracts(initializeContracts(contractAddresses, library));
     }
-  }, [library, active, chainId, contractAddresses]);
+  }, [library, active, chainId, contractAddresses, error]);
 
   return (
     <ContractsContext.Provider

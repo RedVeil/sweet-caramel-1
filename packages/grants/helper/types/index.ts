@@ -1,3 +1,1 @@
-export * from "./GrantElection";
-export * from "./NominationProposal";
-export * from "./constants";
+export * from "@popcorn/utils/grants/types";

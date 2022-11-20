@@ -27,6 +27,7 @@ const BeneficiaryApplications = () => {
   const [openMobileFilter, setOpenMobileFilter] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log("getting applications ...", { contracts });
     if (contracts?.beneficiaryGovernance) {
       setIsLoading(true);
       new BeneficiaryGovernanceAdapter(contracts?.beneficiaryGovernance, IpfsClient)

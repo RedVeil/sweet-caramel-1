@@ -9,7 +9,7 @@ import { ContractsContext } from "context/Web3/contracts";
 import { useContext, useEffect, useState } from "react";
 import ProposalCard from "./ProposalCard";
 import { ProposalStageExplanations, TakedownStageExplanations } from "./StageExplanations";
-import BeneficiaryGovernanceAdapter from "helper/adapters/BeneficiaryProposalAdapter";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 
 export interface ProposalGridProps {
   proposalType: ProposalType;
