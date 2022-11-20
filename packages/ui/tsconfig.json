@@ -1,5 +1,4 @@
 {
-    "files": [ "src/index.d.ts"],
     "include": [
       "./src/*",
       "jest.setup.ts"
