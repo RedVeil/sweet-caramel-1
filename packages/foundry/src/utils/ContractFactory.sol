@@ -7,6 +7,17 @@ import "openzeppelin-contracts/proxy/Clones.sol";
 import "./ACLAuth.sol";
 import "./ContractRegistryAccess.sol";
 
+// TODO
+/* I would want to consider adding a 165 interface check for erc4626 for all implementations and if possible some way to check that the selector is valid. and finally since we have 3 types of deployments for now, i would also want to consider namespacing them to some degree. somehow the frontend needs to know which are staking implementation vs vaults vs strategies
+
+something like
+implementationsStaking
+implementationsStrategy
+implementationsVault
+
+the frontend need to be able to know which implementations to load up for each. they may be all 4626, but the order of operations is important when considering chained tx's
+*/
+
 contract ContractFactory is ACLAuth, ContractRegistryAccess {
   /* ========== CUSTOM ERRORS ========== */
 
@@ -24,9 +35,9 @@ contract ContractFactory is ACLAuth, ContractRegistryAccess {
 
   /* ========== EVENTS ========== */
 
-  event ImplementationRegistered(address implementation);
-  event ImplementationEndorsed(address implementation);
-  event Deployment(address clonedContract);
+  event ImplementationRegistered(address indexed implementation);
+  event ImplementationEndorsed(address indexed implementation);
+  event Deployment(address indexed clonedContract);
 
   /* ========== CONSTRUCTOR ========== */
 
