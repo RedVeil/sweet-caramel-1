@@ -5,11 +5,12 @@
       "module-resolver",
       {
         "alias": {
-          "@popcorn/utils": "../utils",
-          "@popcorn/hardhat": "../hardhat",
-          "components": "../app/components"
+          "@popcorn/ui": "../ui/src",
+          "@popcorn/utils": "../utils/src",
+          "@popcorn/hardhart": "../hardhat"
         }
-      }
-    ]
+      },
+    ],
+    ["styled-components", { "ssr": true }]
   ]
 }
