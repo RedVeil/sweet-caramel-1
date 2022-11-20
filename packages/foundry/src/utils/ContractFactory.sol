@@ -24,10 +24,9 @@ contract ContractFactory is ACLAuth, ContractRegistryAccess {
 
   /* ========== EVENTS ========== */
 
-  event ImplementationRegistered(address indexed implementation);
-  event ImplementationEndorsed(address indexed implementation);
-  event ImplementationSelectorUpdated(address indexed implementation);
-  event Deployment(address indexed clonedContract);
+  event ImplementationRegistered(address implementation);
+  event ImplementationEndorsed(address implementation);
+  event Deployment(address clonedContract);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -35,13 +34,13 @@ contract ContractFactory is ACLAuth, ContractRegistryAccess {
 
   /* ========== VIEW FUNCTIONS ========== */
 
-  function getInitSelector(address _implementation) external view returns (bytes4) {
-    return implementationToInitSelector[_implementation];
-  }
+  // function getInitSelector(address _implementation) external view returns (bytes4) {
+  //   return implementationToInitSelector[_implementation];
+  // }
 
-  function isEndorsed(address _implementation) external view returns (bool) {
-    return implementationToEndorsed[_implementation];
-  }
+  // function isEndorsed(address _implementation) external view returns (bool) {
+  //   return implementationToEndorsed[_implementation];
+  // }
 
   /* ========== MUTATIVE FUNCTIONS ========== */
 
@@ -57,19 +56,12 @@ contract ContractFactory is ACLAuth, ContractRegistryAccess {
 
   // NOTE: if implementation is confirmed valid, DAO can endorse
   function endorseImplementation(address _implementation) external onlyRole(DAO_ROLE) {
-    if (implementationToEndorsed[_implementation]) revert ImplementationNotRegistered();
+    if (implementationToInitSelector[_implementation].length == 0) revert ImplementationNotRegistered();
+    if (implementationToEndorsed[_implementation]) revert ImplementationAlreadyEndorsed();
 
     implementationToEndorsed[_implementation] = true;
 
     emit ImplementationEndorsed(_implementation);
-  }
-
-  function updateImplementationInitSelector(address _implementation, bytes4 newInitSelector) external {
-    if (implementationToInitSelector[_implementation].length == 0) revert ImplementationNotRegistered();
-
-    implementationToInitSelector[_implementation] = newInitSelector;
-
-    emit ImplementationSelectorUpdated(_implementation);
   }
 
   /* ========== IMPLEMENTATION CLONE DEPLOYMENT ========== */
