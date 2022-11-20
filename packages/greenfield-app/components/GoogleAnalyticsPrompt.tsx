@@ -10,7 +10,9 @@ type WindowWithDataLayer = Window & {
 declare const window: WindowWithDataLayer;
 
 const GoogleAnalyticsPrompt = ({ acceptGoogleAnalytics }) => {
-  const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(true);
+  const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(
+    localStorage.getItem("acceptAnalytics") ? false : true,
+  );
 
   const handleAccept = () => {
     window.dataLayer = window.dataLayer || [];
@@ -18,11 +20,13 @@ const GoogleAnalyticsPrompt = ({ acceptGoogleAnalytics }) => {
       event: "pageView",
       url: window.location.pathname,
     });
+    localStorage.setItem("acceptAnalytics", "true");
     acceptGoogleAnalytics();
     setOpenAnalyticsPrompt(false);
   };
 
   const handleDecline = () => {
+    localStorage.setItem("acceptAnalytics", "false");
     setOpenAnalyticsPrompt(false);
   };
 
