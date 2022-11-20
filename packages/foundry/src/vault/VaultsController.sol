@@ -6,16 +6,15 @@ import "./VaultsRegistry.sol";
 import "./VaultsFactory.sol";
 import "../utils/Owned.sol";
 import "../utils/ContractRegistryAccess.sol";
-import "../interfaces/IVault.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
+import "../interfaces/IVault.sol";
 import "../interfaces/IVaultsV1Zapper.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 import "../interfaces/IERC4626.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import { IContractFactory } from "../interfaces/IContractFactory.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
 
 /**
  * @notice controls deploying, registering vaults, adding vault types, updating registry vaults, endorsing and enabling registry vaults, and pausing/unpausing vaults
@@ -59,7 +58,6 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @param _cloneAddresses - encoded implementation contract addresses for deploying clones of Vault, VaultStaking, and Strategy contracts
    * @param _vaultParams - struct containing Vault init params (ERC20 asset_, IERC4626 strategy_ IContractRegistry contractRegistry_, FeeStructure memory feeStructure_, address feeRecipient_, KeeperConfig, memory keeperConfig_)
    * @param _staking - Adds a staking contract to the registry for this particular vault. (If address(0) it will deploy a new VaultStaking contract)
-   * @param _stakingToken - if deploying new VaultStaking contract, address of ERC20 staking token
    * @param _strategyParams - encoded params of initialize function for strategy contract
    * @param _metadataCID - ipfs CID of vault metadata
    * @param _swapTokenAddresses - underlying assets to deposit and recieve LP token
@@ -74,7 +72,6 @@ contract VaultsController is Owned, ContractRegistryAccess {
     bytes memory _cloneAddresses,
     VaultParams memory _vaultParams,
     address _staking,
-    IERC20 _stakingToken,
     bytes memory _strategyParams,
     string memory _metadataCID,
     address[8] memory _swapTokenAddresses,
@@ -94,9 +91,11 @@ contract VaultsController is Owned, ContractRegistryAccess {
     vault = _vaultsFactory().deploy(vaultImplementation, abi.encode(_vaultParams));
 
     if (_staking == address(0)) {
+      address stakingToken = IVault(vault).asset();
+
       _staking = _vaultsFactory().deploy(
         stakingImplementation,
-        abi.encode(_stakingToken, _vaultParams.contractRegistry)
+        abi.encode(IERC20(stakingToken), _vaultParams.contractRegistry)
       );
     }
 

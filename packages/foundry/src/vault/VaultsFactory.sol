@@ -3,8 +3,8 @@
 pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/proxy/Clones.sol";
-import "openzeppelin-contracts/proxy/utils/Initializable.sol";
 import "../utils/Owned.sol";
+import "../interfaces/IInitializable.sol";
 
 /**
  * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts
@@ -38,7 +38,7 @@ contract VaultsFactory is Owned {
     onlyOwner
     returns (address clone, bytes memory returnData)
   {
-    Initializable clone = Clones.clone(_implementation);
+    clone = Clones.clone(_implementation);
 
     bytes4 selector = clone.initialize.selector;
 

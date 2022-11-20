@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "../../src/vault/VaultsFactory.sol";
+import "../../src/vault/Vault.sol";
 import { VaultParams } from "../../src/vault/VaultsController.sol";
 import { VaultMetadata } from "../../src/vault/VaultsRegistry.sol";
 import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
