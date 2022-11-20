@@ -1,5 +1,5 @@
 import { SwitchVerticalIcon } from "@heroicons/react/outline";
-import { formatBigNumber, scaleNumberToBigNumber } from "@popcorn/utils";
+import { formatAndRoundBigNumber, numberToBigNumber } from "@popcorn/utils";
 import { BigNumber } from "ethers";
 import React, { Dispatch, useEffect, useState } from "react";
 
@@ -50,23 +50,23 @@ const TokenInput: React.FC<TokenInputProps> = ({
   function updateWithOuputAmounts(value: number, withdrawal): void {
     setEstimatedAmount(value);
     if (withdrawal) {
-      setDepositAmount(scaleNumberToBigNumber(value).mul(threeCrvPrice).div(hysiPrice));
+      setDepositAmount(numberToBigNumber(value, 18).mul(threeCrvPrice).div(hysiPrice));
     } else {
-      setDepositAmount(scaleNumberToBigNumber(value).mul(hysiPrice).div(threeCrvPrice));
+      setDepositAmount(numberToBigNumber(value, 18).mul(hysiPrice).div(threeCrvPrice));
     }
   }
 
   function updateWithInputAmounts(value: number, withdrawal: Boolean): void {
-    const raisedValue = scaleNumberToBigNumber(value);
+    const raisedValue = numberToBigNumber(value, 18);
     setDepositAmount(raisedValue);
     calcOutputAmountsFromInput(raisedValue, withdrawal);
   }
 
   function calcOutputAmountsFromInput(value: BigNumber, withdrawal: Boolean): void {
     if (withdrawal) {
-      setEstimatedAmount(formatBigNumber(value.mul(hysiPrice).div(threeCrvPrice)));
+      setEstimatedAmount(Number(formatAndRoundBigNumber(value.mul(hysiPrice).div(threeCrvPrice), 18)));
     } else {
-      setEstimatedAmount(formatBigNumber(value.mul(threeCrvPrice).div(hysiPrice)));
+      setEstimatedAmount(Number(formatAndRoundBigNumber(value.mul(threeCrvPrice).div(hysiPrice), 18)));
     }
   }
 
@@ -89,7 +89,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                   type="text"
                   name="deposit"
                   id="deposit"
-                  value={formatBigNumber(depositAmount)}
+                  value={Number(formatAndRoundBigNumber(depositAmount, 18))}
                   onChange={(e) => updateWithInputAmounts(Number(e.target.value), withdrawal)}
                   className={
                     "focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm rounded-md pl-4 py-3"
@@ -221,7 +221,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                   type="text"
                   name="withdrawal"
                   id="withdrawal"
-                  value={formatBigNumber(depositAmount)}
+                  value={Number(formatAndRoundBigNumber(depositAmount, 18))}
                   onChange={(e) => updateWithInputAmounts(Number(e.target.value), withdrawal)}
                   className={classNames(
                     "focus:ring-indigo-500 focus:border-indigo-500 block w-full text-gray-500 sm:text-sm border-gray-300 rounded-md pl-4 py-3",
