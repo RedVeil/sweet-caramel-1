@@ -89,19 +89,19 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
   }
 
   function previewDeposit(uint256 assets) public view returns (uint256) {
-    return convertToShares(assets);
+    return convertToShares(assets); // return less
   }
 
   function previewMint(uint256 shares) public view returns (uint256) {
-    return shares.mulDivUp(yVault.pricePerShare(), 10**_decimals);
+    return shares.mulDivUp(yVault.pricePerShare(), 10**_decimals); // return less
   }
 
   function previewWithdraw(uint256 assets) public view returns (uint256) {
-    return assets.mulDivUp(10**_decimals, yVault.pricePerShare());
+    return assets.mulDivUp(10**_decimals, yVault.pricePerShare()); // return more
   }
 
   function previewRedeem(uint256 shares) public view returns (uint256) {
-    return convertToAssets(shares);
+    return convertToAssets(shares); // return more
   }
 
   /*//////////////////////////////////////////////////////////////

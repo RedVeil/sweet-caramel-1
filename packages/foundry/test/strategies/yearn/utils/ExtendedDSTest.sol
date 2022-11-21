@@ -2,98 +2,231 @@
 pragma solidity ^0.8.12;
 
 import { Test } from "forge-std/Test.sol";
+import "forge-std/StdMath.sol";
 
 contract ExtendedDSTest is Test {
-  // solhint-disable-next-line
-  function assertNeq(address a, address b) internal {
-    if (a == b) {
-      emit log("Error: a != b not satisfied [address]");
-      emit log_named_address("  Expected", b);
-      emit log_named_address("    Actual", a);
-      fail();
-    }
-  }
-
-  function assertNeq(uint256 a, uint256 b) internal {
-    if (a == b) {
-      emit log("Error: a != b not satisfied [uint256]");
-      emit log_named_uint("  Expected", b);
-      emit log_named_uint("    Actual", a);
-      fail();
-    }
-  }
-
-  // @dev checks whether @a is within certain percentage of @b
-  // @a actual value
-  // @b expected value
-  // solhint-disable-next-line
-  function assertRelApproxEq(
+  // Assert Gte with absolute amount of token delta (a >= b && a < b + maxDelta )
+  function assertAbsGte(
     uint256 a,
     uint256 b,
-    uint256 maxPercentDelta
+    uint256 maxDelta
   ) internal virtual {
-    uint256 delta = a > b ? a - b : b - a;
-    uint256 maxRelDelta = b / maxPercentDelta;
+    if (b == 0) return assertEq(a, b); // If the expected is 0, actual must be too.
 
-    if (delta > maxRelDelta) {
-      emit log("Error: a ~= b not satisfied [uint]");
+    uint256 delta = stdMath.delta(a, b);
+
+    if (a < b) {
+      emit log("Error: a ~>= b not satisfied [uint]");
       emit log_named_uint("  Expected", b);
       emit log_named_uint("    Actual", a);
-      emit log_named_uint(" Max Delta", maxRelDelta);
+      fail();
+    }
+    if (delta > maxDelta) {
+      emit log("Error: a ~>= b not satisfied [int]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max Delta", maxDelta);
       emit log_named_uint("     Delta", delta);
       fail();
     }
   }
 
-  // Can be removed once https://github.com/dapphub/ds-test/pull/25 is merged and we update submodules, but useful for now
-  // solhint-disable-next-line
-  function assertApproxEq(
+  // Assert Gte with absolute amount of token delta (a >= b && a < b + maxDelta )
+  function assertAbsGte(
     uint256 a,
     uint256 b,
-    uint256 margin_of_error
-  ) internal {
-    if (a > b) {
-      if (a - b > margin_of_error) {
-        emit log("Error a not equal to b");
-        emit log_named_uint("  Expected", b);
-        emit log_named_uint("    Actual", a);
-        fail();
-      }
-    } else {
-      if (b - a > margin_of_error) {
-        emit log("Error a not equal to b");
-        emit log_named_uint("  Expected", b);
-        emit log_named_uint("    Actual", a);
-        fail();
-      }
-    }
-  }
-
-  // solhint-disable-next-line
-  function assertApproxEq(
-    uint256 a,
-    uint256 b,
-    uint256 margin_of_error,
+    uint256 maxDelta,
     string memory err
-  ) internal {
-    if (a > b) {
-      if (a - b > margin_of_error) {
-        emit log_named_string("Error", err);
-        emit log_named_uint("  Expected", b);
-        emit log_named_uint("    Actual", a);
-        fail();
-      }
-    } else {
-      if (b - a > margin_of_error) {
-        emit log_named_string("Error", err);
-        emit log_named_uint("  Expected", b);
-        emit log_named_uint("    Actual", a);
-        fail();
-      }
+  ) internal virtual {
+    if (b == 0) return assertEq(a, b, err); // If the expected is 0, actual must be too.
+
+    uint256 delta = stdMath.delta(a, b);
+
+    if (a < b) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~>= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      fail();
+    }
+    if (delta > maxDelta) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~>= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max Delta", maxDelta);
+      emit log_named_uint("     Delta", delta);
+      fail();
     }
   }
 
-  function assertWithin(
+  // Assert Lte with absolute amount of token delta (a <= b && a > b - maxDelta )
+  function assertAbsLte(
+    uint256 a,
+    uint256 b,
+    uint256 maxDelta
+  ) internal virtual {
+    if (b == 0) return assertEq(a, b); // If the expected is 0, actual must be too.
+
+    uint256 delta = stdMath.delta(a, b);
+
+    if (a > b) {
+      emit log("Error: a ~<= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      fail();
+    }
+    if (delta > maxDelta) {
+      emit log("Error: a ~<= b not satisfied [int]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max Delta", maxDelta);
+      emit log_named_uint("     Delta", delta);
+      fail();
+    }
+  }
+
+  // Assert Lte with absolute amount of token delta (a <= b && a > b - maxDelta )
+  function assertAbsLte(
+    uint256 a,
+    uint256 b,
+    uint256 maxDelta,
+    string memory err
+  ) internal virtual {
+    if (b == 0) return assertEq(a, b, err); // If the expected is 0, actual must be too.
+
+    uint256 delta = stdMath.delta(a, b);
+
+    if (a > b) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~<= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      fail();
+    }
+    if (delta > maxDelta) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~<= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max Delta", maxDelta);
+      emit log_named_uint("     Delta", delta);
+      fail();
+    }
+  }
+
+  // TODO DELTA CALC IS WRONG
+  // Assert Gte with percentage amount of token delta (a >= b && percDelta(a,b) <= maxPercentDelta )
+  function assertApproxGteRel(
+    uint256 a,
+    uint256 b,
+    uint256 maxPercentDelta
+  ) internal virtual {
+    if (b == 0) return assertEq(a, b); // If the expected is 0, actual must be too.
+
+    uint256 percentDelta = stdMath.percentDelta(a, b);
+
+    if (a < b) {
+      emit log("Error: a ~>= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      fail();
+    }
+    if (percentDelta > maxPercentDelta) {
+      emit log("Error: a ~>= b not satisfied [int]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max % Delta", maxPercentDelta);
+      emit log_named_uint("     % Delta", percentDelta);
+      fail();
+    }
+  }
+
+  // Assert Gte with percentage amount of token delta (a >= b && percDelta(a,b) <= maxPercentDelta )
+  function assertApproxGteRel(
+    uint256 a,
+    uint256 b,
+    uint256 maxPercentDelta,
+    string memory err
+  ) internal virtual {
+    if (b == 0) return assertEq(a, b, err); // If the expected is 0, actual must be too.
+
+    uint256 percentDelta = stdMath.percentDelta(a, b);
+
+    if (a < b) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~>= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      fail();
+    }
+    if (percentDelta > maxPercentDelta) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~>= b not satisfied [int]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max % Delta", maxPercentDelta);
+      emit log_named_uint("     % Delta", percentDelta);
+      fail();
+    }
+  }
+
+  // Assert Lte with percentage amount of token delta (a <= b && percDelta(a,b) <= maxPercentDelta )
+  function assertApproxLteRel(
+    uint256 a,
+    uint256 b,
+    uint256 maxPercentDelta
+  ) internal virtual {
+    if (b == 0) return assertEq(a, b); // If the expected is 0, actual must be too.
+
+    uint256 percentDelta = stdMath.percentDelta(a, b);
+
+    if (a > b) {
+      emit log("Error: a ~<= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      fail();
+    }
+    if (percentDelta > maxPercentDelta) {
+      emit log("Error: a ~<= b not satisfied [int]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max % Delta", maxPercentDelta);
+      emit log_named_uint("     % Delta", percentDelta);
+      fail();
+    }
+  }
+
+  // Assert Lte with percentage amount of token delta (a <= b && percDelta(a,b) <= maxPercentDelta )
+  function assertApproxLteRel(
+    uint256 a,
+    uint256 b,
+    uint256 maxPercentDelta,
+    string memory err
+  ) internal virtual {
+    if (b == 0) return assertEq(a, b, err); // If the expected is 0, actual must be too.
+
+    uint256 percentDelta = stdMath.percentDelta(a, b);
+
+    if (a > b) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~<= b not satisfied [uint]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      fail();
+    }
+    if (percentDelta > maxPercentDelta) {
+      emit log_named_string("Error", err);
+      emit log("Error: a ~<= b not satisfied [int]");
+      emit log_named_uint("  Expected", b);
+      emit log_named_uint("    Actual", a);
+      emit log_named_uint(" Max % Delta", maxPercentDelta);
+      emit log_named_uint("     % Delta", percentDelta);
+      fail();
+    }
+  }
+
+  function assertAbsWithin(
     uint256 expected,
     uint256 actual,
     uint256 delta

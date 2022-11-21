@@ -7,10 +7,10 @@ import { VaultAPI } from "../../../src/interfaces/external/yearn/IVaultAPI.sol";
 import { YearnWrapper } from "../../../src/vault/wrapper/yearn/YearnWrapper.sol";
 import { IERC20Metadata } from "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
-import { VaultWrapperAbstractTest } from "./VaultWrapperAbstractTest.t.sol";
+import { YearnWrapperAbstractTest } from "./YearnWrapperAbstractTest.t.sol";
 import "forge-std/console.sol";
 
-contract YearnWrapperCrvEthTest is VaultWrapperAbstractTest {
+contract YearnWrapperCrvEthTest is YearnWrapperAbstractTest {
   function setUp() public {
     super.setUpTest(
       address(0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c),

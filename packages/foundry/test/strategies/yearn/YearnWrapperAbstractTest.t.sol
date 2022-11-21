@@ -12,7 +12,7 @@ import "forge-std/console.sol";
 
 // NOTE -- totalAssets, maxDeposit and maxMint are the only functions not tested
 
-contract VaultWrapperAbstractTest is ExtendedDSTest {
+contract YearnWrapperAbstractTest is ExtendedDSTest {
   bytes32 constant PERMIT_TYPEHASH =
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
@@ -29,6 +29,13 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
 
   uint256 public DELTA = 1;
 
+  bool internal isTesting;
+
+  modifier runTest() {
+    if (!isTesting) return;
+    _;
+  }
+
   function setUpTest(
     address _want,
     address _vault,
@@ -36,6 +43,8 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
   ) public {
     uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 16018408);
     vm.selectFork(forkId);
+
+    isTesting = true;
 
     want = IERC20(_want);
     vault = VaultAPI(_vault);
@@ -56,7 +65,7 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
                         GENERAL FUNCTIONS
   //////////////////////////////////////////////////////////////*/
 
-  function test__setup_Wrapper() public {
+  function test__setup_Wrapper() public runTest {
     console.log("address of wrapper", address(vaultWrapper));
     assertTrue(address(0) != address(vaultWrapper));
     assertEq(vaultWrapper.asset(), address(want));
@@ -64,7 +73,7 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
     assertEq(IERC20Metadata(address(vaultWrapper)).decimals(), IERC20Metadata(address(want)).decimals());
   }
 
-  function test__ERC20_compatibility(uint256 _amount) public {
+  function test__ERC20_compatibility(uint256 _amount) public runTest {
     vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
     deal(address(want), whale, _amount);
     vm.startPrank(whale);
@@ -85,7 +94,7 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
                         DEPOSIT / MINT
   //////////////////////////////////////////////////////////////*/
 
-  function test__preview_deposit_equals_actual_shares(uint80 depositAmount) public {
+  function test__preview_deposit_equals_actual_shares(uint80 depositAmount) public runTest {
     vm.assume(depositAmount > minFuzzAmt && depositAmount < maxFuzzAmt);
 
     deal(address(want), address(user), depositAmount);
@@ -96,15 +105,15 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
     uint256 actualShares = vaultWrapper.deposit(depositAmount, user);
     vm.stopPrank();
 
-    assertRelApproxEq(actualShares, expectedShares, DELTA);
-    assertRelApproxEq(vaultWrapper.totalAssets(), depositAmount, DELTA);
+    assertApproxGteRel(actualShares, expectedShares, DELTA);
+    assertApproxGteRel(vaultWrapper.totalAssets(), depositAmount, DELTA);
     assertEq(vaultWrapper.balanceOf(user), actualShares);
     assertEq(vaultWrapper.maxRedeem(user), actualShares);
     assertEq(vault.balanceOf(address(vaultWrapper)), actualShares);
     assertEq(vaultWrapper.totalSupply(), actualShares);
   }
 
-  function test__preview_mint_equals_actual_assets(uint80 depositAmount) public {
+  function test__preview_mint_equals_actual_assets(uint80 depositAmount) public runTest {
     vm.assume(depositAmount > minFuzzAmt && depositAmount < maxFuzzAmt);
 
     uint256 expectedAssets = vaultWrapper.previewMint(depositAmount);
@@ -115,19 +124,19 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
     uint256 actualAssets = vaultWrapper.mint(depositAmount, user);
     vm.stopPrank();
 
-    assertRelApproxEq(actualAssets, expectedAssets, DELTA);
-    assertRelApproxEq(vaultWrapper.totalAssets(), expectedAssets, DELTA);
-    assertRelApproxEq(vaultWrapper.balanceOf(user), depositAmount, DELTA);
-    assertRelApproxEq(vaultWrapper.maxRedeem(user), depositAmount, DELTA);
-    assertRelApproxEq(vault.balanceOf(address(vaultWrapper)), depositAmount, DELTA);
-    assertRelApproxEq(vaultWrapper.totalSupply(), depositAmount, DELTA);
+    assertApproxGteRel(actualAssets, expectedAssets, DELTA);
+    assertApproxGteRel(vaultWrapper.totalAssets(), expectedAssets, DELTA);
+    assertApproxGteRel(vaultWrapper.balanceOf(user), depositAmount, DELTA);
+    assertApproxGteRel(vaultWrapper.maxRedeem(user), depositAmount, DELTA);
+    assertApproxGteRel(vault.balanceOf(address(vaultWrapper)), depositAmount, DELTA);
+    assertApproxGteRel(vaultWrapper.totalSupply(), depositAmount, DELTA);
   }
 
   /*//////////////////////////////////////////////////////////////
                         WITHDRAW / REDEEM
   //////////////////////////////////////////////////////////////*/
 
-  function test_preview_withdraw_equals_actual_withdraw(uint80 depositAmount) public {
+  function test_preview_withdraw_equals_actual_withdraw(uint80 depositAmount) public runTest {
     vm.assume(depositAmount > minFuzzAmt && depositAmount < maxFuzzAmt);
 
     deal(address(want), address(user), depositAmount);
@@ -144,13 +153,13 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
     vm.prank(user);
     uint256 actualWithdraw = vaultWrapper.withdraw(maxWithdraw, user, user);
 
-    assertWithin(expectedWithdraw, actualWithdraw, 2);
+    assertApproxLteRel(expectedWithdraw, actualWithdraw, DELTA);
     assertEq(vaultWrapper.balanceOf(user), 0);
     assertEq(vaultWrapper.totalSupply(), 0);
     assertEq(vaultWrapper.totalAssets(), 0);
   }
 
-  function test_preview_redeem_equals_actual_redeem(uint80 depositAmount) public {
+  function test_preview_redeem_equals_actual_redeem(uint80 depositAmount) public runTest {
     vm.assume(depositAmount > minFuzzAmt && depositAmount < maxFuzzAmt);
 
     deal(address(want), address(user), depositAmount);
@@ -164,7 +173,7 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
     vm.prank(user);
     uint256 actualRedeem = vaultWrapper.redeem(shares, user, user);
 
-    assertRelApproxEq(expectedRedeem, actualRedeem, DELTA);
+    assertApproxLteRel(expectedRedeem, actualRedeem, DELTA);
     assertEq(vaultWrapper.balanceOf(user), 0);
     assertEq(vaultWrapper.totalSupply(), 0);
     assertEq(vaultWrapper.totalAssets(), 0);
@@ -174,7 +183,7 @@ contract VaultWrapperAbstractTest is ExtendedDSTest {
                               PERMIT
   //////////////////////////////////////////////////////////////*/
 
-  function test__permit() public {
+  function test__permit() public runTest {
     uint256 privateKey = 0xBEEF;
     address owner = vm.addr(privateKey);
     YearnWrapper wrapper = YearnWrapper(address(vaultWrapper));
