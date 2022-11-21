@@ -115,6 +115,11 @@ module.exports = {
       chainId: 1337,
       url: "http://localhost:8545",
     },
+    remote_fork: {
+      chainId: 31338,
+      url: process.env.RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      gasPrice: 10000000000,
+    },
     rinkeby: {
       timeout: 60000,
       url: process.env.RPC_URL || `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -158,7 +163,7 @@ module.exports = {
       url: process.env.RPC_URL || `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
       chainId: 5,
       tags: ["grants"],
-    }
+    },
   },
   gasReporter: {
     currency: "USD",

@@ -1,6 +1,6 @@
 import React, { FocusEventHandler, forwardRef, MouseEventHandler, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
-import { OPTION_ID } from "./WheelPicker";
+import { OPTION_ID } from "@popcorn/app/components/WheelPicker/WheelPicker";
 
 const Item = styled.li`
   position: relative;

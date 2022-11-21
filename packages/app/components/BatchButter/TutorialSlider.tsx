@@ -51,12 +51,12 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
     <div className="relative">
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map((step, index) => (
-          <div className="pl-2" key={index}>
-            <div className=" bg-customPurple rounded-lg h-110 p-8 flex flex-col justify-between text-white">
+          <div className="" key={index}>
+            <div className="bg-customPurple rounded-lg h-110 p-8 flex flex-col justify-between text-white">
               <h6>How It Works</h6>
 
-              <div className=" py-24">
-                <h3 className=" font-medium text-2xl">{step.title}</h3>
+              <div className="py-24">
+                <h3 className="font-medium text-2xl">{step.title}</h3>
                 <p>{step.content}</p>
               </div>
 

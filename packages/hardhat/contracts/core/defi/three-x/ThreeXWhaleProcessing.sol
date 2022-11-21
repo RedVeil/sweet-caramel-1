@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/KeeperIncentivized.sol";
-import "../../../externals/interfaces/YearnVault.sol";
+import "../../../externals/interfaces/yearn/IVault.sol";
 import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
@@ -23,7 +23,7 @@ import "./controller/AbstractBatchController.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractBatchController {
-  using SafeERC20 for YearnVault;
+  using SafeERC20 for IVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
   using SafeERC20 for CurveMetapool;
@@ -268,22 +268,22 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
       _sendToCurve(poolAllocation + poolAllocations[i], componentDependency, i, _threeXBatchProcessing);
 
       //Deposit crvLPToken to get yToken
-      _sendToYearn(componentDependency.lpToken.balanceOf(address(this)), YearnVault(_tokenAddresses[i]));
+      _sendToYearn(componentDependency.lpToken.balanceOf(address(this)), IVault(_tokenAddresses[i]));
 
       //Approve yToken for minting
-      YearnVault(_tokenAddresses[i]).safeIncreaseAllowance(
+      IVault(_tokenAddresses[i]).safeIncreaseAllowance(
         address(basicIssuanceModule),
-        YearnVault(_tokenAddresses[i]).balanceOf(address(this))
+        IVault(_tokenAddresses[i]).balanceOf(address(this))
       );
     }
 
     //Get the minimum amount of 3X that we can mint with our balances of yToken
-    uint256 setTokenAmount = (YearnVault(_tokenAddresses[0]).balanceOf(address(this)) * 1e18) / _quantities[0];
+    uint256 setTokenAmount = (IVault(_tokenAddresses[0]).balanceOf(address(this)) * 1e18) / _quantities[0];
 
     for (uint256 i = 1; i < _tokenAddresses.length; i++) {
       setTokenAmount = Math.min(
         setTokenAmount,
-        (YearnVault(_tokenAddresses[i]).balanceOf(address(this)) * 1e18) / _quantities[i]
+        (IVault(_tokenAddresses[i]).balanceOf(address(this)) * 1e18) / _quantities[i]
       );
     }
 
@@ -357,7 +357,7 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
         _tokenAddresses[i]
       );
       //Deposit yToken to receive crvLPToken
-      _withdrawFromYearn(YearnVault(_tokenAddresses[i]).balanceOf(address(this)), YearnVault(_tokenAddresses[i]));
+      _withdrawFromYearn(IVault(_tokenAddresses[i]).balanceOf(address(this)), IVault(_tokenAddresses[i]));
 
       //Deposit crvLPToken to receive USDC
       _withdrawFromCurve(
@@ -407,13 +407,13 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
       ? componentDependency.curveMetaPool.get_virtual_price()
       : (componentDependency.curveMetaPool.get_virtual_price() * (2e18 - componentDependency.oracle.read())) / 1e18;
     // Calculate the virtualPrice of one yToken
-    uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() * lpTokenPriceInUSD) / 1e18;
+    uint256 componentValuePerShare = (IVault(_component).pricePerShare() * lpTokenPriceInUSD) / 1e18;
 
     //Calculate the value of quantity (of yToken) in virtualPrice
     uint256 componentValuePerSet = (_quantity * componentValuePerShare) / 1e18;
 
     //Calculate the value of leftover yToken in virtualPrice
-    uint256 componentValueHeldByContract = (YearnVault(_component).balanceOf(address(this)) * componentValuePerShare) /
+    uint256 componentValueHeldByContract = (IVault(_component).balanceOf(address(this)) * componentValuePerShare) /
       1e18;
 
     ratio = (componentValuePerSet * 1e18) / _setValue;
@@ -495,7 +495,7 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
    * @param _amount The amount of crvLPToken that get deposited
    * @param _yearnVault The yearn Vault in which we deposit
    */
-  function _sendToYearn(uint256 _amount, YearnVault _yearnVault) internal {
+  function _sendToYearn(uint256 _amount, IVault _yearnVault) internal {
     // Mints yToken and sends them to msg.sender (this contract)
     _yearnVault.deposit(_amount);
   }
@@ -505,7 +505,7 @@ contract ThreeXWhaleProcessing is AbstractFee, ContractRegistryAccess, AbstractB
    * @param _amount The amount of crvLPToken which we deposit
    * @param _yearnVault The yearn Vault in which we deposit
    */
-  function _withdrawFromYearn(uint256 _amount, YearnVault _yearnVault) internal {
+  function _withdrawFromYearn(uint256 _amount, IVault _yearnVault) internal {
     // Takes yToken and sends crvLPToken to this contract
     _yearnVault.withdraw(_amount);
   }

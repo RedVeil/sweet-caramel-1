@@ -6,13 +6,12 @@ import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
 import { useWeb3React } from "@web3-react/core";
 import Button from "components/CommonComponents/Button";
 import { ContractsContext } from "context/Web3/contracts";
-import { useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { getNamedAccountsByChainId } from "../../../hardhat/lib/utils/getNamedAccounts";
 import { BigNumber, constants, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import useTokenBalance from "hooks/token/useTokenBalance";
 import useTokenAllowance from "hooks/token/useTokenAllowance";
+import useTokenBalance from "hooks/token/useTokenBalance";
+import { useContext, useState } from "react";
+import toast from "react-hot-toast";
 
 interface StakeModalProps {
   beneficiary: BeneficiaryApplication;
@@ -26,8 +25,8 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
   const { account, chainId, library } = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
 
-  const { data: popBalance } = useTokenBalance(contracts?.pop, account)
-  const { data: allowance } = useTokenAllowance(contracts?.pop, account, contracts?.staking?.address)
+  const { data: popBalance } = useTokenBalance(contracts?.pop, account);
+  const { data: allowance } = useTokenAllowance(contracts?.pop, account, contracts?.staking?.address);
   const [popToLock, setPopToLock] = useState<BigNumber>(constants.Zero);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(true);
   const [wait, setWait] = useState<boolean>(false);
@@ -37,7 +36,8 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
     setWait(true);
     toast.loading("Staking POP...");
     const signer = library.getSigner();
-    await contracts.staking.connect(signer)
+    await contracts.staking
+      .connect(signer)
       .stake(popToLock, lockDuration)
       .then((res) => {
         toast.dismiss();
@@ -45,7 +45,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
         onCloseStakeModal();
       })
       .catch((err) => {
-        toast.dismiss()
+        toast.dismiss();
         if (
           err.message === "MetaMask Tx Signature: User denied transaction signature." ||
           "Error: User denied transaction signature"
@@ -56,13 +56,14 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
         }
       });
     setWait(false);
-  };
+  }
 
   async function approve(): Promise<void> {
     setWait(true);
     toast.loading("Approving POP...");
     const signer = library.getSigner();
-    await contracts.pop.connect(signer)
+    await contracts.pop
+      .connect(signer)
       .approve(contracts.staking.address, constants.MaxUint256)
       .then((res) => {
         toast.dismiss();
@@ -70,7 +71,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
         onCloseStakeModal();
       })
       .catch((err) => {
-        toast.dismiss()
+        toast.dismiss();
         if (
           err.message === "MetaMask Tx Signature: User denied transaction signature." ||
           "Error: User denied transaction signature"
@@ -100,19 +101,23 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
         <div className="flex justify-between mb-4">
           <p className="font-[500] text-black">Stake POP</p>
           <p className="font-[500] text-black">
-            {Math.floor(Number(utils.formatUnits(popToLock)))}/{Math.floor(Number(utils.formatUnits(popBalance ?? constants.Zero)))}
+            {Math.floor(Number(utils.formatUnits(popToLock)))}/
+            {Math.floor(Number(utils.formatUnits(popBalance ?? constants.Zero)))}
           </p>
         </div>
         <div
-          className={`${popToLock?.toString() === "0" ? "ml-4" : ""} ${popToLock?.toString() === popBalance?.toString() ? "mr-4" : ""
-            }`}
+          className={`${popToLock?.toString() === "0" ? "ml-4" : ""} ${
+            popToLock?.toString() === popBalance?.toString() ? "mr-4" : ""
+          }`}
         >
           <CustomSlider
             aria-label="pop lock slider"
             min={0}
             max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
             onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
-            disabled={!account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired}
+            disabled={
+              !account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired
+            }
             size="small"
             step={1}
             valueLabelDisplay="off"
@@ -153,13 +158,15 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           </ol>
         </div>
       </div>
-      {(allowance ?? constants.Zero).eq(constants.Zero) ?
+      {(allowance ?? constants.Zero).eq(constants.Zero) ? (
         <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={approve}>
           Approve
-        </Button> :
+        </Button>
+      ) : (
         <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={lockPop}>
           Stake
-        </Button>}
+        </Button>
+      )}
     </div>
   );
 };

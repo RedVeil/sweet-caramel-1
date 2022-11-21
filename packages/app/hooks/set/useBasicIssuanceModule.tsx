@@ -1,16 +1,14 @@
 import { isAddress } from "@ethersproject/address";
 import { IBasicIssuanceModule, IBasicIssuanceModule__factory } from "@popcorn/hardhat/typechain";
-import useWeb3 from "hooks/useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useMemo } from "react";
+import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 
-export default function useBasicIssuanceModule(rpcProvider?): IBasicIssuanceModule {
-  const { signerOrProvider, contractAddresses, account } = useWeb3();
+export default function useBasicIssuanceModule(address, chainId): IBasicIssuanceModule {
+  const { account } = useWeb3();
+  const provider = useRpcProvider(chainId);
 
   return useMemo(() => {
-    if (isAddress(contractAddresses?.butterDependency?.setBasicIssuanceModule))
-      return IBasicIssuanceModule__factory.connect(
-        contractAddresses?.butterDependency?.setBasicIssuanceModule,
-        rpcProvider ? rpcProvider : signerOrProvider,
-      );
-  }, [account, signerOrProvider, contractAddresses?.butterDependency?.setBasicIssuanceModule]);
+    if (isAddress(address)) return IBasicIssuanceModule__factory.connect(address, provider);
+  }, [account, provider, address, chainId]);
 }

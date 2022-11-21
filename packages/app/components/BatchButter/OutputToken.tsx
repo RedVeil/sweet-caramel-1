@@ -1,7 +1,7 @@
 import { Token } from "@popcorn/utils/types";
 import Image from "next/image";
 import { Dispatch } from "react";
-import PseudoRadioButton from "./PseudoRadioButton";
+import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
 
 interface OutputTokenProps {
   outputToken: Token[];
@@ -20,10 +20,10 @@ const OutputToken: React.FC<OutputTokenProps> = ({ outputToken, selectToken, sel
                 <span className="w-5 h-5 relative mr-2 flex-shrink-0">
                   <Image src={token.icon} alt={token.symbol} layout="fill" objectFit="contain" priority={true} />
                 </span>
-                {token.name}
+                {token.symbol}
               </div>
             }
-            activeClass="border-3 border-customBrown"
+            activeClass="border-1 border-customBrown"
             isActive={selectedToken === token}
             handleClick={() => {
               selectToken(token);

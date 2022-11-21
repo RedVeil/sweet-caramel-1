@@ -1,0 +1,17 @@
+{
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "@popcorn/ui": "../ui/src",
+          "@popcorn/utils": "../utils",
+          "@popcorn/hardhat": "../hardhat",
+          "containers": "./containers",
+          "app": "./app"
+        }
+      }
+    ],
+    ["styled-components", { "ssr": true }]
+  ]
+}

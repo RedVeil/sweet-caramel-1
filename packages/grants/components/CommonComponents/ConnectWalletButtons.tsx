@@ -1,6 +1,6 @@
 import Button from "components/CommonComponents/Button";
-import React from "react";
 import Image from "next/image";
+import React from "react";
 import WalletIcon from "../Svgs/WalletIcon";
 interface Props {
   connected: boolean;
@@ -24,13 +24,7 @@ const ConnectWalletButtons: React.FC<Props> = ({ connected, connectWallet, disco
           onClick={disconnectWallet}
         >
           <div className="w-4 h-4 relative">
-            <Image
-              src="/images/polygonLogo.png"
-              alt="polygon logo"
-              layout="fill"
-              objectFit="contain"
-              priority={true}
-            />
+            <Image src="/images/polygonLogo.png" alt="polygon logo" layout="fill" objectFit="contain" priority={true} />
           </div>
           <span className="mx-2">Polygon</span>
           <span className="block h-2 w-2 rounded-full border border-green-400 bg-green-400"></span>

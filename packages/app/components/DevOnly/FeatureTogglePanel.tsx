@@ -1,4 +1,4 @@
-import { FeatureToggleContext } from "context/FeatureToggleContext";
+import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { useContext, useState } from "react";
 import { CheckCircle, Settings, X } from "react-feather";
 

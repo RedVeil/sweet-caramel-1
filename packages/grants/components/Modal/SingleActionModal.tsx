@@ -26,7 +26,7 @@ export const DefaultSingleActionModalProps: SingleActionModalProps = {
   type: "info",
   keepOpen: false,
   showCloseButton: true,
-  onDismiss: { onClick: () => { } },
+  onDismiss: { onClick: () => {} },
 };
 
 export const SingleActionModal: React.FC<SingleActionModalProps> = ({
@@ -147,9 +147,11 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                           <>{content}</>
                         </p>
                       )}
-                      <div><>{children}</></div>
+                      <div>
+                        <>{children}</>
+                      </div>
                     </div>
-                    <div className={`${onConfirm || onDismiss?.label ? "mt-5" : ''}`}>
+                    <div className={`${onConfirm || onDismiss?.label ? "mt-5" : ""}`}>
                       {onConfirm && (
                         <Button variant="primary" onClick={confirm} className="py-2 px-5 w-full">
                           {onConfirm?.label}

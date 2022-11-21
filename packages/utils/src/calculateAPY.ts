@@ -1,23 +1,24 @@
 import { parseEther } from "@ethersproject/units";
 import {
-  IBasicIssuanceModule__factory,
   ButterBatchProcessing__factory,
   ERC20,
   ERC20__factory,
+  IBasicIssuanceModule__factory,
   IGUni,
   IGUni__factory,
 } from "@popcorn/hardhat/typechain";
 import { BigNumber, constants } from "ethers";
 import { ChainId } from "./connectors";
-import { Address, ContractAddresses } from "./types";
+import { ContractAddresses } from "./types";
+import getAssetValue from "@popcorn/app/helper/getAssetValue";
 
 export async function calculateApy(
-  stakedTokenAddress: Address,
+  stakedTokenAddress: string,
   tokenPerWeek: BigNumber,
   totalStaked: BigNumber,
-  contractAddresses: ContractAddresses,
-  chaindId: number,
+  chainId: number,
   library,
+  contractAddresses,
 ): Promise<BigNumber> {
   //Prevents `div by 0` errors
   if (!totalStaked || totalStaked.eq(constants.Zero)) {
@@ -26,13 +27,33 @@ export async function calculateApy(
   switch (stakedTokenAddress.toLocaleLowerCase()) {
     case contractAddresses.popUsdcArrakisVault?.toLocaleLowerCase():
     case contractAddresses.popUsdcLp?.toLocaleLowerCase():
-      return getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library, stakedTokenAddress);
+      return getLpTokenApy(tokenPerWeek, totalStaked, contractAddresses, chainId, library, stakedTokenAddress);
     case contractAddresses.butter?.toLocaleLowerCase():
     case contractAddresses.threeX?.toLocaleLowerCase():
-      return getButterApy(tokenPerWeek, totalStaked, contractAddresses, chaindId, library);
+      return getButterApy(tokenPerWeek, totalStaked, contractAddresses, chainId, library);
+    case contractAddresses.xen?.toLowerCase():
+      return getXenApy(tokenPerWeek, totalStaked, contractAddresses, chainId);
     default:
       return constants.Zero;
   }
+}
+
+export async function getXenApy(
+  tokenPerWeek: BigNumber,
+  totalStaked: BigNumber,
+  contractAddresses: ContractAddresses,
+  chainId: number,
+): Promise<BigNumber> {
+  const tokenPrices = await getAssetValue([contractAddresses.xen, contractAddresses.pop], ChainId.Ethereum);
+
+  const stakeValue = totalStaked.mul(tokenPrices[contractAddresses.xen.toLowerCase()]).div(parseEther("1"));
+
+  const weeklyRewardsValue = tokenPerWeek.mul(tokenPrices[contractAddresses.pop.toLowerCase()]).div(parseEther("1"));
+
+  const weeklyRewardsPerDollarStaked = weeklyRewardsValue.mul(parseEther("1")).div(stakeValue);
+
+  const apy = weeklyRewardsPerDollarStaked.mul(52);
+  return apy.mul(100);
 }
 
 export async function getLpTokenApy(
@@ -109,10 +130,7 @@ export async function getButterApy(
   }
 
   const butterBatch = ButterBatchProcessing__factory.connect(contractAddresses.butterBatch, library);
-  const basicIssuanceModule = IBasicIssuanceModule__factory.connect(
-    contractAddresses.butterDependency.setBasicIssuanceModule,
-    library,
-  );
+  const basicIssuanceModule = IBasicIssuanceModule__factory.connect(contractAddresses.setBasicIssuanceModule, library);
   const [tokenAddresses, quantities] = await basicIssuanceModule.getRequiredComponentUnitsForIssue(
     contractAddresses.butter,
     parseEther("1"),

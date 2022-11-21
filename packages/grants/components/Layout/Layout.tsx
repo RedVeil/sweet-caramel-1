@@ -4,7 +4,7 @@ import { useOnlyPolygon } from "hooks/useOnlyPolygon";
 import { FC, PropsWithChildren } from "react";
 
 export const Layout: FC<PropsWithChildren<any>> = ({ children }) => {
-  useOnlyPolygon()
+  useOnlyPolygon();
   return (
     <div className="font-khTeka mx-auto w-full">
       <header className="h-[112px] px-6 lg:px-8">

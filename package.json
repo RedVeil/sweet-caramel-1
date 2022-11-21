@@ -6,19 +6,22 @@
   ],
   "scripts": {
     "dev": "yarn lerna run --parallel dev",
-    "build": "yarn lerna run --parallel build",
-    "app:build": "yarn lerna run --scope={@popcorn/app,@popcorn/hardhat} build",
-    "grants:build": "yarn lerna run --scope={@popcorn/grants,@popcorn/hardhat} build",
+    "build": "cd packages/hardhat; yarn build; cd ../greenfield-app; yarn build",
+    "app:build": "cd packages/hardhat; yarn build; cd ../app; yarn build",
+    "grants:build": "cd packages/hardhat; yarn build; cd ../grants; yarn build",
     "app:start": "yarn lerna run --scope @popcorn/app start",
     "start": "yarn lerna run --scope @popcorn/app start",
     "pretify": "prettier --write .",
     "test": "yarn lerna run test",
     "test:fork": "yarn lerna run test:fork",
     "test:forge": "yarn lerna run test:forge",
-    "install:forge":"yarn lerna run install:forge",
+    "install:forge": "yarn lerna run install:forge",
     "coverage": "yarn lerna run coverage",
     "prepare": "husky install",
-    "netlify-build": "lerna run --scope @popcorn/hardhat compile && cd packages/app && yarn next build && cd .. && cd grants && yarn next build"
+    "netlify-build": "cd packages/hardhat; yarn build; cd ../app; yarn build"
+  },
+  "lint-staged": {
+    "*.{sol,ts,tsx}": "prettier --write"
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "3.9.2",
@@ -30,7 +33,7 @@
     "@babel/core": "7.16.7",
     "babel-jest": "26.6.3",
     "babel-plugin-module-resolver": "4.0.0",
-    "husky": "7.0.4",
+    "husky": "^8.0.0",
     "jest": "26.6.3",
     "lint-staged": "12.2.1",
     "tsconfig-paths": "3.9.0"
@@ -55,6 +58,7 @@
     "nanoid": "^3.1.31",
     "ws": "^7.5.6",
     "yargs-parser": "^21.1.1",
+    "parse-url": "8.1.0",
     "trim-newlines": "^3.0.1",
     "meow": "^8.0.0"
   },
@@ -62,5 +66,6 @@
     "type": "git",
     "url": ""
   },
-  "license": "MIT"
+  "license": "MIT",
+  "version": "0.0.0"
 }

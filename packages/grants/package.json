@@ -1,12 +1,12 @@
 {
   "name": "@popcorn/grants",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "dev": "next",
     "build": "yarn next build",
     "export": "yarn next export",
     "jest": "jest",
-    "prettier": "prettier",
+    "prettier": "prettier --write .",
     "prettify": "yarn lint-staged --allow-empty",
     "netlify-build": "cd ../../ &&  yarn && cd packages/hardhat && yarn compile && cd .. && cd grants && yarn build",
     "start": "next start"
@@ -24,8 +24,8 @@
     "@mailchimp/mailchimp_marketing": "^3.0.75",
     "@material-ui/core": "^4.12.3",
     "@mui/material": "^5.8.3",
-    "@popcorn/hardhat": "*",
-    "@popcorn/utils": "*",
+    "@popcorn/hardhat": "^1.0.1",
+    "@popcorn/utils": "^1.0.1",
     "@typechain/ethers-v5": "7.2.0",
     "@web3-onboard/coinbase": "^2.0.9",
     "@web3-onboard/gnosis": "2.0.1",
@@ -73,7 +73,7 @@
     "web3-react": "^5.0.5"
   },
   "devDependencies": {
-    "@svgr/webpack": "5.5.0",
+    "@svgr/webpack": "6.5.1",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "10.4.9",
     "@types/howler": "2.2.4",
@@ -88,5 +88,5 @@
     "postcss": "8.4.12",
     "ts-node": "8.10.2"
   },
-  "license": "MIT"
+  "license": "AGPL-3.0"
 }

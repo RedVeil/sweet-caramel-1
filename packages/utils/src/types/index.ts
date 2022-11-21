@@ -1,8 +1,11 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20, Vault } from "@popcorn/hardhat/typechain";
+import { ERC20 } from "@popcorn/hardhat/typechain";
+import { ChainId } from "@popcorn/utils";
 
 export type Address = string;
+
 export interface ContractAddresses {
+  xen?: Address;
   staking?: Array<Address>;
   sweetVaults?: Array<Address>;
   defaultTokenList?: Array<Address>;
@@ -10,6 +13,7 @@ export interface ContractAddresses {
   butterStaking?: Address;
   threeXStaking?: Address;
   popUsdcLpStaking?: Address;
+  xenStaking?: Address;
   pop?: Address;
   xPop?: Address;
   xPopRedemption?: Address;
@@ -31,7 +35,6 @@ export interface ContractAddresses {
   butterBatch?: Address;
   butterBatchZapper?: Address;
   butterWhaleProcessing?: Address;
-  butterDependency?: ButterDependencyAddresses;
   threeX?: Address;
   threeXBatch?: Address;
   threeXWhale?: Address;
@@ -103,7 +106,7 @@ export interface ContractAddresses {
   balancerLBPFactory?: Address;
   merkleOrchard?: Address;
   rewardsEscrow?: Address;
-  vaultsRewardsEscrow: Address;
+  vaultsRewardsEscrow?: Address;
   all: Set<Address>;
   has: (contract: string) => boolean;
 }
@@ -146,7 +149,7 @@ export type LockedBalance = {
 
 export type Token = {
   contract: ERC20;
-  address: Address;
+  address: string;
   name: string;
   symbol: string;
   decimals: number;
@@ -156,6 +159,7 @@ export type Token = {
   icon?: string;
   claimableBalance?: BigNumber;
   price?: BigNumber;
+  [key: string]: any;
 };
 
 export type ERC20Metadata = {
@@ -167,6 +171,14 @@ export type ERC20Metadata = {
   allowance?: BigNumber;
   description?: string;
   icon?: string;
+};
+
+export type ContractMetadata = {
+  name?: string;
+  symbol?: string;
+  description?: string;
+  icon?: string;
+  platform?: string;
 };
 
 export type SweetVaultMetadata = ERC20Metadata & {
@@ -189,8 +201,11 @@ export type SweetVaultMetadata = ERC20Metadata & {
 };
 
 // contract w/ metadata pattern
+// TODO we need to find a way to get this type from /foundry or use smth else instead
 export type SweetVaultWithMetadata = {
-  contract: Vault;
+  contract: ERC20;
+  address: string;
+  chainId: ChainId;
   metadata: SweetVaultMetadata;
 };
 

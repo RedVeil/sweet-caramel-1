@@ -19,6 +19,7 @@ remappings = [
     'hardhat/=node_modules/hardhat/',
     'merkle-tree-solidity/=node_modules/merkle-tree-solidity/',
     'openzeppelin-v3/=node_modules/openzeppelin-v3/',
+    'solmate/=node_modules/solmate/'
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

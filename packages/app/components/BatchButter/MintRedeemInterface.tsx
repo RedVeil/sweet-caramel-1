@@ -1,15 +1,20 @@
+import { ChainId } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
-import { InfoIconWithModal } from "components/InfoIconWithModal";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
+import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
 import { useContext } from "react";
-import MainActionButton from "../MainActionButton";
-import ButterTokenInput, { ButterTokenInputProps, Pages, pageToDisplayToken } from "./ButterTokenInput";
-import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
-import MintRedeemToggle from "./MintRedeemToggle";
-import SlippageSettings from "./SlippageSettings";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import ButterTokenInput, {
+  ButterTokenInputProps,
+  Pages,
+  pageToDisplayToken,
+} from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import { CheckMarkToggleWithInfo } from "@popcorn/app/components/BatchButter/CheckMarkToggleWithInfo";
+import MintRedeemToggle from "@popcorn/app/components/BatchButter/MintRedeemToggle";
+import SlippageSettings from "@popcorn/app/components/BatchButter/SlippageSettings";
 
 interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   mainAction: (depositAmount: BigNumber, batchType: BatchType, stakeImmidiate?: boolean) => Promise<void>;
@@ -19,6 +24,7 @@ interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   instant: boolean;
   setInstant?: (instant: boolean) => void;
   showSlippageAdjust: boolean;
+  chainId: ChainId;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
@@ -41,6 +47,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   hasUnclaimedBalances,
   selectToken,
   showSlippageAdjust,
+  chainId,
+  disabled,
 }) => {
   const { features } = useContext(FeatureToggleContext);
 
@@ -75,11 +83,13 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           hasUnclaimedBalances={hasUnclaimedBalances}
           selectToken={selectToken}
           instant={instant}
+          chainId={chainId}
+          disabled={disabled}
         />
       </div>
       {!useUnclaimedDeposits &&
         [Pages.butter, Pages.threeX].includes(page) &&
-        !(page === Pages.threeX && !features["instant3X"]) && (
+        !(page === Pages.threeX && features["instant3X"]) && (
           <div className="mt-2">
             <CheckMarkToggleWithInfo
               label={`Use Instant ${pageToDisplayToken(page).output} (Higher Gas Fee)`}
@@ -110,8 +120,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
         {!(hasUnclaimedBalances && useUnclaimedDeposits) && isAllowanceInsufficient() && (
           <div className="pt-6 space-y-6">
             <MainActionButton
-              label={`Allow Popcorn to use your ${selectedToken.input.symbol}`}
-              handleClick={() => approve(selectedToken.input)}
+              label={`Allow Popcorn to use your ${selectedToken?.input?.symbol}`}
+              handleClick={() => approve(selectedToken?.input)}
             />
             <MainActionButton
               label={withdrawMode ? "Redeem" : "Mint"}
@@ -132,7 +142,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                       <p>
                         Choose Mint & Stake to automatically stake the token to earn POP rewards. If you select Mint you
                         will not earn POP rewards unless the token is staked in the
-                        <Link href="/ethereum/staking" passHref>
+                        <Link href="/staking" passHref>
                           <a className="font-medium text-blue-600 hover:text-blue-900"> staking </a>
                         </Link>
                         page.

@@ -1,6 +1,6 @@
-import { PickerData } from "components/WheelPicker/WheelPicker";
+import { PickerData } from "@popcorn/app/components/WheelPicker/WheelPicker";
 import { RefObject, useCallback, useRef } from "react";
-import { PickerItemRef } from "./useObserver";
+import { PickerItemRef } from "@popcorn/app/hooks/wheelPicker/useObserver";
 
 const easeOutCubic = (t: number, b: number, c: number, d: number) => {
   t /= d;

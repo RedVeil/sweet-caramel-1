@@ -142,7 +142,7 @@ const ApplyForm = () => {
   const loading = () => toast.loading("Uploading to IPFS...");
 
   const checkPreConditions = async (): Promise<boolean> => {
-    console.log('calling this function')
+    console.log("calling this function");
     if (!contracts) {
       return false;
     }
@@ -151,7 +151,7 @@ const ApplyForm = () => {
     }
     const balance = await contracts?.pop?.balanceOf(account);
     if (proposalBond?.gt(balance)) {
-      dispatch(setSingleActionModal(false))
+      dispatch(setSingleActionModal(false));
       dispatch(
         setSingleActionModal({
           image: <img src="/images/accept.svg" alt="not enough pop" />,
@@ -168,10 +168,10 @@ const ApplyForm = () => {
             },
           },
           onDismiss: {
-            onClick: () => dispatch(setSingleActionModal({ visible: false }))
+            onClick: () => dispatch(setSingleActionModal({ visible: false })),
           },
         }),
-      )
+      );
       return false;
     }
     return true;
@@ -208,7 +208,7 @@ const ApplyForm = () => {
               },
             },
             onDismiss: {
-              onClick: () => dispatch(setSingleActionModal({ visible: false }))
+              onClick: () => dispatch(setSingleActionModal({ visible: false })),
             },
           }),
         );
@@ -242,10 +242,12 @@ const ApplyForm = () => {
         children: (
           <div className="text-base md:text-sm text-primaryDark mt-4">
             <p className="leading-[140%]">
-              By confirming the proposal submission, you commit to locking 2000 POP for the duration of the proposal process
+              By confirming the proposal submission, you commit to locking 2000 POP for the duration of the proposal
+              process
             </p>
             <p className="leading-[140%] mt-4">
-              If the nomination does not pass, the token that were locked at the time of submission will be kept in the contract. After a successful nomination, the tokens will be claimable by nominating user.
+              If the nomination does not pass, the token that were locked at the time of submission will be kept in the
+              contract. After a successful nomination, the tokens will be claimable by nominating user.
             </p>
           </div>
         ),

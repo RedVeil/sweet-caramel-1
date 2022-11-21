@@ -3,6 +3,7 @@ src = 'contracts'
 test = 'test'
 out = 'artifacts'
 libs = ['node_modules', '../../node_modules', "lib"]
+fs_permissions = [{ access = "read-write", path = "./"}]
 remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',
   'forge-std/=lib/forge-std/src/'
@@ -12,11 +13,15 @@ fuzz_runs = 256
 fuzz_max_global_rejects = 100000000
 fs_permissions = [{ access = "read-write", path = "./"}]
 
+[rpc_endpoints]
+FORKING_RPC_URL = "${FORKING_RPC_URL}"
+
 [profile.ci]
 src = 'contracts'
 test = 'test'
 out = 'artifacts'
 libs = ['node_modules', '../../node_modules', "lib"]
+fs_permissions = [{ access = "read-write", path = "./"}]
 remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',
   'forge-std/=lib/forge-std/src/'

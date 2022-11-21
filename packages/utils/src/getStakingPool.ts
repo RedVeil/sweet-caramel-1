@@ -3,7 +3,7 @@ import { BigNumber, constants } from "ethers";
 import { getPopApy } from ".";
 import { calculateApy } from "./calculateAPY";
 import { getTokenFromAddress } from "./getToken";
-import { Address, ContractAddresses, StakingPool } from "./types";
+import { StakingPool } from "./types";
 
 export interface PopLockerMetadata extends StakingPool {
   contract: PopLocker;
@@ -15,19 +15,19 @@ export interface StakingPoolMetadata extends StakingPool {
 
 export async function getStakingPool(
   key: string,
-  account: Address,
+  account: string,
   staking: Staking,
-  contractAddresses: ContractAddresses,
   chainId: number,
-  library,
+  rpcProvider,
+  contractAddresses,
 ): Promise<StakingPoolMetadata> {
   const tokenAddress = await staking.stakingToken();
   const totalStake = await staking.totalSupply();
   const tokenPerWeek = await staking.getRewardForDuration();
-  const apy = await calculateApy(tokenAddress, tokenPerWeek, totalStake, contractAddresses, chainId, library);
+  const apy = await calculateApy(tokenAddress, tokenPerWeek, totalStake, chainId, rpcProvider, contractAddresses);
   const earned = account ? await staking.earned(account) : constants.Zero;
   const userStake = account ? await staking.balanceOf(account) : constants.Zero;
-  const stakingToken = await getTokenFromAddress(tokenAddress, library, chainId);
+  const stakingToken = await getTokenFromAddress(tokenAddress, rpcProvider, chainId);
   return {
     contract: staking,
     address: staking.address,
@@ -45,7 +45,7 @@ export async function getPopLocker(
   key: string,
   popLocker: PopLocker,
   chainId: number,
-  account?: Address,
+  account?: string,
 ): Promise<PopLockerMetadata> {
   const tokenAddress = await popLocker.stakingToken();
   const totalStake = await popLocker.lockedSupply();

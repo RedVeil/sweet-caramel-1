@@ -1,19 +1,18 @@
 export {
-  adjustDepositDecimals,
   getIndexForToken,
   getMinZapAmount,
   isButterSupportedOnCurrentNetwork,
   percentageToBps,
   prepareHotSwap,
 } from "./butterHelpers";
-export {
-  isChainIdPolygonOrLocal
-} from './polygonHelpers'
+export { verifyEmail } from "./VerifyEmail";
+export { isChainIdPolygonOrLocal } from "./PolygonHelpers";
 export { calculateApy, getPopApy } from "./calculateAPY";
 export { capitalize } from "./capitalize";
 export {
   ChainId,
   ChainIdHex,
+  HexToChain,
   networkLogos,
   networkMap,
   PRC_PROVIDERS,
@@ -24,25 +23,9 @@ export { getERC20Contract } from "./contractHelpers";
 export { formatAndRoundBigNumber, numberToBigNumber } from "./formatBigNumber";
 export type { ContractsWithBalance, TokenBalances } from "./getBalances";
 export { getPopLocker, getStakingPool } from "./getStakingPool";
-export { default as getSweetVault } from "./getSweetVault";
 export { default as getToken, getMultipleToken, getTokenFromAddress } from "./getToken";
-export { default as getTokenOnNetwork } from "./getTokenOnNetwork";
 export { IpfsClient } from "./IpfsClient/IpfsClient";
 export type { IIpfsClient, UploadResult } from "./IpfsClient/IpfsClient";
 export { getBytes32FromIpfsHash, getIpfsHashFromBytes32 } from "./ipfsHashManipulation";
 export { default as localStringOptions } from "./localStringOptions";
 export { default as useFetch } from "./useFetch";
-export {
-  getTokenMetadataOverride,
-  getContractMetadata,
-  useContractMetadata,
-  generateTokenMetadataOverride,
-} from "./contractMetadataOverride";
-export type {
-  ContractMetadata,
-  TokenContractMetadataOverride,
-  NetworkKeys,
-  OverrideObject,
-  OverrideConfig,
-} from "./contractMetadataOverride";
-export { verifyEmail } from "./verifyEmail";

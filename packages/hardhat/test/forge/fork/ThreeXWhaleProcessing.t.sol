@@ -64,6 +64,9 @@ contract ThreeXWhaleProcessingTest is Test {
   uint256 usdtBalanceBefore;
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     tokens = [dai, usdc, usdt];
     threeXWhaleProcessing = new ThreeXWhaleProcessing(
       IContractRegistry(CONTRACT_REGISTRY),

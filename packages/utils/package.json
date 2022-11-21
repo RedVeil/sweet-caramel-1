@@ -1,6 +1,6 @@
 {
   "name": "@popcorn/utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "src/index",
   "scripts": {
     "build": "tsc",
@@ -16,5 +16,5 @@
     "find-config": "^1.0.0",
     "pino": "6.13.4"
   },
-  "license": "MIT"
+  "license": "AGPL-3.0"
 }

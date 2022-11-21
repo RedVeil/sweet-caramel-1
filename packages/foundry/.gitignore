@@ -1,0 +1,13 @@
+.env
+cache/
+out/
+coverage/
+coverage.json
+lcov.info
+deployments/
+docgen/docs
+docgen/SUMMARY.md
+docgen/.gitbook.yaml
+deployments.json
+exporter/
+.vercel

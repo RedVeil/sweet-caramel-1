@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import toast from "react-hot-toast";
 
 function confirmationsPerChain(chainId: ChainId): number {
+  console.log(chainId);
   switch (chainId) {
     case ChainId.Polygon:
       return 2;
@@ -15,7 +16,7 @@ function confirmationsPerChain(chainId: ChainId): number {
   }
 }
 
-export default function useWeb3Callbacks(chainId: number) {
+export function useWeb3Callbacks(chainId: number) {
   return {
     onSuccess: useCallback(
       async (res: ethers.ContractTransaction, successMessage: string, successCallback?: () => any): Promise<void> => {
@@ -43,3 +44,5 @@ export default function useWeb3Callbacks(chainId: number) {
     ),
   };
 }
+
+export default useWeb3Callbacks;

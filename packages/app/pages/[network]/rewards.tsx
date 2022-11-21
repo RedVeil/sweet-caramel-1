@@ -1,30 +1,33 @@
 import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { CardLoader } from "components/CardLoader";
-import ConnectDepositCard from "components/Common/ConnectDepositCard";
-import AirDropClaim from "components/Rewards/AirdropClaim";
-import ClaimCard from "components/Rewards/ClaimCard";
-import { NotAvailable } from "components/Rewards/NotAvailable";
-import RewardSummaryCard from "components/Rewards/RewardSummaryCard";
-import VestingRecordComponent from "components/Rewards/VestingRecord";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import TabSelector from "components/TabSelector";
-import { setMultiChoiceActionModal, setSingleActionModal } from "context/actions";
-import { store } from "context/store";
+import { CardLoader } from "@popcorn/app/components/CardLoader";
+import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
+import AirDropClaim from "@popcorn/app/components/Rewards/AirdropClaim";
+import ClaimCard from "@popcorn/app/components/Rewards/ClaimCard";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
+import RewardSummaryCard from "@popcorn/app/components/Rewards/RewardSummaryCard";
+import VestingRecordComponent from "@popcorn/app/components/Rewards/VestingRecord";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import TabSelector from "@popcorn/app/components/TabSelector";
+import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
 import { BigNumber, ethers } from "ethers";
-import useGetMultipleStakingPools from "hooks/staking/useGetMultipleStakingPools";
-import usePopLocker from "hooks/staking/usePopLocker";
-import useClaimEscrows from "hooks/useClaimEscrows";
-import useClaimStakingReward from "hooks/useClaimStakingReward";
-import { Escrow, useGetUserEscrows, useGetUserVaultsEscrows } from "hooks/useGetUserEscrows";
-import useWeb3 from "hooks/useWeb3";
+import useGetMultipleStakingPools from "@popcorn/app/hooks/staking/useGetMultipleStakingPools";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useClaimEscrows from "@popcorn/app/hooks/useClaimEscrows";
+import useClaimStakingReward from "@popcorn/app/hooks/useClaimStakingReward";
+import { Escrow, useGetUserEscrows } from "@popcorn/app/hooks/useGetUserEscrows";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import { ChevronDown } from "react-feather";
-import { toast } from "react-hot-toast";
 import { SWRResponse } from "swr";
-import useBalanceAndAllowance from "../../hooks/staking/useBalanceAndAllowance";
-import useERC20 from "../../hooks/tokens/useERC20";
+import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import { useStakingContracts } from "@popcorn/app/hooks/useStakingContracts";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -32,29 +35,43 @@ export enum Tabs {
   Vesting = "Vesting Records",
 }
 
-export default function index(): JSX.Element {
-  const { account, signerOrProvider, signer, chainId, connect, contractAddresses, onContractSuccess, onContractError } =
-    useWeb3();
+export default function RewardsPage(): JSX.Element {
+  const { account, signerOrProvider, signer, connect, chains } = useWeb3();
+  const chainId = useChainIdFromUrl();
+  const {
+    xPopRedemption: xPopRedemptionAddress,
+    popStaking,
+    xPop: xPopAddress,
+    rewardsEscrow,
+    pop: popAddress,
+    vaultsRewardsEscrow,
+  } = useDeployment(chainId);
   const { dispatch } = useContext(store);
   const [visibleEscrows, setVisibleEscrows] = useState<number>(5);
   const xPopRedemption = useMemo(() => {
-    if (contractAddresses.xPopRedemption) {
-      return XPopRedemption__factory.connect(contractAddresses.xPopRedemption, signerOrProvider);
+    if (xPopRedemptionAddress) {
+      return XPopRedemption__factory.connect(xPopRedemptionAddress, signerOrProvider);
     }
-  }, [chainId, account, signerOrProvider]);
-  const pop = useERC20(contractAddresses.pop);
-  const xPop = useERC20(contractAddresses.xPop);
-  const { data: popLocker, mutate: revalidatePopLocker } = usePopLocker(contractAddresses.popStaking);
-  const { data: stakingPools, mutate: revalidateStakingPools } = useGetMultipleStakingPools(contractAddresses.staking);
-  const balancesXPop = useBalanceAndAllowance(xPop, account, contractAddresses?.xPopRedemption);
-  const balancesPop = useBalanceAndAllowance(pop, account, contractAddresses?.xPopRedemption);
+  }, [chainId, account, signerOrProvider, xPopRedemptionAddress]);
+
+  const pop = useERC20(popAddress, chainId);
+  const xPop = useERC20(xPopAddress, chainId);
+
+  const { data: popLocker, mutate: revalidatePopLocker } = usePopLocker(popStaking, chainId);
+  const stakingContracts = useStakingContracts(chainId);
+  const { data: stakingPools, mutate: revalidateStakingPools } = useGetMultipleStakingPools(stakingContracts, chainId);
+  const stakingIsLoading = !popLocker && !stakingPools;
+
+  const balancesXPop = useBalanceAndAllowance(xPop?.address, account, xPopRedemptionAddress, chainId);
+  const balancesPop = useBalanceAndAllowance(pop?.address, account, xPopAddress, chainId);
 
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
   const isSelected = (tab: Tabs) => tabSelected === tab;
 
   const claimStakingReward = useClaimStakingReward();
-  const claimVestedPopFromEscrows = useClaimEscrows();
+  const claimVestedPopFromEscrows = useClaimEscrows(rewardsEscrow, chainId);
+  const transaction = useTransaction(chainId);
 
   const revalidate = () => {
     revalidatePopLocker();
@@ -85,18 +102,17 @@ export default function index(): JSX.Element {
   const userEscrowsFetchResult: SWRResponse<
     { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
     any
-  > = useGetUserEscrows(chainId);
+  > = useGetUserEscrows(rewardsEscrow, account, chainId);
   const userVaultsEscrowsFetchResults: SWRResponse<
     { escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber },
     any
-  > = useGetUserVaultsEscrows(chainId);
+  > = useGetUserEscrows(vaultsRewardsEscrow, account, chainId);
 
   const [userEscrowData, setUserEscrowData] =
     useState<{ escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber }>();
 
   useEffect(() => {
     if (!userEscrowsFetchResult?.data && !userVaultsEscrowsFetchResults?.data) {
-      console.log("Missing data", userEscrowsFetchResult?.data, userVaultsEscrowsFetchResults?.data);
       return;
     }
     setUserEscrowData({
@@ -112,60 +128,24 @@ export default function index(): JSX.Element {
     });
   }, [userEscrowsFetchResult?.data, userVaultsEscrowsFetchResults?.data]);
 
-  const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean) => {
-    toast.loading("Claiming Rewards...");
-    claimStakingReward(pool, isPopLocker).then(
-      (res) =>
-        onContractSuccess(res, "Rewards Claimed!", () => {
-          revalidate();
-
-          if (!localStorage.getItem("hideClaimModal")) {
-            dispatch(
-              setMultiChoiceActionModal({
-                image: <img src="/images/modalImages/vestingImage.svg" />,
-                title: "Sweet!",
-                content:
-                  "You have just claimed 10% of your earned rewards. The rest of the rewards will be claimable over the next 365 days",
-                onConfirm: {
-                  label: "Continue",
-                  onClick: () => dispatch(setMultiChoiceActionModal(false)),
-                },
-                onDismiss: {
-                  onClick: () => {
-                    dispatch(setMultiChoiceActionModal(false));
-                  },
-                },
-                onDontShowAgain: {
-                  label: "Do not remind me again",
-                  onClick: () => {
-                    localStorage.setItem("hideClaimModal", "true");
-                    dispatch(setMultiChoiceActionModal(false));
-                  },
-                },
-              }),
-            );
-          }
-        }),
-      (err) => onContractError(err),
-    );
-  };
-
   const claimSingleEscrow = async (escrow: Escrow) => {
-    toast.loading("Claiming Escrow...");
-    claimVestedPopFromEscrows([escrow.id]).then(
-      (res) => onContractSuccess(res, "Claimed Escrow!", revalidate),
-      (err) => onContractError(err),
+    transaction(
+      async () => claimVestedPopFromEscrows([escrow.id]),
+      "Claiming Escrow...",
+      "Claimed Escrow!",
+      revalidate,
     );
   };
 
   const claimAllEscrows = async () => {
-    toast.loading("Claiming Escrows...");
     const escrowsIds = userEscrowData?.escrows.map((escrow) => escrow.id);
     const numberOfEscrows = escrowsIds ? escrowsIds.length : 0;
     if (numberOfEscrows && numberOfEscrows > 0) {
-      claimVestedPopFromEscrows(escrowsIds).then(
-        (res) => onContractSuccess(res, "Claimed Escrows!", revalidate),
-        (err) => onContractError(err),
+      transaction(
+        async () => claimVestedPopFromEscrows(escrowsIds),
+        "Claiming Escrows...",
+        "Claimed Escrows!",
+        revalidate,
       );
     }
   };
@@ -179,49 +159,25 @@ export default function index(): JSX.Element {
   }
 
   async function approveXpopRedemption(): Promise<void> {
-    toast.loading("Approving xPOP...");
-    await xPop.contract
-      .connect(signer)
-      .approve(contractAddresses.xPopRedemption, ethers.constants.MaxUint256)
-      .then((res) => {
-        res.wait().then((res) => {
-          toast.dismiss();
-          toast.success("xPOP approved!");
-          revalidate();
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+    transaction(
+      async () => xPop.contract.connect(signer).approve(xPopRedemptionAddress, ethers.constants.MaxUint256),
+      "Approving xPOP...",
+      "xPOP approved!",
+      revalidate,
+    );
   }
   async function redeemXpop(amount: BigNumber): Promise<void> {
-    toast.loading("Redeeming xPOP...");
-    await xPopRedemption
-      .connect(signer)
-      .redeem(amount)
-      .then((res) => {
-        res.wait().then((res) => {
-          toast.dismiss();
-          toast.success("xPOP redeemed!");
-          revalidate();
-          postRedeemSuccess();
-        });
-      })
-      .catch((err) => {
-        toast.dismiss();
+    transaction(
+      async () => xPopRedemption.connect(signer).redeem(amount),
+      "Redeeming xPOP...",
+      "xPOP redeemed!",
+      () => {
         revalidate();
-        if (err.data === undefined) {
-          toast.error("An error occured");
-        } else {
-          toast.error(err.data.message.split("'")[1]);
-        }
-      });
+        postRedeemSuccess();
+      },
+    );
   }
+
   const postRedeemSuccess = () => {
     dispatch(
       setSingleActionModal({
@@ -260,7 +216,7 @@ export default function index(): JSX.Element {
           {!account && (
             <div
               className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
-              onClick={() => connect()}
+              onClick={connect}
               role="button"
             >
               <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
@@ -295,10 +251,11 @@ export default function index(): JSX.Element {
             </div>
             {isSelected(Tabs.Staking) && stakingVisible(chainId) && !!popLocker && (
               <ClaimCard
+                tokenAddress={popLocker.stakingToken.address}
+                chainId={chainId}
                 tokenName={popLocker.stakingToken.name}
                 claimAmount={popLocker.earned}
                 key={popLocker.address}
-                handler={poolClaimHandler}
                 pool={popLocker.contract}
                 disabled={popLocker.earned?.isZero()}
                 isPopLocker={true}
@@ -321,6 +278,7 @@ export default function index(): JSX.Element {
             {isSelected(Tabs.Airdrop) && xPop && pop ? (
               <div className="mt-8">
                 <AirDropClaim
+                  chainId={chainId}
                   approve={approveXpopRedemption}
                   redeem={redeemXpop}
                   balances={[balancesXPop, balancesPop]}
@@ -340,23 +298,17 @@ export default function index(): JSX.Element {
               stakingPools.length > 0 &&
               stakingPools?.map((poolInfo, index) => (
                 <ClaimCard
+                  tokenAddress={poolInfo.stakingToken.address}
+                  chainId={chainId}
                   tokenName={poolInfo.stakingToken.name}
                   claimAmount={poolInfo.earned}
                   key={poolInfo.address}
-                  handler={poolClaimHandler}
                   pool={poolInfo.contract}
                   disabled={poolInfo.earned?.isZero()}
-                  isPopLocker={poolInfo.stakingToken.address === contractAddresses.pop}
+                  isPopLocker={poolInfo.stakingToken.address === popAddress}
                 />
               ))}
 
-            {isSelected(Tabs.Staking) && (stakingPools?.length || -1) >= 0 && !popLocker && (
-              <NotAvailable
-                title="No Staking Pools"
-                body="There are no staking pools found on this network"
-                visible={isSelected(Tabs.Staking)}
-              />
-            )}
             {isSelected(Tabs.Vesting) && (
               <div className="flex flex-col h-full">
                 {!userEscrowData ||
@@ -427,7 +379,7 @@ export default function index(): JSX.Element {
                 )}
               </div>
             )}
-            {!popLocker && (stakingPools?.length || -1) >= 0 && (
+            {tabSelected === Tabs.Staking && stakingVisible(chainId) && stakingIsLoading && (
               <div className="mt-10">
                 <ContentLoader viewBox="0 0 450 400" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
                   {/*eslint-disable */}
@@ -441,9 +393,6 @@ export default function index(): JSX.Element {
           </div>
         </div>
       )}
-      {/* {account && (
-        <FooterLandScapeImage/>
-      )} */}
     </>
   );
 }

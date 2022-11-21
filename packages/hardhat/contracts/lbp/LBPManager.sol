@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.0;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ILBPFactory} from "./interfaces/ILBPFactory.sol";
-import {ILBP} from "./interfaces/ILBP.sol";
-import {IVault, JoinPoolRequest, IAsset, WeightedPoolExitKind, WeightedPoolJoinKind, ExitPoolRequest} from "./interfaces/IVault.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ILBPFactory } from "./interfaces/ILBPFactory.sol";
+import { ILBP } from "./interfaces/ILBP.sol";
+import { ILBPVault, JoinPoolRequest, IAsset, WeightedPoolExitKind, WeightedPoolJoinKind, ExitPoolRequest } from "./interfaces/ILBPVault.sol";
 
 /**
  * @title LBP Manager
@@ -55,7 +55,7 @@ contract LBPManager {
    */
   struct Balancer {
     ILBPFactory lbpFactory;
-    IVault vault;
+    ILBPVault vault;
   }
 
   /**

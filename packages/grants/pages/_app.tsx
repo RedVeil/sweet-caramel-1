@@ -6,6 +6,7 @@ import { DualActionModalContainer } from "components/Modal/DualActionModalContai
 import DualActionWideModalContainer from "components/Modal/DualActionWideModalContainer";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "components/Notifications/NotificationsContainer";
+import web3Onboard from "helper/web3Onboard";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -13,7 +14,6 @@ import Router from "next/router";
 import type { ReactElement, ReactNode } from "react";
 import React, { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import web3Onboard from "helper/web3Onboard";
 import { StateProvider } from "../context/store";
 import ContractsWrapper from "../context/Web3/contracts";
 import ElectionsProvider from "../context/Web3/elections";
@@ -25,7 +25,7 @@ function getLibrary(provider: any): Web3Provider {
   return library;
 }
 
-web3Onboard()
+web3Onboard();
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
