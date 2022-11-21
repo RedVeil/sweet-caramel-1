@@ -1,0 +1,4 @@
+
+contract VaultDeployment is Script {
+
+}
