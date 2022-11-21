@@ -9,7 +9,6 @@ interface TabSelectorProps {
 const TabSelector: React.FC<TabSelectorProps> = ({ activeTab, setActiveTab, availableTabs }) => {
   return (
     <div className="w-full flex flex-row">
-      {console.log("testing pre-push hooks")}
       {availableTabs.map((tab) => (
         <div
           key={tab}

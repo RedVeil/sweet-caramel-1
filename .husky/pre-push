@@ -4,13 +4,16 @@
 # get the current branch
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-# get the list of files changed in the current branch
-files_changed=$(git diff --name-only $current_branch)
-
-# check if the files changed include packages/greenfield-app
-if [[ $files_changed == *"packages/greenfield-app"* ]]; then
-  yarn build
-  exit 0
+# check that the current branch is main and changes were made in packages/greenfield-app
+if [ "$current_branch" = "main" ] && [[ -n $(git diff --name-only HEAD~1 | grep packages/greenfield-app) ]]; then
+  # run build on greenfield-app package only once, check if build was successful
+  yarn workspace greenfield-app build
+  if [ $? -eq 0 ]; then
+    echo "Build successful"
+  else
+    echo "Build failed"
+    exit 1
+  fi
 else
-  exit 0
+  echo "Skipping pre-push hook"
 fi
