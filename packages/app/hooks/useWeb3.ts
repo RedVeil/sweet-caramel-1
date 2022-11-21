@@ -1,139 +1,30 @@
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { ChainId, PRC_PROVIDERS } from "@popcorn/utils";
-import { useConnectWallet, useSetChain, useWallets } from "@web3-onboard/react";
-import { setNetworkChangePromptModal } from "context/actions";
-import { store } from "context/store";
-import { ethers } from "ethers";
-import { getStorage, removeStorage, setStorage } from "helper/safeLocalstorageAccess";
-import toTitleCase from "helper/toTitleCase";
-import useWeb3Callbacks from "helper/useWeb3Callbacks";
+import useWeb3Callbacks from "@popcorn/app/helper/useWeb3Callbacks";
 import { useRouter } from "next/router";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 
 export default function useWeb3() {
   const router = useRouter();
-  const [{ connecting, wallet }, connect, disconnect] = useConnectWallet();
-  const [{ chains, connectedChain, settingChain }, setChain] = useSetChain();
-  const [awaitingChainChange, setAwaitingChainChange] = useState<number | false>(false);
+  const { openConnectModal } = useConnectModal();
+  const { address: account } = useAccount();
+  const { data: signer } = useSigner();
+  const { chain, chains } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork();
+  const signerOrProvider = useMemo(() => signer || getCurrentRpcProvider(), [signer]);
+  const contractAddresses = useDeployment(chain?.id);
+  const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(chain?.id);
 
-  const walletProvider = useMemo(
-    () => (wallet?.provider ? new ethers.providers.Web3Provider(wallet?.provider, "any") : null),
-    [wallet?.provider],
-  );
-  const signer = useMemo(() => (walletProvider ? walletProvider.getSigner() : null), [walletProvider]);
-
-  const signerOrProvider = signer || getCurrentRpcProvider();
-  const connectedAccount = wallet?.accounts[0];
-  const accountAddress = connectedAccount?.address;
-  const contractAddresses = useMemo(() => getChainRelevantContracts(getChainId()), [getChainId()]);
-  const wallets = useWallets();
-  const { onSuccess: onContractSuccess, onError: onContractError } = useWeb3Callbacks(getChainId());
-  const { dispatch } = useContext(store);
-
-  const isLoaded = (network: string | undefined): boolean =>
-    connectedChain?.id && typeof network === "string" && !router?.pathname?.includes("butter");
-
-  const isChainMismatch = (network: string | undefined): boolean =>
-    isLoaded(network) && ChainId[Number(connectedChain?.id)] !== toTitleCase(network);
-
-  const inGnosisApp = () =>
-    typeof document !== "undefined" && document?.location?.ancestorOrigins?.contains("https://gnosis-safe.io");
-
-  useEffect(() => {
-    // Eagerconnect
-    if (!wallet && inGnosisApp()) {
-      connect({ autoSelect: { label: "Gnosis Safe", disableModals: true } });
-    } else if (!wallet && previouslyConnectedWallets?.length > 0) {
-      handleConnect(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Track Connected wallets for eagerconnect
-    if (wallets?.length > 0) {
-      setStorage("connectedWallets", JSON.stringify(wallets.map(({ label }) => label)));
-    }
-  }, [wallets]);
-
-  useEffect(() => {
-    // Detect and alert mismatch between connected chain and URL
-    if (!connectedChain?.id) return;
-    // Never alert when on landing page
-    if (["/[network]", "/"].includes(router?.pathname)) return;
-
-    if (isChainMismatch(router?.query?.network as string) || !ChainId[Number(connectedChain?.id)]) {
-      alertChainInconsistency(
-        router?.query?.network as string,
-        ChainId[Number(connectedChain?.id)] || "an unsupported Network",
-      );
-    } else {
-      dispatch(setNetworkChangePromptModal(false));
-    }
-  }, [router?.query?.network, wallet, connectedChain?.id]);
-
-  useEffect(() => {
-    // Navigate to new URL after chain is switched in wallet
-    if (awaitingChainChange) {
-      if (connectedChain.id === idToHex(awaitingChainChange)) {
-        pushNetworkChange(ChainId[awaitingChainChange], true);
-      }
-      setAwaitingChainChange(false);
-    }
-  }, [connectedChain?.id]);
-
-  const pushWithinChain = useCallback(
-    (url, shallow = false) =>
-      router.push({ pathname: `/${router?.query?.network}${url}` }, undefined, {
-        shallow: shallow,
-      }),
-    [router, router?.query?.network],
-  );
-
-  const previouslyConnectedWallets = JSON.parse(getStorage("connectedWallets"));
-
-  return {
-    account: accountAddress,
-    chainId: getChainId(),
-    connect: handleConnect,
-    disconnect: handleDisconnect,
-    connecting,
-    signerOrProvider,
-    rpcProvider: getCurrentRpcProvider(),
-    signer: !signerOrProvider || "getSigner" in signerOrProvider ? null : signerOrProvider,
-    contractAddresses,
-    onContractSuccess,
-    onContractError,
-    chains,
-    setChain: (newChainId) => setChainFromNumber(newChainId),
-    settingChain,
-    wallet,
-    pushWithinChain,
-  };
-
-  async function handleDisconnect(): Promise<void> {
-    removeStorage("connectedWallets");
-    await disconnect({ label: wallet?.label });
-  }
-
-  async function handleConnect(disableModals: boolean = false): Promise<void> {
-    return previouslyConnectedWallets
-      ? await connect({ autoSelect: { label: previouslyConnectedWallets[0], disableModals } })
-      : await connect({ autoSelect: { label: "all", disableModals: false } });
-  }
-
-  function getNonWalletChain(): string {
-    return typeof router?.query?.network === "string"
-      ? toTitleCase(router.query.network)
-      : ChainId[Number(process.env.CHAIN_ID)];
-  }
-
-  function getChainId(): number {
-    return Number(connectedChain?.id) || ChainId[getNonWalletChain()];
+  function getChainId(): ChainId {
+    return chain?.id ?? ChainId.Ethereum;
   }
 
   async function setChainFromNumber(newChainId: number): Promise<void> {
-    if (wallet) {
-      await setChain({ chainId: idToHex(newChainId) }).then(() => setAwaitingChainChange(newChainId));
+    if (account || (chain?.id && newChainId !== chain?.id)) {
+      switchNetwork(Number(newChainId));
+      pushNetworkChange(ChainId[newChainId], true);
     } else {
       await pushNetworkChange(ChainId[newChainId], true);
     }
@@ -141,10 +32,6 @@ export default function useWeb3() {
 
   function getCurrentRpcProvider() {
     return PRC_PROVIDERS[getChainId()];
-  }
-
-  function idToHex(newChainId: number): string {
-    return ethers.utils.hexStripZeros(ethers.utils.hexlify(newChainId));
   }
 
   async function pushNetworkChange(network: string, shallow: boolean): Promise<boolean> {
@@ -157,42 +44,18 @@ export default function useWeb3() {
     );
   }
 
-  function alertChainInconsistency(intendedChain: string, actualChain: string): void {
-    dispatch(
-      setNetworkChangePromptModal({
-        content: `You are viewing a page on ${toTitleCase(intendedChain)} but your wallet is set to ${actualChain}.`,
-        title: "Network Inconsistency",
-        type: "error",
-        onChangeUrl: ChainId[actualChain]
-          ? {
-            label: `Continue on ${actualChain}`,
-            onClick: () => {
-              pushNetworkChange(toTitleCase(actualChain), true);
-              dispatch(setNetworkChangePromptModal(false));
-            },
-          }
-          : undefined,
-        onChangeNetwork: {
-          label: `Switch to ${toTitleCase(intendedChain)}`,
-          onClick: () => {
-            setChainFromNumber(ChainId[toTitleCase(intendedChain)]).then((res) =>
-              dispatch(setNetworkChangePromptModal(false)),
-            );
-          },
-        },
-        onDisconnect: {
-          label: "Disconnect Wallet",
-          onClick: async () => {
-            await handleDisconnect();
-            dispatch(setNetworkChangePromptModal(false));
-          },
-        },
-        onDismiss: {
-          onClick: () => {
-            dispatch(setNetworkChangePromptModal(false));
-          },
-        },
-      }),
-    );
-  }
+  return {
+    account,
+    connectedChainId: getChainId(),
+    signerOrProvider,
+    rpcProvider: getCurrentRpcProvider(),
+    signer,
+    contractAddresses,
+    onContractSuccess,
+    onContractError,
+    chains,
+    setChain: (newChainId: number) => setChainFromNumber(newChainId),
+    switchNetwork,
+    connect: openConnectModal,
+  };
 }

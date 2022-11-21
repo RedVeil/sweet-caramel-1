@@ -1,10 +1,10 @@
-import React from 'react';
-import { QuestionMarkCircleIcon } from '@heroicons/react/outline';
-import ReactTooltip from 'react-tooltip';
+import React from "react";
+import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import ReactTooltip from "react-tooltip";
 
 export interface TooltipProps {
   title: string;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   id?: string;
   place?: "bottom" | "left" | "right" | "top";
   size?: number;
@@ -12,15 +12,11 @@ export interface TooltipProps {
 
 export const Tooltip: React.FC<TooltipProps> = ({ title, content, place, id, size }) => {
   size = size || 4;
-  id = id || "tooltip-" + (new Date().getTime());
+  id = id || "tooltip-" + new Date().getTime();
 
   return (
     <div className="">
-      <QuestionMarkCircleIcon
-        data-tip
-        data-for={id}
-        className={`cursor-pointer h-${size} w-${size}`}
-      />
+      <QuestionMarkCircleIcon data-tip data-for={id} className={`cursor-pointer h-${size} w-${size}`} />
       <ReactTooltip
         id={id}
         place={place || "bottom"}
@@ -33,5 +29,5 @@ export const Tooltip: React.FC<TooltipProps> = ({ title, content, place, id, siz
       </ReactTooltip>
     </div>
   );
-}
+};
 export default Tooltip;

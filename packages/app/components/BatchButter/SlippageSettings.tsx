@@ -1,10 +1,10 @@
-import { InfoIconWithModal } from "components/InfoIconWithModal";
-import PopUpModal from "components/Modal/PopUpModal";
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
-import { escapeRegExp, inputRegex } from "helper/inputRegex";
+import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
+import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { Dispatch, useContext, useState } from "react";
-import PseudoRadioButton from "./PseudoRadioButton";
+import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
 
 interface CustomSlippageInputProps {
   value: string;
@@ -64,7 +64,6 @@ const SlippageContent: React.FC<SlippageSettingsProps> = ({ slippage, setSlippag
             <InfoIconWithModal
               title="Slippage Tolerance"
               content="Your transaction will revert if the price changes unfavorably by more than this percentage"
-              size="w-5 h-5"
             />
           </div>
         </div>

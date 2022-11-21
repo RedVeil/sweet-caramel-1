@@ -40,15 +40,16 @@ interface IFilter {
   categoryFilter: { id: string; value: string };
   switchFilter: (item: { id: string; value: string }) => void;
   isApplication?: boolean;
+  filterPosition?: "right" | "left";
 }
 
-const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplication }) => {
+const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplication, filterPosition = "left" }) => {
   const [openFilter, setOpenFilter] = React.useState(false);
   return (
     <>
       <div className="hidden md:block">
         <Menu>
-          <Menu.Button className="bg-white rounded-4xl border border-[#E5E7EB]">
+          <Menu.Button className="bg-white rounded-4xl border border-[#E5E7EB] relative">
             <div className="w-44 cursor-pointer h-full py-3 px-5 flex flex-row items-center justify-between relative">
               <div className="flex items-center">
                 <ViewGridIcon className="text-gray-400 w-3 h-3 md:w-5 md:h-5" />
@@ -59,11 +60,12 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
             <BeneficiaryOptions
               options={categories}
               switchFilter={switchFilter}
-              position="absolute top-14 right-0 z-40"
+              position="absolute top-14 right-0 z-40 left-0"
               width="w-44"
               borderRadius="rounded-3xl"
               borderRadiusFirstLast="first:rounded-t-3xl last:rounded-b-3xl"
               selectedItem={categoryFilter.id}
+              filterPosition={filterPosition}
             />
           </Menu.Button>
         </Menu>
@@ -71,8 +73,9 @@ const BeneficiaryFilter: FC<IFilter> = ({ categoryFilter, switchFilter, isApplic
       <div className="block md:hidden">
         <button
           onClick={() => setOpenFilter(true)}
-          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${isApplication ? "justify-center" : "justify-between"
-            }`}
+          className={`w-full py-3 px-5 flex flex-row items-center justify-center space-x-1 rounded-4xl border border-[#E5E7EB] ${
+            isApplication ? "justify-center" : "justify-between"
+          }`}
         >
           <div className="flex items-center">
             <ViewGridIcon className="text-primaryDark w-5 h-5" />

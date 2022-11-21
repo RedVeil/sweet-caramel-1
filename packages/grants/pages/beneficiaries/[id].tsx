@@ -1,19 +1,18 @@
-import { ChevronLeftIcon, ExclamationIcon, ShareIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon, ShareIcon } from "@heroicons/react/outline";
 import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
 import { IpfsClient } from "@popcorn/utils";
+import SocialShare from "components/CommonComponents/SocialShare";
 import AboutTab from "components/Profile/AboutTab";
 import GalleryTab from "components/Profile/GalleryTab";
 import ReportsTab from "components/Profile/ReportsTab";
+import { setSingleActionModal } from "context/actions";
+import { store } from "context/store";
 import { ContractsContext } from "context/Web3/contracts";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import { RWebShare } from "react-web-share";
 import styled from "styled-components";
 import capitalize from "../../utils/capitalizeFirstLetter";
-import { store } from "context/store";
-import { setSingleActionModal } from "context/actions";
-import SocialShare from "components/CommonComponents/SocialShare";
 
 const BeneficiaryPage = () => {
   const profileTabs = ["about", "gallery", "reports"];
@@ -73,7 +72,10 @@ const BeneficiaryPage = () => {
       </div>
       <Hero bgImage={`${process.env.IPFS_URL}${beneficiary?.files?.headerImage?.image}`} className="relative">
         <div className="flex absolute gap-4 bottom-10 left-8">
-          <button onClick={shareProfile} className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button ">
+          <button
+            onClick={shareProfile}
+            className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium hidden md:flex px-5 py-3 gap-3 shadow-white-button "
+          >
             <ShareIcon className="w-6 h-6" />
             Share
           </button>
@@ -97,7 +99,7 @@ const BeneficiaryPage = () => {
       </div>
       <div className="container mx-auto">
         <div className="grid grid-cols-12 px-5 lg:px-10">
-          <div className="col-span-12 py-20">
+          <div className="col-span-12 py-10 md:py-20">
             <div className="flex items-center gap-3">
               <img
                 src={`${process.env.IPFS_URL}${beneficiary?.files?.profileImage?.image}`}
@@ -106,31 +108,27 @@ const BeneficiaryPage = () => {
               />
               <div>
                 <p className="text-customLightGray text-base leading-7 uppercase">{beneficiary?.proposalCategory}</p>
-                <h3 className="text-black text-5xl md:text-6xl my-4 leading-11">{beneficiary?.projectName}</h3>
-                <p className="text-primaryDark text-base leading-7">by {beneficiary?.organizationName}</p>
+                <h3 className="text-black text-5xl md:text-6xl my-2 md:my-4 leading-11">{beneficiary?.projectName}</h3>
+                <p className="text-primaryDark text-base">by {beneficiary?.organizationName}</p>
               </div>
             </div>
             <div className="py-10 flex">
-              <RWebShare
-                data={{
-                  text: "Popcorn is a regenerative yield optimizing protocol",
-                  url: router.asPath,
-                  title: `Share ${beneficiary?.organizationName}'s Proposal`,
-                }}
+              <button
+                onClick={shareProfile}
+                className="border border-primary md:hidden bg-white h-12 w-12 rounded-full flex justify-center items-center"
               >
-                <button className="border border-primary bg-white h-12 w-12 rounded-full flex md:hidden justify-center items-center">
-                  <ShareIcon className="w-6 h-6 text-primary" />
-                </button>
-              </RWebShare>
+                <ShareIcon className="w-6 h-6 text-primary" />
+              </button>
             </div>
             <div className="flex justify-between md:justify-start md:space-x-4 pb-10 md:pb-20 md:pt-14">
               {profileTabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`rounded-[28px] px-5 py-3 text-lg border ${currentTab == tab
-                    ? "text-white bg-[#827D69] border-[#827D69]"
-                    : "text-[#55503D] bg-white border-customLightGray"
-                    }`}
+                  className={`rounded-[28px] px-5 py-3 text-lg border ${
+                    currentTab == tab
+                      ? "text-white bg-[#827D69] border-[#827D69]"
+                      : "text-[#55503D] bg-white border-customLightGray"
+                  }`}
                   onClick={() => setCurrentTab(tab)}
                 >
                   {capitalize(tab)}

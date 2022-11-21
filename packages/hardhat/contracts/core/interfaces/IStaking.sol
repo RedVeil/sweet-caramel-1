@@ -13,7 +13,6 @@ interface IStaking {
   event RewardsDurationUpdated(uint256 newDuration);
   event EscrowDurationUpdated(uint256 _previousDuration, uint256 _newDuration);
   event RewardDistributorUpdated(address indexed distributor, bool approved);
-  event VaultUpdated(address oldVault, address newVault);
 
   // Views
   function balanceOf(address account) external view returns (uint256);
@@ -29,8 +28,6 @@ interface IStaking {
   function stakingToken() external view returns (IERC20);
 
   function rewardsToken() external view returns (IERC20);
-
-  function vault() external view returns (address);
 
   function escrowDuration() external view returns (uint256);
 
@@ -56,8 +53,6 @@ interface IStaking {
   function exit() external;
 
   function notifyRewardAmount(uint256 reward) external;
-
-  function setVault(address vault) external;
 
   function setEscrowDuration(uint256 duration) external;
 

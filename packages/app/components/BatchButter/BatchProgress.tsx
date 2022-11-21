@@ -1,4 +1,4 @@
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseEther } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
@@ -33,7 +33,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
           <div className="flex flex-row items-center w-full pt-1">
             <p className="font-normal leading-5 text-primaryLight text-base">Batch</p>
             <InfoIconWithTooltip
-              classExtras="h-5 w-5 mt-0 ml-2"
+              classExtras="mt-0 ml-2"
               id="3"
               title="Batch Processing"
               content="Mint and redeem batches with at least $1000 are processed by keepers approximately every 48 hours. Batch sizes greater than $100k are processed sooner.  Network congestion may cause delays."

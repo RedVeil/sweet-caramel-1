@@ -1,10 +1,10 @@
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
-import CardIcon from "../CardIcon";
-import { InfoIconWithModalProps } from "../InfoIconWithModal";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import CardIcon from "@popcorn/app/components/CardIcon";
+import { InfoIconWithModalProps } from "@popcorn/app/components/InfoIconWithModal";
 
 interface StatInfoCardProps {
   title: string;
-  content: string | React.ReactElement;
+  content: string | JSX.Element;
   icon: string;
   info?: InfoIconWithModalProps;
 }
@@ -17,12 +17,7 @@ export default function StatInfoCard({ title, content, icon, info }: StatInfoCar
           <div className="flex flex-row items-center w-full pt-1">
             <p className="font-normal leading-5 text-primaryLight text-base">{title}</p>
             {info && (
-              <InfoIconWithTooltip
-                classExtras="w-5 h-5 mt-0 ml-2"
-                id={info.title}
-                title={info.title}
-                content={info.content}
-              />
+              <InfoIconWithTooltip classExtras="mt-0 ml-2" id={info.title} title={info.title} content={info.content} />
             )}
           </div>
           <h3 className="text-3xl text-primary mt-2">{content}</h3>

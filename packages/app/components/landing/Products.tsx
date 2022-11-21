@@ -1,30 +1,43 @@
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import useGetYearnAPY from "hooks/set/useGetYearnAPY";
-import useSetTokenTVL from "hooks/set/useSetTokenTVL";
-import useStakingPool from "hooks/staking/useStakingPool";
-import useStakingTVL from "hooks/staking/useStakingTVL";
+import useGetYearnAPY from "@popcorn/app/hooks/set/useGetYearnAPY";
+import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
+import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import React from "react";
-import Product from "./Product";
+import Product from "@popcorn/app/components/landing/Product";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 
 const Products = () => {
-  const contractAddresses = getChainRelevantContracts(ChainId.Ethereum);
-  const { data: threeXAPY } = useGetYearnAPY([contractAddresses.ySusd, contractAddresses.y3Eur]);
-  const { data: butterAPY } = useGetYearnAPY([
-    contractAddresses.yFrax,
-    contractAddresses.yRai,
-    contractAddresses.yMusd,
-    contractAddresses.yAlusd,
-  ]);
-  const { data: threeXStaking } = useStakingPool(contractAddresses.threeXStaking);
-  const { data: butterStaking } = useStakingPool(contractAddresses.butterStaking);
-  const { data: mainnetStakingTVL } = useStakingTVL(ChainId.Ethereum);
-  const { data: polygonStakingTVL } = useStakingTVL(ChainId.Polygon);
-  const { data: butterTVL } = useSetTokenTVL(contractAddresses.butter, contractAddresses.butterBatch);
-  const { data: threeXTVL } = useSetTokenTVL(contractAddresses.threeX, contractAddresses.threeXBatch);
+  const { Ethereum, Polygon } = ChainId;
+  const networkName = useNetworkName();
+
+  const {
+    ySusd,
+    y3Eur,
+    yFrax,
+    yRai,
+    yMusd,
+    yAlusd,
+    threeXStaking: threeXStakingAddress,
+    butterStaking: butterStakingAddress,
+    butter,
+    butterBatch,
+    threeX,
+    threeXBatch,
+  } = useDeployment(Ethereum);
+
+  const { data: threeXAPY } = useGetYearnAPY([ySusd, y3Eur], Ethereum);
+  const { data: butterAPY } = useGetYearnAPY([yFrax, yRai, yMusd, yAlusd], Ethereum);
+  const { data: threeXStaking } = useStakingPool(threeXStakingAddress, Ethereum);
+  const { data: butterStaking } = useStakingPool(butterStakingAddress, Ethereum);
+  const { data: mainnetStakingTVL } = useStakingTVL(Ethereum);
+  const { data: polygonStakingTVL } = useStakingTVL(Polygon);
+  const { data: butterTVL } = useSetTokenTVL(butter, butterBatch, Ethereum);
+  const { data: threeXTVL } = useSetTokenTVL(threeX, threeXBatch, Ethereum);
 
   const formatter = Intl.NumberFormat("en", {
     //@ts-ignore
@@ -41,16 +54,16 @@ const Products = () => {
             description="Single-asset vaults to earn yield on your digital assets"
             stats={[
               {
-                title: "TVL",
+                label: "TVL",
                 content: "$3.7m",
-                infoIcon: {
+                infoIconProps: {
                   title: "Total Value Locked",
-                  content: "TThe total value of assets held by the underlying smart contracts.",
+                  content: "The total value of assets held by the underlying smart contracts.",
                   id: "sweet-vault-tvl",
                 },
               },
             ]}
-            route="sweet-vaults"
+            route={`${networkName}/sweet-vaults`}
             badge="/images/newProductBadge.svg"
           />
         )}
@@ -59,21 +72,20 @@ const Products = () => {
           description="EUR & USD exposure with noble yield that funds social impact organizations"
           stats={[
             {
-              title: "TVL",
+              label: "TVL",
               content: threeXTVL ? `$${formatter.format(parseInt(formatUnits(threeXTVL)))}` : "$0",
-              infoIcon: {
+              infoIconProps: {
                 title: "Total Value Locked",
                 content: "The total value of assets held by the underlying smart contracts.",
                 id: "btr-tvl",
               },
             },
             {
-              title: "vAPR",
-              content:
-                threeXAPY && threeXStaking && threeXStaking?.apy?.gte(constants.Zero)
-                  ? `${formatAndRoundBigNumber(threeXStaking.apy.add(parseUnits(String(threeXAPY))), 18)}%`
-                  : "New 🍿✨",
-              infoIcon: {
+              label: "vAPR",
+              content: threeXStaking?.apy?.add(parseUnits(String(threeXAPY || 0))).gt(0)
+                ? `${formatAndRoundBigNumber(threeXStaking.apy.add(parseUnits(String(threeXAPY))), 18)}%`
+                : "New 🍿✨",
+              infoIconProps: {
                 title: "Variable Annual Percentage Rate",
                 content:
                   "This shows your interest stated as a yearly percentage rate, which is subject to change over time based on demand and market conditions.",
@@ -81,7 +93,7 @@ const Products = () => {
               },
             },
           ]}
-          route="set/3x"
+          route={`${networkName}/set/3x`}
           customContent={ThreeXExposure}
           badge="/images/fireProductBadge.svg"
         />
@@ -90,21 +102,21 @@ const Products = () => {
           description="Optimize your yield while creating positive global impact."
           stats={[
             {
-              title: "TVL",
+              label: "TVL",
               content: butterTVL ? `$${formatter.format(parseInt(formatUnits(butterTVL)))}` : "$0",
-              infoIcon: {
+              infoIconProps: {
                 title: "Total Value Locked",
                 content: "The total value of assets held by the underlying smart contracts.",
                 id: "btr-tvl",
               },
             },
             {
-              title: "vAPR",
+              label: "vAPR",
               content:
                 butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
                   ? `${formatAndRoundBigNumber(butterStaking.apy.add(parseUnits(String(butterAPY))), 18)}%`
                   : "New 🍿✨",
-              infoIcon: {
+              infoIconProps: {
                 title: "Variable Annual Percentage Rate",
                 content:
                   "This shows your interest stated as a yearly percentage rate, which is subject to change over time based on demand and market conditions.",
@@ -112,7 +124,7 @@ const Products = () => {
               },
             },
           ]}
-          route="set/butter"
+          route={`${networkName}/set/butter`}
           customContent={ButterExposure}
         />
         <Product
@@ -120,26 +132,26 @@ const Products = () => {
           description="Single-asset vaults to earn yield on your digital assets"
           stats={[
             {
-              title: "TVL",
+              label: "TVL",
               content:
                 mainnetStakingTVL && polygonStakingTVL
                   ? `$${formatter.format(parseInt(formatUnits(mainnetStakingTVL.add(polygonStakingTVL))))}`
                   : "$0",
-              infoIcon: {
+              infoIconProps: {
                 title: "Total Value Locked",
                 content: "The total value of assets held by the underlying smart contracts.",
                 id: "staking-tvl",
               },
             },
           ]}
-          route="staking"
+          route={`staking`}
         />
       </div>
     </section>
   );
 };
 
-const ButterExposure: React.ReactElement = (
+const ButterExposure: JSX.Element = (
   <>
     <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>
@@ -190,7 +202,7 @@ const ButterExposure: React.ReactElement = (
   </>
 );
 
-const ThreeXExposure: React.ReactElement = (
+const ThreeXExposure: JSX.Element = (
   <>
     <div className="flex gap-2 md:gap-0 md:space-x-2">
       <p className="text-primaryLight">Exposure</p>

@@ -1,9 +1,10 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import SelectToken from "components/BatchButter/SelectToken";
+import SelectToken from "@popcorn/app/components/BatchButter/SelectToken";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { escapeRegExp, inputRegex } from "helper/inputRegex";
+import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { useEffect, useState } from "react";
 
 export interface TokenInputProps {
@@ -15,6 +16,7 @@ export interface TokenInputProps {
   readonly?: boolean;
   tokenList?: Token[];
   selectToken?: (token: Token) => void;
+  chainId: ChainId;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
@@ -26,6 +28,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   readonly = false,
   tokenList = [],
   selectToken = null,
+  chainId,
 }) => {
   const [displayAmount, setDisplayAmount] = useState<string>(
     amount.isZero() ? "" : formatUnits(amount, token?.decimals),
@@ -89,10 +92,18 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               readOnly={readonly}
             />
             {tokenList.length > 0 ? (
-              <SelectToken allowSelection={true} options={tokenList} selectedToken={token} selectToken={selectToken} />
+              <SelectToken
+                chainId={chainId}
+                allowSelection={true}
+                options={tokenList}
+                selectedToken={token}
+                selectToken={selectToken}
+              />
             ) : (
-              <div className="inline-flex items-center">
-                <img className="w-5 md:mr-2 mb-0.5" src={token?.icon}></img>
+              <div className="inline-flex items-center min-w-fit">
+                <div className="md:mr-2 mb-0.5">
+                  <TokenIcon token={token?.address} imageSize="w-5 h-5" chainId={chainId} />
+                </div>
                 <p className="hidden md:block font-semibold text-gray-700">{token?.symbol}</p>
               </div>
             )}
@@ -100,26 +111,28 @@ export const TokenInput: React.FC<TokenInputProps> = ({
         </div>
       </div>
       {balance && amount?.gt(balance) && <p className="text-red-600">*Insufficient Balance</p>}
-      <div className="flex items-center justify-between mt-2">
+      <div className="flex items-center justify-between mt-2 w-full">
         {balance && (
           <div className="flex items-center">
-            <img src="/images/wallet.svg" alt="3x" width="20" height="20" className="mr-2" />
+            <img
+              src="/images/wallet.svg"
+              alt="wallet balance of selected token"
+              width="13"
+              height="13"
+              className="mr-2"
+            />
             <p className="text-secondaryLight leading-6">{formatAndRoundBigNumber(balance, token?.decimals)}</p>
           </div>
         )}
-        <div className="">
-          {!readonly && balance && (
-            <>
-              <div
-                className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
-                role="button"
-                onClick={setMaxAmount}
-              >
-                MAX
-              </div>
-            </>
-          )}
-        </div>
+        {!readonly && balance && (
+          <div
+            className="w-9 h-6 flex items-center justify-center py-3 px-6 text-base leading-6 text-primary font-medium border border-primary rounded-lg cursor-pointer hover:bg-primary hover:text-white transition-all"
+            role="button"
+            onClick={setMaxAmount}
+          >
+            MAX
+          </div>
+        )}
       </div>
     </>
   );

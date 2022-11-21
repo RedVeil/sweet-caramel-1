@@ -126,6 +126,8 @@ module.exports = {
         customGreen: "#05BE64",
         customLightGreen: "#78E69B",
         customPurple: "#9B55FF",
+        customLightPurple: "#C68AFC",
+        customDarkPurple: "#644A94",
         customDarkGray: "#1F2937",
         customLightGray: "#D7D7D7",
         customBrown: "#827D69",
@@ -141,11 +143,11 @@ module.exports = {
         rewardsBg: "#FFFBEA",
         rewardsBg2: "#FFF6CF",
 
-        green: colors.emerald,
         yellow: colors.amber,
         purple: colors.violet,
       },
       fontSize: {
+        zero: "0rem",
         xs: ".75rem",
         sm: ".875rem",
         tiny: ".875rem",

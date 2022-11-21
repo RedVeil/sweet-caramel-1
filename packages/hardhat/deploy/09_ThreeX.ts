@@ -1,18 +1,16 @@
 import { BigNumber, ethers, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { INCENTIVE_MANAGER_ROLE } from "../lib/acl/roles";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
+  const { deploy, deployments, addresses, signer, log } = await getSetup(hre);
   const { threeX, threeXStaking, daoAgentV2 } = addresses;
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-  const pop = addresses.pop;
+  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name)
+    ? addresses.pop
+    : (await deployments.get("TestPOP")).address;
 
   const YTOKEN_ADDRESSES = [addresses.ySusd, addresses.y3Eur];
   const CRV_DEPENDENCIES = [
@@ -32,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
   ];
 
-  console.log(
+  log(
     JSON.stringify(
       {
         YTOKEN_ADDRESSES,
@@ -47,10 +45,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
 
   //Butter Batch
-  console.log("deploying threeXBatchProcessing...");
+  log("deploying threeXBatchProcessing...");
 
   const processing = await deploy("ThreeXBatchProcessing", {
-    from: addresses.deployer,
+    from: await signer.getAddress(),
     args: [
       contractRegistryAddress,
       threeXStaking,
@@ -66,15 +64,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
 
-  console.log("adding ThreeXBatchProcessing to contract registry...");
+  log("adding ThreeXBatchProcessing to contract registry...");
   await addContractToRegistry("ThreeXBatchProcessing", deployments, signer, hre);
 
   const batchStorage = await deploy("ThreeXBatchVault", {
-    from: addresses.deployer,
+    from: await signer.getAddress(),
     args: [contractRegistryAddress, (await deployments.get("ThreeXBatchProcessing")).address],
   });
 
-  console.log("adding ThreeXBatchVault to contract registry...");
+  log("adding ThreeXBatchVault to contract registry...");
   await addContractToRegistry("ThreeXBatchVault", deployments, signer, hre);
 
   const processingContract = await hre.ethers.getContractAt(
@@ -85,15 +83,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     signer
   );
 
-  console.log("setting batch storage contract ... ");
+  log("setting batch storage contract ... ");
   const batchStorageTx = await processingContract.setBatchStorage((await deployments.get("ThreeXBatchVault")).address);
   await wait(batchStorageTx, hre);
 
-  console.log("setting threeXBatchProcessing approvals ... ");
+  log("setting threeXBatchProcessing approvals ... ");
   const approvalsTx = await processingContract.setApprovals();
   await wait(approvalsTx, hre);
 
-  console.log("setting fee recipients ...");
+  log("setting fee recipients ...");
   const feeTx1 = await processingContract.setFee(utils.formatBytes32String("mint"), 75, daoAgentV2, threeX);
   await wait(feeTx1, hre);
 
@@ -118,22 +116,22 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       signer
     );
     //Butter Batch Zapper
-    console.log("deploying ThreeXZapper...");
+    log("deploying ThreeXZapper...");
     const processingZapper = await deploy("ThreeXZapper", {
-      from: addresses.deployer,
+      from: await signer.getAddress(),
       args: [contractRegistryAddress, addresses.threePool, [addresses.dai, addresses.usdc, addresses.usdt]],
       log: true,
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
     });
     await addContractToRegistry("ThreeXZapper", deployments, signer, hre);
 
-    console.log("setting approvals for ThreeXZapper... ");
+    log("setting approvals for ThreeXZapper... ");
     const zapper = await hre.ethers.getContractAt("ThreeXZapper", processingZapper.address, signer);
 
     const zapperApprovalsTx = await zapper.setApprovals();
     await wait(zapperApprovalsTx, hre);
 
-    console.log("granting ThreeXZapper role to ThreeXZapper");
+    log("granting ThreeXZapper role to ThreeXZapper");
     const tx1 = await aclRegistry.grantRole(
       ethers.utils.id("ThreeXZapper"),
       (
@@ -142,11 +140,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
     await wait(tx1, hre);
 
-    console.log("granting INCENTIVE_MANAGER_ROLE role to deployer");
+    log("granting INCENTIVE_MANAGER_ROLE role to deployer");
     const incentiveGrantTx = await aclRegistry.grantRole(INCENTIVE_MANAGER_ROLE, await signer.getAddress());
     await wait(incentiveGrantTx, hre);
 
-    console.log("granting ApprovedContract role to ThreeXZapper");
+    log("granting ApprovedContract role to ThreeXZapper");
     const tx2 = await aclRegistry.grantRole(
       ethers.utils.id("ApprovedContract"),
       (
@@ -155,7 +153,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
     await wait(tx2, hre);
 
-    console.log("creating incentive 1 ...");
+    log("creating incentive 1 ...");
     const tx3 = await keeperIncentive.createIncentive(
       (
         await deployments.get("ThreeXBatchProcessing")
@@ -169,7 +167,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
     await wait(tx3, hre);
 
-    console.log("creating incentive 2 ...");
+    log("creating incentive 2 ...");
     const tx4 = await keeperIncentive.createIncentive(
       (
         await deployments.get("ThreeXBatchProcessing")
@@ -186,7 +184,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 async function wait(tx, hre) {
-  if (!["hardhat", "local"].includes(hre.network.name)) {
+  if (!["hardhat", "local", "remote_fork"].includes(hre.network.name)) {
     await tx.wait();
   }
 }

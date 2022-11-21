@@ -1,5 +1,5 @@
 import { FC } from "react";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "@popcorn/app/components/LoadingSpinner";
 
 const PageLoader: FC = () => {
   return (

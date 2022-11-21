@@ -1,6 +1,6 @@
-import WheelPickerItem from "components/WheelPicker/WheelPickerItem";
-import useHandleKeyboard from "hooks/wheelPicker/useHandleKeyboard";
-import useObserver from "hooks/wheelPicker/useObserver";
+import WheelPickerItem from "@popcorn/app/components/WheelPicker/WheelPickerItem";
+import useHandleKeyboard from "@popcorn/app/hooks/wheelPicker/useHandleKeyboard";
+import useObserver from "@popcorn/app/hooks/wheelPicker/useObserver";
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import styled from "styled-components";
 

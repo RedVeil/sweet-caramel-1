@@ -1,7 +1,4 @@
-import { useRouter } from "next/router";
-
 const ErrorPage = () => {
-  const router = useRouter();
   return (
     <div className="w-full h-screen bg-primaryLight overflow-hidden">
       <div className="w-full text-center z-20 mt-24">
@@ -32,12 +29,9 @@ const ErrorPage = () => {
           </div>
         </div>
         <div className="z-20 mx-auto w-10/12 md:w-1/2 justify-center flex">
-          <div className="flex flex-row block">
+          <div className="flex flex-row">
             <p className="mt-4 xl:mt-8 text-2xl 2xl:text-4xl font-light z-20 block">
-              <a
-                className="font-medium text-2xl 2xl:text-4xl cursor-pointer z-20 mt-8 ml-2"
-                href={`/${router?.query?.network}/`}
-              >
+              <a className="font-medium text-2xl 2xl:text-4xl cursor-pointer z-20 mt-8 ml-2" href={`/`}>
                 Go back
               </a>{" "}
             </p>
@@ -49,10 +43,6 @@ const ErrorPage = () => {
       </div>
     </div>
   );
-};
-
-ErrorPage.getLayout = function getLayout(page) {
-  return <ErrorPage />;
 };
 
 export default ErrorPage;

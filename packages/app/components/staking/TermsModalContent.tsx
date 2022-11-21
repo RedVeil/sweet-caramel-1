@@ -1,4 +1,4 @@
-import MainActionButton from "components/MainActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
 import { useState } from "react";
 
 interface TermsContentProps {

@@ -1,4 +1,4 @@
-import { InfoIconWithModal } from "components/InfoIconWithModal";
+import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
 import { ChangeEventHandler } from "react";
 
 export function CheckMarkToggleWithInfo({
@@ -9,6 +9,7 @@ export function CheckMarkToggleWithInfo({
   label,
   onChange,
   image,
+  className,
 }: {
   disabled?: boolean;
   value: boolean;
@@ -17,9 +18,10 @@ export function CheckMarkToggleWithInfo({
   infoText: string;
   label: string;
   image?: React.ReactElement;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-row items-center mt-3">
+    <div className={`flex flex-row items-center mt-3  ${className}`}>
       <label className={`flex flex-row items-center  group ${disabled ? "cursor-default" : "cursor-pointer"}`}>
         <input
           type="checkbox"
@@ -37,7 +39,7 @@ export function CheckMarkToggleWithInfo({
         </p>
       </label>
       <div>
-        <InfoIconWithModal title={infoTitle} image={image} size="w-5 h-5">
+        <InfoIconWithModal title={infoTitle} image={image}>
           <p>{infoText}</p>
         </InfoIconWithModal>
       </div>

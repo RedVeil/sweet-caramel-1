@@ -1,113 +1,37 @@
-import { DeployFunction, DeploymentsExtension } from "@anthonymartin/hardhat-deploy/types";
-import { BigNumber, ethers } from "ethers";
-import { parseEther } from "ethers/lib/utils";
+import { formatEther, parseEther } from "ethers/lib/utils";
+import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { ThreeXBatchProcessing } from "../typechain";
+import { getSetup, Anvil, Hardhat } from "./utils";
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
-  const { threeX } = addresses;
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-  const signerAddress = await signer.getAddress();
+const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
+  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name)
+    ? addresses.pop
+    : (await deployments.get("TestPOP")).address;
 
-  if (["hardhat", "local"].includes(hre.network.name)) {
-    const threeXBatch = await hre.ethers.getContractAt(
-      "ThreeXBatchProcessing",
-      (
-        await deployments.get("ThreeXBatchProcessing")
-      ).address,
-      signer
-    );
-    const keeperIncentive = await hre.ethers.getContractAt(
-      "KeeperIncentiveV2",
-      (
-        await deployments.get("KeeperIncentive")
-      ).address,
-      signer
-    );
-    await keeperIncentive.updateIncentive(
-      threeXBatch.address,
-      0,
-      0,
-      true,
-      true,
-      (
-        await deployments.get("TestPOP")
-      ).address,
-      1,
-      0
-    );
-    await keeperIncentive.updateIncentive(
-      threeXBatch.address,
-      1,
-      0,
-      true,
-      true,
-      (
-        await deployments.get("TestPOP")
-      ).address,
-      1,
-      0
-    );
-    await createDemoData(hre, deployments, signer, signerAddress, deploy, addresses, threeXBatch, threeX);
+  if (["hardhat", "local", "localhost", "remote_fork"].includes(hre.network.name)) {
+    await mintXPOP((await deployments.get("XPop")).address, signer, hre.config.namedAccounts.deployer as string, hre);
+    await mintPOP(pop, signer, (await deployments.get("xPopRedemption")).address, hre, addresses);
   }
 };
 
-async function createDemoData(
-  hre: HardhatRuntimeEnvironment,
-  deployments: DeploymentsExtension,
-  signer: ethers.Signer,
-  signerAddress: string,
-  deploy: Function,
-  addresses: any,
-  threeXBatch: ThreeXBatchProcessing,
-  setTokenAddress: string
-): Promise<void> {
-  console.log("creating demo data...");
-  //await timeTravel(3000);
-  await threeXBatch.setSlippage(100, 100);
+const mintXPOP = async (address: string, signer: any, recipient: string, hre: HardhatRuntimeEnvironment) => {
+  const POP = await hre.ethers.getContractAt("MockERC20", address, signer);
+  console.log(`Minting ${await POP.symbol()} for`, recipient);
+  await (await POP.mint(recipient, parseEther("1000000000"))).wait(1);
+  console.log(`Total ${await POP.symbol()} supply`, formatEther(await POP.totalSupply()));
+};
 
-  const usdc = await hre.ethers.getContractAt("MockERC20", addresses.usdc, signer);
-  const setToken = await hre.ethers.getContractAt("MockERC20", setTokenAddress, signer);
+const mintPOP = async (address: string, signer: any, recipient: string, hre: HardhatRuntimeEnvironment, addresses) => {
+  const provider = ["remote_fork"].includes(hre.network.name) ? Anvil : Hardhat;
+  const POP = await hre.ethers.getContractAt("MockERC20", address, signer);
+  const dao = await provider.impersonateSigner(addresses.daoTreasury);
+  await (await POP.connect(dao).transfer(recipient, parseEther("1000000"))).wait(1);
+  await provider.stopImpersonating(addresses.daoTreasury);
+  console.log("Total POP supply", formatEther(await POP.totalSupply()));
+};
 
-  const faucet = await hre.ethers.getContractAt("Faucet", (await deployments.get("Faucet")).address, signer);
-
-  await hre.network.provider.send("hardhat_setBalance", [
-    faucet.address,
-    "0x152d02c7e14af6800000", // 100k ETH
-  ]);
-  console.log("sending usdc...");
-  await faucet.sendTokens(addresses.usdc, 1000, signerAddress);
-  console.log("sending dai...");
-  await faucet.sendTokens(addresses.dai, 1000, signerAddress);
-  console.log("usdcBal", await (await usdc.balanceOf(signerAddress)).toString());
-  await usdc.approve(threeXBatch.address, parseEther("130000"));
-  await setToken.approve(threeXBatch.address, parseEther("2"));
-
-  console.log("first 3x mint");
-  const mintId0 = await threeXBatch.currentMintBatchId();
-  await threeXBatch.depositForMint(BigNumber.from("100000000000"), signerAddress); //100k usdc
-  const block = await hre.ethers.provider.getBlock("latest");
-  console.log({ block });
-  await threeXBatch.batchMint();
-  await threeXBatch.claim(mintId0, signerAddress);
-
-  console.log("second 3x mint");
-  await threeXBatch.depositForMint(BigNumber.from("10000000000"), signerAddress); //10k usdc
-  await threeXBatch.batchMint();
-
-  console.log("redeeming....");
-  await threeXBatch.depositForRedeem(parseEther("1"));
-  await threeXBatch.batchRedeem();
-
-  console.log("create batch to be redeemed");
-  await threeXBatch.depositForRedeem(parseEther("1"));
-}
-
-export default func;
-
-func.dependencies = ["setup", "3x", "staking", "faucet"];
-func.tags = ["frontend", "3x-demo-data"];
+module.exports = main;
+export default main;
+main.dependencies = ["setup", "xpop-redemption"];
+main.tags = ["frontend", "xpop-redemption-demo-data"];

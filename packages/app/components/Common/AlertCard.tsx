@@ -1,4 +1,4 @@
-import TextLink from "./TextLink";
+import TextLink from "@popcorn/app/components/Common/TextLink";
 
 export interface AlertCardLink {
   text: string;
