@@ -1,7 +1,8 @@
 import { Transition } from "@headlessui/react";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
+import useInitializeGTM from "hooks/useInitializeGTM";
 
 type WindowWithDataLayer = Window & {
   dataLayer: Record<string, any>[];
@@ -9,19 +10,19 @@ type WindowWithDataLayer = Window & {
 
 declare const window: WindowWithDataLayer;
 
-const GoogleAnalyticsPrompt = ({ acceptGoogleAnalytics }) => {
+const GoogleAnalyticsPrompt = () => {
   const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(
-    localStorage.getItem("acceptAnalytics") ? false : true,
+    typeof window !== "undefined" && localStorage.getItem("acceptAnalytics") ? false : true,
   );
+  const initializeGTM = useInitializeGTM();
+
+  useEffect(() => {
+    initializeGTM();
+  }, []);
 
   const handleAccept = () => {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "pageView",
-      url: window.location.pathname,
-    });
     localStorage.setItem("acceptAnalytics", "true");
-    acceptGoogleAnalytics();
+    initializeGTM();
     setOpenAnalyticsPrompt(false);
   };
 
