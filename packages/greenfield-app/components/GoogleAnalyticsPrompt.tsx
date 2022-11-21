@@ -2,6 +2,7 @@ import { Transition } from "@headlessui/react";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import React, { useEffect, useState } from "react";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
+import { useFeatures } from "@popcorn/app/hooks/useFeatures";
 import useInitializeGTM from "hooks/useInitializeGTM";
 
 type WindowWithDataLayer = Window & {
@@ -11,6 +12,10 @@ type WindowWithDataLayer = Window & {
 declare const window: WindowWithDataLayer;
 
 const GoogleAnalyticsPrompt = () => {
+  const {
+    features: { optin_analytics: visible },
+  } = useFeatures();
+
   const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(
     typeof window !== "undefined" && localStorage.getItem("acceptAnalytics") ? false : true,
   );
@@ -30,6 +35,10 @@ const GoogleAnalyticsPrompt = () => {
     localStorage.setItem("acceptAnalytics", "false");
     setOpenAnalyticsPrompt(false);
   };
+
+  if (!visible) {
+    return <></>;
+  }
 
   return (
     <Transition show={openAnalyticsPrompt}>
