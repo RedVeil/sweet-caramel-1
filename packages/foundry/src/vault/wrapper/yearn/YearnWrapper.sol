@@ -12,10 +12,11 @@ import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 // Needs to extract VaultAPI interface out of BaseStrategy to avoid collision
 contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
+  using SafeERC20 for IERC20;
   using FixedPointMathLib for uint256;
 
   VaultAPI public yVault;
-  address public token;
+  IERC20 public token;
   uint256 internal _decimals;
 
   //  EIP-2612 STORAGE
@@ -38,13 +39,13 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
       string(abi.encodePacked(_vault.symbol(), "4626"))
     );
     yVault = _vault;
-    token = yVault.token();
+    token = IERC20(yVault.token());
     _decimals = _vault.decimals();
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    IERC20(token).approve(address(_vault), type(uint256).max);
+    token.approve(address(_vault), type(uint256).max);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -68,7 +69,142 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
   }
 
   function asset() external view returns (address) {
-    return token;
+    return address(token);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          ACCOUNTING LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function totalAssets() public view returns (uint256) {
+    return yVault.balanceOf(address(this)).mulDivDown(yVault.pricePerShare(), 10**_decimals);
+  }
+
+  function convertToShares(uint256 assets) public view returns (uint256) {
+    return assets.mulDivDown(10**_decimals, yVault.pricePerShare());
+  }
+
+  function convertToAssets(uint256 shares) public view returns (uint256) {
+    return shares.mulDivDown(yVault.pricePerShare(), 10**_decimals);
+  }
+
+  function previewDeposit(uint256 assets) public view returns (uint256) {
+    return convertToShares(assets);
+  }
+
+  function previewMint(uint256 shares) public view returns (uint256) {
+    return shares.mulDivUp(yVault.pricePerShare(), 10**_decimals);
+  }
+
+  function previewWithdraw(uint256 assets) public view returns (uint256) {
+    return assets.mulDivUp(10**_decimals, yVault.pricePerShare());
+  }
+
+  function previewRedeem(uint256 shares) public view returns (uint256) {
+    return convertToAssets(shares);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      DEPOSIT/WITHDRAWAL LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  error InvalidReceiver();
+
+  function deposit(uint256 assets, address receiver) public returns (uint256 shares) {
+    shares = _deposit(assets, receiver, msg.sender);
+
+    emit Deposit(msg.sender, receiver, assets, shares);
+  }
+
+  function mint(uint256 shares, address receiver) public returns (uint256 assets) {
+    assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
+
+    shares = _deposit(assets, receiver, msg.sender);
+
+    emit Deposit(msg.sender, receiver, assets, shares);
+  }
+
+  function _deposit(
+    uint256 amount,
+    address receiver,
+    address depositor
+  ) internal returns (uint256 mintedShares) {
+    if (receiver == address(0)) revert InvalidReceiver();
+
+    token.safeTransferFrom(depositor, address(this), amount);
+
+    mintedShares = yVault.deposit(amount, address(this));
+
+    _mint(receiver, mintedShares);
+  }
+
+  function withdraw(
+    uint256 assets,
+    address receiver,
+    address owner
+  ) public returns (uint256 shares) {
+    shares = previewWithdraw(assets);
+
+    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
+
+    (uint256 _withdrawn, uint256 _burntShares) = _withdraw(shares, receiver, msg.sender);
+
+    emit Withdraw(msg.sender, receiver, owner, _withdrawn, _burntShares);
+    return _burntShares;
+  }
+
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public returns (uint256 assets) {
+    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
+
+    (uint256 _withdrawn, uint256 _burntShares) = _withdraw(shares, receiver, msg.sender);
+
+    emit Withdraw(msg.sender, receiver, owner, _withdrawn, _burntShares);
+    return _withdrawn;
+  }
+
+  function _withdraw(
+    uint256 amount,
+    address receiver,
+    address sender
+  ) internal returns (uint256 withdrawn, uint256 burntShares) {
+    if (receiver == address(0)) revert InvalidReceiver();
+
+    VaultAPI _vault = yVault;
+
+    // withdraw from vault and get total used shares
+    uint256 beforeBal = _vault.balanceOf(address(this));
+    withdrawn = _vault.withdraw(amount, receiver);
+    burntShares = beforeBal - _vault.balanceOf(address(this));
+
+    _burn(sender, burntShares);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                    DEPOSIT/WITHDRAWAL LIMIT LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function maxDeposit(address) public view returns (uint256) {
+    VaultAPI _bestVault = yVault;
+    uint256 _totalAssets = _bestVault.totalAssets();
+    uint256 _depositLimit = _bestVault.depositLimit();
+    if (_totalAssets >= _depositLimit) return 0;
+    return _depositLimit - _totalAssets;
+  }
+
+  function maxMint(address _account) external view returns (uint256) {
+    return convertToShares(maxDeposit(_account));
+  }
+
+  function maxWithdraw(address owner) external view returns (uint256) {
+    return convertToAssets(this.balanceOf(owner));
+  }
+
+  function maxRedeem(address owner) external view returns (uint256) {
+    return this.balanceOf(owner);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -128,175 +264,5 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
           address(this)
         )
       );
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                      DEPOSIT/WITHDRAWAL LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  function deposit(uint256 assets, address receiver) public returns (uint256 shares) {
-    (assets, shares) = _deposit(assets, receiver, msg.sender);
-
-    emit Deposit(msg.sender, receiver, assets, shares);
-  }
-
-  function mint(uint256 shares, address receiver) public returns (uint256 assets) {
-    assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
-
-    (assets, shares) = _deposit(assets, receiver, msg.sender);
-
-    emit Deposit(msg.sender, receiver, assets, shares);
-  }
-
-  function withdraw(
-    uint256 assets,
-    address receiver,
-    address owner
-  ) public returns (uint256 shares) {
-    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
-
-    (uint256 _withdrawn, uint256 _burntShares) = _withdraw(assets, receiver, msg.sender);
-
-    emit Withdraw(msg.sender, receiver, owner, _withdrawn, _burntShares);
-    return _burntShares;
-  }
-
-  function redeem(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) public returns (uint256 assets) {
-    require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
-
-    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
-
-    (uint256 _withdrawn, uint256 _burntShares) = _withdraw(assets, receiver, msg.sender);
-
-    emit Withdraw(msg.sender, receiver, owner, _withdrawn, _burntShares);
-    return _withdrawn;
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                          ACCOUNTING LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  function totalAssets() public view returns (uint256) {
-    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  function convertToShares(uint256 assets) public view returns (uint256) {
-    return (assets * (10**_decimals)) / yVault.pricePerShare();
-  }
-
-  function convertToAssets(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  function previewDeposit(uint256 assets) public view returns (uint256) {
-    return convertToShares(assets);
-  }
-
-  function previewMint(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  function previewWithdraw(uint256 assets) public view returns (uint256) {
-    return (assets * (10**_decimals)) / yVault.pricePerShare();
-  }
-
-  function previewRedeem(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                    DEPOSIT/WITHDRAWAL LIMIT LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  function maxDeposit(address) public view returns (uint256) {
-    VaultAPI _bestVault = yVault;
-    uint256 _totalAssets = _bestVault.totalAssets();
-    uint256 _depositLimit = _bestVault.depositLimit();
-    if (_totalAssets >= _depositLimit) return 0;
-    return _depositLimit - _totalAssets;
-  }
-
-  function maxMint(address _account) external view returns (uint256) {
-    return convertToShares(maxDeposit(_account));
-  }
-
-  function maxWithdraw(address owner) external view returns (uint256) {
-    return convertToAssets(this.balanceOf(owner));
-  }
-
-  function maxRedeem(address owner) external view returns (uint256) {
-    return this.balanceOf(owner);
-  }
-
-  function _deposit(
-    uint256 amount, // if `MAX_UINT256`, just deposit everything
-    address receiver,
-    address depositor
-  ) internal returns (uint256 deposited, uint256 mintedShares) {
-    VaultAPI _vault = yVault;
-    IERC20 _token = IERC20(token);
-
-    if (amount == type(uint256).max) {
-      amount = Math.min(_token.balanceOf(depositor), _token.allowance(depositor, address(this)));
-    }
-
-    SafeERC20.safeTransferFrom(_token, depositor, address(this), amount);
-
-    // beforeDeposit custom logic
-
-    // Depositing returns number of shares deposited
-    // NOTE: Shortcut here is assuming the number of tokens deposited is equal to the
-    //       number of shares credited, which helps avoid an occasional multiplication
-    //       overflow if trying to adjust the number of shares by the share price.
-    uint256 beforeBal = _token.balanceOf(address(this));
-
-    mintedShares = _vault.deposit(amount, address(this));
-
-    uint256 afterBal = _token.balanceOf(address(this));
-    deposited = beforeBal - afterBal;
-
-    // afterDeposit custom logic
-    _mint(receiver, mintedShares);
-
-    // `receiver` now has shares of `_vault` as balance, converted to `token` here
-    // Issue a refund if not everything was deposited
-    uint256 refundable = amount - deposited;
-    if (refundable > 0) SafeERC20.safeTransfer(_token, depositor, refundable);
-  }
-
-  function _withdraw(
-    uint256 amount, // if `MAX_UINT256`, just withdraw everything
-    address receiver,
-    address sender
-  ) internal returns (uint256 withdrawn, uint256 burntShares) {
-    VaultAPI _vault = yVault;
-
-    // Start with the total shares that `sender` has
-    // Limit by maximum withdrawal size from each vault
-    uint256 availableShares = Math.min(this.balanceOf(sender), _vault.maxAvailableShares());
-
-    if (availableShares == 0) revert NoAvailableShares();
-
-    uint256 estimatedMaxShares = (amount * 10**uint256(_vault.decimals())) / _vault.pricePerShare();
-
-    if (estimatedMaxShares > availableShares) revert NotEnoughAvailableSharesForAmount();
-
-    // beforeWithdraw custom logic
-
-    // withdraw from vault and get total used shares
-    uint256 beforeBal = _vault.balanceOf(address(this));
-    withdrawn = _vault.withdraw(estimatedMaxShares, receiver);
-    burntShares = beforeBal - _vault.balanceOf(address(this));
-    uint256 unusedShares = estimatedMaxShares - burntShares;
-
-    // afterWithdraw custom logic
-    _burn(sender, burntShares);
-
-    // return unusedShares to sender
-    if (unusedShares > 0) SafeERC20.safeTransfer(_vault, sender, unusedShares);
   }
 }

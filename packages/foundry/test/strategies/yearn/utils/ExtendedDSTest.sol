@@ -92,4 +92,18 @@ contract ExtendedDSTest is Test {
       }
     }
   }
+
+  function assertWithin(
+    uint256 expected,
+    uint256 actual,
+    uint256 delta
+  ) internal {
+    if (expected > actual) {
+      assertLe(expected - actual, delta);
+    } else if (actual > expected) {
+      assertLe(actual - expected, delta);
+    } else {
+      assertEq(expected, actual);
+    }
+  }
 }
