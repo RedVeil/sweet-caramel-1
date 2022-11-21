@@ -99,10 +99,7 @@ const ApplyForm = () => {
     if (!inputExists(formData.organizationName)) {
       errors.push(orgNameError);
     }
-    if (!inputExists(formData.files.profileImage.image)) {
-      errors.push(imageError);
-    }
-    if (!inputExists(formData.files.headerImage.image)) {
+    if (!inputExists(formData.files.profileImage.image) || !inputExists(formData.files.headerImage.image)) {
       errors.push(imageError);
     }
     if (!isAddress(formData.beneficiaryAddress)) {

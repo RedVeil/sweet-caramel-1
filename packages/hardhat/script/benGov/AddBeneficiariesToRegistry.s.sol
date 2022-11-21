@@ -45,8 +45,35 @@ contract AddBeneficiariesToRegistry is Script {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     vm.startBroadcast(deployerPrivateKey);
 
-    for (uint256 i = 2; i < 16; i++) {
+    for (uint256 i; i < 11; i++) {
       beneficiaryRegistry.addBeneficiary(vm.addr(i + 1), DEFAULT_REGION, cids[i]);
+    }
+    vm.stopBroadcast();
+  }
+}
+
+contract RevokeBeneficiariesToRegistry is Script {
+  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6);
+
+  address[10] internal addresses = [
+    0x0000000000000000000000000000000000000000,
+    0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69,
+    0x1efF47bc3a10a45D4B230B5d10E37751FE6AA718,
+    0xe1AB8145F7E55DC933d51a18c793F901A3A0b276,
+    0xE57bFE9F44b819898F47BF37E5AF72a0783e1141,
+    0xd41c057fd1c78805AAC12B0A94a405c0461A6FBb,
+    0xF1F6619B38A98d6De0800F1DefC0a6399eB6d30C,
+    0xF7Edc8FA1eCc32967F827C9043FcAe6ba73afA5c,
+    0x4CCeBa2d7D2B4fdcE4304d3e09a1fea9fbEb1528,
+    0x3DA8D322CB2435dA26E9C9fEE670f9fB7Fe74E49
+  ];
+
+  function run() external {
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+    vm.startBroadcast(deployerPrivateKey);
+
+    for (uint256 i; i < 10; i++) {
+      beneficiaryRegistry.revokeBeneficiary(addresses[i]);
     }
     vm.stopBroadcast();
   }
