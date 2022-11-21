@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 export const BeneficiaryRegistryAdapter = (contract: any, IpfsClient: IIpfsClient) => {
   const getBeneficiaryApplication = async (beneficiaryAddress: string): Promise<BeneficiaryApplication> => {
     const ipfsHash = await contract.getBeneficiary(beneficiaryAddress);
-    const beneficiaryApplication = await IpfsClient.get(getIpfsHashFromBytes32(ethers.utils.toUtf8String(ipfsHash)));
+    const beneficiaryApplication = await IpfsClient.get(ipfsHash);
     return { ...beneficiaryApplication, beneficiaryAddress: beneficiaryAddress };
   }
   const getAllBeneficiaryApplications = async (): Promise<BeneficiaryApplication[]> => {

@@ -66,7 +66,7 @@ contract BeneficiaryGovernance {
     ProposalStatus status;
     address beneficiary;
     mapping(address => bool) voters;
-    bytes applicationCid;
+    string applicationCid;
     address proposer;
     uint256 startTime;
     bytes32 region;
@@ -105,7 +105,7 @@ contract BeneficiaryGovernance {
     uint256 indexed proposalId,
     address indexed proposer,
     address indexed beneficiary,
-    bytes applicationCid
+    string applicationCid
   );
   event Vote(uint256 indexed proposalId, address indexed voter, uint256 indexed weight);
   event Finalize(uint256 indexed proposalId);
@@ -172,7 +172,7 @@ contract BeneficiaryGovernance {
   function createProposal(
     address _beneficiary,
     bytes32 _region,
-    bytes calldata _applicationCid,
+    string calldata _applicationCid,
     ProposalType _type
   ) external validAddress(_beneficiary) enoughBond(msg.sender) returns (uint256) {
     require(IRegion(contractRegistry.getContract(keccak256("Region"))).regionExists(_region), "region doesnt exist");

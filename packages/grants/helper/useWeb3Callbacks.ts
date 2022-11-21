@@ -1,13 +1,15 @@
 import { useWeb3React } from "@web3-react/core";
-import { ChainId } from "context/Web3/connector";
+import { ChainId } from "@popcorn/utils";
 import { ethers } from "ethers";
 import { useCallback } from "react";
 import toast from "react-hot-toast";
 
-function confirmationsPerChain(chainId: ChainId): number {
+export function confirmationsPerChain(chainId: ChainId): number {
   switch (chainId) {
     case ChainId.Polygon:
       return 2;
+    case ChainId.Goerli:
+      return 3;
     case ChainId.Hardhat:
     case ChainId.Localhost:
       return 0;

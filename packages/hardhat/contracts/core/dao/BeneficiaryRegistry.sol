@@ -9,7 +9,7 @@ import "../interfaces/IContractRegistry.sol";
 
 contract BeneficiaryRegistry is IBeneficiaryRegistry {
   struct Beneficiary {
-    bytes applicationCid; // ipfs address of application
+    string applicationCid; // ipfs address of application
     bytes32 region;
     uint256 listPointer;
   }
@@ -23,7 +23,7 @@ contract BeneficiaryRegistry is IBeneficiaryRegistry {
 
   /* ========== EVENTS ========== */
 
-  event BeneficiaryAdded(address indexed _address, bytes indexed _applicationCid);
+  event BeneficiaryAdded(address indexed _address, string indexed _applicationCid);
   event BeneficiaryRevoked(address indexed _address);
 
   /* ========== CONSTRUCTOR ========== */
@@ -45,7 +45,7 @@ contract BeneficiaryRegistry is IBeneficiaryRegistry {
   /**
    * @notice get beneficiary's application cid from registry. this cid is the address to the beneficiary application that is included in the beneficiary nomination proposal.
    */
-  function getBeneficiary(address _address) public view returns (bytes memory) {
+  function getBeneficiary(address _address) public view returns (string memory) {
     return beneficiariesMap[_address].applicationCid;
   }
 
@@ -62,14 +62,14 @@ contract BeneficiaryRegistry is IBeneficiaryRegistry {
   function addBeneficiary(
     address _account,
     bytes32 _region,
-    bytes calldata _applicationCid
+    string calldata _applicationCid
   ) external override {
     IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(
       keccak256("BeneficiaryGovernance"),
       msg.sender
     );
     require(_account == address(_account), "invalid address");
-    require(_applicationCid.length > 0, "!application");
+    require(bytes(_applicationCid).length > 0, "!application");
     require(!beneficiaryExists(_account), "exists");
 
     beneficiariesList.push(_account);

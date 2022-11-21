@@ -17,34 +17,63 @@ bytes32 constant DEFAULT_REGION = 0xf2208c967df089f60420785795c0a9ba8896b0f6f186
 /// 6,7 - Yearly Election
 /// 8-18 - Unused
 contract AddBeneficiariesToRegistry is Script {
-  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0x408Ad169a738E5c4E9dBd2847bc0fD1FF9A8AcBe);
+  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6);
 
-  bytes[19] internal cids = [
-    bytes("0x453686cb1d8c953ded406253aac5c37da2488f7c41c323cbe41be9d1e6936136"),
-    bytes("0x02ec2d6316d641dd3bcd5bc8b9c5e1693b4bb18b7b1e45fa237f4d3356d76c06"),
-    bytes("0xa9f111b356ed948342c3458b5422ce85831c32cec8a1ec5aafc6d7be29df2aa2"),
-    bytes("0x5b91dfed7bbf22163dc420883d9dea83245cb63322921ee9d0dd26f0580a4ab5"),
-    bytes("0x65831e033489d630441ba7c1a95206ed20914a9d70f03255a2e247a04c11df11"),
-    bytes("0x084e6f61ebc62f6f7830fd038567d3254eba8a50bf99ce12efc91ead08c76b99"),
-    bytes("0x19531b897392c00859b8fd8a6203646ac3b000a217f45806d23caac22e31a31c"),
-    bytes("0x3344a7be91be7304967d2657d3722ba25eddf3c0c87b546fe3b93b5eac05f127"),
-    bytes("0xe5afcdc556dec784675714313ccbdc6ded2d124559d2ee7c3882e0b2f3b7fac2"),
-    bytes("0xd574aad0b3ab7d4d57a32474bcf697904196a2aa1d1abca0ab4d9c459b3421d8"),
-    bytes("0x93ef576314edf05313724ab46fceb4ffec1a1187790813b5ba6917b3ed837912"),
-    bytes("0x4f054cc99fd70f608beeb51c93e2d7234990b643c77214a3b4f2a4bf8cbb0197"),
-    bytes("0xfd73c7c373e600eeab92276fb7da703dc0b98d70e003d260dd7491705647bcb7"),
-    bytes("0x6875113530fac1aaa15a8432826efeb8430d799ca3c20e1f7ded5ea93d333f5c"),
-    bytes("0x4fdfe2d6eb6a11d5fa67e89bf453c1e50aa9689d445803a1d42e55d93035eb84"),
-    bytes("0x3b6071fb19f07ac422472bb042b2827e5c715ad2a36f8b50e9b4df4299560178"),
-    bytes("0xb7fd8f6704c234984e2a630652a552e8100de0e8ffb06ad12b817851863b6dff"),
-    bytes("0xcbf6f690f0d6aab08193341217f157b32c5df7681fd9f8953a8448fee531b6c4"),
-    bytes("0xcdfebccf1e220187d76b7bd97b5e0b31ab76e54ad00126cd2936da0511cb92fc")
+  string[19] internal cids = [
+    "QmSzq4gKUk9LhNNCFBVDbkkz26umqu63jx2dXNABBKcgJ9",
+    "QmNY4QEKhnreDZHW3yiphXn765im5y8RCGrySKzRoXDPTB",
+    "QmZn2p7xrRxqVGhKAtqjMZSY1Z6pW7A6RD7DiK2xt4nYTB",
+    "QmUW6peidPvHtbH4P7VNUpPdfaJqv7nmURbpgMcnzUbTtY",
+    "QmVAur87rJCyGh2ja1Pg4smAqD6MzXtuTXxWkeCkKYrf3n",
+    "QmNu5LeMyvMkP2sTBZhesXp352ihJUmGTPVeRp42Y9caXJ",
+    "QmQ3WQK41BozEznephMEh4cwGsRsFuXjFQRM6himtu5kHq",
+    "QmRnnDnHnF8uv1oour3oU9s1GmKNggzdEqMJueZViAvSAa",
+    "QmdoFZ6DL49SVmXDBv1zpkCngvr6bU7SUgxLbkh6ZM9L2V",
+    "QmchtjJsFDWNzLj93gPND1WhYUUGKeznNR6ATUeuaW71uq",
+    "QmYJ8KGfKo5iG8EbxZxvNoWiNuEMM4Hx5ok4paZ1F27G1w",
+    "QmTf7c3MaHsBR5rdT5CN3m3yZCuf1XkGxhV81GhJKxempA",
+    "QmfQ2Ffxw5P6NoKkQvkRoN31mAd65Dp2UBfPMdgzCDCDDx",
+    "QmVNQeMrLpvnizudP9kZquFSb28CmH9fHddEpdX7wyADxF",
+    "QmTiSvXRwdGFvPMPtKMurh4FJnzq3bZzws63UuErirSMFq",
+    "QmSLS4TKBM2M9tXv5CAdFqUQJ9wR8UjjyhtrUxtbRrXE9M",
+    "QmaisZuRUE1ndZGSzmvg4Uxr7nsi2ciQ1z9VoDCnpGRADt",
+    "Qmc4qtSHikeYvy4WScJWXtUeX2g3Qf6fC4xoJaU3fugQwu",
+    "QmcCmaXA3E8nzcBrTejHHjT8svKh6cSTwhKbPNuRyM6uH5"
   ];
 
   function run() external {
-    vm.startBroadcast();
-    for (uint256 i = 2; i < 16; i++) {
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+    vm.startBroadcast(deployerPrivateKey);
+
+    for (uint256 i; i < 11; i++) {
       beneficiaryRegistry.addBeneficiary(vm.addr(i + 1), DEFAULT_REGION, cids[i]);
+    }
+    vm.stopBroadcast();
+  }
+}
+
+contract RevokeBeneficiariesToRegistry is Script {
+  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6);
+
+  address[10] internal addresses = [
+    0x0000000000000000000000000000000000000000,
+    0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69,
+    0x1efF47bc3a10a45D4B230B5d10E37751FE6AA718,
+    0xe1AB8145F7E55DC933d51a18c793F901A3A0b276,
+    0xE57bFE9F44b819898F47BF37E5AF72a0783e1141,
+    0xd41c057fd1c78805AAC12B0A94a405c0461A6FBb,
+    0xF1F6619B38A98d6De0800F1DefC0a6399eB6d30C,
+    0xF7Edc8FA1eCc32967F827C9043FcAe6ba73afA5c,
+    0x4CCeBa2d7D2B4fdcE4304d3e09a1fea9fbEb1528,
+    0x3DA8D322CB2435dA26E9C9fEE670f9fB7Fe74E49
+  ];
+
+  function run() external {
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+    vm.startBroadcast(deployerPrivateKey);
+
+    for (uint256 i; i < 10; i++) {
+      beneficiaryRegistry.revokeBeneficiary(addresses[i]);
     }
     vm.stopBroadcast();
   }

@@ -17,7 +17,7 @@ uint256 constant DAYS = 60 * 60 * 24;
 /// 6,7 - Yearly Election
 /// 8-18 - Unused
 contract CreateElection is Script {
-  GrantElections internal grantElection = GrantElections(0x3df8bB3119f37eb93921e1afFe8872bC95a5b013);
+  GrantElections internal grantElection = GrantElections(0xF8C417F7a4593a561970358375Fc4b2F6F890E9c);
   GrantElections.ElectionTerm ELECTION_TERM = GrantElections.ElectionTerm.Monthly;
 
   function run() external {

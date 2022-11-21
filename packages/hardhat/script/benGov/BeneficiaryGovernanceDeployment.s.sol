@@ -44,8 +44,9 @@ contract DeployBenGov is Script {
     vm.startBroadcast();
     // Deploying core contracts
     aclRegistry = new ACLRegistry();
-    aclRegistry.grantRole(keccak256("DAO"), address(0x795D78169c41b0c10a1f9e70c3B2Cfe6960Fd2A2)); // replace with your signer
-    aclRegistry.grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), address(0x795D78169c41b0c10a1f9e70c3B2Cfe6960Fd2A2)); // replace with your signer
+    aclRegistry.grantRole(keccak256("DAO"), address(0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04)); // replace with your signer
+    aclRegistry.grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), address(0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04)); // replace with your signer
+    aclRegistry.grantRole(keccak256("BeneficiaryGovernance"), address(0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04)); // replace with your signer
 
     contractRegistry = new ContractRegistry(IACLRegistry(address(aclRegistry)));
 
@@ -83,7 +84,7 @@ contract DeployBenGov is Script {
     grantElections = new GrantElections(IContractRegistry(contractRegistry));
     contractRegistry.addContract(keccak256("GrantElections"), address(grantElections), "1");
     aclRegistry.grantRole(keccak256("BeneficiaryGovernance"), address(grantElections));
-    participationReward.addControllerContract(keccak256("GrantElections"), address(grantElections));
+    participationReward.addControllerContract("GrantElections", address(grantElections));
 
     beneficiaryVault = new BeneficiaryVaults(IContractRegistry(contractRegistry));
 
