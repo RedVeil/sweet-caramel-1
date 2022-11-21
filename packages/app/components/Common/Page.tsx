@@ -4,11 +4,9 @@ import Navbar from "@popcorn/app/components/NavBar/NavBar";
 import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import React from "react";
 import { Toaster } from "react-hot-toast";
-import GoogleAnalyticsPrompt from "@popcorn/app/components/GoogleAnalyticsPrompt";
 
 interface PageProps {
   children: JSX.Element;
-  // acceptGoogleAnalytics: any;
 }
 export default function Page({ children }: PageProps) {
   useRestakeAlert();
