@@ -174,10 +174,10 @@ export default function StakeInterface({
                   <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
                 </div>
                 <div>
-                  <div className="flex">
+                  <div className="flex md:mb-2">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
                     <InfoIconWithTooltip
-                      classExtras="mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                      classExtras="mt-0 ml-1 md:ml-2 p-0"
                       id="1"
                       title="Staked Balance"
                       content={`This is the balance of ${stakingToken?.symbol} that you have staked.`}
@@ -207,10 +207,10 @@ export default function StakeInterface({
                   <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
                 </div>
                 <div>
-                  <div className="flex">
+                  <div className="flex md:mb-2">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>
                     <InfoIconWithTooltip
-                      classExtras="mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                      classExtras="mt-0 ml-1 md:ml-2 p-0"
                       id="2"
                       title="Your Staking Rewards"
                       content={`Staking rewards are received for staking tokens. Rewards may be claimed under the rewards page. Whenever rewards are claimed, 10% is transferred immediately to your wallet, and the rest is streamed and claimable over the next 1 year.`}

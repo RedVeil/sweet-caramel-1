@@ -1,0 +1,19 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# get the current branch
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# check that the current branch is main and changes were made in packages/greenfield-app
+if [ "$current_branch" = "main" ] && [[ -n $(git diff --name-only HEAD~1 | grep packages/greenfield-app) ]]; then
+  # run build on greenfield-app package only once, check if build was successful
+  yarn workspace greenfield-app build
+  if [ $? -eq 0 ]; then
+    echo "Build successful"
+  else
+    echo "Build failed"
+    exit 1
+  fi
+else
+  echo "Skipping pre-push hook"
+fi
