@@ -8,8 +8,8 @@ on: push
 jobs:
   Prettier:
     runs-on: ubuntu-latest
-      steps:
-        - name: Prettify code!
-          shell: bash
-          run: ./prettify.sh
+    steps:
+      - name: Prettify code!
+        shell: bash
+        run: ./prettify.sh
 
