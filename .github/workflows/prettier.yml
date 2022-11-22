@@ -5,10 +5,11 @@ author: Amir <amir1jab@gmail.com>
 
 on: push
 
-runs:
-  using: "composite"
-  steps:
-    - name: Prettify code!
-      shell: bash
-      run: ./prettify.sh
+jobs:
+  Prettier:
+    runs-on: ubuntu-latest
+      steps:
+        - name: Prettify code!
+          shell: bash
+          run: ./prettify.sh
 
