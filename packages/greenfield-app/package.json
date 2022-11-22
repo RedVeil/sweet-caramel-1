@@ -1,6 +1,6 @@
 {
   "name": "greenfield-app",
-  "version": "2.0.6",
+  "version": "2.1.0-alpha.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,10 +12,10 @@
     "@headlessui/react": "^1.6.5",
     "@heroicons/react": "1.0.5",
     "@mailchimp/mailchimp_marketing": "^3.0.75",
-    "@popcorn/app": "^1.0.1",
-    "@popcorn/hardhat": "^1.0.1",
-    "@popcorn/hooks": "*",
-    "@popcorn/utils": "^1.0.1",
+    "@popcorn/app": "^1.1.0-alpha.0",
+    "@popcorn/hardhat": "^1.1.0-alpha.0",
+    "@popcorn/hooks": "^1.1.0-alpha.0",
+    "@popcorn/utils": "^1.1.0-alpha.0",
     "@rainbow-me/rainbowkit": "^0.8.0",
     "@tailwindcss/forms": "0.4.0",
     "autoprefixer": "10.4.2",
