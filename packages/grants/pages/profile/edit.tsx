@@ -145,9 +145,8 @@ const EditPage = () => {
               mobileHeight={getPopModalHeight()}
             >
               <div
-                className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${
-                  !showTabs ? " rotate-180" : ""
-                }`}
+                className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${!showTabs ? " rotate-180" : ""
+                  }`}
               >
                 <ChevronDownIcon className="animate-bounce text-secondaryLight w-5" onClick={toggleVotes} />
               </div>
@@ -187,11 +186,11 @@ const MenuTab: React.FC<MenuTabProps> = ({
     title: string;
     id: FormSteps;
   }> = [
-    { id: FormSteps.GENERAL_INFORMATION, title: "General Information" },
-    { id: FormSteps.PROOFS, title: "Proofs" },
-    { id: FormSteps.IMPACT_REPORTS, title: "Impact Reports" },
-    { id: FormSteps.VISUAL_CONTENT, title: "Visual Content" },
-  ];
+      { id: FormSteps.GENERAL_INFORMATION, title: "General Information for lol" },
+      { id: FormSteps.PROOFS, title: "Proofs" },
+      { id: FormSteps.IMPACT_REPORTS, title: "Impact Reports" },
+      { id: FormSteps.VISUAL_CONTENT, title: "Visual Content" },
+    ];
   return (
     <>
       <Transition
@@ -206,9 +205,8 @@ const MenuTab: React.FC<MenuTabProps> = ({
         <div className="space-y-3">
           {stepList.map((step) => (
             <button
-              className={`rounded-lg p-3 text-lg border block w-full text-left border-[#827D69] ${
-                step.id == activeForm ? "bg-[#827D69] text-white" : "bg-white text-[#827D69]"
-              }`}
+              className={`rounded-lg p-3 text-lg border block w-full text-left border-[#827D69] ${step.id == activeForm ? "bg-[#827D69] text-white" : "bg-white text-[#827D69]"
+                }`}
               key={step.id}
               onClick={() => updateStep(step.id)}
             >
