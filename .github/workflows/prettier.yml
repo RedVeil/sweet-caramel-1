@@ -8,5 +8,7 @@ jobs:
     steps:
       - name: Prettify code!
         shell: bash
-        run: ./prettify.sh
+        run: >-
+        PATH=$(cd $GITHUB_ACTION_PATH; npm bin):$PATH
+        ${{ github.action_path }}/entrypoint.sh
 
