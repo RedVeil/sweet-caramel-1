@@ -115,8 +115,8 @@ contract ExtendedDSTest is Test {
     }
   }
 
-  // TODO DELTA CALC IS WRONG
   // Assert Gte with percentage amount of token delta (a >= b && percDelta(a,b) <= maxPercentDelta )
+  // maxPercentDelta is in 1e18 (1e18 = 100%, 1e14 = 1 BPS)
   function assertApproxGteRel(
     uint256 a,
     uint256 b,
@@ -143,6 +143,7 @@ contract ExtendedDSTest is Test {
   }
 
   // Assert Gte with percentage amount of token delta (a >= b && percDelta(a,b) <= maxPercentDelta )
+  // maxPercentDelta is in 1e18 (1e18 = 100%, 1e14 = 1 BPS)
   function assertApproxGteRel(
     uint256 a,
     uint256 b,
@@ -172,6 +173,7 @@ contract ExtendedDSTest is Test {
   }
 
   // Assert Lte with percentage amount of token delta (a <= b && percDelta(a,b) <= maxPercentDelta )
+  // maxPercentDelta is in 1e18 (1e18 = 100%, 1e14 = 1 BPS)
   function assertApproxLteRel(
     uint256 a,
     uint256 b,
@@ -198,6 +200,7 @@ contract ExtendedDSTest is Test {
   }
 
   // Assert Lte with percentage amount of token delta (a <= b && percDelta(a,b) <= maxPercentDelta )
+  // maxPercentDelta is in 1e18 (1e18 = 100%, 1e14 = 1 BPS)
   function assertApproxLteRel(
     uint256 a,
     uint256 b,
@@ -223,20 +226,6 @@ contract ExtendedDSTest is Test {
       emit log_named_uint(" Max % Delta", maxPercentDelta);
       emit log_named_uint("     % Delta", percentDelta);
       fail();
-    }
-  }
-
-  function assertAbsWithin(
-    uint256 expected,
-    uint256 actual,
-    uint256 delta
-  ) internal {
-    if (expected > actual) {
-      assertLe(expected - actual, delta);
-    } else if (actual > expected) {
-      assertLe(actual - expected, delta);
-    } else {
-      assertEq(expected, actual);
     }
   }
 }

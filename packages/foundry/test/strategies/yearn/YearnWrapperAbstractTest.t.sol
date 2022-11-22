@@ -27,7 +27,7 @@ contract YearnWrapperAbstractTest is ExtendedDSTest {
   // @dev maximum amount of want tokens deposited based on @maxDollarNotional
   uint256 public maxFuzzAmt;
 
-  uint256 public DELTA = 1;
+  uint256 public DELTA = 2e14; // 2 BPS DELTA
 
   bool internal isTesting;
 
@@ -106,7 +106,7 @@ contract YearnWrapperAbstractTest is ExtendedDSTest {
     vm.stopPrank();
 
     assertApproxGteRel(actualShares, expectedShares, DELTA);
-    assertApproxGteRel(vaultWrapper.totalAssets(), depositAmount, DELTA);
+    assertApproxLteRel(vaultWrapper.totalAssets(), depositAmount, DELTA);
     assertEq(vaultWrapper.balanceOf(user), actualShares);
     assertEq(vaultWrapper.maxRedeem(user), actualShares);
     assertEq(vault.balanceOf(address(vaultWrapper)), actualShares);
@@ -125,11 +125,11 @@ contract YearnWrapperAbstractTest is ExtendedDSTest {
     vm.stopPrank();
 
     assertApproxGteRel(actualAssets, expectedAssets, DELTA);
-    assertApproxGteRel(vaultWrapper.totalAssets(), expectedAssets, DELTA);
-    assertApproxGteRel(vaultWrapper.balanceOf(user), depositAmount, DELTA);
-    assertApproxGteRel(vaultWrapper.maxRedeem(user), depositAmount, DELTA);
-    assertApproxGteRel(vault.balanceOf(address(vaultWrapper)), depositAmount, DELTA);
-    assertApproxGteRel(vaultWrapper.totalSupply(), depositAmount, DELTA);
+    assertApproxLteRel(vaultWrapper.totalAssets(), expectedAssets, DELTA);
+    assertApproxLteRel(vaultWrapper.balanceOf(user), depositAmount, DELTA);
+    assertApproxLteRel(vaultWrapper.maxRedeem(user), depositAmount, DELTA);
+    assertApproxLteRel(vault.balanceOf(address(vaultWrapper)), depositAmount, DELTA);
+    assertApproxLteRel(vaultWrapper.totalSupply(), depositAmount, DELTA);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -142,21 +142,21 @@ contract YearnWrapperAbstractTest is ExtendedDSTest {
     deal(address(want), address(user), depositAmount);
     vm.startPrank(user);
     want.approve(address(vaultWrapper), depositAmount);
-    vaultWrapper.deposit(depositAmount, user);
+    uint256 shares = vaultWrapper.deposit(depositAmount, user);
     vm.stopPrank();
 
-    // NOTE USING DEPOSIT AMOUNT WILL MAKE THIS FAIL SINCE THE CALCULATION IS OFF BY 1 WEI
-    // we could solve this by using the maxWithdraw value internally when amount is too high but that would mean that we adjust user inputs without their knowledge
-    uint256 maxWithdraw = vaultWrapper.maxWithdraw(user);
-    uint256 expectedWithdraw = vaultWrapper.previewWithdraw(maxWithdraw);
+    uint256 withdrawAmount = (depositAmount * 10) / 100;
+
+    uint256 expectedShares = vaultWrapper.previewWithdraw(withdrawAmount);
 
     vm.prank(user);
-    uint256 actualWithdraw = vaultWrapper.withdraw(maxWithdraw, user, user);
+    uint256 actualShares = vaultWrapper.withdraw(withdrawAmount, user, user);
 
-    assertApproxLteRel(expectedWithdraw, actualWithdraw, DELTA);
-    assertEq(vaultWrapper.balanceOf(user), 0);
-    assertEq(vaultWrapper.totalSupply(), 0);
-    assertEq(vaultWrapper.totalAssets(), 0);
+    uint256 absDelta = 10**vault.decimals() / 10_000;
+    assertApproxLteRel(actualShares, expectedShares, DELTA);
+    assertApproxEqAbs(vaultWrapper.balanceOf(user), shares - expectedShares, absDelta);
+    assertApproxEqAbs(vaultWrapper.totalSupply(), shares - expectedShares, absDelta);
+    assertApproxEqRel(vaultWrapper.totalAssets(), depositAmount - withdrawAmount, DELTA);
   }
 
   function test_preview_redeem_equals_actual_redeem(uint80 depositAmount) public runTest {
@@ -173,7 +173,7 @@ contract YearnWrapperAbstractTest is ExtendedDSTest {
     vm.prank(user);
     uint256 actualRedeem = vaultWrapper.redeem(shares, user, user);
 
-    assertApproxLteRel(expectedRedeem, actualRedeem, DELTA);
+    assertApproxLteRel(actualRedeem, expectedRedeem, DELTA);
     assertEq(vaultWrapper.balanceOf(user), 0);
     assertEq(vaultWrapper.totalSupply(), 0);
     assertEq(vaultWrapper.totalAssets(), 0);

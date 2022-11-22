@@ -89,19 +89,43 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
   }
 
   function previewDeposit(uint256 assets) public view returns (uint256) {
-    return convertToShares(assets); // return less
+    return convertToShares(assets).mulDivDown(9999, 10_000); // return less
   }
 
   function previewMint(uint256 shares) public view returns (uint256) {
-    return shares.mulDivUp(yVault.pricePerShare(), 10**_decimals); // return less
+    return shares.mulDivUp(yVault.pricePerShare(), 10**_decimals).mulDivDown(9999, 10_000); // return less
   }
 
   function previewWithdraw(uint256 assets) public view returns (uint256) {
-    return assets.mulDivUp(10**_decimals, yVault.pricePerShare()); // return more
+    return assets.mulDivUp(10**_decimals, yVault.pricePerShare()).mulDivDown(10_000, 9999); // return more
   }
 
   function previewRedeem(uint256 shares) public view returns (uint256) {
-    return convertToAssets(shares); // return more
+    return convertToAssets(shares).mulDivDown(10_000, 9999); // return more
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                    DEPOSIT/WITHDRAWAL LIMIT LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function maxDeposit(address) public view returns (uint256) {
+    VaultAPI _bestVault = yVault;
+    uint256 _totalAssets = _bestVault.totalAssets();
+    uint256 _depositLimit = _bestVault.depositLimit();
+    if (_totalAssets >= _depositLimit) return 0;
+    return _depositLimit - _totalAssets;
+  }
+
+  function maxMint(address _account) external view returns (uint256) {
+    return convertToShares(maxDeposit(_account));
+  }
+
+  function maxWithdraw(address owner) external view returns (uint256) {
+    return convertToAssets(this.balanceOf(owner));
+  }
+
+  function maxRedeem(address owner) external view returns (uint256) {
+    return this.balanceOf(owner);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -181,30 +205,6 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     burntShares = beforeBal - _vault.balanceOf(address(this));
 
     _burn(sender, burntShares);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                    DEPOSIT/WITHDRAWAL LIMIT LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  function maxDeposit(address) public view returns (uint256) {
-    VaultAPI _bestVault = yVault;
-    uint256 _totalAssets = _bestVault.totalAssets();
-    uint256 _depositLimit = _bestVault.depositLimit();
-    if (_totalAssets >= _depositLimit) return 0;
-    return _depositLimit - _totalAssets;
-  }
-
-  function maxMint(address _account) external view returns (uint256) {
-    return convertToShares(maxDeposit(_account));
-  }
-
-  function maxWithdraw(address owner) external view returns (uint256) {
-    return convertToAssets(this.balanceOf(owner));
-  }
-
-  function maxRedeem(address owner) external view returns (uint256) {
-    return this.balanceOf(owner);
   }
 
   /*//////////////////////////////////////////////////////////////
