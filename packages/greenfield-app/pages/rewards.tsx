@@ -24,22 +24,31 @@ export default function RewardsPage(): JSX.Element {
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const isSelected = (tab: Tabs) => tabSelected === tab;
   const [hasVesting, setHasVesting] = useState<boolean>(false);
+  const [hasStaking, setHasStaking] = useState<boolean>(false);
   const rewardDiv = useRef<HTMLDivElement>();
+  const stakingDiv = useRef<HTMLDivElement>();
 
   useEffect(() => {
-    // Check if a Vesting Record shows up
-    const vestingCheck = setInterval(() => {
+    // Check if a Vesting Record and Staking Records shows up
+    const rewardsCheck = setInterval(() => {
       rewardDiv?.current?.childNodes?.forEach((node) => {
         // @ts-expect-error
         if (node.classList.value === "flex flex-col h-full ") {
           setHasVesting(true);
-          clearInterval(vestingCheck);
+          clearInterval(rewardsCheck);
+        }
+      });
+      stakingDiv?.current?.childNodes?.forEach((node) => {
+        // @ts-expect-error
+        if (node.classList.value === "show-staking") {
+          setHasStaking(true);
+          clearInterval(rewardsCheck);
         }
       });
     }, 1000);
     // If there is no vesting record after 10s dont check anymore
     setTimeout(() => {
-      clearInterval(vestingCheck);
+      clearInterval(rewardsCheck);
     }, 10000);
   }, []);
 
@@ -80,7 +89,7 @@ export default function RewardsPage(): JSX.Element {
       {account && (
         <div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
           <div className="col-span-12 md:col-span-4">
-            <div className={`mb-12 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`}>
+            <div className={`mb-12`}>
               <NetworkFilter
                 supportedNetworks={supportedNetworks}
                 selectedNetworks={selectedNetworks}
@@ -96,17 +105,26 @@ export default function RewardsPage(): JSX.Element {
               availableTabs={[Tabs.Staking, Tabs.Vesting]}
             />
             <div className={`${isSelected(Tabs.Staking) ? "" : "hidden"}`}>
+              <div className={`mt-4 ${hasStaking ? "hidden" : ""}`}>
+                <NotAvailable
+                  title="No Records Available"
+                  body="No vesting records available"
+                  image="/images/emptyRecord.svg"
+                />
+              </div>
               {stakingContracts?.stakingPools &&
                 stakingContracts?.stakingPools.length > 0 &&
                 stakingContracts?.stakingPools?.map((staking) => (
-                  <ClaimCard
-                    key={staking?.chainId + staking?.address}
-                    chainId={staking?.chainId}
-                    stakingAddress={staking?.address}
-                    stakingType={staking?.stakingType}
-                  />
-                ))}
-            </div>
+                  <div ref={stakingDiv} key={staking?.chainId + staking?.address}>
+                    <ClaimCard
+                      chainId={staking?.chainId}
+                      stakingAddress={staking?.address}
+                      stakingType={staking?.stakingType}
+                    />
+                  </div>
+                ))
+              }
+            </div >
 
             <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`} ref={rewardDiv}>
               <div className={`mb-4 ${hasVesting ? "hidden" : ""}`}>
@@ -122,9 +140,10 @@ export default function RewardsPage(): JSX.Element {
                   <Vesting key={chain + "Vesting"} chainId={chain} />
                 ))}
             </div>
-          </div>
-        </div>
-      )}
+          </div >
+        </div >
+      )
+      }
     </>
   );
 }
