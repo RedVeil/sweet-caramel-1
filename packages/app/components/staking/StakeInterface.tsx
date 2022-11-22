@@ -15,6 +15,8 @@ import PopLockerInteraction from "@popcorn/app/components/staking/PopLockerInter
 import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;
@@ -59,6 +61,9 @@ export default function StakeInterface({
   const [state, setState] = form;
   const router = useRouter();
   const networkName = useNetworkName();
+  const { Ethereum } = ChainId;
+  const { popStaking } = useDeployment(Ethereum);
+  const { data: popPool } = usePopLocker(popStaking, Ethereum);
 
   const toggleInterface = () =>
     setState({
@@ -204,7 +209,7 @@ export default function StakeInterface({
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
                 <div className="relative ml-4">
                   <NetworkSticker />
-                  <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                  <TokenIcon token={popPool?.stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
                 </div>
                 <div>
                   <div className="flex md:mb-2">
