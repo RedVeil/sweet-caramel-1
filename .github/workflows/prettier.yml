@@ -8,9 +8,5 @@ runs:
   steps:
     - name: Prettify code!
       shell: bash
-      run: >-
-        ./prettify.sh
+      run: ./prettify.sh
 
-branding:
-  icon: "award"
-  color: "green"
