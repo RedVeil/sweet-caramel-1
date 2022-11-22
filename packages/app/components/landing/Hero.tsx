@@ -31,8 +31,13 @@ export default function Hero(): JSX.Element {
             <div className="md:hidden">
               <SecondaryActionButton label="Connect Wallet" />
             </div>
-          </div>
+                                          </div>
         </div>
+
+
+
+
+
       </div>
 
       <div className="col-span-12 md:col-span-4 h-full pt-10 md:pt-0">
