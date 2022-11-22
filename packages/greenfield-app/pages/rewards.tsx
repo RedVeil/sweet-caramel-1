@@ -129,15 +129,17 @@ export default function RewardsPage(): JSX.Element {
 							</div> */}
               {stakingContracts?.stakingPools &&
                 stakingContracts?.stakingPools.length > 0 &&
-                stakingContracts?.stakingPools?.map((staking) => (
-                  <div ref={stakingDiv} key={staking?.chainId + staking?.address}>
-                    <ClaimCard
-                      chainId={staking?.chainId}
-                      stakingAddress={staking?.address}
-                      stakingType={staking?.stakingType}
-                    />
-                  </div>
-                ))}
+                stakingContracts?.stakingPools
+                  ?.filter((pool) => selectedNetworks.includes(pool.chainId))
+                  .map((staking) => (
+                    <div ref={stakingDiv} key={staking?.chainId + staking?.address}>
+                      <ClaimCard
+                        chainId={staking?.chainId}
+                        stakingAddress={staking?.address}
+                        stakingType={staking?.stakingType}
+                      />
+                    </div>
+                  ))}
             </div>
 
             <div className={`mt-8 ${isSelected(Tabs.Airdrop) ? "" : "hidden"}`}>
