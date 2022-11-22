@@ -2,6 +2,7 @@
   "name": "@popcorn/foundry",
   "version": "1.1.0-alpha.0",
   "main": "index",
+  "private": true,
   "scripts": {
     "build": "forge build",
     "clean": "rimraf ./out",

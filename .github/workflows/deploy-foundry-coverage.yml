@@ -30,7 +30,7 @@ jobs:
           node-version: 18
 
       - name: "Yarn install"
-        run: cd packages/foundry && yarn install --focus
+        run: cd packages/foundry && yarn
 
       - name: Run Forge build
         run: cd packages/foundry && forge build
@@ -69,7 +69,7 @@ jobs:
           node-version: 18
 
       - name: "Yarn install"
-        run: cd packages/foundry && yarn install --focus
+        run: cd packages/foundry && yarn
 
       - name: Make PR Comment
         uses: mshick/add-pr-comment@v2

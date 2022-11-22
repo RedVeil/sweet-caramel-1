@@ -2,6 +2,7 @@
   "name": "@popcorn/hardhat",
   "version": "1.1.1-alpha.0",
   "main": "index",
+  "private": true,
   "scripts": {
     "build": "yarn clean && yarn hardhat compile && yarn export",
     "dev": "yarn hardhat node --network hardhat --export ./lib/utils/exporter/out/hardhat-deployment.json",
@@ -13,7 +14,7 @@
     "test": "yarn hardhat test test/*.test.ts",
     "test:fork": "yarn hardhat test test/fork/*.test.ts",
     "test:forge": "yarn hardhat forge:forge-test",
-    "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
+    "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'  --solcoverjs ./.solcover.js",
     "prettify": "yarn lint-staged --allow-empty",
     "install:forge": "forge install"
   },
@@ -21,7 +22,6 @@
     "*.{sol,ts,tsx}": "prettier --write"
   },
   "devDependencies": {
-    "@float-capital/solidity-coverage": "0.7.17",
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@openzeppelin/contracts": "4.8.0",
     "@openzeppelin/test-helpers": "0.5.15",
@@ -73,7 +73,7 @@
     "solc-0.8.1": "npm:solc@0.8.1",
     "solc-0.8.10": "npm:solc@0.8.10",
     "solc-0.8.17": "npm:solc@0.8.17",
-    "solidity-coverage": "0.7.18",
+    "solidity-coverage": "^0.8.2",
     "solidity-shell": "^0.1.0",
     "solmate": "^6.6.1",
     "surya": "0.4.5",

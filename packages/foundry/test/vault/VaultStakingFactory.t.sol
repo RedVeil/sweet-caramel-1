@@ -68,6 +68,8 @@ contract VaultStakingFactoryTest is Test {
 
     address staking = vaultStakingFactory.deploy(VAULT);
 
+    console.log("IIII staking IIII", staking);
+
     // Check that the staking got deployed
     assertEq(staking, address(0x037FC82298142374d974839236D2e2dF6B5BdD8F));
   }
