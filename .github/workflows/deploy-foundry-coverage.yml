@@ -64,6 +64,13 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: "Yarn install"
+        run: cd packages/foundry && yarn install --focus
+
       - name: Make PR Comment
         uses: mshick/add-pr-comment@v2
         with:
