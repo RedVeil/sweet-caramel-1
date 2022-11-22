@@ -11,7 +11,7 @@ export type ContractAddresses<ChainId extends keyof Deployments> = {
 } & { all: Set<string>; has: (contractAddress: string) => boolean };
 
 export const getNamedAccounts = <Chain extends DeploymentChainIds>(
-  chainId: Chain,
+  chainId: any,
   contractAddresses: Array<DeploymentContractsKeys<Chain>>,
 ) =>
   contractAddresses.map((contract) => ({
