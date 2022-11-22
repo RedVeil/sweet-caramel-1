@@ -3,8 +3,8 @@ name: "Preview Next Deployment"
 on:
   push:
     paths:
-      - packages/greenfield-app
-      - packages/app
+      - packages/greenfield-app/**
+      - packages/app/**
 
 env:
   VERCEL_ORG_ID: "${{ secrets.VERCEL_ORG_ID }}"
