@@ -3,6 +3,8 @@ description: Automatically runs prettier on all your changes.
 
 author: Amir <amir1jab@gmail.com>
 
+on: push
+
 runs:
   using: "composite"
   steps:
