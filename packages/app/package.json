@@ -1,6 +1,6 @@
 {
   "name": "@popcorn/app",
-  "version": "1.1.0-alpha.1",
+  "version": "1.1.1-alpha.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,8 +19,8 @@
     "@headlessui/react": "^1.7.4",
     "@heroicons/react": "1.0.5",
     "@mailchimp/mailchimp_marketing": "^3.0.75",
-    "@popcorn/hardhat": "^1.1.0-alpha.0",
-    "@popcorn/utils": "^1.1.0-alpha.0",
+    "@popcorn/hardhat": "^1.1.1-alpha.0",
+    "@popcorn/utils": "^1.1.1-alpha.0",
     "@rainbow-me/rainbowkit": "^0.8.0",
     "@setprotocol/set-protocol-v2": "0.1.9",
     "@tailwindcss/forms": "0.4.0",
