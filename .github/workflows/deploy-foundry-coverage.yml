@@ -25,6 +25,13 @@ jobs:
         with:
           version: nightly
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: "Yarn install"
+        run: cd packages/foundry && yarn install --focus
+
       - name: Run Forge build
         run: cd packages/foundry && forge build
         id: build
