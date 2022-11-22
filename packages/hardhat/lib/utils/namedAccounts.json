@@ -731,6 +731,53 @@
     "addresses": {},
     "metadata": null
   },
+  "vaultsV1registry": {
+    "addresses": {},
+    "metadata": null
+  },
+  "voting": {
+    "addresses": {
+      "arbitrum": "",
+      "bsc": "",
+      "mainnet": "0xbb6ed6fdc4ddb0541b445e8560d9374e20d1fc1f",
+      "mumbai": "",
+      "rinkeby": ""
+    },
+    "metadata": null
+  },
+  "wbtc": {
+    "addresses": {
+      "mainnet": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+    },
+    "metadata": {
+      "name": "Wrapped Bitcoin",
+      "symbol": "WBTC",
+      "icons": [
+        "/images/tokens/wbtc.webp"
+      ]
+    }
+  },
+  "xPop": {
+    "addresses": {
+      "arbitrum": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      "bsc": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      "polygon": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8"
+    },
+    "metadata": {
+      "icons": [
+        "/images/icons/POP.svg"
+      ],
+      "priceResolver": "pop"
+    }
+  },
+  "xPopRedemption": {
+    "addresses": {
+      "arbitrum": "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
+      "bsc": "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
+      "polygon": "0x48168536Fc8834A9543C5A4383721148113fF75A"
+    },
+    "metadata": null
+  },
   "beneficiaryRegistry": {
     "addresses": {
       "hardhat": "0x92A00fc48Ad3dD4A8b5266a8F467a52Ac784fC83",
