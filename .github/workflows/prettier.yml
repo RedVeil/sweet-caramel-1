@@ -9,8 +9,7 @@ runs:
     - name: Prettify code!
       shell: bash
       run: >-
-        PATH=$(cd $GITHUB_ACTION_PATH; npm bin):$PATH
-        ${{ github.action_path }}/prettify.sh
+        ./prettify.sh
 
 branding:
   icon: "award"
