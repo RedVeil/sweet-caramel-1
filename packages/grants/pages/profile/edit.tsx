@@ -213,7 +213,7 @@ const MenuTab: React.FC<MenuTabProps> = ({
               {step.title}
             </button>
           ))}
-        </div>
+                    </div>
         <hr className="bg-customLightGray my-8" />
       </Transition>
       <div>
