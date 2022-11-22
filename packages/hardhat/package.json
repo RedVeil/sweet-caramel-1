@@ -33,7 +33,6 @@
     "hardhat-gas-reporter": "1.0.7",
     "openzeppelin-upgradeable": "npm:@openzeppelin/contracts-upgradeable@4.7.1",
     "openzeppelin-v3": "npm:@openzeppelin/contracts@3.4.2",
-    "openzeppelin-upgradeable": "npm:@openzeppelin/contracts-upgradeable@4.7.1",
     "rimraf": "3.0.2"
   },
   "dependencies": {
