@@ -316,7 +316,8 @@
       "hardhat": "0x2e8880cAdC08E9B438c6052F5ce3869FBd6cE513",
       "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
       "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
-      "goerli": "0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e"
+      "goerli": "0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e",
+      "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
     },
     "metadata": {
       "name": "Popcorn",
