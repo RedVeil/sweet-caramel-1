@@ -15,10 +15,10 @@ export const getNamedAccounts = <Chain extends DeploymentChainIds>(
   contractAddresses: Array<DeploymentContractsKeys<Chain>>,
 ) =>
   contractAddresses.map((contract) => ({
-    ...(deployments[chainId].contracts[contract as string]?.metadata ||
-      deployments[chainId].contracts[(contract as string)?.toLowerCase()]?.metadata),
-    ...(deployments[chainId].contracts[contract as string] ||
-      deployments[chainId].contracts[(contract as string)?.toLowerCase()]),
+    ...(deployments[chainId]?.contracts[contract as string]?.metadata ||
+      deployments[chainId]?.contracts[(contract as string)?.toLowerCase()]?.metadata),
+    ...(deployments[chainId]?.contracts[contract as string] ||
+      deployments[chainId]?.contracts[(contract as string)?.toLowerCase()]),
     __alias: contract,
     chainId: chainId,
   }));
