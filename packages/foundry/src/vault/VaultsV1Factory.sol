@@ -2,8 +2,8 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "openzeppelin-contracts/proxy/Clones.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../utils/Owned.sol";
 import "./Vault.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";

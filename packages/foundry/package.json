@@ -27,6 +27,8 @@
     "solc-0.8.10": "npm:solc@0.8.10",
     "solc-0.8.17": "npm:solc@0.8.17",
     "solidity-shell": "^0.1.0",
+    "@openzeppelin/contracts": "4.8.0",
+    "openzeppelin-upgradeable": "npm:@openzeppelin/contracts-upgradeable@4.7.1",
     "surya": "0.4.5"
   },
   "license": "AGPL-3.0"
