@@ -14,7 +14,6 @@
     "@mailchimp/mailchimp_marketing": "^3.0.75",
     "@popcorn/app": "^1.0.1",
     "@popcorn/hardhat": "^1.0.1",
-    "@popcorn/ui": "^1.0.1",
     "@popcorn/hooks": "*",
     "@popcorn/utils": "^1.0.1",
     "@rainbow-me/rainbowkit": "^0.8.0",
