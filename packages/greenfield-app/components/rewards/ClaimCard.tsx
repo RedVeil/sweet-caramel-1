@@ -89,7 +89,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
       </div>
       <div
         className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${
-          !staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : ""
+          !staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : "show-staking"
         }`}
       >
         <div className="flex flex-col md:flex-row justify-between pt-4 pb-6 md:px-8">
