@@ -5,7 +5,7 @@ export const NotAvailable: React.FC<{
   body: string;
   visible?: boolean;
   additionalStyles?: string;
-  image;
+  image?: string;
 }> = ({ title, body, visible, additionalStyles, image }) => {
   if (visible === false) {
     return <></>;
