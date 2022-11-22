@@ -17,9 +17,8 @@ export default function Hero(): JSX.Element {
           <NetworthCard hidden={!isConnected} />
         </div>
         <div
-          className={`rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6 group ${
-            isConnected ? "hidden" : ""
-          }`}
+          className={`rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6 group ${isConnected ? "hidden" : ""
+            }`}
           role="button"
           onClick={() => connect()}
         >
@@ -31,7 +30,7 @@ export default function Hero(): JSX.Element {
             <div className="md:hidden">
               <SecondaryActionButton label="Connect Wallet" />
             </div>
-                                          </div>
+                          </div>
         </div>
 
 
