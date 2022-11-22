@@ -1,12 +1,4 @@
 {
-  "aclRegistry": {
-    "addresses": {
-      "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
-      "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-      "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56"
-    },
-    "metadata": null
-  },
   "agEur": {
     "addresses": {
       "mainnet": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
@@ -19,7 +11,10 @@
       "polygon": "0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e"
     },
     "metadata": {
-      "icons": ["/images/tokens/xen.png", "/images/icons/POP.svg"],
+      "icons": [
+        "/images/tokens/xen.png",
+        "/images/icons/POP.svg"
+      ],
       "buyLinkEthereum": "https://app.uniswap.org/#/swap?outputCurrency=0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8&chain=ethereum",
       "buyLinkPolygon": "https://app.uniswap.org/#/swap?outputCurrency=0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e&chain=polygon"
     }
@@ -59,14 +54,6 @@
     },
     "metadata": null
   },
-  "beneficiaryGovernance": {
-    "addresses": {},
-    "metadata": null
-  },
-  "beneficiaryRegistry": {
-    "addresses": {},
-    "metadata": null
-  },
   "butter": {
     "addresses": {
       "mainnet": "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
@@ -74,7 +61,9 @@
     },
     "metadata": {
       "name": "Butter (V2)",
-      "icons": ["/images/icons/BTR.svg"],
+      "icons": [
+        "/images/icons/BTR.svg"
+      ],
       "priceResolver": "setToken"
     }
   },
@@ -109,14 +98,6 @@
   "butterWhaleProcessing": {
     "addresses": {
       "mainnet": "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39"
-    },
-    "metadata": null
-  },
-  "contractRegistry": {
-    "addresses": {
-      "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
-      "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
-      "rinkeby": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3"
     },
     "metadata": null
   },
@@ -271,7 +252,9 @@
     "metadata": {
       "name": "crv-sETH/ETH LP",
       "symbol": "crv-sETH/ETH",
-      "icons": ["/images/tokens/crvSeth.png"]
+      "icons": [
+        "/images/tokens/crvSeth.png"
+      ]
     }
   },
   "crvSteth": {
@@ -318,19 +301,32 @@
       "rinkeby": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
     },
     "metadata": {
-      "icons": ["/images/tokens/dai.webp"],
+      "icons": [
+        "/images/tokens/dai.webp"
+      ],
       "name": "DAI",
       "symbol": "DAI"
     }
   },
   "pop": {
-    "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
-    "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
-    "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
-    "hardhat": "0x2e8880cAdC08E9B438c6052F5ce3869FBd6cE513",
-    "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
-    "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
-    "goerli": "0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e"
+    "addresses": {
+      "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
+      "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
+      "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
+      "hardhat": "0x2e8880cAdC08E9B438c6052F5ce3869FBd6cE513",
+      "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
+      "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
+      "goerli": "0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e"
+    },
+    "metadata": {
+      "name": "Popcorn",
+      "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
+      "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
+      "icons": [
+        "/images/icons/POP.svg"
+      ],
+      "priceResolver": "pop"
+    }
   },
   "daoAgent": {
     "addresses": {
@@ -366,7 +362,9 @@
       "name": "ETH",
       "symbol": "ETH",
       "decimals": 18,
-      "icons": ["/images/tokens/eth.png"]
+      "icons": [
+        "/images/tokens/eth.png"
+      ]
     }
   },
   "eurOracle": {
@@ -383,14 +381,6 @@
     "addresses": {
       "mainnet": "0x853d955aCEf822Db058eb8505911ED77F175b99e"
     },
-    "metadata": null
-  },
-  "govStaking": {
-    "addresses": {},
-    "metadata": null
-  },
-  "grantElections": {
-    "addresses": {},
     "metadata": null
   },
   "ibCHF": {
@@ -417,15 +407,6 @@
     },
     "metadata": null
   },
-  "keeperIncentive": {
-    "addresses": {
-      "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
-      "polygon": "0xd928a457247649835e652416847C54C038FAF920"
-    },
-    "metadata": {
-      "contractName": "KeeperIncentive"
-    }
-  },
   "merkleOrchard": {
     "addresses": {
       "arbitrum": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
@@ -434,23 +415,6 @@
       "rinkeby": "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e"
     },
     "metadata": null
-  },
-  "pop": {
-    "addresses": {
-      "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
-      "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
-      "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
-      "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
-      "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
-      "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
-    },
-    "metadata": {
-      "name": "Popcorn",
-      "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
-      "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
-      "icons": ["/images/icons/POP.svg"],
-      "priceResolver": "pop"
-    }
   },
   "popStaking": {
     "addresses": {
@@ -462,7 +426,9 @@
     },
     "metadata": {
       "contractName": "PopLocker",
-      "icons": ["/images/icons/POP.svg"],
+      "icons": [
+        "/images/icons/POP.svg"
+      ],
       "name": "POP",
       "priceResolver": "staking"
     }
@@ -475,7 +441,10 @@
     },
     "metadata": {
       "name": "Arrakis USDC/POP LP",
-      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
+      "icons": [
+        "/images/tokens/usdc.svg",
+        "/images/icons/POP.svg"
+      ],
       "priceResolver": "arrakis"
     }
   },
@@ -539,10 +508,6 @@
       "symbol": "POP"
     }
   },
-  "rewardsManager": {
-    "addresses": {},
-    "metadata": null
-  },
   "sCHF": {
     "addresses": {
       "mainnet": "0x0F83287FF768D1c1e17a42F44d644D7F22e8ee1d"
@@ -562,7 +527,9 @@
     "metadata": {
       "name": "sETH",
       "symbol": "sETH",
-      "icons": ["/images/tokens/sEth.webp"]
+      "icons": [
+        "/images/tokens/sEth.webp"
+      ]
     }
   },
   "sEthSweetVault": {
@@ -570,7 +537,9 @@
     "metadata": {
       "name": "ETH/sETH Vault",
       "symbol": "pop-ETH/sETH",
-      "icons": ["/images/tokens/crvSeth.png"],
+      "icons": [
+        "/images/tokens/crvSeth.png"
+      ],
       "displayText": {
         "strategy": "Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.",
         "token": "This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform."
@@ -629,7 +598,9 @@
     "metadata": {
       "name": "threeCrv",
       "symbol": "3CRV",
-      "icons": ["/images/icons/3crv_icon.png"]
+      "icons": [
+        "/images/icons/3crv_icon.png"
+      ]
     }
   },
   "threePool": {
@@ -644,7 +615,9 @@
       "mainnet": "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3"
     },
     "metadata": {
-      "icons": ["/images/tokens/3X.svg"],
+      "icons": [
+        "/images/tokens/3X.svg"
+      ],
       "priceResolver": "setToken"
     }
   },
@@ -682,25 +655,35 @@
     }
   },
   "aclRegistry": {
-    "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
-    "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-    "hardhat": "0xBEe6FFc1E8627F51CcDF0b4399a1e1abc5165f15",
-    "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
-    "goerli": "0x42b85613D87eA55468DFE53b4d3d94D2a6d05E69"
+    "addresses": {
+      "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
+      "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      "hardhat": "0xBEe6FFc1E8627F51CcDF0b4399a1e1abc5165f15",
+      "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
+      "goerli": "0x42b85613D87eA55468DFE53b4d3d94D2a6d05E69"
+    },
+    "metadata": null
   },
   "keeperIncentive": {
-    "polygon": "0xd928a457247649835e652416847C54C038FAF920",
-    "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
-    "hardhat": "0xd30bF3219A0416602bE8D482E0396eF332b0494E",
-    "localhost": "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
-    "goerli": "0x52841Cfa95cFD2d8751cf202e7627AFFBbCF4A8B"
+    "addresses": {
+      "polygon": "0xd928a457247649835e652416847C54C038FAF920",
+      "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
+      "hardhat": "0xd30bF3219A0416602bE8D482E0396eF332b0494E",
+      "localhost": "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
+      "goerli": "0x52841Cfa95cFD2d8751cf202e7627AFFBbCF4A8B"
+    },
+    "metadata": {
+      "contractName": "KeeperIncentive"
+    }
   },
   "contractRegistry": {
-    "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
-    "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
-    "hardhat": "0xd710a67624Ad831683C86a48291c597adE30F787",
-    "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
-    "goerli": "0x308bCee3746fD1FA8A6478C393ca9f8070E58A14"
+    "addresses": {
+      "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
+      "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
+      "hardhat": "0xd710a67624Ad831683C86a48291c597adE30F787",
+      "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+      "goerli": "0x308bCee3746fD1FA8A6478C393ca9f8070E58A14"
+    }
   },
   "usdc": {
     "addresses": {
@@ -712,7 +695,9 @@
       "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94"
     },
     "metadata": {
-      "icons": ["/images/tokens/usdc.svg"],
+      "icons": [
+        "/images/tokens/usdc.svg"
+      ],
       "name": "USDC",
       "symbol": "USDC",
       "priceResolver": "defillama"
@@ -725,7 +710,9 @@
     "metadata": {
       "name": "USDT",
       "symbol": "USDT",
-      "icons": ["/images/tokens/usdt.webp"]
+      "icons": [
+        "/images/tokens/usdt.webp"
+      ]
     }
   },
   "vaultsRewardsEscrow": {
@@ -744,27 +731,40 @@
     "addresses": {},
     "metadata": null
   },
-  "crvAaveSweetPool": {},
-  "crvCvxCrvSweetPool": {},
   "beneficiaryRegistry": {
-    "hardhat": "0x92A00fc48Ad3dD4A8b5266a8F467a52Ac784fC83",
-    "goerli": "0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6"
+    "addresses": {
+      "hardhat": "0x92A00fc48Ad3dD4A8b5266a8F467a52Ac784fC83",
+      "goerli": "0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6"
+    },
+    "metadata": null
   },
   "beneficiaryGovernance": {
-    "hardhat": "0x04F339eC4D75Cf2833069e6e61b60eF56461CD7C",
-    "goerli": "0x62B00B60D1f4042B3474900BA3fd548fc553205f"
+    "addresses": {
+      "hardhat": "0x04F339eC4D75Cf2833069e6e61b60eF56461CD7C",
+      "goerli": "0x62B00B60D1f4042B3474900BA3fd548fc553205f"
+    },
+    "metadata": null
   },
   "grantElections": {
-    "hardhat": "0x21915b79E1d334499272521a3508061354D13FF0",
-    "goerli": "0xF8C417F7a4593a561970358375Fc4b2F6F890E9c"
+    "addresses": {
+      "hardhat": "0x21915b79E1d334499272521a3508061354D13FF0",
+      "goerli": "0xF8C417F7a4593a561970358375Fc4b2F6F890E9c"
+    },
+    "metadata": null
   },
   "rewardsManager": {
-    "hardhat": "0xeE1eb820BeeCED56657bA74fa8D70748D7A6756C",
-    "goerli": "0xFE4fE5e50dCc35B225028E3A8d23058D8A50676a"
+    "addresses": {
+      "hardhat": "0xeE1eb820BeeCED56657bA74fa8D70748D7A6756C",
+      "goerli": "0xFE4fE5e50dCc35B225028E3A8d23058D8A50676a"
+    },
+    "metadata": null
   },
   "govStaking": {
-    "hardhat": "0x5A569Ad19272Afa97103fD4DbadF33B2FcbaA175",
-    "goerli": "0x24aD8341522282725B31Da821f290b1ceBdf94fe"
+    "addresses": {
+      "hardhat": "0x5A569Ad19272Afa97103fD4DbadF33B2FcbaA175",
+      "goerli": "0x24aD8341522282725B31Da821f290b1ceBdf94fe"
+    },
+    "metadata": null
   },
   "y3Eur": {
     "addresses": {
@@ -782,12 +782,18 @@
     }
   },
   "BeneficiaryVaults": {
-    "hardhat": "0x4ff1f64683785E0460c24A4EF78D582C2488704f",
-    "goerli": "0x4E4c4Eb83305C47d80aB6C0065b2308f5640B41f"
+    "addresses": {
+      "hardhat": "0x4ff1f64683785E0460c24A4EF78D582C2488704f",
+      "goerli": "0x4E4c4Eb83305C47d80aB6C0065b2308f5640B41f"
+    },
+    "metadata": null
   },
   "Region": {
-    "hardhat": "0x773330693cb7d5D233348E25809770A32483A940",
-    "goerli": "0x45926B4EFACbc7f2D301D6d59Fb80155906d2af0"
+    "addresses": {
+      "hardhat": "0x773330693cb7d5D233348E25809770A32483A940",
+      "goerli": "0x45926B4EFACbc7f2D301D6d59Fb80155906d2af0"
+    },
+    "metadata": null
   },
   "yFrax": {
     "addresses": {
@@ -799,8 +805,11 @@
     }
   },
   "ParticipationReward": {
-    "hardhat": "0xb830887eE23d3f9Ed8c27dbF7DcFe63037765475",
-    "goerli": "0x6768E6f0af526d5c14A4fee1c465CeCDb188dd0f"
+    "addresses": {
+      "hardhat": "0xb830887eE23d3f9Ed8c27dbF7DcFe63037765475",
+      "goerli": "0x6768E6f0af526d5c14A4fee1c465CeCDb188dd0f"
+    },
+    "metadata": null
   },
   "yJPY": {
     "addresses": {
@@ -833,7 +842,9 @@
     "metadata": {
       "name": "sUSD",
       "symbol": "sUSD",
-      "icons": ["/images/tokens/sUSD.png"]
+      "icons": [
+        "/images/tokens/sUSD.png"
+      ]
     }
   },
   "yearnRegistry": {
