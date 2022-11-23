@@ -499,7 +499,8 @@
     "addresses": {
       "mainnet": "0x9fee77d8b5050a55c16d0446e6eab06a6a24cd06",
       "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
-      "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440"
+      "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
+      "optimism": "0xae0eBAA4162941837Bb56EDa1Bc9dc6850779bd2"
     },
     "metadata": {
       "name": "USDC/POP LP",
@@ -521,7 +522,9 @@
   },
   "popUsdcUniV3Pool": {
     "addresses": {
-      "mainnet": "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06"
+      "mainnet": "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
+      "polygon": "0x8f5B8B73c5168747779E4Ef38A80cC90caF358fB",
+      "optimism": "0xae0eBAA4162941837Bb56EDa1Bc9dc6850779bd2"
     },
     "metadata": null
   },
@@ -719,7 +722,8 @@
       "localhost": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "mainnet": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "polygon": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-      "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94"
+      "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94",
+      "optimism": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
     },
     "metadata": {
       "icons": ["/images/tokens/usdc.svg"],
