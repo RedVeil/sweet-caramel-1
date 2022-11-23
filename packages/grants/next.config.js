@@ -37,16 +37,6 @@ module.exports = {
           exclude: /node_modules/,
           use: options.defaultLoaders.babel,
         },
-        {
-          test: /\.svg$/,
-          use: [
-            {
-              loader: "@svgr/webpack",
-              options: { svgo: false },
-            },
-            "file-loader",
-          ],
-        },
       ],
     };
     return config;
