@@ -112,26 +112,18 @@ export default function Proxy(): JSX.Element {
   ]);
   console.log("pmc", pmc);
 
-  // useEffect(() => {
-  //   if (proxyAddress) {
-  //     const tx = new ProxyMultiCall({
-  //       proxyAddress: proxyAddress,
-  //       targets: [
-  //         // @ts-ignore should use Contract from utils package
-  //         ["depositToken", new Contract(DEPOSIT_TOKEN_ADDRESS, DEPOSIT_TOKEN_ABI)],
-  //         // @ts-ignore should use Contract from utils package
-  //         ["vault", new Contract(VAULT_ADDRESS, VAULT_ABI)],
-  //       ],
-  //     });
+  useEffect(() => {
+    if (pmc) {
+      console.log(55555);
 
-  //     // deposit + stake example
-  //     tx.push("depositToken", "transferFrom", [address, proxyAddress, "1"]);
-  //     tx.push("depositToken", "approve", [VAULT_ADDRESS, "1"]);
-  //     tx.push("vault", "deposit", ["1", proxyAddress]);
-  //     const bytes = tx.submit();
-  //     setBytes(bytes);
-  //   }
-  // }, [proxyAddress]);
+      // deposit + stake example
+      pmc.push("depositToken", "transferFrom", [address, proxyAddress, "1"]);
+      pmc.push("depositToken", "approve", [VAULT_ADDRESS, "1"]);
+      pmc.push("vault", "deposit", ["1", proxyAddress]);
+      const bytes = pmc.submit();
+      setBytes(bytes);
+    }
+  }, [pmc]);
 
   const { config: config2 } = usePrepareContractWrite({
     address: proxyAddress,

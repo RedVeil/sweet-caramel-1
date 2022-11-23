@@ -7,9 +7,7 @@ export default function useMulticall(targets) {
   const { proxyAddress } = useProxy();
 
   useEffect(() => {
-    console.log("targets", targets);
     if (targets && proxyAddress) {
-      console.log(33333);
       const _pmc = new ProxyMultiCall({
         proxyAddress: proxyAddress,
         targets: targets,
