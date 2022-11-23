@@ -60,23 +60,24 @@ contract VaultsV1FactoryTest is Test {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    address vault = vaultsV1Factory.deploy(vaultParams);
+    address vault = vaultsV1Factory.deploy(vaultParams, 0);
     assertEq(vault, address(0), "vault deployment failed");
   }
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
-    emit VaultV1Deployment(0x9cC6334F1A7Bc20c9Dde91Db536E194865Af0067);
+    emit VaultV1Deployment(0x5e12bD25C7a7c844F2E5f7722730B21374Fc1f0F);
 
-    address vault = vaultsV1Factory.deploy(vaultParams);
+    address vault = vaultsV1Factory.deploy(vaultParams, keccak256("THIS_IS_A_SALT"));
+    console.log("Vault address: ", vault);
 
     // Check that the vault got deployed
-    assertEq(vault, address(0x9cC6334F1A7Bc20c9Dde91Db536E194865Af0067));
+    assertEq(vault, address(0x5e12bD25C7a7c844F2E5f7722730B21374Fc1f0F));
   }
 
   function test__deployMultipleVaults() public {
-    address vault1 = vaultsV1Factory.deploy(vaultParams);
-    address vault2 = vaultsV1Factory.deploy(vaultParams);
+    address vault1 = vaultsV1Factory.deploy(vaultParams, keccak256("THIS_IS_A_SALT"));
+    address vault2 = vaultsV1Factory.deploy(vaultParams, keccak256("THIS_IS_A_SALT_2"));
 
     // Check that the vault got deployed
     assertTrue(vault1 != vault2);

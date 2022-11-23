@@ -45,8 +45,8 @@ contract VaultsV1Factory is Owned {
    * @param _vaultParams - struct containing Vault contructor params
    * @dev This should always be called through the VaultV1Controller
    */
-  function deploy(VaultParams memory _vaultParams) external onlyOwner returns (address vault) {
-    vault = Clones.clone(implementation);
+  function deploy(VaultParams memory _vaultParams, bytes32 salt) external onlyOwner returns (address vault) {
+    vault = Clones.cloneDeterministic(implementation, salt);
     Vault(vault).initialize(
       _vaultParams.asset,
       _vaultParams.strategy,

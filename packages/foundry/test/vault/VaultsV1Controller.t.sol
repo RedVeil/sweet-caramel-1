@@ -502,13 +502,13 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
 
-    emit VaultV1Deployment(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38);
+    emit VaultV1Deployment(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF);
     emit VaultStakingDeployment(0x93474D608089d9Fa2347A19A0a85EdC8ce562FeA);
-    emit VaultAdded(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38, 1, true, CID);
-    emit VaultStatusChanged(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38, true, true);
-    emit VaultV1Deployed(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38, true);
+    emit VaultAdded(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, 1, true, CID);
+    emit VaultStatusChanged(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, true, true);
+    emit VaultV1Deployed(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, true);
 
-    vaultsV1Controller.deployVaultFromV1Factory(
+    address _vault = vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
       address(0),
       true,
@@ -1400,25 +1400,34 @@ contract VaultsV1ControllerTest is Test {
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsV1Controller.deployStrategy(
       keccak256("YearnWrapperFactory"),
-      abi.encodePacked(bytes4(keccak256("deploy(address)")), abi.encode(YEARN_VAULT))
+      abi.encodePacked(
+        bytes4(keccak256("deploy(address,bytes32)")),
+        abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
+      )
     );
   }
 
   function test__deployStrategy() public acceptOwnerships {
     address strategy = vaultsV1Controller.deployStrategy(
       keccak256("YearnWrapperFactory"),
-      abi.encodePacked(bytes4(keccak256("deploy(address)")), abi.encode(YEARN_VAULT))
+      abi.encodePacked(
+        bytes4(keccak256("deploy(address,bytes32)")),
+        abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
+      )
     );
-    assertEq(strategy, address(0x87d4141886b9efbF959FB19ABC1c28Aad30Ca8B5));
+    assertEq(strategy, address(0xC52FF07fbe7D9EE33CA4996940Ed257eae9416Fd));
   }
 
   function test__deployStrategyEvent() public acceptOwnerships {
     vm.expectEmit(false, false, false, true, address(yearnWrapperFactory));
-    emit YearnWrapperDeployment(address(0x87d4141886b9efbF959FB19ABC1c28Aad30Ca8B5));
+    emit YearnWrapperDeployment(address(0xC52FF07fbe7D9EE33CA4996940Ed257eae9416Fd));
 
     vaultsV1Controller.deployStrategy(
       keccak256("YearnWrapperFactory"),
-      abi.encodePacked(bytes4(keccak256("deploy(address)")), abi.encode(YEARN_VAULT))
+      abi.encodePacked(
+        bytes4(keccak256("deploy(address,bytes32)")),
+        abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
+      )
     );
   }
 

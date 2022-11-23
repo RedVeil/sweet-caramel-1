@@ -31,8 +31,8 @@ contract YearnWrapperFactory is Owned {
    * @param vault - address of the underlying yearn vault
    * @dev This should always be called through the VaultV1Controller
    */
-  function deploy(address vault) external onlyOwner returns (address wrapperAddress) {
-    wrapperAddress = Clones.clone(implementation);
+  function deploy(address vault, bytes32 salt) external onlyOwner returns (address wrapperAddress) {
+    wrapperAddress = Clones.cloneDeterministic(implementation, salt);
 
     YearnWrapper(wrapperAddress).initialize(VaultAPI(vault));
     emit YearnWrapperDeployment(wrapperAddress);

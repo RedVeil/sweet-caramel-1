@@ -86,7 +86,10 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
       // _vaultParams.strategy = _strategyFactory().deploy(_vaultParams); TODO fix me
     } */
 
-    vault = _vaultsV1Factory().deploy(_vaultParams);
+    vault = _vaultsV1Factory().deploy(
+      _vaultParams,
+      keccak256(abi.encodePacked(msg.sender, vaultsV1Registry.getTotalVaults()))
+    );
 
     if (_staking == address(0)) {
       _staking = _vaultStakingFactory().deploy(vault);

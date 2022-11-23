@@ -42,22 +42,22 @@ contract YearnWrapperFactoryTest is Test {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    factory.deploy(YEARN_VAULT);
+    factory.deploy(YEARN_VAULT, keccak256("THIS_IS_A_SALT"));
   }
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(factory));
-    emit YearnWrapperDeployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F);
+    emit YearnWrapperDeployment(0xF349f6EC258C356deA1Ce946Abd9d78d70dDc72e);
 
-    address yearnWrapper = factory.deploy(YEARN_VAULT);
+    address yearnWrapper = factory.deploy(YEARN_VAULT, keccak256("THIS_IS_A_SALT"));
 
     // Check that the yearnWrapper got deployed
-    assertEq(yearnWrapper, address(0x037FC82298142374d974839236D2e2dF6B5BdD8F));
+    assertEq(yearnWrapper, address(0xF349f6EC258C356deA1Ce946Abd9d78d70dDc72e));
   }
 
   function test__deployMultipleVaults() public {
-    address yearnWrapper1 = factory.deploy(YEARN_VAULT);
-    address yearnWrapper2 = factory.deploy(YEARN_VAULT2);
+    address yearnWrapper1 = factory.deploy(YEARN_VAULT, keccak256("THIS_IS_A_SALT_1"));
+    address yearnWrapper2 = factory.deploy(YEARN_VAULT2, keccak256("THIS_IS_A_SALT_2"));
 
     // Check that the yearnWrapper got deployed
     assertTrue(yearnWrapper1 != yearnWrapper2);
