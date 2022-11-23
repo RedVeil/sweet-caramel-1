@@ -7,7 +7,6 @@
     "build": "yarn clean && yarn hardhat compile && yarn export",
     "dev": "yarn hardhat node --network hardhat --export ./lib/utils/exporter/out/hardhat-deployment.json",
     "export": "cd lib/utils/exporter; /bin/sh export_all.sh",
-    "prettier": "prettier --write 'contracts/**/*.sol'",
     "clean": "rimraf ./cache & rimraf ./artifacts & rimraf ./typechain",
     "compile": "yarn clean && hardhat compile",
     "docify": "rm -rf ./docgen/.gitbook.yaml ./docgen/SUMMARY.md ./docgen/docs/* && node docgen/docify.js",

@@ -58,7 +58,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       addresses.setBasicIssuanceModule,
       YTOKEN_ADDRESSES,
       CRV_DEPENDENCIES,
-      { batchCooldown: BigNumber.from("1"), mintThreshold: parseEther("1"), redeemThreshold: parseEther("0.1") },
+      {
+        batchCooldown: BigNumber.from("1"),
+        mintThreshold: parseEther("1"),
+        redeemThreshold: parseEther("0.1"),
+      },
     ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
