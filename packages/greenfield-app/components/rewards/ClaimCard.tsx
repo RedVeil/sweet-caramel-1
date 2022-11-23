@@ -80,7 +80,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
   };
   return (
     <>
-      <div className={`my-4 ${isValidating && !staking && !error ? "" : "hidden"}`}>
+      <div className={`my-4 ${isValidating && !staking && !error ? "show-staking-loading" : " hidden"}`}>
         <ContentLoader viewBox="0 0 450 80" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
           {/*eslint-disable */}
           <rect x="0" y="0" rx="8" ry="8" width="450" height="80" />

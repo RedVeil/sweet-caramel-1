@@ -27,33 +27,28 @@ export default function RewardsPage(): JSX.Element {
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
   const isSelected = (tab: Tabs) => tabSelected === tab;
-  const [hasVesting, setHasVesting] = useState<boolean>(false);
-  const [hasStaking, setHasStaking] = useState<boolean>(false);
-  const rewardDiv = useRef<HTMLDivElement>();
-  const stakingDiv = useRef<HTMLDivElement>();
+  const [noVesting, setHasVesting] = useState<boolean>(false);
+  const [noStaking, setHasStaking] = useState<boolean>(false);
 
   useEffect(() => {
-    // Check if a Vesting Record and Staking Records shows up
-    const rewardsCheck = setInterval(() => {
-      rewardDiv?.current?.childNodes?.forEach((node) => {
-        // @ts-expect-error
-        if (node.classList.value === "flex flex-col h-full ") {
-          setHasVesting(true);
-          clearInterval(rewardsCheck);
-        }
-      });
-      stakingDiv?.current?.childNodes?.forEach((node) => {
-        // @ts-expect-error
-        if (node.classList.value === "show-staking") {
-          setHasStaking(true);
-          clearInterval(rewardsCheck);
-        }
-      });
+    const testInterval = setInterval(() => {
+      const stakingLoading = document.querySelectorAll(".show-staking");
+      const stakingShowing = document.querySelectorAll(".show-staking-loading");
+
+      const vestingLoading = document.querySelectorAll(".show-vesting");
+      const vestingShowing = document.querySelectorAll(".show-vesting-loading");
+
+      if (stakingLoading.length === 0 && stakingShowing.length === 0) {
+        setHasStaking(true);
+      }
+
+      if (vestingLoading.length === 0 && vestingShowing.length === 0) {
+        setHasVesting(true);
+      }
     }, 1000);
-    // If there is no vesting record after 10s dont check anymore
     setTimeout(() => {
-      clearInterval(rewardsCheck);
-    }, 10000);
+      clearInterval(testInterval);
+    }, 30000);
   }, []);
 
   useEffect(() => {
@@ -120,19 +115,19 @@ export default function RewardsPage(): JSX.Element {
           <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10 md:mt-0">
             <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
             <div className={`${isSelected(Tabs.Staking) ? "" : "hidden"}`}>
-              {/* <div className={`mt-4 ${hasStaking ? "hidden" : ""}`}>
-								<NotAvailable
-									title="No Records Available"
-									body="No staking records available"
-									image="/images/emptyRecord.svg"
-								/>
-							</div> */}
+              <div className={`mt-4 ${noStaking ? "" : "hidden"}`}>
+                <NotAvailable
+                  title="No Records Available"
+                  body="No staking records available"
+                  image="/images/emptyRecord.svg"
+                />
+              </div>
               {stakingContracts?.stakingPools &&
                 stakingContracts?.stakingPools.length > 0 &&
                 stakingContracts?.stakingPools
                   ?.filter((pool) => selectedNetworks.includes(pool.chainId))
                   .map((staking) => (
-                    <div ref={stakingDiv} key={staking?.chainId + staking?.address}>
+                    <div key={staking?.chainId + staking?.address}>
                       <ClaimCard
                         chainId={staking?.chainId}
                         stakingAddress={staking?.address}
@@ -146,8 +141,8 @@ export default function RewardsPage(): JSX.Element {
               <AirDropClaim chainId={selectedNetworks[0]} />
             </div>
 
-            <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`} ref={rewardDiv}>
-              <div className={`mb-4 ${hasVesting ? "hidden" : ""}`}>
+            <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`}>
+              <div className={`mb-4 ${noVesting ? "" : "hidden"}`}>
                 <NotAvailable
                   title="No Records Available"
                   body="No vesting records available"
