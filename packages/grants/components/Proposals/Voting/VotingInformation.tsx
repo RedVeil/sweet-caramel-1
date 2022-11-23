@@ -24,7 +24,10 @@ const VotingInformation: React.FC<Proposal> = (proposal): JSX.Element => {
       <VotingRow name={"Voting Deadline"} value={proposal.stageDeadline.toLocaleString()} />
       <VotingRow name={"Votes For"} value={formatAndRoundBigNumber(proposal.votes.for, 18)} />
       <VotingRow name={"Votes Against"} value={formatAndRoundBigNumber(proposal.votes.against, 18)} />
-      <VotingRow name={"Total Votes"} value={formatAndRoundBigNumber(proposal.votes.for.add(proposal.votes.against), 18)} />
+      <VotingRow
+        name={"Total Votes"}
+        value={formatAndRoundBigNumber(proposal.votes.for.add(proposal.votes.against), 18)}
+      />
     </div>
   );
 };

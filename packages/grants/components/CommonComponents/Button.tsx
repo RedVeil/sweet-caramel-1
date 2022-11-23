@@ -20,7 +20,8 @@ const Button: React.FC<ButtonProps> = ({ variant, children, className, onClick, 
           return "bg-customLightGray border-customLightGray text-white hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
         return "px-8 py-3 font-medium bg-transparent border border-primary text-primary hover:bg-primary hover:border-primary hover:text-white";
       case "tertiary":
-        if (disabled) return "bg-customLightGray border-customLightGray text-secondaryLight hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
+        if (disabled)
+          return "bg-customLightGray border-customLightGray text-secondaryLight hover:border-customLightGray hover:bg-customLightGray hover:text-secondaryLight";
         return "bg-primary border-primary text-white";
       default:
         return "";

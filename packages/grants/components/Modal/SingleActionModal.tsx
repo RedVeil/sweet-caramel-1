@@ -6,7 +6,6 @@ import * as Icon from "react-feather";
 import { XIcon } from "@heroicons/react/outline";
 import useClickOutside from "hooks/useClickOutside";
 
-
 export interface SingleActionModalProps {
   title: string;
   children?: React.ReactElement;
@@ -27,7 +26,7 @@ export const DefaultSingleActionModalProps: SingleActionModalProps = {
   type: "info",
   keepOpen: false,
   showCloseButton: true,
-  onDismiss: { onClick: () => { } }
+  onDismiss: { onClick: () => {} },
 };
 
 export const SingleActionModal: React.FC<SingleActionModalProps> = ({
@@ -156,11 +155,14 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                       <h3 className="text-4xl lg:text-6xl leading-[110%] font-normal text-black mb-2" id="modal-title">
                         {title}
                       </h3>
-                      <div>{children ? children : (
-                        <p className="text-base md:text-sm text-primaryDark mt-4">
-                          <>{content}</>
-                        </p>
-                      )}
+                      <div>
+                        {children ? (
+                          children
+                        ) : (
+                          <p className="text-base md:text-sm text-primaryDark mt-4">
+                            <>{content}</>
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="mt-5">
@@ -170,7 +172,11 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                         </Button>
                       )}
                       {onDismiss?.label && (
-                        <Button variant="secondary" onClick={() => onDismiss.onClick()} className="py-2 px-5 w-full mt-4">
+                        <Button
+                          variant="secondary"
+                          onClick={() => onDismiss.onClick()}
+                          className="py-2 px-5 w-full mt-4"
+                        >
                           {onDismiss?.label}
                         </Button>
                       )}

@@ -30,11 +30,7 @@ export const MobilePopupSelect: React.FC<Props> = (props) => {
           <p className=" text-black mb-3">Categories</p>
           <List selected={selectedItem.id}>
             {categories.map((category) => (
-              <ListItem
-                key={category.id}
-                value={category.id}
-                onClick={() => handleOnChange(category)}
-              >
+              <ListItem key={category.id} value={category.id} onClick={() => handleOnChange(category)}>
                 {category.value}
               </ListItem>
             ))}

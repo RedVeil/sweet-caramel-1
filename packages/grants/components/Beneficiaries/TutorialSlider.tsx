@@ -48,7 +48,10 @@ const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
     <div className="relative">
       <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
         {tutorialSteps.map((step, index) => (
-          <div className=" bg-customPink rounded-lg p-8 !flex flex-col justify-between text-black h-[280px]" key={index}>
+          <div
+            className=" bg-customPink rounded-lg p-8 !flex flex-col justify-between text-black h-[280px]"
+            key={index}
+          >
             <h6 className="text-base text-black">Learn how it works</h6>
 
             <div className="text-black">
