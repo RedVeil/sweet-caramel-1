@@ -32,7 +32,7 @@ export default function DesktopMenu(): JSX.Element {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="flex flex-row items-center justify-between w-full p-8 z-30">
+    <div className="flex flex-row items-center justify-between w-full p-8 z-30 ">
       <div className="flex flex-row items-center">
         <div>
           <Link href={`/`} passHref>

@@ -22,6 +22,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
+import TagManager from "react-gtm-module";
 import GoogleAnalyticsPrompt from "components/GoogleAnalyticsPrompt";
 
 const bnb: Chain = {
@@ -87,6 +88,14 @@ export default function MyApp(props) {
       </Page>
     ));
   const [loading, setLoading] = useState(true);
+  const [acceptAnalytics, setAcceptAnalytics] = useState(false);
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_GTM_ID) {
+      TagManager.initialize({
+        gtmId: process.env.NEXT_PUBLIC_GTM_ID,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -97,6 +106,13 @@ export default function MyApp(props) {
       setLoading(true);
     });
     Router.events.on("routeChangeComplete", () => {
+      if (acceptAnalytics) {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "pageView",
+          url: window.location.pathname,
+        });
+      }
       setLoading(false);
     });
     Router.events.on("routeChangeError", () => {
@@ -149,7 +165,7 @@ export default function MyApp(props) {
               <DualActionWideModalContainer />
               <NetworkChangePromptModalContainer />
               {getLayout(<Component {...pageProps} />)}
-              <GoogleAnalyticsPrompt />
+              <GoogleAnalyticsPrompt acceptGoogleAnalytics={() => setAcceptAnalytics(true)} />
               <FeatureTogglePanel />
               <NotificationsContainer />
               <Debug />

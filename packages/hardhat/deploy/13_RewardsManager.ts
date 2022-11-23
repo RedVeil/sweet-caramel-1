@@ -63,4 +63,4 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default main;
 main.dependencies = ["setup", "acl-registry", "contract-registry", "keeper-incentives"];
-main.tags = ["core", "rewards-manager"];
+main.tags = ["core", "rewards-manager", "grants"];

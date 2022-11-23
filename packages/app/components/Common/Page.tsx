@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 
 interface PageProps {
   children: JSX.Element;
+  // acceptGoogleAnalytics: any;
 }
 export default function Page({ children }: PageProps) {
   useRestakeAlert();
