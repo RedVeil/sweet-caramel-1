@@ -38,11 +38,12 @@ contract VaultStakingFactory is Owned {
   /**
    * @notice Deploys VaultStaking
    * @param vault - address of the vault
+   * @param salt - salt used to generate deterministic address
    * @dev This should always be called through the VaultV1Controller
    */
   // TODO add implementation address
-  function deploy(address vault) external onlyOwner returns (address stakingAddress) {
-    stakingAddress = Clones.clone(implementation);
+  function deploy(address vault, bytes32 salt) external onlyOwner returns (address stakingAddress) {
+    stakingAddress = Clones.cloneDeterministic(implementation, salt);
 
     VaultStaking(stakingAddress).initialize(IERC20(address(vault)), contractRegistry);
     emit VaultStakingDeployment(stakingAddress);

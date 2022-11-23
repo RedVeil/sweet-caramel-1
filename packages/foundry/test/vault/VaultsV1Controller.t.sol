@@ -503,7 +503,7 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
 
     emit VaultV1Deployment(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF);
-    emit VaultStakingDeployment(0x93474D608089d9Fa2347A19A0a85EdC8ce562FeA);
+    emit VaultStakingDeployment(0x387CA36E7F9467889baf29276b8Cdd647b650572);
     emit VaultAdded(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, 1, true, CID);
     emit VaultStatusChanged(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, true, true);
     emit VaultV1Deployed(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, true);

@@ -92,7 +92,10 @@ contract VaultsV1Controller is Owned, ContractRegistryAccess {
     );
 
     if (_staking == address(0)) {
-      _staking = _vaultStakingFactory().deploy(vault);
+      _staking = _vaultStakingFactory().deploy(
+        vault,
+        keccak256(abi.encodePacked(msg.sender, vaultsV1Registry.getTotalVaults()))
+      );
     }
     _handleKeeperSetup(vault, _vaultParams.keeperConfig, address(_vaultParams.asset));
 
