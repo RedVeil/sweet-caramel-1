@@ -91,10 +91,13 @@ export default function GrantOverview(): JSX.Element {
                         </ul>
                         <div className="mt-8">
                           <div className="rounded-lg shadow-md">
-                            <Link href="/grant-elections/monthly" passHref>
-                              <a href="#" className="button button-secondary bg-white" aria-describedby="tier-hobby">
-                                View Election
-                              </a>
+                            <Link
+                              href="/grant-elections/monthly"
+                              passHref
+                              className="button button-secondary bg-white"
+                              aria-describedby="tier-hobby"
+                            >
+                              View Election
                             </Link>
                           </div>
                         </div>
@@ -170,10 +173,13 @@ export default function GrantOverview(): JSX.Element {
                       </ul>
                       <div className="mt-10">
                         <div className="rounded-lg shadow-md">
-                          <Link href="/grant-elections/yearly" passHref>
-                            <a href="#" className="button button-primary" aria-describedby="tier-growth">
-                              View Election
-                            </a>
+                          <Link
+                            href="/grant-elections/yearly"
+                            passHref
+                            className="button button-primary"
+                            aria-describedby="tier-growth"
+                          >
+                            View Election
                           </Link>
                         </div>
                       </div>
@@ -232,10 +238,13 @@ export default function GrantOverview(): JSX.Element {
                         </ul>
                         <div className="mt-8">
                           <div className="rounded-lg shadow-md">
-                            <Link href="/grant-elections/quarterly" passHref>
-                              <a href="#" className="button button-secondary bg-white" aria-describedby="tier-scale">
-                                View Election
-                              </a>
+                            <Link
+                              href="/grant-elections/quarterly"
+                              passHref
+                              className="button button-secondary bg-white"
+                              aria-describedby="tier-scale"
+                            >
+                              View Election
                             </Link>
                           </div>
                         </div>

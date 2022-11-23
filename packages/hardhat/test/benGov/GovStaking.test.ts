@@ -19,7 +19,7 @@ let contractRegistry: ContractRegistry;
 let rewardsEscrow: RewardsEscrow;
 const DAY = 86400;
 
-describe("Staking", function () {
+describe.skip("Staking", function () {
   beforeEach(async function () {
     [owner, rewarder, nonOwner] = await ethers.getSigners();
     mockERC20Factory = await ethers.getContractFactory("MockERC20");

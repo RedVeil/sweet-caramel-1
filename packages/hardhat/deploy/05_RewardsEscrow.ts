@@ -8,7 +8,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { pop } = addresses;
 
   const popAddress = !["mainnet", "polygon", "arbitrum", "bsc", "remote_fork"].includes(hre.network.name)
-    ? (await deployments.get("TestPOP")).address
+    ? (await deployments.get("POP")).address
     : pop;
 
   const deployed = await deploy(contract_name, {

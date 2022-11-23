@@ -11,3 +11,4 @@ docgen/SUMMARY.md
 docgen/.gitbook.yaml
 deployments.json
 lib/utils/exporter/target/
+broadcast/

@@ -4,7 +4,7 @@ pragma solidity ^0.8.12;
 import { TestFixture } from "./utils/TestFixture.sol";
 import { StrategyParams } from "../../../src/interfaces/external/yearn/IVault.sol";
 import { YearnWrapper } from "../../../src/vault/wrapper/yearn/YearnWrapper.sol";
-import { IERC20Metadata } from "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import "forge-std/console.sol";
 

@@ -9,7 +9,7 @@ interface FilterProps {
   width: string;
   borderRadius: string;
   borderRadiusFirstLast: string;
-  filterPosition: "right" | "left";
+  filterPosition?: "right" | "left";
 }
 
 const BeneficiaryOptions: React.FC<FilterProps> = ({

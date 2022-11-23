@@ -1,5 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { BeneficiaryGovernanceAdapter, Proposal, ProposalStatus, ProposalType } from "@popcorn/hardhat/lib/adapters";
+import { Proposal, ProposalStatus, ProposalType } from "helper/types";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import BeneficiaryInformation from "components/CommonComponents/BeneficiaryInformation";

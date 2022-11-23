@@ -2,8 +2,8 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "openzeppelin-contracts/proxy/Clones.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../utils/Owned.sol";
 import "./Vault.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
@@ -45,8 +45,8 @@ contract VaultsV1Factory is Owned {
    * @param _vaultParams - struct containing Vault contructor params
    * @dev This should always be called through the VaultV1Controller
    */
-  function deploy(VaultParams memory _vaultParams) external onlyOwner returns (address vault) {
-    vault = Clones.clone(implementation);
+  function deploy(VaultParams memory _vaultParams, bytes32 salt) external onlyOwner returns (address vault) {
+    vault = Clones.cloneDeterministic(implementation, salt);
     Vault(vault).initialize(
       _vaultParams.asset,
       _vaultParams.strategy,

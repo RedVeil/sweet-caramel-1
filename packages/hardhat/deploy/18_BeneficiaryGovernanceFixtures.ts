@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import getCreatedProposalId from "../lib/adapters/GrantElection/getCreatedProposalId";
-import GrantElectionAdapter, { ElectionTerm, ShareType } from "../lib/adapters/GrantElection/GrantElectionAdapter";
+import { GrantElectionAdapter, ElectionTerm, ShareType } from "@popcorn/utils/src/grants";
 import ADDRESS_CID_MAP from "../lib/utils/adresssCidMap";
 import { DAYS, timeTravel } from "../lib/utils/test";
 import { BeneficiaryGovernance, BeneficiaryRegistry, GrantElections } from "../typechain";

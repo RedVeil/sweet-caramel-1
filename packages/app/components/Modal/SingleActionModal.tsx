@@ -100,13 +100,20 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
             >
               <div ref={modalRef}>
                 <Dialog.Panel
-                  className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-8 sm:align-middle ${isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-lg"
-                    }`}
+                  className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 md:p-8 sm:align-middle ${
+                    isTerms ? "w-88 md:max-w-lg" : "w-88 md:max-w-lg"
+                  }`}
                 >
                   {!isTerms && (
                     <div className="flex justify-end mb-6 md:mb-8">
                       <button className="w-6 h-6 relative" onClick={dismiss}>
-                        <Image src="/images/closeIcon.svg" layout="fill" objectFit="contain" priority={true} />
+                        <Image
+                          src="/images/closeIcon.svg"
+                          layout="fill"
+                          objectFit="contain"
+                          priority={true}
+                          alt="close icon"
+                        />
                       </button>
                     </div>
                   )}

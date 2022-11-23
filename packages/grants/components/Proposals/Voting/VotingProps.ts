@@ -1,4 +1,4 @@
-import { Proposal } from "@popcorn/hardhat/lib/adapters";
+import { Proposal } from "helper/types";
 
 export interface VotingProps {
   proposal: Proposal;

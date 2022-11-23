@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { XCircleIcon } from "@heroicons/react/solid";
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import { formatAndRoundBigNumber, getBytes32FromIpfsHash, IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import FlowSteps from "components/Apply/FlowSteps";

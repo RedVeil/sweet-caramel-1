@@ -1,5 +1,5 @@
 import { PaperClipIcon } from "@heroicons/react/solid";
-import { ImpactReport } from "@popcorn/hardhat/lib/adapters/BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
+import { ImpactReport } from "helper/types";
 import NotFoundError from "components/CommonComponents/NotFoundError";
 import React from "react";
 

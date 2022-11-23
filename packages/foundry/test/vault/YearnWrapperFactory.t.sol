@@ -26,7 +26,7 @@ contract YearnWrapperFactoryTest is Test {
     uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
     vm.selectFork(forkId);
 
-    factory = new YearnWrapperFactory(address(this));
+    factory = new YearnWrapperFactory{ salt: keccak256("YEARN_WRAPPER") }(address(this));
     implementation = address(new YearnWrapper());
 
     factory.setImplementation(implementation);
@@ -42,22 +42,22 @@ contract YearnWrapperFactoryTest is Test {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    factory.deploy(YEARN_VAULT);
+    factory.deploy(YEARN_VAULT, keccak256("THIS_IS_A_SALT"));
   }
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(factory));
-    emit YearnWrapperDeployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F);
+    emit YearnWrapperDeployment(0x03e0F0F9ae5AD6B5c54a4e53E339532f6139F3E8);
 
-    address yearnWrapper = factory.deploy(YEARN_VAULT);
+    address yearnWrapper = factory.deploy(YEARN_VAULT, keccak256("THIS_IS_A_SALT"));
 
     // Check that the yearnWrapper got deployed
-    assertEq(yearnWrapper, address(0x037FC82298142374d974839236D2e2dF6B5BdD8F));
+    assertEq(yearnWrapper, address(0x03e0F0F9ae5AD6B5c54a4e53E339532f6139F3E8));
   }
 
   function test__deployMultipleVaults() public {
-    address yearnWrapper1 = factory.deploy(YEARN_VAULT);
-    address yearnWrapper2 = factory.deploy(YEARN_VAULT2);
+    address yearnWrapper1 = factory.deploy(YEARN_VAULT, keccak256("THIS_IS_A_SALT_1"));
+    address yearnWrapper2 = factory.deploy(YEARN_VAULT2, keccak256("THIS_IS_A_SALT_2"));
 
     // Check that the yearnWrapper got deployed
     assertTrue(yearnWrapper1 != yearnWrapper2);

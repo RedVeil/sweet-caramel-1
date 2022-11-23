@@ -9,7 +9,6 @@ interface WalletTokenBalanceProps {
   alias: string;
   token: PortfolioToken;
   chainId: ChainId;
-  resolver: Function;
   state: PortfolioState;
   updateWallet: (args: UpdateWalletBalanceActionProps) => void;
   account?: string;

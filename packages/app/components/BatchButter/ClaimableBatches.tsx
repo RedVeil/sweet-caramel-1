@@ -65,7 +65,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
       if (windowWidth > 768) {
         dispatch(
           setSingleActionModal({
-            image: <Image src="/images/blackCircle.svg" width={88} height={88} />,
+            image: <Image src="/images/blackCircle.svg" width={88} height={88} alt="default token icon" />,
             title: "Claim",
             children: (
               <div className="pt-6">
@@ -89,7 +89,7 @@ const ClaimableBatches: React.FC<ClaimableBatchesProps> = ({
     if (batch.batchType === BatchType.Mint) {
       dispatch(
         setSingleActionModal({
-          image: <Image src="/images/blackCircle.svg" width={88} height={88} />,
+          image: <Image src="/images/blackCircle.svg" width={88} height={88} alt="default token icon" />,
           title: "Choose an Output Token",
           children: <>{renderZapModal(batch, true)}</>,
           onDismiss: {

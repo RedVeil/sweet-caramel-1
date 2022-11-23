@@ -52,22 +52,18 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
             <div className="col-span-12 md:col-span-6 lg:col-span-4" key={index}>
               {isApplication ? (
                 <Link passHref href={`/applications/${beneficiary.id}`}>
-                  <a>
-                    <CardBody
-                      image={beneficiary?.application?.files?.headerImage}
-                      {...beneficiary?.application}
-                      stageDeadline={beneficiary.stageDeadline}
-                      votes={beneficiary.votes}
-                      status={beneficiary.status}
-                      isApplication={isApplication}
-                    />
-                  </a>
+                  <CardBody
+                    image={beneficiary?.application?.files?.headerImage}
+                    {...beneficiary?.application}
+                    stageDeadline={beneficiary.stageDeadline}
+                    votes={beneficiary.votes}
+                    status={beneficiary.status}
+                    isApplication={isApplication}
+                  />
                 </Link>
               ) : (
                 <Link passHref href={`/beneficiaries/${beneficiary.beneficiaryAddress}`}>
-                  <a>
-                    <CardBody image={beneficiary?.files?.headerImage} {...beneficiary} />
-                  </a>
+                  <CardBody image={beneficiary?.files?.headerImage} {...beneficiary} />
                 </Link>
               )}
             </div>

@@ -11,3 +11,4 @@ docgen/.gitbook.yaml
 deployments.json
 exporter/
 .vercel
+broadcast/

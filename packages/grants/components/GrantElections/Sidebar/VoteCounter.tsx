@@ -1,4 +1,4 @@
-import { ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { ElectionMetadata } from "helper/types";
 import { PendingVotes } from "../../../pages/grant-elections/[type]";
 
 interface VoteCounterProps {

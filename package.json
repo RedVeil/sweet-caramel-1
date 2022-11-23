@@ -6,13 +6,15 @@
   ],
   "scripts": {
     "dev": "yarn lerna run --parallel dev",
-    "build": "cd packages/hardhat; yarn build; cd ../greenfield-app; yarn build",
+    "build": "yarn lerna run build",
     "app:build": "cd packages/hardhat; yarn build; cd ../app; yarn build",
     "grants:build": "cd packages/hardhat; yarn build; cd ../grants; yarn build",
     "app:start": "yarn lerna run --scope @popcorn/app start",
     "start": "yarn lerna run --scope @popcorn/app start",
     "pretify": "prettier --write .",
     "test": "yarn lerna run test",
+    "nuke": "rm -r node_modules; for d in packages/*/node_modules; do echo $d; rm -r $d; done",
+    "touch": " for d in packages/*/README.md; do echo '' >> $d; done",
     "test:fork": "yarn lerna run test:fork",
     "test:forge": "yarn lerna run test:forge",
     "install:forge": "yarn lerna run install:forge",
@@ -24,17 +26,13 @@
     "*.{sol,ts,tsx}": "prettier --write"
   },
   "dependencies": {
-    "@netlify/plugin-nextjs": "3.9.2",
     "lerna": "5.4.0",
     "typescript": "4.5.4",
     "yarn": "1.22.17"
   },
   "devDependencies": {
-    "@babel/core": "7.16.7",
-    "babel-jest": "26.6.3",
     "babel-plugin-module-resolver": "4.0.0",
     "husky": "^8.0.0",
-    "jest": "26.6.3",
     "lint-staged": "12.2.1",
     "tsconfig-paths": "3.9.0"
   },
@@ -47,6 +45,7 @@
     "undici": "^5.8.0",
     "async": "^2.6.4",
     "node-fetch": "^2.6.7",
+    "@openzeppelin/contracts": "4.8.0",
     "shelljs": "^0.8.5",
     "nth-check": "^2.0.1",
     "glob-parent": "^5.1.2",
@@ -56,7 +55,6 @@
     "elliptic": "^6.5.4",
     "got": "^11.8.5",
     "nanoid": "^3.1.31",
-    "ws": "^7.5.6",
     "yargs-parser": "^21.1.1",
     "parse-url": "8.1.0",
     "trim-newlines": "^3.0.1",

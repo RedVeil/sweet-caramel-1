@@ -99,9 +99,9 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
                 <div className="absolute top-0 -left-4">
                   <Image
                     src={networkLogos[chainId]}
-                    alt={ChainId[chainId]}
-                    height="24px"
-                    width="24px"
+                    alt={ChainId[chainId] + " logo"}
+                    height="24"
+                    width="24"
                     objectFit="contain"
                   />
                 </div>

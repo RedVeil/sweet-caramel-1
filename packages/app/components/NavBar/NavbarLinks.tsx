@@ -27,16 +27,16 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, 
         </a>
       </span>
       <span className={`${url ? "" : "hidden"}`}>
-        <Link href={url ? url : "#"} passHref>
-          <a
-            className={className}
-            target={target || "_self"}
-            onClick={(e) => {
-              onClick && onClick();
-            }}
-          >
-            {label}
-          </a>
+        <Link
+          href={url ? url : "#"}
+          passHref
+          className={className}
+          target={target || "_self"}
+          onClick={(e) => {
+            onClick && onClick();
+          }}
+        >
+          {label}
         </Link>
       </span>
     </>

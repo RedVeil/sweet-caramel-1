@@ -19,18 +19,18 @@ const DropDownComponent: React.FC<GetPopMenuProps> = ({ options, menuRef }) => {
   const NavLink = forwardRef<any>((props, ref) => {
     const { href, children, ...rest } = props as any;
     return (
-      <Link href={href} passHref>
-        <a
-          ref={ref}
-          {...rest}
-          onClick={(e) => {
-            e.preventDefault();
-            router.push(href);
-            menuRef?.current?.click();
-          }}
-        >
-          {children}
-        </a>
+      <Link
+        href={href}
+        passHref
+        ref={ref}
+        {...rest}
+        onClick={(e) => {
+          e.preventDefault();
+          router.push(href);
+          menuRef?.current?.click();
+        }}
+      >
+        {children}
       </Link>
     );
   }) as any;

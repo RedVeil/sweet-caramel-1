@@ -1,4 +1,4 @@
-import { Proposal, ProposalType } from "@popcorn/hardhat/lib/adapters";
+import { Proposal, ProposalType } from "helper/types";
 
 const CompletedVoting: React.FC<Proposal> = (proposal) => (
   <div className="content-center mx-48">
