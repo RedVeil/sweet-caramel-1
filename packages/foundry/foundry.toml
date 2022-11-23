@@ -18,9 +18,7 @@ remappings = [
   'forge-std/=lib/forge-std/src/',
   'openzeppelin-contracts/=../../node_modules/@openzeppelin/contracts/',
   'openzeppelin-contracts-upgradeable/=../../node_modules/openzeppelin-upgradeable/',
-  'solmate/=lib/solmate/src/',
-  'src/=src/'
-
+  'solmate/=lib/solmate/src/'
 ]
 
 
