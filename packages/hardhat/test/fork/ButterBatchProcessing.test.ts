@@ -69,11 +69,7 @@ async function deployContracts(): Promise<Contracts> {
 
   //Deploy helper Faucet
   const Faucet = await ethers.getContractFactory("Faucet");
-  const faucet = await (
-    await Faucet.deploy(
-      UNISWAP_ROUTER_ADDRESS
-    )
-  ).deployed();
+  const faucet = await (await Faucet.deploy(UNISWAP_ROUTER_ADDRESS)).deployed();
   await network.provider.send("hardhat_setBalance", [
     faucet.address,
     "0x152d02c7e14af6800000", // 100k ETH

@@ -75,8 +75,9 @@ export const WalletSelectModal: React.FC<WalletSelectModalProps> = ({
                 aria-hidden="true"
               ></div>
               <div
-                className={`flex ${fullScreen ? "h-screen w-screen" : dimensions || "h-min md:w-min w-screen rounded-4xl"
-                  } text-left overflow-hidden justify-center transform transition-all`}
+                className={`flex ${
+                  fullScreen ? "h-screen w-screen" : dimensions || "h-min md:w-min w-screen rounded-4xl"
+                } text-left overflow-hidden justify-center transform transition-all`}
               >
                 {children && children}
               </div>

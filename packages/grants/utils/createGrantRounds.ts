@@ -1,4 +1,4 @@
-import { ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { ElectionMetadata } from "helper/types";
 import createElectionName from "./createElectionName";
 
 export default function createGrantRounds(activeElections: ElectionMetadata[], closedElections: ElectionMetadata[]) {

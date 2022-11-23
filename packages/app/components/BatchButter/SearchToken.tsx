@@ -71,8 +71,9 @@ export const SearchToken: FC<SearchTokenProps> = ({ options, selectToken, select
               }}
             >
               <span
-                className={`flex items-center py-3 px-3 ${selectedToken.address === option.address ? "text-black font-semibold" : "text-primary font-normal"
-                  }`}
+                className={`flex items-center py-3 px-3 ${
+                  selectedToken.address === option.address ? "text-black font-semibold" : "text-primary font-normal"
+                }`}
               >
                 <span className="w-5 h-5 inline-flex mr-3 flex-shrink-0">
                   <img src={option.icon} alt={option.symbol} className="h-full w-full object-contain" />

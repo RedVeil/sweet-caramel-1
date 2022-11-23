@@ -34,10 +34,13 @@ export default function SetStats({ token }: SetStatsProps) {
   );
   const tokenSupply = useTotalTokenSupply(token?.address, ChainId.Ethereum);
 
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
-    }%) and is boosted with POP (${butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
-    }%). You must stake your ${token?.symbol
-    } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
+  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
+    butterAPY ? butterAPY.toLocaleString(undefined, localStringOptions) : "-"
+  }%) and is boosted with POP (${
+    butterStaking ? formatAndRoundBigNumber(butterStaking.apy, token?.decimals) : "-"
+  }%). You must stake your ${
+    token?.symbol
+  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
 
   return (
     <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-0 md:space-x-6">

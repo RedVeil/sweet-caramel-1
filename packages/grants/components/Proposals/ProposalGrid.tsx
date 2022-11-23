@@ -1,5 +1,5 @@
 import { ChevronDownIcon, InformationCircleIcon } from "@heroicons/react/solid";
-import { BeneficiaryGovernanceAdapter, Proposal, ProposalStatus, ProposalType } from "@popcorn/hardhat/lib/adapters";
+import { Proposal, ProposalStatus, ProposalType } from "helper/types";
 import { IpfsClient } from "@popcorn/utils";
 import CardGridHeader from "components/CardGridHeader";
 import Navbar from "components/NavBar/NavBar";
@@ -9,6 +9,7 @@ import { ContractsContext } from "context/Web3/contracts";
 import { useContext, useEffect, useState } from "react";
 import ProposalCard from "./ProposalCard";
 import { ProposalStageExplanations, TakedownStageExplanations } from "./StageExplanations";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 
 export interface ProposalGridProps {
   proposalType: ProposalType;

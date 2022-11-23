@@ -1,4 +1,4 @@
-import { useNamedAccounts } from "./useNamedAccounts";
+import { useNamedAccounts } from "@popcorn/hooks";
 import { useToken as _useToken } from "wagmi";
 import { PortfolioToken } from "../../reducers/portfolio";
 
@@ -8,8 +8,9 @@ interface UseTokenProps {
   alias?: string;
   enabled?: boolean;
 }
+
 export const useToken = ({ chainId, token, enabled, alias }: UseTokenProps) => {
-  const [_token] = useNamedAccounts(chainId.toString() as any, [token?.address]);
+  const [metadata] = useNamedAccounts(chainId.toString() as any, [token?.address]);
 
   const { data, isLoading, isError } = _useToken({
     chainId,
@@ -17,7 +18,7 @@ export const useToken = ({ chainId, token, enabled, alias }: UseTokenProps) => {
     enabled: (typeof enabled === "boolean" ? enabled : true) && !IGNORE_LIST.includes(alias),
   });
 
-  return { data: { ...data, ..._token }, isLoading, isError };
+  return { data: { ...data, ...metadata }, isLoading, isError };
 };
 
 export default useToken;

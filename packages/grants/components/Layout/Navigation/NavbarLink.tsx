@@ -32,16 +32,16 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ label, url, isActive, onClick, 
   }
 
   return (
-    <Link href={`${url}` || ""} passHref>
-      <a
-        className={className}
-        target={target || "_self"}
-        onClick={(e) => {
-          onClick && onClick();
-        }}
-      >
-        {label}
-      </a>
+    <Link
+      href={`${url}` || ""}
+      passHref
+      className={className}
+      target={target || "_self"}
+      onClick={(e) => {
+        onClick && onClick();
+      }}
+    >
+      {label}
     </Link>
   );
 };

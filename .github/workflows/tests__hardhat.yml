@@ -1,0 +1,71 @@
+# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Hardhat Solidity Test Coverage
+
+on:
+  push:
+    paths:
+      - packages/hardhat/**
+
+jobs:
+  Coverage:
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max-old-space-size=8500"
+      # Coverage requires extra memory:
+      # See: https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md#running-out-of-memory
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: canastro/copy-file-action@master
+        name: "copy env file"
+        with:
+          source: .env.example
+          target: .env
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: "yarn install"
+        run: yarn install
+      - name: "yarn build"
+        run: "yarn lerna run --scope=@popcorn/hardhat build"
+        env:
+          CI: true
+      - name: "hardhat solidity coverage"
+        run: "yarn lerna run --scope=@popcorn/hardhat coverage"
+
+  Forge-Tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: canastro/copy-file-action@master
+        name: "copy env file"
+        with:
+          source: .env.example
+          target: .env
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: "Yarn install"
+        run: yarn install
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run Forge build
+        run: cd packages/hardhat && forge build
+        id: build
+
+      - name: Run tests
+        run: yarn test:forge
+        env:
+          FOUNDRY_PROFILE: ci
+          RPC_URL: ${{secrets.RPC_URL}}
+          FORKING_RPC_URL: ${{secrets.RPC_URL}}

@@ -18,12 +18,12 @@ const List = styled.ul`
   text-align: center;
   padding: 0 20px;
   ${(props: {
-  height: number;
-  width: string;
-  backgroundColor: string;
-  shadowColor: string;
-  focusColor: string;
-}): string => `
+    height: number;
+    width: string;
+    backgroundColor: string;
+    shadowColor: string;
+    focusColor: string;
+  }): string => `
     height: ${props.height}px;
     width: ${props.width};
     background-color: ${props.backgroundColor};
@@ -100,8 +100,16 @@ interface CommonWheelPickerProps {
 
 export type WheelPickerProps = CommonWheelPickerProps &
   (
-    | { renderWithIcon?: never; dataWithIcons?: never; data: PickerDataWithoutIcon[] }
-    | { renderWithIcon: true; data?: never; dataWithIcons: PickerDataWithIcon[] }
+    | {
+        renderWithIcon?: never;
+        dataWithIcons?: never;
+        data: PickerDataWithoutIcon[];
+      }
+    | {
+        renderWithIcon: true;
+        data?: never;
+        dataWithIcons: PickerDataWithIcon[];
+      }
   );
 
 const WheelPicker = forwardRef<WheelPickerRef, WheelPickerProps>((props, ref) => {

@@ -47,7 +47,7 @@ const useSubscribeToNewsletter = (): {
   const showNewsletterModal = () => {
     dispatch(
       setSingleActionModal({
-        image: <Image src="/images/newsletterAvatar.png" width={88} height={88} />,
+        image: <Image src="/images/newsletterAvatar.png" width={88} height={88} alt="newsletter avatar" />,
         title: "Sign up for our newsletter",
         children: (
           <form

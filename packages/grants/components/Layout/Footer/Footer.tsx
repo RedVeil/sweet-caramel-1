@@ -60,10 +60,13 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
             <div className="flex flex-col">
-              <Link href="https://immunefi.com/bounty/popcornnetwork" passHref>
-                <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
-                  Immunefi
-                </a>
+              <Link
+                href="https://immunefi.com/bounty/popcornnetwork"
+                passHref
+                target="_blank"
+                className=" text-primary hover:text-black leading-6 mt-4"
+              >
+                Immunefi
               </Link>
             </div>
           </div>
@@ -72,14 +75,14 @@ const Footer = () => {
           <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
           <div className="grid grid-cols-2 md:gap-16">
             <div className="col-span-2 md:col-span-1 flex flex-col">
-              <Link href="/">
-                <a className=" text-primary hover:text-black leading-6 mt-4">Home</a>
+              <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+                Home
               </Link>
-              <Link href="/applications">
-                <a className=" text-primary hover:text-black leading-6 mt-4">Beneficiary Applications</a>
+              <Link href="/applications" className=" text-primary hover:text-black leading-6 mt-4">
+                Beneficiary Applications
               </Link>
-              <Link href="/beneficiaries">
-                <a className=" text-primary hover:text-black leading-6 mt-4">Eligible Beneficiaries</a>
+              <Link href="/beneficiaries" className=" text-primary hover:text-black leading-6 mt-4">
+                Eligible Beneficiaries
               </Link>
             </div>
             <div className="col-span-2 md:col-span-1 flex flex-col">
@@ -89,8 +92,8 @@ const Footer = () => {
             <Link href="/applications">
               <a className=" text-primary hover:text-black leading-6 mt-4">FAQ</a>
             </Link> */}
-              <Link href="/applications">
-                <a className=" text-primary hover:text-black leading-6 mt-4">Create Proposal</a>
+              <Link href="/applications" className=" text-primary hover:text-black leading-6 mt-4">
+                Create Proposal
               </Link>
             </div>
           </div>

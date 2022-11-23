@@ -196,12 +196,10 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              <Link href={buyLink || "#"} passHref>
-                <a target={`${buyLink ? "_blank" : "_self"}`}>
-                  <div className="border-t border-customLightGray pt-2 px-1">
-                    <SecondaryActionButton label="Get Token" />
-                  </div>
-                </a>
+              <Link href={buyLink || "#"} passHref target={`${buyLink ? "_blank" : "_self"}`}>
+                <div className="border-t border-customLightGray pt-2 px-1">
+                  <SecondaryActionButton label="Get Token" />
+                </div>
               </Link>
             </div>
 
@@ -226,12 +224,10 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              <Link href={`/rewards`} passHref>
-                <a target="_self">
-                  <div className="border-t border-customLightGray pt-2 px-1">
-                    <SecondaryActionButton label="Claim Page" />
-                  </div>
-                </a>
+              <Link href={`/rewards`} passHref target="_self">
+                <div className="border-t border-customLightGray pt-2 px-1">
+                  <SecondaryActionButton label="Claim Page" />
+                </div>
               </Link>
             </div>
           </div>
@@ -263,12 +259,10 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  <Link href={buyLink || "#"} passHref>
-                    <a target={`${buyLink ? "_blank" : "_self"}`}>
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Get Token" />
-                      </div>
-                    </a>
+                  <Link href={buyLink || "#"} passHref target={`${buyLink ? "_blank" : "_self"}`}>
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Get Token" />
+                    </div>
                   </Link>
                 </div>
               </div>
@@ -296,12 +290,10 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  <Link href={`/rewards`} passHref>
-                    <a target="_self">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Claim Page" />
-                      </div>
-                    </a>
+                  <Link href={`/rewards`} passHref target="_self">
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Claim Page" />
+                    </div>
                   </Link>
                 </div>
               </div>

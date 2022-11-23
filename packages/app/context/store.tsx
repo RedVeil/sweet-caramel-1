@@ -1,5 +1,11 @@
-import { DefaultDualActionWideModalProps, DualActionWideModalProps } from "@popcorn/app/components/Modal/DualActionWideModal";
-import { DefaultMobileFullScreenModalProps, MobileFullScreenModalProps } from "@popcorn/app/components/Modal/MobileFullScreenModal";
+import {
+  DefaultDualActionWideModalProps,
+  DualActionWideModalProps,
+} from "@popcorn/app/components/Modal/DualActionWideModal";
+import {
+  DefaultMobileFullScreenModalProps,
+  MobileFullScreenModalProps,
+} from "@popcorn/app/components/Modal/MobileFullScreenModal";
 import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,

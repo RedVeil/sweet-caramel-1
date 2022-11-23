@@ -1,5 +1,6 @@
 import { ERC20 } from "@popcorn/hardhat/typechain";
-import { ChainId, getMultipleToken } from "@popcorn/utils";
+import { ChainId } from "@popcorn/utils";
+import { getMultipleToken } from "@popcorn/app/helper/getToken";
 import { Token } from "@popcorn/utils/src/types";
 import { useMemo } from "react";
 import useSWR, { SWRResponse } from "swr";

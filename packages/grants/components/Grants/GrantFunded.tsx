@@ -1,4 +1,4 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import { useContext, useState } from "react";
 import { Check } from "react-feather";
 import { ContractsContext } from "../../context/Web3/contracts";

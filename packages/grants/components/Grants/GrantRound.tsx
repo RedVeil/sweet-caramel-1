@@ -1,6 +1,7 @@
 // @ts-nocheck
 // TODO Fix this whole file
-import { BeneficiaryApplication, BeneficiaryRegistryAdapter, ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication, ElectionMetadata } from "helper/types";
+import { BeneficiaryRegistryAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, utils } from "ethers";

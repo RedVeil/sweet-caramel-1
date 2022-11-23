@@ -1,8 +1,9 @@
 import { PopLocker__factory } from "@popcorn/hardhat/typechain";
-import { ChainId, getPopLocker } from "@popcorn/utils";
-import { PopLockerMetadata } from "@popcorn/utils/getStakingPool";
+import { ChainId } from "@popcorn/utils";
+import { PopLockerMetadata } from "./../../helper/getStakingPool";
 import { isAddress } from "ethers/lib/utils";
 import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
+import { getPopLocker } from "../../helper/getStakingPool";
 import { useMemo } from "react";
 import useSWR, { SWRResponse } from "swr";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
