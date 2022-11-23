@@ -1,7 +1,7 @@
 import IndexPage from "@popcorn/app/pages/index";
 
 const Home = () => {
-  return <IndexPage />
+  return <IndexPage />;
 };
 
 export default Home;

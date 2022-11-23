@@ -346,13 +346,13 @@ img {
 }
 
 .wheelPicker ul::-webkit-scrollbar {
-  display: none!important;
+  display: none !important;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
-.wheelPicker ul{
-  -ms-overflow-style: none!important;  /* IE and Edge */
-  scrollbar-width: none!important;  /* Firefox */
+.wheelPicker ul {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
 }
 
 @media screen and (max-width: 320px) {
@@ -556,7 +556,6 @@ img {
 .rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
   right: 15%;
 }
-
 
 /* ||||||||||||||||||||||||||||||||||||||||||||||||||||||| */
 /*        COPIED RC-SLIDER CSS FOR COMPATIBILITY           */

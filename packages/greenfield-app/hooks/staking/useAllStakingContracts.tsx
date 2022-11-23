@@ -4,7 +4,7 @@ import { ChainId } from "@popcorn/utils";
 
 export enum StakingType {
   PopLocker,
-  StakingPool
+  StakingPool,
 }
 
 export default function useAllStakingContracts() {
