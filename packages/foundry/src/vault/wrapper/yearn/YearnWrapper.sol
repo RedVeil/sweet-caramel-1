@@ -1,307 +1,339 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
-import { VaultAPI } from "../../../interfaces/external/yearn/IVaultAPI.sol";
-import "../../../interfaces/IERC4626.sol";
-import "../../../interfaces/IYearnVaultWrapper.sol";
-import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
+import { TestFixture } from "./utils/TestFixture.sol";
+import { StrategyParams } from "../../../src/interfaces/external/yearn/IVault.sol";
+import { YearnWrapper } from "../../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-// Needs to extract VaultAPI interface out of BaseStrategy to avoid collision
-contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
-  using FixedPointMathLib for uint256;
+import "forge-std/console.sol";
 
-  VaultAPI public yVault;
-  address public token;
-  uint256 internal _decimals;
+// NOTE -- totalAssets, maxDeposit and maxMint are the only functions not tested
 
-  //  EIP-2612 STORAGE
-  uint256 internal INITIAL_CHAIN_ID;
-  bytes32 internal INITIAL_DOMAIN_SEPARATOR;
-  mapping(address => uint256) public nonces;
+contract VaultWrapperTest is TestFixture {
+  bytes32 constant PERMIT_TYPEHASH =
+    keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
-  event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
-  event Withdraw(
-    address indexed caller,
-    address indexed receiver,
-    address indexed owner,
-    uint256 assets,
-    uint256 shares
-  );
-
-  function initialize(VaultAPI _vault) external initializer {
-    __ERC20_init(
-      string(abi.encodePacked(_vault.name(), "4626adapter")),
-      string(abi.encodePacked(_vault.symbol(), "4626"))
-    );
-    yVault = _vault;
-    token = yVault.token();
-    _decimals = _vault.decimals();
-
-    INITIAL_CHAIN_ID = block.chainid;
-    INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
-
-    IERC20(token).approve(address(_vault), type(uint256).max);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                      General Views
-   //////////////////////////////////////////////////////////////*/
-
-  function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-    return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
-  }
-
-  function vault() external view returns (address) {
-    return address(yVault);
-  }
-
-  // NOTE: this number will be different from this token's totalSupply
-  function vaultTotalSupply() external view returns (uint256) {
-    return yVault.totalSupply();
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                      ERC20 compatibility
-   //////////////////////////////////////////////////////////////*/
-
-  function decimals() public view override returns (uint8) {
-    return uint8(_decimals);
-  }
-
-  function asset() external view returns (address) {
-    return token;
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                      EIP-2612 LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  function permit(
-    address owner,
-    address spender,
-    uint256 value,
-    uint256 deadline,
-    uint8 v,
-    bytes32 r,
-    bytes32 s
-  ) public virtual {
-    require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
-
-    // Unchecked because the only math done is incrementing
-    // the owner's nonce which cannot realistically overflow.
-    unchecked {
-      address recoveredAddress = ecrecover(
-        keccak256(
-          abi.encodePacked(
-            "\x19\x01",
-            DOMAIN_SEPARATOR(),
-            keccak256(
-              abi.encode(
-                keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
-                owner,
-                spender,
-                value,
-                nonces[owner]++,
-                deadline
-              )
-            )
-          )
-        ),
-        v,
-        r,
-        s
-      );
-
-      require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
-
-      _approve(recoveredAddress, spender, value);
+  function assertWithin(
+    uint256 expected,
+    uint256 actual,
+    uint256 delta
+  ) internal {
+    if (expected > actual) {
+      assertLe(expected - actual, delta);
+    } else if (actual > expected) {
+      assertLe(actual - expected, delta);
+    } else {
+      assertEq(expected, actual);
     }
   }
 
-  function computeDomainSeparator() internal view virtual returns (bytes32) {
-    return
+  function setUp() public override {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
+    super.setUp();
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL FUNCTIONS
+  //////////////////////////////////////////////////////////////*/
+
+  function test__setup_Wrapper() public {
+    console.log("address of wrapper", address(vaultWrapper));
+    assertTrue(address(0) != address(vaultWrapper));
+    assertEq(vaultWrapper.asset(), address(want));
+    assertEq(IERC20Metadata(address(vaultWrapper)).decimals(), IERC20Metadata(address(want)).decimals());
+  }
+
+  function test__ERC20_compatibility(uint256 _amount) public {
+    vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
+    deal(address(want), whale, _amount);
+    vm.startPrank(whale);
+    want.approve(address(vaultWrapper), _amount);
+
+    uint256 _shares = vaultWrapper.deposit(_amount, whale);
+    assertEq(vaultWrapper.balanceOf(whale), _shares);
+    vaultWrapper.transfer(user, _amount);
+    vm.stopPrank();
+
+    assertRelApproxEq(want.balanceOf(address(vault)), _amount, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), _shares);
+    assertEq(vaultWrapper.balanceOf(whale), 0);
+    assertEq(vaultWrapper.maxRedeem(user), _shares);
+    assertEq(vault.balanceOf(address(vaultWrapper)), _shares);
+    assertEq(vaultWrapper.totalSupply(), _shares);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        DEPOSIT / MINT
+  //////////////////////////////////////////////////////////////*/
+
+  function test__deposit(uint256 _amount) public {
+    vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
+    deal(address(want), user, _amount);
+    vm.startPrank(user);
+    want.approve(address(vaultWrapper), _amount);
+
+    uint256 _shares = vaultWrapper.deposit(_amount, user);
+    vm.stopPrank();
+
+    assertRelApproxEq(want.balanceOf(address(vault)), _amount, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), _shares);
+    assertEq(vaultWrapper.maxRedeem(user), _shares);
+    assertEq(vault.balanceOf(address(vaultWrapper)), _shares);
+    assertEq(vaultWrapper.totalSupply(), _shares);
+  }
+
+  // function test__preview_deposit_equals_actual_shares(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
+
+  //   deal(address(want), address(user), depositAmount + 1);
+
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), depositAmount + 1);
+  //   vaultWrapper.deposit(1, user);
+  //   vm.stopPrank();
+
+  //   deal(address(want), address(vault), vaultIncrease);
+  //   uint256 expectedShares = vaultWrapper.previewDeposit(depositAmount);
+
+  //   vm.prank(user);
+  //   uint256 actualShares = vaultWrapper.deposit(depositAmount, user);
+
+  //   assertWithin(actualShares, expectedShares, 1);
+  // }
+
+  function test__mint(uint256 _amount) public {
+    vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
+    deal(address(want), user, vaultWrapper.previewMint(_amount));
+    vm.startPrank(user);
+    want.approve(address(vaultWrapper), _amount);
+
+    vaultWrapper.mint(_amount, user);
+    vm.stopPrank();
+
+    assertRelApproxEq(want.balanceOf(address(vault)), _amount, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), _amount);
+    assertEq(vaultWrapper.maxRedeem(user), _amount);
+    assertEq(vault.balanceOf(address(vaultWrapper)), _amount);
+    assertEq(vaultWrapper.totalSupply(), _amount);
+  }
+
+  // function test__preview_mint_equals_actual_assets(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
+
+  //   deal(address(want), address(user), 1);
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), 1);
+  //   vaultWrapper.deposit(1, user);
+  //   vm.stopPrank();
+
+  //   deal(address(want), address(vault), vaultIncrease);
+
+  //   uint256 expectedAssets = vaultWrapper.previewMint(depositAmount);
+  //   deal(address(want), address(user), expectedAssets);
+
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), expectedAssets);
+  //   uint256 actualAssets = vaultWrapper.mint(depositAmount, user);
+  //   vm.stopPrank();
+
+  //   assertWithin(actualAssets, expectedAssets, 1);
+  // }
+
+  /*//////////////////////////////////////////////////////////////
+                        WITHDRAW / REDEEM
+  //////////////////////////////////////////////////////////////*/
+
+  function test__withdraw(uint256 _amount) public {
+    vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
+    deal(address(want), user, _amount);
+
+    uint256 balanceBefore = want.balanceOf(address(user));
+    vm.startPrank(user);
+    want.approve(address(vaultWrapper), _amount);
+    uint256 _shares = vaultWrapper.deposit(_amount, user);
+    vm.stopPrank();
+    assertRelApproxEq(want.balanceOf(address(vault)), _amount, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), _shares);
+    assertEq(vaultWrapper.maxRedeem(user), _shares);
+
+    skip(3 minutes);
+
+    uint256 withdrawAmount = vaultWrapper.maxWithdraw(user);
+    vm.prank(user);
+    vaultWrapper.withdraw(withdrawAmount, user, user);
+
+    assertRelApproxEq(want.balanceOf(user), balanceBefore, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), 0);
+  }
+
+  // function test_preview_withdraw_equals_actual_withdraw(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
+
+  //   deal(address(want), address(user), depositAmount);
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), depositAmount);
+  //   vaultWrapper.deposit(depositAmount, user);
+  //   vm.stopPrank();
+
+  //   deal(address(want), address(vault), vaultIncrease);
+
+  //   uint256 expectedWithdraw = vaultWrapper.previewWithdraw(depositAmount);
+  //   vm.prank(user);
+  //   uint256 actualWithdraw = vaultWrapper.withdraw(depositAmount, user, user);
+
+  //   assertWithin(expectedWithdraw, actualWithdraw, 100);
+  // }
+
+  function test__redeem(uint256 _amount) public {
+    vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
+    deal(address(want), user, _amount);
+
+    uint256 balanceBefore = want.balanceOf(address(user));
+    vm.startPrank(user);
+    want.approve(address(vaultWrapper), _amount);
+    uint256 _shares = vaultWrapper.deposit(_amount, user);
+    vm.stopPrank();
+    assertRelApproxEq(want.balanceOf(address(vault)), _amount, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), _shares);
+    assertEq(vaultWrapper.maxRedeem(user), _shares);
+
+    skip(3 minutes);
+
+    uint256 redeemAmount = vaultWrapper.maxRedeem(user);
+    vm.prank(user);
+    vaultWrapper.redeem(redeemAmount, user, user);
+
+    assertRelApproxEq(want.balanceOf(user), balanceBefore, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), 0);
+  }
+
+  // function test_preview_redeem_equals_actual_redeem(uint80 vaultIncrease, uint80 depositAmount) public {
+  //   vm.assume(vaultIncrease > 1 ether);
+  //   vm.assume(vaultIncrease < maxFuzzAmt);
+  //   vm.assume(depositAmount > 1 ether);
+  //   vm.assume(depositAmount < maxFuzzAmt);
+
+  //   deal(address(want), address(user), depositAmount);
+  //   vm.startPrank(user);
+  //   want.approve(address(vaultWrapper), depositAmount);
+  //   uint256 shares = vaultWrapper.deposit(depositAmount, user);
+  //   vm.stopPrank();
+
+  //   deal(address(want), address(vault), vaultIncrease);
+
+  //   uint256 expectedRedeem = vaultWrapper.previewRedeem(shares);
+  //   vm.prank(user);
+  //   uint256 actualRedeem = vaultWrapper.redeem(shares, user, user);
+
+  //   assertWithin(expectedRedeem, actualRedeem, 100);
+  // }
+
+  /*//////////////////////////////////////////////////////////////
+                        STRATEGY OPERATIONS
+  //////////////////////////////////////////////////////////////*/
+
+  function test__strategy_operation(uint256 _amount) public {
+    vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
+    deal(address(want), user, _amount);
+
+    uint256 balanceBefore = want.balanceOf(address(user));
+    vm.startPrank(user);
+    want.approve(address(vaultWrapper), _amount);
+    uint256 _shares = vaultWrapper.deposit(_amount, user);
+    vm.stopPrank();
+    assertRelApproxEq(want.balanceOf(address(vault)), _amount, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), _shares);
+    assertEq(vaultWrapper.maxRedeem(user), _shares);
+
+    skip(3 minutes);
+
+    vm.prank(strategist);
+    strategy.harvest();
+    assertRelApproxEq(strategy.estimatedTotalAssets(), _amount, DELTA);
+
+    uint256 withdrawAmount = vaultWrapper.maxWithdraw(user);
+    vm.prank(user);
+    vaultWrapper.withdraw(withdrawAmount, user, user);
+
+    assertRelApproxEq(want.balanceOf(user), balanceBefore, DELTA);
+    assertEq(vaultWrapper.balanceOf(user), 0);
+  }
+
+  function test__profitable__harvest(uint256 _amount) public {
+    vm.assume(_amount > minFuzzAmt && _amount < maxFuzzAmt);
+    deal(address(want), user, _amount);
+    deal(address(want), address(this), _amount / 2);
+
+    // Deposit to the vault
+    vm.startPrank(user);
+    want.approve(address(vaultWrapper), _amount);
+    uint256 _shares = vaultWrapper.deposit(_amount, user);
+    vm.stopPrank();
+    assertEq(vaultWrapper.balanceOf(user), _shares);
+    assertRelApproxEq(want.balanceOf(address(vault)), _amount, DELTA);
+
+    uint256 beforePps = vault.pricePerShare();
+    console.log("beforePps", beforePps);
+    uint256 wrapperPps = vaultWrapper.convertToAssets(1) * 10**vault.decimals();
+    console.log("yTokenPps", wrapperPps);
+    assertEq(beforePps, wrapperPps);
+
+    // Harvest 1: Send funds through the strategy
+    skip(1);
+    vm.prank(strategist);
+    strategy.harvest();
+    assertRelApproxEq(strategy.estimatedTotalAssets(), _amount, DELTA);
+
+    // Airdrop gains to the strategy
+    want.transfer(address(strategy), want.balanceOf(address(this)));
+
+    // Harvest 2: Realize profit
+    skip(1);
+    vm.prank(strategist);
+    strategy.harvest();
+    skip(6 hours);
+
+    // check profits
+    uint256 profit = want.balanceOf(address(vault));
+    assertGt(want.balanceOf(address(strategy)) + profit, _amount);
+    assertGt(vault.pricePerShare(), beforePps);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                              PERMIT
+  //////////////////////////////////////////////////////////////*/
+
+  function test__permit() public {
+    uint256 privateKey = 0xBEEF;
+    address owner = vm.addr(privateKey);
+    YearnWrapper wrapper = YearnWrapper(address(vaultWrapper));
+
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+      privateKey,
       keccak256(
-        abi.encode(
-          keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-          keccak256(bytes(name())),
-          keccak256("1"),
-          block.chainid,
-          address(this)
+        abi.encodePacked(
+          "\x19\x01",
+          wrapper.DOMAIN_SEPARATOR(),
+          keccak256(abi.encode(PERMIT_TYPEHASH, owner, address(0xCAFE), 1e18, 0, block.timestamp))
         )
-      );
-  }
+      )
+    );
 
-  /*//////////////////////////////////////////////////////////////
-                      DEPOSIT/WITHDRAWAL LOGIC
-  //////////////////////////////////////////////////////////////*/
+    wrapper.permit(owner, address(0xCAFE), 1e18, block.timestamp, v, r, s);
 
-  function deposit(uint256 assets, address receiver) public returns (uint256 shares) {
-    (assets, shares) = _deposit(assets, receiver, msg.sender);
-
-    emit Deposit(msg.sender, receiver, assets, shares);
-  }
-
-  function mint(uint256 shares, address receiver) public returns (uint256 assets) {
-    assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
-
-    (assets, shares) = _deposit(assets, receiver, msg.sender);
-
-    emit Deposit(msg.sender, receiver, assets, shares);
-  }
-
-  function withdraw(
-    uint256 assets,
-    address receiver,
-    address owner
-  ) public returns (uint256 shares) {
-    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
-
-    (uint256 _withdrawn, uint256 _burntShares) = _withdraw(assets, receiver, msg.sender);
-
-    emit Withdraw(msg.sender, receiver, owner, _withdrawn, _burntShares);
-    return _burntShares;
-  }
-
-  function redeem(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) public returns (uint256 assets) {
-    require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
-
-    if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
-
-    (uint256 _withdrawn, uint256 _burntShares) = _withdraw(assets, receiver, msg.sender);
-
-    emit Withdraw(msg.sender, receiver, owner, _withdrawn, _burntShares);
-    return _withdrawn;
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                          ACCOUNTING LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  function totalAssets() public view returns (uint256) {
-    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  function convertToShares(uint256 assets) public view returns (uint256) {
-    return (assets * (10**_decimals)) / yVault.pricePerShare();
-  }
-
-  function convertToAssets(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  function previewDeposit(uint256 assets) public view returns (uint256) {
-    return convertToShares(assets);
-  }
-
-  function previewMint(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  function previewWithdraw(uint256 assets) public view returns (uint256) {
-    return (assets * (10**_decimals)) / yVault.pricePerShare();
-  }
-
-  function previewRedeem(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                    DEPOSIT/WITHDRAWAL LIMIT LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  function maxDeposit(address) public view returns (uint256) {
-    VaultAPI _bestVault = yVault;
-    uint256 _totalAssets = _bestVault.totalAssets();
-    uint256 _depositLimit = _bestVault.depositLimit();
-    if (_totalAssets >= _depositLimit) return 0;
-    return _depositLimit - _totalAssets;
-  }
-
-  function maxMint(address _account) external view returns (uint256) {
-    return convertToShares(maxDeposit(_account));
-  }
-
-  function maxWithdraw(address owner) external view returns (uint256) {
-    return convertToAssets(this.balanceOf(owner));
-  }
-
-  function maxRedeem(address owner) external view returns (uint256) {
-    return this.balanceOf(owner);
-  }
-
-  function _deposit(
-    uint256 amount, // if `MAX_UINT256`, just deposit everything
-    address receiver,
-    address depositor
-  ) internal returns (uint256 deposited, uint256 mintedShares) {
-    VaultAPI _vault = yVault;
-    IERC20 _token = IERC20(token);
-
-    if (amount == type(uint256).max) {
-      amount = Math.min(_token.balanceOf(depositor), _token.allowance(depositor, address(this)));
-    }
-
-    SafeERC20.safeTransferFrom(_token, depositor, address(this), amount);
-
-    // beforeDeposit custom logic
-
-    // Depositing returns number of shares deposited
-    // NOTE: Shortcut here is assuming the number of tokens deposited is equal to the
-    //       number of shares credited, which helps avoid an occasional multiplication
-    //       overflow if trying to adjust the number of shares by the share price.
-    uint256 beforeBal = _token.balanceOf(address(this));
-
-    mintedShares = _vault.deposit(amount, address(this));
-
-    uint256 afterBal = _token.balanceOf(address(this));
-    deposited = beforeBal - afterBal;
-
-    // afterDeposit custom logic
-    _mint(receiver, mintedShares);
-
-    // `receiver` now has shares of `_vault` as balance, converted to `token` here
-    // Issue a refund if not everything was deposited
-    uint256 refundable = amount - deposited;
-    if (refundable > 0) SafeERC20.safeTransfer(_token, depositor, refundable);
-  }
-
-  function _withdraw(
-    uint256 amount, // if `MAX_UINT256`, just withdraw everything
-    address receiver,
-    address sender
-  ) internal returns (uint256 withdrawn, uint256 burntShares) {
-    VaultAPI _vault = yVault;
-
-    // Start with the total shares that `sender` has
-    // Limit by maximum withdrawal size from each vault
-    uint256 availableShares = Math.min(this.balanceOf(sender), _vault.maxAvailableShares());
-
-    if (availableShares == 0) revert NoAvailableShares();
-
-    uint256 estimatedMaxShares = (amount * 10**uint256(_vault.decimals())) / _vault.pricePerShare();
-
-    if (estimatedMaxShares > availableShares) revert NotEnoughAvailableSharesForAmount();
-
-    // beforeWithdraw custom logic
-
-    // withdraw from vault and get total used shares
-    uint256 beforeBal = _vault.balanceOf(address(this));
-    withdrawn = _vault.withdraw(estimatedMaxShares, receiver);
-    burntShares = beforeBal - _vault.balanceOf(address(this));
-    uint256 unusedShares = estimatedMaxShares - burntShares;
-
-    // afterWithdraw custom logic
-    _burn(sender, burntShares);
-
-    // return unusedShares to sender
-    if (unusedShares > 0) SafeERC20.safeTransfer(_vault, sender, unusedShares);
+    assertEq(wrapper.allowance(owner, address(0xCAFE)), 1e18);
+    assertEq(wrapper.nonces(owner), 1);
   }
 }
