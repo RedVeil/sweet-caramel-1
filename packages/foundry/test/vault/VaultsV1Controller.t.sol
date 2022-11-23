@@ -128,6 +128,11 @@ contract VaultsV1ControllerTest is Test {
     stakingImplementation = address(new VaultStaking{ salt: keccak256("VAULT_STAKING") }());
     yearnWrapperImplementation = address(new YearnWrapper{ salt: keccak256("YEARN_WRAPPER") }());
 
+    console.log("vaultImplementation", vaultImplementation);
+    console.log("stakingImplementation", stakingImplementation);
+    console.log("yearnWrapperImplementation", yearnWrapperImplementation);
+    console.log("addresss(this)", address(this));
+
     yearnWrapper = YearnWrapper(helper__deployYearnWrapper(YEARN_VAULT));
 
     vaultParams = VaultParams({
@@ -502,11 +507,11 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
 
-    emit VaultV1Deployment(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9);
-    emit VaultStakingDeployment(0x7DA6f3b0f87d7c0d51F7B490c255Cb02E7A1C60E);
-    emit VaultAdded(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9, 1, true, CID);
-    emit VaultStatusChanged(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9, true, true);
-    emit VaultV1Deployed(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9, true);
+    emit VaultV1Deployment(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6);
+    emit VaultStakingDeployment(0xa315c790eb7674213082707eC949F27d3894FcAf);
+    emit VaultAdded(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6, 1, true, CID);
+    emit VaultStatusChanged(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6, true, true);
+    emit VaultV1Deployed(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6, true);
 
     address _vault = vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
@@ -520,6 +525,8 @@ contract VaultsV1ControllerTest is Test {
       CURVE_ZAP_IN,
       CURVE_ZAP_OUT
     );
+    console.log("deployed vault", _vault);
+    console.log("deployed staking", vaultsV1Registry.getVault(_vault).staking);
   }
 
   /* Adding vault type to VaultsV1Registry */
