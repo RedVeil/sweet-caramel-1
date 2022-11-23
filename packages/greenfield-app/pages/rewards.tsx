@@ -32,11 +32,11 @@ export default function RewardsPage(): JSX.Element {
 
   useEffect(() => {
     const testInterval = setInterval(() => {
-      const stakingLoading = document.querySelectorAll(".show-staking");
-      const stakingShowing = document.querySelectorAll(".show-staking-loading");
+      const stakingLoading = document.querySelectorAll(".show-staking-loading");
+      const stakingShowing = document.querySelectorAll(".show-staking");
 
-      const vestingLoading = document.querySelectorAll(".show-vesting");
-      const vestingShowing = document.querySelectorAll(".show-vesting-loading");
+      const vestingLoading = document.querySelectorAll(".show-vesting-loading");
+      const vestingShowing = document.querySelectorAll(".show-vesting");
 
       if (stakingLoading.length === 0 && stakingShowing.length === 0) {
         setHasStaking(true);
