@@ -55,6 +55,9 @@ contract ButterFeeConverterTest is Test {
   event KeeperTipUpdated(uint256 oldKeeperTip, uint256 newKeeperTip);
 
   function setUp() public {
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    vm.selectFork(forkId);
+
     butter = ISetToken(BTR_TOKEN);
     streamingFeeModule = IStreamingFeeModule(SET_STREAMING_FEE_MODULE);
     aclRegistry = IACLRegistry(ACL_REGISTRY);

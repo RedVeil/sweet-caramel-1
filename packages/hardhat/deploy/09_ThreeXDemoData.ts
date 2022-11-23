@@ -2,18 +2,17 @@ import { DeployFunction, DeploymentsExtension } from "@anthonymartin/hardhat-dep
 import { BigNumber, ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { ThreeXBatchProcessing } from "../typechain";
+import { Anvil, getSetup, Hardhat } from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
   const { threeX } = addresses;
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
-  const signerAddress = await signer.getAddress();
+  const pop = ["mainnet", "polygon", "bsc", "arbitrum"].includes(hre.network.name)
+    ? addresses.pop
+    : (await deployments.get("TestPOP")).address;
 
-  if (["hardhat", "local"].includes(hre.network.name)) {
+  if (["hardhat", "local", "remote_fork"].includes(hre.network.name)) {
     const threeXBatch = await hre.ethers.getContractAt(
       "ThreeXBatchProcessing",
       (
@@ -28,31 +27,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address,
       signer
     );
-    await keeperIncentive.updateIncentive(
-      threeXBatch.address,
-      0,
-      0,
-      true,
-      true,
-      (
-        await deployments.get("TestPOP")
-      ).address,
-      1,
-      0
-    );
-    await keeperIncentive.updateIncentive(
-      threeXBatch.address,
-      1,
-      0,
-      true,
-      true,
-      (
-        await deployments.get("TestPOP")
-      ).address,
-      1,
-      0
-    );
-    await createDemoData(hre, deployments, signer, signerAddress, deploy, addresses, threeXBatch, threeX);
+    await keeperIncentive.updateIncentive(threeXBatch.address, 0, 0, true, true, pop, 1, 0);
+    await keeperIncentive.updateIncentive(threeXBatch.address, 1, 0, true, true, pop, 1, 0);
+    await createDemoData(hre, deployments, signer, await signer.getAddress(), deploy, addresses, threeXBatch, threeX);
   }
 };
 
@@ -73,12 +50,19 @@ async function createDemoData(
   const usdc = await hre.ethers.getContractAt("MockERC20", addresses.usdc, signer);
   const setToken = await hre.ethers.getContractAt("MockERC20", setTokenAddress, signer);
 
+  //Faucet
+  await deploy("Faucet", {
+    from: await signer.getAddress(),
+    args: [addresses.uniswapRouter /* addresses.curveAddressProvider, addresses.curveFactoryMetapoolDepositZap */],
+    log: true,
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+    contract: "Faucet",
+  });
   const faucet = await hre.ethers.getContractAt("Faucet", (await deployments.get("Faucet")).address, signer);
 
-  await hre.network.provider.send("hardhat_setBalance", [
-    faucet.address,
-    "0x152d02c7e14af6800000", // 100k ETH
-  ]);
+  const provider = ["remote_fork"].includes(hre.network.name) ? Anvil : Hardhat;
+  await provider.setBalance(signerAddress);
+
   console.log("sending usdc...");
   await faucet.sendTokens(addresses.usdc, 1000, signerAddress);
   console.log("sending dai...");

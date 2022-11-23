@@ -1,5 +1,5 @@
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import React from "react";
 
 const MobileEmptyClaimableBatches = () => {

@@ -1,5 +1,6 @@
 import { FilterIcon } from "@heroicons/react/outline";
-import { BeneficiaryGovernanceAdapter, Proposal, ProposalStatus, ProposalType } from "@popcorn/hardhat/lib/adapters";
+import { Proposal, ProposalStatus, ProposalType } from "helper/types";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
 import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";

@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { connectors } from "../../context/Web3/connectors";
+import { connectors } from "../../context/Web3/connector";
 import { GrantsMenu } from "./GrantsMenu";
 import NavbarLink from "./NavbarLinks";
 import { ProposalsMenu } from "./ProposalsMenu";
@@ -20,9 +20,7 @@ const Navbar: React.FC = () => {
       <nav className="flex shadow-md py-3 px-14 bg-white">
         <div>
           <Link href="/" passHref>
-            <a>
-              <img src="/images/popcorn_v1_rainbow_bg.png" alt="Logo" className="w-8 h-8" />
-            </a>
+            <img src="/images/popcorn_v1_rainbow_bg.png" alt="Logo" className="w-8 h-8" />
           </Link>
         </div>
         <ul className="flex flex-row items-center mx-auto space-x-16">

@@ -4,7 +4,7 @@ import Slider from "react-slick";
 let activeDot = "bg-black";
 let inactiveDot = "bg-black bg-opacity-50";
 
-const TutorialSlider = ({ isThreeX }: { isThreeX: boolean }) => {
+const TutorialSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const customSlider = useRef(null);

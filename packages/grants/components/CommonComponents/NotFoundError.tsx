@@ -5,6 +5,7 @@ interface NotFoundErrorProps {
   title: string;
   children: React.ReactNode;
 }
+
 const NotFoundError: React.FC<NotFoundErrorProps> = ({ image, title, children }) => {
   return (
     <div className="bg-white border border-customLightGray rounded-lg py-20 px-10 flex flex-col justify-center items-center text-center">

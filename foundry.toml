@@ -9,6 +9,7 @@ remappings = [
     'forge-std/=node_modules/@popcorn/hardhat/lib/forge-std/src/',
     '@ensdomains/=node_modules/@ensdomains/',
     '@openzeppelin/=node_modules/@openzeppelin/',
+    'openzeppelin-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/',
     '@popcorn/=node_modules/@popcorn/',
     '@setprotocol/=node_modules/@setprotocol/',
     '@uniswap/=node_modules/@uniswap/',
@@ -18,6 +19,7 @@ remappings = [
     'hardhat/=node_modules/hardhat/',
     'merkle-tree-solidity/=node_modules/merkle-tree-solidity/',
     'openzeppelin-v3/=node_modules/openzeppelin-v3/',
+    'solmate/=node_modules/solmate/'
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

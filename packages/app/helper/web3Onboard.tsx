@@ -16,12 +16,6 @@ export default function web3Onboard(): void {
         rpcUrl: RPC_URLS[ChainId.Ethereum],
       },
       {
-        id: ChainIdHex.Rinkeby,
-        token: "rETH",
-        label: "Ethereum Rinkeby Testnet",
-        rpcUrl: RPC_URLS[ChainId.Rinkeby],
-      },
-      {
         id: ChainIdHex.Arbitrum,
         token: "AETH",
         label: "Arbitrum One",
@@ -49,7 +43,7 @@ export default function web3Onboard(): void {
         id: ChainIdHex.Hardhat,
         token: "ETH",
         label: "Hardhat",
-        rpcUrl: RPC_URLS[ChainId.Localhost],
+        rpcUrl: RPC_URLS[ChainId.Hardhat],
       },
       {
         id: ChainIdHex.Localhost,

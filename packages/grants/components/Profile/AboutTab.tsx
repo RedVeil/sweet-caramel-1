@@ -1,8 +1,7 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import { TelegramIcon, TwitterIcon } from "components/Svgs";
 import LinkedInIcon from "components/Svgs/LinkedInIcon";
 import SignalIcon from "components/Svgs/SignalIcon";
-import React from "react";
 
 interface AboutTabProps {
   missionStatement: string;

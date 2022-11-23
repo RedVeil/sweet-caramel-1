@@ -1,68 +1,76 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.10
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 // Inheritance
 import "../utils/Owned.sol";
 import "../interfaces/IRewardsDistribution.sol";
+import "../utils/KeeperIncentivized.sol";
+import "../utils/ContractRegistryAccess.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 // Libraires
 import "../libraries/SafeDecimalMath.sol";
 
 // Internal references
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../interfaces/IContractRegistry.sol";
+import "../interfaces/IKeeperIncentiveV2.sol";
+
+error DistributionFailed(address destination, uint256 amount);
 
 // https://docs.synthetix.io/contracts/source/contracts/rewardsdistribution
-contract RewardsDistribution is Owned, IRewardsDistribution {
+contract RewardsDistribution is Owned, KeeperIncentivized, ContractRegistryAccess, IRewardsDistribution {
   using SafeMath for uint256;
   using SafeDecimalMath for uint256;
+  using SafeERC20 for IERC20;
 
-  /**
-   * @notice Authorised addresses able to call distributeRewards
-   */
-  mapping(address => bool) public rewardDistributors;
+  // The address here is not hard coded so we can deploy the contract on multiple chains
+  IERC20 public immutable POP;
 
-  /**
-   * @notice Address of the Synthetix ProxyERC20
-   */
-  address public pop;
-
-  /**
-   * @notice Address of the FeePoolProxy
-   */
-  address public treasury;
+  uint256 public keeperIncentiveBps;
 
   /**
    * @notice An array of addresses and amounts to send
    */
   DistributionData[] public override distributions;
 
+  /* ========== EVENTS ========== */
+
+  event RewardDistributionAdded(uint256 index, address destination, uint256 amount, bool isLocker);
+  event RewardsDistributed(uint256 amount);
+  event Log(uint256 amount);
+
+  /* ========== CONSTRUCTOR ========== */
+
   constructor(
     address _owner,
-    address _pop,
-    address _treasury
-  ) Owned(_owner) {
-    pop = _pop;
-    treasury = _treasury;
+    IContractRegistry _contractRegistry,
+    IERC20 _pop
+  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {
+    POP = _pop;
   }
 
-  // ========== EXTERNAL SETTERS ==========
+  /* ========== VIEWS ========== */
 
-  function setPop(address _pop) external onlyOwner {
-    pop = _pop;
-  }
-
-  function setTreasury(address _treasury) external onlyOwner {
-    treasury = _treasury;
-  }
-
-  function approveRewardDistributor(address _distributor, bool _approved) external onlyOwner {
-    emit RewardDistributorUpdated(_distributor, _approved);
-    rewardDistributors[_distributor] = _approved;
+  /**
+   * @notice Retrieve the length of the distributions array
+   */
+  function distributionsLength() external view override returns (uint256) {
+    return distributions.length;
   }
 
   // ========== EXTERNAL FUNCTIONS ==========
+
+  /**
+   * @notice Setting Keeper Incentive for for `distributeRewards`
+   * @param _keeperIncentiveBps Incentive Percentage in with 18 decimals.
+   * @dev 1e18 == 100%, 1e14 == 1 BPS
+   */
+  function setKeeperIncentiveBps(uint256 _keeperIncentiveBps) external onlyOwner {
+    keeperIncentiveBps = _keeperIncentiveBps;
+  }
 
   /**
    * @notice Adds a Rewards DistributionData struct to the distributions
@@ -81,6 +89,8 @@ contract RewardsDistribution is Owned, IRewardsDistribution {
     require(destination != address(0), "Cant add a zero address");
     require(amount != 0, "Cant add a zero amount");
 
+    POP.approve(destination, type(uint256).max);
+
     DistributionData memory rewardsDistribution = DistributionData(destination, amount, isLocker);
     distributions.push(rewardsDistribution);
 
@@ -95,6 +105,8 @@ contract RewardsDistribution is Owned, IRewardsDistribution {
    */
   function removeRewardDistribution(uint256 index) external onlyOwner {
     require(index <= distributions.length - 1, "index out of bounds");
+
+    POP.approve(distributions[index].destination, 0);
 
     // shift distributions indexes across
     delete distributions[index];
@@ -115,6 +127,9 @@ contract RewardsDistribution is Owned, IRewardsDistribution {
   ) external onlyOwner returns (bool) {
     require(index <= distributions.length - 1, "index out of bounds");
 
+    POP.approve(distributions[index].destination, 0);
+    POP.approve(destination, type(uint256).max);
+
     distributions[index].destination = destination;
     distributions[index].amount = amount;
     distributions[index].isLocker = isLocker;
@@ -122,31 +137,20 @@ contract RewardsDistribution is Owned, IRewardsDistribution {
     return true;
   }
 
-  function distributeRewards(uint256 amount) external override returns (bool) {
-    require(amount > 0, "Nothing to distribute");
-    require(rewardDistributors[msg.sender], "not authorized");
-    require(pop != address(0), "Pop is not set");
-    require(treasury != address(0), "Treasury is not set");
-    require(
-      IERC20(pop).balanceOf(address(this)) >= amount,
-      "RewardsDistribution contract does not have enough tokens to distribute"
-    );
-
-    uint256 remainder = amount;
+  function distributeRewards() external override keeperIncentive(0) returns (bool) {
+    uint256 totalAmount;
 
     // Iterate the array of distributions sending the configured amounts
     for (uint256 i = 0; i < distributions.length; i++) {
       if (distributions[i].destination != address(0) || distributions[i].amount != 0) {
-        remainder = remainder.sub(distributions[i].amount);
-
-        // Approve the POP
-        IERC20(pop).approve(distributions[i].destination, 0);
-        IERC20(pop).approve(distributions[i].destination, distributions[i].amount);
-
         // If the contract implements RewardsDistributionRecipient.sol, inform it how many POP its received.
         bytes memory payload;
         if (distributions[i].isLocker) {
-          payload = abi.encodeWithSignature("notifyRewardAmount(address,uint256)", pop, distributions[i].amount);
+          payload = abi.encodeWithSignature(
+            "notifyRewardAmount(address,uint256)",
+            address(POP),
+            distributions[i].amount
+          );
         } else {
           payload = abi.encodeWithSignature("notifyRewardAmount(uint256)", distributions[i].amount);
         }
@@ -154,31 +158,31 @@ contract RewardsDistribution is Owned, IRewardsDistribution {
         // solhint-disable avoid-low-level-calls
         (bool success, ) = distributions[i].destination.call(payload);
 
-        if (!success) {
-          // Note: we're ignoring the return value as it will fail for contracts that do not implement RewardsDistributionRecipient.sol
-        }
+        require(success, "distribution failed");
+
+        totalAmount += distributions[i].amount;
       }
     }
+    uint256 incentive = (totalAmount * keeperIncentiveBps) / 1e18;
 
-    // After all ditributions have been sent, send the remainder to the RewardsEscrow contract
-    IERC20(pop).transfer(treasury, remainder);
+    POP.approve(_getContract(KEEPER_INCENTIVE), incentive);
+    IKeeperIncentiveV2(_getContract(KEEPER_INCENTIVE)).tip(address(POP), msg.sender, 0, incentive);
 
-    emit RewardsDistributed(amount);
+    emit RewardsDistributed(totalAmount);
     return true;
   }
 
-  /* ========== VIEWS ========== */
+  /* ========== INTERNAL FUNCTIONS ========== */
 
   /**
-   * @notice Retrieve the length of the distributions array
+   * @notice Override for KeeperIncentivized.
    */
-  function distributionsLength() external view override returns (uint256) {
-    return distributions.length;
+  function _getContract(bytes32 _name)
+    internal
+    view
+    override(KeeperIncentivized, ContractRegistryAccess)
+    returns (address)
+  {
+    return super._getContract(_name);
   }
-
-  /* ========== Events ========== */
-
-  event RewardDistributionAdded(uint256 index, address destination, uint256 amount, bool isLocker);
-  event RewardsDistributed(uint256 amount);
-  event RewardDistributorUpdated(address indexed distributor, bool approved);
 }

@@ -1,8 +1,8 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat";
-import { AdditionalImages } from "@popcorn/hardhat/lib/adapters/BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
+import { BeneficiaryApplication } from "helper/types";
 import IPFSUploadFunc from "components/CommonComponents/IPFSUploadFunc";
 import React from "react";
 import VisualContentCard from "./VisualContentCard";
+import { Image } from "helper/types";
 
 const VisualContent = ({
   form,
@@ -11,7 +11,7 @@ const VisualContent = ({
 }) => {
   const [formData, setFormData] = form;
 
-  const uploadAdditionalImages = (additionalImages: AdditionalImages[]): void => {
+  const uploadAdditionalImages = (additionalImages: Image[]): void => {
     setFormData({
       ...formData,
       files: {
@@ -26,7 +26,7 @@ const VisualContent = ({
       ...formData,
       files: {
         ...formData.files,
-        additionalImages: formData.files.additionalImages.filter((_image: AdditionalImages, i: number) => {
+        additionalImages: formData.files.additionalImages.filter((_image: Image, i: number) => {
           return i !== index;
         }),
       },

@@ -1,24 +1,22 @@
-import { parseEther } from "ethers/lib/utils";
 import { DeployFunction } from "@anthonymartin/hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getSignerFrom } from "../lib/utils/getSignerFrom";
 import { getStakingPools } from "../lib/utils/getStakingPools";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup, wait } from "./utils";
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
-  const pop = addresses.pop;
+  const { deploy, deployments, addresses, signer, log } = await getSetup(hre);
 
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
+  const pop = ["mainnet", "polygon", "arbitrum", "bsc"].includes(hre.network.name)
+    ? addresses.pop
+    : (await deployments.get("TestPOP")).address;
 
   const stakingPools = await getStakingPools(hre.network.config.chainId, addresses, deployments);
 
   for (var i = 0; i < stakingPools.length; i++) {
     const { poolName, rewardsToken, inputToken, contract } = stakingPools[i];
+    console.log("Deploying staking contract", poolName, rewardsToken, inputToken, contract);
     const deployed = await deploy(poolName, {
-      from: addresses.deployer,
+      from: await signer.getAddress(),
       args:
         contract === "PopLocker"
           ? [inputToken, (await deployments.get("RewardsEscrow")).address]
@@ -27,33 +25,39 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks,
       contract: contract,
     });
-    await prepareRewardsEscrow((await deployments.get(poolName)).address, signer, hre);
+
+    await prepareRewardsEscrow((await deployments.get(poolName)).address, signer, hre, log);
 
     await addContractToRegistry(poolName, deployments, signer, hre);
     if (contract === "PopLocker") {
       const popLocker = await hre.ethers.getContractAt("PopLocker", deployed.address);
 
-      console.log("setting approvals ...");
+      log("setting approvals ...");
       const approvalTx = await popLocker.connect(signer).setApprovals();
-      if (!["hardhat", "local"].includes(hre.network.name)) {
-        await approvalTx.wait(2);
-      }
+      await wait(approvalTx, hre);
 
-      console.log("adding pop as rewards tokens with reward distributor ...");
-      const addRewardTx = await popLocker
-        .connect(signer)
-        .addReward(pop, (await hre.deployments.get("RewardsDistribution")).address, true);
-      if (!["hardhat", "local"].includes(hre.network.name)) {
-        await addRewardTx.wait(2);
+      const isConfigured: boolean = await (async () => {
+        let configured = false;
+        try {
+          configured = (await popLocker.rewardTokens(0)).length ? true : false;
+        } catch (e) {
+          configured = false;
+        }
+        return configured;
+      })();
+
+      if (!isConfigured) {
+        const dist = (await hre.deployments.get("RewardsDistribution")).address;
+        log(`adding pop (${pop}) as rewards tokens with reward distributor (${dist})...`);
+        const addRewardTx = await popLocker.connect(signer).addReward(pop, dist, true);
+        await wait(addRewardTx, hre);
       }
     } else {
-      console.log("approving RewardsDistribution contract as rewards distributor ...");
+      log("approving RewardsDistribution contract as rewards distributor ...");
       const addApprovalTx = await (
         await hre.ethers.getContractAt("Staking", deployed.address)
       ).approveRewardDistributor((await hre.deployments.get("RewardsDistribution")).address, true);
-      if (!["hardhat", "local"].includes(hre.network.name)) {
-        await addApprovalTx.wait(2);
-      }
+      await wait(addApprovalTx, hre);
     }
   }
 };
@@ -61,8 +65,8 @@ export default main;
 main.dependencies = ["setup", "contract-registry", "rewards-escrow", "rewards-distribution"];
 main.tags = ["frontend", "staking"];
 
-async function prepareRewardsEscrow(stakingAddress: string, signer: any, hre: HardhatRuntimeEnvironment) {
-  console.log("preparing rewards escrow ...");
+async function prepareRewardsEscrow(stakingAddress: string, signer: any, hre: HardhatRuntimeEnvironment, log) {
+  log("preparing rewards escrow ...");
   const { deployments } = hre;
   const rewardsEscrow = await hre.ethers.getContractAt(
     "RewardsEscrow",
@@ -72,8 +76,5 @@ async function prepareRewardsEscrow(stakingAddress: string, signer: any, hre: Ha
     signer
   );
   const tx = await rewardsEscrow.addAuthorizedContract(stakingAddress);
-  if (!["hardhat", "local"].includes(hre.network.name)) {
-    await tx.wait(2);
-  }
+  await wait(tx, hre);
 }
-

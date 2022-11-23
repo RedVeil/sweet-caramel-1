@@ -1,22 +1,25 @@
-import { setMultiChoiceActionModal } from "context/actions";
-import { store } from "context/store";
+import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
 import { constants } from "ethers";
-import { getStorage, setStorage } from "helper/safeLocalstorageAccess";
+import { getStorage, setStorage } from "@popcorn/app/helper/safeLocalstorageAccess";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
-import usePopLocker from "./staking/usePopLocker";
-import useWeb3 from "./useWeb3";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
 export default function useRestakeAlert() {
   const { dispatch, state } = useContext(store);
   const {
+    connectedChainId,
     account,
     contractAddresses: { popStaking },
   } = useWeb3();
-  const { data: popLocker } = usePopLocker(popStaking);
+  const { data: popLocker } = usePopLocker(popStaking, connectedChainId);
   const router = useRouter();
+  const networkName = useNetworkName();
   const [restakeAlerted, setRestakeAlerted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -39,14 +42,14 @@ export default function useRestakeAlert() {
             label: "Restake Now",
             onClick: () => {
               setRestakeAlerted(true);
-              router.push({ pathname: `/${router?.query?.network}/staking/pop`, query: { action: "withdraw" } });
+              router.push({ pathname: `/${networkName}/staking/pop`, query: { action: "withdraw" } });
             },
           },
           onSecondOption: {
             label: "Withdraw Now",
             onClick: () => {
               setRestakeAlerted(true);
-              router.push({ pathname: `/${router?.query?.network}/staking/pop`, query: { action: "withdraw" } });
+              router.push({ pathname: `/${networkName}/staking/pop`, query: { action: "withdraw" } });
             },
           },
           onDismiss: {

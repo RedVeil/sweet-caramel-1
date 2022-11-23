@@ -1,5 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { ElectionTerm, ElectionTermIntToName, GrantElectionAdapter } from "@popcorn/hardhat/lib/adapters";
+import { ElectionTerm, ElectionTermIntToName } from "helper/types";
+import { GrantElectionAdapter } from "helper/adapters";
 import { capitalize } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import ElectionSection from "components/GrantElections/ElectionSection";
@@ -11,7 +12,7 @@ import toast, { Toaster } from "react-hot-toast";
 import NavBar from "../../components/NavBar/NavBar";
 import { setDualActionModal } from "../../context/actions";
 import { store } from "../../context/store";
-import { connectors } from "../../context/Web3/connectors";
+import { connectors } from "../../context/Web3/connector";
 import { ContractsContext } from "../../context/Web3/contracts";
 import { ElectionsContext } from "../../context/Web3/elections";
 
@@ -335,10 +336,12 @@ export default function AllGrants() {
                 </div>
               </div>
               <div className="mt-6 rounded-md shadow lg:mt-0 lg:ml-10 lg:flex-shrink-0">
-                <Link href={`/grant-elections/${ElectionTermIntToName[election]}`} passHref>
-                  <a href="#" className="button button-secondary">
-                    View {ElectionTermIntToName[election]} election
-                  </a>
+                <Link
+                  href={`/grant-elections/${ElectionTermIntToName[election]}`}
+                  passHref
+                  className="button button-secondary"
+                >
+                  View{ElectionTermIntToName[election]}election
                 </Link>
               </div>
             </div>

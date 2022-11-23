@@ -1,13 +1,15 @@
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
-import useWeb3 from "hooks/useWeb3";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
+import { useDisconnect } from "wagmi";
 
 export default function OfacCheck(): JSX.Element {
   const { dispatch } = useContext(store);
-  const { account, disconnect } = useWeb3();
+  const { account } = useWeb3();
   const [data, setData] = useState<{ success: boolean; permitted: boolean }>(null);
   const [isLoading, setLoading] = useState(false);
+  const { disconnect } = useDisconnect();
 
   useEffect(() => {
     if (!account) return;
@@ -28,7 +30,7 @@ export default function OfacCheck(): JSX.Element {
           keepOpen: true,
           title: "Authorization Error",
           content: "The connected wallet is not authorized to make transactions with this application",
-          onConfirm: { label: "Disconnect Wallet", onClick: () => disconnect() },
+          onConfirm: { label: "Disconnect Wallet", onClick: disconnect },
         }),
       );
     }

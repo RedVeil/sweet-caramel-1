@@ -1,15 +1,17 @@
 import { Web3Provider } from "@ethersproject/providers";
+import { XIcon } from "@heroicons/react/outline";
 import Slider from "@mui/material/Slider";
 import { styled } from "@mui/material/styles";
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import { useWeb3React } from "@web3-react/core";
 import Button from "components/CommonComponents/Button";
 import { ContractsContext } from "context/Web3/contracts";
-import { utils } from "ethers";
-import { useContext, useEffect, useState } from "react";
+import { BigNumber, constants, utils } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import useTokenAllowance from "hooks/token/useTokenAllowance";
+import useTokenBalance from "hooks/token/useTokenBalance";
+import { useContext, useState } from "react";
 import toast from "react-hot-toast";
-import { getNamedAccountsByChainId } from "../../../hardhat/lib/utils/getNamedAccounts";
-import { XIcon } from "@heroicons/react/outline";
 
 interface StakeModalProps {
   beneficiary: BeneficiaryApplication;
@@ -20,43 +22,67 @@ interface StakeModalProps {
 const TWELVE_WEEKS = 604800 * 4 * 3;
 
 const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStakeModal, hasExpired, closePopUp }) => {
-  const [termsAccepted, setTermsAccepted] = useState<boolean>(true);
-  const [popBalance, setPopBalance] = useState(0);
-  const [approved, setApproval] = useState<number>(0);
   const { account, chainId, library } = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
-  const [popToLock, setPopToLock] = useState<number>(0);
+
+  const { data: popBalance } = useTokenBalance(contracts?.pop, account);
+  const { data: allowance } = useTokenAllowance(contracts?.pop, account, contracts?.staking?.address);
+  const [popToLock, setPopToLock] = useState<BigNumber>(constants.Zero);
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(true);
   const [wait, setWait] = useState<boolean>(false);
   const [lockDuration, setLockDuration] = useState<number>(TWELVE_WEEKS);
 
-  useEffect(() => {
-    if (!account) {
-      return;
-    }
-    contracts.pop.balanceOf(account).then((res) => setPopBalance(Number(utils.formatEther(res))));
-    contracts.pop
-      .allowance(account, getNamedAccountsByChainId(chainId).popStaking)
-      .then((res) => setApproval(Number(utils.formatEther(res))));
-  }, [account]);
-
-  const lockPop = async (): Promise<void> => {
+  async function lockPop(): Promise<void> {
     setWait(true);
     toast.loading("Staking POP...");
-    const lockedPopInEth = utils.parseEther(popToLock.toString());
     const signer = library.getSigner();
-    const connectedStaking = contracts.staking.connect(signer);
-    await connectedStaking
-      .stake(lockedPopInEth, lockDuration)
+    await contracts.staking
+      .connect(signer)
+      .stake(popToLock, lockDuration)
       .then((res) => {
+        toast.dismiss();
         toast.success("POP staked!");
         onCloseStakeModal();
       })
       .catch((err) => {
         toast.dismiss();
-        toast.error(err?.data?.message?.split("'")[1] || "Error staking POP");
+        if (
+          err.message === "MetaMask Tx Signature: User denied transaction signature." ||
+          "Error: User denied transaction signature"
+        ) {
+          toast.error("Transaction was canceled");
+        } else {
+          toast.error(err.message.split("'")[1]);
+        }
       });
     setWait(false);
-  };
+  }
+
+  async function approve(): Promise<void> {
+    setWait(true);
+    toast.loading("Approving POP...");
+    const signer = library.getSigner();
+    await contracts.pop
+      .connect(signer)
+      .approve(contracts.staking.address, constants.MaxUint256)
+      .then((res) => {
+        toast.dismiss();
+        toast.success("POP Approved!");
+        onCloseStakeModal();
+      })
+      .catch((err) => {
+        toast.dismiss();
+        if (
+          err.message === "MetaMask Tx Signature: User denied transaction signature." ||
+          "Error: User denied transaction signature"
+        ) {
+          toast.error("Transaction was canceled");
+        } else {
+          toast.error(err.message.split("'")[1]);
+        }
+      });
+    setWait(false);
+  }
 
   return (
     <div className="text-left text-base text-gray-900 relative">
@@ -75,7 +101,8 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
         <div className="flex justify-between mb-4">
           <p className="font-[500] text-black">Stake POP</p>
           <p className="font-[500] text-black">
-            {Math.floor(popToLock)}/{Math.floor(popBalance)}
+            {Math.floor(Number(utils.formatUnits(popToLock)))}/
+            {Math.floor(Number(utils.formatUnits(popBalance ?? constants.Zero)))}
           </p>
         </div>
         <div
@@ -86,9 +113,11 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           <CustomSlider
             aria-label="pop lock slider"
             min={0}
-            max={popBalance}
-            onChange={(e) => setPopToLock(Number((e.target as HTMLInputElement).value))}
-            disabled={account && approved >= popToLock && hasExpired}
+            max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
+            onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
+            disabled={
+              !account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired
+            }
             size="small"
             step={1}
             valueLabelDisplay="off"
@@ -129,9 +158,15 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           </ol>
         </div>
       </div>
-      <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={lockPop}>
-        Stake
-      </Button>
+      {(allowance ?? constants.Zero).eq(constants.Zero) ? (
+        <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={approve}>
+          Approve
+        </Button>
+      ) : (
+        <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={lockPop}>
+          Stake
+        </Button>
+      )}
     </div>
   );
 };

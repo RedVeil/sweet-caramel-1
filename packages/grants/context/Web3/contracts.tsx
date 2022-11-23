@@ -1,5 +1,4 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { getChainRelevantContracts } from "@popcorn/hardhat/lib/utils/getContractAddresses";
 import {
   BeneficiaryGovernance,
   BeneficiaryGovernance__factory,
@@ -11,31 +10,21 @@ import {
   GovStaking__factory,
   GrantElections,
   GrantElections__factory,
-  IUniswapV2Router02,
-  IUniswapV2Router02__factory,
-  RewardsManager,
-  RewardsManager__factory,
 } from "@popcorn/hardhat/typechain";
-import { ContractAddresses } from "@popcorn/utils/types";
+import { ChainId, networkMap } from "@popcorn/utils";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
-import {
-  NoEthereumProviderError,
-  UserRejectedRequestError as UserRejectedRequestErrorInjected,
-} from "@web3-react/injected-connector";
+import { UserRejectedRequestError as UserRejectedRequestErrorInjected } from "@web3-react/injected-connector";
 import activateRPCNetwork from "helper/activateRPCNetwork";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { setSingleActionModal } from "../actions";
 import { store } from "../store";
-import { ChainId, networkMap } from "./connectors";
+import { useNamedAccounts } from "@popcorn/hooks";
 
 export interface Contracts {
   staking?: GovStaking;
   beneficiaryRegistry?: BeneficiaryRegistry;
   grantElections?: GrantElections;
   pop?: ERC20;
-  rewardsManager?: RewardsManager;
-  uniswapRouter?: IUniswapV2Router02;
-  threeCrv?: ERC20;
   beneficiaryGovernance?: BeneficiaryGovernance;
 }
 
@@ -51,9 +40,7 @@ interface ContractsWrapperProps {
 }
 
 function getErrorMessage(error: Error) {
-  if (error instanceof NoEthereumProviderError) {
-    return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
-  } else if (error instanceof UnsupportedChainIdError) {
+  if (error instanceof UnsupportedChainIdError) {
     return `You're connected to an unsupported network. Please connect to ${
       networkMap[Number(process.env.CHAIN_ID) as ChainId]
     }.`;
@@ -65,17 +52,14 @@ function getErrorMessage(error: Error) {
   }
 }
 
-const initializeContracts = (contractAddresses: ContractAddresses, library: Web3Provider): Contracts => {
-  const {
-    pop,
-    threeCrv,
-    grantElections,
-    rewardsManager,
-    beneficiaryRegistry,
-    uniswapRouter,
-    beneficiaryGovernance,
-    govStaking,
-  } = contractAddresses;
+const initializeContracts = (contractAddresses: any[], library: Web3Provider): Contracts => {
+  const _contracts = contractAddresses.reduce(
+    (contracts, contract) => ({ ...contracts, [contract.__alias]: contractAddresses[contract] }),
+    {},
+  );
+
+  const { pop, grantElections, beneficiaryRegistry, beneficiaryGovernance, govStaking } = _contracts;
+
   const contracts: Contracts = {
     staking: govStaking ? GovStaking__factory.connect(govStaking, library) : undefined,
     pop: pop ? ERC20__factory.connect(pop, library) : undefined,
@@ -83,9 +67,6 @@ const initializeContracts = (contractAddresses: ContractAddresses, library: Web3
       ? BeneficiaryRegistry__factory.connect(beneficiaryRegistry, library)
       : undefined,
     grantElections: grantElections ? GrantElections__factory.connect(grantElections, library) : undefined,
-    threeCrv: threeCrv ? ERC20__factory.connect(threeCrv, library) : undefined,
-    rewardsManager: rewardsManager ? RewardsManager__factory.connect(rewardsManager, library) : undefined,
-    uniswapRouter: uniswapRouter ? IUniswapV2Router02__factory.connect(uniswapRouter, library) : undefined,
     beneficiaryGovernance: beneficiaryGovernance
       ? BeneficiaryGovernance__factory.connect(beneficiaryGovernance, library)
       : undefined,
@@ -97,8 +78,8 @@ const initializeContracts = (contractAddresses: ContractAddresses, library: Web3
 export default function ContractsWrapper({ children }: ContractsWrapperProps): JSX.Element {
   const context = useWeb3React<Web3Provider>();
   const { connector, library, chainId, account, activate, deactivate, active, error } = context;
-  const [contracts, setContracts] = useState<Contracts>();
   const { dispatch } = useContext(store);
+  const [contracts, setContracts] = useState<Contracts>();
 
   const ref = useRef(chainId);
   ref.current = chainId;
@@ -126,14 +107,27 @@ export default function ContractsWrapper({ children }: ContractsWrapperProps): J
     }
   }, [error]);
 
+  const contractAddresses = useNamedAccounts(chainId?.toString() || ("1337" as any), [
+    "pop",
+    "grantElections",
+    "rewardsManager",
+    "beneficiaryRegistry",
+    "beneficiaryGovernance",
+    "govStaking",
+  ]);
+
   useEffect(() => {
-    if (!library || !chainId || chainId === undefined) {
-      setContracts({});
-    } else {
-      const contractAddresses = getChainRelevantContracts(chainId);
+    console.log({ contractAddresses });
+    if (
+      !!library &&
+      !!chainId &&
+      contractAddresses.length &&
+      typeof error === undefined &&
+      Object.entries(contracts).length
+    ) {
       setContracts(initializeContracts(contractAddresses, library));
     }
-  }, [library, active, chainId]);
+  }, [library, active, chainId, contractAddresses, error]);
 
   return (
     <ContractsContext.Provider

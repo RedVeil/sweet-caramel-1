@@ -1,4 +1,3 @@
-import "@float-capital/solidity-coverage";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@popcorn/utils/src/envLoader";
@@ -8,12 +7,31 @@ import "@anthonymartin/hardhat-deploy";
 import "hardhat-gas-reporter";
 import "hardhat-secure-signer";
 import "./lib/tasks";
+import "solidity-coverage";
 
 module.exports = {
   solidity: {
     compilers: [
       {
+        version: "0.8.17",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+        },
+      },
+      {
         version: "0.8.13",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+        },
+      },
+      {
+        version: "0.8.10",
         settings: {
           optimizer: {
             enabled: true,
@@ -89,13 +107,18 @@ module.exports = {
       chainId: 1337,
       forking: Boolean(parseInt(process.env.FORKING || "0"))
         ? {
-          url: process.env.RPC_URL,
-        }
+            url: process.env.RPC_URL,
+          }
         : undefined,
     },
     localhost: {
       chainId: 1337,
       url: "http://localhost:8545",
+    },
+    remote_fork: {
+      chainId: 31338,
+      url: process.env.RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      gasPrice: 10000000000,
     },
     rinkeby: {
       timeout: 60000,

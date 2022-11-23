@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { store } from "../../context/store";
-import WalletSelectModal from "./WalletSelectModal";
+import { store } from "@popcorn/app/context/store";
+import WalletSelectModal from "@popcorn/app/components/Modal/WalletSelectModal";
 
 export const WalletSelectModalContainer: React.FC = () => {
   const {

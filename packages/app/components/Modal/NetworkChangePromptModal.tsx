@@ -1,17 +1,17 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface NetworkChangePromptModalProps {
   title: string;
-  children?: React.ReactElement;
+  children?: JSX.Element;
   content?: string;
   visible: boolean;
   type?: "info" | "error" | "alert";
-  image?: React.ReactElement;
+  image?: JSX.Element;
   onChangeUrl?: { label: string; onClick: Function };
   onChangeNetwork?: { label: string; onClick: Function };
   onDisconnect?: { label: string; onClick: Function };

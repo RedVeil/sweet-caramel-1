@@ -1,9 +1,8 @@
-// @ts-nocheck
 // TODO Fix this whole file
-import { BeneficiaryApplication, BeneficiaryRegistryAdapter, ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication, ElectionMetadata } from "helper/types";
+import { BeneficiaryRegistryAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { ContractsContext } from "context/Web3/contracts";
-import { BigNumber, utils } from "ethers";
 import { PendingVotes, Vote, Votes } from "pages/grant-elections/[type]";
 import { useContext, useEffect, useRef, useState } from "react";
 import BeneficiaryCardWithElectionData from "./BeneficiaryCardWithElectionData";
@@ -20,7 +19,7 @@ interface GrantRoundProps {
 const convertBlockchainVotesToVoiceCredits = (election: ElectionMetadata): Votes => {
   return election.votes.reduce(
     (votes, vote) => {
-      votes[vote.beneficiary] = Number(utils.formatEther(BigNumber.from(vote.weight).pow(2))).toFixed(0);
+      //votes[vote.beneficiary] = Number(utils.formatEther(BigNumber.from(vote.weight).pow(2))).toFixed(0);
       return votes;
     },
     { total: 0 },

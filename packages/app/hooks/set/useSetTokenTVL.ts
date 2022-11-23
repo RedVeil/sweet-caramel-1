@@ -24,31 +24,32 @@ export async function getSetTokenValue(
   return batchContract.valueOfComponents(...requiredComponentsForIssue);
 }
 
-async function getSetTokenTVL(key, setTokenAddress: string, batchAddress: string, rpcProvider): Promise<BigNumber> {
+export async function getSetTokenTVL(key, setTokenAddress: string, batchAddress: string, chainId): Promise<BigNumber> {
+  if (!setTokenAddress || !batchAddress) return constants.Zero;
   const batchContract = new ethers.Contract(
     batchAddress,
     [
       "function valueOfComponents(address[] memory _tokenAddresses, uint256[] memory _quantities) public view returns (uint256)",
     ],
-    rpcProvider,
+    PRC_PROVIDERS[chainId],
   );
   const setToken = new ethers.Contract(
     setTokenAddress,
     ["function totalSupply() external view returns (uint256)"],
-    rpcProvider,
+    PRC_PROVIDERS[chainId],
   );
   const totalSupply = await setToken.totalSupply();
-  const setValue = await getSetTokenValue(setTokenAddress, batchContract, rpcProvider);
+  const setValue = await getSetTokenValue(setTokenAddress, batchContract, PRC_PROVIDERS[chainId]);
   return totalSupply.mul(setValue).div(constants.WeiPerEther);
 }
 
-export default function useSetTokenTVL(setTokenAddress: string, batchAddress: string): SWRResponse<BigNumber, Error> {
-  return useSWR(
-    [`getSetTokenTVL-${setTokenAddress}`, setTokenAddress, batchAddress, PRC_PROVIDERS[ChainId.Ethereum]],
-    getSetTokenTVL,
-    {
-      refreshInterval: 3 * 1000,
-      dedupingInterval: 3 * 1000,
-    },
-  );
+export default function useSetTokenTVL(
+  setTokenAddress: string,
+  batchAddress: string,
+  chainId: ChainId,
+): SWRResponse<BigNumber, Error> {
+  return useSWR([`getSetTokenTVL-${setTokenAddress}`, setTokenAddress, batchAddress, chainId], getSetTokenTVL, {
+    refreshInterval: 3 * 1000,
+    dedupingInterval: 3 * 1000,
+  });
 }

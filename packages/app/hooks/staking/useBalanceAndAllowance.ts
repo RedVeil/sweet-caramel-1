@@ -1,25 +1,26 @@
 import { isBigNumberish } from "@ethersproject/bignumber/lib/bignumber";
-import { Token } from "@popcorn/utils/src/types";
+import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
-import useTokenAllowance from "hooks/tokens/useTokenAllowance";
-import useTokenBalance from "hooks/tokens/useTokenBalance";
+import useTokenAllowance from "@popcorn/app/hooks/tokens/useTokenAllowance";
+import useTokenBalance from "@popcorn/app/hooks/tokens/useTokenBalance";
 import { useMemo } from "react";
 
 export default function useBalanceAndAllowance(
-  token: Token | undefined,
+  tokenAddress: string,
   account: string,
   spender: string,
+  chainId: ChainId,
 ): { balance: BigNumber; allowance: BigNumber; revalidate: Function } {
   const {
     data: balance,
     mutate: revalidateBalance,
     isValidating: balanceIsRevalidating,
-  } = useTokenBalance(token?.contract, account);
+  } = useTokenBalance(tokenAddress, account, chainId);
   const {
     data: allowance,
     mutate: revalidateAllowance,
     isValidating: allowanceIsRevalidating,
-  } = useTokenAllowance(token?.contract, account, spender);
+  } = useTokenAllowance(tokenAddress, chainId, account, spender);
 
   const revalidate = () => {
     revalidateAllowance();

@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "../../utils/ContractRegistryAccess.sol";
 import "../../utils/ACLAuth.sol";
 import "../../utils/KeeperIncentivizedV1.sol";
-import "../../../externals/interfaces/YearnVault.sol";
+import "../../../externals/interfaces/yearn/IVault.sol";
 import "../../../externals/interfaces/IBasicIssuanceModule.sol";
 import "../../../externals/interfaces/ISetToken.sol";
 import "../../../externals/interfaces/Curve3Pool.sol";
@@ -37,7 +37,7 @@ interface IOracle {
  * We batch this process and allow users to pool their funds. Then we pay a keeper to mint or redeem 3X regularly.
  */
 contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchController, ContractRegistryAccess {
-  using SafeERC20 for YearnVault;
+  using SafeERC20 for IVault;
   using SafeERC20 for ISetToken;
   using SafeERC20 for IERC20;
   using SafeERC20 for CurveMetapool;
@@ -139,7 +139,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
         : (componentDependencies[_tokenAddresses[i]].curveMetaPool.get_virtual_price() *
           (2e18 - componentDependencies[_tokenAddresses[i]].oracle.read())) / 1e18;
 
-      value += (((lpTokenPriceInUSD * YearnVault(_tokenAddresses[i]).pricePerShare()) / 1e18) * _quantities[i]) / 1e18;
+      value += (((lpTokenPriceInUSD * IVault(_tokenAddresses[i]).pricePerShare()) / 1e18) * _quantities[i]) / 1e18;
     }
     return value;
   }
@@ -156,13 +156,13 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
       : (componentDependencies[_component].curveMetaPool.get_virtual_price() *
         (2e18 - componentDependencies[_component].oracle.read())) / 1e18;
     // Calculate the virtualPrice of one yToken
-    uint256 componentValuePerShare = (YearnVault(_component).pricePerShare() * lpTokenPriceInUSD) / 1e18;
+    uint256 componentValuePerShare = (IVault(_component).pricePerShare() * lpTokenPriceInUSD) / 1e18;
 
     //Calculate the value of quantity (of yToken) in virtualPrice
     uint256 componentValuePerSet = (_quantity * componentValuePerShare) / 1e18;
 
     //Calculate the value of leftover yToken in virtualPrice
-    uint256 componentValueHeldByContract = (YearnVault(_component).balanceOf(address(this)) * componentValuePerShare) /
+    uint256 componentValueHeldByContract = (IVault(_component).balanceOf(address(this)) * componentValuePerShare) /
       1e18;
 
     ratio = (componentValuePerSet * 1e18) / _setValue;
@@ -245,23 +245,23 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
       //Deposit crvLPToken to get yToken
       _sendToYearn(
         componentDependencies[tokenAddresses[i]].lpToken.balanceOf(address(this)),
-        YearnVault(tokenAddresses[i])
+        IVault(tokenAddresses[i])
       );
 
       //Approve yToken for minting
-      YearnVault(tokenAddresses[i]).safeIncreaseAllowance(
+      IVault(tokenAddresses[i]).safeIncreaseAllowance(
         address(basicIssuanceModule),
-        YearnVault(tokenAddresses[i]).balanceOf(address(this))
+        IVault(tokenAddresses[i]).balanceOf(address(this))
       );
     }
 
     //Get the minimum amount of 3X that we can mint with our balances of yToken
-    uint256 setTokenAmount = (YearnVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
+    uint256 setTokenAmount = (IVault(tokenAddresses[0]).balanceOf(address(this)) * 1e18) / quantities[0];
 
     for (uint256 i = 1; i < tokenAddresses.length; i++) {
       setTokenAmount = Math.min(
         setTokenAmount,
-        (YearnVault(tokenAddresses[i]).balanceOf(address(this)) * 1e18) / quantities[i]
+        (IVault(tokenAddresses[i]).balanceOf(address(this)) * 1e18) / quantities[i]
       );
     }
 
@@ -334,7 +334,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
 
     for (uint256 i; i < tokenAddresses.length; i++) {
       //Deposit yToken to receive crvLPToken
-      _withdrawFromYearn(YearnVault(tokenAddresses[i]).balanceOf(address(this)), YearnVault(tokenAddresses[i]));
+      _withdrawFromYearn(IVault(tokenAddresses[i]).balanceOf(address(this)), IVault(tokenAddresses[i]));
 
       //Deposit crvLPToken to receive USDC
       _withdrawFromCurve(
@@ -485,7 +485,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
    * @param _amount The amount of crvLPToken that get deposited
    * @param _yearnVault The yearn Vault in which we deposit
    */
-  function _sendToYearn(uint256 _amount, YearnVault _yearnVault) internal {
+  function _sendToYearn(uint256 _amount, IVault _yearnVault) internal {
     // Mints yToken and sends them to msg.sender (this contract)
     _yearnVault.deposit(_amount);
   }
@@ -495,7 +495,7 @@ contract ThreeXBatchProcessing is ACLAuth, KeeperIncentivizedV1, AbstractBatchCo
    * @param _amount The amount of crvLPToken which we deposit
    * @param _yearnVault The yearn Vault in which we deposit
    */
-  function _withdrawFromYearn(uint256 _amount, YearnVault _yearnVault) internal {
+  function _withdrawFromYearn(uint256 _amount, IVault _yearnVault) internal {
     // Takes yToken and sends crvLPToken to this contract
     _yearnVault.withdraw(_amount);
   }

@@ -3,11 +3,11 @@ import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 export interface WalletSelectModalProps {
-  children?: React.ReactElement;
+  children?: JSX.Element;
   content?: string;
   visible: boolean;
   type?: "info" | "error" | "alert";
-  image?: React.ReactElement;
+  image?: JSX.Element;
   onConfirm?: { label: string; onClick: Function };
   onDismiss?: { label: string; onClick: Function };
   keepOpen?: boolean;

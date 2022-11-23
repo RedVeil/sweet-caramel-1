@@ -1,20 +1,23 @@
 import { isAddress } from "@ethersproject/address";
-import { ERC20 } from "@popcorn/hardhat/typechain";
+import { ChainId } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
 import useSWR, { SWRResponse } from "swr";
+import useERC20 from "@popcorn/app/hooks/tokens/useERC20";
 
 export default function useTokenAllowance(
-  token: ERC20 | undefined,
+  address: string | undefined,
+  chainId: ChainId,
   owner?: string | null,
   spender?: string,
 ): SWRResponse<BigNumber, Error> {
+  const token = useERC20(address, chainId);
   return useSWR(
-    [`erc20/allowance`, token, owner, spender],
-    async (key: string, tokenContract: ERC20, owner: string | null, spender: string) => {
-      if (!isAddress(token.address) || !isAddress(spender) || !isAddress(owner)) {
+    [`${token?.address}/allowance/${owner}/${spender}`, owner, spender],
+    async (key: string, owner: string | null, spender: string) => {
+      if (!isAddress(spender) || !isAddress(owner) || !token) {
         return constants.Zero;
       }
-      return await tokenContract.allowance(owner, spender);
+      return await token?.contract.allowance(owner, spender);
     },
     {
       refreshInterval: 3 * 1000,

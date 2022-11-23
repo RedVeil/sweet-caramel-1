@@ -1,13 +1,13 @@
+import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import NewsletterSubscription from "./Common/NewsletterSubscription";
-import DiscordIcon from "./SVGIcons/DiscordIcon";
-import MediumIcon from "./SVGIcons/MediumIcon";
-import RedditIcon from "./SVGIcons/RedditIcon";
-import TelegramIcon from "./SVGIcons/TelegramIcon";
-import TwitterIcon from "./SVGIcons/TwitterIcon";
-import YoutubeIcon from "./SVGIcons/YoutubeIcon";
+import NewsletterSubscription from "@popcorn/app/components/Common/NewsletterSubscription";
+import DiscordIcon from "@popcorn/app/components/SVGIcons/DiscordIcon";
+import MediumIcon from "@popcorn/app/components/SVGIcons/MediumIcon";
+import RedditIcon from "@popcorn/app/components/SVGIcons/RedditIcon";
+import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
+import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
+import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
 
 const Footer = () => {
   const [telegramColor, setTelegramColor] = useState("#645F4B");
@@ -18,7 +18,7 @@ const Footer = () => {
   const [youtubeColor, setYoutubeColor] = useState("#645F4B");
 
   const [iconSize, setIconSize] = useState("24");
-  const router = useRouter();
+  const networkName = useNetworkName();
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) {
@@ -51,7 +51,7 @@ const Footer = () => {
         <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
           Popcorn is a multi-chain regenerative yield optimizing protocol.
         </p>
-        <div className="flex justify-between md:justify-start md:gap-7 order-1 md:order-2">
+        <div className="flex justify-between md:justify-start md:space-x-7 order-1 md:order-2">
           <a
             href="https://twitter.com/Popcorn_DAO"
             onMouseEnter={() => onHoverIcon(setTwitterColor)}
@@ -102,18 +102,18 @@ const Footer = () => {
           <p className="text-gray-900 font-medium leading-6 tracking-1">Products</p>
           <div className="flex flex-col">
             {process.env.SHOW_SWEETVAULTS && (
-              <Link href="/">
-                <a className=" text-primary hover:text-black leading-6 mt-4">Sweet Vaults</a>
+              <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+                Sweet Vaults
               </Link>
             )}
-            <Link href={`/${router?.query?.network}/set/3x`}>
-              <a className=" text-primary hover:text-black leading-6 mt-4">3X</a>
+            <Link href={`/${networkName}/set/3x`} className=" text-primary hover:text-black leading-6 mt-4">
+              3X
             </Link>
-            <Link href={`/${router?.query?.network}/set/butter`}>
-              <a className=" text-primary hover:text-black leading-6 mt-4">Butter</a>
+            <Link href={`/${networkName}/set/butter`} className=" text-primary hover:text-black leading-6 mt-4">
+              Butter
             </Link>
-            <Link href="/staking">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Staking</a>
+            <Link href="/staking" className=" text-primary hover:text-black leading-6 mt-4">
+              Staking
             </Link>
           </div>
         </div>
@@ -121,16 +121,18 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
           <div className="flex flex-col">
-            <Link href="/">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Popcorn</a>
+            <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+              Popcorn
             </Link>
-            <Link href="/rewards">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Rewards</a>
+            <Link href="/rewards" className=" text-primary hover:text-black leading-6 mt-4">
+              Rewards
             </Link>
-            <Link href="https://popcorn-dao.gitbook.io/popcorndao-gitbook/about-popcorn/welcome-to-popcorn">
-              <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
-                Gitbook
-              </a>
+            <Link
+              href="https://popcorn-dao.gitbook.io/popcorndao-gitbook/about-popcorn/welcome-to-popcorn"
+              target="_blank"
+              className=" text-primary hover:text-black leading-6 mt-4"
+            >
+              Gitbook
             </Link>
           </div>
         </div>
@@ -138,10 +140,13 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
           <div className="flex flex-col">
-            <Link href="https://immunefi.com/bounty/popcornnetwork" passHref>
-              <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
-                Immunefi
-              </a>
+            <Link
+              href="https://immunefi.com/bounty/popcornnetwork"
+              passHref
+              target="_blank"
+              className=" text-primary hover:text-black leading-6 mt-4"
+            >
+              Immunefi
             </Link>
           </div>
         </div>

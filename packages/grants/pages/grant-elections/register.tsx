@@ -1,12 +1,12 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { ElectionTerm } from "@popcorn/hardhat";
+import { ElectionTerm } from "helper/types";
 import { useWeb3React } from "@web3-react/core";
 import Icon from "components/Icon";
 import SingleActionModal from "components/Modal/SingleActionModal";
 import Navbar from "components/NavBar/NavBar";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { connectors } from "../../context/Web3/connectors";
+import { connectors } from "../../context/Web3/connector";
 import { ContractsContext } from "../../context/Web3/contracts";
 import { ElectionsContext } from "../../context/Web3/elections";
 

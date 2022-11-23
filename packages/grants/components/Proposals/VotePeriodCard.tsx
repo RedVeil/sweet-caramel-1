@@ -5,13 +5,16 @@ interface VotingPeriodCardProps {
   stageDeadline: Date;
   startTime: Date;
 }
+
+const NUMBER__OF_CHALLENGE_PERIOD_DAYS = 2;
+
 const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startTime }) => {
   const [openVoteEndDate, setOpenVoteEndDate] = useState<string>("");
   const [challengePeriodEndDate, setChallengePeriodEndDate] = useState<string>("");
   const [timeLeftProgress, setTimeLeftProgress] = useState<number>(0);
   useEffect(() => {
     let challengePeriodEnd = new Date(stageDeadline);
-    challengePeriodEnd.setDate(challengePeriodEnd.getDate() + 2);
+    challengePeriodEnd.setDate(challengePeriodEnd.getDate() + NUMBER__OF_CHALLENGE_PERIOD_DAYS);
     setOpenVoteEndDate(DateTime.fromJSDate(stageDeadline).toLocaleString());
     setChallengePeriodEndDate(DateTime.fromJSDate(challengePeriodEnd).toLocaleString(DateTime.DATE_SHORT));
     const interval = setInterval(() => {
@@ -19,11 +22,11 @@ const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startT
         const startDateTime = startTime.getTime();
         const endTime = stageDeadline.getTime();
         const currentTime = new Date().getTime();
-        let distanceWhole = startDateTime - endTime;
-        let distanceLeft = startDateTime - currentTime;
-        let minutesLeft = Math.floor(distanceLeft / (1000 * 60));
-        let minutesTotal = Math.floor(distanceWhole / (1000 * 60));
-        let progress = (minutesLeft / minutesTotal) * 100;
+        const distanceWhole = startDateTime - endTime;
+        const distanceLeft = startDateTime - currentTime;
+        const minutesLeft = Math.floor(distanceLeft / (1000 * 60));
+        const minutesTotal = Math.floor(distanceWhole / (1000 * 60));
+        const progress = (minutesLeft / minutesTotal) * 100;
         if (progress >= 100 || currentTime >= endTime) {
           setTimeLeftProgress(100);
           clearInterval(interval);

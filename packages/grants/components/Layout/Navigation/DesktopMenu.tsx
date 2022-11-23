@@ -6,7 +6,7 @@ import { useWeb3React } from "@web3-react/core";
 import BeneficiaryOptions from "components/Beneficiaries/BeneficiaryOptions";
 import Button from "components/CommonComponents/Button";
 import ConnectWalletButtons from "components/CommonComponents/ConnectWalletButtons";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -31,11 +31,10 @@ const DesktopMenu = () => {
   return (
     <div className="flex justify-between items-center w-full h-full">
       <Link href="/" passHref>
-        <a>
-          <img src="/images/popLogo.svg" alt="Logo" className="w-10 h-10" />
-        </a>
+        <img src="/images/popLogo.svg" alt="Logo" className="w-10 h-10" />
       </Link>
       <div className="flex items-center space-x-4 md:space-x-10">
+        <NavbarLink label="Popcorn Grants" url="/" isActive={router.pathname === "/"} />
         <Menu>
           <Menu.Button className="cursor-pointer hidden lg:flex relative flex-shrink-0 items-center">
             <p className="text-primary hover:text-black font-normal text-lg">Vote Now</p>
@@ -46,7 +45,7 @@ const DesktopMenu = () => {
               position="absolute top-10 left-1/2 transform -translate-x-1/2 z-20"
               width="w-60"
               borderRadius="rounded-3xl"
-              borderRadiusFirstLast="first:rounded-t-4xl last:rounded-b-3xl"
+              borderRadiusFirstLast="first:rounded-t-3xl last:rounded-b-3xl"
               selectedItem={selectedFilter}
             />
           </Menu.Button>
@@ -57,12 +56,10 @@ const DesktopMenu = () => {
           isActive={router.pathname === "/beneficiaries"}
         />
         <Link href="/apply" passHref>
-          <a>
-            <Button variant="secondary" className="md:w-44 py-3 px-0">
-              <span className="hidden md:inline">Create Proposal</span>
-              <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
-            </Button>
-          </a>
+          <Button variant="secondary" className="md:w-44 py-3 px-0">
+            <span className="hidden md:inline">Create Proposal</span>
+            <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
+          </Button>
         </Link>
         <ConnectWalletButtons
           connected={account ? true : false}

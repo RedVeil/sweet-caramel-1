@@ -1,8 +1,8 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat";
+import { BeneficiaryApplication } from "helper/types";
+import { filterValues } from "components/Beneficiaries/BeneficiaryFilter";
 import CustomDropdown from "components/CommonComponents/CustomDropdown";
 import TextInput from "components/CommonComponents/TextInput";
 import { isAddress } from "ethers/lib/utils";
-import { filterValues } from "pages";
 import React, { useEffect, useState } from "react";
 import inputExists, { isValidEmail } from "utils/isValidInput";
 import CoverPhotoUpload from "./CoverPhotoUpload";
@@ -27,11 +27,12 @@ const filterList = [
   },
 ];
 
-const GeneralInformation = ({
-  form,
-}: {
+interface GeneralInformationProps {
   form: [formData: BeneficiaryApplication, setFormData: React.Dispatch<BeneficiaryApplication>];
-}) => {
+  isEdit?: boolean;
+}
+
+const GeneralInformation: React.FC<GeneralInformationProps> = ({ form, isEdit = false }) => {
   const [formData, setFormData] = form;
   const updateInput = (value: string, formKey: string): void => {
     setFormData({
@@ -84,7 +85,7 @@ const GeneralInformation = ({
   };
   return (
     <>
-      <h6 className="text-2xl md:text-3xl mb-12">General Information</h6>
+      <h6 className="text-2xl md:text-3xl mb-6 md:mb-12">General Information</h6>
 
       <div className="relative">
         <CoverPhotoUpload
@@ -116,6 +117,7 @@ const GeneralInformation = ({
             updateInput={updateInput}
             formKey={"organizationName"}
             inputDescription={"* The official company name of your non-profit organization"}
+            disabled={isEdit}
           />
         </div>
 
@@ -131,6 +133,7 @@ const GeneralInformation = ({
             isValid={isAddress}
             updateInput={updateInput}
             inputDescription={"* The associated ETH address to receive fundings"}
+            disabled={isEdit}
           />
         </div>
 

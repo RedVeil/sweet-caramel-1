@@ -1,4 +1,5 @@
-import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
+import { BeneficiaryRegistryAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import BeneficiaryFilter from "components/Beneficiaries/BeneficiaryFilter";
 import { BeneficiaryGrid } from "components/Beneficiaries/BeneficiaryGrid";
@@ -116,8 +117,20 @@ const IndexPage = () => {
           </div>
         </section>
 
+        <section className="relative mt-12 md:mt-24">
+          <div className="flex flex-col md:flex-row justify-between relative mb-5 md:mb-10">
+            <h1 className="text-black font-normal text-base md:text-[36px] md:leading-[100%] mb-4 md:mb-0">
+              Eligible Beneficiaries At A Glance
+            </h1>
+            {beneficiaries.length > 0 && (
+              <BeneficiaryFilter categoryFilter={categoryFilter} switchFilter={setCategoryFilter} />
+            )}
+          </div>
+          <BeneficiaryGrid isLoading={isLoading} data={filteredBeneficiaries} />
+        </section>
+
         <section className="hidden md:block mt-20">
-          <TutorialSlider isThreeX />
+          <TutorialSlider />
         </section>
 
         <section className="my-12 md:my-20">

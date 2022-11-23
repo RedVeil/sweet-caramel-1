@@ -1,25 +1,33 @@
-import { BeneficiaryImage } from "@popcorn/hardhat";
-import {
-  AdditionalImages,
-  ImpactReport,
-} from "@popcorn/hardhat/lib/adapters/BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
+import { Image as ImageUpload } from "helper/types";
+import { Image, ImpactReport } from "helper/types";
 import { IpfsClient, UploadResult } from "@popcorn/utils";
 import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 
-const uploadError = (errMsg: string) => toast.error(errMsg);
+const uploadError = (errMsg: string) =>
+  toast((t) => (
+    <div className="flex space-x-6">
+      <div className="self-start">
+        <img src="/images/XIcon.svg" width={20} height={20} />
+      </div>
+      <div>
+        <p className="font-medium mb-2">{errMsg}</p>
+        <button className="text-customPurple" onClick={() => toast.dismiss(t.id)}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  ));
 const isSuccessfulUpload = (res: UploadResult): boolean => res.status >= 200 && res.status < 300;
 const isFailedUpload = (res: UploadResult): boolean => res.status !== 200;
 
 interface IPFSUploadFuncProps {
-  localState: string | string[] | ImpactReport[] | BeneficiaryImage[] | AdditionalImages[];
+  localState: string | string[] | ImpactReport[] | ImageUpload[] | Image[];
   fileType: string;
   maxFileSizeMB?: number;
   numMaxFiles: number;
-  setLocalState: (
-    input: string | string[] | UploadResult[] | ImpactReport[] | BeneficiaryImage[] | AdditionalImages[],
-  ) => void;
+  setLocalState: (input: string | string[] | UploadResult[] | ImpactReport[] | ImageUpload[] | Image[]) => void;
   children: JSX.Element | JSX.Element[];
 }
 

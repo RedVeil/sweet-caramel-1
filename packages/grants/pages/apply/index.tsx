@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/outline";
 import { useWeb3React } from "@web3-react/core";
 import Button from "components/CommonComponents/Button";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import Link from "next/link";
 import React from "react";
 
@@ -128,12 +128,10 @@ const ApplyPage = () => {
             </div>
             <div className="flex justify-center">
               {account ? (
-                <Link href="/apply/form">
-                  <a className="w-full md:w-auto">
-                    <Button variant="secondary" className="py-3 px-5 mt-10 w-full">
-                      Start Your Application
-                    </Button>
-                  </a>
+                <Link href="/apply/form" className="w-full md:w-auto">
+                  <Button variant="secondary" className="py-3 px-5 mt-10 w-full">
+                    Start Your Application
+                  </Button>
                 </Link>
               ) : (
                 <Button

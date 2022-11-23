@@ -1,527 +1,882 @@
 {
-  "popStaking": {
-    "rinkeby": "0xbd085541Cf339a7B3a5112CeA9440542a02B29E5",
-    "polygon": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
-    "hardhat": "0x00CAC06Dd0BB4103f8b62D280fE9BCEE8f26fD59",
-    "mainnet": "0xeEE1d31297B042820349B03027aB3b13a9406184",
-    "bsc": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
-    "arbitrum": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c"
-  },
-  "ETH": {
-    "hardhat": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    "mainnet": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-  },
-  "popUsdcLpStaking": {
-    "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D",
-    "polygon": "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
-    "bsc": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
-    "arbitrum": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c"
-  },
-  "popUsdcUniV3Pool": {
-    "mainnet": "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
-    "hardhat": "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06"
-  },
-  "butterStaking": {
-    "mainnet": "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428",
-    "hardhat": "0xeC827421505972a2AE9C320302d3573B42363C26"
-  },
-  "threeXStaking": {
-    "mainnet": "0x584732f867a4533BC349d438Fba4fc2aEE5f5f83",
-    "hardhat": "0x4DAf17c8142A483B2E2348f56ae0F2cFDAe22ceE"
-  },
-  "butterWhaleProcessing": {
-    "mainnet": "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39",
-    "hardhat": "0x43b9Ef43D415e84aD9964567002d648b11747A8f"
-  },
-  "angleRouter": {
-    "mainnet": "0xBB755240596530be0c1DE5DFD77ec6398471561d",
-    "hardhat": "0xBB755240596530be0c1DE5DFD77ec6398471561d"
+  "aclRegistry": {
+    "addresses": {
+      "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
+      "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56"
+    },
+    "metadata": null
   },
   "agEur": {
-    "mainnet": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
-    "hardhat": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
-  },
-  "eurOracle": {
-    "mainnet": "0xc9Cb5703C109D4Fe46d2F29b0454c434e42A6947",
-    "hardhat": "0xc9Cb5703C109D4Fe46d2F29b0454c434e42A6947"
-  },
-  "ySusd": {
-    "mainnet": "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A",
-    "hardhat": "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A"
-  },
-  "crvSusd": {
-    "mainnet": "0xC25a3A3b969415c80451098fa907EC722572917F",
-    "hardhat": "0xC25a3A3b969415c80451098fa907EC722572917F"
-  },
-  "crvSusdUtilityPool": {
-    "mainnet": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
-    "hardhat": "0xFCBa3E75865d2d561BE8D220616520c171F12851"
-  },
-  "crvSusdMetapool": {
-    "mainnet": "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD",
-    "hardhat": "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"
-  },
-  "y3Eur": {
-    "mainnet": "0x5AB64C599FcC59f0f2726A300b03166A395578Da",
-    "hardhat": "0x5AB64C599FcC59f0f2726A300b03166A395578Da"
-  },
-  "crv3Eur": {
-    "mainnet": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571",
-    "hardhat": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571"
-  },
-  "crv3EurMetapool": {
-    "mainnet": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571",
-    "hardhat": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571"
-  },
-  "crvEursMetapool": {
-    "mainnet": "0x98a7F18d4E56Cfe84E3D081B40001B3d5bD3eB8B",
-    "hardhat": "0x98a7F18d4E56Cfe84E3D081B40001B3d5bD3eB8B"
-  },
-  "frax": {
-    "mainnet": "0x853d955aCEf822Db058eb8505911ED77F175b99e",
-    "hardhat": "0x853d955aCEf822Db058eb8505911ED77F175b99e"
-  },
-  "yFrax": {
-    "mainnet": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
-    "rinkeby": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
-    "hardhat": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139"
-  },
-  "yRai": {
-    "mainnet": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
-    "rinkeby": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
-    "hardhat": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE"
-  },
-  "yMusd": {
-    "mainnet": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
-    "rinkeby": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
-    "hardhat": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757"
-  },
-  "yAlusd": {
-    "mainnet": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
-    "rinkeby": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
-    "hardhat": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8"
-  },
-  "crv3Crypto": {
-    "mainnet": "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
-    "hardhat": "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff"
-  },
-  "crvAave": {
-    "mainnet": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
-    "hardhat": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900"
-  },
-  "crvComp": {
-    "mainnet": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
-    "hardhat": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
-  },
-  "crvSteth": {
-    "mainnet": "0x06325440D014e39736583c165C2963BA99fAf14E",
-    "hardhat": "0x06325440D014e39736583c165C2963BA99fAf14E"
-  },
-  "crvCvxCrv": {
-    "mainnet": "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
-    "hardhat": "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8"
-  },
-  "crvIbBtc": {
-    "mainnet": "0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
-    "hardhat": "0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B"
-  },
-  "crvFrax": {
-    "mainnet": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
-    "rinkeby": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
-    "hardhat": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B"
-  },
-  "crvRai": {
-    "mainnet": "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
-    "rinkeby": "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
-    "hardhat": "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90"
-  },
-  "crvMusd": {
-    "mainnet": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
-    "rinkeby": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
-    "hardhat": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6"
-  },
-  "crvAlusd": {
-    "mainnet": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
-    "rinkeby": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
-    "hardhat": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c"
-  },
-  "crvFraxMetapool": {
-    "mainnet": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
-    "rinkeby": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
-    "hardhat": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B"
-  },
-  "crvRaiMetapool": {
-    "mainnet": "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d",
-    "rinkeby": "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d",
-    "hardhat": "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d"
-  },
-  "crvMusdMetapool": {
-    "mainnet": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
-    "rinkeby": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
-    "hardhat": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6"
-  },
-  "crvAlusdMetapool": {
-    "mainnet": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
-    "rinkeby": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
-    "hardhat": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c"
-  },
-  "threePool": {
-    "mainnet": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-    "rinkeby": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-    "hardhat": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
-  },
-  "curveAddressProvider": {
-    "mainnet": "0x0000000022D53366457F9d5E68Ec105046FC4383",
-    "rinkeby": "0x0000000022D53366457F9d5E68Ec105046FC4383",
-    "hardhat": "0x0000000022D53366457F9d5E68Ec105046FC4383"
-  },
-  "curveFactoryMetapoolDepositZap": {
-    "mainnet": "0xA79828DF1850E8a3A3064576f380D90aECDD3359",
-    "rinkeby": "0xA79828DF1850E8a3A3064576f380D90aECDD3359",
-    "hardhat": "0xA79828DF1850E8a3A3064576f380D90aECDD3359"
-  },
-  "uniswapRouter": {
-    "mainnet": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-    "rinkeby": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-    "hardhat": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-  },
-  "setBasicIssuanceModule": {
-    "mainnet": "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
-    "rinkeby": "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
-    "hardhat": "0xd8EF3cACe8b4907117a45B0b125c68560532F94D"
-  },
-  "setTokenCreator": {
-    "mainnet": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
-    "rinkeby": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
-    "hardhat": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a"
-  },
-  "pop": {
-    "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
-    "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
-    "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
-    "hardhat": "0x10e38eE9dd4C549b61400Fc19347D00eD3edAfC4",
-    "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
-    "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a"
-  },
-  "xPop": {
-    "polygon": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
-    "arbitrum": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
-    "bsc": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
-    "hardhat": "0x67baFF31318638F497f4c4894Cd73918563942c8"
-  },
-  "xPopRedemption": {
-    "bsc": "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
-    "polygon": "0x48168536Fc8834A9543C5A4383721148113fF75A",
-    "arbitrum": "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
-    "hardhat": "0x6533158b042775e2FdFeF3cA1a782EFDbB8EB9b1"
-  },
-  "dai": {
-    "mainnet": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    "rinkeby": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    "hardhat": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
-  },
-  "crvSEth": {
-    "mainnet": "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c",
-    "hardhat": "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c"
-  },
-  "sEthSweetVault": {
-    "hardhat": "0x408F924BAEC71cC3968614Cb2c58E155A35e6890"
-  },
-  "sEthSweetVaultStaking": {
-    "hardhat": "0x773330693cb7d5D233348E25809770A32483A940"
-  },
-  "usdc": {
-    "mainnet": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94",
-    "bsc": "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
-    "polygon": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    "hardhat": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "localhost": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "arbitrum": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
-  },
-  "usdt": {
-    "mainnet": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    "hardhat": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
-  },
-  "threeCrv": {
-    "mainnet": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-    "rinkeby": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-    "hardhat": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"
-  },
-  "butter": {
-    "mainnet": "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
-    "rinkeby": "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
-    "hardhat": "0x109d2034e97eC88f50BEeBC778b5A5650F98c124"
-  },
-  "threeX": {
-    "mainnet": "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3",
-    "hardhat": "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3"
-  },
-  "threeXBatch": {
-    "mainnet": "0x42189f909e1EFA409A4509070dDBc31A592422A8",
-    "hardhat": "0x124dDf9BdD2DdaD012ef1D5bBd77c00F05C610DA",
-    "localhost": "0x42189f909e1EFA409A4509070dDBc31A592422A8"
-  },
-  "threeXWhale": {
-    "mainnet": "0x0000000000000000000000000000000000000000",
-    "hardhat": "0x92b0d1Cc77b84973B7041CB9275d41F09840eaDd",
-    "localhost": "0xB9d9e972100a1dD01cd441774b45b5821e136043"
-  },
-  "threeXBatchVault": {
-    "mainnet": "0x0B4E13D8019D0F762377570000D9C923f0dad82B",
-    "hardhat": "0xaB837301d12cDc4b97f1E910FC56C9179894d9cf"
-  },
-  "threeXZapper": {
-    "mainnet": "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84",
-    "hardhat": "0x398E4948e373Db819606A459456176D31C3B1F91"
-  },
-  "yEUR": {
-    "mainnet": "0x67e019bfbd5a67207755D04467D6A70c0B75bF60",
-    "hardhat": "0x67e019bfbd5a67207755D04467D6A70c0B75bF60"
-  },
-  "yGBP": {
-    "mainnet": "0x595a68a8c9D5C230001848B69b1947ee2A607164",
-    "hardhat": "0x595a68a8c9D5C230001848B69b1947ee2A607164"
-  },
-  "yCHF": {
-    "mainnet": "0x490bD0886F221A5F79713D3E84404355A9293C50",
-    "hardhat": "0x490bD0886F221A5F79713D3E84404355A9293C50"
-  },
-  "yJPY": {
-    "mainnet": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e",
-    "hardhat": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e"
-  },
-  "ibEUR": {
-    "mainnet": "0x96e61422b6a9ba0e068b6c5add4ffabc6a4aae27",
-    "hardhat": "0x96e61422b6a9ba0e068b6c5add4ffabc6a4aae27"
-  },
-  "ibGBP": {
-    "mainnet": "0x69681f8fde45345c3870bcd5eaf4a05a60e7d227",
-    "hardhat": "0x69681f8fde45345c3870bcd5eaf4a05a60e7d227"
-  },
-  "ibCHF": {
-    "mainnet": "0x1CC481cE2BD2EC7Bf67d1Be64d4878b16078F309",
-    "hardhat": "0x1CC481cE2BD2EC7Bf67d1Be64d4878b16078F309"
-  },
-  "ibJPY": {
-    "mainnet": "0x5555f75e3d5278082200fb451d1b6ba946d8e13b",
-    "hardhat": "0x5555f75e3d5278082200fb451d1b6ba946d8e13b"
-  },
-  "sEUR": {
-    "mainnet": "0xd71ecff9342a5ced620049e616c5035f1db98620",
-    "hardhat": "0xd71ecff9342a5ced620049e616c5035f1db98620"
-  },
-  "sGBP": {
-    "mainnet": "0x97fe22e7341a0cd8db6f6c021a24dc8f4dad855f",
-    "hardhat": "0x97fe22e7341a0cd8db6f6c021a24dc8f4dad855f"
-  },
-  "sCHF": {
-    "mainnet": "0x0F83287FF768D1c1e17a42F44d644D7F22e8ee1d",
-    "hardhat": "0x0F83287FF768D1c1e17a42F44d644D7F22e8ee1d"
-  },
-  "sJPY": {
-    "mainnet": "0xf6b1c627e95bfc3c1b4c9b825a032ff0fbf3e07d",
-    "hardhat": "0xf6b1c627e95bfc3c1b4c9b825a032ff0fbf3e07d"
-  },
-  "sUSD": {
-    "mainnet": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
-    "hardhat": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51"
-  },
-  "sEth": {
-    "mainnet": "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb",
-    "hardhat": "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb"
-  },
-  "crvEUR": {
-    "mainnet": "0x19b080FE1ffA0553469D20Ca36219F17Fcf03859",
-    "hardhat": "0x19b080FE1ffA0553469D20Ca36219F17Fcf03859"
-  },
-  "crvGBP": {
-    "mainnet": "0xD6Ac1CB9019137a896343Da59dDE6d097F710538",
-    "hardhat": "0xD6Ac1CB9019137a896343Da59dDE6d097F710538"
-  },
-  "crvCHF": {
-    "mainnet": "0x9c2C8910F113181783c249d8F6Aa41b51Cde0f0c",
-    "hardhat": "0x9c2C8910F113181783c249d8F6Aa41b51Cde0f0c"
-  },
-  "crvJPY": {
-    "mainnet": "0x8818a9bb44fbf33502be7c15c500d0c783b73067",
-    "hardhat": "0x8818a9bb44fbf33502be7c15c500d0c783b73067"
-  },
-  "setStreamingFeeModule": {
-    "mainnet": "0x08f866c74205617B6F3903EF481798EcED10cDEC",
-    "hardhat": "0x08f866c74205617B6F3903EF481798EcED10cDEC"
-  },
-  "voting": {
-    "mainnet": "0xbb6ed6fdc4ddb0541b445e8560d9374e20d1fc1f",
-    "rinkeby": "",
-    "binance": "",
-    "arbitrum": "",
-    "mumbai": "",
-    "hardhat": "0xbb6ed6fdc4ddb0541b445e8560d9374e20d1fc1f"
-  },
-  "popUsdcArrakisVault": {
-    "polygon": "0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4",
-    "mainnet": "0xbba11b41407df8793a89b44ee4b50afad4508555",
-    "hardhat": "0xbba11b41407df8793a89b44ee4b50afad4508555"
-  },
-  "popUsdcArrakisVaultStaking": {
-    "polygon": "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc",
-    "mainnet": "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
-    "hardhat": "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45"
-  },
-  "dao": {
-    "mainnet": "0xbD94fc22E6910d118187c8300667c66eD560A29B",
-    "rinkeby": "0x7D9B21704B5311bB480f0109dFD5D84ed1207e11",
-    "hardhat": "0xbD94fc22E6910d118187c8300667c66eD560A29B"
-  },
-  "daoAgent": {
-    "mainnet": "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
-    "rinkeby": "0x6d8bd5d37461788182131bae19d03ff2b3c0687c",
-    "polygon": "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
-    "hardhat": "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
-    "arbitrum": "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
-    "mumbai": "0x196CF485b98fB95e27b13f40A43b59FA2570a16E"
-  },
-  "daoAgentV2": {
-    "mainnet": "0x6B1741143D3F2C4f1EdA12e19e9518489DF03e04",
-    "hardhat": "0x6B1741143D3F2C4f1EdA12e19e9518489DF03e04"
-  },
-  "daoTreasury": {
-    "mainnet": "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
-    "rinkeby": "0x6d8bd5d37461788182131bae19d03ff2b3c0687c",
-    "polygon": "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
-    "hardhat": "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
-    "arbitrum": "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
-    "mumbai": "0x196CF485b98fB95e27b13f40A43b59FA2570a16E"
-  },
-  "tokenManager": {
-    "mainnet": "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
-    "rinkeby": "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708",
-    "hardhat": "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f"
-  },
-  "balancerVault": {
-    "mainnet": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-    "rinkeby": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-    "binance": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-    "polygon": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-    "hardhat": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-    "arbitrum": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-    "mumbai": "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+    "addresses": {
+      "mainnet": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
+    },
+    "metadata": null
+  },
+  "xen": {
+    "addresses": {
+      "mainnet": "0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8",
+      "polygon": "0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e"
+    },
+    "metadata": {
+      "icons": ["/images/tokens/xen.png", "/images/icons/POP.svg"],
+      "buyLinkEthereum": "https://app.uniswap.org/#/swap?outputCurrency=0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8&chain=ethereum",
+      "buyLinkPolygon": "https://app.uniswap.org/#/swap?outputCurrency=0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e&chain=polygon"
+    }
+  },
+  "xenStaking": {
+    "addresses": {
+      "mainnet": "0xeB906A75838A8078B181815969b1DCBC20eaF7c0"
+    },
+    "metadata": {
+      "priceResolver": "staking"
+    }
+  },
+  "angleRouter": {
+    "addresses": {
+      "mainnet": "0xBB755240596530be0c1DE5DFD77ec6398471561d"
+    },
+    "metadata": null
   },
   "balancerLBPFactory": {
-    "mainnet": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
-    "rinkeby": "0xdcdbf71A870cc60C6F9B621E28a7D3Ffd6Dd4965",
-    "binance": "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
-    "hardhat": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
-    "arbitrum": "0x142B9666a0a3A30477b052962ddA81547E7029ab",
-    "mumbai": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE"
+    "addresses": {
+      "arbitrum": "0x142B9666a0a3A30477b052962ddA81547E7029ab",
+      "bsc": "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
+      "mainnet": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      "mumbai": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      "rinkeby": "0xdcdbf71A870cc60C6F9B621E28a7D3Ffd6Dd4965"
+    },
+    "metadata": null
   },
-  "merkleOrchard": {
-    "mainnet": "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
-    "rinkeby": "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e",
-    "binance": "0xc33e0fE411322009947931c32d2273ee645cDb5B",
-    "hardhat": "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
-    "arbitrum": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE"
-  },
-  "popUsdcLp": {
-    "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
-    "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440"
-  },
-  "aclRegistry": {
-    "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
-    "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-    "hardhat": "0x4eaB29997D332A666c3C366217Ab177cF9A7C436",
-    "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56"
-  },
-  "keeperIncentive": {
-    "polygon": "0xd928a457247649835e652416847C54C038FAF920",
-    "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
-    "hardhat": "0xC32609C91d6B6b51D48f2611308FEf121B02041f",
-    "localhost": "0x359570B3a0437805D0a71457D61AD26a28cAC9A2"
-  },
-  "contractRegistry": {
-    "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
-    "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
-    "hardhat": "0xBEe6FFc1E8627F51CcDF0b4399a1e1abc5165f15",
-    "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA"
-  },
-  "butterBatch": {
-    "mainnet": "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
-    "hardhat": "0x90c84237fDdf091b1E63f369AF122EB46000bc70",
-    "localhost": "0x0Dd99d9f56A14E9D53b2DdC62D9f0bAbe806647A",
-    "rinkeby": "0x06b90E97Cf4b64f338d1D2106329336897bb16F3"
-  },
-  "butterBatchZapper": {
-    "mainnet": "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
-    "hardhat": "0xBbc18b580256A82dC0F9A86152b8B22E7C1C8005",
-    "rinkeby": "0x465aAB0388e89f52eD12Ec5C14571ae75684E626"
-  },
-  "rewardsEscrow": {
-    "hardhat": "0xd710a67624Ad831683C86a48291c597adE30F787",
-    "rinkeby": "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa",
-    "polygon": "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
-    "mainnet": "0xb5cb5710044D1074097c17B7535a1cF99cBfb17F",
-    "arbitrum": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-    "bsc": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C"
-  },
-  "rewardsDistribution": {
-    "hardhat": "0x06b3244b086cecC40F1e5A826f736Ded68068a0F",
-    "rinkeby": "",
-    "polygon": "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
-    "mainnet": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA"
-  },
-  "yearnRegistry": {
-    "mainnet": "0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804",
-    "hardhat": "0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804"
-  },
-  "crvAaveSweetPool": {},
-  "crvCvxCrvSweetPool": {},
-  "beneficiaryRegistry": {
-    "hardhat": "0x6D712CB50297b97b79dE784d10F487C00d7f8c2C"
+  "balancerVault": {
+    "addresses": {
+      "arbitrum": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "bsc": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "mainnet": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "mumbai": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "polygon": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "rinkeby": "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+    },
+    "metadata": null
   },
   "beneficiaryGovernance": {
-    "hardhat": "0x3949c97925e5Aa13e34ddb18EAbf0B70ABB0C7d4"
+    "addresses": {},
+    "metadata": {
+      "contractName": "BeneficiaryGovernance"
+    }
   },
-  "grantElections": {
-    "hardhat": "0x3de00f44ce68FC56DB0e0E33aD4015C6e78eCB39"
+  "beneficiaryRegistry": {
+    "addresses": {},
+    "metadata": {
+      "contractName": "BeneficiaryRegistry"
+    }
   },
-  "rewardsManager": {
-    "hardhat": "0xF45B1CdbA9AACE2e9bbE80bf376CE816bb7E73FB"
+  "butter": {
+    "addresses": {
+      "mainnet": "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
+      "rinkeby": "0x109d2034e97eC88f50BEeBC778b5A5650F98c124"
+    },
+    "metadata": {
+      "name": "Butter (V2)",
+      "icons": ["/images/icons/BTR.svg"],
+      "priceResolver": "setToken"
+    }
   },
-  "govStaking": {
-    "hardhat": "0xA3f7BF5b0fa93176c260BBa57ceE85525De2BaF4"
+  "butterBatch": {
+    "addresses": {
+      "mainnet": "0xCd979A9219DB9A353e29981042A509f2E7074D8B",
+      "rinkeby": "0x06b90E97Cf4b64f338d1D2106329336897bb16F3"
+    },
+    "metadata": {
+      "contractName": "ButterBatchProcessing"
+    }
   },
-  "zeroXZapper": {
-    "hardhat": "0x1f53E116c31F171e59f45f0752AEc5d1F5aA3714"
+  "butterBatchZapper": {
+    "addresses": {
+      "mainnet": "0x709bC6256413D55a81d6f2063CF057519aE8a95b",
+      "rinkeby": "0x465aAB0388e89f52eD12Ec5C14571ae75684E626"
+    },
+    "metadata": {
+      "contractName": "ButterBatchZapper"
+    }
+  },
+  "butterStaking": {
+    "addresses": {
+      "mainnet": "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428"
+    },
+    "metadata": {
+      "contractName": "ButterStaking",
+      "priceResolver": "staking",
+      "symbol": "pst-BTR"
+    }
+  },
+  "butterWhaleProcessing": {
+    "addresses": {
+      "mainnet": "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39"
+    },
+    "metadata": null
+  },
+  "contractRegistry": {
+    "addresses": {
+      "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
+      "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
+      "rinkeby": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3"
+    },
+    "metadata": null
+  },
+  "crv3Crypto": {
+    "addresses": {
+      "mainnet": "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff"
+    },
+    "metadata": null
+  },
+  "crv3Eur": {
+    "addresses": {
+      "mainnet": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571"
+    },
+    "metadata": null
+  },
+  "crv3EurMetapool": {
+    "addresses": {
+      "mainnet": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571"
+    },
+    "metadata": null
+  },
+  "crvAave": {
+    "addresses": {
+      "mainnet": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900"
+    },
+    "metadata": null
+  },
+  "crvAaveSweetPool": {
+    "addresses": {},
+    "metadata": null
+  },
+  "crvAlusd": {
+    "addresses": {
+      "mainnet": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      "rinkeby": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c"
+    },
+    "metadata": {
+      "name": "crvAlusd"
+    }
+  },
+  "crvAlusdMetapool": {
+    "addresses": {
+      "mainnet": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      "rinkeby": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c"
+    },
+    "metadata": null
+  },
+  "crvCHF": {
+    "addresses": {
+      "mainnet": "0x9c2C8910F113181783c249d8F6Aa41b51Cde0f0c"
+    },
+    "metadata": null
+  },
+  "crvComp": {
+    "addresses": {
+      "mainnet": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
+    },
+    "metadata": null
+  },
+  "crvCvxCrv": {
+    "addresses": {
+      "mainnet": "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8"
+    },
+    "metadata": null
+  },
+  "crvCvxCrvSweetPool": {
+    "addresses": {},
+    "metadata": null
+  },
+  "crvEUR": {
+    "addresses": {
+      "mainnet": "0x19b080FE1ffA0553469D20Ca36219F17Fcf03859"
+    },
+    "metadata": null
+  },
+  "crvEursMetapool": {
+    "addresses": {
+      "mainnet": "0x98a7F18d4E56Cfe84E3D081B40001B3d5bD3eB8B"
+    },
+    "metadata": null
+  },
+  "crvFrax": {
+    "addresses": {
+      "mainnet": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+      "rinkeby": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B"
+    },
+    "metadata": {
+      "name": "crvFrax"
+    }
+  },
+  "crvFraxMetapool": {
+    "addresses": {
+      "mainnet": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+      "rinkeby": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B"
+    },
+    "metadata": null
+  },
+  "crvGBP": {
+    "addresses": {
+      "mainnet": "0xD6Ac1CB9019137a896343Da59dDE6d097F710538"
+    },
+    "metadata": null
+  },
+  "crvIbBtc": {
+    "addresses": {
+      "mainnet": "0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B"
+    },
+    "metadata": null
+  },
+  "crvJPY": {
+    "addresses": {
+      "mainnet": "0x8818a9bb44fbf33502be7c15c500d0c783b73067"
+    },
+    "metadata": null
+  },
+  "crvMusd": {
+    "addresses": {
+      "mainnet": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+      "rinkeby": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6"
+    },
+    "metadata": {
+      "name": "crvMusd"
+    }
+  },
+  "crvMusdMetapool": {
+    "addresses": {
+      "mainnet": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",
+      "rinkeby": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6"
+    },
+    "metadata": null
+  },
+  "crvRai": {
+    "addresses": {
+      "mainnet": "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
+      "rinkeby": "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90"
+    },
+    "metadata": {
+      "name": "crvRai"
+    }
+  },
+  "crvRaiMetapool": {
+    "addresses": {
+      "mainnet": "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d",
+      "rinkeby": "0x618788357D0EBd8A37e763ADab3bc575D54c2C7d"
+    },
+    "metadata": null
+  },
+  "crvSEth": {
+    "addresses": {
+      "mainnet": "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c"
+    },
+    "metadata": {
+      "name": "crv-sETH/ETH LP",
+      "symbol": "crv-sETH/ETH",
+      "icons": ["/images/tokens/crvSeth.png"]
+    }
+  },
+  "crvSteth": {
+    "addresses": {
+      "mainnet": "0x06325440D014e39736583c165C2963BA99fAf14E"
+    },
+    "metadata": null
+  },
+  "crvSusd": {
+    "addresses": {
+      "mainnet": "0xC25a3A3b969415c80451098fa907EC722572917F"
+    },
+    "metadata": null
+  },
+  "crvSusdMetapool": {
+    "addresses": {
+      "mainnet": "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"
+    },
+    "metadata": null
+  },
+  "crvSusdUtilityPool": {
+    "addresses": {
+      "mainnet": "0xFCBa3E75865d2d561BE8D220616520c171F12851"
+    },
+    "metadata": null
+  },
+  "curveAddressProvider": {
+    "addresses": {
+      "mainnet": "0x0000000022D53366457F9d5E68Ec105046FC4383",
+      "rinkeby": "0x0000000022D53366457F9d5E68Ec105046FC4383"
+    },
+    "metadata": null
+  },
+  "curveFactoryMetapoolDepositZap": {
+    "addresses": {
+      "mainnet": "0xA79828DF1850E8a3A3064576f380D90aECDD3359",
+      "rinkeby": "0xA79828DF1850E8a3A3064576f380D90aECDD3359"
+    },
+    "metadata": null
+  },
+  "dai": {
+    "addresses": {
+      "mainnet": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "rinkeby": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    },
+    "metadata": {
+      "icons": ["/images/tokens/dai.webp"],
+      "name": "DAI",
+      "symbol": "DAI"
+    }
+  },
+  "dao": {
+    "addresses": {
+      "mainnet": "0xbD94fc22E6910d118187c8300667c66eD560A29B",
+      "rinkeby": "0x7D9B21704B5311bB480f0109dFD5D84ed1207e11"
+    },
+    "metadata": null
+  },
+  "daoAgent": {
+    "addresses": {
+      "arbitrum": "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
+      "mainnet": "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
+      "mumbai": "0x196CF485b98fB95e27b13f40A43b59FA2570a16E",
+      "polygon": "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
+      "rinkeby": "0x6d8bd5d37461788182131bae19d03ff2b3c0687c"
+    },
+    "metadata": null
+  },
+  "daoAgentV2": {
+    "addresses": {
+      "mainnet": "0x6B1741143D3F2C4f1EdA12e19e9518489DF03e04"
+    },
+    "metadata": null
+  },
+  "daoTreasury": {
+    "addresses": {
+      "arbitrum": "0x6E5fB0B93ac840bE24e768F3D87cCE7503A29488",
+      "mainnet": "0x0ec6290abb4714ba5f1371647894ce53c6dd673a",
+      "mumbai": "0x196CF485b98fB95e27b13f40A43b59FA2570a16E",
+      "polygon": "0xa49731448a1b25d92F3d80f3d3025e4F0fC8d776",
+      "rinkeby": "0x6d8bd5d37461788182131bae19d03ff2b3c0687c"
+    },
+    "metadata": null
+  },
+  "eth": {
+    "addresses": {
+      "mainnet": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+    },
+    "metadata": {
+      "name": "ETH",
+      "symbol": "ETH",
+      "decimals": 18,
+      "icons": ["/images/tokens/eth.png"]
+    }
+  },
+  "eurOracle": {
+    "addresses": {
+      "mainnet": "0xc9Cb5703C109D4Fe46d2F29b0454c434e42A6947"
+    },
+    "metadata": null
   },
   "faucet": {
-    "hardhat": "0x8E45C0936fa1a65bDaD3222bEFeC6a03C83372cE"
+    "addresses": {},
+    "metadata": null
   },
-  "BeneficiaryVaults": {
-    "hardhat": "0xCa57C1d3c2c35E667745448Fef8407dd25487ff8"
+  "frax": {
+    "addresses": {
+      "mainnet": "0x853d955aCEf822Db058eb8505911ED77F175b99e"
+    },
+    "metadata": null
   },
-  "Region": {
-    "hardhat": "0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953"
+  "govStaking": {
+    "addresses": {},
+    "metadata": {
+      "contractName": "govStaking"
+    }
   },
-  "VaultFeeController": {
-    "hardhat": "0xB468647B04bF657C9ee2de65252037d781eABafD"
+  "grantElections": {
+    "addresses": {},
+    "metadata": {
+      "contractName": "GrantElections"
+    }
   },
-  "ParticipationReward": {
-    "hardhat": "0xA9d0Fb5837f9c42c874e16da96094b14Af0e2784"
+  "ibCHF": {
+    "addresses": {
+      "mainnet": "0x1CC481cE2BD2EC7Bf67d1Be64d4878b16078F309"
+    },
+    "metadata": null
   },
-  "RandomNumberConsumer": {
-    "hardhat": "0xeE1eb820BeeCED56657bA74fa8D70748D7A6756C"
+  "ibEUR": {
+    "addresses": {
+      "mainnet": "0x96e61422b6a9ba0e068b6c5add4ffabc6a4aae27"
+    },
+    "metadata": null
   },
-  "ButterFeeConverter": {
-    "hardhat": "0xbeC6419cD931e29ef41157fe24C6928a0C952f0b"
+  "ibGBP": {
+    "addresses": {
+      "mainnet": "0x69681f8fde45345c3870bcd5eaf4a05a60e7d227"
+    },
+    "metadata": null
   },
-  "vaultsV1registry": {
-    "hardhat": "0xB2ff9d5e60d68A52cea3cd041b32f1390A880365"
+  "ibJPY": {
+    "addresses": {
+      "mainnet": "0x5555f75e3d5278082200fb451d1b6ba946d8e13b"
+    },
+    "metadata": null
   },
-  "vaultsV1Factory": {
-    "hardhat": "0x8B64968F69E669faCc86FA3484FD946f1bBE7c91"
+  "keeperIncentive": {
+    "addresses": {
+      "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
+      "polygon": "0xd928a457247649835e652416847C54C038FAF920"
+    },
+    "metadata": {
+      "contractName": "KeeperIncentive"
+    }
+  },
+  "merkleOrchard": {
+    "addresses": {
+      "arbitrum": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
+      "bsc": "0xc33e0fE411322009947931c32d2273ee645cDb5B",
+      "mainnet": "0xdAE7e32ADc5d490a43cCba1f0c736033F2b4eFca",
+      "rinkeby": "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e"
+    },
+    "metadata": null
+  },
+  "pop": {
+    "addresses": {
+      "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
+      "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
+      "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
+      "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
+      "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
+      "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
+    },
+    "metadata": {
+      "name": "Popcorn",
+      "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
+      "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
+      "icons": ["/images/icons/POP.svg"],
+      "priceResolver": "pop",
+      "contractName": "pop"
+    }
+  },
+  "popStaking": {
+    "addresses": {
+      "arbitrum": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "bsc": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "mainnet": "0xeEE1d31297B042820349B03027aB3b13a9406184",
+      "polygon": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+      "rinkeby": "0xbd085541Cf339a7B3a5112CeA9440542a02B29E5"
+    },
+    "metadata": {
+      "contractName": "PopLocker",
+      "icons": ["/images/icons/POP.svg"],
+      "name": "POP",
+      "priceResolver": "staking"
+    }
+  },
+  "popUsdcArrakisVault": {
+    "addresses": {
+      "mainnet": "0xbba11b41407df8793a89b44ee4b50afad4508555",
+      "polygon": "0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4",
+      "optimism": "0x2AE1231E4CF821Af69982c4D04725CD502D8B53E"
+    },
+    "metadata": {
+      "name": "Arrakis USDC/POP LP",
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
+      "priceResolver": "arrakis"
+    }
+  },
+  "popUsdcArrakisVaultStaking": {
+    "addresses": {
+      "mainnet": "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
+      "polygon": "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc"
+    },
+    "metadata": {
+      "priceResolver": "staking"
+    }
+  },
+  "popUsdcLp": {
+    "addresses": {
+      "mainnet": "0x9fee77d8b5050a55c16d0446e6eab06a6a24cd06",
+      "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
+      "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440"
+    },
+    "metadata": {
+      "name": "USDC/POP LP",
+      "buyLinkEthereum": "https://beta.arrakis.finance/#/vaults/0xBBA11b41407dF8793A89b44ee4b50AfAD4508555/add",
+      "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add",
+      "priceResolver": "arrakis"
+    }
+  },
+  "popUsdcLpStaking": {
+    "addresses": {
+      "arbitrum": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "bsc": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "polygon": "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
+      "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D"
+    },
+    "metadata": {
+      "priceResolver": "staking"
+    }
+  },
+  "popUsdcUniV3Pool": {
+    "addresses": {
+      "mainnet": "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06"
+    },
+    "metadata": null
+  },
+  "rewardsDistribution": {
+    "addresses": {
+      "mainnet": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+      "polygon": "0xA50608894E7AdE9216C2fFe14E17c73835CEe0B3",
+      "rinkeby": ""
+    },
+    "metadata": null
+  },
+  "rewardsEscrow": {
+    "addresses": {
+      "arbitrum": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      "bsc": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      "mainnet": "0xb5cb5710044D1074097c17B7535a1cF99cBfb17F",
+      "polygon": "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
+      "rinkeby": "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa"
+    },
+    "metadata": {
+      "priceResolver": "pop",
+      "symbol": "POP"
+    }
+  },
+  "rewardsManager": {
+    "addresses": {},
+    "metadata": {
+      "contractName": "RewardsManager"
+    }
+  },
+  "sCHF": {
+    "addresses": {
+      "mainnet": "0x0F83287FF768D1c1e17a42F44d644D7F22e8ee1d"
+    },
+    "metadata": null
+  },
+  "sEUR": {
+    "addresses": {
+      "mainnet": "0xd71ecff9342a5ced620049e616c5035f1db98620"
+    },
+    "metadata": null
+  },
+  "sEth": {
+    "addresses": {
+      "mainnet": "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb"
+    },
+    "metadata": {
+      "name": "sETH",
+      "symbol": "sETH",
+      "icons": ["/images/tokens/sEth.webp"]
+    }
+  },
+  "sEthSweetVault": {
+    "addresses": {},
+    "metadata": {
+      "name": "ETH/sETH Vault",
+      "symbol": "pop-ETH/sETH",
+      "icons": ["/images/tokens/crvSeth.png"],
+      "displayText": {
+        "strategy": "Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.",
+        "token": "This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform."
+      },
+      "curveLink": "https://curve.fi/seth/deposit",
+      "defaultDepositTokenSymbol": "ETH"
+    }
+  },
+  "sEthSweetVaultStaking": {
+    "addresses": {},
+    "metadata": null
+  },
+  "sGBP": {
+    "addresses": {
+      "mainnet": "0x97fe22e7341a0cd8db6f6c021a24dc8f4dad855f"
+    },
+    "metadata": null
+  },
+  "sJPY": {
+    "addresses": {
+      "mainnet": "0xf6b1c627e95bfc3c1b4c9b825a032ff0fbf3e07d"
+    },
+    "metadata": null
+  },
+  "sUSD": {
+    "addresses": {
+      "mainnet": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51"
+    },
+    "metadata": null
+  },
+  "setBasicIssuanceModule": {
+    "addresses": {
+      "mainnet": "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",
+      "rinkeby": "0xd8EF3cACe8b4907117a45B0b125c68560532F94D"
+    },
+    "metadata": null
+  },
+  "setStreamingFeeModule": {
+    "addresses": {
+      "mainnet": "0x08f866c74205617B6F3903EF481798EcED10cDEC"
+    },
+    "metadata": null
+  },
+  "setTokenCreator": {
+    "addresses": {
+      "mainnet": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
+      "rinkeby": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a"
+    },
+    "metadata": null
+  },
+  "threeCrv": {
+    "addresses": {
+      "mainnet": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+      "rinkeby": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"
+    },
+    "metadata": {
+      "name": "threeCrv",
+      "symbol": "3CRV",
+      "icons": ["/images/icons/3crv_icon.png"]
+    }
+  },
+  "threePool": {
+    "addresses": {
+      "mainnet": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
+      "rinkeby": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
+    },
+    "metadata": null
+  },
+  "threeX": {
+    "addresses": {
+      "mainnet": "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3"
+    },
+    "metadata": {
+      "icons": ["/images/tokens/3X.svg"],
+      "priceResolver": "setToken"
+    }
+  },
+  "threeXBatch": {
+    "addresses": {
+      "localhost": "0x42189f909e1EFA409A4509070dDBc31A592422A8",
+      "mainnet": "0x42189f909e1EFA409A4509070dDBc31A592422A8"
+    },
+    "metadata": {
+      "contractName": "ThreeXBatchProcessing"
+    }
+  },
+  "threeXBatchVault": {
+    "addresses": {
+      "mainnet": "0x0B4E13D8019D0F762377570000D9C923f0dad82B"
+    },
+    "metadata": null
+  },
+  "threeXStaking": {
+    "addresses": {
+      "mainnet": "0x584732f867a4533BC349d438Fba4fc2aEE5f5f83"
+    },
+    "metadata": {
+      "contractName": "ThreeXStaking",
+      "priceResolver": "staking",
+      "symbol": "pst-3X"
+    }
+  },
+  "threeXWhale": {
+    "addresses": {
+      "localhost": "0xB9d9e972100a1dD01cd441774b45b5821e136043"
+    },
+    "metadata": {
+      "contractName": "ThreeXWhale"
+    }
+  },
+  "threeXZapper": {
+    "addresses": {
+      "mainnet": "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84"
+    },
+    "metadata": {
+      "contractName": "ThreeXZapper"
+    }
+  },
+  "tokenManager": {
+    "addresses": {
+      "mainnet": "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
+      "rinkeby": "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708"
+    },
+    "metadata": null
+  },
+  "uniswapRouter": {
+    "addresses": {
+      "mainnet": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "rinkeby": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+    },
+    "metadata": null
+  },
+  "usdc": {
+    "addresses": {
+      "arbitrum": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+      "bsc": "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
+      "localhost": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "mainnet": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "polygon": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94"
+    },
+    "metadata": {
+      "icons": ["/images/tokens/usdc.svg"],
+      "name": "USDC",
+      "symbol": "USDC",
+      "priceResolver": "defillama"
+    }
+  },
+  "usdt": {
+    "addresses": {
+      "mainnet": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    },
+    "metadata": {
+      "name": "USDT",
+      "symbol": "USDT",
+      "icons": ["/images/tokens/usdt.webp"]
+    }
+  },
+  "vaultsRewardsEscrow": {
+    "addresses": {},
+    "metadata": null
   },
   "vaultsV1Controller": {
-    "hardhat": "0xC0340c0831Aa40A0791cF8C3Ab4287EB0a9705d8"
+    "addresses": {},
+    "metadata": null
+  },
+  "vaultsV1Factory": {
+    "addresses": {},
+    "metadata": null
+  },
+  "vaultsV1Zapper": {
+    "addresses": {},
+    "metadata": null
+  },
+  "vaultsV1registry": {
+    "addresses": {},
+    "metadata": null
+  },
+  "voting": {
+    "addresses": {
+      "arbitrum": "",
+      "bsc": "",
+      "mainnet": "0xbb6ed6fdc4ddb0541b445e8560d9374e20d1fc1f",
+      "mumbai": "",
+      "rinkeby": ""
+    },
+    "metadata": null
+  },
+  "wbtc": {
+    "addresses": {
+      "mainnet": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+    },
+    "metadata": {
+      "name": "Wrapped Bitcoin",
+      "symbol": "WBTC",
+      "icons": ["/images/tokens/wbtc.webp"]
+    }
+  },
+  "xPop": {
+    "addresses": {
+      "arbitrum": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      "bsc": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8",
+      "polygon": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8"
+    },
+    "metadata": {
+      "icons": ["/images/icons/POP.svg"],
+      "priceResolver": "pop"
+    }
+  },
+  "xPopRedemption": {
+    "addresses": {
+      "arbitrum": "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
+      "bsc": "0x94f58DC6bF565C6B27De5CAEf3a292dCc3522ebD",
+      "polygon": "0x48168536Fc8834A9543C5A4383721148113fF75A"
+    },
+    "metadata": null
+  },
+  "y3Eur": {
+    "addresses": {
+      "mainnet": "0x5AB64C599FcC59f0f2726A300b03166A395578Da"
+    },
+    "metadata": null
+  },
+  "yAlusd": {
+    "addresses": {
+      "mainnet": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
+      "rinkeby": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8"
+    },
+    "metadata": {
+      "name": "yAlusd"
+    }
+  },
+  "yCHF": {
+    "addresses": {
+      "mainnet": "0x490bD0886F221A5F79713D3E84404355A9293C50"
+    },
+    "metadata": null
+  },
+  "yEUR": {
+    "addresses": {
+      "mainnet": "0x67e019bfbd5a67207755D04467D6A70c0B75bF60"
+    },
+    "metadata": null
+  },
+  "yFrax": {
+    "addresses": {
+      "mainnet": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
+      "rinkeby": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139"
+    },
+    "metadata": {
+      "name": "yFrax"
+    }
+  },
+  "yGBP": {
+    "addresses": {
+      "mainnet": "0x595a68a8c9D5C230001848B69b1947ee2A607164"
+    },
+    "metadata": null
+  },
+  "yJPY": {
+    "addresses": {
+      "mainnet": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e"
+    },
+    "metadata": null
+  },
+  "yMusd": {
+    "addresses": {
+      "mainnet": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
+      "rinkeby": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757"
+    },
+    "metadata": {
+      "name": "yMusd"
+    }
+  },
+  "yRai": {
+    "addresses": {
+      "mainnet": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
+      "rinkeby": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE"
+    },
+    "metadata": {
+      "name": "yRai"
+    }
+  },
+  "ySusd": {
+    "addresses": {
+      "mainnet": "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A"
+    },
+    "metadata": {
+      "name": "sUSD",
+      "symbol": "sUSD",
+      "icons": ["/images/tokens/sUSD.png"]
+    }
+  },
+  "yearnRegistry": {
+    "addresses": {
+      "mainnet": "0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804"
+    },
+    "metadata": null
   }
 }

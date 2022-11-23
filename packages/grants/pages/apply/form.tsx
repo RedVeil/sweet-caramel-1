@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { XCircleIcon } from "@heroicons/react/solid";
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import { formatAndRoundBigNumber, getBytes32FromIpfsHash, IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import FlowSteps from "components/Apply/FlowSteps";
@@ -9,7 +9,7 @@ import ImpactReports from "components/Apply/ImpactReports";
 import ProofsForm from "components/Apply/ProofsForm";
 import VisualContent from "components/Apply/VisualContent";
 import Button from "components/CommonComponents/Button";
-import { connectors } from "context/Web3/connectors";
+import { connectors } from "context/Web3/connector";
 import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, ethers } from "ethers";
 import { isAddress } from "ethers/lib/utils";
@@ -148,10 +148,12 @@ const ApplyForm = () => {
     if (!account) {
       activate(connectors.Injected);
     }
-    const balance = await contracts.pop.balanceOf(account);
-    if (proposalBond.gt(balance)) {
+    const balance = await contracts?.pop?.balanceOf(account);
+    if (proposalBond?.gt(balance)) {
+      dispatch(setSingleActionModal(false));
       dispatch(
         setSingleActionModal({
+          image: <img src="/images/accept.svg" alt="not enough pop" />,
           content: `In order to create a proposal you need to post a Bond of ${formatAndRoundBigNumber(
             proposalBond,
             18,
@@ -165,6 +167,9 @@ const ApplyForm = () => {
               dispatch(setSingleActionModal(false));
             },
           },
+          onDismiss: {
+            onClick: () => dispatch(setSingleActionModal({ visible: false })),
+          },
         }),
       );
       return false;
@@ -176,23 +181,24 @@ const ApplyForm = () => {
     setUploading(true);
     if (await checkPreConditions()) {
       loading();
+      dispatch(setSingleActionModal(false));
       try {
         const cid = await IpfsClient.add(submissionData);
         toast.dismiss();
         await (
-          await contracts.pop
-            .connect(library.getSigner())
-            .approve(contracts.beneficiaryGovernance.address, proposalBond)
-        ).wait();
+          await contracts?.pop
+            ?.connect(library.getSigner())
+            ?.approve(contracts.beneficiaryGovernance.address, proposalBond)
+        )?.wait();
 
         await contracts.beneficiaryGovernance
           .connect(library.getSigner())
           .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), getBytes32FromIpfsHash(cid), 0);
       } catch (error) {
-        dispatch(setDualActionModal(false));
         dispatch(
           setSingleActionModal({
-            title: "Error ",
+            image: <img src="/images/accept.svg" alt="error" />,
+            title: "Error",
             content: error?.data?.message || error?.message || error,
             onConfirm: {
               label: "Close",
@@ -201,14 +207,16 @@ const ApplyForm = () => {
                 dispatch(setSingleActionModal(false));
               },
             },
-            type: "error",
+            onDismiss: {
+              onClick: () => dispatch(setSingleActionModal({ visible: false })),
+            },
           }),
         );
         setUploading(false);
         return;
       }
       success();
-      dispatch(setDualActionModal(false));
+      dispatch(setSingleActionModal(false));
       congratsModal();
     }
     setUploading(false);
@@ -227,12 +235,22 @@ const ApplyForm = () => {
   };
 
   const openModal = () => {
-    const icon = <img src="/images/submitFormModalIcon.svg" alt="Submit Modal Icon" className="w-32 h-32" />;
     dispatch(
-      setDualActionModal({
+      setSingleActionModal({
+        image: <img src="/images/accept-application.svg" alt="Submit Modal Icon" />,
         title: "Submit Application",
-        content: `By confirming the proposal submission, you commit to locking 2000 POP for the duration of the proposal process.
-				If the nomination does not pass, the token that were locked at the time of submission will be kept in the contract. After a successful nomination, the tokens will be claimable by nominating user.`,
+        children: (
+          <div className="text-base md:text-sm text-primaryDark mt-4">
+            <p className="leading-[140%]">
+              By confirming the proposal submission, you commit to locking 2000 POP for the duration of the proposal
+              process
+            </p>
+            <p className="leading-[140%] mt-4">
+              If the nomination does not pass, the token that were locked at the time of submission will be kept in the
+              contract. After a successful nomination, the tokens will be claimable by nominating user.
+            </p>
+          </div>
+        ),
         onConfirm: {
           label: "Lock & Submit",
           onClick: () => uploadJsonToIpfs(formData),
@@ -244,7 +262,6 @@ const ApplyForm = () => {
             dispatch(setDualActionModal(false));
           },
         },
-        icon,
       }),
     );
   };
@@ -263,7 +280,11 @@ const ApplyForm = () => {
             router.push("/");
           },
         },
-        image,
+        onDismiss: {
+          onClick: () => {
+            dispatch(setSingleActionModal(false));
+          },
+        },
       }),
     );
   };

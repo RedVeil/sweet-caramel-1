@@ -2,14 +2,10 @@ import NotFoundError from "components/CommonComponents/NotFoundError";
 import React from "react";
 import styled from "styled-components";
 import GalleryCard from "./GalleryCard";
+import { Image } from "helper/types";
 
 interface GalleryTabProps {
-  additionalImages: Array<{
-    hash: string;
-    description: string;
-    fileName: string;
-    image?: string;
-  }>;
+  additionalImages: Image[];
   rowsPercent: number;
 }
 

@@ -1,13 +1,13 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 export interface DualActionWideModalProps {
   title: string;
-  content: React.ReactElement | string;
+  content: JSX.Element | string;
   visible: boolean;
   progress?: boolean;
   onDismiss?: { label: string; onClick: Function };
@@ -114,7 +114,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="mt-10 flex flex-col gap-6">
+                <div className="mt-10 flex flex-col gap-6 md:gap-0 md:space-y-6">
                   {onConfirm && (
                     <MainActionButton
                       disabled={progress}

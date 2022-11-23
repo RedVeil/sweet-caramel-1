@@ -1,12 +1,12 @@
-import { setSingleActionModal } from "context/actions";
-import { store } from "context/store";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
 import React, { useContext } from "react";
 
 export interface InfoIconWithModalProps {
   title: string;
-  content?: string | React.ReactElement;
-  children?: React.ReactElement;
-  image?: React.ReactElement;
+  content?: string | JSX.Element;
+  children?: JSX.Element;
+  image?: JSX.Element;
   size?: string;
 }
 
@@ -14,7 +14,7 @@ export const InfoIconWithModal: React.FC<InfoIconWithModalProps> = ({
   title,
   content,
   children,
-  size = "h-5 w-5",
+  size = "h-4 w-4",
   image,
 }) => {
   const { dispatch } = useContext(store);

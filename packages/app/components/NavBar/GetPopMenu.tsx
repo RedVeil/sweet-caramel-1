@@ -1,14 +1,21 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChainId } from "@popcorn/utils";
-import getTokenOnNetwork from "@popcorn/utils/src/getTokenOnNetwork";
-import useWeb3 from "hooks/useWeb3";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
+import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
+import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { Fragment } from "react";
+import { useAccount } from "wagmi";
 
 interface GetPopMenuProps {}
 
 const GetPopMenu: React.FC<GetPopMenuProps> = () => {
-  const { wallet, contractAddresses, chainId } = useWeb3();
-  const metaMaskConnected = wallet?.label === "MetaMask";
+  const { connector } = useAccount();
+  const chainId = useChainIdFromUrl();
+  const { pop } = useDeployment(chainId);
+  const popMetadata = useContractMetadata(pop, chainId);
+  const buyLink = chainId === ChainId.Polygon ? popMetadata?.buyLinkPolygon : popMetadata?.buyLinkEthereum;
+  const metaMaskConnected = connector?.name === "MetaMask";
   const popPoolExists = [ChainId.Ethereum, ChainId.Hardhat, ChainId.Localhost, ChainId.Polygon].includes(chainId);
 
   return (
@@ -29,7 +36,7 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                 className={`${active ? "bg-warmGray text-black font-medium" : "bg-white text-primary "} ${
                   metaMaskConnected ? "rounded-t-3xl border-b" : "rounded-3xl"
                 } group text-center px-2 pt-4 pb-2 block w-full h-14 cursor-pointer  border-gray-200`}
-                href={`${getTokenOnNetwork(contractAddresses.pop, chainId, contractAddresses)}`}
+                href={buyLink}
                 target="_blank"
               >
                 <p className={`text-left text-lg px-6 ${active ? "font-medium" : ""}`}>Buy POP</p>
@@ -46,14 +53,16 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                 } group px-2 pt-4 w-full h-14 cursor-pointer`}
                 onClick={async () =>
                   await window.ethereum.request({
+                    // @ts-ignore
                     method: "wallet_watchAsset",
                     params: {
+                      // @ts-ignore
                       type: "ERC20",
                       options: {
-                        address: contractAddresses.pop,
+                        address: pop,
                         symbol: "POP",
                         decimals: 18,
-                        image: "https://popcorn.network/images/icons/pop_64x64.png",
+                        image: "https://www.popcorn.network/images/icons/circle/circle_yellow_64x64.png",
                       },
                     },
                   })

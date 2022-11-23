@@ -1,7 +1,7 @@
 import type { TransactionResponse } from "@ethersproject/providers";
 import { useCallback } from "react";
-import { PopLocker, Staking } from "../../hardhat/typechain";
-import useWeb3 from "./useWeb3";
+import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
+import useWeb3 from "@popcorn/app/hooks/useWeb3";
 
 export type StakingPool = {
   address: string;

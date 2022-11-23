@@ -1,6 +1,5 @@
 import { PaperClipIcon } from "@heroicons/react/solid";
-import { BeneficiaryApplication } from "@popcorn/hardhat";
-import { ImpactReport } from "@popcorn/hardhat/lib/adapters/BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
+import { BeneficiaryApplication, ImpactReport } from "helper/types";
 import IPFSUploadFunc from "components/CommonComponents/IPFSUploadFunc";
 import React from "react";
 
@@ -74,7 +73,7 @@ const ImpactReports = ({
               {fileName}
             </a>
           </div>
-          <button className="text-customPurple text-sm" onClick={() => removeImpactReport(i)}>
+          <button className="text-primary text-sm" onClick={() => removeImpactReport(i)}>
             Delete
           </button>
         </div>

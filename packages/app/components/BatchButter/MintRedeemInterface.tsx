@@ -1,133 +1,138 @@
-import { BatchType } from "@popcorn/utils/src/types";
-import { InfoIconWithModal } from "components/InfoIconWithModal";
-import SecondaryActionButton from "components/SecondaryActionButton";
-import { FeatureToggleContext } from "context/FeatureToggleContext";
+import { ChainId } from "@popcorn/utils";
+import { BatchType, Token } from "@popcorn/utils/src/types";
+import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
+import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
+import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
 import { useContext } from "react";
-import MainActionButton from "../MainActionButton";
-import ButterTokenInput, { ButterTokenInputProps } from "./ButterTokenInput";
-import { CheckMarkToggleWithInfo } from "./CheckMarkToggleWithInfo";
-import MintRedeemToggle from "./MintRedeemToggle";
-import SlippageSettings from "./SlippageSettings";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import ButterTokenInput, {
+  ButterTokenInputProps,
+  Pages,
+  pageToDisplayToken,
+} from "@popcorn/app/components/BatchButter/ButterTokenInput";
+import { CheckMarkToggleWithInfo } from "@popcorn/app/components/BatchButter/CheckMarkToggleWithInfo";
+import MintRedeemToggle from "@popcorn/app/components/BatchButter/MintRedeemToggle";
+import SlippageSettings from "@popcorn/app/components/BatchButter/SlippageSettings";
 
 interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   mainAction: (depositAmount: BigNumber, batchType: BatchType, stakeImmidiate?: boolean) => Promise<void>;
-  approve: (contractKey: string) => Promise<void>;
-  hasUnclaimedBalances?: boolean;
-  isInstantPage?: boolean;
-  isThreeXPage?: boolean;
+  approve: (token: Token) => Promise<void>;
+  slippage: number;
+  setSlippage: (slippage: number) => void;
+  instant: boolean;
+  setInstant?: (instant: boolean) => void;
+  showSlippageAdjust: boolean;
+  chainId: ChainId;
 }
 
 const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
-  token,
-  selectToken,
-  mainAction,
   approve,
+  depositAmount,
   depositDisabled,
-  butterPageState,
-  hasUnclaimedBalances = false,
-  isInstantPage = false,
-  isThreeXPage = false,
+  mainAction,
+  options,
+  page,
+  selectedToken,
+  setDepositAmount,
+  setUseUnclaimedDeposits,
+  setWithdrawMode,
+  slippage,
+  setSlippage,
+  useUnclaimedDeposits,
+  instant,
+  setInstant,
+  withdrawMode,
+  hasUnclaimedBalances,
+  selectToken,
+  showSlippageAdjust,
+  chainId,
+  disabled,
 }) => {
-  const [localButterPageState, setButterPageState] = butterPageState;
   const { features } = useContext(FeatureToggleContext);
 
   function isAllowanceInsufficient() {
     return (
-      localButterPageState.depositAmount.gt(token[localButterPageState.selectedToken.input].allowance) ||
-      token[localButterPageState.selectedToken.input].allowance.eq(ethers.constants.Zero)
+      !selectedToken?.input?.allowance ||
+      selectedToken.input.allowance.eq(ethers.constants.Zero) ||
+      depositAmount.gt(selectedToken.input.allowance)
     );
   }
 
-  function setRedeeming(redeeming: boolean) {
-    setButterPageState({ ...localButterPageState, redeeming: redeeming });
-  }
-  function setSlippage(slippage: number) {
-    setButterPageState({ ...localButterPageState, slippage: slippage });
-  }
   const butterModalImage = <img src="/images/Instant Butter_icon.svg" />;
   return (
     <div className="bg-white rounded-3xl p-6 border border-customLightGray">
       <MintRedeemToggle
-        redeeming={localButterPageState.redeeming}
-        setRedeeming={setRedeeming}
-        isThreeX={localButterPageState.isThreeX}
+        redeeming={withdrawMode}
+        setRedeeming={setWithdrawMode}
+        isThreeX={[Pages.threeX, Pages.instantThreeX].includes(page)}
       />
       <div>
         <ButterTokenInput
-          token={token}
-          selectToken={selectToken}
+          depositAmount={depositAmount}
           depositDisabled={depositDisabled}
+          options={options}
+          page={page}
+          selectedToken={selectedToken}
+          setDepositAmount={setDepositAmount}
+          setUseUnclaimedDeposits={setUseUnclaimedDeposits}
+          setWithdrawMode={setWithdrawMode}
+          useUnclaimedDeposits={useUnclaimedDeposits}
+          withdrawMode={withdrawMode}
           hasUnclaimedBalances={hasUnclaimedBalances}
-          butterPageState={butterPageState}
+          selectToken={selectToken}
+          instant={instant}
+          chainId={chainId}
+          disabled={disabled}
         />
       </div>
-      {!localButterPageState.useUnclaimedDeposits && !isInstantPage && !(isThreeXPage && !features["instant3X"]) && (
-        <div className="mt-2">
-          <CheckMarkToggleWithInfo
-            label={`Use Instant ${isThreeXPage ? "3x" : "Butter"} (Higher Gas Fee)`}
-            value={localButterPageState.instant}
-            onChange={(e) =>
-              setButterPageState({
-                ...localButterPageState,
-                instant: !localButterPageState.instant,
-              })
-            }
-            image={butterModalImage}
-            infoTitle="Instant Butter"
-            infoText="Using 'Instant Butter' comes with higher gas costs. Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when the gas costs are acceptable to you."
-          />
-        </div>
-      )}
-      {(localButterPageState.instant ||
-        isInstantPage ||
-        (!localButterPageState.redeeming && localButterPageState.useZap)) && (
+      {!useUnclaimedDeposits &&
+        [Pages.butter, Pages.threeX].includes(page) &&
+        !(page === Pages.threeX && !features["instant3X"]) && (
+          <div className="mt-2">
+            <CheckMarkToggleWithInfo
+              label={`Use Instant ${pageToDisplayToken(page).output} (Higher Gas Fee)`}
+              value={instant}
+              onChange={(e) => setInstant(!instant)}
+              image={butterModalImage}
+              infoTitle="Instant Butter"
+              infoText="Using 'Instant Butter' comes with higher gas costs. Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when the gas costs are acceptable to you."
+            />
+          </div>
+        )}
+      {showSlippageAdjust && (
         <div className="w-full mt-6">
-          <SlippageSettings
-            slippage={localButterPageState.slippage}
-            setSlippage={setSlippage}
-            slippageOptions={[0.1, 0.5, 1]}
-          />
+          <SlippageSettings slippage={slippage} setSlippage={setSlippage} slippageOptions={[0.1, 0.5, 1]} />
         </div>
       )}
       <hr className="mt-10 bg-customLightGray" />
       <div className="w-full text-center">
-        {hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits && (
+        {hasUnclaimedBalances && useUnclaimedDeposits && (
           <div className="pt-6">
             <MainActionButton
-              label={localButterPageState.redeeming ? "Redeem" : "Mint"}
-              handleClick={() =>
-                mainAction(
-                  localButterPageState.depositAmount,
-                  localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
-                )
-              }
-              disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
+              label={withdrawMode ? "Redeem" : "Mint"}
+              handleClick={() => mainAction(depositAmount, withdrawMode ? BatchType.Redeem : BatchType.Mint)}
+              disabled={depositDisabled?.disabled || depositAmount.eq(constants.Zero)}
             />
           </div>
         )}
-        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && isAllowanceInsufficient() && (
+        {!(hasUnclaimedBalances && useUnclaimedDeposits) && isAllowanceInsufficient() && (
           <div className="pt-6 space-y-6">
             <MainActionButton
-              label={`Allow Popcorn to use your ${token[localButterPageState.selectedToken.input].name}`}
-              handleClick={() => approve(localButterPageState.selectedToken.input)}
+              label={`Allow Popcorn to use your ${selectedToken?.input?.symbol}`}
+              handleClick={() => approve(selectedToken?.input)}
             />
             <MainActionButton
-              label={localButterPageState.redeeming ? "Redeem" : "Mint"}
-              handleClick={() =>
-                mainAction(
-                  localButterPageState.depositAmount,
-                  localButterPageState.redeeming ? BatchType.Redeem : BatchType.Mint,
-                )
-              }
+              label={withdrawMode ? "Redeem" : "Mint"}
+              handleClick={() => mainAction(depositAmount, withdrawMode ? BatchType.Redeem : BatchType.Mint)}
               disabled={true}
             />
           </div>
         )}
-        {!(hasUnclaimedBalances && localButterPageState.useUnclaimedDeposits) && !isAllowanceInsufficient() && (
+        {!(hasUnclaimedBalances && useUnclaimedDeposits) && !isAllowanceInsufficient() && (
           <div className="pt-6 space-y-6">
-            {localButterPageState.instant && !localButterPageState.redeeming ? (
+            {instant && !withdrawMode ? (
               <>
                 <span className="text-left flex flex-row items-center">
                   <p>Mint & Stake vs. Mint</p>
@@ -137,8 +142,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                       <p>
                         Choose Mint & Stake to automatically stake the token to earn POP rewards. If you select Mint you
                         will not earn POP rewards unless the token is staked in the
-                        <Link href="/ethereum/staking" passHref>
-                          <a className="font-medium text-blue-600 hover:text-blue-900"> staking </a>
+                        <Link href="/staking" passHref className="font-medium text-blue-600 hover:text-blue-900">
+                          staking
                         </Link>
                         page.
                       </p>
@@ -148,29 +153,29 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
                 <MainActionButton
                   label="Mint & Stake"
                   handleClick={() => {
-                    mainAction(localButterPageState.depositAmount, BatchType.Mint, true);
+                    mainAction(depositAmount, BatchType.Mint, true);
                   }}
-                  disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                  disabled={depositDisabled?.disabled || depositAmount.eq(constants.Zero)}
                 />
                 <SecondaryActionButton
                   label="Mint"
                   handleClick={() => {
-                    mainAction(localButterPageState.depositAmount, BatchType.Mint, false);
+                    mainAction(depositAmount, BatchType.Mint, false);
                   }}
-                  disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                  disabled={depositDisabled?.disabled || depositAmount.eq(constants.Zero)}
                 />
               </>
             ) : (
               <MainActionButton
-                label={localButterPageState.redeeming ? "Redeem" : "Mint"}
+                label={withdrawMode ? "Redeem" : "Mint"}
                 handleClick={() => {
-                  if (localButterPageState.redeeming) {
-                    mainAction(localButterPageState.depositAmount, BatchType.Redeem);
+                  if (withdrawMode) {
+                    mainAction(depositAmount, BatchType.Redeem);
                   } else {
-                    mainAction(localButterPageState.depositAmount, BatchType.Mint);
+                    mainAction(depositAmount, BatchType.Mint);
                   }
                 }}
-                disabled={depositDisabled?.disabled || localButterPageState.depositAmount.eq(constants.Zero)}
+                disabled={depositDisabled?.disabled || depositAmount.eq(constants.Zero)}
               />
             )}
           </div>

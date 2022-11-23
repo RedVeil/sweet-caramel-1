@@ -1,5 +1,5 @@
 import { localStringOptions } from "@popcorn/utils";
-import { InfoIconWithTooltip } from "components/InfoIconWithTooltip";
+import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { Dispatch } from "react";
 
 interface MintRedeemToggleProps {
@@ -31,7 +31,7 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
         </p>
         <div className="hidden md:inline">
           <InfoIconWithTooltip
-            classExtras="w-5 h-5 mt-0 ml-2"
+            classExtras="mt-0 ml-2"
             id="1"
             title="Mint"
             content={`Mint ${displayOutputToken} with ${displayInputToken} or stablecoins to earn interest on multiple stablecoins at once.
@@ -62,7 +62,7 @@ const MintRedeemToggle: React.FC<MintRedeemToggleProps> = ({ redeeming, setRedee
         </p>
         <div className="hidden md:inline">
           <InfoIconWithTooltip
-            classExtras="w-5 h-5 mt-0 ml-2"
+            classExtras="mt-0 ml-2"
             id="2"
             title="Redeem"
             content={`Redeem your ${displayOutputToken} to receive its value in ${displayInputToken} or stablecoins. The underlying tokens will be converted into ${displayInputToken} or your desired stablecoin. Redemptions incur a ${(isThreeX

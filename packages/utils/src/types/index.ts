@@ -1,8 +1,10 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20, ISetToken, Vault } from "../../../hardhat/typechain";
+import { ChainId } from "@popcorn/utils";
 
 export type Address = string;
+
 export interface ContractAddresses {
+  xen?: Address;
   staking?: Array<Address>;
   sweetVaults?: Array<Address>;
   defaultTokenList?: Array<Address>;
@@ -10,6 +12,7 @@ export interface ContractAddresses {
   butterStaking?: Address;
   threeXStaking?: Address;
   popUsdcLpStaking?: Address;
+  xenStaking?: Address;
   pop?: Address;
   xPop?: Address;
   xPopRedemption?: Address;
@@ -17,6 +20,8 @@ export interface ContractAddresses {
   usdc?: Address;
   usdt?: Address;
   threeCrv?: Address;
+  eth?: Address;
+  wbtc?: Address;
   crvSEth?: Address;
   sEthSweetVault?: Address;
   sEthSweetVaultStaking?: Address;
@@ -29,7 +34,6 @@ export interface ContractAddresses {
   butterBatch?: Address;
   butterBatchZapper?: Address;
   butterWhaleProcessing?: Address;
-  butterDependency?: ButterDependencyAddresses;
   threeX?: Address;
   threeXBatch?: Address;
   threeXWhale?: Address;
@@ -73,7 +77,7 @@ export interface ContractAddresses {
   sJPY?: Address;
   sUSD?: Address;
   sEth?: Address;
-  zeroXZapper?: Address;
+  vaultsV1Zapper?: Address;
   agEur?: Address;
   angleRouter?: Address;
   eurOracle?: Address;
@@ -101,6 +105,7 @@ export interface ContractAddresses {
   balancerLBPFactory?: Address;
   merkleOrchard?: Address;
   rewardsEscrow?: Address;
+  vaultsRewardsEscrow?: Address;
   all: Set<Address>;
   has: (contract: string) => boolean;
 }
@@ -142,8 +147,8 @@ export type LockedBalance = {
 };
 
 export type Token = {
-  contract: ERC20;
-  address: Address;
+  contract: Contract;
+  address: string;
   name: string;
   symbol: string;
   decimals: number;
@@ -151,6 +156,9 @@ export type Token = {
   allowance?: BigNumber;
   description?: string;
   icon?: string;
+  claimableBalance?: BigNumber;
+  price?: BigNumber;
+  [key: string]: any;
 };
 
 export type ERC20Metadata = {
@@ -162,6 +170,14 @@ export type ERC20Metadata = {
   allowance?: BigNumber;
   description?: string;
   icon?: string;
+};
+
+export type ContractMetadata = {
+  name?: string;
+  symbol?: string;
+  description?: string;
+  icon?: string;
+  platform?: string;
 };
 
 export type SweetVaultMetadata = ERC20Metadata & {
@@ -180,11 +196,15 @@ export type SweetVaultMetadata = ERC20Metadata & {
     strategy?: string;
   };
   defaultDepositTokenSymbol?: string;
+  stakingAdress?: string;
 };
 
 // contract w/ metadata pattern
+// TODO we need to find a way to get this type from /foundry or use smth else instead
 export type SweetVaultWithMetadata = {
-  contract: Vault;
+  contract: Contract;
+  address: string;
+  chainId: ChainId;
   metadata: SweetVaultMetadata;
 };
 
@@ -213,35 +233,13 @@ export type HotSwapParameter = {
 };
 
 export type SelectedToken = {
-  input: BatchProcessTokenKey;
-  output: BatchProcessTokenKey;
-};
-
-export type Tokens = {
-  butter?: TokenMetadata;
-  threeX?: TokenMetadata;
-  dai: TokenMetadata;
-  usdc: TokenMetadata;
-  usdt: TokenMetadata;
-  susd?: TokenMetadata;
-  threeCrv?: TokenMetadata;
+  input: Token;
+  output: Token;
 };
 
 export type ButterTokenKey = "butter" | "threeCrv" | "dai" | "usdc" | "usdt";
 
 export type BatchProcessTokenKey = ButterTokenKey | ThreeXTokenKey;
-
-export type TokenMetadata = {
-  key: BatchProcessTokenKey;
-  claimableBalance?: BigNumber;
-  price: BigNumber;
-  img?: string;
-  contract: ERC20 | ISetToken;
-  name: string;
-  decimals: number;
-  balance?: BigNumber;
-  allowance?: BigNumber;
-};
 
 export type BatchMetadata = {
   accountBatches: AccountBatch[];
@@ -249,7 +247,7 @@ export type BatchMetadata = {
   totalSupply: BigNumber;
   claimableMintBatches: AccountBatch[];
   claimableRedeemBatches: AccountBatch[];
-  tokens: Tokens;
+  tokens: Token[];
 };
 
 export type ThreeXTokenKey = "threeX" | "dai" | "usdc" | "usdt" | "susd";

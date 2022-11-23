@@ -1,6 +1,6 @@
 import { Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
-import { ProposalStatus } from "@popcorn/hardhat/lib/adapters";
+import { ProposalStatus } from "helper/types";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import Button from "components/CommonComponents/Button";
 import VotingProgress from "components/CommonComponents/VotingProgress";

@@ -3,18 +3,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "module": "esnext",
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
     "noEmit": false,
     "outDir": "dist",
     "target": "ES2017",
     "isolatedModules": true,
-    "incremental": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowJs": true
+    "incremental": true
   },
   "exclude": ["dist", ".next", "out", "next.config.js"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "references": [{ "path": "../utils" }, { "path": "../hardhat" }]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
 }

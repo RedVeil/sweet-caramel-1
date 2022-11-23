@@ -2,8 +2,8 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Transition } from "@headlessui/react";
 import { ShareIcon } from "@heroicons/react/outline";
 import { ChevronLeftIcon } from "@heroicons/react/solid";
-import { BeneficiaryGovernanceAdapter, Proposal, ProposalType } from "@popcorn/hardhat/lib/adapters";
-import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
+import { Proposal, ProposalType, VoteOptions } from "helper/types";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import AboutTab from "components/Profile/AboutTab";
@@ -11,6 +11,8 @@ import GalleryTab from "components/Profile/GalleryTab";
 import ReportsTab from "components/Profile/ReportsTab";
 import VotePeriodCard from "components/Proposals/VotePeriodCard";
 import VotingCard from "components/Proposals/VotingCard";
+import { setSingleActionModal } from "context/actions";
+import { store } from "context/store";
 import { ContractsContext } from "context/Web3/contracts";
 import { utils } from "ethers";
 import Link from "next/link";
@@ -20,8 +22,6 @@ import toast from "react-hot-toast";
 import { RWebShare } from "react-web-share";
 import styled from "styled-components";
 import StakeModalContent from "../../components/Proposals/StakeModalContent";
-import { setSingleActionModal } from "../../context/actions";
-import { store } from "../../context/store";
 import capitalize from "../../utils/capitalizeFirstLetter";
 
 export interface ProposalPageProps {
@@ -136,7 +136,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onConfirm: {
           label: "Accept",
           onClick: () => {
-            vote(VoteOptions.Yea);
+            vote(VoteOptions.Yes);
           },
         },
         onDismiss: {
@@ -159,7 +159,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onConfirm: {
           label: "Reject",
           onClick: () => {
-            vote(VoteOptions.Nay);
+            vote(VoteOptions.No);
           },
         },
         onDismiss: {
@@ -182,7 +182,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         toast.success("Voted successfully!");
         setHasVoted(true);
         dispatch(setSingleActionModal(false));
-        if (selectedVote === VoteOptions.Yea) {
+        if (selectedVote === VoteOptions.Yes) {
           openVoteAcceptedModal();
         } else {
           openVoteRejectedModal();
@@ -190,7 +190,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
       })
       .catch((err) => {
         toast.dismiss();
-        toast.error(err.data.message.split("'")[1]);
+        toast.error(err.data.message.split("'")[1] || err.data);
         dispatch(setSingleActionModal(false));
       });
   };
@@ -261,7 +261,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   }, [contracts]);
 
   const isElemTop = (ele: Element) => {
-    const { bottom, height, top } = ele.getBoundingClientRect();
+    const { top } = ele.getBoundingClientRect();
     if (top <= 300) {
       setShowPopUp(false);
     } else setShowPopUp(true);

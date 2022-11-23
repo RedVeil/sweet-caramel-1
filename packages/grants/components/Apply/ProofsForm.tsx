@@ -1,13 +1,14 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat";
+import { BeneficiaryApplication } from "helper/types";
 import TextInput from "components/CommonComponents/TextInput";
 import React from "react";
 import inputExists from "utils/isValidInput";
 
-const ProofsForm = ({
-  form,
-}: {
+interface ProofProps {
   form: [formData: BeneficiaryApplication, setFormData: React.Dispatch<BeneficiaryApplication>];
-}) => {
+  isEdit?: boolean;
+}
+
+const ProofsForm: React.FC<ProofProps> = ({ form, isEdit = false }) => {
   const [formData, setFormData] = form;
   const updateInput = (value: string, formKey: string): void => {
     setFormData({
@@ -39,6 +40,7 @@ const ProofsForm = ({
             updateInput={updateInput}
             formKey={"proofOfOwnership"}
             inputDescription={"* URL reference containing ethereum address"}
+            disabled={isEdit}
           />
         </div>
       </form>

@@ -33,7 +33,7 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
           ))}
         {!isLoading && data.length <= 0 ? (
           <div className="col-span-12">
-            <NotFoundError image="/images/no-beneficiaries.svg" title="There are no Beneficiary Applications currently">
+            <NotFoundError image="/images/no-beneficiaries.svg" title="There are no Eligible Beneficiaries currently">
               <p className="text-primaryDark">
                 Check back at a later date or follow our{" "}
                 <a href="https://discord.gg/w9zeRTSZsq" target="_blank" className="text-[#9B55FF]">
@@ -52,22 +52,18 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
             <div className="col-span-12 md:col-span-6 lg:col-span-4" key={index}>
               {isApplication ? (
                 <Link passHref href={`/applications/${beneficiary.id}`}>
-                  <a>
-                    <CardBody
-                      image={beneficiary?.application?.files?.headerImage}
-                      {...beneficiary?.application}
-                      stageDeadline={beneficiary.stageDeadline}
-                      votes={beneficiary.votes}
-                      status={beneficiary.status}
-                      isApplication={isApplication}
-                    />
-                  </a>
+                  <CardBody
+                    image={beneficiary?.application?.files?.headerImage}
+                    {...beneficiary?.application}
+                    stageDeadline={beneficiary.stageDeadline}
+                    votes={beneficiary.votes}
+                    status={beneficiary.status}
+                    isApplication={isApplication}
+                  />
                 </Link>
               ) : (
                 <Link passHref href={`/beneficiaries/${beneficiary.beneficiaryAddress}`}>
-                  <a>
-                    <CardBody image={beneficiary?.files?.headerImage} {...beneficiary} />
-                  </a>
+                  <CardBody image={beneficiary?.files?.headerImage} {...beneficiary} />
                 </Link>
               )}
             </div>

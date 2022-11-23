@@ -1,8 +1,8 @@
 import { AccountBatch, BatchType } from "@popcorn/utils/src/types";
-import { InfoIconWithModal } from "components/InfoIconWithModal";
-import MainActionButton from "components/MainActionButton";
-import TertiaryActionButton from "components/TertiaryActionButton";
-import { formatBatchInputToken, formatBatchOutputToken } from "../../helper/ClaimableBatchUtils";
+import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
+import MainActionButton from "@popcorn/app/components/MainActionButton";
+import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
+import { formatBatchInputToken, formatBatchOutputToken } from "@popcorn/app/helper/ClaimableBatchUtils";
 export interface BatchProps {
   batch: AccountBatch;
   handleClaimAndStake: (batch: AccountBatch) => void;

@@ -1,10 +1,8 @@
-import {
-  ElectionMetadata,
-  GrantElectionAdapter,
-} from "@popcorn/hardhat/lib/adapters/GrantElection/GrantElectionAdapter";
-import { GrantElections } from "@popcorn/hardhat/typechain";
+import { GrantElectionAdapter } from "helper/adapters";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ContractsContext } from "./contracts";
+import { ElectionMetadata } from "helper/types";
+import { Contract } from "ethers/lib/ethers";
 
 interface ElectionsContext {
   elections: ElectionMetadata[];
@@ -22,10 +20,10 @@ export function ElectionsProvider({ children }: ElectionsProviderProps): React.R
   const [elections, setElections] = useState<ElectionMetadata[]>([]);
   const [shouldRefresh, refresh] = useState(false);
 
-  async function getElectionMetadata(electionsContract: GrantElections) {
+  async function getElectionMetadata(electionsContract: Contract) {
     setElections(
       await Promise.all(
-        [0, 1, 2].map(async (term) => await GrantElectionAdapter(electionsContract).getElectionMetadata(term)),
+        [0].map(async (term) => await GrantElectionAdapter(electionsContract).getElectionMetadata(term)),
       ),
     );
   }

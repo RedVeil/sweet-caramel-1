@@ -1,5 +1,5 @@
+import { ChainId } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
-import { ChainId } from "context/Web3/connectors";
 import { ethers } from "ethers";
 import { useCallback } from "react";
 import toast from "react-hot-toast";
@@ -30,7 +30,7 @@ export default function useWeb3Callbacks() {
       [library, account, chainId],
     ),
     onError: useCallback(
-      async (error) => {
+      async (error: Error) => {
         toast.dismiss();
         if (error.message === "MetaMask Tx Signature: User denied transaction signature.") {
           toast.error("Transaction was canceled");

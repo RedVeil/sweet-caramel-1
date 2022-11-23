@@ -3,14 +3,11 @@ import { BigNumber, ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getSignerFrom } from "../lib/utils/getSignerFrom";
-import { addContractToRegistry } from "./utils";
+import { addContractToRegistry, getSetup } from "./utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-  const addresses = await getNamedAccounts();
+  const { deploy, deployments, addresses, signer } = await getSetup(hre);
   const { threeXStaking, threePool, threeX, dai, usdc, usdt } = addresses;
-  const signer = await getSignerFrom(hre.config.namedAccounts.deployer as string, hre);
 
   //ContractRegistry
   const contractRegistryAddress = (await deployments.get("ContractRegistry")).address;
@@ -19,8 +16,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("deploying threeXWhaleProcessing...");
 
   await deploy("ThreeXWhaleProcessing", {
-    from: addresses.deployer,
-    args: [contractRegistryAddress, addresses.setBasicIssuanceModule, threeXStaking, threePool, [dai, usdc, usdt]],
+    from: await signer.getAddress(),
+    args: [
+      contractRegistryAddress,
+      addresses.setBasicIssuanceModule,
+      (await deployments.get("threeXStaking")).address,
+      threePool,
+      [dai, usdc, usdt],
+    ],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
@@ -33,7 +36,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   console.log("setting ThreeXWhaleProcessing approvals ... ");
   const approvalsTx = await processingContract.setApprovals();
-  if (!["hardhat", "local"].includes(hre.network.name)) {
+  if (!["hardhat", "local", "remote_fork"].includes(hre.network.name)) {
     await approvalsTx.wait();
   }
 

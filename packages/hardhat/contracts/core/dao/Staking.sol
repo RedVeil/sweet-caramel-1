@@ -1,7 +1,7 @@
 /// SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -11,22 +11,17 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "../defi/vault/Vault.sol";
-
-import "../interfaces/IStakingRewards.sol";
+import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
+contract Staking is IStaking, Ownable, ReentrancyGuard, Pausable, ERC20 {
   using SafeERC20 for IERC20;
 
   /* ========== STATE VARIABLES ========== */
 
   IERC20 public rewardsToken;
   IERC20 public stakingToken;
-
-  // Link a vault which is allowed to burn IOU for the user
-  address public vault;
 
   IRewardsEscrow public rewardsEscrow;
   uint256 public periodFinish = 0;
@@ -50,8 +45,8 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
     IRewardsEscrow _rewardsEscrow
   )
     ERC20(
-      IERC20Metadata(address(_stakingToken)).name(),
-      string(abi.encodePacked("X", IERC20Metadata(address(_stakingToken)).symbol()))
+      string(abi.encodePacked("Popcorn - ", IERC20Metadata(address(_stakingToken)).name(), " Staking")),
+      string(abi.encodePacked("pop-st-", IERC20Metadata(address(_stakingToken)).symbol()))
     )
   {
     rewardsToken = _rewardsToken;
@@ -84,6 +79,14 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
     return rewardRate * rewardsDuration;
   }
 
+  function balanceOf(address account) public view override(IStaking, ERC20) returns (uint256) {
+    return super.balanceOf(account);
+  }
+
+  function paused() public view override(IStaking, Pausable) returns (bool) {
+    return super.paused();
+  }
+
   /* ========== MUTATIVE FUNCTIONS ========== */
 
   function stakeFor(uint256 amount, address account) external {
@@ -108,7 +111,7 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
     address owner,
     address receiver
   ) external {
-    if (msg.sender != vault) _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
+    _approve(owner, msg.sender, allowance(owner, msg.sender) - amount);
     _withdraw(amount, owner, receiver);
   }
 
@@ -210,9 +213,18 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
     rewardsEscrow = IRewardsEscrow(_rewardsEscrow);
   }
 
-  function setVault(address _vault) external onlyOwner {
-    emit VaultUpdated(vault, _vault);
-    vault = _vault;
+  /**
+   * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function pauseContract() external onlyOwner {
+    _pause();
+  }
+
+  /**
+   * @notice Unpause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
+   */
+  function unpauseContract() external onlyOwner {
+    _unpause();
   }
 
   /* ========== ERC20 OVERRIDE ========== */
@@ -223,7 +235,7 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
     address, /* from */
     address, /* to */
     uint256 /* amount */
-  ) internal override(ERC20) {
+  ) internal pure override(ERC20) {
     revert nonTransferable();
   }
 
@@ -245,14 +257,6 @@ contract Staking is IStakingRewards, Ownable, ReentrancyGuard, Pausable, ERC20 {
 
   /* ========== EVENTS ========== */
 
-  event RewardAdded(uint256 reward);
-  event Staked(address indexed user, uint256 amount);
   event RewardsEscrowUpdated(address _previous, address _new);
-  event Withdrawn(address indexed user, uint256 amount);
-  event RewardPaid(address indexed user, uint256 reward);
-  event RewardsDurationUpdated(uint256 newDuration);
-  event EscrowDurationUpdated(uint256 _previousDuration, uint256 _newDuration);
   event Recovered(address token, uint256 amount);
-  event RewardDistributorUpdated(address indexed distributor, bool approved);
-  event VaultUpdated(address oldVault, address newVault);
 }
