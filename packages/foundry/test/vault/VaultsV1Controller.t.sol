@@ -124,9 +124,9 @@ contract VaultsV1ControllerTest is Test {
 
     asset = ERC20(CRV_3CRYPTO);
 
-    vaultImplementation = address(new Vault());
-    stakingImplementation = address(new VaultStaking());
-    yearnWrapperImplementation = address(new YearnWrapper());
+    vaultImplementation = address(new Vault{ salt: keccak256("VAULT") }());
+    stakingImplementation = address(new VaultStaking{ salt: keccak256("VAULT_STAKING") }());
+    yearnWrapperImplementation = address(new YearnWrapper{ salt: keccak256("YEARN_WRAPPER") }());
 
     yearnWrapper = YearnWrapper(helper__deployYearnWrapper(YEARN_VAULT));
 
@@ -502,11 +502,11 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
 
-    emit VaultV1Deployment(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF);
-    emit VaultStakingDeployment(0x387CA36E7F9467889baf29276b8Cdd647b650572);
-    emit VaultAdded(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, 1, true, CID);
-    emit VaultStatusChanged(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, true, true);
-    emit VaultV1Deployed(0xcaE9B933A098F0155D69Ac0CBf8AECBFC152ECcF, true);
+    emit VaultV1Deployment(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9);
+    emit VaultStakingDeployment(0x7DA6f3b0f87d7c0d51F7B490c255Cb02E7A1C60E);
+    emit VaultAdded(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9, 1, true, CID);
+    emit VaultStatusChanged(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9, true, true);
+    emit VaultV1Deployed(0xe60ac44Ea3066928d421911C74DC15CbBE4A06a9, true);
 
     address _vault = vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
@@ -1415,12 +1415,12 @@ contract VaultsV1ControllerTest is Test {
         abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
       )
     );
-    assertEq(strategy, address(0xC52FF07fbe7D9EE33CA4996940Ed257eae9416Fd));
+    assertEq(strategy, address(0x50B01F7C2E1Fb8D933A5B15B97985E520C4B92CD));
   }
 
   function test__deployStrategyEvent() public acceptOwnerships {
     vm.expectEmit(false, false, false, true, address(yearnWrapperFactory));
-    emit YearnWrapperDeployment(address(0xC52FF07fbe7D9EE33CA4996940Ed257eae9416Fd));
+    emit YearnWrapperDeployment(address(0x50B01F7C2E1Fb8D933A5B15B97985E520C4B92CD));
 
     vaultsV1Controller.deployStrategy(
       keccak256("YearnWrapperFactory"),
