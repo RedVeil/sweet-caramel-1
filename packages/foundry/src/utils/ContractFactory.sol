@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./ACLAuth.sol";
 import "./ContractRegistryAccess.sol";
 
@@ -79,12 +79,13 @@ contract ContractFactory is ACLAuth, ContractRegistryAccess {
 
   function deploy(address _implementation, bytes calldata _deploymentArgs)
     external
-    returns (address clone, bytes memory returnData)
+    returns (address clone, bytes memory)
   {
     if (!implementationToEndorsed[_implementation]) revert ImplementationNotEndorsed();
 
     clone = Clones.clone(_implementation);
 
+    // TODO replace with _getSelector
     bytes4 initSelector = implementationToInitSelector[_implementation];
 
     (bool success, bytes memory returnData) = clone.call(abi.encodeWithSelector(initSelector, _deploymentArgs));
@@ -92,6 +93,7 @@ contract ContractFactory is ACLAuth, ContractRegistryAccess {
     if (!success) revert DeploymentInitFailed();
 
     emit Deployment(clone);
+    return (clone, returnData);
   }
 
   /* ========== Overrides ========== */

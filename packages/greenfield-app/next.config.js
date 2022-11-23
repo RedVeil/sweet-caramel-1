@@ -3,20 +3,11 @@ require("../utils/src/envLoader");
 
 const workspace = join(__dirname, "..");
 
-const ChainId = {
-  1: "ethereum",
-  4: "rinkeby",
-  42161: "arbitrum",
-  80001: "mumbai",
-  137: "polygon",
-  1337: "localhost",
-  31337: "hardhat",
-  56: "bnb",
-};
-const defaultChain = ChainId[Number(process.env.CHAIN_ID)];
-
 module.exports = {
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   env: {
     RPC_URL: process.env.RPC_URL,
     CHAIN_ID: process.env.CHAIN_ID,

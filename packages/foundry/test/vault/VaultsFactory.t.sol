@@ -31,8 +31,9 @@ contract VaultsFactoryTest is Test {
     vm.selectFork(forkId);
 
     STRATEGY = address(new MockERC4626(ERC20(CRV_3CRYPTO), "Mock Token Vault", "vwTKN"));
-    vaultsFactory = new VaultsFactory(address(this));
-    vaultImplementation = address(new Vault());
+
+    vaultsFactory = new VaultsFactory{ salt: keccak256("vaultFactory") }(address(this));
+    vaultImplementation = address(new Vault{ salt: keccak256("vaultImplementation") }());
 
     vaultsFactory.setImplementation(vaultImplementation);
 
@@ -60,18 +61,18 @@ contract VaultsFactoryTest is Test {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    address vault = vaultsFactory.deploy(vaultParams);
+    address vault = vaultsFactory.deploy(vaultParams, 0);
     assertEq(vault, address(0), "vault deployment failed");
   }
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(vaultsFactory));
-    emit VaultV1Deployment(0x9cC6334F1A7Bc20c9Dde91Db536E194865Af0067);
+    emit VaultV1Deployment(0x18b791a1B770264684c487b33A7494BA17Fd018f);
 
     address vault = vaultsFactory.deploy(vaultParams);
 
     // Check that the vault got deployed
-    assertEq(vault, address(0x9cC6334F1A7Bc20c9Dde91Db536E194865Af0067));
+    assertEq(vault, address(0x18b791a1B770264684c487b33A7494BA17Fd018f));
   }
 
   function test__deployMultipleVaults() public {

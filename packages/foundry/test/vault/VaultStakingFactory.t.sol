@@ -58,23 +58,23 @@ contract VaultStakingFactoryTest is Test {
     vm.startPrank(notOwner);
     vm.expectRevert("Only the contract owner may perform this action");
 
-    address staking = vaultStakingFactory.deploy(VAULT);
+    address staking = vaultStakingFactory.deploy(VAULT, keccak256("THIS_IS_A_SALT"));
     assertEq(staking, address(0), "staking deployment failed");
   }
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
-    emit VaultStakingDeployment(0x037FC82298142374d974839236D2e2dF6B5BdD8F);
+    emit VaultStakingDeployment(0x334869230eF412DBfF6D4bab3ef68A319291dfc5);
 
-    address staking = vaultStakingFactory.deploy(VAULT);
+    address staking = vaultStakingFactory.deploy(VAULT, keccak256("THIS_IS_A_SALT"));
 
     // Check that the staking got deployed
-    assertEq(staking, address(0x037FC82298142374d974839236D2e2dF6B5BdD8F));
+    assertEq(staking, address(0x334869230eF412DBfF6D4bab3ef68A319291dfc5));
   }
 
   function test__deployMultipleVaultStakingContracts() public {
-    address staking1 = vaultStakingFactory.deploy(VAULT);
-    address staking2 = vaultStakingFactory.deploy(helper__deployVault(CRV_ECRV));
+    address staking1 = vaultStakingFactory.deploy(VAULT, keccak256("THIS_IS_A_SALT_1"));
+    address staking2 = vaultStakingFactory.deploy(helper__deployVault(CRV_ECRV), keccak256("THIS_IS_A_SALT_2"));
 
     // Check that the staking got deployed
     assertTrue(staking1 != staking2);

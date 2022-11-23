@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../src/vault/VaultsFactory.sol";
 import "../../src/vault/VaultStakingFactory.sol";
 import "../../src/vault/wrapper/yearn/YearnWrapperFactory.sol";
@@ -124,9 +124,9 @@ contract VaultsControllerTest is Test {
 
     asset = ERC20(CRV_3CRYPTO);
 
-    vaultImplementation = address(new Vault());
-    stakingImplementation = address(new VaultStaking());
-    yearnWrapperImplementation = address(new YearnWrapper());
+    vaultImplementation = address(new Vault{ salt: keccak256("VAULT") }());
+    stakingImplementation = address(new VaultStaking{ salt: keccak256("VAULT_STAKING") }());
+    yearnWrapperImplementation = address(new YearnWrapper{ salt: keccak256("YEARN_WRAPPER") }());
 
     yearnWrapper = YearnWrapper(helper__deployYearnWrapper(YEARN_VAULT));
 
@@ -501,11 +501,11 @@ contract VaultsControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsRegistry));
     vm.expectEmit(false, false, false, true, address(vaultsController));
 
-    emit VaultV1Deployment(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38);
-    emit VaultStakingDeployment(0x93474D608089d9Fa2347A19A0a85EdC8ce562FeA);
-    emit VaultAdded(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38, 1, true, CID);
-    emit VaultStatusChanged(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38, true, true);
-    emit VaultV1Deployed(0x44BE86DCe657787bEdeA647c166b3cAd9f83ff38, true);
+    emit VaultV1Deployment(0xF4Ed673C99450FCF96015844eDD1577335B6695B);
+    emit VaultStakingDeployment(0x0D7CadAab171Bd7B3a0EA6e1b21b2BfF9F13E14f);
+    emit VaultAdded(0xF4Ed673C99450FCF96015844eDD1577335B6695B, 1, true, CID);
+    emit VaultStatusChanged(0xF4Ed673C99450FCF96015844eDD1577335B6695B, true, true);
+    emit VaultV1Deployed(0xF4Ed673C99450FCF96015844eDD1577335B6695B, true);
 
     vaultsController.deployVaultFromV1Factory(
       vaultParams,
@@ -1005,12 +1005,7 @@ contract VaultsControllerTest is Test {
     vaultArray[0] = helper__deployThroughFactory(true, DEFAULT_STAKING);
 
     IVault.FeeStructure[] memory newFeeStructure = new IVault.FeeStructure[](1);
-    newFeeStructure[0] = IVault.FeeStructure({
-      deposit: 1e18,
-      withdrawal: 1e18,
-      management: 1e18,
-      performance: 1e18
-    });
+    newFeeStructure[0] = IVault.FeeStructure({ deposit: 1e18, withdrawal: 1e18, management: 1e18, performance: 1e18 });
 
     vm.expectRevert(Vault.InvalidFeeStructure.selector);
     vaultsController.setVaultFees(vaultArray, newFeeStructure);
@@ -1399,25 +1394,34 @@ contract VaultsControllerTest is Test {
     vm.expectRevert("Only the contract owner may perform this action");
     vaultsController.deployStrategy(
       keccak256("YearnWrapperFactory"),
-      abi.encodePacked(bytes4(keccak256("deploy(address)")), abi.encode(YEARN_VAULT))
+      abi.encodePacked(
+        bytes4(keccak256("deploy(address,bytes32)")),
+        abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
+      )
     );
   }
 
   function test__deployStrategy() public acceptOwnerships {
     address strategy = vaultsController.deployStrategy(
       keccak256("YearnWrapperFactory"),
-      abi.encodePacked(bytes4(keccak256("deploy(address)")), abi.encode(YEARN_VAULT))
+      abi.encodePacked(
+        bytes4(keccak256("deploy(address,bytes32)")),
+        abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
+      )
     );
-    assertEq(strategy, address(0x87d4141886b9efbF959FB19ABC1c28Aad30Ca8B5));
+    assertEq(strategy, address(0x9083b2bD1357c1e9bdF6548FB525C715cf883F0d));
   }
 
   function test__deployStrategyEvent() public acceptOwnerships {
     vm.expectEmit(false, false, false, true, address(yearnWrapperFactory));
-    emit YearnWrapperDeployment(address(0x87d4141886b9efbF959FB19ABC1c28Aad30Ca8B5));
+    emit YearnWrapperDeployment(address(0x9083b2bD1357c1e9bdF6548FB525C715cf883F0d));
 
     vaultsController.deployStrategy(
       keccak256("YearnWrapperFactory"),
-      abi.encodePacked(bytes4(keccak256("deploy(address)")), abi.encode(YEARN_VAULT))
+      abi.encodePacked(
+        bytes4(keccak256("deploy(address,bytes32)")),
+        abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
+      )
     );
   }
 

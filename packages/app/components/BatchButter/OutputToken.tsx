@@ -18,7 +18,13 @@ const OutputToken: React.FC<OutputTokenProps> = ({ outputToken, selectToken, sel
             label={
               <div className="flex items-center h-full">
                 <span className="w-5 h-5 relative mr-2 flex-shrink-0">
-                  <Image src={token.icon} alt={token.symbol} layout="fill" objectFit="contain" priority={true} />
+                  <Image
+                    src={token.icon}
+                    alt={token.symbol + " icon"}
+                    layout="fill"
+                    objectFit="contain"
+                    priority={true}
+                  />
                 </span>
                 {token.symbol}
               </div>

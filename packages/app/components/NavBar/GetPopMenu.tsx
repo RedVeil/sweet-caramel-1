@@ -53,8 +53,10 @@ const GetPopMenu: React.FC<GetPopMenuProps> = () => {
                 } group px-2 pt-4 w-full h-14 cursor-pointer`}
                 onClick={async () =>
                   await window.ethereum.request({
+                    // @ts-ignore
                     method: "wallet_watchAsset",
                     params: {
+                      // @ts-ignore
                       type: "ERC20",
                       options: {
                         address: pop,

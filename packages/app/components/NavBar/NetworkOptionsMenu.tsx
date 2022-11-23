@@ -58,13 +58,6 @@ function NetworkOptionsMenu(): JSX.Element {
           hidden={!showLocalNetwork}
         />
         <NetworkOptionsMenuItem
-          chainId={ChainId.Rinkeby}
-          switchNetwork={(chainId) => switchNetwork({ chainId })}
-          currentChainId={chain?.id}
-          key={ChainId.Rinkeby}
-          hidden={!showLocalNetwork}
-        />
-        <NetworkOptionsMenuItem
           chainId={ChainId.RemoteFork}
           switchNetwork={(chainId) => switchNetwork({ chainId })}
           currentChainId={chain?.id}

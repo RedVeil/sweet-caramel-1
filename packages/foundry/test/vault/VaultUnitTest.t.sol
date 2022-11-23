@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 
-import { ERC20 } from "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { MockERC20 } from "../utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
 import { Vault } from "../../src/vault/Vault.sol";
@@ -521,14 +521,14 @@ contract VaultUnitTest is Test {
 
     vm.prank(alice);
     uint256 actualShares = vault.deposit(amount, alice);
-    assertApproxEqAbs(expectedShares, actualShares, 1);
+    assertApproxEqAbs(expectedShares, actualShares, 2);
 
     // Test PreviewMint and Mint
     uint256 expectedDeposit = vault.previewMint(amount);
 
     vm.prank(bob);
     uint256 actualDeposit = vault.mint(amount, bob);
-    assertApproxEqAbs(expectedDeposit, actualDeposit, 1);
+    assertApproxEqAbs(expectedDeposit, actualDeposit, 2);
   }
 
   function test_PreviewWithdrawRedeemTakesFeesIntoAccount(uint128 amount) public {
@@ -632,23 +632,40 @@ contract VaultUnitTest is Test {
     assertEq(vault.assetsCheckpoint(), depositAmount + amount);
   }
 
-  function test_withdrawAccruedFees() public {
+  function test_withdrawAccruedDepositFees() public {
     uint256 depositAmount = 1 ether;
+
+    uint256 keeperBalBefore = vault.balanceOf(address(keeperIncentive));
+    uint256 accruedFeesBefore = vault.balanceOf(address(vault));
 
     vm.prank(ACL_ADMIN);
     vault.setFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    (uint256 depositFee, , , ) = vault.feeStructure();
 
     underlying.mint(alice, depositAmount);
+
     vm.startPrank(alice);
     underlying.approve(address(vault), depositAmount);
     vault.deposit(depositAmount, alice);
     vm.stopPrank();
 
+    uint256 accruedFeesAfter = vault.balanceOf(address(vault));
+
     vm.prank(ACL_ADMIN);
     vault.withdrawAccruedFees();
 
+    uint256 keeperBalAfter = vault.balanceOf(address(keeperIncentive));
+    uint256 keeperEarnings = keeperBalAfter - keeperBalBefore;
+    uint256 depositFeesEarned = accruedFeesAfter - accruedFeesBefore;
+
+    assertTrue(accruedFeesAfter > accruedFeesBefore);
+
+    assertTrue(keeperBalAfter > keeperBalBefore);
+
+    assertEq(depositFeesEarned, (depositAmount * depositFee) / 1e18);
+
     // Fees sub incentive tip
-    assertEq(underlying.balanceOf(feeRecipient), (depositAmount / 10) - 1);
+    assertEq(vault.balanceOf(feeRecipient), depositFeesEarned - keeperEarnings);
   }
 
   // ----- Change Strategy ----- //

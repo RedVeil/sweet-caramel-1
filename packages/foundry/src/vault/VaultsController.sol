@@ -9,7 +9,6 @@ import "../utils/ContractRegistryAccess.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IVault.sol";
-import "../interfaces/IVaultsV1Zapper.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
 import "../interfaces/IERC4626.sol";
@@ -309,11 +308,9 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
 
-  function _deployStrategy(address _strategyImplementation, bytes memory _deploymentParams)
-    internal
-    returns (address strategy)
-  {
+  function _deployStrategy(address _strategyImplementation, bytes memory _deploymentParams) internal returns (address) {
     (address strategy, bytes memory returnData) = _vaultsFactory().deploy(_strategyImplementation, _deploymentParams);
+    return strategy;
   }
 
   /* ========== OWNERSHIP FUNCTIONS ========== */

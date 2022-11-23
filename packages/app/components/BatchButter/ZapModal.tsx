@@ -8,7 +8,6 @@ import OutputToken from "@popcorn/app/components/BatchButter/OutputToken";
 import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
 import { CustomSlippageInput } from "@popcorn/app/components/BatchButter/SlippageSettings";
 
-
 interface ZapModalProps {
   tokenOptions: Token[];
   slippage: number;
@@ -46,7 +45,7 @@ export default function ZapModal({
             <div className="flex items-center mb-2">
               <p>Slippage Tolerance</p>
               <InfoIconWithTooltip
-                classExtras="w-5 h-5 mt-0 ml-2"
+                classExtras="mt-0 ml-2"
                 id="slippageTolerance"
                 title="Slippage Tolerance"
                 content="Your transaction will revert if the price changes unfavorably by more than this percentage"
@@ -73,7 +72,7 @@ export default function ZapModal({
             <div className="flex items-center mb-2">
               <p>Custom adjustment Slippage</p>
               <InfoIconWithTooltip
-                classExtras="w-5 h-5 mt-0 ml-2"
+                classExtras="mt-0 ml-2"
                 id="customAdjustment"
                 title="Custom Adjustment"
                 content="Input a custom slippage tolerance amount"

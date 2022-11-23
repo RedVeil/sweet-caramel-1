@@ -2,7 +2,7 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "openzeppelin-contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./Vault.sol";
 import { VaultMetadata } from "./VaultsRegistry.sol";
 import "../utils/Owned.sol";
@@ -11,7 +11,7 @@ import "../interfaces/IRewardsEscrow.sol";
 import "./VaultStaking.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import "../interfaces/IERC4626.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @notice Factory that deploys VaultStaking
@@ -37,12 +37,13 @@ contract VaultStakingFactory is Owned {
 
   /**
    * @notice Deploys VaultStaking
+   * @dev This should always be called through the VaultV1Controller
    * @param vault - address of the vault
-   * @dev This should always be called through the VaultController
+   * @param salt - salt used to generate deterministic address
    */
   // TODO add implementation address
-  function deploy(address vault) external onlyOwner returns (address stakingAddress) {
-    stakingAddress = Clones.clone(implementation);
+  function deploy(address vault, bytes32 salt) external onlyOwner returns (address stakingAddress) {
+    stakingAddress = Clones.cloneDeterministic(implementation, salt);
 
     VaultStaking(stakingAddress).initialize(IERC20(address(vault)), contractRegistry);
     emit VaultStakingDeployment(stakingAddress);

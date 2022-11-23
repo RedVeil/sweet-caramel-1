@@ -11,12 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     env:
       NODE_OPTIONS: "--max-old-space-size=8500"
       # Coverage requires extra memory:
@@ -31,12 +25,12 @@ jobs:
           target: .env
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - name: "yarn install"
         run: yarn install
       - name: "yarn build"
-        run: yarn build
+        run: "yarn lerna run --scope=@popcorn/hardhat build"
         env:
           CI: true
       - name: "hardhat solidity coverage"
-        run: "cd packages/hardhat; yarn coverage"
+        run: "yarn lerna run --scope=@popcorn/hardhat coverage"

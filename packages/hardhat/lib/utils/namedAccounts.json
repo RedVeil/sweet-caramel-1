@@ -27,6 +27,9 @@
   "xenStaking": {
     "addresses": {
       "mainnet": "0xeB906A75838A8078B181815969b1DCBC20eaF7c0"
+    },
+    "metadata": {
+      "priceResolver": "staking"
     }
   },
   "angleRouter": {
@@ -58,11 +61,15 @@
   },
   "beneficiaryGovernance": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "BeneficiaryGovernance"
+    }
   },
   "beneficiaryRegistry": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "BeneficiaryRegistry"
+    }
   },
   "butter": {
     "addresses": {
@@ -71,7 +78,8 @@
     },
     "metadata": {
       "name": "Butter (V2)",
-      "icons": ["/images/icons/BTR.svg"]
+      "icons": ["/images/icons/BTR.svg"],
+      "priceResolver": "setToken"
     }
   },
   "butterBatch": {
@@ -97,7 +105,9 @@
       "mainnet": "0x27A9B8065Af3A678CD121A435BEA9253C53Ab428"
     },
     "metadata": {
-      "contractName": "ButterStaking"
+      "contractName": "ButterStaking",
+      "priceResolver": "staking",
+      "symbol": "pst-BTR"
     }
   },
   "butterWhaleProcessing": {
@@ -110,7 +120,7 @@
     "addresses": {
       "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
       "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
-      "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA"
+      "rinkeby": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3"
     },
     "metadata": null
   },
@@ -379,11 +389,15 @@
   },
   "govStaking": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "govStaking"
+    }
   },
   "grantElections": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "GrantElections"
+    }
   },
   "ibCHF": {
     "addresses": {
@@ -433,15 +447,16 @@
       "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
       "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
       "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
-      "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06"
+      "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
+      "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
     },
     "metadata": {
       "name": "Popcorn",
       "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
       "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
-      "metadata": {
-        "icons": ["/images/icons/POP.svg"]
-      }
+      "icons": ["/images/icons/POP.svg"],
+      "priceResolver": "pop",
+      "contractName": "pop"
     }
   },
   "popStaking": {
@@ -456,17 +471,19 @@
       "contractName": "PopLocker",
       "icons": ["/images/icons/POP.svg"],
       "name": "POP",
-      "symbol": "POP"
+      "priceResolver": "staking"
     }
   },
   "popUsdcArrakisVault": {
     "addresses": {
       "mainnet": "0xbba11b41407df8793a89b44ee4b50afad4508555",
-      "polygon": "0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4"
+      "polygon": "0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4",
+      "optimism": "0x2AE1231E4CF821Af69982c4D04725CD502D8B53E"
     },
     "metadata": {
       "name": "Arrakis USDC/POP LP",
-      "icons": ["/images/tokens/usdc.webp", "/images/icons/POP.svg"]
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
+      "priceResolver": "arrakis"
     }
   },
   "popUsdcArrakisVaultStaking": {
@@ -474,7 +491,9 @@
       "mainnet": "0x633b32573793A67cE41A7D0fFe66e78Cd3379C45",
       "polygon": "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc"
     },
-    "metadata": null
+    "metadata": {
+      "priceResolver": "staking"
+    }
   },
   "popUsdcLp": {
     "addresses": {
@@ -485,7 +504,8 @@
     "metadata": {
       "name": "USDC/POP LP",
       "buyLinkEthereum": "https://beta.arrakis.finance/#/vaults/0xBBA11b41407dF8793A89b44ee4b50AfAD4508555/add",
-      "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add"
+      "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add",
+      "priceResolver": "arrakis"
     }
   },
   "popUsdcLpStaking": {
@@ -495,7 +515,9 @@
       "polygon": "0xe6f315f4e0dB78185239fFFb368D6d188f6b926C",
       "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D"
     },
-    "metadata": null
+    "metadata": {
+      "priceResolver": "staking"
+    }
   },
   "popUsdcUniV3Pool": {
     "addresses": {
@@ -519,11 +541,16 @@
       "polygon": "0xa82cAA79F35f7d6B6f1EC1971878F3474C894565",
       "rinkeby": "0xdC7EF4A3ce57484fFAA8A61797E04A385Fdb7ACa"
     },
-    "metadata": null
+    "metadata": {
+      "priceResolver": "pop",
+      "symbol": "POP"
+    }
   },
   "rewardsManager": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "RewardsManager"
+    }
   },
   "sCHF": {
     "addresses": {
@@ -626,7 +653,8 @@
       "mainnet": "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3"
     },
     "metadata": {
-      "icons": ["/images/tokens/3X.svg"]
+      "icons": ["/images/tokens/3X.svg"],
+      "priceResolver": "setToken"
     }
   },
   "threeXBatch": {
@@ -649,7 +677,9 @@
       "mainnet": "0x584732f867a4533BC349d438Fba4fc2aEE5f5f83"
     },
     "metadata": {
-      "contractName": "ThreeXStaking"
+      "contractName": "ThreeXStaking",
+      "priceResolver": "staking",
+      "symbol": "pst-3X"
     }
   },
   "threeXWhale": {
@@ -692,9 +722,10 @@
       "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94"
     },
     "metadata": {
-      "icons": ["/images/tokens/usdc.webp"],
+      "icons": ["/images/tokens/usdc.svg"],
       "name": "USDC",
-      "symbol": "USDC"
+      "symbol": "USDC",
+      "priceResolver": "defillama"
     }
   },
   "usdt": {
@@ -754,7 +785,8 @@
       "polygon": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8"
     },
     "metadata": {
-      "icons": ["/images/icons/POP.svg"]
+      "icons": ["/images/icons/POP.svg"],
+      "priceResolver": "pop"
     }
   },
   "xPopRedemption": {

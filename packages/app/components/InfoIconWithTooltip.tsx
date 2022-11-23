@@ -27,7 +27,7 @@ export const InfoIconWithTooltip: React.FC<InfoIconWithTooltipProps> = ({ title,
           src="/images/icons/tooltip.svg"
           data-tip
           data-for={id}
-          className={`cursor-pointer w-4 laptop:w-auto ${classExtras}`}
+          className={`cursor-pointer w-4 h-4 ${classExtras}`}
         />
       </div>
     </ReactTooltip>

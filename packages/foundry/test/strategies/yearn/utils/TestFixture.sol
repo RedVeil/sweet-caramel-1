@@ -2,8 +2,8 @@
 pragma solidity ^0.8.12;
 pragma abicoder v2;
 
-import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { VaultAPI } from "../../../../src/interfaces/external/yearn/IVaultAPI.sol";
 import { IVault } from "../../../../src/interfaces/external/yearn/IVault.sol";
 import "forge-std/console.sol";

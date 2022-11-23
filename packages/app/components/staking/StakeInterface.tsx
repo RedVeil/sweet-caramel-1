@@ -5,7 +5,7 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
-import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
@@ -14,6 +14,9 @@ import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
 import PopLockerInteraction from "@popcorn/app/components/staking/PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
+import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
+import { useDeployment } from "@popcorn/app/hooks/useDeployment";
+import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;
@@ -58,6 +61,9 @@ export default function StakeInterface({
   const [state, setState] = form;
   const router = useRouter();
   const networkName = useNetworkName();
+  const { Ethereum } = ChainId;
+  const { popStaking } = useDeployment(Ethereum);
+  const { data: popPool } = usePopLocker(popStaking, Ethereum);
 
   const toggleInterface = () =>
     setState({
@@ -76,10 +82,13 @@ export default function StakeInterface({
 
       <div className="grid grid-cols-12 mt-10">
         <div className="col-span-12 md:col-span-5">
-          <TokenIcon token={stakingToken?.address} chainId={chainId} />
+          <div className="relative ml-4">
+            <NetworkSticker />
+            <TokenIcon token={stakingToken?.address} chainId={chainId} />
+          </div>
           <h1 className="text-black text-5xl md:text-6xl leading-12 mt-9">{stakingToken?.name}</h1>
           <div className="flex flex-wrap">
-            <div className="block pr-8 md:pr-6 mt-6 md:mt-8 ">
+            <div className="block pr-8 md:pr-6 mt-6 md:mt-8">
               <StatusWithLabel
                 content={
                   stakingPool?.apy.lt(constants.Zero) ? "New 🍿✨" : formatAndRoundBigNumber(stakingPool?.apy, 18) + "%"
@@ -165,12 +174,15 @@ export default function StakeInterface({
           <div className="w-full md:grid grid-cols-12 gap-8 hidden">
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
-                <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                <div className="relative ml-4">
+                  <NetworkSticker />
+                  <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                </div>
                 <div>
-                  <div className="flex">
+                  <div className="flex md:mb-2">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
                     <InfoIconWithTooltip
-                      classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                      classExtras="mt-0 ml-1 md:ml-2 p-0"
                       id="1"
                       title="Staked Balance"
                       content={`This is the balance of ${stakingToken?.symbol} that you have staked.`}
@@ -184,23 +196,24 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              <Link href={buyLink || "#"} passHref>
-                <a target={`${buyLink ? "_blank" : "_self"}`}>
-                  <div className="border-t border-customLightGray pt-2 px-1">
-                    <SecondaryActionButton label="Get Token" />
-                  </div>
-                </a>
+              <Link href={buyLink || "#"} passHref target={`${buyLink ? "_blank" : "_self"}`}>
+                <div className="border-t border-customLightGray pt-2 px-1">
+                  <SecondaryActionButton label="Get Token" />
+                </div>
               </Link>
             </div>
 
             <div className="rounded-lg border border-customLightGray p-6 pb-4 col-span-12 md:col-span-6">
               <div className="flex gap-6 md:gap-0 md:space-x-6 items-center pb-6">
-                <TokenIcon token={stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                <div className="relative ml-4">
+                  <NetworkSticker />
+                  <TokenIcon token={popPool?.stakingToken?.address} chainId={chainId} imageSize="w-12 h-12" />
+                </div>
                 <div>
-                  <div className="flex">
+                  <div className="flex md:mb-2">
                     <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>
                     <InfoIconWithTooltip
-                      classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                      classExtras="mt-0 ml-1 md:ml-2 p-0"
                       id="2"
                       title="Your Staking Rewards"
                       content={`Staking rewards are received for staking tokens. Rewards may be claimed under the rewards page. Whenever rewards are claimed, 10% is transferred immediately to your wallet, and the rest is streamed and claimable over the next 1 year.`}
@@ -211,12 +224,10 @@ export default function StakeInterface({
                   </p>
                 </div>
               </div>
-              <Link href={`/rewards`} passHref>
-                <a target="_self">
-                  <div className="border-t border-customLightGray pt-2 px-1">
-                    <SecondaryActionButton label="Claim Page" />
-                  </div>
-                </a>
+              <Link href={`/rewards`} passHref target="_self">
+                <div className="border-t border-customLightGray pt-2 px-1">
+                  <SecondaryActionButton label="Claim Page" />
+                </div>
               </Link>
             </div>
           </div>
@@ -226,12 +237,15 @@ export default function StakeInterface({
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
                   <div className="flex gap-6 md:gap-0 md:space-x-6">
-                    <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    <div className="relative ml-4">
+                      <NetworkSticker />
+                      <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    </div>
                     <div className="pb-6">
                       <div className="flex">
                         <h2 className="text-primaryLight leading-5 text-base">Your Staked Balance</h2>
                         <InfoIconWithTooltip
-                          classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                          classExtras="mt-0 ml-1 md:ml-2 md:mb-2 p-0"
                           id="1"
                           title="Staked Balance"
                           content={`This is the balance of ${stakingToken?.symbol} that you have staked.`}
@@ -245,12 +259,10 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  <Link href={buyLink || "#"} passHref>
-                    <a target={`${buyLink ? "_blank" : "_self"}`}>
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Get Token" />
-                      </div>
-                    </a>
+                  <Link href={buyLink || "#"} passHref target={`${buyLink ? "_blank" : "_self"}`}>
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Get Token" />
+                    </div>
                   </Link>
                 </div>
               </div>
@@ -258,12 +270,15 @@ export default function StakeInterface({
               <div className="px-1">
                 <div className="rounded-lg border border-customLightGray p-6 col-span-12 md:col-span-6">
                   <div className="flex gap-6 md:gap-0 md:space-x-6">
-                    <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    <div className="relative ml-4">
+                      <NetworkSticker />
+                      <TokenIcon token={stakingToken?.address} chainId={chainId} />
+                    </div>
                     <div className="pb-6">
                       <div className="flex">
                         <h2 className="text-primaryLight leading-5 text-base">Your Staking Rewards</h2>
                         <InfoIconWithTooltip
-                          classExtras="h-5 w-5 mt-0 ml-1 md:ml-2 md:mb-2 p-0"
+                          classExtras="mt-0 ml-1 md:ml-2 md:mb-2 p-0"
                           id="2"
                           title="Your Staking Rewards"
                           content={`Staking rewards are received for staking tokens. Rewards may be claimed under the rewards page. Whenever rewards are claimed, 10% is transferred immediately to your wallet, and the rest is streamed and claimable over the next 1 year.`}
@@ -275,12 +290,10 @@ export default function StakeInterface({
                       </p>
                     </div>
                   </div>
-                  <Link href={`/rewards`} passHref>
-                    <a target="_self">
-                      <div className="border-t border-customLightGray pt-2 px-1">
-                        <SecondaryActionButton label="Claim Page" />
-                      </div>
-                    </a>
+                  <Link href={`/rewards`} passHref target="_self">
+                    <div className="border-t border-customLightGray pt-2 px-1">
+                      <SecondaryActionButton label="Claim Page" />
+                    </div>
                   </Link>
                 </div>
               </div>

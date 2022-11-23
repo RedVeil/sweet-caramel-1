@@ -1,4 +1,3 @@
-import "@float-capital/solidity-coverage";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@popcorn/utils/src/envLoader";
@@ -8,6 +7,7 @@ import "@anthonymartin/hardhat-deploy";
 import "hardhat-gas-reporter";
 import "hardhat-secure-signer";
 import "./lib/tasks";
+import "solidity-coverage";
 
 module.exports = {
   solidity: {
@@ -117,7 +117,7 @@ module.exports = {
     },
     remote_fork: {
       chainId: 31338,
-      url: process.env.RPC_URL,
+      url: process.env.RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
       gasPrice: 10000000000,
     },
     rinkeby: {

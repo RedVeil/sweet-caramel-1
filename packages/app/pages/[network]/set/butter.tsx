@@ -464,8 +464,10 @@ export default function ButterPage(): JSX.Element {
               <a
                 onClick={async () =>
                   window.ethereum.request({
+                    // @ts-ignore
                     method: "wallet_watchAsset",
                     params: {
+                      // @ts-ignore
                       type: "ERC20",
                       options: {
                         address: addr.butter,
@@ -602,14 +604,18 @@ export default function ButterPage(): JSX.Element {
   return (
     <>
       <div className="grid grid-cols-12">
-        <div className="col-span-12 md:col-span-5">
-          <h1 className="text-6xl leading-12">Butter - Yield Optimizer</h1>
+        <div className="col-span-12 md:col-span-7">
+          <h1 className="text-6xl leading-12">
+            Butter - Yield <br />
+            Optimizer
+          </h1>
           <p className="mt-4 leading-5 text-primaryDark">
-            Mint BTR and earn interest on multiple stablecoins at once. Stake BTR to earn boosted APY.
+            Mint BTR and earn interest on multiple stablecoins at once. <br />
+            Stake BTR to earn boosted APY.
           </p>
           <SetStats token={butter} />
         </div>
-        <div className="col-span-5 col-end-13 hidden md:block">
+        <div className="col-span-5 hidden md:block">
           <TutorialSlider isThreeX={false} />
         </div>
       </div>

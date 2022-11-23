@@ -2,11 +2,11 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.15;
 
-import "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/security/PausableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
+import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../utils/ACLAuth.sol";
 import "../utils/ContractRegistryAccessUpgradeable.sol";
 import "../utils/KeeperIncentivized.sol";
@@ -539,6 +539,9 @@ contract Vault is
    */
   function changeStrategy() external takeFees {
     if (block.timestamp < proposalTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
+
+    // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
+    // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
 
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 

@@ -1,5 +1,5 @@
 import { ERC20__factory } from "@popcorn/hardhat/typechain";
-import { getToken } from "@popcorn/utils";
+import getToken from "@popcorn/app/helper/getToken";
 import { isAddress } from "ethers/lib/utils";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import { useCallback, useEffect, useState } from "react";
@@ -19,7 +19,7 @@ export default function useERC20(address: string | null, chainId): Token {
     if (isAddress(address)) {
       getToken(erc20(address, provider), provider, chainId, account, undefined, metadata)
         .then((token) => mounted && setToken(token))
-        .catch((err) => { });
+        .catch((err) => {});
     }
     return () => {
       mounted = false;
