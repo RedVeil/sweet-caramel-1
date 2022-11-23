@@ -109,7 +109,10 @@ const SlippageSettings: React.FC<SlippageSettingsProps> = ({ slippage, setSlippa
               children: (
                 <SlippageContent slippage={slippage} setSlippage={setSlippage} slippageOptions={slippageOptions} />
               ),
-              onDismiss: { label: "Done", onClick: () => dispatch(setSingleActionModal(false)) },
+              onDismiss: {
+                label: "Done",
+                onClick: () => dispatch(setSingleActionModal(false)),
+              },
             }),
           )
         }

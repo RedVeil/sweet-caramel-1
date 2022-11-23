@@ -100,8 +100,16 @@ interface CommonWheelPickerProps {
 
 export type WheelPickerProps = CommonWheelPickerProps &
   (
-    | { renderWithIcon?: never; dataWithIcons?: never; data: PickerDataWithoutIcon[] }
-    | { renderWithIcon: true; data?: never; dataWithIcons: PickerDataWithIcon[] }
+    | {
+        renderWithIcon?: never;
+        dataWithIcons?: never;
+        data: PickerDataWithoutIcon[];
+      }
+    | {
+        renderWithIcon: true;
+        data?: never;
+        dataWithIcons: PickerDataWithIcon[];
+      }
   );
 
 const WheelPicker = forwardRef<WheelPickerRef, WheelPickerProps>((props, ref) => {
