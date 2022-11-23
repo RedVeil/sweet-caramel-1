@@ -425,7 +425,11 @@ async function registerBeneficiariesForElection(grantTerm, beneficiaries, grantE
   console.log("Registering beneficiaries for election");
   const electionId = await grantElections.activeElections(region, grantTerm);
   return Promise.all(
-    beneficiaries.map((account) => grantElections.registerForElection(account, electionId, { gasLimit: 3000000 }))
+    beneficiaries.map((account) =>
+      grantElections.registerForElection(account, electionId, {
+        gasLimit: 3000000,
+      })
+    )
   );
 }
 const refreshElectionState = async (
