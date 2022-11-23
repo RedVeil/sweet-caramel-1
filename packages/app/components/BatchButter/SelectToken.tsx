@@ -63,7 +63,7 @@ export default function SelectToken({
         </span>
       </div>
       <SingleActionModal
-        image={<Image src="/images/blackCircle.svg" width={88} height={88} />}
+        image={<Image src="/images/blackCircle.svg" width={88} height={88} alt="default token icon" />}
         visible={showSelectTokenModal}
         title="Select a token"
         keepOpen={false}

@@ -1,10 +1,9 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
 import axios, { AxiosResponse } from "axios";
 import { getIpfsHashFromBytes32 } from "../ipfsHashManipulation";
 
 export interface IIpfsClient {
-  get: (cid: string) => Promise<BeneficiaryApplication>;
-  add: (beneficiaryApplication: BeneficiaryApplication) => Promise<string>;
+  get: <T>(cid: string) => Promise<T>;
+  add: <T>(object: T) => Promise<string>;
   upload: (file: File, setUploadProgress?: (progress: number) => void) => Promise<UploadResult>;
 }
 
@@ -16,14 +15,11 @@ export interface UploadResult {
 }
 
 export const IpfsClient: IIpfsClient = {
-  get: async (cid: string): Promise<BeneficiaryApplication> => {
-    const beneficiaryApplication: BeneficiaryApplication = await fetch(
-      `${process.env.IPFS_URL}${cid}`,
-    ).then((response) => response.json());
-    return beneficiaryApplication;
+  get: async <T>(cid: string): Promise<T> => {
+    return fetch(`${process.env.IPFS_URL}${getIpfsHashFromBytes32(cid)}`).then((response) => response.json());
   },
 
-  add: async (beneficiaryApplication: BeneficiaryApplication): Promise<string> => {
+  add: async <T>(object: T): Promise<string> => {
     const headers = {
       pinata_api_key: process.env.PINATA_API_KEY,
       pinata_secret_api_key: process.env.PINATA_API_SECRET,
@@ -31,11 +27,9 @@ export const IpfsClient: IIpfsClient = {
     };
     let cid = "";
     try {
-      const response = (await axios.post(
-        "https://api.pinata.cloud/pinning/pinJSONToIPFS/",
-        JSON.stringify(beneficiaryApplication),
-        { headers },
-      )) as AxiosResponse<{ IpfsHash: string }>;
+      const response = (await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS/", JSON.stringify(object), {
+        headers,
+      })) as AxiosResponse<{ IpfsHash: string }>;
       cid = response.data.IpfsHash;
     } catch (e) {
       console.error(e);
@@ -53,15 +47,15 @@ export const IpfsClient: IIpfsClient = {
     };
     const config = setUploadProgress
       ? {
-        headers,
-        onUploadProgress: (progressEvent) => {
-          var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        },
-      }
+          headers,
+          onUploadProgress: (progressEvent) => {
+            var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          },
+        }
       : {
-        headers,
-      };
+          headers,
+        };
     return await axios
       .post(`${process.env.IPFS_GATEWAY_PIN}`, data, config)
       .then((result) => {

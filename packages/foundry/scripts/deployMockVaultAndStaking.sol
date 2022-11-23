@@ -4,9 +4,9 @@ pragma solidity ^0.8.15;
 import { Script } from "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "../test/utils/Faucet.sol";
-import "openzeppelin-contracts/mocks/ERC4626Mock.sol";
-import "openzeppelin-contracts/mocks/ERC20Mock.sol";
-import "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/mocks/ERC4626Mock.sol";
+import "@openzeppelin/contracts/mocks/ERC20Mock.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 /// @notice A very simple deployment script
 contract deployMockVaultAndStaking is Script {

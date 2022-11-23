@@ -1,4 +1,3 @@
-import "@float-capital/solidity-coverage";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@popcorn/utils/src/envLoader";
@@ -8,6 +7,7 @@ import "@anthonymartin/hardhat-deploy";
 import "hardhat-gas-reporter";
 import "hardhat-secure-signer";
 import "./lib/tasks";
+import "solidity-coverage";
 
 module.exports = {
   solidity: {

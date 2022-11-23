@@ -47,9 +47,7 @@ export const MobileMenu: React.FC = () => {
       <div className="flex flex-row justify-between items-center h-full">
         <div>
           <Link href="/" passHref>
-            <a>
-              <img src="/images/popLogo.svg" alt="Logo" className="w-10 h-10" />
-            </a>
+            <img src="/images/popLogo.svg" alt="Logo" className="w-10 h-10" />
           </Link>
         </div>
         {!menuVisible && (
@@ -68,11 +66,12 @@ export const MobileMenu: React.FC = () => {
                 />
               </div>
               <span
-                className={`${account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
-                  } block h-2 w-2 rounded-full border`}
+                className={`${
+                  account ? "border-green-400 bg-green-400" : "bg-white border-gray-300"
+                } block h-2 w-2 rounded-full border`}
               ></span>
             </button>
-            <Link href="/apply" passHref>
+            <Link href="/apply" passHref legacyBehavior>
               <button className="bg-transparent border-primary text-primary rounded-4xl text-base flex flex-row items-center justify-center font-medium px-5 py-1.5 border transition-all ease-in-out duration-500">
                 <DocumentAddIcon className="text-primary w-5 h-4" />
               </button>
@@ -86,18 +85,21 @@ export const MobileMenu: React.FC = () => {
           <div className="block w-10">
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "rotate-45 translate-y-1" : "-translate-y-2.5"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "opacity-0" : "opacity-100"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "opacity-0" : "opacity-100"
+              }`}
             ></span>
             <span
               aria-hidden="true"
-              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
-                }`}
+              className={`block h-1 w-10 bg-black transform transition duration-500 ease-in-out rounded-3xl ${
+                menuVisible ? "-rotate-45 -translate-y-1" : "translate-y-2.5"
+              }`}
             ></span>
           </div>
         </button>
@@ -142,15 +144,15 @@ export const MobileMenu: React.FC = () => {
                         <div className="col-span-6">
                           <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
                           <div className="flex flex-col">
-                            <Link href="/">
-                              <a href="" className=" text-primary leading-6 mt-4">
-                                Popcorn
-                              </a>
+                            <Link href="/" className=" text-primary leading-6 mt-4">
+                              Popcorn
                             </Link>
-                            <Link href="/docs/Popcorn_whitepaper_v1.pdf">
-                              <a target="_blank" className=" text-primary leading-6 mt-4">
-                                Whitepaper
-                              </a>
+                            <Link
+                              href="/docs/Popcorn_whitepaper_v1.pdf"
+                              target="_blank"
+                              className=" text-primary leading-6 mt-4"
+                            >
+                              Whitepaper
                             </Link>
                           </div>
                         </div>
@@ -158,10 +160,8 @@ export const MobileMenu: React.FC = () => {
                         <div className="col-span-6">
                           <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
                           <div className="flex flex-col">
-                            <Link href="/immunefi">
-                              <a href="" className=" text-primary leading-6 mt-4">
-                                Immunefi
-                              </a>
+                            <Link href="/immunefi" className=" text-primary leading-6 mt-4">
+                              Immunefi
                             </Link>
                           </div>
                         </div>

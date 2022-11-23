@@ -31,9 +31,18 @@ function text(step: number, isThreeX: boolean): string {
 
 function tutorialContent(step: number, isThreeX: boolean): JSX.Element {
   const imageLinks: { butter: string; threeX: string }[] = [
-    { butter: `/images/butter/Step-1.png`, threeX: `/images/butter/Step-1-3X.png` },
-    { butter: `/images/butter/Step-2.png`, threeX: `/images/butter/Step-2.png` },
-    { butter: `/images/butter/Step-3.png`, threeX: `/images/butter/Step-3-3X.png` },
+    {
+      butter: `/images/butter/Step-1.png`,
+      threeX: `/images/butter/Step-1-3X.png`,
+    },
+    {
+      butter: `/images/butter/Step-2.png`,
+      threeX: `/images/butter/Step-2.png`,
+    },
+    {
+      butter: `/images/butter/Step-3.png`,
+      threeX: `/images/butter/Step-3-3X.png`,
+    },
   ];
   return (
     <div className="w-full md:h-56 flex flex-row items-center justify-center">

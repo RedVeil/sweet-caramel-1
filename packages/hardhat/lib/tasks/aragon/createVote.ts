@@ -28,7 +28,6 @@ export default task("aragon:create-vote", "creates an aragon vote").setAction(
       ]),
     });
 
-    // @ts-expect-error
     const ipfsHash = await IpfsClient.add({ text: DESCRIPTION });
     console.log({ ipfsHash });
 

@@ -10,9 +10,12 @@ import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking"
 import NetworkFilter from "components/NetworkFilter";
 import ClaimCard from "components/rewards/ClaimCard";
 import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
+import { ChainId } from "@popcorn/utils";
+import AirDropClaim from "components/rewards/AirdropClaim";
 
 export enum Tabs {
   Staking = "Staking Rewards",
+  Airdrop = "Airdrop Redemption",
   Vesting = "Vesting Records",
 }
 
@@ -22,6 +25,7 @@ export default function RewardsPage(): JSX.Element {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useSelectNetwork(supportedNetworks);
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
+  const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
   const isSelected = (tab: Tabs) => tabSelected === tab;
   const [hasVesting, setHasVesting] = useState<boolean>(false);
   const [hasStaking, setHasStaking] = useState<boolean>(false);
@@ -51,6 +55,21 @@ export default function RewardsPage(): JSX.Element {
       clearInterval(rewardsCheck);
     }, 10000);
   }, []);
+
+  useEffect(() => {
+    if (shouldAirdropVisible(selectedNetworks)) {
+      setAvailableTabs([Tabs.Staking, Tabs.Airdrop, Tabs.Vesting]);
+    } else {
+      setAvailableTabs([Tabs.Staking, Tabs.Vesting]);
+    }
+  }, [selectedNetworks]);
+
+  const shouldAirdropVisible = (chainId) => {
+    if (chainId.length === 1) {
+      return [ChainId.Arbitrum, ChainId.Polygon, ChainId.Hardhat, ChainId.BNB, ChainId.Localhost].includes(chainId[0]);
+    }
+    return false;
+  };
 
   return (
     <>
@@ -99,32 +118,33 @@ export default function RewardsPage(): JSX.Element {
             <ConnectDepositCard extraClasses="md:h-104" />
           </div>
           <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10 md:mt-0">
-            <TabSelector
-              activeTab={tabSelected}
-              setActiveTab={setTabSelected}
-              availableTabs={[Tabs.Staking, Tabs.Vesting]}
-            />
+            <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
             <div className={`${isSelected(Tabs.Staking) ? "" : "hidden"}`}>
-              <div className={`mt-4 ${hasStaking ? "hidden" : ""}`}>
-                <NotAvailable
-                  title="No Records Available"
-                  body="No vesting records available"
-                  image="/images/emptyRecord.svg"
-                />
-              </div>
+              {/* <div className={`mt-4 ${hasStaking ? "hidden" : ""}`}>
+								<NotAvailable
+									title="No Records Available"
+									body="No staking records available"
+									image="/images/emptyRecord.svg"
+								/>
+							</div> */}
               {stakingContracts?.stakingPools &&
                 stakingContracts?.stakingPools.length > 0 &&
-                stakingContracts?.stakingPools?.map((staking) => (
-                  <div ref={stakingDiv} key={staking?.chainId + staking?.address}>
-                    <ClaimCard
-                      chainId={staking?.chainId}
-                      stakingAddress={staking?.address}
-                      stakingType={staking?.stakingType}
-                    />
-                  </div>
-                ))
-              }
-            </div >
+                stakingContracts?.stakingPools
+                  ?.filter((pool) => selectedNetworks.includes(pool.chainId))
+                  .map((staking) => (
+                    <div ref={stakingDiv} key={staking?.chainId + staking?.address}>
+                      <ClaimCard
+                        chainId={staking?.chainId}
+                        stakingAddress={staking?.address}
+                        stakingType={staking?.stakingType}
+                      />
+                    </div>
+                  ))}
+            </div>
+
+            <div className={`mt-8 ${isSelected(Tabs.Airdrop) ? "" : "hidden"}`}>
+              <AirDropClaim chainId={selectedNetworks[0]} />
+            </div>
 
             <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`} ref={rewardDiv}>
               <div className={`mb-4 ${hasVesting ? "hidden" : ""}`}>
@@ -140,10 +160,9 @@ export default function RewardsPage(): JSX.Element {
                   <Vesting key={chain + "Vesting"} chainId={chain} />
                 ))}
             </div>
-          </div >
-        </div >
-      )
-      }
+          </div>
+        </div>
+      )}
     </>
   );
 }

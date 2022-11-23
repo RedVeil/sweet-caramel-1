@@ -102,18 +102,18 @@ const Footer = () => {
           <p className="text-gray-900 font-medium leading-6 tracking-1">Products</p>
           <div className="flex flex-col">
             {process.env.SHOW_SWEETVAULTS && (
-              <Link href="/">
-                <a className=" text-primary hover:text-black leading-6 mt-4">Sweet Vaults</a>
+              <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+                Sweet Vaults
               </Link>
             )}
-            <Link href={`/${networkName}/set/3x`}>
-              <a className=" text-primary hover:text-black leading-6 mt-4">3X</a>
+            <Link href={`/${networkName}/set/3x`} className=" text-primary hover:text-black leading-6 mt-4">
+              3X
             </Link>
-            <Link href={`/${networkName}/set/butter`}>
-              <a className=" text-primary hover:text-black leading-6 mt-4">Butter</a>
+            <Link href={`/${networkName}/set/butter`} className=" text-primary hover:text-black leading-6 mt-4">
+              Butter
             </Link>
-            <Link href="/staking">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Staking</a>
+            <Link href="/staking" className=" text-primary hover:text-black leading-6 mt-4">
+              Staking
             </Link>
           </div>
         </div>
@@ -121,16 +121,18 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
           <div className="flex flex-col">
-            <Link href="/">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Popcorn</a>
+            <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+              Popcorn
             </Link>
-            <Link href="/rewards">
-              <a className=" text-primary hover:text-black leading-6 mt-4">Rewards</a>
+            <Link href="/rewards" className=" text-primary hover:text-black leading-6 mt-4">
+              Rewards
             </Link>
-            <Link href="https://popcorn-dao.gitbook.io/popcorndao-gitbook/about-popcorn/welcome-to-popcorn">
-              <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
-                Gitbook
-              </a>
+            <Link
+              href="https://popcorn-dao.gitbook.io/popcorndao-gitbook/about-popcorn/welcome-to-popcorn"
+              target="_blank"
+              className=" text-primary hover:text-black leading-6 mt-4"
+            >
+              Gitbook
             </Link>
           </div>
         </div>
@@ -138,10 +140,13 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
           <div className="flex flex-col">
-            <Link href="https://immunefi.com/bounty/popcornnetwork" passHref>
-              <a target="_blank" className=" text-primary hover:text-black leading-6 mt-4">
-                Immunefi
-              </a>
+            <Link
+              href="https://immunefi.com/bounty/popcornnetwork"
+              passHref
+              target="_blank"
+              className=" text-primary hover:text-black leading-6 mt-4"
+            >
+              Immunefi
             </Link>
           </div>
         </div>

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-// Docgen-SOLC: 0.8.0
-pragma solidity ^0.8.0;
+// Docgen-SOLC: 0.8.15
+pragma solidity ^0.8.15;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -97,7 +97,10 @@ contract BeneficiaryGovernance {
   uint256[] public nominations;
   uint256[] public takedowns;
   ConfigurationOptions public DefaultConfigurations;
-  bytes32 public constant contractName = "BeneficiaryGovernance";
+  bytes32 public constant contractName = keccak256("BeneficiaryGovernance");
+
+  error RegionDoesNotExist(bytes32 _region);
+  error BeneficiaryExists(address _beneficiary);
 
   /* ========== EVENTS ========== */
 
@@ -175,7 +178,10 @@ contract BeneficiaryGovernance {
     string calldata _applicationCid,
     ProposalType _type
   ) external validAddress(_beneficiary) enoughBond(msg.sender) returns (uint256) {
-    require(IRegion(contractRegistry.getContract(keccak256("Region"))).regionExists(_region), "region doesnt exist");
+    if (!IRegion(contractRegistry.getContract(keccak256("Region"))).regionExists(_region)) {
+      revert RegionDoesNotExist(_region);
+    }
+
     _assertProposalPreconditions(_type, _beneficiary);
 
     if (DefaultConfigurations.proposalBond > 0) {
@@ -340,22 +346,17 @@ contract BeneficiaryGovernance {
    * @notice checks beneficiary exists or doesn't exist before creating beneficiary nomination proposal or takedown proposal
    */
   function _assertProposalPreconditions(ProposalType _type, address _beneficiary) internal view {
+    bool bennyExists = IBeneficiaryRegistry(contractRegistry.getContract(keccak256("BeneficiaryRegistry")))
+      .beneficiaryExists(_beneficiary);
     if (ProposalType.BeneficiaryTakedownProposal == _type) {
-      require(
-        IBeneficiaryRegistry(contractRegistry.getContract(keccak256("BeneficiaryRegistry"))).beneficiaryExists(
-          _beneficiary
-        ),
-        "Beneficiary doesnt exist!"
-      );
+      if (bennyExists) {
+        revert BeneficiaryExists(_beneficiary);
+      }
     }
     if (ProposalType.BeneficiaryNominationProposal == _type) {
-      require(
-        !pendingBeneficiaries[_beneficiary] &&
-          !IBeneficiaryRegistry(contractRegistry.getContract(keccak256("BeneficiaryRegistry"))).beneficiaryExists(
-            _beneficiary
-          ),
-        "Beneficiary proposal is pending or already exists!"
-      );
+      if (pendingBeneficiaries[_beneficiary] && bennyExists) {
+        revert BeneficiaryExists(_beneficiary);
+      }
     }
   }
 
@@ -412,7 +413,7 @@ contract BeneficiaryGovernance {
   function _setDefaults() internal {
     DefaultConfigurations.votingPeriod = 2 days;
     DefaultConfigurations.vetoPeriod = 2 days;
-    DefaultConfigurations.proposalBond = 2000e18;
+    DefaultConfigurations.proposalBond = 2000 ether;
   }
 
   /* ========== SETTER ========== */
@@ -431,7 +432,7 @@ contract BeneficiaryGovernance {
   /* ========== MODIFIER ========== */
 
   modifier validAddress(address _address) {
-    require(_address == address(_address), "invalid address");
+    require(_address != address(0), "invalid address");
     _;
   }
   modifier enoughBond(address _address) {

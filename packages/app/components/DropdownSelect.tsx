@@ -1,4 +1,4 @@
-import { Dispatch, useState } from 'react';
+import { Dispatch, useState } from "react";
 
 interface DropdownSelectProps {
   label: string;
@@ -13,7 +13,7 @@ const DropdownSelect: React.FC<DropdownSelectProps> = ({
   selectOptions,
   selectOption,
   selectedValue,
-  disabled=false,
+  disabled = false,
 }) => {
   const [showOptions, setShowOptions] = useState<boolean>(false);
   return (
@@ -21,12 +21,14 @@ const DropdownSelect: React.FC<DropdownSelectProps> = ({
       <div>
         <button
           type="button"
-          className={`inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500 ${disabled ? 'cursor-not-allowed bg-gray-50': ''}`}
+          className={`inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500 ${
+            disabled ? "cursor-not-allowed bg-gray-50" : ""
+          }`}
           id="options-menu"
           aria-expanded="true"
           aria-haspopup="true"
           disabled={disabled}
-          onClick={() => disabled ? {} :setShowOptions((prevState) => !prevState)}
+          onClick={() => (disabled ? {} : setShowOptions((prevState) => !prevState))}
         >
           {selectedValue ? String(selectedValue) : label}
           <svg

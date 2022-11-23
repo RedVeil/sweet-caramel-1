@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { XCircleIcon } from "@heroicons/react/solid";
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import { formatAndRoundBigNumber, getBytes32FromIpfsHash, IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import FlowSteps from "components/Apply/FlowSteps";
@@ -81,7 +81,6 @@ const ApplyForm = () => {
     localStorage.setItem("beneficiaryApplicationForm", JSON.stringify(formData));
   }, [formData]);
 
-
   const errorMessages = {
     orgNameError: "Organization Name is Required",
     ethAddressError: "Your ETH Address is not valid",
@@ -94,8 +93,15 @@ const ApplyForm = () => {
 
   const checkErrors = () => {
     let errors: Array<string> = [];
-    let { orgNameError, ethAddressError, projectNameError, orgMissionError, emailError, proofOfOwnershipError, imageError } =
-      errorMessages;
+    let {
+      orgNameError,
+      ethAddressError,
+      projectNameError,
+      orgMissionError,
+      emailError,
+      proofOfOwnershipError,
+      imageError,
+    } = errorMessages;
     if (!inputExists(formData.organizationName)) {
       errors.push(orgNameError);
     }
@@ -146,7 +152,7 @@ const ApplyForm = () => {
   const loading = () => toast.loading("Uploading to IPFS...");
 
   const checkPreConditions = useCallback(async (): Promise<boolean> => {
-    console.log('calling this function')
+    console.log("calling this function");
     if (!account) {
       activate(connectors.Injected);
     }
@@ -181,52 +187,53 @@ const ApplyForm = () => {
     return true;
   }, [account, contracts, proposalBond]);
 
-  const uploadJsonToIpfs = useCallback(async (submissionData: BeneficiaryApplication): Promise<void> => {
-    setUploading(true);
-    if (await checkPreConditions()) {
-      loading();
-      dispatch(setSingleActionModal(false));
-      try {
-        const cid = await IpfsClient.add(submissionData);
-        toast.dismiss();
-        await (
-          await contracts?.pop
-            ?.connect(library.getSigner())
-            ?.approve(contracts.beneficiaryGovernance.address, proposalBond)
-        )?.wait(confirmationsPerChain(chainId));
+  const uploadJsonToIpfs = useCallback(
+    async (submissionData: BeneficiaryApplication): Promise<void> => {
+      setUploading(true);
+      if (await checkPreConditions()) {
+        loading();
+        dispatch(setSingleActionModal(false));
+        try {
+          const cid = await IpfsClient.add(submissionData);
+          toast.dismiss();
+          await (
+            await contracts?.pop
+              ?.connect(library.getSigner())
+              ?.approve(contracts.beneficiaryGovernance.address, proposalBond)
+          )?.wait(confirmationsPerChain(chainId));
 
-
-
-        await contracts.beneficiaryGovernance
-          .connect(library.getSigner())
-          .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), cid, 0);
-      } catch (error) {
-        dispatch(
-          setSingleActionModal({
-            image: <img src="/images/accept.svg" alt="error" />,
-            title: "Error",
-            content: error?.data?.message || error?.message || error,
-            onConfirm: {
-              label: "Close",
-              onClick: () => {
-                setUploading(false);
-                dispatch(setSingleActionModal(false));
+          await contracts.beneficiaryGovernance
+            .connect(library.getSigner())
+            .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), cid, 0);
+        } catch (error) {
+          dispatch(
+            setSingleActionModal({
+              image: <img src="/images/accept.svg" alt="error" />,
+              title: "Error",
+              content: error?.data?.message || error?.message || error,
+              onConfirm: {
+                label: "Close",
+                onClick: () => {
+                  setUploading(false);
+                  dispatch(setSingleActionModal(false));
+                },
               },
-            },
-            onDismiss: {
-              onClick: () => dispatch(setSingleActionModal({ visible: false })),
-            },
-          }),
-        );
-        setUploading(false);
-        return;
+              onDismiss: {
+                onClick: () => dispatch(setSingleActionModal({ visible: false })),
+              },
+            }),
+          );
+          setUploading(false);
+          return;
+        }
+        success();
+        dispatch(setSingleActionModal(false));
+        congratsModal();
       }
-      success();
-      dispatch(setSingleActionModal(false));
-      congratsModal();
-    }
-    setUploading(false);
-  }, [account, contracts, proposalBond]);
+      setUploading(false);
+    },
+    [account, contracts, proposalBond],
+  );
 
   const clearLocalStorage = () => {
     setActiveForm(FormSteps.GENERAL_INFORMATION);
@@ -297,9 +304,9 @@ const ApplyForm = () => {
 
   function connectOrFinish() {
     if (!account) {
-      return 'Connect wallet'
+      return "Connect wallet";
     } else {
-      return 'Finish'
+      return "Finish";
     }
   }
 

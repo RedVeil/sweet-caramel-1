@@ -107,7 +107,13 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
                   {!isTerms && (
                     <div className="flex justify-end mb-6 md:mb-8">
                       <button className="w-6 h-6 relative" onClick={dismiss}>
-                        <Image src="/images/closeIcon.svg" layout="fill" objectFit="contain" priority={true} />
+                        <Image
+                          src="/images/closeIcon.svg"
+                          layout="fill"
+                          objectFit="contain"
+                          priority={true}
+                          alt="close icon"
+                        />
                       </button>
                     </div>
                   )}

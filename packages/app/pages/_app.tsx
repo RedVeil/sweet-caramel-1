@@ -52,7 +52,6 @@ const { chains, provider, webSocketProvider } = configureChains(
   ],
 );
 
-console.log({ chains });
 const { connectors } = getDefaultWallets({
   appName: "Sweet Caramel",
   chains,

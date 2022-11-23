@@ -2,7 +2,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { XIcon } from "@heroicons/react/outline";
 import Slider from "@mui/material/Slider";
 import { styled } from "@mui/material/styles";
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import { useWeb3React } from "@web3-react/core";
 import Button from "components/CommonComponents/Button";
 import { ContractsContext } from "context/Web3/contracts";
@@ -117,7 +117,9 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
             min={0}
             max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
             onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
-            disabled={!account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired}
+            disabled={
+              !account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired
+            }
             size="small"
             step={1}
             valueLabelDisplay="off"

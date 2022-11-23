@@ -36,9 +36,7 @@ export default function DesktopMenu(): JSX.Element {
       <div className="flex flex-row items-center">
         <div>
           <Link href={`/`} passHref>
-            <a>
-              <img src="/images/icons/popLogo.svg" alt="Logo" className="w-10 h-10" />
-            </a>
+            <img src="/images/icons/popLogo.svg" alt="Logo" className="w-10 h-10" />
           </Link>
         </div>
       </div>

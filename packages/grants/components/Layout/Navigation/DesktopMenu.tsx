@@ -31,9 +31,7 @@ const DesktopMenu = () => {
   return (
     <div className="flex justify-between items-center w-full h-full">
       <Link href="/" passHref>
-        <a>
-          <img src="/images/popLogo.svg" alt="Logo" className="w-10 h-10" />
-        </a>
+        <img src="/images/popLogo.svg" alt="Logo" className="w-10 h-10" />
       </Link>
       <div className="flex items-center space-x-4 md:space-x-10">
         <NavbarLink label="Popcorn Grants" url="/" isActive={router.pathname === "/"} />
@@ -58,12 +56,10 @@ const DesktopMenu = () => {
           isActive={router.pathname === "/beneficiaries"}
         />
         <Link href="/apply" passHref>
-          <a>
-            <Button variant="secondary" className="md:w-44 py-3 px-0">
-              <span className="hidden md:inline">Create Proposal</span>
-              <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
-            </Button>
-          </a>
+          <Button variant="secondary" className="md:w-44 py-3 px-0">
+            <span className="hidden md:inline">Create Proposal</span>
+            <DocumentAddIcon className="text-white md:hidden w-6 h-6" />
+          </Button>
         </Link>
         <ConnectWalletButtons
           connected={account ? true : false}

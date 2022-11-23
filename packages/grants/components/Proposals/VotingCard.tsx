@@ -1,6 +1,6 @@
 import { Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
-import { ProposalStatus } from "@popcorn/hardhat/lib/adapters";
+import { ProposalStatus } from "helper/types";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import Button from "components/CommonComponents/Button";
 import VotingProgress from "components/CommonComponents/VotingProgress";
@@ -77,8 +77,9 @@ const VotingCard: React.FC<VotingCardProps> = ({
       mobileHeight={getPopModalHeight()}
     >
       <div
-        className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${!showVotes ? " rotate-180" : ""
-          }`}
+        className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${
+          !showVotes ? " rotate-180" : ""
+        }`}
       >
         <ChevronDownIcon className="animate-bounce text-secondaryLight w-5" onClick={toggleVotes} />
       </div>

@@ -1,4 +1,4 @@
-import { ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { ElectionMetadata } from "helper/types";
 
 export default function createElectionName(election: ElectionMetadata): string {
   const grantTerm = ["Monthly", "Quarterly", "Yearly"];

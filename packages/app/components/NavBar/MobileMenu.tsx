@@ -97,9 +97,7 @@ export const MobileMenu: React.FC = () => {
       <div className="flex flex-row justify-between items-center px-6 py-6 font-khTeka">
         <div>
           <Link href={`/`} passHref>
-            <a>
-              <img src="/images/icons/popLogo.svg" alt="Logo" className="w1010 h-10" />
-            </a>
+            <img src="/images/icons/popLogo.svg" alt="Logo" className="w1010 h-10" />
           </Link>
         </div>
         <div className="flex items-center gap-4">
@@ -191,15 +189,15 @@ export const MobileMenu: React.FC = () => {
                         <div className="col-span-6">
                           <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
                           <div className="flex flex-col">
-                            <Link href="/">
-                              <a href="" className=" text-primary leading-6 mt-4">
-                                Popcorn
-                              </a>
+                            <Link href="/" className=" text-primary leading-6 mt-4">
+                              Popcorn
                             </Link>
-                            <Link href="/docs/Popcorn_whitepaper_v1.pdf">
-                              <a target="_blank" className=" text-primary leading-6 mt-4">
-                                Whitepaper
-                              </a>
+                            <Link
+                              href="/docs/Popcorn_whitepaper_v1.pdf"
+                              target="_blank"
+                              className=" text-primary leading-6 mt-4"
+                            >
+                              Whitepaper
                             </Link>
                           </div>
                         </div>
@@ -207,10 +205,8 @@ export const MobileMenu: React.FC = () => {
                         <div className="col-span-6">
                           <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
                           <div className="flex flex-col">
-                            <Link href="/immunefi">
-                              <a href="" className=" text-primary leading-6 mt-4">
-                                Immunefi
-                              </a>
+                            <Link href="/immunefi" className=" text-primary leading-6 mt-4">
+                              Immunefi
                             </Link>
                           </div>
                         </div>

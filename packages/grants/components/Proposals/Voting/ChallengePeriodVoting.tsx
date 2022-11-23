@@ -1,5 +1,5 @@
-import { ProposalType } from "@popcorn/hardhat";
-import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
+import { ProposalType } from "helper/types";
+import { VoteOptions } from "helper/types";
 import { useWeb3React } from "@web3-react/core";
 import { setDualActionModal } from "context/actions";
 import { store } from "context/store";
@@ -22,7 +22,7 @@ const ChallengePeriodVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasV
     toast.loading("Submitting vote...");
     contracts.beneficiaryGovernance
       .connect(library.getSigner())
-      .vote(proposal.id, VoteOptions.Nay)
+      .vote(proposal.id, VoteOptions.Yes)
       .then((res) => {
         toast.success("Voted successfully!");
         setHasVoted(true);
@@ -75,34 +75,36 @@ const ChallengePeriodVoting: React.FC<VotingProps> = ({ proposal, hasVoted: hasV
               setDualActionModal(
                 account
                   ? {
-                    content: `Confirm your no vote for ${proposal.proposalType === ProposalType.Takedown ? "the takedown of" : ""
-                      } ${proposal.application.organizationName
+                      content: `Confirm your no vote for ${
+                        proposal.proposalType === ProposalType.Takedown ? "the takedown of" : ""
+                      } ${
+                        proposal.application.organizationName
                       }. You will not be able to cancel your vote once you confirm.`,
-                    title: "Confirm Vote",
-                    onConfirm: {
-                      label: "Confirm vote",
-                      onClick: voteNo,
-                    },
-                    onDismiss: {
-                      label: "Cancel",
-                      onClick: closeModal,
-                    },
-                  }
+                      title: "Confirm Vote",
+                      onConfirm: {
+                        label: "Confirm vote",
+                        onClick: voteNo,
+                      },
+                      onDismiss: {
+                        label: "Cancel",
+                        onClick: closeModal,
+                      },
+                    }
                   : {
-                    content: "You must connect with MetaMask before you can vote.",
-                    title: "Connect MetaMask",
-                    onConfirm: {
-                      label: "Connect",
-                      onClick: () => {
-                        activate(connectors.Injected);
-                        dispatch(setDualActionModal(false));
+                      content: "You must connect with MetaMask before you can vote.",
+                      title: "Connect MetaMask",
+                      onConfirm: {
+                        label: "Connect",
+                        onClick: () => {
+                          activate(connectors.Injected);
+                          dispatch(setDualActionModal(false));
+                        },
+                      },
+                      onDismiss: {
+                        label: "Cancel",
+                        onClick: () => dispatch(setDualActionModal(false)),
                       },
                     },
-                    onDismiss: {
-                      label: "Cancel",
-                      onClick: () => dispatch(setDualActionModal(false)),
-                    },
-                  },
               ),
             );
           }}

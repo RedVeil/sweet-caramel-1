@@ -22,13 +22,7 @@ export default function NetworkFilter({
     id: ChainId.ALL,
     value: (
       <div className="flex space-x-4">
-        <Image
-          src={networkLogos[ChainId.ALL]}
-          alt={ChainId[ChainId.ALL]}
-          height="24px"
-          width="24px"
-          objectFit="contain"
-        />
+        <Image src={networkLogos[ChainId.ALL]} alt={ChainId[ChainId.ALL]} height="24" width="24" objectFit="contain" />
         <p className="text-secondaryDark">{networkMap[ChainId.ALL]}</p>
       </div>
     ),
@@ -48,7 +42,7 @@ export default function NetworkFilter({
       id: network,
       value: (
         <div className="flex space-x-4">
-          <Image src={networkLogos[network]} alt={ChainId[network]} height="24px" width="24px" objectFit="contain" />
+          <Image src={networkLogos[network]} alt={ChainId[network]} height="24" width="24" objectFit="contain" />
           <p className="text-secondaryDark">{networkMap[network]}</p>
         </div>
       ),
@@ -61,13 +55,7 @@ export default function NetworkFilter({
           <PseudoRadioButton
             key={network}
             label={
-              <Image
-                src={networkLogos[network]}
-                alt={ChainId[network]}
-                height="24px"
-                width="24px"
-                objectFit="contain"
-              />
+              <Image src={networkLogos[network]} alt={ChainId[network]} height="24" width="24" objectFit="contain" />
             }
             handleClick={() => setActiveAndSelectedNetwork(network)}
             isActive={activeNetwork == network}

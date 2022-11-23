@@ -1,4 +1,4 @@
-import { ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { ElectionMetadata } from "helper/types";
 import { useRouter } from "next/router";
 import React from "react";
 

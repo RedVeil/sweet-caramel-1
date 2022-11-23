@@ -1,7 +1,8 @@
 {
   "name": "@popcorn/hardhat",
-  "version": "1.0.1",
+  "version": "1.1.1-alpha.0",
   "main": "index",
+  "private": true,
   "scripts": {
     "build": "yarn clean && yarn hardhat compile && yarn export",
     "dev": "yarn hardhat node --network hardhat --export ./lib/utils/exporter/out/hardhat-deployment.json",
@@ -13,7 +14,7 @@
     "test": "yarn hardhat test test/*.test.ts",
     "test:fork": "yarn hardhat test test/fork/*.test.ts",
     "test:forge": "yarn hardhat forge:forge-test",
-    "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'",
+    "coverage": "yarn hardhat coverage --testfiles 'test/*.test.ts'  --solcoverjs ./.solcover.js",
     "prettify": "yarn lint-staged --allow-empty",
     "install:forge": "forge install"
   },
@@ -21,7 +22,6 @@
     "*.{sol,ts,tsx}": "prettier --write"
   },
   "devDependencies": {
-    "@float-capital/solidity-coverage": "0.7.17",
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@openzeppelin/contracts": "4.8.0",
     "@openzeppelin/test-helpers": "0.5.15",
@@ -40,10 +40,9 @@
     "@balancer-labs/v2-solidity-utils": "2.0.0",
     "@chainlink/contracts": "0.1.9",
     "@ethersproject/hardware-wallets": "5.5.0",
-    "@makerdao/multicall": "^0.12.0",
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@nomiclabs/hardhat-waffle": "2.0.1",
-    "@popcorn/utils": "^1.0.1",
+    "@popcorn/utils": "^1.1.1-alpha.0",
     "@setprotocol/set-protocol-v2": "0.0.45",
     "@soptq/solidity-docgen": "0.5.17",
     "@typechain/ethers-v5": "7.2.0",
@@ -61,7 +60,7 @@
     "eth-provider": "0.9.8",
     "ethereum-waffle": "3.4.0",
     "ethers": "5.6.7",
-    "hardhat": "2.9.3",
+    "hardhat": "2.12.2",
     "hardhat-secure-signer": "0.0.8",
     "merkle-tree-solidity": "1.0.8",
     "mocha": "8.4.0",
@@ -74,7 +73,7 @@
     "solc-0.8.1": "npm:solc@0.8.1",
     "solc-0.8.10": "npm:solc@0.8.10",
     "solc-0.8.17": "npm:solc@0.8.17",
-    "solidity-coverage": "0.7.18",
+    "solidity-coverage": "^0.8.2",
     "solidity-shell": "^0.1.0",
     "solmate": "^6.6.1",
     "surya": "0.4.5",

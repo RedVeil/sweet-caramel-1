@@ -1,4 +1,4 @@
-import { Proposal, ProposalType } from "@popcorn/hardhat/lib/adapters";
+import { Proposal, ProposalType } from "helper/types";
 import CardBody from "components/CommonComponents/CardBody";
 import Link from "next/link";
 import VotingInformation from "./Voting/VotingInformation";
@@ -17,19 +17,17 @@ const ProposalCard: React.FC<ProposalCardProps> = ({ proposal, proposalType = 0 
         }`}
         passHref
       >
-        <a>
-          <CardBody
-            image={proposal?.application?.files?.profileImage}
-            organizationName={proposal?.application?.organizationName}
-            missionStatement={proposal?.application?.missionStatement}
-          />
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-gray-300" />
-            </div>
+        <CardBody
+          image={proposal?.application?.files?.profileImage}
+          organizationName={proposal?.application?.organizationName}
+          missionStatement={proposal?.application?.missionStatement}
+        />
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-gray-300" />
           </div>
-          <VotingInformation {...proposal} />
-        </a>
+        </div>
+        <VotingInformation {...proposal} />
       </Link>
     </div>
   );

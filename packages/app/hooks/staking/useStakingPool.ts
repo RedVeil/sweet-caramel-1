@@ -1,7 +1,8 @@
 import { isAddress } from "@ethersproject/address";
 import { Staking__factory } from "@popcorn/hardhat/typechain";
-import { ChainId, getStakingPool } from "@popcorn/utils";
-import { StakingPoolMetadata } from "@popcorn/utils/getStakingPool";
+import { ChainId } from "@popcorn/utils";
+import { getStakingPool } from "@popcorn/app/helper/getStakingPool";
+import { StakingPoolMetadata } from "@popcorn/app/helper/getStakingPool";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
