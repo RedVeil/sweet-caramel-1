@@ -28,7 +28,9 @@ export default function Vesting({ chainId }: VestingProps): JSX.Element {
   };
   return (
     <>
-      <div className={`my-4 ${isValidating && totalClaimablePop.eq(constants.Zero) && !error ? "" : "hidden"}`}>
+      <div
+        className={`my-4 ${isValidating && totalClaimablePop.eq(constants.Zero) && !error ? "show-vesting" : "hidden"}`}
+      >
         <ContentLoader viewBox="0 0 450 100" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
           {/*eslint-disable */}
           <rect x="0" y="0" rx="8" ry="8" width="450" height="100" />
@@ -36,7 +38,9 @@ export default function Vesting({ chainId }: VestingProps): JSX.Element {
         </ContentLoader>
       </div>
       <div
-        className={`flex flex-col h-full ${!totalClaimablePop || totalClaimablePop.eq(constants.Zero) ? "hidden" : ""}`}
+        className={`flex flex-col h-full ${
+          !totalClaimablePop || totalClaimablePop.eq(constants.Zero) ? "hidden" : "show-vesting-loading"
+        }`}
       >
         <div className="flex flex-row items-center mt-4">
           <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4 mr-4" />
