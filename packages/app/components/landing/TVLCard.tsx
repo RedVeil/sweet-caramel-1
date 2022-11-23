@@ -6,22 +6,34 @@ import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
 import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useMemo } from "react";
+import usePoolTVL from "@popcorn/app/hooks/usePoolTVL";
 
 export function TVLCard(): JSX.Element {
-  const { Ethereum, Polygon } = ChainId;
+  const { Ethereum, Polygon, Optimism } = ChainId;
   const eth = useDeployment(Ethereum);
+
+  const { data: mainnetPoolTVL } = usePoolTVL(Ethereum);
+  const { data: polygonPoolTVL } = usePoolTVL(Polygon);
+  const { data: optimismPoolTVL } = usePoolTVL(Optimism);
 
   const { data: mainnetStakingTVL } = useStakingTVL(Ethereum);
   const { data: polygonStakingTVL } = useStakingTVL(Polygon);
+
   const { data: butterTVL } = useSetTokenTVL(eth.butter, eth.butterBatch, Ethereum);
   const { data: threeXTVL } = useSetTokenTVL(eth.threeX, eth.threeXBatch, Ethereum);
+
   const tvl = useMemo(
     () =>
-      [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL].reduce(
-        (total, num) => total.add(num ? num : constants.Zero),
-        constants.Zero,
-      ),
-    [mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL],
+      [
+        mainnetPoolTVL,
+        polygonPoolTVL,
+        optimismPoolTVL,
+        mainnetStakingTVL,
+        polygonStakingTVL,
+        butterTVL,
+        threeXTVL,
+      ].reduce((total, num) => total.add(num ? num : constants.Zero), constants.Zero),
+    [mainnetPoolTVL, polygonPoolTVL, optimismPoolTVL, mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL],
   );
 
   let formatter = Intl.NumberFormat("en", {
