@@ -101,7 +101,7 @@ contract VaultsV1ControllerTest is Test {
   address SWAP_ADDRESS = makeAddr("swap");
   address NEW_IMPLEMENTATION = makeAddr("implementation");
   bytes32[] internal FACTORY_NAMES;
-
+  
   VaultParams internal vaultParams;
 
   address[8] internal swapTokenAddresses;
@@ -123,6 +123,9 @@ contract VaultsV1ControllerTest is Test {
     vm.selectFork(forkId);
 
     asset = ERC20(CRV_3CRYPTO);
+
+      console.log("BLOCK NUMBBER", block.number);
+
 
     vaultImplementation = address(new Vault{ salt: keccak256("VAULT") }());
     stakingImplementation = address(new VaultStaking{ salt: keccak256("VAULT_STAKING") }());

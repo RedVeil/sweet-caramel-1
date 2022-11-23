@@ -28,6 +28,7 @@ contract YearnWrapperFactoryTest is Test {
 
     factory = new YearnWrapperFactory{ salt: keccak256("YEARN_WRAPPER") }(address(this));
     implementation = address(new YearnWrapper());
+    console.log("BLOCK NUMBBER", block.number);
 
     factory.setImplementation(implementation);
 
