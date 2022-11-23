@@ -37,7 +37,7 @@ jobs:
         id: build
 
       - name: Run tests
-        run: cd packages/foundry && forge test -vvv
+        run: cd packages/foundry && forge test --sender 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38 -vvv
         env:
           FOUNDRY_PROFILE: ci
           RPC_URL: ${{secrets.RPC_URL}}

@@ -101,7 +101,7 @@ contract VaultsV1ControllerTest is Test {
   address SWAP_ADDRESS = makeAddr("swap");
   address NEW_IMPLEMENTATION = makeAddr("implementation");
   bytes32[] internal FACTORY_NAMES;
-  
+
   VaultParams internal vaultParams;
 
   address[8] internal swapTokenAddresses;
@@ -124,17 +124,9 @@ contract VaultsV1ControllerTest is Test {
 
     asset = ERC20(CRV_3CRYPTO);
 
-      console.log("BLOCK NUMBBER", block.number);
-
-
     vaultImplementation = address(new Vault{ salt: keccak256("VAULT") }());
     stakingImplementation = address(new VaultStaking{ salt: keccak256("VAULT_STAKING") }());
     yearnWrapperImplementation = address(new YearnWrapper{ salt: keccak256("YEARN_WRAPPER") }());
-
-    console.log("vaultImplementation", vaultImplementation);
-    console.log("stakingImplementation", stakingImplementation);
-    console.log("yearnWrapperImplementation", yearnWrapperImplementation);
-    console.log("addresss(this)", address(this));
 
     yearnWrapper = YearnWrapper(helper__deployYearnWrapper(YEARN_VAULT));
 
@@ -510,11 +502,11 @@ contract VaultsV1ControllerTest is Test {
     vm.expectEmit(false, false, false, true, address(vaultsV1Registry));
     vm.expectEmit(false, false, false, true, address(vaultsV1Controller));
 
-    emit VaultV1Deployment(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6);
-    emit VaultStakingDeployment(0xa315c790eb7674213082707eC949F27d3894FcAf);
-    emit VaultAdded(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6, 1, true, CID);
-    emit VaultStatusChanged(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6, true, true);
-    emit VaultV1Deployed(0x0533dCF8835Dd0D1800e87cFBd9846cb816c38B6, true);
+    emit VaultV1Deployment(0xF4Ed673C99450FCF96015844eDD1577335B6695B);
+    emit VaultStakingDeployment(0x0D7CadAab171Bd7B3a0EA6e1b21b2BfF9F13E14f);
+    emit VaultAdded(0xF4Ed673C99450FCF96015844eDD1577335B6695B, 1, true, CID);
+    emit VaultStatusChanged(0xF4Ed673C99450FCF96015844eDD1577335B6695B, true, true);
+    emit VaultV1Deployed(0xF4Ed673C99450FCF96015844eDD1577335B6695B, true);
 
     address _vault = vaultsV1Controller.deployVaultFromV1Factory(
       vaultParams,
@@ -1425,12 +1417,12 @@ contract VaultsV1ControllerTest is Test {
         abi.encode(YEARN_VAULT, keccak256("THIS_IS_A_SALT"))
       )
     );
-    assertEq(strategy, address(0x50B01F7C2E1Fb8D933A5B15B97985E520C4B92CD));
+    assertEq(strategy, address(0x9083b2bD1357c1e9bdF6548FB525C715cf883F0d));
   }
 
   function test__deployStrategyEvent() public acceptOwnerships {
     vm.expectEmit(false, false, false, true, address(yearnWrapperFactory));
-    emit YearnWrapperDeployment(address(0x50B01F7C2E1Fb8D933A5B15B97985E520C4B92CD));
+    emit YearnWrapperDeployment(address(0x9083b2bD1357c1e9bdF6548FB525C715cf883F0d));
 
     vaultsV1Controller.deployStrategy(
       keccak256("YearnWrapperFactory"),

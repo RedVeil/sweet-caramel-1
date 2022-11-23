@@ -66,13 +66,13 @@ contract VaultsV1FactoryTest is Test {
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(vaultsV1Factory));
-    emit VaultV1Deployment(0x938C522c7953850c80440aa78335804617752420);
+    emit VaultV1Deployment(0x18b791a1B770264684c487b33A7494BA17Fd018f);
 
     address vault = vaultsV1Factory.deploy(vaultParams, keccak256("THIS_IS_A_SALT"));
     console.log("Vault address: ", vault);
 
     // Check that the vault got deployed
-    assertEq(vault, address(0x938C522c7953850c80440aa78335804617752420));
+    assertEq(vault, address(0x18b791a1B770264684c487b33A7494BA17Fd018f));
   }
 
   function test__deployMultipleVaults() public {

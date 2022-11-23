@@ -64,12 +64,12 @@ contract VaultStakingFactoryTest is Test {
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(vaultStakingFactory));
-    emit VaultStakingDeployment(0xF349f6EC258C356deA1Ce946Abd9d78d70dDc72e);
+    emit VaultStakingDeployment(0x334869230eF412DBfF6D4bab3ef68A319291dfc5);
 
     address staking = vaultStakingFactory.deploy(VAULT, keccak256("THIS_IS_A_SALT"));
 
     // Check that the staking got deployed
-    assertEq(staking, address(0xF349f6EC258C356deA1Ce946Abd9d78d70dDc72e));
+    assertEq(staking, address(0x334869230eF412DBfF6D4bab3ef68A319291dfc5));
   }
 
   function test__deployMultipleVaultStakingContracts() public {

@@ -28,7 +28,6 @@ contract YearnWrapperFactoryTest is Test {
 
     factory = new YearnWrapperFactory{ salt: keccak256("YEARN_WRAPPER") }(address(this));
     implementation = address(new YearnWrapper());
-    console.log("BLOCK NUMBBER", block.number);
 
     factory.setImplementation(implementation);
 
@@ -48,12 +47,12 @@ contract YearnWrapperFactoryTest is Test {
 
   function test__deploy() public {
     vm.expectEmit(false, false, false, true, address(factory));
-    emit YearnWrapperDeployment(0x6cE1982b76b7d653CAbD066941C940DF4656Ba94);
+    emit YearnWrapperDeployment(0x03e0F0F9ae5AD6B5c54a4e53E339532f6139F3E8);
 
     address yearnWrapper = factory.deploy(YEARN_VAULT, keccak256("THIS_IS_A_SALT"));
 
     // Check that the yearnWrapper got deployed
-    assertEq(yearnWrapper, address(0x6cE1982b76b7d653CAbD066941C940DF4656Ba94));
+    assertEq(yearnWrapper, address(0x03e0F0F9ae5AD6B5c54a4e53E339532f6139F3E8));
   }
 
   function test__deployMultipleVaults() public {
