@@ -13,6 +13,7 @@
     "ethers": "^5.7.2",
     "next": "latest",
     "react": "^18.2.0",
+    "@popcorn/utils": "1.1.1-alpha.0",
     "react-dom": "^18.2.0",
     "wagmi": "0.8.4"
   },
