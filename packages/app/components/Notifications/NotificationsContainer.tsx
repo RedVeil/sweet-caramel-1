@@ -1,11 +1,10 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Transition } from '@headlessui/react';
-import { CheckCircleIcon, ClockIcon } from '@heroicons/react/outline';
-import { XIcon } from '@heroicons/react/solid';
-import { Fragment, useContext, useEffect } from 'react';
-import { hideNotification, unsetNotification } from '@popcorn/app/context/actions';
-import { store } from '@popcorn/app/context/store';
-
+import { Transition } from "@headlessui/react";
+import { CheckCircleIcon, ClockIcon } from "@heroicons/react/outline";
+import { XIcon } from "@heroicons/react/solid";
+import { Fragment, useContext, useEffect } from "react";
+import { hideNotification, unsetNotification } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/app/context/store";
 
 const NotificationsContainer: React.FC = () => {
   const {
@@ -61,26 +60,16 @@ const NotificationsContainer: React.FC = () => {
                 <div className="p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      {notification.type == 'success' && (
-                        <CheckCircleIcon
-                          className="h-6 w-6 text-green-400"
-                          aria-hidden="true"
-                        />
+                      {notification.type == "success" && (
+                        <CheckCircleIcon className="h-6 w-6 text-green-400" aria-hidden="true" />
                       )}
-                      {notification.type == 'waiting' && (
-                        <ClockIcon
-                          className="h6 w-6 text-yellow-400"
-                          aria-hidden="true"
-                        />
+                      {notification.type == "waiting" && (
+                        <ClockIcon className="h6 w-6 text-yellow-400" aria-hidden="true" />
                       )}
                     </div>
                     <div className="ml-3 w-0 flex-1 pt-0.5">
-                      <p className="text-sm font-medium text-gray-900">
-                        {notification.title}
-                      </p>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {notification.content}
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                      <p className="mt-1 text-sm text-gray-500">{notification.content}</p>
                     </div>
                     <div className="ml-4 flex-shrink-0 flex">
                       <button

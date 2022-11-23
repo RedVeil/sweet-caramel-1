@@ -18,12 +18,12 @@ const List = styled.ul`
   text-align: center;
   padding: 0 20px;
   ${(props: {
-  height: number;
-  width: string;
-  backgroundColor: string;
-  shadowColor: string;
-  focusColor: string;
-}): string => `
+    height: number;
+    width: string;
+    backgroundColor: string;
+    shadowColor: string;
+    focusColor: string;
+  }): string => `
     height: ${props.height}px;
     width: ${props.width};
     background-color: ${props.backgroundColor};

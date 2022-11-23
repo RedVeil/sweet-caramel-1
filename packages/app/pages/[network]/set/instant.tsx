@@ -25,7 +25,11 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import ContentLoader from "react-content-loader";
 import toast from "react-hot-toast";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
-import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE, getZapDepositAmount } from "@popcorn/app/pages/[network]/set/butter";
+import {
+  ButterPageState,
+  DEFAULT_BUTTER_PAGE_STATE,
+  getZapDepositAmount,
+} from "@popcorn/app/pages/[network]/set/butter";
 
 export default function InstantButter() {
   const { signerOrProvider, account, onContractSuccess, onContractError, connect, setChain } = useWeb3();

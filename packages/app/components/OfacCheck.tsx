@@ -9,7 +9,7 @@ export default function OfacCheck(): JSX.Element {
   const { account } = useWeb3();
   const [data, setData] = useState<{ success: boolean; permitted: boolean }>(null);
   const [isLoading, setLoading] = useState(false);
-  const { disconnect } = useDisconnect()
+  const { disconnect } = useDisconnect();
 
   useEffect(() => {
     if (!account) return;

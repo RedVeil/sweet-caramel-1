@@ -19,11 +19,13 @@ function text(step: number, isThreeX: boolean): string {
     case 1:
       return "First connect your wallet. Then select the token you would like to deposit from the dropdown, enter the deposit amount and click ‘Mint’. If you are depositing for the first time, you’ll need to approve the contract.";
     case 2:
-      return `Your deposits will be held in ${isThreeX ? "3X" : "Butter"
-        }’s batch processing queue. Note: To minimise gas fees, deposits are processed approximately every 24 hours. You are able to withdraw your deposits during this phase.`;
+      return `Your deposits will be held in ${
+        isThreeX ? "3X" : "Butter"
+      }’s batch processing queue. Note: To minimise gas fees, deposits are processed approximately every 24 hours. You are able to withdraw your deposits during this phase.`;
     case 3:
-      return `Once the batch has been processed, you will be able to claim the new minted ${isThreeX ? "3X" : "Butter"
-        } tokens!`;
+      return `Once the batch has been processed, you will be able to claim the new minted ${
+        isThreeX ? "3X" : "Butter"
+      } tokens!`;
   }
 }
 

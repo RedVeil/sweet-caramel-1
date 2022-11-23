@@ -31,8 +31,9 @@ const PortfolioItem = () => {
           }
         </div>
         <ChevronDownIcon
-          className={`${expanded ? "rotate-180" : "rotate-0"
-            } transform transition-all ease-in-out w-6 text-secondaryLight`}
+          className={`${
+            expanded ? "rotate-180" : "rotate-0"
+          } transform transition-all ease-in-out w-6 text-secondaryLight`}
         />
       </div>
 
