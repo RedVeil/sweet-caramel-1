@@ -9,7 +9,7 @@ on:
       - packages/hardhat/**
 
 jobs:
-  build:
+  Coverage:
     runs-on: ubuntu-latest
     env:
       NODE_OPTIONS: "--max-old-space-size=8500"
@@ -34,3 +34,38 @@ jobs:
           CI: true
       - name: "hardhat solidity coverage"
         run: "yarn lerna run --scope=@popcorn/hardhat coverage"
+
+  Forge-Tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: canastro/copy-file-action@master
+        name: "copy env file"
+        with:
+          source: .env.example
+          target: .env
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: "Yarn install"
+        run: yarn install
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run Forge build
+        run: cd packages/hardhat && forge build
+        id: build
+
+      - name: Run tests
+        run: yarn test:forge
+        env:
+          FOUNDRY_PROFILE: ci
+          RPC_URL: ${{secrets.RPC_URL}}
+          FORKING_RPC_URL: ${{secrets.RPC_URL}}

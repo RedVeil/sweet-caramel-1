@@ -1,5 +1,5 @@
 ---
-name: "Preview Next Deployment"
+name: "Preview Sweet Caramel Deployment"
 on:
   push:
     paths:
