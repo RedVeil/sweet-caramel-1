@@ -61,11 +61,32 @@ export const RPC_URLS = {
   [ChainId.Localhost]: `http://localhost:8545`,
 };
 export const PRC_PROVIDERS = {
-  [ChainId.Ethereum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Ethereum], ChainId.Ethereum),
-  [ChainId.Rinkeby]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Rinkeby], ChainId.Rinkeby),
-  [ChainId.Arbitrum]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Arbitrum], ChainId.Arbitrum),
-  [ChainId.Polygon]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Polygon], ChainId.Polygon),
-  [ChainId.Mumbai]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Mumbai], ChainId.Mumbai),
-  [ChainId.BNB]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.BNB], ChainId.BNB),
-  [ChainId.Localhost]: new ethers.providers.JsonRpcProvider(RPC_URLS[ChainId.Localhost], ChainId.Localhost),
+  [ChainId.Ethereum]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.Ethereum],
+    ChainId.Ethereum
+  ),
+  [ChainId.Rinkeby]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.Rinkeby],
+    ChainId.Rinkeby
+  ),
+  [ChainId.Arbitrum]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.Arbitrum],
+    ChainId.Arbitrum
+  ),
+  [ChainId.Polygon]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.Polygon],
+    ChainId.Polygon
+  ),
+  [ChainId.Mumbai]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.Mumbai],
+    ChainId.Mumbai
+  ),
+  [ChainId.BNB]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.BNB],
+    ChainId.BNB
+  ),
+  [ChainId.Localhost]: new ethers.providers.JsonRpcProvider(
+    RPC_URLS[ChainId.Localhost],
+    ChainId.Localhost
+  ),
 };
