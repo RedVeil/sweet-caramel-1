@@ -1,4 +1,4 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 import classnames from "classnames";
 import { TelegramIcon, TwitterIcon } from "components/Svgs";
 import LinkedInIcon from "components/Svgs/LinkedInIcon";

@@ -2,8 +2,8 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Transition } from "@headlessui/react";
 import { ShareIcon } from "@heroicons/react/outline";
 import { ChevronLeftIcon } from "@heroicons/react/solid";
-import { BeneficiaryGovernanceAdapter, Proposal, ProposalType } from "@popcorn/hardhat/lib/adapters";
-import { VoteOptions } from "@popcorn/hardhat/lib/bengov/constants";
+import { Proposal, ProposalType, VoteOptions } from "helper/types";
+import { BeneficiaryGovernanceAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import { useWeb3React } from "@web3-react/core";
 import SocialShare from "components/CommonComponents/SocialShare";
@@ -137,7 +137,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onConfirm: {
           label: "Accept",
           onClick: () => {
-            vote(VoteOptions.Yea);
+            vote(VoteOptions.Yes);
           },
         },
         onDismiss: {
@@ -160,7 +160,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         onConfirm: {
           label: "Reject",
           onClick: () => {
-            vote(VoteOptions.Nay);
+            vote(VoteOptions.No);
           },
         },
         onDismiss: {
@@ -183,7 +183,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
         toast.success("Voted successfully!");
         setHasVoted(true);
         dispatch(setSingleActionModal(false));
-        if (selectedVote === VoteOptions.Yea) {
+        if (selectedVote === VoteOptions.Yes) {
           openVoteAcceptedModal();
         } else {
           openVoteRejectedModal();
@@ -303,11 +303,9 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   return (
     <section className="relative">
       <div className="md:hidden mb-10 px-6">
-        <Link href={"/applications"}>
-          <a className="flex space-x-2">
-            <ChevronLeftIcon className="text-secondaryLight w-4" />
-            <p className="text-primary">Beneficiary Applications</p>
-          </a>
+        <Link href={"/applications"} className="flex space-x-2">
+          <ChevronLeftIcon className="text-secondaryLight w-4" />
+          <p className="text-primary">Beneficiary Applications</p>
         </Link>
       </div>
       <Hero bgImage={`${process.env.IPFS_URL}${proposal?.application?.files?.headerImage?.image}`} className="relative">
@@ -321,25 +319,21 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
           </button>
           {account && account == proposal?.application?.beneficiaryAddress && (
             <Link href="/profile/edit">
-              <a>
-                <button
-                  className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex items-center px-5 py-3 gap-3 shadow-white-button "
-                  onClick={saveProfileID}
-                >
-                  <EditIcon color="#000000" />
-                  Edit Profile
-                </button>
-              </a>
+              <button
+                className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex items-center px-5 py-3 gap-3 shadow-white-button "
+                onClick={saveProfileID}
+              >
+                <EditIcon color="#000000" />
+                Edit Profile
+              </button>
             </Link>
           )}
         </div>
       </Hero>
       <div className="hidden md:block mx-8 mt-8">
-        <Link href={"/applications"}>
-          <a className="flex space-x-2">
-            <ChevronLeftIcon className="text-secondaryLight w-4" />
-            <p className="text-primary">Beneficiary Applications</p>
-          </a>
+        <Link href={"/applications"} className="flex space-x-2">
+          <ChevronLeftIcon className="text-secondaryLight w-4" />
+          <p className="text-primary">Beneficiary Applications</p>
         </Link>
       </div>
       <div className="container mx-auto">
@@ -374,14 +368,12 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                 </button>
                 {account && account == proposal?.application?.beneficiaryAddress && (
                   <Link href="/profile/edit">
-                    <a>
-                      <button
-                        className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center"
-                        onClick={saveProfileID}
-                      >
-                        <EditIcon color="#645F4B" />
-                      </button>
-                    </a>
+                    <button
+                      className="border border-primary bg-white h-12 w-12 rounded-full flex justify-center items-center"
+                      onClick={saveProfileID}
+                    >
+                      <EditIcon color="#645F4B" />
+                    </button>
                   </Link>
                 )}
               </div>

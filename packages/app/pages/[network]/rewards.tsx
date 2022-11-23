@@ -1,4 +1,4 @@
-import { PopLocker, Staking, XPopRedemption__factory } from "@popcorn/hardhat/typechain";
+import { XPopRedemption__factory } from "@popcorn/hardhat/typechain";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { CardLoader } from "@popcorn/app/components/CardLoader";
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";

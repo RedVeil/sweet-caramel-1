@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { ElectionTerm } from "@popcorn/hardhat";
+import { ElectionTerm } from "helper/types";
 import { useWeb3React } from "@web3-react/core";
 import Icon from "components/Icon";
 import SingleActionModal from "components/Modal/SingleActionModal";

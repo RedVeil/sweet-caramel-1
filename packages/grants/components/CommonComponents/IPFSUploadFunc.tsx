@@ -1,8 +1,5 @@
-import { BeneficiaryImage } from "@popcorn/hardhat";
-import {
-  AdditionalImages,
-  ImpactReport,
-} from "@popcorn/hardhat/lib/adapters/BeneficiaryGovernance/BeneficiaryGovernanceAdapter";
+import { Image as ImageUpload } from "helper/types";
+import { Image, ImpactReport } from "helper/types";
 import { IpfsClient, UploadResult } from "@popcorn/utils";
 import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -26,13 +23,11 @@ const isSuccessfulUpload = (res: UploadResult): boolean => res.status >= 200 && 
 const isFailedUpload = (res: UploadResult): boolean => res.status !== 200;
 
 interface IPFSUploadFuncProps {
-  localState: string | string[] | ImpactReport[] | BeneficiaryImage[] | AdditionalImages[];
+  localState: string | string[] | ImpactReport[] | ImageUpload[] | Image[];
   fileType: string;
   maxFileSizeMB?: number;
   numMaxFiles: number;
-  setLocalState: (
-    input: string | string[] | UploadResult[] | ImpactReport[] | BeneficiaryImage[] | AdditionalImages[],
-  ) => void;
+  setLocalState: (input: string | string[] | UploadResult[] | ImpactReport[] | ImageUpload[] | Image[]) => void;
   children: JSX.Element | JSX.Element[];
 }
 

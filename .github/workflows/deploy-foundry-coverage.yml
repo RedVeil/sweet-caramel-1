@@ -25,12 +25,19 @@ jobs:
         with:
           version: nightly
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: "Yarn install"
+        run: cd packages/foundry && yarn
+
       - name: Run Forge build
         run: cd packages/foundry && forge build
         id: build
 
       - name: Run tests
-        run: cd packages/foundry && forge test -vvv
+        run: cd packages/foundry && forge test --sender 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38 -vvv
         env:
           FOUNDRY_PROFILE: ci
           RPC_URL: ${{secrets.RPC_URL}}
@@ -56,6 +63,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: "Yarn install"
+        run: cd packages/foundry && yarn
 
       - name: Make PR Comment
         uses: mshick/add-pr-comment@v2

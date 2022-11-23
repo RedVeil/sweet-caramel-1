@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "../../../src/interfaces/IContractRegistry.sol";
 import "../../../src/utils/ContractRegistryAccess.sol";
 import "../../../src/utils/KeeperIncentivized.sol";
-import "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract KeeperIncentivizedHelper is KeeperIncentivized, ContractRegistryAccess {
   bytes32 public immutable contractName = keccak256("KeeperIncentivizedHelper");

@@ -61,11 +61,15 @@
   },
   "beneficiaryGovernance": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "BeneficiaryGovernance"
+    }
   },
   "beneficiaryRegistry": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "BeneficiaryRegistry"
+    }
   },
   "butter": {
     "addresses": {
@@ -385,11 +389,15 @@
   },
   "govStaking": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "govStaking"
+    }
   },
   "grantElections": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "GrantElections"
+    }
   },
   "ibCHF": {
     "addresses": {
@@ -447,7 +455,8 @@
       "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
       "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
       "icons": ["/images/icons/POP.svg"],
-      "priceResolver": "pop"
+      "priceResolver": "pop",
+      "contractName": "pop"
     }
   },
   "popStaking": {
@@ -539,7 +548,9 @@
   },
   "rewardsManager": {
     "addresses": {},
-    "metadata": null
+    "metadata": {
+      "contractName": "RewardsManager"
+    }
   },
   "sCHF": {
     "addresses": {

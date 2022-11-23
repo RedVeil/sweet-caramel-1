@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import { useContext, useEffect } from "react";
 import { setSingleActionModal } from "../context/actions";
 import { store } from "../context/store";
-import { ChainId, networkMap } from "../context/Web3/connector";
+import { ChainId, networkMap } from "@popcorn/utils";
 
 const SwapChainModal: React.FC = () => {
   const context = useWeb3React<Web3Provider>();

@@ -1,6 +1,6 @@
 import { Staking__factory } from "@popcorn/hardhat/typechain";
-import { ChainId, getStakingPool } from "@popcorn/utils";
-import { StakingPoolMetadata } from "@popcorn/utils/getStakingPool";
+import { ChainId } from "@popcorn/utils/connectors";
+import { getStakingPool, StakingPoolMetadata } from "@popcorn/app/helper/getStakingPool";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useMemo } from "react";

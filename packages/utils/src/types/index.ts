@@ -1,5 +1,4 @@
 import { BigNumber, Contract } from "ethers";
-import { ERC20 } from "@popcorn/hardhat/typechain";
 import { ChainId } from "@popcorn/utils";
 
 export type Address = string;
@@ -148,7 +147,7 @@ export type LockedBalance = {
 };
 
 export type Token = {
-  contract: ERC20;
+  contract: Contract;
   address: string;
   name: string;
   symbol: string;
@@ -203,7 +202,7 @@ export type SweetVaultMetadata = ERC20Metadata & {
 // contract w/ metadata pattern
 // TODO we need to find a way to get this type from /foundry or use smth else instead
 export type SweetVaultWithMetadata = {
-  contract: ERC20;
+  contract: Contract;
   address: string;
   chainId: ChainId;
   metadata: SweetVaultMetadata;

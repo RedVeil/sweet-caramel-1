@@ -8,8 +8,11 @@ const descriptions = {
       {" "}
       Zokyo is an end-to-end security resource that provides distinguishable security auditing and penetration testing
       services alongside prominent vulnerability assessments.{" "}
-      <Link href="https://assets.website-files.com/5f99eb79d508ca853be5f2e8/61b21474b7a1746d889f599d_Popcorn%20SC%20Audit.pdf">
-        <a className="text-customPurple">See Zokyo's review.</a>
+      <Link
+        href="https://assets.website-files.com/5f99eb79d508ca853be5f2e8/61b21474b7a1746d889f599d_Popcorn%20SC%20Audit.pdf"
+        className="text-customPurple"
+      >
+        See Zokyo's review.
       </Link>
     </>
   ),
@@ -17,8 +20,8 @@ const descriptions = {
     <>
       Immunefi is a leading bug bounty platform for Web3 where hundreds of security researchers review smart contracts
       for vulnerabilites.{" "}
-      <Link href="https://immunefi.com/bounty/popcornnetwork/">
-        <a className="text-customPurple">See Popcorn's bug bounty program.</a>
+      <Link href="https://immunefi.com/bounty/popcornnetwork/" className="text-customPurple">
+        See Popcorn's bug bounty program.
       </Link>
     </>
   ),
@@ -27,8 +30,8 @@ const descriptions = {
       {" "}
       g0 group is an industry leading security reviewer having audited blockchain projects such as Gnosis Safe and Nexus
       Mutual.{" "}
-      <Link href="/docs/PopcornMay2022.pdf">
-        <a className="text-customPurple">See g0's review.</a>
+      <Link href="/docs/PopcornMay2022.pdf" className="text-customPurple">
+        See g0's review.
       </Link>
     </>
   ),

@@ -1,4 +1,4 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
 
 export interface ImageHeaderProps {
   beneficiary: BeneficiaryApplication;

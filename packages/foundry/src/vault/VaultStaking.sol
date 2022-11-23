@@ -3,12 +3,12 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import { ERC20Upgradeable } from "openzeppelin-contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "openzeppelin-contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "openzeppelin-contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ERC20Upgradeable } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 
 import "./Vault.sol";
 import "../utils/ACLAuth.sol";
@@ -54,7 +54,7 @@ contract VaultStaking is
 
   function initialize(IERC20 _stakingToken, IContractRegistry contractRegistry_) external initializer {
     __ERC20_init(
-    string(abi.encodePacked("Staked ", IERC20Metadata(address(_stakingToken)).name())),
+      string(abi.encodePacked("Staked ", IERC20Metadata(address(_stakingToken)).name())),
       string(abi.encodePacked("st-", IERC20Metadata(address(_stakingToken)).symbol()))
     );
     __ContractRegistryAccess_init(contractRegistry_);

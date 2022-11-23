@@ -1,4 +1,4 @@
-import { ElectionMetadata } from "@popcorn/hardhat/lib/adapters";
+import { ElectionMetadata } from "helper/types";
 import { IGrantRoundFilter, PendingVotes, Vote } from "pages/grant-elections/[type]";
 import { Dispatch } from "react";
 import createElectionName from "utils/createElectionName";

@@ -1,5 +1,5 @@
 import { parseEther } from "@ethersproject/units";
-import { Proposal } from "@popcorn/hardhat/lib/adapters";
+import { Proposal } from "helper/types";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import Divider from "components/CommonComponents/Divider";
 import ProgressBar from "components/ProgressBar";

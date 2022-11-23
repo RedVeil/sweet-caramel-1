@@ -8,7 +8,7 @@ main() {
   --remove lcov.info \
   --rc lcov_branch_coverage=1 \
   --rc lcov_function_coverage=1 \
-    "test/*"
+    "test/*" "../../node_modules/*"
   mkdir -p coverage
   genhtml -o coverage lcov.info \
   --branch-coverage \

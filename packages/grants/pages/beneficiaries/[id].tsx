@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ShareIcon } from "@heroicons/react/outline";
-import { BeneficiaryApplication, BeneficiaryRegistryAdapter } from "@popcorn/hardhat/lib/adapters";
+import { BeneficiaryApplication } from "helper/types";
+import { BeneficiaryRegistryAdapter } from "helper/adapters";
 import { IpfsClient } from "@popcorn/utils";
 import SocialShare from "components/CommonComponents/SocialShare";
 import AboutTab from "components/Profile/AboutTab";
@@ -63,11 +64,9 @@ const BeneficiaryPage = () => {
   return (
     <section className="relative">
       <div className="md:hidden mb-10 px-6">
-        <Link href={"/beneficiaries"}>
-          <a className="flex space-x-2">
-            <ChevronLeftIcon className="text-secondaryLight w-4" />
-            <p className="text-primary">Eligible Beneficiaries</p>
-          </a>
+        <Link href={"/beneficiaries"} className="flex space-x-2">
+          <ChevronLeftIcon className="text-secondaryLight w-4" />
+          <p className="text-primary">Eligible Beneficiaries</p>
         </Link>
       </div>
       <Hero bgImage={`${process.env.IPFS_URL}${beneficiary?.files?.headerImage?.image}`} className="relative">
@@ -90,11 +89,9 @@ const BeneficiaryPage = () => {
         </div>
       </Hero>
       <div className="hidden md:block mx-8 mt-8">
-        <Link href={"/beneficiaries"}>
-          <a className="flex space-x-2">
-            <ChevronLeftIcon className="text-secondaryLight w-4" />
-            <p className="text-primary">Eligible Beneficiaries</p>
-          </a>
+        <Link href={"/beneficiaries"} className="flex space-x-2">
+          <ChevronLeftIcon className="text-secondaryLight w-4" />
+          <p className="text-primary">Eligible Beneficiaries</p>
         </Link>
       </div>
       <div className="container mx-auto">

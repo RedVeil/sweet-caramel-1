@@ -1,4 +1,4 @@
-import { BeneficiaryImage, ProposalStatus } from "@popcorn/hardhat/lib/adapters";
+import { Image as ImageUpload, ProposalStatus } from "helper/types";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import VotingProgress from "components/CommonComponents/VotingProgress";
 import { BigNumber } from "ethers";
@@ -6,7 +6,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { formatTimeUntilDeadline } from "../../utils/formatTimeUntilDeadline";
 export interface CardBodyProps {
-  image: BeneficiaryImage;
+  image: ImageUpload;
   organizationName: string;
   missionStatement: string;
   isApplication?: boolean;

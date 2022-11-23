@@ -14,7 +14,7 @@ export interface SingleActionModalProps {
   type?: "info" | "error" | "alert";
   image?: React.ReactElement;
   onConfirm?: { label: string; onClick: Function };
-  onDismiss: { label?: string; onClick: Function };
+  onDismiss?: { label?: string; onClick: Function };
   keepOpen?: boolean;
   showCloseButton?: boolean;
 }

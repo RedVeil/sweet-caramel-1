@@ -1,4 +1,4 @@
-import { BeneficiaryApplication } from "@popcorn/hardhat";
+import { BeneficiaryApplication } from "helper/types";
 import { filterValues } from "components/Beneficiaries/BeneficiaryFilter";
 import CustomDropdown from "components/CommonComponents/CustomDropdown";
 import TextInput from "components/CommonComponents/TextInput";

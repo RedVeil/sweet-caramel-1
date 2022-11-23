@@ -4,6 +4,7 @@ module.exports = {
     invert: true, // Run the grep's inverse set.
   },
   measureStatementCoverage: false,
+  configureYulOptimizer: true,
   skipFiles: [
     "core/defi/pool/AffiliateToken.sol",
     "test_helpers/",
@@ -16,6 +17,6 @@ module.exports = {
     "core/interfaces/",
     "core/utils/RandomNumberConsumer.sol",
     "core/utils/Owned.sol",
-    "core/utils/Superseeder.sol"
+    "core/utils/Superseeder.sol",
   ],
 };
