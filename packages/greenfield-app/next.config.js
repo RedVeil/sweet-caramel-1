@@ -18,6 +18,30 @@ module.exports = {
   images: {
     domains: ["rawcdn.githack.com"],
   },
+  async redirects() {
+    return [
+      {
+        source: "/ethereum/staking",
+        destination: `/staking`,
+        permanent: true,
+      },
+      {
+        source: "/polygon/staking",
+        destination: `/staking`,
+        permanent: true,
+      },
+      {
+        source: "/ethereum/rewards",
+        destination: `/rewards`,
+        permanent: true,
+      },
+      {
+        source: "/polygon/rewards",
+        destination: `/rewards`,
+        permanent: true,
+      },
+    ];
+  },
   poweredByHeader: false,
   webpack: (config, options) => {
     /** Allows import modules from packages in workspace. */
