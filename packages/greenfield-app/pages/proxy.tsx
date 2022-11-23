@@ -3,6 +3,7 @@ import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 import { ProxyMultiCall } from "@popcorn/utils/MultiCallProxy";
 import { useEffect, useState } from "react";
 import { Contract, ethers } from "ethers";
+import useMulticall from "hooks/useMulticall";
 
 export const VAULT_ABI = [
   {
@@ -102,26 +103,35 @@ export default function Proxy(): JSX.Element {
   const { proxyAddress } = useProxy();
   console.log("proxyAddress", proxyAddress);
 
-  useEffect(() => {
-    if (proxyAddress) {
-      const tx = new ProxyMultiCall({
-        proxyAddress: proxyAddress,
-        targets: [
-          // @ts-ignore should use Contract from utils package
-          ["depositToken", new Contract(DEPOSIT_TOKEN_ADDRESS, DEPOSIT_TOKEN_ABI)],
-          // @ts-ignore should use Contract from utils package
-          ["vault", new Contract(VAULT_ADDRESS, VAULT_ABI)],
-        ],
-      });
+  // @ts-ignore should use Contract from utils package
+  const { pmc } = useMulticall([
+    // @ts-ignore should use Contract from utils package
+    ["depositToken", new Contract(DEPOSIT_TOKEN_ADDRESS, DEPOSIT_TOKEN_ABI)],
+    // @ts-ignore should use Contract from utils package
+    ["vault", new Contract(VAULT_ADDRESS, VAULT_ABI)],
+  ]);
+  console.log("pmc", pmc);
 
-      // deposit + stake example
-      tx.push("depositToken", "transferFrom", [address, proxyAddress, "1"]);
-      tx.push("depositToken", "approve", [VAULT_ADDRESS, "1"]);
-      tx.push("vault", "deposit", ["1", proxyAddress]);
-      const bytes = tx.submit();
-      setBytes(bytes);
-    }
-  }, [proxyAddress]);
+  // useEffect(() => {
+  //   if (proxyAddress) {
+  //     const tx = new ProxyMultiCall({
+  //       proxyAddress: proxyAddress,
+  //       targets: [
+  //         // @ts-ignore should use Contract from utils package
+  //         ["depositToken", new Contract(DEPOSIT_TOKEN_ADDRESS, DEPOSIT_TOKEN_ABI)],
+  //         // @ts-ignore should use Contract from utils package
+  //         ["vault", new Contract(VAULT_ADDRESS, VAULT_ABI)],
+  //       ],
+  //     });
+
+  //     // deposit + stake example
+  //     tx.push("depositToken", "transferFrom", [address, proxyAddress, "1"]);
+  //     tx.push("depositToken", "approve", [VAULT_ADDRESS, "1"]);
+  //     tx.push("vault", "deposit", ["1", proxyAddress]);
+  //     const bytes = tx.submit();
+  //     setBytes(bytes);
+  //   }
+  // }, [proxyAddress]);
 
   const { config: config2 } = usePrepareContractWrite({
     address: proxyAddress,
