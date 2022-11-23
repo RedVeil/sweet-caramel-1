@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { StateProvider } from "../context/store";
 import ContractsWrapper from "../context/Web3/contracts";
+import web3Onboard from "helper/web3Onboard";
 import ElectionsProvider from "../context/Web3/elections";
 import "../styles/globals.css";
 
@@ -24,6 +25,8 @@ function getLibrary(provider: any): Web3Provider {
   library.pollingInterval = 12000;
   return library;
 }
+
+web3Onboard();
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
