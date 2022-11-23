@@ -25,6 +25,11 @@ export const PROXY_REGISTRY_ABI = [
   },
 ];
 
+export const DS_PROXY_ABI = [
+  "function execute(address _target, bytes memory _data) public payable returns (bytes memory response)",
+  "function owner() public view returns (address owner)",
+];
+
 /* Return the proxy address if it exsits, otherwise returns undefined */
 export default function useProxy() {
   const { address } = useAccount();
