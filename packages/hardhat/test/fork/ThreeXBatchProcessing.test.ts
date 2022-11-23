@@ -925,7 +925,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
         const balanceBefore = await contracts.token.usdc.balanceOf(depositor.address);
         await contracts.threeXBatchProcessing
           .connect(depositor)
-        ["withdrawFromBatch(bytes32,uint256,address)"](batchId, BigNumber.from("1000000000"), depositor.address);
+          ["withdrawFromBatch(bytes32,uint256,address)"](batchId, BigNumber.from("1000000000"), depositor.address);
         const balanceAfter = await contracts.token.usdc.balanceOf(depositor.address);
         expect(balanceAfter.sub(balanceBefore)).to.equal(BigNumber.from("1000000000"));
       });
@@ -942,7 +942,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
       it("transfers set token to depositor after withdraw", async function () {
         await contracts.threeXBatchProcessing
           .connect(depositor)
-        ["withdrawFromBatch(bytes32,uint256,address)"](batchId, parseEther("1"), depositor.address);
+          ["withdrawFromBatch(bytes32,uint256,address)"](batchId, parseEther("1"), depositor.address);
         expectBigNumberCloseTo(
           await contracts.token.setToken.balanceOf(depositor.address),
           parseEther("128.313565895760310099"),
@@ -957,11 +957,11 @@ describe("ThreeXBatchProcessing - Fork", () => {
       const withdraw = async (batchId: string, amount?: BigNumber) => {
         return contracts.threeXBatchProcessing
           .connect(depositor)
-        ["withdrawFromBatch(bytes32,uint256,address)"](
-          batchId,
-          amount ? amount : parseEther("10"),
-          depositor.address
-        );
+          ["withdrawFromBatch(bytes32,uint256,address)"](
+            batchId,
+            amount ? amount : parseEther("10"),
+            depositor.address
+          );
       };
       const subject = async (batchId) => {
         const adapter = new ThreeXBatchAdapter(contracts.threeXBatchProcessing);
@@ -980,12 +980,12 @@ describe("ThreeXBatchProcessing - Fork", () => {
           await expectRevert(
             contracts.threeXBatchProcessing
               .connect(depositor)
-            ["withdrawFromBatch(bytes32,uint256,address,address)"](
-              batchId,
-              parseEther("1"),
-              depositor.address,
-              owner.address
-            ),
+              ["withdrawFromBatch(bytes32,uint256,address,address)"](
+                batchId,
+                parseEther("1"),
+                depositor.address,
+                owner.address
+              ),
             "won't send"
           );
         });
@@ -1023,7 +1023,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           const batchId = await contracts.threeXStorage.accountBatches(depositor.address, 1);
           await contracts.threeXBatchProcessing
             .connect(depositor)
-          ["withdrawFromBatch(bytes32,uint256,address)"](batchId, BigNumber.from("1"), depositor.address);
+            ["withdrawFromBatch(bytes32,uint256,address)"](batchId, BigNumber.from("1"), depositor.address);
           expectBigNumberCloseTo(
             await contracts.token.setToken.balanceOf(depositor.address),
             BigNumber.from("8297564781640256149"),
@@ -1072,7 +1072,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
           const balanceBefore = await contracts.token.usdc.balanceOf(depositor.address);
           await contracts.threeXBatchProcessing
             .connect(depositor)
-          ["withdrawFromBatch(bytes32,uint256,address)"](batchId, BigNumber.from("10000000"), depositor.address);
+            ["withdrawFromBatch(bytes32,uint256,address)"](batchId, BigNumber.from("10000000"), depositor.address);
           const balanceAfter = await contracts.token.usdc.balanceOf(depositor.address);
           expect(balanceAfter.sub(balanceBefore)).to.equal(BigNumber.from("10000000"));
         });
@@ -1178,7 +1178,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
       await expect(
         contracts.threeXBatchProcessing
           .connect(depositor)
-        ["withdrawFromBatch(bytes32,uint256,address)"](currentMintId, BigNumber.from("10000000"), depositor.address)
+          ["withdrawFromBatch(bytes32,uint256,address)"](currentMintId, BigNumber.from("10000000"), depositor.address)
       )
         .to.emit(contracts.threeXBatchProcessing, "WithdrawnFromBatch")
         .withArgs(currentMintId, BigNumber.from("10000000"), depositor.address);
@@ -1187,7 +1187,7 @@ describe("ThreeXBatchProcessing - Fork", () => {
       await expect(
         contracts.threeXBatchProcessing
           .connect(depositor)
-        ["withdrawFromBatch(bytes32,uint256,address)"](currentRedeemId, parseEther("1"), depositor.address)
+          ["withdrawFromBatch(bytes32,uint256,address)"](currentRedeemId, parseEther("1"), depositor.address)
       )
         .to.emit(contracts.threeXBatchProcessing, "WithdrawnFromBatch")
         .withArgs(currentRedeemId, parseEther("1"), depositor.address);
