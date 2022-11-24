@@ -16,6 +16,12 @@ export default function web3Onboard(): void {
         rpcUrl: RPC_URLS[ChainId.Ethereum],
       },
       {
+        id: ChainIdHex.Goerli,
+        token: "rETH",
+        label: "Ethereum Goerli Testnet",
+        rpcUrl: RPC_URLS[ChainId.Goerli],
+      },
+      {
         id: ChainIdHex.Arbitrum,
         token: "AETH",
         label: "Arbitrum One",

@@ -9,6 +9,7 @@
     "jest": "jest",
     "prettier": "prettier --write .",
     "prettify": "yarn lint-staged --allow-empty",
+    "netlify-build": "cd ../../ &&  yarn && cd packages/hardhat && yarn compile && cd .. && cd grants && yarn build",
     "start": "next start"
   },
   "dependencies": {

@@ -1,12 +1,4 @@
 {
-  "aclRegistry": {
-    "addresses": {
-      "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
-      "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-      "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56"
-    },
-    "metadata": null
-  },
   "agEur": {
     "addresses": {
       "mainnet": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8"
@@ -59,18 +51,6 @@
     },
     "metadata": null
   },
-  "beneficiaryGovernance": {
-    "addresses": {},
-    "metadata": {
-      "contractName": "BeneficiaryGovernance"
-    }
-  },
-  "beneficiaryRegistry": {
-    "addresses": {},
-    "metadata": {
-      "contractName": "BeneficiaryRegistry"
-    }
-  },
   "butter": {
     "addresses": {
       "mainnet": "0x109d2034e97eC88f50BEeBC778b5A5650F98c124",
@@ -113,14 +93,6 @@
   "butterWhaleProcessing": {
     "addresses": {
       "mainnet": "0x8CAF59fd4eF677Bf5c28ae2a6E5eEfA85096Af39"
-    },
-    "metadata": null
-  },
-  "contractRegistry": {
-    "addresses": {
-      "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
-      "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
-      "rinkeby": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3"
     },
     "metadata": null
   },
@@ -327,12 +299,24 @@
       "symbol": "DAI"
     }
   },
-  "dao": {
+  "pop": {
     "addresses": {
-      "mainnet": "0xbD94fc22E6910d118187c8300667c66eD560A29B",
-      "rinkeby": "0x7D9B21704B5311bB480f0109dFD5D84ed1207e11"
+      "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
+      "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
+      "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
+      "hardhat": "0x2e8880cAdC08E9B438c6052F5ce3869FBd6cE513",
+      "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
+      "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
+      "goerli": "0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e",
+      "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
     },
-    "metadata": null
+    "metadata": {
+      "name": "Popcorn",
+      "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
+      "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
+      "icons": ["/images/icons/POP.svg"],
+      "priceResolver": "pop"
+    }
   },
   "daoAgent": {
     "addresses": {
@@ -423,15 +407,6 @@
     },
     "metadata": null
   },
-  "keeperIncentive": {
-    "addresses": {
-      "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
-      "polygon": "0xd928a457247649835e652416847C54C038FAF920"
-    },
-    "metadata": {
-      "contractName": "KeeperIncentive"
-    }
-  },
   "univ3": {
     "addresses": {
       "polygon": "0x8f5B8B73c5168747779E4Ef38A80cC90caF358fB",
@@ -458,24 +433,6 @@
       "rinkeby": "0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e"
     },
     "metadata": null
-  },
-  "pop": {
-    "addresses": {
-      "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
-      "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
-      "mainnet": "0xd0cd466b34a24fcb2f87676278af2005ca8a78c4",
-      "polygon": "0xc5b57e9a1e7914fda753a88f24e5703e617ee50c",
-      "rinkeby": "0x2F5Ff054FEa12dB200E374EF43bDD92734453E06",
-      "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
-    },
-    "metadata": {
-      "name": "Popcorn",
-      "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
-      "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
-      "icons": ["/images/icons/POP.svg"],
-      "priceResolver": "pop",
-      "contractName": "pop"
-    }
   },
   "popStaking": {
     "addresses": {
@@ -517,7 +474,8 @@
     "addresses": {
       "mainnet": "0x9fee77d8b5050a55c16d0446e6eab06a6a24cd06",
       "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
-      "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440"
+      "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
+      "optimism": "0xae0eBAA4162941837Bb56EDa1Bc9dc6850779bd2"
     },
     "metadata": {
       "name": "USDC/POP LP",
@@ -539,7 +497,9 @@
   },
   "popUsdcUniV3Pool": {
     "addresses": {
-      "mainnet": "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06"
+      "mainnet": "0x9fEE77D8B5050A55c16D0446E6eAb06a6A24cd06",
+      "polygon": "0x8f5B8B73c5168747779E4Ef38A80cC90caF358fB",
+      "optimism": "0xae0eBAA4162941837Bb56EDa1Bc9dc6850779bd2"
     },
     "metadata": null
   },
@@ -708,27 +668,36 @@
       "contractName": "ThreeXWhale"
     }
   },
-  "threeXZapper": {
+  "aclRegistry": {
     "addresses": {
-      "mainnet": "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84"
+      "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
+      "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
+      "hardhat": "0xBEe6FFc1E8627F51CcDF0b4399a1e1abc5165f15",
+      "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
+      "goerli": "0x42b85613D87eA55468DFE53b4d3d94D2a6d05E69"
+    },
+    "metadata": null
+  },
+  "keeperIncentive": {
+    "addresses": {
+      "polygon": "0xd928a457247649835e652416847C54C038FAF920",
+      "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
+      "hardhat": "0xd30bF3219A0416602bE8D482E0396eF332b0494E",
+      "localhost": "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
+      "goerli": "0x52841Cfa95cFD2d8751cf202e7627AFFBbCF4A8B"
     },
     "metadata": {
-      "contractName": "ThreeXZapper"
+      "contractName": "KeeperIncentive"
     }
   },
-  "tokenManager": {
+  "contractRegistry": {
     "addresses": {
-      "mainnet": "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f",
-      "rinkeby": "0xd6c570fa672eb252fc78920a54fc6a2dc9a54708"
-    },
-    "metadata": null
-  },
-  "uniswapRouter": {
-    "addresses": {
-      "mainnet": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-      "rinkeby": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-    },
-    "metadata": null
+      "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
+      "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
+      "hardhat": "0xd710a67624Ad831683C86a48291c597adE30F787",
+      "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
+      "goerli": "0x308bCee3746fD1FA8A6478C393ca9f8070E58A14"
+    }
   },
   "usdc": {
     "addresses": {
@@ -737,7 +706,8 @@
       "localhost": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "mainnet": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "polygon": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-      "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94"
+      "rinkeby": "0x649d645d1ee2ca89a798b52bbf7b5a3c27093b94",
+      "optimism": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
     },
     "metadata": {
       "icons": ["/images/tokens/usdc.svg"],
@@ -815,6 +785,20 @@
     },
     "metadata": null
   },
+  "beneficiaryRegistry": {
+    "addresses": {
+      "hardhat": "0x92A00fc48Ad3dD4A8b5266a8F467a52Ac784fC83",
+      "goerli": "0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6"
+    },
+    "metadata": null
+  },
+  "beneficiaryGovernance": {
+    "addresses": {
+      "hardhat": "0x04F339eC4D75Cf2833069e6e61b60eF56461CD7C",
+      "goerli": "0x62B00B60D1f4042B3474900BA3fd548fc553205f"
+    },
+    "metadata": null
+  },
   "y3Eur": {
     "addresses": {
       "mainnet": "0x5AB64C599FcC59f0f2726A300b03166A395578Da"
@@ -830,15 +814,17 @@
       "name": "yAlusd"
     }
   },
-  "yCHF": {
+  "BeneficiaryVaults": {
     "addresses": {
-      "mainnet": "0x490bD0886F221A5F79713D3E84404355A9293C50"
+      "hardhat": "0x4ff1f64683785E0460c24A4EF78D582C2488704f",
+      "goerli": "0x4E4c4Eb83305C47d80aB6C0065b2308f5640B41f"
     },
     "metadata": null
   },
-  "yEUR": {
+  "Region": {
     "addresses": {
-      "mainnet": "0x67e019bfbd5a67207755D04467D6A70c0B75bF60"
+      "hardhat": "0x773330693cb7d5D233348E25809770A32483A940",
+      "goerli": "0x45926B4EFACbc7f2D301D6d59Fb80155906d2af0"
     },
     "metadata": null
   },
@@ -851,9 +837,10 @@
       "name": "yFrax"
     }
   },
-  "yGBP": {
+  "ParticipationReward": {
     "addresses": {
-      "mainnet": "0x595a68a8c9D5C230001848B69b1947ee2A607164"
+      "hardhat": "0xb830887eE23d3f9Ed8c27dbF7DcFe63037765475",
+      "goerli": "0x6768E6f0af526d5c14A4fee1c465CeCDb188dd0f"
     },
     "metadata": null
   },

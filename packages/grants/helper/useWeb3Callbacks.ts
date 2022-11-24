@@ -4,10 +4,12 @@ import { ethers } from "ethers";
 import { useCallback } from "react";
 import toast from "react-hot-toast";
 
-function confirmationsPerChain(chainId: ChainId): number {
+export function confirmationsPerChain(chainId: ChainId): number {
   switch (chainId) {
     case ChainId.Polygon:
       return 2;
+    case ChainId.Goerli:
+      return 3;
     case ChainId.Hardhat:
     case ChainId.Localhost:
       return 0;

@@ -70,8 +70,8 @@ async function getToken(
       ...tokens.usdc,
       price: await butterAdapter.getStableCoinPrice(threePool, [
         BigNumber.from("0"),
-        BigNumber.from(1e6),
         BigNumber.from("0"),
+        BigNumber.from(1e6),
       ]),
       balance: account
         ? (await tokens.usdc.contract.balanceOf(account)).mul(BigNumber.from(1e12))
