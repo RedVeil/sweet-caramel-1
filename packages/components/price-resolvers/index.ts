@@ -1,5 +1,5 @@
-import { parseEther } from "ethers/lib/utils";
 import defi_llama from "./llama";
+import { univ2 } from "./univ2";
 import { set_token } from "./set-token";
 import { staking } from "./staking";
 import { arrakis } from "./arrakis";
@@ -31,5 +31,8 @@ export const Resolvers: Resolvers = {
   },
   arrakis: async function (address, chainId, rpc) {
     return arrakis(address, chainId, rpc, this);
+  },
+  univ2: async function (address, chainId, rpc) {
+    return univ2(address, chainId, rpc, this);
   },
 };
