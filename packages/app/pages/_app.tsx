@@ -1,6 +1,5 @@
 import Page from "@popcorn/app/components/Common/Page";
 import { Debug } from "@popcorn/app/components/Debug";
-import FeatureTogglePanel from "@popcorn/app/components/DevOnly/FeatureTogglePanel";
 import { DualActionModalContainer } from "@popcorn/app/components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "@popcorn/app/components/Modal/DualActionWideModalContainer";
 import { MobileFullScreenModalContainer } from "@popcorn/app/components/Modal/MobileFullScreenModalContainer";
@@ -9,7 +8,7 @@ import { NetworkChangePromptModalContainer } from "@popcorn/app/components/Modal
 import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "@popcorn/app/components/Notifications/NotificationsContainer";
 import OfacCheck from "@popcorn/app/components/OfacCheck";
-import { FeatureToggleProvider } from "@popcorn/app/context/FeatureToggleContext";
+import { FeatureToggleProvider } from "@popcorn/components/context/FeatureToggleContext";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
@@ -149,7 +148,6 @@ export default function MyApp(props) {
               <DualActionWideModalContainer />
               <NetworkChangePromptModalContainer />
               {getLayout(<Component {...pageProps} />)}
-              <FeatureTogglePanel />
               <NotificationsContainer />
               <Debug />
             </RainbowKitProvider>

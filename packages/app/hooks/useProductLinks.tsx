@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useChainUrl } from "./useChainUrl";
-import { useFeatures } from "./useFeatures";
+import { useFeatures } from "@popcorn/components";
 
 export const useProductLinks = () => {
   const url = useChainUrl();

@@ -4,7 +4,7 @@ import React, { Fragment } from "react";
 import NetworkOptionsMenuItem from "@popcorn/app/components/NavBar/NetworkOptionsMenuItem";
 import { useNetwork } from "wagmi";
 import { switchNetwork } from "@wagmi/core";
-import { useFeatures } from "@popcorn/app/hooks/useFeatures";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 
 function NetworkOptionsMenu(): JSX.Element {
   const { chain } = useNetwork();

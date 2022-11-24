@@ -2,7 +2,7 @@ import { Transition } from "@headlessui/react";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import React, { useEffect, useState } from "react";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import { useFeatures } from "@popcorn/app/hooks/useFeatures";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 import useInitializeGTM from "hooks/useInitializeGTM";
 
 type WindowWithDataLayer = Window & {

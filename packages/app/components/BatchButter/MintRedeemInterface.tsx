@@ -2,10 +2,8 @@ import { ChainId } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
-import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { BigNumber, constants, ethers } from "ethers";
 import Link from "next/link";
-import { useContext } from "react";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import ButterTokenInput, {
   ButterTokenInputProps,
@@ -15,6 +13,7 @@ import ButterTokenInput, {
 import { CheckMarkToggleWithInfo } from "@popcorn/app/components/BatchButter/CheckMarkToggleWithInfo";
 import MintRedeemToggle from "@popcorn/app/components/BatchButter/MintRedeemToggle";
 import SlippageSettings from "@popcorn/app/components/BatchButter/SlippageSettings";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 
 interface MintRedeemInterfaceProps extends ButterTokenInputProps {
   mainAction: (depositAmount: BigNumber, batchType: BatchType, stakeImmidiate?: boolean) => Promise<void>;
@@ -50,7 +49,7 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
   chainId,
   disabled,
 }) => {
-  const { features } = useContext(FeatureToggleContext);
+  const { features } = useFeatures();
 
   function isAllowanceInsufficient() {
     return (

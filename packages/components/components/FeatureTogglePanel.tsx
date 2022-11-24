@@ -1,8 +1,8 @@
-import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
+import { FeatureToggleContext } from "@popcorn/components/context/FeatureToggleContext";
 import { useContext, useState } from "react";
 import { CheckCircle, Settings, X } from "react-feather";
 
-export default function FeatureTogglePanel(): JSX.Element {
+export function FeatureTogglePanel(): JSX.Element {
   const [showPanel, setShowPanel] = useState(false);
   const { features, setFeatures } = useContext(FeatureToggleContext);
 
@@ -35,3 +35,4 @@ export default function FeatureTogglePanel(): JSX.Element {
     </div>
   );
 }
+export default FeatureTogglePanel;

@@ -1,9 +1,10 @@
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { useUpdateWalletBalance } from "hooks/portfolio/useUpdateWalletBalance";
-import { PortfolioToken, UpdateWalletBalanceActionProps } from "reducers/portfolio";
-import { networkMap } from "../../../utils/src/connectors";
-import { PortfolioState } from "../../reducers/portfolio";
-import { useTokenWithBalance } from "../../hooks/portfolio/useTokenWithBalance";
+import { useUpdateWalletBalance } from "../hooks/portfolio/useUpdateWalletBalance";
+import { PortfolioToken, UpdateWalletBalanceActionProps } from "../reducers/portfolio";
+import { networkMap } from "@popcorn/utils";
+import { PortfolioState } from "../reducers/portfolio";
+import { useTokenWithBalance } from "../hooks/portfolio/useTokenWithBalance";
+import { useComponentState } from "../hooks/useComponentState";
 
 interface WalletTokenBalanceProps {
   alias: string;
@@ -24,7 +25,7 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
   account,
   children,
 }) => {
-  const wallet = state.wallet[chainId]?.[account]?.[token?.address];
+  const wallet = account && token && token.address && state.wallet[chainId]?.[account]?.[token.address];
 
   const {
     data: { address, priceResolver, value, balance, symbol, decimals },
@@ -32,6 +33,11 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
   } = useTokenWithBalance({ chainId, token, account, alias });
 
   useUpdateWalletBalance({ token, account, value, balance, wallet, chainId, updateWallet });
+
+  const { ready, loading } = useComponentState({
+    ready: !!value && !!account && !!balance.value,
+    loading: account && !value && !balance.value,
+  });
 
   return (
     <>
@@ -43,11 +49,11 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
       <div>Price: {children}</div>
       <div>
         Balance:{" "}
-        {(isLoading && "Loading ...") || (balance?.value && formatAndRoundBigNumber(balance.value, decimals)) || ""}
+        {(!ready && "Loading ...") || (balance?.value && formatAndRoundBigNumber(balance.value, decimals)) || ""}
         {` ${(balance?.value?.gt(0) && symbol && `(${symbol})`) || ""}`}
       </div>
 
-      <div>Value: {(value && `$${formatAndRoundBigNumber(value, decimals)}`) || (account && "Loading ...") || ""}</div>
+      <div>Value: {(ready && `$${formatAndRoundBigNumber(value, decimals)}`) || loading ? 'Loading ...' : ''}</div>
       <br />
     </>
   );

@@ -87,7 +87,8 @@
     "metadata": {
       "contractName": "ButterStaking",
       "priceResolver": "staking",
-      "symbol": "pst-BTR"
+      "symbol": "pst-BTR",
+      "isERC20": false
     }
   },
   "butterWhaleProcessing": {
@@ -446,7 +447,8 @@
       "contractName": "PopLocker",
       "icons": ["/images/icons/POP.svg"],
       "name": "POP",
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "isERC20": false
     }
   },
   "popUsdcArrakisVault": {
@@ -467,7 +469,8 @@
       "polygon": "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc"
     },
     "metadata": {
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "isERC20": false
     }
   },
   "popUsdcLp": {
@@ -521,7 +524,9 @@
     },
     "metadata": {
       "priceResolver": "pop",
-      "symbol": "POP"
+      "symbol": "POP",
+      "balanceResolver": "rewardsEscrow",
+      "isERC20": false
     }
   },
   "rewardsManager": {
@@ -657,7 +662,8 @@
     "metadata": {
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
-      "symbol": "pst-3X"
+      "symbol": "pst-3X",
+      "isERC20": false
     }
   },
   "threeXWhale": {

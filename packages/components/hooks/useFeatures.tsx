@@ -1,4 +1,4 @@
-import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
+import { FeatureToggleContext } from "@popcorn/components/context/FeatureToggleContext";
 import { useContext } from "react";
 
 export const useFeatures = () => {

@@ -2,10 +2,11 @@ import { BigNumber, constants } from "ethers";
 import { useEffect, useState } from "react";
 import { PortfolioState } from "../../reducers/portfolio";
 
-export const useNetworth = (state: PortfolioState, updateNetworth, account: string) => {
-  const [networth, setNetworth] = useState<BigNumber | undefined>(constants.Zero);
+export const useNetworth = (state: PortfolioState, updateNetworth, account?: string) => {
+  const [networth, setNetworth] = useState<BigNumber | undefined>();
 
   useEffect(() => {
+    if (!account) return;
     let _networth = constants.Zero;
     Object.keys(state.wallet).forEach((chainId) => {
       if (state.wallet[chainId]?.[account])
@@ -18,7 +19,7 @@ export const useNetworth = (state: PortfolioState, updateNetworth, account: stri
           updateNetworth(_networth);
         });
     });
-  }, [state.wallet]);
+  }, [state.wallet, account]);
 
   return networth;
 };

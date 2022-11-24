@@ -1,7 +1,7 @@
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { usePrice } from "hooks/portfolio/usePrice";
+import { usePrice } from "../hooks/portfolio/usePrice";
 import { useEffect } from "react";
-import { UpdateTokenActionProps } from "reducers/portfolio";
+import { UpdateTokenActionProps } from "../reducers/portfolio";
 
 interface PriceProps {
   token: string;
@@ -10,11 +10,11 @@ interface PriceProps {
   updateToken: (args: UpdateTokenActionProps) => void;
 }
 
-const Price: React.FC<PriceProps> = ({ token, chainId, resolver, updateToken }) => {
+export const Price: React.FC<PriceProps> = ({ token, chainId, resolver, updateToken }) => {
   const { data: price, isValidating: priceValidating, error: priceError } = usePrice(token, chainId, resolver);
 
   useEffect(() => {
-    if (priceError) console.log({ priceError });
+    if (priceError) console.log({ priceError, token, resolver, chainId });
   }, [priceError]);
 
   useEffect(() => {
