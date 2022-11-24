@@ -6,3 +6,4 @@ export * from "./useToken";
 export * from "./useTotalSupply";
 export * from "./useTvl";
 export * from "./useFeatures";
+export * from "./useComponentState";
