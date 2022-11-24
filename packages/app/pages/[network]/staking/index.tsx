@@ -2,11 +2,11 @@ import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import { AlertCardLink } from "@popcorn/app/components/Common/AlertCard";
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
 import StakeCard from "@popcorn/app/components/StakeCard";
-import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
-import React, { useContext } from "react";
+import React from "react";
 import ContentLoader from "react-content-loader";
 import { useAllStakingPools } from "@popcorn/app/hooks/useAllStakingPools";
 import { useRouter } from "next/router";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 
 const MIGRATION_LINKS: AlertCardLink[] = [
   { text: "How to migrate", url: "https://medium.com/popcorndao/pop-on-arrakis-8a7d7d7f1948", openInNewTab: true },
@@ -17,7 +17,7 @@ export default function StakingOverviewPage(): JSX.Element {
 
   const { stakingPools, stakingPoolsIsValidating } = useAllStakingPools();
 
-  const { features } = useContext(FeatureToggleContext);
+  const { features } = useFeatures();
 
   const router = useRouter();
 

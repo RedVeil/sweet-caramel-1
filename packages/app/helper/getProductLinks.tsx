@@ -1,9 +1,9 @@
-import { FeatureToggleContext } from "@popcorn/app/context/FeatureToggleContext";
 import { NextRouter } from "next/router";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useChainUrl } from "@popcorn/app/hooks/useChainUrl";
 import { useNetwork } from "wagmi";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 
 interface ProductLinks {
   title: string;
@@ -13,7 +13,7 @@ interface ProductLinks {
 }
 
 export function getProductLinks(router: NextRouter): ProductLinks[] {
-  const { features } = useContext(FeatureToggleContext);
+  const { features } = useFeatures();
   const pushWithinChain = usePushWithinChain();
   const { chain } = useNetwork();
   const url = useChainUrl();

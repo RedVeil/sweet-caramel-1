@@ -3,7 +3,7 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId } from "@popcorn/utils";
 import { constants } from "ethers";
 import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking";
-import useSum from "@popcorn/components/hooks/useSum";
+import { useSum } from "@popcorn/components";
 import { useEffect } from "react";
 import Vesting from "./Vesting";
 

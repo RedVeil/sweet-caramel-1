@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { formatAndRoundBigNumber } from "packages/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { ContractTvl } from "./ContractTvl";
 import withLoading from "./withLoading";
 

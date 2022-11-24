@@ -10,16 +10,10 @@ import useToken from "./useToken";
 export const useTokenWithBalance = ({ chainId, token, account, alias }) => {
   const { data } = useToken({ chainId, token, alias });
 
-  const {
-    data: balance,
-    isLoading,
-    isError,
-    error,
-  } = useBalance({
+  const { data: balance, isLoading, isError, error } = useBalance({
     enabled: !!account && !!token?.address,
     account,
     chainId,
-    alias,
     token: token?.address,
   });
 

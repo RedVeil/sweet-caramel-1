@@ -9,7 +9,7 @@ import { PortfolioToken } from "../../reducers/portfolio";
  */
 interface UseBalanceValueProps {
   token?: PortfolioToken;
-  balance?: { value: BigNumber; decimals?: number };
+  balance?: { value?: BigNumber; decimals?: number };
   account?: string;
   enabled?: boolean;
 }

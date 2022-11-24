@@ -1,7 +1,9 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import { useNetworth } from "hooks/portfolio/useNetworth";
-import { PortfolioState, UpdateNetworthActionProps } from "reducers/portfolio";
+import { useNetworth } from "../hooks/portfolio/useNetworth";
+import { PortfolioState, UpdateNetworthActionProps } from "../reducers/portfolio";
 import { useAccount } from "wagmi";
+import { constants } from "ethers";
+import { useComponentState } from "../hooks/useComponentState";
 
 interface NetworthProps {
   state: PortfolioState;
@@ -13,14 +15,30 @@ export const Networth: React.FC<NetworthProps> = ({ state, updateNetworth, accou
   const { address } = useAccount();
   const networth = useNetworth(state, updateNetworth, account);
 
+  const { ready, loading } = useComponentState({ ready: !!networth, loading: !account || !address || !networth })
+
   return (
-    <div className="border-b border-gray-200 pb-5">
-      <h3 className="text-lg font-medium leading-6 text-gray-900">
-        Networth:{" "}
-        {(!!address && networth && `$${formatAndRoundBigNumber(networth, 18)}`) ||
-          (account && "Loading ...") ||
-          "Please connect your wallet"}
-      </h3>
-    </div>
+    <>
+      <div className={`border-b border-gray-200 pb-5 ${!ready ? '' : 'hidden'}`}>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">
+          Please connect your wallet to view your networth
+        </h3>
+      </div>
+
+      <div className={`border-b border-gray-200 pb-5 ${ready && !!networth ? '' : 'hidden'}`}>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">
+          Networth:{" "}
+          {formatAndRoundBigNumber(networth || constants.Zero, 18)}
+        </h3>
+      </div>
+
+      <div className={`border-b border-gray-200 pb-5 ${loading ? '' : 'hidden'}`}>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">
+          Loading ...
+        </h3>
+      </div>
+    </>
+
+
   );
 };
