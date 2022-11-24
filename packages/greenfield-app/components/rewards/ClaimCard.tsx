@@ -1,17 +1,17 @@
 import { PopLocker, Staking } from "@popcorn/hardhat/typechain";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
-import { constants, Signer } from "ethers";
+import { BigNumber, constants, Signer } from "ethers";
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { store } from "@popcorn/app/context/store";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
-import { StakingType } from "hooks/staking/useAllStakingContracts";
+import { StakingType } from "hooks/staking/useAllStakingAddresses";
 import ContentLoader from "react-content-loader";
 import Image from "next/image";
 
@@ -19,9 +19,10 @@ interface ClaimCardProps {
   stakingAddress: string;
   stakingType: StakingType;
   chainId: ChainId;
+  addEarned: (amount: BigNumber) => void;
 }
 
-const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chainId }) => {
+const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chainId, addEarned }) => {
   const { account, signer } = useWeb3();
   const { dispatch } = useContext(store);
   const transaction = useTransaction(chainId);
@@ -42,6 +43,12 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
   const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
 
   const metadata = useContractMetadata(staking?.stakingToken?.address, chainId);
+
+  useEffect(() => {
+    if (staking || error) {
+      addEarned(staking?.earned);
+    }
+  }, [staking, isValidating, error]);
 
   const poolClaimHandler = async (pool: Staking | PopLocker, isPopLocker: boolean, signer: Signer, account: string) => {
     transaction(
@@ -80,7 +87,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
   };
   return (
     <>
-      <div className={`my-4 ${isValidating && !staking && !error ? "show-staking-loading" : " hidden"}`}>
+      <div className={`my-4 ${!isValidating && (staking || error) ? "hidden" : ""}`}>
         <ContentLoader viewBox="0 0 450 80" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
           {/*eslint-disable */}
           <rect x="0" y="0" rx="8" ry="8" width="450" height="80" />
@@ -89,7 +96,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
       </div>
       <div
         className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${
-          !staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : "show-staking"
+          !staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : ""
         }`}
       >
         <div className="flex flex-col md:flex-row justify-between pt-4 pb-6 md:px-8">

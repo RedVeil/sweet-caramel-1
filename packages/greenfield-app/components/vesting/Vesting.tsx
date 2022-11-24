@@ -5,19 +5,27 @@ import useGetUserEscrows, { Escrow } from "@popcorn/app/hooks/useGetUserEscrows"
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 import useEscrows from "hooks/vesting/useEscrows";
+import { useEffect } from "react";
 import ContentLoader from "react-content-loader";
 
 interface VestingProps {
   chainId: ChainId;
+  addClaimable: (amount: BigNumber) => void;
 }
 
-export default function Vesting({ chainId }: VestingProps): JSX.Element {
+export default function Vesting({ chainId, addClaimable }: VestingProps): JSX.Element {
   const { rewardsEscrow } = useDeployment(chainId);
   const claimVestedPopFromEscrows = useClaimEscrows(rewardsEscrow, chainId);
   const transaction = useTransaction(chainId);
   const { escrows, totalClaimablePop, totalVestingPop, revalidate, isValidating, error } = useEscrows(chainId);
+
+  useEffect(() => {
+    if (totalClaimablePop || error) {
+      addClaimable(totalClaimablePop);
+    }
+  }, [totalClaimablePop, isValidating, error]);
 
   const claimAllEscrows = async () => {
     const escrowsIds = escrows.map((escrow) => escrow.id);
@@ -28,9 +36,7 @@ export default function Vesting({ chainId }: VestingProps): JSX.Element {
   };
   return (
     <>
-      <div
-        className={`my-4 ${isValidating && totalClaimablePop.eq(constants.Zero) && !error ? "show-vesting" : "hidden"}`}
-      >
+      <div className={`my-4 ${totalClaimablePop || error ? "hidden" : ""}`}>
         <ContentLoader viewBox="0 0 450 100" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
           {/*eslint-disable */}
           <rect x="0" y="0" rx="8" ry="8" width="450" height="100" />
@@ -38,9 +44,7 @@ export default function Vesting({ chainId }: VestingProps): JSX.Element {
         </ContentLoader>
       </div>
       <div
-        className={`flex flex-col h-full ${
-          !totalClaimablePop || totalClaimablePop.eq(constants.Zero) ? "hidden" : "show-vesting-loading"
-        }`}
+        className={`flex flex-col h-full ${!totalClaimablePop || totalClaimablePop.eq(constants.Zero) ? "hidden" : ""}`}
       >
         <div className="flex flex-row items-center mt-4">
           <img src={networkLogos[chainId]} alt={ChainId[chainId]} className="w-4.5 h-4 mr-4" />

@@ -3,7 +3,6 @@ import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useEffect, useRef, useState } from "react";
-import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import Vesting from "components/vesting/Vesting";
 import useSelectNetwork from "hooks/useNetworkFilter";
 import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking";
@@ -12,6 +11,9 @@ import ClaimCard from "components/rewards/ClaimCard";
 import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
+import useSum from "hooks/useSum";
+import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
+import VestingContainer from "components/vesting/VestingContainer";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -21,35 +23,11 @@ export enum Tabs {
 
 export default function RewardsPage(): JSX.Element {
   const { account, connect } = useWeb3();
-  const stakingContracts = useAllStakingContracts();
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useSelectNetwork(supportedNetworks);
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
   const isSelected = (tab: Tabs) => tabSelected === tab;
-  const [noVesting, setHasVesting] = useState<boolean>(false);
-  const [noStaking, setHasStaking] = useState<boolean>(false);
-
-  useEffect(() => {
-    const testInterval = setInterval(() => {
-      const stakingLoading = document.querySelectorAll(".show-staking-loading");
-      const stakingShowing = document.querySelectorAll(".show-staking");
-
-      const vestingLoading = document.querySelectorAll(".show-vesting-loading");
-      const vestingShowing = document.querySelectorAll(".show-vesting");
-
-      if (stakingLoading.length === 0 && stakingShowing.length === 0) {
-        setHasStaking(true);
-      }
-
-      if (vestingLoading.length === 0 && vestingShowing.length === 0) {
-        setHasVesting(true);
-      }
-    }, 1000);
-    setTimeout(() => {
-      clearInterval(testInterval);
-    }, 30000);
-  }, []);
 
   useEffect(() => {
     if (shouldAirdropVisible(selectedNetworks)) {
@@ -115,26 +93,7 @@ export default function RewardsPage(): JSX.Element {
           <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10 md:mt-0">
             <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
             <div className={`${isSelected(Tabs.Staking) ? "" : "hidden"}`}>
-              <div className={`mt-4 ${noStaking ? "" : "hidden"}`}>
-                <NotAvailable
-                  title="No Records Available"
-                  body="No staking records available"
-                  image="/images/emptyRecord.svg"
-                />
-              </div>
-              {stakingContracts?.stakingPools &&
-                stakingContracts?.stakingPools.length > 0 &&
-                stakingContracts?.stakingPools
-                  ?.filter((pool) => selectedNetworks.includes(pool.chainId))
-                  .map((staking) => (
-                    <div key={staking?.chainId + staking?.address}>
-                      <ClaimCard
-                        chainId={staking?.chainId}
-                        stakingAddress={staking?.address}
-                        stakingType={staking?.stakingType}
-                      />
-                    </div>
-                  ))}
+              <StakingRewardsContainer selectedNetworks={selectedNetworks} />
             </div>
 
             <div className={`mt-8 ${isSelected(Tabs.Airdrop) ? "" : "hidden"}`}>
@@ -142,18 +101,7 @@ export default function RewardsPage(): JSX.Element {
             </div>
 
             <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`}>
-              <div className={`mb-4 ${noVesting ? "" : "hidden"}`}>
-                <NotAvailable
-                  title="No Records Available"
-                  body="No vesting records available"
-                  image="/images/emptyRecord.svg"
-                />
-              </div>
-              {supportedNetworks
-                .filter((chain) => selectedNetworks.includes(chain))
-                .map((chain) => (
-                  <Vesting key={chain + "Vesting"} chainId={chain} />
-                ))}
+              <VestingContainer selectedNetworks={selectedNetworks} />
             </div>
           </div>
         </div>

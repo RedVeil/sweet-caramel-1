@@ -7,7 +7,7 @@ import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
-import { StakingType } from "hooks/staking/useAllStakingContracts";
+import { StakingType } from "hooks/staking/useAllStakingAddresses";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
