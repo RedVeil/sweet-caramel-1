@@ -30,7 +30,6 @@ async function executeCommand(command: string): Promise<void> {
 }
 
 export default task("forge:forge-test", "run forge tests").setAction(async (args: Args, hre) => {
-
   const command = `forge test -vvv`;
 
   const dirPath = path.join(__dirname, "../../../", "/test/forge", forge.fork.forkDirectory);
@@ -38,8 +37,7 @@ export default task("forge:forge-test", "run forge tests").setAction(async (args
 
   for (let file of files) {
     const shellCommand =
-      command +
-      `  --match-path test/forge/fork/${file} --no-match-contract 'Abstract|SimulateThreeXBatchSlippage'`;
+      command + `  --match-path test/forge/fork/${file} --no-match-contract 'Abstract|SimulateThreeXBatchSlippage'`;
     await executeCommand(shellCommand);
   }
 });

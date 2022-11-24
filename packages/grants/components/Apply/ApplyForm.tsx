@@ -106,7 +106,7 @@ const ApplyForm: React.FC<ApplyFormProps> = ({ form, activeForm, onNextActiveFor
 
         await contracts.beneficiaryGovernance
           .connect(library.getSigner())
-          .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), getBytes32FromIpfsHash(cid), 0);
+          .createProposal(submissionData.beneficiaryAddress, ethers.utils.id("World"), cid, 0);
       } catch (error) {
         dispatch(setDualActionModal(false));
         dispatch(

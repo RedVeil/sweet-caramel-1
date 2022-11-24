@@ -9,7 +9,7 @@ module.exports = {
     ignoreBuildErrors: false,
   },
   images: {
-    domains: ["popcorn.mypinata.cloud"],
+		domains: ["popcorn.mypinata.cloud", "gateway.pinata.cloud"],
   },
   env: {
     RPC_URL: process.env.RPC_URL,

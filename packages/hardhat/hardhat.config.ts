@@ -137,6 +137,7 @@ module.exports = {
       gasPrice: 50,
       timeout: 60000,
       url: process.env.RPC_URL || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      tags: ["grants"],
     },
     polygontest: {
       url: process.env.RPC_URL || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -156,6 +157,12 @@ module.exports = {
     rinkarby: {
       url: process.env.RPC_URL || "https://rinkeby.arbitrum.io/rpc",
       // `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+    },
+    goerli: {
+      timeout: 60000,
+      url: process.env.RPC_URL || `https://goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+      chainId: 5,
+      tags: ["grants"],
     },
   },
   gasReporter: {

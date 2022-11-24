@@ -28,26 +28,25 @@ export const addContractToRegistry = async (
     signer
   );
 
-  const contract = await contractRegistry.getContract(ethers.utils.id(contractName));
+  const contract = (await contractRegistry.getContract(ethers.utils.id(contractName))) as string;
+  const deployedAddress = (await deployments.get(contractName)).address;
+
+  if (contract.toLowerCase() === deployedAddress.toLowerCase()) {
+    console.log(`Skip Adding ${contractName} to registry - Identical Address`);
+    return;
+  }
 
   TablePrinter.log(`Adding contract ${contractName} to registry`);
   if (contract === ethers.constants.AddressZero) {
-    await contractRegistry.addContract(
-      ethers.utils.id(contractName),
-      (
-        await deployments.get(contractName)
-      ).address,
-      ethers.utils.id("1"),
-      { gasLimit: 1000000 }
-    );
+    await contractRegistry.addContract(ethers.utils.id(contractName), deployedAddress, ethers.utils.id("1"), {
+      gasLimit: 1000000,
+    });
   } else {
     TablePrinter.log(`${contractName} already exists in registry, updating entry ...`);
 
     const tx = await contractRegistry.updateContract(
       ethers.utils.id(contractName),
-      (
-        await deployments.get(contractName)
-      ).address,
+      deployedAddress,
       ethers.utils.id("2" + new Date().getTime().toString()),
       { gasLimit: 1000000 }
     );

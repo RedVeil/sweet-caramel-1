@@ -9,6 +9,7 @@ import { ContractsContext } from "context/Web3/contracts";
 import { BigNumber, constants, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import useTokenAllowance from "hooks/token/useTokenAllowance";
+import { confirmationsPerChain } from "helper/useWeb3Callbacks";
 import useTokenBalance from "hooks/token/useTokenBalance";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
@@ -39,7 +40,8 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
     await contracts.staking
       .connect(signer)
       .stake(popToLock, lockDuration)
-      .then((res) => {
+      .then(async (res) => {
+        await res.wait(confirmationsPerChain(chainId));
         toast.dismiss();
         toast.success("POP staked!");
         onCloseStakeModal();

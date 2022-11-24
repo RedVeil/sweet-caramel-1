@@ -174,26 +174,27 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   };
 
   const vote = (selectedVote: VoteOptions) => {
-    toast.loading("Submitting vote...");
-    contracts.beneficiaryGovernance
-      .connect(library.getSigner())
-      .vote(proposal.id, selectedVote)
-      .then((res) => {
-        toast.dismiss();
-        toast.success("Voted successfully!");
-        setHasVoted(true);
-        dispatch(setSingleActionModal(false));
-        if (selectedVote === VoteOptions.Yes) {
-          openVoteAcceptedModal();
-        } else {
-          openVoteRejectedModal();
-        }
-      })
-      .catch((err) => {
-        toast.dismiss();
-        toast.error(err.data.message.split("'")[1] || err.data);
-        dispatch(setSingleActionModal(false));
-      });
+    try {
+      toast.loading("Submitting vote...");
+      contracts.beneficiaryGovernance
+        .connect(library.getSigner())
+        .vote(proposal.id, selectedVote)
+        .then((res) => {
+          toast.dismiss();
+          toast.success("Voted successfully!");
+          setHasVoted(true);
+          dispatch(setSingleActionModal(false));
+          if (selectedVote === VoteOptions.Yes) {
+            openVoteAcceptedModal();
+          } else {
+            openVoteRejectedModal();
+          }
+        });
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err.data.message.split("'")[1] || err.data);
+      dispatch(setSingleActionModal(false));
+    }
   };
 
   const openVoteAcceptedModal = () => {
@@ -246,12 +247,13 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
 
   const refetchLockedPop = async () => {
     const lockedBalance = await contracts.staking.lockedBalances(account);
+    console.log("lockedBalance:", lockedBalance);
     const currentTime = parseInt(`${new Date().getTime() / 1000}`);
     const lockedPop = Number(utils.formatEther(await contracts.staking.balanceOf(account)));
     if (lockedPop && !lockedBalance.end.lt(currentTime)) {
       setHasStaked(true);
     }
-    setExpired(lockedBalance.end.lt(currentTime));
+    setExpired(lockedBalance.end.lt(currentTime)); // why is this done? This disables the lock POP staking modal if its true
     setLockedPop(lockedPop);
   };
 

@@ -7,8 +7,8 @@ deployments/
 docgen/docs
 lib/utils/exporter/out/*
 !lib/utils/exporter/out/.gitkeep
+lib/utils/exporter/target/
 docgen/SUMMARY.md
 docgen/.gitbook.yaml
 deployments.json
-lib/utils/exporter/target/
 broadcast/

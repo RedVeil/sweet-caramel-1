@@ -89,7 +89,8 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
       </div>
       {!useUnclaimedDeposits &&
         [Pages.butter, Pages.threeX].includes(page) &&
-        !(page === Pages.threeX && !features["instant3X"]) && (
+        page === Pages.threeX &&
+        features["instant3X"] && (
           <div className="mt-2">
             <CheckMarkToggleWithInfo
               label={`Use Instant ${pageToDisplayToken(page).output} (Higher Gas Fee)`}
