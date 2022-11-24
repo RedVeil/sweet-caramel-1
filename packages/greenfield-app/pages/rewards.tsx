@@ -10,6 +10,7 @@ import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
+import { useComponentState } from "@popcorn/components/hooks/useComponentState";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -24,6 +25,7 @@ export default function RewardsPage(): JSX.Element {
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
   const isSelected = (tab: Tabs) => tabSelected === tab;
+  const { ready, loading } = useComponentState({ ready: account, loading: !account });
 
   useEffect(() => {
     if (shouldAirdropVisible(selectedNetworks)) {
@@ -46,7 +48,7 @@ export default function RewardsPage(): JSX.Element {
         <div className="col-span-12 md:col-span-3">
           <h1 className="text-6xl leading-12 text-black">Rewards</h1>
           <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
-          <div className={!account ? "" : "hidden"}>
+          {!ready && (
             <div
               className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
               onClick={connect}
@@ -62,7 +64,7 @@ export default function RewardsPage(): JSX.Element {
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="col-span-12 md:col-span-6 md:col-end-13 gap-6 hidden md:grid grid-cols-6">
@@ -74,32 +76,34 @@ export default function RewardsPage(): JSX.Element {
         </div>
       </div>
 
-      <div className={`${account ? "grid" : "hidden"} grid-cols-12 md:gap-8 mt-16 md:mt-20`}>
-        <div className="col-span-12 md:col-span-4">
-          <div className={`mb-12`}>
-            <NetworkFilter
-              supportedNetworks={supportedNetworks}
-              selectedNetworks={selectedNetworks}
-              selectNetwork={selectNetwork}
-            />
+      {ready && (
+        <div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
+          <div className="col-span-12 md:col-span-4">
+            <div className={`mb-12`}>
+              <NetworkFilter
+                supportedNetworks={supportedNetworks}
+                selectedNetworks={selectedNetworks}
+                selectNetwork={selectNetwork}
+              />
+            </div>
+            <ConnectDepositCard extraClasses="md:h-104" />
           </div>
-          <ConnectDepositCard extraClasses="md:h-104" />
-        </div>
-        <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10 md:mt-0">
-          <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
-          <div className={`${isSelected(Tabs.Staking) ? "" : "hidden"}`}>
-            <StakingRewardsContainer selectedNetworks={selectedNetworks} />
-          </div>
+          <div className="flex flex-col col-span-12 md:col-span-8 md:mb-8 mt-10 md:mt-0">
+            <TabSelector activeTab={tabSelected} setActiveTab={setTabSelected} availableTabs={availableTabs} />
+            <div className={`${isSelected(Tabs.Staking) ? "" : "hidden"}`}>
+              <StakingRewardsContainer selectedNetworks={selectedNetworks} />
+            </div>
 
-          <div className={`mt-8 ${isSelected(Tabs.Airdrop) ? "" : "hidden"}`}>
-            <AirDropClaim chainId={selectedNetworks[0]} />
-          </div>
+            <div className={`mt-8 ${isSelected(Tabs.Airdrop) ? "" : "hidden"}`}>
+              <AirDropClaim chainId={selectedNetworks[0]} />
+            </div>
 
-          <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`}>
-            <VestingContainer selectedNetworks={selectedNetworks} />
+            <div className={`flex flex-col h-full mt-4 ${isSelected(Tabs.Vesting) ? "" : "hidden"}`}>
+              <VestingContainer selectedNetworks={selectedNetworks} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
