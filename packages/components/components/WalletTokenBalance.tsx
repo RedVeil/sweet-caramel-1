@@ -35,9 +35,10 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
   useUpdateWalletBalance({ token, account, value, balance, wallet, chainId, updateWallet });
 
   const { ready, loading } = useComponentState({
-    ready: !!value && !!account && !!balance.value,
-    loading: account && !value && !balance.value,
+    ready: (!isLoading && !!value) && !!account && !!balance.value,
+    loading: account && !value,
   });
+
 
   return (
     <>
@@ -53,7 +54,7 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
         {` ${(balance?.value?.gt(0) && symbol && `(${symbol})`) || ""}`}
       </div>
 
-      <div>Value: {(ready && `$${formatAndRoundBigNumber(value, decimals)}`) || loading ? 'Loading ...' : ''}</div>
+      <div>Value: {(!loading && `$${formatAndRoundBigNumber(value, decimals)}`) || 'Loading ...'}</div>
       <br />
     </>
   );
