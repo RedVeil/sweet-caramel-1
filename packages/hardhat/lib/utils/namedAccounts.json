@@ -432,6 +432,24 @@
       "contractName": "KeeperIncentive"
     }
   },
+  "univ3": {
+    "addresses": {
+      "polygon": "0x8f5B8B73c5168747779E4Ef38A80cC90caF358fB",
+      "mainnet": "0x9fee77d8b5050a55c16d0446e6eab06a6a24cd06",
+      "optimism": "0xae0ebaa4162941837bb56eda1bc9dc6850779bd2"
+    },
+    "metadata": {
+      "priceResolver": "univ3"
+    }
+  },
+  "sushi": {
+    "addresses": {
+      "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5"
+    },
+    "metadata": {
+      "priceResolver": "univ3"
+    }
+  },
   "merkleOrchard": {
     "addresses": {
       "arbitrum": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
