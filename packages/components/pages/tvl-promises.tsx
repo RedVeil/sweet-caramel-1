@@ -13,7 +13,7 @@ export const TvlPromises: React.FC = () => {
 
   const contracts = [...eth_contracts];
 
-  const { loading, sum, add } = useSum({ count: contracts.length });
+  const { loading, sum, add } = useSum({ expected: contracts.length });
 
   return <><TvlWithLoading loading={loading} contracts={contracts} add={add} tvl={sum} /></>;
 };
