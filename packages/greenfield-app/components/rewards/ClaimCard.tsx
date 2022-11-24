@@ -104,13 +104,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
             <div className="flex flex-row items-center pl-4 md:pl-0">
               <div className="flex items-center relative">
                 <div className="absolute top-0 -left-4">
-                  <Image
-                    src={networkLogos[chainId]}
-                    alt={ChainId[chainId] + " logo"}
-                    height="24"
-                    width="24"
-                    objectFit="contain"
-                  />
+                  <Image src={networkLogos[chainId]} alt={ChainId[chainId] + " logo"} height="24" width="24" />
                 </div>
                 <TokenIcon token={staking?.stakingToken?.address} chainId={chainId} fullsize />
               </div>

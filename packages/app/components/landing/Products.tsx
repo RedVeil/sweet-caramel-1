@@ -48,25 +48,23 @@ const Products = () => {
     <section className="mt-10">
       <h6 className="font-medium leading-8 mb-4">Our Products</h6>
       <div className="border-t border-customLightGray">
-        {process.env.SHOW_SWEETVAULTS && (
-          <Product
-            title="Sweet Vaults"
-            description="Single-asset vaults to earn yield on your digital assets"
-            stats={[
-              {
-                label: "TVL",
-                content: "$3.7m",
-                infoIconProps: {
-                  title: "Total Value Locked",
-                  content: "The total value of assets held by the underlying smart contracts.",
-                  id: "sweet-vault-tvl",
-                },
+        <Product
+          title="Sweet Vaults"
+          description="Single-asset vaults to earn yield on your digital assets"
+          stats={[
+            {
+              label: "TVL",
+              content: "$3.7m",
+              infoIconProps: {
+                title: "Total Value Locked",
+                content: "The total value of assets held by the underlying smart contracts.",
+                id: "sweet-vault-tvl",
               },
-            ]}
-            route={`${networkName}/sweet-vaults`}
-            badge="/images/newProductBadge.svg"
-          />
-        )}
+            },
+          ]}
+          route={`${networkName}/sweet-vaults`}
+          badge="/images/newProductBadge.svg"
+        />
         <Product
           title="3X"
           description="EUR & USD exposure with noble yield that funds social impact organizations"
