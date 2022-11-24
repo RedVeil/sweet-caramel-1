@@ -2,16 +2,12 @@ import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCar
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { useEffect, useRef, useState } from "react";
-import Vesting from "components/vesting/Vesting";
+import { useEffect, useState } from "react";
 import useSelectNetwork from "hooks/useNetworkFilter";
 import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking";
 import NetworkFilter from "components/NetworkFilter";
-import ClaimCard from "components/rewards/ClaimCard";
-import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
-import useSum from "hooks/useSum";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
 

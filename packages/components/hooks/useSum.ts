@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 
-export const useSum = ({ count }: { count: number }) => {
+export const useSum = ({
+  expected,
+}: {
+  expected: number;
+}): { loading: boolean; sum: BigNumber; add: (amount: BigNumber) => void; reset: () => void } => {
   const [sum, setSum] = useState(constants.Zero);
   const [loading, setLoading] = useState(true);
-  const [expected] = useState(count);
-  const [_count, setCount] = useState(0);
+  const [count, setCount] = useState(0);
 
-  const add = (amount) => {
+  const add = (amount?: BigNumber) => {
+    if (!amount) return;
     setCount((count) => count + 1);
     setSum((sum) => sum.add(amount));
+  };
+
+  const reset = () => {
+    setCount((prevState) => 0);
+    setSum((prevState) => constants.Zero);
+    setLoading((prevState) => true);
   };
 
   useEffect(() => {
@@ -27,6 +37,6 @@ export const useSum = ({ count }: { count: number }) => {
     }
   }, [count]);
 
-  return { loading, add, sum };
+  return { loading, sum, add, reset };
 };
 export default useSum;
