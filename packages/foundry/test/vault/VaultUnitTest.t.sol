@@ -29,6 +29,9 @@ contract VaultUnitTest is Test {
   MockERC4626 strategy;
   Vault vault;
   KeeperIncentiveV2 keeperIncentive;
+
+  uint256 ONE = 1e18;
+
   address feeRecipient = address(0x4444);
   address alice = address(0xABCD);
   address bob = address(0xDCBA);
@@ -40,8 +43,28 @@ contract VaultUnitTest is Test {
   event Paused(address account);
   event Unpaused(address account);
 
+  function _setFees(
+    uint256 depositFee,
+    uint256 withdrawalFee,
+    uint256 managementFee,
+    uint256 performanceFee
+  ) internal {
+    vm.prank(ACL_ADMIN);
+    vault.proposeNewFees(
+      Vault.FeeStructure({
+        deposit: depositFee,
+        withdrawal: withdrawalFee,
+        management: managementFee,
+        performance: performanceFee
+      })
+    );
+
+    vm.warp(block.timestamp + 3 days);
+    vault.setFees();
+  }
+
   function setUp() public {
-    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"));
     vm.selectFork(forkId);
 
     vm.label(feeRecipient, "feeRecipient");
@@ -62,6 +85,7 @@ contract VaultUnitTest is Test {
       IERC4626(address(strategy)),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      feeRecipient,
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1e17, keeperPayout: 9 })
     );
 
@@ -504,17 +528,12 @@ contract VaultUnitTest is Test {
     // Define upper bound for the test due to overflow
     vm.assume(amount < 283568639100782052886145506193140176214);
 
-    vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    _setFees(1e17, 0, 0, 0);
 
     underlying.mint(alice, amount);
-    underlying.mint(bob, amount + amount / 5);
 
     vm.prank(alice);
     underlying.approve(address(vault), amount);
-
-    vm.prank(bob);
-    underlying.approve(address(vault), amount + (amount / 5));
 
     // Test PreviewDeposit and Deposit
     uint256 expectedShares = vault.previewDeposit(amount);
@@ -522,13 +541,6 @@ contract VaultUnitTest is Test {
     vm.prank(alice);
     uint256 actualShares = vault.deposit(amount, alice);
     assertApproxEqAbs(expectedShares, actualShares, 2);
-
-    // Test PreviewMint and Mint
-    uint256 expectedDeposit = vault.previewMint(amount);
-
-    vm.prank(bob);
-    uint256 actualDeposit = vault.mint(amount, bob);
-    assertApproxEqAbs(expectedDeposit, actualDeposit, 2);
   }
 
   function test_PreviewWithdrawRedeemTakesFeesIntoAccount(uint128 amount) public {
@@ -537,8 +549,7 @@ contract VaultUnitTest is Test {
     // Define upper bound for the test due to overflow
     vm.assume(amount < 216554372251204060390530395229862551237);
 
-    vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 1e17, management: 0, performance: 0 }));
+    _setFees(0, 1e17, 0, 0);
 
     underlying.mint(alice, amount);
     underlying.mint(bob, amount);
@@ -575,8 +586,7 @@ contract VaultUnitTest is Test {
     vm.assume(timeframe <= 315576000);
     uint256 depositAmount = 1 ether;
 
-    vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 1e17, performance: 0 }));
+    _setFees(0, 0, 1e17, 0);
 
     underlying.mint(alice, depositAmount);
     vm.startPrank(alice);
@@ -589,6 +599,7 @@ contract VaultUnitTest is Test {
     vm.roll(timestamp);
 
     uint256 expectedFeeInAsset = vault.accruedManagementFee();
+
     uint256 expectedFeeInShares = vault.convertToShares(expectedFeeInAsset);
 
     vault.takeManagementAndPerformanceFees();
@@ -597,7 +608,7 @@ contract VaultUnitTest is Test {
     assertEq(vault.balanceOf(address(vault)), expectedFeeInShares);
 
     // High Water Mark should remain unchanged
-    assertEq(vault.vaultShareHWM(), 1e18);
+    assertEq(vault.vaultShareHWM(), 1 ether);
     // AssetsCheckpoint should remain unchanged
     assertEq(vault.assetsCheckpoint(), depositAmount);
   }
@@ -606,8 +617,7 @@ contract VaultUnitTest is Test {
     vm.assume(amount <= 315576000);
     uint256 depositAmount = 1 ether;
 
-    vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 1e17 }));
+    _setFees(0, 0, 0, 1e17);
 
     underlying.mint(alice, depositAmount);
     vm.startPrank(alice);
@@ -638,8 +648,7 @@ contract VaultUnitTest is Test {
     uint256 keeperBalBefore = vault.balanceOf(address(keeperIncentive));
     uint256 accruedFeesBefore = vault.balanceOf(address(vault));
 
-    vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 1e17, withdrawal: 0, management: 0, performance: 0 }));
+    _setFees(1e17, 0, 0, 0);
     (uint256 depositFee, , , ) = vault.feeStructure();
 
     underlying.mint(alice, depositAmount);
@@ -681,13 +690,14 @@ contract VaultUnitTest is Test {
   function test_proposeStrategy() public {
     MockERC4626 newStrategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
 
+    uint256 callTime = block.timestamp;
     vm.expectEmit(false, false, false, true, address(vault));
-    emit NewStrategyProposed(IERC4626(address(newStrategy)), 1655909093);
+    emit NewStrategyProposed(IERC4626(address(newStrategy)), callTime);
 
     vm.prank(ACL_ADMIN);
     vault.proposeNewStrategy(IERC4626(address(newStrategy)));
 
-    assertEq(vault.proposalTimeStamp(), 1655909093);
+    assertEq(vault.proposalTimeStamp(), callTime);
     assertEq(address(vault.proposedStrategy()), address(newStrategy));
   }
 
@@ -711,10 +721,6 @@ contract VaultUnitTest is Test {
     MockERC4626 newStrategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
     uint256 depositAmount = 1 ether;
 
-    // SetUp Fees to check hwm and assetCheckpoint later
-    vm.prank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 1e17 }));
-
     // Deposit funds for testing
     underlying.mint(alice, depositAmount);
     vm.startPrank(alice);
@@ -732,7 +738,7 @@ contract VaultUnitTest is Test {
     vm.prank(ACL_ADMIN);
     vault.proposeNewStrategy(IERC4626(address(newStrategy)));
 
-    vm.warp(block.timestamp + 3 days + 1);
+    vm.warp(block.timestamp + 3 days);
 
     vm.expectEmit(false, false, false, true, address(vault));
     emit ChangedStrategy(IERC4626(address(strategy)), IERC4626(address(newStrategy)));
@@ -748,46 +754,43 @@ contract VaultUnitTest is Test {
     assertEq(newStrategy.balanceOf(address(vault)), depositAmount * 2);
     assertEq(underlying.allowance(address(vault), address(newStrategy)), type(uint256).max);
 
-    assertLt(vault.vaultShareHWM(), oldHWM);
-
+    assertEq(vault.vaultShareHWM(), oldHWM);
     assertEq(vault.assetsCheckpoint(), oldAssetCheckpoint);
-    assertEq(vault.vaultShareHWM(), vault.convertToAssets(1 ether));
-    assertEq(vault.assetsCheckpoint(), vault.totalAssets());
   }
 
   // Set Fees
-  function testFail_setFeesNonVaultController() public {
-    Vault.FeeStructure memory newFeeStructure = Vault.FeeStructure({
-      deposit: 1,
-      withdrawal: 1,
-      management: 1,
-      performance: 1
-    });
+  // function testFail_setFeesNonVaultController() public {
+  //   Vault.FeeStructure memory newFeeStructure = Vault.FeeStructure({
+  //     deposit: 1,
+  //     withdrawal: 1,
+  //     management: 1,
+  //     performance: 1
+  //   });
 
-    vm.prank(alice);
-    vault.setFees(newFeeStructure);
-  }
+  //   vm.prank(alice);
+  //   vault.setFees(newFeeStructure);
+  // }
 
-  function test_setFees() public {
-    Vault.FeeStructure memory newFeeStructure = Vault.FeeStructure({
-      deposit: 1,
-      withdrawal: 1,
-      management: 1,
-      performance: 1
-    });
+  // function test_setFees() public {
+  //   Vault.FeeStructure memory newFeeStructure = Vault.FeeStructure({
+  //     deposit: 1,
+  //     withdrawal: 1,
+  //     management: 1,
+  //     performance: 1
+  //   });
 
-    vm.expectEmit(false, false, false, true, address(vault));
-    emit FeesUpdated(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }), newFeeStructure);
+  //   vm.expectEmit(false, false, false, true, address(vault));
+  //   emit FeesUpdated(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }), newFeeStructure);
 
-    vm.prank(ACL_ADMIN);
-    vault.setFees(newFeeStructure);
+  //   vm.prank(ACL_ADMIN);
+  //   vault.setFees(newFeeStructure);
 
-    (uint256 deposit, uint256 withdrawal, uint256 management, uint256 performance) = vault.feeStructure();
-    assertEq(deposit, 1);
-    assertEq(withdrawal, 1);
-    assertEq(management, 1);
-    assertEq(performance, 1);
-  }
+  //   (uint256 deposit, uint256 withdrawal, uint256 management, uint256 performance) = vault.feeStructure();
+  //   assertEq(deposit, 1);
+  //   assertEq(withdrawal, 1);
+  //   assertEq(management, 1);
+  //   assertEq(performance, 1);
+  // }
 
   // Set KeeperConfig
   function testFail_setKeeperConfigNonVaultController() public {

@@ -309,29 +309,30 @@ contract VaultsController is Owned, ContractRegistryAccess {
   /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
 
   function _deployStrategy(address _strategyImplementation, bytes memory _deploymentParams) internal returns (address) {
-    (address strategy, bytes memory returnData) = _vaultsFactory().deploy(_strategyImplementation, _deploymentParams);
-    return strategy;
+    return _vaultsFactory().deploy(_strategyImplementation, _deploymentParams);
   }
 
   /* ========== OWNERSHIP FUNCTIONS ========== */
 
   /**
-   * @notice transfers ownership of VaultsRegistry and VaultsFactory contracts from VaultsController
+   * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
    * @dev newOwner address must call acceptOwnership on registry and factory
    */
-  function transferFactoryAndRegistryOwnership(address _newOwner) external onlyOwner {
-    _vaultsRegistry().nominateNewOwner(_newOwner);
-    _vaultsFactory().nominateNewOwner(_newOwner);
+  function transferFactoryAndRegistryOwnership(bytes32[] memory _factoryNames, address _newOwner) external onlyOwner {
+    for (uint8 i; i < _factoryNames.length; i++) {
+      IContractFactory(_getContract(_factoryNames[i])).nominateNewOwner(_newOwner);
+    }
   }
 
   /**
-   * @notice transfers ownership of VaultsRegistry and VaultsFactory contracts to VaultsController
-   * @dev registry and factory must nominate VaultsController as new owner first
+   * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts to controller
+   * @dev registry and factory must nominate controller as new owner first
    * acceptance function should be called when deploying controller contract
    */
-  function acceptFactoryAndRegistryOwnership() external onlyOwner {
-    _vaultsRegistry().acceptOwnership();
-    _vaultsFactory().acceptOwnership();
+  function acceptFactoryAndRegistryOwnership(bytes32[] memory _factoryNames) external onlyOwner {
+    for (uint8 i; i < _factoryNames.length; i++) {
+      IContractFactory(_getContract(_factoryNames[i])).acceptOwnership();
+    }
   }
 
   /* ========== INTERNAL FUNCTIONS ========== */

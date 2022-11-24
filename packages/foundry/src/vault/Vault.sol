@@ -49,12 +49,13 @@ contract Vault is
     uint256 performance;
   }
 
+  /* ========== STATE VARIABLES ========== */
+
   bytes32 public contractName;
 
   uint256 constant SECONDS_PER_YEAR = 365.25 days;
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
-
-  /* ========== STATE VARIABLES ========== */
+  uint256 internal ONE;
 
   ERC20 public asset;
   IERC4626 public strategy;
@@ -119,6 +120,7 @@ contract Vault is
     strategy = strategy_;
     quitPeriod = 3 days;
     vaultShareHWM = 10**(asset_.decimals());
+    ONE = 10**(asset_.decimals());
 
     _decimals = asset_.decimals();
 
@@ -131,7 +133,6 @@ contract Vault is
     feeStructure = feeStructure_;
     feeRecipient = feeRecipient_;
 
-    // Note: contractNames used to access them via contractRegistry should be defined in state instead of hashed on call --> must be defined here because asset is not set until init
     contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), block.timestamp, "Vault"));
     keeperConfig = keeperConfig_;
 
@@ -251,10 +252,10 @@ contract Vault is
    *   HWM in a fee period, issue fee shares to the vault equal to the performance fee.
    */
   function accruedPerformanceFee() public view returns (uint256) {
-    uint256 shareValue = convertToAssets(1 ether);
+    uint256 shareValue = convertToAssets(ONE);
 
     if (shareValue > vaultShareHWM) {
-      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e36);
+      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e18 * ONE);
     } else {
       return 0;
     }
@@ -301,7 +302,7 @@ contract Vault is
     bytes32 r,
     bytes32 s
   ) public virtual {
-    if (deadline <= block.timestamp) revert PermitDeadlineExpired(deadline);
+    if (deadline < block.timestamp) revert PermitDeadlineExpired(deadline);
 
     // Unchecked because the only math done is incrementing
     // the owner's nonce which cannot realistically overflow.
@@ -350,7 +351,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(uint256 assets, address receiver) public nonReentrant whenNotPaused returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 shares)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
@@ -366,9 +373,6 @@ contract Vault is
     strategy.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
-
-    vaultShareHWM = convertToAssets(1 ether);
-    assetsCheckpoint = totalAssets();
   }
 
   /**
@@ -388,7 +392,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(uint256 shares, address receiver) public nonReentrant whenNotPaused returns (uint256 assets) {
+  function mint(uint256 shares, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 assets)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = feeStructure.deposit;
@@ -406,9 +416,6 @@ contract Vault is
     strategy.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
-
-    vaultShareHWM = convertToAssets(1 ether);
-    assetsCheckpoint = totalAssets();
   }
 
   /**
@@ -432,7 +439,7 @@ contract Vault is
     uint256 assets,
     address receiver,
     address owner
-  ) public nonReentrant returns (uint256 shares) {
+  ) public nonReentrant syncFeeCheckpoint returns (uint256 shares) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     shares = convertToShares(assets);
@@ -452,9 +459,6 @@ contract Vault is
     strategy.withdraw(assets, receiver, address(this));
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
-
-    vaultShareHWM = convertToAssets(1 ether);
-    assetsCheckpoint = totalAssets();
   }
 
   /**
@@ -540,21 +544,17 @@ contract Vault is
   function changeStrategy() external takeFees {
     if (block.timestamp < proposalTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
-    // NOTE --> We can make this permissionless since it can only be changed to proposedStrategy
-    // NOTE --> should we make this a parameter? If this is changable u could call it right before proposal to nullify the ragequit period. --> Set Upper/Lower Bound via requires
-
     strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
 
     asset.approve(address(strategy), 0);
 
     emit ChangedStrategy(strategy, proposedStrategy);
+
     strategy = proposedStrategy;
 
     asset.approve(address(strategy), type(uint256).max);
 
     strategy.deposit(asset.balanceOf(address(this)), address(this));
-
-    vaultShareHWM = convertToAssets(1 ether);
   }
 
   /**
@@ -679,7 +679,7 @@ contract Vault is
     uint256 totalFee = managementFee + accruedPerformanceFee();
     uint256 currentAssets = totalAssets();
 
-    uint256 shareValue = convertToAssets(1 ether);
+    uint256 shareValue = convertToAssets(ONE);
 
     if (shareValue > vaultShareHWM) vaultShareHWM = shareValue;
 
@@ -692,6 +692,12 @@ contract Vault is
     }
 
     _;
+    assetsCheckpoint = totalAssets();
+  }
+
+  modifier syncFeeCheckpoint() {
+    _;
+    vaultShareHWM = convertToAssets(ONE);
     assetsCheckpoint = totalAssets();
   }
 }

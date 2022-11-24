@@ -29,29 +29,17 @@ contract VaultsFactory is Owned {
 
   /**
    * @notice Deploys Vault, VaultStaking, or Wrapper contracts
-   * @param _implementation - address of contract to clone behavior code
+   * @param implementation - address of contract to clone behavior code
    * @param data - calldata
    * @dev This should always be called through the VaultsController
    */
-  function deploy(address _implementation, bytes calldata data)
-    external
-    onlyOwner
-    returns (address clone, bytes memory)
-  {
-    clone = Clones.clone(_implementation);
+  function deploy(address implementation, bytes calldata data) external onlyOwner returns (address clone) {
+    clone = Clones.clone(implementation);
 
-    bytes4 selector = _getSelector(data);
-
-    (bool success, bytes memory _returnData) = clone.call(abi.encodeWithSelector(selector, data));
+    (bool success, ) = clone.call(data);
 
     if (!success) revert DeploymentInitFailed();
 
     emit Deployment(clone);
-
-    return (clone, _returnData);
-  }
-
-  function _getSelector(bytes memory payload) internal pure returns (bytes4 selector) {
-    selector = payload[0] | (bytes4(payload[1]) >> 8) | (bytes4(payload[2]) >> 16) | (bytes4(payload[3]) >> 24);
   }
 }

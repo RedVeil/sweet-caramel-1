@@ -134,6 +134,7 @@ contract VaultsControllerTest is Test {
       asset: asset,
       strategy: IERC4626(address(yearnWrapper)),
       contractRegistry: IContractRegistry(CONTRACT_REGISTRY),
+      feeRecipient: address(0x4444),
       feeStructure: Vault.FeeStructure({
         deposit: DEPOSIT_FEE,
         withdrawal: WITHDRAWAL_FEE,
@@ -152,7 +153,6 @@ contract VaultsControllerTest is Test {
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 25e16, 2000 ether);
     vaultZapper = new VaultsV1Zapper(IContractRegistry(CONTRACT_REGISTRY));
 
-    vaultsFactory.setImplementation(vaultImplementation);
     vaultStakingFactory.setImplementation(stakingImplementation);
     yearnWrapperFactory.setImplementation(yearnWrapperImplementation);
 
@@ -216,13 +216,6 @@ contract VaultsControllerTest is Test {
   }
 
   /* ========== HELPER FUNCTIONS ========== */
-
-  function helper__addVaultTypesToRegistry(uint256 _vaultTypes) public {
-    for (uint256 i = 2; i <= _vaultTypes; i++) {
-      vaultsController.addVaultTypeToRegistry(i);
-    }
-    assertEq(vaultsRegistry.vaultTypes(), _vaultTypes);
-  }
 
   function helper__deployYearnWrapper(address yearnVault) public returns (address yearnWrapperAddress) {
     yearnWrapperAddress = address(new YearnWrapper());
