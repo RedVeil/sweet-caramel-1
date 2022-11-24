@@ -1,7 +1,6 @@
-import { ChainId } from "@popcorn/utils";
+import { ChainId, getNamedAccounts } from "@popcorn/utils";
 import { Contract } from "ethers";
 import defi_llama from "./llama";
-import { getNamedAccounts } from "@popcorn/utils/getNamedAccounts";
 
 export const staking = async (address: string, chainId: ChainId, rpc, resolvers) => {
   const staking = new Contract(address, ["function stakingToken() external view returns (address)"], rpc);

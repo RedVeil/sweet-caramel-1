@@ -1,15 +1,9 @@
-import { Resolvers } from "../price-resolvers";
+import { Resolvers } from "price-resolvers";
 import useSWR from "swr";
-import { useProvider } from "wagmi";
-import { SWRResponse } from "swr";
-import { BigNumber } from "ethers";
+import { useRpcProvider } from "../../../app/hooks/useRpcProvider";
 
-export const usePrice = (
-  address: string,
-  chainId: number,
-  resolver?: string,
-): SWRResponse<{ value: BigNumber; decimals: number }> => {
-  const provider = useProvider({ chainId });
+export const usePrice = (address, chainId, resolver) => {
+  const provider = useRpcProvider(chainId);
 
   return useSWR(!!address && !!chainId ? [address, chainId, resolver] : null, async () => {
     let price;

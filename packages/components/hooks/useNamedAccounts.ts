@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DeploymentChainIds, DeploymentContractsKeys, getNamedAccounts } from "@popcorn/utils/getNamedAccounts";
+import { DeploymentChainIds, DeploymentContractsKeys, getNamedAccounts } from "@popcorn/utils";
 
 /**
  * useBalanceValue hook is used to calculate the value of an account balance of a given token
@@ -7,7 +7,7 @@ import { DeploymentChainIds, DeploymentContractsKeys, getNamedAccounts } from "@
  */
 export const useNamedAccounts = <Chain extends DeploymentChainIds>(
   chainId: Chain | undefined,
-  contractAddresses: DeploymentContractsKeys<Chain>[],
+  contractAddresses?: DeploymentContractsKeys<Chain>[],
 ) => {
   return useMemo(() => (chainId && getNamedAccounts(chainId, contractAddresses)) || [], [chainId, contractAddresses]);
 };

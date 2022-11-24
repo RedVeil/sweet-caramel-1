@@ -30,7 +30,7 @@ const { chains, provider, webSocketProvider } = configureChains(
       apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "",
     }),
     infuraProvider({
-      apiKey: process.env.INFURA_PROJECT_ID || "",
+      apiKey: process.env.NEXT_PUBLIC_INFURA_PROJECT_ID || "",
     }),
     jsonRpcProvider({ rpc: (chain) => ({ http: chain.rpcUrls.default }) }),
   ],
