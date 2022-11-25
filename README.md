@@ -41,7 +41,7 @@ packages
 1. Install packages:
    - `curl -L https://foundry.paradigm.xyz | bash` 
    - in packages/hardhat `foundryup`
-   - in packages/hardhat `cargo build --manifest-path packages/hardhat/lib/utils/exporter/Cargo.toml --release`
+   - in packages/hardhat `cargo build --manifest-path lib/utils/exporter/Cargo.toml --release`
    - `yarn install`
 
 

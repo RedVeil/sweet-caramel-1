@@ -101,11 +101,9 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Products</p>
           <div className="flex flex-col">
-            {process.env.SHOW_SWEETVAULTS && (
-              <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
-                Sweet Vaults
-              </Link>
-            )}
+            <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+              Sweet Vaults
+            </Link>
             <Link href={`/${networkName}/set/3x`} className=" text-primary hover:text-black leading-6 mt-4">
               3X
             </Link>

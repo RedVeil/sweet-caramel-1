@@ -1,19 +1,19 @@
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
 import StakeCard from "components/staking/StakeCard";
 import React, { useMemo } from "react";
-import useAllStakingContracts from "hooks/staking/useAllStakingContracts";
 import useNetworkFilter from "hooks/useNetworkFilter";
 import { useChainsWithStaking } from "hooks/staking/useChainsWithStaking";
 import NetworkFilter from "components/NetworkFilter";
+import useAllStakingAddresses from "hooks/staking/useAllStakingAddresses";
 
 export default function StakingOverviewPage(): JSX.Element {
-  const stakingContracts = useAllStakingContracts();
+  const stakingAddresses = useAllStakingAddresses();
   const supportedNetworks = useChainsWithStaking();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
   const stakingPools = useMemo(
-    () => stakingContracts?.stakingPools?.filter((staking) => selectedNetworks.includes(staking?.chainId)),
-    [selectedNetworks, stakingContracts],
+    () => stakingAddresses?.filter((staking) => selectedNetworks.includes(staking?.chainId)),
+    [selectedNetworks, stakingAddresses],
   );
 
   return (

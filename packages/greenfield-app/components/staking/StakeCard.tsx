@@ -7,7 +7,7 @@ import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
-import { StakingType } from "hooks/staking/useAllStakingContracts";
+import { StakingType } from "hooks/staking/useAllStakingAddresses";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
@@ -71,9 +71,11 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
       >
         <div className="py-8 md:p-8">
           <div className="flex flex-row items-center justify-between pl-4 md:pl-0">
-            <div className="flex items-center relative">
-              <NetworkSticker selectedChainId={chainId} />
-              <TokenIcon token={staking?.stakingToken?.address} chainId={chainId} fullsize />
+            <div className="flex items-center">
+              <div className="relative">
+                <NetworkSticker selectedChainId={chainId} />
+                <TokenIcon token={staking?.stakingToken?.address} chainId={chainId} fullsize />
+              </div>
               <div className="flex flex-col md:flex-row md:items-center ml-2 md:ml-0">
                 <h3 className="text-3xl md:text-4xl md:ml-2 mb-2 md:mb-0 font-normal leading-9">
                   {metadata?.name ? metadata.name : staking?.stakingToken?.name}

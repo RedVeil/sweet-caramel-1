@@ -18,7 +18,7 @@ export type ContractAddresses<ChainId extends keyof Deployments> = {
  */
 export const getNamedAccounts = <Chain extends DeploymentChainIds>(
   chainId: Chain,
-  contractAddresses?: Array<DeploymentContractsKeys<Chain>>,
+  contractAddresses?: Array<DeploymentContractsKeys<Chain>> | undefined[],
 ) =>
   !contractAddresses
     ? Object.keys(deployments[chainId].contracts).map((contract) => map(chainId, contract))

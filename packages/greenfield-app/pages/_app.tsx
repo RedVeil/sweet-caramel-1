@@ -1,6 +1,6 @@
 import Page from "@popcorn/app/components/Common/Page";
 import { Debug } from "@popcorn/app/components/Debug";
-import FeatureTogglePanel from "@popcorn/app/components/DevOnly/FeatureTogglePanel";
+import { FeatureTogglePanel } from "@popcorn/components/components/FeatureTogglePanel";
 import { DualActionModalContainer } from "@popcorn/app/components/Modal/DualActionModalContainer";
 import DualActionWideModalContainer from "@popcorn/app/components/Modal/DualActionWideModalContainer";
 import { MobileFullScreenModalContainer } from "@popcorn/app/components/Modal/MobileFullScreenModalContainer";
@@ -9,7 +9,7 @@ import { NetworkChangePromptModalContainer } from "@popcorn/app/components/Modal
 import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "@popcorn/app/components/Notifications/NotificationsContainer";
 import OfacCheck from "@popcorn/app/components/OfacCheck";
-import { FeatureToggleProvider } from "@popcorn/app/context/FeatureToggleContext";
+import { FeatureToggleProvider } from "@popcorn/components/context/FeatureToggleContext";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
@@ -22,7 +22,6 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
-import TagManager from "react-gtm-module";
 import GoogleAnalyticsPrompt from "components/GoogleAnalyticsPrompt";
 
 const bnb: Chain = {
@@ -88,14 +87,6 @@ export default function MyApp(props) {
       </Page>
     ));
   const [loading, setLoading] = useState(true);
-  const [acceptAnalytics, setAcceptAnalytics] = useState(false);
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_GTM_ID) {
-      TagManager.initialize({
-        gtmId: process.env.NEXT_PUBLIC_GTM_ID,
-      });
-    }
-  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -106,13 +97,6 @@ export default function MyApp(props) {
       setLoading(true);
     });
     Router.events.on("routeChangeComplete", () => {
-      if (acceptAnalytics) {
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: "pageView",
-          url: window.location.pathname,
-        });
-      }
       setLoading(false);
     });
     Router.events.on("routeChangeError", () => {
@@ -165,7 +149,7 @@ export default function MyApp(props) {
               <DualActionWideModalContainer />
               <NetworkChangePromptModalContainer />
               {getLayout(<Component {...pageProps} />)}
-              <GoogleAnalyticsPrompt acceptGoogleAnalytics={() => setAcceptAnalytics(true)} />
+              <GoogleAnalyticsPrompt />
               <FeatureTogglePanel />
               <NotificationsContainer />
               <Debug />

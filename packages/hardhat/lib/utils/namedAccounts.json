@@ -24,7 +24,8 @@
       "mainnet": "0xeB906A75838A8078B181815969b1DCBC20eaF7c0"
     },
     "metadata": {
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "apyResolver": "synthetix"
     }
   },
   "angleRouter": {
@@ -61,10 +62,8 @@
     },
     "metadata": {
       "name": "Butter (V2)",
-      "icons": [
-        "/images/icons/BTR.svg"
-      ],
-      "priceResolver": "setToken"
+      "icons": ["/images/icons/BTR.svg"],
+      "priceResolver": "set_token"
     }
   },
   "butterBatch": {
@@ -92,7 +91,9 @@
     "metadata": {
       "contractName": "ButterStaking",
       "priceResolver": "staking",
-      "symbol": "pst-BTR"
+      "symbol": "pst-BTR",
+      "isERC20": false,
+      "apyResolver": "synthetix"
     }
   },
   "butterWhaleProcessing": {
@@ -426,6 +427,16 @@
     },
     "metadata": null
   },
+  "univ3": {
+    "addresses": {
+      "polygon": "0x8f5B8B73c5168747779E4Ef38A80cC90caF358fB",
+      "mainnet": "0x9fee77d8b5050a55c16d0446e6eab06a6a24cd06",
+      "optimism": "0xae0ebaa4162941837bb56eda1bc9dc6850779bd2"
+    },
+    "metadata": {
+      "priceResolver": "univ3"
+    }
+  },
   "merkleOrchard": {
     "addresses": {
       "arbitrum": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
@@ -449,7 +460,8 @@
         "/images/icons/POP.svg"
       ],
       "name": "POP",
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "isERC20": false
     }
   },
   "popUsdcArrakisVault": {
@@ -473,13 +485,14 @@
       "polygon": "0xd3836EF639A74EA7398d34c66aa171b1564BE4bc"
     },
     "metadata": {
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "isERC20": false,
+      "apyResolver": "synthetix"
     }
   },
   "popUsdcLp": {
     "addresses": {
       "mainnet": "0x9fee77d8b5050a55c16d0446e6eab06a6a24cd06",
-      "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
       "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
       "optimism": "0xae0eBAA4162941837Bb56EDa1Bc9dc6850779bd2"
     },
@@ -490,6 +503,17 @@
       "priceResolver": "arrakis"
     }
   },
+  "popUsdcSushiLP": {
+    "addresses": {
+      "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5"
+    },
+    "metadata": {
+      "name": "USDC/POP LP",
+      "buyLinkEthereum": "https://beta.arrakis.finance/#/vaults/0xBBA11b41407dF8793A89b44ee4b50AfAD4508555/add",
+      "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add",
+      "priceResolver": "univ2"
+    }
+  },
   "popUsdcLpStaking": {
     "addresses": {
       "arbitrum": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
@@ -498,7 +522,8 @@
       "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D"
     },
     "metadata": {
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "apyResolver": "synthetix"
     }
   },
   "popUsdcUniV3Pool": {
@@ -527,7 +552,9 @@
     },
     "metadata": {
       "priceResolver": "pop",
-      "symbol": "POP"
+      "symbol": "POP",
+      "balanceResolver": "rewardsEscrow",
+      "isERC20": false
     }
   },
   "rewardsManager": {
@@ -614,7 +641,7 @@
     },
     "metadata": null
   },
-  "setTokenCreator": {
+  "set_tokenCreator": {
     "addresses": {
       "mainnet": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
       "rinkeby": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a"
@@ -646,10 +673,8 @@
       "mainnet": "0x8b97ADE5843c9BE7a1e8c95F32EC192E31A46cf3"
     },
     "metadata": {
-      "icons": [
-        "/images/tokens/3X.svg"
-      ],
-      "priceResolver": "setToken"
+      "icons": ["/images/tokens/3X.svg"],
+      "priceResolver": "set_token"
     }
   },
   "threeXBatch": {
@@ -674,7 +699,9 @@
     "metadata": {
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
-      "symbol": "pst-3X"
+      "symbol": "pst-3X",
+      "isERC20": false,
+      "apyResolver": "synthetix"
     }
   },
   "threeXWhale": {
@@ -732,7 +759,7 @@
       ],
       "name": "USDC",
       "symbol": "USDC",
-      "priceResolver": "defillama"
+      "priceResolver": "defi_llama"
     }
   },
   "usdt": {

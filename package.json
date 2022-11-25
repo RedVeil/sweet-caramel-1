@@ -13,7 +13,7 @@
     "start": "yarn lerna run --scope @popcorn/app start",
     "pretify": "prettier --write .",
     "test": "yarn lerna run test",
-    "nuke": "rm -r node_modules; for d in packages/*/node_modules; do echo $d; rm -r $d; done",
+    "nuke": "rm -r node_modules; for d in packages/*/node_modules; do echo $d; rm -r $d; done; for d in packages/*/.next; do echo $d; rm -r $d; done",
     "touch": " for d in packages/*/README.md; do echo '' >> $d; done",
     "test:fork": "yarn lerna run test:fork",
     "test:forge": "yarn lerna run test:forge",
@@ -58,7 +58,8 @@
     "yargs-parser": "^21.1.1",
     "parse-url": "8.1.0",
     "trim-newlines": "^3.0.1",
-    "meow": "^8.0.0"
+    "meow": "^8.0.0",
+    "webpack@>=4.43.0 <6.0.0, webpack@^5.9.0/enhanced-resolve": "5.10.0"
   },
   "repository": {
     "type": "git",

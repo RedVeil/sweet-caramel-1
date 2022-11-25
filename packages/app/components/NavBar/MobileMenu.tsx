@@ -19,7 +19,7 @@ import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useDisconnect, useNetwork } from "wagmi";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
 import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
-import { useFeatures } from "@popcorn/app/hooks/useFeatures";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
 
 const networkData = [

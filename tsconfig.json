@@ -26,8 +26,8 @@
     "downlevelIteration": true,
     "lib": ["dom", "es2017"],
     "paths": {
-      "@popcorn/ui": ["../ui/src"],
-      "@popcorn/ui/*": ["../ui/src/*"],
+      "@popcorn/components": ["../components"],
+      "@popcorn/components/*": ["../components/*"],
       "@popcorn/utils": ["../utils/src"],
       "@popcorn/utils/*": ["../utils/src/*"],
       "@popcorn/hardhat": ["../hardhat"],

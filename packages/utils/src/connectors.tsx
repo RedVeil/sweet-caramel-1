@@ -14,6 +14,21 @@ export enum ChainId {
   ALL = 0,
 }
 
+export enum named {
+  all = "-1",
+  eth = "1",
+  goerly = "5",
+  arb = "42161",
+  mumbai = "80001",
+  poly = "137",
+  hardhat = "1337",
+  localhost = "1337",
+  bnb = "56",
+  remotefork = "31338",
+  op = "10",
+  ALL = 0,
+}
+
 export enum ChainIdHex {
   Ethereum = "0x1",
   Goerli = "0x5",
