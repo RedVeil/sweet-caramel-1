@@ -35,8 +35,8 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
   useUpdateWalletBalance({ token, account, value, balance, wallet, chainId, updateWallet });
 
   const { ready, loading } = useComponentState({
-    ready: (!isLoading && !!value) && !!account && !!balance.value,
-    loading: account && !value,
+    ready: !isLoading && !!account && !!balance.value,
+    loading: !account || (!value || !balance.value),
   });
 
 
@@ -47,7 +47,6 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
       <div>Price Resolver: {priceResolver || "default"}</div>
       <div>Chain: {networkMap[chainId]}</div>
       <div>Symbol: {symbol}</div>
-      <div>Price: {children}</div>
       <div>
         Balance:{" "}
         {(!ready && "Loading ...") || (balance?.value && formatAndRoundBigNumber(balance.value, decimals)) || ""}
@@ -55,6 +54,9 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
       </div>
 
       <div>Value: {(!loading && `$${formatAndRoundBigNumber(value, decimals)}`) || 'Loading ...'}</div>
+      <div>
+        {children}
+      </div>
       <br />
     </>
   );

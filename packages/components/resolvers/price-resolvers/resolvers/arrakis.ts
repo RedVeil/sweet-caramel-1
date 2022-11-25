@@ -1,9 +1,9 @@
 import { ChainId } from "@popcorn/utils";
 import { Contract } from "ethers";
-import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
-import defi_llama from "./llama";
+import { parseEther, parseUnits } from "ethers/lib/utils";
+import { resolve_price } from "../resolve_price";
 
-export const arrakis = async (address: string, chainId: ChainId, rpc, resolvers) => {
+export const arrakis = async (address: string, chainId: ChainId, rpc) => {
   const vault = new Contract(
     address,
     [
@@ -16,7 +16,12 @@ export const arrakis = async (address: string, chainId: ChainId, rpc, resolvers)
   );
 
   const [token0, token1] = await Promise.all([vault.token0(), vault.token1()]);
-  const [token0Price, token1Price] = await Promise.all([defi_llama(token0, chainId), defi_llama(token1, chainId)]);
+
+  const [token0Price, token1Price] = await Promise.all([
+    resolve_price({ address: token0, chainId, rpc }),
+    resolve_price({ address: token1, chainId, rpc }),
+  ]);
+
   const [amount0Current, amount1Current] = await vault.getUnderlyingBalances();
   const totalSupply = await vault.totalSupply();
 

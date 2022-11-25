@@ -1,4 +1,4 @@
-import { FeatureToggleContext } from "@popcorn/components/context/FeatureToggleContext";
+import { FeatureToggleContext } from "../context/FeatureToggleContext";
 import { useContext, useState } from "react";
 import { CheckCircle, Settings, X } from "react-feather";
 
@@ -24,7 +24,7 @@ export function FeatureTogglePanel(): JSX.Element {
             <X /> Close
           </span>
           {Object.keys(features).map((feature) => (
-            <span className="flex flex-row items-center card p-2" onClick={() => toggleFeature(feature)}>
+            <span key="feature" className="flex flex-row items-center card p-2" onClick={() => toggleFeature(feature)}>
               {features[feature] ? <CheckCircle size={16} /> : <X size={16} />} <p className="ml-2">{feature}</p>
             </span>
           ))}

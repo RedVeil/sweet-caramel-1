@@ -5,7 +5,7 @@ const LoadingSpinner = ({ width, height }: { width?: string; height?: string }) 
   const loaderOptions = {
     loop: true,
     autoplay: true,
-    animationData: json,
+    animationData: json({ w: width?.split('px')?.[0], h: height?.split('px')?.[0] }),
     rendererSettings: {
       preserveAspectRatio: "xMidYMid meet",
     },
@@ -18,7 +18,7 @@ const LoadingSpinner = ({ width, height }: { width?: string; height?: string }) 
 
 export default LoadingSpinner;
 
-const json = {
+const json = ({ w, h }) => ({
   "v": "4.8.0",
   "meta": {
     "g": "LottieFiles AE 3.0.0",
@@ -30,8 +30,8 @@ const json = {
   "fr": 60,
   "ip": 0,
   "op": 179,
-  "w": 1080,
-  "h": 1080,
+  "w": w,
+  "h": h,
   "nm": "1080x1080_Animation Symbol_White",
   "ddd": 0,
   "assets": [],
@@ -1023,4 +1023,4 @@ const json = {
     }
   ],
   "markers": []
-}
+})

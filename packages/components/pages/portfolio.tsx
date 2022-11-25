@@ -6,6 +6,7 @@ import { DefaultState, reducer, reset, updateToken, updateWallet, updateNetworth
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
+import { Apy } from "../components/Apy";
 
 export const Portfolio: NextPage = () => {
   const {
@@ -21,8 +22,6 @@ export const Portfolio: NextPage = () => {
     "popStaking",
     "threeX",
     "threeXStaking",
-    "dai",
-    "usdc",
     "butter",
     "butterStaking",
     "xenStaking",
@@ -33,6 +32,7 @@ export const Portfolio: NextPage = () => {
   const contractsPoly = useNamedAccounts("137", [
     "pop",
     "popStaking",
+    "popUsdcSushi",
     "popUsdcArrakisVault",
     "popUsdcArrakisVaultStaking",
     "rewardsEscrow",
@@ -55,7 +55,7 @@ export const Portfolio: NextPage = () => {
 
       <br />
 
-      {[...contractsEth, ...contractsPoly, ...contractsArbitrum, ...contractsBnb, ...contractsOp].map((token) => (
+      {[...contractsEth, ...contractsPoly, ...contractsBnb, ...contractsArbitrum, ...contractsOp].map((token) => (
         <WalletTokenBalance
           alias={token.__alias}
           key={`${token.chainId}:${token.address}`}
@@ -68,7 +68,13 @@ export const Portfolio: NextPage = () => {
           <Price
             token={token.address}
             chainId={Number(token.chainId) as ChainId}
-            resolver={token?.priceResolver}
+            resolver={token.priceResolver}
+            updateToken={_updateToken}
+          />
+          <Apy
+            address={token.address}
+            chainId={Number(token.chainId) as ChainId}
+            resolver={token.apyResolver}
             updateToken={_updateToken}
           />
         </WalletTokenBalance>

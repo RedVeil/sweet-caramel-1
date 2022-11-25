@@ -20,7 +20,7 @@ export const getNamedAccounts = <Chain extends DeploymentChainIds>(
   chainId: Chain,
   contractAddresses?: Array<DeploymentContractsKeys<Chain>> | undefined[],
 ) =>
-  !contractAddresses || contractAddresses.filter((exists) => !!exists).length == 0
+  !contractAddresses
     ? Object.keys(deployments[chainId].contracts).map((contract) => map(chainId, contract))
     : contractAddresses.map((contract) => map(chainId, contract));
 

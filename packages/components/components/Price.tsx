@@ -1,5 +1,5 @@
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { usePrice } from "../hooks/portfolio/usePrice";
+import { usePrice } from "../hooks/usePrice";
 import { useEffect } from "react";
 import { UpdateTokenActionProps } from "../reducers/portfolio";
 
@@ -21,7 +21,7 @@ export const Price: React.FC<PriceProps> = ({ token, chainId, resolver, updateTo
     updateToken({ token, chainId, price, isLoading: priceValidating, error: priceError });
   }, [price, priceValidating, priceError]);
 
-  return <>{(price && !priceError && `$${formatAndRoundBigNumber(price.value, price.decimals)}`) ?? "Loading ... "}</>;
+  return <>Price: {(price && !priceError && `$${formatAndRoundBigNumber(price.value, price.decimals)}`) ?? "Loading ... "}</>;
 };
 
 export default Price;

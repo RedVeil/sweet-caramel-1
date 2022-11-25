@@ -1,4 +1,4 @@
-import { Resolvers } from "../price-resolvers";
+import { Resolvers } from "../resolvers/price-resolvers";
 import useSWR from "swr";
 import { useProvider } from "wagmi";
 import { SWRResponse } from "swr";
@@ -14,9 +14,10 @@ export const usePrice = (
   return useSWR(!!address && !!chainId ? [address, chainId, resolver] : null, async () => {
     let price;
     if (resolver && typeof Resolvers[resolver] === "function") {
-      price = await Resolvers[resolver](address, chainId, provider, Resolvers);
+      console.log("using resolver", resolver);
+      price = await Resolvers[resolver](address, chainId, provider);
     } else {
-      price = await Resolvers["defillama"](address, chainId);
+      price = await Resolvers["defi_llama"](address, chainId);
     }
     return price;
   });
