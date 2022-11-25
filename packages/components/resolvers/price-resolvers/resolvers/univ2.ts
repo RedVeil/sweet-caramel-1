@@ -1,24 +1,32 @@
 import { ChainId } from "@popcorn/utils";
 import { Contract } from "ethers";
-import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
-import defi_llama from "./llama";
+import { parseEther, parseUnits } from "ethers/lib/utils";
+import { resolve_price } from "../resolve_price";
 
-export const arrakis = async (address: string, chainId: ChainId, rpc, resolvers) => {
-  const vault = new Contract(
+export const univ2 = async (address: string, chainId: ChainId, rpc) => {
+  const pool = new Contract(
     address,
     [
-      "function getUnderlyingBalances() external view returns (uint256 amount0Current, uint256 amount1Current)",
-      "function totalSupply() external view returns (uint256)",
       "function token0() external view returns (address)",
       "function token1() external view returns (address)",
+      "function totalSupply() external view returns (uint256)",
     ],
     rpc,
   );
+  const [token0, token1] = await Promise.all([pool.token0(), pool.token1()]);
+  const [token0Price, token1Price] = await Promise.all([
+    resolve_price({ address: token0, chainId, rpc }),
+    resolve_price({ address: token1, chainId, rpc }),
+  ]);
+  const totalSupply = await pool.totalSupply();
 
-  const [token0, token1] = await Promise.all([vault.token0(), vault.token1()]);
-  const [token0Price, token1Price] = await Promise.all([defi_llama(token0, chainId), defi_llama(token1, chainId)]);
-  const [amount0Current, amount1Current] = await vault.getUnderlyingBalances();
-  const totalSupply = await vault.totalSupply();
+  const token0Contract = new Contract(token0, ["function balanceOf(address) external view returns (uint256)"], rpc);
+  const token1Contract = new Contract(token1, ["function balanceOf(address) external view returns (uint256)"], rpc);
+
+  const [amount0Current, amount1Current] = await Promise.all([
+    token0Contract.balanceOf(address),
+    token1Contract.balanceOf(address),
+  ]);
 
   const valueOfToken0 = token0Price.value
     .mul(parseUnits("1", 18 - token0Price.decimals))

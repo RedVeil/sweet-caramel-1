@@ -21,7 +21,8 @@
       "mainnet": "0xeB906A75838A8078B181815969b1DCBC20eaF7c0"
     },
     "metadata": {
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "apyResolver": "synthetix"
     }
   },
   "angleRouter": {
@@ -59,7 +60,7 @@
     "metadata": {
       "name": "Butter (V2)",
       "icons": ["/images/icons/BTR.svg"],
-      "priceResolver": "setToken"
+      "priceResolver": "set_token"
     }
   },
   "butterBatch": {
@@ -88,7 +89,8 @@
       "contractName": "ButterStaking",
       "priceResolver": "staking",
       "symbol": "pst-BTR",
-      "isERC20": false
+      "isERC20": false,
+      "apyResolver": "synthetix"
     }
   },
   "butterWhaleProcessing": {
@@ -418,14 +420,6 @@
       "priceResolver": "univ3"
     }
   },
-  "sushi": {
-    "addresses": {
-      "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5"
-    },
-    "metadata": {
-      "priceResolver": "univ3"
-    }
-  },
   "merkleOrchard": {
     "addresses": {
       "arbitrum": "0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE",
@@ -470,13 +464,13 @@
     },
     "metadata": {
       "priceResolver": "staking",
-      "isERC20": false
+      "isERC20": false,
+      "apyResolver": "synthetix"
     }
   },
   "popUsdcLp": {
     "addresses": {
       "mainnet": "0x9fee77d8b5050a55c16d0446e6eab06a6a24cd06",
-      "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5",
       "rinkeby": "0xb4302a1F94685af64b93bb621a8918Dd7ad74440",
       "optimism": "0xae0eBAA4162941837Bb56EDa1Bc9dc6850779bd2"
     },
@@ -487,6 +481,17 @@
       "priceResolver": "arrakis"
     }
   },
+  "popUsdcSushiLP": {
+    "addresses": {
+      "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5"
+    },
+    "metadata": {
+      "name": "USDC/POP LP",
+      "buyLinkEthereum": "https://beta.arrakis.finance/#/vaults/0xBBA11b41407dF8793A89b44ee4b50AfAD4508555/add",
+      "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add",
+      "priceResolver": "univ2"
+    }
+  },
   "popUsdcLpStaking": {
     "addresses": {
       "arbitrum": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
@@ -495,7 +500,8 @@
       "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D"
     },
     "metadata": {
-      "priceResolver": "staking"
+      "priceResolver": "staking",
+      "apyResolver": "synthetix"
     }
   },
   "popUsdcUniV3Pool": {
@@ -606,7 +612,7 @@
     },
     "metadata": null
   },
-  "setTokenCreator": {
+  "set_tokenCreator": {
     "addresses": {
       "mainnet": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a",
       "rinkeby": "0xeF72D3278dC3Eba6Dc2614965308d1435FFd748a"
@@ -637,7 +643,7 @@
     },
     "metadata": {
       "icons": ["/images/tokens/3X.svg"],
-      "priceResolver": "setToken"
+      "priceResolver": "set_token"
     }
   },
   "threeXBatch": {
@@ -663,7 +669,8 @@
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
       "symbol": "pst-3X",
-      "isERC20": false
+      "isERC20": false,
+      "apyResolver": "synthetix"
     }
   },
   "threeXWhale": {
@@ -719,7 +726,7 @@
       "icons": ["/images/tokens/usdc.svg"],
       "name": "USDC",
       "symbol": "USDC",
-      "priceResolver": "defillama"
+      "priceResolver": "defi_llama"
     }
   },
   "usdt": {

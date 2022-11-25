@@ -17,7 +17,7 @@ export const useBalance = ({
   token: string;
   chainId: ChainId;
   account: string;
-  enabled: boolean;
+  enabled?: boolean;
 }) => {
   const [metadata] = useNamedAccounts(chainId as any, [token]);
 
@@ -32,7 +32,9 @@ export const useBalance = ({
     enabled:
       metadata?.balanceResolver && metadata?.balanceResolver !== "balanceOf"
         ? false
-        : (typeof enabled === "boolean" && enabled) || (!!account && !!token && !!chainId),
+        : typeof enabled === "boolean"
+        ? !!account && !!token && !!chainId && enabled
+        : !!account && !!token && !!chainId,
   });
 
   const {
@@ -41,7 +43,9 @@ export const useBalance = ({
     address: token,
     account,
     chainId,
-    enabled: (metadata?.balanceResolver && metadata.balanceResolver == "rewardsEscrow") || false,
+    enabled: metadata?.balanceResolver
+      ? metadata.balanceResolver == "rewardsEscrow" && !!account && !!token && !!chainId
+      : false,
   });
 
   return {

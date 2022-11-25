@@ -1,7 +1,7 @@
 import { networkMap } from "@popcorn/utils";
 import { constants } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
-import { PriceResolver } from "./type";
+import { PriceResolver } from "../types";
 
 export const defi_llama: PriceResolver = async (address: string, chainId: number) => {
   const chainString = chainId === 1337 ? "ethereum" : networkMap[chainId].toLowerCase();

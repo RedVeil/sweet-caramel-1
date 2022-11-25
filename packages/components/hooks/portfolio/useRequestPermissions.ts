@@ -10,6 +10,7 @@ export const useRequestPermissions = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   function requestPermissions() {
     setIsRequesting(true);
+    // @ts-ignore
     window.ethereum
       .request({
         method: "wallet_requestPermissions",
@@ -41,10 +42,11 @@ export const useRequestPermissions = () => {
 
   useEffect(() => {
     if (isSuccess) {
+      // @ts-ignore
       window.ethereum.request({ method: "eth_requestAccounts" }).then((accounts) => {
         console.log(accounts);
       });
-
+      // @ts-ignore
       window.ethereum.request({ method: "eth_accounts" }).then((_accounts) => {
         console.log({ eth_accounts: _accounts });
       });

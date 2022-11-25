@@ -15,30 +15,22 @@ export const Networth: React.FC<NetworthProps> = ({ state, updateNetworth, accou
   const { address } = useAccount();
   const networth = useNetworth(state, updateNetworth, account);
 
-  const { ready, loading } = useComponentState({ ready: !!networth, loading: !account || !address || !networth })
+  const { ready, loading } = useComponentState({
+    ready: !!networth || !!account,
+    loading: !account || !address || !networth,
+  });
 
   return (
     <>
-      <div className={`border-b border-gray-200 pb-5 ${!ready ? '' : 'hidden'}`}>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">
+      <div className={`border-b border-gray-200 pb-5`}>
+        <h3 className={`text-lg font-medium leading-6 text-gray-900 ${!ready ? "" : "hidden"}`}>
           Please connect your wallet to view your networth
         </h3>
-      </div>
-
-      <div className={`border-b border-gray-200 pb-5 ${ready && !!networth ? '' : 'hidden'}`}>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">
-          Networth:{" "}
-          {formatAndRoundBigNumber(networth || constants.Zero, 18)}
+        <h3 className={`text-lg font-medium leading-6 text-gray-900  ${!loading && ready ? "" : "hidden"}`}>
+          Networth: {formatAndRoundBigNumber(networth || constants.Zero, 18)}
         </h3>
-      </div>
-
-      <div className={`border-b border-gray-200 pb-5 ${loading ? '' : 'hidden'}`}>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">
-          Loading ...
-        </h3>
+        <h3 className={`text-lg font-medium leading-6 text-gray-900  ${loading ? "" : "hidden"}`}>Loading ...</h3>
       </div>
     </>
-
-
   );
 };
