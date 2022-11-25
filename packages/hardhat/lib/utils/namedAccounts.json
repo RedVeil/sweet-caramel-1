@@ -11,10 +11,7 @@
       "polygon": "0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e"
     },
     "metadata": {
-      "icons": [
-        "/images/tokens/xen.png",
-        "/images/icons/POP.svg"
-      ],
+      "icons": ["/images/tokens/xen.png", "/images/icons/POP.svg"],
       "buyLinkEthereum": "https://app.uniswap.org/#/swap?outputCurrency=0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8&chain=ethereum",
       "buyLinkPolygon": "https://app.uniswap.org/#/swap?outputCurrency=0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e&chain=polygon"
     }
@@ -73,6 +70,12 @@
     },
     "metadata": {
       "contractName": "ButterBatchProcessing"
+    }
+  },
+  "uniswapRouter": {
+    "addresses": {
+      "mainnet": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "hardhat": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     }
   },
   "butterBatchZapper": {
@@ -253,9 +256,7 @@
     "metadata": {
       "name": "crv-sETH/ETH LP",
       "symbol": "crv-sETH/ETH",
-      "icons": [
-        "/images/tokens/crvSeth.png"
-      ]
+      "icons": ["/images/tokens/crvSeth.png"]
     }
   },
   "crvSteth": {
@@ -302,9 +303,7 @@
       "rinkeby": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
     },
     "metadata": {
-      "icons": [
-        "/images/tokens/dai.webp"
-      ],
+      "icons": ["/images/tokens/dai.webp"],
       "name": "DAI",
       "symbol": "DAI"
     }
@@ -324,9 +323,7 @@
       "name": "Popcorn",
       "buyLinkPolygon": "https://app.uniswap.org/#/swap?inputCurrency=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&outputCurrency=0xc5b57e9a1e7914fda753a88f24e5703e617ee50c&chain=polygon",
       "buyLinkEthereum": "https://app.uniswap.org/#/swap?inputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputCurrency=0xD0Cd466b34A24fcB2f87676278AF2005Ca8A78c4&chain=mainnet",
-      "icons": [
-        "/images/icons/POP.svg"
-      ],
+      "icons": ["/images/icons/POP.svg"],
       "priceResolver": "pop"
     }
   },
@@ -364,9 +361,7 @@
       "name": "ETH",
       "symbol": "ETH",
       "decimals": 18,
-      "icons": [
-        "/images/tokens/eth.png"
-      ]
+      "icons": ["/images/tokens/eth.png"]
     }
   },
   "eurOracle": {
@@ -387,7 +382,6 @@
   },
   "govStaking": {
     "addresses": {
-      "hardhat": "0x5A569Ad19272Afa97103fD4DbadF33B2FcbaA175",
       "goerli": "0x24aD8341522282725B31Da821f290b1ceBdf94fe"
     },
     "metadata": {
@@ -396,7 +390,6 @@
   },
   "grantElections": {
     "addresses": {
-      "hardhat": "0x21915b79E1d334499272521a3508061354D13FF0",
       "goerli": "0xF8C417F7a4593a561970358375Fc4b2F6F890E9c"
     },
     "metadata": {
@@ -456,9 +449,7 @@
     },
     "metadata": {
       "contractName": "PopLocker",
-      "icons": [
-        "/images/icons/POP.svg"
-      ],
+      "icons": ["/images/icons/POP.svg"],
       "name": "POP",
       "priceResolver": "staking",
       "isERC20": false
@@ -472,10 +463,7 @@
     },
     "metadata": {
       "name": "Arrakis USDC/POP LP",
-      "icons": [
-        "/images/tokens/usdc.svg",
-        "/images/icons/POP.svg"
-      ],
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "priceResolver": "arrakis"
     }
   },
@@ -559,7 +547,6 @@
   },
   "rewardsManager": {
     "addresses": {
-      "hardhat": "0xeE1eb820BeeCED56657bA74fa8D70748D7A6756C",
       "goerli": "0xFE4fE5e50dCc35B225028E3A8d23058D8A50676a"
     },
     "metadata": {
@@ -585,9 +572,7 @@
     "metadata": {
       "name": "sETH",
       "symbol": "sETH",
-      "icons": [
-        "/images/tokens/sEth.webp"
-      ]
+      "icons": ["/images/tokens/sEth.webp"]
     }
   },
   "sEthSweetVault": {
@@ -595,9 +580,7 @@
     "metadata": {
       "name": "ETH/sETH Vault",
       "symbol": "pop-ETH/sETH",
-      "icons": [
-        "/images/tokens/crvSeth.png"
-      ],
+      "icons": ["/images/tokens/crvSeth.png"],
       "displayText": {
         "strategy": "Deposits LP token from Curve's sETH pool to Convex Finance to earn CRV and CVX (and any other available tokens). Earned tokens are harvested, sold for more sETH pool LP tokens and then deposited back into the strategy.",
         "token": "This token represents part ownership of a Curve liquidity pool. Holders earn fees from users trading in the pool, and can also deposit the LP to Curve's gauges to earn CRV emissions. This pool contains ETH and sETH, a synthetic ETH minted via the Synthetix platform."
@@ -656,9 +639,7 @@
     "metadata": {
       "name": "threeCrv",
       "symbol": "3CRV",
-      "icons": [
-        "/images/icons/3crv_icon.png"
-      ]
+      "icons": ["/images/icons/3crv_icon.png"]
     }
   },
   "threePool": {
@@ -716,7 +697,6 @@
     "addresses": {
       "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
       "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
-      "hardhat": "0xBEe6FFc1E8627F51CcDF0b4399a1e1abc5165f15",
       "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
       "goerli": "0x42b85613D87eA55468DFE53b4d3d94D2a6d05E69"
     },
@@ -726,7 +706,6 @@
     "addresses": {
       "polygon": "0xd928a457247649835e652416847C54C038FAF920",
       "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
-      "hardhat": "0xd30bF3219A0416602bE8D482E0396eF332b0494E",
       "localhost": "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
       "goerli": "0x52841Cfa95cFD2d8751cf202e7627AFFBbCF4A8B"
     },
@@ -738,7 +717,6 @@
     "addresses": {
       "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
       "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
-      "hardhat": "0xd710a67624Ad831683C86a48291c597adE30F787",
       "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
       "goerli": "0x308bCee3746fD1FA8A6478C393ca9f8070E58A14"
     }
@@ -754,9 +732,7 @@
       "optimism": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
     },
     "metadata": {
-      "icons": [
-        "/images/tokens/usdc.svg"
-      ],
+      "icons": ["/images/tokens/usdc.svg"],
       "name": "USDC",
       "symbol": "USDC",
       "priceResolver": "defi_llama"
@@ -769,9 +745,7 @@
     "metadata": {
       "name": "USDT",
       "symbol": "USDT",
-      "icons": [
-        "/images/tokens/usdt.webp"
-      ]
+      "icons": ["/images/tokens/usdt.webp"]
     }
   },
   "vaultsRewardsEscrow": {
@@ -811,9 +785,7 @@
     "metadata": {
       "name": "Wrapped Bitcoin",
       "symbol": "WBTC",
-      "icons": [
-        "/images/tokens/wbtc.webp"
-      ]
+      "icons": ["/images/tokens/wbtc.webp"]
     }
   },
   "xPop": {
@@ -823,9 +795,7 @@
       "polygon": "0x5A35d30c8b23e571e4F7eFc25F353c91fD12F8E8"
     },
     "metadata": {
-      "icons": [
-        "/images/icons/POP.svg"
-      ],
+      "icons": ["/images/icons/POP.svg"],
       "priceResolver": "pop"
     }
   },
@@ -839,7 +809,6 @@
   },
   "beneficiaryRegistry": {
     "addresses": {
-      "hardhat": "0xaB837301d12cDc4b97f1E910FC56C9179894d9cf",
       "goerli": "0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6"
     },
     "metadata": {
@@ -849,7 +818,6 @@
   "beneficiaryGovernance": {
     "addresses": {
       "mainnet": "0xCa57C1d3c2c35E667745448Fef8407dd25487ff8",
-      "hardhat": "0xCa57C1d3c2c35E667745448Fef8407dd25487ff8",
       "goerli": "0x62B00B60D1f4042B3474900BA3fd548fc553205f"
     },
     "metadata": {
@@ -873,14 +841,12 @@
   },
   "BeneficiaryVaults": {
     "addresses": {
-      "hardhat": "0x4ff1f64683785E0460c24A4EF78D582C2488704f",
       "goerli": "0x4E4c4Eb83305C47d80aB6C0065b2308f5640B41f"
     },
     "metadata": null
   },
   "Region": {
     "addresses": {
-      "hardhat": "0x773330693cb7d5D233348E25809770A32483A940",
       "goerli": "0x45926B4EFACbc7f2D301D6d59Fb80155906d2af0"
     },
     "metadata": null
@@ -896,7 +862,6 @@
   },
   "ParticipationReward": {
     "addresses": {
-      "hardhat": "0xb830887eE23d3f9Ed8c27dbF7DcFe63037765475",
       "goerli": "0x6768E6f0af526d5c14A4fee1c465CeCDb188dd0f"
     },
     "metadata": null
@@ -932,9 +897,7 @@
     "metadata": {
       "name": "sUSD",
       "symbol": "sUSD",
-      "icons": [
-        "/images/tokens/sUSD.png"
-      ]
+      "icons": ["/images/tokens/sUSD.png"]
     }
   },
   "yearnRegistry": {

@@ -6,7 +6,7 @@
 
 the following will be run from `packages/hardhat`:
 
-2. run `yarn hardhat node --tags beneficiary-governance,test-pop,region,participation-reward,gov-staking,beneficiary-registry --network hardhat`
+2. run `yarn dev-grants`
 
 3. get deployed address of BeneficiaryGovernance and Pop contract from output and add it to scripts/benGov/AddNominationProposal.s.sol
 
