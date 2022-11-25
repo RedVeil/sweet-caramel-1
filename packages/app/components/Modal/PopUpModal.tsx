@@ -15,7 +15,7 @@ const PopUpModal = ({ children, visible, onClosePopUpModal }) => {
   return (
     <>
       <Transition show={visible}>
-        <div className="fixed top-0 z-40 h-screen w-screen">
+        <div className="fixed top-0 z-40 h-screen w-screen bottom-0">
           <Transition.Child
             enter="transition ease-out duration-300 transform"
             enterFrom="opacity-0 translate-y-full"
@@ -35,7 +35,9 @@ const PopUpModal = ({ children, visible, onClosePopUpModal }) => {
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-full"
           >
-            <div className="absolute bottom-0 bg-white rounded-t-4xl p-6 w-full">{children}</div>
+            <div className="relative">
+              <div className="absolute bottom-0 bg-white rounded-t-4xl p-6 w-full">{children}</div>
+            </div>
           </Transition.Child>
         </div>
       </Transition>
