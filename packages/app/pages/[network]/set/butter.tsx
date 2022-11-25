@@ -633,20 +633,18 @@ export default function ButterPage(): JSX.Element {
         <div className="md:w-1/3 mb-10">
           <div className="order-2 md:order-1">
             {/* Connected and on Ethereum BUT loading */}
-            {account.address && butterIsSupportedOnNetwork && loadingButterBatchData && (
-              <>
-                <div className="order-2 md:hidden">
-                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-                    <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
-                  </ContentLoader>
-                </div>
-                <div className="order-1 hidden md:block">
-                  <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
-                    <rect x="0" y="0" rx="8" ry="8" width="90%" height="600" />
-                  </ContentLoader>
-                </div>
-              </>
-            )}
+            <div className={account.address && butterIsSupportedOnNetwork && loadingButterBatchData ? "" : "hidden"}>
+              <div className="order-2 md:hidden">
+                <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                  <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
+                </ContentLoader>
+              </div>
+              <div className="order-1 hidden md:block">
+                <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
+                  <rect x="0" y="0" rx="8" ry="8" width="90%" height="600" />
+                </ContentLoader>
+              </div>
+            </div>
             {/* Connected and on Ethereum all data loaded */}
             {account.address &&
               butterIsSupportedOnNetwork &&

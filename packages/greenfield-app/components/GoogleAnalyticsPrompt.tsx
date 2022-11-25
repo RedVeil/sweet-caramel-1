@@ -16,12 +16,11 @@ const GoogleAnalyticsPrompt = () => {
     features: { optin_analytics: visible },
   } = useFeatures();
 
-  const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(
-    typeof window !== "undefined" && localStorage.getItem("acceptAnalytics") ? false : true,
-  );
+  const [openAnalyticsPrompt, setOpenAnalyticsPrompt] = useState(false);
   const initializeGTM = useInitializeGTM();
 
   useEffect(() => {
+    localStorage.getItem("acceptAnalytics") ? setOpenAnalyticsPrompt(false) : setOpenAnalyticsPrompt(true);
     initializeGTM();
   }, []);
 

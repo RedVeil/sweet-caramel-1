@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { ChainId } from "packages/utils";
+import { ChainId } from "@popcorn/utils";
 
 export type PriceResolver = (
   address: string,

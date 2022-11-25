@@ -10,6 +10,7 @@ import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
+import { useComponentState } from "@popcorn/components/hooks/useComponentState";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -24,6 +25,7 @@ export default function RewardsPage(): JSX.Element {
   const [tabSelected, setTabSelected] = useState<Tabs>(Tabs.Staking);
   const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
   const isSelected = (tab: Tabs) => tabSelected === tab;
+  const { ready, loading } = useComponentState({ ready: account, loading: !account });
 
   useEffect(() => {
     if (shouldAirdropVisible(selectedNetworks)) {
@@ -46,7 +48,7 @@ export default function RewardsPage(): JSX.Element {
         <div className="col-span-12 md:col-span-3">
           <h1 className="text-6xl leading-12 text-black">Rewards</h1>
           <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
-          {!account && (
+          {!ready && (
             <div
               className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
               onClick={connect}
@@ -74,7 +76,7 @@ export default function RewardsPage(): JSX.Element {
         </div>
       </div>
 
-      {account && (
+      {ready && (
         <div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
           <div className="col-span-12 md:col-span-4">
             <div className={`mb-12`}>

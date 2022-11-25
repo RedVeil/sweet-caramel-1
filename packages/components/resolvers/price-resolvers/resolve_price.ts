@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { getNamedAccounts } from "packages/utils";
+import { getNamedAccounts } from "@popcorn/utils";
 import { Resolvers } from ".";
 
 interface GetPriceProps {
