@@ -40,6 +40,7 @@ export default function StakingRewardsContainer({ selectedNetworks }: StakingRew
                 stakingAddress={staking?.address}
                 stakingType={staking?.stakingType}
                 addEarned={add}
+                isNotAvailable={!loading && sum?.eq(constants.Zero)}
               />
             </div>
           ))}
