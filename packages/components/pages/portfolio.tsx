@@ -32,7 +32,7 @@ export const Portfolio: NextPage = () => {
   const contractsPoly = useNamedAccounts("137", [
     "pop",
     "popStaking",
-    "popUsdcSushi",
+    "popUsdcSushiLP",
     "popUsdcArrakisVault",
     "popUsdcArrakisVaultStaking",
     "rewardsEscrow",

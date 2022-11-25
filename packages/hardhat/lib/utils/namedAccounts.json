@@ -481,7 +481,7 @@
       "priceResolver": "arrakis"
     }
   },
-  "popUsdcSushi": {
+  "popUsdcSushiLP": {
     "addresses": {
       "polygon": "0xe8654f2b0a038a01bc273a2a7b7c48a76c0e58c5"
     },
