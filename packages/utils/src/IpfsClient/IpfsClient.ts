@@ -16,7 +16,7 @@ export interface UploadResult {
 
 export const IpfsClient: IIpfsClient = {
   get: async <T>(cid: string): Promise<T> => {
-    return fetch(`${process.env.IPFS_URL}${getIpfsHashFromBytes32(cid)}`).then((response) => response.json());
+    return fetch(`${process.env.IPFS_URL}${cid}`).then((response) => response.json());
   },
 
   add: async <T>(object: T): Promise<string> => {
@@ -47,15 +47,15 @@ export const IpfsClient: IIpfsClient = {
     };
     const config = setUploadProgress
       ? {
-          headers,
-          onUploadProgress: (progressEvent) => {
-            var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setUploadProgress(percentCompleted);
-          },
-        }
+        headers,
+        onUploadProgress: (progressEvent) => {
+          var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        },
+      }
       : {
-          headers,
-        };
+        headers,
+      };
     return await axios
       .post(`${process.env.IPFS_GATEWAY_PIN}`, data, config)
       .then((result) => {

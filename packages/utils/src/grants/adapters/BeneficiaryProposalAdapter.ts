@@ -2,7 +2,7 @@ import { IIpfsClient } from "../../IpfsClient";
 import { Contract } from "ethers";
 import { Proposal, ProposalType } from "../types";
 export class BeneficiaryGovernanceAdapter {
-  constructor(private contract: Contract, private IpfsClient: IIpfsClient) {}
+  constructor(private contract: Contract, private IpfsClient: IIpfsClient) { }
 
   public async getProposal(id: number): Promise<Proposal> {
     const proposal = await this.contract.proposals(id);
@@ -15,7 +15,7 @@ export class BeneficiaryGovernanceAdapter {
         (Number(proposal.startTime.toString()) +
           Number(proposal.configurationOptions.votingPeriod.toString()) +
           Number(proposal.configurationOptions.vetoPeriod.toString())) *
-          1000,
+        1000,
       ),
       votes: {
         for: proposal.yesCount,

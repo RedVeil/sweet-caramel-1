@@ -27,6 +27,7 @@ import { Region } from "../../contracts/core/utils/Region.sol";
 /// 6,7 - Yearly Election
 /// 8-18 - Unused
 contract DeployBenGov is Script {
+  address internal yourAddress = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266; // enter your address here
   ACLRegistry internal aclRegistry;
   ContractRegistry internal contractRegistry;
   ERC20PresetMinterPauser internal pop;
@@ -44,9 +45,9 @@ contract DeployBenGov is Script {
     vm.startBroadcast();
     // Deploying core contracts
     aclRegistry = new ACLRegistry();
-    aclRegistry.grantRole(keccak256("DAO"), address(0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04)); // replace with your signer
-    aclRegistry.grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), address(0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04)); // replace with your signer
-    aclRegistry.grantRole(keccak256("BeneficiaryGovernance"), address(0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04)); // replace with your signer
+    aclRegistry.grantRole(keccak256("DAO"), yourAddress); // replace with your signer
+    aclRegistry.grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), yourAddress); // replace with your signer
+    aclRegistry.grantRole(keccak256("BeneficiaryGovernance"), yourAddress); // replace with your signer
 
     contractRegistry = new ContractRegistry(IACLRegistry(address(aclRegistry)));
 
