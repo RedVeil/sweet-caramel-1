@@ -1,17 +1,14 @@
-import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { useUpdateWalletBalance } from "../hooks/portfolio/useUpdateWalletBalance";
-import { PortfolioToken, UpdateWalletBalanceActionProps } from "../reducers/portfolio";
+import { ChainId } from "@popcorn/utils";
+import { UpdateWalletBalanceActionProps } from "../reducers/portfolio";
 import { networkMap } from "@popcorn/utils";
-import { PortfolioState } from "../reducers/portfolio";
-import { useTokenWithBalance } from "../hooks/portfolio/useTokenWithBalance";
-import { useComponentState } from "../hooks/useComponentState";
+import withValue from "./withValue";
+import { useComponentState, useToken } from "../hooks";
 
 interface WalletTokenBalanceProps {
   alias: string;
-  token: PortfolioToken;
+  token: string;
   chainId: ChainId;
-  state: PortfolioState;
-  updateWallet: (args: UpdateWalletBalanceActionProps) => void;
+  updateWallet?: (args: UpdateWalletBalanceActionProps) => void;
   account?: string;
   children?: React.ReactNode;
 }
@@ -20,25 +17,18 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
   token,
   chainId,
   alias,
-  state,
-  updateWallet,
   account,
   children,
+  updateWallet
 }) => {
-  const wallet = account && token && token.address && state.wallet[chainId]?.[account]?.[token.address];
 
-  const {
-    data: { address, priceResolver, value, balance, symbol, decimals },
-    isLoading,
-  } = useTokenWithBalance({ chainId, token, account, alias });
+  const { data: { symbol, address, priceResolver } } = useToken({ chainId, token, alias });
 
-  useUpdateWalletBalance({ token, account, value, balance, wallet, chainId, updateWallet });
 
   const { ready, loading } = useComponentState({
-    ready: !isLoading && !!account && !!balance.value,
-    loading: !account || (!value || !balance.value),
+    ready: !!address && !!chainId && !!token,
+    loading: !account || !address,
   });
-
 
   return (
     <>
@@ -46,14 +36,7 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
       <div>Token address: {address}</div>
       <div>Price Resolver: {priceResolver || "default"}</div>
       <div>Chain: {networkMap[chainId]}</div>
-      <div>Symbol: {symbol}</div>
-      <div>
-        Balance:{" "}
-        {(!ready && "Loading ...") || (balance?.value && formatAndRoundBigNumber(balance.value, decimals)) || ""}
-        {` ${(balance?.value?.gt(0) && symbol && `(${symbol})`) || ""}`}
-      </div>
-
-      <div>Value: {(!loading && `$${formatAndRoundBigNumber(value, decimals)}`) || 'Loading ...'}</div>
+      <div>Symbol: {ready && symbol}</div>
       <div>
         {children}
       </div>
@@ -61,3 +44,5 @@ export const WalletTokenBalance: React.FC<WalletTokenBalanceProps> = ({
     </>
   );
 };
+
+export const WalletTokenWithBalanceValue = withValue(WalletTokenBalance);

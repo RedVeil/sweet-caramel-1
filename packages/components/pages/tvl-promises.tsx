@@ -1,4 +1,4 @@
-import { TvlWithLoading } from "../components/GroupedTvl";
+import { GroupedTvlWithLoading } from "../components/GroupedTvl";
 import useSum from "../hooks/useSum";
 import { ChainId, named } from "packages/utils";
 
@@ -15,7 +15,7 @@ export const TvlPromises: React.FC = () => {
 
   const { loading, sum, add } = useSum({ expected: contracts.length });
 
-  return <><TvlWithLoading loading={loading} contracts={contracts} add={add} tvl={sum} /></>;
+  return <><GroupedTvlWithLoading loading={loading} contracts={contracts} add={add} tvl={sum} /></>;
 };
 
 export default TvlPromises;

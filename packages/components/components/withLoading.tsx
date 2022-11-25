@@ -1,7 +1,8 @@
+import React from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
 
-export const withLoading = (Component) => {
+export function withLoading(Component) {
   const WithLoading = ({ loading, ...props }) => {
     return (
       <>

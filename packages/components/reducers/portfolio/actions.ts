@@ -1,61 +1,40 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber } from "ethers";
+import { PortfolioToken } from "./reducer";
 
-const UPDATE_TOKEN = "UPDATE_TOKEN";
-const UPDATE_WALLET = "UPDATE_WALLET";
-const UPDATE_NETWORTH = "UPDATE_NETWORTH";
-const RESET = "RESET";
-
-export interface UpdateTokenActionProps {
-  chainId: ChainId;
-  token: string;
-  price?: { value: BigNumber; decimals: number };
-  isLoading?: boolean;
-  error?: boolean;
-}
+export const UPDATE_TOKEN = "UPDATE_TOKEN";
+export const UPDATE_WALLET = "UPDATE_WALLET";
+export const UPDATE_NETWORTH = "UPDATE_NETWORTH";
+export const RESET = "RESET";
 
 interface UpdateTokenAction {
   type: typeof UPDATE_TOKEN;
-  payload: UpdateTokenActionProps;
+  payload?: PortfolioToken;
 }
-export type UpdateTokenActionCreator = (args: UpdateTokenActionProps) => UpdateTokenAction;
+export type UpdateTokenActionCreator = (args: PortfolioToken | undefined) => UpdateTokenAction;
 
-export const updateToken: UpdateTokenActionCreator = ({ chainId, token, isLoading, price, error }) => {
-  return { type: UPDATE_TOKEN, payload: { chainId, token, isLoading, price, error } };
+export const updateToken: UpdateTokenActionCreator = (metadata?) => {
+  return { type: UPDATE_TOKEN, payload: metadata ? { ...metadata } : undefined };
 };
 
-export interface UpdateWalletBalanceActionProps {
+interface WalletToken {
   chainId: ChainId;
-  account: string;
   token: string;
-  balance?: BigNumber;
-  hasBalance?: boolean;
-  value?: BigNumber;
-  isLoading?: boolean;
-  isError?: boolean;
-  error?: string;
+  account?: string;
 }
+
+export type UpdateWalletBalanceActionProps = WalletToken & Omit<PortfolioToken, "address">;
 
 export type UpdateWalletActionCreator = (args: UpdateWalletBalanceActionProps) => UpdateWalletAction;
 
 interface UpdateWalletAction {
   type: typeof UPDATE_WALLET;
-  payload: UpdateWalletBalanceActionProps;
+  payload: UpdateWalletBalanceActionProps | undefined;
 }
-export const updateWallet: UpdateWalletActionCreator = ({
-  chainId,
-  account,
-  token,
-  balance,
-  hasBalance,
-  value,
-  isLoading,
-  isError,
-  error,
-}) => {
+export const updateWallet: UpdateWalletActionCreator = (metadata?) => {
   return {
     type: UPDATE_WALLET,
-    payload: { chainId, account, token, balance, hasBalance, value, isLoading, isError, error },
+    payload: metadata ? { ...metadata } : undefined,
   };
 };
 

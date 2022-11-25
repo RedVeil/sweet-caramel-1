@@ -30,4 +30,4 @@ export const GroupedTvl = ({
   );
 };
 
-export const TvlWithLoading = withLoading(GroupedTvl);
+export const GroupedTvlWithLoading = withLoading(GroupedTvl);

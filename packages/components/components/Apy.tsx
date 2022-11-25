@@ -1,13 +1,13 @@
 import { ChainId } from "packages/utils";
 import { useEffect } from "react";
 import { useApy } from "../hooks/useApy";
-import { UpdateTokenActionProps } from "../reducers/portfolio";
+import { PortfolioToken } from "../reducers/portfolio";
 
 interface ApyProps {
   address: string;
   chainId: ChainId;
   resolver?: string;
-  updateToken?: (args: UpdateTokenActionProps) => void;
+  updateToken?: (args: PortfolioToken) => void;
 }
 export const Apy: React.FC<ApyProps> = ({ address, chainId, resolver, updateToken }) => {
   const { data, isValidating, error: apyError } = useApy({ address, chainId, resolver });
@@ -17,6 +17,10 @@ export const Apy: React.FC<ApyProps> = ({ address, chainId, resolver, updateToke
     if (apyError)
       console.log({ apyError, address, chainId, resolver })
   }, [apyError]);
+
+  useEffect(() => {
+    updateToken?.({ address, chainId, apy: { data, isValidating, error: apyError } });
+  }, [data, isValidating, apyError]);
 
   return (
     <>

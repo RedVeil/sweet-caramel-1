@@ -3,26 +3,27 @@ import { useContractRead } from "wagmi";
 import { BigNumber } from "ethers";
 import { useEscrowBalance } from "./useEscrowBalance";
 import useNamedAccounts from "../useNamedAccounts";
+import { formatAndRoundBigNumber } from "../../../utils/src/formatBigNumber";
 
 /**
  * useBalance  - this hook is used to fetch the balance of staking contracts which do not implement erc20 interface and therefore cannot be used by the wagmi useBalance hook
  * @returns { data: { value } }, isError, isLoading, error } - token holders account balance
  */
 export const useBalance = ({
-  token,
+  address,
   chainId,
   account,
   enabled,
 }: {
-  token: string;
+  address: string;
   chainId: ChainId;
-  account: string;
+  account?: string;
   enabled?: boolean;
 }) => {
-  const [metadata] = useNamedAccounts(chainId as any, [token]);
+  const [metadata] = useNamedAccounts(chainId as any, [address]);
 
   const { data: balanceOf, isError, isLoading, error } = useContractRead({
-    address: token,
+    address,
     chainId,
     abi: ["function balanceOf(address) external view returns (uint256)"],
     functionName: "balanceOf",
@@ -33,28 +34,46 @@ export const useBalance = ({
       metadata?.balanceResolver && metadata?.balanceResolver !== "balanceOf"
         ? false
         : typeof enabled === "boolean"
-        ? !!account && !!token && !!chainId && enabled
-        : !!account && !!token && !!chainId,
+        ? !!account && !!address && !!chainId && enabled
+        : !!account && !!address && !!chainId,
+    select: (data) => {
+      return {
+        value: (data as BigNumber) || BigNumber.from(0),
+        formatted: formatAndRoundBigNumber(data as BigNumber, 18),
+      };
+    },
   });
 
   const {
-    data: { value: escrowBalance },
+    data: escrowBalance,
+    isLoading: escrowBalanceLoading,
+    isError: escrowBalanceError,
+    error: escrowBalanceErrorMessage,
   } = useEscrowBalance({
-    address: token,
+    address,
     account,
     chainId,
     enabled: metadata?.balanceResolver
-      ? metadata.balanceResolver == "rewardsEscrow" && !!account && !!token && !!chainId
+      ? metadata.balanceResolver == "rewardsEscrow" && !!account && !!address && !!chainId
       : false,
   });
 
   return {
     data: {
-      value: ((balanceOf as unknown) as BigNumber | undefined) || ((escrowBalance as unknown) as BigNumber | undefined),
+      ...escrowBalance,
+      ...(balanceOf as Response),
     },
-    isError,
-    isLoading,
-    error,
+    isError: isError || escrowBalanceError,
+    error: escrowBalanceErrorMessage || error,
+    isValidating: isLoading || escrowBalanceLoading,
+    isLoading: escrowBalanceLoading || isLoading,
+  };
+};
+
+type Response = {
+  data?: {
+    value?: BigNumber;
+    formatted?: string;
   };
 };
 

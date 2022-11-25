@@ -3,8 +3,10 @@ import { BigNumber, constants } from "ethers";
 
 export const useSum = ({
   expected,
+  timeout,
 }: {
   expected: number;
+  timeout?: number; // in ms
 }): { loading: boolean; sum: BigNumber; add: (amount: BigNumber) => void; reset: () => void } => {
   const [sum, setSum] = useState(constants.Zero);
   const [loading, setLoading] = useState(true);
@@ -25,14 +27,14 @@ export const useSum = ({
   useEffect(() => {
     const id = setTimeout(() => {
       setLoading(false);
-    }, 8000);
+    }, timeout);
     return () => {
       clearTimeout(id);
     };
   }, []);
 
   useEffect(() => {
-    if (count >= expected) {
+    if (count >= expected && expected > 0) {
       setLoading(false);
     }
   }, [count]);

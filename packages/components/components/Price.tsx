@@ -1,27 +1,27 @@
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { usePrice } from "../hooks/usePrice";
 import { useEffect } from "react";
-import { UpdateTokenActionProps } from "../reducers/portfolio";
+import { PortfolioToken } from "../reducers/portfolio";
 
 interface PriceProps {
-  token: string;
+  address: string;
   chainId: ChainId;
   resolver?: string;
-  updateToken: (args: UpdateTokenActionProps) => void;
+  updateToken?: (args: PortfolioToken) => void;
 }
 
-export const Price: React.FC<PriceProps> = ({ token, chainId, resolver, updateToken }) => {
-  const { data: price, isValidating: priceValidating, error: priceError } = usePrice(token, chainId, resolver);
+export const Price: React.FC<PriceProps> = ({ address, chainId, resolver, updateToken }) => {
+  const { data, isValidating, error } = usePrice(address, chainId, resolver);
 
   useEffect(() => {
-    if (priceError) console.log({ priceError, token, resolver, chainId });
-  }, [priceError]);
+    if (error) console.log({ priceError: error, address, resolver, chainId });
+  }, [error]);
 
   useEffect(() => {
-    updateToken({ token, chainId, price, isLoading: priceValidating, error: priceError });
-  }, [price, priceValidating, priceError]);
+    updateToken?.({ address, chainId, price: { data, isValidating, error } });
+  }, [data, isValidating, error]);
 
-  return <>Price: {(price && !priceError && `$${formatAndRoundBigNumber(price.value, price.decimals)}`) ?? "Loading ... "}</>;
+  return <>Price: {(data && !error && `$${formatAndRoundBigNumber(data.value, data.decimals)}`) ?? "Loading ... "}</>;
 };
 
 export default Price;

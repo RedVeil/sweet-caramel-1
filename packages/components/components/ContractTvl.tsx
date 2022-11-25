@@ -1,15 +1,18 @@
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
 import useTvl from "../hooks/useTvl";
+import { PortfolioToken } from "../reducers/portfolio";
 import { MinimalContractMetadata } from "../types";
+import withLoading from "./withLoading";
 
 export const ContractTvl = ({
   address,
   chainId,
   priceResolver,
   add,
-}: MinimalContractMetadata & { add?: (amount) => void }) => {
-  const { data, error } = useTvl({ address, chainId, priceResolver });
+  updateToken,
+}: MinimalContractMetadata & { add?: (amount) => void } & { updateToken?: (token: PortfolioToken) => void } & { token?: PortfolioToken }) => {
+  const { data, error, isValidating } = useTvl({ address, chainId, priceResolver });
 
   useEffect(() => {
     if (error) console.log({ data, error });
@@ -21,12 +24,15 @@ export const ContractTvl = ({
     if (data?.value && !tvl) {
       setTvl(data.value);
       add?.(data.value);
+      updateToken?.({ tvl: { data }, address, chainId });
     }
-  }, [data]);
+  }, [data, error, isValidating]);
 
   return (
     <>
-      <h3>TVL</h3> <div>{data?.formatted}</div>
+      <div>Market Cap: {data?.formatted}</div>
     </>
   );
 };
+
+export const ContractTvlWithLoading = withLoading(ContractTvl);

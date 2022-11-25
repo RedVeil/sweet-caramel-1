@@ -1,5 +1,6 @@
 import { ChainId } from "@popcorn/utils";
 import { BigNumber } from "ethers";
+import { UPDATE_TOKEN, UPDATE_WALLET } from "./actions";
 
 export interface PortfolioState {
   tokens: {
@@ -13,25 +14,38 @@ export interface PortfolioState {
   wallet: {
     [chainId: string]: {
       [account: string]: {
-        [token: string]: {
-          hasBalance?: boolean;
-          isLoading?: boolean;
-          isError?: boolean;
-          error?: string;
-          balance?: BigNumber;
-          value?: BigNumber;
-          lastUpdated?: number;
-        };
+        [token: string]: PortfolioToken;
       };
     };
   };
 }
 
+export interface PortfolioTokenAsyncProperty<Property = undefined> {
+  data?: Property;
+  isValidating?: boolean;
+  error?: Error | null;
+  isError?: boolean;
+}
+
+export interface Decimals {
+  decimals?: number;
+}
+export interface BigNumberWithFormatted {
+  value?: BigNumber;
+  formatted?: string;
+}
+
 export interface PortfolioToken {
-  price?: { value: BigNumber; decimals: number };
+  address: string;
+  chainId: ChainId;
   isLoading?: boolean;
+  isValidating?: boolean;
   error?: boolean;
-  address?: string;
+  balance?: PortfolioTokenAsyncProperty<BigNumberWithFormatted>;
+  balanceValue?: PortfolioTokenAsyncProperty<BigNumberWithFormatted>;
+  apy?: PortfolioTokenAsyncProperty<BigNumberWithFormatted>;
+  price?: PortfolioTokenAsyncProperty<BigNumberWithFormatted & Decimals>;
+  tvl?: PortfolioTokenAsyncProperty<BigNumberWithFormatted>;
 }
 
 export const DefaultState = {
@@ -63,26 +77,32 @@ export const reducer = (state, action) => {
       const { account, value, isLoading, error } = action.payload;
       return { ...state, networth: { ...state.networth, [account]: { value, isLoading, error } } };
     }
-    case "UPDATE_TOKEN": {
-      const { chainId, token, price, isLoading, error } = action.payload;
+    case UPDATE_TOKEN: {
+      const { chainId, address, price, isLoading, error, tvl } = action.payload;
+      if (!chainId || !address) return { ...state };
       return {
         ...state,
         tokens: {
           ...state.tokens,
           [chainId]: {
             ...state.tokens?.[chainId],
-            [token]: {
-              price,
-              isLoading,
-              error,
-              address: token,
+            [address]: {
+              address,
+              chainId,
+              price: {
+                ...price,
+              },
+              tvl: {
+                ...tvl,
+              },
             },
           },
         },
       };
     }
-    case "UPDATE_WALLET": {
-      const { chainId, account, token, balance, hasBalance, value, isLoading, error, isError } = action.payload;
+    case UPDATE_WALLET: {
+      const { chainId, account, token, ...props } = action.payload;
+      if (!account && !chainId && !token) return { ...state };
       return {
         ...state,
         wallet: {
@@ -93,12 +113,7 @@ export const reducer = (state, action) => {
               ...state.wallet?.[chainId]?.[account],
               [token]: {
                 ...state.wallet?.[chainId]?.[account]?.[token],
-                balance,
-                hasBalance,
-                value,
-                isLoading,
-                error,
-                isError,
+                ...props,
               },
             },
           },
@@ -106,6 +121,6 @@ export const reducer = (state, action) => {
       };
     }
     default:
-      return state;
+      return { ...state };
   }
 };

@@ -26,11 +26,8 @@ export const useTvl = ({ chainId, address, priceResolver, enabled }: UseTvlProps
       ? price?.value.mul((supply as unknown) as BigNumber).div(parseEther("1"))
       : undefined;
 
-  console.log({ price, supply, tvl });
-
   return {
     data: {
-      metadata: contract,
       value: tvl,
       formatted: tvl && price?.decimals ? formatAndRoundBigNumber(tvl, price?.decimals) : undefined,
     },

@@ -5,7 +5,7 @@ const LoadingSpinner = ({ width, height }: { width?: string; height?: string }) 
   const loaderOptions = {
     loop: true,
     autoplay: true,
-    animationData: json({ w: width?.split('px')?.[0], h: height?.split('px')?.[0] }),
+    animationData: json({ w: width?.split('px')?.[0] || 1080, h: height?.split('px')?.[0] || 1080 }),
     rendererSettings: {
       preserveAspectRatio: "xMidYMid meet",
     },
