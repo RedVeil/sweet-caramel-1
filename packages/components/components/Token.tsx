@@ -4,7 +4,6 @@ import { networkMap } from "@popcorn/utils";
 import { useComponentState, useToken } from "../hooks";
 import { useUpdateToken } from "../hooks/portfolio/useUpdateToken";
 import { useEffect, useMemo } from "react";
-import useLog from "../hooks/utils/useLog";
 
 interface TokenProps {
   alias?: string;
@@ -16,35 +15,40 @@ interface TokenProps {
   state?: PortfolioState;
 }
 
-export const Token: React.FC<TokenProps> = ({ address, chainId, alias, account, children, updateToken, state }) => {
+export const Token: React.FC<TokenProps> = ({ address, chainId, alias, children, updateToken, state }) => {
   const {
     data: { symbol, priceResolver, decimals, name, icons },
+    isLoading,
+    error,
+    isError,
   } = useToken({ chainId, token: address, alias });
 
-  useLog({ chainId });
+  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state, chainId, address]);
 
-  const { ready, loading } = useComponentState({
-    ready: !!address && !!chainId && !!address,
-    loading: !account || !address,
-  }, [account, address, chainId]);
-  useLog({ ready, loading }, [ready, loading, account, address, chainId]);
-
-  const token = useMemo(() => state?.["tokens"]?.[chainId]?.[address], [state, chainId, address]);
-
-  const _updateToken = useMemo(() => updateToken, [updateToken]);
-
-  const update = ([key, val]) =>
-    useUpdateToken<string>({ chainId, address, token, updateToken: _updateToken, property: [key, val] });
+  const update = useUpdateToken({ chainId, address, token, updateToken });
 
   useEffect(() => {
-    if (ready && !loading) {
-      update(["symbol", symbol]);
+    update(["isLoading", isLoading]);
+    update(["error", error]);
+    update(["isError", isError]);
+  }, [isLoading, error, isError]);
+
+  useEffect(() => {
+    if ((!isLoading && symbol) || name || decimals) {
+      update(["asErc20", { data: { symbol, name, decimals } }]);
       update(["priceResolver", priceResolver]);
-      update(["decimals", decimals]);
-      update(["name", name]);
       update(["icons", icons]);
+      update(["alias", alias]);
     }
-  }, [ready, loading]);
+  }, [symbol, decimals, name, isLoading]);
+
+  const { ready } = useComponentState(
+    {
+      ready: !!address && !!chainId && !!address,
+      loading: !address || isLoading,
+    },
+    [address, chainId],
+  );
 
   return (
     <>

@@ -1,43 +1,44 @@
 import { ChainId } from "packages/utils";
+import { useEffect, useMemo } from "react";
 import { useBalanceValue } from "../hooks/portfolio/useBalanceValue";
 import { useUpdateWallet } from "../hooks/portfolio/useUpdateWallet";
-import { PortfolioToken, UpdateWalletBalanceActionProps } from "../reducers/portfolio";
+import { PortfolioState, UpdateWalletBalanceActionProps } from "../reducers/portfolio";
 
 interface BalanceValue {
   address: string;
   chainId: ChainId;
   account?: `0x${string}`;
-  price?: PortfolioToken["price"];
-  balance?: PortfolioToken["balance"];
+  state?: PortfolioState;
   decimals?: number;
   updateWallet?: (args: UpdateWalletBalanceActionProps) => void;
   add?: (amount) => void;
 }
 
-export const BalanceValue: React.FC<BalanceValue> = ({ address, chainId, account, price, balance, updateWallet }) => {
-  const { data, isValidating, error, isError } = useBalanceValue({
+export const BalanceValue: React.FC<BalanceValue> = ({ address, chainId, account, state, updateWallet }) => {
+
+  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state, chainId, address]);
+  const [price, balance] = [token?.price?.data, token?.balance?.data];
+
+  const { data, isLoading, error, isError } = useBalanceValue({
     enabled: !!address && !!chainId && !!account && !!price && !!balance,
     address,
     chainId,
-    price: price?.data?.value,
+    price: price?.value,
     account,
-    balance: balance?.data?.value,
+    balance: balance?.value,
   });
 
-  const loading = !data?.value && isValidating;
+  const update = useUpdateWallet({ token, address, account, chainId, updateWallet });
 
-  useUpdateWallet({
-    chainId,
-    account,
-    token: address,
-    property: ["balanceValue", { data, isError, error, isValidating }],
-    updateWallet,
-  });
+  useEffect(() => {
+    if (token && balance && price) {
+      update(["balanceValue", { data, isError, error, isLoading }]);
+    }
+  }, [token, balance, price]);
 
   return (
     <>
-      {loading && "Loading ..."}
-      {data?.value && <div>Balance Value: {data?.formatted} </div>}
+      {<div>Balance Value: {data?.formatted} </div>}
     </>
   );
 };

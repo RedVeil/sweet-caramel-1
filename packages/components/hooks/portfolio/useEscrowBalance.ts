@@ -4,14 +4,14 @@ import { formatAndRoundBigNumber } from "../../../utils/src/formatBigNumber";
 import useSum from "../useSum";
 import { useComponentState } from "../useComponentState";
 import { BaseTokenProps } from "packages/components/components/types";
-import { useState } from "react";
+import { useIsMounted } from "../utils/useIsMounted";
 
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
  * @returns
  */
-
 export const useEscrowBalance = ({ address, account, chainId, enabled }: BaseTokenProps & { enabled: boolean }) => {
+  const isMounted = useIsMounted();
   const {
     data: ids,
     isLoading: idsLoading,
@@ -21,7 +21,7 @@ export const useEscrowBalance = ({ address, account, chainId, enabled }: BaseTok
     abi: ABI,
     address,
     chainId: Number(chainId),
-    enabled: !!enabled && !!account && !!address && !!chainId,
+    enabled: !!enabled && !!account && !!address && !!chainId && !!isMounted,
     cacheOnBlock: true,
     scopeKey: `escrow-${address}-${account}-${chainId}`,
     functionName: "getEscrowIdsByUser",
@@ -32,7 +32,15 @@ export const useEscrowBalance = ({ address, account, chainId, enabled }: BaseTok
 
   const { ready } = useComponentState(
     {
-      ready: !!enabled && escrowIds?.length && !idsLoading && !isIdsError && !!account && !!address && !!chainId,
+      ready:
+        !!enabled &&
+        escrowIds?.length &&
+        !idsLoading &&
+        !isIdsError &&
+        !!account &&
+        !!address &&
+        !!chainId &&
+        !!isMounted,
       loading: idsLoading,
     },
     [enabled, escrowIds, idsLoading, isIdsError, account, address, chainId],

@@ -36,3 +36,4 @@ export const ContractTvl = ({
 };
 
 export const ContractTvlWithLoading = withLoading(ContractTvl);
+export const Tvl = withLoading(ContractTvl);

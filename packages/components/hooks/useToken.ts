@@ -13,7 +13,7 @@ export const useToken = ({ chainId, token, enabled, alias }: UseTokenProps) => {
   const [metadata] = useNamedAccounts(chainId.toString() as any, (token && [token]) || []);
 
   useLog({ metadata, token, chainId, enabled, alias });
-  const { data, isLoading, isError } = _useToken({
+  const { data, isLoading, isError, error } = _useToken({
     chainId: Number(chainId),
     address: token as "0x${string}",
     enabled:
@@ -24,7 +24,7 @@ export const useToken = ({ chainId, token, enabled, alias }: UseTokenProps) => {
         : !!token && !!chainId,
   });
 
-  return { data: { ...data, ...metadata }, isLoading, isError };
+  return { data: { ...data, ...metadata }, isLoading, isError, error };
 };
 
 export default useToken;

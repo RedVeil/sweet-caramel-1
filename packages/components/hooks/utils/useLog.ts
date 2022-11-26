@@ -3,7 +3,7 @@ import { useEffect } from "react";
 function useLog(msg, deps?) {
   useEffect(
     () => {
-      console.log(msg);
+      process.env.NODE_ENV === "development" && console.log(msg);
     },
     deps ? deps : [msg],
   );

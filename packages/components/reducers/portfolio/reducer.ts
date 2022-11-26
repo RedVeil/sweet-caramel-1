@@ -20,27 +20,44 @@ export interface PortfolioState {
   };
 }
 
-export interface PortfolioTokenAsyncProperty<Property = undefined> {
-  data?: Property;
-  isValidating?: boolean;
+export interface AsyncState {
+  isLoading?: boolean;
   error?: Error | null;
   isError?: boolean;
 }
+export type PortfolioTokenAsyncProperty<Property = undefined> = {
+  data?: Property;
+} & AsyncState;
 
 export interface Decimals {
   decimals?: number;
 }
+
+export interface Name {
+  name?: string;
+}
+
+export interface Symbol {
+  symbol?: string;
+}
+export type Erc20 = Decimals & Name & Symbol;
 export interface BigNumberWithFormatted {
   value?: BigNumber;
   formatted?: string;
 }
-
 export interface PortfolioToken {
   address: string;
   chainId: ChainId;
+  alias?: string;
+  symbol?: string;
   isLoading?: boolean;
+  hasBalance?: boolean;
   isValidating?: boolean;
-  error?: boolean;
+  priceResolver?: string;
+  icons?: string[];
+  error?: Error | null;
+  isError?: boolean;
+  asErc20?: PortfolioTokenAsyncProperty<Erc20>;
   balance?: PortfolioTokenAsyncProperty<BigNumberWithFormatted>;
   balanceValue?: PortfolioTokenAsyncProperty<BigNumberWithFormatted>;
   apy?: PortfolioTokenAsyncProperty<BigNumberWithFormatted>;
@@ -78,9 +95,8 @@ export const reducer = (state, action) => {
       return { ...state, networth: { ...state.networth, [account]: { value, isLoading, error } } };
     }
     case UPDATE_TOKEN: {
-      console.log("UPDATE_TOKEN", action.payload);
-      const { chainId, address, ...props } = action.payload;
-      if (!chainId || !address) return { ...state };
+      const { chainId, address, isLoading, error, isError, ...props } = action.payload;
+      if (!!!chainId || !!!address) return { ...state };
       return {
         ...state,
         tokens: {
@@ -88,9 +104,13 @@ export const reducer = (state, action) => {
           [chainId]: {
             ...state.tokens?.[chainId],
             [address]: {
+              ...state.tokens?.[chainId]?.[address],
+              ...props,
               address,
               chainId,
-              ...props,
+              isLoading,
+              error,
+              isError,
             },
           },
         },

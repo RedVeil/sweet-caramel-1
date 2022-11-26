@@ -1,11 +1,6 @@
-import { ChainId } from "@popcorn/utils";
-import { useBalanceOf } from "../hooks/portfolio/useBalanceOf";
+import { useBalanceOf } from "../../hooks/portfolio/useBalanceOf";
+import { BalanceProps } from "./types";
 
-interface BalanceProps {
-  address: string;
-  chainId: ChainId;
-  account?: `0x${string}`;
-}
 
 export const withBalanceOf = (Component) => {
   const WithBalanceOf = ({ ...props }: BalanceProps) => {

@@ -1,33 +1,32 @@
-import { useEffect } from "react";
-import { UpdateWalletBalanceActionProps } from "../../reducers/portfolio/actions";
+import { useCallback, useMemo } from "react";
 import { PortfolioToken, PortfolioTokenAsyncProperty } from "../../reducers/portfolio/reducer";
+import { UpdateWalletBalanceActionProps } from "../../reducers/portfolio/actions";
 
-type UseUpdateWallet<T> = {
+type PortfolioTokenKey = keyof Omit<PortfolioToken, "address" | "chainId">;
+type PortfolioTokenValue<T> = PortfolioTokenAsyncProperty<T> | T;
+type UseUpdateWalletProps = {
   chainId: number;
-  token: string;
   account?: string;
-  property: [keyof PortfolioToken, PortfolioTokenAsyncProperty<T>];
+  address?: string;
+  token?: PortfolioToken;
 } & { updateWallet?: (action: UpdateWalletBalanceActionProps) => void };
 
-export function useUpdateWallet<T>({
-  chainId,
-  account,
-  token,
-  property: [key, value],
-  updateWallet,
-}: UseUpdateWallet<T>) {
-  // TODO update isLoading and error states as well. before i was having some trouble doing this and ran into infinite loops, but i think the solution is to memoize the wallet object and pass that memoized value to the dependencies array
+export function useUpdateWallet({ chainId, address, account, token: _token, updateWallet }: UseUpdateWalletProps) {
+  const token = useMemo(() => _token, [_token, chainId, address]);
 
-  useEffect(() => {
-    if (!!chainId && !!account && !!token && !!updateWallet) {
-      updateWallet?.({
-        chainId,
-        account,
-        token,
-        [key]: value,
-      });
-    }
-  }, [account, chainId, token, key, value]);
+  return useCallback(
+    <T>(property: [PortfolioTokenKey, PortfolioTokenValue<T>]) => {
+      let [key, value] = property;
+
+      if (!token || (!!chainId && !!token && !!updateWallet && !!property)) {
+        console.log({ token, chainId, property });
+        if (!token?.[key] || (token?.[key]?.toString() !== value?.toString() && !!value)) {
+          !!address && updateWallet?.({ chainId, token: address, account, [key]: value });
+        }
+      }
+    },
+    [chainId, address, token, updateWallet],
+  );
 }
 
 export default useUpdateWallet;
