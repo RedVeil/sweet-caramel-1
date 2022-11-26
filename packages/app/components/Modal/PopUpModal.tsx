@@ -1,5 +1,5 @@
-import { Transition } from "@headlessui/react";
-import React from "react";
+import { Transition, Dialog } from "@headlessui/react";
+import React, { Fragment } from "react";
 
 interface PopUpModalProps {
   children: React.ReactNode;
@@ -13,35 +13,39 @@ const PopUpModal = ({ children, visible, onClosePopUpModal }) => {
     }
   };
   return (
-    <>
-      <Transition show={visible}>
-        <div className="fixed top-0 z-40 h-screen w-screen bottom-0">
-          <Transition.Child
-            enter="transition ease-out duration-300 transform"
-            enterFrom="opacity-0 translate-y-full"
-            enterTo="opacity-100 translate-y-0"
-            leave="transition transform ease-in duration-300"
-            leaveFrom="opacity-100 translate-y-0"
-            leaveTo="opacity-0 translate-y-full"
-          >
-            <div className="h-screen w-screen bg-primary bg-opacity-75" onClick={onClickParent}></div>
-          </Transition.Child>
+    <Transition.Root show={visible}>
+      <Dialog as="div" className="relative z-10" onClose={onClickParent}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0  bg-primary bg-opacity-75 transition-opacity" />
+        </Transition.Child>
 
-          <Transition.Child
-            enter="transition ease-out duration-300 transform"
-            enterFrom="opacity-0 translate-y-full"
-            enterTo="opacity-100 translate-y-0"
-            leave="transition transform ease-in duration-300"
-            leaveFrom="opacity-100 translate-y-0"
-            leaveTo="opacity-0 translate-y-full"
-          >
-            <div className="relative">
-              <div className="absolute bottom-0 bg-white rounded-t-4xl p-6 w-full">{children}</div>
-            </div>
-          </Transition.Child>
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-0">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enterTo="opacity-100 translate-y-0 sm:scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            >
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg transition-all w-full">
+                <div className="bg-white rounded-t-4xl p-6 w-full h-full">{children}</div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
         </div>
-      </Transition>
-    </>
+      </Dialog>
+    </Transition.Root>
   );
 };
 
