@@ -2,6 +2,7 @@ import { constants, BigNumber } from "ethers";
 import { useContractRead } from "wagmi";
 import { formatAndRoundBigNumber } from "../../../utils/src/formatBigNumber";
 import useSum from "../useSum";
+import { useComponentState } from "../useComponentState";
 
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
@@ -11,20 +12,33 @@ export const useEscrowBalance = ({ address, account, chainId, enabled }) => {
   const { data: ids, isLoading: idsLoading, isError: isIdsError, error: idsError } = useContractRead({
     abi: ABI,
     address,
-    chainId,
+    chainId: Number(chainId),
     enabled,
     functionName: "getEscrowIdsByUser",
     args: [account],
   });
 
-  const { loading, sum, add, reset } = useSum({ expected: (ids as string[])?.length || 0, timeout: 8000 });
+  const escrowIds = ids as string[] | undefined;
+
+  const { ready } = useComponentState({
+    ready:
+      (typeof enabled === "boolean" ? enabled : true) &&
+      !escrowIds &&
+      !idsLoading &&
+      !isIdsError &&
+      !!account &&
+      !!address &&
+      !!chainId,
+    loading: idsLoading,
+  });
+
+  const { loading, sum, add, reset } = useSum({ expected: escrowIds?.length || 0, timeout: 8000 });
 
   const { data: balance, isLoading: balanceLoading, isError: isBalanceError, error: balanceError } = useContractRead({
     abi: ABI,
     address,
-    chainId,
-    enabled: enabled && !!((ids as unknown) as string[])?.length && !isIdsError,
-    functionName: "getEscrows",
+    chainId: Number(chainId),
+    enabled: ready,
     args: [ids],
     select: (data) => {
       return (data as [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, string][]).reduce(

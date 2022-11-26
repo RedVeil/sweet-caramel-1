@@ -14,6 +14,7 @@ interface UpdateTokenAction {
 export type UpdateTokenActionCreator = (args: PortfolioToken | undefined) => UpdateTokenAction;
 
 export const updateToken: UpdateTokenActionCreator = (metadata?) => {
+  console.log({ updateTokenMetadata: metadata });
   return { type: UPDATE_TOKEN, payload: metadata ? { ...metadata } : undefined };
 };
 

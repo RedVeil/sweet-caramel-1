@@ -1,6 +1,6 @@
 import useBalance from "./useBalance";
 import useToken from "./useToken";
-import { useUpdateWallet } from "./useUpdateWalletBalance";
+import { useUpdateWallet } from "./useUpdateWallet";
 
 /**
  * useTokenWithBalance hook is used to fetch a token, token metadata from named accounts, and the balance of the token for a given account

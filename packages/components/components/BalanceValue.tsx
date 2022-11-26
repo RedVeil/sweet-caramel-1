@@ -1,6 +1,6 @@
 import { ChainId } from "packages/utils";
 import { useBalanceValue } from "../hooks/portfolio/useBalanceValue";
-import { useUpdateWallet } from "../hooks/portfolio/useUpdateWalletBalance";
+import { useUpdateWallet } from "../hooks/portfolio/useUpdateWallet";
 import { PortfolioToken, UpdateWalletBalanceActionProps } from "../reducers/portfolio";
 
 interface BalanceValue {

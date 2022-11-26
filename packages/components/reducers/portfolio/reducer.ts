@@ -78,7 +78,8 @@ export const reducer = (state, action) => {
       return { ...state, networth: { ...state.networth, [account]: { value, isLoading, error } } };
     }
     case UPDATE_TOKEN: {
-      const { chainId, address, price, isLoading, error, tvl } = action.payload;
+      console.log("UPDATE_TOKEN", action.payload);
+      const { chainId, address, ...props } = action.payload;
       if (!chainId || !address) return { ...state };
       return {
         ...state,
@@ -89,12 +90,7 @@ export const reducer = (state, action) => {
             [address]: {
               address,
               chainId,
-              price: {
-                ...price,
-              },
-              tvl: {
-                ...tvl,
-              },
+              ...props,
             },
           },
         },

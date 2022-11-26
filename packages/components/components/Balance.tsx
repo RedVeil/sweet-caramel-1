@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useBalance, useComponentState } from "../hooks";
 import { PortfolioToken } from "../reducers/portfolio";
 import useToken from "../hooks/useToken";
+import useLog from '../hooks/utils/useLog';
 
 interface BalanceProps {
   address: string;
@@ -16,25 +17,21 @@ export const Balance: React.FC<BalanceProps> = ({ address, chainId, resolver, ac
   const {
     data: { symbol },
   } = useToken({ chainId, token: address });
-  const { data, isValidating, error: apyError, isError } = useBalance({ address, chainId, account });
 
-  const { ready, loading } = useComponentState({
-    ready: !!address && !!chainId && !!account && data?.value,
-    loading: !account || !address,
-  });
+  const { data, isValidating, error: balanceError, isError } = useBalance({ address, chainId, account });
+
 
   useEffect(() => {
-    if (apyError) console.log({ apyError, address, chainId, resolver });
-  }, [apyError]);
+    if (balanceError) console.log({ balanceError, address, chainId, resolver });
+  }, [balanceError]);
 
   useEffect(() => {
-    updateWallet?.({ address, chainId, balance: { data, isValidating, isError: isError, error: apyError } });
-  }, [data, isValidating, apyError]);
+    updateWallet?.({ address, chainId, balance: { data, isValidating, isError: isError, error: balanceError } });
+  }, [data, isValidating, balanceError]);
 
   return (
     <>
-      {loading && "Loading ..."}
-      {!loading && ready && (
+      {!isValidating && (
         <div>
           Balance: {data?.formatted} ({symbol}){" "}
         </div>
