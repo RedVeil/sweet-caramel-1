@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import { ChainId } from "packages/utils";
 import { useMemo } from "react";
@@ -28,7 +28,8 @@ export const useBalanceValue = ({
   decimals = 18,
 }: UseBalanceValueProps): PortfolioTokenAsyncProperty<BigNumberWithFormatted> => {
   return useMemo(() => {
-    if (typeof enabled === "boolean" && !enabled) return { data: undefined, isLoading: false, isError: false };
+    const empty = { data: { value: undefined, formatted: undefined }, isLoading: false, isError: false };
+    if (typeof enabled === "boolean" && !enabled) return empty;
     if (price && balance) {
       const value = balance
         .mul(price)
@@ -39,6 +40,6 @@ export const useBalanceValue = ({
         isValidating: !!account && !!enabled && !value,
       };
     }
-    return { data: undefined, isLoading: false, isError: false };
+    return empty;
   }, [balance, price, account, address, chainId]);
 };

@@ -1,8 +1,8 @@
 import { Networth, Price } from "../components";
-import { useNamedAccounts, useSum } from "../hooks";
+import { useNamedAccounts } from "../hooks";
 import { NextPage } from "next";
-import { useCallback, useReducer } from "react";
-import { DefaultState, reducer, reset, updateToken, updateWallet, updateNetworth } from "../reducers/portfolio";
+import { useReducer } from "react";
+import { DefaultState, reducer, reset, updateToken, updateWallet } from "../reducers/portfolio";
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
@@ -10,6 +10,8 @@ import { Balance } from "../components/Balance/Balance";
 import useLog from "../hooks/utils/useLog";
 import Token from "../components/Token";
 import { BalanceValue } from "../components/BalanceValue";
+import useSum2 from "../hooks/utils/useSum2";
+import { Apy } from "../components/Apy";
 
 export const Portfolio: NextPage = () => {
   const {
@@ -19,6 +21,8 @@ export const Portfolio: NextPage = () => {
   const [state, dispatch] = useReducer(reducer, DefaultState);
 
   const { address: account } = useAccount({ onDisconnect: () => dispatch(reset()) });
+  //const account = "0x28dc239fbf64abebc847d889d68c3f1dd18f72a8";
+
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -47,20 +51,29 @@ export const Portfolio: NextPage = () => {
   const contractsArbitrum = useNamedAccounts("42161", ["pop", "rewardsEscrow"]);
 
   const contractsOp = useNamedAccounts("10", ["pop", "popUsdcArrakisVault"]);
+  const allContracts = [
+    ...contractsEth,
+    ...contractsPoly,
+    ...contractsBnb,
+    ...contractsArbitrum,
+    ...contractsOp,
+  ].flatMap((network) => network);
 
-  useLog({ state });
-
-  const _updateNetworth = useCallback((args) => dispatch(updateNetworth(args)), [dispatch]);
-
-  const { sum, add, loading } = useSum({ expected: contractsEth.length });
+  useLog({ state }, [state])
+  //  const { sum, add, loading, count } = useSum2({
+  //    expected:
+  //      allContracts.length,
+  //  });
+  //
+  //  useLog({ sum2Out: { sum, loading, count }, length: allContracts.length });
 
   return (
     <div className={visible ? "" : "hidden"}>
-      <Networth account={account} state={{ ...state }} value={sum} loading={loading} />
+      <Networth account={account} state={{ ...state }} allContracts={allContracts.flatMap((network, index) => allContracts[index].address)} expected={allContracts.length} />
 
       <br />
 
-      {[...contractsEth, ...contractsPoly, ...contractsBnb, ...contractsArbitrum, ...contractsOp].map((token) => (
+      {allContracts.map((token) => (
         <Token
           alias={token.__alias}
           key={`${token.chainId}:${token.address}`}
@@ -91,9 +104,18 @@ export const Portfolio: NextPage = () => {
             chainId={token.chainId}
             state={{ ...state }}
             updateWallet={(token) => {
-              dispatch(updateWallet(token)), token?.balanceValue?.data?.value && add(token?.balanceValue?.data?.value);
+              dispatch(updateWallet(token));
+              //token?.balanceValue?.data?.value &&
+              //add({ key: `${token.chainId}:${account}:${token.token}`, amount: token?.balanceValue?.data?.value });
             }}
           />
+          <Apy
+            address={token.address}
+            chainId={token.chainId}
+            state={{ ...state }}
+            updateToken={(token) => dispatch(updateToken(token))}
+          />
+
         </Token>
       ))}
     </div>

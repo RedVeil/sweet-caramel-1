@@ -6,19 +6,20 @@ import { useComponentState } from "../hooks/useComponentState";
 
 interface NetworthProps {
   state: PortfolioState;
+  expected: number;
   account?: string;
-  value?: BigNumber;
   loading?: boolean;
+  allContracts?: string[];
   updateNetworth?: (args: UpdateNetworthActionProps) => void;
 }
 
-export const Networth: React.FC<NetworthProps> = ({ state, updateNetworth, value, account, loading: _loading }) => {
-  //  useNetworth(state, updateNetworth, account)
+export const Networth: React.FC<NetworthProps> = ({ state, expected, allContracts, updateNetworth, account }) => {
+  const networth = useNetworth(state, expected, allContracts, updateNetworth, account)
 
   const { ready, loading } = useComponentState({
-    ready: !!value || !!account,
-    loading: !account || !value || _loading,
-  });
+    ready: !!networth || !!account,
+    loading: !account || !networth,
+  }, [networth, account]);
 
   return (
     <>
@@ -26,8 +27,11 @@ export const Networth: React.FC<NetworthProps> = ({ state, updateNetworth, value
         <h3 className={`text-lg font-medium leading-6 text-gray-900 ${!ready ? "" : "hidden"}`}>
           Please connect your wallet to view your networth
         </h3>
+        <h3 className={`text-lg font-medium leading-6 text-gray-900 ${ready ? "" : "hidden"}`}>
+          Connected to {ready && account}
+        </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${!loading && ready ? "" : "hidden"}`}>
-          Networth:  {!loading && ready && formatAndRoundBigNumber(value || constants.Zero, 18)}
+          Networth:  {!loading && ready && formatAndRoundBigNumber(networth || constants.Zero, 18)}
         </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${loading ? "" : "hidden"}`}>Loading ...</h3>
       </div>

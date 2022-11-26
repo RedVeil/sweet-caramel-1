@@ -4,6 +4,7 @@ import { getNamedAccounts } from "packages/utils";
 import { resolve_price } from "../price-resolvers/resolve_price";
 
 export async function synthetix(address, chainId, rpc?): Promise<{ value: BigNumber; decimals: number }> {
+  chainId = Number(chainId);
   const contract = new Contract(
     address,
     [

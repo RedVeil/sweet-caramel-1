@@ -1,8 +1,9 @@
 import { ChainId, getNamedAccounts } from "@popcorn/utils";
 import { Contract } from "ethers/lib/ethers";
 import { resolve_price } from "../resolve_price";
+import { PriceResolver } from "../types";
 
-export const staking = async (address: string, chainId: ChainId, rpc) => {
+export const staking: PriceResolver = async (address: string, chainId: ChainId, rpc) => {
   const staking = new Contract(address, ["function stakingToken() external view returns (address)"], rpc);
 
   const stakingToken = await staking.stakingToken();

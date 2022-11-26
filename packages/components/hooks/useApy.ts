@@ -1,9 +1,11 @@
-import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import { ChainId } from "@popcorn/utils";
 import { useProvider } from "wagmi";
 import { PortfolioToken } from "../reducers/portfolio";
 import useSWR, { SWRResponse } from "swr";
-import Resolvers from "../resolvers/apy-resolvers";
 import { BigNumber } from "ethers";
+import useNamedAccounts from "./useNamedAccounts";
+import { resolve_apy } from "../resolvers/apy-resolvers/resolve_apy";
+import { useMemo } from "react";
 
 interface UseApyProps {
   resolver?: string;
@@ -17,16 +19,14 @@ export const useApy = ({
   address,
   chainId,
 }: UseApyProps): SWRResponse<{ formatted: string; value: BigNumber }> => {
-  const provider = useProvider({ chainId });
+  const provider = useProvider({ chainId: Number(chainId) });
 
-  return useSWR(!!address && !!chainId && !!resolver ? [address, chainId, resolver] : null, async () => {
-    let apy;
+  const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
 
-    console.log({ resolver, address, chainId });
-    if (resolver && typeof Resolvers[resolver] === "function") {
-      apy = await Resolvers[resolver](address, chainId, provider);
-    }
+  const _resolver = useMemo(() => resolver || metadata?.apyResolver, [resolver, metadata]);
 
-    return { ...apy, formatted: formatAndRoundBigNumber(apy.value, apy.decimals) + "%" };
+  return useSWR(!!address && !!chainId && !!_resolver ? [address, chainId, resolver] : null, async () => {
+    console.log({ _resolver, address, chainId, rpc: provider });
+    return resolve_apy({ address, chainId, rpc: provider, resolver: _resolver });
   });
 };

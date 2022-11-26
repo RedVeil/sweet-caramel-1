@@ -22,7 +22,7 @@ export const withEscrowBalance = (Component) => {
 
     return (
       <>
-        <Component {...props} rewardsEscrowBalance={data} isError={isError} isLoading={isLoading} error={error} />
+        <Component {...props} escrowBalance={data} isError={isError} isLoading={isLoading} error={error} />
       </>
     );
   };

@@ -12,8 +12,8 @@ export interface PortfolioState {
     [account: string]: { value: BigNumber; isLoading?: boolean; error?: boolean };
   };
   wallet: {
-    [chainId: string]: {
-      [account: string]: {
+    [account: string]: {
+      [chain: string]: {
         [token: string]: PortfolioToken;
       };
     };
@@ -49,12 +49,14 @@ export interface PortfolioToken {
   address: string;
   chainId: ChainId;
   metadata?: {}; // todo - put non-async properties here
+  balanceFetched?: number;
   alias?: string;
   symbol?: string;
   isLoading?: boolean;
   hasBalance?: boolean;
   isValidating?: boolean;
   priceResolver?: string;
+  balanceResolver?: string;
   icons?: string[];
   error?: Error | null;
   isError?: boolean;
@@ -77,15 +79,7 @@ export const DefaultState = {
     [`${ChainId.Polygon}`]: {},
   },
   networth: {},
-  wallet: {
-    [`${ChainId.Arbitrum}`]: {},
-    [`${ChainId.BNB}`]: {},
-    [`${ChainId.Ethereum}`]: {},
-    [`${ChainId.Goerli}`]: {},
-    [`${ChainId.Localhost}`]: {},
-    [`${ChainId.Optimism}`]: {},
-    [`${ChainId.Polygon}`]: {},
-  },
+  wallet: {},
 };
 
 export const reducer = (state, action) => {
@@ -125,12 +119,12 @@ export const reducer = (state, action) => {
         ...state,
         wallet: {
           ...state.wallet,
-          [chainId]: {
-            ...state.wallet?.[chainId],
-            [account]: {
-              ...state.wallet?.[chainId]?.[account],
+          [account]: {
+            ...state.wallet?.[account],
+            [chainId]: {
+              ...state.wallet?.[account]?.[chainId],
               [token]: {
-                ...state.wallet?.[chainId]?.[account]?.[token],
+                ...state.wallet?.[account]?.[chainId]?.[token],
                 ...props,
               },
             },

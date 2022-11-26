@@ -2,7 +2,6 @@ import { ChainId } from "packages/utils";
 import { useEffect, useMemo } from "react";
 import { useBalanceValue } from "../hooks/portfolio/useBalanceValue";
 import { useUpdateWallet } from "../hooks/portfolio/useUpdateWallet";
-import useLog from "../hooks/utils/useLog";
 import { PortfolioState, UpdateWalletBalanceActionProps } from "../reducers/portfolio";
 
 interface BalanceValue {
@@ -16,17 +15,25 @@ interface BalanceValue {
 }
 
 export const BalanceValue: React.FC<BalanceValue> = ({ address, chainId, account, state, updateWallet }) => {
-
-  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state, chainId, address]);
+  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state?.tokens, chainId, address]);
 
   const wallet = useMemo(
-    () => (!!account && state?.wallet?.[chainId]?.[account]?.[address]) || undefined,
+    () => (!!account && state?.wallet?.[account]?.[chainId]?.[address]) || undefined,
     [state, chainId, account, address],
   );
-  const [price, balance] = [token?.price?.data, wallet?.balance?.data];
+
+  const [price, balance] = useMemo(
+    () => [token?.price?.data, wallet?.balance?.data],
+    [token?.price?.data, wallet?.balance?.data],
+  );
+
+  const enabled = useMemo(
+    () => !!address && !!chainId && !!account && !!price && !!balance,
+    [address, chainId, account, price, balance],
+  );
 
   const { data, isLoading, error, isError } = useBalanceValue({
-    enabled: !!address && !!chainId && !!account && !!price && !!balance,
+    enabled,
     address,
     chainId,
     price: price?.value,
@@ -37,12 +44,13 @@ export const BalanceValue: React.FC<BalanceValue> = ({ address, chainId, account
   const update = useUpdateWallet({ token, address, account, chainId, updateWallet });
 
   useEffect(() => {
-    if (token && balance && price) {
+    if (token && enabled && (data || error)) {
       update(["balanceValue", { data, isError, error, isLoading }]);
+      update(["balanceFetched", Date.now()]);
     }
-  }, [token, balance, price]);
+  }, [token, balance, price, enabled]);
 
-  return <>{<div>Balance Value: {data?.formatted} </div>}</>;
+  return <>{<div>Balance Value: ${data?.formatted} </div>}</>;
 };
 
 export default BalanceValue;

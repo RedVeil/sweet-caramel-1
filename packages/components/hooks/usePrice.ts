@@ -1,8 +1,8 @@
-import { Resolvers } from "../resolvers/price-resolvers";
 import useSWR from "swr";
 import { useProvider } from "wagmi";
 import { SWRResponse } from "swr";
 import { BigNumber } from "ethers";
+import { resolve_price } from "../resolvers/price-resolvers/resolve_price";
 
 export const usePrice = (
   address: string,
@@ -11,15 +11,7 @@ export const usePrice = (
 ): SWRResponse<{ value: BigNumber; decimals: number }> => {
   const provider = useProvider({ chainId: Number(chainId) });
 
-  return useSWR(!!address && !!chainId ? [address, chainId, resolver] : null, async () => {
-    let price;
-
-    if (resolver && typeof Resolvers[resolver] === "function") {
-      price = await Resolvers[resolver](address, chainId, provider);
-    } else {
-      price = await Resolvers["defi_llama"](address, chainId);
-    }
-
-    return price;
-  });
+  return useSWR(!!address && !!chainId ? [address, chainId, resolver] : null, async () =>
+    resolve_price({ address, chainId, rpc: provider, resolver }),
+  );
 };

@@ -17,7 +17,7 @@ interface TokenProps {
 
 export const Token: React.FC<TokenProps> = ({ address, chainId, alias, children, updateToken, state }) => {
   const {
-    data: { symbol, priceResolver, decimals, name, icons },
+    data: { symbol, priceResolver, apyResolver, decimals, name, icons },
     isLoading,
     error,
     isError,
@@ -53,6 +53,7 @@ export const Token: React.FC<TokenProps> = ({ address, chainId, alias, children,
       <div>Alias: {alias}</div>
       <div>Token address: {address}</div>
       <div>Price Resolver: {priceResolver || "default"}</div>
+      <div>Apy Resolver: {apyResolver || "default"}</div>
       <div>Chain: {networkMap[chainId]}</div>
       <div>Symbol: {ready && symbol}</div>
       <div>{children}</div>

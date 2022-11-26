@@ -88,7 +88,7 @@
     "metadata": {
       "contractName": "ButterStaking",
       "priceResolver": "staking",
-      "symbol": "pst-BTR",
+      "symbol": "st-BTR",
       "isERC20": false,
       "apyResolver": "synthetix"
     }
@@ -465,8 +465,8 @@
     },
     "metadata": {
       "priceResolver": "staking",
-      "isERC20": false,
       "apyResolver": "synthetix",
+      "isERC20": false,
       "symbol": "st-RAKIS-15"
     }
   },
@@ -670,7 +670,7 @@
     "metadata": {
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
-      "symbol": "pst-3X",
+      "symbol": "st-3X",
       "isERC20": false,
       "apyResolver": "synthetix"
     }

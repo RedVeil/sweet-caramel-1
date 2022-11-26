@@ -6,12 +6,13 @@ export type ApyResolver = (
   address: string,
   chainId: ChainId,
   rpc?: any,
-) => Promise<{ value: BigNumber; decimals: number }>;
+) => Promise<{ value: BigNumber; formatted: number }>;
 
-export type ApyResolvers = Record<string, ApyResolver>;
+export type ApyResolvers = typeof ApyResolvers;
 
-export const ApyResolvers: ApyResolvers = {
+export const ApyResolvers = {
   synthetix,
+  default: synthetix,
 };
 
 export default ApyResolvers;

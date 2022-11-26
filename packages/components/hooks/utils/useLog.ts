@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 function useLog(msg, deps?) {
+  const enabled = useMemo(() => {
+    return process.env.NODE_ENV === "development";
+  }, []);
   useEffect(
     () => {
-      process.env.NODE_ENV === "development" && console.log(msg);
+      !!enabled && console.log(msg);
     },
     deps ? deps : [msg],
   );

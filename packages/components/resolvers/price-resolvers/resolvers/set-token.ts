@@ -1,9 +1,10 @@
 import { ChainId } from "@popcorn/utils";
 import { Contract } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import { PriceResolver } from "../types";
 import defi_llama from "./llama";
 
-export const set_token = async (address: string, chainId: ChainId, rpc) => {
+export const set_token: PriceResolver = async (address: string, chainId: ChainId, rpc) => {
   const setToken = new Contract(address, ["function getComponents() external view returns (address[] memory)"], rpc);
   const basicIssuance = new Contract(
     "0xd8EF3cACe8b4907117a45B0b125c68560532F94D",

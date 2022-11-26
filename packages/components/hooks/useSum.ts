@@ -11,26 +11,26 @@ export const useSum = ({
   timeout?: number; // in ms
   enabled?: boolean; // undefined is true
 }): { loading: boolean; sum?: BigNumber; add: (amount: BigNumber) => void; reset: () => void } => {
-  enabled = enabled === undefined ? true && !!expected : enabled && !!expected;
-  expected = expected || 0;
+  const _enabled = enabled === undefined ? true && !!expected : enabled && !!expected;
+  const _expected = expected || 0;
 
-  const [loading, setLoading] = useState(!!expected);
+  const [loading, setLoading] = useState(!!_expected);
   const count = useRef(0);
   const sum = useRef(constants.Zero);
 
   const add = (amount?: BigNumber) => {
-    if (!enabled) return;
-    if (!amount || !!expected == false) return;
-    if (typeof expected !== "number") return;
+    if (!_enabled) return;
+    if (!amount || !!_expected == false) return;
+    if (typeof _expected !== "number") return;
     count.current++;
     sum.current = sum.current.add(amount);
   };
 
   useEffect(() => {
-    if (!!enabled && !!expected && count.current >= expected) {
+    if (!!enabled && !!_expected && count.current >= _expected) {
       setLoading(false);
     }
-  }, [expected, count.current, enabled]);
+  }, [_expected, count.current, _enabled]);
 
   const reset = () => {
     count.current = 0;
@@ -39,24 +39,24 @@ export const useSum = ({
   };
 
   useEffect(() => {
-    if (!enabled && !!timeout) return;
+    if (!_enabled && !!timeout) return;
     const id = setTimeout(() => {
       setLoading(false);
     }, timeout);
     return () => {
       clearTimeout(id);
     };
-  }, [enabled]);
+  }, [_enabled]);
 
   const finished = useMemo(() => {
-    return (loading && !!expected && false) || (!loading && !!expected && expected >= count.current);
-  }, [expected, count, loading]);
+    return (loading && !!_expected && false) || (!loading && !!_expected && _expected >= count.current);
+  }, [_expected, count, loading]);
 
   const response = useMemo(() => {
     return { loading, sum: sum.current, add, reset };
-  }, [enabled, finished, loading]);
+  }, [_enabled, finished, loading]);
 
-  useLog({ response, enabled, finished, loading, expected, count: count.current }, [
+  useLog({ response, _enabled, finished, loading, _expected, count: count.current }, [
     enabled,
     finished,
     loading,
