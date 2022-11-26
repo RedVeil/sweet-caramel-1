@@ -23,7 +23,7 @@ export const Price: React.FC<PriceProps> = ({ address, chainId, resolver, state,
   useLog({ data, isValidating, error });
 
   useEffect(() => {
-    if (data || error)
+    if (data || error || isValidating)
       update(["price", { ... { data, isValidating, error } }]);
   }, [data, error]);
 

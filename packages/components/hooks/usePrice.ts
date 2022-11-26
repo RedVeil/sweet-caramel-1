@@ -9,16 +9,17 @@ export const usePrice = (
   chainId: number,
   resolver?: string,
 ): SWRResponse<{ value: BigNumber; decimals: number }> => {
-  const provider = useProvider({ chainId });
+  const provider = useProvider({ chainId: Number(chainId) });
 
   return useSWR(!!address && !!chainId ? [address, chainId, resolver] : null, async () => {
     let price;
+
     if (resolver && typeof Resolvers[resolver] === "function") {
-      console.log("using resolver", resolver);
       price = await Resolvers[resolver](address, chainId, provider);
     } else {
       price = await Resolvers["defi_llama"](address, chainId);
     }
+
     return price;
   });
 };

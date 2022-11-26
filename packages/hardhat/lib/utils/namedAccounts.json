@@ -466,7 +466,8 @@
     "metadata": {
       "priceResolver": "staking",
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "symbol": "st-RAKIS-15"
     }
   },
   "popUsdcLp": {

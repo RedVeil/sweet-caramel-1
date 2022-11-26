@@ -2,6 +2,7 @@ import { ChainId } from "packages/utils";
 import { useEffect, useMemo } from "react";
 import { useBalanceValue } from "../hooks/portfolio/useBalanceValue";
 import { useUpdateWallet } from "../hooks/portfolio/useUpdateWallet";
+import useLog from "../hooks/utils/useLog";
 import { PortfolioState, UpdateWalletBalanceActionProps } from "../reducers/portfolio";
 
 interface BalanceValue {
@@ -17,7 +18,12 @@ interface BalanceValue {
 export const BalanceValue: React.FC<BalanceValue> = ({ address, chainId, account, state, updateWallet }) => {
 
   const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state, chainId, address]);
-  const [price, balance] = [token?.price?.data, token?.balance?.data];
+
+  const wallet = useMemo(
+    () => (!!account && state?.wallet?.[chainId]?.[account]?.[address]) || undefined,
+    [state, chainId, account, address],
+  );
+  const [price, balance] = [token?.price?.data, wallet?.balance?.data];
 
   const { data, isLoading, error, isError } = useBalanceValue({
     enabled: !!address && !!chainId && !!account && !!price && !!balance,
@@ -36,11 +42,7 @@ export const BalanceValue: React.FC<BalanceValue> = ({ address, chainId, account
     }
   }, [token, balance, price]);
 
-  return (
-    <>
-      {<div>Balance Value: {data?.formatted} </div>}
-    </>
-  );
+  return <>{<div>Balance Value: {data?.formatted} </div>}</>;
 };
 
 export default BalanceValue;
