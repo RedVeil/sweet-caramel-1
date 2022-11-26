@@ -1,41 +1,31 @@
 import { ChainId } from "packages/utils";
-import { useEffect } from "react";
-import { useBalance, useComponentState } from "../hooks";
-import { PortfolioToken } from "../reducers/portfolio";
-import useToken from "../hooks/useToken";
-import useLog from '../hooks/utils/useLog';
+import { BigNumber } from "ethers";
+import { withBalanceOf } from "./withBalanceOf";
+import withLoading from "./withLoading";
+import { withEscrowBalance } from "./withEscrowBalance";
 
+type Response = {
+  value?: BigNumber;
+  formatted?: string;
+};
 interface BalanceProps {
   address: string;
   chainId: ChainId;
   account?: `0x${string}`;
-  resolver?: string;
-  updateWallet?: (args: PortfolioToken) => void;
+  balance?: Response;
+  rewardsEscrowBalance?: Response;
 }
 
-export const Balance: React.FC<BalanceProps> = ({ address, chainId, resolver, account, updateWallet }) => {
-  const {
-    data: { symbol },
-  } = useToken({ chainId, token: address });
-
-  const { data, isValidating, error: balanceError, isError } = useBalance({ address, chainId, account });
-
-
-  useEffect(() => {
-    if (balanceError) console.log({ balanceError, address, chainId, resolver });
-  }, [balanceError]);
-
-  useEffect(() => {
-    updateWallet?.({ address, chainId, balance: { data, isValidating, isError: isError, error: balanceError } });
-  }, [data, isValidating, balanceError]);
-
+const Balance_: React.FC<BalanceProps> = ({ balance, rewardsEscrowBalance }) => {
   return (
     <>
-      {!isValidating && (
-        <div>
-          Balance: {data?.formatted} ({symbol}){" "}
-        </div>
-      )}
+      <div>
+        Balance: {balance?.formatted || rewardsEscrowBalance?.formatted || "0"}
+      </div>
     </>
   );
 };
+
+
+export const Balance = withEscrowBalance(withBalanceOf(withLoading(Balance_)));
+export default Balance;

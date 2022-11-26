@@ -1,17 +1,14 @@
-import { Price, WalletTokenBalance, Networth, ContractTvlWithLoading } from "../components";
+import { Networth } from "../components";
 import { useNamedAccounts, useSum } from "../hooks";
 import { NextPage } from "next";
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useReducer } from "react";
 import { DefaultState, reducer, reset, updateToken, updateWallet, updateNetworth } from "../reducers/portfolio";
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { Apy } from "../components/Apy";
 import { Balance } from "../components/Balance";
-import { BalanceValue } from "../components/BalanceValue";
 import useLog from "../hooks/utils/useLog";
 import Token from "../components/Token";
-import { BigNumber } from "ethers";
 
 export const Portfolio: NextPage = () => {
   const {
@@ -75,7 +72,7 @@ export const Portfolio: NextPage = () => {
           alias={token.__alias}
           key={`${token.chainId}:${token.address}`}
           chainId={Number(token.chainId) as unknown as ChainId}
-          updateToken={(args) => { dispatch(updateToken(args)) }}
+          updateToken={(token) => { dispatch(updateToken(token)) }}
           state={{ ...state }}
           address={token.address}
         >
@@ -83,7 +80,6 @@ export const Portfolio: NextPage = () => {
             account={account}
             address={token.address}
             chainId={token.chainId}
-            resolver={token.balanceResolver}
           //   updateWallet={_updateWallet}
           />
 

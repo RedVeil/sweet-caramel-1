@@ -1,44 +1,68 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { BigNumber, constants } from "ethers";
+import useLog from "./utils/useLog";
 
 export const useSum = ({
   expected,
   timeout,
+  enabled,
 }: {
-  expected: number;
+  expected?: number;
   timeout?: number; // in ms
-}): { loading: boolean; sum: BigNumber; add: (amount: BigNumber) => void; reset: () => void } => {
-  const [sum, setSum] = useState(constants.Zero);
-  const [loading, setLoading] = useState(true);
-  const [count, setCount] = useState(0);
+  enabled?: boolean; // undefined is true
+}): { loading: boolean; sum?: BigNumber; add: (amount: BigNumber) => void; reset: () => void } => {
+  enabled = enabled === undefined ? true && !!expected : enabled && !!expected;
+  expected = expected || 0;
+
+  const [loading, setLoading] = useState(!!expected);
+  const count = useRef(0);
+  const sum = useRef(constants.Zero);
 
   const add = (amount?: BigNumber) => {
-    if (!amount) return;
-    setCount((count) => count + 1);
-    setSum((sum) => sum.add(amount));
+    if (!enabled) return;
+    if (!amount || !!expected == false) return;
+    if (typeof expected !== "number") return;
+    count.current++;
+    sum.current = sum.current.add(amount);
   };
 
+  useEffect(() => {
+    if (!!enabled && !!expected && count.current >= expected) {
+      setLoading(false);
+    }
+  }, [expected, count.current, enabled]);
+
   const reset = () => {
-    setCount((prevState) => 0);
-    setSum((prevState) => constants.Zero);
+    count.current = 0;
+    sum.current = constants.Zero;
     setLoading((prevState) => true);
   };
 
   useEffect(() => {
+    if (!enabled && !!timeout) return;
     const id = setTimeout(() => {
       setLoading(false);
     }, timeout);
     return () => {
       clearTimeout(id);
     };
-  }, []);
+  }, [enabled]);
 
-  useEffect(() => {
-    if (count >= expected && expected > 0) {
-      setLoading(false);
-    }
-  }, [count]);
+  const finished = useMemo(() => {
+    return (loading && !!expected && false) || (!loading && !!expected && expected >= count.current);
+  }, [expected, count, loading]);
 
-  return { loading, sum, add, reset };
+  const response = useMemo(() => {
+    return { loading, sum: sum.current, add, reset };
+  }, [enabled, finished, loading]);
+
+  useLog({ response, enabled, finished, loading, expected, count: count.current }, [
+    enabled,
+    finished,
+    loading,
+    expected,
+    count,
+  ]);
+  return response;
 };
 export default useSum;

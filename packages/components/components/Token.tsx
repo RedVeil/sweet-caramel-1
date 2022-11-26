@@ -4,6 +4,7 @@ import { networkMap } from "@popcorn/utils";
 import { useComponentState, useToken } from "../hooks";
 import { useUpdateToken } from "../hooks/portfolio/useUpdateToken";
 import { useEffect, useMemo } from "react";
+import useLog from "../hooks/utils/useLog";
 
 interface TokenProps {
   alias?: string;
@@ -20,10 +21,13 @@ export const Token: React.FC<TokenProps> = ({ address, chainId, alias, account, 
     data: { symbol, priceResolver, decimals, name, icons },
   } = useToken({ chainId, token: address, alias });
 
+  useLog({ chainId });
+
   const { ready, loading } = useComponentState({
     ready: !!address && !!chainId && !!address,
     loading: !account || !address,
-  });
+  }, [account, address, chainId]);
+  useLog({ ready, loading }, [ready, loading, account, address, chainId]);
 
   const token = useMemo(() => state?.["tokens"]?.[chainId]?.[address], [state, chainId, address]);
 

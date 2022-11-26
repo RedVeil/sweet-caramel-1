@@ -1,13 +1,17 @@
 import React from "react";
-import LoadingSpinner from "./LoadingSpinner";
+import { Oval } from 'react-loader-spinner'
+import useLog from '../hooks/utils/useLog';
 
 
 export function withLoading(Component) {
-  const WithLoading = ({ loading, ...props }) => {
+  const WithLoading = ({ ...props }) => {
+    useLog({ isLoading: props.isLoading, withLoading: true }, [props.isLoading]);
     return (
       <>
-        {loading && <LoadingSpinner height="20px" width="20px" />}
-        <div className={loading ? "hidden" : ""}>
+        <div className={`${props?.isLoading ? '' : 'hidden'}`}>
+          <Oval height="13px" width="13px" visible={true} />
+        </div>
+        <div className={props?.isLoading ? "hidden" : ""}>
           <Component {...props} />
         </div>
       </>

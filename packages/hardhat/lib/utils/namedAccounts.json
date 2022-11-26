@@ -441,6 +441,7 @@
       "contractName": "PopLocker",
       "icons": ["/images/icons/POP.svg"],
       "name": "POP",
+      "symbol": "vlPOP",
       "priceResolver": "staking",
       "isERC20": false
     }
