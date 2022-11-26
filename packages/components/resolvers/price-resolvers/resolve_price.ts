@@ -21,7 +21,7 @@ export function resolve_price({
   const [metadata] = getNamedAccounts(chainId.toString() as any, [address as any]);
   const _resolver = resolver || metadata?.priceResolver;
   if (!!_resolver && typeof Resolvers[_resolver] === "function") {
-    return Resolvers[_resolver](address, chainId, rpc);
+    return Resolvers[_resolver](address, Number(chainId), rpc);
   }
-  return Resolvers.defi_llama(address, chainId, rpc);
+  return Resolvers.defi_llama(address, Number(chainId), rpc);
 }

@@ -23,7 +23,7 @@ export const Token: React.FC<TokenProps> = ({ address, chainId, alias, children,
     isError,
   } = useToken({ chainId, token: address, alias });
 
-  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state, chainId, address]);
+  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state?.tokens?.[chainId]?.[address], chainId, address]);
 
   const update = useUpdateToken({ chainId, address, token, updateToken });
 
@@ -34,12 +34,10 @@ export const Token: React.FC<TokenProps> = ({ address, chainId, alias, children,
   }, [isLoading, error, isError]);
 
   useEffect(() => {
-    if ((!isLoading && symbol) || name || decimals) {
-      update(["asErc20", { data: { symbol, name, decimals } }]);
-      update(["priceResolver", priceResolver]);
-      update(["icons", icons]);
-      update(["alias", alias]);
-    }
+    update(["asErc20", { data: { symbol, name, decimals } }], symbol && name && decimals);
+    update(["priceResolver", priceResolver], !token?.priceResolver !== !priceResolver);
+    update(["icons", icons], !token?.icons !== !icons);
+    update(["alias", alias], !token?.alias !== !alias);
   }, [symbol, decimals, name, isLoading]);
 
   const { ready } = useComponentState(

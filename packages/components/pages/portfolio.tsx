@@ -20,7 +20,6 @@ export const Portfolio: NextPage = () => {
 
   const { address: account } = useAccount({ onDisconnect: () => dispatch(reset()) });
 
-
   const contractsEth = useNamedAccounts("1", [
     "pop",
     "popStaking",
@@ -61,18 +60,14 @@ export const Portfolio: NextPage = () => {
 
       <br />
 
-      {[
-        ...contractsEth,
-        ...contractsPoly,
-        ...contractsBnb,
-        ...contractsArbitrum,
-        ...contractsOp
-      ].map((token) => (
+      {[...contractsEth, ...contractsPoly, ...contractsBnb, ...contractsArbitrum, ...contractsOp].map((token) => (
         <Token
           alias={token.__alias}
           key={`${token.chainId}:${token.address}`}
           chainId={Number(token.chainId) as unknown as ChainId}
-          updateToken={(token) => { dispatch(updateToken(token)) }}
+          updateToken={(token) => {
+            dispatch(updateToken(token));
+          }}
           state={{ ...state }}
           address={token.address}
         >
@@ -95,9 +90,10 @@ export const Portfolio: NextPage = () => {
             address={token.address}
             chainId={token.chainId}
             state={{ ...state }}
-            updateWallet={(token) => dispatch(updateWallet(token))}
+            updateWallet={(token) => {
+              dispatch(updateWallet(token)), token?.balanceValue?.data?.value && add(token?.balanceValue?.data?.value);
+            }}
           />
-
         </Token>
       ))}
     </div>

@@ -14,16 +14,14 @@ interface PriceProps {
 }
 
 export const Price: React.FC<PriceProps> = ({ address, chainId, resolver, state, updateToken }) => {
-  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state, chainId, address]);
+  const token = useMemo(() => state?.tokens?.[chainId]?.[address], [state?.tokens?.[chainId]?.[address], chainId, address]);
 
   const { data, isValidating, error } = usePrice(address, chainId, token?.priceResolver || resolver);
 
   const update = useUpdateToken({ chainId, address, token, updateToken });
 
-  useLog({ data, isValidating, error });
-
   useEffect(() => {
-    if (data || error || isValidating)
+    if (data || error)
       update(["price", { ... { data, isValidating, error } }]);
   }, [data, error]);
 

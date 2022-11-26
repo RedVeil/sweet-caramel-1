@@ -48,6 +48,7 @@ export interface BigNumberWithFormatted {
 export interface PortfolioToken {
   address: string;
   chainId: ChainId;
+  metadata?: {}; // todo - put non-async properties here
   alias?: string;
   symbol?: string;
   isLoading?: boolean;
@@ -75,6 +76,7 @@ export const DefaultState = {
     [`${ChainId.Optimism}`]: {},
     [`${ChainId.Polygon}`]: {},
   },
+  networth: {},
   wallet: {
     [`${ChainId.Arbitrum}`]: {},
     [`${ChainId.BNB}`]: {},

@@ -13,13 +13,12 @@ export function useUpdateToken<T>({ chainId, address, token: _token, updateToken
   const token = useMemo(() => _token, [_token, chainId, address]);
 
   return useCallback(
-    (property: [PortfolioTokenKey, PortfolioTokenValue<T>]) => {
+    (property: [PortfolioTokenKey, PortfolioTokenValue<T>], shouldUpdate?) => {
+      shouldUpdate = typeof shouldUpdate === "undefined" ? true : shouldUpdate;
       let [key, value] = property;
 
       if (!token || (!!chainId && !!token && !!updateToken && !!property)) {
-        console.log({ token, chainId, property });
         if (!token?.[key] || (token?.[key]?.toString() !== value?.toString() && !!value)) {
-          console.log({ updating: true, address, chainId, token, key, value });
           !!address && updateToken?.({ chainId, address, [key]: value });
         }
       }
