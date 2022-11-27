@@ -9,7 +9,7 @@ import { Pop } from "../../types";
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
  */
-export const useEscrowBalance: Pop.Hook<{ escrowIds?: string[] }, BigNumberWithFormatted> = ({
+export const useEscrowBalance: Pop.Hook<BigNumberWithFormatted, { escrowIds?: string[] }> = ({
   chainId,
   address,
   account,

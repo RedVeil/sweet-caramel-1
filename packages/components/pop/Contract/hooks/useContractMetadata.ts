@@ -13,7 +13,7 @@ import useLog from "../../../hooks/utils/useLog";
 type Props = {
   alias?: string;
 };
-export const useContractMetadata: Pop.Hook<Props, Partial<Pop.NamedAccountsMetadata>> = ({
+export const useContractMetadata: Pop.Hook<Partial<Pop.NamedAccountsMetadata>, Props> = ({
   chainId,
   address,
   enabled,

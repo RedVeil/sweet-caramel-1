@@ -9,9 +9,9 @@ export namespace Pop {
 
   export type HookResult<T = unknown> = UseQueryResult<T>;
 
-  export type Hook<Props = BaseContractProps, T extends any = ReturnType<(...args: any) => unknown>> = (
+  export type Hook<T extends any, Props = BaseContractProps, K extends any = ReturnType<(...args: any) => T>> = <R>(
     props: FCProps<Props> & Props,
-  ) => HookResult<T>;
+  ) => HookResult<K>;
 
   export interface UseQueryResult<T> {
     data?: T;

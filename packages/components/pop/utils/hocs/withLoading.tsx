@@ -10,3 +10,5 @@ export const withLoading = (Component: Pop.FC<any>) => (props) => {
     </>
   );
 };
+
+export default withLoading;

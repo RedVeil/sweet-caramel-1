@@ -8,7 +8,7 @@ import { popHookAdapter } from "../../utils/hooks/swrPopHookAdapter";
 interface Props {
   resolver?: string;
 }
-export const usePrice: Pop.Hook<Props, { value: BigNumber; decimals: number }> = ({ address, chainId, resolver }) => {
+export const usePrice: Pop.Hook<{ value: BigNumber; decimals: number }, Props> = ({ address, chainId, resolver }) => {
   const provider = useProvider({ chainId: Number(chainId) });
 
   return popHookAdapter(
