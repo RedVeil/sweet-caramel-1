@@ -3,14 +3,15 @@ import { BigNumber } from "ethers";
 export namespace Pop {
   export type BaseContractProps = Address & ChainId & Partial<Account & Enabled>;
 
-  export type FC<T> = React.FC<FCProps<T> & T>;
+  export type FC<T> = React.FC<FCProps<T> & T & Partial<HookResult<T>>>;
 
-  export type FCProps<T> = BaseContractProps & Partial<UseQueryResult<T>>;
+  export type FCProps<T> = BaseContractProps & T;
 
   export type HookResult<T = unknown> = UseQueryResult<T>;
 
-  // todo: infer R and P from the input given that it must also extend BaseContractProps
-  export type Hook<R, P = BaseContractProps> = (props: FCProps<P> & P) => HookResult<R>;
+  export type Hook<Props = BaseContractProps, T extends any = ReturnType<(...args: any) => unknown>> = (
+    props: FCProps<Props> & Props,
+  ) => HookResult<T>;
 
   export interface UseQueryResult<T> {
     data?: T;

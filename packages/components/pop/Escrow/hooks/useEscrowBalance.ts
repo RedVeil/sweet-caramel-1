@@ -8,12 +8,8 @@ import { Pop } from "../../types";
 
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
- * @returns
  */
-interface UseEscrowBalanceProps extends Pop.BaseContractProps {
-  escrowIds?: string[];
-}
-export const useEscrowBalance: Pop.Hook<BigNumberWithFormatted, UseEscrowBalanceProps> = ({
+export const useEscrowBalance: Pop.Hook<{ escrowIds?: string[] }, BigNumberWithFormatted> = ({
   chainId,
   address,
   account,
