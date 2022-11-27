@@ -533,7 +533,7 @@
     "metadata": {
       "priceResolver": "pop",
       "symbol": "POP",
-      "balanceResolver": "rewardsEscrow",
+      "balanceResolver": "escrowBalance",
       "isERC20": false
     }
   },

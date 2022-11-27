@@ -6,12 +6,11 @@ import { DefaultState, reducer, reset, updateToken, updateWallet } from "../redu
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { Balance } from "../components/Balance/Balance";
 import useLog from "../hooks/utils/useLog";
 import Token from "../components/Token";
 import { BalanceValue } from "../components/BalanceValue";
-import useSum2 from "../hooks/utils/useSum2";
 import { Apy } from "../components/Apy";
+import { Erc20, Escrow } from "../pop";
 
 export const Portfolio: NextPage = () => {
   const {
@@ -84,13 +83,19 @@ export const Portfolio: NextPage = () => {
           state={{ ...state }}
           address={token.address}
         >
-          <Balance
+
+          <Erc20.BalanceOf
             account={account}
             address={token.address}
             chainId={token.chainId}
-            state={{ ...state }}
-            updateWallet={(token) => dispatch(updateWallet(token))}
           />
+
+          <Escrow.BalanceOf
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+          />
+
           <Price
             address={token.address}
             chainId={token.chainId}

@@ -1,13 +1,14 @@
 import { BigNumber } from "ethers";
-import { formatAndRoundBigNumber } from "packages/utils";
 import { useContractRead } from "wagmi";
-import useNamedAccounts from "../useNamedAccounts";
-import { useIsMounted } from "../utils/useIsMounted";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { useNamedAccounts, useIsMounted } from "../../utils";
+import { BigNumberWithFormatted, Pop } from "../../types";
 
-export const useBalanceOf = ({ chainId, address, account }) => {
+export const useBalanceOf: Pop.WagmiHook<BigNumberWithFormatted> = ({ chainId, address, account }) => {
   const isMounted = useIsMounted();
 
   const [metadata] = useNamedAccounts(chainId as any, [address]);
+
   return useContractRead({
     address,
     chainId: Number(chainId),
@@ -26,5 +27,5 @@ export const useBalanceOf = ({ chainId, address, account }) => {
         formatted: formatAndRoundBigNumber(data as BigNumber, 18),
       };
     },
-  });
+  }) as Pop.WagmiHookResult<BigNumberWithFormatted>;
 };
