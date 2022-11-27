@@ -1,9 +1,9 @@
 import { BigNumber } from "ethers";
 
 export enum ProposalStatus {
-  Open,
-  Challenge,
-  Completed,
+  New,
+  ChallengePeriod,
+  PendingFinalization,
   Passed,
   Failed,
   All,
