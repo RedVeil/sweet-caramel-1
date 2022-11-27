@@ -1,13 +1,13 @@
 import { useIsMounted } from "packages/components/hooks/utils/useIsMounted";
 import { useContractRead } from "wagmi";
 import useNamedAccounts from "../../../hooks/useNamedAccounts";
-import { Pop } from "../types";
+import { Pop } from "../../types";
 
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
  * @returns
  */
-export const useEscrowIds: Pop.WagmiHook<string[]> = ({ chainId, address, account, enabled }) => {
+export const useEscrowIds: Pop.Hook<string[]> = ({ chainId, address, account, enabled }) => {
   const isMounted = useIsMounted();
   const [metadata] = useNamedAccounts(chainId as any, [address]);
   const _enabled = typeof enabled === "boolean" ? enabled : metadata?.balanceResolver === "escrowBalance";
@@ -26,7 +26,7 @@ export const useEscrowIds: Pop.WagmiHook<string[]> = ({ chainId, address, accoun
   return {
     data,
     status,
-  } as Pop.WagmiHookResult<string[]>;
+  } as Pop.HookResult<string[]>;
 };
 
 const ABI = [

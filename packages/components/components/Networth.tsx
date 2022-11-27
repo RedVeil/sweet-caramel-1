@@ -5,7 +5,6 @@ import { BigNumber, constants } from "ethers";
 import { useComponentState } from "../hooks/useComponentState";
 
 interface NetworthProps {
-  state: PortfolioState;
   expected: number;
   account?: string;
   loading?: boolean;
@@ -13,13 +12,12 @@ interface NetworthProps {
   updateNetworth?: (args: UpdateNetworthActionProps) => void;
 }
 
-export const Networth: React.FC<NetworthProps> = ({ state, expected, allContracts, updateNetworth, account }) => {
-  const networth = useNetworth(state, expected, allContracts, updateNetworth, account)
+export const Networth: React.FC<NetworthProps> = ({ expected, allContracts, updateNetworth, account }) => {
 
   const { ready, loading } = useComponentState({
-    ready: !!networth || !!account,
-    loading: !account || !networth,
-  }, [networth, account]);
+    ready: !!account,
+    loading: !account,
+  }, [account]);
 
   return (
     <>
@@ -31,7 +29,7 @@ export const Networth: React.FC<NetworthProps> = ({ state, expected, allContract
           Connected to {ready && account}
         </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${!loading && ready ? "" : "hidden"}`}>
-          Networth:  {!loading && ready && formatAndRoundBigNumber(networth || constants.Zero, 18)}
+          Networth:  {!loading && ready && formatAndRoundBigNumber(constants.Zero, 18)}
         </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${loading ? "" : "hidden"}`}>Loading ...</h3>
       </div>

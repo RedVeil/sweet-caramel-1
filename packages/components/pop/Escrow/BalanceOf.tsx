@@ -1,9 +1,15 @@
-import { BigNumberWithFormatted } from "../types";
-import { withEscrowBalanceOf } from "./withEscrowBalanceOf";
-import { Pop } from "../types";
+import { BigNumberWithFormatted, Pop } from "../types";
+import { withLoading } from "../utils/hocs/withLoading";
+import { useEscrowBalance, useEscrowIds } from "./hooks";
 
-export const BalanceOf: Pop.WagmiFC<BigNumberWithFormatted> = withEscrowBalanceOf(({ data, status }) => {
-  return (<div>Balance: {data?.formatted} [status: {status}]</div>);
-});
+export const eth_call =
+  (Component: Pop.FC<BigNumberWithFormatted>) =>
+    ({ ...props }: Pop.BaseContractProps) => {
+      const { data: ids, status: idsStatus } = useEscrowIds(props);
+      const { data, status } = useEscrowBalance({ ...props, enabled: idsStatus === "success", escrowIds: ids });
+      return <Component {...props} data={data} status={status} />;
+    };
 
-export default withEscrowBalanceOf(BalanceOf);
+export const BalanceOf = eth_call(withLoading(({ data }) => <>{data?.formatted || '$0'}</>));
+
+export default BalanceOf;

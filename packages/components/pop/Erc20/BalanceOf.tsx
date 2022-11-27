@@ -1,18 +1,15 @@
 import { BigNumberWithFormatted } from "../../reducers/portfolio/reducer";
 import { Pop } from "../types";
-import Balance from "./Balance";
+import { withLoading } from "../utils/hocs/withLoading";
 import { useBalanceOf } from "./hooks";
 
+export const eth_call =
+  (Component: Pop.FC<BigNumberWithFormatted>) =>
+    ({ ...props }: Pop.BaseContractProps) => {
+      const { data, status } = useBalanceOf(props);
+      return <Component {...props} data={data} status={status} />;
+    };
 
-export const withBalanceOf = (Component: Pop.WagmiFC<BigNumberWithFormatted>) => {
-  const WithBalance = ({ ...props }: Pop.BaseContractProps) => {
-    const { address, chainId, account, enabled } = props;
-    const { data, status } = useBalanceOf({ address, chainId, account, enabled });
-    return <Component {...props} data={data} status={status} />;
-  };
-  return WithBalance;
-};
-
-export const BalanceOf = withBalanceOf(Balance);
+export const BalanceOf = eth_call(withLoading(({ data }) => <>{data?.formatted}</>));
 
 export default BalanceOf;

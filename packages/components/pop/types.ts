@@ -3,19 +3,17 @@ import { BigNumber } from "ethers";
 export namespace Pop {
   export type BaseContractProps = Address & ChainId & Partial<Account & Enabled>;
 
-  export type WagmiFC<T> = React.FC<WagmiFCProps<T>>;
+  export type FC<T> = React.FC<FCProps<T> & T>;
 
-  export type WagmiFCProps<T> = BaseContractProps & Partial<UseQueryResult<T>>;
+  export type FCProps<T> = BaseContractProps & Partial<UseQueryResult<T>>;
 
-  export type WagmiHookResult<T = undefined> = UseQueryResult<T>;
+  export type HookResult<T = unknown> = UseQueryResult<T>;
 
   // todo: infer R and P from the input given that it must also extend BaseContractProps
-  export type WagmiHook<R, P extends BaseContractProps = BaseContractProps> = (
-    props: P extends BaseContractProps ? P & BaseContractProps : P,
-  ) => WagmiHookResult<R>;
+  export type Hook<R, P = BaseContractProps> = (props: FCProps<P> & P) => HookResult<R>;
 
   export interface UseQueryResult<T> {
-    data: T | undefined;
+    data?: T;
     status: "idle" | "loading" | "success" | "error";
   }
 
@@ -30,6 +28,22 @@ export namespace Pop {
   }
   export interface Enabled {
     enabled: boolean;
+  }
+
+  export interface Erc20Metadata {
+    name: string;
+    symbol: string;
+    decimals: number;
+  }
+
+  export interface NamedAccountsMetadata {
+    name?: string;
+    symbol?: string;
+    decimals?: number;
+    isERC20?: boolean;
+    priceResolver?: "staking" | "set_token" | "pop" | "univ3" | "arrakis";
+    balanceResolver?: "escrowBalance";
+    [key: string]: any;
   }
 }
 

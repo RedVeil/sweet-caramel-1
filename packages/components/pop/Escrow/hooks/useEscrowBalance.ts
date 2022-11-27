@@ -4,17 +4,16 @@ import { BigNumberWithFormatted } from "packages/components/reducers/portfolio";
 import { useContractRead } from "wagmi";
 import useNamedAccounts from "../../../hooks/useNamedAccounts";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
-import { Pop } from "../types";
+import { Pop } from "../../types";
 
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
  * @returns
  */
-
 interface UseEscrowBalanceProps extends Pop.BaseContractProps {
   escrowIds?: string[];
 }
-export const useEscrowBalance: Pop.WagmiHook<BigNumberWithFormatted, UseEscrowBalanceProps> = ({
+export const useEscrowBalance: Pop.Hook<BigNumberWithFormatted, UseEscrowBalanceProps> = ({
   chainId,
   address,
   account,
@@ -22,10 +21,16 @@ export const useEscrowBalance: Pop.WagmiHook<BigNumberWithFormatted, UseEscrowBa
   escrowIds,
 }) => {
   const isMounted = useIsMounted();
+
   const [metadata] = useNamedAccounts(chainId as any, [address]);
 
   const _enabled =
-    !!account && !!address && !!chainId && !!isMounted.current && (typeof enabled === "boolean" ? enabled : true);
+    (typeof enabled === "boolean" ? enabled : metadata?.balanceResolver === "escrowBalance") &&
+    !!account &&
+    !!address &&
+    !!chainId &&
+    !!isMounted.current;
+
   const { data, status } = useContractRead({
     abi: ABI,
     address,
