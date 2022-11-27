@@ -1,14 +1,13 @@
-import { Networth, Price } from "../components";
+import { Networth } from "../components";
 import { useNamedAccounts } from "../hooks";
 import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { Contract } from "../pop/Contract/Contract";
 import { BalanceValue } from "../components/BalanceValue";
 import { Apy } from "../components/Apy";
-import { Escrow, Erc20 } from "../pop";
-
+import { Escrow, Erc20, Price, Contract } from "../pop";
+import { Pop } from '../pop/types';
 
 
 export const Portfolio: NextPage = () => {
@@ -54,7 +53,7 @@ export const Portfolio: NextPage = () => {
     ...contractsBnb,
     ...contractsArbitrum,
     ...contractsOp,
-  ].flatMap((network) => network);
+  ].flatMap((network) => network) as Pop.NamedAccountsMetadata[];
 
 
   return (
@@ -62,7 +61,7 @@ export const Portfolio: NextPage = () => {
       <Networth account={account} allContracts={allContracts.flatMap((network, index) => allContracts[index].address)} expected={allContracts.length} />
 
       {allContracts.map((token, i) => (
-        <Contract
+        <Contract.Metadata
           index={i}
           alias={token.__alias}
           key={`${i}:${token.chainId}:${token.address}`}
@@ -83,7 +82,7 @@ export const Portfolio: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Price
+          <Price.PriceOf
             key={`Price`}
             address={token.address}
             chainId={token.chainId}
@@ -102,7 +101,7 @@ export const Portfolio: NextPage = () => {
             chainId={token.chainId}
           />
 
-        </Contract>
+        </Contract.Metadata>
       ))}
     </div>
   );

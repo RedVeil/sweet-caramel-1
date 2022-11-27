@@ -3,13 +3,13 @@ import { useComponentState } from "packages/components/hooks";
 import { Pop } from "../types";
 import useContractMetadata from "./hooks/useContractMetadata";
 
-interface ContractProps {
+interface ContractProps extends Pop.NamedAccountsMetadata {
   alias?: string;
   children?: React.ReactElement[];
   index?: number;
 }
 
-export const Contract: Pop.FC<ContractProps> = ({ address, chainId, children, alias, index }) => {
+export const Metadata: Pop.FC<ContractProps> = ({ address, chainId, children, alias, index }) => {
   const {
     data,
     status
@@ -23,7 +23,7 @@ export const Contract: Pop.FC<ContractProps> = ({ address, chainId, children, al
     <>
       {(!!ready && (
         <div>
-          <h2>{index}</h2>
+          <h2>{index}: {alias}</h2>
           <div>{index}: Alias: {alias}</div>
           <div>{index}: Chain: {networkMap[chainId]}</div>
           <div>{index}: Contract address: {address}</div>
@@ -43,4 +43,4 @@ export const Contract: Pop.FC<ContractProps> = ({ address, chainId, children, al
   );
 };
 
-export default Contract;
+export default Metadata;

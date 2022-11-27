@@ -38,12 +38,10 @@ export namespace Pop {
   }
 
   export interface NamedAccountsMetadata {
-    name?: string;
-    symbol?: string;
-    decimals?: number;
     isERC20?: boolean;
     priceResolver?: "staking" | "set_token" | "pop" | "univ3" | "arrakis";
     balanceResolver?: "escrowBalance";
+    apyResolver?: "synthetix";
     [key: string]: any;
   }
 }

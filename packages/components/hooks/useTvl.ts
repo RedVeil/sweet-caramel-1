@@ -1,5 +1,5 @@
 import { parseEther } from "ethers/lib/utils";
-import { usePrice } from "./usePrice";
+import { usePrice } from "../pop/Price/hooks/usePrice";
 import { useTotalSupply } from "./useTotalSupply";
 import { formatAndRoundBigNumber } from "../../utils/src/formatBigNumber";
 import { BigNumber } from "ethers";
@@ -12,18 +12,18 @@ interface UseTvlProps {
   enabled?: boolean;
 }
 export const useTvl = ({ chainId, address, priceResolver, enabled }: UseTvlProps) => {
-  const { data: price, isValidating, error: priceError } = usePrice(address, chainId, priceResolver);
+  const { data: price, status } = usePrice({ address, chainId, resolver: priceResolver });
   const [contract] = useNamedAccounts(String(chainId) as any, [address]);
 
-  const { data: supply, isLoading, error: supplyError } = useTotalSupply({
+  const { data: supply, error: supplyError } = useTotalSupply({
     address,
     chainId,
-    enabled: (typeof enabled !== "undefined" && enabled) || (address && chainId),
+    enabled: typeof enabled !== "undefined" ? !!enabled && !!address && !!chainId : !!address && !!chainId,
   });
 
   const tvl =
     price && (supply as BigNumber | undefined)
-      ? price?.value.mul((supply as unknown) as BigNumber).div(parseEther("1"))
+      ? price?.value.mul(supply as unknown as BigNumber).div(parseEther("1"))
       : undefined;
 
   return {
@@ -31,8 +31,7 @@ export const useTvl = ({ chainId, address, priceResolver, enabled }: UseTvlProps
       value: tvl,
       formatted: tvl && price?.decimals ? formatAndRoundBigNumber(tvl, price?.decimals) : undefined,
     },
-    isValidating: isValidating || isLoading,
-    error: priceError || supplyError,
+    status,
   };
 };
 export default useTvl;

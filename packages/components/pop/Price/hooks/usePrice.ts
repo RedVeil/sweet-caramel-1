@@ -17,3 +17,4 @@ export const usePrice: Pop.Hook<Props, { value: BigNumber; decimals: number }> =
     ),
   );
 };
+export default usePrice;
