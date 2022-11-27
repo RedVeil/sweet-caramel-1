@@ -25,8 +25,11 @@ export const useApy = ({
 
   const _resolver = useMemo(() => resolver || metadata?.apyResolver, [resolver, metadata]);
 
-  return useSWR(!!address && !!chainId && !!_resolver ? [address, chainId, resolver] : null, async () => {
-    console.log({ _resolver, address, chainId, rpc: provider });
-    return resolve_apy({ address, chainId, rpc: provider, resolver: _resolver });
-  });
+  return useSWR(
+    !!address && !!chainId && !!_resolver ? [`useApy:${chainId}:${address}:${resolver}`] : null,
+    async () => {
+      console.log({ _resolver, address, chainId, rpc: provider });
+      return resolve_apy({ address, chainId, rpc: provider, resolver: _resolver });
+    },
+  );
 };

@@ -1,6 +1,5 @@
 import { useNamedAccounts } from "../../hooks";
 import { useToken as _useToken } from "wagmi";
-import { PortfolioToken } from "../../reducers/portfolio";
 import { useEffect } from "react";
 
 interface UseTokenProps {
@@ -16,12 +15,14 @@ export const useToken = ({ chainId, address, enabled, alias }: UseTokenProps) =>
   const { data, isLoading, isError } = _useToken({
     chainId,
     address: address as "0x${string}",
+    cacheTime: 1000 * 60 * 5,
+    scopeKey: `erc20:${chainId}:${address}`,
     enabled:
       typeof metadata?.isERC20 !== "undefined" && !metadata.isERC20
         ? false
         : typeof enabled === "boolean"
-        ? enabled
-        : !!address,
+        ? enabled && !!address && !!chainId
+        : !!address && !!chainId,
   });
 
   useEffect(() => {

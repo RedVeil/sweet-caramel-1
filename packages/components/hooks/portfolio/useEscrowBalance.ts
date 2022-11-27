@@ -30,9 +30,9 @@ export const useEscrowBalance = <T extends BigNumberWithFormatted>({
     enabled: !!enabled && !!account && !!address && !!chainId && !!isMounted.current,
     cacheTime: 30 * 1000,
     cacheOnBlock: true,
-    scopeKey: `escrow-${address}-${account}-${chainId}`,
+    scopeKey: `getEscrowIdsByUser:${chainId}:${address}:${account}`,
     functionName: "getEscrowIdsByUser",
-    args: (!!account && [account]) || undefined,
+    args: (!!account && [account]) || [],
   });
 
   const escrowIds = ids as string[] | undefined;
@@ -64,15 +64,15 @@ export const useEscrowBalance = <T extends BigNumberWithFormatted>({
     isLoading: balanceLoading,
     isError: isBalanceError,
     error: balanceError,
+    status,
   } = useContractRead({
     abi: ABI,
     address,
     functionName: "getEscrows(bytes32[])",
     chainId: Number(chainId),
     enabled: !!ready,
-    cacheTime: 30 * 1000,
     cacheOnBlock: true,
-    scopeKey: `escrow-${address}-${account}-${chainId}`,
+    scopeKey: `getEscrows:${chainId}:${address}:${account}`,
     args: (!!ready && [escrowIds]) || undefined,
     select: (data) => {
       return (data as [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, string][]).reduce(

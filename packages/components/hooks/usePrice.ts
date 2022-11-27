@@ -11,7 +11,7 @@ export const usePrice = (
 ): SWRResponse<{ value: BigNumber; decimals: number }> => {
   const provider = useProvider({ chainId: Number(chainId) });
 
-  return useSWR(!!address && !!chainId ? [address, chainId, resolver] : null, async () =>
+  return useSWR(!!address && !!chainId ? [`usePrice:${chainId}:${address}:${resolver}`] : null, async () =>
     resolve_price({ address, chainId, rpc: provider, resolver }),
   );
 };

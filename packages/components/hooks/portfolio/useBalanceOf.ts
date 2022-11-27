@@ -13,9 +13,9 @@ export const useBalanceOf = ({ chainId, address, account }) => {
     chainId: Number(chainId),
     abi: ["function balanceOf(address) external view returns (uint256)"],
     functionName: "balanceOf",
-    args: (!!account && !!isMounted && [account]) || undefined,
+    args: (!!account && !!isMounted && [account]) || [],
     cacheOnBlock: true,
-    cacheTime: 1000 * 60,
+    scopeKey: `balanceOf:${chainId}:${address}:${account}`,
     enabled:
       typeof metadata?.balanceResolver !== "undefined"
         ? metadata.balanceResolver == "balanceOf" && !!account && !!address && !!chainId && !!isMounted

@@ -7,7 +7,9 @@ export const useTotalSupply = ({ address, chainId, enabled }) => {
     chainId,
     abi: ["function totalSupply() external view returns (uint256)"],
     functionName: "totalSupply()",
-    enabled,
+    cacheOnBlock: true,
+    scopeKey: `totalSupply:${chainId}:${address}`,
+    enabled: typeof enabled !== "undefined" ? enabled && !!address && !!chainId : !!address && !!chainId,
     select: (result) => result as BigNumber,
   });
 };
