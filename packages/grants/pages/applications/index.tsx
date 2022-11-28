@@ -13,18 +13,30 @@ import toast from "react-hot-toast";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 
-
 enum ApplicationStatus {
-  All = 'All',
-  New = 'New',
-  ChallengePeriod = 'Challenge Period',
-  Completed = 'Completed',
+  All = "All",
+  New = "New",
+  ChallengePeriod = "Challenge Period",
+  Completed = "Completed",
 }
 const BeneficiaryApplications = () => {
   const applicationTypes = [
-    { label: ApplicationStatus.All, status: [ProposalStatus.All, ProposalStatus.New, ProposalStatus.ChallengePeriod, ProposalStatus.PendingFinalization, ProposalStatus.Passed, ProposalStatus.Failed] },
+    {
+      label: ApplicationStatus.All,
+      status: [
+        ProposalStatus.All,
+        ProposalStatus.New,
+        ProposalStatus.ChallengePeriod,
+        ProposalStatus.PendingFinalization,
+        ProposalStatus.Passed,
+        ProposalStatus.Failed,
+      ],
+    },
     { label: ApplicationStatus.New, status: [ProposalStatus.New] },
-    { label: ApplicationStatus.ChallengePeriod, status: [ProposalStatus.ChallengePeriod, ProposalStatus.PendingFinalization] },
+    {
+      label: ApplicationStatus.ChallengePeriod,
+      status: [ProposalStatus.ChallengePeriod, ProposalStatus.PendingFinalization],
+    },
     { label: ApplicationStatus.Completed, status: [ProposalStatus.Passed, ProposalStatus.Failed] },
   ];
   const { account, library } = useWeb3React<Web3Provider>();
@@ -59,7 +71,7 @@ const BeneficiaryApplications = () => {
     const filteringProposals = proposals
       ?.filter((proposal: Proposal) => {
         const proposalStatus = proposal?.status;
-        return statusFilter.status.includes(proposalStatus)
+        return statusFilter.status.includes(proposalStatus);
       })
       ?.filter((proposal: Proposal) => {
         if (categoryFilter.value === "All") {
@@ -107,10 +119,11 @@ const BeneficiaryApplications = () => {
                     key={type.label}
                     variant={type.status === statusFilter.status ? "primary" : "secondary"}
                     onClick={() => setStatusFilter(type)}
-                    className={`flex-shrink-0 ${type.status === statusFilter.status
-                      ? "!border-0 !bg-[#827D69] !text-white"
-                      : "!border-[#E5E7EB] text-[#55503D] !font-normal"
-                      }`}
+                    className={`flex-shrink-0 ${
+                      type.status === statusFilter.status
+                        ? "!border-0 !bg-[#827D69] !text-white"
+                        : "!border-[#E5E7EB] text-[#55503D] !font-normal"
+                    }`}
                   >
                     {type.label}
                   </Button>
@@ -144,8 +157,9 @@ const BeneficiaryApplications = () => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
-                  className={`!border-[#E5E7EB] !text-sm w-full ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
-                    }`}
+                  className={`!border-[#E5E7EB] !text-sm w-full ${
+                    type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
+                  }`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>

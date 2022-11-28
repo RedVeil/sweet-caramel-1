@@ -41,8 +41,9 @@ interface ContractsWrapperProps {
 
 function getErrorMessage(error: Error) {
   if (error instanceof UnsupportedChainIdError) {
-    return `You're connected to an unsupported network. Please connect to ${networkMap[Number(process.env.CHAIN_ID) as ChainId]
-      }.`;
+    return `You're connected to an unsupported network. Please connect to ${
+      networkMap[Number(process.env.CHAIN_ID) as ChainId]
+    }.`;
   } else if (error instanceof UserRejectedRequestErrorInjected) {
     return "Please authorize this website to access your Ethereum account.";
   } else {

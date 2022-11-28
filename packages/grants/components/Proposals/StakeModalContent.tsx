@@ -108,17 +108,16 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           </p>
         </div>
         <div
-          className={`${popToLock?.toString() === "0" ? "ml-4" : ""} ${popToLock?.toString() === popBalance?.toString() ? "mr-4" : ""
-            }`}
+          className={`${popToLock?.toString() === "0" ? "ml-4" : ""} ${
+            popToLock?.toString() === popBalance?.toString() ? "mr-4" : ""
+          }`}
         >
           <CustomSlider
             aria-label="pop lock slider"
             min={0}
             max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
             onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
-            disabled={
-              !account || hasExpired
-            }
+            disabled={!account || hasExpired}
             size="small"
             step={1}
             valueLabelDisplay="off"
