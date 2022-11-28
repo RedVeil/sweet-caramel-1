@@ -1,9 +1,8 @@
 import useProxy, { PROXY_REGISTRY_ADDRESS, PROXY_REGISTRY_ABI, DS_PROXY_ABI } from "hooks/useProxy";
 import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
-import { ProxyMultiCall } from "@popcorn/utils/MultiCallProxy";
 import { useEffect, useState } from "react";
 import { Contract, ethers } from "ethers";
-import useMulticall, { useWriteMulticall } from "hooks/useMulticall";
+import { useWriteMulticall, useMulticall } from "hooks/useMulticall";
 
 export const VAULT_ABI = [
   {

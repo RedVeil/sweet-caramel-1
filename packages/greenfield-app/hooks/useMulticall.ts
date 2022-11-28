@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ProxyMultiCall } from "@popcorn/utils/MultiCallProxy";
 import { usePrepareContractWrite, useContractWrite } from "wagmi";
 
-export default function useMulticall(targets) {
+export function useMulticall(targets) {
   const [pmc, setPmc] = useState();
   const { proxyAddress } = useProxy();
 
