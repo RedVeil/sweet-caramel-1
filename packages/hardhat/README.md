@@ -1,6 +1,5 @@
 ## Hardhat
 
-
 ## Prerequisites
 
 1. [yarn](https://yarnpkg.com/)
@@ -18,6 +17,7 @@ NEXT_ALCHEMY_API_KEY="get alchemy key from alchemy.com"
 ```
 
 Then run the following
+
 ```
 $ yarn
 $ cd lib/utils/exporter; cargo build --release;
@@ -25,15 +25,13 @@ $ cd ../../..; yarn dev
 ```
 
 After the hardhat node is running:
+
 ```
 $ yarn export
 ```
 
- you will now be able to run the app:
+you will now be able to run the app:
 
 ```
 $ cd ../greenfield-app; yarn dev
 ```
-
-
-
