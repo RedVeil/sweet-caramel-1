@@ -73,7 +73,7 @@ const TextInput: React.FC<TextInputProps> = ({
           disabled={disabled}
         />
       )}
-      <p className="mt-2 text-sm text-secondaryDark leading-4">{inputDescription}</p>
+      <p className="mt-2 text-sm text-secondaryDark leading-[140%]">{inputDescription}</p>
     </>
   );
 };

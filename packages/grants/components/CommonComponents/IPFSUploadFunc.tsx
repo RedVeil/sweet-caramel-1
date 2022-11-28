@@ -12,7 +12,7 @@ const uploadError = (errMsg: string) =>
         <img src="/images/XIcon.svg" width={20} height={20} />
       </div>
       <div>
-        <p className="font-medium mb-2">{errMsg}</p>
+        <p className="font-medium mb-2 leading-[140%]">{errMsg}</p>
         <button className="text-customPurple" onClick={() => toast.dismiss(t.id)}>
           Dismiss
         </button>

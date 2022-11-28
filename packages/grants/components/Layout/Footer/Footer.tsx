@@ -1,12 +1,10 @@
 import NewsLetterSubscription from "components/CommonComponents/NewsLetterSubscription";
 import { DiscordIcon, MediumIcon, RedditIcon, TelegramIcon, TwitterIcon, YoutubeIcon } from "components/Svgs";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
 const Footer = () => {
   const [iconSize, setIconSize] = useState("24");
-  const router = useRouter();
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) {
@@ -22,7 +20,7 @@ const Footer = () => {
         <NewsLetterSubscription title="Contact Us" buttonLabel="Submit" />
       </div>
       <div className="col-span-12 md:col-span-4 flex flex-col justify-between order-3 md:order-2 mt-12 md:mt-0">
-        <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
+        <p className=" text-primaryDark leading-[140%] order-2 md:order-1 mt-8 md:mt-0">
           Popcorn is an audited, non-custodial DeFi wealth manager with yield-generating products that simultaneously
           fund nonprofit and social impact organizations.
         </p>
@@ -50,7 +48,7 @@ const Footer = () => {
       <div className="col-span-12 md:col-span-4 flex flex-col-reverse md:flex-col order-2 md:order-3 mt-12 md:mt-0">
         <div className="grid grid-cols-2 gap-y-8 md:gap-16 mt-8 md:mt-0">
           <div className="col-span-2 md:col-span-1">
-            <p className="text-gray-900 font-medium leading-6 tracking-1">Contact Us</p>
+            <p className="text-gray-900 font-medium leading-[140%] tracking-1">Contact Us</p>
             <div className="flex flex-col">
               <a className=" text-primary hover:text-black leading-6 mt-4" href="mailto:info@popcorn.foundation">
                 info@popcorn.foundation
@@ -58,7 +56,7 @@ const Footer = () => {
             </div>
           </div>
           <div className="col-span-2 md:col-span-1">
-            <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
+            <p className="text-gray-900 font-medium leading-[140%] tracking-1">Bug Bounty</p>
             <div className="flex flex-col">
               <Link
                 href="https://immunefi.com/bounty/popcornnetwork"
@@ -72,7 +70,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="md:mt-8">
-          <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
+          <p className="text-gray-900 font-medium leading-[140%] tracking-1">Links</p>
           <div className="grid grid-cols-2 md:gap-16">
             <div className="col-span-2 md:col-span-1 flex flex-col">
               <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">

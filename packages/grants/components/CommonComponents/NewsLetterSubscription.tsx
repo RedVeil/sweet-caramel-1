@@ -60,7 +60,7 @@ const NewsLetterSubscription = ({ title, buttonLabel }: { title: string; buttonL
         )}
         {subscriptionSuccessful && (
           <div className="bg-customYellow py-2 px-1">
-            <p className="font-medium">Subscribed Successfully!</p>
+            <p className="font-medium leading-[140%]">Subscribed Successfully!</p>
           </div>
         )}
         {!subscribing && !subscriptionSuccessful && (

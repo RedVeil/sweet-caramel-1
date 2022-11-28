@@ -20,10 +20,10 @@ const CoverPhotoUpload: React.FC<CoverPhotoUploadProps> = (props) => {
       >
         {!props.localState && (
           <>
-            <p className=" font-medium text-customPurple">
+            <p className="font-medium text-customPurple leading-[140%]">
               Upload a file <span className=" text-primaryDark font-normal">or drag and drop</span>
             </p>
-            <p className="text-primaryDark pb-18 md:pb-0">PNG, JPG, GIF up to 10MB</p>
+            <p className="text-primaryDark pb-18 md:pb-0 leading-[140%]">PNG, JPG, GIF up to 10MB</p>
           </>
         )}
         <span className="bg-white border border-primary rounded-3xl px-6 py-3 text-primary font-medium hidden md:flex items-center gap-2 absolute right-6 bottom-5 cursor-pointer">

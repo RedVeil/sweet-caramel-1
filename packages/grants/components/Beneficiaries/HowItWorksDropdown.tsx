@@ -113,7 +113,7 @@ const HowItWorksDropdown = () => {
                   <div className="w-screen px-16 pt-20 flex flex-col justify-center text-center" key={index}>
                     <img src={process.image} alt="" className="w-40 mx-auto mb-10" />
                     <h6 className=" text-gray-900 text-2xl font-semibold mb-3">{process.title}</h6>
-                    <p className=" text-lg text-gray-500">{process.text}</p>
+                    <p className="text-lg text-gray-500">{process.text}</p>
                   </div>
                 ))}
               </Slider>
