@@ -9,6 +9,6 @@
     "@popcorn/hardhat": "^1.1.1-alpha.0",
     "@popcorn/utils": "^1.1.1-alpha.0",
     "react": "18.2.0",
-    "wagmi": "0.8.4"
+    "wagmi": "0.8.6"
   }
 }

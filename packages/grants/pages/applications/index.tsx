@@ -10,14 +10,24 @@ import { ContractsContext } from "context/Web3/contracts";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useWeb3React } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
 
+
+enum ApplicationStatus {
+  All = 'All',
+  New = 'New',
+  ChallengePeriod = 'Challenge Period',
+  Completed = 'Completed',
+}
 const BeneficiaryApplications = () => {
   const applicationTypes = [
-    { label: "All", status: ProposalStatus.All },
-    { label: "Open Vote", status: ProposalStatus.Open },
-    { label: "Challenge Period", status: ProposalStatus.Challenge },
-    { label: "Completed", status: ProposalStatus.Completed },
+    { label: ApplicationStatus.All, status: [ProposalStatus.All, ProposalStatus.New, ProposalStatus.ChallengePeriod, ProposalStatus.PendingFinalization, ProposalStatus.Passed, ProposalStatus.Failed] },
+    { label: ApplicationStatus.New, status: [ProposalStatus.New] },
+    { label: ApplicationStatus.ChallengePeriod, status: [ProposalStatus.ChallengePeriod, ProposalStatus.PendingFinalization] },
+    { label: ApplicationStatus.Completed, status: [ProposalStatus.Passed, ProposalStatus.Failed] },
   ];
+  const { account, library } = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
@@ -49,10 +59,7 @@ const BeneficiaryApplications = () => {
     const filteringProposals = proposals
       ?.filter((proposal: Proposal) => {
         const proposalStatus = proposal?.status;
-        if (statusFilter.status === ProposalStatus.Completed) {
-          return proposalStatus === ProposalStatus.Passed || proposalStatus === ProposalStatus.Failed;
-        }
-        return proposalStatus === statusFilter.status || statusFilter.status === ProposalStatus.All;
+        return statusFilter.status.includes(proposalStatus)
       })
       ?.filter((proposal: Proposal) => {
         if (categoryFilter.value === "All") {
@@ -97,14 +104,13 @@ const BeneficiaryApplications = () => {
               <div className="hidden md:flex space-x-4">
                 {applicationTypes.map((type) => (
                   <Button
-                    key={type.status}
+                    key={type.label}
                     variant={type.status === statusFilter.status ? "primary" : "secondary"}
                     onClick={() => setStatusFilter(type)}
-                    className={`flex-shrink-0 ${
-                      type.status === statusFilter.status
-                        ? "!border-0 !bg-[#827D69] !text-white"
-                        : "!border-[#E5E7EB] text-[#55503D] !font-normal"
-                    }`}
+                    className={`flex-shrink-0 ${type.status === statusFilter.status
+                      ? "!border-0 !bg-[#827D69] !text-white"
+                      : "!border-[#E5E7EB] text-[#55503D] !font-normal"
+                      }`}
                   >
                     {type.label}
                   </Button>
@@ -131,16 +137,15 @@ const BeneficiaryApplications = () => {
           <p className="text-black mb-3">Filters</p>
           <div className="grid grid-cols-6 gap-3">
             {applicationTypes.map((type) => (
-              <div className="col-span-3" key={type.status}>
+              <div className="col-span-3" key={type.label}>
                 <Button
                   variant={type.status === statusFilter.status ? "primary !bg-[#827D69]" : "secondary"}
                   onClick={() => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
-                  className={`!border-[#E5E7EB] !text-sm w-full ${
-                    type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
-                  }`}
+                  className={`!border-[#E5E7EB] !text-sm w-full ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
+                    }`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>

@@ -77,9 +77,8 @@ const VotingCard: React.FC<VotingCardProps> = ({
       mobileHeight={getPopModalHeight()}
     >
       <div
-        className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${
-          !showVotes ? " rotate-180" : ""
-        }`}
+        className={`lg:hidden flex justify-center mb-5 transition-all duration-300 transform ${!showVotes ? " rotate-180" : ""
+          }`}
       >
         <ChevronDownIcon className="animate-bounce text-secondaryLight w-5" onClick={toggleVotes} />
       </div>
@@ -113,7 +112,7 @@ const VotingCard: React.FC<VotingCardProps> = ({
           </Button>
         </div>
       )}
-      {!hasVoted && !hasStaked && (
+      {!hasVoted && !hasStaked && stageDeadline && Date.now() < new Date(stageDeadline).getTime() && (
         <Button variant="primary" className="px-3 py-3 w-full" onClick={openStakeModal} disabled={!account}>
           Stake to vote
         </Button>
