@@ -2,7 +2,7 @@ import { BigNumberWithFormatted, Pop } from "../types";
 import { withLoading } from "../utils/hocs/withLoading";
 import { useEscrowBalance, useEscrowIds } from "./hooks";
 
-export const eth_call =
+const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
     ({ ...props }: Pop.BaseContractProps) => {
       const { data: ids, status: idsStatus } = useEscrowIds(props);

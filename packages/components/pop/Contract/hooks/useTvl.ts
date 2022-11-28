@@ -14,14 +14,19 @@ interface UseTvlProps {
 }
 export const useTvl: Pop.Hook<BigNumberWithFormatted> = ({ chainId, address, priceResolver, enabled }: UseTvlProps) => {
   const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
-  const { data: price, status } = usePrice({ address, chainId, resolver: priceResolver || metadata?.priceResolver });
+  const _enabled = typeof enabled !== "undefined" ? !!enabled && !!chainId && !!address : !!chainId && !!address;
+
+  const { data: price, status } = usePrice({
+    address,
+    chainId,
+    resolver: priceResolver || (metadata?.priceResolver && metadata?.priceResolver) || undefined,
+    enabled: _enabled,
+  });
 
   const { data: supply, status: supplyStatus } = useTotalSupply({
     address,
     chainId,
-    enabled:
-      status === "success" &&
-      (typeof enabled !== "undefined" ? !!enabled && !!address && !!chainId : !!address && !!chainId),
+    enabled: (_enabled && status === "success") || status === "success",
   });
 
   const tvl =
@@ -34,7 +39,7 @@ export const useTvl: Pop.Hook<BigNumberWithFormatted> = ({ chainId, address, pri
       value: tvl,
       formatted: tvl && price?.decimals ? formatAndRoundBigNumber(tvl, price?.decimals) : undefined,
     },
-    status: status === "error" ? "error" : supplyStatus,
+    status: [status, supplyStatus].includes("error") ? "error" : supplyStatus,
   };
 };
 export default useTvl;

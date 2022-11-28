@@ -7,6 +7,7 @@ export const withLoading = (Component: Pop.FC<any>) => (props) => {
       {props.status === "loading" && <Oval height="13px" width="13px" visible={true} />}
       {props.status === "error" && <div>Error</div>}
       {props.status === "success" && <Component {...props} />}
+      {props.status === "idle" && <div>Idle</div>}
     </>
   );
 };

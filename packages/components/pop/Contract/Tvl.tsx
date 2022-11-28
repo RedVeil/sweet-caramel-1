@@ -2,13 +2,13 @@ import useTvl from "./hooks/useTvl";
 import { withLoading } from "../utils/hocs/withLoading";
 import { BigNumberWithFormatted, Pop } from "../types";
 
-export const eth_call =
+const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
     ({ ...props }: Pop.BaseContractProps & { resolver?: string }) => {
       const { data, status } = useTvl(props);
       return <Component {...props} data={data} status={status} />;
     };
 
-export const BalanceOf = eth_call(withLoading(({ data }) => <>{data?.formatted}</>));
+export const Tvl = eth_call(withLoading(({ data, status }) => <>{data?.formatted} {status} Component: Tvl</>));
 
-export default BalanceOf;
+export default Tvl;

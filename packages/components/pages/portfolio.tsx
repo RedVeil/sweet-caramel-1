@@ -4,7 +4,6 @@ import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { BalanceValue } from "../components/BalanceValue";
 import { Escrow, Erc20, Price, Contract } from "../pop";
 import { Pop } from '../pop/types';
 import { Apy } from "../components/Apy";
@@ -75,28 +74,41 @@ export const Portfolio: NextPage = () => {
             chainId={token.chainId}
           />
 
+          <Erc20.ValueOfBalance
+            key={`Erc20.ValueOfBalance`}
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+          />
+
           <Escrow.BalanceOf
-            key={`Escrow BalanceOf`}
+            key={`Escrow.BalanceOf`}
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+          />
+
+          <Escrow.ValueOfBalance
+            key={`Escrow.ValueOfBalance`}
             account={account}
             address={token.address}
             chainId={token.chainId}
           />
 
           <Price.PriceOf
-            key={`Price`}
-            address={token.address}
-            chainId={token.chainId}
-          />
-
-          <BalanceValue
-            key={`Balance Value`}
-            account={account}
+            key={`Price.PriceOf`}
             address={token.address}
             chainId={token.chainId}
           />
 
           <Apy
             key={`vAPR`}
+            address={token.address}
+            chainId={token.chainId}
+          />
+
+          <Contract.Tvl
+            key={`TVL`}
             address={token.address}
             chainId={token.chainId}
           />

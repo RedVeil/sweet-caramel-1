@@ -7,12 +7,13 @@ import { Pop } from "../types";
 interface PriceProps {
   resolver?: string;
 }
+
 export const PriceOf: Pop.FC<PriceProps> = ({ address, chainId, resolver }) => {
   const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
 
-  const { data, status } = usePrice({ address, chainId, resolver: resolver || metadata?.priceResolver });
+  const { data } = usePrice({ address, chainId, resolver: resolver || metadata?.priceResolver });
 
-  return <>Price: {(data && `$${formatAndRoundBigNumber(data.value, data.decimals)}`) ?? "Loading ... "}</>;
+  return <>{data?.value && `$${formatAndRoundBigNumber(data?.value, data?.decimals)}`}</>;
 };
 
 export default PriceOf;

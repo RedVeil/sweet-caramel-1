@@ -1,2 +1,2 @@
-export * from "./Price";
+export * from "./PriceOf";
 export * from "./hooks";

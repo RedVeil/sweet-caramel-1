@@ -1,9 +1,8 @@
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
-import { ChainId } from "packages/utils";
 import { useMemo } from "react";
-import { formatAndRoundBigNumber } from "../../../utils/src/formatBigNumber";
-import { BigNumberWithFormatted, PortfolioTokenAsyncProperty } from "../../reducers/portfolio/reducer";
+import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
+import { Pop, BigNumberWithFormatted } from "../../types";
 
 /**
  * useBalanceValue hook is used to calculate the value of an account balance of a given token
@@ -12,23 +11,22 @@ import { BigNumberWithFormatted, PortfolioTokenAsyncProperty } from "../../reduc
 interface UseBalanceValueProps {
   price?: BigNumber;
   balance?: BigNumber;
-  account?: string;
-  chainId: ChainId;
-  address: string;
-  enabled?: boolean;
   decimals?: number;
 }
-export const useBalanceValue = ({
+export const useBalanceValue: Pop.Hook<BigNumberWithFormatted, UseBalanceValueProps> = ({
   price,
   balance,
-  account,
   enabled,
+  account,
   address,
   chainId,
   decimals = 18,
-}: UseBalanceValueProps): PortfolioTokenAsyncProperty<BigNumberWithFormatted> => {
+}): Pop.HookResult<BigNumberWithFormatted> => {
   return useMemo(() => {
-    const empty = { data: { value: undefined, formatted: undefined }, isLoading: false, isError: false };
+    const empty = {
+      data: { value: undefined, formatted: undefined },
+      status: "idle",
+    } as Pop.HookResult<BigNumberWithFormatted>;
     if (typeof enabled === "boolean" && !enabled) return empty;
     if (price && balance) {
       const value = balance
@@ -37,7 +35,7 @@ export const useBalanceValue = ({
         .div(parseUnits("1", 18));
       return {
         data: { value, formatted: value && formatAndRoundBigNumber(value, 18) },
-        isValidating: !!account && !!enabled && !value,
+        status: "success",
       };
     }
     return empty;
