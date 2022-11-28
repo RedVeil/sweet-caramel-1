@@ -9,8 +9,10 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract A {
   event logVal(uint256 val);
   event logVal(address val);
+  event logMsg(string msg);
 
   MockERC20 internal asset;
+  uint256 public counter;
 
   constructor(MockERC20 _asset) {
     asset = _asset;
@@ -46,6 +48,15 @@ contract A {
   ) public {
     (bool success, bytes memory result) = b.delegatecall(abi.encodeWithSignature("callMint(address,uint256)", c, val));
   }
+
+  function delegateCallDoStuff(address b) public {
+    (bool success, bytes memory result) = b.delegatecall(abi.encodeWithSignature("callDoStuff()"));
+  }
+
+  function doStuff() public {
+    emit logMsg("do Stuff");
+    counter++;
+  }
 }
 
 contract B {
@@ -77,6 +88,12 @@ contract B {
   function callMint(address c, uint256 val) public {
     emit logVal(msg.sender);
     emit logVal(C(c).mint(val));
+  }
+
+  function callDoStuff() public {
+    emit logVal(msg.sender);
+    emit logVal(address(this));
+    A(address(this)).doStuff();
   }
 }
 
@@ -165,5 +182,12 @@ contract SampleDelegationTest is Test {
 
     emit log_named_uint("C bal A", c.balanceOf(address(a)));
     emit log_named_uint("C bal B", c.balanceOf(address(b)));
+  }
+
+  function test__delegateCallDoStuff() public {
+    a.delegateCallDoStuff(address(b));
+    a.delegateCallDoStuff(address(b));
+    a.delegateCallDoStuff(address(b));
+    emit log_named_uint("a counter", a.counter());
   }
 }
