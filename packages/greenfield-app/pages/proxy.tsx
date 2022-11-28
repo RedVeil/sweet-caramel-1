@@ -3,7 +3,7 @@ import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 import { ProxyMultiCall } from "@popcorn/utils/MultiCallProxy";
 import { useEffect, useState } from "react";
 import { Contract, ethers } from "ethers";
-import useMulticall from "hooks/useMulticall";
+import useMulticall, { useWriteMulticall } from "hooks/useMulticall";
 
 export const VAULT_ABI = [
   {
@@ -84,7 +84,6 @@ const DEPOSIT_TOKEN_ABI = [
   },
 ];
 
-const MULTICALL_ADDRESS = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const DEPOSIT_TOKEN_ADDRESS = "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c";
 const VAULT_ADDRESS = "0x2538a10b7ffb1b78c890c870fc152b10be121f04";
 
@@ -121,14 +120,7 @@ export default function Proxy(): JSX.Element {
     }
   }, [pmc]);
 
-  const { config: config2 } = usePrepareContractWrite({
-    address: proxyAddress,
-    abi: DS_PROXY_ABI,
-    functionName: "execute(address,bytes)",
-    args: [MULTICALL_ADDRESS, bytes],
-  });
-
-  const { data: data2, isSuccess: isSuccess2, write: write2, isLoading: isLoading2 } = useContractWrite(config2);
+  const { write: writeExecCall } = useWriteMulticall(bytes);
 
   const { config: config3 } = usePrepareContractWrite({
     address: DEPOSIT_TOKEN_ADDRESS,
@@ -147,7 +139,7 @@ export default function Proxy(): JSX.Element {
       {isLoading && <div>Check Wallet</div>}
       {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
       {proxyAddress && proxyAddress}
-      <button disabled={!write2} onClick={() => write2?.()}>
+      <button disabled={!writeExecCall} onClick={() => writeExecCall?.()}>
         Execute
       </button>
       <button disabled={!write3} onClick={() => write3?.()}>
