@@ -59,6 +59,7 @@
     "parse-url": "8.1.0",
     "trim-newlines": "^3.0.1",
     "meow": "^8.0.0",
+    "wagmi": "0.8.6",
     "webpack@>=4.43.0 <6.0.0, webpack@^5.9.0/enhanced-resolve": "5.10.0"
   },
   "repository": {
