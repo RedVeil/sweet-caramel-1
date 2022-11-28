@@ -117,9 +117,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
             min={0}
             max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
             onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
-            disabled={
-              !account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired
-            }
+            disabled={!account || hasExpired}
             size="small"
             step={1}
             valueLabelDisplay="off"

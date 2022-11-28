@@ -38,13 +38,15 @@ const VisualContentCard: React.FC<VisualContentCardProps> = ({
       )}
       <div className="grid grid-cols-3">
         <div className="col-span-2">
-          <p className=" text-black leading-5 w-full text-ellipsis whitespace-nowrap overflow-hidden">{fileName}</p>
+          <p className=" text-black leading-[140%] w-full text-ellipsis whitespace-nowrap overflow-hidden">
+            {fileName}
+          </p>
         </div>
         <div className="col-span-1 flex justify-end cursor-pointer">
           <TrashIcon className=" w-6 h-6 text-gray-400" onClick={removeImage} />
         </div>
       </div>
-      <p className="text-primaryDark leading-4 mb-5">{fileSize ? `${convertToKB(fileSize)}kb` : "-"}</p>
+      <p className="text-primaryDark leading-[140%] mb-5">{fileSize ? `${convertToKB(fileSize)}kb` : "-"}</p>
       <input
         type="text"
         name={`description-${hash}`}

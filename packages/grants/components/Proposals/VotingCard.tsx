@@ -113,7 +113,7 @@ const VotingCard: React.FC<VotingCardProps> = ({
           </Button>
         </div>
       )}
-      {!hasVoted && !hasStaked && (
+      {!hasVoted && !hasStaked && stageDeadline && Date.now() < new Date(stageDeadline).getTime() && (
         <Button variant="primary" className="px-3 py-3 w-full" onClick={openStakeModal} disabled={!account}>
           Stake to vote
         </Button>

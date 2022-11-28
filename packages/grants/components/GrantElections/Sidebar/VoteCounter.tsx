@@ -14,7 +14,7 @@ const VoteCounter: React.FC<VoteCounterProps> = ({ election, pendingVotes, maxVo
   }
   return (
     <div className="w-full bg-white h-28 rounded-lg p-3 mb-2">
-      <p className="font-semibold text-gray-800">Your voice credits</p>
+      <p className="font-semibold text-gray-800 leading-[140%]">Your voice credits</p>
       <p className="text-center pt-2 text-4xl font-black tracking-tight text-gray-800">
         {pendingVotes[election.electionTerm].total} / {maxVotes}
       </p>

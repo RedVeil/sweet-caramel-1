@@ -53,7 +53,7 @@ const VisualContent = ({
           <div>
             <div className="mt-1 flex flex-col md:flex-row md:justify-between md:items-center p-6 md:p-14 border-2 border-gray-300 border-dashed rounded-lg">
               <div className="text-left order-2 md:order-1">
-                <p className="text-customPurple">
+                <p className="text-customPurple leading-[140%]">
                   {" "}
                   Upload a file <span className=" text-primaryDark">or drag and drop</span>
                 </p>

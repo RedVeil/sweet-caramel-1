@@ -54,7 +54,7 @@ const ImpactReports = ({
               </IPFSUploadFunc>
             </div>
           </div>
-          <p className="mt-2 text-sm text-secondaryDark">
+          <p className="mt-2 text-sm text-secondaryDark leading-[140%]">
             * Files can be in PDF or JPG format. All documents submitted must be in English or has English as a
             translated version.
           </p>

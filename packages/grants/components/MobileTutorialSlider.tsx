@@ -56,7 +56,7 @@ const MobileTutorialSlider: React.FC<MobileTutorialSlider> = ({ onCloseMenu }) =
           className="text-black h-10 w-10 absolute left-0 transform -translate-y-1/2 top-1/2"
           onClick={onCloseMenu}
         />
-        <p className="text-black text-center font-medium">How It Works</p>
+        <p className="text-black text-center font-medium leading-[140%]">How It Works</p>
       </div>
       <div className="mt-20 mobileTutorialSlider">
         <Slider {...settings} ref={(slider) => (customSlider.current = slider)}>
@@ -65,7 +65,7 @@ const MobileTutorialSlider: React.FC<MobileTutorialSlider> = ({ onCloseMenu }) =
               <div className={`"px-2 flex flex-col justify-between ${isIOS ? "h-112" : "h-[70%]"}`}>
                 <div>
                   <h1 className="text-black text-5xl leading-11">{step.title}</h1>
-                  <p className=" text-black leading-5 mt-4">{step.content}</p>
+                  <p className=" text-black leading-[140%] mt-4">{step.content}</p>
                 </div>
 
                 <div className="flex justify-center pt-6 gap-5">
