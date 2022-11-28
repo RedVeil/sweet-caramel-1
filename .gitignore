@@ -21,3 +21,4 @@ packages/hardhat/cache-ovm
 packages/hardhat/typechain
 **/.DS_Store
 .vercel
+packages/foundry/broadcast/*

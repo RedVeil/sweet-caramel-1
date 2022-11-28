@@ -55,15 +55,9 @@ export class ProxyMultiCall {
     return this.payload;
   }
 
-  // async submit(provider: ethers.providers.Provider) {
+  // return bytecode
   submit() {
     return this.targets["__multicall"].interface.encodeFunctionData("aggregate", [this.payload]);
-
-    return this.targets["__proxy"].execute(
-      this.targets["__multicall"].address,
-      this.targets["__multicall"].interface.encodeFunctionData("aggregate", [this.payload]),
-      provider,
-    );
   }
 
   reset() {
@@ -71,31 +65,3 @@ export class ProxyMultiCall {
     return this;
   }
 }
-
-/**
- * usage example
- */
-
-// const abi = "add abis here";
-// const tx = new ProxyMultiCall({
-//   proxyAddress: "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4",
-//   targets: [
-//     ["usdc", new Contract("0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4", PROXY_REGISTRY_ABI)],
-//     // ["usdt", new Contract("0x1234", abi)],
-//     // ["vault", new Contract("0x1234", abi)],
-//     // ["staking", new Contract("0x1234", abi)],
-//     // ["curve", new Contract("0x1234", abi)],
-//     // ["curveThreePoolToken", new Contract("0x1234", abi)],
-//   ],
-// });
-
-// const provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/1234");
-// tx.push("usdc", "transferFrom", ["0x12345", "0x12342", parseEther("100")]);
-// tx.push("usdt", "transferFrom", ["0x12345", "0x12342", parseEther("100")]);
-// tx.push("usdc", "approve", ["0x12345", parseEther("100")]);
-// tx.push("usdt", "approve", ["0x12345", parseEther("100")]);
-// tx.push("curve3pool", "add_liquidity", [parseEther("100"), parseEther("100"), 0]);
-// tx.push("curve3poolToken", "approve", ["vault", parseEther("100")]);
-// tx.push("vault", "deposit", [parseEther("100")]);
-// tx.push("staking", "depositFor", [parseEther("100"), "0x1234"]);
-// tx.submit(provider).then(console.log);

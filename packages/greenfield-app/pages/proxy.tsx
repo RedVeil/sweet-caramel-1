@@ -101,7 +101,6 @@ export default function Proxy(): JSX.Element {
   const { data, isSuccess, write, isLoading } = useContractWrite(config);
 
   const { proxyAddress } = useProxy();
-  console.log("proxyAddress", proxyAddress);
 
   // @ts-ignore should use Contract from utils package
   const { pmc } = useMulticall([
@@ -110,12 +109,9 @@ export default function Proxy(): JSX.Element {
     // @ts-ignore should use Contract from utils package
     ["vault", new Contract(VAULT_ADDRESS, VAULT_ABI)],
   ]);
-  console.log("pmc", pmc);
 
   useEffect(() => {
     if (pmc) {
-      console.log(55555);
-
       // deposit + stake example
       pmc.push("depositToken", "transferFrom", [address, proxyAddress, "1"]);
       pmc.push("depositToken", "approve", [VAULT_ADDRESS, "1"]);
@@ -133,7 +129,6 @@ export default function Proxy(): JSX.Element {
   });
 
   const { data: data2, isSuccess: isSuccess2, write: write2, isLoading: isLoading2 } = useContractWrite(config2);
-  console.log("write2", write2);
 
   const { config: config3 } = usePrepareContractWrite({
     address: DEPOSIT_TOKEN_ADDRESS,
@@ -143,7 +138,6 @@ export default function Proxy(): JSX.Element {
   });
 
   const { data: data3, write: write3 } = useContractWrite(config3);
-  console.log("write3", write3);
 
   return (
     <div>
