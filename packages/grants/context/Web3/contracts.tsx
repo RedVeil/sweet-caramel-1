@@ -18,7 +18,7 @@ import activateRPCNetwork from "helper/activateRPCNetwork";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { setSingleActionModal } from "../actions";
 import { store } from "../store";
-import { useNamedAccounts } from "@popcorn/components";
+import { useNamedAccounts } from "../../../components";
 
 export interface Contracts {
   staking?: GovStaking;
