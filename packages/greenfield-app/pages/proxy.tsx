@@ -129,7 +129,7 @@ export default function Proxy(): JSX.Element {
     args: [proxyAddress, ethers.utils.parseEther("100")],
   });
 
-  const { data: data3, write: write3 } = useContractWrite(config3);
+  const { write: write3 } = useContractWrite(config3);
 
   return (
     <div>
