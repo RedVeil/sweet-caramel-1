@@ -1,43 +1,21 @@
 import { JsonRpcProvider } from "@ethersproject/providers";
 require("../envLoader");
 
-const {
-  ALCHEMY_API_KEYS_ETHEREUM,
-  ALCHEMY_API_KEYS_POLYGON,
-  ALCHEMY_API_KEYS_ARBITRUM,
-  ALCHEMY_API_KEYS_OPTIMISM,
-  BNB_RPC_URLS,
-} = process.env;
+const { ALCHEMY_API_KEYS, BNB_RPC_URLS } = process.env;
 
 const config = {
-  eth_base_url: "https://eth-mainnet.alchemyapi.io/v2/",
-  poly_base_url: "https://polygon-mainnet.g.alchemy.com/v2/",
-  arb_base_url: "https://arb-mainnet.g.alchemy.com/v2/",
+  ethereum_base_url: "https://eth-mainnet.alchemyapi.io/v2/",
+  polygon_base_url: "https://polygon-mainnet.g.alchemy.com/v2/",
+  arbitrum_base_url: "https://arb-mainnet.g.alchemy.com/v2/",
   bnb_base_url: "https://withered-wild-feather.bsc.quiknode.pro/",
-  op_base_url: "https://opt-mainnet.g.alchemy.com/v2/",
+  optimism_base_url: "https://opt-mainnet.g.alchemy.com/v2/",
   bnb_rpc_urls: BNB_RPC_URLS?.split(","),
-  eth_keys: ALCHEMY_API_KEYS_ETHEREUM?.split(","),
-  arb_keys: ALCHEMY_API_KEYS_ARBITRUM?.split(","),
-  poly_keys: ALCHEMY_API_KEYS_POLYGON?.split(","),
-  op_keys: ALCHEMY_API_KEYS_OPTIMISM?.split(","),
 };
 
 export const PROVIDERS = {
-  ethereum: [
-    new JsonRpcProvider(`${config.eth_base_url}${config.eth_keys[0]}`),
-    new JsonRpcProvider(`${config.eth_base_url}${config.eth_keys[1]}`),
-  ],
-  polygon: [
-    new JsonRpcProvider(`${config.poly_base_url}${config.poly_keys[0]}`),
-    new JsonRpcProvider(`${config.poly_base_url}${config.poly_keys[1]}`),
-  ],
-  arbitrum: [
-    new JsonRpcProvider(`${config.arb_base_url}${config.arb_keys[0]}`),
-    new JsonRpcProvider(`${config.arb_base_url}${config.arb_keys[1]}`),
-  ],
-  bnb: [new JsonRpcProvider(`${config.bnb_rpc_urls[0]}`), new JsonRpcProvider(`${config.bnb_rpc_urls[1]}`)],
-  optimism: [
-    new JsonRpcProvider(`${config.op_base_url}${config.op_keys[0]}`),
-    new JsonRpcProvider(`${config.op_base_url}${config.op_keys[1]}`),
-  ],
+  ethereum: ALCHEMY_API_KEYS.split(",").map((key) => new JsonRpcProvider(config.ethereum_base_url + key)),
+  polygon: ALCHEMY_API_KEYS.split(",").map((key) => new JsonRpcProvider(config.polygon_base_url + key)),
+  arbitrum: ALCHEMY_API_KEYS.split(",").map((key) => new JsonRpcProvider(config.arbitrum_base_url + key)),
+  bnb: BNB_RPC_URLS.split(",").map((url) => new JsonRpcProvider(url)),
+  optimism: ALCHEMY_API_KEYS.split(",").map((key) => new JsonRpcProvider(config.optimism_base_url + key)),
 };

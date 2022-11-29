@@ -15,7 +15,7 @@ const getHolders = async (tokenAddress, startBlock, provider: JsonRpcProvider[])
 
   const currentBlock = await provider[0].getBlockNumber();
   console.log({ currentBlock });
-
+  const randomProvider = () => provider[Math.floor(Math.random() * provider.length)];
   const contract = () =>
     new Contract(
       tokenAddress,
@@ -24,7 +24,7 @@ const getHolders = async (tokenAddress, startBlock, provider: JsonRpcProvider[])
           ? "event Transfer(address indexed _from, address indexed _to, uint256 _amount)"
           : "event Transfer(address indexed from, address indexed to, uint256 value)",
       ],
-      currentBlock % 2 ? provider[0] : provider[1],
+      randomProvider(),
     );
 
   const getHolderBatch = async (_startBlock) => {
