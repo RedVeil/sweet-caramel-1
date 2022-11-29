@@ -37,7 +37,10 @@ const BeneficiaryApplications = () => {
       label: ApplicationStatus.ChallengePeriod,
       status: [ProposalStatus.ChallengePeriod],
     },
-    { label: ApplicationStatus.Completed, status: [ProposalStatus.Passed, ProposalStatus.Failed, ProposalStatus.PendingFinalization] },
+    {
+      label: ApplicationStatus.Completed,
+      status: [ProposalStatus.Passed, ProposalStatus.Failed, ProposalStatus.PendingFinalization],
+    },
   ];
   const { account, library } = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
@@ -122,10 +125,11 @@ const BeneficiaryApplications = () => {
                     key={type.label}
                     variant={type.status === statusFilter.status ? "primary" : "secondary"}
                     onClick={() => setStatusFilter(type)}
-                    className={`flex-shrink-0 ${type.status === statusFilter.status
-                      ? "!border-0 !bg-[#827D69] !text-white"
-                      : "!border-[#E5E7EB] text-[#55503D] !font-normal"
-                      }`}
+                    className={`flex-shrink-0 ${
+                      type.status === statusFilter.status
+                        ? "!border-0 !bg-[#827D69] !text-white"
+                        : "!border-[#E5E7EB] text-[#55503D] !font-normal"
+                    }`}
                   >
                     {type.label}
                   </Button>
@@ -159,8 +163,9 @@ const BeneficiaryApplications = () => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
-                  className={`!border-[#E5E7EB] !text-sm w-full ${type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
-                    }`}
+                  className={`!border-[#E5E7EB] !text-sm w-full ${
+                    type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
+                  }`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>
