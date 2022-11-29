@@ -42,7 +42,7 @@ export const WalletSelectModal: React.FC<WalletSelectModalProps> = ({
   }, [visible]);
 
   const dismiss = useCallback(() => {
-    setOpen(keepOpen);
+    setOpen(!!keepOpen);
     setTimeout(() => (onDismiss?.onClick ? onDismiss.onClick() : closeModal && closeModal()), 1000);
   }, [closeModal, onDismiss]);
 
@@ -54,6 +54,7 @@ export const WalletSelectModal: React.FC<WalletSelectModalProps> = ({
         as="div"
         static
         className="fixed z-50 inset-0 overflow-y-auto"
+        //@ts-ignore
         initialFocus={cancelButtonRef}
         open={open}
         onClose={() => setOpen(false)}
