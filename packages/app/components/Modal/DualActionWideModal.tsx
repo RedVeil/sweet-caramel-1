@@ -47,12 +47,12 @@ const Example: React.FC<DualActionWideModalProps> = ({
   }, [visible]);
 
   const dismiss = () => {
-    setOpen(keepOpen);
+    setOpen(!!keepOpen);
     setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 500);
   };
 
   const confirm = () => {
-    setOpen(keepOpen);
+    setOpen(!!keepOpen);
     setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 500);
   };
 
@@ -64,6 +64,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
         as="div"
         static
         className="fixed z-50 inset-0 overflow-y-auto"
+        //@ts-ignore
         initialFocus={cancelButtonRef}
         open={open}
         onClose={() => (keepOpen ? {} : setOpen(false))}

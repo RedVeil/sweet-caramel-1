@@ -70,6 +70,7 @@ export const NetworkChangePromptModal: React.FC<NetworkChangePromptModalProps> =
         as="div"
         static
         className="fixed z-70 inset-0 overflow-y-auto"
+        // @ts-ignore
         initialFocus={cancelButtonRef}
         open={open}
         onClose={() => setOpen(false)}
