@@ -23,8 +23,8 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-  // TODO !!!!! How do we make sure that contractRegistry is correct?
-  // We could set it in the factory but than we need to make sure that its initialized by the factory (can we do that via contractRegistry in init?)
+  error NotFactory();
+
   /**
      @notice Initializes the Vault.
      @param asset The ERC20 compliant token the Vault should accept.
@@ -33,6 +33,8 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     __Pausable_init();
     __ERC4626_init(asset);
     __ContractRegistryAccess_init(contractRegistry_);
+
+    if (msg.sender != _getContract(keccak256("VaultsFactory"))) revert NotFactory();
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
