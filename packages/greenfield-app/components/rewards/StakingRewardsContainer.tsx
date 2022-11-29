@@ -14,11 +14,18 @@ interface StakingRewardsContainerProps {
 export default function StakingRewardsContainer({ selectedNetworks }: StakingRewardsContainerProps): JSX.Element {
   const { account } = useWeb3();
   const stakingAddresses = useAllStakingAddresses();
-  const { loading, sum, add, reset } = useSum({ expected: stakingAddresses.length });
+  const [displayAddresses, setDisplayAddresses] = useState(stakingAddresses);
+  const { loading, sum, add, reset } = useSum({ expected: displayAddresses.length });
 
   useEffect(() => {
     reset();
   }, [account, selectedNetworks]);
+
+  useEffect(() => {
+    if (stakingAddresses && stakingAddresses.length > 0) {
+      setDisplayAddresses(stakingAddresses?.filter((pool) => selectedNetworks.includes(pool.chainId)));
+    }
+  }, [selectedNetworks]);
 
   return (
     <>
@@ -29,20 +36,17 @@ export default function StakingRewardsContainer({ selectedNetworks }: StakingRew
           image="/images/emptyRecord.svg"
         />
       </div>
-      {stakingAddresses &&
-        stakingAddresses.length > 0 &&
-        stakingAddresses
-          ?.filter((pool) => selectedNetworks.includes(pool.chainId))
-          .map((staking) => (
-            <div key={staking?.chainId + staking?.address}>
-              <ClaimCard
-                chainId={staking?.chainId}
-                stakingAddress={staking?.address}
-                stakingType={staking?.stakingType}
-                addEarned={add}
-              />
-            </div>
-          ))}
+      {displayAddresses.map((staking) => (
+        <div key={staking?.chainId + staking?.address}>
+          <ClaimCard
+            chainId={staking?.chainId}
+            stakingAddress={staking?.address}
+            stakingType={staking?.stakingType}
+            addEarned={add}
+            isNotAvailable={!loading && sum?.eq(constants.Zero)}
+          />
+        </div>
+      ))}
     </>
   );
 }

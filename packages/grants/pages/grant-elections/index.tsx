@@ -75,7 +75,7 @@ export default function GrantOverview(): JSX.Element {
                                   <XIcon className="flex-shrink-0 h-6 w-6 text-red-500" />
                                 )) || <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />}
                             </div>
-                            <p className="ml-3 text-base font-medium text-gray-500">
+                            <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                               Election is {elections && elections[0]?.electionStateStringLong}.
                             </p>
                           </li>
@@ -84,7 +84,7 @@ export default function GrantOverview(): JSX.Element {
                             <div className="flex-shrink-0">
                               <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />
                             </div>
-                            <p className="ml-3 text-base font-medium text-gray-500">
+                            <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                               Receive POP tokens for participating
                             </p>
                           </li>
@@ -136,7 +136,7 @@ export default function GrantOverview(): JSX.Element {
                           <div className="flex-shrink-0">
                             <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />
                           </div>
-                          <p className="ml-3 text-base font-medium text-gray-500">
+                          <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                             Our profits this year will fund organizations of <em>your</em> choice
                           </p>
                         </li>
@@ -148,7 +148,7 @@ export default function GrantOverview(): JSX.Element {
                                 <XIcon className="flex-shrink-0 h-6 w-6 text-red-500" />
                               )) || <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />}
                           </div>
-                          <p className="ml-3 text-base font-medium text-gray-500">
+                          <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                             Election is {elections && elections[2]?.electionStateStringLong}.
                           </p>
                         </li>
@@ -157,7 +157,7 @@ export default function GrantOverview(): JSX.Element {
                           <div className="flex-shrink-0">
                             <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />
                           </div>
-                          <p className="ml-3 text-base font-medium text-gray-500">
+                          <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                             Receive POP tokens for participating
                           </p>
                         </li>
@@ -166,7 +166,7 @@ export default function GrantOverview(): JSX.Element {
                           <div className="flex-shrink-0">
                             <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />
                           </div>
-                          <p className="ml-3 text-base font-medium text-gray-500">
+                          <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                             Support the environment, education and open source initiatives globally
                           </p>
                         </li>
@@ -209,7 +209,7 @@ export default function GrantOverview(): JSX.Element {
                             <div className="flex-shrink-0">
                               <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />
                             </div>
-                            <p className="ml-3 text-base font-medium text-gray-500">
+                            <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                               Vote for your favorite social impact organizations to receive a share of fees earned this
                               quarter
                             </p>
@@ -231,7 +231,7 @@ export default function GrantOverview(): JSX.Element {
                             <div className="flex-shrink-0">
                               <CheckIcon className="flex-shrink-0 h-6 w-6 text-green-500" />
                             </div>
-                            <p className="ml-3 text-base font-medium text-gray-500">
+                            <p className="ml-3 text-base font-medium text-gray-500 leading-[140%]">
                               Receive POP tokens for participating
                             </p>
                           </li>

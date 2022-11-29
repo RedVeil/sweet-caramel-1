@@ -87,7 +87,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
   }
 
   return (
-    <div className="text-left text-base text-gray-900 relative">
+    <div className="text-left text-base text-gray-900 relative -my-6">
       <div className="flex justify-between">
         <div className="basis-11/12 md:basis-9/12">
           <p className="text-base text-primaryDark">
@@ -117,9 +117,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
             min={0}
             max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
             onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
-            disabled={
-              !account || allowance?.eq(constants.Zero) || allowance?.lt(popToLock ?? constants.Zero) || hasExpired
-            }
+            disabled={!account}
             size="small"
             step={1}
             valueLabelDisplay="off"

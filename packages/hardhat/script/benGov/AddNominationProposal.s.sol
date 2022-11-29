@@ -18,8 +18,8 @@ bytes32 constant DEFAULT_REGION = 0xf2208c967df089f60420785795c0a9ba8896b0f6f186
 /// 8-18 - Unused
 contract AddProposal is Script {
   BeneficiaryGovernance internal beneficiaryGovernance =
-    BeneficiaryGovernance(0x62B00B60D1f4042B3474900BA3fd548fc553205f);
-  ERC20PresetMinterPauser internal pop = ERC20PresetMinterPauser(0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e);
+    BeneficiaryGovernance(0xCa57C1d3c2c35E667745448Fef8407dd25487ff8); // you must enter the new address from deployment here
+  ERC20PresetMinterPauser internal pop = ERC20PresetMinterPauser(0xFC4EE541377F3b6641c23CBE82F6f04388290421); // you must enter the new address from deployment here
 
   string[19] internal cids = [
     "QmSzq4gKUk9LhNNCFBVDbkkz26umqu63jx2dXNABBKcgJ9",
@@ -46,6 +46,7 @@ contract AddProposal is Script {
   function run() external {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     vm.startBroadcast(deployerPrivateKey);
+    pop.mint(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 200000000000000000000000000000000);
     pop.approve(address(beneficiaryGovernance), 200000000000000000000000000000000);
     for (uint256 i; i < 1; i++) {
       beneficiaryGovernance.createProposal(

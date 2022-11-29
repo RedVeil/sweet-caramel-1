@@ -85,7 +85,7 @@ const CardBody: React.FC<CardBodyProps> = ({
           <p className="text-xl font-semibold text-gray-900 line-clamp-title leading-8 overflow-hidden">
             {organizationName}
           </p>
-          <p className="mt-3 text-base text-gray-500 font-light line-clamp">{missionStatement}</p>
+          <p className="mt-3 text-base text-gray-500 font-light line-clamp leading-[140%]">{missionStatement}</p>
         </div>
       </div>
       {isApplication && (

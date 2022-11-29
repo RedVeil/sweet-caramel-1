@@ -104,7 +104,7 @@ const GeneralInformation: React.FC<GeneralInformationProps> = ({ form, isEdit = 
         />
       </div>
 
-      <form className="mt-32">
+      <form className="mt-20 md:mt-32">
         <div className="mb-10">
           <label htmlFor="org-name" className="block  text-black leading-5">
             Organization Name
