@@ -142,7 +142,7 @@ export const MobileMenu: React.FC = () => {
                     <div>
                       <div className="grid grid-cols-12 mt-12">
                         <div className="col-span-6">
-                          <p className="text-gray-900 font-medium leading-6 tracking-1">Links</p>
+                          <p className="text-gray-900 font-medium leading-[140%] tracking-1">Links</p>
                           <div className="flex flex-col">
                             <Link href="/" className=" text-primary leading-6 mt-4">
                               Popcorn
@@ -158,7 +158,7 @@ export const MobileMenu: React.FC = () => {
                         </div>
 
                         <div className="col-span-6">
-                          <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
+                          <p className="text-gray-900 font-medium leading-[140%] tracking-1">Bug Bounty</p>
                           <div className="flex flex-col">
                             <Link href="/immunefi" className=" text-primary leading-6 mt-4">
                               Immunefi
@@ -216,7 +216,7 @@ export const MobileMenu: React.FC = () => {
                       <button className="absolute -left-3 transform -translate-y-1/2 top-1/2">
                         <ChevronLeftIcon className="text-black h-10" onClick={() => setShowVoteMenu(false)} />
                       </button>
-                      <p className="text-black text-center font-medium">Vote Now</p>
+                      <p className="text-black text-center font-medium leading-[140%]">Vote Now</p>
                       <div />
                     </div>
                     <ul className="flex flex-col gap-10 justify-center" style={{ height: "95%" }}>
@@ -238,7 +238,7 @@ export const MobileMenu: React.FC = () => {
 
       <PopUpModal visible={showPopUp} onClosePopUpModal={() => setSowPopup(false)}>
         <div className="py-4">
-          <p className="mb-2">{account ? "Disconnect from" : "Connect to"} wallet</p>
+          <p className="mb-2 leading-[140%]">{account ? "Disconnect from" : "Connect to"} wallet</p>
           <Button
             variant={account ? "secondary" : "primary"}
             className="w-full"

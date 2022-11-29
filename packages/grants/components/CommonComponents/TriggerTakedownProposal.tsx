@@ -44,12 +44,15 @@ const TriggerTakedownProposal: React.FC = () => {
         </button>
         <InfoIconWithModal title="What is a Takedown Proposal?">
           <div>
-            <p>Triggering a Takedown Proposal begins the process to remove an organization from Popcorn.</p> <br />
+            <p className="leading-[140%]">
+              Triggering a Takedown Proposal begins the process to remove an organization from Popcorn.
+            </p>{" "}
+            <br />
             <p>
               This need may be required if the organization's actions violate the principles and values stated in the
               Popcorn Foundation charter.{" "}
             </p>
-            <p>
+            <p className="leading-[140%]">
               In the event that an eligible beneficiary violates the principles and values in the Popcorn Foundation
               charter, or if allocation of funds is not consistent with the charter’s criteria, a Beneficiary Takedown
               Proposal may be raised, which upon successful execution will remove a beneficiary address from the

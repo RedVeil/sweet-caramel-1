@@ -53,7 +53,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await deployments.get("BeneficiaryRegistry")
     ).address
   );
-  const testPop = await hre.ethers.getContractAt("MockERC20", (await deployments.get("TestPOP")).address);
+  const testPop = await hre.ethers.getContractAt("MockERC20", (await deployments.get("POP")).address);
   const govStaking = await hre.ethers.getContractAt("GovStaking", (await deployments.get("GovStaking")).address);
   const beneficiaryGovernance = await hre.ethers.getContractAt(
     "BeneficiaryGovernance",
@@ -84,9 +84,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await (async function setupBenefifiaries() {
     console.log("Setting up Beneficiaries");
     await aclRegistry.grantRole(ethers.utils.id("BeneficiaryGovernance"), deployer.address);
-    await contractRegistry.addContract(ethers.utils.id("POP"), testPop.address, ethers.utils.id("1"), {
-      gasLimit: 1000000,
-    });
     // Give Eth to Beneficiaries
     await Promise.all(
       accounts.map(async (beneficiary) => {
@@ -102,12 +99,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // Add beneficiaries to Registry
     await Promise.all(
       existingBeneficiaries.map((account) =>
-        beneficiaryRegistry.addBeneficiary(
-          account.address,
-          DEFAULT_REGION,
-          getBytes32FromIpfsHash(ADDRESS_CID_MAP[account.address]),
-          { gasLimit: 3000000 }
-        )
+        beneficiaryRegistry.addBeneficiary(account.address, DEFAULT_REGION, ADDRESS_CID_MAP[account.address], {
+          gasLimit: 3000000,
+        })
       )
     );
   })();
@@ -373,6 +367,7 @@ main.dependencies = [
   "beneficiary-governance",
   "beneficiary-registry",
   "grant-elections",
+  "faucet",
 ];
 main.tags = ["core", "beneficiary-governance-demo-data"];
 
@@ -393,13 +388,9 @@ async function addProposals(
       console.log("Adding beneficiary proposal", beneficiary.address, "with type", proposalType);
       const receipt = await beneficiaryGovernance
         .connect(beneficiary)
-        .createProposal(
-          beneficiary.address,
-          region,
-          getBytes32FromIpfsHash(ADDRESS_CID_MAP[beneficiary.address]),
-          proposalType,
-          { gasLimit: 3000000 }
-        )
+        .createProposal(beneficiary.address, region, ADDRESS_CID_MAP[beneficiary.address], proposalType, {
+          gasLimit: 3000000,
+        })
         .then((res) => res.wait(1));
       return getCreatedProposalId(receipt, ethers.provider);
     })

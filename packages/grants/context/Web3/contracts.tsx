@@ -18,7 +18,7 @@ import activateRPCNetwork from "helper/activateRPCNetwork";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { setSingleActionModal } from "../actions";
 import { store } from "../store";
-import { useNamedAccounts } from "@popcorn/hooks";
+import { useNamedAccounts } from "../../../components";
 
 export interface Contracts {
   staking?: GovStaking;
@@ -54,7 +54,7 @@ function getErrorMessage(error: Error) {
 
 const initializeContracts = (contractAddresses: any[], library: Web3Provider): Contracts => {
   const _contracts = contractAddresses.reduce(
-    (contracts, contract) => ({ ...contracts, [contract.__alias]: contractAddresses[contract] }),
+    (contracts, contract) => ({ ...contracts, [contract.__alias]: contract.address }),
     {},
   );
 
@@ -117,17 +117,12 @@ export default function ContractsWrapper({ children }: ContractsWrapperProps): J
   ]);
 
   useEffect(() => {
-    console.log({ contractAddresses });
-    if (
-      !!library &&
-      !!chainId &&
-      contractAddresses.length &&
-      typeof error === undefined &&
-      Object.entries(contracts).length
-    ) {
+    if (!library || !chainId) {
+      setContracts({});
+    } else {
       setContracts(initializeContracts(contractAddresses, library));
     }
-  }, [library, active, chainId, contractAddresses, error]);
+  }, [library, active, chainId]);
 
   return (
     <ContractsContext.Provider

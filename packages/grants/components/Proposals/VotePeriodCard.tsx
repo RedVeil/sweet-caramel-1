@@ -19,8 +19,8 @@ const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startT
     setChallengePeriodEndDate(DateTime.fromJSDate(challengePeriodEnd).toLocaleString(DateTime.DATE_SHORT));
     const interval = setInterval(() => {
       if (stageDeadline && timeLeftProgress < 100) {
-        const startDateTime = startTime.getTime();
-        const endTime = stageDeadline.getTime();
+        const startDateTime = startTime?.getTime();
+        const endTime = stageDeadline?.getTime();
         const currentTime = new Date().getTime();
         const distanceWhole = startDateTime - endTime;
         const distanceLeft = startDateTime - currentTime;

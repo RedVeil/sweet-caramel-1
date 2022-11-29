@@ -19,10 +19,10 @@ const VotingProgress: React.FC<ProgressProps> = ({ progress, labels }) => {
         ></div>
       </div>
       <div className="flex justify-between mt-4">
-        <p className="text-tokenTextGray leading-5">
+        <p className="text-tokenTextGray leading-[140%]">
           {progress}% {labels[0]}
         </p>
-        <p className="text-tokenTextGray leading-5">
+        <p className="text-tokenTextGray leading-[140%]">
           {100 - progress}% {labels[1]}
         </p>
       </div>

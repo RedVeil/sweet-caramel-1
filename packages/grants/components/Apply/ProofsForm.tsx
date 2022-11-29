@@ -28,7 +28,7 @@ const ProofsForm: React.FC<ProofProps> = ({ form, isEdit = false }) => {
           <label htmlFor="ownership-url" className="block  text-black leading-5 mb-2">
             Please share proof of ownership
           </label>
-          <p className=" text-secondaryDark leading-4 mb-4">
+          <p className=" text-secondaryDark leading-[140%] mb-4">
             Share a URL on the beneficiary’s website or a tweet on the beneficiary’s official Twitter account that
             contains the Ethereum address shared in Step 1
           </p>

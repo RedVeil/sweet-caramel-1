@@ -34,7 +34,7 @@ export const BeneficiaryGrid: React.FC<IBeneficiaryGridProps> = (props) => {
         {!isLoading && data.length <= 0 ? (
           <div className="col-span-12">
             <NotFoundError image="/images/no-beneficiaries.svg" title="There are no Eligible Beneficiaries currently">
-              <p className="text-primaryDark">
+              <p className="text-primaryDark leading-[140%]">
                 Check back at a later date or follow our{" "}
                 <a href="https://discord.gg/w9zeRTSZsq" target="_blank" className="text-[#9B55FF]">
                   Discord

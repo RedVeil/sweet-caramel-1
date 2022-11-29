@@ -72,13 +72,17 @@ const ApplyForm = () => {
 
   useEffect(() => {
     const formData = localStorage.getItem("beneficiaryApplicationForm");
-    if (formData !== null) setFormData(JSON.parse(formData));
-    const currentStep: FormSteps = parseInt(localStorage.getItem("beneficiaryApplicationStep"));
-    if (currentStep) setActiveForm(currentStep);
+    if (formData !== null) {
+      setFormData(JSON.parse(formData));
+      const currentStep: FormSteps = parseInt(localStorage.getItem("beneficiaryApplicationStep"));
+      if (currentStep) setActiveForm(currentStep);
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("beneficiaryApplicationForm", JSON.stringify(formData));
+    if (formData.organizationName) {
+      localStorage.setItem("beneficiaryApplicationForm", JSON.stringify(formData));
+    }
   }, [formData]);
 
   const errorMessages = {
@@ -152,7 +156,7 @@ const ApplyForm = () => {
   const loading = () => toast.loading("Uploading to IPFS...");
 
   const checkPreConditions = useCallback(async (): Promise<boolean> => {
-    console.log("calling this function");
+    dispatch(setSingleActionModal(false));
     if (!account) {
       activate(connectors.Injected);
     }
@@ -161,7 +165,6 @@ const ApplyForm = () => {
     }
     const balance = await contracts?.pop?.balanceOf(account);
     if (proposalBond?.gt(balance)) {
-      dispatch(setSingleActionModal(false));
       dispatch(
         setSingleActionModal({
           image: <img src="/images/accept.svg" alt="not enough pop" />,

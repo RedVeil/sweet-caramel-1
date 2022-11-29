@@ -16,7 +16,7 @@ export interface UploadResult {
 
 export const IpfsClient: IIpfsClient = {
   get: async <T>(cid: string): Promise<T> => {
-    return fetch(`${process.env.IPFS_URL}${getIpfsHashFromBytes32(cid)}`).then((response) => response.json());
+    return fetch(`${process.env.IPFS_URL}${cid}`).then((response) => response.json());
   },
 
   add: async <T>(object: T): Promise<string> => {

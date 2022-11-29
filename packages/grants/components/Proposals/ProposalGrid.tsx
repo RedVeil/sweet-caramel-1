@@ -15,8 +15,8 @@ export interface ProposalGridProps {
   proposalType: ProposalType;
 }
 
-const proposalStatuses: proposalStatus[] = ["Open", "Challenge", "Completed", "Passed", "Failed", "All"];
-type proposalStatus = "Open" | "Challenge" | "Completed" | "Passed" | "Failed" | "All";
+const proposalStatuses: proposalStatus[] = ["New", "ChallengePeriod", "PendingFinalization", "Passed", "Failed", "All"];
+type proposalStatus = "New" | "ChallengePeriod" | "PendingFinalization" | "Passed" | "Failed" | "All";
 
 const ProposalGrid: React.FC<ProposalGridProps> = ({ proposalType }) => {
   const { dispatch } = useContext(store);
@@ -30,7 +30,7 @@ const ProposalGrid: React.FC<ProposalGridProps> = ({ proposalType }) => {
     })
     .filter((proposal: Proposal) => {
       const proposalStatus = proposal?.status;
-      if (statusFilter === ProposalStatus.Completed) {
+      if (statusFilter === ProposalStatus.Passed || ProposalStatus.Failed) {
         return proposalStatus === ProposalStatus.Passed || proposalStatus === ProposalStatus.Failed;
       }
       return proposalStatus === statusFilter || statusFilter === ProposalStatus.All;

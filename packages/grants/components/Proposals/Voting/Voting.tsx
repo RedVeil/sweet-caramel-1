@@ -10,9 +10,9 @@ const Voting: React.FC<VotingProps> = ({ proposal, hasVoted = false }): JSX.Elem
   console.log(Object.keys(proposal));
   return (
     <div>
-      {proposal?.status === ProposalStatus.Open ? (
+      {proposal?.status === ProposalStatus.New ? (
         <OpenVoting proposal={proposal} hasVoted={hasVoted} />
-      ) : proposal?.status === ProposalStatus.Challenge ? (
+      ) : proposal?.status === ProposalStatus.ChallengePeriod ? (
         <ChallengePeriodVoting proposal={proposal} hasVoted={hasVoted} />
       ) : (
         <CompletedVoting {...proposal} />
