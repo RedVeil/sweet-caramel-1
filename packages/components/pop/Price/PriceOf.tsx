@@ -1,19 +1,15 @@
-import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { usePrice } from "./hooks/usePrice";
-import { useNamedAccounts } from "../utils";
-import { Pop } from "../types";
+import { BigNumberWithFormatted, Pop } from "../types";
+import withLoading from "../utils/hocs/withLoading";
 
+const eth_call =
+  (Component: Pop.FC<BigNumberWithFormatted>) =>
+    ({ ...props }: Pop.BaseContractProps) => {
+      const { data, status } = usePrice({ ...props });
+      return <Component {...props} data={data} status={status} />;
+    };
 
-interface PriceProps {
-  resolver?: string;
-}
-
-export const PriceOf: Pop.FC<PriceProps> = ({ address, chainId, resolver }) => {
-  const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
-
-  const { data } = usePrice({ address, chainId, resolver: resolver || metadata?.priceResolver });
-
-  return <>{data?.value && `$${formatAndRoundBigNumber(data?.value, data?.decimals)}`}</>;
-};
+export const PriceOf = eth_call(withLoading(({ data }) => <>${data?.formatted || "0"}</>));
 
 export default PriceOf;
+

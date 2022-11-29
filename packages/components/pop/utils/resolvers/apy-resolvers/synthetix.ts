@@ -26,38 +26,17 @@ export async function synthetix(address, chainId, rpc?): Promise<{ value: BigNum
   ]);
 
   console.log({ address, rewardsDuration, rewardForDuration, totalSupply, stakingToken, rewardsToken });
-  let stakingTokenMetadata, rewardsTokenMetadata;
-  try {
-    [stakingTokenMetadata, rewardsTokenMetadata] = getNamedAccounts(chainId.toString() as any, [
-      stakingToken as any,
-      rewardsToken as any,
-    ]);
-    console.log({ OOOOO: true, stakingTokenMetadata, rewardsTokenMetadata, stakingToken, rewardsToken });
-  } catch (e) {
-    console.log({ CUSTOM_ERROR: e });
-  }
+  const [stakingTokenMetadata, rewardsTokenMetadata] = getNamedAccounts(chainId.toString() as any, [
+    stakingToken as any,
+    rewardsToken as any,
+  ]);
+
   const [stakingTokenPrice, rewardsTokenPrice] = await Promise.all([
     resolve_price({ address: stakingToken, chainId, rpc }),
     resolve_price({ address: rewardsToken, chainId, rpc }),
   ]);
 
-  console.log({
-    address,
-    stakingTokenPrice,
-    rewardsTokenPrice,
-    stakingTokenMetadata,
-    rewardsTokenMetadata,
-    PPPPPP: "XXXXXX",
-  });
   const totalSupplyValue = totalSupply.mul(stakingTokenPrice.value).div(parseUnits("1", stakingTokenPrice.decimals));
-
-  console.log({
-    stakingTokenMetadata,
-    rewardsTokenMetadata,
-    totalSupplyValue,
-    stakingTokenPrice,
-    rewardsTokenPrice,
-  });
 
   const rewardsValuePerPeriod = rewardForDuration
     .mul(rewardsTokenPrice.value)
@@ -69,7 +48,7 @@ export async function synthetix(address, chainId, rpc?): Promise<{ value: BigNum
 
   const apy = rewardsValuePerYear.mul(parseEther("100")).div(totalSupplyValue);
 
-  console.log({
+  console.debug({
     apy: { formatted: formatEther(apy), value: apy },
     totalSupplyValue: { formatted: formatEther(totalSupplyValue), value: totalSupplyValue },
     rewardsValuePerPeriod: { formatted: formatEther(rewardsValuePerPeriod), value: rewardsValuePerPeriod },

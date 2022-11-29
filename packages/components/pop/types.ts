@@ -9,13 +9,14 @@ export namespace Pop {
 
   export type HookResult<T = unknown> = UseQueryResult<T>;
 
+  // todo:   export type Hook<Props = BaseContractProps> = <K>(props: FCProps<Props> & Props) => HookResult<K>;
   export type Hook<T extends any, Props = BaseContractProps, K extends any = ReturnType<(...args: any) => T>> = <R>(
     props: FCProps<Props> & Props,
   ) => HookResult<K>;
 
   export interface UseQueryResult<T> {
     data?: T;
-    status: "idle" | "loading" | "success" | "error";
+    status: "idle" | "loading" | "success" | "error" | undefined;
   }
 
   export interface Address {

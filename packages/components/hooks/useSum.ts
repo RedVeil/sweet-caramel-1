@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { BigNumber, constants } from "ethers";
-import useLog from "./utils/useLog";
+import useLog from "../pop/utils/hooks/useLog";
 
 export const useSum = ({
   expected,

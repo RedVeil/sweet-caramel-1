@@ -1,15 +1,14 @@
-import { Networth } from "../components";
 import { useNamedAccounts } from "../hooks";
 import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { Escrow, Erc20, Price, Contract } from "../pop";
+import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
 import { Pop } from '../pop/types';
-import { Apy } from "../components/Apy";
+import { Networth } from "../pop/Portfolio/Networth";
 
 
-export const Portfolio: NextPage = () => {
+export const PortfolioPage: NextPage = () => {
   const {
     features: { portfolio: visible },
   } = useFeatures();
@@ -101,7 +100,7 @@ export const Portfolio: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Apy
+          <Staking.Apy
             key={`vAPR`}
             address={token.address}
             chainId={token.chainId}
@@ -119,4 +118,4 @@ export const Portfolio: NextPage = () => {
   );
 };
 
-export default Portfolio;
+export default PortfolioPage;

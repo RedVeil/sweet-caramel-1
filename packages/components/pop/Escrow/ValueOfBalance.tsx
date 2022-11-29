@@ -12,6 +12,7 @@ const eth_call =
       const { data: balance, status: balanceStatus } = useEscrowBalance({ ...props, enabled: idsStatus === "success", escrowIds: ids });
       const { data: price, status: priceStatus } = usePrice(props);
       const { data, status } = useBalanceValue({ ...props, balance: balance?.value, price: price?.value });
+
       return (
         <Component
           {...props}

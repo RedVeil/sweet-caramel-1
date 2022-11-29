@@ -4,12 +4,13 @@ import { Pop } from "../../types";
 export const popHookAdapter = (response: SWRResponse): Pop.HookResult<SWRResponse["data"]> => {
   return {
     data: response.data,
-    status: !(response.data && response.isValidating)
-      ? "idle"
-      : response.isValidating && !response.data
-      ? "loading"
-      : response.error
-      ? "error"
-      : "success",
+    status:
+      !response.data && !response.isValidating
+        ? "idle"
+        : response.isValidating && !response.data
+        ? "loading"
+        : response.error
+        ? "error"
+        : "success",
   };
 };

@@ -5,10 +5,11 @@ import { BigNumberWithFormatted, Pop } from "../types";
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
     ({ ...props }: Pop.BaseContractProps & { resolver?: string }) => {
+      // TODO - add a tvlResolver for escrow and staking contracts
       const { data, status } = useTvl(props);
       return <Component {...props} data={data} status={status} />;
     };
 
-export const Tvl = eth_call(withLoading(({ data, status }) => <>{data?.formatted} {status} Component: Tvl</>));
+export const Tvl = eth_call(withLoading(({ data }) => <>{data?.formatted}</>));
 
 export default Tvl;

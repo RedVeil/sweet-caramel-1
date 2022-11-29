@@ -1,8 +1,7 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
-import { useNetworth } from "../hooks/portfolio/useNetworth";
-import { PortfolioState, UpdateNetworthActionProps } from "../reducers/portfolio";
-import { BigNumber, constants } from "ethers";
-import { useComponentState } from "../hooks/useComponentState";
+import { UpdateNetworthActionProps } from "../../reducers/portfolio";
+import { constants } from "ethers";
+import { useComponentState } from "../utils/hooks/useComponentState";
 
 interface NetworthProps {
   expected: number;

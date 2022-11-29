@@ -1,7 +1,7 @@
 import { useToken as _useToken } from "wagmi";
 import { Pop } from "../../types";
 import useNamedAccounts from "../../../hooks/useNamedAccounts";
-import useLog from "../../../hooks/utils/useLog";
+import useLog from "../../utils/hooks/useLog";
 
 /**
  * useContractMetadata will return metadata from namedAccounts.json and merge it with fetched ERC20 metadata.
