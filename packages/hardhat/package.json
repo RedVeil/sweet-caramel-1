@@ -6,7 +6,7 @@
   "scripts": {
     "build": "yarn clean && yarn hardhat compile && yarn export",
     "dev": "yarn hardhat node --network hardhat --export ./lib/utils/exporter/out/hardhat-deployment.json",
-    "dev-grants": "yarn hardhat node --tags beneficiary-governance,test-pop,region,participation-reward,gov-staking,beneficiary-registry,export --network hardhat --export ./lib/utils/exporter/out/hardhat-deployment.json",
+    "dev-grants": "yarn hardhat node --tags beneficiary-governance,test-pop,region,rewards-manager,participation-reward,gov-staking,beneficiary-registry,beneficiary-governance-demo-data,export --network hardhat --export ./lib/utils/exporter/out/hardhat-deployment.json",
     "export": "cd lib/utils/exporter; /bin/sh export_all.sh",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "clean": "rimraf ./cache & rimraf ./artifacts & rimraf ./typechain",
@@ -81,7 +81,7 @@
     "ts-generator": "0.1.1",
     "ts-node": "9.1.1",
     "typechain": "5.2.0",
-    "typescript": "4.5.4",
+    "typescript": "4.8.4",
     "web3-eth-abi": "1.2.6"
   },
   "license": "AGPL-3.0"
