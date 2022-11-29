@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 
 export namespace Pop {
+  export type StdProps = BaseContractProps;
   export type BaseContractProps = Address & ChainId & Partial<Account & Enabled>;
 
   export type FC<T> = React.FC<FCProps<T> & T & Partial<HookResult<T>>>;
@@ -9,10 +10,9 @@ export namespace Pop {
 
   export type HookResult<T = unknown> = UseQueryResult<T>;
 
-  // todo:   export type Hook<Props = BaseContractProps> = <K>(props: FCProps<Props> & Props) => HookResult<K>;
-  export type Hook<T extends any, Props = BaseContractProps, K extends any = ReturnType<(...args: any) => T>> = <R>(
-    props: FCProps<Props> & Props,
-  ) => HookResult<K>;
+  export type Hook<DataReturnValue = unknown> = <Props extends StdProps = StdProps>(
+    props: FCProps<Props>,
+  ) => HookResult<DataReturnValue>;
 
   export interface UseQueryResult<T> {
     data?: T;

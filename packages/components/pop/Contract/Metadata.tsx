@@ -31,7 +31,7 @@ export const Metadata: Pop.FC<ContractProps> = ({ address, chainId, children, al
           <div>{index}: Apy Resolver: {apyResolver || "default"}</div>
           <div>{index}: Balance Resolver: {balanceResolver || "default"}</div>
           <div>{index}: Symbol: {symbol || "n/a"}</div>
-          <div>{index}: Icons: {icons?.length > 0 && `${`[` + icons.join(', ') + `]`}`}</div>
+          <div>{index}: Icons: {icons && icons.length > 0 && `${`[` + icons.join(', ') + `]`}` || ''}</div>
           <div>
             {children?.length && children.map((elem, i) => (<div key={`${i}:${index}`}>{index} : {elem.key} : {elem}</div>))}
           </div>

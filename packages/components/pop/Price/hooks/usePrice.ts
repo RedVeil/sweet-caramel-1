@@ -6,10 +6,10 @@ import { Pop } from "../../types";
 import { popHookAdapter } from "../../utils/hooks/swrPopHookAdapter";
 import { useNamedAccounts } from "../../utils";
 
-interface Props {
+interface Props extends Pop.StdProps {
   resolver?: string;
 }
-export const usePrice: Pop.Hook<{ value: BigNumber; decimals: number }, Props> = ({ address, chainId, resolver }) => {
+export const usePrice: Pop.Hook<{ value: BigNumber; decimals: number }> = ({ address, chainId, resolver }: Props) => {
   const provider = useProvider({ chainId: Number(chainId) });
   const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
   const _resolver = resolver || (metadata?.priceResolver && metadata?.priceResolver) || undefined;

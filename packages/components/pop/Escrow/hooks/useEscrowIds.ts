@@ -6,7 +6,12 @@ import { Pop } from "../../types";
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
  */
-export const useEscrowIds: Pop.Hook<string[], { escrowIds?: string[] }> = ({ chainId, address, account, enabled }) => {
+export const useEscrowIds: Pop.Hook<string[]> = ({
+  chainId,
+  address,
+  account,
+  enabled,
+}: { escrowIds?: string[] } & Pop.StdProps) => {
   const isMounted = useIsMounted();
   const [metadata] = useNamedAccounts(chainId as any, [address]);
   const _enabled = typeof enabled === "boolean" ? enabled : metadata?.balanceResolver === "escrowBalance";
@@ -25,7 +30,7 @@ export const useEscrowIds: Pop.Hook<string[], { escrowIds?: string[] }> = ({ cha
   return {
     data: data as string[],
     status,
-  };
+  } as Pop.HookResult<string[]>;
 };
 
 const ABI = [

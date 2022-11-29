@@ -7,14 +7,14 @@ import { BigNumberWithFormatted, Pop } from "../../types";
 import useNamedAccounts from "../../utils/hooks/useNamedAccounts";
 import { useMultiStatus } from "../../utils/hooks/useMultiStatus";
 
-interface UseTvlProps {
+interface Props {
   chainId: number;
   address: string;
   priceResolver?: string;
   enabled?: boolean;
   resolver?: string;
 }
-export const useTvl: Pop.Hook<BigNumberWithFormatted> = ({ chainId, address, resolver, enabled }: UseTvlProps) => {
+export const useTvl: Pop.Hook<BigNumberWithFormatted> = ({ chainId, address, resolver, enabled }: Props) => {
   const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
   const _priceResolver = resolver || metadata?.priceResolver;
   const _enabled = typeof enabled !== "undefined" ? !!enabled && !!chainId && !!address : !!chainId && !!address;
@@ -45,6 +45,6 @@ export const useTvl: Pop.Hook<BigNumberWithFormatted> = ({ chainId, address, res
       formatted: tvl && price?.decimals ? formatAndRoundBigNumber(tvl, price?.decimals) : undefined,
     },
     status: status,
-  };
+  } as Pop.HookResult<BigNumberWithFormatted>;
 };
 export default useTvl;

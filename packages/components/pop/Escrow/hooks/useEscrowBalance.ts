@@ -1,21 +1,20 @@
 import { constants, BigNumber } from "ethers";
 import { useIsMounted } from "packages/components/hooks/utils/useIsMounted";
-import { BigNumberWithFormatted } from "packages/components/reducers/portfolio";
 import { useContractRead } from "wagmi";
 import useNamedAccounts from "../../../hooks/useNamedAccounts";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
-import { Pop } from "../../types";
+import { Pop, BigNumberWithFormatted } from "../../types";
 
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract
  */
-export const useEscrowBalance: Pop.Hook<BigNumberWithFormatted, { escrowIds?: string[] }> = ({
+export const useEscrowBalance: Pop.Hook<BigNumberWithFormatted> = ({
   chainId,
   address,
   account,
   enabled,
   escrowIds,
-}) => {
+}: { escrowIds?: string[] } & Pop.StdProps) => {
   const isMounted = useIsMounted();
 
   const [metadata] = useNamedAccounts(chainId as any, [address]);
@@ -54,7 +53,7 @@ export const useEscrowBalance: Pop.Hook<BigNumberWithFormatted, { escrowIds?: st
         }
       : undefined,
     status,
-  };
+  } as Pop.HookResult<BigNumberWithFormatted>;
 };
 
 const ABI = [

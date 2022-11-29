@@ -10,15 +10,23 @@ import useLog from "../../utils/hooks/useLog";
  *
  * todo: convert this to useToken hook instead so it's not confused to be used with non-erc20 contracts
  */
-type Props = {
+interface Props extends Pop.StdProps {
   alias?: string;
-};
-export const useContractMetadata: Pop.Hook<Partial<Pop.NamedAccountsMetadata>, Props> = ({
-  chainId,
-  address,
-  enabled,
-  alias,
-}) => {
+}
+interface ContractMetadata {
+  address: string;
+  chainId: string;
+  symbol?: string;
+  priceResolver?: string;
+  apyResolver?: string;
+  balanceResolver?: string;
+  isERC20?: boolean;
+  decimals?: number;
+  name?: string;
+  icons?: string[];
+  alias?: string;
+}
+export const useContractMetadata: Pop.Hook<ContractMetadata> = ({ chainId, address, enabled, alias }: Props) => {
   const [metadata] = useNamedAccounts(chainId.toString() as any, (address && [address]) || []);
 
   useLog({ metadata, address, chainId, enabled, alias });

@@ -8,12 +8,12 @@ import { Pop, BigNumberWithFormatted } from "../../types";
  * useBalanceValue hook is used to calculate the value of an account balance of a given token
  * @returns value of balance in USD terms based on token price
  */
-interface UseBalanceValueProps {
+interface UseBalanceValueProps extends Pop.StdProps {
   price?: BigNumber;
   balance?: BigNumber;
   decimals?: number;
 }
-export const useBalanceValue: Pop.Hook<BigNumberWithFormatted, UseBalanceValueProps> = ({
+export const useBalanceValue: Pop.Hook<BigNumberWithFormatted> = ({
   price,
   balance,
   enabled,
@@ -21,12 +21,12 @@ export const useBalanceValue: Pop.Hook<BigNumberWithFormatted, UseBalanceValuePr
   address,
   chainId,
   decimals = 18,
-}): Pop.HookResult<BigNumberWithFormatted> => {
+}: UseBalanceValueProps) => {
   return useMemo(() => {
     const empty = {
       data: { value: undefined, formatted: undefined },
       status: "idle",
-    } as Pop.HookResult<BigNumberWithFormatted>;
+    };
     if (typeof enabled === "boolean" && !enabled) return empty;
     if (price && balance) {
       const value = balance
@@ -39,5 +39,5 @@ export const useBalanceValue: Pop.Hook<BigNumberWithFormatted, UseBalanceValuePr
       };
     }
     return empty;
-  }, [balance, price, account, address, chainId]);
+  }, [balance, price, account, address, chainId]) as Pop.HookResult<BigNumberWithFormatted>;
 };
