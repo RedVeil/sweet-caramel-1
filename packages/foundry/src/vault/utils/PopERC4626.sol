@@ -287,7 +287,7 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
   //////////////////////////////////////////////////////////////*/
 
   bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
-  bytes32 constant FEE_RECIPIENT = keccak256("VaultFeeRecipient");
+  bytes32 constant FEE_RECIPIENT = keccak256("FeeRecipient");
 
   /**
    * @notice Override for ACLAuth and ContractRegistryAccess.
