@@ -57,9 +57,11 @@
     "nanoid": "^3.1.31",
     "yargs-parser": "^21.1.1",
     "parse-url": "8.1.0",
+    "minimatch": "3.0.5",
     "trim-newlines": "^3.0.1",
     "meow": "^8.0.0",
-    "webpack@>=4.43.0 <6.0.0, webpack@^5.9.0/enhanced-resolve": "5.10.0"
+    "webpack@>=4.43.0 <6.0.0, webpack@^5.9.0/enhanced-resolve": "5.10.0",
+    "ws@>= 7.0.0, webpack@< 7.4.6": "8.11.0"
   },
   "repository": {
     "type": "git",
