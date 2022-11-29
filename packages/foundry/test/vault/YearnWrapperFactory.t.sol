@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import { YearnWrapperFactory } from "../../src/vault/wrapper/yearn/YearnWrapperFactory.sol";
-import { YearnWrapper } from "../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import { YearnWrapperFactory } from "../../src/vault/adapter/yearn/YearnWrapperFactory.sol";
+import { YearnWrapper } from "../../src/vault/adapter/yearn/YearnWrapper.sol";
 import { VaultAPI } from "../../src/interfaces/external/yearn/IVaultAPI.sol";
 
 address constant YEARN_VAULT = 0xE537B5cc158EB71037D4125BDD7538421981E6AA;

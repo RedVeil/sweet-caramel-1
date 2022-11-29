@@ -11,7 +11,7 @@ import "../../src/zapper/VaultsV1Zapper.sol";
 import "../../src/utils/KeeperIncentiveV2.sol";
 import "../../src/vault/VaultsV1Registry.sol";
 import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
-import "../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import "../../src/vault/adapter/yearn/YearnWrapper.sol";
 import "../../src/interfaces/IERC4626.sol";
 
 interface ICurveSETHPool {

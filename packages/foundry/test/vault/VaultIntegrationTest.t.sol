@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/Test.sol";
 import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
 import "../../src/vault/Vault.sol";
-import "../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import "../../src/vault/adapter/yearn/YearnWrapper.sol";
 import "../../src/interfaces/IContractRegistry.sol";
 import "../../src/interfaces/IACLRegistry.sol";
 import "../../src/interfaces/IYearnVaultWrapper.sol";

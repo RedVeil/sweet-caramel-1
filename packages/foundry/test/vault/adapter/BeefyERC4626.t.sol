@@ -3,12 +3,14 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyRewardsForwarder, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster } from "../../../src/vault/wrapper/beefy/BeefyRewardsForwarder.sol";
+import { BeefyRewardsClaimer, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster, IContractRegistry } from "../../../src/vault/adapter/beefy/BeefyRewardsClaimer.sol";
+
+address constant CONTRACT_REGISTRY = 0x078927eF642319963a976008A7B1161059b7E77a;
 
 contract BeefyERC4626Test is Test {
   using Math for uint256;
 
-  BeefyRewardsForwarder erc4626;
+  BeefyRewardsClaimer erc4626;
   ERC20 asset = ERC20(0x8159462d255C1D24915CB51ec361F700174cD994);
   IBeefyVault beefyVault = IBeefyVault(0xF79BF908d0e6d8E7054375CD80dD33424B1980bf);
   IBeefyBooster beefyBooster = IBeefyBooster(0x69C28193185CFcd42D62690Db3767915872bC5EA);
@@ -24,8 +26,16 @@ contract BeefyERC4626Test is Test {
 
     rewardsToken.push(rewardToken);
 
-    erc4626 = new BeefyRewardsForwarder();
-    erc4626.initialize(asset, beefyVault, beefyBooster, 0, feeRecipient, rewardsToken);
+    erc4626 = new BeefyRewardsClaimer();
+    erc4626.initialize(
+      asset,
+      beefyVault,
+      beefyBooster,
+      0,
+      IContractRegistry(CONTRACT_REGISTRY),
+      feeRecipient,
+      rewardsToken
+    );
 
     deal(address(asset), address(this), 1000 ether);
   }

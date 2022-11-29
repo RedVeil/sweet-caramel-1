@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../src/vault/VaultsV1Factory.sol";
 import "../../src/vault/VaultStakingFactory.sol";
-import "../../src/vault/wrapper/yearn/YearnWrapperFactory.sol";
+import "../../src/vault/adapter/yearn/YearnWrapperFactory.sol";
 import { VaultParams } from "../../src/vault/VaultsV1Factory.sol";
 import "../../src/vault/VaultsV1Registry.sol";
 import { VaultMetadata } from "../../src/vault/VaultsV1Registry.sol";
@@ -21,7 +21,7 @@ import "../../src/interfaces/IVaultsV1.sol";
 import "../../src/interfaces/IVaultsV1Zapper.sol";
 import "../../src/interfaces/IRewardsEscrow.sol";
 import "../../src/interfaces/IOwnable.sol";
-import "../../src/vault/wrapper/yearn/YearnWrapper.sol";
+import "../../src/vault/adapter/yearn/YearnWrapper.sol";
 import "../../src/interfaces/IYearnVaultWrapper.sol";
 import "../../src/interfaces/IERC4626.sol";
 

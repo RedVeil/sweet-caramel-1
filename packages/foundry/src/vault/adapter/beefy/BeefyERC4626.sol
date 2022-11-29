@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { PopERC4626, ERC20, SafeERC20, Math } from "../../utils/PopERC4626.sol";
+import { PopERC4626, ERC20, SafeERC20, Math, IContractRegistry } from "../../utils/PopERC4626.sol";
 
 interface IBeefyVault {
   function want() external view returns (ERC20);
@@ -67,29 +67,37 @@ contract BeefyERC4626 is PopERC4626 {
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
+  error InvalidBeefyWithdrawalFee(uint256 fee);
+
   IBeefyVault public beefyVault;
   IBeefyBooster public beefyBooster;
   IBeefyBalanceCheck public beefyBalanceCheck;
 
-  uint256 public withdrawalFee;
+  uint256 public beefyWithdrawalFee;
+  uint256 public constant WITHDRAWAL_MAX = 10000;
 
   /**
      @notice Initializes the Vault.
      @param asset The ERC20 compliant token the Vault should accept.
      @param _beefyVault The Beefy Vault contract.
-     @param _withdrawalFee of the beefyVault in BPS
+     @param _beefyBooster An optional booster contract which rewards additional token for the vault
+     @param _beefyWithdrawalFee beefyStrategy withdrawalFee in 10_000 (BPS)
     */
   function initialize(
     ERC20 asset,
     IBeefyVault _beefyVault,
     IBeefyBooster _beefyBooster,
-    uint256 _withdrawalFee
+    uint256 _beefyWithdrawalFee,
+    IContractRegistry contractRegistry_
   ) public {
-    __PopERC4626_init(asset);
+    __PopERC4626_init(asset, contractRegistry_);
+
+    // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
+    if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
 
     beefyVault = _beefyVault;
     beefyBooster = _beefyBooster;
-    withdrawalFee = _withdrawalFee;
+    beefyWithdrawalFee = _beefyWithdrawalFee;
 
     beefyBalanceCheck = IBeefyBalanceCheck(
       address(_beefyBooster) == address(0) ? address(_beefyVault) : address(_beefyBooster)
@@ -109,11 +117,13 @@ contract BeefyERC4626 is PopERC4626 {
   /// @return The total amount of underlying tokens the Vault holds.
   function totalAssets() public view override returns (uint256) {
     return
-      beefyBalanceCheck.balanceOf(address(this)).mulDiv(
-        beefyVault.balance(),
-        beefyVault.totalSupply(),
-        Math.Rounding.Up
-      );
+      paused()
+        ? ERC20(asset()).balanceOf(address(this))
+        : beefyBalanceCheck.balanceOf(address(this)).mulDiv(
+          beefyVault.balance(),
+          beefyVault.totalSupply(),
+          Math.Rounding.Up
+        );
   }
 
   // takes as argument the internal ERC4626 shares to redeem
@@ -121,6 +131,27 @@ contract BeefyERC4626 is PopERC4626 {
   function convertToBeefyVaultShares(uint256 shares) public view returns (uint256) {
     uint256 supply = totalSupply();
     return supply == 0 ? shares : shares.mulDiv(beefyBalanceCheck.balanceOf(address(this)), supply, Math.Rounding.Up);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  /** @dev See {IERC4262-previewWithdraw}. */
+  function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+    uint256 beefyFee = beefyWithdrawalFee == 0
+      ? 0
+      : assets.mulDiv(beefyWithdrawalFee, WITHDRAWAL_MAX, Math.Rounding.Up);
+
+    return _convertToShares(assets - beefyFee, Math.Rounding.Up);
+  }
+
+  /** @dev See {IERC4262-previewRedeem}. */
+  function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+    uint256 assets = _convertToAssets(shares, Math.Rounding.Down);
+
+    return
+      beefyWithdrawalFee == 0 ? assets : assets - assets.mulDiv(beefyWithdrawalFee, WITHDRAWAL_MAX, Math.Rounding.Up);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -132,9 +163,9 @@ contract BeefyERC4626 is PopERC4626 {
     if (address(beefyBooster) != address(0)) beefyBooster.stake(beefyVault.balanceOf(address(this)));
   }
 
-  // takes as argument the internal ERC4626 shares to redeem
   function beforeWithdraw(uint256, uint256 shares) internal virtual override {
-    if (address(beefyBooster) != address(0)) beefyBooster.withdraw(shares);
-    beefyVault.withdraw(convertToBeefyVaultShares(shares));
+    uint256 beefyShares = convertToBeefyVaultShares(shares);
+    if (address(beefyBooster) != address(0)) beefyBooster.withdraw(beefyShares);
+    beefyVault.withdraw(beefyShares);
   }
 }

@@ -4,6 +4,9 @@ pragma solidity ^0.8.15;
 import { ERC4626Upgradeable, ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/MathUpgradeable.sol";
+import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
+import { ACLAuth } from "../../utils/ACLAuth.sol";
+import { ContractRegistryAccessUpgradeable, IContractRegistry } from "../../utils/ContractRegistryAccessUpgradeable.sol";
 
 /*
  * @title Beefy ERC4626 Contract
@@ -12,7 +15,7 @@ import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/Mat
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract PopERC4626 is ERC4626Upgradeable {
+contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, ContractRegistryAccessUpgradeable {
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -20,15 +23,59 @@ contract PopERC4626 is ERC4626Upgradeable {
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
+  // TODO !!!!! How do we make sure that contractRegistry is correct?
+  // We could set it in the factory but than we need to make sure that its initialized by the factory (can we do that via contractRegistry in init?)
   /**
      @notice Initializes the Vault.
      @param asset The ERC20 compliant token the Vault should accept.
     */
-  function __PopERC4626_init(ERC20 asset) public initializer {
+  function __PopERC4626_init(ERC20 asset, IContractRegistry contractRegistry_) public initializer {
+    __Pausable_init();
     __ERC4626_init(asset);
+    __ContractRegistryAccess_init(contractRegistry_);
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+
+    feesUpdatedAt = block.timestamp;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                            ACCOUNTING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  /** @dev See {IERC4262-maxDeposit}. */
+  function maxDeposit(address) public view virtual override returns (uint256) {
+    return paused() ? 0 : type(uint256).max;
+  }
+
+  /** @dev See {IERC4262-maxMint}. */
+  function maxMint(address) public view virtual override returns (uint256) {
+    return paused() ? 0 : type(uint256).max;
+  }
+
+  /** @dev See {IERC4262-maxWithdraw}. */
+  function maxWithdraw(address owner) public view virtual override returns (uint256) {
+    return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
+  }
+
+  /** @dev See {IERC4262-maxRedeem}. */
+  function maxRedeem(address owner) public view virtual override returns (uint256) {
+    return balanceOf(owner);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  /** @dev See {IERC4262-previewDeposit}. */
+  function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+    return paused() ? 0 : _convertToShares(assets, Math.Rounding.Down);
+  }
+
+  /** @dev See {IERC4262-previewMint}. */
+  function previewMint(uint256 shares) public view virtual override returns (uint256) {
+    return paused() ? 0 : _convertToAssets(shares, Math.Rounding.Up);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -43,7 +90,7 @@ contract PopERC4626 is ERC4626Upgradeable {
     address receiver,
     uint256 assets,
     uint256 shares
-  ) internal virtual override {
+  ) internal virtual override whenNotPaused {
     // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
     // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
     // calls the vault, which is assumed not malicious.
@@ -162,5 +209,95 @@ contract PopERC4626 is ERC4626Upgradeable {
           address(this)
         )
       );
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                            HARVESTING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  event Harvested();
+
+  function harvest() external takeFees {
+    beforeHarvest();
+
+    emit Harvested();
+  }
+
+  function beforeHarvest() internal virtual {}
+
+  /*//////////////////////////////////////////////////////////////
+                      FEE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  uint256 public managementFee = 5e15; // 50 BPS
+  uint256 constant MAX_FEE = 1e18;
+  uint256 constant SECONDS_PER_YEAR = 365.25 days;
+
+  uint256 assetsCheckpoint;
+  uint256 feesUpdatedAt;
+
+  error InvalidManagementFee(uint256 fee);
+
+  event ManagementFeeChanged(uint256 oldFee, uint256 newFee);
+
+  function accruedManagementFee() public view returns (uint256) {
+    uint256 area = (totalAssets() + assetsCheckpoint) * (block.timestamp - feesUpdatedAt);
+
+    return (managementFee.mulDiv(area, 2, Math.Rounding.Down) / SECONDS_PER_YEAR) / MAX_FEE;
+  }
+
+  function setManagementFee(uint256 newFee) public onlyRole(VAULTS_CONTROLLER) {
+    // Dont take more than 10% managementFee
+    if (newFee >= 1e17) revert InvalidManagementFee(newFee);
+
+    emit ManagementFeeChanged(managementFee, newFee);
+
+    managementFee = newFee;
+  }
+
+  modifier takeFees() {
+    _;
+
+    uint256 managementFee = accruedManagementFee();
+
+    if (managementFee > 0) {
+      feesUpdatedAt = block.timestamp;
+      _mint(_getContract(FEE_RECIPIENT), convertToShares(managementFee));
+    }
+
+    assetsCheckpoint = totalAssets();
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      PAUSING LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function pause() external virtual onlyRole(VAULTS_CONTROLLER) {
+    beforeWithdraw(totalAssets(), totalSupply());
+    _pause();
+  }
+
+  function unpause() external virtual onlyRole(VAULTS_CONTROLLER) {
+    _unpause();
+    afterDeposit(totalAssets(), totalSupply());
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      CONTRACT REGISTRY LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
+  bytes32 constant FEE_RECIPIENT = keccak256("VaultFeeRecipient");
+
+  /**
+   * @notice Override for ACLAuth and ContractRegistryAccess.
+   */
+  function _getContract(bytes32 _name)
+    internal
+    view
+    override(ACLAuth, ContractRegistryAccessUpgradeable)
+    returns (address)
+  {
+    return super._getContract(_name);
   }
 }

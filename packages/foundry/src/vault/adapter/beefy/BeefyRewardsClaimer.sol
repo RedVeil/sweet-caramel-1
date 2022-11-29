@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { BeefyERC4626, ERC20, SafeERC20, Math, IBeefyVault, IBeefyBooster } from "./BeefyERC4626.sol";
-import { RewardsForwarder } from "../..//utils/RewardsForwarder.sol";
+import { BeefyERC4626, ERC20, SafeERC20, Math, IBeefyVault, IBeefyBooster, IContractRegistry } from "./BeefyERC4626.sol";
+import { RewardsClaimer } from "../../utils/RewardsClaimer.sol";
 
 /**
  * @title Beefy ERC4626 Contract
@@ -11,7 +11,7 @@ import { RewardsForwarder } from "../..//utils/RewardsForwarder.sol";
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract BeefyRewardsForwarder is BeefyERC4626, RewardsForwarder {
+contract BeefyRewardsClaimer is BeefyERC4626, RewardsClaimer {
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -30,11 +30,12 @@ contract BeefyRewardsForwarder is BeefyERC4626, RewardsForwarder {
     IBeefyVault _beefyVault,
     IBeefyBooster _beefyBooster,
     uint256 _withdrawalFee,
+    IContractRegistry contractRegistry_,
     address _rewardDestination,
     ERC20[] memory _rewardTokens
   ) public {
-    super.initialize(asset, _beefyVault, _beefyBooster, _withdrawalFee);
-    __RewardsForwarder_init(_rewardDestination, _rewardTokens);
+    super.initialize(asset, _beefyVault, _beefyBooster, _withdrawalFee, contractRegistry_);
+    __RewardsClaimer_init(_rewardDestination, _rewardTokens);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ contract BeefyRewardsForwarder is BeefyERC4626, RewardsForwarder {
                             HARVESTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function harvest() external {
+  function beforeHarvest() internal override {
     claimRewards();
   }
 
