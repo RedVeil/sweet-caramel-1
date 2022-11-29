@@ -1,0 +1,30 @@
+name: Circulating Supply Development Cron Job
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+    - path: packages/utils/**
+
+jobs:
+  Circulating-Supply:
+    name: Circulating Supply Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Checkout to circulating-supply branch
+        uses: actions/checkout@v3
+        with:
+          ref: circulating-supply
+      - name: Run Circulating Supply
+        run: |
+          yarn ts-node src/circulating-supply/circulating-supply.ts
+        env:
+          ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
+          BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
+      - name: Commit and Push
+        run: |
+          git commit -m "Update circulating supply"
+          git push
