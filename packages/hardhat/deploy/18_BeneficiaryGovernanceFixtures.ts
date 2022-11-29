@@ -45,13 +45,13 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "ContractRegistry",
     (
       await deployments.get("ContractRegistry")
-    ).address
+    ).address,
   );
   const beneficiaryRegistry = await hre.ethers.getContractAt(
     "BeneficiaryRegistry",
     (
       await deployments.get("BeneficiaryRegistry")
-    ).address
+    ).address,
   );
   const testPop = await hre.ethers.getContractAt("MockERC20", (await deployments.get("POP")).address);
   const govStaking = await hre.ethers.getContractAt("GovStaking", (await deployments.get("GovStaking")).address);
@@ -59,25 +59,25 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "BeneficiaryGovernance",
     (
       await deployments.get("BeneficiaryGovernance")
-    ).address
+    ).address,
   );
   const grantElections = await hre.ethers.getContractAt(
     "GrantElections",
     (
       await deployments.get("GrantElections")
-    ).address
+    ).address,
   );
   const rewardsManager = await hre.ethers.getContractAt(
     "RewardsManager",
     (
       await deployments.get("RewardsManager")
-    ).address
+    ).address,
   );
   const participationRewards = await hre.ethers.getContractAt(
     "ParticipationReward",
     (
       await deployments.get("ParticipationReward")
-    ).address
+    ).address,
   );
   const faucet = await hre.ethers.getContractAt("Faucet", (await deployments.get("Faucet")).address);
 
@@ -94,15 +94,15 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             value: parseEther(".02"),
           });
         }
-      })
+      }),
     );
     // Add beneficiaries to Registry
     await Promise.all(
       existingBeneficiaries.map((account) =>
         beneficiaryRegistry.addBeneficiary(account.address, DEFAULT_REGION, ADDRESS_CID_MAP[account.address], {
           gasLimit: 3000000,
-        })
-      )
+        }),
+      ),
     );
   })();
   await (async function mintPop() {
@@ -113,17 +113,17 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log("Setting Approvals and Controller Contract");
     await participationRewards.addControllerContract(
       await beneficiaryGovernance.contractName(),
-      beneficiaryGovernance.address
+      beneficiaryGovernance.address,
     );
     await participationRewards.addControllerContract(await grantElections.contractName(), grantElections.address);
     await Promise.all(
-      accounts.map((account) => testPop.connect(account).approve(grantElections.address, parseEther("1000000")))
+      accounts.map((account) => testPop.connect(account).approve(grantElections.address, parseEther("1000000"))),
     );
     await Promise.all(
-      accounts.map((account) => testPop.connect(account).approve(beneficiaryGovernance.address, parseEther("1000000")))
+      accounts.map((account) => testPop.connect(account).approve(beneficiaryGovernance.address, parseEther("1000000"))),
     );
     await Promise.all(
-      accounts.map((account) => testPop.connect(account).approve(govStaking.address, parseEther("1000000")))
+      accounts.map((account) => testPop.connect(account).approve(govStaking.address, parseEther("1000000"))),
     );
   })();
   await (async function fundRewardsManager() {
@@ -134,7 +134,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await (async function stakePop() {
     console.log("Staking Pop");
     await Promise.all(
-      accounts.map((account) => govStaking.connect(account).stake(parseEther("1000"), DURATION_YEAR * 4))
+      accounts.map((account) => govStaking.connect(account).stake(parseEther("1000"), DURATION_YEAR * 4)),
     );
   })();
   await (async function addFinalizedProposals() {
@@ -144,7 +144,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       newBeneficiaries.slice(0, 6),
       ProposalType.BeneficiaryNominationProposal,
       beneficiaryGovernance,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
     await voteOnProposals(beneficiaryGovernance, voters, unfinalizedNominationProposalIds);
 
@@ -153,7 +153,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       existingBeneficiaries.slice(0, 6),
       ProposalType.BeneficiaryTakedownProposal,
       beneficiaryGovernance,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
     await voteOnProposals(beneficiaryGovernance, voters, unfinalizedTakedownProposalIds);
 
@@ -162,7 +162,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     console.log("Finalizing Proposals");
     [...unfinalizedNominationProposalIds, ...unfinalizedTakedownProposalIds].forEach((proposalId) =>
-      beneficiaryGovernance.connect(deployer).finalize(proposalId)
+      beneficiaryGovernance.connect(deployer).finalize(proposalId),
     );
   })();
 
@@ -172,7 +172,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       newBeneficiaries.slice(6, 8),
       ProposalType.BeneficiaryNominationProposal,
       beneficiaryGovernance,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
     await voteOnProposals(beneficiaryGovernance, voters, nominationProposalIds);
 
@@ -181,7 +181,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       existingBeneficiaries.slice(6, 8),
       ProposalType.BeneficiaryTakedownProposal,
       beneficiaryGovernance,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
     await voteOnProposals(beneficiaryGovernance, voters, takedownProposalIds);
 
@@ -191,10 +191,10 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       [...nominationProposalIds, ...takedownProposalIds].map((id) => {
         beneficiaryGovernance.connect(newBeneficiaries[3]).vote(id, Vote.No);
         beneficiaryGovernance.connect(newBeneficiaries[4]).vote(id, Vote.No);
-      })
+      }),
     );
     await Promise.all(
-      [...nominationProposalIds, ...takedownProposalIds].map((id) => beneficiaryGovernance.refreshState(id))
+      [...nominationProposalIds, ...takedownProposalIds].map((id) => beneficiaryGovernance.refreshState(id)),
     );
   })();
 
@@ -204,13 +204,13 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       newBeneficiaries.slice(8),
       ProposalType.BeneficiaryNominationProposal,
       beneficiaryGovernance,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
     const takedownProposalIds = await addProposals(
       existingBeneficiaries.slice(8),
       ProposalType.BeneficiaryTakedownProposal,
       beneficiaryGovernance,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
     await voteOnProposals(beneficiaryGovernance, voters, nominationProposalIds);
     await voteOnProposals(beneficiaryGovernance, voters, takedownProposalIds);
@@ -231,10 +231,10 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       true,
       parseEther("2000"),
       true,
-      ShareType.EqualWeight
+      ShareType.EqualWeight,
     );
     const activeBeneficiaryAddresses = (await beneficiaryRegistry.getBeneficiaryList()).filter(
-      (addres) => addres !== "0x0000000000000000000000000000000000000000"
+      (addres) => addres !== "0x0000000000000000000000000000000000000000",
     );
     console.log("Initializing Election");
     await grantElections.initialize(electionTerm, DEFAULT_REGION);
@@ -243,7 +243,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       electionTerm,
       activeBeneficiaryAddresses.slice(0, 4),
       grantElections,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
   })();
   await (async function initializeQuarterlyElection() {
@@ -262,7 +262,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       true,
       parseEther("2000"),
       true,
-      ShareType.EqualWeight
+      ShareType.EqualWeight,
     );
     const activeBeneficiaryAddresses = await getActiveBeneficiaries(beneficiaryRegistry);
     console.log("Initializing Election");
@@ -272,7 +272,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       electionTerm,
       activeBeneficiaryAddresses.slice(0, 4),
       grantElections,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
   })();
   await (async function voteInQuarterlyElection() {
@@ -288,16 +288,16 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           .vote(
             activeBeneficiaryAddresses.slice(0, 4),
             [parseEther("100"), parseEther("200"), parseEther("300"), parseEther("350")],
-            electionId
+            electionId,
           );
-      })
+      }),
     );
     console.log("Time travel to confirmation of all votes in quarterly election");
     await timeTravel(VOTE_PERIOD_IN_SECONDS + 5);
     await grantElections.refreshElectionState(ElectionTerm.Quarterly);
     console.log(
       `Quarterly Election metadata: `,
-      await GrantElectionAdapter(grantElections).getElectionMetadata(ElectionTerm.Quarterly)
+      await GrantElectionAdapter(grantElections).getElectionMetadata(ElectionTerm.Quarterly),
     );
     await refreshElectionState(ElectionTerm.Quarterly, DEFAULT_REGION, grantElections);
   })();
@@ -317,7 +317,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       true,
       parseEther("2000"),
       true,
-      ShareType.EqualWeight
+      ShareType.EqualWeight,
     );
     const activeBeneficiaryAddresses = await getActiveBeneficiaries(beneficiaryRegistry);
     console.log("Initializing Election");
@@ -327,7 +327,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       electionTerm,
       activeBeneficiaryAddresses.slice(0, 4),
       grantElections,
-      DEFAULT_REGION
+      DEFAULT_REGION,
     );
   })();
   await (async function voteInYearlyElection() {
@@ -343,16 +343,16 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           .vote(
             activeBeneficiaryAddresses.slice(0, 4),
             [parseEther("100"), parseEther("200"), parseEther("300"), parseEther("350")],
-            electionId
+            electionId,
           );
-      })
+      }),
     );
     console.log("Time travel to confirmation of all votes in yearly election");
     await timeTravel(VOTE_PERIOD_IN_SECONDS + 5);
     await grantElections.refreshElectionState(ElectionTerm.Quarterly);
     console.log(
       `Quarterly Election metadata: `,
-      await GrantElectionAdapter(grantElections).getElectionMetadata(ElectionTerm.Quarterly)
+      await GrantElectionAdapter(grantElections).getElectionMetadata(ElectionTerm.Quarterly),
     );
   })();
 };
@@ -373,7 +373,7 @@ main.tags = ["core", "beneficiary-governance-demo-data"];
 
 async function getActiveBeneficiaries(beneficiaryRegistry: BeneficiaryRegistry) {
   return (await beneficiaryRegistry.getBeneficiaryList()).filter(
-    (addres) => addres !== "0x0000000000000000000000000000000000000000"
+    (addres) => addres !== "0x0000000000000000000000000000000000000000",
   );
 }
 
@@ -381,7 +381,7 @@ async function addProposals(
   accountsToAdd: SignerWithAddress[],
   proposalType: ProposalType,
   beneficiaryGovernance: BeneficiaryGovernance,
-  region
+  region,
 ): Promise<number[]> {
   return Promise.all(
     accountsToAdd.map(async (beneficiary) => {
@@ -393,14 +393,14 @@ async function addProposals(
         })
         .then((res) => res.wait(1));
       return getCreatedProposalId(receipt, ethers.provider);
-    })
+    }),
   );
 }
 
 function voteOnProposals(
   beneficiaryGovernance: BeneficiaryGovernance,
   voters: SignerWithAddress[],
-  nominationProposalIds: number[]
+  nominationProposalIds: number[],
 ): PromiseLike<void[]> {
   console.log("Voting on proposals", nominationProposalIds);
   return Promise.all(
@@ -408,7 +408,7 @@ function voteOnProposals(
       await beneficiaryGovernance.connect(voters[0]).vote(id, Vote.Yes);
       await beneficiaryGovernance.connect(voters[1]).vote(id, i > 3 ? Vote.No : Vote.Yes);
       await beneficiaryGovernance.connect(voters[2]).vote(id, Vote.No);
-    })
+    }),
   );
 }
 
@@ -419,14 +419,14 @@ async function registerBeneficiariesForElection(grantTerm, beneficiaries, grantE
     beneficiaries.map((account) =>
       grantElections.registerForElection(account, electionId, {
         gasLimit: 3000000,
-      })
-    )
+      }),
+    ),
   );
 }
 const refreshElectionState = async (
   electionTerm: ElectionTerm,
   region: string,
-  grantElections: GrantElections
+  grantElections: GrantElections,
 ): Promise<void> => {
   const electionId = await grantElections.activeElections(region, electionTerm);
   await grantElections.refreshElectionState(electionId);
