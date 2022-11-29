@@ -25,10 +25,6 @@ a {
   box-sizing: border-box;
 }
 
-p {
-  line-height: 140% !important;
-}
-
 @layer base {
   @font-face {
     font-family: "KH Teka";
