@@ -349,7 +349,7 @@ contract BeneficiaryGovernance {
     bool bennyExists = IBeneficiaryRegistry(contractRegistry.getContract(keccak256("BeneficiaryRegistry")))
       .beneficiaryExists(_beneficiary);
     if (ProposalType.BeneficiaryTakedownProposal == _type) {
-      if (bennyExists) {
+      if (!bennyExists) {
         revert BeneficiaryExists(_beneficiary);
       }
     }

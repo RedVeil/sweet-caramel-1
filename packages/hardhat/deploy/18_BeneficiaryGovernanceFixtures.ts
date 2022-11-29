@@ -53,7 +53,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await deployments.get("BeneficiaryRegistry")
     ).address
   );
-  const testPop = await hre.ethers.getContractAt("MockERC20", (await deployments.get("TestPOP")).address);
+  const testPop = await hre.ethers.getContractAt("MockERC20", (await deployments.get("POP")).address);
   const govStaking = await hre.ethers.getContractAt("GovStaking", (await deployments.get("GovStaking")).address);
   const beneficiaryGovernance = await hre.ethers.getContractAt(
     "BeneficiaryGovernance",
@@ -84,9 +84,6 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await (async function setupBenefifiaries() {
     console.log("Setting up Beneficiaries");
     await aclRegistry.grantRole(ethers.utils.id("BeneficiaryGovernance"), deployer.address);
-    await contractRegistry.addContract(ethers.utils.id("POP"), testPop.address, ethers.utils.id("1"), {
-      gasLimit: 1000000,
-    });
     // Give Eth to Beneficiaries
     await Promise.all(
       accounts.map(async (beneficiary) => {
@@ -105,7 +102,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         beneficiaryRegistry.addBeneficiary(
           account.address,
           DEFAULT_REGION,
-          getBytes32FromIpfsHash(ADDRESS_CID_MAP[account.address]),
+          ADDRESS_CID_MAP[account.address],
           { gasLimit: 3000000 }
         )
       )
@@ -373,6 +370,7 @@ main.dependencies = [
   "beneficiary-governance",
   "beneficiary-registry",
   "grant-elections",
+  "faucet"
 ];
 main.tags = ["core", "beneficiary-governance-demo-data"];
 
@@ -396,7 +394,7 @@ async function addProposals(
         .createProposal(
           beneficiary.address,
           region,
-          getBytes32FromIpfsHash(ADDRESS_CID_MAP[beneficiary.address]),
+          ADDRESS_CID_MAP[beneficiary.address],
           proposalType,
           { gasLimit: 3000000 }
         )
