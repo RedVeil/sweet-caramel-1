@@ -544,6 +544,11 @@
       "priceResolver": "pop",
       "symbol": "POP",
       "balanceResolver": "escrowBalance",
+      "tvlResolver": {
+        "type": "escrow",
+        "tokenFunction": "POP",
+        "tokenFunctionAbi": ["function POP() external view returns (address)"]
+      },
       "isERC20": false
     }
   },
