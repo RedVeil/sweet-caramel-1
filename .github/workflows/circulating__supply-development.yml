@@ -1,8 +1,8 @@
 name: Circulating Supply Development Cron Job
 
 on:
-  schedule:
-    - cron: "0 */6 * * *"
+  schedule
+    - cron: '0 */6 * * *'
     - path: packages/utils/**
 
 jobs:
