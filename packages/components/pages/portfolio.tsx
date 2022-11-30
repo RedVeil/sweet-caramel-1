@@ -6,7 +6,7 @@ import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
 import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
-import ClaimableBalanceOf from '../pop/Escrow/ClaimableBalanceOf';
+import ClaimableBalanceOf from "../pop/Escrow/ClaimableBalanceOf";
 
 export const PortfolioPage: NextPage = () => {
   const {
@@ -97,20 +97,11 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Price.PriceOf key={`Price.PriceOf`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Price.PriceOf key={`Price.PriceOf`} address={token.address} chainId={token.chainId} />
 
-          <Staking.Apy key={`vAPR`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Staking.Apy key={`vAPR`} address={token.address} chainId={token.chainId} />
 
-          <Contract.Tvl key={`TVL`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Contract.Tvl key={`TVL`} address={token.address} chainId={token.chainId} />
         </Contract.Metadata>
       ))}
     </div>
