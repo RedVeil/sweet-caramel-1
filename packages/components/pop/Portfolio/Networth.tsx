@@ -12,11 +12,13 @@ interface NetworthProps {
 }
 
 export const Networth: React.FC<NetworthProps> = ({ expected, allContracts, updateNetworth, account }) => {
-
-  const { ready, loading } = useComponentState({
-    ready: !!account,
-    loading: !account,
-  }, [account]);
+  const { ready, loading } = useComponentState(
+    {
+      ready: !!account,
+      loading: !account,
+    },
+    [account],
+  );
 
   return (
     <>
@@ -28,7 +30,7 @@ export const Networth: React.FC<NetworthProps> = ({ expected, allContracts, upda
           Connected to {ready && account}
         </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${!loading && ready ? "" : "hidden"}`}>
-          Networth:  {!loading && ready && formatAndRoundBigNumber(constants.Zero, 18)}
+          Networth: {!loading && ready && formatAndRoundBigNumber(constants.Zero, 18)}
         </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${loading ? "" : "hidden"}`}>Loading ...</h3>
       </div>

@@ -4,19 +4,16 @@ import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
-import { Pop } from '../pop/types';
+import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
-
 
 export const PortfolioPage: NextPage = () => {
   const {
     features: { portfolio: visible },
   } = useFeatures();
 
-
   const { address: account } = useAccount();
   //const account = "0x28dc239fbf64abebc847d889d68c3f1dd18f72a8";
-
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -53,10 +50,13 @@ export const PortfolioPage: NextPage = () => {
     ...contractsOp,
   ].flatMap((network) => network) as Pop.NamedAccountsMetadata[];
 
-
   return (
     <div className={visible ? "" : "hidden"}>
-      <Networth account={account} allContracts={allContracts.flatMap((network, index) => allContracts[index].address)} expected={allContracts.length} />
+      <Networth
+        account={account}
+        allContracts={allContracts.flatMap((network, index) => allContracts[index].address)}
+        expected={allContracts.length}
+      />
 
       {allContracts.map((token, i) => (
         <Contract.Metadata
@@ -66,12 +66,7 @@ export const PortfolioPage: NextPage = () => {
           chainId={Number(token.chainId) as unknown as ChainId}
           address={token.address}
         >
-          <Erc20.BalanceOf
-            key={`Erc20.BalanceOf`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Erc20.BalanceOf key={`Erc20.BalanceOf`} account={account} address={token.address} chainId={token.chainId} />
 
           <Erc20.ValueOfBalance
             key={`Erc20.ValueOfBalance`}
@@ -94,24 +89,11 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Price.PriceOf
-            key={`Price.PriceOf`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Price.PriceOf key={`Price.PriceOf`} address={token.address} chainId={token.chainId} />
 
-          <Staking.Apy
-            key={`vAPR`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Staking.Apy key={`vAPR`} address={token.address} chainId={token.chainId} />
 
-          <Contract.Tvl
-            key={`TVL`}
-            address={token.address}
-            chainId={token.chainId}
-          />
-
+          <Contract.Tvl key={`TVL`} address={token.address} chainId={token.chainId} />
         </Contract.Metadata>
       ))}
     </div>
