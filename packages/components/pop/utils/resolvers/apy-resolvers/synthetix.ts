@@ -1,6 +1,5 @@
 import { BigNumber, Contract } from "ethers";
 import { formatEther, formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
-import { getNamedAccounts } from "packages/utils";
 import { resolve_price } from "../price-resolvers/resolve_price";
 
 export async function synthetix(address, chainId, rpc?): Promise<{ value: BigNumber; decimals: number }> {
@@ -25,12 +24,6 @@ export async function synthetix(address, chainId, rpc?): Promise<{ value: BigNum
     contract.rewardsToken(),
   ]);
 
-  console.log({ address, rewardsDuration, rewardForDuration, totalSupply, stakingToken, rewardsToken });
-  const [stakingTokenMetadata, rewardsTokenMetadata] = getNamedAccounts(chainId.toString() as any, [
-    stakingToken as any,
-    rewardsToken as any,
-  ]);
-
   const [stakingTokenPrice, rewardsTokenPrice] = await Promise.all([
     resolve_price({ address: stakingToken, chainId, rpc }),
     resolve_price({ address: rewardsToken, chainId, rpc }),
@@ -47,18 +40,6 @@ export async function synthetix(address, chainId, rpc?): Promise<{ value: BigNum
     .mul(rewardsValuePerPeriod);
 
   const apy = rewardsValuePerYear.mul(parseEther("100")).div(totalSupplyValue);
-
-  console.debug({
-    apy: { formatted: formatEther(apy), value: apy },
-    totalSupplyValue: { formatted: formatEther(totalSupplyValue), value: totalSupplyValue },
-    rewardsValuePerPeriod: { formatted: formatEther(rewardsValuePerPeriod), value: rewardsValuePerPeriod },
-    rewardsValuePerYear: { formatted: formatEther(rewardsValuePerYear), value: rewardsValuePerPeriod },
-    rewardsDuration: { formatted: formatUnits(rewardsDuration, "0"), value: rewardsDuration },
-    rewardForDuration: { formatted: formatEther(rewardForDuration), value: rewardForDuration },
-    totalSupply: { formatted: formatEther(totalSupply), value: totalSupply },
-    stakingToken,
-    rewardsToken,
-  });
 
   return { value: apy, decimals: 18 };
 }

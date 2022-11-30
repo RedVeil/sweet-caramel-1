@@ -1,5 +1,5 @@
 import { networkMap } from "@popcorn/utils";
-import { useComponentState } from "packages/components/hooks";
+import { useComponentState } from "../../pop/utils/hooks";
 import { Pop } from "../types";
 import useContractMetadata from "./hooks/useContractMetadata";
 

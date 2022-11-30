@@ -1,7 +1,6 @@
 import { constants, BigNumber } from "ethers";
-import { useIsMounted } from "packages/components/hooks/utils/useIsMounted";
+import { useIsMounted, useNamedAccounts } from "@popcorn/components/pop/utils";
 import { useContractRead } from "wagmi";
-import useNamedAccounts from "../../../hooks/useNamedAccounts";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
 import { Pop, BigNumberWithFormatted } from "../../types";
 

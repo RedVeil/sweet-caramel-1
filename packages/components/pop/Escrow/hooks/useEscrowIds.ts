@@ -1,7 +1,6 @@
-import { useIsMounted } from "packages/components/hooks/utils/useIsMounted";
 import { useContractRead } from "wagmi";
-import useNamedAccounts from "../../../hooks/useNamedAccounts";
 import { Pop } from "../../types";
+import { useIsMounted, useNamedAccounts } from "../../utils";
 
 /**
  * useEscrowBalance returns the balance a user has in a given pop escrow contract

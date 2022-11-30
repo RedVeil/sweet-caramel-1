@@ -1,6 +1,6 @@
 import { useToken as _useToken } from "wagmi";
 import { Pop } from "../../types";
-import useNamedAccounts from "../../../hooks/useNamedAccounts";
+import { useNamedAccounts } from "../../utils";
 import useLog from "../../utils/hooks/useLog";
 
 /**

@@ -1,10 +1,10 @@
 import { useProvider } from "wagmi";
 import useSWR from "swr";
-import useNamedAccounts from "../../../hooks/useNamedAccounts";
 import { resolve_apy } from "../../utils/resolvers/apy-resolvers/resolve_apy";
 import { useMemo } from "react";
 import { popHookAdapter } from "../../utils/hooks/swrPopHookAdapter";
 import { BigNumberWithFormatted, Pop } from "../../types";
+import { useNamedAccounts } from "../../utils";
 
 interface UseApyProps extends Pop.StdProps {
   resolver?: string;

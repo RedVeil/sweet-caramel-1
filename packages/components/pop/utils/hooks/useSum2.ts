@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { BigNumber, constants } from "ethers";
 import useLog from "./useLog";
-import { formatAndRoundBigNumber } from "packages/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 
 export const useSum2 = ({
   expected: _expected,
