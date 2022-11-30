@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import { ERC4626Upgradeable as ERC4626, ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { IUniswapRouterV2 } from "../../interfaces/external/uni/IUniswapRouterV2.sol";
+import { IPopERC4626 } from "../../interfaces/IPopERC4626.sol";
 
 contract Pool2SingleAssetCompounder {
   address router;
@@ -20,8 +21,8 @@ contract Pool2SingleAssetCompounder {
   }
 
   /// @notice claim all token rewards and trade them for the underlying asset
-  function trade() internal {
-    _getRewards(); // hook to accrue/pull in rewards, if needed
+  function harvest() internal {
+    IPopERC4626(address(this))._claim(); // hook to accrue/pull in rewards, if needed
 
     address[] memory tradePath = new address[](2);
     tradePath[1] = ERC4626(address(this)).asset();
@@ -37,8 +38,6 @@ contract Pool2SingleAssetCompounder {
         IUniswapRouterV2(router).swapExactTokensForTokens(amount, 0, tradePath, address(this), block.timestamp);
       }
     }
+    IPopERC4626(address(this)).afterDeposit(ERC20(asset()).balanceOf(address(this)), 0);
   }
-
-  /// @notice hook to accrue/pull in rewards, if needed
-  function _getRewards() internal virtual {}
 }

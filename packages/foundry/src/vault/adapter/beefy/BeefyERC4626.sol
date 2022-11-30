@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { PopERC4626, ERC20, SafeERC20, Math, IContractRegistry } from "../../utils/PopERC4626.sol";
+import { PopERC4626, ERC20, SafeERC20, Math, IContractRegistry, IStrategy } from "../../utils/PopERC4626.sol";
 
 interface IBeefyVault {
   function want() external view returns (ERC20);
@@ -89,9 +89,11 @@ contract BeefyERC4626 is PopERC4626 {
     uint256 managementFee_,
     IBeefyVault _beefyVault,
     IBeefyBooster _beefyBooster,
-    uint256 _beefyWithdrawalFee
+    uint256 _beefyWithdrawalFee,
+    IStrategy _strategy,
+    bytes memory _strategyData
   ) public {
-    __PopERC4626_init(asset, contractRegistry_, managementFee_);
+    __PopERC4626_init(asset, contractRegistry_, managementFee_, _strategy, _strategyData);
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
@@ -134,6 +136,14 @@ contract BeefyERC4626 is PopERC4626 {
     return supply == 0 ? shares : shares.mulDiv(beefyBalanceCheck.balanceOf(address(this)), supply, Math.Rounding.Up);
   }
 
+  function rewardToken() external view returns (address) {
+    return beefyBooster.rewardToken();
+  }
+
+  function earned() public view returns (uint256) {
+    return beefyBooster.earned(address(this));
+  }
+
   /*//////////////////////////////////////////////////////////////
                      DEPOSIT/WITHDRAWAL LIMIT LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -168,5 +178,17 @@ contract BeefyERC4626 is PopERC4626 {
     uint256 beefyShares = convertToUnderlyingShares(0, shares);
     if (address(beefyBooster) != address(0)) beefyBooster.withdraw(beefyShares);
     beefyVault.withdraw(beefyShares);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                            STRATEGY LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  function _harvest() internal override {
+    strategy.harvest();
+  }
+
+  function _claim() internal {
+    beefyBooster.getReward();
   }
 }

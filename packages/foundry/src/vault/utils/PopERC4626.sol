@@ -7,6 +7,7 @@ import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/Mat
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 import { ACLAuth } from "../../utils/ACLAuth.sol";
 import { ContractRegistryAccessUpgradeable, IContractRegistry } from "../../utils/ContractRegistryAccessUpgradeable.sol";
+import { IStrategy } from "../../interfaces/IStrategy.sol";
 
 /*
  * @title Beefy ERC4626 Contract
@@ -32,7 +33,9 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
   function __PopERC4626_init(
     ERC20 asset,
     IContractRegistry contractRegistry_,
-    uint256 managementFee_
+    uint256 managementFee_,
+    IStrategy _strategy,
+    bytes memory _strategyData
   ) public initializer {
     __Pausable_init();
     __ERC4626_init(asset);
@@ -44,6 +47,9 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+
+    strategy = _strategy;
+    strategyData = _strategyData;
 
     feesUpdatedAt = block.timestamp;
   }
@@ -225,13 +231,16 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
   }
 
   /*//////////////////////////////////////////////////////////////
-                            HARVESTING LOGIC
+                            STRATEGY LOGIC
     //////////////////////////////////////////////////////////////*/
+
+  IStrategy public strategy;
+  bytes public strategyData;
 
   event Harvested();
 
   function harvest() external takeFees {
-    _harvest();
+    if (address(strategy) != address(0)) _harvest();
 
     emit Harvested();
   }
