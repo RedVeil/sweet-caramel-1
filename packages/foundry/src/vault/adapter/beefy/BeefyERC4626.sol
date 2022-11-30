@@ -85,12 +85,13 @@ contract BeefyERC4626 is PopERC4626 {
     */
   function initialize(
     ERC20 asset,
+    IContractRegistry contractRegistry_,
+    uint256 managementFee_,
     IBeefyVault _beefyVault,
     IBeefyBooster _beefyBooster,
-    uint256 _beefyWithdrawalFee,
-    IContractRegistry contractRegistry_
+    uint256 _beefyWithdrawalFee
   ) public {
-    __PopERC4626_init(asset, contractRegistry_);
+    __PopERC4626_init(asset, contractRegistry_, managementFee_);
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);

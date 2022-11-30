@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import { BeefyERC4626, ERC20, SafeERC20, Math, IBeefyVault, IBeefyBooster, IContractRegistry } from "./BeefyERC4626.sol";
-import { Compounder } from "../../utils/Compounder.sol";
+import { Pool2SingleAssetCompounder } from "../../utils/Pool2SingleAssetCompounder.sol";
 
 /**
  * @title Beefy ERC4626 Contract
@@ -11,7 +11,7 @@ import { Compounder } from "../../utils/Compounder.sol";
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract BeefyCompounder is BeefyERC4626, Compounder {
+contract BeefyPool2SingleAssetCompounder is BeefyERC4626, Pool2SingleAssetCompounder {
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -23,19 +23,20 @@ contract BeefyCompounder is BeefyERC4626, Compounder {
      @notice Initializes the Vault.
      @param asset The ERC20 compliant token the Vault should accept.
      @param _beefyVault The Beefy Vault contract.
-     @param _withdrawalFee of the beefyVault in BPS
+     @param _beefyWithdrawalFee of the beefyVault in BPS
     */
   function initialize(
     ERC20 asset,
+    IContractRegistry contractRegistry_,
+    uint256 managementFee_,
     IBeefyVault _beefyVault,
     IBeefyBooster _beefyBooster,
-    uint256 _withdrawalFee,
-    IContractRegistry contractRegistry_,
+    uint256 _beefyWithdrawalFee,
     address _router,
     address[] memory _rewardTokens
   ) public {
-    super.initialize(asset, _beefyVault, _beefyBooster, _withdrawalFee, contractRegistry_);
-    __Compounder_init(_router, _rewardTokens);
+    super.initialize(asset, contractRegistry_, managementFee_, _beefyVault, _beefyBooster, _beefyWithdrawalFee);
+    __Pool2SingleAssetCompounder_init(_router, _rewardTokens);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -54,7 +55,7 @@ contract BeefyCompounder is BeefyERC4626, Compounder {
                             HARVESTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function beforeHarvest() internal override {
+  function _harvest() internal override {
     trade();
     // We could also move that into the compounder
     afterDeposit(ERC20(asset()).balanceOf(address(this)), 0);
@@ -64,7 +65,7 @@ contract BeefyCompounder is BeefyERC4626, Compounder {
                           INTERNAL HOOKS LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function beforeClaim() internal override {
+  function _getRewards() internal override {
     beefyBooster.getReward();
   }
 }

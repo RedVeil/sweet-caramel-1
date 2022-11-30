@@ -29,12 +29,18 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
      @notice Initializes the Vault.
      @param asset The ERC20 compliant token the Vault should accept.
     */
-  function __PopERC4626_init(ERC20 asset, IContractRegistry contractRegistry_) public initializer {
+  function __PopERC4626_init(
+    ERC20 asset,
+    IContractRegistry contractRegistry_,
+    uint256 managementFee_
+  ) public initializer {
     __Pausable_init();
     __ERC4626_init(asset);
     __ContractRegistryAccess_init(contractRegistry_);
 
     if (msg.sender != _getContract(keccak256("VaultsFactory"))) revert NotFactory();
+
+    managementFee = managementFee_;
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
@@ -54,16 +60,6 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
   /** @dev See {IERC4262-maxMint}. */
   function maxMint(address) public view virtual override returns (uint256) {
     return paused() ? 0 : type(uint256).max;
-  }
-
-  /** @dev See {IERC4262-maxWithdraw}. */
-  function maxWithdraw(address owner) public view virtual override returns (uint256) {
-    return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
-  }
-
-  /** @dev See {IERC4262-maxRedeem}. */
-  function maxRedeem(address owner) public view virtual override returns (uint256) {
-    return balanceOf(owner);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -220,17 +216,18 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
   event Harvested();
 
   function harvest() external takeFees {
-    beforeHarvest();
+    _harvest();
 
     emit Harvested();
   }
 
-  function beforeHarvest() internal virtual {}
+  function _harvest() internal virtual {}
 
   /*//////////////////////////////////////////////////////////////
                       FEE LOGIC
   //////////////////////////////////////////////////////////////*/
 
+  // TODO move that into init and set it in VaultFactory
   uint256 public managementFee = 5e15; // 50 BPS
   uint256 constant MAX_FEE = 1e18;
   uint256 constant SECONDS_PER_YEAR = 365.25 days;

@@ -23,18 +23,19 @@ contract BeefyRewardsClaimer is BeefyERC4626, RewardsClaimer {
      @notice Initializes the Vault.
      @param asset The ERC20 compliant token the Vault should accept.
      @param _beefyVault The Beefy Vault contract.
-     @param _withdrawalFee of the beefyVault in BPS
+     @param _beefyWithdrawalFee of the beefyVault in BPS
     */
   function initialize(
     ERC20 asset,
+    IContractRegistry contractRegistry_,
+    uint256 managementFee_,
     IBeefyVault _beefyVault,
     IBeefyBooster _beefyBooster,
-    uint256 _withdrawalFee,
-    IContractRegistry contractRegistry_,
+    uint256 _beefyWithdrawalFee,
     address _rewardDestination,
     ERC20[] memory _rewardTokens
   ) public {
-    super.initialize(asset, _beefyVault, _beefyBooster, _withdrawalFee, contractRegistry_);
+    super.initialize(asset, contractRegistry_, managementFee_, _beefyVault, _beefyBooster, _beefyWithdrawalFee);
     __RewardsClaimer_init(_rewardDestination, _rewardTokens);
   }
 
@@ -54,7 +55,7 @@ contract BeefyRewardsClaimer is BeefyERC4626, RewardsClaimer {
                             HARVESTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function beforeHarvest() internal override {
+  function _harvest() internal override {
     claimRewards();
   }
 
@@ -62,7 +63,7 @@ contract BeefyRewardsClaimer is BeefyERC4626, RewardsClaimer {
                           INTERNAL HOOKS LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function beforeClaim() internal override {
+  function _getRewards() internal override {
     beefyBooster.getReward();
   }
 }

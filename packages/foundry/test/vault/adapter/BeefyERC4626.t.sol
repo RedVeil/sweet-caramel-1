@@ -44,10 +44,11 @@ contract BeefyERC4626Test is Test {
     vm.prank(factory);
     erc4626.initialize(
       asset,
+      IContractRegistry(CONTRACT_REGISTRY),
+      50,
       beefyVault,
       beefyBooster,
       0,
-      IContractRegistry(CONTRACT_REGISTRY),
       feeRecipient,
       rewardsToken
     );
@@ -77,10 +78,11 @@ contract BeefyERC4626Test is Test {
     erc4626 = new BeefyRewardsClaimer();
     erc4626.initialize(
       asset,
+      IContractRegistry(CONTRACT_REGISTRY),
+      50,
       beefyVault,
       beefyBooster,
       0,
-      IContractRegistry(CONTRACT_REGISTRY),
       feeRecipient,
       rewardsToken
     );

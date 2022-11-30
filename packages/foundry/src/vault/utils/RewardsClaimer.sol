@@ -24,7 +24,7 @@ contract RewardsClaimer {
 
   /// @notice claim all token rewards
   function claimRewards() internal {
-    beforeClaim(); // hook to accrue/pull in rewards, if needed
+    _getRewards(); // hook to accrue/pull in rewards, if needed
 
     uint256 len = rewardTokens.length;
     // send all tokens to destination
@@ -47,5 +47,5 @@ contract RewardsClaimer {
   }
 
   /// @notice hook to accrue/pull in rewards, if needed
-  function beforeClaim() internal virtual {}
+  function _getRewards() internal virtual {}
 }
