@@ -3,7 +3,6 @@ name: Circulating Supply Development Cron Job
 on:
   schedule:
     - cron: "0 */6 * * *"
-    - path: packages/utils/**
 
 jobs:
   Circulating-Supply:
@@ -18,13 +17,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: circulating-supply
-      - name: Run Circulating Supply
-        run: |
-          yarn ts-node src/circulating-supply/circulating-supply.ts
+      - name: Run Circulating Supply Script
+        run: yarn circulating-supply
         env:
           ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
           BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
-      - name: Commit and Push
-        run: |
-          git commit -m "Update circulating supply"
-          git push
+      - name: Make PR Comment
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: "Update circulating supply"
+      - name: Push
+        run: git push
