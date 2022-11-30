@@ -89,27 +89,50 @@ const multicall = (address, provider) => {
 
 const cs = async (network, provider, token) => {
   console.log(`calculating ${network} circulating supply ...`);
+  const chainId = (await provider.getNetwork()).chainId;
+
   const _multicall = multicall(token, provider);
-  await holders[network](START_BLOCK).then((_holders) =>
+  const _holders = await holders[network](START_BLOCK).then((_holders) =>
     _holders.map(
       (holder) =>
         !EXCLUDED_ADDRESSES[holder] &&
-        _multicall.push("pop", network == "ethereum" ? "spendableBalanceOf" : "balanceOf", [holder]),
+        _multicall.push("pop", network == "ethereum" ? "spendableBalanceOf" : "balanceOf", [holder]) &&
+        holder,
     ),
   );
   const balances = (await _multicall.call(provider)) as BigNumber[][];
-  return balances.reduce((_balances, balance) => {
+  const zeroBalances = [];
+  const sum = balances.reduce((_balances, balance, i) => {
+    if (balance[0].isZero()) {
+      zeroBalances.push(_holders[i]);
+    }
     return _balances.add(balance[0]);
   }, constants.Zero);
+
+  const holdersFile = cache.get(chainId);
+  const lastBlock = holdersFile.lastBlock;
+  const zeroBalancesMap = zeroBalances.reduce((map, address) => ({ ...map, [address]: true }), {});
+  //remove 0 balances from cache
+  console.log({ chainId, lastBlock, zeroBalances });
+  cache.write([...holdersFile.holders.filter((holder) => zeroBalancesMap[holder] !== true)], chainId, lastBlock);
+
+  return sum;
 };
 
 const main = async () => {
   const ethereum_cs = await cs("ethereum", PROVIDERS.ethereum[0], POP.ethereum.address);
+
   const bnb_cs = await cs("bnb", PROVIDERS.bnb[0], POP.bnb.address);
+
   const arbitrum_cs = await cs("arbitrum", PROVIDERS.arbitrum[1], POP.arbitrum.address);
+
   const polygon_cs = await cs("polygon", PROVIDERS.polygon[0], POP.polygon.address);
 
-  console.log("total circulating supply: ", formatEther(ethereum_cs.add(polygon_cs).add(arbitrum_cs).add(bnb_cs)));
+  const circulatingSupply = formatEther(ethereum_cs.add(polygon_cs).add(arbitrum_cs).add(bnb_cs));
+
+  console.log("total circulating supply: ", circulatingSupply);
+
+  cache.writeCs(circulatingSupply);
 };
 
 main()
