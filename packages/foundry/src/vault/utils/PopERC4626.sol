@@ -52,6 +52,15 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  function totalAssets() public view virtual override returns (uint256) {
+    // Return assets in adapter if paused
+    // Otherwise return assets held by the adapter in underlying protocol
+  }
+
+  function convertToUnderlyingShares(uint256 assets, uint256 shares) public view virtual returns (uint256) {
+    // OPTIONAL - convert assets or shares into underlying shares if those are needed to deposit/withdraw in the underlying protocol
+  }
+
   /** @dev See {IERC4262-maxDeposit}. */
   function maxDeposit(address) public view virtual override returns (uint256) {
     return paused() ? 0 : type(uint256).max;
@@ -105,7 +114,10 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     emit Deposit(caller, receiver, assets, shares);
   }
 
-  function afterDeposit(uint256 assets, uint256 shares) internal virtual {}
+  function afterDeposit(uint256 assets, uint256 shares) internal virtual {
+    // OPTIONAL - convertIntoUnderlyingShares(assets,shares)
+    // deposit into underlying protocol
+  }
 
   /**
    * @dev Withdraw/redeem common workflow.
@@ -136,7 +148,10 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     emit Withdraw(caller, receiver, owner, assets, shares);
   }
 
-  function beforeWithdraw(uint256 assets, uint256 shares) internal virtual {}
+  function beforeWithdraw(uint256 assets, uint256 shares) internal virtual {
+    // OPTIONAL - convertIntoUnderlyingShares(assets,shares)
+    // withdraw from underlying protocol
+  }
 
   /*//////////////////////////////////////////////////////////////
                       EIP-2612 LOGIC
@@ -221,14 +236,18 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     emit Harvested();
   }
 
-  function _harvest() internal virtual {}
+  function _harvest() internal virtual {
+    // OPTIONAL - prepare for executing strategy action
+    // execute strategy action
+    // OPTIONAL - execute further actions
+    // (Use afterDeposit or beforeWithdraw if you want to deposit/withdraw from the underlying protocol)
+  }
 
   /*//////////////////////////////////////////////////////////////
                       FEE LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  // TODO move that into init and set it in VaultFactory
-  uint256 public managementFee = 5e15; // 50 BPS
+  uint256 public managementFee;
   uint256 constant MAX_FEE = 1e18;
   uint256 constant SECONDS_PER_YEAR = 365.25 days;
 
@@ -271,12 +290,12 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
                       PAUSING LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function pause() external virtual onlyRole(VAULTS_CONTROLLER) {
+  function pause() external onlyRole(VAULTS_CONTROLLER) {
     beforeWithdraw(totalAssets(), totalSupply());
     _pause();
   }
 
-  function unpause() external virtual onlyRole(VAULTS_CONTROLLER) {
+  function unpause() external onlyRole(VAULTS_CONTROLLER) {
     _unpause();
     afterDeposit(totalAssets(), totalSupply());
   }

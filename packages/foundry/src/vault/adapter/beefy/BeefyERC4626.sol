@@ -129,7 +129,7 @@ contract BeefyERC4626 is PopERC4626 {
 
   // takes as argument the internal ERC4626 shares to redeem
   // returns the external BeefyVault shares to withdraw
-  function convertToBeefyVaultShares(uint256 shares) public view returns (uint256) {
+  function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
     uint256 supply = totalSupply();
     return supply == 0 ? shares : shares.mulDiv(beefyBalanceCheck.balanceOf(address(this)), supply, Math.Rounding.Up);
   }
@@ -165,7 +165,7 @@ contract BeefyERC4626 is PopERC4626 {
   }
 
   function beforeWithdraw(uint256, uint256 shares) internal virtual override {
-    uint256 beefyShares = convertToBeefyVaultShares(shares);
+    uint256 beefyShares = convertToUnderlyingShares(0, shares);
     if (address(beefyBooster) != address(0)) beefyBooster.withdraw(beefyShares);
     beefyVault.withdraw(beefyShares);
   }
