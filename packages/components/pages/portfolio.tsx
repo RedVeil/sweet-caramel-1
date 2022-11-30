@@ -6,6 +6,7 @@ import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
 import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
+import ClaimableBalanceOf from '../pop/Escrow/ClaimableBalanceOf';
 
 export const PortfolioPage: NextPage = () => {
   const {
@@ -84,6 +85,13 @@ export const PortfolioPage: NextPage = () => {
 
           <Escrow.ValueOfBalance
             key={`Escrow.ValueOfBalance`}
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+          />
+
+          <Escrow.ClaimableBalanceOf
+            key={`Escrow.ClaimableBalanceOf`}
             account={account}
             address={token.address}
             chainId={token.chainId}
