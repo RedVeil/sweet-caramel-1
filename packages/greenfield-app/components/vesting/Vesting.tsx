@@ -13,16 +13,17 @@ import ContentLoader from "react-content-loader";
 interface VestingProps {
   chainId: ChainId;
   addClaimable: (amount: BigNumber) => void;
+  isNotAvailable: boolean;
 }
 
-export default function Vesting({ chainId, addClaimable }: VestingProps): JSX.Element {
+export default function Vesting({ chainId, addClaimable, isNotAvailable }: VestingProps): JSX.Element {
   const { rewardsEscrow } = useDeployment(chainId);
   const claimVestedPopFromEscrows = useClaimEscrows(rewardsEscrow, chainId);
   const transaction = useTransaction(chainId);
   const { escrows, totalClaimablePop, totalVestingPop, revalidate, isValidating, error } = useEscrows(chainId);
 
   useEffect(() => {
-    if (totalClaimablePop || error) {
+    if (totalClaimablePop || error || isValidating) {
       addClaimable(totalClaimablePop);
     }
   }, [totalClaimablePop, isValidating, error]);
@@ -36,7 +37,7 @@ export default function Vesting({ chainId, addClaimable }: VestingProps): JSX.El
   };
   return (
     <>
-      <div className={`my-4 ${totalClaimablePop || error ? "hidden" : ""}`}>
+      <div className={`my-4 ${isNotAvailable || (!isValidating && totalClaimablePop) || error ? "hidden" : ""}`}>
         <ContentLoader viewBox="0 0 450 100" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
           {/*eslint-disable */}
           <rect x="0" y="0" rx="8" ry="8" width="450" height="100" />
