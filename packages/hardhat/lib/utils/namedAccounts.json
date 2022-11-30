@@ -94,7 +94,7 @@
     "metadata": {
       "contractName": "ButterStaking",
       "priceResolver": "staking",
-      "symbol": "pst-BTR",
+      "symbol": "st-BTR",
       "isERC20": false,
       "apyResolver": "synthetix"
     }
@@ -451,6 +451,7 @@
       "contractName": "PopLocker",
       "icons": ["/images/icons/POP.svg"],
       "name": "POP",
+      "symbol": "vlPOP",
       "priceResolver": "staking",
       "isERC20": false
     }
@@ -474,8 +475,9 @@
     },
     "metadata": {
       "priceResolver": "staking",
+      "apyResolver": "synthetix",
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "symbol": "st-RAKIS-15"
     }
   },
   "popUsdcLp": {
@@ -541,7 +543,7 @@
     "metadata": {
       "priceResolver": "pop",
       "symbol": "POP",
-      "balanceResolver": "rewardsEscrow",
+      "balanceResolver": "escrowBalance",
       "isERC20": false
     }
   },
@@ -680,7 +682,7 @@
     "metadata": {
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
-      "symbol": "pst-3X",
+      "symbol": "st-3X",
       "isERC20": false,
       "apyResolver": "synthetix"
     }
