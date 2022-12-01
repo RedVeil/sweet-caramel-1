@@ -1,8 +1,9 @@
-name: Circulating Supply Development Cron Job
+name: Circulating Supply Deployment Cron Job
 
 on: push
 
 env:
+  CI: true
   ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
   BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
 
@@ -27,11 +28,8 @@ jobs:
       - name: "Build hardhat"
         run: cd packages/hardhat && yarn export
 
-      - name: Build utils folder
-        run: cd packages/utils && tsc -b
-
-      - name: Serve dist folder using node
-        run: node packages/utils/dist/circulating-supply/circulating-supply
+      - name: Run script
+        run: yarn circulating-supply
 
       - name: Make pr comment
         uses: mshick/add-pr-comment@v2
