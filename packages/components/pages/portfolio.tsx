@@ -6,15 +6,14 @@ import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
 import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
-import ClaimableBalanceOf from '../pop/Escrow/ClaimableBalanceOf';
 
 export const PortfolioPage: NextPage = () => {
   const {
     features: { portfolio: visible },
   } = useFeatures();
 
-  const { address: account } = useAccount();
-  //const account = "0x28dc239fbf64abebc847d889d68c3f1dd18f72a8";
+  //const { address: account } = useAccount();
+  const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -102,7 +101,12 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Staking.Apy key={`vAPR`}
+          <Staking.Apy key={`Staking.vAPR`}
+            address={token.address}
+            chainId={token.chainId}
+          />
+          <Staking.ClaimableBalanceOf key={`Staking.ClaimableBalanceOf`}
+            account={account}
             address={token.address}
             chainId={token.chainId}
           />

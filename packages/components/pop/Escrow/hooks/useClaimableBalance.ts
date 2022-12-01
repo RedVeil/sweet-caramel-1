@@ -13,15 +13,13 @@ export const useClaimableBalance: Pop.Hook<BigNumberWithFormatted> = ({
   enabled,
   escrowIds,
 }: { escrowIds?: string[] } & Pop.StdProps) => {
-  const provider = useProvider({ chainId: Number(chainId) });
   const [metadata] = useNamedAccounts(chainId as any, [address]);
 
   const _enabled =
     (typeof enabled === "boolean" ? enabled : metadata?.balanceResolver === "escrowBalance") &&
     !!account &&
     !!address &&
-    !!chainId &&
-    !!provider;
+    !!chainId;
 
   const { data, status } = useContractReads({
     enabled: _enabled,

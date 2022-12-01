@@ -4,7 +4,7 @@ export namespace Pop {
   export type StdProps = BaseContractProps;
   export type BaseContractProps = Address & ChainId & Partial<Account & Enabled>;
 
-  export type FC<T> = React.FC<FCProps<T> & T & Partial<HookResult<T>>>;
+  export type FC<T> = React.FC<FCProps<T> & Partial<HookResult<T>>>;
 
   export type FCProps<T> = BaseContractProps & T;
 
@@ -50,4 +50,8 @@ export namespace Pop {
 export interface BigNumberWithFormatted {
   value?: BigNumber;
   formatted?: string;
+}
+
+export interface BigNumberResponse {
+  value?: BigNumber;
 }
