@@ -16,8 +16,8 @@ jobs:
         with:
           ref: circulating-supply
       - name: "yarn install"
-        run: yarn install
-      - name: "yarn build"
+        run: yarn export hardhat
+      - name: cd packages/hardhat && yarn-export
         run: yarn build
       - name: Build utils folder
         run: cd packages/utils && tsc -b
