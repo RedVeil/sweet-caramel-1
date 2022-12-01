@@ -2,6 +2,10 @@ name: Circulating Supply Development Cron Job
 
 on: push
 
+env:
+  ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
+  BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
+
 jobs:
   Circulating-Supply:
     name: Circulating Supply Deployment
@@ -27,14 +31,11 @@ jobs:
         run: cd packages/utils && tsc -b
         env:
           CI: true
-          NODE_ENV: production
-          ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
-          BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
 
-      - name: serve dist folder using node
+      - name: Serve dist folder using node
         run: node packages/utils/dist/circulating-supply/circulating-supply
 
-      - name: Make PR Comment
+      - name: Make pr comment
         uses: mshick/add-pr-comment@v2
         with:
           message: "Update circulating supply"
