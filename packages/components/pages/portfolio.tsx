@@ -96,25 +96,20 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Price.PriceOf key={`Price.PriceOf`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Price.PriceOf key={`Price.PriceOf`} address={token.address} chainId={token.chainId} />
 
           <Staking.Apy key={`Staking.vAPR`}
             address={token.address}
             chainId={token.chainId}
           />
+
           <Staking.ClaimableBalanceOf key={`Staking.ClaimableBalanceOf`}
             account={account}
             address={token.address}
             chainId={token.chainId}
           />
 
-          <Contract.Tvl key={`TVL`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Contract.Tvl key={`Contract.TVL`} address={token.address} chainId={token.chainId} />
         </Contract.Metadata>
       ))}
     </div>
