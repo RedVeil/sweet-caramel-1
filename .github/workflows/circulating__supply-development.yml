@@ -11,24 +11,28 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
+
       - name: Checkout to circulating-supply branch
         uses: actions/checkout@v3
         with:
           ref: circulating-supply
+
       - name: "Build hardhat"
-        run: |
-          cd packages/hardhat
-          "yarn export"
+        run: cd packages/hardhat && yarn export
+
       - name: Build utils folder
         run: cd packages/utils && tsc -b
         env:
           ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
           BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
+
       - name: serve dist folder using node
         run: node packages/utils/dist/circulating-supply/circulating-supply
+
       - name: Make PR Comment
         uses: mshick/add-pr-comment@v2
         with:
           message: "Update circulating supply"
+
       - name: Push
         run: git push
