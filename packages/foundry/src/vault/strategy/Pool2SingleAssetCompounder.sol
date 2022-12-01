@@ -25,7 +25,6 @@ contract Pool2SingleAssetCompounder is StrategyBase {
 
     address[] memory rewardTokens = IPopClaimerERC4626(address(this)).rewardTokens();
     uint256 len = rewardTokens.length;
-    // Approve all rewardsToken for trading
     for (uint256 i = 0; i < len; i++) {
       tradePath[0] = rewardTokens[i];
 
@@ -37,6 +36,7 @@ contract Pool2SingleAssetCompounder is StrategyBase {
   function _setUpStrategy(bytes memory data) internal override {
     address router = abi.decode(data, (address));
 
+    // Approve all rewardsToken for trading
     address[] memory rewardTokens = IPopClaimerERC4626(address(this)).rewardTokens();
     uint256 len = rewardTokens.length;
     for (uint256 i = 0; i < len; i++) {

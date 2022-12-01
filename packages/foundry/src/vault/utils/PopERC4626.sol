@@ -8,6 +8,8 @@ import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableU
 import { ACLAuth } from "../../utils/ACLAuth.sol";
 import { ContractRegistryAccessUpgradeable, IContractRegistry } from "../../utils/ContractRegistryAccessUpgradeable.sol";
 import { IStrategy } from "../../interfaces/IStrategy.sol";
+import { EIP165 } from "./EIP165.sol";
+import { OnlyStrategy } from "./OnlyStrategy.sol";
 
 /*
  * @title Beefy ERC4626 Contract
@@ -16,7 +18,14 @@ import { IStrategy } from "../../interfaces/IStrategy.sol";
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, ContractRegistryAccessUpgradeable {
+contract PopERC4626 is
+  ERC4626Upgradeable,
+  PausableUpgradeable,
+  ACLAuth,
+  ContractRegistryAccessUpgradeable,
+  EIP165,
+  OnlyStrategy
+{
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -28,18 +37,20 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
 
   /**
      @notice Initializes the Vault.
-     @param asset The ERC20 compliant token the Vault should accept.
     */
-  function __PopERC4626_init(
-    ERC20 asset,
-    IContractRegistry contractRegistry_,
-    uint256 managementFee_,
-    IStrategy _strategy,
-    bytes memory _strategyData
-  ) public initializer {
+  function __PopERC4626_init(bytes memory popERC4626InitData) public initializer {
+    (
+      address asset,
+      address contractRegistry_,
+      uint256 managementFee_,
+      address _strategy,
+      bytes memory _strategyData,
+      uint256 _harvestTimeout
+    ) = abi.decode(popERC4626InitData, (address, address, uint256, address, bytes, uint256));
+
     __Pausable_init();
-    __ERC4626_init(asset);
-    __ContractRegistryAccess_init(contractRegistry_);
+    __ERC4626_init(ERC20(asset));
+    __ContractRegistryAccess_init(IContractRegistry(contractRegistry_));
 
     if (msg.sender != _getContract(keccak256("VaultsFactory"))) revert NotFactory();
 
@@ -48,8 +59,9 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    strategy = _strategy;
+    strategy = IStrategy(_strategy);
     strategyData = _strategyData;
+    harvestTimeout = _harvestTimeout;
 
     feesUpdatedAt = block.timestamp;
   }
@@ -242,13 +254,18 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
 
   IStrategy public strategy;
   bytes internal strategyData;
+  uint256 public harvestTimeout;
 
-  error OnlyStrategy(address sender);
+  error HarvestTimeout();
 
   event Harvested();
 
   function harvest() external takeFees {
-    if (address(strategy) != address(0)) address(strategy).delegatecall(abi.encodeWithSignature("harvest()"));
+    if (address(strategy) != address(0)) {
+      if ((feesUpdatedAt + harvestTimeout) >= block.timestamp) revert HarvestTimeout();
+
+      address(strategy).delegatecall(abi.encodeWithSignature("harvest()"));
+    }
 
     emit Harvested();
   }
@@ -263,11 +280,6 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
 
   function strategyWithdraw(uint256 amount, uint256 shares) public onlyStrategy {
     _withdrawFromWrappedProtocol(amount, shares);
-  }
-
-  modifier onlyStrategy() {
-    if (msg.sender != address(this)) revert OnlyStrategy(msg.sender);
-    _;
   }
 
   /*//////////////////////////////////////////////////////////////

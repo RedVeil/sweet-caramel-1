@@ -47,17 +47,17 @@ contract BeefyERC4626Test is Test {
 
     rewardsClaimer = new RewardsClaimer();
 
-    vm.prank(factory);
-    erc4626.initialize(
+    bytes memory popERC4626InitData = abi.encode(
       asset,
       IContractRegistry(CONTRACT_REGISTRY),
       50,
-      beefyVault,
-      beefyBooster,
-      0,
       IStrategy(address(rewardsClaimer)),
-      abi.encode(feeRecipient, rewardsToken)
+      abi.encode(feeRecipient),
+      0
     );
+
+    vm.prank(factory);
+    erc4626.initialize(popERC4626InitData, beefyVault, beefyBooster, 0);
 
     deal(address(asset), address(this), 1000 ether);
   }

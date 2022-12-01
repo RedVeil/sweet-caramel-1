@@ -2,9 +2,10 @@
 pragma solidity ^0.8.15;
 
 import { PopERC4626, ERC20, SafeERC20, Math, IContractRegistry, IStrategy } from "../../utils/PopERC4626.sol";
+import { WithRewards } from "../../utils/WithRewards.sol";
 
 interface IBeefyVault {
-  function want() external view returns (ERC20);
+  function want() external view returns (address);
 
   function deposit(uint256 _amount) external;
 
@@ -59,7 +60,7 @@ interface IBeefyBalanceCheck {
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract BeefyERC4626 is PopERC4626 {
+contract BeefyERC4626 is PopERC4626, WithRewards {
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -80,26 +81,21 @@ contract BeefyERC4626 is PopERC4626 {
 
   /**
      @notice Initializes the Vault.
-     @param asset The ERC20 compliant token the Vault should accept.
      @param _beefyVault The Beefy Vault contract.
      @param _beefyBooster An optional booster contract which rewards additional token for the vault
      @param _beefyWithdrawalFee beefyStrategy withdrawalFee in 10_000 (BPS)
     */
   function initialize(
-    ERC20 asset,
-    IContractRegistry contractRegistry_,
-    uint256 managementFee_,
+    bytes memory popERC4626InitData,
     IBeefyVault _beefyVault,
     IBeefyBooster _beefyBooster,
-    uint256 _beefyWithdrawalFee,
-    IStrategy _strategy,
-    bytes memory _strategyData
+    uint256 _beefyWithdrawalFee
   ) public initStrategy {
-    __PopERC4626_init(asset, contractRegistry_, managementFee_, _strategy, _strategyData);
+    __PopERC4626_init(popERC4626InitData);
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
-    if (_beefyVault.want() != asset) revert InvalidBeefyVault(address(_beefyVault));
+    if (_beefyVault.want() != asset()) revert InvalidBeefyVault(address(_beefyVault));
     if (address(_beefyBooster) != address(0) && _beefyBooster.stakedToken() != address(_beefyVault))
       revert InvalidBeefyBooster(address(_beefyBooster));
 
@@ -111,13 +107,10 @@ contract BeefyERC4626 is PopERC4626 {
       address(_beefyBooster) == address(0) ? address(_beefyVault) : address(_beefyBooster)
     );
 
-    asset.approve(address(beefyVault), type(uint256).max);
+    ERC20(asset()).approve(address(beefyVault), type(uint256).max);
 
     if (address(_beefyBooster) != address(0))
       ERC20(address(_beefyVault)).approve(address(_beefyBooster), type(uint256).max);
-
-    hasFunc[bytes4(keccak256("claim()"))] = true;
-    hasFunc[bytes4(keccak256("rewardTokens()"))] = true;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -144,14 +137,10 @@ contract BeefyERC4626 is PopERC4626 {
     return supply == 0 ? shares : shares.mulDiv(beefyBalanceCheck.balanceOf(address(this)), supply, Math.Rounding.Up);
   }
 
-  function rewardTokens() external view returns (address[] memory) {
+  function rewardTokens() external view override returns (address[] memory) {
     address[] memory rewardTokens = new address[](1);
     rewardTokens[0] = beefyBooster.rewardToken();
     return rewardTokens;
-  }
-
-  function earned() public view returns (uint256) {
-    return beefyBooster.earned(address(this));
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -194,16 +183,7 @@ contract BeefyERC4626 is PopERC4626 {
                             STRATEGY LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function claim() public onlyStrategy {
+  function claim() public override onlyStrategy {
     beefyBooster.getReward();
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                            EIP-165 LOGIC
-    //////////////////////////////////////////////////////////////*/
-  mapping(bytes4 => bool) internal hasFunc;
-
-  function isFunctionImplemented(bytes4 sig) external view returns (bool) {
-    return hasFunc[sig];
   }
 }
