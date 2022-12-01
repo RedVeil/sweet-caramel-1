@@ -12,8 +12,8 @@ export const PortfolioPage: NextPage = () => {
     features: { portfolio: visible },
   } = useFeatures();
 
-  //const { address: account } = useAccount();
-  const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
+  const { address: account } = useAccount();
+  //const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -96,25 +96,20 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Price.PriceOf key={`Price.PriceOf`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Price.PriceOf key={`Price.PriceOf`} address={token.address} chainId={token.chainId} />
 
           <Staking.Apy key={`Staking.vAPR`}
             address={token.address}
             chainId={token.chainId}
           />
+
           <Staking.ClaimableBalanceOf key={`Staking.ClaimableBalanceOf`}
             account={account}
             address={token.address}
             chainId={token.chainId}
           />
 
-          <Contract.Tvl key={`TVL`}
-            address={token.address}
-            chainId={token.chainId}
-          />
+          <Contract.Tvl key={`Contract.TVL`} address={token.address} chainId={token.chainId} />
         </Contract.Metadata>
       ))}
     </div>
