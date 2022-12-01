@@ -46,7 +46,7 @@ contract Pool2SingleAssetCompounder is StrategyBase {
 
   /// @notice claim all token rewards and trade them for the underlying asset
   function harvest() public override {
-    address router = abi.decode(IPopERC4626WithRewards(address(this)).strategyData(), (address));
+    address router = abi.decode(IPopERC4626WithRewards(address(this)).strategyConfig(), (address));
     address asset = IPopERC4626WithRewards(address(this)).asset();
     address[] memory rewardTokens = IPopERC4626WithRewards(address(this)).rewardTokens();
 

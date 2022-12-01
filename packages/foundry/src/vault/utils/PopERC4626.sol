@@ -45,7 +45,7 @@ contract PopERC4626 is
       address contractRegistry_,
       uint256 managementFee_,
       address _strategy,
-      bytes memory _strategyData,
+      bytes memory _strategyConfig,
       uint256 _harvestTimeout
     ) = abi.decode(popERC4626InitData, (address, address, uint256, address, bytes, uint256));
 
@@ -61,7 +61,7 @@ contract PopERC4626 is
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
     strategy = IStrategy(_strategy);
-    strategyData = _strategyData;
+    strategyConfig = _strategyConfig;
     harvestTimeout = _harvestTimeout;
 
     feesUpdatedAt = block.timestamp;
@@ -254,7 +254,7 @@ contract PopERC4626 is
     //////////////////////////////////////////////////////////////*/
 
   IStrategy public strategy;
-  bytes public strategyData;
+  bytes public strategyConfig;
   uint256 public harvestTimeout;
 
   error HarvestTimeout();

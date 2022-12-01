@@ -4,7 +4,7 @@
 pragma solidity ^0.8.15;
 
 interface IPopERC4626 {
-  function strategyData() external view returns (bytes memory);
+  function strategyConfig() external view returns (bytes memory);
 
   function asset() external view returns (address);
 

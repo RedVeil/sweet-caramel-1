@@ -21,7 +21,7 @@ contract RewardsClaimer is StrategyBase {
 
   /// @notice claim all token rewards
   function harvest() public override {
-    address rewardDestination = abi.decode(IPopERC4626WithRewards(address(this)).strategyData(), (address));
+    address rewardDestination = abi.decode(IPopERC4626WithRewards(address(this)).strategyConfig(), (address));
 
     IPopERC4626WithRewards(address(this)).claim(); // hook to accrue/pull in rewards, if needed
 
