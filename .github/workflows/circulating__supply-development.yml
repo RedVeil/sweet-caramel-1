@@ -27,6 +27,7 @@ jobs:
         run: cd packages/utils && tsc -b
         env:
           CI: true
+          NODE_ENV: production
           ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
           BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
 
