@@ -16,8 +16,7 @@
     "date-fns": "2.28.0",
     "ethers": "5.6.7",
     "find-config": "^1.0.0",
-    "pino": "6.13.4",
-    "ts-node": "10.9.1"
+    "pino": "6.13.4"
   },
   "license": "AGPL-3.0"
 }

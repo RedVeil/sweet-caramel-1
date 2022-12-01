@@ -68,15 +68,13 @@
     "@testing-library/react": "10.4.9",
     "@types/howler": "2.2.4",
     "@types/luxon": "^2.3.2",
-    "@types/node": "14.18.9",
     "@types/react": "^18.0.25",
     "@types/react-dom": "18.0.9",
     "@types/react-slick": "^0.23.8",
     "@types/styled-components": "5.1.25",
     "nodemon": "1.19.4",
     "path": "0.12.7",
-    "postcss": "8.4.12",
-    "ts-node": "^10.9.1"
+    "postcss": "8.4.12"
   },
   "license": "AGPL-3.0"
 }
