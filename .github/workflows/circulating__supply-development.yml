@@ -17,7 +17,7 @@ jobs:
           ref: circulating-supply
       - name: "yarn install"
         run: yarn install
-      - name: Build tsc file using ts -b
+      - name: Run build
         run: cd packages/utils && tsc -b
         env:
           ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
