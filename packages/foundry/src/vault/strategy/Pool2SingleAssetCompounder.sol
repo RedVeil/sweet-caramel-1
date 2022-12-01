@@ -12,11 +12,14 @@ contract Pool2SingleAssetCompounder is StrategyBase {
   function _verifyAdapterCompatibility(bytes memory data) internal override {
     address router = abi.decode(data, (address));
     address asset = IPopClaimerERC4626(address(this)).asset();
+
+    // Verify needed functions exist
     bytes4 sig = bytes4(keccak256("claim()"));
     if (!IPopClaimerERC4626(address(this)).isFunctionImplemented(sig)) revert FunctionNotImplemented(sig);
     sig = bytes4(keccak256("rewardTokens()"));
     if (!IPopClaimerERC4626(address(this)).isFunctionImplemented(sig)) revert FunctionNotImplemented(sig);
 
+    // Verify Trade Path exists
     address[] memory tradePath = new address[](2);
     tradePath[1] = asset;
 

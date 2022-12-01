@@ -12,6 +12,7 @@ contract RewardsClaimer is StrategyBase {
   event ClaimRewards(address indexed rewardToken, uint256 amount);
 
   function _verifyAdapterCompatibility(bytes memory data) internal override {
+    // Verify needed functions exist
     bytes4 sig = bytes4(keccak256("claim()"));
     if (!IPopClaimerERC4626(address(this)).isFunctionImplemented(sig)) revert FunctionNotImplemented(sig);
     sig = bytes4(keccak256("rewardTokens()"));
