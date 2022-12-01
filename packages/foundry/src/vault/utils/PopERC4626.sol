@@ -121,12 +121,12 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
 
     _mint(receiver, shares);
 
-    afterDeposit(assets, shares);
+    _depositIntoWrappedProtocol(assets, shares);
 
     emit Deposit(caller, receiver, assets, shares);
   }
 
-  function afterDeposit(uint256 assets, uint256 shares) internal virtual {
+  function _depositIntoWrappedProtocol(uint256 assets, uint256 shares) internal virtual {
     // OPTIONAL - convertIntoUnderlyingShares(assets,shares)
     // deposit into underlying protocol
   }
@@ -145,7 +145,7 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
       _spendAllowance(owner, caller, shares);
     }
 
-    beforeWithdraw(assets, shares);
+    _withdrawFromWrappedProtocol(assets, shares);
 
     // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
     // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
@@ -160,7 +160,7 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     emit Withdraw(caller, receiver, owner, assets, shares);
   }
 
-  function beforeWithdraw(uint256 assets, uint256 shares) internal virtual {
+  function _withdrawFromWrappedProtocol(uint256 assets, uint256 shares) internal virtual {
     // OPTIONAL - convertIntoUnderlyingShares(assets,shares)
     // withdraw from underlying protocol
   }
@@ -258,11 +258,11 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
   }
 
   function strategyDeposit(uint256 amount, uint256 shares) public onlyStrategy {
-    afterDeposit(amount, shares);
+    _depositIntoWrappedProtocol(amount, shares);
   }
 
   function strategyWithdraw(uint256 amount, uint256 shares) public onlyStrategy {
-    beforeWithdraw(amount, shares);
+    _withdrawFromWrappedProtocol(amount, shares);
   }
 
   modifier onlyStrategy() {
@@ -318,13 +318,13 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
   //////////////////////////////////////////////////////////////*/
 
   function pause() external onlyRole(VAULTS_CONTROLLER) {
-    beforeWithdraw(totalAssets(), totalSupply());
+    _withdrawFromWrappedProtocol(totalAssets(), totalSupply());
     _pause();
   }
 
   function unpause() external onlyRole(VAULTS_CONTROLLER) {
     _unpause();
-    afterDeposit(totalAssets(), totalSupply());
+    _depositIntoWrappedProtocol(totalAssets(), totalSupply());
   }
 
   /*//////////////////////////////////////////////////////////////

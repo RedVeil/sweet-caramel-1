@@ -179,12 +179,12 @@ contract BeefyERC4626 is PopERC4626 {
                           INTERNAL HOOKS LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function afterDeposit(uint256 amount, uint256) internal virtual override {
+  function _depositIntoWrappedProtocol(uint256 amount, uint256) internal virtual override {
     beefyVault.deposit(amount);
     if (address(beefyBooster) != address(0)) beefyBooster.stake(beefyVault.balanceOf(address(this)));
   }
 
-  function beforeWithdraw(uint256, uint256 shares) internal virtual override {
+  function _withdrawFromWrappedProtocol(uint256, uint256 shares) internal virtual override {
     uint256 beefyShares = convertToUnderlyingShares(0, shares);
     if (address(beefyBooster) != address(0)) beefyBooster.withdraw(beefyShares);
     beefyVault.withdraw(beefyShares);
