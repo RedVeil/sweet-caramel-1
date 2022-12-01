@@ -29,8 +29,6 @@ jobs:
 
       - name: Build utils folder
         run: cd packages/utils && tsc -b
-        env:
-          CI: true
 
       - name: Serve dist folder using node
         run: node packages/utils/dist/circulating-supply/circulating-supply
