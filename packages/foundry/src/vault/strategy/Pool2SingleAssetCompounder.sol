@@ -9,9 +9,14 @@ contract Pool2SingleAssetCompounder is Initializable {
   function __Pool2SingleAssetCompounder_init(bytes memory data) public initializer {
     (address router, address[] memory rewardsToken) = abi.decode(data, (address, address[]));
 
+    address[] memory tradePath = new address[](2);
+    tradePath[1] = asset;
+
     uint256 len = rewardsToken.length;
     // Approve all rewardsToken for trading
     for (uint256 i = 0; i < len; i++) {
+      tradePath[0] = rewardsToken[i];
+      if (IUniswapRouterV2(router).getAmountOut(amountIn, tradePath) == 0) revert NoValidTradePath();
       ERC20(rewardsToken[i]).approve(router, type(uint256).max);
     }
   }

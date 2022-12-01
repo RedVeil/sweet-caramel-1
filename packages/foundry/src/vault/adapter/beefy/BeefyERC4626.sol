@@ -141,8 +141,10 @@ contract BeefyERC4626 is PopERC4626 {
     return supply == 0 ? shares : shares.mulDiv(beefyBalanceCheck.balanceOf(address(this)), supply, Math.Rounding.Up);
   }
 
-  function rewardToken() external view returns (address) {
-    return beefyBooster.rewardToken();
+  function rewardTokens() external view returns (address[] memory) {
+    address[] memory rewardTokens = new address[](1);
+    rewardTokens[0] = beefyBooster.rewardToken();
+    return rewardTokens;
   }
 
   function earned() public view returns (uint256) {
