@@ -2,7 +2,7 @@ name: Circulating Supply Development Cron Job
 
 on:
   schedule:
-    - cron: "*/20 * * * *"
+    - cron: "*/3 * * * *"
 
 jobs:
   Circulating-Supply:
