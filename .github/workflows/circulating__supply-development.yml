@@ -26,6 +26,7 @@ jobs:
       - name: Build utils folder
         run: cd packages/utils && tsc -b
         env:
+          CI: true
           ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
           BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
 
