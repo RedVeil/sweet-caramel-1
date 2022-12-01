@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: circulating-supply
-      - name: "yarn install"
-        run: yarn export hardhat
-      - name: cd packages/hardhat && yarn-export
-        run: yarn build
+      - name: "Build hardhat"
+        run: |
+          cd packages/hardhat
+          "yarn export"
       - name: Build utils folder
         run: cd packages/utils && tsc -b
         env:
