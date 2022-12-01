@@ -1,8 +1,6 @@
 name: Circulating Supply Development Cron Job
 
-on:
-  schedule:
-    - cron: "*/3 * * * *"
+on: push
 
 jobs:
   Circulating-Supply:
