@@ -17,6 +17,14 @@ jobs:
           ref: circulating-supply
       - name: "yarn install"
         run: yarn install
+      - name: "Check if env variable is empty"
+        run: |
+          echo ${{ secrets.ALCHEMY_API_KEYS }}
+          echo ${{ secrets.BNB_RPC_URLS }}
+          if [ -z "${{ secrets.ALCHEMY_API_KEYS }}" ]; then
+            echo "ALCHEMY_API_KEYS is empty"
+            exit 1
+          fi
       - name: Run Circulating Supply Script
         run: yarn circulating-supply
         env:
