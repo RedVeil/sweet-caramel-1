@@ -3,14 +3,18 @@ pragma solidity ^0.8.15;
 
 import { EIP165 } from "./EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
+import { IPopERC4626WithRewards } from "../../interfaces/IPopERC4626WithRewards.sol";
 
 contract WithRewards is EIP165, OnlyStrategy {
-  function _addFunctionSignatures() internal override {
-    hasFunc[bytes4(keccak256("claim()"))] = true;
-    hasFunc[bytes4(keccak256("rewardTokens()"))] = true;
-  }
-
   function rewardTokens() external view virtual returns (address[] memory) {}
 
   function claim() public virtual onlyStrategy {}
+
+  /*//////////////////////////////////////////////////////////////
+                      EIP-165 LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return interfaceId == type(IPopERC4626WithRewards).interfaceId;
+  }
 }

@@ -4,7 +4,7 @@
 pragma solidity ^0.8.15;
 
 interface IPopERC4626 {
-  function getStrategyData() external view returns (bytes memory);
+  function strategyData() external view returns (bytes memory);
 
   function asset() external view returns (address);
 
@@ -12,9 +12,5 @@ interface IPopERC4626 {
 
   function strategyWithdraw(uint256 assets, uint256 shares) external;
 
-  function claim() external;
-
-  function isFunctionImplemented(bytes4 sig) external view returns (bool);
-
-  function rewardTokens() external view returns (address[] memory);
+  function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }

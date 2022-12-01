@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import { IPopClaimerERC4626 } from "../../interfaces/IPopClaimerERC4626.sol";
+import { IPopERC4626WithRewards } from "../../interfaces/IPopERC4626WithRewards.sol";
 import { StrategyBase } from "./StrategyBase.sol";
 
 contract RewardsClaimer is StrategyBase {
@@ -14,18 +14,18 @@ contract RewardsClaimer is StrategyBase {
   function _verifyAdapterCompatibility(bytes memory data) internal override {
     // Verify needed functions exist
     bytes4 sig = bytes4(keccak256("claim()"));
-    if (!IPopClaimerERC4626(address(this)).isFunctionImplemented(sig)) revert FunctionNotImplemented(sig);
+    if (!IPopERC4626WithRewards(address(this)).supportsInterface(sig)) revert FunctionNotImplemented(sig);
     sig = bytes4(keccak256("rewardTokens()"));
-    if (!IPopClaimerERC4626(address(this)).isFunctionImplemented(sig)) revert FunctionNotImplemented(sig);
+    if (!IPopERC4626WithRewards(address(this)).supportsInterface(sig)) revert FunctionNotImplemented(sig);
   }
 
   /// @notice claim all token rewards
   function harvest() public override {
-    address rewardDestination = abi.decode(IPopClaimerERC4626(address(this)).getStrategyData(), (address));
+    address rewardDestination = abi.decode(IPopERC4626WithRewards(address(this)).strategyData(), (address));
 
-    IPopClaimerERC4626(address(this)).claim(); // hook to accrue/pull in rewards, if needed
+    IPopERC4626WithRewards(address(this)).claim(); // hook to accrue/pull in rewards, if needed
 
-    address[] memory rewardTokens = IPopClaimerERC4626(address(this)).rewardTokens();
+    address[] memory rewardTokens = IPopERC4626WithRewards(address(this)).rewardTokens();
     uint256 len = rewardTokens.length;
     // send all tokens to destination
     for (uint256 i = 0; i < len; i++) {

@@ -2,11 +2,5 @@
 pragma solidity ^0.8.15;
 
 contract EIP165 {
-  mapping(bytes4 => bool) internal hasFunc;
-
-  function isFunctionImplemented(bytes4 sig) external view returns (bool) {
-    return hasFunc[sig];
-  }
-
-  function _addFunctionSignatures() internal virtual {}
+  function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {}
 }

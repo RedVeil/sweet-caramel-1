@@ -7,7 +7,7 @@ contract StrategyBase {
   error FunctionNotImplemented(bytes4 sig);
 
   function verifyAndSetupStrategy() public {
-    bytes memory strategyData = IPopERC4626(address(this)).getStrategyData();
+    bytes memory strategyData = IPopERC4626(address(this)).strategyData();
     _verifyAdapterCompatibility(strategyData);
     _setUpStrategy(strategyData);
   }

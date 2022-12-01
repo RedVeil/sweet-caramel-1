@@ -8,6 +8,7 @@ import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableU
 import { ACLAuth } from "../../utils/ACLAuth.sol";
 import { ContractRegistryAccessUpgradeable, IContractRegistry } from "../../utils/ContractRegistryAccessUpgradeable.sol";
 import { IStrategy } from "../../interfaces/IStrategy.sol";
+import { IPopERC4626 } from "../../interfaces/IPopERC4626.sol";
 import { EIP165 } from "./EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
 
@@ -133,12 +134,12 @@ contract PopERC4626 is
 
     _mint(receiver, shares);
 
-    _depositIntoWrappedProtocol(assets, shares);
+    _protocolDeposit(assets, shares);
 
     emit Deposit(caller, receiver, assets, shares);
   }
 
-  function _depositIntoWrappedProtocol(uint256 assets, uint256 shares) internal virtual {
+  function _protocolDeposit(uint256 assets, uint256 shares) internal virtual {
     // OPTIONAL - convertIntoUnderlyingShares(assets,shares)
     // deposit into underlying protocol
   }
@@ -157,7 +158,7 @@ contract PopERC4626 is
       _spendAllowance(owner, caller, shares);
     }
 
-    _withdrawFromWrappedProtocol(assets, shares);
+    _protocolWithdraw(assets, shares);
 
     // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
     // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
@@ -172,7 +173,7 @@ contract PopERC4626 is
     emit Withdraw(caller, receiver, owner, assets, shares);
   }
 
-  function _withdrawFromWrappedProtocol(uint256 assets, uint256 shares) internal virtual {
+  function _protocolWithdraw(uint256 assets, uint256 shares) internal virtual {
     // OPTIONAL - convertIntoUnderlyingShares(assets,shares)
     // withdraw from underlying protocol
   }
@@ -253,7 +254,7 @@ contract PopERC4626 is
     //////////////////////////////////////////////////////////////*/
 
   IStrategy public strategy;
-  bytes internal strategyData;
+  bytes public strategyData;
   uint256 public harvestTimeout;
 
   error HarvestTimeout();
@@ -270,16 +271,12 @@ contract PopERC4626 is
     emit Harvested();
   }
 
-  function getStrategyData() public view returns (bytes memory) {
-    return strategyData;
-  }
-
   function strategyDeposit(uint256 amount, uint256 shares) public onlyStrategy {
-    _depositIntoWrappedProtocol(amount, shares);
+    _protocolDeposit(amount, shares);
   }
 
   function strategyWithdraw(uint256 amount, uint256 shares) public onlyStrategy {
-    _withdrawFromWrappedProtocol(amount, shares);
+    _protocolWithdraw(amount, shares);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -330,13 +327,21 @@ contract PopERC4626 is
   //////////////////////////////////////////////////////////////*/
 
   function pause() external onlyRole(VAULTS_CONTROLLER) {
-    _withdrawFromWrappedProtocol(totalAssets(), totalSupply());
+    _protocolWithdraw(totalAssets(), totalSupply());
     _pause();
   }
 
   function unpause() external onlyRole(VAULTS_CONTROLLER) {
     _unpause();
-    _depositIntoWrappedProtocol(totalAssets(), totalSupply());
+    _protocolDeposit(totalAssets(), totalSupply());
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      EIP-165 LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return interfaceId == type(IPopERC4626).interfaceId;
   }
 
   /*//////////////////////////////////////////////////////////////

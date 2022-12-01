@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import { PopERC4626, ERC20, SafeERC20, Math, IContractRegistry, IStrategy } from "../../utils/PopERC4626.sol";
-import { WithRewards } from "../../utils/WithRewards.sol";
+import { WithRewards, IPopERC4626WithRewards } from "../../utils/WithRewards.sol";
 
 interface IBeefyVault {
   function want() external view returns (address);
@@ -168,12 +168,12 @@ contract BeefyERC4626 is PopERC4626, WithRewards {
                           INTERNAL HOOKS LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function _depositIntoWrappedProtocol(uint256 amount, uint256) internal virtual override {
+  function _protocolDeposit(uint256 amount, uint256) internal virtual override {
     beefyVault.deposit(amount);
     if (address(beefyBooster) != address(0)) beefyBooster.stake(beefyVault.balanceOf(address(this)));
   }
 
-  function _withdrawFromWrappedProtocol(uint256, uint256 shares) internal virtual override {
+  function _protocolWithdraw(uint256, uint256 shares) internal virtual override {
     uint256 beefyShares = convertToUnderlyingShares(0, shares);
     if (address(beefyBooster) != address(0)) beefyBooster.withdraw(beefyShares);
     beefyVault.withdraw(beefyShares);
@@ -185,5 +185,13 @@ contract BeefyERC4626 is PopERC4626, WithRewards {
 
   function claim() public override onlyStrategy {
     beefyBooster.getReward();
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      EIP-165 LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  function supportsInterface(bytes4 interfaceId) public view override(WithRewards, PopERC4626) returns (bool) {
+    return interfaceId == type(IPopERC4626WithRewards).interfaceId;
   }
 }
