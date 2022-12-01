@@ -37,13 +37,13 @@ export default function StatusWithLabel({
         <p className="text-primaryLight">{label}</p>
       )}
       {content == "Coming Soon" || typeof content !== "string" ? (
-        <p
+        <div
           className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6 ${
             !isSmall && "md:leading-8"
           }`}
         >
           {content}
-        </p>
+        </div>
       ) : (
         <p
           className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6  ${
