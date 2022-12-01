@@ -94,7 +94,7 @@ contract BeefyERC4626 is PopERC4626 {
     uint256 _beefyWithdrawalFee,
     IStrategy _strategy,
     bytes memory _strategyData
-  ) public {
+  ) public initStrategy {
     __PopERC4626_init(asset, contractRegistry_, managementFee_, _strategy, _strategyData);
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
@@ -115,6 +115,9 @@ contract BeefyERC4626 is PopERC4626 {
 
     if (address(_beefyBooster) != address(0))
       ERC20(address(_beefyVault)).approve(address(_beefyBooster), type(uint256).max);
+
+    hasFunc[bytes4(keccak256("claim()"))] = true;
+    hasFunc[bytes4(keccak256("rewardTokens()"))] = true;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -193,5 +196,14 @@ contract BeefyERC4626 is PopERC4626 {
 
   function claim() public onlyStrategy {
     beefyBooster.getReward();
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                            EIP-165 LOGIC
+    //////////////////////////////////////////////////////////////*/
+  mapping(bytes4 => bool) internal hasFunc;
+
+  function isFunctionImplemented(bytes4 sig) external view returns (bool) {
+    return hasFunc[sig];
   }
 }

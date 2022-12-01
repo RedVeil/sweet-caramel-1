@@ -13,4 +13,8 @@ interface IPopERC4626 {
   function strategyWithdraw(uint256 assets, uint256 shares) external;
 
   function claim() external;
+
+  function isFunctionImplemented(bytes4 sig) external view returns (bool);
+
+  function rewardTokens() external view returns (address[] memory);
 }

@@ -54,6 +54,12 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     feesUpdatedAt = block.timestamp;
   }
 
+  modifier initStrategy() {
+    _;
+    if (address(strategy) != address(0))
+      address(strategy).delegatecall(abi.encodeWithSignature("verifyAndSetupStrategy()"));
+  }
+
   /*//////////////////////////////////////////////////////////////
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
