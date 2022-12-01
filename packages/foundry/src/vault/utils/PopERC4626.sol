@@ -235,21 +235,33 @@ contract PopERC4626 is ERC4626Upgradeable, PausableUpgradeable, ACLAuth, Contrac
     //////////////////////////////////////////////////////////////*/
 
   IStrategy public strategy;
-  bytes public strategyData;
+  bytes internal strategyData;
+
+  error OnlyStrategy(address sender);
 
   event Harvested();
 
   function harvest() external takeFees {
-    if (address(strategy) != address(0)) _harvest();
+    if (address(strategy) != address(0)) address(strategy).delegatecall(abi.encodeWithSignature("harvest()"));
 
     emit Harvested();
   }
 
-  function _harvest() internal virtual {
-    // OPTIONAL - prepare for executing strategy action
-    // execute strategy action
-    // OPTIONAL - execute further actions
-    // (Use afterDeposit or beforeWithdraw if you want to deposit/withdraw from the underlying protocol)
+  function getStrategyData() public view returns (bytes memory) {
+    return strategyData;
+  }
+
+  function strategyDeposit(uint256 amount, uint256 shares) public onlyStrategy {
+    afterDeposit(amount, shares);
+  }
+
+  function strategyWithdraw(uint256 amount, uint256 shares) public onlyStrategy {
+    beforeWithdraw(amount, shares);
+  }
+
+  modifier onlyStrategy() {
+    if (msg.sender != address(this)) revert OnlyStrategy(msg.sender);
+    _;
   }
 
   /*//////////////////////////////////////////////////////////////

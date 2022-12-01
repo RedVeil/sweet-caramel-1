@@ -3,7 +3,9 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyRewardsClaimer, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster, IContractRegistry } from "../../../src/vault/adapter/beefy/BeefyRewardsClaimer.sol";
+import { BeefyERC4626, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster, IContractRegistry } from "../../../src/vault/adapter/beefy/BeefyERC4626.sol";
+import { RewardsClaimer } from "../../../src/vault/strategy/RewardsClaimer.sol";
+import { IStrategy } from "../../../src/interfaces/IStrategy.sol";
 import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
 
 // Addresses for Polygon
@@ -14,7 +16,9 @@ address constant CONTRACT_REGISTRY = 0x078927eF642319963a976008A7B1161059b7E77a;
 contract BeefyERC4626Test is Test {
   using Math for uint256;
 
-  BeefyRewardsClaimer erc4626;
+  BeefyERC4626 erc4626;
+  RewardsClaimer rewardsClaimer;
+
   ERC20 asset = ERC20(0x8159462d255C1D24915CB51ec361F700174cD994);
   IBeefyVault beefyVault = IBeefyVault(0xF79BF908d0e6d8E7054375CD80dD33424B1980bf);
   IBeefyBooster beefyBooster = IBeefyBooster(0x69C28193185CFcd42D62690Db3767915872bC5EA);
@@ -39,7 +43,9 @@ contract BeefyERC4626Test is Test {
 
     rewardsToken.push(rewardToken);
 
-    erc4626 = new BeefyRewardsClaimer();
+    erc4626 = new BeefyERC4626();
+
+    rewardsClaimer = new RewardsClaimer();
 
     vm.prank(factory);
     erc4626.initialize(
@@ -49,8 +55,8 @@ contract BeefyERC4626Test is Test {
       beefyVault,
       beefyBooster,
       0,
-      feeRecipient,
-      rewardsToken
+      IStrategy(address(rewardsClaimer)),
+      abi.encode(feeRecipient, rewardsToken)
     );
 
     deal(address(asset), address(this), 1000 ether);
@@ -60,7 +66,7 @@ contract BeefyERC4626Test is Test {
     asset.approve(address(erc4626), 1000 ether);
     erc4626.deposit(1000 ether, address(this));
     assertEq(erc4626.balanceOf(address(this)), 1000 ether);
-    assertApproxEqRel(beefyBooster.balanceOf(address(erc4626)), 984669629869522176013, 1e14);
+    assertApproxEqRel(beefyBooster.balanceOf(address(erc4626)), 984133549971546269225, 1e14);
   }
 
   function test__forward_reward() public {
@@ -72,19 +78,5 @@ contract BeefyERC4626Test is Test {
     erc4626.harvest();
 
     assertGt(rewardToken.balanceOf(feeRecipient), 0);
-  }
-
-  function testFail__init_not_by_factory() public {
-    erc4626 = new BeefyRewardsClaimer();
-    erc4626.initialize(
-      asset,
-      IContractRegistry(CONTRACT_REGISTRY),
-      50,
-      beefyVault,
-      beefyBooster,
-      0,
-      feeRecipient,
-      rewardsToken
-    );
   }
 }

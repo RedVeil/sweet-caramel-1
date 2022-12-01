@@ -67,14 +67,16 @@ contract BeefyERC4626 is PopERC4626 {
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-  error InvalidBeefyWithdrawalFee(uint256 fee);
-
   IBeefyVault public beefyVault;
   IBeefyBooster public beefyBooster;
   IBeefyBalanceCheck public beefyBalanceCheck;
 
   uint256 public beefyWithdrawalFee;
-  uint256 public constant WITHDRAWAL_MAX = 10000;
+  uint256 public constant BPS_DENOMINATOR = 10_000;
+
+  error InvalidBeefyWithdrawalFee(uint256 fee);
+  error InvalidBeefyVault(address beefyVault);
+  error InvalidBeefyBooster(address beefyBooster);
 
   /**
      @notice Initializes the Vault.
@@ -97,6 +99,9 @@ contract BeefyERC4626 is PopERC4626 {
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
+    if (_beefyVault.want() != asset) revert InvalidBeefyVault(address(_beefyVault));
+    if (address(_beefyBooster) != address(0) && _beefyBooster.stakedToken() != address(_beefyVault))
+      revert InvalidBeefyBooster(address(_beefyBooster));
 
     beefyVault = _beefyVault;
     beefyBooster = _beefyBooster;
@@ -152,7 +157,7 @@ contract BeefyERC4626 is PopERC4626 {
   function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
     uint256 beefyFee = beefyWithdrawalFee == 0
       ? 0
-      : assets.mulDiv(beefyWithdrawalFee, WITHDRAWAL_MAX, Math.Rounding.Up);
+      : assets.mulDiv(beefyWithdrawalFee, BPS_DENOMINATOR, Math.Rounding.Up);
 
     return _convertToShares(assets - beefyFee, Math.Rounding.Up);
   }
@@ -162,7 +167,7 @@ contract BeefyERC4626 is PopERC4626 {
     uint256 assets = _convertToAssets(shares, Math.Rounding.Down);
 
     return
-      beefyWithdrawalFee == 0 ? assets : assets - assets.mulDiv(beefyWithdrawalFee, WITHDRAWAL_MAX, Math.Rounding.Up);
+      beefyWithdrawalFee == 0 ? assets : assets - assets.mulDiv(beefyWithdrawalFee, BPS_DENOMINATOR, Math.Rounding.Up);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -184,11 +189,7 @@ contract BeefyERC4626 is PopERC4626 {
                             STRATEGY LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function _harvest() internal override {
-    strategy.harvest();
-  }
-
-  function _claim() internal {
+  function claim() public onlyStrategy {
     beefyBooster.getReward();
   }
 }
