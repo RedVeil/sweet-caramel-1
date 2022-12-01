@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from "@ethersproject/providers";
-!!process.env.CI ? "" : require("../envLoader");
+!!process.env.CI ? "" : require("@popcorn/utils/src/envLoader");
 
 const { ALCHEMY_API_KEYS, BNB_RPC_URLS } = process.env;
 

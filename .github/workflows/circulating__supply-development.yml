@@ -3,6 +3,7 @@ name: Circulating Supply Development Cron Job
 on: push
 
 env:
+  NODE_ENV: production
   ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
   BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
 
