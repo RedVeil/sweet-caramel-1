@@ -17,15 +17,13 @@ jobs:
           ref: circulating-supply
       - name: "yarn install"
         run: yarn install
-      - name: change branch to packages/utils directory
-        run: cd packages/utils
       - name: Build tsc file using ts -b
-        run: yarn tsc -b
+        run: cd packages/utils && yarn tsc -b
         env:
           ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
           BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
-      - name: serve dist file using node
-        run: node dist/circulating-supply/circulating-supply
+      - name: serve dist folder using node
+        run: node packages/utils/dist/circulating-supply/circulating-supply
       - name: Make PR Comment
         uses: mshick/add-pr-comment@v2
         with:
