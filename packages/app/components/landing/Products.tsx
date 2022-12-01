@@ -10,34 +10,18 @@ import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import React from "react";
 import Product from "@popcorn/app/components/landing/Product";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
+import useTvl from "@popcorn/components/pop/Contract/hooks/useTvl";
+import { useNamedAccounts } from "@popcorn/components";
+import { Apy, useApy } from "@popcorn/components/pop/Staking";
+import { Tvl } from "@popcorn/components/pop/Contract";
 
 const Products = () => {
   const { Ethereum, Polygon } = ChainId;
   const networkName = useNetworkName();
 
-  const {
-    ySusd,
-    y3Eur,
-    yFrax,
-    yRai,
-    yMusd,
-    yAlusd,
-    threeXStaking: threeXStakingAddress,
-    butterStaking: butterStakingAddress,
-    butter,
-    butterBatch,
-    threeX,
-    threeXBatch,
-  } = useDeployment(Ethereum);
-
-  const { data: threeXAPY } = useGetYearnAPY([ySusd, y3Eur], Ethereum);
-  const { data: butterAPY } = useGetYearnAPY([yFrax, yRai, yMusd, yAlusd], Ethereum);
-  const { data: threeXStaking } = useStakingPool(threeXStakingAddress, Ethereum);
-  const { data: butterStaking } = useStakingPool(butterStakingAddress, Ethereum);
   const { data: mainnetStakingTVL } = useStakingTVL(Ethereum);
   const { data: polygonStakingTVL } = useStakingTVL(Polygon);
-  const { data: butterTVL } = useSetTokenTVL(butter, butterBatch, Ethereum);
-  const { data: threeXTVL } = useSetTokenTVL(threeX, threeXBatch, Ethereum);
+  const contractsEth = useNamedAccounts("1", ["threeX", "butter", "threeXStaking", "butterStaking"]);
 
   const formatter = Intl.NumberFormat("en", {
     //@ts-ignore
@@ -71,7 +55,7 @@ const Products = () => {
           stats={[
             {
               label: "TVL",
-              content: threeXTVL ? `$${formatter.format(parseInt(formatUnits(threeXTVL)))}` : "$0",
+              content: <Tvl chainId={Ethereum} address={contractsEth[0].address} />,
               infoIconProps: {
                 title: "Total Value Locked",
                 content: "The total value of assets held by the underlying smart contracts.",
@@ -80,9 +64,7 @@ const Products = () => {
             },
             {
               label: "vAPR",
-              content: threeXStaking?.apy?.add(parseUnits(String(threeXAPY || 0))).gt(0)
-                ? `${formatAndRoundBigNumber(threeXStaking.apy.add(parseUnits(String(threeXAPY))), 18)}%`
-                : "New 🍿✨",
+              content: <Apy chainId={Ethereum} address={contractsEth[2].address} />,
               infoIconProps: {
                 title: "Variable Annual Percentage Rate",
                 content:
@@ -101,7 +83,7 @@ const Products = () => {
           stats={[
             {
               label: "TVL",
-              content: butterTVL ? `$${formatter.format(parseInt(formatUnits(butterTVL)))}` : "$0",
+              content: <Tvl chainId={Ethereum} address={contractsEth[1].address} />,
               infoIconProps: {
                 title: "Total Value Locked",
                 content: "The total value of assets held by the underlying smart contracts.",
@@ -110,10 +92,7 @@ const Products = () => {
             },
             {
               label: "vAPR",
-              content:
-                butterAPY && butterStaking && butterStaking?.apy?.gte(constants.Zero)
-                  ? `${formatAndRoundBigNumber(butterStaking.apy.add(parseUnits(String(butterAPY))), 18)}%`
-                  : "New 🍿✨",
+              content: <Apy chainId={Ethereum} address={contractsEth[3].address} />,
               infoIconProps: {
                 title: "Variable Annual Percentage Rate",
                 content:
