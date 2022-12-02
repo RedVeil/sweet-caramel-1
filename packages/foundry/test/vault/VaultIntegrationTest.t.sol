@@ -97,6 +97,7 @@ contract VaultIntegrationTest is Test {
       IERC4626(yearnWrapperAddress),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      feeRecipient,
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
 
@@ -225,10 +226,6 @@ contract VaultIntegrationTest is Test {
     vm.assume(totalAmount > 10 ether);
     vm.assume(totalAmount < MAX_DEPOSIT);
 
-    vm.startPrank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }));
-    vm.stopPrank();
-
     deal(address(asset), address(this), totalAmount);
 
     uint256 vaultIncrease = totalAmount / steps;
@@ -303,7 +300,7 @@ contract VaultIntegrationTest is Test {
 
     alice.withdraw(withdrawalAmount);
 
-    assertGe(vault.vaultShareHWM(), prevHWM);
+    assertWithin(vault.vaultShareHWM(), prevHWM, 1);
 
     vm.warp(block.timestamp + timeJump);
   }

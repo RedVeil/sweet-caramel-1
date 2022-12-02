@@ -97,6 +97,7 @@ contract VaultIntegrationUSDCTest is Test {
       IERC4626(yearnWrapperAddress),
       IContractRegistry(CONTRACT_REGISTRY),
       Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      feeRecipient,
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
     );
 
@@ -224,10 +225,6 @@ contract VaultIntegrationUSDCTest is Test {
     vm.assume(steps < 50);
     vm.assume(totalAmount > 100e6);
     vm.assume(totalAmount < MAX_DEPOSIT);
-
-    vm.startPrank(ACL_ADMIN);
-    vault.setFees(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }));
-    vm.stopPrank();
 
     deal(address(asset), address(this), totalAmount);
 

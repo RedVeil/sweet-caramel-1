@@ -8,16 +8,12 @@ import "../utils/Owned.sol";
 struct VaultMetadata {
   address vaultAddress; // address of vault
   uint256 vaultType; // version of vault
-  bool enabled; // is the vault enabled
   address staking; // address of vault staking contract
-  address vaultZapper; // address of vault zapper contract
   address submitter; // address of vault submitter
   string metadataCID; // ipfs CID of vault metadata
   address[8] swapTokenAddresses; // underlying assets to deposit and recieve LP token
   address swapAddress; // ex: stableSwapAddress for Curve
   uint256 exchange; // number specifying exchange (1 = curve)
-  address zapIn; // address of inbound zap contract
-  address zapOut; // address of outbount zap contract
 }
 
 /**
@@ -59,10 +55,10 @@ contract VaultsV1Registry is Owned {
 
   /* ========== EVENTS ========== */
 
-  event VaultAdded(address vaultAddress, uint256 vaultType, bool enabled, string metadataCID);
-  event VaultUpdated(address vaultAddress, uint256 vaultType, bool enabled, string metadataCID);
+  event VaultAdded(address vaultAddress, uint256 vaultType, string metadataCID);
+  event VaultUpdated(address vaultAddress, uint256 vaultType, string metadataCID);
   event VaultTypeAdded(uint256 vaultTypes);
-  event VaultStatusChanged(address vaultAddress, bool endorsed, bool enabled);
+  event VaultStatusChanged(address vaultAddress, bool endorsed);
 
   /* ========== CONSTRUCTOR ========== */
 
@@ -135,7 +131,7 @@ contract VaultsV1Registry is Owned {
     assetVaults[IERC4626(params.vaultAddress).asset()].push(params.vaultAddress);
     typeVaults[params.vaultType].push(params.vaultAddress);
 
-    emit VaultAdded(params.vaultAddress, params.vaultType, params.enabled, params.metadataCID);
+    emit VaultAdded(params.vaultAddress, params.vaultType, params.metadataCID);
   }
 
   /**
@@ -150,22 +146,13 @@ contract VaultsV1Registry is Owned {
     if (_vaultMetadata.vaultType != updatedVault.vaultType) revert VaultTypeImmutable();
     if (_vaultMetadata.submitter != updatedVault.submitter) revert SubmitterImmutable();
 
-    updatedVault.enabled = _vaultMetadata.enabled;
     updatedVault.staking = _vaultMetadata.staking;
-    updatedVault.vaultZapper = _vaultMetadata.vaultZapper;
     updatedVault.metadataCID = _vaultMetadata.metadataCID;
     updatedVault.swapTokenAddresses = _vaultMetadata.swapTokenAddresses;
     updatedVault.swapAddress = _vaultMetadata.swapAddress;
     updatedVault.exchange = _vaultMetadata.exchange;
-    updatedVault.zapIn = _vaultMetadata.zapIn;
-    updatedVault.zapOut = _vaultMetadata.zapOut;
 
-    emit VaultUpdated(
-      _vaultMetadata.vaultAddress,
-      _vaultMetadata.vaultType,
-      _vaultMetadata.enabled,
-      _vaultMetadata.metadataCID
-    );
+    emit VaultUpdated(_vaultMetadata.vaultAddress, _vaultMetadata.vaultType, _vaultMetadata.metadataCID);
   }
 
   //TODO get rid of vaultType
@@ -179,27 +166,5 @@ contract VaultsV1Registry is Owned {
 
     vaultTypes = _type;
     emit VaultTypeAdded(vaultTypes);
-  }
-
-  /**
-   * @notice switches whether a vault is endorsed or unendorsed
-   * @param _vaultAddress address of the vault to change endorsement
-   */
-  function toggleEndorseVault(address _vaultAddress) external onlyOwner {
-    if (vaults[_vaultAddress].vaultAddress == address(0)) revert VaultNotRegistered();
-
-    endorsed[_vaultAddress] = !endorsed[_vaultAddress];
-    emit VaultStatusChanged(_vaultAddress, endorsed[_vaultAddress], vaults[_vaultAddress].enabled);
-  }
-
-  /**
-   * @notice switches whether a vault is enabled or disabled
-   * @param _vaultAddress address of the vault to enable or disable
-   */
-  function toggleEnableVault(address _vaultAddress) external onlyOwner {
-    if (vaults[_vaultAddress].vaultAddress == address(0)) revert VaultNotRegistered();
-
-    vaults[_vaultAddress].enabled = !vaults[_vaultAddress].enabled;
-    emit VaultStatusChanged(_vaultAddress, endorsed[_vaultAddress], vaults[_vaultAddress].enabled);
   }
 }
