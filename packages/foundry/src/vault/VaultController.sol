@@ -8,10 +8,10 @@ import "../utils/Owned.sol";
 import "../utils/ContractRegistryAccess.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
-import "../interfaces/IVault.sol";
+import "../interfaces/vault/IVault.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IRewardsEscrow.sol";
-import "../interfaces/IERC4626.sol";
+import "../interfaces/vault/IERC4626.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import { IContractFactory } from "../interfaces/IContractFactory.sol";
 
