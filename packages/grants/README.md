@@ -2,7 +2,7 @@
 
 ### Dev setup instructions
 
-1. set `CHAIN_ID=1337` in .env
+1. set `CHAIN_ID=1337` and `WITH_FIXTURES=1` in .env
 
 the following will be run from `packages/hardhat`:
 
