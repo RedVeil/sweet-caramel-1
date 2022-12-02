@@ -77,10 +77,10 @@ contract ContractFactory is ACLAuth, ContractRegistryAccess {
 
   /* ========== IMPLEMENTATION CLONE DEPLOYMENT ========== */
 
-  function deploy(address _implementation, bytes calldata _deploymentArgs)
-    external
-    returns (address clone, bytes memory)
-  {
+  function deploy(
+    address _implementation,
+    bytes calldata _deploymentArgs
+  ) external returns (address clone, bytes memory) {
     if (!implementationToEndorsed[_implementation]) revert ImplementationNotEndorsed();
 
     clone = Clones.clone(_implementation);
