@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { IPopERC4626 } from "../../interfaces/IPopERC4626.sol";
+import { IPopERC4626 } from "../../interfaces/vault/IPopERC4626.sol";
 
 contract StrategyBase {
   error FunctionNotImplemented(bytes4 sig);

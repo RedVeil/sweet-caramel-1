@@ -6,8 +6,8 @@ import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { VaultAPI } from "../../../interfaces/external/yearn/IVaultAPI.sol";
-import "../../../interfaces/IERC4626.sol";
-import "../../../interfaces/IYearnVaultWrapper.sol";
+import "../../../interfaces/vault/IERC4626.sol";
+import "../../../interfaces/vault/IYearnVaultWrapper.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 // Needs to extract VaultAPI interface out of BaseStrategy to avoid collision

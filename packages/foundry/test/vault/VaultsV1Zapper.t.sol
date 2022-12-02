@@ -12,7 +12,7 @@ import "../../src/utils/KeeperIncentiveV2.sol";
 import "../../src/vault/VaultsV1Registry.sol";
 import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
 import "../../src/vault/adapter/yearn/YearnWrapper.sol";
-import "../../src/interfaces/IERC4626.sol";
+import "../../src/interfaces/vault/IERC4626.sol";
 
 interface ICurveSETHPool {
   function calc_withdraw_one_coin(uint256 _burn_amount, int128 i) external returns (uint256);

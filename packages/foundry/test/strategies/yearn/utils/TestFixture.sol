@@ -10,7 +10,7 @@ import "forge-std/console.sol";
 import { Vm } from "forge-std/Vm.sol";
 import { YearnWrapper } from "../../../../src/vault/adapter/yearn/YearnWrapper.sol";
 import { ExtendedDSTest } from "./ExtendedDSTest.sol";
-import { IERC4626 } from "../../../../src/interfaces/IERC4626.sol";
+import { IERC4626 } from "../../../../src/interfaces/vault/IERC4626.sol";
 
 // NOTE: if the name of the strat or file changes this needs to be updated
 import { MockStrategy } from "./MockStrategy.sol";

@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../utils/ACLAuth.sol";
 import "../utils/ContractRegistryAccessUpgradeable.sol";
 import "../utils/KeeperIncentivized.sol";
-import "../interfaces/IERC4626.sol";
+import "../interfaces/vault/IERC4626.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";

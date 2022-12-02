@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
+import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 
 interface IVaultsV1Zapper {
   function previewZapOutTokenAmount(

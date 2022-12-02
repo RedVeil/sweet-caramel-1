@@ -11,10 +11,10 @@ import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
 import "../../src/vault/Vault.sol";
 import "../../src/vault/VaultsV1Controller.sol";
 import "../../src/interfaces/IContractRegistry.sol";
-import "../../src/interfaces/IERC4626.sol";
+import "../../src/interfaces/vault/IERC4626.sol";
 import "../../src/utils/KeeperIncentiveV2.sol";
 import "../../src/vault/adapter/yearn/YearnWrapper.sol";
-import "../../src/interfaces/IERC4626.sol";
+import "../../src/interfaces/vault/IERC4626.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant CRV_3CRV = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;

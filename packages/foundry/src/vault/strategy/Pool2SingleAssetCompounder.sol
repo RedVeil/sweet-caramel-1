@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import { ERC4626Upgradeable as ERC4626, ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { IUniswapRouterV2 } from "../../interfaces/external/uni/IUniswapRouterV2.sol";
-import { IPopERC4626WithRewards } from "../../interfaces/IPopERC4626WithRewards.sol";
+import { IPopERC4626WithRewards } from "../../interfaces/vault/IPopERC4626WithRewards.sol";
 import { StrategyBase } from "./StrategyBase.sol";
 
 contract Pool2SingleAssetCompounder is StrategyBase {

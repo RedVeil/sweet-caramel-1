@@ -9,7 +9,7 @@ import "./Vault.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IRewardsEscrow.sol";
-import "../interfaces/IERC4626.sol";
+import "../interfaces/vault/IERC4626.sol";
 
 struct VaultParams {
   ERC20 asset;

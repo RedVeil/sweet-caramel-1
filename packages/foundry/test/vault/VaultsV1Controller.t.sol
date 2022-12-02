@@ -17,13 +17,13 @@ import "../../src/zapper/VaultsV1Zapper.sol";
 import "../../src/utils/KeeperIncentiveV2.sol";
 import "../../src/interfaces/IContractRegistry.sol";
 import "../../src/interfaces/IACLRegistry.sol";
-import "../../src/interfaces/IVaultsV1.sol";
-import "../../src/interfaces/IVaultsV1Zapper.sol";
+import "../../src/interfaces/vault/IVaultsV1.sol";
+import "../../src/interfaces/vault/IVaultsV1Zapper.sol";
 import "../../src/interfaces/IRewardsEscrow.sol";
 import "../../src/interfaces/IOwnable.sol";
 import "../../src/vault/adapter/yearn/YearnWrapper.sol";
-import "../../src/interfaces/IYearnVaultWrapper.sol";
-import "../../src/interfaces/IERC4626.sol";
+import "../../src/interfaces/vault/IYearnVaultWrapper.sol";
+import "../../src/interfaces/vault/IERC4626.sol";
 
 address constant CRV_3CRYPTO = 0xc4AD29ba4B3c580e6D59105FFf484999997675Ff;
 address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;

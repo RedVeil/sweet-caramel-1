@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import { EIP165 } from "./EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
-import { IPopERC4626WithRewards } from "../../interfaces/IPopERC4626WithRewards.sol";
+import { IPopERC4626WithRewards } from "../../interfaces/vault/IPopERC4626WithRewards.sol";
 
 contract WithRewards is EIP165, OnlyStrategy {
   function rewardTokens() external view virtual returns (address[] memory) {}

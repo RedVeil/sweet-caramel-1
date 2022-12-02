@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+pragma solidity ^0.8.15;
+
+import { Owned } from "../utils/Owned.sol";
+import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
+
+/**
+ * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts
+ * @dev deploy functions can only be called by VaultsController
+ */
+contract EndorsementRegistry is Owned {
+  /*//////////////////////////////////////////////////////////////
+                            IMMUTABLES
+    //////////////////////////////////////////////////////////////*/
+
+  bytes32 public constant contractName = keccak256("EndorsementRegistry");
+
+  constructor(address _owner) Owned(_owner) {}
+
+  /*//////////////////////////////////////////////////////////////
+                          ENDORSEMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  mapping(address => bool) public endorsed;
+
+  event EndorsementToggled(address target, bool oldEndorsement, bool newEndorsement);
+
+  function toggleEndorsement(address target) external onlyOwner {
+    bool oldEndorsement = endorsed[target];
+
+    emit EndorsementToggled(target, oldEndorsement, !oldEndorsement);
+
+    endorsed[target] = !oldEndorsement;
+  }
+}

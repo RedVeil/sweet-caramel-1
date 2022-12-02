@@ -5,7 +5,7 @@ import { Test } from "forge-std/Test.sol";
 
 import { BeefyERC4626, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster, IContractRegistry } from "../../../src/vault/adapter/beefy/BeefyERC4626.sol";
 import { RewardsClaimer } from "../../../src/vault/strategy/RewardsClaimer.sol";
-import { IStrategy } from "../../../src/interfaces/IStrategy.sol";
+import { IStrategy } from "../../../src/interfaces/vault/IStrategy.sol";
 import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
 
 // Addresses for Polygon

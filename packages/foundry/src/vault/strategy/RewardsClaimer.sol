@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import { IPopERC4626WithRewards } from "../../interfaces/IPopERC4626WithRewards.sol";
+import { IPopERC4626WithRewards } from "../../interfaces/vault/IPopERC4626WithRewards.sol";
 import { StrategyBase } from "./StrategyBase.sol";
 
 contract RewardsClaimer is StrategyBase {

@@ -12,7 +12,7 @@ import { KeeperIncentiveV2 } from "../../src/utils/KeeperIncentiveV2.sol";
 import { IContractRegistry } from "../../src/interfaces/IContractRegistry.sol";
 
 import { IACLRegistry } from "../../src/interfaces/IACLRegistry.sol";
-import { IERC4626 } from "../../src/interfaces/IERC4626.sol";
+import { IERC4626 } from "../../src/interfaces/vault/IERC4626.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;

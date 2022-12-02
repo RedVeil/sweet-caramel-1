@@ -7,8 +7,8 @@ import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/Mat
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 import { ACLAuth } from "../../utils/ACLAuth.sol";
 import { ContractRegistryAccessUpgradeable, IContractRegistry } from "../../utils/ContractRegistryAccessUpgradeable.sol";
-import { IStrategy } from "../../interfaces/IStrategy.sol";
-import { IPopERC4626 } from "../../interfaces/IPopERC4626.sol";
+import { IStrategy } from "../../interfaces/vault/IStrategy.sol";
+import { IPopERC4626 } from "../../interfaces/vault/IPopERC4626.sol";
 import { EIP165 } from "./EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
 
