@@ -9,7 +9,6 @@
     "jest": "jest",
     "prettier": "prettier --write .",
     "prettify": "yarn lint-staged --allow-empty",
-    "netlify-build": "cd ../../ &&  yarn && cd packages/hardhat && yarn compile && cd .. && cd grants && yarn build",
     "start": "next start"
   },
   "dependencies": {
@@ -77,7 +76,7 @@
     "nodemon": "1.19.4",
     "path": "0.12.7",
     "postcss": "8.4.12",
-    "ts-node": "8.10.2"
+    "ts-node": "^10.9.1"
   },
   "license": "AGPL-3.0"
 }

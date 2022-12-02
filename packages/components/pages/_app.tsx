@@ -1,11 +1,13 @@
-import '../styles/globals.css';
-import '@rainbow-me/rainbowkit/styles.css';
-import type { AppProps } from 'next/app';
-import { RainbowKitProvider, getDefaultWallets, Chain } from '@rainbow-me/rainbowkit';
-import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
+import "../styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+import type { AppProps } from "next/app";
+import { RainbowKitProvider, getDefaultWallets, Chain } from "@rainbow-me/rainbowkit";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
+import { StateProvider } from "@popcorn/app/context/store";
 
 const bnb: Chain = {
   id: 56,
@@ -58,7 +60,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        <Component {...pageProps} />
+        <StateProvider>
+          <SingleActionModalContainer />
+          <Component {...pageProps} />
+        </StateProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );

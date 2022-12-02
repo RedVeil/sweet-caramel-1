@@ -25,7 +25,7 @@ export const useSum = ({
   useEffect(() => {
     const id = setTimeout(() => {
       setLoading(false);
-    }, 8000);
+    }, 100000);
     return () => {
       clearTimeout(id);
     };

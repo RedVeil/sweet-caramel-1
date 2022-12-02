@@ -46,7 +46,7 @@ const ElectionSection: React.FC<ElectionSectionProps> = ({
             </div>
             <h2 className="text-5xl font-extralight text-white">🏆 {createElectionName(election)}</h2>
           </span>
-          <p className="">{/* description goes here */}</p>
+          <p className="leading-[140%]">{/* description goes here */}</p>
         </div>
       </div>
       <div className="flex flex-row">

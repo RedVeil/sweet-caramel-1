@@ -63,14 +63,14 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
   }, []);
 
   const dismiss = () => {
-    setOpen(keepOpen);
+    setOpen(!!keepOpen);
     setTimeout(() => onDismiss?.onClick && onDismiss.onClick(), 1000);
   };
 
   useClickOutside<MouseEvent>(modalRef, () => dismiss());
 
   const confirm = () => {
-    setOpen(keepOpen);
+    setOpen(!!keepOpen);
     setTimeout(() => onConfirm?.onClick && onConfirm.onClick(), 1000);
   };
 

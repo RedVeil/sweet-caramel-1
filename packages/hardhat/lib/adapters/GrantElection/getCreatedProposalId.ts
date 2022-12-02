@@ -7,11 +7,11 @@ export const getCreatedProposalId = async (receit: Receipt, provider: JsonRpcPro
     throw new Error("Invalid transaction hash");
   }
   const abi = [
-    "event ProposalCreated(uint256 indexed proposalId, address indexed proposer, address indexed beneficiary, bytes applicationCid)",
+    "event ProposalCreated(uint256 indexed proposalId, address indexed proposer, address indexed beneficiary, string applicationCid)",
   ];
   const iface = new ethers.utils.Interface(abi);
 
-  const topic = ethers.utils.id("ProposalCreated(uint256,address,address,bytes)");
+  const topic = ethers.utils.id("ProposalCreated(uint256,address,address,string)");
   const logs = (
     await provider.getLogs({
       fromBlock: receit.blockNumber,

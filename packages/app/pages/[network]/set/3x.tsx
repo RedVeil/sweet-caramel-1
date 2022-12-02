@@ -477,7 +477,7 @@ export default function ThreeXPage(): JSX.Element {
             Mint 3X and earn interest on multiple stablecoins at once. <br />
             Stake your 3X to earn boosted APY.
           </p>
-          <SetStats token={threeX} />
+          <SetStats token={threeX} isThreeX />
         </div>
         <div className="col-span-5 hidden md:block">
           <TutorialSlider isThreeX />
