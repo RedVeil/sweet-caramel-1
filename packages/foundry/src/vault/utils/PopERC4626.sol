@@ -35,6 +35,7 @@ contract PopERC4626 is
     //////////////////////////////////////////////////////////////*/
 
   error NotFactory();
+  error StrategySetupFailed();
 
   /**
      @notice Initializes the Vault.
@@ -63,6 +64,9 @@ contract PopERC4626 is
     strategy = IStrategy(_strategy);
     strategyConfig = _strategyConfig;
     harvestTimeout = _harvestTimeout;
+
+    (bool success, ) = address(strategy).delegatecall(abi.encodeWithSignature("verifyAndSetupStrategy()"));
+    if (!success) revert StrategySetupFailed();
 
     feesUpdatedAt = block.timestamp;
   }
@@ -136,6 +140,8 @@ contract PopERC4626 is
 
     _protocolDeposit(assets, shares);
 
+    harvest();
+
     emit Deposit(caller, receiver, assets, shares);
   }
 
@@ -157,6 +163,8 @@ contract PopERC4626 is
     if (caller != owner) {
       _spendAllowance(owner, caller, shares);
     }
+
+    harvest();
 
     _protocolWithdraw(assets, shares);
 
@@ -261,7 +269,7 @@ contract PopERC4626 is
 
   event Harvested();
 
-  function harvest() external takeFees {
+  function harvest() public takeFees {
     if (address(strategy) != address(0)) {
       if ((feesUpdatedAt + harvestTimeout) >= block.timestamp) revert HarvestTimeout();
 
