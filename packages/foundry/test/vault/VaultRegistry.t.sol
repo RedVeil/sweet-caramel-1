@@ -33,27 +33,11 @@ contract VaultsFactoryTest is Test, WithContractRegistry {
   /*//////////////////////////////////////////////////////////////
                           REGISTER_VAULT
     //////////////////////////////////////////////////////////////*/
-  function test__registerVault() public {
-    vm.expectEmit(true, true, true, false, address(factory));
-    emit TemplateTypeAdded(templateType);
+  function test__registerVault() public {}
 
-    factory.addTemplateType(templateType);
+  function testFail__registerVault_nonOwner() public {}
 
-    bytes32[] memory templateTypes = factory.getTemplateTypes();
-    assertEq(templateTypes.length, 1);
-    assertEq(templateTypes[0], templateType);
-    assertTrue(factory.templateTypeExists(templateType));
-  }
+  function testFail__registerVault_vault_already_registered() public {}
 
-  function testFail__registerVault_nonOwner() public {
-    vm.prank(nonOwner);
-    factory.addTemplateType(templateType);
-  }
-
-  function testFail__registerVault_vault_already_registered() public {
-    factory.addTemplateType(templateType);
-
-    vm.expectRevert(VaultsFactory.TemplateTypeExists.selector);
-    factory.addTemplateType(templateType);
-  }
+  // NOTE we dont test the view functions
 }
