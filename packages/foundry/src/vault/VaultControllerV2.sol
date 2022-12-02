@@ -45,10 +45,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== CONSTRUCTOR ========== */
 
-  constructor(
-    address _owner,
-    IContractRegistry _contractRegistry
-  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
+  constructor(address _owner, IContractRegistry _contractRegistry)
+    Owned(_owner)
+    ContractRegistryAccess(_contractRegistry)
+  {}
 
   /* ========== VAULT DEPLOYMENT ========== */
 
@@ -67,11 +67,13 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @param _keeperCooldown - time period that must pass before calling keeper enabled functions
    * @dev the submitter in the VaultMetadata from the factory will be function caller
    */
-
+  // TODO add deployment purely for strategy, adapter, staking
   // 1. Adapter
   // 2. OPTIONAL - Strategy
   // 3. Vault
   // 4. OPTIONAL - Staking
+  // 5. Handle Keeper Setup
+  // 6. Safe in Registry
   function deployVaultFromFactory(
     bytes memory _cloneAddresses,
     VaultParams memory _vaultParams,
@@ -155,18 +157,6 @@ contract VaultsController is Owned, ContractRegistryAccess {
   /* ========== VAULT MANAGEMENT FUNCTIONS ========== */
 
   /**
-   * @notice updates the VaultMetadata in registry
-   * @param _vaultMetadata - struct with updated values
-   * @dev vaultAddress and submitter are immutable
-   */
-  function updateRegistryVault(VaultMetadata[] memory _vaultMetadata) external onlyOwner {
-    VaultsRegistry vaultsRegistry = _vaultsRegistry();
-    for (uint256 i = 0; i < _vaultMetadata.length; i++) {
-      vaultsRegistry.updateVault(_vaultMetadata[i]);
-    }
-  }
-
-  /**
    * @notice switches whether a vault is endorsed or unendorsed
    * @param _vaultAddresses - addresses of the vaults to change endorsement
    */
@@ -174,17 +164,6 @@ contract VaultsController is Owned, ContractRegistryAccess {
     VaultsRegistry vaultsRegistry = _vaultsRegistry();
     for (uint256 i = 0; i < _vaultAddresses.length; i++) {
       vaultsRegistry.toggleEndorseVault(_vaultAddresses[i]);
-    }
-  }
-
-  /**
-   * @notice switches whether a vault is enabled or disabled
-   * @param _vaultAddresses - addresses of the vaults to enable or disable
-   */
-  function toggleEnableRegistryVault(address[] memory _vaultAddresses) external onlyOwner {
-    VaultsRegistry vaultsRegistry = _vaultsRegistry();
-    for (uint256 i = 0; i < _vaultAddresses.length; i++) {
-      vaultsRegistry.toggleEnableVault(_vaultAddresses[i]);
     }
   }
 
@@ -256,6 +235,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
+  // TODO add pause/unpause for Adapter
   /**
    * @notice Pause deposits
    * @param _vaultAddresses - addresses of the vaults to pause
@@ -280,19 +260,19 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== VAULTSTAKING MANAGEMENT FUNCTIONS ========== */
 
-  function setStakingEscrowDurations(
-    address[] calldata _stakingContracts,
-    uint256[] calldata _escrowDurations
-  ) external onlyOwner {
+  function setStakingEscrowDurations(address[] calldata _stakingContracts, uint256[] calldata _escrowDurations)
+    external
+    onlyOwner
+  {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
       IStaking(_stakingContracts[i]).setEscrowDuration(_escrowDurations[i]);
     }
   }
 
-  function setStakingRewardsDurations(
-    address[] calldata _stakingContracts,
-    uint256[] calldata _rewardsDurations
-  ) external onlyOwner {
+  function setStakingRewardsDurations(address[] calldata _stakingContracts, uint256[] calldata _rewardsDurations)
+    external
+    onlyOwner
+  {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
       IStaking(_stakingContracts[i]).setRewardsDuration(_rewardsDurations[i]);
     }

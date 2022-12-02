@@ -235,6 +235,8 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
   error RewardTokenCantBeStakingToken();
   error ZeroAmount();
 
+
+  // TODO how to change rewardSpeed
   /**
      @notice Adds or updates rewards of a particular staked vault.
      @param rewardsToken The address of the rewardsToken which will be paid out to staker of this vault

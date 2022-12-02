@@ -620,6 +620,7 @@ contract Vault is
     _unpause();
   }
 
+  // TODO make feeRecipient configurable by the submitter
   /**
    * @notice Transfer accrued fees to rewards manager contract. Caller must be a registered keeper.
    * @dev we send funds now to the feeRecipient which is set on in the contract registry. We must make sure that this is not address(0) before withdrawing fees
