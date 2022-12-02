@@ -45,10 +45,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== CONSTRUCTOR ========== */
 
-  constructor(address _owner, IContractRegistry _contractRegistry)
-    Owned(_owner)
-    ContractRegistryAccess(_contractRegistry)
-  {}
+  constructor(
+    address _owner,
+    IContractRegistry _contractRegistry
+  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
 
   /* ========== VAULT DEPLOYMENT ========== */
 
@@ -276,19 +276,19 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== VAULTSTAKING MANAGEMENT FUNCTIONS ========== */
 
-  function setStakingEscrowDurations(address[] calldata _stakingContracts, uint256[] calldata _escrowDurations)
-    external
-    onlyOwner
-  {
+  function setStakingEscrowDurations(
+    address[] calldata _stakingContracts,
+    uint256[] calldata _escrowDurations
+  ) external onlyOwner {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
       IStaking(_stakingContracts[i]).setEscrowDuration(_escrowDurations[i]);
     }
   }
 
-  function setStakingRewardsDurations(address[] calldata _stakingContracts, uint256[] calldata _rewardsDurations)
-    external
-    onlyOwner
-  {
+  function setStakingRewardsDurations(
+    address[] calldata _stakingContracts,
+    uint256[] calldata _rewardsDurations
+  ) external onlyOwner {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
       IStaking(_stakingContracts[i]).setRewardsDuration(_rewardsDurations[i]);
     }
