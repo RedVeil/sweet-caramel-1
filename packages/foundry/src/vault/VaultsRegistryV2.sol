@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
-pragma solidity ^0.8.0;
+// Docgen-SOLC: 0.8.15
+pragma solidity ^0.8.15;
 
-import "../interfaces/vault/IERC4626.sol";
-import "../utils/Owned.sol";
+import { IERC4626 } from "../interfaces/vault/IERC4626.sol";
+import { Owned } from "../utils/Owned.sol";
 
 struct VaultMetadata {
   address vaultAddress; // address of vault
-  uint256 vaultType; // version of vault
   address staking; // address of vault staking contract
   address submitter; // address of vault submitter
   string metadataCID; // ipfs CID of vault metadata
@@ -17,62 +16,60 @@ struct VaultMetadata {
 }
 
 /**
- * @notice Registry for vaults deployed through VaultsV1Factory
- * @dev all mutative functions can only be called by VaultsV1Controller
+ * @notice Registry for vaults deployed through VaultsFactory
+ * @dev all mutative functions can only be called by VaultsController
  */
-contract VaultsV1Registry is Owned {
-  /* ========== CUSTOM ERRORS ========== */
+contract VaultsRegistry is Owned {
+  /*//////////////////////////////////////////////////////////////
+                            IMMUTABLES
+    //////////////////////////////////////////////////////////////*/
 
-  error VaultNotRegistered();
-  error NoAssetVaults();
-  error InvalidVaultType();
-  error NoTypeVaults();
-  error VaultAlreadyRegistered();
-  error VaultTypeImmutable();
-  error SubmitterImmutable();
+  bytes32 public constant contractName = keccak256("VaultsRegistry");
 
-  /* ========== STATE VARIABLES ========== */
+  constructor(address _owner) Owned(_owner) {}
+
+  /*//////////////////////////////////////////////////////////////
+                            REGISTRATION LOGIC
+    //////////////////////////////////////////////////////////////*/
 
   // vault address to vault metadata
   mapping(address => VaultMetadata) public vaults;
 
-  // vault address to endorsed
-  mapping(address => bool) public endorsed;
-
   // asset to vault addresses
   mapping(address => address[]) public assetVaults;
-
-  // type to vault addresses
-  mapping(uint256 => address[]) public typeVaults;
 
   // addresses of all registered vaults
   address[] public vaultAddresses;
 
-  // types of vaults currently registered
-  uint256 public vaultTypes = 1;
+  event VaultAdded(address vaultAddress, string metadataCID);
 
-  bytes32 public constant contractName = keccak256("VaultsV1Registry");
+  error VaultAlreadyRegistered();
 
-  /* ========== EVENTS ========== */
+  // TODO how do we deal with vaults with wrong data?
+  /**
+   * @notice registers vault and adds address to mapping array of asset
+   * @param params - VaultMetadata constructed by Factory after deployVaultFromFactory called by Controller
+   */
+  function registerVault(VaultMetadata memory params) external onlyOwner {
+    if (vaults[params.vaultAddress].vaultAddress != address(0)) revert VaultAlreadyRegistered();
 
-  event VaultAdded(address vaultAddress, uint256 vaultType, string metadataCID);
-  event VaultUpdated(address vaultAddress, uint256 vaultType, string metadataCID);
-  event VaultTypeAdded(uint256 vaultTypes);
-  event VaultStatusChanged(address vaultAddress, bool endorsed);
+    vaults[params.vaultAddress] = params;
 
-  /* ========== CONSTRUCTOR ========== */
+    vaultAddresses.push(params.vaultAddress);
+    assetVaults[IERC4626(params.vaultAddress).asset()].push(params.vaultAddress);
 
-  constructor(address _owner) Owned(_owner) {}
+    emit VaultAdded(params.vaultAddress, params.metadataCID);
+  }
 
-  /* ========== VIEW FUNCTIONS ========== */
+  /*//////////////////////////////////////////////////////////////
+                            VAULT VIEWING LOGIC
+    //////////////////////////////////////////////////////////////*/
 
   /**
    * @notice returns VaultMetadata for registered vault address
    * @param _vaultAddress - address of registered vault
    */
   function getVault(address _vaultAddress) external view returns (VaultMetadata memory) {
-    if (vaults[_vaultAddress].vaultAddress == address(0)) revert VaultNotRegistered();
-
     return vaults[_vaultAddress];
   }
 
@@ -81,20 +78,7 @@ contract VaultsV1Registry is Owned {
    * @param _asset - address of vault asset
    */
   function getVaultsByAsset(address _asset) external view returns (address[] memory) {
-    if (assetVaults[_asset].length <= 0) revert NoAssetVaults();
-
     return assetVaults[_asset];
-  }
-
-  /**
-   * @notice returns address array of all vaults of specified type
-   * @param _type - type of vault
-   */
-  function getVaultsByType(uint256 _type) external view returns (address[] memory) {
-    if (_type > vaultTypes || _type <= 0) revert InvalidVaultType();
-    if (typeVaults[_type].length <= 0) revert NoTypeVaults();
-
-    return typeVaults[_type];
   }
 
   /**
@@ -109,62 +93,5 @@ contract VaultsV1Registry is Owned {
    */
   function getRegisteredAddresses() external view returns (address[] memory) {
     return vaultAddresses;
-  }
-
-  /* ========== MUTATIVE FUNCTIONS ========== */
-
-  /**
-   * @notice registers vault and adds address to mapping array of type and asset
-   * @param params - VaultMetadata constructed by Factory after deployVaultFromV1Factory called by Controller
-   */
-  function registerVault(VaultMetadata memory params) external onlyOwner {
-    if (vaults[params.vaultAddress].vaultAddress != address(0)) revert VaultAlreadyRegistered();
-    if (params.vaultType > vaultTypes || params.vaultType <= 0) revert InvalidVaultType();
-
-    _registerVault(params);
-  }
-
-  function _registerVault(VaultMetadata memory params) internal {
-    vaults[params.vaultAddress] = params;
-
-    vaultAddresses.push(params.vaultAddress);
-    assetVaults[IERC4626(params.vaultAddress).asset()].push(params.vaultAddress);
-    typeVaults[params.vaultType].push(params.vaultAddress);
-
-    emit VaultAdded(params.vaultAddress, params.vaultType, params.metadataCID);
-  }
-
-  /**
-   * @notice updates the VaultMetadata in registry
-   * @param _vaultMetadata struct with updated values
-   * @dev vaultAddress, vaultType, and submitter are immutable
-   */
-  function updateVault(VaultMetadata memory _vaultMetadata) external onlyOwner {
-    VaultMetadata storage updatedVault = vaults[_vaultMetadata.vaultAddress];
-
-    if (updatedVault.vaultAddress == address(0)) revert VaultNotRegistered();
-    if (_vaultMetadata.vaultType != updatedVault.vaultType) revert VaultTypeImmutable();
-    if (_vaultMetadata.submitter != updatedVault.submitter) revert SubmitterImmutable();
-
-    updatedVault.staking = _vaultMetadata.staking;
-    updatedVault.metadataCID = _vaultMetadata.metadataCID;
-    updatedVault.swapTokenAddresses = _vaultMetadata.swapTokenAddresses;
-    updatedVault.swapAddress = _vaultMetadata.swapAddress;
-    updatedVault.exchange = _vaultMetadata.exchange;
-
-    emit VaultUpdated(_vaultMetadata.vaultAddress, _vaultMetadata.vaultType, _vaultMetadata.metadataCID);
-  }
-
-  //TODO get rid of vaultType
-  /**
-   * @notice increase the types of vaults that can be registered
-   * @param _type - the next vault type to be registered
-   * @dev _type must be exactly 1 more than current vaultTypes
-   */
-  function addVaultType(uint256 _type) external onlyOwner {
-    if (_type != vaultTypes + 1) revert InvalidVaultType();
-
-    vaultTypes = _type;
-    emit VaultTypeAdded(vaultTypes);
   }
 }
