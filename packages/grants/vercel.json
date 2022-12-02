@@ -1,4 +1,0 @@
-{
-  "installCommand": "yarn",
-  "buildCommand": "yarn lerna run --scope={@popcorn/hardhat,@popcorn/grants} build"
-}
