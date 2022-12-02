@@ -29,6 +29,7 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
   struct Template {
     address implementation;
     string metadataCid;
+    bool requiresInitData;
   }
 
   // TypeIdentifier => Key => Template
@@ -46,15 +47,35 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
     bytes32 templateType,
     bytes32 templateKey,
     address implementation,
-    string memory metadataCid
+    string memory metadataCid,
+    bool requiresInitData
   ) external {
     if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
     if (templates[templateType][templateKey].implementation != address(0))
       revert TemplateExists(templateType, templateKey);
 
-    templates[templateType][templateKey] = Template({ implementation: implementation, metadataCid: metadataCid });
+    templates[templateType][templateKey] = Template({
+      implementation: implementation,
+      metadataCid: metadataCid,
+      requiresInitData: requiresInitData
+    });
 
     templateKeys[templateType].push(templateKey);
+  }
+
+  // Used if the submitter submitted some wrong data (Can only be changed by DAO)
+  // NOTE we could also require the submitter to simply submit a new strategy. I was a little concerned with non-sensical templateKeys at a certain point if someone submits multiple times the same strategy
+  function editTemplate(
+    bytes32 templateType,
+    bytes32 templateKey,
+    string memory metadataCid,
+    bool requiresInitData
+  ) external onlyOwner {
+    if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
+    if (templates[templateType][templateKey].implementation == address(0)) revert KeyNotFound(templateKey);
+
+    templates[templateType][templateKey].metadataCid = metadataCid;
+    templates[templateType][templateKey].requiresInitData = requiresInitData;
   }
 
   function addTemplateType(bytes32 templateType) external onlyOwner {
@@ -97,7 +118,7 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
     clone = Clones.clone(template.implementation);
 
     bool success = true;
-    if (data.length > 0) (success, ) = clone.call(data);
+    if (template.requiresInitData) (success, ) = clone.call(data);
 
     if (!success) revert DeploymentInitFailed();
 
