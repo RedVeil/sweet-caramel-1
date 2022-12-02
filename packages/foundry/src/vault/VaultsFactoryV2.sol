@@ -43,6 +43,10 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
   error TemplateExists(bytes32 templateType, bytes32 templateKey);
   error TemplateTypeExists(bytes32 templateType);
 
+  event TemplateTypeAdded(bytes32 templateType);
+  event TemplateAdded(bytes32 templateType, bytes32 templateKey, address implementation);
+  event TemplateUpdated(bytes32 templateType, bytes32 templateKey);
+
   function addTemplate(
     bytes32 templateType,
     bytes32 templateKey,
@@ -61,6 +65,8 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
     });
 
     templateKeys[templateType].push(templateKey);
+
+    emit TemplateAdded(templateType, templateKey, implementation);
   }
 
   // Used if the submitter submitted some wrong data (Can only be changed by DAO)
@@ -76,12 +82,17 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
 
     templates[templateType][templateKey].metadataCid = metadataCid;
     templates[templateType][templateKey].requiresInitData = requiresInitData;
+
+    emit TemplateUpdated(templateType, templateKey);
   }
 
   function addTemplateType(bytes32 templateType) external onlyOwner {
     if (templateTypeExists[templateType]) revert TemplateTypeExists(templateType);
-    templateTypeExists[templateType] == true;
+
+    templateTypeExists[templateType] = true;
     templateTypes.push(templateType);
+
+    emit TemplateTypeAdded(templateType);
   }
 
   function getTemplateTypes() external view returns (bytes32[] memory) {

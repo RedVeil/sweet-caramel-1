@@ -4,15 +4,15 @@ pragma solidity ^0.8.0;
 import { Test } from "forge-std/Test.sol";
 
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { MockERC20 } from "../utils/mocks/MockERC20.sol";
-import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
-import { Vault } from "../../src/vault/Vault.sol";
-import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
-import { KeeperIncentiveV2 } from "../../src/utils/KeeperIncentiveV2.sol";
-import { IContractRegistry } from "../../src/interfaces/IContractRegistry.sol";
+import { MockERC20 } from "../../utils/mocks/MockERC20.sol";
+import { MockERC4626 } from "../../utils/mocks/MockERC4626.sol";
+import { Vault } from "../../../src/vault/Vault.sol";
+import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
+import { KeeperIncentiveV2 } from "../../../src/utils/KeeperIncentiveV2.sol";
+import { IContractRegistry } from "../../../src/interfaces/IContractRegistry.sol";
 
-import { IACLRegistry } from "../../src/interfaces/IACLRegistry.sol";
-import { IERC4626 } from "../../src/interfaces/vault/IERC4626.sol";
+import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
+import { IERC4626 } from "../../../src/interfaces/vault/IERC4626.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;

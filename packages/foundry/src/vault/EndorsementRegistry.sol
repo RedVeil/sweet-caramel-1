@@ -26,11 +26,18 @@ contract EndorsementRegistry is Owned {
 
   event EndorsementToggled(address target, bool oldEndorsement, bool newEndorsement);
 
-  function toggleEndorsement(address target) external onlyOwner {
-    bool oldEndorsement = endorsed[target];
+  function toggleEndorsement(address[] memory targets) external onlyOwner {
+    bool oldEndorsement;
+    address target;
 
-    emit EndorsementToggled(target, oldEndorsement, !oldEndorsement);
+    uint256 len = targets.length;
+    for (uint256 i = 0; i < len; i++) {
+      target = targets[i];
+      oldEndorsement = endorsed[target];
 
-    endorsed[target] = !oldEndorsement;
+      emit EndorsementToggled(target, oldEndorsement, !oldEndorsement);
+
+      endorsed[target] = !oldEndorsement;
+    }
   }
 }
