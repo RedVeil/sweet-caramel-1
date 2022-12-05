@@ -27,6 +27,9 @@ jobs:
           yarn cache clean
           yarn install
 
+      - name: "Upgrade ts-node version to 10.9.1 using yarn upgrade command"
+        run: yarn upgrade
+
       - name: "Build hardhat"
         run: cd packages/hardhat && yarn export
 
