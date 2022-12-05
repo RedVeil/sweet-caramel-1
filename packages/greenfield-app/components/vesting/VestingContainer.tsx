@@ -13,7 +13,7 @@ interface VestingContainerProps {
 export default function VestingContainer({ selectedNetworks }: VestingContainerProps): JSX.Element {
   const { account } = useWeb3();
   const supportedNetworks = useChainsWithStakingRewards();
-  const { loading, sum, add, reset } = useSum({ expected: selectedNetworks.length });
+  const { loading, sum, add, reset } = useSum({ expected: selectedNetworks?.length || 1 });
   const [filteredNetworks, setFilteredNetworks] = useState(supportedNetworks);
   const [keyValue, setKeyValue] = useState(0);
 
@@ -38,7 +38,7 @@ export default function VestingContainer({ selectedNetworks }: VestingContainerP
           addClaimable: add,
           isNotAvailable: !loading && sum?.eq(constants.Zero),
         };
-        return <Vesting key={chain + "Vesting" + keyValue} {...props} />;
+        return <Vesting key={chain + "Vesting"} {...props} />;
       })}
     </>
   );
