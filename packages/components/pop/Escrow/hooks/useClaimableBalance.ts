@@ -1,8 +1,8 @@
-import { BigNumber, constants, Contract } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { useNamedAccounts } from "@popcorn/components/pop/utils";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
 import { Pop, BigNumberWithFormatted } from "../../types";
-import { useContractReads, useProvider } from "wagmi";
+import { useContractReads } from "wagmi";
 /**
  * useClaimableBalance returns the claimable balance a user has across all escrow records
  */

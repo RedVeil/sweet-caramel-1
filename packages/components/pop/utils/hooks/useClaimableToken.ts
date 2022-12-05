@@ -1,26 +1,25 @@
 import { useNamedAccounts } from "@popcorn/components/pop/utils";
 import { Pop } from "../../types";
 import { useContractRead } from "wagmi";
-import { useEffect, useState } from "react";
 /**
  * useClaimableBalance returns the claimable token for a staking contract
  */
 export const useClaimableToken: Pop.Hook<string> = ({ chainId, address, enabled }: Pop.StdProps) => {
   const [metadata] = useNamedAccounts(chainId as any, (!!address && [address]) || []);
-  const isEscrow = metadata?.balanceResolver === "escrowBalance";
+  const isClaimable = !!metadata?.claimableTokenResolver;
 
   const _enabled =
     typeof enabled === "boolean"
-      ? !!enabled && !!address && !!chainId && !!isEscrow
-      : !!address && !!chainId && !!isEscrow;
+      ? !!enabled && !!address && !!chainId && !!isClaimable
+      : !!address && !!chainId && !!isClaimable;
 
   return useContractRead({
     enabled: _enabled,
-    scopeKey: `escrow:claimableToken:${chainId}:${address}`,
+    scopeKey: `claimableToken:${chainId}:${address}`,
     cacheOnBlock: true,
     address,
     chainId: Number(chainId),
-    abi: ["function POP() external view returns (address)"],
-    functionName: "POP",
+    abi: metadata?.claimableTokenResolver?.tokenFunctionAbi,
+    functionName: metadata?.claimableTokenResolver?.tokenFunction,
   }) as Pop.HookResult<string>;
 };
