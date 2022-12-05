@@ -41,16 +41,20 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   /* ========== EVENTS ========== */
 
+  /*//////////////////////////////////////////////////////////////
+                               IMMUTABLES
+    //////////////////////////////////////////////////////////////*/
+
+  constructor(address _owner, IContractRegistry _contractRegistry)
+    Owned(_owner)
+    ContractRegistryAccess(_contractRegistry)
+  {}
+
+  /*//////////////////////////////////////////////////////////////
+                          DEPLOYMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
   event VaultDeployed(address indexed vault, address indexed staking, address indexed strategy);
-
-  /* ========== CONSTRUCTOR ========== */
-
-  constructor(
-    address _owner,
-    IContractRegistry _contractRegistry
-  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
-
-  /* ========== VAULT DEPLOYMENT ========== */
 
   /**
    * @notice deploys and registers Vault from VaultsFactory
@@ -154,18 +158,9 @@ contract VaultsController is Owned, ContractRegistryAccess {
     );
   }
 
-  /* ========== VAULT MANAGEMENT FUNCTIONS ========== */
-
-  /**
-   * @notice switches whether a vault is endorsed or unendorsed
-   * @param _vaultAddresses - addresses of the vaults to change endorsement
-   */
-  function toggleEndorseRegistryVault(address[] memory _vaultAddresses) external onlyOwner {
-    VaultsRegistry vaultsRegistry = _vaultsRegistry();
-    for (uint256 i = 0; i < _vaultAddresses.length; i++) {
-      vaultsRegistry.toggleEndorseVault(_vaultAddresses[i]);
-    }
-  }
+  /*//////////////////////////////////////////////////////////////
+                          VAULT MANAGEMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
 
   /**
    * @notice Propose a new Strategy.
@@ -202,40 +197,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
-  /**
-   * @notice Set staking contract for a vault.
-   * @param _vaults - addresses of the vaults
-   * @param _stakingContracts - addresses of the staking contracts
-   * @dev index of _vaults array and _stakingContracts must coincide
-   */
-  function setVaultStaking(address[] memory _vaults, address[] memory _stakingContracts) external onlyOwner {
-    VaultsRegistry vaultsRegistry = _vaultsRegistry();
-
-    for (uint256 i = 0; i < _vaults.length; i++) {
-      VaultMetadata memory vaultMetadata = vaultsRegistry.getVault(_vaults[i]);
-
-      if (_stakingContracts[i] != address(0)) {
-        IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_stakingContracts[i]);
-      }
-      vaultMetadata.staking = _stakingContracts[i];
-
-      vaultsRegistry.updateVault(vaultMetadata);
-    }
-  }
-
-  /**
-   * @notice Sets keeperConfig for a vault
-   * @param _vaults - addresses of the newly deployed vaults
-   * @param _keeperConfigs - the keeperConfig structs from the VaultParams used in vault deployment
-   * @dev index of _vaults array and _keeperConfigs must coincide
-   */
-  function setVaultKeeperConfig(address[] memory _vaults, KeeperConfig[] memory _keeperConfigs) external onlyOwner {
-    for (uint256 i = 0; i < _vaults.length; i++) {
-      IVault(_vaults[i]).setKeeperConfig(_keeperConfigs[i]);
-    }
-  }
-
-  // TODO add pause/unpause for Adapter
+  // TODO make generalized and check for submitter
   /**
    * @notice Pause deposits
    * @param _vaultAddresses - addresses of the vaults to pause
@@ -258,21 +220,44 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
+  /**
+   * @notice Sets keeperConfig for a vault
+   * @param _vaults - addresses of the newly deployed vaults
+   * @param _keeperConfigs - the keeperConfig structs from the VaultParams used in vault deployment
+   * @dev index of _vaults array and _keeperConfigs must coincide
+   */
+  function setVaultKeeperConfig(address[] memory _vaults, KeeperConfig[] memory _keeperConfigs) external onlyOwner {
+    for (uint256 i = 0; i < _vaults.length; i++) {
+      IVault(_vaults[i]).setKeeperConfig(_keeperConfigs[i]);
+    }
+  }
+
+  /**
+   * @notice switches whether a vault is endorsed or unendorsed
+   * @param _vaultAddresses - addresses of the vaults to change endorsement
+   */
+  function toggleEndorsement(address[] memory _vaultAddresses) external onlyOwner {
+    VaultsRegistry vaultsRegistry = _vaultsRegistry();
+    for (uint256 i = 0; i < _vaultAddresses.length; i++) {
+      vaultsRegistry.toggleEndorseVault(_vaultAddresses[i]);
+    }
+  }
+
   /* ========== VAULTSTAKING MANAGEMENT FUNCTIONS ========== */
 
-  function setStakingEscrowDurations(
-    address[] calldata _stakingContracts,
-    uint256[] calldata _escrowDurations
-  ) external onlyOwner {
+  function setStakingEscrowDurations(address[] calldata _stakingContracts, uint256[] calldata _escrowDurations)
+    external
+    onlyOwner
+  {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
       IStaking(_stakingContracts[i]).setEscrowDuration(_escrowDurations[i]);
     }
   }
 
-  function setStakingRewardsDurations(
-    address[] calldata _stakingContracts,
-    uint256[] calldata _rewardsDurations
-  ) external onlyOwner {
+  function setStakingRewardsDurations(address[] calldata _stakingContracts, uint256[] calldata _rewardsDurations)
+    external
+    onlyOwner
+  {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
       IStaking(_stakingContracts[i]).setRewardsDuration(_rewardsDurations[i]);
     }
