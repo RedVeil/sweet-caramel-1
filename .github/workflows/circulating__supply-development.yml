@@ -28,6 +28,9 @@ jobs:
       - name: "Build hardhat"
         run: cd packages/hardhat && yarn export
 
+      - name: "Log version of ts-node used"
+        run: yarn ts-node --version
+
       - name: Run script
         run: yarn circulating-supply
 
