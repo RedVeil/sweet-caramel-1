@@ -1,8 +1,8 @@
 import { ChainId } from "@popcorn/utils";
 import { Contract } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import { resolve_price } from "../resolve_price";
 import { PriceResolver } from "../types";
-import defi_llama from "./llama";
 
 export const set_token: PriceResolver = async (address: string, chainId: ChainId, rpc) => {
   const setToken = new Contract(address, ["function getComponents() external view returns (address[] memory)"], rpc);
@@ -16,7 +16,7 @@ export const set_token: PriceResolver = async (address: string, chainId: ChainId
   const components = await setToken.getComponents();
 
   const prices = await Promise.all(
-    components.map(async (component) => [component, await defi_llama(component, chainId)]),
+    components.map(async (component) => [component, await resolve_price({ address: component, chainId, rpc })]),
   );
 
   const [_components, _quantities] = await basicIssuance.getRequiredComponentUnitsForIssue(address, parseEther("1"));

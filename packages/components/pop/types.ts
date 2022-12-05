@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 
 export namespace Pop {
   export type StdProps = BaseContractProps;
-  export type BaseContractProps = Address & ChainId & Partial<Account & Enabled>;
+  export type BaseContractProps = ChainId & Partial<Account & Enabled & Address>;
 
   export type FC<T> = React.FC<FCProps<T> & Partial<HookResult<T>>>;
 

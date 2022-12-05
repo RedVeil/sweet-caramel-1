@@ -13,7 +13,7 @@ export const useClaimableBalance: Pop.Hook<BigNumberWithFormatted> = ({
   enabled,
   escrowIds,
 }: { escrowIds?: string[] } & Pop.StdProps) => {
-  const [metadata] = useNamedAccounts(chainId as any, [address]);
+  const [metadata] = useNamedAccounts(chainId as any, (!!address && [address]) || []);
 
   const _enabled =
     (typeof enabled === "boolean" ? enabled : metadata?.balanceResolver === "escrowBalance") &&
@@ -26,7 +26,7 @@ export const useClaimableBalance: Pop.Hook<BigNumberWithFormatted> = ({
     scopeKey: `escrow:claimable:${chainId}:${address}:${account}`,
     cacheOnBlock: true,
     contracts: escrowIds?.map((escrowId) => ({
-      address,
+      address: (!!address && address) || "",
       chainId: Number(chainId),
       abi: ["function getClaimableAmount(bytes32) external view returns (uint256)"],
       functionName: "getClaimableAmount",
