@@ -27,10 +27,8 @@ jobs:
           rm -rf node_modules
           rm -rf packages/utils/node_modules
 
-      - name: "Clear cache and yarn install"
-        run: |
-          yarn cache clean
-          yarn
+      - name: "yarn install"
+        run: yarn
 
       - name: "Build hardhat"
         run: cd packages/hardhat && yarn export
