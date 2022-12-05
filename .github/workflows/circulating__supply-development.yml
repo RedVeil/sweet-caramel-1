@@ -22,6 +22,11 @@ jobs:
         with:
           ref: circulating-supply
 
+      - name: "Delete node modules"
+        run: |
+          rm -rf node_modules
+          rm -rf packages/utils/node_modules
+
       - name: "Clear cache and yarn install"
         run: |
           yarn cache clean
