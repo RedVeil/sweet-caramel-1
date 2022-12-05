@@ -15,10 +15,10 @@ export default function VestingContainer({ selectedNetworks }: VestingContainerP
   const supportedNetworks = useChainsWithStakingRewards();
   const { loading, sum, add, reset } = useSum({ expected: selectedNetworks.length });
   const [filteredNetworks, setFilteredNetworks] = useState(supportedNetworks);
-  const [keyValue, setKeyValue] = useState("");
+  const [keyValue, setKeyValue] = useState(0);
 
   useEffect(() => {
-    setKeyValue(Date.now().toString());
+    setKeyValue(keyValue + 1);
     setFilteredNetworks(supportedNetworks.filter((chain) => selectedNetworks.includes(chain)));
     reset();
   }, [account, selectedNetworks]);
