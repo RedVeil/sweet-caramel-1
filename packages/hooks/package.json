@@ -1,13 +1,13 @@
 {
   "name": "@popcorn/hooks",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "react hooks",
   "main": "index.js",
   "license": "AGPL-3",
   "private": true,
   "dependencies": {
-    "@popcorn/hardhat": "^1.1.1",
-    "@popcorn/utils": "^1.1.1",
+    "@popcorn/hardhat": "^1.1.2",
+    "@popcorn/utils": "^1.1.2",
     "react": "18.2.0",
     "wagmi": "0.8.6"
   }
