@@ -674,6 +674,14 @@
       "contractName": "ThreeXBatchProcessing"
     }
   },
+  "threeXZapper": {
+    "addresses": {
+      "mainnet": "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84"
+    },
+    "metadata": {
+      "contractName": "ThreeXZapper"
+    }
+  },
   "threeXBatchVault": {
     "addresses": {
       "mainnet": "0x0B4E13D8019D0F762377570000D9C923f0dad82B"
