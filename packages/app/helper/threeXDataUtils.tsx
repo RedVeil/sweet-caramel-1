@@ -154,6 +154,7 @@ export async function getData(
     claimableRedeemBatches,
     tokens: tokenResponse,
   };
+  console.log({ response });
   return response;
 }
 
