@@ -17,7 +17,6 @@ export const useApy: Pop.Hook<BigNumberWithFormatted> = ({ resolver, address, ch
 
   return popHookAdapter(
     useSWR(!!address && !!chainId && !!_resolver ? [`useApy:${chainId}:${address}:${resolver}`] : null, async () => {
-      console.log({ _resolver, address, chainId, rpc: provider });
       return resolve_apy({ address, chainId, rpc: provider, resolver: _resolver });
     }),
   ) as Pop.HookResult<BigNumberWithFormatted>;
