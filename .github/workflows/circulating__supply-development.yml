@@ -31,6 +31,9 @@ jobs:
       - name: "Log version of ts-node used"
         run: yarn ts-node --version
 
+      - name: "Log version of typescript used"
+        run: yarn tsc --version
+
       - name: Run script
         run: yarn circulating-supply
 
