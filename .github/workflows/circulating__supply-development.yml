@@ -22,8 +22,10 @@ jobs:
         with:
           ref: circulating-supply
 
-      - name: "Yarn install"
-        run: yarn
+      - name: "Clear cache and yarn install"
+        run: |
+          yarn cache clean
+          yarn install
 
       - name: "Build hardhat"
         run: cd packages/hardhat && yarn export
