@@ -8,10 +8,14 @@ interface Props {
   decimals?: number;
 }
 export const Value = ({ price, balance, decimals }: Props) => {
-  const value = balance && price &&
-    balance.mul(price)
-      .mul(parseUnits("1", decimals == 6 ? 12 : 0))
-      .div(parseUnits("1", 18)) || constants.Zero;
+  const value =
+    (balance &&
+      price &&
+      balance
+        .mul(price)
+        .mul(parseUnits("1", decimals == 6 ? 12 : 0))
+        .div(parseUnits("1", 18))) ||
+    constants.Zero;
 
-  return <>{!!price && !!balance && '$' + formatAndRoundBigNumber(value, 18) || ""}</>;
-}
+  return <>{(!!price && !!balance && "$" + formatAndRoundBigNumber(value, 18)) || ""}</>;
+};
