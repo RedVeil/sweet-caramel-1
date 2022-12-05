@@ -22,7 +22,14 @@
     },
     "metadata": {
       "priceResolver": "staking",
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenResolver": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "angleRouter": {
@@ -96,7 +103,14 @@
       "priceResolver": "staking",
       "symbol": "st-BTR",
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenResolver": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "butterWhaleProcessing": {
@@ -477,7 +491,14 @@
       "priceResolver": "staking",
       "apyResolver": "synthetix",
       "isERC20": false,
-      "symbol": "st-RAKIS-15"
+      "symbol": "st-RAKIS-15",
+      "claimableTokenResolver": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "popUsdcLp": {
@@ -513,7 +534,14 @@
     },
     "metadata": {
       "priceResolver": "staking",
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenResolver": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "popUsdcUniV3Pool": {
@@ -544,6 +572,16 @@
       "priceResolver": "pop",
       "symbol": "POP",
       "balanceResolver": "escrowBalance",
+      "tvlResolver": {
+        "type": "escrow",
+        "tokenFunction": "POP",
+        "tokenFunctionAbi": ["function POP() external view returns (address)"]
+      },
+      "claimableTokenResolver": {
+        "type": "escrow",
+        "tokenFunction": "POP",
+        "tokenFunctionAbi": ["function POP() external view returns (address)"]
+      },
       "isERC20": false
     }
   },
@@ -692,7 +730,14 @@
       "priceResolver": "staking",
       "symbol": "st-3X",
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenResolver": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "threeXWhale": {
