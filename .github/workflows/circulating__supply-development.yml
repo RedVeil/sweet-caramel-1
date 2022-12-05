@@ -27,6 +27,11 @@ jobs:
           rm -rf node_modules
           rm -rf packages/utils/node_modules
 
+      - name: "Remove all cached dependencies and clear all cache"
+        run: yarn ci
+        run: yarn cache list
+        run: yarn cache clean
+
       - name: "yarn install"
         run: yarn
 
