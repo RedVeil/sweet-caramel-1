@@ -53,8 +53,8 @@ const GoogleAnalyticsPrompt = () => {
         <div className="w-full fixed bottom-0 left-0 z-40">
           <div className="bg-white w-full py-6 px-8 rounded-t-4xl md:rounded-t-lg shadow-custom flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-10 mx-auto">
             <p className="text-primaryDark">
-              Popcorn uses Google analytics to enhance your experience, understand site usage, and assist in our
-              marketing efforts.
+              This site uses Google analytics to enhance your experience, understand site usage, <br /> and assist in
+              creating a better experience.
             </p>
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 w-full md:w-auto">
               <MainActionButton label="Accept" handleClick={handleAccept} />

@@ -17,7 +17,7 @@ const GoogleAnalyticsPrompt = () => {
 	const handleAccept = () => {
 		window.dataLayer.push({
 			event: 'pageView',
-			url:window.location.pathname
+			url: window.location.pathname
 		});
 		setOpenAnalyticsPrompt(false)
 	}
@@ -38,7 +38,7 @@ const GoogleAnalyticsPrompt = () => {
 			>
 				<div className='bg-white w-full py-6 px-8 rounded-t-lg shadow-custom flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-10 fixed bottom-0 z-50'>
 					<p className='text-primaryDark'>This site uses Google analytics to enhance your experience, understand site usage, <br /> and assist in
-            creating a better product.</p>
+						creating a better experience.</p>
 					<div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 w-full md:w-auto">
 						<PrimaryButton handleClick={handleAccept}>Opt-in</PrimaryButton>
 						<TertiaryActionButton label="Opt-out" handleClick={handleDecline} />
