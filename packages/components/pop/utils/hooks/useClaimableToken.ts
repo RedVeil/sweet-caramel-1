@@ -6,7 +6,7 @@ import { useContractRead } from "wagmi";
  */
 export const useClaimableToken: Pop.Hook<string> = ({ chainId, address, enabled }: Pop.StdProps) => {
   const [metadata] = useNamedAccounts(chainId as any, (!!address && [address]) || []);
-  const isClaimable = !!metadata?.claimableTokenResolver;
+  const isClaimable = !!metadata?.claimableTokenAdapter;
 
   const _enabled =
     typeof enabled === "boolean"
@@ -19,7 +19,7 @@ export const useClaimableToken: Pop.Hook<string> = ({ chainId, address, enabled 
     cacheOnBlock: true,
     address,
     chainId: Number(chainId),
-    abi: metadata?.claimableTokenResolver?.tokenFunctionAbi,
-    functionName: metadata?.claimableTokenResolver?.tokenFunction,
+    abi: metadata?.claimableTokenAdapter?.tokenFunctionAbi,
+    functionName: metadata?.claimableTokenAdapter?.tokenFunction,
   }) as Pop.HookResult<string>;
 };

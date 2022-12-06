@@ -23,7 +23,7 @@
     "metadata": {
       "priceResolver": "staking",
       "apyResolver": "synthetix",
-      "claimableTokenResolver": {
+      "claimableTokenAdapter": {
         "type": "synthetix",
         "tokenFunction": "rewardsToken",
         "tokenFunctionAbi": [
@@ -104,7 +104,7 @@
       "symbol": "st-BTR",
       "isERC20": false,
       "apyResolver": "synthetix",
-      "claimableTokenResolver": {
+      "claimableTokenAdapter": {
         "type": "synthetix",
         "tokenFunction": "rewardsToken",
         "tokenFunctionAbi": [
@@ -467,6 +467,12 @@
       "name": "POP",
       "symbol": "vlPOP",
       "priceResolver": "staking",
+      "balanceOfAdapter": {
+        "functionName": "lockedBalanceOf",
+        "functionAbi": [
+          "function lockedBalanceOf(address) external view returns (uint256)"
+        ]
+      },
       "isERC20": false
     }
   },
@@ -492,7 +498,7 @@
       "apyResolver": "synthetix",
       "isERC20": false,
       "symbol": "st-RAKIS-15",
-      "claimableTokenResolver": {
+      "claimableTokenAdapter": {
         "type": "synthetix",
         "tokenFunction": "rewardsToken",
         "tokenFunctionAbi": [
@@ -535,7 +541,7 @@
     "metadata": {
       "priceResolver": "staking",
       "apyResolver": "synthetix",
-      "claimableTokenResolver": {
+      "claimableTokenAdapter": {
         "type": "synthetix",
         "tokenFunction": "rewardsToken",
         "tokenFunctionAbi": [
@@ -577,7 +583,7 @@
         "tokenFunction": "POP",
         "tokenFunctionAbi": ["function POP() external view returns (address)"]
       },
-      "claimableTokenResolver": {
+      "claimableTokenAdapter": {
         "type": "escrow",
         "tokenFunction": "POP",
         "tokenFunctionAbi": ["function POP() external view returns (address)"]
@@ -731,7 +737,7 @@
       "symbol": "st-3X",
       "isERC20": false,
       "apyResolver": "synthetix",
-      "claimableTokenResolver": {
+      "claimableTokenAdapter": {
         "type": "synthetix",
         "tokenFunction": "rewardsToken",
         "tokenFunctionAbi": [
