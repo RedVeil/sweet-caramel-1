@@ -3,7 +3,6 @@ import { parseUnits } from "ethers/lib/utils";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Pop } from "../types";
 import { withLoading } from "../utils";
-import { useEffect, useState } from "react";
 
 interface Props {
   price?: BigNumber;
