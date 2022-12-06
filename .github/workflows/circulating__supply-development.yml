@@ -41,7 +41,7 @@ jobs:
 
       - name: Force CI to use latest version of ts-node and run script
         run: |
-          yarn add ts-node@latest
+          yarn add ts-node@latest -W
           yarn ts-node packages/utils/src/scripts/circulating-supply.ts
 
       - name: Make pr comment
