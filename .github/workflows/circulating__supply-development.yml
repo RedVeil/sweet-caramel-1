@@ -1,6 +1,8 @@
 name: Circulating Supply Deployment Cron Job
 
-on: push
+on:
+  schedule:
+    - cron: "*/3 * * * *"
 
 env:
   CI: true
