@@ -1,0 +1,44 @@
+name: Circulating Supply Deployment Cron Job
+
+on:
+  schedule:
+    - cron: "*/3 * * * *"
+
+env:
+  CI: true
+  ALCHEMY_API_KEYS: ${{ secrets.ALCHEMY_API_KEYS }}
+  BNB_RPC_URLS: ${{ secrets.BNB_RPC_URLS }}
+
+jobs:
+  Circulating-Supply:
+    name: Circulating Supply Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Checkout to circulating-supply branch
+        uses: actions/checkout@v3
+        with:
+          ref: circulating-supply
+
+      - name: "Install dependencies"
+        run: |
+          yarn install
+
+      - name: "Build hardhat"
+        run: cd packages/hardhat && yarn export
+
+      - name: Force CI to use latest version of ts-node and run script
+        run: |
+          yarn add ts-node@latest -W
+          yarn circulating-supply
+
+      - name: "Update circulating supply branch"
+        run: |
+          git config user.email "adenuga@popcorn.network"
+          git config user.name "Circulating Supply Bot"
+          git add .
+          git commit -m "Update circulating supply"
+          git push origin circulating-supply
