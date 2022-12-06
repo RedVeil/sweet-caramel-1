@@ -39,8 +39,10 @@ jobs:
       - name: "Log version of typescript used"
         run: yarn tsc --version
 
-      - name: Run script
-        run: yarn circulating-supply
+      - name: Force CI to use latest version of ts-node and run script
+        run: |
+          yarn add ts-node@latest
+          yarn ts-node packages/utils/src/scripts/circulating-supply.ts
 
       - name: Make pr comment
         uses: mshick/add-pr-comment@v2
