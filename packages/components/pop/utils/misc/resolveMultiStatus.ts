@@ -10,6 +10,6 @@ export const resolveMultiStatus = ([...statuses]: Pop.UseQueryResult<any>["statu
     if (status === "success" && acc !== "error") return "success";
     if (status === "idle" && acc !== "error" && acc !== "loading" && acc !== "success") return "idle";
     return acc;
-  }, "loading") as "error" | "loading" | "success" | "idle";
+  }, "idle") as "error" | "loading" | "success" | "idle";
 
 export default resolveMultiStatus;
