@@ -6,7 +6,7 @@ import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
 import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
-import { formatAndRoundBigNumber } from '../../utils/src/formatBigNumber';
+import { formatAndRoundBigNumber } from "../../utils/src/formatBigNumber";
 
 export const PortfolioPage: NextPage = () => {
   const {
