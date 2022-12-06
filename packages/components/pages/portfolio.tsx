@@ -86,11 +86,14 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
-          <Escrow.ValueOfBalance
-            key={`Escrow.ValueOfBalance`}
+          <Escrow.BalanceOf
+            key={`Escrow.BalanceOfValue`}
             account={account}
             address={token.address}
             chainId={token.chainId}
+            render={({ balance, price, status }) => (
+              <Contract.Value balance={balance?.value} price={price?.value} status={status} />
+            )}
           />
 
           <Escrow.ClaimableBalanceOf
@@ -101,7 +104,7 @@ export const PortfolioPage: NextPage = () => {
           />
 
           <Escrow.ClaimableBalanceOf
-            key={`Escrow.ClaimableBalanceValue`}
+            key={`Escrow.ClaimableBalanceOfValue`}
             account={account}
             address={token.address}
             chainId={token.chainId}
