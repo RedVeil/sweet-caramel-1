@@ -52,18 +52,14 @@ export const PortfolioPage: NextPage = () => {
     ...contractsOp,
   ].flatMap((network) => network) as Pop.NamedAccountsMetadata[];
 
-  const { loading: networthLoading, sum: networth, add } = useSum({ expected: 1 })
+  const { loading: networthLoading, sum: networth, add } = useSum({ expected: 1 });
   const addToNetworth = (value?: BigNumber) => {
     !!value && add(value);
     return true;
   };
   return (
     <div className={visible ? "" : "hidden"}>
-      <Networth
-        account={account}
-        loading={networthLoading}
-        value={networth}
-      />
+      <Networth account={account} loading={networthLoading} value={networth} />
 
       {allContracts.map((token, i) => (
         <Contract.Metadata
