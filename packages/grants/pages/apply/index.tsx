@@ -36,12 +36,13 @@ const ApplyPage = () => {
             <li>Education</li>
             <li> Inequality</li>
           </ol>
-          <p>
+          {/* TODO: Bring this back in When Koye has completed the impact questionnaire */}
+          {/* <p>
             Fill out the{" "}
             <a href="/" className="text-customPurple">
               Popcorn Foundation Social Impact Questionnaire
             </a>
-          </p>
+          </p> */}
         </div>
       ),
     },
