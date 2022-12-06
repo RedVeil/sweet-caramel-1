@@ -5,8 +5,6 @@ import { resolve_price } from "../../utils/resolvers/price-resolvers/resolve_pri
 import { Pop } from "../../types";
 import { popHookAdapter } from "../../utils/hooks/swrPopHookAdapter";
 import { useNamedAccounts } from "../../utils";
-import { useMemo } from "react";
-import useLog from "../../utils/hooks/useLog";
 
 interface Props extends Pop.StdProps {
   resolver?: string;

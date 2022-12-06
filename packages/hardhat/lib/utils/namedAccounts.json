@@ -468,7 +468,7 @@
       "symbol": "vlPOP",
       "priceResolver": "staking",
       "balanceOfAdapter": {
-        "functionName": "lockedBalanceOf",
+        "functionName": "lockedBalanceOf(address)",
         "functionAbi": [
           "function lockedBalanceOf(address) external view returns (uint256)"
         ]

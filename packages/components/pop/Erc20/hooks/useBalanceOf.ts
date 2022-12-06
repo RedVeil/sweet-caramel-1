@@ -12,7 +12,7 @@ export const useBalanceOf: Pop.Hook<BigNumberWithFormatted> = ({ chainId, addres
       ? metadata.balanceResolver == "balanceOf" && !!account && !!address && !!chainId
       : !!account && !!address && !!chainId;
 
-  const abi = metadata?.balanceOfAdapter?.abi || ["function balanceOf(address) view returns (uint256)"];
+  const abi = metadata?.balanceOfAdapter?.functionAbi || ["function balanceOf(address) view returns (uint256)"];
   const functionName = metadata?.balanceOfAdapter?.functionName || "balanceOf";
 
   return useContractRead({
