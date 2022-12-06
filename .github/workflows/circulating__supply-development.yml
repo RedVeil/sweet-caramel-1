@@ -26,14 +26,9 @@ jobs:
           rm -rf node_modules
           rm -rf packages/utils/node_modules
 
-      - name: "Remove all cached dependencies on the CI workflow"
+      - name: "Install dependencies"
         run: |
-          yarn cache clean
-          yarn cache dir
-          yarn cache list
-
-      - name: "yarn install"
-        run: yarn
+          yarn install
 
       - name: "Build hardhat"
         run: cd packages/hardhat && yarn export
