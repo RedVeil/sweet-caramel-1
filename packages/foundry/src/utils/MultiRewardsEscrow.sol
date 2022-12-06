@@ -87,13 +87,7 @@ contract MultiRewardsEscrow is Owned, ContractRegistryAccess, KeeperIncentivized
    * @notice Locks funds for escrow
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds
    */
-  function lock(
-    IERC20 token,
-    address account,
-    uint256 amount,
-    uint256 duration,
-    uint256 offset
-  ) external {
+  function lock(IERC20 token, address account, uint256 amount, uint256 duration, uint256 offset) external {
     if (token == IERC20(address(0))) revert ZeroAddress();
     if (account == address(0)) revert ZeroAddress();
     if (amount == 0) revert ZeroAmount();
@@ -275,12 +269,9 @@ contract MultiRewardsEscrow is Owned, ContractRegistryAccess, KeeperIncentivized
   /**
    * @notice Override for ACLAuth and ContractRegistryAccess.
    */
-  function _getContract(bytes32 _name)
-    internal
-    view
-    override(ContractRegistryAccess, KeeperIncentivized)
-    returns (address)
-  {
+  function _getContract(
+    bytes32 _name
+  ) internal view override(ContractRegistryAccess, KeeperIncentivized) returns (address) {
     return super._getContract(_name);
   }
 }
