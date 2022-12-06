@@ -112,31 +112,6 @@ contract VaultsRegistry is Owned {
   }
 
   /**
-   * @notice updates the VaultMetadata in registry
-   * @param _vaultMetadata struct with updated values
-   * @dev vaultAddress and submitter are immutable
-   */
-  function updateVault(VaultMetadata memory _vaultMetadata) external onlyOwner {
-    VaultMetadata storage updatedVault = vaults[_vaultMetadata.vaultAddress];
-
-    if (updatedVault.vaultAddress == address(0)) revert VaultNotRegistered();
-    if (_vaultMetadata.submitter != updatedVault.submitter) revert SubmitterImmutable();
-
-    updatedVault.enabled = _vaultMetadata.enabled;
-    updatedVault.staking = _vaultMetadata.staking;
-    updatedVault.metadataCID = _vaultMetadata.metadataCID;
-    updatedVault.swapTokenAddresses = _vaultMetadata.swapTokenAddresses;
-    updatedVault.swapAddress = _vaultMetadata.swapAddress;
-    updatedVault.exchange = _vaultMetadata.exchange;
-
-    emit VaultUpdated(
-      _vaultMetadata.vaultAddress,
-      _vaultMetadata.enabled,
-      _vaultMetadata.metadataCID
-    );
-  }
-
-  /**
    * @notice switches whether a vault is endorsed or unendorsed
    * @param _vaultAddress address of the vault to change endorsement
    */

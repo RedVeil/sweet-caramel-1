@@ -61,7 +61,7 @@ contract Vault is
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10 ** (asset_.decimals());
+    ONE = 10**(asset_.decimals());
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
@@ -113,10 +113,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(
-    uint256 assets,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 shares)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
@@ -151,10 +154,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(
-    uint256 shares,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 assets) {
+  function mint(uint256 shares, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 assets)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = feeStructure.deposit;
@@ -233,7 +239,11 @@ contract Vault is
    * @param owner Owner of burned vault shares.
    * @return assets of underlying sent to `receiver`.
    */
-  function redeem(uint256 shares, address receiver, address owner) public nonReentrant returns (uint256 assets) {
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public nonReentrant returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -631,14 +641,14 @@ contract Vault is
   /**
    * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function pauseContract() external onlyRole(VAULTS_CONTROLLER) {
+  function pause() external onlyRole(VAULTS_CONTROLLER) {
     _pause();
   }
 
   /**
    * @notice Unpause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function unpauseContract() external onlyRole(VAULTS_CONTROLLER) {
+  function unpause() external onlyRole(VAULTS_CONTROLLER) {
     _unpause();
   }
 
@@ -722,9 +732,12 @@ contract Vault is
   /**
    * @notice Override for ACLAuth and ContractRegistryAccess.
    */
-  function _getContract(
-    bytes32 _name
-  ) internal view override(ACLAuth, KeeperIncentivized, ContractRegistryAccessUpgradeable) returns (address) {
+  function _getContract(bytes32 _name)
+    internal
+    view
+    override(ACLAuth, KeeperIncentivized, ContractRegistryAccessUpgradeable)
+    returns (address)
+  {
     return super._getContract(_name);
   }
 }

@@ -8,8 +8,11 @@ import "../utils/Owned.sol";
 import "../utils/ContractRegistryAccess.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
-import "../interfaces/vault/IVault.sol";
-import "../interfaces/IStaking.sol";
+import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import { IVault } from "../interfaces/vault/IVault.sol";
+import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
+import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
+import { IVaultsFactory } from "../interfaces/vault/IVaultsFactory.sol";
 import "../interfaces/IRewardsEscrow.sol";
 import "../interfaces/vault/IERC4626.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
@@ -30,25 +33,15 @@ struct VaultParams {
 }
 
 contract VaultsController is Owned, ContractRegistryAccess {
-  /* ========== CUSTOM ERRORS ========== */
-
-  error ConflictingInterest();
-
-  /* ========== STATE VARIABLES ========== */
-
-  bytes32 public constant contractName = keccak256("VaultsController");
-  bytes32 internal constant VAULT_REWARDS_ESCROW = keccak256("VaultRewardsEscrow");
-
-  /* ========== EVENTS ========== */
-
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
+  bytes32 public constant contractName = keccak256("VaultsController");
 
-  constructor(
-    address _owner,
-    IContractRegistry _contractRegistry
-  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
+  constructor(address _owner, IContractRegistry _contractRegistry)
+    Owned(_owner)
+    ContractRegistryAccess(_contractRegistry)
+  {}
 
   /*//////////////////////////////////////////////////////////////
                           DEPLOYMENT LOGIC
@@ -168,8 +161,9 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @param _newStrategies - new strategies to be proposed for the vault
    * @dev index of _vaults array and _newStrategies array must coincide
    */
-  function proposeNewVaultStrategy(address[] memory _vaults, IERC4626[] memory _newStrategies) external onlyOwner {
+  function proposeNewVaultStrategy(address[] memory _vaults, IERC4626[] memory _newStrategies) external {
     for (uint256 i = 0; i < _vaults.length; i++) {
+      _verifySubmitter(_vaults[i]);
       IVault(_vaults[i]).proposeNewStrategy(_newStrategies[i]);
     }
   }
@@ -178,7 +172,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @notice Change strategy of a vault to the previously proposed strategy.
    * @param _vaults - addresses of the vaults
    */
-  function changeVaultStrategy(address[] memory _vaults) external onlyOwner {
+  function changeVaultStrategy(address[] memory _vaults) external {
     for (uint256 i = 0; i < _vaults.length; i++) {
       IVault(_vaults[i]).changeStrategy();
     }
@@ -191,32 +185,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    * @dev index of _vaults array and _newFees must coincide
    */
-  function setVaultFees(address[] memory _vaults, IVault.FeeStructure[] memory _newFees) external onlyOwner {
+  function setVaultFees(address[] memory _vaults, IVault.FeeStructure[] memory _newFees) external {
     for (uint8 i; i < _vaults.length; i++) {
+      _verifySubmitter(_vaults[i]);
       IVault(_vaults[i]).setFees(_newFees[i]);
-    }
-  }
-
-  // TODO make generalized and check for submitter
-  /**
-   * @notice Pause deposits
-   * @param _vaultAddresses - addresses of the vaults to pause
-   * @dev caller on vault contract must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry
-   */
-  function pauseVaults(address[] memory _vaultAddresses) public onlyOwner {
-    for (uint256 i = 0; i < _vaultAddresses.length; i++) {
-      IVault(_vaultAddresses[i]).pauseContract();
-    }
-  }
-
-  /**
-   * @notice Unpause deposits
-   * @param _vaultAddresses - addresses of the vaults to unpause
-   * @dev caller on vault contract must have DAO_ROLE or VAULTS_CONTROLLER from ACLRegistry
-   */
-  function unpauseVaults(address[] memory _vaultAddresses) public onlyOwner {
-    for (uint256 i = 0; i < _vaultAddresses.length; i++) {
-      IVault(_vaultAddresses[i]).unpauseContract();
     }
   }
 
@@ -226,11 +198,22 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @param _keeperConfigs - the keeperConfig structs from the VaultParams used in vault deployment
    * @dev index of _vaults array and _keeperConfigs must coincide
    */
-  function setVaultKeeperConfig(address[] memory _vaults, KeeperConfig[] memory _keeperConfigs) external onlyOwner {
+  function setVaultKeeperConfig(address[] memory _vaults, KeeperConfig[] memory _keeperConfigs) external {
     for (uint256 i = 0; i < _vaults.length; i++) {
+      _verifySubmitter(_vaults[i]);
       IVault(_vaults[i]).setKeeperConfig(_keeperConfigs[i]);
     }
   }
+
+  function _verifySubmitter(address vault) internal returns (VaultMetadata memory) {
+    VaultMetadata memory metadata = _vaultsRegistry().getVault(vault);
+    if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
+    return metadata;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          ENDORSEMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
 
   /**
    * @notice switches whether a vault is endorsed or unendorsed
@@ -243,53 +226,134 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
-  /* ========== VAULTSTAKING MANAGEMENT FUNCTIONS ========== */
+  /*//////////////////////////////////////////////////////////////
+                          STAKING MANAGEMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
 
-  function setStakingEscrowDurations(
-    address[] calldata _stakingContracts,
-    uint256[] calldata _escrowDurations
-  ) external onlyOwner {
+  // NOTE - currently checks submitter of stakingRewardsToken not submitter of vault
+  function addRewardsToken(address[] memory _stakingContracts, bytes[] memory rewardsTokenData) external {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
-      IStaking(_stakingContracts[i]).setEscrowDuration(_escrowDurations[i]);
+      (
+        address rewardsToken,
+        uint160 rewardsPerSecond,
+        uint256 amount,
+        address submitter,
+        bool useEscrow,
+        uint224 escrowDuration,
+        uint24 escrowPercentage,
+        uint256 offset
+      ) = abi.decode(rewardsTokenData, (address, uint160, uint256, address, bool, uint224, uint24, uint256));
+      IMultiRewardsStaking(_stakingContracts[i]).addRewardsToken(
+        IERC20(rewardsToken),
+        rewardsPerSecond,
+        amount,
+        submitter,
+        useEscrow,
+        escrowDuration,
+        escrowPercentage,
+        offset
+      );
     }
   }
 
-  function setStakingRewardsDurations(
-    address[] calldata _stakingContracts,
-    uint256[] calldata _rewardsDurations
-  ) external onlyOwner {
+  function changeRewardsSpeed(address[] memory _stakingContracts, bytes[] memory rewardsTokenData) external {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
-      IStaking(_stakingContracts[i]).setRewardsDuration(_rewardsDurations[i]);
+      (address rewardsToken, uint160 rewardsPerSecond, address submitter) = abi.decode(
+        rewardsTokenData,
+        (address, uint160, address)
+      );
+      IMultiRewardsStaking(_stakingContracts[i]).changeRewardSpeed(IERC20(rewardsToken), rewardsPerSecond, submitter);
     }
   }
 
-  function pauseStakingContracts(address[] calldata _stakingContracts) external onlyOwner {
+  function fundReward(address[] memory _stakingContracts, bytes[] memory rewardsTokenData) external {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
-      IStaking(_stakingContracts[i]).pauseContract();
+      (address rewardsToken, uint256 amount) = abi.decode(rewardsTokenData, (address, uint256));
+      IMultiRewardsStaking(_stakingContracts[i]).fundReward(IERC20(rewardsToken), amount);
     }
   }
 
-  function unpauseStakingContracts(address[] calldata _stakingContracts) external onlyOwner {
-    for (uint256 i = 0; i < _stakingContracts.length; i++) {
-      IStaking(_stakingContracts[i]).unpauseContract();
+  /*//////////////////////////////////////////////////////////////
+                          ESCROW MANAGEMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
+    IMultiRewardsEscrow(_getContract(MULTI_REWARD_ESCROW)).setFees(tokens, fees);
+  }
+
+  function setEscrowKeeperPerc(uint256 keeperPerc) external onlyOwner {
+    IMultiRewardsEscrow(_getContract(MULTI_REWARD_ESCROW)).setKeeperPerc(keeperPerc);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          FACTORY MANAGEMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  function addTemplateType(bytes32[] memory templateTypes) external onlyOwner {
+    IVaultsFactory factory = IVaultsFactory(_getContract(VAULT_FACTORY));
+    uint8 len = templateTypes.length;
+    for (uint256 i = 0; i < len; i++) {
+      factory.addTemplateType(templateTypes[i]);
     }
   }
 
-  /* ========== STRATEGY/WRAPPER DEPLOYMENT FUNCTIONS ========== */
+  /*//////////////////////////////////////////////////////////////
+                          PAUSING LOGIC
+    //////////////////////////////////////////////////////////////*/
+  error NotSubmitterNorOwner(address caller);
 
-  function _deployStrategy(address _strategyImplementation, bytes memory _deploymentParams) internal returns (address) {
-    return _vaultsFactory().deploy(_strategyImplementation, _deploymentParams);
+  function pauseAdapter(address[] calldata vaults) external {
+    uint8 len = vaults.length;
+    for (uint256 i = 0; i < len; i++) {
+      _verifySubmitterOrOwner(vaults[i]);
+      address adapter = IVault(vaults[i]).strategy();
+      IVault(adapter).pause();
+    }
   }
 
-  /* ========== OWNERSHIP FUNCTIONS ========== */
+  function pauseVault(address[] calldata vaults) external {
+    uint8 len = vaults.length;
+    for (uint256 i = 0; i < len; i++) {
+      _verifySubmitterOrOwner(vaults[i]);
+      IVault(contracts[i]).pause();
+    }
+  }
+
+  function unpauseAdapter(address[] calldata vaults) external {
+    uint8 len = vaults.length;
+    for (uint256 i = 0; i < len; i++) {
+      _verifySubmitterOrOwner(vaults[i]);
+      address adapter = IVault(vaults[i]).strategy();
+      IVault(adapter).unpause();
+    }
+  }
+
+  function unpauseVault(address[] calldata vaults) external {
+    uint8 len = vaults.length;
+    for (uint256 i = 0; i < len; i++) {
+      _verifySubmitterOrOwner(vaults[i]);
+      IVault(contracts[i]).unpause();
+    }
+  }
+
+  function _verifySubmitterOrOwner(address vault) internal returns (VaultMetadata memory) {
+    VaultMetadata memory metadata = _vaultsRegistry().getVault(vault);
+    if (msg.sender != metadata.submitter || msg.sender != owner) revert NotSubmitterNorOwner(msg.sender);
+    return metadata;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          OWNERSHIP LOGIC
+    //////////////////////////////////////////////////////////////*/
 
   /**
    * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
    * @dev newOwner address must call acceptOwnership on registry and factory
    */
-  function transferFactoryAndRegistryOwnership(bytes32[] memory _factoryNames, address _newOwner) external onlyOwner {
-    for (uint8 i; i < _factoryNames.length; i++) {
-      IContractFactory(_getContract(_factoryNames[i])).nominateNewOwner(_newOwner);
+  function transferOwnership(address[] contracts, address newOwner) external onlyOwner {
+    uint8 len = contracts.length;
+    for (uint8 i; i < len; i++) {
+      IContractFactory(contracts[i]).nominateNewOwner(newOwner);
     }
   }
 
@@ -298,26 +362,34 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @dev registry and factory must nominate controller as new owner first
    * acceptance function should be called when deploying controller contract
    */
-  function acceptFactoryAndRegistryOwnership(bytes32[] memory _factoryNames) external onlyOwner {
-    for (uint8 i; i < _factoryNames.length; i++) {
-      IContractFactory(_getContract(_factoryNames[i])).acceptOwnership();
+  function acceptOwnership(address[] contracts) external onlyOwner {
+    uint8 len = contracts.length;
+    for (uint8 i; i < len; i++) {
+      IContractFactory(contracts[i]).acceptOwnership();
     }
   }
 
-  /* ========== INTERNAL FUNCTIONS ========== */
+  /*//////////////////////////////////////////////////////////////
+                      CONTRACT REGISTRY LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  bytes32 internal constant VAULT_REWARDS_ESCROW = keccak256("VaultRewardsEscrow");
+  bytes32 internal constant VAULT_REGISTRY = keccak256("VaultsRegistry");
+  bytes32 internal constant VAULT_FACTORY = keccak256("VaultsFactory");
+  bytes32 internal constant MULTI_REWARD_ESCROW = keccak256("MultiRewardsEscrow");
 
   /**
    * @notice helper function to get VaultsRegistry contract
    */
   function _vaultsRegistry() private view returns (VaultsRegistry) {
-    return VaultsRegistry(_getContract(keccak256("VaultsRegistry")));
+    return VaultsRegistry(_getContract(VAULT_REGISTRY));
   }
 
   /**
    * @notice helper function to get VaultsFactory contract
    */
   function _vaultsFactory() private view returns (VaultsFactory) {
-    return VaultsFactory(_getContract(keccak256("VaultsFactory")));
+    return VaultsFactory(_getContract(VAULT_FACTORY));
   }
 
   /**

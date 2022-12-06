@@ -125,7 +125,7 @@ interface IVault is IERC4626 {
 
   function setKeeperConfig(KeeperConfig memory _config) external;
 
-  function pauseContract() external;
+  function pause() external;
 
-  function unpauseContract() external;
+  function unpause() external;
 }

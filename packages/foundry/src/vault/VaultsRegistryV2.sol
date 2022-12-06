@@ -45,7 +45,6 @@ contract VaultsRegistry is Owned {
 
   error VaultAlreadyRegistered();
 
-  // TODO how do we deal with vaults with wrong data?
   /**
    * @notice registers vault and adds address to mapping array of asset
    * @param params - VaultMetadata constructed by Factory after deployVaultFromFactory called by Controller
@@ -93,5 +92,13 @@ contract VaultsRegistry is Owned {
    */
   function getRegisteredAddresses() external view returns (address[] memory) {
     return vaultAddresses;
+  }
+
+  /**
+   * @notice returns VaultMetadata for registered vault address
+   * @param _vaultAddress - address of registered vault
+   */
+  function getSubmitter(address _vaultAddress) external view returns (VaultMetadata memory) {
+    return vaults[_vaultAddress];
   }
 }
