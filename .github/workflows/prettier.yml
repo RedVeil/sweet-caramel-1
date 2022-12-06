@@ -1,7 +1,6 @@
 name: Prettify
 
-on:
-  push
+on: push
 
 jobs:
   prettier:
@@ -15,6 +14,12 @@ jobs:
           ref: ${{ github.head_ref }}
           # This is important to fetch the changes to the previous commit
           fetch-depth: 0
+
+      - name: "Log version of ts-node used"
+        run: yarn ts-node --version
+
+      - name: "Log version of typescript used"
+        run: yarn tsc --version
 
       - name: Prettify code
         uses: creyD/prettier_action@v4.2
