@@ -11,13 +11,13 @@ import useLog from "../../utils/hooks/useLog";
 
 interface Props {
   chainId: number;
-  address: string;
+  address?: string;
   priceResolver?: string;
   enabled?: boolean;
   resolver?: string;
 }
 export const useTvl: Pop.Hook<BigNumberWithFormatted> = ({ chainId, address, resolver, enabled }: Props) => {
-  const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
+  const [metadata] = useNamedAccounts(chainId.toString() as any, (!!address && [address]) || []);
   const _priceResolver = resolver || metadata?.priceResolver;
   const _tvlResolver = metadata?.tvlResolver;
   const _enabled = typeof enabled !== "undefined" ? !!enabled && !!chainId && !!address : !!chainId && !!address;

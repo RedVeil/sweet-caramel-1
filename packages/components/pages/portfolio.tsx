@@ -6,7 +6,8 @@ import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
 import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
-import { formatAndRoundBigNumber } from "../../utils/src/formatBigNumber";
+import { BigNumber } from "ethers";
+import useSum from "../hooks/useSum3";
 
 export const PortfolioPage: NextPage = () => {
   const {
@@ -51,12 +52,17 @@ export const PortfolioPage: NextPage = () => {
     ...contractsOp,
   ].flatMap((network) => network) as Pop.NamedAccountsMetadata[];
 
+  const { loading: networthLoading, sum: networth, add } = useSum({ expected: 1 })
+  const addToNetworth = (value?: BigNumber) => {
+    !!value && add(value);
+    return true;
+  };
   return (
     <div className={visible ? "" : "hidden"}>
       <Networth
         account={account}
-        allContracts={allContracts.flatMap((network, index) => allContracts[index].address)}
-        expected={allContracts.length}
+        loading={networthLoading}
+        value={networth}
       />
 
       {allContracts.map((token, i) => (
@@ -75,7 +81,7 @@ export const PortfolioPage: NextPage = () => {
             address={token.address}
             chainId={token.chainId}
             render={({ balance, price, status }) => (
-              <Contract.Value balance={balance?.value} price={price?.value} status={status} />
+              <Contract.Value balance={balance?.value} price={price?.value} status={status} callback={addToNetworth} />
             )}
           />
 

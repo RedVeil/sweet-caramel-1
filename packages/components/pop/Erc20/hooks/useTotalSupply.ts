@@ -4,7 +4,7 @@ import { Pop } from "../../types";
 import { useNamedAccounts } from "../../utils";
 
 export const useTotalSupply: Pop.Hook<BigNumber> = ({ address, chainId, enabled }) => {
-  const [metadata] = useNamedAccounts(chainId as any, [address]);
+  const [metadata] = useNamedAccounts(chainId as any, (!!address && [address]) || []);
   return useContractRead({
     address,
     chainId: Number(chainId),
