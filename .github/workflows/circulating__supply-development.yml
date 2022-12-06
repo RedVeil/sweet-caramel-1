@@ -35,9 +35,6 @@ jobs:
 
       - name: "Update circulating supply branch"
         run: |
-          if [ "$GITHUB_REF" != "refs/heads/circulating-supply" ]; then
-            git checkout circulating-supply
-            git add .
-            git commit -m "Update circulating supply"
-            git push origin circulating-supply
-          fi
+          git commit -m "Update circulating supply"
+          git push origin circulating-supply
+          git checkout circulating-supply
