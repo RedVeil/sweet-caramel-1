@@ -1,37 +1,54 @@
 import NewsletterSubscription from 'components/CommonComponents/NewsletterSubscription';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { Tvl } from "@popcorn/components/pop/Contract";
+import { useNamedAccounts } from "@popcorn/components";
+import { ChainId } from "@popcorn/utils";
 
 
 const YieldSection = ({ tvlProps }) => {
 	const [loading, setLoading] = useState<boolean>(true)
+	const [threex, butter] = useNamedAccounts("1", ["threeX", "butter"]);
 
 
 	return (
-        <section>
+		<section>
 			<div className="hidden lg:block">
 				<Link href="/">
 
-                    {' '}
-                    <img src="/images/logo.svg" alt="Popcorn Logo" />
+					{' '}
+					<img src="/images/logo.svg" alt="Popcorn Logo" />
 
-                </Link>
+				</Link>
 			</div>
 			{
-					<div className="flex flex-wrap gap-2 mt-10">
-						{tvlProps.map((token, index) => (
-							<div
-								className="bg-customPeach rounded-lg px-4 py-2 text-primary"
-								key={index}
-							>
-								<span className="font-medium">{token.name} </span>
-								{token.value}
-							</div>
-						))}
+				<div className="flex flex-wrap gap-2 mt-10">
+
+					{tvlProps.map((token, index) => (
+						<div
+							className="bg-customPeach rounded-lg px-4 py-2 text-primary"
+							key={index}
+						>
+							<span className="font-medium">{token.name} </span>
+							{token.value}
+						</div>
+					))}
+					<div
+						className="bg-customPeach rounded-lg px-4 py-2 text-primary"
+					>
+						<span className="font-medium">3x</span>{' '}
+						<Tvl chainId={ChainId.Ethereum} address={threex.address} />
 					</div>
+					<div
+						className="bg-customPeach rounded-lg px-4 py-2 text-primary"
+					>
+						<span className="font-medium">Butter</span> {' '}
+						<Tvl chainId={ChainId.Ethereum} address={butter.address} />
+					</div>
+				</div>
 			}
 			<div className="relative flex">
-				<h1 className="text-6xl leading-12 mt-8">Yield that <br className='md:hidden'/> counts</h1>
+				<h1 className="text-6xl leading-12 mt-8">Yield that <br className='md:hidden' /> counts</h1>
 				<img
 					src="/images/smallZigzag.svg"
 					alt=""
@@ -53,7 +70,7 @@ const YieldSection = ({ tvlProps }) => {
 			</p>
 			<NewsletterSubscription title="Newsletter" buttonLabel="Sign up" />
 		</section>
-    );
+	);
 };
 
 export default YieldSection;
