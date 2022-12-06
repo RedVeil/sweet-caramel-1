@@ -17,6 +17,7 @@
 		"editor.defaultFormatter": "JuanBlanco.solidity",
 	},
 	"editor.tabCompletion": "on",
+	"editor.detectIndentation": false,
 	"editor.tabSize": 2,
 	"editor.insertSpaces": true,
 	"javascript.validate.enable": true,
@@ -28,6 +29,13 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": true
 	},
+	"prettier.bracketSpacing": true,
+	"prettier.printWidth": 120,
+	"prettier.semi": true,
+	"prettier.singleQuote": false,
+	"prettier.tabWidth": 2,
+	"prettier.trailingComma": "all",
+	"prettier.useTabs": false,
 	"[rust]": {
 		"editor.defaultFormatter": "rust-lang.rust-analyzer"
 	}
