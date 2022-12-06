@@ -6,7 +6,7 @@ import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
 import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
-import { formatAndRoundBigNumber } from "../../utils/src/formatBigNumber";
+import { formatAndRoundBigNumber } from '../../utils/src/formatBigNumber';
 
 export const PortfolioPage: NextPage = () => {
   const {
@@ -92,7 +92,9 @@ export const PortfolioPage: NextPage = () => {
             address={token.address}
             chainId={token.chainId}
             render={({ balance, price, status }) => (
-              <Contract.Value balance={balance?.value} price={price?.value} status={status} />
+              <>
+                <Contract.Value balance={balance?.value} price={price?.value} status={status} />
+              </>
             )}
           />
 
@@ -108,8 +110,8 @@ export const PortfolioPage: NextPage = () => {
             account={account}
             address={token.address}
             chainId={token.chainId}
-            render={({ price, balance, decimals }) => (
-              <Contract.Value price={price} balance={balance} decimals={decimals} />
+            render={({ balance, price, status }) => (
+              <Contract.Value balance={balance?.value} price={price?.value} status={status} />
             )}
           />
 
