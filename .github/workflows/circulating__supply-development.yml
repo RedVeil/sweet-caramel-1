@@ -44,10 +44,12 @@ jobs:
           yarn add ts-node@latest -W
           yarn circulating-supply
 
-      - name: Make pr comment
-        uses: mshick/add-pr-comment@v2
-        with:
-          message: "Update circulating supply"
-
-      - name: Push
-        run: git push
+      - name: "Update circulating supply branch"
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/circulating-supply" ]; then
+            git checkout -b circulating-supply
+            git config --global user.name "Circulating Supply Bot"
+            git add .
+            git commit -m "Update circulating supply"
+            git push origin circulating-supply
+          fi
