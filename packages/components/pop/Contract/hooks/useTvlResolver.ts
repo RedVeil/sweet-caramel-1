@@ -6,7 +6,7 @@ import useLog from "../../utils/hooks/useLog";
 import { useMultiStatus } from "../../utils/hooks/useMultiStatus";
 
 export const useTvlResolver: Pop.Hook<BigNumber> = ({ address, chainId, enabled }) => {
-  const [metadata] = useNamedAccounts(chainId as any, [address]);
+  const [metadata] = useNamedAccounts(chainId as any, (!!address && [address]) || []);
 
   const _tvlResolver = metadata?.tvlResolver;
 

@@ -1,21 +1,19 @@
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { UpdateNetworthActionProps } from "../../reducers/portfolio";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { useComponentState } from "../utils/hooks/useComponentState";
 
 interface NetworthProps {
-  expected: number;
   account?: string;
   loading?: boolean;
-  allContracts?: string[];
-  updateNetworth?: (args: UpdateNetworthActionProps) => void;
+  value?: BigNumber;
 }
 
-export const Networth: React.FC<NetworthProps> = ({ expected, allContracts, updateNetworth, account }) => {
-  const { ready, loading } = useComponentState(
+export const Networth: React.FC<NetworthProps> = ({ value, loading, account }) => {
+  const { ready, loading: _loading } = useComponentState(
     {
       ready: !!account,
-      loading: !account,
+      loading: !account || loading,
     },
     [account],
   );
@@ -30,7 +28,7 @@ export const Networth: React.FC<NetworthProps> = ({ expected, allContracts, upda
           Connected to {ready && account}
         </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${!loading && ready ? "" : "hidden"}`}>
-          Networth: {!loading && ready && formatAndRoundBigNumber(constants.Zero, 18)}
+          Networth: {!loading && ready && value && "$" + formatAndRoundBigNumber(value, 18)}
         </h3>
         <h3 className={`text-lg font-medium leading-6 text-gray-900  ${loading ? "" : "hidden"}`}>Loading ...</h3>
       </div>

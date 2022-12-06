@@ -25,6 +25,12 @@
     "tailwindcss": "^3.2.4",
     "wagmi": "0.8.6"
   },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "svg-loaders-react": "^2.2.1",
+    "wagmi": "^0.8.6"
+  },
   "devDependencies": {
     "@babel/core": "^7.20.2",
     "@storybook/addon-actions": "^6.5.13",

@@ -12,12 +12,12 @@ interface UseApyProps extends Pop.StdProps {
 
 export const useApy: Pop.Hook<BigNumberWithFormatted> = ({ resolver, address, chainId }: UseApyProps) => {
   const provider = useProvider({ chainId: Number(chainId) });
-  const [metadata] = useNamedAccounts(chainId.toString() as any, [address]);
+  const [metadata] = useNamedAccounts(chainId.toString() as any, (!!address && [address]) || []);
   const _resolver = useMemo(() => resolver || metadata?.apyResolver, [resolver, metadata]);
 
   return popHookAdapter(
     useSWR(!!address && !!chainId && !!_resolver ? [`useApy:${chainId}:${address}:${resolver}`] : null, async () => {
-      return resolve_apy({ address, chainId, rpc: provider, resolver: _resolver });
+      return !!address && resolve_apy({ address, chainId, rpc: provider, resolver: _resolver });
     }),
   ) as Pop.HookResult<BigNumberWithFormatted>;
 };

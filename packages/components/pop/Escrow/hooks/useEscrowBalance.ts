@@ -16,7 +16,7 @@ export const useEscrowBalance: Pop.Hook<BigNumberWithFormatted> = ({
 }: { escrowIds?: string[] } & Pop.StdProps) => {
   const isMounted = useIsMounted();
 
-  const [metadata] = useNamedAccounts(chainId as any, [address]);
+  const [metadata] = useNamedAccounts(chainId as any, (!!address && [address]) || []);
 
   const _enabled =
     (typeof enabled === "boolean" ? enabled : metadata?.balanceResolver === "escrowBalance") &&
