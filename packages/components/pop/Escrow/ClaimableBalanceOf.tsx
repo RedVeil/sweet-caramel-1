@@ -9,38 +9,40 @@ import { useMultiStatus } from "../utils";
 
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
-    ({
-      ...props
-    }: Pop.StdProps & {
-      render?: (props: {
+  ({
+    ...props
+  }: Pop.StdProps & {
+    render?: (
+      props: {
         price?: { value: BigNumber; decimals: number };
         balance?: BigNumberWithFormatted;
         status?: "loading" | "success" | "error" | "idle";
-      } & Pop.StdProps) => React.ReactElement;
-    }) => {
-      const { data: token } = useClaimableToken({ ...props });
-      const { data: price, status: priceStatus } = usePrice({ ...props, address: token });
-      const { data: ids, status: idsStatus } = useEscrowIds({ ...props });
-      const { data: claimableBalance, status: balanceStatus } = useClaimableBalance({
-        ...props,
-        enabled: idsStatus === "success",
-        escrowIds: ids,
-      });
-      const status = useMultiStatus([balanceStatus, priceStatus]);
-      if (props.render) {
-        return (
-          <>
-            {props.render({
-              price: price,
-              balance: claimableBalance,
-              status,
-              ...props
-            })}
-          </>
-        );
-      }
-      return <Component {...props} data={claimableBalance} status={balanceStatus} />;
-    };
+      } & Pop.StdProps,
+    ) => React.ReactElement;
+  }) => {
+    const { data: token } = useClaimableToken({ ...props });
+    const { data: price, status: priceStatus } = usePrice({ ...props, address: token });
+    const { data: ids, status: idsStatus } = useEscrowIds({ ...props });
+    const { data: claimableBalance, status: balanceStatus } = useClaimableBalance({
+      ...props,
+      enabled: idsStatus === "success",
+      escrowIds: ids,
+    });
+    const status = useMultiStatus([balanceStatus, priceStatus]);
+    if (props.render) {
+      return (
+        <>
+          {props.render({
+            price: price,
+            balance: claimableBalance,
+            status,
+            ...props,
+          })}
+        </>
+      );
+    }
+    return <Component {...props} data={claimableBalance} status={balanceStatus} />;
+  };
 
 export const ClaimableBalanceOf = eth_call(withLoading(({ data }) => <>{data?.formatted}</>));
 
