@@ -37,6 +37,6 @@ jobs:
         run: |
           git config user.email "adenuga@popcorn.network"
           git config user.name "Circulating Supply Bot"
+          git add .
           git commit -m "Update circulating supply"
           git push origin circulating-supply
-          git checkout circulating-supply
