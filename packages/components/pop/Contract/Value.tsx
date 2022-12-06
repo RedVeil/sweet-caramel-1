@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
-import { formatAndRoundBigNumber } from "packages/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 
 interface Props {
   price?: BigNumber;
