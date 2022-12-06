@@ -38,10 +38,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
     //////////////////////////////////////////////////////////////*/
   bytes32 public constant contractName = keccak256("VaultsController");
 
-  constructor(address _owner, IContractRegistry _contractRegistry)
-    Owned(_owner)
-    ContractRegistryAccess(_contractRegistry)
-  {}
+  constructor(
+    address _owner,
+    IContractRegistry _contractRegistry
+  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
 
   /*//////////////////////////////////////////////////////////////
                           DEPLOYMENT LOGIC

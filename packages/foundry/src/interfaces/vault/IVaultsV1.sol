@@ -83,27 +83,15 @@ interface IVault is IERC4626 {
 
   function withdraw(uint256 assets) external returns (uint256);
 
-  function withdraw(
-    uint256 assets,
-    address receiver,
-    address owner
-  ) external override returns (uint256 shares);
+  function withdraw(uint256 assets, address receiver, address owner) external override returns (uint256 shares);
 
   function redeem(uint256 shares) external returns (uint256);
 
-  function redeem(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) external override returns (uint256 assets);
+  function redeem(uint256 shares, address receiver, address owner) external override returns (uint256 assets);
 
   function unstakeAndRedeem(uint256 shares) external;
 
-  function unstakeAndRedeemFor(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) external;
+  function unstakeAndRedeemFor(uint256 shares, address receiver, address owner) external;
 
   function takeManagementAndPerformanceFees() external;
 

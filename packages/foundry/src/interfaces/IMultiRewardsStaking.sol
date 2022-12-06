@@ -16,11 +16,7 @@ interface IMultiRewardsStaking {
     uint256 offset
   ) external;
 
-  function changeRewardSpeed(
-    IERC20 rewardsToken,
-    uint160 rewardsPerSecond,
-    address submitter
-  ) external;
+  function changeRewardSpeed(IERC20 rewardsToken, uint160 rewardsPerSecond, address submitter) external;
 
   function fundReward(IERC20 rewardsToken, uint256 amount) external;
 }
