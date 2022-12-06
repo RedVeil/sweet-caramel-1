@@ -17,7 +17,6 @@ export const usePrice: Pop.Hook<{ value: BigNumber; decimals: number }> = ({ add
   const _resolver = resolver || (metadata?.priceResolver && metadata?.priceResolver) || undefined;
   const shouldFetch = !!address && !!chainId;
 
-  useLog({ provider, metadata, _resolver, shouldFetch, address, chainId });
   return popHookAdapter(
     useSWR(
       shouldFetch ? [`usePrice:${chainId}:${address}:${resolver}`] : null,
