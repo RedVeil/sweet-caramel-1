@@ -5,7 +5,7 @@ pragma solidity ^0.8.15;
 
 import { IOwned } from "../IOwned.sol";
 
-interface IFeeProxy is IOwned {
+interface IFeeRecipientProxy is IOwned {
   // TODO change interface
   function execute() external;
 }

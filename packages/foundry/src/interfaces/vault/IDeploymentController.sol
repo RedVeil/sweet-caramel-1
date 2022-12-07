@@ -3,8 +3,17 @@
 
 pragma solidity ^0.8.15;
 
-import { IOwned } from "../IOwned.sol";
+import { ICloneFactory } from "./ICloneFactory.sol";
+import { ICloneRegistry } from "./ICloneRegistry.sol";
 
-interface IDeploymentController is IOwned {
-  function cloneExists(address target) external view returns (bool);
+interface IDeploymentController is ICloneFactory, ICloneRegistry {
+  function addTemplate(
+    bytes32 templateType,
+    bytes32 templateId,
+    address implementation,
+    string memory metadataCid,
+    bool requiresInitData
+  ) external;
+
+  function addTemplateType(bytes32 templateType) external;
 }

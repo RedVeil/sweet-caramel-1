@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 
 import { Owned } from "../utils/Owned.sol";
 
-contract FeeProxy is Owned {
+contract FeeRecipientProxy is Owned {
   constructor(address owner) Owned(owner) {}
 
   // TODO return success and response
