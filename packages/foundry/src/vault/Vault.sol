@@ -554,7 +554,7 @@ contract Vault is
 
   error VaultAssetMismatchNewStrategyAsset();
 
-  // TODO make sure that new strategy is a registered adapter. Add strategys and adapter to registry?
+  // TODO make sure that new strategy is a registered adapter. Add strategys and adapter to registry? -- ADD CLONE REGISTRY WITH CLONE EXISTS AND CLONE ARRAY FOR FRONTEND
   /**
    * @notice Propose a new strategy for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
    * @param newStrategy A new ERC4626 that should be used as a yield strategy for this asset.

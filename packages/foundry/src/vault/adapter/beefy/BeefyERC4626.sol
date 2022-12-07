@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { PopERC4626, ERC20, SafeERC20, Math, IContractRegistry, IStrategy } from "../../utils/PopERC4626.sol";
-import { WithRewards, IPopERC4626WithRewards } from "../../utils/WithRewards.sol";
+import { AdapterBase, ERC20, SafeERC20, Math, IContractRegistry, IStrategy } from "../../utils/AdapterBase.sol";
+import { WithRewards, IWithRewards } from "../../utils/WithRewards.sol";
 
 interface IBeefyVault {
   function want() external view returns (address);
@@ -60,7 +60,7 @@ interface IBeefyBalanceCheck {
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract BeefyERC4626 is PopERC4626, WithRewards {
+contract BeefyERC4626 is AdapterBase, WithRewards {
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -85,13 +85,12 @@ contract BeefyERC4626 is PopERC4626, WithRewards {
      @param _beefyBooster An optional booster contract which rewards additional token for the vault
      @param _beefyWithdrawalFee beefyStrategy withdrawalFee in 10_000 (BPS)
     */
-  function initialize(
-    bytes memory popERC4626InitData,
-    IBeefyVault _beefyVault,
-    IBeefyBooster _beefyBooster,
-    uint256 _beefyWithdrawalFee
-  ) public initStrategy {
-    __PopERC4626_init(popERC4626InitData);
+  function initialize(bytes memory popERC4626InitData, bytes memory adapterInitData) public initStrategy {
+    (IBeefyVault _beefyVault, IBeefyBooster _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
+      adapterInitData,
+      (address, address, uint256)
+    );
+    __AdapterBase_init(popERC4626InitData);
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);

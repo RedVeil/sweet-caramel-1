@@ -7,6 +7,7 @@ import { Owned } from "../utils/Owned.sol";
 import { ContractRegistryAccess, IContractRegistry } from "../utils/ContractRegistryAccess.sol";
 import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
 
+// TODO Split into TemplateRegistryWithFactory and TemplateFactory
 /**
  * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts
  * @dev deploy functions can only be called by VaultsController
@@ -18,10 +19,10 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
 
   bytes32 public constant contractName = keccak256("VaultsFactory");
 
-  constructor(
-    address _owner,
-    IContractRegistry _contractRegistry
-  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
+  constructor(address _owner, IContractRegistry _contractRegistry)
+    Owned(_owner)
+    ContractRegistryAccess(_contractRegistry)
+  {}
 
   /*//////////////////////////////////////////////////////////////
                           TEMPLATE LOGIC
@@ -47,6 +48,7 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
   event TemplateAdded(bytes32 templateType, bytes32 templateKey, address implementation);
   event TemplateUpdated(bytes32 templateType, bytes32 templateKey);
 
+  // TODO rename key to id
   function addTemplate(
     bytes32 templateType,
     bytes32 templateKey,
@@ -115,7 +117,7 @@ contract VaultsFactory is Owned, ContractRegistryAccess {
     if (template.requiresInitData) (success, ) = clone.call(data);
 
     if (!success) revert DeploymentInitFailed();
-
+    // TODO save implementation in registry
     emit Deployment(clone);
   }
 

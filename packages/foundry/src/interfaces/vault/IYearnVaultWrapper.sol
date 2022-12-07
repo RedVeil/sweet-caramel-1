@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity ^0.8.12;
+// Docgen-SOLC: 0.8.15
 
-interface IYearnVaultWrapper {
+pragma solidity ^0.8.15;
+
+interface IYearnVaultWrapper is IPopERC4626 {
   error NoAvailableShares();
   error NotEnoughAvailableSharesForAmount();
 

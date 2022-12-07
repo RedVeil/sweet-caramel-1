@@ -3,10 +3,13 @@
 
 pragma solidity ^0.8.15;
 
-interface IPopERC4626 {
-  function strategyConfig() external view returns (bytes memory);
+import { IOwned } from "../IOwned.sol";
+import { IERC4626 } from "./IERC4626.sol";
+import { IPermit } from "../IPermit.sol";
+import { IPausable } from "../IPausable.sol";
 
-  function asset() external view returns (address);
+interface IAdapter is IERC4626, IOwned, IPermit, IPausable {
+  function strategyConfig() external view returns (bytes memory);
 
   function strategyDeposit(uint256 assets, uint256 shares) external;
 

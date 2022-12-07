@@ -242,7 +242,6 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
   error ZeroAmount();
   error NotSubmitter(address submitter);
 
-  // TODO - Add a submitter which controls rewardsSpeed later on?
   /**
      @notice Adds or updates rewards of a particular staked vault.
      @param rewardsToken The address of the rewardsToken which will be paid out to staker of this vault

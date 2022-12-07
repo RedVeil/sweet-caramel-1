@@ -19,7 +19,7 @@ import { OnlyStrategy } from "./OnlyStrategy.sol";
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract PopERC4626 is
+contract AdapterBase is
   ERC4626Upgradeable,
   PausableUpgradeable,
   ACLAuth,
@@ -37,10 +37,15 @@ contract PopERC4626 is
   error NotFactory();
   error StrategySetupFailed();
 
+  // TODO use deterministic fee recipient proxy
+  uint256 managementFee = 50;
+  address FEE_RECIPIENT = 0x4444;
+
   /**
      @notice Initializes the Vault.
     */
-  function __PopERC4626_init(bytes memory popERC4626InitData) public initializer {
+  // TODO check that asset is endorsed
+  function __AdapterBase_init(bytes memory popERC4626InitData) public initializer {
     (
       address asset,
       address contractRegistry_,
@@ -269,6 +274,7 @@ contract PopERC4626 is
 
   event Harvested();
 
+  // TODO rename timeout to cooldown
   function harvest() public takeFees {
     if (address(strategy) != address(0)) {
       if ((feesUpdatedAt + harvestTimeout) >= block.timestamp) revert HarvestTimeout();
@@ -322,6 +328,7 @@ contract PopERC4626 is
 
     uint256 managementFee = accruedManagementFee();
 
+    // TODO should we also use a proxy here that just fowards to the actual feeRecipient?
     if (managementFee > 0) {
       feesUpdatedAt = block.timestamp;
       _mint(_getContract(FEE_RECIPIENT), convertToShares(managementFee));

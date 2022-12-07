@@ -5,4 +5,6 @@ pragma solidity ^0.8.15;
 
 interface IStrategy {
   function harvest() external;
+
+  function verifyAndSetupStrategy() external;
 }

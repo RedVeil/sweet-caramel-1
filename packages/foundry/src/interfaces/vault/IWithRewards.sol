@@ -3,9 +3,7 @@
 
 pragma solidity ^0.8.15;
 
-import { IPopERC4626 } from "./IPopERC4626.sol";
-
-interface IPopERC4626WithRewards is IPopERC4626 {
+interface IWithRewards {
   function claim() external;
 
   function rewardTokens() external view returns (address[] memory);

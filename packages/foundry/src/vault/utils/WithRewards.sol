@@ -3,7 +3,8 @@ pragma solidity ^0.8.15;
 
 import { EIP165 } from "./EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
-import { IPopERC4626WithRewards } from "../../interfaces/vault/IPopERC4626WithRewards.sol";
+import { IWithRewards } from "../../interfaces/vault/IWithRewards.sol";
+import { IAdapter } from "../../interfaces/vault/IAdapter.sol";
 
 contract WithRewards is EIP165, OnlyStrategy {
   function rewardTokens() external view virtual returns (address[] memory) {}
@@ -15,6 +16,6 @@ contract WithRewards is EIP165, OnlyStrategy {
   //////////////////////////////////////////////////////////////*/
 
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-    return interfaceId == type(IPopERC4626WithRewards).interfaceId;
+    return interfaceId == type(IWithRewards).interfaceId || interfaceId == type(IAdapter).interfaceId
   }
 }

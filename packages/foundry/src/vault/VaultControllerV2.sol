@@ -14,6 +14,7 @@ import { IVault } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
 import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
 import { IVaultsFactory } from "../interfaces/vault/IVaultsFactory.sol";
+import { IManagementExecutor } from "../interfaces/vault/IManagementExecutor.sol";
 import "../interfaces/IRewardsEscrow.sol";
 import "../interfaces/vault/IERC4626.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
@@ -37,6 +38,11 @@ contract VaultsController is Owned, ContractRegistryAccess {
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
+  bytes32 public immutable VAULT = "Vault";
+  bytes32 public immutable ADAPTER = "Adapter";
+  bytes32 public immutable STRATEGY = "Strategy";
+  bytes32 public immutable STAKING = "Staking";
+
   bytes32 public constant contractName = keccak256("VaultsController");
 
   constructor(address _owner, IContractRegistry _contractRegistry)
@@ -50,80 +56,6 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   event VaultDeployed(address indexed vault, address indexed staking, address indexed strategy);
 
-  /**
-   * @notice deploys and registers Vault from VaultsFactory
-   * @param _cloneAddresses - encoded implementation contract addresses for deploying clones of Vault, VaultStaking, and Strategy contracts
-   * @param _vaultParams - struct containing Vault init params (ERC20 asset_, IERC4626 strategy_ IContractRegistry contractRegistry_, FeeStructure memory feeStructure_, address feeRecipient_, KeeperConfig, memory keeperConfig_)
-   * @param _staking - Adds a staking contract to the registry for this particular vault. (If address(0) it will deploy a new VaultStaking contract)
-   * @param _strategyParams - encoded params of initialize function for strategy contract
-   * @param _metadataCID - ipfs CID of vault metadata
-   * @param _swapTokenAddresses - underlying assets to deposit and recieve LP token
-   * @param _swapAddress - ex: stableSwapAddress for Curve
-   * @param _exchange - number specifying exchange (1 = curve)
-   * @param _keeperEnabled - bool if the incentive is enabled
-   * @param _keeperOpenToEveryone - bool if the incentive is open to all
-   * @param _keeperCooldown - time period that must pass before calling keeper enabled functions
-   * @dev the submitter in the VaultMetadata from the factory will be function caller
-   */
-  // TODO add deployment purely for strategy, adapter, staking
-  // 1. Adapter
-  // 2. OPTIONAL - Strategy
-  // 3. Vault
-  // 4. OPTIONAL - Staking
-  // 5. Handle Keeper Setup
-  // 6. Safe in Registry
-  function deployVaultFromFactory(
-    bytes memory _cloneAddresses,
-    VaultParams memory _vaultParams,
-    address _staking,
-    bytes memory _strategyParams,
-    string memory _metadataCID,
-    address[8] memory _swapTokenAddresses,
-    address _swapAddress,
-    uint256 _exchange,
-    bool _keeperEnabled,
-    bool _keeperOpenToEveryone,
-    uint256 _keeperCooldown
-  ) external returns (address vault) {
-    VaultsRegistry vaultsRegistry = _vaultsRegistry();
-
-    (address vaultImplementation, address stakingImplementation, address strategyImplementation) = abi.decode(
-      _cloneAddresses,
-      (address, address, address)
-    );
-
-    vault = _vaultsFactory().deploy(vaultImplementation, abi.encode(_vaultParams));
-
-    if (_staking == address(0)) {
-      address stakingToken = IVault(vault).asset();
-
-      _staking = _vaultsFactory().deploy(
-        stakingImplementation,
-        abi.encode(IERC20(stakingToken), _vaultParams.contractRegistry)
-      );
-    }
-
-    address strategy = _deployStrategy(strategyImplementation, _strategyParams);
-
-    _handleKeeperSetup(vault, _vaultParams.keeperConfig, _keeperEnabled, _keeperOpenToEveryone, _keeperCooldown);
-
-    IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW)).addAuthorizedContract(_staking);
-
-    VaultMetadata memory metadata = VaultMetadata({
-      vaultAddress: vault,
-      staking: _staking,
-      submitter: msg.sender,
-      metadataCID: _metadataCID,
-      swapTokenAddresses: _swapTokenAddresses,
-      swapAddress: _swapAddress,
-      exchange: _exchange
-    });
-
-    vaultsRegistry.registerVault(metadata);
-
-    emit VaultDeployed(vault, _staking, strategy);
-  }
-
   struct DeploymentArgs {
     /// @Notice templateKey
     bytes32 key;
@@ -131,26 +63,23 @@ contract VaultsController is Owned, ContractRegistryAccess {
     bytes data;
   }
 
+  // TODO check that asset is verified
   function deployVault(
-    DeploymentArgs stratData,
-    DeploymentArgs adapterData,
-    DeploymentArgs stakingData,
+    DeploymentArgs memory stratData,
+    DeploymentArgs memory adapterData,
+    bytes memory stakingData,
     bytes memory rewardsData,
-    KeeperConfig memory keeperConfig,
-    bytes memory addKeeperData,
-    string memory _metadataCID,
-    address[8] memory _swapTokenAddresses,
-    address _swapAddress,
-    uint256 _exchange
+    VaultParams memory vaultData,
+    VaultMetadata memory metadata
   ) external onlyOwner returns (address vault) {
     address adapter;
     if (stratData.key.length > 0) adapter = deployStrategyAndAdapter(stratData, adapterData);
 
-    vault = _deployVault();
+    vault = _deployVault(vaultData, adapter);
 
     address staking;
-    if (stakingData.key.length > 0) {
-      staking = deployStaking();
+    if (stakingData.length > 0) {
+      staking = deployStaking(stakingData);
 
       if (rewardsData.length > 0) {
         address[] memory stakingContracts = new address[](1);
@@ -163,70 +92,52 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
     _handleKeeperSetup(vault, keeperConfig, addKeeperData);
 
-    VaultMetadata memory metadata = VaultMetadata({
-      vaultAddress: vault,
-      staking: staking,
-      submitter: msg.sender,
-      metadataCID: _metadataCID,
-      swapTokenAddresses: _swapTokenAddresses,
-      swapAddress: _swapAddress,
-      exchange: _exchange
-    });
+    _registerVault(vault, staking, metadata);
 
-    vaultsRegistry.registerVault(metadata);
-
-    emit VaultDeployed(vault, _staking, strategy);
+    emit VaultDeployed(vault, staking, strategy);
   }
 
   // TODO make harcoded types state variables?
   // TODO how to decide if a strategy even needs to be deployed?
-  function deployStrategyAndAdapter(bytes memory strategyData, bytes memory adapterData)
+  function deployStrategyAndAdapter(DeploymentArgs memory strategyData, DeploymentArgs memory adapterData)
     public
     onlyOwner
     returns (address adapter)
   {
-    if (strategyData.length == 0 || adapterData.length == 0) revert InsufficientData();
-    (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
-      data,
-      (bytes32, bytes, bytes32, bytes)
-    );
+    if (strategyData.key.length == 0 || adapterData.key.length == 0) revert InsufficientData();
+
     IVaultsFactory vaultsFactory = _vaultsFactory();
-    address strat = vaultsFactory.deploy("Strategy", stratKey, stratData);
+    address strategy = vaultsFactory.deploy(STRATEGY, strategyData.key, strategyData.data);
 
     // TODO create this data nicer and/or move it into Factory
     bytes memory popERC4626InitData = abi.encode(
       asset,
       IContractRegistry(CONTRACT_REGISTRY),
       50,
-      IStrategy(address(rewardsClaimer)),
+      IStrategy(strategy),
       abi.encode(feeRecipient),
       0
     );
 
-    // TODO all adapter must use just bytes for init and than decode them inside
+    // TODO all adapter must use just bytes for init and than decode them inside -- USE BYTES BYTES
     adapter = vaultsFactory.deploy(
-      "Adapter",
-      adapterKey,
-      abi.encodePacked(bytes4(keccak256("initialize(bytes)")), bytes.concat(popERC4626InitData, stratData))
+      ADAPTER,
+      adapterData.key,
+      abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), bytes.concat(popERC4626InitData, adapterData.data))
     );
   }
 
-  function _deployVault() internal returns (address vault) {
-    (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
-      data,
-      (bytes32, bytes, bytes32, bytes)
-    );
+  function _deployVault(VaultParams memory vaultData, address adapter) internal returns (address vault) {
+    if (vaultData.strategy != address(0) || adapter != address(0)) revert MisConfig();
+    vaultData.strategy = adapter;
+
     IVaultsFactory vaultsFactory = _vaultsFactory();
-    vault = vaultsFactory.deploy("Vault", stratKey, stratData);
+    vault = vaultsFactory.deploy(VAULT, "V1", abi.encode(vaultData));
   }
 
-  function deployStaking() public onlyOwner returns (address staking) {
-    (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
-      data,
-      (bytes32, bytes, bytes32, bytes)
-    );
+  function deployStaking(bytes memory stakingData) public onlyOwner returns (address staking) {
     IVaultsFactory vaultsFactory = _vaultsFactory();
-    staking = vaultsFactory.deploy("MultiRewardsStaking", stratKey, stratData);
+    staking = vaultsFactory.deploy(STAKING, "MultiRewardsStaking", stakingData);
   }
 
   /**
@@ -257,6 +168,18 @@ contract VaultsController is Owned, ContractRegistryAccess {
       _keeperCooldown,
       0
     );
+  }
+
+  function _registerVault(
+    address vault,
+    address staking,
+    VaultMetadata memory metadata
+  ) internal {
+    metadata.vaultAddress = vault;
+    metadata.staking = staking;
+    metadata.submitter = msg.sender;
+
+    _vaultsRegistry().registerVault(metadata);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -315,10 +238,9 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   error NotSubmitter(address caller);
 
-  function _verifySubmitter(address vault) internal returns (VaultMetadata memory) {
-    VaultMetadata memory metadata = _vaultsRegistry().getVault(vault);
+  function _verifySubmitter(address vault) internal returns (VaultMetadata memory metadata) {
+    metadata = _vaultsRegistry().getVault(vault);
     if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
-    return metadata;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -340,9 +262,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
                           STAKING MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  // NOTE - currently checks submitter of stakingRewardsToken not submitter of vault
-  function addRewardsToken(address[] memory _stakingContracts, bytes[] memory rewardsTokenData) external {
-    for (uint256 i = 0; i < _stakingContracts.length; i++) {
+  // TODO - check RewardsToken against endorsementRegistry
+  function addRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) external {
+    uint8 len = vaults.length;
+    for (uint256 i = 0; i < len; i++) {
       (
         address rewardsToken,
         uint160 rewardsPerSecond,
@@ -352,7 +275,8 @@ contract VaultsController is Owned, ContractRegistryAccess {
         uint24 escrowPercentage,
         uint256 offset
       ) = abi.decode(rewardsTokenData, (address, uint160, uint256, bool, uint224, uint24, uint256));
-      IMultiRewardsStaking(_stakingContracts[i]).addRewardsToken(
+      VaultsMetadata memory metadata = _verifySubmitter(vaults[i]);
+      IMultiRewardsStaking(metadata.staking).addRewardsToken(
         IERC20(rewardsToken),
         rewardsPerSecond,
         amount,
@@ -364,17 +288,21 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
-  function changeRewardsSpeed(address[] memory _stakingContracts, bytes[] memory rewardsTokenData) external {
-    for (uint256 i = 0; i < _stakingContracts.length; i++) {
+  function changeRewardsSpeed(address[] memory vaults, bytes[] memory rewardsTokenData) external {
+    uint8 len = vaults.length;
+    for (uint256 i = 0; i < len; i++) {
+      VaultsMetadata memory metadata = _verifySubmitter(vaults[i]);
       (address rewardsToken, uint160 rewardsPerSecond) = abi.decode(rewardsTokenData, (address, uint160));
-      IMultiRewardsStaking(_stakingContracts[i]).changeRewardSpeed(IERC20(rewardsToken), rewardsPerSecond);
+      IMultiRewardsStaking(metadata.staking).changeRewardSpeed(IERC20(rewardsToken), rewardsPerSecond);
     }
   }
 
-  function fundReward(address[] memory _stakingContracts, bytes[] memory rewardsTokenData) external {
-    for (uint256 i = 0; i < _stakingContracts.length; i++) {
+  function fundReward(address[] memory vaults, bytes[] memory rewardsTokenData) external {
+    uint8 len = vaults.length;
+    for (uint256 i = 0; i < len; i++) {
+      VaultsMetadata memory metadata = _verifySubmitter(vaults[i]);
       (address rewardsToken, uint256 amount) = abi.decode(rewardsTokenData, (address, uint256));
-      IMultiRewardsStaking(_stakingContracts[i]).fundReward(IERC20(rewardsToken), amount);
+      IMultiRewardsStaking(metadata.staking).fundReward(IERC20(rewardsToken), amount);
     }
   }
 
@@ -441,25 +369,25 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
-  function _verifySubmitterOrOwner(address vault) internal returns (VaultMetadata memory) {
-    VaultMetadata memory metadata = _vaultsRegistry().getVault(vault);
+  function _verifySubmitterOrOwner(address vault) internal returns (VaultMetadata memory metadata) {
+    metadata = _vaultsRegistry().getVault(vault);
     if (msg.sender != metadata.submitter || msg.sender != owner) revert NotSubmitterNorOwner(msg.sender);
-    return metadata;
   }
 
   /*//////////////////////////////////////////////////////////////
                           OWNERSHIP LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  IAdminProxy public adminProxy;
+
+  event ManagementExecutorUpdated(address oldManEx, address newManEx);
+
   /**
    * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
    * @dev newOwner address must call acceptOwnership on registry and factory
    */
-  function transferOwnership(address[] contracts, address newOwner) external onlyOwner {
-    uint8 len = contracts.length;
-    for (uint8 i; i < len; i++) {
-      IContractFactory(contracts[i]).nominateNewOwner(newOwner);
-    }
+  function transferOwnership(address newOwner) external onlyOwner {
+    managementExecutor.transferOwnership(newOwner);
   }
 
   /**
@@ -468,10 +396,13 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * acceptance function should be called when deploying controller contract
    */
   function acceptOwnership(address[] contracts) external onlyOwner {
-    uint8 len = contracts.length;
-    for (uint8 i; i < len; i++) {
-      IContractFactory(contracts[i]).acceptOwnership();
-    }
+    managementExecutor.acceptOwnership();
+  }
+
+  function updateManagementExecutor(IManagementExecutor newManagementExecutor) external onlyOwner {
+    emit ManagementExecutorUpdated(address(managementExecutor), address(newManagementExecutor));
+
+    managementExecutor = newManagementExecutor;
   }
 
   /*//////////////////////////////////////////////////////////////

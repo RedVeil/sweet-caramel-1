@@ -2,9 +2,12 @@
 // Docgen-SOLC: 0.8.15
 pragma solidity ^0.8.15;
 
-import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import { IERC4626, IERC20 } from "./vault/IERC4626.sol";
+import { IOwned } from "./IOwned.sol";
+import { IPermit } from "./IPermit.sol";
+import { IPausable } from "./IPausable.sol";
 
-interface IMultiRewardsStaking {
+interface IMultiRewardsStaking is IERC4626, IOwned, IPermit, IPausable {
   function addRewardsToken(
     IERC20 rewardsToken,
     uint160 rewardsPerSecond,

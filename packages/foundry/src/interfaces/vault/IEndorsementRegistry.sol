@@ -3,6 +3,10 @@
 
 pragma solidity ^0.8.15;
 
-interface IEndorsementRegistry {
+import { IOwned } from "../IOwned.sol";
+
+interface IEndorsementRegistry is IOwned {
   function endorsed(address target) external view returns (bool);
+
+  function toggleEndorsement(address[] memory targets) external;
 }
