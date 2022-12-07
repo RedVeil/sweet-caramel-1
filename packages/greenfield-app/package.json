@@ -50,7 +50,7 @@
     "svg-loaders-react": "2.2.1",
     "swr": "1.2.1",
     "tailwind-scrollbar-hide": "^1.1.7",
-    "tailwindcss": "3.0.23",
+    "tailwindcss": "^3.2.4",
     "use-debounce": "^8.0.4",
     "wagmi": "0.8.6"
   },

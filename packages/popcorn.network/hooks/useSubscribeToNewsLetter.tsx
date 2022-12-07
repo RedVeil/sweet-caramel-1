@@ -69,7 +69,7 @@ const useSubscribeToNewsletter = (): {
               ref={emailRef}
               placeholder="Enter your email"
               style={{ height: '56px' }}
-              className="border border-customLightGray rounded-lg h-14 w-full focus:border-customLightGray px-4 py-4 mb-6 md:mb-8"
+              className="border border-customLightGray rounded-lg h-14 w-full focus:border-customLightGray px-4 py-4 mb-6 smmd:mb-8"
             />
             <div style={{ position: "absolute", left: "-5000px" }} aria-hidden="true">
               <input type="text" name="b_5ce5e82d673fd2cfaf12849a5_e85a091ed3" tabIndex={-1} />
