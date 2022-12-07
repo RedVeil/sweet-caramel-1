@@ -124,9 +124,18 @@ contract VaultsController is Owned, ContractRegistryAccess {
     emit VaultDeployed(vault, _staking, strategy);
   }
 
+  struct DeploymentArgs {
+    /// @Notice templateKey
+    bytes32 key;
+    /// @Notice encoded init params
+    bytes data;
+  }
+
   function deployVault(
-    bytes memory stratData,
-    bytes memory stakingData,
+    DeploymentArgs stratData,
+    DeploymentArgs adapterData,
+    DeploymentArgs stakingData,
+    bytes memory rewardsData,
     KeeperConfig memory keeperConfig,
     bytes memory addKeeperData,
     string memory _metadataCID,
@@ -134,19 +143,22 @@ contract VaultsController is Owned, ContractRegistryAccess {
     address _swapAddress,
     uint256 _exchange
   ) external onlyOwner returns (address vault) {
-    address adapter = deployStrategyAndAdapter(stratData);
+    address adapter;
+    if (stratData.key.length > 0) adapter = deployStrategyAndAdapter(stratData, adapterData);
+
     vault = _deployVault();
 
-    // TODO how to make staking deployment optional?
-    address staking = deployStaking();
+    address staking;
+    if (stakingData.key.length > 0) {
+      staking = deployStaking();
 
-    (bool addRewards, bytes memory rewardsData) = abi.decode(stakingData, (bool, bytes));
-    if (addRewards) {
-      address[] memory stakingContracts = new address[](1);
-      stakingContracts[0] = staking;
-      bytes[] memory rewardsDatas = new bytes[](1);
-      rewardsDatas[0] = rewardsData;
-      addRewardsToken(stakingContracts, rewardsDatas);
+      if (rewardsData.length > 0) {
+        address[] memory stakingContracts = new address[](1);
+        stakingContracts[0] = staking;
+        bytes[] memory rewardsDatas = new bytes[](1);
+        rewardsDatas[0] = rewardsData;
+        addRewardsToken(stakingContracts, rewardsDatas);
+      }
     }
 
     _handleKeeperSetup(vault, keeperConfig, addKeeperData);
@@ -168,7 +180,12 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   // TODO make harcoded types state variables?
   // TODO how to decide if a strategy even needs to be deployed?
-  function deployStrategyAndAdapter(bytes memory data) public onlyOwner returns (address adapter) {
+  function deployStrategyAndAdapter(bytes memory strategyData, bytes memory adapterData)
+    public
+    onlyOwner
+    returns (address adapter)
+  {
+    if (strategyData.length == 0 || adapterData.length == 0) revert InsufficientData();
     (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
       data,
       (bytes32, bytes, bytes32, bytes)
