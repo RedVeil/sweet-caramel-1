@@ -55,6 +55,7 @@ export default function StakeInterface({
   restake,
   isPopLocker,
   stakedTokenPrice,
+  account,
   spendableBalance,
 }: StakeInterfaceProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
@@ -156,6 +157,7 @@ export default function StakeInterface({
                 spendableBalance={spendableBalance}
                 stake={stake}
                 withdraw={withdraw}
+                account={account}
                 restake={restake}
               />
             ) : (

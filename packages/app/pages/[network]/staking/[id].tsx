@@ -110,6 +110,7 @@ export default function StakingPage(): JSX.Element {
       approve={approve}
       onlyView={!account}
       chainId={chainId}
+      account={account}
       stakedTokenPrice={tokenPrice}
     />
   );

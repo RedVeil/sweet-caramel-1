@@ -25,6 +25,7 @@ export default function PopLockerInteraction({
   withdraw,
   restake,
   chainId,
+  account,
   spendableBalance,
 }: PopLockerInteractionProps): JSX.Element {
   const [state, setState] = form;
@@ -121,6 +122,7 @@ export default function PopLockerInteraction({
               label={withdrawal ? "Unstake Amount" : "Stake Amount"}
               token={stakingPool?.stakingToken}
               amount={amount}
+              account={account}
               balance={user.balance}
               spendableBalance={spendableBalance}
               setAmount={(_amount) => {
