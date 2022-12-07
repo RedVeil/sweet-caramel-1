@@ -126,7 +126,11 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     emit Withdraw(caller, receiver, owner, assets, shares);
   }
 
-  function _transfer(address from, address to, uint256 amount) internal override accrueRewards(from, to) {
+  function _transfer(
+    address from,
+    address to,
+    uint256 amount
+  ) internal override accrueRewards(from, to) {
     if (from == address(0) || to == address(0)) revert ZeroAddressTransfer(from, to);
 
     uint256 fromBalance = balanceOf(from);
@@ -166,7 +170,12 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     }
   }
 
-  function _lockToken(address user, IERC20 rewardsToken, uint256 rewardAmount, EscrowInfo memory escrowInfo) internal {
+  function _lockToken(
+    address user,
+    IERC20 rewardsToken,
+    uint256 rewardAmount,
+    EscrowInfo memory escrowInfo
+  ) internal {
     uint256 escrowed = rewardAmount.mulDiv(uint256(escrowInfo.escrowPercentage), 1e8, MathUpgradeable.Rounding.Down);
     uint256 payout = rewardAmount - escrowed;
 
@@ -198,8 +207,8 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     uint224 index;
     /// @notice The timestamp the index was last updated at
     uint32 lastUpdatedTimestamp;
-    /// @notice submitter of the rewards (is authorized to change rewardsSpeed later)
-    address submitter;
+    // /// @notice submitter of the rewards (is authorized to change rewardsSpeed later)
+    // address submitter;
   }
 
   struct EscrowInfo {
@@ -233,6 +242,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
   error ZeroAmount();
   error NotSubmitter(address submitter);
 
+  // TODO - Add a submitter which controls rewardsSpeed later on?
   /**
      @notice Adds or updates rewards of a particular staked vault.
      @param rewardsToken The address of the rewardsToken which will be paid out to staker of this vault
@@ -247,7 +257,6 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     IERC20 rewardsToken,
     uint160 rewardsPerSecond,
     uint256 amount,
-    address submitter,
     bool useEscrow,
     uint224 escrowDuration,
     uint24 escrowPercentage,
@@ -272,7 +281,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     });
     if (useEscrow) rewardsToken.safeApprove(_getContract(VAULT_REWARDS_ESCROW_ID), type(uint256).max);
 
-    uint64 ONE = (10 ** IERC20Metadata(address(rewardsToken)).decimals()).safeCastTo64();
+    uint64 ONE = (10**IERC20Metadata(address(rewardsToken)).decimals()).safeCastTo64();
     uint32 rewardsEndTimestamp = _calcRewardsEnd(0, rewardsPerSecond, amount);
 
     rewardsInfos[rewardsToken] = RewardsInfo({
@@ -280,18 +289,17 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
       rewardsPerSecond: rewardsPerSecond,
       rewardsEndTimestamp: rewardsEndTimestamp,
       index: ONE,
-      lastUpdatedTimestamp: block.timestamp.safeCastTo32(),
-      submitter: submitter
+      lastUpdatedTimestamp: block.timestamp.safeCastTo32()
     });
 
     emit RewardsInfoUpdate(rewardsToken, rewardsPerSecond, rewardsEndTimestamp);
   }
 
-  function changeRewardSpeed(IERC20 rewardsToken, uint160 rewardsPerSecond, address submitter) external onlyOwner {
+  function changeRewardSpeed(IERC20 rewardsToken, uint160 rewardsPerSecond) external onlyOwner {
     RewardsInfo memory rewards = rewardsInfos[rewardsToken];
 
     if (rewards.lastUpdatedTimestamp == 0) revert RewardTokenDoesntExist(rewardsToken);
-    if (rewards.submitter != submitter) revert NotSubmitter(submitter);
+
     _accrueRewards(rewardsToken);
 
     uint256 remainder = rewards.balanceOnf(address(this));
@@ -383,7 +391,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     uint224 deltaIndex;
     if (supplyTokens != 0)
       deltaIndex = uint256(rewards.rewardsPerSecond * elapsed)
-        .mulDiv(uint256(10 ** decimals()), supplyTokens, MathUpgradeable.Rounding.Down)
+        .mulDiv(uint256(10**decimals()), supplyTokens, MathUpgradeable.Rounding.Down)
         .safeCastTo224();
 
     rewardsInfos[_rewardsToken].index += deltaIndex;

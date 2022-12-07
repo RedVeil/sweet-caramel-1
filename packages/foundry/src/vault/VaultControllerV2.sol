@@ -9,6 +9,7 @@ import "../utils/ContractRegistryAccess.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import "../interfaces/IContractRegistry.sol";
 import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IVault } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
 import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
@@ -38,10 +39,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
     //////////////////////////////////////////////////////////////*/
   bytes32 public constant contractName = keccak256("VaultsController");
 
-  constructor(
-    address _owner,
-    IContractRegistry _contractRegistry
-  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
+  constructor(address _owner, IContractRegistry _contractRegistry)
+    Owned(_owner)
+    ContractRegistryAccess(_contractRegistry)
+  {}
 
   /*//////////////////////////////////////////////////////////////
                           DEPLOYMENT LOGIC
@@ -123,6 +124,94 @@ contract VaultsController is Owned, ContractRegistryAccess {
     emit VaultDeployed(vault, _staking, strategy);
   }
 
+  function deployVault(
+    bytes memory stratData,
+    bytes memory stakingData,
+    KeeperConfig memory keeperConfig,
+    bytes memory addKeeperData,
+    string memory _metadataCID,
+    address[8] memory _swapTokenAddresses,
+    address _swapAddress,
+    uint256 _exchange
+  ) external onlyOwner returns (address vault) {
+    address adapter = deployStrategyAndAdapter(stratData);
+    vault = _deployVault();
+
+    // TODO how to make staking deployment optional?
+    address staking = deployStaking();
+
+    (bool addRewards, bytes memory rewardsData) = abi.decode(stakingData, (bool, bytes));
+    if (addRewards) {
+      address[] memory stakingContracts = new address[](1);
+      stakingContracts[0] = staking;
+      bytes[] memory rewardsDatas = new bytes[](1);
+      rewardsDatas[0] = rewardsData;
+      addRewardsToken(stakingContracts, rewardsDatas);
+    }
+
+    _handleKeeperSetup(vault, keeperConfig, addKeeperData);
+
+    VaultMetadata memory metadata = VaultMetadata({
+      vaultAddress: vault,
+      staking: staking,
+      submitter: msg.sender,
+      metadataCID: _metadataCID,
+      swapTokenAddresses: _swapTokenAddresses,
+      swapAddress: _swapAddress,
+      exchange: _exchange
+    });
+
+    vaultsRegistry.registerVault(metadata);
+
+    emit VaultDeployed(vault, _staking, strategy);
+  }
+
+  // TODO make harcoded types state variables?
+  // TODO how to decide if a strategy even needs to be deployed?
+  function deployStrategyAndAdapter(bytes memory data) public onlyOwner returns (address adapter) {
+    (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
+      data,
+      (bytes32, bytes, bytes32, bytes)
+    );
+    IVaultsFactory vaultsFactory = _vaultsFactory();
+    address strat = vaultsFactory.deploy("Strategy", stratKey, stratData);
+
+    // TODO create this data nicer and/or move it into Factory
+    bytes memory popERC4626InitData = abi.encode(
+      asset,
+      IContractRegistry(CONTRACT_REGISTRY),
+      50,
+      IStrategy(address(rewardsClaimer)),
+      abi.encode(feeRecipient),
+      0
+    );
+
+    // TODO all adapter must use just bytes for init and than decode them inside
+    adapter = vaultsFactory.deploy(
+      "Adapter",
+      adapterKey,
+      abi.encodePacked(bytes4(keccak256("initialize(bytes)")), bytes.concat(popERC4626InitData, stratData))
+    );
+  }
+
+  function _deployVault() internal returns (address vault) {
+    (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
+      data,
+      (bytes32, bytes, bytes32, bytes)
+    );
+    IVaultsFactory vaultsFactory = _vaultsFactory();
+    vault = vaultsFactory.deploy("Vault", stratKey, stratData);
+  }
+
+  function deployStaking() public onlyOwner returns (address staking) {
+    (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
+      data,
+      (bytes32, bytes, bytes32, bytes)
+    );
+    IVaultsFactory vaultsFactory = _vaultsFactory();
+    staking = vaultsFactory.deploy("MultiRewardsStaking", stratKey, stratData);
+  }
+
   /**
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @param _vault - address of the newly deployed vault
@@ -135,10 +224,12 @@ contract VaultsController is Owned, ContractRegistryAccess {
   function _handleKeeperSetup(
     address _vault,
     KeeperConfig memory _keeperConfig,
-    bool _keeperEnabled,
-    bool _keeperOpenToEveryone,
-    uint256 _keeperCooldown
+    bytes memory addKeeperData
   ) internal {
+    (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
+      addKeeperData,
+      (bool, bool, uint256)
+    );
     IVault(_vault).setKeeperConfig(_keeperConfig);
     IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive"))).createIncentive(
       _vault,
@@ -205,6 +296,8 @@ contract VaultsController is Owned, ContractRegistryAccess {
     }
   }
 
+  error NotSubmitter(address caller);
+
   function _verifySubmitter(address vault) internal returns (VaultMetadata memory) {
     VaultMetadata memory metadata = _vaultsRegistry().getVault(vault);
     if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
@@ -237,17 +330,15 @@ contract VaultsController is Owned, ContractRegistryAccess {
         address rewardsToken,
         uint160 rewardsPerSecond,
         uint256 amount,
-        address submitter,
         bool useEscrow,
         uint224 escrowDuration,
         uint24 escrowPercentage,
         uint256 offset
-      ) = abi.decode(rewardsTokenData, (address, uint160, uint256, address, bool, uint224, uint24, uint256));
+      ) = abi.decode(rewardsTokenData, (address, uint160, uint256, bool, uint224, uint24, uint256));
       IMultiRewardsStaking(_stakingContracts[i]).addRewardsToken(
         IERC20(rewardsToken),
         rewardsPerSecond,
         amount,
-        submitter,
         useEscrow,
         escrowDuration,
         escrowPercentage,
@@ -258,11 +349,8 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   function changeRewardsSpeed(address[] memory _stakingContracts, bytes[] memory rewardsTokenData) external {
     for (uint256 i = 0; i < _stakingContracts.length; i++) {
-      (address rewardsToken, uint160 rewardsPerSecond, address submitter) = abi.decode(
-        rewardsTokenData,
-        (address, uint160, address)
-      );
-      IMultiRewardsStaking(_stakingContracts[i]).changeRewardSpeed(IERC20(rewardsToken), rewardsPerSecond, submitter);
+      (address rewardsToken, uint160 rewardsPerSecond) = abi.decode(rewardsTokenData, (address, uint160));
+      IMultiRewardsStaking(_stakingContracts[i]).changeRewardSpeed(IERC20(rewardsToken), rewardsPerSecond);
     }
   }
 
@@ -315,7 +403,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     uint8 len = vaults.length;
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      IVault(contracts[i]).pause();
+      IVault(vaults[i]).pause();
     }
   }
 
@@ -332,7 +420,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     uint8 len = vaults.length;
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      IVault(contracts[i]).unpause();
+      IVault(vaults[i]).unpause();
     }
   }
 
@@ -389,7 +477,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @notice helper function to get VaultsFactory contract
    */
   function _vaultsFactory() private view returns (VaultsFactory) {
-    return VaultsFactory(_getContract(VAULT_FACTORY));
+    return IVaultsFactory(_getContract(VAULT_FACTORY));
   }
 
   /**

@@ -9,14 +9,13 @@ interface IMultiRewardsStaking {
     IERC20 rewardsToken,
     uint160 rewardsPerSecond,
     uint256 amount,
-    address submitter,
     bool useEscrow,
     uint224 escrowDuration,
     uint24 escrowPercentage,
     uint256 offset
   ) external;
 
-  function changeRewardSpeed(IERC20 rewardsToken, uint160 rewardsPerSecond, address submitter) external;
+  function changeRewardSpeed(IERC20 rewardsToken, uint160 rewardsPerSecond) external;
 
   function fundReward(IERC20 rewardsToken, uint256 amount) external;
 }

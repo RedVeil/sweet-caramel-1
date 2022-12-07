@@ -4,4 +4,10 @@ pragma solidity ^0.8.15;
 
 interface IVaultsFactory {
   function addTemplateType(bytes32 templateType) external;
+
+  function deploy(
+    bytes32 templateType,
+    bytes32 templateKey,
+    bytes memory data
+  ) external;
 }
