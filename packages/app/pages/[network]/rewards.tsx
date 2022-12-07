@@ -9,7 +9,7 @@ import RewardSummaryCard from "@popcorn/app/components/Rewards/RewardSummaryCard
 import VestingRecordComponent from "@popcorn/app/components/Rewards/VestingRecord";
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TabSelector from "@popcorn/app/components/TabSelector";
-import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/context/actions";
+import { setSingleActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
 import { BigNumber, ethers } from "ethers";
 import useGetMultipleStakingPools from "@popcorn/app/hooks/staking/useGetMultipleStakingPools";
@@ -69,7 +69,6 @@ export default function RewardsPage(): JSX.Element {
   const [availableTabs, setAvailableTabs] = useState<Tabs[]>([]);
   const isSelected = (tab: Tabs) => tabSelected === tab;
 
-  const claimStakingReward = useClaimStakingReward();
   const claimVestedPopFromEscrows = useClaimEscrows(rewardsEscrow, chainId);
   const transaction = useTransaction(chainId);
 
@@ -281,6 +280,7 @@ export default function RewardsPage(): JSX.Element {
                   chainId={chainId}
                   approve={approveXpopRedemption}
                   redeem={redeemXpop}
+                  account={account}
                   balances={[balancesXPop, balancesPop]}
                   tokens={[xPop, pop]}
                 />

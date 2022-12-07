@@ -32,7 +32,7 @@ export default function StakingOverviewPage(): JSX.Element {
         selectedNetworks={selectedNetworks}
         selectNetwork={selectNetwork}
       />
-      <div className="border-t border-t-customLightGray">
+      <div className="border-t border-t-customLightGray border-opacity-40">
         <div className="w-full">
           <div className="h-full ">
             {stakingPools &&

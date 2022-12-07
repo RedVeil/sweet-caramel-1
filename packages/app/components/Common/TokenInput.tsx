@@ -40,7 +40,12 @@ export const TokenInput: React.FC<TokenInputProps> = ({
     amount.isZero() ? "" : formatUnits(amount, token?.decimals),
   );
   const displaySpendableBalance =
-    spendableBalance?.status === "success" && balance && spendableBalance?.data && !spendableBalance.data.eq(balance);
+    spendableBalance?.status === "success" &&
+    !!balance &&
+    !balance.eq(constants.Zero) &&
+    !!spendableBalance?.data &&
+    !spendableBalance.data.eq(balance);
+
   const spendableBalanceFormatted = displaySpendableBalance
     ? formatAndRoundBigNumber(spendableBalance?.data, token.decimals)
     : "";

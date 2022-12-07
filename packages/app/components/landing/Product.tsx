@@ -15,7 +15,7 @@ export interface ProductProps {
 
 export default function Product({ title, description, stats, route, customContent, badge }: ProductProps): JSX.Element {
   return (
-    <div className="border-b border-customLightGray grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
+    <div className="border-b border-customLightGray  border-opacity-40 grid grid-cols-12 items-center gap-6 md:gap-8 py-7">
       <div className="col-span-12 md:col-span-4 order-1">
         <div className="relative flex flex-row">
           <p className="text-black text-4xl leading-9 md:leading-10 mb-2">{title}</p>

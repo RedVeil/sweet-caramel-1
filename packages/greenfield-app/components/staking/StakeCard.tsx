@@ -60,7 +60,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
       </div>
 
       <div
-        className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${
+        className={`border-b border-b-customLightGray  border-opacity-40 cursor-pointer hover:scale-102 hover:border-opacity-60 transition duration-500 ease-in-out transform relative ${
           staking === undefined ? "hidden" : ""
         }`}
         onClick={onSelectPool}
