@@ -7,9 +7,12 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@popcorn/utils/src/DateTime";
 import { InteractionType } from "@popcorn/app/components/staking/StakeInterface";
 import { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
+import { Pop } from "@popcorn/components/pop/types";
+import { BigNumber } from "ethers";
 
 interface PopLockerInteractionProps extends StakingInteractionProps {
   restake: () => void;
+  spendableBalance?: Pop.HookResult<BigNumber>;
 }
 
 export default function PopLockerInteraction({
@@ -22,6 +25,7 @@ export default function PopLockerInteraction({
   withdraw,
   restake,
   chainId,
+  spendableBalance,
 }: PopLockerInteractionProps): JSX.Element {
   const [state, setState] = form;
   const { type, amount, termsAccepted } = { ...state };
@@ -118,6 +122,7 @@ export default function PopLockerInteraction({
               token={stakingPool?.stakingToken}
               amount={amount}
               balance={user.balance}
+              spendableBalance={spendableBalance}
               setAmount={(_amount) => {
                 setState({ ...state, amount: _amount });
               }}

@@ -6,6 +6,8 @@ import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { useEffect, useState } from "react";
+import { Pop } from "@popcorn/components/pop/types";
+import useLog from "@popcorn/components/pop/utils/hooks/useLog";
 
 export interface TokenInputProps {
   label: string;
@@ -17,6 +19,7 @@ export interface TokenInputProps {
   tokenList?: Token[];
   selectToken?: (token: Token) => void;
   chainId: ChainId;
+  spendableBalance?: Pop.HookResult<BigNumber>;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
@@ -29,10 +32,16 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   tokenList = [],
   selectToken = null,
   chainId,
+  spendableBalance,
 }) => {
   const [displayAmount, setDisplayAmount] = useState<string>(
     amount.isZero() ? "" : formatUnits(amount, token?.decimals),
   );
+  const displaySpendableBalance =
+    spendableBalance?.status === "success" && balance && spendableBalance?.data && !spendableBalance.data.eq(balance);
+  const spendableBalanceFormatted = displaySpendableBalance
+    ? formatAndRoundBigNumber(spendableBalance?.data, token.decimals)
+    : "";
 
   useEffect(() => {
     if (amount.isZero()) {
@@ -53,8 +62,9 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   };
 
   function setMaxAmount() {
-    setDisplayAmount(formatUnits(balance, token?.decimals));
-    setAmount(balance);
+    const max = displaySpendableBalance ? spendableBalance?.data : balance;
+    setDisplayAmount(formatUnits(max, token?.decimals));
+    setAmount(max);
   }
 
   return (
@@ -121,7 +131,10 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               height="13"
               className="mr-2"
             />
-            <p className="text-secondaryLight leading-6">{formatAndRoundBigNumber(balance, token?.decimals)}</p>
+            <p className="text-secondaryLight leading-6">
+              {formatAndRoundBigNumber(balance, token?.decimals)}{" "}
+              {displaySpendableBalance && "(" + spendableBalanceFormatted + " unlocked)"}
+            </p>
           </div>
         )}
         {!readonly && balance && (

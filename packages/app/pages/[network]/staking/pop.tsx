@@ -16,9 +16,12 @@ import React, { useContext, useEffect, useState } from "react";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { ethers } from "ethers";
+import { useNamedAccounts } from "@popcorn/components";
+import { useSpendableBalance } from "@popcorn/components/pop/POP";
+import useLog from "@popcorn/components/pop/utils/hooks/useLog";
 
 export default function PopStakingPage(): JSX.Element {
-  const { account, signer, onContractSuccess, onContractError } = useWeb3();
+  const { account, signer } = useWeb3();
   const chainId = useChainIdFromUrl();
   const { popStaking } = useDeployment(chainId);
   const { dispatch } = useContext(store);
@@ -38,6 +41,9 @@ export default function PopStakingPage(): JSX.Element {
   const transaction = useTransaction(chainId);
   const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
   const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
+
+  const [metadata] = useNamedAccounts(chainId as any, ["tokenManager"]);
+  const spendableBalance = useSpendableBalance({ account, address: metadata?.address, chainId });
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {
@@ -133,6 +139,7 @@ export default function PopStakingPage(): JSX.Element {
         <StakeInterface
           stakingPool={stakingPool}
           user={balances}
+          spendableBalance={spendableBalance}
           form={[form, setForm]}
           stake={stake}
           withdraw={withdraw}
