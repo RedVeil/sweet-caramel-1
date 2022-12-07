@@ -83,20 +83,30 @@ export const SingleActionModal: React.FC<SingleActionModalProps> = ({
             >
               <div>
                 <Dialog.Panel
-                  className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 smmd:p-8 sm:align-middle ${isTerms ? "w-88 smmd:max-w-lg" : "w-88 smmd:max-w-lg"
-                    }`}
+                  className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full sm:max-w-sm p-6 smmd:p-8 sm:align-middle ${
+                    isTerms ? "w-88 smmd:max-w-lg" : "w-88 smmd:max-w-lg"
+                  }`}
                 >
                   {!isTerms && (
                     <div className="flex justify-end mb-6 smmd:mb-8">
                       <button className="w-6 h-6 relative" onClick={dismiss}>
-                        <Image src="/images/closeIcon.svg" alt="close icon" layout="fill" objectFit="contain" priority={true} />
+                        <Image
+                          src="/images/closeIcon.svg"
+                          alt="close icon"
+                          layout="fill"
+                          objectFit="contain"
+                          priority={true}
+                        />
                       </button>
                     </div>
                   )}
                   <div>
                     <div className="text-zero">{image}</div>
                     <div className={isTerms ? "" : "mt-5 smmd:mt-8"}>
-                      <h3 className="text-4xl lg:-mt-0 leading-11 smmd:text-6xl smmd:leading-13 text-black" id="modal-title">
+                      <h3
+                        className="text-4xl lg:-mt-0 leading-11 smmd:text-6xl smmd:leading-13 text-black"
+                        id="modal-title"
+                      >
                         {title}
                       </h3>
                       <div className="mt-4">

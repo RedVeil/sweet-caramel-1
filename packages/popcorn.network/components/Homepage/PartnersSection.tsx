@@ -1,5 +1,5 @@
-import SliderContainer from 'components/CommonComponents/SliderContainer'
-import React from 'react'
+import SliderContainer from "components/CommonComponents/SliderContainer";
+import React from "react";
 
 const PartnersSection = () => {
   return (
@@ -18,7 +18,7 @@ const PartnersSection = () => {
         <img src="/images/Partners/xbto.png" alt="" className="px-2 smmd:px-5 w-10 h-10 object-contain" />
       </SliderContainer>
     </section>
-  )
-}
+  );
+};
 
-export default PartnersSection
+export default PartnersSection;
