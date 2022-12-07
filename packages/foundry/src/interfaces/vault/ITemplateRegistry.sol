@@ -16,7 +16,7 @@ interface ITemplateRegistry is IOwned {
 
   function templateTypeExists(bytes32 templateType) external view returns (bool);
 
-  function templateIdExists(bytes32 templateId) external view returns (bool);
+  function templateExists(bytes32 templateId) external view returns (bool);
 
   function getTemplateTypes() external view returns (bytes32[] memory);
 

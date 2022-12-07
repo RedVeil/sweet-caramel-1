@@ -2,69 +2,58 @@
 // Docgen-SOLC: 0.8.15
 pragma solidity ^0.8.15;
 
-import "@openzeppelin/contracts/proxy/Clones.sol";
 import { Owned } from "../utils/Owned.sol";
-import { ContractRegistryAccess, IContractRegistry } from "../utils/ContractRegistryAccess.sol";
-import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
 import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
 
-// TODO Split into TemplateRegistryWithFactory and TemplateFactory
-/**
- * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts
- * @dev deploy functions can only be called by VaultsController
- */
 contract TemplateRegistry is Owned {
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-  bytes32 public constant contractName = keccak256("VaultsFactory");
+  bytes32 public constant contractName = keccak256("TemplateRegistry");
 
-  constructor(address _owner, IContractRegistry _contractRegistry)
-    Owned(_owner)
-    ContractRegistryAccess(_contractRegistry)
-  {}
+  constructor(address _owner) Owned(_owner) {}
 
   /*//////////////////////////////////////////////////////////////
                           TEMPLATE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  // TypeIdentifier => Key => Template
+  // TypeIdentifier => Id => Template
   mapping(bytes32 => mapping(bytes32 => Template)) public templates;
-  mapping(bytes32 => bytes32[]) public templateKeys;
+  mapping(bytes32 => bytes32[]) public templateIds;
+  mapping(bytes32 => bool) public templateExists;
 
   mapping(bytes32 => bool) public templateTypeExists;
   bytes32[] public templateTypes;
 
   error KeyNotFound(bytes32 templateType);
-  error TemplateExists(bytes32 templateType, bytes32 templateKey);
+  error TemplateExists(bytes32 templateId);
   error TemplateTypeExists(bytes32 templateType);
 
   event TemplateTypeAdded(bytes32 templateType);
-  event TemplateAdded(bytes32 templateType, bytes32 templateKey, address implementation);
-  event TemplateUpdated(bytes32 templateType, bytes32 templateKey);
+  event TemplateAdded(bytes32 templateType, bytes32 templateId, address implementation);
+  event TemplateUpdated(bytes32 templateType, bytes32 templateId);
 
-  // TODO rename key to id
   function addTemplate(
     bytes32 templateType,
-    bytes32 templateKey,
+    bytes32 templateId,
     address implementation,
     string memory metadataCid,
     bool requiresInitData
-  ) external {
+  ) external onlyOwner {
     if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
-    if (templates[templateType][templateKey].implementation != address(0))
-      revert TemplateExists(templateType, templateKey);
+    if (templateTypeExists[templateId]) revert TemplateExists(templateId);
 
-    templates[templateType][templateKey] = Template({
+    templates[templateType][templateId] = Template({
       implementation: implementation,
       metadataCid: metadataCid,
       requiresInitData: requiresInitData
     });
 
-    templateKeys[templateType].push(templateKey);
+    templateIds[templateType].push(templateId);
+    templateExists[templateId] = true;
 
-    emit TemplateAdded(templateType, templateKey, implementation);
+    emit TemplateAdded(templateType, templateId, implementation);
   }
 
   function addTemplateType(bytes32 templateType) external onlyOwner {
@@ -81,52 +70,6 @@ contract TemplateRegistry is Owned {
   }
 
   function getTemplateKeys(bytes32 templateType) external view returns (bytes32[] memory) {
-    return templateKeys[templateType];
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                          DEPLOY LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-  error DeploymentInitFailed();
-  error NotEndorsed(bytes32 templateKey);
-
-  event Deployment(address indexed implementation);
-
-  /**
-   * @notice Deploys Vault, VaultStaking, or Wrapper contracts
-   * @dev This should always be called through the VaultsController
-   */
-  function deploy(
-    bytes32 templateType,
-    bytes32 templateKey,
-    bytes memory data
-  ) external onlyOwner returns (address clone) {
-    Template memory template = templates[templateType][templateKey];
-
-    if (IEndorsementRegistry(_getContract(ENDORSEMENT_REGISTRY)).endorsed(template.implementation))
-      revert NotEndorsed(templateKey);
-
-    clone = Clones.clone(template.implementation);
-
-    bool success = true;
-    if (template.requiresInitData) (success, ) = clone.call(data);
-
-    if (!success) revert DeploymentInitFailed();
-    // TODO save implementation in registry
-    emit Deployment(clone);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                      CONTRACT REGISTRY LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  bytes32 public constant ENDORSEMENT_REGISTRY = keccak256("EndorsementRegistry");
-
-  /**
-   * @notice Override for ContractRegistryAccess.
-   */
-  function _getContract(bytes32 _name) internal view override(ContractRegistryAccess) returns (address) {
-    return super._getContract(_name);
+    return templateIds[templateType];
   }
 }
