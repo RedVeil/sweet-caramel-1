@@ -26,10 +26,10 @@ const YieldSection = ({ tvlProps }) => {
             </div>
           ))}
           <div className="bg-customPeach rounded-lg px-4 py-2 text-primary">
-            <span className="font-medium">3x</span> <Tvl chainId={ChainId.Ethereum} address={threex.address} />
+            <span className="font-medium">3X</span> <Tvl chainId={ChainId.Ethereum} address={threex.address} />
           </div>
           <div className="bg-customPeach rounded-lg px-4 py-2 text-primary">
-            <span className="font-medium">Butter</span> <Tvl chainId={ChainId.Ethereum} address={butter.address} />
+            <span className="font-medium">BTR</span> <Tvl chainId={ChainId.Ethereum} address={butter.address} />
           </div>
         </div>
       }
