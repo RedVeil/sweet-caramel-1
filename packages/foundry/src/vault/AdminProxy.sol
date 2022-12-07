@@ -7,8 +7,11 @@ import { Owned } from "../utils/Owned.sol";
 contract AdminProxy is Owned {
   constructor(address owner) Owned(owner) {}
 
-  // TODO return success and response
-  function execute(address target, bytes memory callData) external onlyOwner {
-    target.call(callData);
+  function execute(address target, bytes memory callData)
+    external
+    onlyOwner
+    returns (bool success, bytes memory returndata)
+  {
+    return target.call(callData);
   }
 }
