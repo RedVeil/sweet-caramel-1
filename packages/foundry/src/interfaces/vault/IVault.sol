@@ -8,6 +8,8 @@ import { IOwned } from "../IOwned.sol";
 import { IPermit } from "../IPermit.sol";
 import { IPausable } from "../IPausable.sol";
 
+// Fees are set in 1e18 for 100% (1 BPS = 1e14)
+// Raise Fees in BPS by 1e14 to get an accurate value
 struct FeeStructure {
   uint256 deposit;
   uint256 withdrawal;

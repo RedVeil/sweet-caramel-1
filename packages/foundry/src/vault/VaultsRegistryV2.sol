@@ -4,16 +4,7 @@ pragma solidity ^0.8.15;
 
 import { IERC4626 } from "../interfaces/vault/IERC4626.sol";
 import { Owned } from "../utils/Owned.sol";
-
-struct VaultMetadata {
-  address vaultAddress; // address of vault
-  address staking; // address of vault staking contract
-  address submitter; // address of vault submitter
-  string metadataCID; // ipfs CID of vault metadata
-  address[8] swapTokenAddresses; // underlying assets to deposit and recieve LP token
-  address swapAddress; // ex: stableSwapAddress for Curve
-  uint256 exchange; // number specifying exchange (1 = curve)
-}
+import { VaultMetadata } from "../interfaces/vault/IVaultsRegistry.sol";
 
 /**
  * @notice Registry for vaults deployed through VaultsFactory

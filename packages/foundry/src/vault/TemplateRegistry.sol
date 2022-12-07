@@ -6,13 +6,14 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import { Owned } from "../utils/Owned.sol";
 import { ContractRegistryAccess, IContractRegistry } from "../utils/ContractRegistryAccess.sol";
 import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
+import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
 
 // TODO Split into TemplateRegistryWithFactory and TemplateFactory
 /**
  * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts
  * @dev deploy functions can only be called by VaultsController
  */
-contract VaultsFactory is Owned, ContractRegistryAccess {
+contract TemplateRegistry is Owned {
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
