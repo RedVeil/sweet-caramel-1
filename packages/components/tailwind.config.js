@@ -41,7 +41,7 @@ module.exports = {
     extend: {
       boxShadow: {
         custom: "0 4px 14px rgba(101, 135, 169, 0.16)",
-        'custom-2': '0px -20px 25px -5px rgba(0, 0, 0, 0.05)',
+        "custom-2": "0px -20px 25px -5px rgba(0, 0, 0, 0.05)",
         scrollableSelect: "inset 0px -4px 11px rgba(0, 0, 0, 0.1), inset 0px 4px 11px rgba(0, 0, 0, 0.1)",
       },
       borderRadius: {
@@ -169,26 +169,26 @@ module.exports = {
         khTeka: ["'KH Teka'", "sans-serif"],
       },
       width: {
-        'fit-content': 'fit-content'
+        "fit-content": "fit-content",
       },
       rotate: {
-        '-30': '-30deg',
+        "-30": "-30deg",
       },
       letterSpacing: {
-        1: '1px'
+        1: "1px",
       },
       backgroundImage: (theme) => ({
-        'bg-gradient': "url('/images/bgGradient.svg')",
-        'header-team': "url('/images/bgHeaderTeam.svg')",
-        'hero-pattern': "url('/images/bgHero.svg')",
-        'impact-pattern': "url('/images/bgImpact.svg')",
-        'countdown-pattern': "url('/images/bgCountdown.svg')",
-        'countdown-pattern-mobile': "url('/images/bgFooterMobile.svg')",
-        'popcorn1-pattern': "url('/images/bgPopcorn1.svg')",
-        'popcorn2-pattern': "url('/images/bgPopcorn2.svg')",
-        'popcorn3-pattern': "url('/images/bgPopcorn3.svg')",
-        'our-partners': "url('/images/ourpartnersbg.svg')",
-        'as-seen-in': "url('/images/asseeninbg.svg')",
+        "bg-gradient": "url('/images/bgGradient.svg')",
+        "header-team": "url('/images/bgHeaderTeam.svg')",
+        "hero-pattern": "url('/images/bgHero.svg')",
+        "impact-pattern": "url('/images/bgImpact.svg')",
+        "countdown-pattern": "url('/images/bgCountdown.svg')",
+        "countdown-pattern-mobile": "url('/images/bgFooterMobile.svg')",
+        "popcorn1-pattern": "url('/images/bgPopcorn1.svg')",
+        "popcorn2-pattern": "url('/images/bgPopcorn2.svg')",
+        "popcorn3-pattern": "url('/images/bgPopcorn3.svg')",
+        "our-partners": "url('/images/ourpartnersbg.svg')",
+        "as-seen-in": "url('/images/asseeninbg.svg')",
       }),
     },
   },
