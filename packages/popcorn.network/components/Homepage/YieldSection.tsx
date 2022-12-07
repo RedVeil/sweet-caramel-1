@@ -35,7 +35,7 @@ const YieldSection = ({ tvlProps }) => {
       }
       <div className="relative flex">
         <h1 className="text-6xl leading-12 mt-8">
-          Yield that <br className="md:hidden" /> counts
+          Yield that <br className="smmd:hidden xl:block" /> counts
         </h1>
         <img src="/images/smallZigzag.svg" alt="" className="lg:hidden absolute right-0 bottom-0" />
       </div>

@@ -48,7 +48,7 @@ function tutorialContent(step: number, isThreeX: boolean): JSX.Element {
     <div className="w-full md:h-56 flex flex-row items-center justify-center">
       <img
         src={isThreeX ? imageLinks[step - 1].threeX : imageLinks[step - 1].butter}
-        className={`w-full md:w-10/12 smlaptop:w-9/12`}
+        className={`w-full md:w-10/12 lg:w-9/12`}
       />
     </div>
   );
