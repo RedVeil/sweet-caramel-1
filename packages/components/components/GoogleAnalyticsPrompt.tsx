@@ -66,7 +66,7 @@ const GoogleAnalyticsPrompt = () => {
     </Transition>
   );
 };
-//  
-//  
+//
+//
 
 export default GoogleAnalyticsPrompt;
