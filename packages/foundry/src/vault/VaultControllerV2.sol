@@ -39,10 +39,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
     //////////////////////////////////////////////////////////////*/
   bytes32 public constant contractName = keccak256("VaultsController");
 
-  constructor(address _owner, IContractRegistry _contractRegistry)
-    Owned(_owner)
-    ContractRegistryAccess(_contractRegistry)
-  {}
+  constructor(
+    address _owner,
+    IContractRegistry _contractRegistry
+  ) Owned(_owner) ContractRegistryAccess(_contractRegistry) {}
 
   /*//////////////////////////////////////////////////////////////
                           DEPLOYMENT LOGIC
@@ -180,11 +180,10 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   // TODO make harcoded types state variables?
   // TODO how to decide if a strategy even needs to be deployed?
-  function deployStrategyAndAdapter(bytes memory strategyData, bytes memory adapterData)
-    public
-    onlyOwner
-    returns (address adapter)
-  {
+  function deployStrategyAndAdapter(
+    bytes memory strategyData,
+    bytes memory adapterData
+  ) public onlyOwner returns (address adapter) {
     if (strategyData.length == 0 || adapterData.length == 0) revert InsufficientData();
     (bytes32 memory stratKey, bytes memory stratData, bytes32 memory adapterKey, bytes memory adapterData) = abi.decode(
       data,
@@ -238,11 +237,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
    * @param _keeperCooldown - time period that must pass before calling keeper enabled functions
    * @dev avoids stack too deep in deployVaultFromFactory
    */
-  function _handleKeeperSetup(
-    address _vault,
-    KeeperConfig memory _keeperConfig,
-    bytes memory addKeeperData
-  ) internal {
+  function _handleKeeperSetup(address _vault, KeeperConfig memory _keeperConfig, bytes memory addKeeperData) internal {
     (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
       addKeeperData,
       (bool, bool, uint256)
