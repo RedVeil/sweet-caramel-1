@@ -65,7 +65,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   // TODO check that asset is verified
   function deployVault(
-    DeploymentArgs memory stratData,
+    bytes32 strategyId,
     DeploymentArgs memory adapterData,
     bytes memory stakingData,
     bytes memory rewardsData,
@@ -73,7 +73,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     VaultMetadata memory metadata
   ) external onlyOwner returns (address vault) {
     address adapter;
-    if (stratData.key.length > 0) adapter = deployStrategyAndAdapter(stratData, adapterData);
+    if (adapterData.key.length > 0) adapter = deployStrategyAndAdapter(stratData, adapterData);
 
     vault = _deployVault(vaultData, adapter);
 
@@ -99,15 +99,15 @@ contract VaultsController is Owned, ContractRegistryAccess {
 
   // TODO make harcoded types state variables?
   // TODO how to decide if a strategy even needs to be deployed?
-  function deployStrategyAndAdapter(DeploymentArgs memory strategyData, DeploymentArgs memory adapterData)
+  function deployStrategyAndAdapter(bytes32 strategyId, DeploymentArgs memory adapterData)
     public
     onlyOwner
     returns (address adapter)
   {
-    if (strategyData.key.length == 0 || adapterData.key.length == 0) revert InsufficientData();
+    if (strategyId.length == 0 || adapterData.key.length == 0) revert InsufficientData();
 
     IVaultsFactory vaultsFactory = _vaultsFactory();
-    address strategy = vaultsFactory.deploy(STRATEGY, strategyData.key, strategyData.data);
+    address strategy = vaultsFactory.deploy(STRATEGY, strategyId, "");
 
     // TODO create this data nicer and/or move it into Factory
     bytes memory popERC4626InitData = abi.encode(
