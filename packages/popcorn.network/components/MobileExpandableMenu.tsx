@@ -1,33 +1,32 @@
-import Link from 'next/link';
+import Link from "next/link";
 
-import React from 'react';
-import { Facebook, GitHub, Twitter } from 'react-feather';
-import { useRouter } from 'next/router';
-import PrimaryButton from './CommonComponents/PrimaryButton'
-import DiscordIcon from './SVGIcons/DiscordIcon';
-import FacebookIcon from './SVGIcons/FacebookIcon';
-import GithubIcon from './SVGIcons/GithubIcon';
-import TwitterIcon from './SVGIcons/TwitterIcon';
-import TelegramIcon from './SVGIcons/TelegramIcon';
-import MediumIcon from './SVGIcons/MediumIcon';
-import RedditIcon from './SVGIcons/RedditIcon';
-import YoutubeIcon from './SVGIcons/YoutubeIcon';
-import TertiaryActionButton from './CommonComponents/TertiaryActionButton';
-import useSubscribeToNewsletter from 'hooks/useSubscribeToNewsLetter';
-
+import React from "react";
+import { Facebook, GitHub, Twitter } from "react-feather";
+import { useRouter } from "next/router";
+import PrimaryButton from "./CommonComponents/PrimaryButton";
+import DiscordIcon from "./SVGIcons/DiscordIcon";
+import FacebookIcon from "./SVGIcons/FacebookIcon";
+import GithubIcon from "./SVGIcons/GithubIcon";
+import TwitterIcon from "./SVGIcons/TwitterIcon";
+import TelegramIcon from "./SVGIcons/TelegramIcon";
+import MediumIcon from "./SVGIcons/MediumIcon";
+import RedditIcon from "./SVGIcons/RedditIcon";
+import YoutubeIcon from "./SVGIcons/YoutubeIcon";
+import TertiaryActionButton from "./CommonComponents/TertiaryActionButton";
+import useSubscribeToNewsletter from "hooks/useSubscribeToNewsLetter";
 
 const navLinks = [
   {
-    label: 'Popcorn',
-    link: '/',
-    target: '_self'
+    label: "Popcorn",
+    link: "/",
+    target: "_self",
   },
   {
-    label: 'Whitepaper',
-    link: '/docs/popcorn_whitepaper.pdf',
-    target: '_blank'
+    label: "Whitepaper",
+    link: "/docs/popcorn_whitepaper.pdf",
+    target: "_blank",
   },
-]
+];
 
 export const MobileExpandableMenu: React.FC = () => {
   const router = useRouter();
@@ -39,21 +38,26 @@ export const MobileExpandableMenu: React.FC = () => {
         <div className="w-screen h-full overflow-y-auto px-6 mx-auto nav-animation flex flex-col justify-between bg-white">
           <div>
             <div className=" pt-32 flex flex-col gap-10">
-              {navLinks.map((link, index) => <Link
-                key={index}
-                href={link.link}
-                className={` text-5xl leading-11 hover:text-black ${router.pathname === link.link ? 'text-black font-medium' : 'text-primary'}`}
-                target={link.target}>{link.label}</Link>)}
+              {navLinks.map((link, index) => (
+                <Link
+                  key={index}
+                  href={link.link}
+                  className={` text-5xl leading-11 hover:text-black ${
+                    router.pathname === link.link ? "text-black font-medium" : "text-primary"
+                  }`}
+                  target={link.target}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
             <div className=" mt-10">
-              <TertiaryActionButton
-                label="Newsletter"
-                handleClick={showNewsletterModal}
-                className="!font-normal"
-              />
+              <TertiaryActionButton label="Newsletter" handleClick={showNewsletterModal} className="!font-normal" />
             </div>
             <div className=" mt-10">
-              <a href="https://popcorndao.finance/" className="w-full block" target="_blank"><PrimaryButton>Launch App</PrimaryButton></a>
+              <a href="https://popcorndao.finance/" className="w-full block" target="_blank">
+                <PrimaryButton>Launch App</PrimaryButton>
+              </a>
             </div>
           </div>
           <div>
@@ -64,10 +68,7 @@ export const MobileExpandableMenu: React.FC = () => {
                   <Link href="/" className=" text-primary leading-6 mt-4">
                     Popcorn
                   </Link>
-                  <Link
-                    href="/docs/popcorn_whitepaper.pdf"
-                    target="_blank"
-                    className=" text-primary leading-6 mt-4">
+                  <Link href="/docs/popcorn_whitepaper.pdf" target="_blank" className=" text-primary leading-6 mt-4">
                     Whitepaper
                   </Link>
                 </div>

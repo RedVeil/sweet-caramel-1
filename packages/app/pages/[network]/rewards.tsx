@@ -107,8 +107,11 @@ export default function RewardsPage(): JSX.Element {
     any
   > = useGetUserEscrows(vaultsRewardsEscrow, account, chainId);
 
-  const [userEscrowData, setUserEscrowData] =
-    useState<{ escrows: Escrow[]; totalClaimablePop: BigNumber; totalVestingPop: BigNumber }>();
+  const [userEscrowData, setUserEscrowData] = useState<{
+    escrows: Escrow[];
+    totalClaimablePop: BigNumber;
+    totalVestingPop: BigNumber;
+  }>();
 
   useEffect(() => {
     if (!userEscrowsFetchResult?.data && !userVaultsEscrowsFetchResults?.data) {
