@@ -18,7 +18,7 @@ export function FeatureTogglePanel(): JSX.Element {
   }
 
   return (
-    <div className={`card fixed bottom-1 right-1 z-30 ${enabled && " " || 'hidden '}`}>
+    <div className={`card fixed bottom-1 right-1 z-30 ${(enabled && " ") || "hidden "}`}>
       {showPanel ? (
         <div className="flex flex-col p-2 space-y-2">
           <span className="flex flex-row items-center justify-end" onClick={() => setShowPanel(false)}>
