@@ -1,6 +1,5 @@
 import { ChainId, formatAndRoundBigNumber, networkMap } from "@popcorn/utils";
 import { constants } from "ethers";
-import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import Badge, { Badge as BadgeType } from "@popcorn/app/components/Common/Badge";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
@@ -12,8 +11,6 @@ import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
 import { Contract, Staking } from "@popcorn/components/pop/";
-import { useEmissions } from "@popcorn/components/pop/Staking";
-// import { useEmissions } from "@popcorn/components/pop/Staking";
 interface StakeCardProps {
   stakingAddress: string;
   stakingType: StakingType;
