@@ -14,7 +14,12 @@ interface UseEmissionsProps extends Pop.StdProps {
 export const useEmissions = ({ chainId, address, isPop }: UseEmissionsProps) => {
   const provider = useProvider({ chainId: Number(chainId) });
   const stakingContract = useMemo(
-    () => !!address && isAddress(address) && !!chainId && !!provider && (isPop ? PopLocker__factory.connect(address, provider) : Staking__factory.connect(address, provider)),
+    () =>
+      !!address &&
+      isAddress(address) &&
+      !!chainId &&
+      !!provider &&
+      (isPop ? PopLocker__factory.connect(address, provider) : Staking__factory.connect(address, provider)),
     [chainId, address, provider, isPop],
   );
 
@@ -27,16 +32,17 @@ export const useEmissions = ({ chainId, address, isPop }: UseEmissionsProps) => 
       } else {
         tokenPerWeek = await stakingContract?.getRewardForDuration();
       }
-      const tokenEmission = tokenPerWeek?.div(7) || BigNumber.from(0)
-      return ({
+      const tokenEmission = tokenPerWeek?.div(7) || BigNumber.from(0);
+      return {
         value: tokenEmission,
-        formatted: tokenEmission ? formatAndRoundBigNumber(tokenEmission, 18) : undefined
-      })
+        formatted: tokenEmission ? formatAndRoundBigNumber(tokenEmission, 18) : undefined,
+      };
     }
-  }
+  };
 
-  return popHookAdapter(useSWR(!!stakingContract && !!chainId ? [address, chainId, provider, stakingContract] : null, async () => {
-    return getStakingEmission(isPop, stakingContract);
-  })) as Pop.HookResult<BigNumberWithFormatted>
-
+  return popHookAdapter(
+    useSWR(!!stakingContract && !!chainId ? [address, chainId, provider, stakingContract] : null, async () => {
+      return getStakingEmission(isPop, stakingContract);
+    }),
+  ) as Pop.HookResult<BigNumberWithFormatted>;
 };
