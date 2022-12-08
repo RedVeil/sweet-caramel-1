@@ -9,8 +9,6 @@ contract CloneRegistry is Owned {
                             IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-  bytes32 public constant contractName = keccak256("CloneRegistry");
-
   constructor(address _owner) Owned(_owner) {}
 
   /*//////////////////////////////////////////////////////////////

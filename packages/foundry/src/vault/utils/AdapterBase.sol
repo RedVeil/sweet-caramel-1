@@ -38,17 +38,17 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradable
   /**
      @notice Initializes the Vault.
     */
-  // TODO check that asset is endorsed
   function __AdapterBase_init(bytes memory popERC4626InitData) public initializer {
     (
       address asset,
+      address owner,
       address _strategy,
       uint256 _harvestCooldown,
       bytes4[8] memory _requiredSigs,
       bytes memory _strategyConfig,
 
-    ) = abi.decode(popERC4626InitData, (address, address, uint256, bytes4[8], bytes));
-    __Ownable_init(msg.sender);
+    ) = abi.decode(popERC4626InitData, (address, address, address, uint256, bytes4[8], bytes));
+    __Ownable_init(owner);
     __Pausable_init();
     __ERC4626_init(ERC20(asset));
 

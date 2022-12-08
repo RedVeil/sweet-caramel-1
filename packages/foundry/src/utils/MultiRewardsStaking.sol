@@ -11,10 +11,9 @@ import { MathUpgradeable } from "openzeppelin-contracts-upgradeable/utils/math/M
 import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
 import "./OwnedUpgradeable.sol";
 import "./ContractRegistryAccessUpgradeable.sol";
-import "../interfaces/IContractRegistry.sol";
-import "../interfaces/IRewardsEscrow.sol";
+import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
 
-contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRegistryAccessUpgradeable {
+contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
   using SafeERC20 for IERC20;
   using SafeCastLib for uint256;
   using MathUpgradeable for uint256;
@@ -27,10 +26,13 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
   string private _symbol;
   uint8 private _decimals;
 
-  function initialize(IERC20 _stakingToken, IContractRegistry _contractRegistry) external initializer {
+  function initialize(
+    IERC20 _stakingToken,
+    IMultiRewardsEscrow _escrow,
+    address _owner
+  ) external initializer {
     __ERC4626_init(IERC20MetadataUpgradeable(address(_stakingToken)));
-    __ContractRegistryAccess_init(_contractRegistry);
-    __Owned_init(msg.sender);
+    __Owned_init(_owner);
 
     _name = string(abi.encodePacked("Staked ", IERC20MetadataUpgradeable(address(_stakingToken)).name()));
     _symbol = string(abi.encodePacked("pst-", IERC20MetadataUpgradeable(address(_stakingToken)).symbol()));
@@ -146,6 +148,8 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
                             CLAIM LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  IMultiRewardsEscrow public escrow;
+
   event RewardsClaimed(address indexed user, IERC20 rewardsToken, uint256 amount, bool escrowed);
 
   error ZeroRewards(IERC20 rewardsToken);
@@ -180,13 +184,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     uint256 payout = rewardAmount - escrowed;
 
     rewardsToken.safeTransfer(user, payout);
-    IRewardsEscrow(_getContract(VAULT_REWARDS_ESCROW_ID)).lock(
-      rewardsToken,
-      user,
-      escrowed,
-      uint256(escrowInfo.escrowDuration),
-      escrowInfo.offset
-    );
+    escrow.lock(rewardsToken, user, escrowed, uint256(escrowInfo.escrowDuration), escrowInfo.offset);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -279,7 +277,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
       escrowPercentage: escrowPercentage,
       offset: offset
     });
-    if (useEscrow) rewardsToken.safeApprove(_getContract(VAULT_REWARDS_ESCROW_ID), type(uint256).max);
+    if (useEscrow) rewardsToken.safeApprove(address(escrow), type(uint256).max);
 
     uint64 ONE = (10**IERC20Metadata(address(rewardsToken)).decimals()).safeCastTo64();
     uint32 rewardsEndTimestamp = rewardsPerSecond == 0
@@ -498,18 +496,5 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
           address(this)
         )
       );
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                    CONTRACT REGISTRY ACCESS LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-  bytes32 constant VAULT_REWARDS_ESCROW_ID = keccak256("VaultRewardsEscrow");
-
-  /**
-   * @notice Override for ACLAuth and ContractRegistryAccess.
-   */
-  function _getContract(bytes32 _name) internal view override(ContractRegistryAccessUpgradeable) returns (address) {
-    return super._getContract(_name);
   }
 }

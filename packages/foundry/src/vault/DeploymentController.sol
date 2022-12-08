@@ -18,8 +18,6 @@ contract DeploymentController is Owned {
   ITemplateRegistry public templateRegistry;
   IEndorsementRegistry public endorsementRegistry;
 
-  bytes32 public constant contractName = keccak256("DeploymentController");
-
   constructor(
     address _owner,
     ICloneFactory _cloneFactory,

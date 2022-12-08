@@ -10,8 +10,6 @@ contract TemplateRegistry is Owned {
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-  bytes32 public constant contractName = keccak256("TemplateRegistry");
-
   constructor(address _owner) Owned(_owner) {}
 
   /*//////////////////////////////////////////////////////////////

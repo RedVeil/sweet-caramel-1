@@ -15,8 +15,6 @@ contract VaultsRegistry is Owned {
                             IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-  bytes32 public constant contractName = keccak256("VaultsRegistry");
-
   constructor(address _owner) Owned(_owner) {}
 
   /*//////////////////////////////////////////////////////////////

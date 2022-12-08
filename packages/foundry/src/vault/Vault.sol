@@ -45,15 +45,14 @@ contract Vault is
   function initialize(
     ERC20 asset_,
     IERC4626 strategy_,
-    IContractRegistry contractRegistry_,
     FeeStructure memory feeStructure_,
     address feeRecipient_,
+    IKeeperIncentiveV2 keeperIncentive_,
     KeeperConfig memory keeperConfig_,
     address owner
   ) external initializer {
     __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
     __Owned_init(owner);
-    __ContractRegistryAccess_init(contractRegistry_);
 
     asset = asset_;
     strategy = strategy_;
@@ -473,7 +472,7 @@ contract Vault is
 
     _mint(feeRecipient, accruedFees);
 
-    IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(keccak256("KeeperIncentive")));
+    IKeeperIncentiveV2 keeperIncentive = keeperIncentive;
 
     _approve(address(this), address(keeperIncentive), tipAmount);
 
@@ -716,23 +715,5 @@ s  /**
           address(this)
         )
       );
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                      CONTRACT REGISTRY LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
-
-  /**
-   * @notice Override for ACLAuth and ContractRegistryAccess.
-   */
-  function _getContract(bytes32 _name)
-    internal
-    view
-    override(ACLAuth, KeeperIncentivized, ContractRegistryAccessUpgradeable)
-    returns (address)
-  {
-    return super._getContract(_name);
   }
 }

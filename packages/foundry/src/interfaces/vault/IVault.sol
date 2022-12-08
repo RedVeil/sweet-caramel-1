@@ -17,6 +17,16 @@ struct FeeStructure {
   uint256 performance;
 }
 
+struct VaultParams {
+  IERC20 asset;
+  IERC4626 strategy;
+  IVault.FeeStructure feeStructure;
+  address feeRecipient;
+  IKeeperIncentiveV2 keeperIncentive;
+  KeeperConfig keeperConfig;
+  address owner;
+}
+
 interface IVault is IERC4626, IOwned, IPausable, IPermit {
   // FEE VIEWS
 

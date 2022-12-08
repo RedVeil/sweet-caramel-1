@@ -14,8 +14,6 @@ contract EndorsementRegistry is Owned {
                             IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-  bytes32 public constant contractName = keccak256("EndorsementRegistry");
-
   constructor(address _owner) Owned(_owner) {}
 
   /*//////////////////////////////////////////////////////////////

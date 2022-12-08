@@ -5,6 +5,7 @@ pragma solidity ^0.8.15;
 
 import { ICloneFactory } from "./ICloneFactory.sol";
 import { ICloneRegistry } from "./ICloneRegistry.sol";
+import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
 
 interface IDeploymentController is ICloneFactory, ICloneRegistry {
   function templateTypeExists(bytes32 templateType) external view returns (bool);

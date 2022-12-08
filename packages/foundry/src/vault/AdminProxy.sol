@@ -5,7 +5,7 @@ pragma solidity ^0.8.15;
 import { Owned } from "../utils/Owned.sol";
 
 contract AdminProxy is Owned {
-  constructor(address owner) Owned(owner) {}
+  constructor(address _owner) Owned(_owner) {}
 
   function execute(address target, bytes memory callData)
     external

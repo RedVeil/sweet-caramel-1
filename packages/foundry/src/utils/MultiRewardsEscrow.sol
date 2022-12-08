@@ -6,19 +6,23 @@ import { SafeERC20 } from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.so
 import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 import { Owned } from "./Owned.sol";
-import { ContractRegistryAccess, IContractRegistry } from "./ContractRegistryAccess.sol";
 import { KeeperIncentivized, IKeeperIncentiveV2 } from "./KeeperIncentivized.sol";
 
-contract MultiRewardsEscrow is Owned, ContractRegistryAccess, KeeperIncentivized {
+contract MultiRewardsEscrow is Owned, KeeperIncentivized {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-  bytes32 public contractName = keccak256("MultiRewardsEscrow");
-
-  constructor(IContractRegistry contractRegistry) Owned(msg.sender) ContractRegistryAccess(contractRegistry) {}
+  constructor(
+    address _owner,
+    IKeeperIncentiveV2 _keeperIncentive,
+    address _feeRecipient
+  ) Owned(_owner) {
+    keeperIncentive = _keeperIncentive;
+    feeRecipient = _feeRecipient;
+  }
 
   /*//////////////////////////////////////////////////////////////
                             GET ESCROW VIEWS
@@ -87,7 +91,13 @@ contract MultiRewardsEscrow is Owned, ContractRegistryAccess, KeeperIncentivized
    * @notice Locks funds for escrow
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds
    */
-  function lock(IERC20 token, address account, uint256 amount, uint256 duration, uint256 offset) external {
+  function lock(
+    IERC20 token,
+    address account,
+    uint256 amount,
+    uint256 duration,
+    uint256 offset
+  ) external {
     if (token == IERC20(address(0))) revert ZeroAddress();
     if (account == address(0)) revert ZeroAddress();
     if (amount == 0) revert ZeroAmount();
@@ -235,8 +245,7 @@ contract MultiRewardsEscrow is Owned, ContractRegistryAccess, KeeperIncentivized
    * @param tokens that have accrued fees
    */
   function claimFees(IERC20[] memory tokens) external keeperIncentive(0) {
-    address feeRecipient = _getContract(FEE_RECIPIENT);
-    IKeeperIncentiveV2 keeperIncentive = IKeeperIncentiveV2(_getContract(KEEPER_INCENTIVE));
+    IKeeperIncentiveV2 _keeperIncentive = keeperIncentive;
     uint256 incentiveVig = keeperPerc;
 
     for (uint256 i = 0; i < tokens.length; i++) {
@@ -250,28 +259,13 @@ contract MultiRewardsEscrow is Owned, ContractRegistryAccess, KeeperIncentivized
 
       fees[tokens[i]] = 0;
 
-      tokens[i].approve(address(keeperIncentive), tipAmount);
+      tokens[i].approve(address(_keeperIncentive), tipAmount);
 
-      keeperIncentive.tip(address(tokens[i]), msg.sender, 0, tipAmount);
+      _keeperIncentive.tip(address(tokens[i]), msg.sender, 0, tipAmount);
 
       tokens[i].safeTransfer(feeRecipient, fee);
 
       emit FeeClaimed(tokens[i], fee);
     }
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                    CONTRACT REGISTRY ACCESS LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-  bytes32 constant FEE_RECIPIENT = keccak256("FeeRecipient");
-
-  /**
-   * @notice Override for ACLAuth and ContractRegistryAccess.
-   */
-  function _getContract(
-    bytes32 _name
-  ) internal view override(ContractRegistryAccess, KeeperIncentivized) returns (address) {
-    return super._getContract(_name);
   }
 }
