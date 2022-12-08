@@ -5,6 +5,46 @@ Welcome aboard as an Popcorn developer.
 
 This document will get you up to speed on our expectations for contributing to the codebase. Please read through this and our [code of conduct](./CODE_OF_CONDUCT.md).
 
+## Trunk-based Development workflow
+
+The trunk-based development workflow is one of the most popular development frameworks among developer teams. In this workflow, only a single branch (trunk) is considered the main one. It holds the project’s deployable code.
+
+A developer can directly push changes to the `main` branch, but if a coding activity requires more extensive time — perhaps a few days — they can check out a branch from `main`, move the changes into it, then merge it back in when development is complete.
+
+Fellow developers must then perform a code review based on company guidelines before merging the checked-out branch with the main branch. The crucial thing about checked-out branches is that they are short-lived, spanning two to three days at most.
+
+In a trunk-based workflow, the main branch should always be production-ready. Faulty code can break the entire build and result in a complicated development history. That means that teams should thoroughly test each code change before pushing them to the main branch. Short development cycles and automated testing enable teams to identify defects and recover from failed builds quickly, reducing the risk.
+
+Using the trunk-based workflow requires that there are experienced developers on the team. Junior or inexperienced members need a sufficient understanding of the workflow before they can contribute to the project.
+
+Read more about trunk-based development workflow here: https://circleci.com/blog/trunk-vs-feature-based-dev
+
+## Submitting features/bug fixes:
+
+- Larger features that will take more than a day (this should be rare!) are branched off of `main`. To create a new feature, create a new branch off of `main` with the name: `feature/name-of-feature`. This naming is important because it helps with organization.
+- To submit a bug fix create a new branch off of develop with the name `bugfix/name-of-bug`
+- When your feature is ready for QA, create a pull request and share a link to the pull request
+
+
+## Code standards
+- All code is subject to review. If it does not meet quality standards, it may not be merged until the issues are addressed;
+
+###  General guidelines: 
+
+  *Function length*: functions should __rarely be greater than 20 lines of code__. Exceptions can be made. Please do not submit a PR unless the code has been refactored in an attempt to meet this standard. 
+
+  *Declarative vs imperative* - When possible aim to write declarative code. https://tylermcginnis.com/imperative-vs-declarative-programming/
+
+  *Use classes or es6 modules* - Consider using classes or es6 modules to contain your code - https://exploringjs.com/es6/ch_modules.html#sec_basics-of-es6-modules
+  
+  *Consider the SOLID principles* - Keeping each of these principles in mind while writing software helps to create high-quality software: https://www.digitalocean.com/community/conceptual-articles/s-o-l-i-d-the-first-five-principles-of-object-oriented-design
+
+  *Make code modular, and resuable* - Code is more modular, portable and easily tested when dependencies are added as arguments. Consider the unix approach: The Unix philosophy emphasizes building simple, compact, clear, modular, and extensible code that can be easily maintained and repurposed by developers other than its creators. The Unix philosophy favors composability as opposed to monolithic design.
+
+  *const vs let vs var* - Always prefer `let` over `var`. Always prefer `const` to `let` when a variable does not need to be reassigned. Avoid variable reassignment. This makes code easier to understand and less prone to bugs.
+
+  *any types* - when writing in typescript avoid using `any` types - aim to create interfaces for the inputs and outputs of your functions. Consider the [interface segratation principle](https://en.wikipedia.org/wiki/Interface_segregation_principle) when defining interfaces. On very rare occassions it is ok to use `any`.
+ 
 
 ## Style guide
 
@@ -30,7 +70,6 @@ source / replica
 ```
 
 
-
 ## Recommended Tools:
 -  `vscode` - because we are using typescript this is very important to download. It makes the development experience much easier. free download available here: https://code.visualstudio.com/
    - recommended plugins:
@@ -43,22 +82,4 @@ source / replica
     - TSLint
 
 
-## Git flow - submitting features/bugs:
-- New features are branched off of `develop`. To create a new feature, create a new branch off of develop with the name: `feature/name-of-feature`
-- To submit a bug fix create a new branch off of develop with the name `bugfix/name-of-bug`
-- When your feature is ready for QA, create a pull request and share a link to the pull request
 
-## Code standards
-- All code is subject to review. If it does not meet quality standards, it may not be merged until the issues are addressed;
-
-###  General guidelines: 
-
-  *Function length*: functions should __rarely be greater than 20 lines of code__. Exceptions can be made. Please do not submit a PR unless the code has been refactored in an attempt to meet this standard. 
-
-  *Declarative vs imperative* - When possible aim to write declarative code. https://tylermcginnis.com/imperative-vs-declarative-programming/
-
-  *Use classes or es6 modules* - Use classes or es6 modules to contain your code - https://exploringjs.com/es6/ch_modules.html#sec_basics-of-es6-modules
-
-  *const vs let vs var* - Always prefer `let` over `var`. Always prefer `const` to `let` when a variable does not need to be reassigned. Avoid variable reassignment. This makes code easier to understand and less prone to bugs.
-
-  *any types* - when writing in typescript avoid using `any` types - always create interfaces for the inputs and outputs of your functions. On very rare occassions it is ok to use `any`.
