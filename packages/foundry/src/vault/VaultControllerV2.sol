@@ -57,8 +57,8 @@ contract VaultsController is Owned, ContractRegistryAccess {
   event VaultDeployed(address indexed vault, address indexed staking, address indexed strategy);
 
   struct DeploymentArgs {
-    /// @Notice templateKey
-    bytes32 key;
+    /// @Notice templateId
+    bytes32 Id;
     /// @Notice encoded init params
     bytes data;
   }
@@ -73,7 +73,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     VaultMetadata memory metadata
   ) external onlyOwner returns (address vault) {
     address adapter;
-    if (adapterData.key.length > 0) adapter = deployStrategyAndAdapter(stratData, adapterData);
+    if (adapterData.Id.length > 0) adapter = deployStrategyAndAdapter(stratData, adapterData);
 
     vault = _deployVault(vaultData, adapter);
 
@@ -104,7 +104,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     onlyOwner
     returns (address adapter)
   {
-    if (strategyId.length == 0 || adapterData.key.length == 0) revert InsufficientData();
+    if (strategyId.length == 0 || adapterData.Id.length == 0) revert InsufficientData();
 
     IVaultsFactory vaultsFactory = _vaultsFactory();
     address strategy = vaultsFactory.deploy(STRATEGY, strategyId, "");
@@ -122,7 +122,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
     // TODO all adapter must use just bytes for init and than decode them inside -- USE BYTES BYTES
     adapter = vaultsFactory.deploy(
       ADAPTER,
-      adapterData.key,
+      adapterData.Id,
       abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), bytes.concat(popERC4626InitData, adapterData.data))
     );
   }
