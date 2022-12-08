@@ -5,7 +5,7 @@ import { Pop } from "../../types";
 export const withLoading =
   (Component: Pop.FC<any>) =>
     ({ ...props }) => {
-      const devMode = useMemo(() => process.env.NODE_ENV !== "development", []);
+      const devMode = useMemo(() => process.env.NODE_ENV === "development", []);
       return (
         <>
           {props.status === "loading" && (
