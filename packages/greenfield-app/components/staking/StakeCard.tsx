@@ -11,8 +11,9 @@ import { StakingType } from "hooks/staking/useAllStakingAddresses";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
-import { Tvl } from "@popcorn/components/pop/Contract";
-
+import { Contract, Staking } from "@popcorn/components/pop/";
+import { useEmissions } from "@popcorn/components/pop/Staking";
+// import { useEmissions } from "@popcorn/components/pop/Staking";
 interface StakeCardProps {
   stakingAddress: string;
   stakingType: StakingType;
@@ -99,15 +100,19 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
             <div className="w-1/2 md:w-1/4 mt-6 md:mt-0">
               <p className="text-primaryLight leading-6">TVL</p>
               <div className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-                <Tvl chainId={chainId} address={staking?.stakingToken?.address} />
+                <Contract.Tvl chainId={chainId} address={staking?.stakingToken?.address} />
               </div>
             </div>
             <div className="w-full md:w-1/2 mt-6 md:mt-0">
               <p className="text-primaryLight leading-6">Token Emissions</p>
-              <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-                {formatAndRoundBigNumber(staking?.tokenEmission, staking?.stakingToken?.decimals)}{" "}
+              <div className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
+                <Staking.Emissions
+                  address={stakingAddress}
+                  chainId={chainId}
+                  isPop={stakingType === StakingType.PopLocker}
+                />
                 <span className=" text-tokenTextGray text-xl"> POP / day</span>
-              </p>
+              </div>
             </div>
           </div>
           <div className="w-full mt-6 smmd:hidden">
