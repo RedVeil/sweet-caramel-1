@@ -2,11 +2,12 @@
 // Docgen-SOLC: 0.8.15
 pragma solidity ^0.8.15;
 
-import { IERC4626 } from "./IERC4626.sol";
+import { IERC4626, IERC20 } from "./IERC4626.sol";
 import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
 import { IOwned } from "../IOwned.sol";
 import { IPermit } from "../IPermit.sol";
 import { IPausable } from "../IPausable.sol";
+import { IKeeperIncentiveV2 } from "../IKeeperIncentiveV2.sol";
 
 // Fees are set in 1e18 for 100% (1 BPS = 1e14)
 // Raise Fees in BPS by 1e14 to get an accurate value
@@ -20,14 +21,14 @@ struct FeeStructure {
 struct VaultParams {
   IERC20 asset;
   IERC4626 adapter;
-  IVault.FeeStructure feeStructure;
+  FeeStructure feeStructure;
   address feeRecipient;
   IKeeperIncentiveV2 keeperIncentive;
   KeeperConfig keeperConfig;
   address owner;
 }
 
-interface IVault is IERC4626, IOwned, IPausable, IPermit {
+interface IVault is IERC4626 {
   // FEE VIEWS
 
   function accruedManagementFee() external view returns (uint256);
@@ -40,9 +41,9 @@ interface IVault is IERC4626, IOwned, IPausable, IPermit {
 
   function feesUpdatedAt() external view returns (uint256);
 
-  function feeStructure() external view returns (FeeStructure);
+  function feeStructure() external view returns (FeeStructure memory);
 
-  function proposedFees() external view returns (FeeStructure);
+  function proposedFees() external view returns (FeeStructure memory);
 
   function proposedFeeTimeStamp() external view returns (uint256);
 
@@ -74,7 +75,7 @@ interface IVault is IERC4626, IOwned, IPausable, IPermit {
 
   // MANAGEMENT FUNCTIONS - FEES
 
-  function proposeNewFees(FeeStructure memory newFees) external;
+  function proposeNewFees(FeeStructure memory) external;
 
   function setFees() external;
 

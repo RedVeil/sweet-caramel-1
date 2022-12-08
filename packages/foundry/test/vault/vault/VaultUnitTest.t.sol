@@ -13,6 +13,8 @@ import { IContractRegistry } from "../../../src/interfaces/IContractRegistry.sol
 
 import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
 import { IERC4626 } from "../../../src/interfaces/vault/IERC4626.sol";
+import { FeeStructure } from "../../../src/interfaces/vault/IVault.sol";
+
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
@@ -38,7 +40,7 @@ contract VaultUnitTest is Test {
 
   event NewStrategyProposed(IERC4626 newStrategy, uint256 timestamp);
   event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
-  event FeesUpdated(Vault.FeeStructure previousFees, Vault.FeeStructure newFees);
+  event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
   event KeeperConfigUpdated(KeeperConfig oldConfig, KeeperConfig newConfig);
   event Paused(address account);
   event Unpaused(address account);
@@ -51,7 +53,7 @@ contract VaultUnitTest is Test {
   ) internal {
     vm.prank(ACL_ADMIN);
     vault.proposeNewFees(
-      Vault.FeeStructure({
+      FeeStructure({
         deposit: depositFee,
         withdrawal: withdrawalFee,
         management: managementFee,
@@ -84,7 +86,7 @@ contract VaultUnitTest is Test {
       ERC20(address(underlying)),
       IERC4626(address(strategy)),
       IContractRegistry(CONTRACT_REGISTRY),
-      Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
       KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1e17, keeperPayout: 9 })
     );
@@ -760,7 +762,7 @@ contract VaultUnitTest is Test {
 
   // Set Fees
   // function testFail_setFeesNonVaultController() public {
-  //   Vault.FeeStructure memory newFeeStructure = Vault.FeeStructure({
+  //   FeeStructure memory newFeeStructure = FeeStructure({
   //     deposit: 1,
   //     withdrawal: 1,
   //     management: 1,
@@ -772,7 +774,7 @@ contract VaultUnitTest is Test {
   // }
 
   // function test_setFees() public {
-  //   Vault.FeeStructure memory newFeeStructure = Vault.FeeStructure({
+  //   FeeStructure memory newFeeStructure = FeeStructure({
   //     deposit: 1,
   //     withdrawal: 1,
   //     management: 1,
@@ -780,7 +782,7 @@ contract VaultUnitTest is Test {
   //   });
 
   //   vm.expectEmit(false, false, false, true, address(vault));
-  //   emit FeesUpdated(Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }), newFeeStructure);
+  //   emit FeesUpdated(FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }), newFeeStructure);
 
   //   vm.prank(ACL_ADMIN);
   //   vault.setFees(newFeeStructure);

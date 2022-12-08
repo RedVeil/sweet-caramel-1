@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { AdapterBase, ERC20, SafeERC20, Math, IContractRegistry, IStrategy } from "../../utils/AdapterBase.sol";
+import { AdapterBase, ERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../../utils/WithRewards.sol";
 
 interface IBeefyVault {
@@ -81,9 +81,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
 
   /**
      @notice Initializes the Vault.
-     @param _beefyVault The Beefy Vault contract.
-     @param _beefyBooster An optional booster contract which rewards additional token for the vault
-     @param _beefyWithdrawalFee beefyStrategy withdrawalFee in 10_000 (BPS)
+     @param adapterInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
     */
   function initialize(bytes memory popERC4626InitData, bytes memory adapterInitData) public initStrategy {
     (IBeefyVault _beefyVault, IBeefyBooster _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
@@ -190,7 +188,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
                       EIP-165 LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function supportsInterface(bytes4 interfaceId) public view override(WithRewards, PopERC4626) returns (bool) {
-    return interfaceId == type(IPopERC4626WithRewards).interfaceId;
+  function supportsInterface(bytes4 interfaceId) public view override(WithRewards, AdapterBase) returns (bool) {
+    return interfaceId == type(IWithRewards).interfaceId || interfaceId == type(IAdapter).interfaceId;
   }
 }

@@ -6,12 +6,11 @@ import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/toke
 import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/MathUpgradeable.sol";
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
 import { ACLAuth } from "../../utils/ACLAuth.sol";
-import { ContractRegistryAccessUpgradeable, IContractRegistry } from "../../utils/ContractRegistryAccessUpgradeable.sol";
 import { IStrategy } from "../../interfaces/vault/IStrategy.sol";
-import { IPopERC4626 } from "../../interfaces/vault/IPopERC4626.sol";
+import { IAdapter } from "../../interfaces/vault/IAdapter.sol";
 import { EIP165 } from "./EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
-import { OwnedUpgradable } from "../../utils/OwnedUpgradable.sol";
+import { OwnedUpgradeable } from "../../utils/OwnedUpgradeable.sol";
 
 /*
  * @title Beefy ERC4626 Contract
@@ -20,7 +19,7 @@ import { OwnedUpgradable } from "../../utils/OwnedUpgradable.sol";
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradable, EIP165, OnlyStrategy {
+contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeable, EIP165, OnlyStrategy {
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -31,28 +30,22 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradable
   error NotFactory();
   error StrategySetupFailed();
 
-  uint256 managementFee = 50;
-  // TODO use deterministic fee recipient proxy
-  address FEE_RECIPIENT = 0x4444;
-
   /**
      @notice Initializes the Vault.
     */
   function __AdapterBase_init(bytes memory popERC4626InitData) public initializer {
     (
       address asset,
-      address owner,
+      address _owner,
       address _strategy,
       uint256 _harvestCooldown,
       bytes4[8] memory _requiredSigs,
       bytes memory _strategyConfig,
 
     ) = abi.decode(popERC4626InitData, (address, address, address, uint256, bytes4[8], bytes));
-    __Ownable_init(owner);
+    __Owned_init(_owner);
     __Pausable_init();
     __ERC4626_init(ERC20(asset));
-
-    managementFee = managementFee_;
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
@@ -293,9 +286,12 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradable
                       FEE LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  uint256 public managementFee;
+  uint256 public managementFee = 50;
   uint256 constant MAX_FEE = 1e18;
   uint256 constant SECONDS_PER_YEAR = 365.25 days;
+
+  // TODO use deterministic fee recipient proxy
+  address FEE_RECIPIENT = 0x4444;
 
   uint256 assetsCheckpoint;
   uint256 feesUpdatedAt;
@@ -352,6 +348,6 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradable
   //////////////////////////////////////////////////////////////*/
 
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-    return interfaceId == type(IPopERC4626).interfaceId;
+    return interfaceId == type(IAdapter).interfaceId;
   }
 }

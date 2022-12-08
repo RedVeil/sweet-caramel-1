@@ -6,13 +6,17 @@ import { Owned } from "../utils/Owned.sol";
 import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
-import { IVault } from "../interfaces/vault/IVault.sol";
+import { IVault, VaultParams, FeeStructure } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
 import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
 import { IDeploymentController } from "../interfaces/vault/IDeploymentController.sol";
+import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
 import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
+import { IVaultsRegistry, VaultMetadata } from "../interfaces/vault/IVaultsRegistry.sol";
 import { IAdminProxy } from "../interfaces/vault/IAdminProxy.sol";
 import { IERC4626 } from "../interfaces/vault/IERC4626.sol";
+import { IStrategy } from "../interfaces/vault/IStrategy.sol";
+import { IAdapter } from "../interfaces/vault/IAdapter.sol";
 
 contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
@@ -43,6 +47,8 @@ contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
                           DEPLOYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
+  error MisConfig();
+  error AssetNotEndorsed(IERC20 asset);
 
   event VaultDeployed(address indexed vault, address indexed staking, address indexed adapter);
 
@@ -58,9 +64,10 @@ contract VaultsController is Owned {
     DeploymentArgs memory adapterData,
     bytes memory rewardsData,
     VaultParams memory vaultData,
-    VaultMetadata memory metadata
+    VaultMetadata memory metadata,
+    bytes memory addKeeperData
   ) external onlyOwner returns (address vault) {
-    IER20 asset = vaultData.asset;
+    IERC20 asset = vaultData.asset;
     IDeploymentController _deploymentController = deploymentController;
     if (!endorsementRegistry.endorsed(address(asset))) revert AssetNotEndorsed(asset);
     if (vaultData.adapter != address(0)) {
@@ -83,7 +90,7 @@ contract VaultsController is Owned {
       addRewardsToken(stakingContracts, rewardsDatas);
     }
 
-    _handleKeeperSetup(vault, keeperConfig, addKeeperData);
+    _handleKeeperSetup(vault, vaultData.keeperConfig, addKeeperData);
 
     _registerVault(vault, staking, metadata);
 
@@ -150,7 +157,7 @@ contract VaultsController is Owned {
       abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), bytes.concat(adapterBaseData, adapterData.data))
     );
 
-    IAdapterBase(adapter).setManagementFee(managementFee);
+    IAdapter(adapter).setManagementFee(managementFee);
   }
 
   function deployStaking(IERC20 asset) public onlyOwner returns (address) {
@@ -168,11 +175,6 @@ contract VaultsController is Owned {
 
   /**
    * @notice sets keeperConfig and creates incentive for new vault deployment
-   * @param _vault - address of the newly deployed vault
-   * @param _keeperConfig - the keeperConfig struct from the VaultParams used in vault deployment
-   * @param _keeperEnabled - bool if the incentive is enabled
-   * @param _keeperOpenToEveryone - bool if the incentive is open to all
-   * @param _keeperCooldown - time period that must pass before calling keeper enabled functions
    * @dev avoids stack too deep in deployVaultFromFactory
    */
   function _handleKeeperSetup(
@@ -214,54 +216,57 @@ contract VaultsController is Owned {
 
   /**
    * @notice Propose a new Strategy.
-   * @param _vaults - addresses of the vaults
-   * @param _newStrategies - new strategies to be proposed for the vault
+   * @param vaults - addresses of the vaults
+   * @param newAdapter - new strategies to be proposed for the vault
    * @dev index of _vaults array and _newStrategies array must coincide
    */
-  function proposeNewVaultStrategy(address[] memory _vaults, IERC4626[] memory _newStrategies) external {
+  function proposeNewVaultAdapter(address[] memory vaults, IERC4626[] memory newAdapter) external {
     IDeploymentController _deploymentController = deploymentController;
-
-    for (uint256 i = 0; i < _vaults.length; i++) {
-      _verifySubmitter(_vaults[i]);
-      _deploymentController.cloneExists(address(_newStrategies[i]));
-      IVault(_vaults[i]).proposeNewStrategy(_newStrategies[i]);
+    uint8 len = vaults.length;
+    for (uint8 i = 0; i < len; i++) {
+      _verifySubmitter(vaults[i]);
+      _deploymentController.cloneExists(address(newAdapter[i]));
+      IVault(vaults[i]).proposeNewStrategy(newAdapter[i]);
     }
   }
 
   /**
    * @notice Change adapter of a vault to the previously proposed adapter.
-   * @param _vaults - addresses of the vaults
+   * @param vaults - addresses of the vaults
    */
-  function changeVaultStrategy(address[] memory _vaults) external {
-    for (uint256 i = 0; i < _vaults.length; i++) {
-      IVault(_vaults[i]).changeStrategy();
+  function changeVaultStrategy(address[] memory vaults) external {
+    uint8 len = vaults.length;
+    for (uint8 i = 0; i < len; i++) {
+      IVault(vaults[i]).changeStrategy();
     }
   }
 
   /**
    * @notice Sets different fees per vault
-   * @param _vaults - addresses of the vaults to change
-   * @param _newFees - new fee structures for these vaults
+   * @param vaults - addresses of the vaults to change
+   * @param newFees - new fee structures for these vaults
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    * @dev index of _vaults array and _newFees must coincide
    */
-  function setVaultFees(address[] memory _vaults, IVault.FeeStructure[] memory _newFees) external {
-    for (uint8 i; i < _vaults.length; i++) {
-      _verifySubmitter(_vaults[i]);
-      IVault(_vaults[i]).setFees(_newFees[i]);
+  function setVaultFees(address[] memory vaults, FeeStructure[] memory newFees) external {
+    uint8 len = vaults.length;
+    for (uint8 i = 0; i < len; i++) {
+      _verifySubmitter(vaults[i]);
+      IVault(vaults[i]).setFees(newFees[i]);
     }
   }
 
   /**
    * @notice Sets keeperConfig for a vault
-   * @param _vaults - addresses of the newly deployed vaults
-   * @param _keeperConfigs - the keeperConfig structs from the VaultParams used in vault deployment
+   * @param vaults - addresses of the newly deployed vaults
+   * @param keeperConfigs - the keeperConfig structs from the VaultParams used in vault deployment
    * @dev index of _vaults array and _keeperConfigs must coincide
    */
-  function setVaultKeeperConfig(address[] memory _vaults, KeeperConfig[] memory _keeperConfigs) external {
-    for (uint256 i = 0; i < _vaults.length; i++) {
-      _verifySubmitter(_vaults[i]);
-      IVault(_vaults[i]).setKeeperConfig(_keeperConfigs[i]);
+  function setVaultKeeperConfig(address[] memory vaults, KeeperConfig[] memory keeperConfigs) external {
+    uint8 len = vaults.length;
+    for (uint8 i = 0; i < len; i++) {
+      _verifySubmitter(vaults[i]);
+      IVault(vaults[i]).setKeeperConfig(keeperConfigs[i]);
     }
   }
 
@@ -287,14 +292,14 @@ contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
                           STAKING MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
+  error TokenBad(IERC20 token);
 
   function _verifyToken(address token) internal {
-    if (!endorsementRegistry.endorsed(token) || !deploymentController.cloneExists(address(_newStrategies[i])))
-      revert TokenBad(token);
+    if (!endorsementRegistry.endorsed(token) || !deploymentController.cloneExists(token)) revert TokenBad(token);
   }
 
-  function addRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) external {
-    VaultsMetadata memory metadata;
+  function addRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) public {
+    VaultMetadata memory metadata;
     uint8 len = vaults.length;
     for (uint256 i = 0; i < len; i++) {
       (
@@ -321,7 +326,7 @@ contract VaultsController is Owned {
   }
 
   function changeRewardsSpeed(address[] memory vaults, bytes[] memory rewardsTokenData) external {
-    VaultsMetadata memory metadata;
+    VaultMetadata memory metadata;
     uint8 len = vaults.length;
     for (uint256 i = 0; i < len; i++) {
       metadata = _verifySubmitter(vaults[i]);
@@ -331,7 +336,7 @@ contract VaultsController is Owned {
   }
 
   function fundReward(address[] memory vaults, bytes[] memory rewardsTokenData) external {
-    VaultsMetadata memory metadata;
+    VaultMetadata memory metadata;
     uint8 len = vaults.length;
     for (uint256 i = 0; i < len; i++) {
       metadata = vaultsRegistry.getVault(vaults[i]);
@@ -416,16 +421,14 @@ contract VaultsController is Owned {
                           OWNERSHIP LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  // TODO do we also need a function to transfer ownership of this contract?
-
   IAdminProxy public adminProxy;
 
   /**
    * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
    * @dev newOwner address must call acceptOwnership on registry and factory
    */
-  function transferOwnership(address newOwner) external onlyOwner {
-    adminProxy.transferOwnership(newOwner);
+  function nominateNewAdminProxyOwner(address newOwner) external onlyOwner {
+    adminProxy.nominateNewOwner(newOwner);
   }
 
   /**
@@ -433,7 +436,7 @@ contract VaultsController is Owned {
    * @dev registry and factory must nominate controller as new owner first
    * acceptance function should be called when deploying controller contract
    */
-  function acceptOwnership() external onlyOwner {
+  function acceptAdminProxyOwnership() external onlyOwner {
     adminProxy.acceptOwnership();
   }
 
@@ -444,7 +447,7 @@ contract VaultsController is Owned {
   IDeploymentController public deploymentController;
   IEndorsementRegistry public endorsementRegistry;
   IVaultsRegistry public vaultsRegistry;
-  IKeeperIncentive public keeperIncentive;
+  IKeeperIncentiveV2 public keeperIncentive;
 
   //TODO which of these might we want to update?
 

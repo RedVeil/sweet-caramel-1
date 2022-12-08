@@ -16,7 +16,7 @@ struct VaultMetadata {
 }
 
 interface IVaultsRegistry is IOwned {
-  function vaults(address vault) external view returns (VaultMetadata);
+  function vaults(address vault) external view returns (VaultMetadata memory);
 
   function getSubmitter(address vault) external view returns (address);
 

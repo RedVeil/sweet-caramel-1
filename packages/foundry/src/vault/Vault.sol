@@ -2,26 +2,27 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.15;
 
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
-import { KeeperIncentivized } from "../utils/KeeperIncentivized.sol";
+import { KeeperIncentivized, KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { FeeStructure } from "../interfaces/vault/IVault.sol";
 import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
-import { OwnedUpgradable } from "../utils/OwnedUpgradable.sol";
+import { OwnedUpgradeable } from "../utils/OwnedUpgradeable.sol";
+import { ERC20Upgradeable } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
 contract Vault is
   ERC20Upgradeable,
   ReentrancyGuardUpgradeable,
   PausableUpgradeable,
-  OwnedUpgradable,
-  KeeperIncentivized,
-  ContractRegistryAccessUpgradeable
+  OwnedUpgradeable,
+  KeeperIncentivized
 {
   using SafeERC20 for IERC20;
+  // TODO use oz math
   using FixedPointMathLib for uint256;
 
   /*//////////////////////////////////////////////////////////////
@@ -58,25 +59,25 @@ contract Vault is
 
     asset.approve(address(adapter_), type(uint256).max);
 
-    _decimals = asset_.decimals();
+    _decimals = IERC20Metadata(address(asset_)).decimals();
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10**(asset_.decimals());
+    ONE = 10**decimals();
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
 
-    keeperIncentive = keeperIncentive_;
+    keeperIncentiveV2 = keeperIncentive_;
     keeperConfig = keeperConfig_;
     quitPeriod = 3 days;
 
     if (feeRecipient_ == address(0)) revert InvalidFeeRecipient();
     feeRecipient = feeRecipient_;
 
-    contractName = keccak256(abi.encodePacked("Popcorn", asset_.name(), block.timestamp, "Vault"));
+    contractName = keccak256(abi.encodePacked("Popcorn", name(), block.timestamp, "Vault"));
 
     emit VaultInitialized(contractName, address(asset));
   }
@@ -472,11 +473,11 @@ contract Vault is
 
     _mint(feeRecipient, accruedFees);
 
-    IKeeperIncentiveV2 keeperIncentive = keeperIncentive;
+    IKeeperIncentiveV2 _keeperIncentive = keeperIncentiveV2;
 
-    _approve(address(this), address(keeperIncentive), tipAmount);
+    _approve(address(this), address(_keeperIncentive), tipAmount);
 
-    keeperIncentive.tip(address(this), msg.sender, 0, tipAmount);
+    _keeperIncentive.tip(address(this), msg.sender, 0, tipAmount);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -611,7 +612,7 @@ contract Vault is
                           KEEPER LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IKeeperIncentive public keeperIncentive;
+  IKeeperIncentiveV2 public keeperIncentiveV2;
   KeeperConfig public keeperConfig;
 
   error InvalidVig();

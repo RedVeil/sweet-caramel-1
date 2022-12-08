@@ -16,6 +16,6 @@ contract WithRewards is EIP165, OnlyStrategy {
   //////////////////////////////////////////////////////////////*/
 
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-    return interfaceId == type(IWithRewards).interfaceId || interfaceId == type(IAdapter).interfaceId
+    return interfaceId == type(IWithRewards).interfaceId || interfaceId == type(IAdapter).interfaceId;
   }
 }

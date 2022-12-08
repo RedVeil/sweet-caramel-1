@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.10;
 
-import { SafeERC20 } from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import { ERC4626Upgradeable, ERC20Upgradeable, IERC20Upgradeable as IER20, IERC20Metadata as IERC20Metadata } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
+import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import { ERC4626Upgradeable, ERC20Upgradeable, IERC20Upgradeable as IERC20, IERC20MetadataUpgradeable as IERC20Metadata } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
 import { OwnedUpgradeable } from "./OwnedUpgradeable.sol";
@@ -302,7 +302,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
 
     _accrueRewards(rewardsToken, _accrueStatic(rewards));
 
-    uint256 remainder = rewards.balanceOnf(address(this));
+    uint256 remainder = rewardsToken.balanceOf(address(this));
 
     uint256 prevEndTime = rewards.rewardsEndTimestamp;
     uint256 rewardsEndTimestamp = _calcRewardsEnd(
@@ -337,13 +337,11 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
 
     // Update the index of rewardsInfo before updating the rewardsInfo
     _accrueRewards(rewardsToken, accrued);
-
-    if (rewards.rewardsPerSecond > 0)
-      rewardsInfos[rewardsToken].rewardsEndTimestamp = _calcRewardsEnd(
-        rewards.rewardsEndTimestamp,
-        rewards.rewardsPerSecond,
-        amount
-      );
+    uint256 rewardsEndTimestamp;
+    if (rewards.rewardsPerSecond > 0) {
+      rewardsEndTimestamp = _calcRewardsEnd(rewards.rewardsEndTimestamp, rewards.rewardsPerSecond, amount);
+      rewardsInfos[rewardsToken].rewardsEndTimestamp = rewardsEndTimestamp;
+    }
 
     rewardsInfos[rewardsToken].lastUpdatedTimestamp = block.timestamp.safeCastTo32();
 
@@ -373,7 +371,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     IERC20[] memory _rewardsTokens = rewardsTokens;
     for (uint8 i; i < _rewardsTokens.length; i++) {
       IERC20 rewardToken = _rewardsTokens[i];
-      RewardsInfo memory rewards = rewardsInfos[_rewardsToken];
+      RewardsInfo memory rewards = rewardsInfos[rewardToken];
 
       if (rewards.rewardsPerSecond > 0) _accrueRewards(rewardToken, _accrueStatic(rewards));
       _accrueUser(_receiver, rewardToken);
@@ -385,7 +383,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     _;
   }
 
-  function _accrueStatic(rewardsInfo memory rewards) internal returns (uint256 accrued) {
+  function _accrueStatic(RewardsInfo memory rewards) internal returns (uint256 accrued) {
     uint256 elapsed;
     if (rewards.rewardsEndTimestamp > block.timestamp) {
       elapsed = block.timestamp - rewards.lastUpdatedTimestamp;

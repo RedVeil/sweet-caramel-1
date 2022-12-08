@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Test } from "forge-std/Test.sol";
 import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
-import "../../../src/vault/Vault.sol";
-import "../../../src/vault/adapter/yearn/YearnWrapper.sol";
-import "../../../src/interfaces/IContractRegistry.sol";
-import "../../../src/interfaces/IACLRegistry.sol";
-import "../../../src/interfaces/vault/IYearnVaultWrapper.sol";
-import "../../../src/interfaces/vault/IERC4626.sol";
+import { Vault } from "../../../src/vault/Vault.sol";
+import { YearnWrapper, VaultAPI } from "../../../src/vault/adapter/yearn/YearnWrapper.sol";
+import { IContractRegistry } from "../../../src/interfaces/IContractRegistry.sol";
+import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
+import { IAdapter } from "../../../src/interfaces/vault/IAdapter.sol";
+import { IERC4626, IERC20 } from "../../../src/interfaces/vault/IERC4626.sol";
 
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant YEARN_REGISTRY = 0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804;

@@ -61,7 +61,7 @@ contract DeploymentController is Owned {
                           DEPLOY LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  error NotEndorsed(bytes32 templateKey);
+  error NotEndorsed(bytes32 templateId);
 
   function deploy(
     bytes32 templateType,
@@ -70,9 +70,9 @@ contract DeploymentController is Owned {
   ) external onlyOwner returns (address clone) {
     Template memory template = templateRegistry.templates(templateType, templateId);
 
-    if (endorsementRegistry.endorsed(template.implementation)) revert NotEndorsed(templateKey);
+    if (endorsementRegistry.endorsed(template.implementation)) revert NotEndorsed(templateId);
 
-    clone = cloneFactory.deploy(templateType, templateKey, data);
+    clone = cloneFactory.deploy(templateType, templateId, data);
 
     cloneRegistry.addClone(clone);
   }

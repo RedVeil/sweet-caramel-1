@@ -3,14 +3,14 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 
-import { PopERC4626 } from "../../../src/vault/utils/PopERC4626.sol";
+import { IAdapter } from "../../../src/interfaces/vault/IAdapter.sol";
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 abstract contract AbstractERC4626Test is Test {
   using FixedPointMathLib for uint256;
 
-  PopERC4626 adapter;
+  IAdapter adapter;
   ERC20 underlyingToken;
 
   string testPreFix;

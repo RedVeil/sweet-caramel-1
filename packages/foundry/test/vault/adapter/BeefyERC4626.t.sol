@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyERC4626, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster, IContractRegistry } from "../../../src/vault/adapter/beefy/BeefyERC4626.sol";
+import { BeefyERC4626, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster } from "../../../src/vault/adapter/beefy/BeefyERC4626.sol";
 import { RewardsClaimer } from "../../../src/vault/strategy/RewardsClaimer.sol";
 import { IStrategy } from "../../../src/interfaces/vault/IStrategy.sol";
 import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
@@ -34,13 +34,6 @@ contract BeefyERC4626Test is Test {
     uint256 forkId = vm.createSelectFork("https://polygon-mainnet.g.alchemy.com/v2/KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg");
     vm.selectFork(forkId);
 
-    vm.startPrank(ACL_ADMIN);
-    IContractRegistry(CONTRACT_REGISTRY).addContract(keccak256("FeeRecipient"), feeRecipient, keccak256("1"));
-    IContractRegistry(CONTRACT_REGISTRY).addContract(keccak256("VaultsFactory"), factory, keccak256("1"));
-
-    IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), address(admin));
-    vm.stopPrank();
-
     rewardsToken.push(rewardToken);
 
     erc4626 = new BeefyERC4626();
@@ -49,15 +42,15 @@ contract BeefyERC4626Test is Test {
 
     bytes memory popERC4626InitData = abi.encode(
       asset,
-      IContractRegistry(CONTRACT_REGISTRY),
-      50,
+      address(this),
       IStrategy(address(rewardsClaimer)),
-      abi.encode(feeRecipient),
-      0
+      0,
+      new bytes4[](8),
+      abi.encode(feeRecipient)
     );
 
     vm.prank(factory);
-    erc4626.initialize(popERC4626InitData, beefyVault, beefyBooster, 0);
+    erc4626.initialize(popERC4626InitData, abi.encode(beefyVault, beefyBooster, 0));
 
     deal(address(asset), address(this), 1000 ether);
   }

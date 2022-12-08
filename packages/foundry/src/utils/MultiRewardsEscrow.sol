@@ -20,7 +20,7 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
     IKeeperIncentiveV2 _keeperIncentive,
     address _feeRecipient
   ) Owned(_owner) {
-    keeperIncentive = _keeperIncentive;
+    keeperIncentiveV2 = _keeperIncentive;
     feeRecipient = _feeRecipient;
   }
 
@@ -197,7 +197,7 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
                             FEE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IKeeperIncentiveV2 public keeperIncentive;
+  IKeeperIncentiveV2 public keeperIncentiveV2;
   address public feeRecipient;
 
   // escrowToken => feeAmount
@@ -248,7 +248,7 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
    * @param tokens that have accrued fees
    */
   function claimFees(IERC20[] memory tokens) external keeperIncentive(0) {
-    IKeeperIncentiveV2 _keeperIncentive = keeperIncentive;
+    IKeeperIncentiveV2 _keeperIncentive = keeperIncentiveV2;
     uint256 incentiveVig = keeperPerc;
 
     for (uint256 i = 0; i < tokens.length; i++) {

@@ -10,7 +10,7 @@ contract StrategyBase {
     uint8 len = sigs.length;
     for (uint8 i; i < len; i++) {
       if (sigs[i].length == 0) return;
-      if (!IWithRewards(address(this)).supportsInterface(sigs[i])) revert FunctionNotImplemented(sig);
+      if (!IWithRewards(address(this)).supportsInterface(sigs[i])) revert FunctionNotImplemented(sigs[i]);
     }
   }
 
