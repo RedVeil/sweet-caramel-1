@@ -3,27 +3,22 @@ pragma solidity ^0.8.15;
 
 import { ERC4626Upgradeable as ERC4626, ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { IUniswapRouterV2 } from "../../interfaces/external/uni/IUniswapRouterV2.sol";
-import { IPopERC4626WithRewards } from "../../interfaces/vault/IPopERC4626WithRewards.sol";
+import { IAdapter } from "../../interfaces/vault/IAdapter.sol";
+import { IWithRewards } from "../../interfaces/vault/IWithRewards.sol";
 import { StrategyBase } from "./StrategyBase.sol";
 
 contract Pool2SingleAssetCompounder is StrategyBase {
   error NoValidTradePath();
 
-  function _verifyAdapterCompatibility(bytes memory data) internal override {
+  function verifyAdapterCompatibility(bytes memory data) public override {
     address router = abi.decode(data, (address));
-    address asset = IPopERC4626WithRewards(address(this)).asset();
-
-    // Verify needed functions exist
-    bytes4 sig = bytes4(keccak256("claim()"));
-    if (!IPopERC4626WithRewards(address(this)).supportsInterface(sig)) revert FunctionNotImplemented(sig);
-    sig = bytes4(keccak256("rewardTokens()"));
-    if (!IPopERC4626WithRewards(address(this)).supportsInterface(sig)) revert FunctionNotImplemented(sig);
+    address asset = IAdapter(address(this)).asset();
 
     // Verify Trade Path exists
     address[] memory tradePath = new address[](2);
     tradePath[1] = asset;
 
-    address[] memory rewardTokens = IPopERC4626WithRewards(address(this)).rewardTokens();
+    address[] memory rewardTokens = IWithRewards(address(this)).rewardTokens();
     uint256 len = rewardTokens.length;
     for (uint256 i = 0; i < len; i++) {
       tradePath[0] = rewardTokens[i];
@@ -33,11 +28,11 @@ contract Pool2SingleAssetCompounder is StrategyBase {
     }
   }
 
-  function _setUpStrategy(bytes memory data) internal override {
+  function setUp(bytes memory data) public override {
     address router = abi.decode(data, (address));
 
     // Approve all rewardsToken for trading
-    address[] memory rewardTokens = IPopERC4626WithRewards(address(this)).rewardTokens();
+    address[] memory rewardTokens = IWithRewards(address(this)).rewardTokens();
     uint256 len = rewardTokens.length;
     for (uint256 i = 0; i < len; i++) {
       ERC20(rewardTokens[i]).approve(router, type(uint256).max);
@@ -46,11 +41,11 @@ contract Pool2SingleAssetCompounder is StrategyBase {
 
   /// @notice claim all token rewards and trade them for the underlying asset
   function harvest() public override {
-    address router = abi.decode(IPopERC4626WithRewards(address(this)).strategyConfig(), (address));
-    address asset = IPopERC4626WithRewards(address(this)).asset();
-    address[] memory rewardTokens = IPopERC4626WithRewards(address(this)).rewardTokens();
+    address router = abi.decode(IAdapter(address(this)).strategyConfig(), (address));
+    address asset = IAdapter(address(this)).asset();
+    address[] memory rewardTokens = IWithRewards(address(this)).rewardTokens();
 
-    IPopERC4626WithRewards(address(this)).claim(); // hook to accrue/pull in rewards, if needed
+    IWithRewards(address(this)).claim(); // hook to accrue/pull in rewards, if needed
 
     address[] memory tradePath = new address[](2);
     tradePath[1] = asset;
@@ -66,6 +61,6 @@ contract Pool2SingleAssetCompounder is StrategyBase {
         IUniswapRouterV2(router).swapExactTokensForTokens(amount, 0, tradePath, address(this), block.timestamp);
       }
     }
-    IPopERC4626WithRewards(address(this)).strategyDeposit(ERC20(asset).balanceOf(address(this)), 0);
+    IAdapter(address(this)).strategyDeposit(ERC20(asset).balanceOf(address(this)), 0);
   }
 }

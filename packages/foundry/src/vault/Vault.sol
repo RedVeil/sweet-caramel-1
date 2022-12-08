@@ -15,12 +15,13 @@ import { FeeStructure } from "../interfaces/vault/IVault.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
+import {OwnedUpgradable} from "../utils/OwnedUpgradable.sol";
 
 contract Vault is
   ERC20Upgradeable,
   ReentrancyGuardUpgradeable,
   PausableUpgradeable,
-  ACLAuth,
+  OwnedUpgradable,
   KeeperIncentivized,
   ContractRegistryAccessUpgradeable
 {
@@ -47,9 +48,11 @@ contract Vault is
     IContractRegistry contractRegistry_,
     FeeStructure memory feeStructure_,
     address feeRecipient_,
-    KeeperConfig memory keeperConfig_
+    KeeperConfig memory keeperConfig_,
+    address owner
   ) external initializer {
     __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
+    __Owned_init(owner);
     __ContractRegistryAccess_init(contractRegistry_);
 
     asset = asset_;
@@ -501,7 +504,7 @@ contract Vault is
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function proposeNewFees(FeeStructure memory newFees) external onlyRole(VAULTS_CONTROLLER) {
+  function proposeNewFees(FeeStructure memory newFees) external onlyOwner {
     if (
       newFees.deposit >= 1e18 || newFees.withdrawal >= 1e18 || newFees.management >= 1e18 || newFees.performance >= 1e18
     ) revert InvalidFeeStructure();
@@ -525,7 +528,7 @@ contract Vault is
   /**
    * @notice Change feeRecipient. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function setFeeRecipient(address _feeRecipient) external onlyRole(VAULTS_CONTROLLER) {
+  function setFeeRecipient(address _feeRecipient) external onlyOwner {
     if (_feeRecipient == address(0)) revert InvalidFeeRecipient();
 
     emit FeeRecipientUpdated(feeRecipient, _feeRecipient);
@@ -546,13 +549,12 @@ contract Vault is
 
   error VaultAssetMismatchNewStrategyAsset();
 
-  // TODO make sure that new strategy is a registered adapter. Add strategys and adapter to registry? -- ADD CLONE REGISTRY WITH CLONE EXISTS AND CLONE ARRAY FOR FRONTEND
-  /**
+s  /**
    * @notice Propose a new strategy for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
    * @param newStrategy A new ERC4626 that should be used as a yield strategy for this asset.
    * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
    */
-  function proposeNewStrategy(IERC4626 newStrategy) external onlyRole(VAULTS_CONTROLLER) {
+  function proposeNewStrategy(IERC4626 newStrategy) external onlyOwner {
     if (newStrategy.asset() != address(asset)) revert VaultAssetMismatchNewStrategyAsset();
 
     proposedStrategy = newStrategy;
@@ -598,7 +600,7 @@ contract Vault is
    * @param _quitPeriod time to rage quit after proposal, if not set defaults to 3 days
    * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
    */
-  function setQuitPeriod(uint256 _quitPeriod) external onlyRole(VAULTS_CONTROLLER) {
+  function setQuitPeriod(uint256 _quitPeriod) external onlyOwner {
     if (_quitPeriod < 1 days || _quitPeriod > 7 days) revert InvalidQuitPeriod();
 
     quitPeriod = _quitPeriod;
@@ -618,7 +620,7 @@ contract Vault is
   /**
    * @notice Change keeper config. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function setKeeperConfig(KeeperConfig memory _config) external onlyRole(VAULTS_CONTROLLER) {
+  function setKeeperConfig(KeeperConfig memory _config) external onlyOwner {
     if (_config.incentiveVigBps > 1e18) revert InvalidVig();
     if (_config.minWithdrawalAmount < 0) revert InvalidMinWithdrawal();
 
@@ -634,14 +636,14 @@ contract Vault is
   /**
    * @notice Pause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function pause() external onlyRole(VAULTS_CONTROLLER) {
+  function pause() external onlyOwner {
     _pause();
   }
 
   /**
    * @notice Unpause deposits. Caller must have VAULTS_CONTROLLER from ACLRegistry.
    */
-  function unpause() external onlyRole(VAULTS_CONTROLLER) {
+  function unpause() external onlyOwner {
     _unpause();
   }
 

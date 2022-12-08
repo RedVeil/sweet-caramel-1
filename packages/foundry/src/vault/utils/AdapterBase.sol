@@ -11,6 +11,7 @@ import { IStrategy } from "../../interfaces/vault/IStrategy.sol";
 import { IPopERC4626 } from "../../interfaces/vault/IPopERC4626.sol";
 import { EIP165 } from "./EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
+import { OwnedUpgradable } from "../../utils/OwnedUpgradable.sol";
 
 /*
  * @title Beefy ERC4626 Contract
@@ -19,14 +20,7 @@ import { OnlyStrategy } from "./OnlyStrategy.sol";
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract AdapterBase is
-  ERC4626Upgradeable,
-  PausableUpgradeable,
-  ACLAuth,
-  ContractRegistryAccessUpgradeable,
-  EIP165,
-  OnlyStrategy
-{
+contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradable, EIP165, OnlyStrategy {
   using SafeERC20 for ERC20;
   using Math for uint256;
 
@@ -48,18 +42,15 @@ contract AdapterBase is
   function __AdapterBase_init(bytes memory popERC4626InitData) public initializer {
     (
       address asset,
-      address contractRegistry_,
-      uint256 managementFee_,
       address _strategy,
+      uint256 _harvestCooldown,
+      bytes4[8] memory _requiredSigs,
       bytes memory _strategyConfig,
-      uint256 _harvestTimeout
-    ) = abi.decode(popERC4626InitData, (address, address, uint256, address, bytes, uint256));
 
+    ) = abi.decode(popERC4626InitData, (address, address, uint256, bytes4[8], bytes));
+    __Ownable_init(msg.sender);
     __Pausable_init();
     __ERC4626_init(ERC20(asset));
-    __ContractRegistryAccess_init(IContractRegistry(contractRegistry_));
-
-    if (msg.sender != _getContract(keccak256("VaultsFactory"))) revert NotFactory();
 
     managementFee = managementFee_;
 
@@ -68,10 +59,10 @@ contract AdapterBase is
 
     strategy = IStrategy(_strategy);
     strategyConfig = _strategyConfig;
-    harvestTimeout = _harvestTimeout;
+    harvestCooldown = _harvestCooldown;
 
-    (bool success, ) = address(strategy).delegatecall(abi.encodeWithSignature("verifyAndSetupStrategy()"));
-    if (!success) revert StrategySetupFailed();
+    _verifyAndSetupStrategy(_requiredSigs);
+    //if (!success) revert StrategySetupFailed();
 
     feesUpdatedAt = block.timestamp;
   }
@@ -268,16 +259,15 @@ contract AdapterBase is
 
   IStrategy public strategy;
   bytes public strategyConfig;
-  uint256 public harvestTimeout;
+  uint256 public harvestCooldown;
 
   error HarvestTimeout();
 
   event Harvested();
 
-  // TODO rename timeout to cooldown
   function harvest() public takeFees {
     if (address(strategy) != address(0)) {
-      if ((feesUpdatedAt + harvestTimeout) >= block.timestamp) revert HarvestTimeout();
+      if ((feesUpdatedAt + harvestCooldown) >= block.timestamp) revert HarvestTimeout();
 
       address(strategy).delegatecall(abi.encodeWithSignature("harvest()"));
     }
@@ -291,6 +281,12 @@ contract AdapterBase is
 
   function strategyWithdraw(uint256 amount, uint256 shares) public onlyStrategy {
     _protocolWithdraw(amount, shares);
+  }
+
+  function _verifyAndSetupStrategy(bytes4[8] memory requiredSigs) internal {
+    strategy.verifyAdapterSelectorCompatibility(requiredSigs);
+    strategy.verifyAdapterCompatibility(strategyConfig);
+    strategy.setUp(strategyConfig);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -314,7 +310,7 @@ contract AdapterBase is
     return (managementFee.mulDiv(area, 2, Math.Rounding.Down) / SECONDS_PER_YEAR) / MAX_FEE;
   }
 
-  function setManagementFee(uint256 newFee) public onlyRole(VAULTS_CONTROLLER) {
+  function setManagementFee(uint256 newFee) public onlyOwner {
     // Dont take more than 10% managementFee
     if (newFee >= 1e17) revert InvalidManagementFee(newFee);
 
@@ -331,7 +327,7 @@ contract AdapterBase is
     // TODO should we also use a proxy here that just fowards to the actual feeRecipient?
     if (managementFee > 0) {
       feesUpdatedAt = block.timestamp;
-      _mint(_getContract(FEE_RECIPIENT), convertToShares(managementFee));
+      _mint(FEE_RECIPIENT, convertToShares(managementFee));
     }
 
     assetsCheckpoint = totalAssets();
@@ -341,12 +337,12 @@ contract AdapterBase is
                       PAUSING LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function pause() external onlyRole(VAULTS_CONTROLLER) {
+  function pause() external onlyOwner {
     _protocolWithdraw(totalAssets(), totalSupply());
     _pause();
   }
 
-  function unpause() external onlyRole(VAULTS_CONTROLLER) {
+  function unpause() external onlyOwner {
     _unpause();
     _protocolDeposit(totalAssets(), totalSupply());
   }
@@ -357,24 +353,5 @@ contract AdapterBase is
 
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return interfaceId == type(IPopERC4626).interfaceId;
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                      CONTRACT REGISTRY LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  bytes32 constant VAULTS_CONTROLLER = keccak256("VaultsController");
-  bytes32 constant FEE_RECIPIENT = keccak256("FeeRecipient");
-
-  /**
-   * @notice Override for ACLAuth and ContractRegistryAccess.
-   */
-  function _getContract(bytes32 _name)
-    internal
-    view
-    override(ACLAuth, ContractRegistryAccessUpgradeable)
-    returns (address)
-  {
-    return super._getContract(_name);
   }
 }

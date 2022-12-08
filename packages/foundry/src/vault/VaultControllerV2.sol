@@ -185,7 +185,7 @@ contract VaultsController is Owned, ContractRegistryAccess {
   /*//////////////////////////////////////////////////////////////
                           VAULT MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
-
+  // TODO make sure that new strategy is a registered adapter. Add strategys and adapter to registry? -- ADD CLONE REGISTRY WITH CLONE EXISTS AND CLONE ARRAY FOR FRONTEND
   /**
    * @notice Propose a new Strategy.
    * @param _vaults - addresses of the vaults

@@ -6,5 +6,9 @@ pragma solidity ^0.8.15;
 interface IStrategy {
   function harvest() external;
 
-  function verifyAndSetupStrategy() external;
+  function verifyAdapterSelectorCompatibility(bytes4[8] memory sigs) external;
+
+  function verifyAdapterCompatibility(bytes memory data) external;
+
+  function setUp(bytes memory data) external;
 }
