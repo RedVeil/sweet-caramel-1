@@ -241,6 +241,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
   error RewardTokenCantBeStakingToken();
   error ZeroAmount();
   error NotSubmitter(address submitter);
+  error RewardsAreDynamic(IERC20 rewardsToken);
 
   /**
      @notice Adds or updates rewards of a particular staked vault.
@@ -281,7 +282,9 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     if (useEscrow) rewardsToken.safeApprove(_getContract(VAULT_REWARDS_ESCROW_ID), type(uint256).max);
 
     uint64 ONE = (10**IERC20Metadata(address(rewardsToken)).decimals()).safeCastTo64();
-    uint32 rewardsEndTimestamp = _calcRewardsEnd(0, rewardsPerSecond, amount);
+    uint32 rewardsEndTimestamp = rewardsPerSecond == 0
+      ? block.timestamp.safeCastTo32()
+      : _calcRewardsEnd(0, rewardsPerSecond, amount);
 
     rewardsInfos[rewardsToken] = RewardsInfo({
       ONE: ONE,
@@ -298,8 +301,9 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     RewardsInfo memory rewards = rewardsInfos[rewardsToken];
 
     if (rewards.lastUpdatedTimestamp == 0) revert RewardTokenDoesntExist(rewardsToken);
+    if (rewards.rewardsPerSecond == 0) revert RewardsAreDynamic(rewardsToken);
 
-    _accrueRewards(rewardsToken);
+    _accrueRewards(rewardsToken, _accrueStatic(rewards));
 
     uint256 remainder = rewards.balanceOnf(address(this));
 
@@ -332,12 +336,18 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     // Transfer additional rewardsToken to fund rewards of this vault
     rewardsToken.safeTransferFrom(msg.sender, address(this), amount);
 
+    uint256 accrued = rewards.rewardsPerSecond == 0 ? amount : _accrueStatic(rewards);
+
     // Update the index of rewardsInfo before updating the rewardsInfo
-    _accrueRewards(rewardsToken);
+    _accrueRewards(rewardsToken, accrued);
 
-    uint32 rewardsEndTimestamp = _calcRewardsEnd(rewards.rewardsEndTimestamp, rewards.rewardsPerSecond, amount);
+    if (rewards.rewardsPerSecond > 0)
+      rewardsInfos[rewardsToken].rewardsEndTimestamp = _calcRewardsEnd(
+        rewards.rewardsEndTimestamp,
+        rewards.rewardsPerSecond,
+        amount
+      );
 
-    rewardsInfos[rewardsToken].rewardsEndTimestamp = rewardsEndTimestamp;
     rewardsInfos[rewardsToken].lastUpdatedTimestamp = block.timestamp.safeCastTo32();
 
     emit RewardsInfoUpdate(rewardsToken, rewards.rewardsPerSecond, rewardsEndTimestamp);
@@ -366,7 +376,9 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     IERC20[] memory _rewardsTokens = rewardsTokens;
     for (uint8 i; i < _rewardsTokens.length; i++) {
       IERC20 rewardToken = _rewardsTokens[i];
-      _accrueRewards(rewardToken);
+      RewardsInfo memory rewards = rewardsInfos[_rewardsToken];
+
+      if (rewards.rewardsPerSecond > 0) _accrueRewards(rewardToken, _accrueStatic(rewards));
       _accrueUser(_receiver, rewardToken);
 
       // If a deposit/withdraw operation gets called for another user we should accrue for both of them to avoid potential issues like in the Convex-Vulnerability
@@ -376,9 +388,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
     _;
   }
 
-  function _accrueRewards(IERC20 _rewardsToken) internal {
-    RewardsInfo memory rewards = rewardsInfos[_rewardsToken];
-
+  function _accrueStatic(rewardsInfo memory rewards) internal returns (uint256 accrued) {
     uint256 elapsed;
     if (rewards.rewardsEndTimestamp > block.timestamp) {
       elapsed = block.timestamp - rewards.lastUpdatedTimestamp;
@@ -386,12 +396,14 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable, ContractRe
       elapsed = rewards.rewardsEndTimestamp - rewards.lastUpdatedTimestamp;
     }
 
+    accrued = uint256(rewards.rewardsPerSecond * elapsed);
+  }
+
+  function _accrueRewards(IERC20 _rewardsToken, uint256 accrued) internal {
     uint256 supplyTokens = totalSupply();
     uint224 deltaIndex;
     if (supplyTokens != 0)
-      deltaIndex = uint256(rewards.rewardsPerSecond * elapsed)
-        .mulDiv(uint256(10**decimals()), supplyTokens, MathUpgradeable.Rounding.Down)
-        .safeCastTo224();
+      deltaIndex = accrued.mulDiv(uint256(10**decimals()), supplyTokens, MathUpgradeable.Rounding.Down).safeCastTo224();
 
     rewardsInfos[_rewardsToken].index += deltaIndex;
     rewardsInfos[_rewardsToken].lastUpdatedTimestamp = block.timestamp.safeCastTo32();
