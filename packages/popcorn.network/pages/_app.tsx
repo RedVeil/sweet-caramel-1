@@ -67,13 +67,6 @@ export default function MyApp(props) {
   const { Component, pageProps } = props;
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_GTM_ID) {
-      TagManager.initialize({
-        gtmId: process.env.NEXT_PUBLIC_GTM_ID,
-      });
-    }
-  }, []);
 
   useEffect(() => {
     Router.events.on("routeChangeStart", () => {
