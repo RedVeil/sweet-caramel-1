@@ -45,12 +45,7 @@ contract VaultUnitTest is Test {
   event Paused(address account);
   event Unpaused(address account);
 
-  function _setFees(
-    uint256 depositFee,
-    uint256 withdrawalFee,
-    uint256 managementFee,
-    uint256 performanceFee
-  ) internal {
+  function _setFees(uint256 depositFee, uint256 withdrawalFee, uint256 managementFee, uint256 performanceFee) internal {
     vm.prank(ACL_ADMIN);
     vault.proposeNewFees(
       FeeStructure({

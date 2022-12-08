@@ -64,7 +64,7 @@ contract Vault is
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10**decimals();
+    ONE = 10 ** decimals();
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
@@ -117,13 +117,10 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(uint256 assets, address receiver)
-    public
-    nonReentrant
-    whenNotPaused
-    syncFeeCheckpoint
-    returns (uint256 shares)
-  {
+  function deposit(
+    uint256 assets,
+    address receiver
+  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 shares) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
@@ -158,13 +155,10 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(uint256 shares, address receiver)
-    public
-    nonReentrant
-    whenNotPaused
-    syncFeeCheckpoint
-    returns (uint256 assets)
-  {
+  function mint(
+    uint256 shares,
+    address receiver
+  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = feeStructure.deposit;
@@ -243,11 +237,7 @@ contract Vault is
    * @param owner Owner of burned vault shares.
    * @return assets of underlying sent to `receiver`.
    */
-  function redeem(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) public nonReentrant returns (uint256 assets) {
+  function redeem(uint256 shares, address receiver, address owner) public nonReentrant returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);

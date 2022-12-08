@@ -59,11 +59,7 @@ contract VaultIntegrationTest is Test {
 
   uint256 constant MAX_DEPOSIT = 995_939 ether;
 
-  function assertWithin(
-    uint256 expected,
-    uint256 actual,
-    uint256 delta
-  ) internal {
+  function assertWithin(uint256 expected, uint256 actual, uint256 delta) internal {
     if (expected > actual) {
       assertLe(expected - actual, delta);
     } else if (actual > expected) {
@@ -175,11 +171,7 @@ contract VaultIntegrationTest is Test {
     assertWithin(actualShares, expectedShares, 1);
   }
 
-  function test_preview_redeem_equals_actual_redeem(
-    uint8 steps,
-    uint16 timeJump,
-    uint80 totalAmount
-  ) public {
+  function test_preview_redeem_equals_actual_redeem(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 2 ether);
@@ -215,11 +207,7 @@ contract VaultIntegrationTest is Test {
     vm.warp(block.timestamp + timeJump);
   }
 
-  function test_assets_per_share_increase(
-    uint8 steps,
-    uint16 timeJump,
-    uint80 totalAmount
-  ) public {
+  function test_assets_per_share_increase(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 10 ether);
@@ -247,11 +235,7 @@ contract VaultIntegrationTest is Test {
     vm.warp(block.timestamp + timeJump);
   }
 
-  function test_assets_hwm_increase(
-    uint8 steps,
-    uint16 timeJump,
-    uint80 totalAmount
-  ) public {
+  function test_assets_hwm_increase(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 10 ether);
@@ -277,11 +261,7 @@ contract VaultIntegrationTest is Test {
     }
   }
 
-  function _assert_assets_hwm_increase(
-    uint16 timeJump,
-    uint256 depositAmount,
-    uint256 vaultIncrease
-  ) internal {
+  function _assert_assets_hwm_increase(uint16 timeJump, uint256 depositAmount, uint256 vaultIncrease) internal {
     uint256 prevHWM = vault.vaultShareHWM();
     uint256 prevAssets = vault.assetsCheckpoint();
 
