@@ -197,6 +197,9 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
                             FEE LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  IKeeperIncentiveV2 public keeperIncentive;
+  address public feeRecipient;
+
   // escrowToken => feeAmount
   mapping(IERC20 => uint256) public fees;
 

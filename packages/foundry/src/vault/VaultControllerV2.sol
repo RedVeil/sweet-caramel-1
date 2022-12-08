@@ -2,21 +2,17 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import "./VaultsRegistry.sol";
-import "./VaultsFactory.sol";
-import "../utils/Owned.sol";
-import "../utils/ContractRegistryAccess.sol";
-import "../interfaces/IKeeperIncentiveV2.sol";
-import "../interfaces/IContractRegistry.sol";
+import { Owned } from "../utils/Owned.sol";
+import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
+import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
 import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
 import { IVault } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
 import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
-import { IVaultsFactory } from "../interfaces/vault/IVaultsFactory.sol";
-import { IManagementExecutor } from "../interfaces/vault/IManagementExecutor.sol";
-import "../interfaces/vault/IERC4626.sol";
-import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
-import { IContractFactory } from "../interfaces/IContractFactory.sol";
+import { IDeploymentController } from "../interfaces/vault/IDeploymentController.sol";
+import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
+import { IAdminProxy } from "../interfaces/vault/IAdminProxy.sol";
+import { IERC4626 } from "../interfaces/vault/IERC4626.sol";
 
 contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
@@ -27,7 +23,22 @@ contract VaultsController is Owned {
   bytes32 public immutable STRATEGY = "Strategy";
   bytes32 public immutable STAKING = "Staking";
 
-  constructor(address _owner) Owned(_owner) {}
+  constructor(
+    address _owner,
+    IAdminProxy _adminProxy,
+    IDeploymentController _deploymentController,
+    IEndorsementRegistry _endorsementRegistry,
+    IVaultsRegistry _vaulsRegistry,
+    IKeeperIncentiveV2 _keeperIncentive,
+    IMultiRewardsEscrow _escrow
+  ) Owned(_owner) {
+    adminProxy = _adminProxy;
+    deploymentController = _deploymentController;
+    endorsementRegistry = _endorsementRegistry;
+    vaultsRegistry = _vaulsRegistry;
+    keeperIncentive = _keeperIncentive;
+    escrow = _escrow;
+  }
 
   /*//////////////////////////////////////////////////////////////
                           DEPLOYMENT LOGIC
@@ -86,11 +97,17 @@ contract VaultsController is Owned {
     vaultData.owner = address(adminProxy);
     vaultData.keeperIncentive = keeperIncentive;
 
-    // TODO update init method
     vault = deploymentController.deploy(
       VAULT,
       "V1",
-      abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), vaultData)
+      abi.encodePacked(
+        bytes4(
+          keccak256(
+            "initialize(address,address,(uint256,uint256,uint256,uint256),address,address,(uint256,uint256,uint256),address)"
+          )
+        ),
+        vaultData
+      )
     );
   }
 
@@ -146,7 +163,7 @@ contract VaultsController is Owned {
     staking = deploymentController.deploy(
       STAKING,
       "MultiRewardsStaking",
-      abi.encode(asset, escrow, address(adminProxy))
+      abi.encodePacked(bytes4(keccak256("initialize(address,address,address)")), asset, escrow, adminProxy)
     );
   }
 
@@ -195,7 +212,7 @@ contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
                           VAULT MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
-  // TODO make sure that new strategy is a registered adapter. Add strategys and adapter to registry? -- ADD CLONE REGISTRY WITH CLONE EXISTS AND CLONE ARRAY FOR FRONTEND
+
   /**
    * @notice Propose a new Strategy.
    * @param _vaults - addresses of the vaults
@@ -252,7 +269,7 @@ contract VaultsController is Owned {
   error NotSubmitter(address caller);
 
   function _verifySubmitter(address vault) internal returns (VaultMetadata memory metadata) {
-    metadata = _vaultsRegistry().getVault(vault);
+    metadata = vaultsRegistry.getVault(vault);
     if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
   }
 
@@ -262,12 +279,13 @@ contract VaultsController is Owned {
 
   /**
    * @notice switches whether a vault is endorsed or unendorsed
-   * @param _vaultAddresses - addresses of the vaults to change endorsement
+   * @param vaults - addresses of the vaults to change endorsement
    */
-  function toggleEndorsement(address[] memory _vaultAddresses) external onlyOwner {
-    VaultsRegistry vaultsRegistry = _vaultsRegistry();
-    for (uint256 i = 0; i < _vaultAddresses.length; i++) {
-      vaultsRegistry.toggleEndorseVault(_vaultAddresses[i]);
+  function toggleEndorsement(address[] memory vaults) external onlyOwner {
+    IEndorsementRegistry _endorsementRegistry = endorsementRegistry;
+    uint8 len = vaults.length;
+    for (uint8 i = 0; i < len; i++) {
+      _endorsementRegistry.toggleEndorseVault(vaults[i]);
     }
   }
 
@@ -280,7 +298,6 @@ contract VaultsController is Owned {
       revert TokenBad(token);
   }
 
-  // TODO - check RewardsToken against endorsementRegistry
   function addRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) external {
     uint8 len = vaults.length;
     for (uint256 i = 0; i < len; i++) {
@@ -329,23 +346,27 @@ contract VaultsController is Owned {
                           ESCROW MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  IMultiRewardsEscrow public escrow;
+
   function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
-    IMultiRewardsEscrow(_getContract(MULTI_REWARD_ESCROW)).setFees(tokens, fees);
+    escrow.setFees(tokens, fees);
   }
 
   function setEscrowKeeperPerc(uint256 keeperPerc) external onlyOwner {
-    IMultiRewardsEscrow(_getContract(MULTI_REWARD_ESCROW)).setKeeperPerc(keeperPerc);
+    escrow.setKeeperPerc(keeperPerc);
   }
+
+  // TODO do we need to change escrow?
 
   /*//////////////////////////////////////////////////////////////
                           FACTORY MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
   function addTemplateType(bytes32[] memory templateTypes) external onlyOwner {
-    IVaultsFactory factory = IVaultsFactory(_getContract(VAULT_FACTORY));
+    IDeploymentController _deploymentController = deploymentController;
     uint8 len = templateTypes.length;
     for (uint256 i = 0; i < len; i++) {
-      factory.addTemplateType(templateTypes[i]);
+      _deploymentController.addTemplateType(templateTypes[i]);
     }
   }
 
@@ -397,16 +418,16 @@ contract VaultsController is Owned {
                           OWNERSHIP LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IAdminProxy public adminProxy;
+  // TODO do we also need a function to transfer ownership of this contract?
 
-  event ManagementExecutorUpdated(address oldManEx, address newManEx);
+  IAdminProxy public adminProxy;
 
   /**
    * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
    * @dev newOwner address must call acceptOwnership on registry and factory
    */
   function transferOwnership(address newOwner) external onlyOwner {
-    managementExecutor.transferOwnership(newOwner);
+    adminProxy.transferOwnership(newOwner);
   }
 
   /**
@@ -414,13 +435,16 @@ contract VaultsController is Owned {
    * @dev registry and factory must nominate controller as new owner first
    * acceptance function should be called when deploying controller contract
    */
-  function acceptOwnership(address[] contracts) external onlyOwner {
-    managementExecutor.acceptOwnership();
+  function acceptOwnership() external onlyOwner {
+    adminProxy.acceptOwnership();
   }
 
-  function updateManagementExecutor(IManagementExecutor newManagementExecutor) external onlyOwner {
-    emit ManagementExecutorUpdated(address(managementExecutor), address(newManagementExecutor));
+  /*//////////////////////////////////////////////////////////////
+                          ADMIN LOGIC
+    //////////////////////////////////////////////////////////////*/
 
-    managementExecutor = newManagementExecutor;
-  }
+  IDeploymentController public deploymentController;
+  IEndorsementRegistry public endorsementRegistry;
+  IVaultsRegistry public vaultsRegistry;
+  IKeeperIncentive public keeperIncentive;
 }

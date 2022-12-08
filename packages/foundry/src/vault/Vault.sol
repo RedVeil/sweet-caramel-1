@@ -2,18 +2,14 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.15;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
-import "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../utils/ACLAuth.sol";
-import "../utils/ContractRegistryAccessUpgradeable.sol";
-import "../utils/KeeperIncentivized.sol";
-import "../interfaces/vault/IERC4626.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ReentrancyGuardUpgradeable } from "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
+import { KeeperIncentivized } from "../utils/KeeperIncentivized.sol";
+import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { FeeStructure } from "../interfaces/vault/IVault.sol";
-import "../interfaces/IContractRegistry.sol";
-import "../interfaces/IKeeperIncentiveV2.sol";
+import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 import { OwnedUpgradable } from "../utils/OwnedUpgradable.sol";
 
@@ -25,7 +21,7 @@ contract Vault is
   KeeperIncentivized,
   ContractRegistryAccessUpgradeable
 {
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
   using FixedPointMathLib for uint256;
 
   /*//////////////////////////////////////////////////////////////
@@ -35,7 +31,7 @@ contract Vault is
   uint256 constant SECONDS_PER_YEAR = 365.25 days;
   uint256 internal ONE;
 
-  ERC20 public asset;
+  IERC20 public asset;
   uint8 internal _decimals;
 
   bytes32 public contractName;
@@ -43,7 +39,7 @@ contract Vault is
   event VaultInitialized(bytes32 contractName, address indexed asset);
 
   function initialize(
-    ERC20 asset_,
+    IERC20 asset_,
     IERC4626 strategy_,
     FeeStructure memory feeStructure_,
     address feeRecipient_,
@@ -51,7 +47,10 @@ contract Vault is
     KeeperConfig memory keeperConfig_,
     address owner
   ) external initializer {
-    __ERC20_init(string.concat("Popcorn ", asset_.name(), " Vault"), string.concat("pop-", asset_.symbol()));
+    __ERC20_init(
+      string.concat("Popcorn ", IERC20Metadata(address(asset_)).name(), " Vault"),
+      string.concat("pop-", IERC20Metadata(address(asset_)).symbol())
+    );
     __Owned_init(owner);
 
     asset = asset_;

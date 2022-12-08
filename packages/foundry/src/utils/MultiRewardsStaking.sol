@@ -3,20 +3,17 @@
 
 pragma solidity ^0.8.10;
 
-import "openzeppelin-contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import { ERC4626Upgradeable, ERC20Upgradeable, IERC20MetadataUpgradeable } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
-import { MathUpgradeable } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
+import { SafeERC20 } from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
+import { ERC4626Upgradeable, ERC20Upgradeable, IERC20Upgradeable as IER20, IERC20Metadata as IERC20Metadata } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
+import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
-import "./OwnedUpgradeable.sol";
-import "./ContractRegistryAccessUpgradeable.sol";
+import { OwnedUpgradeable } from "./OwnedUpgradeable.sol";
 import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
 
 contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
   using SafeERC20 for IERC20;
   using SafeCastLib for uint256;
-  using MathUpgradeable for uint256;
+  using Math for uint256;
 
   /*//////////////////////////////////////////////////////////////
                             IMMUTABLES
@@ -31,12 +28,12 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     IMultiRewardsEscrow _escrow,
     address _owner
   ) external initializer {
-    __ERC4626_init(IERC20MetadataUpgradeable(address(_stakingToken)));
+    __ERC4626_init(IERC20Metadata(address(_stakingToken)));
     __Owned_init(_owner);
 
-    _name = string(abi.encodePacked("Staked ", IERC20MetadataUpgradeable(address(_stakingToken)).name()));
-    _symbol = string(abi.encodePacked("pst-", IERC20MetadataUpgradeable(address(_stakingToken)).symbol()));
-    _decimals = IERC20MetadataUpgradeable(address(_stakingToken)).decimals();
+    _name = string(abi.encodePacked("Staked ", IERC20Metadata(address(_stakingToken)).name()));
+    _symbol = string(abi.encodePacked("pst-", IERC20Metadata(address(_stakingToken)).symbol()));
+    _decimals = IERC20Metadata(address(_stakingToken)).decimals();
 
     escrow = _escrow;
 
@@ -47,7 +44,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
   /**
    * @dev Returns the name of the token.
    */
-  function name() public view override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (string memory) {
+  function name() public view override(ERC20Upgradeable, IERC20Metadata) returns (string memory) {
     return _name;
   }
 
@@ -55,7 +52,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
    * @dev Returns the symbol of the token, usually a shorter version of the
    * name.
    */
-  function symbol() public view override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (string memory) {
+  function symbol() public view override(ERC20Upgradeable, IERC20Metadata) returns (string memory) {
     return _symbol;
   }
 
@@ -63,7 +60,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
    * @dev Returns the symbol of the token, usually a shorter version of the
    * name.
    */
-  function decimals() public view override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
+  function decimals() public view override(ERC20Upgradeable, IERC20Metadata) returns (uint8) {
     return _decimals;
   }
 
@@ -94,11 +91,11 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
   error ZeroAddressTransfer(address from, address to);
   error InsufficentBalance();
 
-  function _convertToShares(uint256 assets, MathUpgradeable.Rounding) internal view override returns (uint256) {
+  function _convertToShares(uint256 assets, Math.Rounding) internal view override returns (uint256) {
     return assets;
   }
 
-  function _convertToAssets(uint256 shares, MathUpgradeable.Rounding) internal view override returns (uint256) {
+  function _convertToAssets(uint256 shares, Math.Rounding) internal view override returns (uint256) {
     return shares;
   }
 
@@ -182,7 +179,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     uint256 rewardAmount,
     EscrowInfo memory escrowInfo
   ) internal {
-    uint256 escrowed = rewardAmount.mulDiv(uint256(escrowInfo.escrowPercentage), 1e8, MathUpgradeable.Rounding.Down);
+    uint256 escrowed = rewardAmount.mulDiv(uint256(escrowInfo.escrowPercentage), 1e8, Math.Rounding.Down);
     uint256 payout = rewardAmount - escrowed;
 
     rewardsToken.safeTransfer(user, payout);
@@ -403,7 +400,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     uint256 supplyTokens = totalSupply();
     uint224 deltaIndex;
     if (supplyTokens != 0)
-      deltaIndex = accrued.mulDiv(uint256(10**decimals()), supplyTokens, MathUpgradeable.Rounding.Down).safeCastTo224();
+      deltaIndex = accrued.mulDiv(uint256(10**decimals()), supplyTokens, Math.Rounding.Down).safeCastTo224();
 
     rewardsInfos[_rewardsToken].index += deltaIndex;
     rewardsInfos[_rewardsToken].lastUpdatedTimestamp = block.timestamp.safeCastTo32();
@@ -423,7 +420,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     uint256 deltaIndex = rewards.index - oldIndex;
 
     // accumulate rewards by multiplying user tokens by rewardsPerToken index and adding on unclaimed
-    uint256 supplierDelta = balanceOf(_user).mulDiv(deltaIndex, uint256(rewards.ONE), MathUpgradeable.Rounding.Down);
+    uint256 supplierDelta = balanceOf(_user).mulDiv(deltaIndex, uint256(rewards.ONE), Math.Rounding.Down);
 
     userIndex[_user][_rewardsToken] = rewards.index;
 
