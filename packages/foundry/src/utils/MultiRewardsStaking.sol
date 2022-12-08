@@ -38,6 +38,8 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     _symbol = string(abi.encodePacked("pst-", IERC20MetadataUpgradeable(address(_stakingToken)).symbol()));
     _decimals = IERC20MetadataUpgradeable(address(_stakingToken)).decimals();
 
+    escrow = _escrow;
+
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
   }

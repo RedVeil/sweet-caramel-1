@@ -15,7 +15,7 @@ import { FeeStructure } from "../interfaces/vault/IVault.sol";
 import "../interfaces/IContractRegistry.sol";
 import "../interfaces/IKeeperIncentiveV2.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
-import {OwnedUpgradable} from "../utils/OwnedUpgradable.sol";
+import { OwnedUpgradable } from "../utils/OwnedUpgradable.sol";
 
 contract Vault is
   ERC20Upgradeable,
@@ -70,6 +70,7 @@ contract Vault is
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
 
+    keeperIncentive = keeperIncentive_;
     keeperConfig = keeperConfig_;
     quitPeriod = 3 days;
 
@@ -548,7 +549,7 @@ contract Vault is
 
   error VaultAssetMismatchNewStrategyAsset();
 
-s  /**
+  /**
    * @notice Propose a new strategy for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
    * @param newStrategy A new ERC4626 that should be used as a yield strategy for this asset.
    * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
@@ -611,6 +612,7 @@ s  /**
                           KEEPER LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  IKeeperIncentive public keeperIncentive;
   KeeperConfig public keeperConfig;
 
   error InvalidVig();
