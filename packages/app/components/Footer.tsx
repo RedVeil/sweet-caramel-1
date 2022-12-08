@@ -8,6 +8,7 @@ import RedditIcon from "@popcorn/app/components/SVGIcons/RedditIcon";
 import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
 import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 
 const Footer = () => {
   const [telegramColor, setTelegramColor] = useState("#645F4B");
@@ -19,6 +20,9 @@ const Footer = () => {
 
   const [iconSize, setIconSize] = useState("24");
   const networkName = useNetworkName();
+  const {
+    features: { sweetVaults: displaySweetVaults },
+  } = useFeatures();
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) {
@@ -101,9 +105,11 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Products</p>
           <div className="flex flex-col">
-            <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
-              Sweet Vaults
-            </Link>
+            {displaySweetVaults && (
+              <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+                Sweet Vaults
+              </Link>
+            )}
             <Link href={`/${networkName}/set/3x`} className=" text-primary hover:text-black leading-6 mt-4">
               3X
             </Link>
