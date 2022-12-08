@@ -12,61 +12,57 @@ import useLog from "@popcorn/components/pop/utils/hooks/useLog";
 
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
-    ({
-      ...props
-    }: Pop.StdProps & {
-      render?: (
-        props: {
-          price?: { value: BigNumber; decimals: number };
-          balance?: BigNumberWithFormatted;
-          status?: "loading" | "success" | "error" | "idle";
-        } & Pop.StdProps,
-      ) => React.ReactElement;
-    }) => {
+  ({
+    ...props
+  }: Pop.StdProps & {
+    render?: (
+      props: {
+        price?: { value: BigNumber; decimals: number };
+        balance?: BigNumberWithFormatted;
+        status?: "loading" | "success" | "error" | "idle";
+      } & Pop.StdProps,
+    ) => React.ReactElement;
+  }) => {
+    const { data: token } = useClaimableToken({ ...props });
+    const { data: price, status: priceStatus } = usePrice({ ...props, address: token });
+    const { data: ids, status: idsStatus } = useEscrowIds({ ...props });
 
-      const { data: token } = useClaimableToken({ ...props });
-      const { data: price, status: priceStatus } = usePrice({ ...props, address: token });
-      const { data: ids, status: idsStatus } = useEscrowIds({ ...props });
+    const { data: claimableBalance, status: claimableBalanceStatus } = useClaimableBalance({
+      ...props,
+      enabled: idsStatus === "success",
+      escrowIds: ids,
+    });
 
-      const { data: claimableBalance, status: claimableBalanceStatus } = useClaimableBalance({
-        ...props,
-        enabled: idsStatus === "success",
-        escrowIds: ids,
-      });
+    const { data: balance, status: balanceStatus } = useEscrowBalance({
+      ...props,
+      enabled: idsStatus === "success",
+      escrowIds: ids,
+    });
 
-      const { data: balance, status: balanceStatus } = useEscrowBalance({
-        ...props,
-        enabled: idsStatus === "success",
-        escrowIds: ids,
-      });
+    const vestingBalance = useMemo(() => {
+      return {
+        value: (balance?.value || constants.Zero).sub(claimableBalance?.value || constants.Zero),
+      };
+    }, [balance, claimableBalance]);
 
-      const vestingBalance = useMemo(() => {
-        return {
-          value: (balance?.value || constants.Zero).sub(claimableBalance?.value || constants.Zero)
-        }
-      }, [balance, claimableBalance])
+    useLog({ vestingBalance }, [vestingBalance]);
 
-      useLog({ vestingBalance }, [
-        vestingBalance
-      ]);
-
-      const status = useMultiStatus([balanceStatus, claimableBalanceStatus, priceStatus]);
-      if (props.render) {
-        return (
-          <>
-            {props.render({
-              price: price,
-              balance: vestingBalance,
-              status,
-              ...props,
-            })}
-          </>
-        );
-      }
-      return <Component {...props} data={vestingBalance} status={balanceStatus} />;
-    };
+    const status = useMultiStatus([balanceStatus, claimableBalanceStatus, priceStatus]);
+    if (props.render) {
+      return (
+        <>
+          {props.render({
+            price: price,
+            balance: vestingBalance,
+            status,
+            ...props,
+          })}
+        </>
+      );
+    }
+    return <Component {...props} data={vestingBalance} status={balanceStatus} />;
+  };
 
 export const VestingBalanceOf = eth_call(withLoading(({ data }) => <>{data?.formatted}</>));
 
 export default VestingBalanceOf;
-
