@@ -1,9 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import cs from "@popcorn/utils/circulating-supply/holders/circulating-supply.json";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const data = await fetch(
-    "https://raw.githubusercontent.com/popcorndao/sweet-caramel/circulating-supply/packages/utils/src/circulating-supply/holders/circulating-supply.json",
-  );
   res.status(200);
-  return res.send((await data.json()).circulatingSupply);
+  return res.send(cs.circulatingSupply);
 }
