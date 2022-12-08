@@ -31,8 +31,8 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradable
   error NotFactory();
   error StrategySetupFailed();
 
-  // TODO use deterministic fee recipient proxy
   uint256 managementFee = 50;
+  // TODO use deterministic fee recipient proxy
   address FEE_RECIPIENT = 0x4444;
 
   /**

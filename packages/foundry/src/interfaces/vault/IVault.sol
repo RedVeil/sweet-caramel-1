@@ -19,7 +19,7 @@ struct FeeStructure {
 
 struct VaultParams {
   IERC20 asset;
-  IERC4626 strategy;
+  IERC4626 adapter;
   IVault.FeeStructure feeStructure;
   address feeRecipient;
   IKeeperIncentiveV2 keeperIncentive;
@@ -62,15 +62,15 @@ interface IVault is IERC4626, IOwned, IPausable, IPermit {
 
   // MANAGEMENT FUNCTIONS - STRATEGY
 
-  function strategy() external view returns (address);
+  function adapter() external view returns (address);
 
-  function proposedStrategy() external view returns (address);
+  function proposedAdapter() external view returns (address);
 
   function proposalTimeStamp() external view returns (uint256);
 
-  function proposeNewStrategy(IERC4626 newStrategy) external;
+  function proposeNewAdapter(IERC4626 newAdapter) external;
 
-  function changeStrategy() external;
+  function changeAdapter() external;
 
   // MANAGEMENT FUNCTIONS - FEES
 

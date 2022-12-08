@@ -40,7 +40,7 @@ contract Vault is
 
   function initialize(
     IERC20 asset_,
-    IERC4626 strategy_,
+    IERC4626 adapter_,
     FeeStructure memory feeStructure_,
     address feeRecipient_,
     IKeeperIncentiveV2 keeperIncentive_,
@@ -54,9 +54,9 @@ contract Vault is
     __Owned_init(owner);
 
     asset = asset_;
-    strategy = strategy_;
+    adapter = adapter_;
 
-    asset.approve(address(strategy_), type(uint256).max);
+    asset.approve(address(adapter_), type(uint256).max);
 
     _decimals = asset_.decimals();
 
@@ -135,7 +135,7 @@ contract Vault is
 
     asset.safeTransferFrom(msg.sender, address(this), assets);
 
-    strategy.deposit(assets, address(this));
+    adapter.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
   }
@@ -178,7 +178,7 @@ contract Vault is
 
     asset.safeTransferFrom(msg.sender, address(this), assets);
 
-    strategy.deposit(assets, address(this));
+    adapter.deposit(assets, address(this));
 
     emit Deposit(msg.sender, receiver, assets, shares);
   }
@@ -221,7 +221,7 @@ contract Vault is
 
     _mint(address(this), feeShares);
 
-    strategy.withdraw(assets, receiver, address(this));
+    adapter.withdraw(assets, receiver, address(this));
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
   }
@@ -259,7 +259,7 @@ contract Vault is
 
     _mint(address(this), feeShares);
 
-    strategy.withdraw(assets, receiver, address(this));
+    adapter.withdraw(assets, receiver, address(this));
 
     emit Withdraw(msg.sender, receiver, owner, assets, shares);
   }
@@ -272,7 +272,7 @@ contract Vault is
    * @return Total amount of underlying `asset` token managed by vault.
    */
   function totalAssets() public view returns (uint256) {
-    return strategy.convertToAssets(strategy.balanceOf(address(this)));
+    return adapter.convertToAssets(adapter.balanceOf(address(this)));
   }
 
   /**
@@ -304,7 +304,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewDeposit(uint256 assets) public view returns (uint256 shares) {
-    shares = strategy.previewDeposit(assets - assets.mulDivDown(feeStructure.deposit, 1e18));
+    shares = adapter.previewDeposit(assets - assets.mulDivDown(feeStructure.deposit, 1e18));
   }
 
   /**
@@ -318,7 +318,7 @@ contract Vault is
 
     shares += shares.mulDivUp(depositFee, 1e18 - depositFee);
 
-    assets = strategy.previewMint(shares);
+    assets = adapter.previewMint(shares);
   }
 
   /**
@@ -332,7 +332,7 @@ contract Vault is
 
     assets += assets.mulDivUp(withdrawalFee, 1e18 - withdrawalFee);
 
-    shares = strategy.previewWithdraw(assets);
+    shares = adapter.previewWithdraw(assets);
   }
 
   /**
@@ -342,7 +342,7 @@ contract Vault is
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
   function previewRedeem(uint256 shares) public view returns (uint256 assets) {
-    assets = strategy.previewRedeem(shares);
+    assets = adapter.previewRedeem(shares);
 
     assets -= assets.mulDivDown(feeStructure.withdrawal, 1e18);
   }
@@ -355,28 +355,28 @@ contract Vault is
    * @return Maximum amount of underlying `asset` token that may be deposited for a given address.
    */
   function maxDeposit(address caller) public view returns (uint256) {
-    return strategy.maxDeposit(caller);
+    return adapter.maxDeposit(caller);
   }
 
   /**
    * @return Maximum amount of vault shares that may be minted to given address.
    */
   function maxMint(address caller) external view returns (uint256) {
-    return strategy.maxMint(caller);
+    return adapter.maxMint(caller);
   }
 
   /**
    * @return Maximum amount of underlying `asset` token that can be withdrawn by `caller` address.
    */
   function maxWithdraw(address caller) external view returns (uint256) {
-    return strategy.maxWithdraw(caller);
+    return adapter.maxWithdraw(caller);
   }
 
   /**
    * @return Maximum amount of shares that may be redeemed by `caller` address.
    */
   function maxRedeem(address caller) external view returns (uint256) {
-    return strategy.maxRedeem(caller);
+    return adapter.maxRedeem(caller);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -539,49 +539,49 @@ contract Vault is
                           STRATEGY LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IERC4626 public strategy;
-  IERC4626 public proposedStrategy;
+  IERC4626 public adapter;
+  IERC4626 public proposedAdapter;
   uint256 public proposalTimeStamp;
 
-  event NewStrategyProposed(IERC4626 newStrategy, uint256 timestamp);
-  event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
+  event NewAdapterProposed(IERC4626 newAdapter, uint256 timestamp);
+  event ChangedAdapter(IERC4626 oldAdapter, IERC4626 newAdapter);
 
-  error VaultAssetMismatchNewStrategyAsset();
+  error VaultAssetMismatchNewAdapterAsset();
 
   /**
-   * @notice Propose a new strategy for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
-   * @param newStrategy A new ERC4626 that should be used as a yield strategy for this asset.
-   * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
+   * @notice Propose a new adapter for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
+   * @param newAdapter A new ERC4626 that should be used as a yield adapter for this asset.
+   * @dev The new adapter can be active 3 Days by default after proposal. This allows user to rage quit.
    */
-  function proposeNewStrategy(IERC4626 newStrategy) external onlyOwner {
-    if (newStrategy.asset() != address(asset)) revert VaultAssetMismatchNewStrategyAsset();
+  function proposeNewAdapter(IERC4626 newAdapter) external onlyOwner {
+    if (newAdapter.asset() != address(asset)) revert VaultAssetMismatchNewAdapterAsset();
 
-    proposedStrategy = newStrategy;
+    proposedAdapter = newAdapter;
     proposalTimeStamp = block.timestamp;
 
-    emit NewStrategyProposed(newStrategy, block.timestamp);
+    emit NewAdapterProposed(newAdapter, block.timestamp);
   }
 
   /**
-   * @notice Set a new Strategy for this Vault.
+   * @notice Set a new Adapter for this Vault.
    * @dev This migration function will remove all assets from the old Vault and move them into the new vault
    * @dev Additionally it will zero old allowances and set new ones
-   * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new strategy
+   * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new adapter
    */
-  function changeStrategy() external takeFees {
+  function changeAdapter() external takeFees {
     if (block.timestamp < proposalTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
-    strategy.redeem(strategy.balanceOf(address(this)), address(this), address(this));
+    adapter.redeem(adapter.balanceOf(address(this)), address(this), address(this));
 
-    asset.approve(address(strategy), 0);
+    asset.approve(address(adapter), 0);
 
-    emit ChangedStrategy(strategy, proposedStrategy);
+    emit ChangedAdapter(adapter, proposedAdapter);
 
-    strategy = proposedStrategy;
+    adapter = proposedAdapter;
 
-    asset.approve(address(strategy), type(uint256).max);
+    asset.approve(address(adapter), type(uint256).max);
 
-    strategy.deposit(asset.balanceOf(address(this)), address(this));
+    adapter.deposit(asset.balanceOf(address(this)), address(this));
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -595,9 +595,9 @@ contract Vault is
   error InvalidQuitPeriod();
 
   /**
-   * @notice Set a quitPeriod for rage quitting after new strategy or fees are proposed. Caller must have VAULTS_CONTROlLER from ACLRegistry.
+   * @notice Set a quitPeriod for rage quitting after new adapter or fees are proposed. Caller must have VAULTS_CONTROlLER from ACLRegistry.
    * @param _quitPeriod time to rage quit after proposal, if not set defaults to 3 days
-   * @dev The new strategy can be active 3 Days by default after proposal. This allows user to rage quit.
+   * @dev The new adapter can be active 3 Days by default after proposal. This allows user to rage quit.
    */
   function setQuitPeriod(uint256 _quitPeriod) external onlyOwner {
     if (_quitPeriod < 1 days || _quitPeriod > 7 days) revert InvalidQuitPeriod();

@@ -32,6 +32,7 @@ contract YearnWrapper is ERC20Upgradeable, IYearnVaultWrapper {
     uint256 shares
   );
 
+  // TODO all adapter must use just bytes for init and than decode them inside -- USE BYTES BYTES
   function initialize(VaultAPI _vault) external initializer {
     __ERC20_init(
       string(abi.encodePacked(_vault.name(), "4626adapter")),
