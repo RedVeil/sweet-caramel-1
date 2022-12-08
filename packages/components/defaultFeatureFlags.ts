@@ -10,11 +10,7 @@ const defaultFeatureFlags = [
 
 const envEnabledDeafaultFeatureFlags: { [key: string]: boolean } = {};
 defaultFeatureFlags.forEach(
-  (flag) =>
-    (envEnabledDeafaultFeatureFlags[flag.key] =
-      !!process.env.NEXT_PUBLIC_IS_DEV || !!process.env.IS_DEV || !process.env.NODE_ENV?.includes("prod")
-        ? flag.dev
-        : flag.prod),
+  (flag) => (envEnabledDeafaultFeatureFlags[flag.key] = process.env.NODE_ENV === "development" ? flag.dev : flag.prod),
 );
 
 export default envEnabledDeafaultFeatureFlags;

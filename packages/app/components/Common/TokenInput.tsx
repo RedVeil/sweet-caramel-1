@@ -7,7 +7,7 @@ import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { useEffect, useState } from "react";
 import { Pop } from "@popcorn/components/pop/types";
-import useLog from "@popcorn/components/pop/utils/hooks/useLog";
+import { Erc20 } from "@popcorn/components";
 
 export interface TokenInputProps {
   label: string;
@@ -16,6 +16,7 @@ export interface TokenInputProps {
   setAmount: Function;
   balance?: BigNumber;
   readonly?: boolean;
+  account?: string;
   tokenList?: Token[];
   selectToken?: (token: Token) => void;
   chainId: ChainId;
@@ -33,12 +34,18 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   selectToken = null,
   chainId,
   spendableBalance,
+  account,
 }) => {
   const [displayAmount, setDisplayAmount] = useState<string>(
     amount.isZero() ? "" : formatUnits(amount, token?.decimals),
   );
   const displaySpendableBalance =
-    spendableBalance?.status === "success" && balance && spendableBalance?.data && !spendableBalance.data.eq(balance);
+    spendableBalance?.status === "success" &&
+    !!balance &&
+    !balance.eq(constants.Zero) &&
+    !!spendableBalance?.data &&
+    !spendableBalance.data.eq(balance);
+
   const spendableBalanceFormatted = displaySpendableBalance
     ? formatAndRoundBigNumber(spendableBalance?.data, token.decimals)
     : "";
@@ -132,7 +139,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               className="mr-2"
             />
             <p className="text-secondaryLight leading-6">
-              {formatAndRoundBigNumber(balance, token?.decimals)}{" "}
+              <Erc20.BalanceOf address={token?.address} chainId={chainId} account={account as `0x${string}`} />{" "}
               {displaySpendableBalance && "(" + spendableBalanceFormatted + " unlocked)"}
             </p>
           </div>

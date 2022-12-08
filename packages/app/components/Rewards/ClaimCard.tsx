@@ -72,7 +72,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({
 
   return (
     <div
-      className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${
+      className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray border-opacity-40   ${
         !claimAmount || claimAmount?.eq(constants.Zero) ? "hidden" : ""
       }`}
     >

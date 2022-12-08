@@ -2,7 +2,7 @@ name: Circulating Supply Deployment Cron Job
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 0 * * *"
 
 env:
   CI: true
@@ -37,8 +37,8 @@ jobs:
 
       - name: "Update circulating supply branch"
         run: |
-          git config user.email "adenuga@popcorn.network"
+          git config user.email "circulating-supply@popcorn.network"
           git config user.name "Circulating Supply Bot"
           git add .
           git commit -m "Update circulating supply"
-          git push origin circulating-supply
+          git push origin main

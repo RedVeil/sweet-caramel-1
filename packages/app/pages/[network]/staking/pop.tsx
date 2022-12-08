@@ -147,6 +147,7 @@ export default function PopStakingPage(): JSX.Element {
           restake={openTermsModal}
           onlyView={!account}
           chainId={chainId}
+          account={account}
           isPopLocker
           stakedTokenPrice={tokenPrice}
         />

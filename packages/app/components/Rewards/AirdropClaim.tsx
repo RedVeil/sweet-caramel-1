@@ -11,10 +11,11 @@ interface AirDropClaimProps {
   approve: () => Promise<void>;
   balances: { balance: BigNumber; allowance: BigNumber }[];
   tokens: Token[];
+  account?: `0x${string}`;
   chainId: ChainId;
 }
 
-const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, tokens, chainId }) => {
+const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, tokens, chainId, account }) => {
   const [inputAmount, setInputAmount] = useState<BigNumber>(BigNumber.from(0));
 
   return (
@@ -26,6 +27,7 @@ const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, 
           label={"Redeem Amount"}
           balance={balances[0].balance}
           amount={inputAmount}
+          account={account}
           setAmount={(n) => setInputAmount(n)}
         />
         <div className="w-full relative mt-10 mb-2">
@@ -41,6 +43,7 @@ const AirDropClaim: React.FC<AirDropClaimProps> = ({ redeem, balances, approve, 
           <TokenInput
             chainId={chainId}
             token={tokens[1]}
+            account={account}
             label={""}
             amount={inputAmount}
             setAmount={(n) => setInputAmount(n)}

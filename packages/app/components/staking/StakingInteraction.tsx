@@ -19,6 +19,7 @@ export interface StakingInteractionProps {
   stake: () => void;
   withdraw: () => void;
   chainId: ChainId;
+  account?: `0x${string}`;
 }
 
 export default function StakingInteraction({
@@ -30,6 +31,7 @@ export default function StakingInteraction({
   stake,
   withdraw,
   chainId,
+  account,
 }: StakingInteractionProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const [state, setState] = form;
@@ -46,6 +48,7 @@ export default function StakingInteraction({
           amount={amount}
           setAmount={(amt) => setState({ ...state, amount: amt })}
           balance={withdrawal ? stakingPool?.userStake : user.balance}
+          account={account}
         />
       </div>
       {withdrawal && (

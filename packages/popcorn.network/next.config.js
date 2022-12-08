@@ -8,6 +8,7 @@ module.exports = {
   env: {
     INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID,
     RPC_URL: process.env.RPC_URL,
+    APP_ENV: process.env.APP_ENV,
     CHAIN_ID: process.env.CHAIN_ID,
   },
   headers: async () => {
