@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 import { BigNumberWithFormatted, Pop } from "../types";
 import { withLoading } from "../utils/hocs/withLoading";
-import { useApy, useEmissions } from "./hooks";
+import { useEmissions } from "./hooks";
 
 interface EmissionsProps extends Pop.BaseContractProps {
   isPop: boolean;
@@ -13,6 +13,6 @@ const eth_call =
       return <Component {...props} data={data} status={status} />;
     };
 
-export const Emissions = eth_call(withLoading(({ data }) => <>{data?.formatted || "n/a"}</>));
+export const Emissions = eth_call(withLoading(({ data }) => <>{`${data?.formatted} POP / day` || "n/a"}</>));
 
 export default Emissions;

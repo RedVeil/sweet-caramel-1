@@ -1,13 +1,12 @@
 import { BigNumber } from "ethers";
-import { useContractRead, useProvider } from "wagmi";
-import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import { popHookAdapter, useNamedAccounts } from "../../utils";
+import { useProvider } from "wagmi";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
+import { popHookAdapter } from "../../utils";
 import { BigNumberWithFormatted, Pop } from "../../types";
-import { useContractMetadata } from "../../Contract";
 import { useMemo } from "react";
 import { isAddress } from "@ethersproject/address";
-import { Staking__factory, PopLocker__factory, Staking, PopLocker } from "@popcorn/hardhat/typechain";
-import useSWR, { SWRResponse } from "swr";
+import { Staking__factory, PopLocker__factory } from "@popcorn/hardhat/typechain";
+import useSWR from "swr";
 
 interface UseEmissionsProps extends Pop.StdProps {
   isPop: boolean;

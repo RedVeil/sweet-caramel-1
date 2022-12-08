@@ -136,6 +136,8 @@ export const PortfolioPage: NextPage = () => {
             render={(props) => <Contract.Value balance={props.balance} price={props.price} decimals={props.decimals} />}
           />
 
+          <Staking.Emissions key={`Staking.Emissions`} address={token.address} chainId={token.chainId} isPop={false} />
+
           <Contract.Tvl key={`Contract.TVL`} address={token.address} chainId={token.chainId} />
         </Contract.Metadata>
       ))}
