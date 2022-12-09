@@ -28,9 +28,9 @@ export default function CardIcon({ icon }: CardIconProps): JSX.Element {
     default:
       return (
         <div
-          className={`w-18 h-18 rounded-full flex items-center justify-center flex-shrink-0 flex-grow-0 border border-customLightGray`}
+          className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 flex-grow-0 border border-customLightGray`}
         >
-          <div className="w-full h-full text-white">{getIcon(icon)}</div>
+          <div className="w-3/4 h-3/4 text-white">{getIcon(icon)}</div>
         </div>
       );
   }

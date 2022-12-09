@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from "ethers";
-import { formatEther, formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
-import { resolve_price } from "../price-resolvers/resolve_price";
+import { parseEther, parseUnits } from "ethers/lib/utils";
+import { resolve_price } from "../../price-resolvers/resolve_price";
 
 export async function synthetix(address, chainId, rpc?): Promise<{ value: BigNumber; decimals: number }> {
   chainId = Number(chainId);

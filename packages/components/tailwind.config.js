@@ -127,6 +127,7 @@ module.exports = {
         secondaryLight: "#AFAFAF",
         secondaryDark: "#55503D",
 
+        papyrus: "#d7d5bc0d",
         warmGray: "#EBE7D4",
         customPaleGray: "#e5e7eb",
         customPeach: "#FFF8EE",
