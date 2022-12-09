@@ -10,7 +10,7 @@ import { StakingType } from "hooks/staking/useAllStakingAddresses";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
-import { Contract, Staking } from "@popcorn/components/pop/";
+import { Contract, Synthetix } from "@popcorn/components/pop/";
 interface StakeCardProps {
   stakingAddress: string;
   stakingType: StakingType;
@@ -103,7 +103,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
             <div className="w-full md:w-1/2 mt-6 md:mt-0">
               <p className="text-primaryLight leading-6">Token Emissions</p>
               <div className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-                <Staking.Emissions address={stakingAddress} chainId={chainId} days={1} />
+                <Synthetix.Emissions address={stakingAddress} chainId={chainId} days={1} />
                 <span className=" text-tokenTextGray text-xl"> POP / day</span>
               </div>
             </div>

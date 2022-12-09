@@ -3,7 +3,7 @@ import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
+import { Escrow, Erc20, Price, Contract, Staking, Synthetix } from "../pop";
 import { Pop } from "../pop/types";
 import { Networth } from "../pop/Portfolio/Networth";
 import { BigNumber } from "ethers";
@@ -153,7 +153,7 @@ export const PortfolioPage: NextPage = () => {
             render={(props) => <Contract.Value balance={props.balance} price={props.price} decimals={props.decimals} />}
           />
 
-          <Staking.Emissions key={`Staking.Emissions`} address={token.address} chainId={token.chainId} isPop={false} />
+          <Synthetix.Emissions key={`Staking.Emissions`} address={token.address} chainId={token.chainId} days={1} />
 
           <Contract.Tvl key={`Contract.TVL`} address={token.address} chainId={token.chainId} />
         </Contract.Metadata>
