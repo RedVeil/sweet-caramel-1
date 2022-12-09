@@ -15,7 +15,6 @@
     "@mailchimp/mailchimp_marketing": "^3.0.75",
     "@popcorn/app": "^1.1.2",
     "@popcorn/hardhat": "^1.1.2",
-    "@popcorn/hooks": "^1.1.2",
     "@popcorn/utils": "^1.1.2",
     "@rainbow-me/rainbowkit": "^0.8.0",
     "@tailwindcss/forms": "0.4.0",
