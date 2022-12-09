@@ -9,7 +9,6 @@ export function FeatureTogglePanel(): JSX.Element {
 
   const [showPanel, setShowPanel] = useState(false);
   const { features, setFeatures } = useContext(FeatureToggleContext);
-  useLog({ enabled, featureTogglePanel: true, APP_ENV: process.env.APP_ENV }, [enabled]);
 
   function toggleFeature(feature: string) {
     const newFeatures = { ...features };
