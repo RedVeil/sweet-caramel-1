@@ -40,6 +40,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
   const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
 
   const metadata = useContractMetadata(staking?.stakingToken?.address, chainId);
+  console.log(staking?.stakingToken?.address);
 
   function onSelectPool() {
     router?.push(
