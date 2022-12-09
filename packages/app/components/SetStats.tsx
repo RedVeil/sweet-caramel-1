@@ -1,7 +1,10 @@
 import { ChainId } from "@popcorn/utils";
 import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
-import { Apy } from "@popcorn/components/pop/Staking";
+import { Apy, useApy } from "@popcorn/components/pop/Staking";
 import { Tvl } from "@popcorn/components/pop/Contract";
+import { FormattedBigNumber } from "@popcorn/components/pop/FormattedBigNumber";
+import { useMultiStatus } from "../../components/pop/utils/hooks/useMultiStatus";
+import useLog from "@popcorn/components/pop/utils/hooks/useLog";
 
 export interface SetStatsProps {
   address: string;
@@ -11,10 +14,19 @@ export interface SetStatsProps {
 }
 
 export default function SetStats({ address, chainId, stakingAddress, symbol }: SetStatsProps) {
+  const { data: baseApy, status: baseApyStatus } = useApy({ address, chainId });
+  const { data: stakingApy, status: stakingApyStatus } = useApy({ address: stakingAddress, chainId });
+  const status = useMultiStatus([baseApyStatus, stakingApyStatus]);
   return (
     <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-0 md:space-x-6">
       <StatusWithLabel
-        content={<Apy chainId={chainId} address={address} />}
+        content={
+          <FormattedBigNumber
+            value={status === "success" && baseApy.value.add(stakingApy.value)}
+            suffix={"%"}
+            status={status}
+          />
+        }
         label={
           <>
             <span className="lowercase">v</span>APR
@@ -25,11 +37,11 @@ export default function SetStats({ address, chainId, stakingAddress, symbol }: S
           title: "How vAPR is calculated",
           content: (
             <>
-              `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying
-              stablecoins (<Apy address={address} chainId={chainId} />) and is boosted with POP (
+              This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins
+              (<Apy address={address} chainId={chainId} />) and is boosted with POP (
               <Apy address={stakingAddress} chainId={chainId} />
               ). You must stake your {symbol} to receive the additional vAPR in POP. 90% of earned POP rewards are
-              vested over one year.`
+              vested over one year.
             </>
           ),
         }}
