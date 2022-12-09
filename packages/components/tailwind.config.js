@@ -40,6 +40,7 @@ module.exports = {
     },
     extend: {
       boxShadow: {
+        customLight: "0px 4px 4px rgba(0, 0, 0, 0.25)",
         custom: "0 4px 14px rgba(101, 135, 169, 0.16)",
         "custom-2": "0px -20px 25px -5px rgba(0, 0, 0, 0.05)",
         scrollableSelect: "inset 0px -4px 11px rgba(0, 0, 0, 0.1), inset 0px 4px 11px rgba(0, 0, 0, 0.1)",

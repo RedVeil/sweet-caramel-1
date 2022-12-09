@@ -5,7 +5,7 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
-import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
@@ -168,6 +168,7 @@ export default function StakeInterface({
                 form={form}
                 onlyView={onlyView}
                 approve={approve}
+                account={account}
                 stake={stake}
                 withdraw={withdraw}
               />

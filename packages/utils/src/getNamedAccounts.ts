@@ -6,10 +6,14 @@ export type DeploymentContractsKeys<ChainId extends keyof Deployments> = keyof D
 
 export type DeploymentChainIds = keyof Deployments;
 
-export type ContractAddresses<ChainId extends keyof Deployments> = {
-  [key in DeploymentContractsKeys<ChainId>]: Deployments[ChainId]["contracts"][keyof Deployments[ChainId]["contracts"]];
-} & { all: Set<string>; has: (contractAddress: string) => boolean };
-
+export type GetNamedAccountsResponse = {
+  address: string;
+  abi?: any;
+  chainId: number;
+  metadata?: any;
+  __alias: string;
+  [key: string]: any;
+}[];
 /**
  * getNamedAccounts is a utility function that returns an array of contracts with metadata defined in namedAccounts.json
  * @param chainId chainId as string
@@ -19,17 +23,25 @@ export type ContractAddresses<ChainId extends keyof Deployments> = {
 export const getNamedAccounts = <Chain extends DeploymentChainIds>(
   chainId: Chain,
   contractAddresses?: Array<DeploymentContractsKeys<Chain>> | undefined[],
-) => {
+): GetNamedAccountsResponse => {
+  if (Number(chainId) === 0) {
+    return Object.keys(deployments).flatMap((chainId) =>
+      Object.keys(deployments[chainId].contracts).map((contract) => map(chainId, contract)),
+    );
+  }
   return !contractAddresses
     ? Object.keys(deployments[chainId].contracts).map((contract) => map(chainId, contract))
     : contractAddresses.map((contract) => map(chainId, contract));
 };
 
-const map = (chainId, contract) => ({
-  ...(deployments[chainId].contracts[contract as string]?.metadata ||
-    deployments[chainId].contracts[(contract as string)?.toLowerCase()]?.metadata),
-  ...(deployments[chainId].contracts[contract as string] ||
-    deployments[chainId].contracts[(contract as string)?.toLowerCase()]),
-  __alias: contract,
-  chainId: chainId,
-});
+const map = (chainId, contractAddress) => {
+  const _contract =
+    deployments[chainId].contracts[(contractAddress as string)?.toLowerCase()] ||
+    deployments[chainId].contracts[contractAddress as string];
+  return {
+    ..._contract,
+    ...(_contract?.metadata || {}),
+    __alias: contractAddress,
+    chainId: chainId,
+  };
+};

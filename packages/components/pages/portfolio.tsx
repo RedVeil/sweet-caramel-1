@@ -15,7 +15,7 @@ export const PortfolioPage: NextPage = () => {
   } = useFeatures();
 
   const { address: account } = useAccount();
-  //const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
+  // const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -109,6 +109,23 @@ export const PortfolioPage: NextPage = () => {
 
           <Escrow.ClaimableBalanceOf
             key={`Escrow.ClaimableBalanceOfValue`}
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+            render={({ balance, price, status }) => (
+              <Contract.Value balance={balance?.value} price={price?.value} status={status} />
+            )}
+          />
+
+          <Escrow.VestingBalanceOf
+            key={`Escrow.VestingBalanceOf`}
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+          />
+
+          <Escrow.VestingBalanceOf
+            key={`Escrow.VestingBalanceOfValue`}
             account={account}
             address={token.address}
             chainId={token.chainId}
