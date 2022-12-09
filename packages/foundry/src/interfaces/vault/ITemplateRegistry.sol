@@ -9,7 +9,7 @@ struct Template {
   address implementation;
   string metadataCid;
   bool requiresInitData;
-  bytes4[8] requriedSigs; // Only for Strategies
+  bytes4[8] requiredSigs; // Only for Strategies
 }
 
 interface ITemplateRegistry is IOwned {

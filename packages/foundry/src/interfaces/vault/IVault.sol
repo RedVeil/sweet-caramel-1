@@ -4,9 +4,6 @@ pragma solidity ^0.8.15;
 
 import { IERC4626, IERC20 } from "./IERC4626.sol";
 import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
-import { IOwned } from "../IOwned.sol";
-import { IPermit } from "../IPermit.sol";
-import { IPausable } from "../IPausable.sol";
 import { IKeeperIncentiveV2 } from "../IKeeperIncentiveV2.sol";
 
 // Fees are set in 1e18 for 100% (1 BPS = 1e14)
@@ -69,15 +66,15 @@ interface IVault is IERC4626 {
 
   function proposalTimeStamp() external view returns (uint256);
 
-  function proposeNewAdapter(IERC4626 newAdapter) external;
+  function proposeAdapter(IERC4626 newAdapter) external;
 
   function changeAdapter() external;
 
   // MANAGEMENT FUNCTIONS - FEES
 
-  function proposeNewFees(FeeStructure memory) external;
+  function proposeFees(FeeStructure memory) external;
 
-  function setFees() external;
+  function changeFees() external;
 
   function withdrawAccruedFees() external;
 

@@ -84,7 +84,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
      @param adapterInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
     */
   function initialize(bytes memory popERC4626InitData, bytes memory adapterInitData) public initStrategy {
-    (IBeefyVault _beefyVault, IBeefyBooster _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
+    (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
       adapterInitData,
       (address, address, uint256)
     );
@@ -92,22 +92,19 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
-    if (_beefyVault.want() != asset()) revert InvalidBeefyVault(address(_beefyVault));
-    if (address(_beefyBooster) != address(0) && _beefyBooster.stakedToken() != address(_beefyVault))
-      revert InvalidBeefyBooster(address(_beefyBooster));
+    if (IBeefyVault(_beefyVault).want() != asset()) revert InvalidBeefyVault(_beefyVault);
+    if (_beefyBooster != address(0) && IBeefyBooster(_beefyBooster).stakedToken() != _beefyVault)
+      revert InvalidBeefyBooster(_beefyBooster);
 
-    beefyVault = _beefyVault;
-    beefyBooster = _beefyBooster;
+    beefyVault = IBeefyVault(_beefyVault);
+    beefyBooster = IBeefyBooster(_beefyBooster);
     beefyWithdrawalFee = _beefyWithdrawalFee;
 
-    beefyBalanceCheck = IBeefyBalanceCheck(
-      address(_beefyBooster) == address(0) ? address(_beefyVault) : address(_beefyBooster)
-    );
+    beefyBalanceCheck = IBeefyBalanceCheck(_beefyBooster == address(0) ? _beefyVault : _beefyBooster);
 
-    ERC20(asset()).approve(address(beefyVault), type(uint256).max);
+    ERC20(asset()).approve(_beefyVault, type(uint256).max);
 
-    if (address(_beefyBooster) != address(0))
-      ERC20(address(_beefyVault)).approve(address(_beefyBooster), type(uint256).max);
+    if (_beefyBooster != address(0)) ERC20(_beefyVault).approve(_beefyBooster, type(uint256).max);
   }
 
   /*//////////////////////////////////////////////////////////////

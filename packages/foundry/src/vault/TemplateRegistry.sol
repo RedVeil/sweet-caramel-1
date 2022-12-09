@@ -38,7 +38,7 @@ contract TemplateRegistry is Owned {
     address implementation,
     string memory metadataCid,
     bool requiresInitData,
-    bytes4[8] memory requriedSigs
+    bytes4[8] memory requiredSigs
   ) external onlyOwner {
     if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
     if (templateTypeExists[templateId]) revert TemplateExists(templateId);
@@ -47,7 +47,7 @@ contract TemplateRegistry is Owned {
       implementation: implementation,
       metadataCid: metadataCid,
       requiresInitData: requiresInitData,
-      requriedSigs: requriedSigs
+      requiredSigs: requiredSigs
     });
 
     templateIds[templateType].push(templateId);

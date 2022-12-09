@@ -23,7 +23,11 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
   string private _symbol;
   uint8 private _decimals;
 
-  function initialize(IERC20 _stakingToken, IMultiRewardsEscrow _escrow, address _owner) external initializer {
+  function initialize(
+    IERC20 _stakingToken,
+    IMultiRewardsEscrow _escrow,
+    address _owner
+  ) external initializer {
     __ERC4626_init(IERC20Metadata(address(_stakingToken)));
     __Owned_init(_owner);
 
@@ -123,7 +127,11 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     emit Withdraw(caller, receiver, owner, assets, shares);
   }
 
-  function _transfer(address from, address to, uint256 amount) internal override accrueRewards(from, to) {
+  function _transfer(
+    address from,
+    address to,
+    uint256 amount
+  ) internal override accrueRewards(from, to) {
     if (from == address(0) || to == address(0)) revert ZeroAddressTransfer(from, to);
 
     uint256 fromBalance = balanceOf(from);
@@ -165,7 +173,12 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     }
   }
 
-  function _lockToken(address user, IERC20 rewardsToken, uint256 rewardAmount, EscrowInfo memory escrowInfo) internal {
+  function _lockToken(
+    address user,
+    IERC20 rewardsToken,
+    uint256 rewardAmount,
+    EscrowInfo memory escrowInfo
+  ) internal {
     uint256 escrowed = rewardAmount.mulDiv(uint256(escrowInfo.escrowPercentage), 1e8, Math.Rounding.Down);
     uint256 payout = rewardAmount - escrowed;
 
@@ -265,7 +278,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     });
     if (useEscrow) rewardsToken.safeApprove(address(escrow), type(uint256).max);
 
-    uint64 ONE = (10 ** IERC20Metadata(address(rewardsToken)).decimals()).safeCastTo64();
+    uint64 ONE = (10**IERC20Metadata(address(rewardsToken)).decimals()).safeCastTo64();
     uint32 rewardsEndTimestamp = rewardsPerSecond == 0
       ? block.timestamp.safeCastTo32()
       : _calcRewardsEnd(0, rewardsPerSecond, amount);
@@ -291,9 +304,9 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
 
     uint256 remainder = rewardsToken.balanceOf(address(this));
 
-    uint256 prevEndTime = rewards.rewardsEndTimestamp;
-    uint256 rewardsEndTimestamp = _calcRewardsEnd(
-      prevEndTime > block.timestamp ? prevEndTime : block.timestamp,
+    uint32 prevEndTime = rewards.rewardsEndTimestamp;
+    uint32 rewardsEndTimestamp = _calcRewardsEnd(
+      prevEndTime > block.timestamp ? prevEndTime : block.timestamp.safeCastTo32(),
       rewardsPerSecond,
       remainder
     );
@@ -324,7 +337,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
 
     // Update the index of rewardsInfo before updating the rewardsInfo
     _accrueRewards(rewardsToken, accrued);
-    uint256 rewardsEndTimestamp;
+    uint32 rewardsEndTimestamp;
     if (rewards.rewardsPerSecond > 0) {
       rewardsEndTimestamp = _calcRewardsEnd(rewards.rewardsEndTimestamp, rewards.rewardsPerSecond, amount);
       rewardsInfos[rewardsToken].rewardsEndTimestamp = rewardsEndTimestamp;
@@ -385,7 +398,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     uint256 supplyTokens = totalSupply();
     uint224 deltaIndex;
     if (supplyTokens != 0)
-      deltaIndex = accrued.mulDiv(uint256(10 ** decimals()), supplyTokens, Math.Rounding.Down).safeCastTo224();
+      deltaIndex = accrued.mulDiv(uint256(10**decimals()), supplyTokens, Math.Rounding.Down).safeCastTo224();
 
     rewardsInfos[_rewardsToken].index += deltaIndex;
     rewardsInfos[_rewardsToken].lastUpdatedTimestamp = block.timestamp.safeCastTo32();

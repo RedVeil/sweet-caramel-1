@@ -40,9 +40,10 @@ contract DeploymentController is Owned {
     bytes32 templateId,
     address implementation,
     string memory metadataCid,
-    bool requiresInitData
+    bool requiresInitData,
+    bytes4[8] memory requiredSigs
   ) external {
-    templateRegistry.addTemplate(templateType, templateId, implementation, metadataCid, requiresInitData);
+    templateRegistry.addTemplate(templateType, templateId, implementation, metadataCid, requiresInitData, requiredSigs);
   }
 
   function addTemplateType(bytes32 templateType) external onlyOwner {
@@ -55,6 +56,10 @@ contract DeploymentController is Owned {
 
   function templateExists(bytes32 templateId) external view returns (bool) {
     templateRegistry.templateExists(templateId);
+  }
+
+  function getTemplate(bytes32 templateType, bytes32 templateId) external view returns (Template memory) {
+    return templateRegistry.templates(templateType, templateId);
   }
 
   /*//////////////////////////////////////////////////////////////

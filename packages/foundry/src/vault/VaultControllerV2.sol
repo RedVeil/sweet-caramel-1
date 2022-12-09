@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import { Owned } from "../utils/Owned.sol";
 import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
 import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
-import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
 import { IVault, VaultParams, FeeStructure } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
 import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
@@ -14,9 +13,10 @@ import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
 import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
 import { IVaultsRegistry, VaultMetadata } from "../interfaces/vault/IVaultsRegistry.sol";
 import { IAdminProxy } from "../interfaces/vault/IAdminProxy.sol";
-import { IERC4626 } from "../interfaces/vault/IERC4626.sol";
+import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IStrategy } from "../interfaces/vault/IStrategy.sol";
 import { IAdapter } from "../interfaces/vault/IAdapter.sol";
+import { IPausable } from "../interfaces/IPausable.sol";
 
 contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ contract VaultsController is Owned {
 
   struct DeploymentArgs {
     /// @Notice templateId
-    bytes32 Id;
+    bytes32 id;
     /// @Notice encoded init params
     bytes data;
   }
@@ -70,13 +70,13 @@ contract VaultsController is Owned {
     IERC20 asset = vaultData.asset;
     IDeploymentController _deploymentController = deploymentController;
     if (!endorsementRegistry.endorsed(address(asset))) revert AssetNotEndorsed(asset);
-    if (vaultData.adapter != address(0)) {
-      if (adapterData.Id > 0) revert MisConfig();
+    if (address(vaultData.adapter) != address(0)) {
+      if (adapterData.id > 0) revert MisConfig();
       if (!_deploymentController.cloneExists(address(vaultData.adapter))) revert MisConfig();
     }
 
-    if (adapterData.Id.length > 0)
-      vaultData.adapter = _deployStrategyAndAdapter(strategyData, adapterData, asset, _deploymentController);
+    if (adapterData.id.length > 0)
+      vaultData.adapter = IERC4626(_deployStrategyAndAdapter(strategyData, adapterData, asset, _deploymentController));
 
     vault = _deployVault(vaultData, _deploymentController);
 
@@ -94,13 +94,13 @@ contract VaultsController is Owned {
 
     _registerVault(vault, staking, metadata);
 
-    emit VaultDeployed(vault, staking, vaultData.adapter);
+    emit VaultDeployed(vault, staking, address(vaultData.adapter));
   }
 
-  function _deployVault(
-    VaultParams memory vaultData,
-    IDeploymentController deploymentController
-  ) internal returns (address vault) {
+  function _deployVault(VaultParams memory vaultData, IDeploymentController deploymentController)
+    internal
+    returns (address vault)
+  {
     vaultData.owner = address(adminProxy);
     vaultData.keeperIncentive = keeperIncentive;
 
@@ -113,7 +113,7 @@ contract VaultsController is Owned {
             "initialize(address,address,(uint256,uint256,uint256,uint256),address,address,(uint256,uint256,uint256),address)"
           )
         ),
-        vaultData
+        abi.encode(vaultData)
       )
     );
   }
@@ -135,7 +135,7 @@ contract VaultsController is Owned {
     IDeploymentController deploymentController
   ) internal returns (address adapter) {
     address strategy;
-    bytes[8] memory requiredSigs;
+    bytes4[8] memory requiredSigs;
     if (strategyData.id.length > 0) {
       strategy = deploymentController.deploy(STRATEGY, strategyData.id, "");
       Template memory strategyTemplate = deploymentController.getTemplate(STRATEGY, strategyData.id);
@@ -153,7 +153,7 @@ contract VaultsController is Owned {
 
     adapter = deploymentController.deploy(
       ADAPTER,
-      adapterData.Id,
+      adapterData.id,
       abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), bytes.concat(adapterBaseData, adapterData.data))
     );
 
@@ -177,7 +177,11 @@ contract VaultsController is Owned {
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @dev avoids stack too deep in deployVaultFromFactory
    */
-  function _handleKeeperSetup(address _vault, KeeperConfig memory _keeperConfig, bytes memory addKeeperData) internal {
+  function _handleKeeperSetup(
+    address _vault,
+    KeeperConfig memory _keeperConfig,
+    bytes memory addKeeperData
+  ) internal {
     (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
       addKeeperData,
       (bool, bool, uint256)
@@ -194,7 +198,11 @@ contract VaultsController is Owned {
     );
   }
 
-  function _registerVault(address vault, address staking, VaultMetadata memory metadata) internal {
+  function _registerVault(
+    address vault,
+    address staking,
+    VaultMetadata memory metadata
+  ) internal {
     metadata.vaultAddress = vault;
     metadata.staking = staking;
     metadata.submitter = msg.sender;
@@ -207,18 +215,18 @@ contract VaultsController is Owned {
     //////////////////////////////////////////////////////////////*/
 
   /**
-   * @notice Propose a new Strategy.
+   * @notice Propose a new Adapter.
    * @param vaults - addresses of the vaults
    * @param newAdapter - new strategies to be proposed for the vault
    * @dev index of _vaults array and _newStrategies array must coincide
    */
-  function proposeNewVaultAdapter(address[] memory vaults, IERC4626[] memory newAdapter) external {
+  function proposeVaultAdapter(address[] memory vaults, IERC4626[] memory newAdapter) external {
     IDeploymentController _deploymentController = deploymentController;
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
       _deploymentController.cloneExists(address(newAdapter[i]));
-      IVault(vaults[i]).proposeNewStrategy(newAdapter[i]);
+      IVault(vaults[i]).proposeAdapter(newAdapter[i]);
     }
   }
 
@@ -226,10 +234,10 @@ contract VaultsController is Owned {
    * @notice Change adapter of a vault to the previously proposed adapter.
    * @param vaults - addresses of the vaults
    */
-  function changeVaultStrategy(address[] memory vaults) external {
-    uint8 len = vaults.length;
+  function changeVaultAdapter(address[] memory vaults) external {
+    uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
-      IVault(vaults[i]).changeStrategy();
+      IVault(vaults[i]).changeAdapter();
     }
   }
 
@@ -240,11 +248,22 @@ contract VaultsController is Owned {
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    * @dev index of _vaults array and _newFees must coincide
    */
-  function setVaultFees(address[] memory vaults, FeeStructure[] memory newFees) external {
-    uint8 len = vaults.length;
+  function proposeVaultFees(address[] memory vaults, FeeStructure[] memory newFees) external {
+    uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
-      IVault(vaults[i]).setFees(newFees[i]);
+      IVault(vaults[i]).proposeFees(newFees[i]);
+    }
+  }
+
+  /**
+   * @notice Change adapter of a vault to the previously proposed adapter.
+   * @param vaults - addresses of the vaults
+   */
+  function changeVaultFees(address[] memory vaults) external {
+    uint8 len = uint8(vaults.length);
+    for (uint8 i = 0; i < len; i++) {
+      IVault(vaults[i]).changeFees();
     }
   }
 
@@ -255,7 +274,7 @@ contract VaultsController is Owned {
    * @dev index of _vaults array and _keeperConfigs must coincide
    */
   function setVaultKeeperConfig(address[] memory vaults, KeeperConfig[] memory keeperConfigs) external {
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
       IVault(vaults[i]).setKeeperConfig(keeperConfigs[i]);
@@ -265,7 +284,7 @@ contract VaultsController is Owned {
   error NotSubmitter(address caller);
 
   function _verifySubmitter(address vault) internal returns (VaultMetadata memory metadata) {
-    metadata = vaultsRegistry.getVault(vault);
+    metadata = vaultsRegistry.vaults(vault);
     if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
   }
 
@@ -287,12 +306,13 @@ contract VaultsController is Owned {
   error TokenBad(IERC20 token);
 
   function _verifyToken(address token) internal {
-    if (!endorsementRegistry.endorsed(token) || !deploymentController.cloneExists(token)) revert TokenBad(token);
+    if (!endorsementRegistry.endorsed(token) || !deploymentController.cloneExists(token))
+      revert TokenBad(IERC20(token));
   }
 
   function addRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) public {
     VaultMetadata memory metadata;
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       (
         address rewardsToken,
@@ -302,7 +322,7 @@ contract VaultsController is Owned {
         uint224 escrowDuration,
         uint24 escrowPercentage,
         uint256 offset
-      ) = abi.decode(rewardsTokenData, (address, uint160, uint256, bool, uint224, uint24, uint256));
+      ) = abi.decode(rewardsTokenData[i], (address, uint160, uint256, bool, uint224, uint24, uint256));
       _verifyToken(rewardsToken);
       metadata = _verifySubmitterOrOwner(vaults[i]);
       IMultiRewardsStaking(metadata.staking).addRewardsToken(
@@ -319,20 +339,20 @@ contract VaultsController is Owned {
 
   function changeRewardsSpeed(address[] memory vaults, bytes[] memory rewardsTokenData) external {
     VaultMetadata memory metadata;
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       metadata = _verifySubmitter(vaults[i]);
-      (address rewardsToken, uint160 rewardsPerSecond) = abi.decode(rewardsTokenData, (address, uint160));
+      (address rewardsToken, uint160 rewardsPerSecond) = abi.decode(rewardsTokenData[i], (address, uint160));
       IMultiRewardsStaking(metadata.staking).changeRewardSpeed(IERC20(rewardsToken), rewardsPerSecond);
     }
   }
 
   function fundReward(address[] memory vaults, bytes[] memory rewardsTokenData) external {
     VaultMetadata memory metadata;
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      metadata = vaultsRegistry.getVault(vaults[i]);
-      (address rewardsToken, uint256 amount) = abi.decode(rewardsTokenData, (address, uint256));
+      metadata = vaultsRegistry.vaults(vaults[i]);
+      (address rewardsToken, uint256 amount) = abi.decode(rewardsTokenData[i], (address, uint256));
       IMultiRewardsStaking(metadata.staking).fundReward(IERC20(rewardsToken), amount);
     }
   }
@@ -359,7 +379,7 @@ contract VaultsController is Owned {
 
   function addTemplateType(bytes32[] memory templateTypes) external onlyOwner {
     IDeploymentController _deploymentController = deploymentController;
-    uint8 len = templateTypes.length;
+    uint8 len = uint8(templateTypes.length);
     for (uint256 i = 0; i < len; i++) {
       _deploymentController.addTemplateType(templateTypes[i]);
     }
@@ -371,41 +391,41 @@ contract VaultsController is Owned {
   error NotSubmitterNorOwner(address caller);
 
   function pauseAdapter(address[] calldata vaults) external {
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
       address adapter = IVault(vaults[i]).adapter();
-      IVault(adapter).pause();
+      IPausable(adapter).pause();
     }
   }
 
   function pauseVault(address[] calldata vaults) external {
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      IVault(vaults[i]).pause();
+      IPausable(vaults[i]).pause();
     }
   }
 
   function unpauseAdapter(address[] calldata vaults) external {
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
       address adapter = IVault(vaults[i]).adapter();
-      IVault(adapter).unpause();
+      IPausable(adapter).unpause();
     }
   }
 
   function unpauseVault(address[] calldata vaults) external {
-    uint8 len = vaults.length;
+    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      IVault(vaults[i]).unpause();
+      IPausable(vaults[i]).unpause();
     }
   }
 
   function _verifySubmitterOrOwner(address vault) internal returns (VaultMetadata memory metadata) {
-    metadata = vaultsRegistry.getVault(vault);
+    metadata = vaultsRegistry.vaults(vault);
     if (msg.sender != metadata.submitter || msg.sender != owner) revert NotSubmitterNorOwner(msg.sender);
   }
 

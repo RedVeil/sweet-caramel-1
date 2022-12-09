@@ -40,8 +40,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
       address _strategy,
       uint256 _harvestCooldown,
       bytes4[8] memory _requiredSigs,
-      bytes memory _strategyConfig,
-
+      bytes memory _strategyConfig
     ) = abi.decode(popERC4626InitData, (address, address, address, uint256, bytes4[8], bytes));
     __Owned_init(_owner);
     __Pausable_init();
@@ -291,7 +290,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   uint256 constant SECONDS_PER_YEAR = 365.25 days;
 
   // TODO use deterministic fee recipient proxy
-  address FEE_RECIPIENT = 0x4444;
+  address FEE_RECIPIENT = address(0x4444);
 
   uint256 assetsCheckpoint;
   uint256 feesUpdatedAt;

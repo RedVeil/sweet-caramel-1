@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.12;
 
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { ERC20Upgradeable } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
@@ -11,6 +11,7 @@ import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 // Needs to extract VaultAPI interface out of BaseStrategy to avoid collision
 contract YearnWrapper is ERC20Upgradeable {
+  using SafeERC20 for IERC20;
   using FixedPointMathLib for uint256;
 
   VaultAPI public yVault;
@@ -151,7 +152,11 @@ contract YearnWrapper is ERC20Upgradeable {
     emit Deposit(msg.sender, receiver, assets, shares);
   }
 
-  function withdraw(uint256 assets, address receiver, address owner) public returns (uint256 shares) {
+  function withdraw(
+    uint256 assets,
+    address receiver,
+    address owner
+  ) public returns (uint256 shares) {
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
     (uint256 _withdrawn, uint256 _burntShares) = _withdraw(assets, receiver, msg.sender);
@@ -160,7 +165,11 @@ contract YearnWrapper is ERC20Upgradeable {
     return _burntShares;
   }
 
-  function redeem(uint256 shares, address receiver, address owner) public returns (uint256 assets) {
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public returns (uint256 assets) {
     require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -176,15 +185,15 @@ contract YearnWrapper is ERC20Upgradeable {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view returns (uint256) {
-    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10 ** _decimals);
+    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10**_decimals);
   }
 
   function convertToShares(uint256 assets) public view returns (uint256) {
-    return (assets * (10 ** _decimals)) / yVault.pricePerShare();
+    return (assets * (10**_decimals)) / yVault.pricePerShare();
   }
 
   function convertToAssets(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10 ** _decimals);
+    return (shares * yVault.pricePerShare()) / (10**_decimals);
   }
 
   function previewDeposit(uint256 assets) public view returns (uint256) {
@@ -192,15 +201,15 @@ contract YearnWrapper is ERC20Upgradeable {
   }
 
   function previewMint(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10 ** _decimals);
+    return (shares * yVault.pricePerShare()) / (10**_decimals);
   }
 
   function previewWithdraw(uint256 assets) public view returns (uint256) {
-    return (assets * (10 ** _decimals)) / yVault.pricePerShare();
+    return (assets * (10**_decimals)) / yVault.pricePerShare();
   }
 
   function previewRedeem(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10 ** _decimals);
+    return (shares * yVault.pricePerShare()) / (10**_decimals);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -239,7 +248,7 @@ contract YearnWrapper is ERC20Upgradeable {
       amount = Math.min(_token.balanceOf(depositor), _token.allowance(depositor, address(this)));
     }
 
-    SafeERC20.safeTransferFrom(_token, depositor, address(this), amount);
+    _token.safeTransferFrom(depositor, address(this), amount);
 
     // beforeDeposit custom logic
 
@@ -276,7 +285,7 @@ contract YearnWrapper is ERC20Upgradeable {
 
     if (availableShares == 0) revert NoAvailableShares();
 
-    uint256 estimatedMaxShares = (amount * 10 ** uint256(_vault.decimals())) / _vault.pricePerShare();
+    uint256 estimatedMaxShares = (amount * 10**uint256(_vault.decimals())) / _vault.pricePerShare();
 
     if (estimatedMaxShares > availableShares) revert NotEnoughAvailableSharesForAmount();
 
@@ -292,6 +301,6 @@ contract YearnWrapper is ERC20Upgradeable {
     _burn(sender, burntShares);
 
     // return unusedShares to sender
-    if (unusedShares > 0) SafeERC20.safeTransfer(_vault, sender, unusedShares);
+    if (unusedShares > 0) IERC20(address(_vault)).safeTransfer(sender, unusedShares);
   }
 }

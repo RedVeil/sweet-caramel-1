@@ -6,6 +6,7 @@ pragma solidity ^0.8.15;
 import { ICloneFactory } from "./ICloneFactory.sol";
 import { ICloneRegistry } from "./ICloneRegistry.sol";
 import { IEndorsementRegistry } from "./IEndorsementRegistry.sol";
+import { Template } from "./ITemplateRegistry.sol";
 
 interface IDeploymentController is ICloneFactory, ICloneRegistry {
   function templateTypeExists(bytes32 templateType) external view returns (bool);
@@ -22,4 +23,6 @@ interface IDeploymentController is ICloneFactory, ICloneRegistry {
   ) external;
 
   function addTemplateType(bytes32 templateType) external;
+
+  function getTemplate(bytes32 templateType, bytes32 templateId) external view returns (Template memory);
 }

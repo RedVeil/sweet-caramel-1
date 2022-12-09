@@ -64,7 +64,7 @@ contract Vault is
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10 ** decimals();
+    ONE = 10**decimals();
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
@@ -117,10 +117,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(
-    uint256 assets,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 shares)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
@@ -155,10 +158,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(
-    uint256 shares,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 assets) {
+  function mint(uint256 shares, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 assets)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = feeStructure.deposit;
@@ -237,7 +243,11 @@ contract Vault is
    * @param owner Owner of burned vault shares.
    * @return assets of underlying sent to `receiver`.
    */
-  function redeem(uint256 shares, address receiver, address owner) public nonReentrant returns (uint256 assets) {
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public nonReentrant returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -494,7 +504,7 @@ contract Vault is
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
-  function proposeNewFees(FeeStructure memory newFees) external onlyOwner {
+  function proposeFees(FeeStructure memory newFees) external onlyOwner {
     if (
       newFees.deposit >= 1e18 || newFees.withdrawal >= 1e18 || newFees.management >= 1e18 || newFees.performance >= 1e18
     ) revert InvalidFeeStructure();
@@ -508,7 +518,7 @@ contract Vault is
   /**
    * @notice Set fees in BPS to proposed fees from proposeNewFees function
    */
-  function setFees() external {
+  function changeFees() external {
     if (block.timestamp < proposedFeeTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
     emit FeesUpdated(feeStructure, proposedFees);
@@ -544,7 +554,7 @@ contract Vault is
    * @param newAdapter A new ERC4626 that should be used as a yield adapter for this asset.
    * @dev The new adapter can be active 3 Days by default after proposal. This allows user to rage quit.
    */
-  function proposeNewAdapter(IERC4626 newAdapter) external onlyOwner {
+  function proposeAdapter(IERC4626 newAdapter) external onlyOwner {
     if (newAdapter.asset() != address(asset)) revert VaultAssetMismatchNewAdapterAsset();
 
     proposedAdapter = newAdapter;

@@ -16,4 +16,6 @@ interface IAdapter is IERC4626, IOwned, IPermit, IPausable {
   function strategyWithdraw(uint256 assets, uint256 shares) external;
 
   function supportsInterface(bytes4 interfaceId) external view returns (bool);
+
+  function setManagementFee(uint256 fee) external;
 }
