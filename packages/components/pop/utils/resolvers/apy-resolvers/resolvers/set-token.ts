@@ -6,10 +6,8 @@ import { resolve_apy } from "../resolve_apy";
 
 export async function set_token(address, chainId, rpc): Promise<{ value: BigNumber; decimals: number }> {
   const components = await getComponents({ address, rpc });
-  console.log({ components, address, chainId, rpc, SET_TOKEN: "ASA" });
 
   const quantities = await getRequiredComponentUnitsForIssue({ address, rpc });
-  console.log({ components, quantities, address, chainId, rpc, SET_TOKEN: "ASA" });
 
   const apys = await Promise.all(
     components.map(async (component) => {
@@ -18,13 +16,10 @@ export async function set_token(address, chainId, rpc): Promise<{ value: BigNumb
     }),
   );
 
-  console.log({ apys, components, quantities, address, chainId, rpc, SET_TOKEN: "ASA" });
-
   const prices = await Promise.all(
     components.map(async (component) => [component, await resolve_price({ address: component, chainId, rpc })]),
   );
 
-  console.log({ prices, components, quantities, address, chainId, rpc, SET_TOKEN: true, chicken: true });
   const componentValues = prices.reduce((acc, [component, price]) => {
     const value = price.value.mul(quantities[component]).div(parseEther("1"));
     return {
@@ -34,27 +29,11 @@ export async function set_token(address, chainId, rpc): Promise<{ value: BigNumb
     };
   }, {});
 
-  console.log({ componentValues });
-
   const apy = apys.reduce(
     (acc, [component, apy], index) =>
       acc.add(componentValues[component].mul(apy).div(componentValues.total).mul(parseUnits("1", 2))),
     parseEther("0"),
   );
-  console.log({ apy, apyOnly: true });
-  console.log({
-    address,
-    chainId,
-    rpc,
-    SET_TOKEN: "YOYO",
-    apy: apy.toString(),
-    componentValues,
-    apys,
-    prices,
-    reducer: true,
-    quantities,
-    components,
-  });
 
   return { value: apy, decimals: 18 };
 }
