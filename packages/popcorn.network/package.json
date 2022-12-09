@@ -6,7 +6,8 @@
     "dev": "next",
     "build": "yarn next build",
     "export": "yarn next export",
-    "test": "jest"
+    "test": "jest",
+    "prettify": "yarn lint-staged --allow-empty"
   },
   "dependencies": {
     "@ethersproject/contracts": "^5.0.12",
