@@ -6,7 +6,7 @@ import { BigNumberWithFormatted, Pop } from "../../types";
 import useLog from "../../utils/hooks/useLog";
 
 interface UseEmissionsProps extends Pop.StdProps {
-  days: number
+  days: number;
 }
 
 export const useEmissions = ({ chainId, address, days, enabled }: UseEmissionsProps) => {
@@ -29,12 +29,18 @@ export const useEmissions = ({ chainId, address, days, enabled }: UseEmissionsPr
     cacheOnBlock: true,
   }) as Pop.HookResult<BigNumber>;
 
-  useLog({ address, metadata, _apyResolver, enabled, chainId, _enabled }, [address, metadata, _apyResolver, enabled, chainId, _enabled])
+  useLog({ address, metadata, _apyResolver, enabled, chainId, _enabled }, [
+    address,
+    metadata,
+    _apyResolver,
+    enabled,
+    chainId,
+    _enabled,
+  ]);
 
   const daysInSeconds = 60 * 60 * 24 * days;
 
   const tokenEmission = data?.mul(BigNumber.from(daysInSeconds));
-
 
   return {
     data: {
