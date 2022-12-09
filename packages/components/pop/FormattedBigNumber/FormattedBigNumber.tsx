@@ -16,13 +16,13 @@ interface FormattedBigNumerProps {
 
 export const Hoc =
   (Component: React.FC<FormattedBigNumerProps>) =>
-    ({ value, decimals, suffix, prefix, ...props }: FormattedBigNumerProps) => {
-      const formatted = useMemo(() => {
-        return (value && formatAndRoundBigNumber(value, decimals || 18)) || "0";
-      }, [value, decimals]);
+  ({ value, decimals, suffix, prefix, ...props }: FormattedBigNumerProps) => {
+    const formatted = useMemo(() => {
+      return (value && formatAndRoundBigNumber(value, decimals || 18)) || "0";
+    }, [value, decimals]);
 
-      return <Component {...props} formatted={formatted + suffix} />;
-    };
+    return <Component {...props} formatted={formatted + suffix} />;
+  };
 export const FormattedBigNumber = Hoc(withLoading(({ formatted }) => <>{formatted}</>));
 
 export default FormattedBigNumber;

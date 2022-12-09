@@ -367,7 +367,7 @@ main.dependencies = [
   "beneficiary-governance",
   "beneficiary-registry",
   "grant-elections",
-  "faucet"
+  "faucet",
 ];
 main.tags = ["core", "beneficiary-governance-demo-data"];
 

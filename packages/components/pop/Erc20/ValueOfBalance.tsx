@@ -9,14 +9,14 @@ import { useMultiStatus } from "../utils/hooks/useMultiStatus";
 
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
-    ({ ...props }: Pop.BaseContractProps) => {
-      const { data: balance, status: balanceStatus } = useBalanceOf(props);
-      const { data: price, status: priceStatus } = usePrice(props);
-      const { data, status: valueStatus } = useBalanceValue({ ...props, balance: balance?.value, price: price?.value });
-      const status = useMultiStatus([balanceStatus, priceStatus, valueStatus]);
+  ({ ...props }: Pop.BaseContractProps) => {
+    const { data: balance, status: balanceStatus } = useBalanceOf(props);
+    const { data: price, status: priceStatus } = usePrice(props);
+    const { data, status: valueStatus } = useBalanceValue({ ...props, balance: balance?.value, price: price?.value });
+    const status = useMultiStatus([balanceStatus, priceStatus, valueStatus]);
 
-      return <Component {...props} data={data} status={status} />;
-    };
+    return <Component {...props} data={data} status={status} />;
+  };
 
 export const ValueOfBalance = eth_call(withLogging(withLoading(({ data }) => <>${data?.formatted || "0"}</>)));
 

@@ -10,18 +10,12 @@ export default {
   },
 } as ComponentMeta<typeof TabSwitcher>;
 
-
 const Template: ComponentStory<typeof TabSwitcher> = (args) => <TabSwitcher {...args} />;
 const TabPanelTemplate: ComponentStory<typeof TabPanel> = (args) => <TabPanel {...args} />;
 export const Primary = Template.bind({});
 
 Primary.args = {
-  tabs: [
-    { label: "All" },
-    { label: "Products" },
-    { label: "Rewards" },
-    { label: "Assets" },
-  ],
+  tabs: [{ label: "All" }, { label: "Products" }, { label: "Rewards" }, { label: "Assets" }],
   defaultActiveTab: "All",
   children: (
     <div className="mt-5">
@@ -32,4 +26,3 @@ Primary.args = {
     </div>
   ),
 };
-
