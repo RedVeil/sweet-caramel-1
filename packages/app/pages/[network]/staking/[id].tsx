@@ -29,7 +29,7 @@ export default function StakingPage(): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const { data: tokenPriceData, isValidating: tokenPriceValidating } = useTokenPrices([stakingToken?.address], chainId);
   const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
-  const isLoading = isValidating || tokenPriceValidating;
+  const isLoading = !stakingPool && (isValidating || tokenPriceValidating);
   const transaction = useTransaction(chainId);
 
   useEffect(() => {

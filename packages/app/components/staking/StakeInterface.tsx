@@ -168,6 +168,7 @@ export default function StakeInterface({
                 form={form}
                 onlyView={onlyView}
                 approve={approve}
+                account={account}
                 stake={stake}
                 withdraw={withdraw}
               />
