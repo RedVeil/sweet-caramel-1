@@ -4,15 +4,15 @@ import { withLoading } from "../utils/hocs/withLoading";
 import { useEmissions } from "./hooks";
 
 interface EmissionsProps extends Pop.BaseContractProps {
-  isPop: boolean;
+  days: number;
 }
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
-  ({ ...props }: EmissionsProps) => {
-    const { data, status } = useEmissions({ ...props });
-    return <Component {...props} data={data} status={status} />;
-  };
+    ({ ...props }: EmissionsProps) => {
+      const { data, status } = useEmissions({ ...props });
+      return <Component {...props} data={data} status={status} />;
+    };
 
-export const Emissions = eth_call(withLoading(({ data }) => <>{`${data?.formatted} POP / day` || "n/a"}</>));
+export const Emissions = eth_call(withLoading(({ data }) => <>{data?.formatted || "n/a"}</>));
 
 export default Emissions;
