@@ -5,8 +5,8 @@ export {
   percentageToBps,
   prepareHotSwap,
 } from "./butterHelpers";
-export { verifyEmail } from "./VerifyEmail";
-export { isChainIdPolygonOrLocal } from "./PolygonHelpers";
+export { verifyEmail } from "./verifyEmail";
+export { isChainIdPolygonOrLocal } from "./polygonHelpers";
 export { capitalize } from "./capitalize";
 export * from "./connectors";
 export { formatAndRoundBigNumber, numberToBigNumber } from "./formatBigNumber";

@@ -6,6 +6,8 @@ import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { useEffect, useState } from "react";
+import { Pop } from "@popcorn/components/pop/types";
+import { Erc20 } from "@popcorn/components";
 
 export interface TokenInputProps {
   label: string;
@@ -14,9 +16,11 @@ export interface TokenInputProps {
   setAmount: Function;
   balance?: BigNumber;
   readonly?: boolean;
+  account?: string;
   tokenList?: Token[];
   selectToken?: (token: Token) => void;
   chainId: ChainId;
+  spendableBalance?: Pop.HookResult<BigNumber>;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
@@ -29,10 +33,22 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   tokenList = [],
   selectToken = null,
   chainId,
+  spendableBalance,
+  account,
 }) => {
   const [displayAmount, setDisplayAmount] = useState<string>(
     amount.isZero() ? "" : formatUnits(amount, token?.decimals),
   );
+  const displaySpendableBalance =
+    spendableBalance?.status === "success" &&
+    !!balance &&
+    !balance.eq(constants.Zero) &&
+    !!spendableBalance?.data &&
+    !spendableBalance.data.eq(balance);
+
+  const spendableBalanceFormatted = displaySpendableBalance
+    ? formatAndRoundBigNumber(spendableBalance?.data, token.decimals)
+    : "";
 
   useEffect(() => {
     if (amount.isZero()) {
@@ -53,8 +69,9 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   };
 
   function setMaxAmount() {
-    setDisplayAmount(formatUnits(balance, token?.decimals));
-    setAmount(balance);
+    const max = displaySpendableBalance ? spendableBalance?.data : balance;
+    setDisplayAmount(formatUnits(max, token?.decimals));
+    setAmount(max);
   }
 
   return (
@@ -121,7 +138,10 @@ export const TokenInput: React.FC<TokenInputProps> = ({
               height="13"
               className="mr-2"
             />
-            <p className="text-secondaryLight leading-6">{formatAndRoundBigNumber(balance, token?.decimals)}</p>
+            <p className="text-secondaryLight leading-6">
+              <Erc20.BalanceOf address={token?.address} chainId={chainId} account={account as `0x${string}`} />{" "}
+              {displaySpendableBalance && "(" + spendableBalanceFormatted + " unlocked)"}
+            </p>
           </div>
         )}
         {!readonly && balance && (

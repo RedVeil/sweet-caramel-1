@@ -22,7 +22,14 @@
     },
     "metadata": {
       "priceResolver": "staking",
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "angleRouter": {
@@ -60,7 +67,8 @@
     "metadata": {
       "name": "Butter (V2)",
       "icons": ["/images/icons/BTR.svg"],
-      "priceResolver": "set_token"
+      "priceResolver": "set_token",
+      "apyResolver": "set_token"
     }
   },
   "butterBatch": {
@@ -94,9 +102,16 @@
     "metadata": {
       "contractName": "ButterStaking",
       "priceResolver": "staking",
-      "symbol": "pst-BTR",
+      "symbol": "st-BTR",
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "butterWhaleProcessing": {
@@ -451,8 +466,20 @@
       "contractName": "PopLocker",
       "icons": ["/images/icons/POP.svg"],
       "name": "POP",
+      "symbol": "vlPOP",
       "priceResolver": "staking",
+      "balanceOfAdapter": {
+        "functionName": "lockedBalanceOf(address)",
+        "functionAbi": [
+          "function lockedBalanceOf(address) external view returns (uint256)"
+        ]
+      },
       "isERC20": false
+    }
+  },
+  "tokenManager": {
+    "addresses": {
+      "mainnet": "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f"
     }
   },
   "popUsdcArrakisVault": {
@@ -474,8 +501,16 @@
     },
     "metadata": {
       "priceResolver": "staking",
+      "apyResolver": "synthetix",
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "symbol": "st-RAKIS-15",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "popUsdcLp": {
@@ -511,7 +546,14 @@
     },
     "metadata": {
       "priceResolver": "staking",
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "popUsdcUniV3Pool": {
@@ -541,7 +583,17 @@
     "metadata": {
       "priceResolver": "pop",
       "symbol": "POP",
-      "balanceResolver": "rewardsEscrow",
+      "balanceResolver": "escrowBalance",
+      "tvlResolver": {
+        "type": "escrow",
+        "tokenFunction": "POP",
+        "tokenFunctionAbi": ["function POP() external view returns (address)"]
+      },
+      "claimableTokenAdapter": {
+        "type": "escrow",
+        "tokenFunction": "POP",
+        "tokenFunctionAbi": ["function POP() external view returns (address)"]
+      },
       "isERC20": false
     }
   },
@@ -655,7 +707,8 @@
     },
     "metadata": {
       "icons": ["/images/tokens/3X.svg"],
-      "priceResolver": "set_token"
+      "priceResolver": "set_token",
+      "apyResolver": "set_token"
     }
   },
   "threeXBatch": {
@@ -665,6 +718,14 @@
     },
     "metadata": {
       "contractName": "ThreeXBatchProcessing"
+    }
+  },
+  "threeXZapper": {
+    "addresses": {
+      "mainnet": "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84"
+    },
+    "metadata": {
+      "contractName": "ThreeXZapper"
     }
   },
   "threeXBatchVault": {
@@ -680,9 +741,16 @@
     "metadata": {
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
-      "symbol": "pst-3X",
+      "symbol": "st-3X",
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "threeXWhale": {
@@ -828,7 +896,9 @@
     "addresses": {
       "mainnet": "0x5AB64C599FcC59f0f2726A300b03166A395578Da"
     },
-    "metadata": null
+    "metadata": {
+      "apyResolver": "yearn"
+    }
   },
   "yAlusd": {
     "addresses": {
@@ -836,7 +906,8 @@
       "rinkeby": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8"
     },
     "metadata": {
-      "name": "yAlusd"
+      "name": "yAlusd",
+      "apyResolver": "yearn"
     }
   },
   "BeneficiaryVaults": {
@@ -857,7 +928,8 @@
       "rinkeby": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139"
     },
     "metadata": {
-      "name": "yFrax"
+      "name": "yFrax",
+      "apyResolver": "yearn"
     }
   },
   "ParticipationReward": {
@@ -870,7 +942,9 @@
     "addresses": {
       "mainnet": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e"
     },
-    "metadata": null
+    "metadata": {
+      "apyResolver": "yearn"
+    }
   },
   "yMusd": {
     "addresses": {
@@ -878,7 +952,8 @@
       "rinkeby": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757"
     },
     "metadata": {
-      "name": "yMusd"
+      "name": "yMusd",
+      "apyResolver": "yearn"
     }
   },
   "yRai": {
@@ -887,7 +962,8 @@
       "rinkeby": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE"
     },
     "metadata": {
-      "name": "yRai"
+      "name": "yRai",
+      "apyResolver": "yearn"
     }
   },
   "ySusd": {
@@ -897,7 +973,8 @@
     "metadata": {
       "name": "sUSD",
       "symbol": "sUSD",
-      "icons": ["/images/tokens/sUSD.png"]
+      "icons": ["/images/tokens/sUSD.png"],
+      "apyResolver": "yearn"
     }
   },
   "yearnRegistry": {

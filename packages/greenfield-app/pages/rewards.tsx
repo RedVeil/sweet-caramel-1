@@ -10,7 +10,7 @@ import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
-import { useComponentState } from "@popcorn/components/hooks/useComponentState";
+import { useComponentState } from "@popcorn/components/hooks";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -65,14 +65,6 @@ export default function RewardsPage(): JSX.Element {
               </div>
             </div>
           )}
-        </div>
-
-        <div className="col-span-12 md:col-span-6 md:col-end-13 gap-6 hidden md:grid grid-cols-6">
-          <div className="rounded-lg bg-rewardsGreen col-span-1 h-88"></div>
-
-          <div className="col-span-5 rounded-lg bg-rewardsLightGreen flex justify-end items-end p-8">
-            <img src="/images/twoFingers.svg" alt="twoFingers" className="h-48 w-48" />
-          </div>
         </div>
       </div>
 

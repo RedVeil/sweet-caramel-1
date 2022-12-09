@@ -22,7 +22,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
-import GoogleAnalyticsPrompt from "components/GoogleAnalyticsPrompt";
+import GoogleAnalyticsPrompt from "@popcorn/components/components/GoogleAnalyticsPrompt";
 
 const bnb: Chain = {
   id: 56,

@@ -29,7 +29,7 @@ export default function StakingRewardsContainer({ selectedNetworks }: StakingRew
 
   return (
     <>
-      <div className={`mt-4 ${!loading && sum?.eq(constants.Zero) ? "" : "hidden"}`}>
+      <div className={`mt-4 ${!loading && sum.eq(constants.Zero) ? "" : "hidden"}`}>
         <NotAvailable
           title="No Records Available"
           body="No staking records available"

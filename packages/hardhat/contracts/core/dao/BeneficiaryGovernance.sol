@@ -418,11 +418,7 @@ contract BeneficiaryGovernance {
 
   /* ========== SETTER ========== */
 
-  function setConfiguration(
-    uint256 _votingPeriod,
-    uint256 _vetoPeriod,
-    uint256 _proposalBond
-  ) public {
+  function setConfiguration(uint256 _votingPeriod, uint256 _vetoPeriod, uint256 _proposalBond) public {
     IACLRegistry(contractRegistry.getContract(keccak256("ACLRegistry"))).requireRole(keccak256("DAO"), msg.sender);
     DefaultConfigurations.votingPeriod = _votingPeriod;
     DefaultConfigurations.vetoPeriod = _vetoPeriod;

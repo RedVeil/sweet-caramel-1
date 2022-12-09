@@ -7,7 +7,7 @@ export const useProductLinks = () => {
   const router = useRouter();
 
   const {
-    features: { sweetVaults },
+    features: { sweetVaults: displaySweetVaults },
   } = useFeatures();
   return [
     {
@@ -24,7 +24,7 @@ export const useProductLinks = () => {
       title: "Sweet Vaults",
       url: "/sweet-vaults",
       currentlySelected: router?.pathname === "/sweet-vaults",
-      hidden: !sweetVaults,
+      hidden: !displaySweetVaults,
     },
     {
       title: "Staking",

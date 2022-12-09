@@ -8,6 +8,8 @@ import RedditIcon from "@popcorn/app/components/SVGIcons/RedditIcon";
 import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
 import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
+import { ChevronDownIcon } from "@heroicons/react/outline";
 
 const Footer = () => {
   const [telegramColor, setTelegramColor] = useState("#645F4B");
@@ -19,6 +21,9 @@ const Footer = () => {
 
   const [iconSize, setIconSize] = useState("24");
   const networkName = useNetworkName();
+  const {
+    features: { sweetVaults: displaySweetVaults },
+  } = useFeatures();
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) {
@@ -42,10 +47,10 @@ const Footer = () => {
   return (
     <footer className="grid grid-cols-12 md:gap-8 laptop:gap-14  px-6 md:px-8 pb-10 mt-12 md:mt-20 font-landing">
       <div className="col-span-12 md:col-span-3 order-1 md:order-1">
-        <div className="bg-customYellow rounded-lg py-3 text-center font-medium text-black">
-          Any questions? Let’s chat!
+        <div className="bg-customPale rounded-lg py-3 text-center font-medium text-black opacity-50">
+          Stay connected below
         </div>
-        <NewsletterSubscription title="Contact Us" buttonLabel="Submit" />
+        <NewsletterSubscription title="Newsletter" buttonLabel="Submit" />
       </div>
       <div className="col-span-12 md:col-span-6 flex flex-col justify-between order-3 md:order-2 mt-12 md:mt-0">
         <p className=" text-primaryDark leading-6 order-2 md:order-1 mt-8 md:mt-0">
@@ -101,9 +106,11 @@ const Footer = () => {
         <div>
           <p className="text-gray-900 font-medium leading-6 tracking-1">Products</p>
           <div className="flex flex-col">
-            <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
-              Sweet Vaults
-            </Link>
+            {displaySweetVaults && (
+              <Link href="/" className=" text-primary hover:text-black leading-6 mt-4">
+                Sweet Vaults
+              </Link>
+            )}
             <Link href={`/${networkName}/set/3x`} className=" text-primary hover:text-black leading-6 mt-4">
               3X
             </Link>

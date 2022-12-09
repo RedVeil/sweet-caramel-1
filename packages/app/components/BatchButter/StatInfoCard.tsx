@@ -20,7 +20,7 @@ export default function StatInfoCard({ title, content, icon, info }: StatInfoCar
               <InfoIconWithTooltip classExtras="mt-0 ml-2" id={info.title} title={info.title} content={info.content} />
             )}
           </div>
-          <h3 className="text-3xl text-primary mt-2">{content}</h3>
+          <h3 className="text-3xl font-light text-primary mt-2">{content}</h3>
         </div>
       </div>
     </div>
