@@ -14,6 +14,7 @@ export interface SetStatsProps {
 }
 
 export default function SetStats({ address, chainId, stakingAddress, symbol }: SetStatsProps) {
+  // todo: refactor into a single hook and component
   const { data: baseApy, status: baseApyStatus } = useApy({ address, chainId });
   const { data: stakingApy, status: stakingApyStatus } = useApy({ address: stakingAddress, chainId });
   const status = useMultiStatus([baseApyStatus, stakingApyStatus]);
