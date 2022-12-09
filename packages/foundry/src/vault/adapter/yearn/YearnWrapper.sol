@@ -152,11 +152,7 @@ contract YearnWrapper is ERC20Upgradeable {
     emit Deposit(msg.sender, receiver, assets, shares);
   }
 
-  function withdraw(
-    uint256 assets,
-    address receiver,
-    address owner
-  ) public returns (uint256 shares) {
+  function withdraw(uint256 assets, address receiver, address owner) public returns (uint256 shares) {
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
     (uint256 _withdrawn, uint256 _burntShares) = _withdraw(assets, receiver, msg.sender);
@@ -165,11 +161,7 @@ contract YearnWrapper is ERC20Upgradeable {
     return _burntShares;
   }
 
-  function redeem(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) public returns (uint256 assets) {
+  function redeem(uint256 shares, address receiver, address owner) public returns (uint256 assets) {
     require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -185,15 +177,15 @@ contract YearnWrapper is ERC20Upgradeable {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view returns (uint256) {
-    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10**_decimals);
+    return (yVault.balanceOf(address(this)) * yVault.pricePerShare()) / (10 ** _decimals);
   }
 
   function convertToShares(uint256 assets) public view returns (uint256) {
-    return (assets * (10**_decimals)) / yVault.pricePerShare();
+    return (assets * (10 ** _decimals)) / yVault.pricePerShare();
   }
 
   function convertToAssets(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
+    return (shares * yVault.pricePerShare()) / (10 ** _decimals);
   }
 
   function previewDeposit(uint256 assets) public view returns (uint256) {
@@ -201,15 +193,15 @@ contract YearnWrapper is ERC20Upgradeable {
   }
 
   function previewMint(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
+    return (shares * yVault.pricePerShare()) / (10 ** _decimals);
   }
 
   function previewWithdraw(uint256 assets) public view returns (uint256) {
-    return (assets * (10**_decimals)) / yVault.pricePerShare();
+    return (assets * (10 ** _decimals)) / yVault.pricePerShare();
   }
 
   function previewRedeem(uint256 shares) public view returns (uint256) {
-    return (shares * yVault.pricePerShare()) / (10**_decimals);
+    return (shares * yVault.pricePerShare()) / (10 ** _decimals);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -285,7 +277,7 @@ contract YearnWrapper is ERC20Upgradeable {
 
     if (availableShares == 0) revert NoAvailableShares();
 
-    uint256 estimatedMaxShares = (amount * 10**uint256(_vault.decimals())) / _vault.pricePerShare();
+    uint256 estimatedMaxShares = (amount * 10 ** uint256(_vault.decimals())) / _vault.pricePerShare();
 
     if (estimatedMaxShares > availableShares) revert NotEnoughAvailableSharesForAmount();
 
