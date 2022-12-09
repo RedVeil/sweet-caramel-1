@@ -18,13 +18,10 @@ export default function StakingOverviewPage(): JSX.Element {
 
   return (
     <>
-      <div className="grid grid-cols-12">
+      <div className="grid grid-cols-12 mb-8">
         <div className="col-span-12 md:col-span-4">
           <h1 className=" text-5xl md:text-6xl leading-12">Staking</h1>
-          <p className="text-black mt-2">Earn more by staking your tokens</p>
-        </div>
-        <div className="col-span-12 md:col-span-6 md:col-end-13 mt-12 md:mt-0">
-          <ConnectDepositCard />
+          <p className="text-black mt-2 mb-4">Earn more by staking your tokens</p>
         </div>
       </div>
       <NetworkFilter

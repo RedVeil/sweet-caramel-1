@@ -1,53 +1,20 @@
-import { ChainId, formatAndRoundBigNumber, localStringOptions } from "@popcorn/utils";
-import { Token } from "@popcorn/utils/types";
+import { ChainId } from "@popcorn/utils";
 import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
-import { constants } from "ethers";
-import { parseEther, parseUnits } from "ethers/lib/utils";
-import useGetYearnAPY from "@popcorn/app/hooks/set/useGetYearnAPY";
-import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
-import { useDeployment } from "@popcorn/app/hooks/useDeployment";
-import useSetComponentAddresses from "@popcorn/app/hooks/set/useSetComponentAddresses";
-import useTotalTokenSupply from "@popcorn/app/hooks/tokens/useTotalTokenSupply";
-import { useNamedAccounts } from "@popcorn/components";
 import { Apy } from "@popcorn/components/pop/Staking";
 import { Tvl } from "@popcorn/components/pop/Contract";
 
 export interface SetStatsProps {
-  token: Token;
-  isThreeX?: boolean;
+  address: string;
+  chainId: ChainId;
+  stakingAddress: string;
+  symbol: string;
 }
 
-export default function SetStats({ token, isThreeX = false }: SetStatsProps) {
-  const SocialImpactInfoProps = {
-    content:
-      "Approximately one-third of all fees collected by Popcorn are donated to social impact and non-profit organizations selected by POP token holders.",
-    id: "socialImpact",
-    title: "Social Impact",
-  };
-
-  const yearnAddresses = useSetComponentAddresses(token?.address);
-  const { data: tokenAPY } = useGetYearnAPY(yearnAddresses, ChainId.Ethereum);
-
-  const contractsEth = useNamedAccounts("1", ["threeX", "butter", "threeXStaking", "butterStaking"]);
-  const { data: stakingPool } = useStakingPool(
-    isThreeX ? contractsEth[2].address : contractsEth[3].address,
-    ChainId.Ethereum,
-  );
-
-  const apyInfoText = `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying stablecoins (${
-    tokenAPY ? tokenAPY.toLocaleString(undefined, localStringOptions) : "-"
-  }%) and is boosted with POP (${
-    stakingPool ? formatAndRoundBigNumber(stakingPool.apy, token?.decimals) : "-"
-  }%). You must stake your ${
-    token?.symbol
-  } to receive the additional vAPR in POP. 90% of earned POP rewards are vested over one year.`;
-
+export default function SetStats({ address, chainId, stakingAddress, symbol }: SetStatsProps) {
   return (
     <div className="flex flex-row flex-wrap items-start md:items-center mt-8 gap-8 md:gap-0 md:space-x-6">
       <StatusWithLabel
-        content={
-          <Apy chainId={ChainId.Ethereum} address={isThreeX ? contractsEth[2].address : contractsEth[3].address} />
-        }
+        content={<Apy chainId={chainId} address={address} />}
         label={
           <>
             <span className="lowercase">v</span>APR
@@ -55,25 +22,25 @@ export default function SetStats({ token, isThreeX = false }: SetStatsProps) {
         }
         infoIconProps={{
           id: "vAPR",
-          title: "How we calculate the vAPR",
-          content: apyInfoText,
+          title: "How vAPR is calculated",
+          content: (
+            <>
+              `This is the variable annual percentage rate. The shown vAPR comes from yield on the underlying
+              stablecoins (<Apy address={address} chainId={chainId} />) and is boosted with POP (
+              <Apy address={stakingAddress} chainId={chainId} />
+              ). You must stake your {symbol} to receive the additional vAPR in POP. 90% of earned POP rewards are
+              vested over one year.`
+            </>
+          ),
         }}
       />
       <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
-      <StatusWithLabel
-        content={
-          <Tvl chainId={ChainId.Ethereum} address={isThreeX ? contractsEth[0].address : contractsEth[1].address} />
-        }
-        label="Total Deposits"
-      />
+
+      <StatusWithLabel content={<Tvl chainId={chainId} address={address} />} label="Total Deposits" />
       <div className="bg-gray-300 h-16 hidden md:block" style={{ width: "1px" }}></div>
 
       <>
-        {isThreeX ? (
-          <StatusWithLabel content={"$1m"} label="TVL Limit" />
-        ) : (
-          <StatusWithLabel content={`Coming Soon`} label="Social Impact" infoIconProps={SocialImpactInfoProps} />
-        )}
+        <StatusWithLabel content={"$500k"} label="TVL Limit" />
       </>
     </div>
   );
