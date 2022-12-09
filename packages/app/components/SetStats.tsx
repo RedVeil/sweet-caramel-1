@@ -23,7 +23,7 @@ export default function SetStats({ address, chainId, stakingAddress, symbol }: S
       <StatusWithLabel
         content={
           <FormattedBigNumber
-            value={status === "success" && baseApy.value.add(stakingApy.value)}
+            value={status === "success" && baseApy && stakingApy && baseApy?.value.add(stakingApy.value)}
             suffix={"%"}
             status={status}
           />

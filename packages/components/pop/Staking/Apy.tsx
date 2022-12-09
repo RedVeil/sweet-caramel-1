@@ -20,6 +20,6 @@ const eth_call =
       return <Component {...props} data={data} status={status} />;
     };
 
-export const Apy = eth_call(withLoading(({ data }) => <>{data?.formatted || "n/a"}</>));
+export const Apy = eth_call(withLoading(({ data }) => <>{data?.formatted || "0"}</>));
 
 export default Apy;
