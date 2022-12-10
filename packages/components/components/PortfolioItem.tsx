@@ -4,12 +4,13 @@ import TokenIcon from "@popcorn/app/components/TokenIcon";
 import PopIcon from "../stories/assets/POP.svg";
 import EthIcon from "../stories/assets/ethereum.svg";
 
-interface PortfolioItemProps {
+export interface PortfolioItemProps {
   tokenName: string;
   chainId: number;
   token: string;
+  portfolioValues: Array<string | JSX.Element>
 }
-const PortfolioItem: React.FC<PortfolioItemProps> = ({ tokenName, chainId, token }) => {
+const PortfolioItem: React.FC<PortfolioItemProps> = ({ tokenName, chainId, token, portfolioValues }) => {
   return (
     <div className="bg-customLightGray bg-opacity-[10%] rounded-2xl py-4 px-8">
       <div className="grid grid-cols-12">
@@ -22,17 +23,12 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({ tokenName, chainId, token
           </div>
           <div>
             <p className="font-medium text-lg">{tokenName}</p>
-            <p className="text-tokenTextGray">Ethereum</p>
+            <p className="text-tokenTextGray">{token}</p>
           </div>
         </div>
 
         <div className="col-span-6 grid grid-cols-12">
-          <p className="text-primary text-lg font-medium col-span-4">$0.35</p>
-          <p className="text-primary text-lg font-medium col-span-4">12.34%</p>
-          <div className="col-span-4">
-            <p className="text-primary text-lg font-medium">$10K</p>
-            <p className="text-tokenTextGray">10K POP</p>
-          </div>
+          {portfolioValues.map((value, index) => <div className="text-primary text-lg font-medium col-span-4" key={index}>{value}</div>)}
         </div>
       </div>
     </div>
