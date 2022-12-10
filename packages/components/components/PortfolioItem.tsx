@@ -12,9 +12,9 @@ export interface PortfolioItemProps {
 }
 const PortfolioItem: React.FC<PortfolioItemProps> = ({ tokenName, chainId, token, portfolioValues }) => {
   return (
-    <div className="bg-customLightGray bg-opacity-[10%] rounded-2xl py-4 px-8">
+    <div className="bg-customLightGray bg-opacity-[10%] rounded-2xl py-4">
       <div className="grid grid-cols-12">
-        <div className="flex space-x-[52px] col-span-6">
+        <div className="flex space-x-[52px] col-span-6 pl-8">
           <div className="relative">
             <div className="absolute top-0 -left-4">
               <img src={EthIcon} alt="network logo" className="w-6 h-6" />
