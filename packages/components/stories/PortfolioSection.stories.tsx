@@ -1,7 +1,7 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import PortfolioSection from "../components/PortfolioSection";
-import TooltipIcon from "../stories/assets/tooltip.svg"
+import TooltipIcon from "../stories/assets/tooltip.svg";
 
 export default {
   title: "Components/PortfolioSection",
@@ -19,12 +19,23 @@ Primary.args = {
       chainId: 1,
       token: "Popcorn",
       portfolioValues: [
-        "$0.35",
-        "0.1234%",
-        <>
-          <p>$10K</p>
-          <p className="text-tokenTextGray">10K POP</p>
-        </>
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
       ],
     },
     {
@@ -32,12 +43,23 @@ Primary.args = {
       chainId: 1,
       token: "Popcorn",
       portfolioValues: [
-        "$0.35",
-        "0.1234%",
-        <>
-          <p>$10K</p>
-          <p className="text-tokenTextGray">10K POP</p>
-        </>
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
       ],
     },
     {
@@ -45,42 +67,44 @@ Primary.args = {
       chainId: 1,
       token: "Popcorn",
       portfolioValues: [
-        "$0.35",
-        "0.1234%",
-        <>
-          <p>$10K</p>
-          <p className="text-tokenTextGray">10K POP</p>
-        </>
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
       ],
-    }
+    },
   ],
   TotalValues: [
     {
       title: "Price",
       value: "$0.35",
-      tooltip: <img
-        src={TooltipIcon}
-        alt="tooltip"
-        className={`cursor-pointer w-4 h-4`}
-      />
+      tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+      hideMobile: true,
     },
     {
       title: "Portfolio %",
       value: "50.23%",
-      tooltip: <img
-        src={TooltipIcon}
-        alt="tooltip"
-        className={`cursor-pointer w-4 h-4`}
-      />
+      tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+      hideMobile: false,
     },
     {
       title: "Balance",
       value: "$40K",
-      tooltip: <img
-        src={TooltipIcon}
-        alt="tooltip"
-        className={`cursor-pointer w-4 h-4`}
-      />
-    }
-  ]
-}; 
+      tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+      hideMobile: false,
+    },
+  ],
+};
