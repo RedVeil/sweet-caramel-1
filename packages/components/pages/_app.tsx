@@ -8,6 +8,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
 import { StateProvider } from "@popcorn/app/context/store";
+import { NetworthContextProvider } from "../context/Networth";
 
 const bnb: Chain = {
   id: 56,
@@ -61,8 +62,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
         <StateProvider>
-          <SingleActionModalContainer />
-          <Component {...pageProps} />
+          <NetworthContextProvider>
+            <SingleActionModalContainer />
+            <Component {...pageProps} />
+          </NetworthContextProvider>
         </StateProvider>
       </RainbowKitProvider>
     </WagmiConfig>
