@@ -3,11 +3,11 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 interface InfoIconProps {
   id: string;
   title: string;
-  content: string;
+  content: string | React.ReactElement;
 }
 
 export interface StatusWithLabelProps {
-  content: string | JSX.Element;
+  content: string | JSX.Element | React.ReactElement;
   label: string | JSX.Element;
   infoIconProps?: InfoIconProps;
   green?: boolean;
@@ -38,7 +38,7 @@ export default function StatusWithLabel({
       )}
       {content == "Coming Soon" || typeof content !== "string" ? (
         <div
-          className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6 ${
+          className={`md:mt-1 text-primary font-light text-2xl ${!isSmall && "md:text-3xl"} leading-6 ${
             !isSmall && "md:leading-8"
           }`}
         >
@@ -46,7 +46,7 @@ export default function StatusWithLabel({
         </div>
       ) : (
         <p
-          className={`md:mt-1 text-primary text-2xl ${!isSmall && "md:text-3xl"} leading-6  ${
+          className={`md:mt-1 text-primary font-light text-2xl ${!isSmall && "md:text-3xl"} leading-6  ${
             !isSmall && "md:leading-8"
           } `}
         >

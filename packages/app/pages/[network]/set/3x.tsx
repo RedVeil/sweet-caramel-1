@@ -1,14 +1,7 @@
 import { parseEther } from "@ethersproject/units";
 import { Dialog, Transition } from "@headlessui/react";
 import { ThreeXWhaleProcessing } from "@popcorn/hardhat/typechain";
-import {
-  ChainId,
-  formatAndRoundBigNumber,
-  getIndexForToken,
-  getMinZapAmount,
-  isButterSupportedOnCurrentNetwork,
-  prepareHotSwap,
-} from "@popcorn/utils";
+import { ChainId, getIndexForToken, getMinZapAmount, prepareHotSwap } from "@popcorn/utils";
 import { BatchType, Token } from "@popcorn/utils/src/types";
 import BatchProgress from "@popcorn/app/components/BatchButter/BatchProgress";
 import { Pages } from "@popcorn/app/components/BatchButter/ButterTokenInput";
@@ -16,14 +9,13 @@ import ClaimableBatches from "@popcorn/app/components/BatchButter/ClaimableBatch
 import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
 import MobileTutorialSlider from "@popcorn/app/components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "@popcorn/app/components/BatchButter/StatInfoCard";
-import TutorialSlider from "@popcorn/app/components/BatchButter/TutorialSlider";
 import { ConnectWallet } from "@popcorn/app/components/ConnectWallet";
 import SetStats from "@popcorn/app/components/SetStats";
 import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
 import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
 import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
 import { store } from "@popcorn/app/context/store";
-import { BigNumber, constants, ethers } from "ethers";
+import { BigNumber, constants, Contract, ethers } from "ethers";
 import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
 import useSetToken from "@popcorn/app/hooks/set/useSetToken";
 import useThreeXBatch from "@popcorn/app/hooks/set/useThreeXBatch";
@@ -42,6 +34,7 @@ import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
 import { ButterPageState, DEFAULT_BUTTER_PAGE_STATE } from "@popcorn/app/pages/[network]/set/butter";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
 import { useButterIsSupportedOnNetwork } from "@popcorn/app/hooks/useButterIsSupportedOnNetwork";
+import { Price } from "@popcorn/components";
 
 export default function ThreeXPage(): JSX.Element {
   const { signer, account } = useWeb3();
@@ -471,32 +464,25 @@ export default function ThreeXPage(): JSX.Element {
   return (
     <>
       <div className="grid grid-cols-12">
-        <div className="col-span-12 md:col-span-7">
+        <div className="col-span-12 md:col-span-4">
           <h1 className="text-6xl leading-12">3X</h1>
           <p className="mt-4 leading-5 text-primaryDark">
             Mint 3X and earn interest on multiple stablecoins at once. <br />
             Stake your 3X to earn boosted APY.
           </p>
-          <SetStats token={threeX} isThreeX />
-        </div>
-        <div className="col-span-5 hidden md:block">
-          <TutorialSlider isThreeX />
-        </div>
-      </div>
-      <div className="md:hidden mt-10">
-        <div
-          className="bg-customPurple rounded-lg w-full px-6 py-6 text-white flex justify-between items-center"
-          role="button"
-          onClick={() => toggleMobileTutorial(true)}
-        >
-          <p className="text-medium">Learn How It Works</p>
-          <RightArrowIcon color="fff" />
+          <SetStats
+            address={contractAddresses.threeX}
+            chainId={ChainId.Ethereum}
+            stakingAddress={contractAddresses.threeXStaking}
+            symbol={"3X"}
+          />
         </div>
       </div>
+
       <div className="flex flex-col md:flex-row mt-10">
         <div className="md:w-1/3 mb-10">
           {/* Connected and on Ethereum BUT loading */}
-          <span className={!!account && butterIsSupportedOnNetwork && loadingThreeXData ? "" : "hidden"}>
+          <span className={!!isConnected && butterIsSupportedOnNetwork && loadingThreeXData ? "" : "hidden"}>
             <div className="order-2 md:hidden">
               <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
                 <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
@@ -563,11 +549,14 @@ export default function ThreeXPage(): JSX.Element {
         </div>
 
         <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-1/2 md:mr-2 mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row mb-8">
+            <div className="md:w-2/3 flex flex-col mb-2 md:mr-8 order-1">
+              <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
+            </div>
+            <div className="md:w-1/3 flex flex-col gap-4 mb-2 order-2">
               <StatInfoCard
                 title="3X Value"
-                content={`${threeX ? formatAndRoundBigNumber(threeX?.price, threeX?.decimals) : "-"}`}
+                content={<Price.PriceOf address={contractAddresses.threeX} chainId={chainId} />}
                 icon={"3X"}
                 info={{
                   title: "Underlying Tokens",
@@ -583,11 +572,18 @@ export default function ThreeXPage(): JSX.Element {
                 }}
               />
             </div>
-            <div className="md:w-1/2 md:ml-2 mb-8 md:mb-0">
-              <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
+          </div>
+          <div className="w-full md:block -order-1 md:order-1 mb-4">
+            <div
+              className="bg-warmGray rounded-lg w-full px-4 py-6 text-black flex justify-between items-center"
+              role="button"
+              onClick={() => toggleMobileTutorial(true)}
+            >
+              <p className="text-medium">Learn How It Works</p>
+              <RightArrowIcon color="000" />
             </div>
           </div>
-          <div className="w-full pb-12 mx-auto mt-10">
+          <div className="w-full pb-12 mx-auto mt-10 md:order-2">
             <div className="md:overflow-x-hidden md:max-h-108">
               <ClaimableBatches
                 options={[

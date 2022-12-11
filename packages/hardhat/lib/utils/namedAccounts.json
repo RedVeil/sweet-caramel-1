@@ -67,7 +67,8 @@
     "metadata": {
       "name": "Butter (V2)",
       "icons": ["/images/icons/BTR.svg"],
-      "priceResolver": "set_token"
+      "priceResolver": "set_token",
+      "apyResolver": "set_token"
     }
   },
   "butterBatch": {
@@ -706,7 +707,8 @@
     },
     "metadata": {
       "icons": ["/images/tokens/3X.svg"],
-      "priceResolver": "set_token"
+      "priceResolver": "set_token",
+      "apyResolver": "set_token"
     }
   },
   "threeXBatch": {
@@ -894,7 +896,9 @@
     "addresses": {
       "mainnet": "0x5AB64C599FcC59f0f2726A300b03166A395578Da"
     },
-    "metadata": null
+    "metadata": {
+      "apyResolver": "yearn"
+    }
   },
   "yAlusd": {
     "addresses": {
@@ -902,7 +906,8 @@
       "rinkeby": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8"
     },
     "metadata": {
-      "name": "yAlusd"
+      "name": "yAlusd",
+      "apyResolver": "yearn"
     }
   },
   "BeneficiaryVaults": {
@@ -923,7 +928,8 @@
       "rinkeby": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139"
     },
     "metadata": {
-      "name": "yFrax"
+      "name": "yFrax",
+      "apyResolver": "yearn"
     }
   },
   "ParticipationReward": {
@@ -936,7 +942,9 @@
     "addresses": {
       "mainnet": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e"
     },
-    "metadata": null
+    "metadata": {
+      "apyResolver": "yearn"
+    }
   },
   "yMusd": {
     "addresses": {
@@ -944,7 +952,8 @@
       "rinkeby": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757"
     },
     "metadata": {
-      "name": "yMusd"
+      "name": "yMusd",
+      "apyResolver": "yearn"
     }
   },
   "yRai": {
@@ -953,7 +962,8 @@
       "rinkeby": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE"
     },
     "metadata": {
-      "name": "yRai"
+      "name": "yRai",
+      "apyResolver": "yearn"
     }
   },
   "ySusd": {
@@ -963,7 +973,8 @@
     "metadata": {
       "name": "sUSD",
       "symbol": "sUSD",
-      "icons": ["/images/tokens/sUSD.png"]
+      "icons": ["/images/tokens/sUSD.png"],
+      "apyResolver": "yearn"
     }
   },
   "yearnRegistry": {

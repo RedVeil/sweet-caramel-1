@@ -32,7 +32,7 @@ const Products = () => {
 
   return (
     <section className="mt-10">
-      <h6 className="font-medium leading-8 mb-4">Our Products</h6>
+      <h6 className="font-medium leading-8 mb-4">Featured</h6>
       <div className="border-t border-customLightGray">
         {displaySweetVaults && (
           <Product

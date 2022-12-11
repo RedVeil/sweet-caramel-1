@@ -36,7 +36,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
               classExtras="mt-0 ml-2"
               id="3"
               title="Batch Processing"
-              content="Mint and redeem batches with at least $1000 are processed by keepers approximately every 48 hours. Batch sizes greater than $100k are processed sooner.  Network congestion may cause delays."
+              content="Mint and redeem deposits are currently being processed within 15 - 60 minutes. After the deposit is processed, you'll be able to claim/withdraw your tokens."
             />
           </div>
           <p className="text-primary leading-6 break-words">
