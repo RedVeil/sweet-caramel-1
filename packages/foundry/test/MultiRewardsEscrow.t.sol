@@ -2,14 +2,13 @@
 pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
-import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 
 import { MockERC20 } from "./utils/mocks/MockERC20.sol";
-import { MultiRewardsEscrow } from "../src/utils/MultiRewardsEscrow.sol";
+import { MultiRewardsEscrow, IERC20 } from "../src/utils/MultiRewardsEscrow.sol";
 import { IContractRegistry } from "../src/interfaces/IContractRegistry.sol";
 import { IACLRegistry } from "../src/interfaces/IACLRegistry.sol";
-import { KeeperIncentiveV2 } from "../src/utils/KeeperIncentiveV2.sol";
+import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../src/utils/KeeperIncentiveV2.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
@@ -53,7 +52,7 @@ contract MultiRewardsEscrowTest is Test {
 
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 0, 0);
 
-    escrow = new MultiRewardsEscrow(IContractRegistry(CONTRACT_REGISTRY));
+    escrow = new MultiRewardsEscrow(address(this), IKeeperIncentiveV2(address(keeperIncentive)), feeRecipient);
 
     token1.mint(alice, 10 ether);
     token2.mint(alice, 10 ether);
@@ -163,9 +162,9 @@ contract MultiRewardsEscrowTest is Test {
 
     vm.prank(bob);
     vm.expectEmit(false, false, false, true, address(escrow));
-    emit RewardsClaimed(token1, bob, 10 ether);
+    emit RewardsClaimed(iToken1, bob, 10 ether);
     vm.expectEmit(false, false, false, true, address(escrow));
-    emit RewardsClaimed(token2, bob, 1 ether);
+    emit RewardsClaimed(iToken2, bob, 1 ether);
 
     uint256 bobClaimTime = block.timestamp;
     escrow.claimRewards(bobEscrowIds);
@@ -203,9 +202,9 @@ contract MultiRewardsEscrowTest is Test {
 
     vm.prank(alice);
     vm.expectEmit(false, false, false, true, address(escrow));
-    emit RewardsClaimed(token1, bob, 10 ether);
+    emit RewardsClaimed(iToken1, bob, 10 ether);
     vm.expectEmit(false, false, false, true, address(escrow));
-    emit RewardsClaimed(token2, bob, 1 ether);
+    emit RewardsClaimed(iToken2, bob, 1 ether);
 
     uint256 bobClaimTime = block.timestamp;
     escrow.claimRewards(bobEscrowIds);
@@ -228,9 +227,9 @@ contract MultiRewardsEscrowTest is Test {
     (IERC20[] memory tokens, uint256[] memory fees) = _getFeeSettings();
 
     vm.expectEmit(false, false, false, true, address(escrow));
-    emit FeeSet(token1, 1e14);
+    emit FeeSet(iToken1, 1e14);
     vm.expectEmit(false, false, false, true, address(escrow));
-    emit FeeSet(token2, 1e16);
+    emit FeeSet(iToken2, 1e16);
     escrow.setFees(tokens, fees);
 
     assertEq(escrow.feePercs(iToken1), 1e14);
@@ -341,17 +340,17 @@ contract MultiRewardsEscrowTest is Test {
 
   function test__getEscrowIdsByUserAndToken() public {
     _lockFunds();
-    bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUserAndToken(bob, token1);
+    bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUserAndToken(bob, iToken1);
     assertEq(bobEscrowIds.length, 1);
   }
 
   function test__getEscrowIdsByUserAndToken_no_escrows() public {
-    bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUserAndToken(bob, token1);
+    bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUserAndToken(bob, iToken1);
     assertEq(bobEscrowIds.length, 0);
   }
 
   function test__getEscrowIdsByUserAndToken_no_user() public {
-    bytes32[] memory emptyEscrowIds = escrow.getEscrowIdsByUserAndToken(address(0), token1);
+    bytes32[] memory emptyEscrowIds = escrow.getEscrowIdsByUserAndToken(address(0), iToken1);
     assertEq(emptyEscrowIds.length, 0);
   }
 

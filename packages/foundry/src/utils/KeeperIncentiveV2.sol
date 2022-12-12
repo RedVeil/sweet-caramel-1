@@ -3,12 +3,12 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import "./ContractRegistryAccess.sol";
-import "./ACLAuth.sol";
-import "../interfaces/IStaking.sol";
-import "../interfaces/IKeeperIncentiveV2.sol";
+import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
+import { ContractRegistryAccess, IContractRegistry } from "./ContractRegistryAccess.sol";
+import { ACLAuth } from "./ACLAuth.sol";
+import { IStaking } from "../interfaces/IStaking.sol";
+import { IKeeperIncentiveV2, Incentive, Account, INCENTIVE_MANAGER_ROLE } from "../interfaces/IKeeperIncentiveV2.sol";
 
 contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAccess {
   using SafeERC20 for IERC20;
@@ -16,9 +16,9 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
   /* ========== STATE VARIABLES ========== */
 
   /**
-   * @dev controllerContract => IKeeperIncentiveV2.Incentive config
+   * @dev controllerContract => Incentive config
    */
-  mapping(address => IKeeperIncentiveV2.Incentive[]) public incentivesByController;
+  mapping(address => Incentive[]) public incentivesByController;
 
   /**
    * @dev all controller contract addresses
@@ -38,7 +38,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
   /**
    * @dev incentiveAccountId => owner => Account
    */
-  mapping(bytes32 => mapping(address => IKeeperIncentiveV2.Account)) public accounts;
+  mapping(bytes32 => mapping(address => Account)) public accounts;
 
   /**
    * @dev incentiveAccountId => owner => isCached
@@ -124,9 +124,9 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @return all accounts associated with keeper
    * @param owner keeper account owner
    */
-  function getAccounts(address owner) external view returns (IKeeperIncentiveV2.Account[] memory) {
+  function getAccounts(address owner) external view returns (Account[] memory) {
     uint256 arrLength = keeperAccounts[owner].length;
-    IKeeperIncentiveV2.Account[] memory _accounts = new IKeeperIncentiveV2.Account[](arrLength);
+    Account[] memory _accounts = new Account[](arrLength);
     for (uint256 i; i < arrLength; ++i) {
       _accounts[i] = accounts[keeperAccounts[owner][i]][owner];
     }
@@ -234,7 +234,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
     uint256 index = incentivesByController[_address].length;
     bytes32 _incentiveAccountId = incentiveAccountId(_address, index, _rewardToken);
     incentivesByController[_address].push(
-      IKeeperIncentiveV2.Incentive({
+      Incentive({
         id: index,
         reward: _reward,
         rewardToken: _rewardToken,
@@ -282,7 +282,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
     require(_rewardToken != address(0), "must set reward token");
     require(_burnPercentage <= 1e18, "burn percentage too high");
 
-    IKeeperIncentiveV2.Incentive storage incentive = incentivesByController[_contractAddress][_i];
+    Incentive storage incentive = incentivesByController[_contractAddress][_i];
     _burnPercentage = _rewardToken == _getContract(keccak256("POP")) && _burnPercentage == 0
       ? defaultBurnPercentage
       : _burnPercentage;
@@ -320,7 +320,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param _i incentive index
    */
   function toggleApproval(address _contractAddress, uint8 _i) external onlyRole(INCENTIVE_MANAGER_ROLE) {
-    IKeeperIncentiveV2.Incentive storage incentive = incentivesByController[_contractAddress][_i];
+    Incentive storage incentive = incentivesByController[_contractAddress][_i];
     incentive.openToEveryone = !incentive.openToEveryone;
 
     emit ApprovalToggled(_contractAddress, incentive.openToEveryone);
@@ -332,7 +332,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param _i incentive index
    */
   function toggleIncentive(address _contractAddress, uint8 _i) external onlyRole(INCENTIVE_MANAGER_ROLE) {
-    IKeeperIncentiveV2.Incentive storage incentive = incentivesByController[_contractAddress][_i];
+    Incentive storage incentive = incentivesByController[_contractAddress][_i];
     incentive.enabled = !incentive.enabled;
 
     emit IncentiveToggled(_contractAddress, incentive.enabled);
@@ -351,7 +351,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
   ) external {
     require(_amount > 0, "must send amount");
     require(incentivesByController[_contractAddress].length > _i, "incentive does not exist");
-    IKeeperIncentiveV2.Incentive storage incentive = incentivesByController[_contractAddress][_i];
+    Incentive storage incentive = incentivesByController[_contractAddress][_i];
 
     bytes32 _incentiveAccountId = incentiveAccountId(_contractAddress, _i, incentive.rewardToken);
 
@@ -468,7 +468,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
       "not enough pop staked"
     );
 
-    IKeeperIncentiveV2.Incentive memory incentive = incentivesByController[msg.sender][_i];
+    Incentive memory incentive = incentivesByController[msg.sender][_i];
     bytes32 _incentiveAccountId = incentiveAccountId(msg.sender, _i, incentive.rewardToken);
 
     require(block.timestamp - incentive.lastInvocation >= incentive.cooldown, "wait for cooldown period");
@@ -496,7 +496,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    */
   function _payoutIncentive(
     address _keeper,
-    IKeeperIncentiveV2.Incentive memory incentive,
+    Incentive memory incentive,
     bytes32 _incentiveAccountId
   ) internal {
     (uint256 payoutAmount, uint256 burnAmount) = _previewPayout(incentive);
@@ -513,11 +513,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @return burnAmount amout of tokens to be burned after payout
    * @param incentive incentive struct used to determine reward amount and burn percentage
    */
-  function _previewPayout(IKeeperIncentiveV2.Incentive memory incentive)
-    internal
-    pure
-    returns (uint256 payoutAmount, uint256 burnAmount)
-  {
+  function _previewPayout(Incentive memory incentive) internal pure returns (uint256 payoutAmount, uint256 burnAmount) {
     burnAmount = (incentive.reward * incentive.burnPercentage) / 1e18;
     payoutAmount = incentive.reward - burnAmount;
   }
@@ -543,7 +539,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param keeper address of keeper receiving reward
    */
   function _claim(bytes32 _incentiveAccountId, address keeper) internal {
-    IKeeperIncentiveV2.Account storage account = accounts[_incentiveAccountId][keeper];
+    Account storage account = accounts[_incentiveAccountId][keeper];
     uint256 balance = account.balance;
 
     require(balance > 0, "nothing to claim");
@@ -569,8 +565,8 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
     address to,
     uint256 amount
   ) private {
-    IKeeperIncentiveV2.Account storage fromAccount = accounts[_incentiveAccountId][from];
-    IKeeperIncentiveV2.Account storage toAccount = accounts[_incentiveAccountId][to];
+    Account storage fromAccount = accounts[_incentiveAccountId][from];
+    Account storage toAccount = accounts[_incentiveAccountId][to];
     fromAccount.balance -= from == address(0) ? 0 : amount;
     toAccount.balance += to == address(0) ? 0 : amount;
   }

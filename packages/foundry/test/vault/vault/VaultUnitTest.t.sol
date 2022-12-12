@@ -3,16 +3,15 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { MockERC20 } from "../../utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "../../utils/mocks/MockERC4626.sol";
 import { Vault } from "../../../src/vault/Vault.sol";
 import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
-import { KeeperIncentiveV2 } from "../../../src/utils/KeeperIncentiveV2.sol";
+import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../../../src/utils/KeeperIncentiveV2.sol";
 import { IContractRegistry } from "../../../src/interfaces/IContractRegistry.sol";
 
 import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
-import { IERC4626 } from "../../../src/interfaces/vault/IERC4626.sol";
+import { IERC4626, IERC20 } from "../../../src/interfaces/vault/IERC4626.sol";
 import { FeeStructure } from "../../../src/interfaces/vault/IVault.sol";
 
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
@@ -20,6 +19,7 @@ import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
+address constant KEEPER_INCENTIVE = 0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF;
 
 contract VaultUnitTest is Test {
   using FixedPointMathLib for uint256;
@@ -28,7 +28,7 @@ contract VaultUnitTest is Test {
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
   MockERC20 underlying;
-  MockERC4626 strategy;
+  MockERC4626 adapter;
   Vault vault;
   KeeperIncentiveV2 keeperIncentive;
 
@@ -38,16 +38,21 @@ contract VaultUnitTest is Test {
   address alice = address(0xABCD);
   address bob = address(0xDCBA);
 
-  event NewStrategyProposed(IERC4626 newStrategy, uint256 timestamp);
-  event ChangedStrategy(IERC4626 oldStrategy, IERC4626 newStrategy);
+  event NewAdapterProposed(IERC4626 newAdapter, uint256 timestamp);
+  event ChangedAdapter(IERC4626 oldAdapter, IERC4626 newAdapter);
   event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
   event KeeperConfigUpdated(KeeperConfig oldConfig, KeeperConfig newConfig);
   event Paused(address account);
   event Unpaused(address account);
 
-  function _setFees(uint256 depositFee, uint256 withdrawalFee, uint256 managementFee, uint256 performanceFee) internal {
+  function _setFees(
+    uint256 depositFee,
+    uint256 withdrawalFee,
+    uint256 managementFee,
+    uint256 performanceFee
+  ) internal {
     vm.prank(ACL_ADMIN);
-    vault.proposeNewFees(
+    vault.proposeFees(
       FeeStructure({
         deposit: depositFee,
         withdrawal: withdrawalFee,
@@ -57,7 +62,7 @@ contract VaultUnitTest is Test {
     );
 
     vm.warp(block.timestamp + 3 days);
-    vault.setFees();
+    vault.changeFees();
   }
 
   function setUp() public {
@@ -69,7 +74,7 @@ contract VaultUnitTest is Test {
     vm.label(bob, "bob");
 
     underlying = new MockERC20("Mock Token", "TKN", 18);
-    strategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+    adapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
 
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 0, 0);
 
@@ -78,12 +83,13 @@ contract VaultUnitTest is Test {
 
     vault = Vault(vaultAddress);
     vault.initialize(
-      ERC20(address(underlying)),
-      IERC4626(address(strategy)),
-      IContractRegistry(CONTRACT_REGISTRY),
+      IERC20(address(underlying)),
+      IERC4626(address(adapter)),
       FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
-      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1e17, keeperPayout: 9 })
+      IKeeperIncentiveV2(KEEPER_INCENTIVE),
+      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 }),
+      address(this)
     );
 
     vm.startPrank(ACL_ADMIN);
@@ -145,7 +151,7 @@ contract VaultUnitTest is Test {
     vm.prank(alice);
     uint256 aliceShareAmount = vault.deposit(aliceUnderlyingAmount, alice);
 
-    assertEq(strategy.afterDepositHookCalledCounter(), 1);
+    assertEq(adapter.afterDepositHookCalledCounter(), 1);
 
     // Expect exchange rate to be 1:1 on initial deposit.
     assertEq(aliceUnderlyingAmount, aliceShareAmount);
@@ -160,7 +166,7 @@ contract VaultUnitTest is Test {
     vm.prank(alice);
     vault.withdraw(aliceUnderlyingAmount, alice, alice);
 
-    assertEq(strategy.beforeWithdrawHookCalledCounter(), 1);
+    assertEq(adapter.beforeWithdrawHookCalledCounter(), 1);
 
     assertEq(vault.totalAssets(), 0);
     assertEq(vault.balanceOf(alice), 0);
@@ -184,7 +190,7 @@ contract VaultUnitTest is Test {
     vm.prank(alice);
     uint256 aliceUnderlyingAmount = vault.mint(aliceShareAmount, alice);
 
-    assertEq(strategy.afterDepositHookCalledCounter(), 1);
+    assertEq(adapter.afterDepositHookCalledCounter(), 1);
 
     // Expect exchange rate to be 1:1 on initial mint.
     assertEq(aliceShareAmount, aliceUnderlyingAmount);
@@ -199,7 +205,7 @@ contract VaultUnitTest is Test {
     vm.prank(alice);
     vault.redeem(aliceShareAmount, alice, alice);
 
-    assertEq(strategy.beforeWithdrawHookCalledCounter(), 1);
+    assertEq(adapter.beforeWithdrawHookCalledCounter(), 1);
 
     assertEq(vault.totalAssets(), 0);
     assertEq(vault.balanceOf(alice), 0);
@@ -222,7 +228,7 @@ contract VaultUnitTest is Test {
     // |         6000 |    2000 |     2000 |    4000 |     4000 |
     // |--------------|---------|----------|---------|----------|
     // | 3. Vault mutates by +3000 tokens...                    |
-    // |    (simulated yield returned from strategy)...         |
+    // |    (simulated yield returned from adapter)...         |
     // |--------------|---------|----------|---------|----------|
     // |         6000 |    2000 |     3000 |    4000 |     6000 |
     // |--------------|---------|----------|---------|----------|
@@ -235,7 +241,7 @@ contract VaultUnitTest is Test {
     // |         9333 |    3333 |     4999 |    6000 |     9000 |
     // |--------------|---------|----------|---------|----------|
     // | 6. Vault mutates by +3000 tokens...                    |
-    // |    (simulated yield returned from strategy)            |
+    // |    (simulated yield returned from adapter)            |
     // |    NOTE: Vault holds 17001 tokens, but sum of          |
     // |          assetsOf() is 17000.                          |
     // |--------------|---------|----------|---------|----------|
@@ -279,7 +285,7 @@ contract VaultUnitTest is Test {
     uint256 aliceUnderlyingAmount = vault.mint(2000, alice);
 
     uint256 aliceShareAmount = vault.previewDeposit(aliceUnderlyingAmount);
-    assertEq(strategy.afterDepositHookCalledCounter(), 1);
+    assertEq(adapter.afterDepositHookCalledCounter(), 1);
 
     // Expect to have received the requested mint amount.
     assertEq(aliceShareAmount, 2000);
@@ -298,7 +304,7 @@ contract VaultUnitTest is Test {
     vm.prank(bob);
     uint256 bobShareAmount = vault.deposit(4000, bob);
     uint256 bobUnderlyingAmount = vault.previewWithdraw(bobShareAmount);
-    assertEq(strategy.afterDepositHookCalledCounter(), 2);
+    assertEq(adapter.afterDepositHookCalledCounter(), 2);
 
     // Expect to have received the requested underlying amount.
     assertEq(bobUnderlyingAmount, 4000);
@@ -318,12 +324,12 @@ contract VaultUnitTest is Test {
     assertEq(vault.totalAssets(), 6000);
 
     // 3. Vault mutates by +3000 tokens...                    |
-    //    (simulated yield returned from strategy)...
+    //    (simulated yield returned from adapter)...
     // The Vault now contains more tokens than deposited which causes the exchange rate to change.
     // Alice share is 33.33% of the Vault, Bob 66.66% of the Vault.
     // Alice's share count stays the same but the underlying amount changes from 2000 to 3000.
     // Bob's share count stays the same but the underlying amount changes from 4000 to 6000.
-    underlying.mint(address(strategy), mutationUnderlyingAmount);
+    underlying.mint(address(adapter), mutationUnderlyingAmount);
     assertEq(vault.totalSupply(), preMutationShareBal);
     assertEq(vault.totalAssets(), preMutationBal + mutationUnderlyingAmount);
     assertEq(vault.balanceOf(alice), aliceShareAmount);
@@ -362,7 +368,7 @@ contract VaultUnitTest is Test {
     assertEq(vault.totalAssets(), 14000);
 
     // 6. Vault mutates by +3000 tokens
-    underlying.mint(address(strategy), mutationUnderlyingAmount);
+    underlying.mint(address(adapter), mutationUnderlyingAmount);
     assertEq(vault.totalAssets(), 17000);
     assertEq(vault.convertToAssets(vault.balanceOf(alice)), 6071);
     assertEq(vault.convertToAssets(vault.balanceOf(bob)), 10928);
@@ -623,7 +629,7 @@ contract VaultUnitTest is Test {
     vm.stopPrank();
 
     // Increase underlying assets to trigger performanceFee
-    underlying.mint(address(strategy), amount);
+    underlying.mint(address(adapter), amount);
 
     uint256 expectedFeeInAsset = vault.accruedPerformanceFee();
     uint256 expectedFeeInShares = vault.convertToShares(expectedFeeInAsset);
@@ -674,48 +680,48 @@ contract VaultUnitTest is Test {
     assertEq(vault.balanceOf(feeRecipient), depositFeesEarned - keeperEarnings);
   }
 
-  // ----- Change Strategy ----- //
+  // ----- Change Adapter ----- //
 
-  // Propose Strategy
-  function testFail_proposeStrategyNonVaultController() public {
-    MockERC4626 newStrategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+  // Propose Adapter
+  function testFail_proposeAdapterNonVaultController() public {
+    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
 
     vm.prank(alice);
-    vault.proposeNewStrategy(IERC4626(address(newStrategy)));
+    vault.proposeAdapter(IERC4626(address(newAdapter)));
   }
 
-  function test_proposeStrategy() public {
-    MockERC4626 newStrategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+  function test_proposeAdapter() public {
+    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
 
     uint256 callTime = block.timestamp;
     vm.expectEmit(false, false, false, true, address(vault));
-    emit NewStrategyProposed(IERC4626(address(newStrategy)), callTime);
+    emit NewAdapterProposed(IERC4626(address(newAdapter)), callTime);
 
     vm.prank(ACL_ADMIN);
-    vault.proposeNewStrategy(IERC4626(address(newStrategy)));
+    vault.proposeAdapter(IERC4626(address(newAdapter)));
 
     assertEq(vault.proposalTimeStamp(), callTime);
-    assertEq(address(vault.proposedStrategy()), address(newStrategy));
+    assertEq(address(vault.proposedAdapter()), address(newAdapter));
   }
 
-  // Change Strategy
-  function testFail_changeStrategyNonVaultController() public {
+  // Change Adapter
+  function testFail_changeAdapterNonVaultController() public {
     vm.prank(alice);
-    vault.changeStrategy();
+    vault.changeAdapter();
   }
 
-  function testFail_changeStrategyRespectRageQuit() public {
-    MockERC4626 newStrategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+  function testFail_changeAdapterRespectRageQuit() public {
+    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
 
     vm.startPrank(ACL_ADMIN);
-    vault.proposeNewStrategy(IERC4626(address(newStrategy)));
+    vault.proposeAdapter(IERC4626(address(newAdapter)));
 
     // Didnt respect 3 days before propsal and change
-    vault.changeStrategy();
+    vault.changeAdapter();
   }
 
-  function test_changeStrategy() public {
-    MockERC4626 newStrategy = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+  function test_changeAdapter() public {
+    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
     uint256 depositAmount = 1 ether;
 
     // Deposit funds for testing
@@ -725,31 +731,31 @@ contract VaultUnitTest is Test {
     vault.deposit(depositAmount, alice);
     vm.stopPrank();
 
-    // Increase assets in underlying Strategy to check hwm and assetCheckpoint later
-    underlying.mint(address(strategy), depositAmount);
+    // Increase assets in underlying Adapter to check hwm and assetCheckpoint later
+    underlying.mint(address(adapter), depositAmount);
     vault.takeManagementAndPerformanceFees();
     uint256 oldHWM = vault.vaultShareHWM();
     uint256 oldAssetCheckpoint = vault.assetsCheckpoint();
 
-    // Preparation to change the strategy
+    // Preparation to change the adapter
     vm.prank(ACL_ADMIN);
-    vault.proposeNewStrategy(IERC4626(address(newStrategy)));
+    vault.proposeAdapter(IERC4626(address(newAdapter)));
 
     vm.warp(block.timestamp + 3 days);
 
     vm.expectEmit(false, false, false, true, address(vault));
-    emit ChangedStrategy(IERC4626(address(strategy)), IERC4626(address(newStrategy)));
+    emit ChangedAdapter(IERC4626(address(adapter)), IERC4626(address(newAdapter)));
 
     vm.prank(ACL_ADMIN);
-    vault.changeStrategy();
+    vault.changeAdapter();
 
-    assertEq(underlying.allowance(address(vault), address(strategy)), 0);
-    assertEq(underlying.balanceOf(address(strategy)), 0);
-    assertEq(strategy.balanceOf(address(vault)), 0);
+    assertEq(underlying.allowance(address(vault), address(adapter)), 0);
+    assertEq(underlying.balanceOf(address(adapter)), 0);
+    assertEq(adapter.balanceOf(address(vault)), 0);
 
-    assertEq(underlying.balanceOf(address(newStrategy)), depositAmount * 2);
-    assertEq(newStrategy.balanceOf(address(vault)), depositAmount * 2);
-    assertEq(underlying.allowance(address(vault), address(newStrategy)), type(uint256).max);
+    assertEq(underlying.balanceOf(address(newAdapter)), depositAmount * 2);
+    assertEq(newAdapter.balanceOf(address(vault)), depositAmount * 2);
+    assertEq(underlying.allowance(address(vault), address(newAdapter)), type(uint256).max);
 
     assertEq(vault.vaultShareHWM(), oldHWM);
     assertEq(vault.assetsCheckpoint(), oldAssetCheckpoint);
@@ -824,12 +830,12 @@ contract VaultUnitTest is Test {
   }
 
   // Pause
-  function testFail_pauseContractNonVaultController() public {
+  function testFail_pauseNonVaultController() public {
     vm.prank(alice);
-    vault.pauseContract();
+    vault.pause();
   }
 
-  function test_pauseContract() public {
+  function test_pause() public {
     uint256 depositAmount = 1 ether;
 
     // Deposit funds for testing
@@ -843,7 +849,7 @@ contract VaultUnitTest is Test {
     emit Paused(ACL_ADMIN);
 
     vm.prank(ACL_ADMIN);
-    vault.pauseContract();
+    vault.pause();
 
     assertTrue(vault.paused());
 
@@ -863,15 +869,15 @@ contract VaultUnitTest is Test {
   }
 
   // Unpause
-  function testFail_unpauseContractNonVaultController() public {
+  function testFail_unpauseNonVaultController() public {
     vm.prank(ACL_ADMIN);
-    vault.pauseContract();
+    vault.pause();
 
     vm.prank(alice);
-    vault.unpauseContract();
+    vault.unpause();
   }
 
-  function test_unpauseContract() public {
+  function test_unpause() public {
     uint256 depositAmount = 1 ether;
 
     // Deposit funds for testing
@@ -880,13 +886,13 @@ contract VaultUnitTest is Test {
     underlying.approve(address(vault), depositAmount * 2);
 
     vm.prank(ACL_ADMIN);
-    vault.pauseContract();
+    vault.pause();
 
     vm.expectEmit(false, false, false, true, address(vault));
     emit Unpaused(ACL_ADMIN);
 
     vm.prank(ACL_ADMIN);
-    vault.unpauseContract();
+    vault.unpause();
 
     assertFalse(vault.paused());
 

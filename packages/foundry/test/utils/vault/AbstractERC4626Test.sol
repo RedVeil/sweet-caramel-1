@@ -5,6 +5,8 @@ import { Test } from "forge-std/Test.sol";
 
 import { IAdapter } from "../../../src/interfaces/vault/IAdapter.sol";
 import { ERC20 } from "solmate/tokens/ERC20.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 abstract contract AbstractERC4626Test is Test {
@@ -48,12 +50,12 @@ abstract contract AbstractERC4626Test is Test {
 
   function testInitializedValues(string memory assetName, string memory assetSymbol) public virtual {
     assertEq(
-      adapter.name(),
+      IERC20Metadata(address(adapter)).name(),
       string(abi.encodePacked("Midas ", assetName, " Vault")),
       string(abi.encodePacked("!name ", testPreFix))
     );
     assertEq(
-      adapter.symbol(),
+      IERC20Metadata(address(adapter)).symbol(),
       string(abi.encodePacked("mv", assetSymbol)),
       string(abi.encodePacked("!symbol ", testPreFix))
     );

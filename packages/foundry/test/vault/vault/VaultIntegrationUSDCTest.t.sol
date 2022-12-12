@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Test } from "forge-std/Test.sol";
 import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
-import { Vault } from "../../../src/vault/Vault.sol";
+import { Vault, FeeStructure, IKeeperIncentiveV2 } from "../../../src/vault/Vault.sol";
 import { YearnWrapper, VaultAPI } from "../../../src/vault/adapter/yearn/YearnWrapper.sol";
 import { IContractRegistry } from "../../../src/interfaces/IContractRegistry.sol";
 import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
@@ -17,6 +16,7 @@ address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 address constant YEARN_VAULT = 0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE;
+address constant KEEPER_INCENTIVE = 0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF;
 
 contract User {
   Vault internal vault;
@@ -45,7 +45,7 @@ contract User {
 }
 
 contract VaultIntegrationUSDCTest is Test {
-  ERC20 internal asset;
+  IERC20 internal asset;
   User internal alice;
   User internal bob;
   Vault internal vault;
@@ -59,7 +59,11 @@ contract VaultIntegrationUSDCTest is Test {
 
   uint256 constant MAX_DEPOSIT = 100000000e6; // 100m
 
-  function assertWithin(uint256 expected, uint256 actual, uint256 delta) internal {
+  function assertWithin(
+    uint256 expected,
+    uint256 actual,
+    uint256 delta
+  ) internal {
     if (expected > actual) {
       assertLe(expected - actual, delta);
     } else if (actual > expected) {
@@ -73,7 +77,7 @@ contract VaultIntegrationUSDCTest is Test {
     uint256 forkId = vm.createSelectFork(vm.rpcUrl("FORKING_RPC_URL"), 15008113);
     vm.selectFork(forkId);
 
-    asset = ERC20(USDC);
+    asset = IERC20(USDC);
     vm.label(USDC, "asset");
 
     address yearnWrapperAddress = address(new YearnWrapper());
@@ -90,10 +94,11 @@ contract VaultIntegrationUSDCTest is Test {
     vault.initialize(
       asset,
       IERC4626(yearnWrapperAddress),
-      IContractRegistry(CONTRACT_REGISTRY),
-      Vault.FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
-      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 })
+      IKeeperIncentiveV2(KEEPER_INCENTIVE),
+      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 }),
+      address(this)
     );
 
     alice = new User(vault, asset);
@@ -171,7 +176,11 @@ contract VaultIntegrationUSDCTest is Test {
     assertWithin(actualShares, expectedShares, 1);
   }
 
-  function test_preview_redeem_equals_actual_redeem(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
+  function test_preview_redeem_equals_actual_redeem(
+    uint8 steps,
+    uint16 timeJump,
+    uint80 totalAmount
+  ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 2e6);
@@ -207,7 +216,11 @@ contract VaultIntegrationUSDCTest is Test {
     vm.warp(block.timestamp + timeJump);
   }
 
-  function test_assets_per_share_increase(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
+  function test_assets_per_share_increase(
+    uint8 steps,
+    uint16 timeJump,
+    uint80 totalAmount
+  ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 100e6);
@@ -235,7 +248,11 @@ contract VaultIntegrationUSDCTest is Test {
     vm.warp(block.timestamp + timeJump);
   }
 
-  function test_assets_hwm_increase(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
+  function test_assets_hwm_increase(
+    uint8 steps,
+    uint16 timeJump,
+    uint80 totalAmount
+  ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 1000000e6);
@@ -261,7 +278,11 @@ contract VaultIntegrationUSDCTest is Test {
     }
   }
 
-  function _assert_assets_hwm_increase(uint16 timeJump, uint256 depositAmount, uint256 vaultIncrease) internal {
+  function _assert_assets_hwm_increase(
+    uint16 timeJump,
+    uint256 depositAmount,
+    uint256 vaultIncrease
+  ) internal {
     uint256 prevHWM = vault.vaultShareHWM();
     uint256 prevAssets = vault.assetsCheckpoint();
 

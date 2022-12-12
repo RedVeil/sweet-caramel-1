@@ -4,14 +4,13 @@
 pragma solidity ^0.8.0;
 
 import "../../../src/interfaces/IContractRegistry.sol";
-import "../../../src/utils/ContractRegistryAccess.sol";
 import "../../../src/utils/KeeperIncentivized.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract KeeperIncentivizedHelper is KeeperIncentivized, ContractRegistryAccess {
+contract KeeperIncentivizedHelper is KeeperIncentivized {
   bytes32 public immutable contractName = keccak256("KeeperIncentivizedHelper");
 
-  constructor(IContractRegistry _contractRegistry) ContractRegistryAccess(_contractRegistry) {}
+  constructor(IKeeperIncentiveV2 keeperIncentive_) KeeperIncentivized(keeperIncentive_) {}
 
   function handleKeeperIncentiveModifierCall() public keeperIncentive(0) {}
 
@@ -25,17 +24,8 @@ contract KeeperIncentivizedHelper is KeeperIncentivized, ContractRegistryAccess 
     uint256 _i,
     uint256 _amount
   ) public {
-    IERC20(_rewardToken).approve(_getContract(keccak256("KeeperIncentive")), _amount);
+    IERC20(_rewardToken).approve(address(keeperIncentiveV2), _amount);
     IERC20(_rewardToken).transferFrom(msg.sender, address(this), _amount);
     _tip(_rewardToken, _keeper, _i, _amount);
-  }
-
-  function _getContract(bytes32 _name)
-    internal
-    view
-    override(KeeperIncentivized, ContractRegistryAccess)
-    returns (address)
-  {
-    return super._getContract(_name);
   }
 }

@@ -5,7 +5,7 @@ pragma solidity ^0.8.15;
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "openzeppelin-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
-import { KeeperIncentivized, KeeperConfig } from "../utils/KeeperIncentivized.sol";
+import { KeeperIncentivizedUpgradeable, KeeperConfig } from "../utils/KeeperIncentivizedUpgradeable.sol";
 import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { FeeStructure } from "../interfaces/vault/IVault.sol";
@@ -19,7 +19,7 @@ contract Vault is
   ReentrancyGuardUpgradeable,
   PausableUpgradeable,
   OwnedUpgradeable,
-  KeeperIncentivized
+  KeeperIncentivizedUpgradeable
 {
   using SafeERC20 for IERC20;
   // TODO use oz math
@@ -53,6 +53,7 @@ contract Vault is
       string.concat("pop-", IERC20Metadata(address(asset_)).symbol())
     );
     __Owned_init(owner);
+    __KeeperIncentivized_init(keeperIncentive_);
 
     asset = asset_;
     adapter = adapter_;
@@ -64,13 +65,12 @@ contract Vault is
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10 ** decimals();
+    ONE = 10**decimals();
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
     feeStructure = feeStructure_;
 
-    keeperIncentiveV2 = keeperIncentive_;
     keeperConfig = keeperConfig_;
     quitPeriod = 3 days;
 
@@ -117,10 +117,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(
-    uint256 assets,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 shares)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
@@ -155,10 +158,13 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(
-    uint256 shares,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 assets) {
+  function mint(uint256 shares, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 assets)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = feeStructure.deposit;
@@ -237,7 +243,11 @@ contract Vault is
    * @param owner Owner of burned vault shares.
    * @return assets of underlying sent to `receiver`.
    */
-  function redeem(uint256 shares, address receiver, address owner) public nonReentrant returns (uint256 assets) {
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public nonReentrant returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -602,7 +612,6 @@ contract Vault is
                           KEEPER LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IKeeperIncentiveV2 public keeperIncentiveV2;
   KeeperConfig public keeperConfig;
 
   error InvalidVig();

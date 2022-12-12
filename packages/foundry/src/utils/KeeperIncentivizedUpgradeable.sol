@@ -4,18 +4,19 @@
 pragma solidity ^0.8.0;
 
 import { IKeeperIncentiveV2, KeeperConfig } from "../interfaces/IKeeperIncentiveV2.sol";
+import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  *  @notice Provides modifiers and internal functions for processing keeper incentives
  *  @dev Derived contracts using `KeeperIncentivized` must also inherit `ContractRegistryAccess`
  *   and override `_getContract`.
  */
-abstract contract KeeperIncentivized {
+abstract contract KeeperIncentivizedUpgradeable is Initializable {
   IKeeperIncentiveV2 public keeperIncentiveV2;
 
   event KeeperConfigUpdated(KeeperConfig oldConfig, KeeperConfig newConfig);
 
-  constructor(IKeeperIncentiveV2 keeperIncentive_) {
+  function __KeeperIncentivized_init(IKeeperIncentiveV2 keeperIncentive_) public onlyInitializing {
     keeperIncentiveV2 = keeperIncentive_;
   }
 

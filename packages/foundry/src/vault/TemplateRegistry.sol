@@ -72,4 +72,8 @@ contract TemplateRegistry is Owned {
   function getTemplateKeys(bytes32 templateType) external view returns (bytes32[] memory) {
     return templateIds[templateType];
   }
+
+  function getTemplate(bytes32 templateType, bytes32 templateId) external view returns (Template memory) {
+    return templates[templateType][templateId];
+  }
 }

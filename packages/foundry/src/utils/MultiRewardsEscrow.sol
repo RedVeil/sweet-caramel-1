@@ -2,8 +2,8 @@
 // Docgen-SOLC: 0.8.0
 pragma solidity ^0.8.0;
 
-import { SafeERC20 } from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
-import { IERC20 } from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 import { Owned } from "./Owned.sol";
 import { KeeperIncentivized, IKeeperIncentiveV2 } from "./KeeperIncentivized.sol";
@@ -15,8 +15,11 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-  constructor(address _owner, IKeeperIncentiveV2 _keeperIncentive, address _feeRecipient) Owned(_owner) {
-    keeperIncentiveV2 = _keeperIncentive;
+  constructor(
+    address _owner,
+    IKeeperIncentiveV2 _keeperIncentive,
+    address _feeRecipient
+  ) Owned(_owner) KeeperIncentivized(_keeperIncentive) {
     feeRecipient = _feeRecipient;
   }
 
@@ -87,7 +90,13 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
    * @notice Locks funds for escrow
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds
    */
-  function lock(IERC20 token, address account, uint256 amount, uint256 duration, uint256 offset) external {
+  function lock(
+    IERC20 token,
+    address account,
+    uint256 amount,
+    uint256 duration,
+    uint256 offset
+  ) external {
     if (token == IERC20(address(0))) revert ZeroAddress();
     if (account == address(0)) revert ZeroAddress();
     if (amount == 0) revert ZeroAmount();
@@ -187,7 +196,6 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
                             FEE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IKeeperIncentiveV2 public keeperIncentiveV2;
   address public feeRecipient;
 
   // escrowToken => feeAmount

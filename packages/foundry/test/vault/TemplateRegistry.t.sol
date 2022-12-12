@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
-import { TemplateRegistry } from "../../src/vault/TemplateRegistry.sol";
+import { TemplateRegistry, Template } from "../../src/vault/TemplateRegistry.sol";
 import { EndorsementRegistry } from "../../src/vault/EndorsementRegistry.sol";
 import { WithContractRegistry, IContractRegistry } from "../utils/WithContractRegistry.sol";
 import { ClonableWithInitData } from "../utils/mocks/ClonableWithInitData.sol";
@@ -17,7 +17,7 @@ contract TemplateRegistryTEst is Test, WithContractRegistry {
   bytes32 templateType = "templateType";
 
   address[] addressArray;
-
+  bytes4[8] reqSigs;
   event TemplateTypeAdded(bytes32 templateType);
   event TemplateAdded(bytes32 templateType, bytes32 templateKey, address implementation);
   event TemplateUpdated(bytes32 templateType, bytes32 templateKey);
@@ -26,6 +26,7 @@ contract TemplateRegistryTEst is Test, WithContractRegistry {
     _adminPrepare();
 
     registry = new TemplateRegistry(address(this));
+    reqSigs[0] = bytes4(keccak256("rewardsToken()"));
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -66,15 +67,14 @@ contract TemplateRegistryTEst is Test, WithContractRegistry {
     vm.expectEmit(true, true, true, false, address(registry));
     emit TemplateAdded(templateType, "ClonableWithInitData", address(clonableWithInitData));
 
-    registry.addTemplate(templateType, "ClonableWithInitData", address(clonableWithInitData), "cid", true);
+    registry.addTemplate(templateType, "ClonableWithInitData", address(clonableWithInitData), "cid", true, reqSigs);
 
-    (address implementation, string memory metadataCid, bool requiresInitData) = registry.templates(
-      templateType,
-      "ClonableWithInitData"
-    );
-    assertEq(implementation, address(clonableWithInitData));
-    assertEq(metadataCid, "cid");
-    assertEq(requiresInitData, true);
+    Template memory template = registry.getTemplate(templateType, "ClonableWithInitData");
+    assertEq(template.implementation, address(clonableWithInitData));
+    assertEq(template.metadataCid, "cid");
+    assertEq(template.requiresInitData, true);
+    assertEq(template.requiredSigs[0], reqSigs[0]);
+    assertEq(template.requiredSigs[7], reqSigs[7]);
 
     bytes32[] memory templateKeys = registry.getTemplateKeys(templateType);
     assertEq(templateKeys.length, 1);
