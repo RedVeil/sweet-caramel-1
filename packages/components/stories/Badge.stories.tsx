@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { Badge } from "../components/Badge";
 
 export default {
-  title: "Example/Badge",
+  title: "Components/Badge",
   component: Badge,
   argTypes: {
     backgroundColor: { control: "color" },
@@ -28,4 +28,14 @@ export const White = Template.bind({});
 White.args = {
   variant: "white",
   children: "White",
+};
+export const Primary = Template.bind({});
+Primary.args = {
+  variant: "primary",
+  children: "Primary",
+};
+export const Dark = Template.bind({});
+Dark.args = {
+  variant: "dark",
+  children: "Dark",
 };
