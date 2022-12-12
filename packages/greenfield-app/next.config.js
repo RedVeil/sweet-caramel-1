@@ -40,6 +40,16 @@ module.exports = {
         destination: `/rewards`,
         permanent: true,
       },
+      {
+        source: "/ethereum",
+        destination: `/`,
+        permanent: true,
+      },
+      {
+        source: "/polygon",
+        destination: `/`,
+        permanent: true,
+      },
     ];
   },
   poweredByHeader: false,
