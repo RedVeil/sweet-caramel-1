@@ -46,7 +46,7 @@ export default function RewardsPage(): JSX.Element {
   return (
     <>
       <div className="grid grid-cols-12 md:gap-8 laptop:gap-14">
-        <div className="col-span-12 md:col-span-3">
+        <div className="col-span-12 md:col-span-4 md:pr-24">
           <h1 className="text-6xl leading-12 text-black">Rewards</h1>
           <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
           <ConnectWallet hidden={ready} />
