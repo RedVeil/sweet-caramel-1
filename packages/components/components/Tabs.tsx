@@ -17,7 +17,6 @@ interface Tab {
 //   defaultActiveTab: string;
 // }
 
-
 // const TabSwitcher: FC<TabSwitcherProps> = ({ children, tabs, defaultActiveTab }) => {
 //   const [activeTab, setActiveTab] = useState(defaultActiveTab ?? "");
 //   return <TabSwitcherContext.Provider value={[activeTab, setActiveTab]}>{children}</TabSwitcherContext.Provider>;
