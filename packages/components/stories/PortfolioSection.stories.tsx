@@ -2,6 +2,7 @@ import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import PortfolioSection from "../components/PortfolioSection";
 import TooltipIcon from "../stories/assets/tooltip.svg";
+import { BadgeVariant } from "../components/Badge";
 
 export default {
   title: "Components/PortfolioSection",
@@ -61,6 +62,10 @@ Primary.args = {
           hideMobile: false,
         },
       ],
+      badge: {
+        variant: BadgeVariant.primary,
+        label: "Claimable",
+      },
     },
     {
       tokenName: "Test Modal",
@@ -85,6 +90,10 @@ Primary.args = {
           hideMobile: false,
         },
       ],
+      badge: {
+        variant: BadgeVariant.dark,
+        label: "Vesting",
+      },
     },
   ],
   TotalValues: [
