@@ -23,19 +23,12 @@ export async function resolve_apy({
   const _resolver = resolver || metadata?.apyResolver;
 
   let apy;
-  console.log({ metadata, address, chainId, resolver, _resolver, RESOLVE_APY: "HEYHEY2" });
 
   if (!!_resolver && typeof ApyResolvers[_resolver] === "function") {
-    console.log({ metadata, address, chainId, resolver, _resolver, RESOLVE_APY: "HEYHEY3" });
-
     apy = await ApyResolvers[_resolver](address, Number(chainId), rpc);
   } else {
-    console.log({ metadata, address, chainId, resolver, _resolver, RESOLVE_APY: "HEYHEY4" });
-
     apy = await ApyResolvers.default(address, Number(chainId), rpc);
   }
-
-  console.log({ metadata, address, chainId, resolver, _resolver, apy, RESOLVE_APY: "HEYHEY5" });
 
   return { ...apy, formatted: formatAndRoundBigNumber(apy.value, apy.decimals) + "%" };
 }
