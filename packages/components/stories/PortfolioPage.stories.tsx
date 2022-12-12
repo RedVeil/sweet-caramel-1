@@ -5,7 +5,6 @@ import TooltipIcon from "../stories/assets/tooltip.svg";
 import { BadgeVariant } from "../components/Badge";
 import EthIcon from "./assets/ethereum.svg";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { Tabs } from "../components/Tabs";
 
 export default {
   title: "Pages/PortfolioPage",
