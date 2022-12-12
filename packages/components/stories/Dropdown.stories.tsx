@@ -25,4 +25,5 @@ Primary.args = {
   width: "w-full",
   selectedItem: selectedOption,
   switchFilter: setSelectedOption,
+  label: "Highest holding %",
 };

@@ -8,9 +8,10 @@ interface DropdownProps {
   switchFilter: (item: { id: string; value: string }) => void;
   position: string;
   width: string;
+  label: string;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ position, selectedItem, width, options, switchFilter }) => {
+const Dropdown: React.FC<DropdownProps> = ({ position, selectedItem, width, options, switchFilter, label }) => {
   const checkActiveItem = (item: any) => {
     return selectedItem.id === item.id;
   };
@@ -20,7 +21,7 @@ const Dropdown: React.FC<DropdownProps> = ({ position, selectedItem, width, opti
         <div className="cursor-pointer h-full flex flex-row items-center space-x-16 relative w-full text-[#55503D]">
           <div className="flex items-center">
             {/* {categoryFilter.value} */}
-            <p className="leading-none text-secondaryDark">categoryFilter</p>
+            <p className="leading-none text-secondaryDark">{label}</p>
           </div>
           <ChevronDownIcon className="w-4 h-4" aria-hidden="true" />
         </div>

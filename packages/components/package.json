@@ -12,6 +12,7 @@
     "prettify": "yarn lint-staged --allow-empty"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.13",
     "@popcorn/utils": "^1.1.2",
     "@rainbow-me/rainbowkit": "^0.8.0",
     "@storybook/addon-postcss": "^2.0.0",
