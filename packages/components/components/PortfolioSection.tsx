@@ -2,7 +2,7 @@ import React from "react";
 import PortfolioItem, { PortfolioItemProps } from "./PortfolioItem";
 import EthIcon from "../stories/assets/ethereum.svg";
 
-interface PortfolioSectionProps {
+export interface PortfolioSectionProps {
   title: string;
   PortfolioItems: Array<PortfolioItemProps>;
   TotalValues: Array<{

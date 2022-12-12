@@ -1,18 +1,14 @@
 import React, { useState } from "react";
 import { ArrowSmallUpIcon, ArrowLongUpIcon } from "@heroicons/react/24/solid";
-import TabSwitcher from "./Tabs";
-import { Menu } from "@headlessui/react";
 import Dropdown from "./Dropdown";
 import HeroBg from "../stories/assets/portfolioHeroBg.svg";
 import HeroBgMobile from "../stories/assets/portfolioHeroBgmobile.svg";
 
-interface PortfolioHeroProps {
-  title: string;
+export interface PortfolioHeroProps {
   NetworkSwitcher: JSX.Element;
+  TabButtons: JSX.Element;
 }
-const PortfolioHero: React.FC<PortfolioHeroProps> = ({ title, NetworkSwitcher }) => {
-  const tabs = [{ label: "All" }, { label: "Products" }, { label: "Rewards" }, { label: "Assets" }];
-
+const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButtons }) => {
   const options = [
     { id: "1", value: "50%" },
     { id: "2", value: "100%" },
@@ -60,7 +56,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({ title, NetworkSwitcher })
         </div>
         <div className="md:hidden">{NetworkSwitcher}</div>
         <div className="hidden md:flex flex-col items-end mt-16">
-          <TabSwitcher tabs={tabs} defaultActiveTab="All" />
+          {TabButtons}
           <div className="mt-9 relative">
             <Dropdown
               options={options}

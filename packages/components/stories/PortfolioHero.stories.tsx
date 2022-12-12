@@ -3,6 +3,7 @@ import { ComponentStory, ComponentMeta } from "@storybook/react";
 import PortfolioHero from "../components/PortfolioHero";
 import EthIcon from "./assets/ethereum.svg";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import { Tabs } from "../components/Tabs";
 
 export default {
   title: "Components/PortfolioHero",
@@ -47,15 +48,16 @@ const NetworkSwitcher = (
         </button>
       ))}
     </div>
-    <button className="w-full py-3 px-5 flex flex-row items-center justify-between space-x-1 rounded-4xl border border-gray-300 bg-white mt-8">
+    <button className="w-full py-3 px-5 flex md:hidden flex-row items-center justify-between space-x-1 rounded-4xl border border-gray-300 bg-white mt-8">
       <div className="flex items-center">All Networks</div>
       <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
     </button>
   </div>
 );
+const tabs = [{ label: "All" }, { label: "Products" }, { label: "Rewards" }, { label: "Assets" }];
 
 export const Primary = Template.bind({});
 Primary.args = {
-  title: "Assets",
   NetworkSwitcher,
+  TabButtons: <Tabs tabs={tabs} activeTab={{ label: "All" }} setActiveTab={(value) => console.log(value)} />,
 };
