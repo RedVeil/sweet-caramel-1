@@ -5,6 +5,7 @@
     "module": "esnext",
     "noEmit": false,
     "outDir": "dist",
+    "lib": ["es2019", "dom"],
     "target": "es2017",
     "isolatedModules": true,
     "incremental": true

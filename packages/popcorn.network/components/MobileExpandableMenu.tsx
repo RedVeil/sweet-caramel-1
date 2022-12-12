@@ -9,8 +9,6 @@ import TelegramIcon from "./SVGIcons/TelegramIcon";
 import MediumIcon from "./SVGIcons/MediumIcon";
 import RedditIcon from "./SVGIcons/RedditIcon";
 import YoutubeIcon from "./SVGIcons/YoutubeIcon";
-import TertiaryActionButton from "./CommonComponents/TertiaryActionButton";
-import useSubscribeToNewsletter from "hooks/useSubscribeToNewsLetter";
 
 const navLinks = [
   {
@@ -27,7 +25,6 @@ const navLinks = [
 
 export const MobileExpandableMenu: React.FC = () => {
   const router = useRouter();
-  const { showNewsletterModal } = useSubscribeToNewsletter();
 
   return (
     <div className="z-10 nav-width overflow-y-auto">
@@ -47,9 +44,6 @@ export const MobileExpandableMenu: React.FC = () => {
                   {link.label}
                 </Link>
               ))}
-            </div>
-            <div className=" mt-10">
-              <TertiaryActionButton label="Newsletter" handleClick={showNewsletterModal} className="!font-normal" />
             </div>
             <div className=" mt-10">
               <a href="https://popcorndao.finance/" className="w-full block" target="_blank">
