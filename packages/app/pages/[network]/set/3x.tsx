@@ -9,13 +9,13 @@ import ClaimableBatches from "@popcorn/app/components/BatchButter/ClaimableBatch
 import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
 import MobileTutorialSlider from "@popcorn/app/components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "@popcorn/app/components/BatchButter/StatInfoCard";
-import { ConnectWallet } from "@popcorn/app/components/ConnectWallet";
+import { ConnectWallet } from "@popcorn/components/components/ConnectWallet";
 import SetStats from "@popcorn/app/components/SetStats";
 import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
 import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
-import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
-import { BigNumber, constants, Contract, ethers } from "ethers";
+import { setMultiChoiceActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
+import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
 import useSetToken from "@popcorn/app/hooks/set/useSetToken";
 import useThreeXBatch from "@popcorn/app/hooks/set/useThreeXBatch";

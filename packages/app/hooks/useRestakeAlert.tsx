@@ -1,5 +1,5 @@
-import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setMultiChoiceActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import { constants } from "ethers";
 import { getStorage, setStorage } from "@popcorn/app/helper/safeLocalstorageAccess";
 import { useRouter } from "next/router";

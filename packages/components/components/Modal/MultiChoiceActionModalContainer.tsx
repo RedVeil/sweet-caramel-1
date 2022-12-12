@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { store } from "@popcorn/app/context/store";
-import MultiChoiceActionModal from "@popcorn/app/components/Modal/MultiChoiceActionModal";
+import { store } from "@popcorn/components/context/store";
+import MultiChoiceActionModal from "@popcorn/components/components/Modal/MultiChoiceActionModal";
 
 export const MultiChoiceActionModalContainer: React.FC = () => {
   const {

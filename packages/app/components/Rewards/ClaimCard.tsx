@@ -4,11 +4,11 @@ import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { BigNumber, constants, Signer } from "ethers";
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
-import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { setMultiChoiceActionModal } from "@popcorn/components/context/actions";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { useContext } from "react";
-import { store } from "@popcorn/app/context/store";
+import { store } from "@popcorn/components/context/store";
 
 interface ClaimCardProps {
   disabled: boolean;

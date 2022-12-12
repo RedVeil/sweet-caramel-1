@@ -1,8 +1,10 @@
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import useTermsCheck from "@popcorn/components/hooks/useTermsCheck";
 
 export const ConnectWallet = ({ hidden }: { hidden?: boolean }) => {
   const { openConnectModal } = useConnectModal();
+  useTermsCheck({ success: () => openConnectModal?.() });
 
   return (
     <div

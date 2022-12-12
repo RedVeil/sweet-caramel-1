@@ -3,8 +3,8 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useContext } from "react";
 import styles from "../styles/Home.module.css";
-import { store } from "@popcorn/app/context/store";
-import { setSingleActionModal } from "@popcorn/app/context/actions";
+import { store } from "@popcorn/components/context/store";
+import { setSingleActionModal } from "@popcorn/components/context/actions";
 
 const Home: NextPage = () => {
   const { dispatch } = useContext(store);

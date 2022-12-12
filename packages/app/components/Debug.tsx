@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import React, { useContext, useEffect } from "react";
-import { setDualActionWideModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setDualActionWideModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 
 export const Debug: React.FC = () => {
   const { dispatch } = useContext(store);

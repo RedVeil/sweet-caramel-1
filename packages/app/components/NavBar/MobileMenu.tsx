@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
-import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import PopUpModal from "@popcorn/components/components/Modal/PopUpModal";
 import DiscordIcon from "@popcorn/app/components/SVGIcons/DiscordIcon";
 import MediumIcon from "@popcorn/app/components/SVGIcons/MediumIcon";
 import RedditIcon from "@popcorn/app/components/SVGIcons/RedditIcon";

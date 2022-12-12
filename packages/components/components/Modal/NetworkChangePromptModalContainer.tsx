@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { store } from "@popcorn/app/context/store";
-import NetworkChangePromptModal from "@popcorn/app/components/Modal/NetworkChangePromptModal";
+import { store } from "@popcorn/components/context/store";
+import NetworkChangePromptModal from "@popcorn/components/components/Modal/NetworkChangePromptModal";
 
 export const NetworkChangePromptModalContainer: React.FC = () => {
   const {
