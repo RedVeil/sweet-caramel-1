@@ -1,6 +1,6 @@
 import { networkMap } from "@popcorn/utils/src/connectors";
-import { setNetworkChangePromptModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setNetworkChangePromptModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import { useCallback, useContext } from "react";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 

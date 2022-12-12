@@ -4,6 +4,7 @@ import Navbar from "@popcorn/app/components/NavBar/NavBar";
 import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import React from "react";
 import { Toaster } from "react-hot-toast";
+import useTermsCheck from "@popcorn/components/hooks/useTermsCheck";
 
 interface PageProps {
   children: JSX.Element;
@@ -12,6 +13,7 @@ interface PageProps {
 export default function Page({ children }: PageProps) {
   useRestakeAlert();
   useSubscribeToNewsletter();
+  useTermsCheck();
 
   return (
     <div className="w-full min-h-screen h-full font-khTeka flex flex-col justify-between">

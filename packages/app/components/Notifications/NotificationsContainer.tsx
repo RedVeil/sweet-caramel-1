@@ -3,8 +3,8 @@ import { Transition } from "@headlessui/react";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/outline";
 import { XIcon } from "@heroicons/react/solid";
 import { Fragment, useContext, useEffect } from "react";
-import { hideNotification, unsetNotification } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { hideNotification, unsetNotification } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 
 const NotificationsContainer: React.FC = () => {
   const {

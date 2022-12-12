@@ -1,7 +1,7 @@
 import { InfoIconWithModal } from "@popcorn/app/components/InfoIconWithModal";
-import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
-import { setSingleActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import PopUpModal from "@popcorn/components/components/Modal/PopUpModal";
+import { setSingleActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { Dispatch, useContext, useState } from "react";
 import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";

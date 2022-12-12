@@ -1,6 +1,7 @@
-import { store } from "@popcorn/app/context/store";
+import { store } from "@popcorn/components/context/store";
 import { Dispatch, useContext, useEffect } from "react";
-import PageLoader from "@popcorn/app/components/PageLoader";
+import PageLoader from "./PageLoader";
+
 interface GlobalLinearProgressAndLoadingProps {
   loading: boolean;
   setLoading: Dispatch<boolean>;

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { store } from "@popcorn/app/context/store";
-import MobileFullScreenModal from "@popcorn/app/components/Modal/MobileFullScreenModal";
+import { store } from "@popcorn/components/context/store";
+import MobileFullScreenModal from "@popcorn/components/components/Modal/MobileFullScreenModal";
 
 export const MobileFullScreenModalContainer: React.FC = () => {
   const {
