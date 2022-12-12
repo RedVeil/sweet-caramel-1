@@ -5,8 +5,6 @@ import { useRouter } from "next/router";
 import Burger from "components/Burger";
 import Menu from "components/Menu";
 import FocusLock from "react-focus-lock";
-import useSubscribeToNewsletter from "hooks/useSubscribeToNewsLetter";
-import TertiaryActionButton from "./CommonComponents/TertiaryActionButton";
 
 const navLinks = [
   {
@@ -16,7 +14,6 @@ const navLinks = [
   },
 ];
 const Header = ({ open, setOpen }) => {
-  const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
   const node = useRef();
   const menuId = "main-menu";
@@ -52,7 +49,6 @@ const Header = ({ open, setOpen }) => {
           ))}
         </div>
         <div className="flex items-center space-x-6">
-          <TertiaryActionButton label="Newsletter" handleClick={showNewsletterModal}></TertiaryActionButton>
           <a href="https://popcorndao.finance/" target="_blank">
             <PrimaryButton>Launch App</PrimaryButton>
           </a>

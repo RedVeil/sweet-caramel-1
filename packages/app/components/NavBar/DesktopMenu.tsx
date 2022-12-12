@@ -2,7 +2,6 @@ import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import DropDownComponent from "@popcorn/app/components/NavBar/DropDownComponent";
@@ -19,7 +18,6 @@ export default function DesktopMenu(): JSX.Element {
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
-  const { showNewsletterModal } = useSubscribeToNewsletter();
   const router = useRouter();
   const { chain } = useNetwork();
   const isConnected = useIsConnected();
@@ -68,13 +66,7 @@ export default function DesktopMenu(): JSX.Element {
             <NavbarLink label="Rewards" url={`/rewards`} isActive={router.pathname.includes("/rewards")} />
           </li>
         </ul>
-        <div className="relative flex flex-container flex-row z-10">
-          <TertiaryActionButton
-            label="Newsletter"
-            handleClick={showNewsletterModal}
-            className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
-          />
-        </div>
+
         <div className="relative flex flex-container flex-row z-10">
           <Menu>
             <Menu.Button>
