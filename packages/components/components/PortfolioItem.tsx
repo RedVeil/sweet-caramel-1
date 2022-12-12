@@ -17,7 +17,7 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({ tokenName, chainId, token
     <div className="md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4">
       <div className="grid grid-cols-12">
         <div
-          className={`flex space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8 ${
+          className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8 ${
             filterHiddenMobile().length === 1 ? "col-span-6" : "col-span-5"
           }`}
         >
