@@ -10,7 +10,7 @@ import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { FeeStructure } from "../interfaces/vault/IVault.sol";
 import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
-import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
+import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { OwnedUpgradeable } from "../utils/OwnedUpgradeable.sol";
 import { ERC20Upgradeable } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
@@ -22,8 +22,7 @@ contract Vault is
   KeeperIncentivizedUpgradeable
 {
   using SafeERC20 for IERC20;
-  // TODO use oz math
-  using FixedPointMathLib for uint256;
+  using Math for uint256;
 
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
@@ -65,7 +64,7 @@ contract Vault is
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10 ** decimals();
+    ONE = 10**decimals();
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
@@ -117,13 +116,16 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(
-    uint256 assets,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 shares)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
-    uint256 feeShares = convertToShares(assets.mulDivDown(feeStructure.deposit, 1e18));
+    uint256 feeShares = convertToShares(assets.mulDiv(feeStructure.deposit, 1e18, Math.Rounding.Down));
 
     shares = convertToShares(assets) - feeShares;
 
@@ -155,15 +157,18 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(
-    uint256 shares,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 assets) {
+  function mint(uint256 shares, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 assets)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = feeStructure.deposit;
 
-    uint256 feeShares = shares.mulDivDown(depositFee, 1e18 - depositFee);
+    uint256 feeShares = shares.mulDiv(depositFee, 1e18 - depositFee, Math.Rounding.Down);
 
     assets = convertToAssets(shares + feeShares);
 
@@ -206,7 +211,7 @@ contract Vault is
 
     uint256 withdrawalFee = feeStructure.withdrawal;
 
-    uint256 feeShares = shares.mulDivDown(withdrawalFee, 1e18 - withdrawalFee);
+    uint256 feeShares = shares.mulDiv(withdrawalFee, 1e18 - withdrawalFee, Math.Rounding.Down);
 
     shares += feeShares;
 
@@ -237,12 +242,16 @@ contract Vault is
    * @param owner Owner of burned vault shares.
    * @return assets of underlying sent to `receiver`.
    */
-  function redeem(uint256 shares, address receiver, address owner) public nonReentrant returns (uint256 assets) {
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public nonReentrant returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
-    uint256 feeShares = shares.mulDivDown(feeStructure.withdrawal, 1e18);
+    uint256 feeShares = shares.mulDiv(feeStructure.withdrawal, 1e18, Math.Rounding.Down);
 
     assets = convertToAssets(shares - feeShares);
 
@@ -274,7 +283,7 @@ contract Vault is
   function convertToShares(uint256 assets) public view returns (uint256) {
     uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
 
-    return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+    return supply == 0 ? assets : assets.mulDiv(supply, totalAssets(), Math.Rounding.Down);
   }
 
   /**
@@ -285,7 +294,7 @@ contract Vault is
   function convertToAssets(uint256 shares) public view returns (uint256) {
     uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
 
-    return supply == 0 ? shares : shares.mulDivDown(totalAssets(), supply);
+    return supply == 0 ? shares : shares.mulDiv(totalAssets(), supply, Math.Rounding.Down);
   }
 
   /**
@@ -295,7 +304,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewDeposit(uint256 assets) public view returns (uint256 shares) {
-    shares = adapter.previewDeposit(assets - assets.mulDivDown(feeStructure.deposit, 1e18));
+    shares = adapter.previewDeposit(assets - assets.mulDiv(feeStructure.deposit, 1e18, Math.Rounding.Down));
   }
 
   /**
@@ -307,7 +316,7 @@ contract Vault is
   function previewMint(uint256 shares) public view returns (uint256 assets) {
     uint256 depositFee = feeStructure.deposit;
 
-    shares += shares.mulDivUp(depositFee, 1e18 - depositFee);
+    shares += shares.mulDiv(depositFee, 1e18 - depositFee, Math.Rounding.Up);
 
     assets = adapter.previewMint(shares);
   }
@@ -321,7 +330,7 @@ contract Vault is
   function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
     uint256 withdrawalFee = feeStructure.withdrawal;
 
-    assets += assets.mulDivUp(withdrawalFee, 1e18 - withdrawalFee);
+    assets += assets.mulDiv(withdrawalFee, 1e18 - withdrawalFee, Math.Rounding.Up);
 
     shares = adapter.previewWithdraw(assets);
   }
@@ -335,7 +344,7 @@ contract Vault is
   function previewRedeem(uint256 shares) public view returns (uint256 assets) {
     assets = adapter.previewRedeem(shares);
 
-    assets -= assets.mulDivDown(feeStructure.withdrawal, 1e18);
+    assets -= assets.mulDiv(feeStructure.withdrawal, 1e18, Math.Rounding.Down);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -384,7 +393,7 @@ contract Vault is
   function accruedManagementFee() public view returns (uint256) {
     uint256 area = (totalAssets() + assetsCheckpoint) * (block.timestamp - feesUpdatedAt);
 
-    return (feeStructure.management.mulDivDown(area, 2) / SECONDS_PER_YEAR) / 1e18;
+    return (feeStructure.management.mulDiv(area, 2, Math.Rounding.Down) / SECONDS_PER_YEAR) / 1e18;
   }
 
   /**
@@ -397,7 +406,8 @@ contract Vault is
     uint256 shareValue = convertToAssets(ONE);
 
     if (shareValue > vaultShareHWM) {
-      return feeStructure.performance.mulDivDown((shareValue - vaultShareHWM) * totalSupply(), 1e18 * ONE);
+      return
+        feeStructure.performance.mulDiv((shareValue - vaultShareHWM) * totalSupply(), 1e18 * ONE, Math.Rounding.Down);
     } else {
       return 0;
     }
