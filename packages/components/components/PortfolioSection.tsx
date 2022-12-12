@@ -14,9 +14,9 @@ export interface PortfolioSectionProps {
 }
 const PortfolioSection: React.FC<PortfolioSectionProps> = ({ title, PortfolioItems, TotalValues }) => {
   return (
-    <div className=" font-khTeka">
+    <div className=" font-khTeka mb-16 md:mb-18 px-6">
       <div className="grid grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
-        <div className="col-span-5 md:col-span-6 flex items-center space-x-10 mb-6 md:mb-[48px]">
+        <div className="col-span-12 md:col-span-6 flex items-center space-x-10 mb-6 md:mb-[48px]">
           <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">{title}</h2>
           <div className="relative">
             <div className="absolute top-0 -left-5">
@@ -28,7 +28,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ title, PortfolioIte
           </div>
         </div>
         <div className="col-span-12 md:col-span-6 grid grid-cols-12">
-          <div className="col-span-7 col-end-13 md:col-span-12 grid grid-cols-12">
+          <div className="col-span-12 xs:col-span-7 xs:col-end-13 md:col-span-12 grid grid-cols-12">
             {TotalValues.map(({ title, tooltip, value, hideMobile }, index) => (
               <div
                 className={`text-primary text-lg font-medium col-span-6 md:col-span-4 ${

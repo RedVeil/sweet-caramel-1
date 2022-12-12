@@ -18,13 +18,16 @@ export const Badge: FC<BadgeProps> = ({ variant, children }) => {
   return (
     <div className="flex items-center">
       <div
-        className={classnames(" leading-6 rounded-2xl font-medium tracking-[0.2px] text-black text-sm py-[6px] px-4", {
-          "bg-customLightYellow": variant === BadgeVariant.warning,
-          "bg-customLightGreen": variant === BadgeVariant.success,
-          "bg-white": variant === BadgeVariant.white,
-          "bg-warmGray": variant == BadgeVariant.primary,
-          "bg-customLightGray": variant == BadgeVariant.dark,
-        })}
+        className={classnames(
+          " md:leading-6 rounded-2xl font-light md:font-medium tracking-[0.2px] text-black text-[10px] md:text-sm p-[6px] md:py-[6px] md:px-4",
+          {
+            "bg-customLightYellow": variant === BadgeVariant.warning,
+            "bg-customLightGreen": variant === BadgeVariant.success,
+            "bg-white": variant === BadgeVariant.white,
+            "bg-warmGray": variant == BadgeVariant.primary,
+            "bg-customLightGray": variant == BadgeVariant.dark,
+          },
+        )}
       >
         <p> {children}</p>
       </div>
