@@ -1,28 +1,22 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import TabSwitcher, { TabPanel } from "../components/Tabs";
+import { Tabs } from "../components/Tabs";
 
 export default {
-  title: "Example/Tab",
-  component: TabSwitcher,
+  title: "Components/Tabs",
+  component: Tabs,
   argTypes: {
     backgroundColor: { control: "color" },
   },
-} as ComponentMeta<typeof TabSwitcher>;
+} as ComponentMeta<typeof Tabs>;
 
-const Template: ComponentStory<typeof TabSwitcher> = (args) => <TabSwitcher {...args} />;
-const TabPanelTemplate: ComponentStory<typeof TabPanel> = (args) => <TabPanel {...args} />;
+const Template: ComponentStory<typeof Tabs> = (args) => <Tabs {...args} />;
 export const Primary = Template.bind({});
 
+const tabs = [{ label: "All" }, { label: "Products" }, { label: "Rewards" }, { label: "Assets" }];
+
 Primary.args = {
-  tabs: [{ label: "All" }, { label: "Products" }, { label: "Rewards" }, { label: "Assets" }],
-  defaultActiveTab: "All",
-  children: (
-    <div className="mt-5">
-      <TabPanelTemplate whenActive="All">Tab 1 Content</TabPanelTemplate>
-      <TabPanelTemplate whenActive="Products">Tab 2 Content</TabPanelTemplate>
-      <TabPanelTemplate whenActive="Rewards">Tab 3 Content</TabPanelTemplate>
-      <TabPanelTemplate whenActive="Assets">Tab 4 Content</TabPanelTemplate>
-    </div>
-  ),
+  tabs,
+  activeTab: { label: "All" },
+  setActiveTab: (value) => console.log(value),
 };

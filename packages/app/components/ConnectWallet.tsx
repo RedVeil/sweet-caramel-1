@@ -17,7 +17,7 @@ export const ConnectWallet = ({ hidden }: { hidden?: boolean }) => {
           <SecondaryActionButton label="Connect" />
         </div>
         <div className="md:hidden">
-          <SecondaryActionButton label="Connect Wallet" />
+          <SecondaryActionButton label="Connect " />
         </div>
       </div>
     </div>

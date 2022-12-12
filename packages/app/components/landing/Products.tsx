@@ -79,7 +79,6 @@ const Products = () => {
           ]}
           route={`${networkName}/set/3x`}
           customContent={ThreeXExposure}
-          badge="/images/fireProductBadge.svg"
         />
         <Product
           title="Butter"

@@ -1,9 +1,13 @@
+import { useEffect } from "react";
 import { BigNumber } from "ethers";
 import { BigNumberWithFormatted, Pop } from "../types";
 import { withLoading } from "../utils/hocs/withLoading";
 import { useEscrowBalance, useEscrowIds } from "./hooks";
 import { usePrice } from "../Price";
 import { useMultiStatus } from "../utils/hooks/useMultiStatus";
+import { useNetworth } from "../../context/Networth";
+import { updateNetworth } from "../../reducers/networth/actions";
+import useLog from "../utils/hooks/useLog";
 
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
@@ -26,6 +30,25 @@ const eth_call =
     });
     const { data: price, status: priceStatus } = usePrice({ ...props });
     const status = useMultiStatus([idsStatus, balanceStatus, priceStatus]);
+
+    const { dispatch, state } = useNetworth();
+    useEffect(() => {
+      if (status === "success" && data?.value) {
+        updateNetworth({
+          key: "Escrow",
+          value: data?.value,
+          status,
+        })(dispatch);
+      }
+    }, [status]);
+
+    useLog(
+      {
+        state,
+      },
+      [state],
+    );
+
     if (props.render) {
       return (
         <>

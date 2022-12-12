@@ -9,7 +9,6 @@ import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
 import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
@@ -89,8 +88,6 @@ export const MobileMenu: React.FC = () => {
   const closePopUp = () => {
     setShowPopUp(false);
   };
-
-  const { showNewsletterModal } = useSubscribeToNewsletter();
 
   return (
     <>
@@ -175,15 +172,7 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-6">
                         <NavbarLink label="Rewards" url={`/rewards`} isActive={router?.pathname.includes("/rewards")} />
                       </div>
-                      <div className="py-6">
-                        <TertiaryActionButton
-                          label="Newsletter"
-                          handleClick={showNewsletterModal}
-                          className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
-                        />
-                      </div>
                     </div>
-
                     <div>
                       <div className="grid grid-cols-12 mt-12">
                         <div className="col-span-6">
@@ -205,7 +194,10 @@ export const MobileMenu: React.FC = () => {
                         <div className="col-span-6">
                           <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
                           <div className="flex flex-col">
-                            <Link href="/immunefi" className=" text-primary leading-6 mt-4">
+                            <Link
+                              href="https://immunefi.com/bounty/popcornnetwork"
+                              className=" text-primary leading-6 mt-4"
+                            >
                               Immunefi
                             </Link>
                           </div>

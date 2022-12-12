@@ -22,7 +22,6 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
-import GoogleAnalyticsPrompt from "@popcorn/components/components/GoogleAnalyticsPrompt";
 
 const bnb: Chain = {
   id: 56,
@@ -149,7 +148,6 @@ export default function MyApp(props) {
               <DualActionWideModalContainer />
               <NetworkChangePromptModalContainer />
               {getLayout(<Component {...pageProps} />)}
-              <GoogleAnalyticsPrompt />
               <FeatureTogglePanel />
               <NotificationsContainer />
               <Debug />
