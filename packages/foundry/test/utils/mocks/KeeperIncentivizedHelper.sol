@@ -18,12 +18,7 @@ contract KeeperIncentivizedHelper is KeeperIncentivized {
     _handleKeeperIncentive(0, msg.sender);
   }
 
-  function tipIncentiveDirectCall(
-    address _rewardToken,
-    address _keeper,
-    uint256 _i,
-    uint256 _amount
-  ) public {
+  function tipIncentiveDirectCall(address _rewardToken, address _keeper, uint256 _i, uint256 _amount) public {
     IERC20(_rewardToken).approve(address(keeperIncentiveV2), _amount);
     IERC20(_rewardToken).transferFrom(msg.sender, address(this), _amount);
     _tip(_rewardToken, _keeper, _i, _amount);
