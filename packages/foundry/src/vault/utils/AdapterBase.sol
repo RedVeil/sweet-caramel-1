@@ -20,9 +20,9 @@ import { OwnedUpgradeable } from "../../utils/OwnedUpgradeable.sol";
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
 contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeable, EIP165, OnlyStrategy {
+  // TODO replace ERC20 with IERC20
   using SafeERC20 for ERC20;
   using Math for uint256;
-
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/

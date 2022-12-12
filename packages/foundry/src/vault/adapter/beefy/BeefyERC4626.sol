@@ -81,14 +81,14 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
 
   /**
      @notice Initializes the Vault.
-     @param adapterInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
+     @param beefyInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
     */
-  function initialize(bytes memory popERC4626InitData, bytes memory adapterInitData) public initStrategy {
+  function initialize(bytes memory adapterInitData, bytes memory beefyInitData) public initStrategy {
     (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
-      adapterInitData,
+      beefyInitData,
       (address, address, uint256)
     );
-    __AdapterBase_init(popERC4626InitData);
+    __AdapterBase_init(adapterInitData);
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
