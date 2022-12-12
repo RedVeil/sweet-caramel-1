@@ -11,6 +11,7 @@ import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
 import { useComponentState } from "@popcorn/components/hooks";
+import { ConnectWallet } from "@popcorn/components/components/ConnectWallet";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -48,23 +49,7 @@ export default function RewardsPage(): JSX.Element {
         <div className="col-span-12 md:col-span-3">
           <h1 className="text-6xl leading-12 text-black">Rewards</h1>
           <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
-          {!ready && (
-            <div
-              className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
-              onClick={connect}
-              role="button"
-            >
-              <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
-              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 mb-1 md:mt-4">
-                <div className="hidden md:block">
-                  <SecondaryActionButton label="Connect" />
-                </div>
-                <div className="md:hidden">
-                  <SecondaryActionButton label="Connect Wallet" />
-                </div>
-              </div>
-            </div>
-          )}
+          <ConnectWallet hidden={ready} />
         </div>
       </div>
 

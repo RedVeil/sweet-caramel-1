@@ -1,9 +1,9 @@
 import { setSingleActionModal } from "@popcorn/components/context/actions";
 import { store } from "@popcorn/components/context/store";
 import { verifyMessage } from "ethers/lib/utils";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useContext } from "react";
-import { useSignMessage } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 
 const getShortTerms = (timestamp) => {
   return `
@@ -19,20 +19,18 @@ const getShortTerms = (timestamp) => {
 : ${timestamp}
   `;
 };
-interface Props {
-  success: () => void;
-}
 
-export default function useTermsCheck({ success }: Props) {
-  const recoveredAddress = React.useRef<string>();
+export default function useTermsCheck() {
+  const { address: account } = useAccount();
   const { dispatch } = useContext(store);
 
-  const { data, error, isLoading, signMessage } = useSignMessage({
+  const { signMessage } = useSignMessage({
     onSuccess(data, variables) {
       // Verify signature when sign message succeeds
       const address = verifyMessage(variables.message, data);
       if (address) {
-        success();
+        dispatch(setSingleActionModal(false));
+        localStorage.setItem("termsAndConditionsSigned", "true");
       }
     },
   });
@@ -54,6 +52,6 @@ export default function useTermsCheck({ success }: Props) {
     );
   };
   useEffect(() => {
-    showSignMessageModal();
-  }, []);
+    if (account && !localStorage.getItem("termsAndConditionsSigned")) showSignMessageModal();
+  }, [account]);
 }
