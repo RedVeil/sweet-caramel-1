@@ -35,23 +35,6 @@ export default function Hero(): JSX.Element {
         </div>
       </div>
 
-      <div className="col-span-12 md:col-span-4 h-full pt-10 md:pt-0">
-        <ConnectDepositCard />
-      </div>
-
-      <div className="hidden md:block col-span-12 md:col-span-5 h-full">
-        <div className="w-full h-full bg-customLightGreen rounded-lg p-10">
-          <p className=" text-3xl leading-10">
-            Audited. <br />
-            Non-custodial. <br />
-            Decentralized. <br />
-          </p>
-          <div className="flex justify-end">
-            <img src="/images/hands.svg" alt="" />
-          </div>
-        </div>
-      </div>
-
       <div className="col-span-12 md:col-span-8 md:col-start-4 pt-6">
         <h6 className=" font-medium leading-8 mb-3">Built With</h6>
         <SliderContainer slidesToShow={4}>

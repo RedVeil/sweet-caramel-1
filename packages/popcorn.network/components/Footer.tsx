@@ -1,9 +1,7 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import NewsletterSubscription from "./CommonComponents/NewsletterSubscription";
-import SecondaryButton from "./CommonComponents/SecondaryButton";
 import DiscordIcon from "./SVGIcons/DiscordIcon";
-import GithubIcon from "./SVGIcons/GithubIcon";
 import MediumIcon from "./SVGIcons/MediumIcon";
 import RedditIcon from "./SVGIcons/RedditIcon";
 import TelegramIcon from "./SVGIcons/TelegramIcon";

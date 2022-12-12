@@ -149,7 +149,6 @@ export default function MyApp(props) {
               <DualActionWideModalContainer />
               <NetworkChangePromptModalContainer />
               {getLayout(<Component {...pageProps} />)}
-              <GoogleAnalyticsPrompt />
               <FeatureTogglePanel />
               <NotificationsContainer />
               <Debug />

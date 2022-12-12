@@ -1,12 +1,9 @@
 import Link from "next/link";
 
 import React from "react";
-import { Facebook, GitHub, Twitter } from "react-feather";
 import { useRouter } from "next/router";
 import PrimaryButton from "./CommonComponents/PrimaryButton";
 import DiscordIcon from "./SVGIcons/DiscordIcon";
-import FacebookIcon from "./SVGIcons/FacebookIcon";
-import GithubIcon from "./SVGIcons/GithubIcon";
 import TwitterIcon from "./SVGIcons/TwitterIcon";
 import TelegramIcon from "./SVGIcons/TelegramIcon";
 import MediumIcon from "./SVGIcons/MediumIcon";
@@ -77,7 +74,7 @@ export const MobileExpandableMenu: React.FC = () => {
               <div className="col-span-6">
                 <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
                 <div className="flex flex-col">
-                  <Link href="/immunefi" className=" text-primary leading-6 mt-4">
+                  <Link href="https://immunefi.com/bounty/popcornnetwork" className=" text-primary leading-6 mt-4">
                     Immunefi
                   </Link>
                 </div>

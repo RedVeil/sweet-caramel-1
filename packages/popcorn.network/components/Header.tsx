@@ -52,7 +52,6 @@ const Header = ({ open, setOpen }) => {
           ))}
         </div>
         <div className="flex items-center space-x-6">
-          <TertiaryActionButton label="Newsletter" handleClick={showNewsletterModal}></TertiaryActionButton>
           <a href="https://popcorndao.finance/" target="_blank">
             <PrimaryButton>Launch App</PrimaryButton>
           </a>
