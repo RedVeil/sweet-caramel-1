@@ -9,7 +9,6 @@ import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
 import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
@@ -89,8 +88,6 @@ export const MobileMenu: React.FC = () => {
   const closePopUp = () => {
     setShowPopUp(false);
   };
-
-  const { showNewsletterModal } = useSubscribeToNewsletter();
 
   return (
     <>

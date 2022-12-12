@@ -90,7 +90,7 @@ const useSubscribeToNewsletter = (): {
         const subscribedToNewsletter = localStorage.getItem("subscribedToNewsletter");
         if (!subscribedToNewsletter) {
           setTimeout(() => {
-            showNewsletterModal();
+            //showNewsletterModal();
             localStorage.setItem("subscribedToNewsletter", "true");
           }, 3000);
         }
