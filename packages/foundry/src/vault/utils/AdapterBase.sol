@@ -319,7 +319,6 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
 
     uint256 managementFee = accruedManagementFee();
 
-    // TODO should we also use a proxy here that just fowards to the actual feeRecipient?
     if (managementFee > 0) {
       feesUpdatedAt = block.timestamp;
       _mint(FEE_RECIPIENT, convertToShares(managementFee));
