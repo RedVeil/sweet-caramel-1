@@ -10,7 +10,7 @@ export function NetworthCard({ hidden }): JSX.Element {
   });
   return (
     <div
-      className={`col-span-7 md:col-span-12 rounded-lg border border-customLightGray px-6 py-7 mt-6 ${
+      className={`col-span-7 md:col-span-12 rounded-lg border border-customLightGray p-5 md:py-7 md:mt-6 ${
         hidden ? "hidden" : ""
       }`}
     >
