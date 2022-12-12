@@ -14,8 +14,11 @@ export const networthReducer = (state = initialState, action: NetworthActions = 
     case NetworthActionType.UPDATE_NETWORTH: {
       return {
         ...state,
+        //@ts-ignore TODO: fix this
         [action.payload.key]: {
+          //@ts-ignore TODO: fix this
           value: action.payload.value,
+          //@ts-ignore TODO: fix this
           status: action.payload.status,
         },
       };
