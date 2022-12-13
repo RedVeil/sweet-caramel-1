@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyERC4626, SafeERC20, ERC20, Math, IBeefyVault, IBeefyBooster } from "../../../src/vault/adapter/beefy/BeefyERC4626.sol";
+import { BeefyERC4626, SafeERC20, IERC20, Math, IBeefyVault, IBeefyBooster } from "../../../src/vault/adapter/beefy/BeefyERC4626.sol";
 import { RewardsClaimer } from "../../../src/vault/strategy/RewardsClaimer.sol";
 import { IStrategy } from "../../../src/interfaces/vault/IStrategy.sol";
 import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
@@ -19,12 +19,12 @@ contract BeefyERC4626Test is Test {
   BeefyERC4626 erc4626;
   RewardsClaimer rewardsClaimer;
 
-  ERC20 asset = ERC20(0x8159462d255C1D24915CB51ec361F700174cD994);
+  IERC20 asset = IERC20(0x8159462d255C1D24915CB51ec361F700174cD994);
   IBeefyVault beefyVault = IBeefyVault(0xF79BF908d0e6d8E7054375CD80dD33424B1980bf);
   IBeefyBooster beefyBooster = IBeefyBooster(0x69C28193185CFcd42D62690Db3767915872bC5EA);
-  ERC20 rewardToken = ERC20(0xC3C7d422809852031b44ab29EEC9F1EfF2A58756);
+  IERC20 rewardToken = IERC20(0xC3C7d422809852031b44ab29EEC9F1EfF2A58756);
 
-  ERC20[] rewardsToken;
+  IERC20[] rewardsToken;
 
   address feeRecipient = address(0x4444);
   address admin = address(0x1111);

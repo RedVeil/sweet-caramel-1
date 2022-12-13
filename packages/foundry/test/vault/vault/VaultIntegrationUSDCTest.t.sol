@@ -59,7 +59,11 @@ contract VaultIntegrationUSDCTest is Test {
 
   uint256 constant MAX_DEPOSIT = 100000000e6; // 100m
 
-  function assertWithin(uint256 expected, uint256 actual, uint256 delta) internal {
+  function assertWithin(
+    uint256 expected,
+    uint256 actual,
+    uint256 delta
+  ) internal {
     if (expected > actual) {
       assertLe(expected - actual, delta);
     } else if (actual > expected) {
@@ -80,7 +84,10 @@ contract VaultIntegrationUSDCTest is Test {
     vm.label(yearnWrapperAddress, "yearnWrapper");
 
     yearnWrapper = YearnWrapper(yearnWrapperAddress);
-    yearnWrapper.initialize(VaultAPI(YEARN_VAULT));
+    yearnWrapper.initialize(
+      abi.encode(asset, address(this), address(0), 0, new bytes4[](8), abi.encode(feeRecipient)),
+      abi.encode(YEARN_VAULT)
+    );
     vm.label(YEARN_VAULT, "yearnVault");
 
     address vaultAddress = address(new Vault());
@@ -164,7 +171,7 @@ contract VaultIntegrationUSDCTest is Test {
   }
 
   function _assert_preview_deposit_equals_actual_shares(uint256 depositAmount, uint256 vaultIncrease) internal {
-    asset.transfer(yearnWrapper.vault(), vaultIncrease);
+    asset.transfer(address(yearnWrapper.yVault()), vaultIncrease);
 
     uint256 expectedShares = vault.previewDeposit(depositAmount);
     uint256 actualShares = alice.deposit(depositAmount);
@@ -172,7 +179,11 @@ contract VaultIntegrationUSDCTest is Test {
     assertWithin(actualShares, expectedShares, 1);
   }
 
-  function test_preview_redeem_equals_actual_redeem(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
+  function test_preview_redeem_equals_actual_redeem(
+    uint8 steps,
+    uint16 timeJump,
+    uint80 totalAmount
+  ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 2e6);
@@ -196,7 +207,7 @@ contract VaultIntegrationUSDCTest is Test {
     uint256 depositAmount,
     uint256 vaultIncrease
   ) internal {
-    asset.transfer(yearnWrapper.vault(), vaultIncrease);
+    asset.transfer(address(yearnWrapper.yVault()), vaultIncrease);
 
     uint256 shares = alice.deposit(depositAmount);
     vm.warp(block.timestamp + timeJump);
@@ -208,7 +219,11 @@ contract VaultIntegrationUSDCTest is Test {
     vm.warp(block.timestamp + timeJump);
   }
 
-  function test_assets_per_share_increase(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
+  function test_assets_per_share_increase(
+    uint8 steps,
+    uint16 timeJump,
+    uint80 totalAmount
+  ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 100e6);
@@ -229,14 +244,18 @@ contract VaultIntegrationUSDCTest is Test {
   function _assert_assets_per_share_increase(uint16 timeJump, uint256 vaultIncrease) internal {
     uint256 prevAssetsPerShare = vault.convertToAssets(1e6);
 
-    asset.transfer(yearnWrapper.vault(), vaultIncrease);
+    asset.transfer(address(yearnWrapper.yVault()), vaultIncrease);
 
     assertGe(vault.convertToAssets(1e6), prevAssetsPerShare);
 
     vm.warp(block.timestamp + timeJump);
   }
 
-  function test_assets_hwm_increase(uint8 steps, uint16 timeJump, uint80 totalAmount) public {
+  function test_assets_hwm_increase(
+    uint8 steps,
+    uint16 timeJump,
+    uint80 totalAmount
+  ) public {
     vm.assume(steps > 1);
     vm.assume(steps < 50);
     vm.assume(totalAmount > 1000000e6);
@@ -262,11 +281,15 @@ contract VaultIntegrationUSDCTest is Test {
     }
   }
 
-  function _assert_assets_hwm_increase(uint16 timeJump, uint256 depositAmount, uint256 vaultIncrease) internal {
+  function _assert_assets_hwm_increase(
+    uint16 timeJump,
+    uint256 depositAmount,
+    uint256 vaultIncrease
+  ) internal {
     uint256 prevHWM = vault.vaultShareHWM();
     uint256 prevAssets = vault.assetsCheckpoint();
 
-    asset.transfer(yearnWrapper.vault(), vaultIncrease);
+    asset.transfer(address(yearnWrapper.yVault()), vaultIncrease);
     alice.deposit(depositAmount);
 
     assertGe(vault.vaultShareHWM(), prevHWM);

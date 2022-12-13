@@ -41,6 +41,7 @@ contract TestFixture is ExtendedDSTest {
   address public management = address(5);
   address public strategist = address(6);
   address public keeper = address(7);
+  address public feeRecipient = address(9);
 
   uint256 public minFuzzAmt;
   // @dev maximum amount of want tokens deposited based on @maxDollarNotional
@@ -75,7 +76,10 @@ contract TestFixture is ExtendedDSTest {
     strategy = MockStrategy(_strategy);
 
     address yearnWrapperAddress = address(new YearnWrapper());
-    YearnWrapper(yearnWrapperAddress).initialize(VaultAPI(vault));
+    YearnWrapper(yearnWrapperAddress).initialize(
+      abi.encode(want, address(this), address(0), 0, new bytes4[](8), abi.encode(feeRecipient)),
+      abi.encode(_vault)
+    );
     vaultWrapper = IERC4626(yearnWrapperAddress);
 
     // NOTE: assume Token is priced to 1 for simplicity

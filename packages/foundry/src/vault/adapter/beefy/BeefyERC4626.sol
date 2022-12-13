@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { AdapterBase, ERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
+import { AdapterBase, IERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../../utils/WithRewards.sol";
 
 interface IBeefyVault {
@@ -61,7 +61,7 @@ interface IBeefyBalanceCheck {
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
 contract BeefyERC4626 is AdapterBase, WithRewards {
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
   using Math for uint256;
 
   /*//////////////////////////////////////////////////////////////
@@ -102,9 +102,9 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
 
     beefyBalanceCheck = IBeefyBalanceCheck(_beefyBooster == address(0) ? _beefyVault : _beefyBooster);
 
-    ERC20(asset()).approve(_beefyVault, type(uint256).max);
+    IERC20(asset()).approve(_beefyVault, type(uint256).max);
 
-    if (_beefyBooster != address(0)) ERC20(_beefyVault).approve(_beefyBooster, type(uint256).max);
+    if (_beefyBooster != address(0)) IERC20(_beefyVault).approve(_beefyBooster, type(uint256).max);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
   function totalAssets() public view override returns (uint256) {
     return
       paused()
-        ? ERC20(asset()).balanceOf(address(this))
+        ? IERC20(asset()).balanceOf(address(this))
         : beefyBalanceCheck.balanceOf(address(this)).mulDiv(
           beefyVault.balance(),
           beefyVault.totalSupply(),

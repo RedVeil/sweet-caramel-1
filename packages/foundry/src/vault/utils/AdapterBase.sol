@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { ERC4626Upgradeable, ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
+import { ERC4626Upgradeable, IERC20Upgradeable as IERC20, IERC20MetadataUpgradeable as IERC20Metadata } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/MathUpgradeable.sol";
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
@@ -20,8 +20,7 @@ import { OwnedUpgradeable } from "../../utils/OwnedUpgradeable.sol";
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
 contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeable, EIP165, OnlyStrategy {
-  // TODO replace ERC20 with IERC20
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
   using Math for uint256;
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
@@ -44,7 +43,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     ) = abi.decode(popERC4626InitData, (address, address, address, uint256, bytes4[8], bytes));
     __Owned_init(_owner);
     __Pausable_init();
-    __ERC4626_init(ERC20(asset));
+    __ERC4626_init(IERC20Metadata(asset));
 
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
@@ -54,7 +53,6 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     harvestCooldown = _harvestCooldown;
 
     _verifyAndSetupStrategy(_requiredSigs);
-    //if (!success) revert StrategySetupFailed();
 
     feesUpdatedAt = block.timestamp;
   }
@@ -122,11 +120,11 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
     // assets are transferred and before the shares are minted, which is a valid state.
     // slither-disable-next-line reentrancy-no-eth
-    ERC20(asset()).safeTransferFrom(caller, address(this), assets);
-
-    _mint(receiver, shares);
+    IERC20(asset()).safeTransferFrom(caller, address(this), assets);
 
     _protocolDeposit(assets, shares);
+
+    _mint(receiver, shares);
 
     harvest();
 
@@ -164,7 +162,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     // shares are burned and after the assets are transferred, which is a valid state.
     _burn(owner, shares);
 
-    ERC20(asset()).safeTransfer(receiver, assets);
+    IERC20(asset()).safeTransfer(receiver, assets);
 
     emit Withdraw(caller, receiver, owner, assets, shares);
   }
