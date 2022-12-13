@@ -1,8 +1,8 @@
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { ChainId } from "@popcorn/utils";
 import { Token } from "@popcorn/utils/types";
-import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
-import SingleActionModal from "@popcorn/app/components/Modal/SingleActionModal";
+import PopUpModal from "@popcorn/components/components/Modal/PopUpModal";
+import SingleActionModal from "@popcorn/components/components/Modal/SingleActionModal";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import Image from "next/image";
 import { useState } from "react";

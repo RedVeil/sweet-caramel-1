@@ -42,7 +42,7 @@ export function TVLCard(): JSX.Element {
   });
 
   return (
-    <div className="col-span-5 md:col-span-12 rounded-lg border border-customLightGray p-6">
+    <div className="col-span-5 md:col-span-12 rounded-lg border border-customLightGray p-5 md:py-7">
       <div className="flex items-center gap-2 md:gap-0 md:space-x-2 mb-1 md:mb-2">
         <p className="text-primaryLight leading-5 hidden md:block">Total Value Locked </p>
         <p className="text-primaryLight leading-5 md:hidden">TVL </p>

@@ -2,7 +2,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import * as Icon from "react-feather";
-import { MobileFullScreenModalProps } from "@popcorn/app/components/Modal/MobileFullScreenModal";
+import { MobileFullScreenModalProps } from "@popcorn/components/components/Modal/MobileFullScreenModal";
 
 export const DefaultMobileActionModalProps: MobileFullScreenModalProps = {
   content: "",

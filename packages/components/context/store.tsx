@@ -53,8 +53,8 @@ interface DefaultState {
   dualActionModal: DualActionModalProps;
   networkChangePromptModal: NetworkChangePromptModalProps;
   dualActionWideModal: DualActionWideModalProps;
-  globalLoaderVisible?: boolean;
   walletSelectModal: WalletSelectModalProps;
+  globalLoaderVisible?: boolean;
 }
 
 const initialState: DefaultState = {
