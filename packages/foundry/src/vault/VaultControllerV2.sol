@@ -147,7 +147,7 @@ contract VaultsController is Owned {
         bytes4(keccak256("deploy(bytes32,bytes32,bytes)")),
         ADAPTER,
         adapterData.id,
-        abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), bytes.concat(baseAdapterData, adapterData.data))
+        abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), baseAdapterData, adapterData.data)
       )
     );
     adapter = abi.decode(returnDataAdapter, (address));
@@ -385,11 +385,9 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       metadata = _verifySubmitter(vaults[i]);
-      // TODO can i pass the encoded data in here directly? concat or smth?
-      (address rewardsToken, uint160 rewardsPerSecond) = abi.decode(rewardsTokenData[i], (address, uint160));
       adminProxy.execute(
         metadata.staking,
-        abi.encodePacked(bytes4(keccak256("changeRewardSpeed(address,uint160)")), rewardsToken, rewardsPerSecond)
+        abi.encodePacked(bytes4(keccak256("changeRewardSpeed(address,uint160)")), rewardsTokenData[i])
       );
     }
   }
