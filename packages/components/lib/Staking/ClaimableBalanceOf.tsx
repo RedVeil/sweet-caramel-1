@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 import { usePrice } from "../Price";
 import { Pop } from "../types";
+import { useMultiStatus } from "../utils";
 import { withBigNumberFormatting } from "../utils/hocs/withBigNumberFormatting";
 import { withLoading } from "../utils/hocs/withLoading";
 import { useClaimableToken } from "../utils/hooks/useClaimableToken";
@@ -17,11 +18,14 @@ const eth_call =
       chainId?: Number;
       balance?: BigNumber;
       decimals?: number;
+      status?: Pop.HookResult["status"];
     }) => React.ReactElement;
   }) => {
-    const { data: token } = useClaimableToken(props);
-    const { data, status } = useClaimableBalance(props);
+    const { data: token, status: claimableTokenStatus } = useClaimableToken(props);
+    const { data, status: balanceStatus } = useClaimableBalance(props);
     const { data: price } = usePrice({ ...props, address: token });
+
+    const status = useMultiStatus([claimableTokenStatus, balanceStatus]);
     if (props.render) {
       return (
         <>
@@ -30,6 +34,7 @@ const eth_call =
             address: token,
             chainId: props.chainId,
             balance: data,
+            status,
             decimals: price?.decimals,
           })}
         </>
