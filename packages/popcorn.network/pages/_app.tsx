@@ -3,7 +3,6 @@ import Head from "next/head";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import "../styles/globals.css";
 import Router from "next/router";
-import { GlobalLinearProgress } from "containers/GlobalLinearProgress";
 import { StateProvider } from "app/store";
 import { SingleActionModalContainer } from "components/Modal/SingleActionModalContainer";
 import { DualActionModalContainer } from "components/Modal/DualActionModalContainer";
@@ -67,7 +66,6 @@ export default function MyApp(props) {
   const { Component, pageProps } = props;
   const [loading, setLoading] = useState(false);
 
-
   useEffect(() => {
     Router.events.on("routeChangeStart", () => {
       setLoading(true);
@@ -116,7 +114,6 @@ export default function MyApp(props) {
         <link rel="preconnect" href="https://fonts.gstatic.com" />
       </Head>
       <CssBaseline />
-      <GlobalLinearProgress visible={loading} />
       <Toaster position="top-right" />
       <StateProvider>
         <WagmiConfig client={wagmiClient}>

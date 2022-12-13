@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import { BigNumber } from "ethers";
 import { useMemo } from "react";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
@@ -21,7 +22,9 @@ export const Hoc =
       return (value && formatAndRoundBigNumber(value, decimals || 18)) || "0";
     }, [value, decimals]);
 
-    return <Component {...props} formatted={formatted + suffix} />;
+    let _prefix = prefix ? prefix : "";
+    let _suffix = suffix ? suffix : "";
+    return <Component {...props} formatted={_prefix + formatted + _suffix} />;
   };
 export const FormattedBigNumber = Hoc(withLoading(({ formatted }) => <>{formatted}</>));
 
