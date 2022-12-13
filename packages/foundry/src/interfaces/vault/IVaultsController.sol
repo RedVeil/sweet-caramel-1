@@ -4,7 +4,8 @@
 pragma solidity ^0.8.15;
 
 import { KeeperConfig } from "../IKeeperIncentiveV2.sol";
-import { FeeStructure } from "./IVault.sol";
+import { VaultParams, FeeStructure } from "./IVault.sol";
+import { VaultMetadata } from "./IVaultsRegistry.sol";
 import { IERC4626, IERC20 } from "./IERC4626.sol";
 
 struct DeploymentArgs {

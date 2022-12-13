@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.12;
 
-import { AdapterBase, IERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
+import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
 
 interface VaultAPI is IERC20 {
   function deposit(uint256 amount) external returns (uint256);
@@ -27,6 +27,9 @@ contract YearnWrapper is AdapterBase {
                           IMMUTABLES
   //////////////////////////////////////////////////////////////*/
 
+  string internal _name;
+  string internal _symbol;
+
   VaultAPI public yVault;
 
   function initialize(
@@ -39,7 +42,18 @@ contract YearnWrapper is AdapterBase {
 
     yVault = VaultAPI(IYearnRegistry(externalRegistry).latestVault(_asset));
 
+    _name = string.concat("Popcorn Yearn", IERC20Metadata(asset()).name(), " Adapter");
+    _symbol = string.concat("popY-", IERC20Metadata(asset()).symbol());
+
     IERC20(_asset).approve(address(yVault), type(uint256).max);
+  }
+
+  function name() public view override returns (string memory) {
+    return _name;
+  }
+
+  function symbol() public view override returns (string memory) {
+    return _symbol;
   }
 
   /*//////////////////////////////////////////////////////////////

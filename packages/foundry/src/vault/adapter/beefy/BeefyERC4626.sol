@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { AdapterBase, IERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
+import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../../utils/WithRewards.sol";
 
 interface IBeefyVault {
@@ -68,6 +68,9 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
+  string internal _name;
+  string internal _symbol;
+
   IBeefyVault public beefyVault;
   IBeefyBooster public beefyBooster;
   IBeefyBalanceCheck public beefyBalanceCheck;
@@ -100,6 +103,9 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
     if (_beefyBooster != address(0) && IBeefyBooster(_beefyBooster).stakedToken() != _beefyVault)
       revert InvalidBeefyBooster(_beefyBooster);
 
+    _name = string.concat("Popcorn Beefy", IERC20Metadata(asset()).name(), " Adapter");
+    _symbol = string.concat("popB-", IERC20Metadata(asset()).symbol());
+
     beefyVault = IBeefyVault(_beefyVault);
     beefyBooster = IBeefyBooster(_beefyBooster);
     beefyWithdrawalFee = _beefyWithdrawalFee;
@@ -109,6 +115,14 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
     IERC20(asset()).approve(_beefyVault, type(uint256).max);
 
     if (_beefyBooster != address(0)) IERC20(_beefyVault).approve(_beefyBooster, type(uint256).max);
+  }
+
+  function name() public view override returns (string memory) {
+    return _name;
+  }
+
+  function symbol() public view override returns (string memory) {
+    return _symbol;
   }
 
   /*//////////////////////////////////////////////////////////////
