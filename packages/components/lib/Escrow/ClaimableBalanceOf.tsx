@@ -7,18 +7,17 @@ import { useClaimableBalance } from "./hooks/useClaimableBalance";
 import { useClaimableToken } from "../utils/hooks/useClaimableToken";
 import { useMultiStatus } from "../utils";
 
+interface RenderProps extends Pop.StdProps {
+  price?: { value: BigNumber; decimals: number };
+  balance?: BigNumberWithFormatted;
+  status?: "loading" | "success" | "error" | "idle";
+}
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
   ({
     ...props
   }: Pop.StdProps & {
-    render?: (
-      props: {
-        price?: { value: BigNumber; decimals: number };
-        balance?: BigNumberWithFormatted;
-        status?: "loading" | "success" | "error" | "idle";
-      } & Pop.StdProps,
-    ) => React.ReactElement;
+    render?: (props: RenderProps) => React.ReactElement;
   }) => {
     const { data: token } = useClaimableToken({ ...props });
     const { data: price, status: priceStatus } = usePrice({ ...props, address: token });

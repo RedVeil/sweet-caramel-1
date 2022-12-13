@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Pop } from "../../types";
-import { resolveMultiStatus } from "./../misc";
+import { resolveMultiStatus } from "../misc";
 
 /**
  * will resolve a status based on the status of multiple hooks
