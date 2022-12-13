@@ -29,11 +29,7 @@ contract YearnWrapper is AdapterBase {
 
   VaultAPI public yVault;
 
-  function initialize(
-    bytes memory adapterInitData,
-    address externalRegistry,
-    bytes memory
-  ) external initStrategy {
+  function initialize(bytes memory adapterInitData, address externalRegistry, bytes memory) external initStrategy {
     (address asset, , , , , ) = abi.decode(popERC4626InitData, (address, address, address, uint256, bytes4[8], bytes));
     __AdapterBase_init(adapterInitData);
 
@@ -47,15 +43,15 @@ contract YearnWrapper is AdapterBase {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view override returns (uint256) {
-    return yVault.balanceOf(address(this)).mulDiv(yVault.pricePerShare(), 10**decimals(), Math.Rounding.Down);
+    return yVault.balanceOf(address(this)).mulDiv(yVault.pricePerShare(), 10 ** decimals(), Math.Rounding.Down);
   }
 
   function convertToShares(uint256 assets) public view override returns (uint256) {
-    return assets.mulDiv(10**decimals(), yVault.pricePerShare(), Math.Rounding.Down);
+    return assets.mulDiv(10 ** decimals(), yVault.pricePerShare(), Math.Rounding.Down);
   }
 
   function convertToAssets(uint256 shares) public view override returns (uint256) {
-    return shares.mulDiv(yVault.pricePerShare(), 10**decimals(), Math.Rounding.Down);
+    return shares.mulDiv(yVault.pricePerShare(), 10 ** decimals(), Math.Rounding.Down);
   }
 
   function previewDeposit(uint256 assets) public view override returns (uint256) {
@@ -64,12 +60,20 @@ contract YearnWrapper is AdapterBase {
 
   function previewMint(uint256 shares) public view override returns (uint256) {
     return
-      shares.mulDiv(yVault.pricePerShare(), 10**decimals(), Math.Rounding.Up).mulDiv(9999, 10_000, Math.Rounding.Down); // return less
+      shares.mulDiv(yVault.pricePerShare(), 10 ** decimals(), Math.Rounding.Up).mulDiv(
+        9999,
+        10_000,
+        Math.Rounding.Down
+      ); // return less
   }
 
   function previewWithdraw(uint256 assets) public view override returns (uint256) {
     return
-      assets.mulDiv(10**decimals(), yVault.pricePerShare(), Math.Rounding.Up).mulDiv(10_000, 9999, Math.Rounding.Down); // return more
+      assets.mulDiv(10 ** decimals(), yVault.pricePerShare(), Math.Rounding.Up).mulDiv(
+        10_000,
+        9999,
+        Math.Rounding.Down
+      ); // return more
   }
 
   function previewRedeem(uint256 shares) public view override returns (uint256) {
