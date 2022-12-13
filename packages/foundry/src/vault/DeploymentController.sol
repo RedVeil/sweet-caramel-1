@@ -38,12 +38,9 @@ contract DeploymentController is Owned {
   function addTemplate(
     bytes32 templateType,
     bytes32 templateId,
-    address implementation,
-    string memory metadataCid,
-    bool requiresInitData,
-    bytes4[8] memory requiredSigs
+    Template memory template
   ) external {
-    templateRegistry.addTemplate(templateType, templateId, implementation, metadataCid, requiresInitData, requiredSigs);
+    templateRegistry.addTemplate(templateType, templateId, template);
   }
 
   function addTemplateType(bytes32 templateType) external onlyOwner {

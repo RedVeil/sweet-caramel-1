@@ -35,25 +35,17 @@ contract TemplateRegistry is Owned {
   function addTemplate(
     bytes32 templateType,
     bytes32 templateId,
-    address implementation,
-    string memory metadataCid,
-    bool requiresInitData,
-    bytes4[8] memory requiredSigs
+    Template memory template
   ) external onlyOwner {
     if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
     if (templateTypeExists[templateId]) revert TemplateExists(templateId);
 
-    templates[templateType][templateId] = Template({
-      implementation: implementation,
-      metadataCid: metadataCid,
-      requiresInitData: requiresInitData,
-      requiredSigs: requiredSigs
-    });
+    templates[templateType][templateId] = template;
 
     templateIds[templateType].push(templateId);
     templateExists[templateId] = true;
 
-    emit TemplateAdded(templateType, templateId, implementation);
+    emit TemplateAdded(templateType, templateId, template.implementation);
   }
 
   function addTemplateType(bytes32 templateType) external onlyOwner {

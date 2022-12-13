@@ -9,6 +9,7 @@ struct Template {
   address implementation;
   string metadataCid;
   bool requiresInitData;
+  address registry;
   bytes4[8] requiredSigs; // Only for Strategies
 }
 
@@ -26,10 +27,7 @@ interface ITemplateRegistry is IOwned {
   function addTemplate(
     bytes32 templateType,
     bytes32 templateId,
-    address implementation,
-    string memory metadataCid,
-    bool requiresInitData,
-    bytes4[8] memory requiredSigs
+    Template memory template
   ) external;
 
   function addTemplateType(bytes32 templateType) external;

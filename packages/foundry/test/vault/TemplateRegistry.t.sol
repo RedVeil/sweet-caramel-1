@@ -67,12 +67,23 @@ contract TemplateRegistryTEst is Test, WithContractRegistry {
     vm.expectEmit(true, true, true, false, address(registry));
     emit TemplateAdded(templateType, "ClonableWithInitData", address(clonableWithInitData));
 
-    registry.addTemplate(templateType, "ClonableWithInitData", address(clonableWithInitData), "cid", true, reqSigs);
+    registry.addTemplate(
+      templateType,
+      "ClonableWithInitData",
+      Template({
+        implementation: address(clonableWithInitData),
+        metadataCid: "cid",
+        requiresInitData: true,
+        registry: address(0x2222),
+        requiredSigs: reqSigs
+      })
+    );
 
     Template memory template = registry.getTemplate(templateType, "ClonableWithInitData");
     assertEq(template.implementation, address(clonableWithInitData));
     assertEq(template.metadataCid, "cid");
     assertEq(template.requiresInitData, true);
+    assertEq(template.registry, address(0x2222));
     assertEq(template.requiredSigs[0], reqSigs[0]);
     assertEq(template.requiredSigs[7], reqSigs[7]);
 
