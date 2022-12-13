@@ -6,5 +6,5 @@ pragma solidity ^0.8.15;
 import { IOwned } from "../IOwned.sol";
 
 interface IAdminProxy is IOwned {
-  function execute(address target, bytes memory callData) external;
+  function execute(address target, bytes memory callData) external returns (bool, bytes memory);
 }

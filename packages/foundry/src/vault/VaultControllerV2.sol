@@ -97,25 +97,30 @@ contract VaultsController is Owned {
     emit VaultDeployed(vault, staking, address(vaultData.adapter));
   }
 
-  function _deployVault(
-    VaultParams memory vaultData,
-    IDeploymentController deploymentController
-  ) internal returns (address vault) {
+  function _deployVault(VaultParams memory vaultData, IDeploymentController deploymentController)
+    internal
+    returns (address vault)
+  {
     vaultData.owner = address(adminProxy);
     vaultData.keeperIncentive = keeperIncentive;
 
-    vault = deploymentController.deploy(
-      VAULT,
-      "V1",
+    (bool success, bytes memory returnData) = adminProxy.execute(
+      address(deploymentController),
       abi.encodePacked(
-        bytes4(
-          keccak256(
-            "initialize(address,address,(uint256,uint256,uint256,uint256),address,address,(uint256,uint256,uint256),address)"
-          )
-        ),
-        abi.encode(vaultData)
+        bytes4(keccak256("deploy(bytes32,bytes32,bytes)")),
+        VAULT,
+        "V1",
+        abi.encodePacked(
+          bytes4(
+            keccak256(
+              "initialize(address,address,(uint256,uint256,uint256,uint256),address,address,(uint256,uint256,uint256),address)"
+            )
+          ),
+          abi.encode(vaultData)
+        )
       )
     );
+    vault = abi.decode(returnData, (address));
   }
 
   function deployStrategyAndAdapter(
@@ -134,30 +139,36 @@ contract VaultsController is Owned {
     IERC20 asset,
     IDeploymentController deploymentController
   ) internal returns (address adapter) {
+    bytes memory baseAdapterData = _deployStrategy(strategyData, asset);
+
+    (bool success, bytes memory returnDataAdapter) = adminProxy.execute(
+      address(deploymentController),
+      abi.encodePacked(
+        bytes4(keccak256("deploy(bytes32,bytes32,bytes)")),
+        ADAPTER,
+        adapterData.id,
+        abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), bytes.concat(baseAdapterData, adapterData.data))
+      )
+    );
+    adapter = abi.decode(returnDataAdapter, (address));
+
+    adminProxy.execute(adapter, abi.encodePacked(bytes4(keccak256("setManagementFee(uint256)")), managementFee));
+  }
+
+  function _deployStrategy(DeploymentArgs memory strategyData, IERC20 asset) internal returns (bytes memory) {
     address strategy;
     bytes4[8] memory requiredSigs;
     if (strategyData.id.length > 0) {
-      strategy = deploymentController.deploy(STRATEGY, strategyData.id, "");
+      (bool success, bytes memory returnDataStrategy) = adminProxy.execute(
+        address(deploymentController),
+        abi.encodePacked(bytes4(keccak256("deploy(bytes32,bytes32,bytes)")), STRATEGY, strategyData.id, "")
+      );
+      strategy = abi.decode(returnDataStrategy, (address));
       Template memory strategyTemplate = deploymentController.getTemplate(STRATEGY, strategyData.id);
       requiredSigs = strategyTemplate.requiredSigs;
     }
-
-    bytes memory adapterBaseData = abi.encode(
-      asset,
-      address(adminProxy),
-      IStrategy(strategy),
-      requiredSigs,
-      strategyData.data,
-      harvestCooldown
-    );
-
-    adapter = deploymentController.deploy(
-      ADAPTER,
-      adapterData.id,
-      abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), bytes.concat(adapterBaseData, adapterData.data))
-    );
-
-    IAdapter(adapter).setManagementFee(managementFee);
+    return
+      abi.encode(asset, address(adminProxy), IStrategy(strategy), requiredSigs, strategyData.data, harvestCooldown);
   }
 
   function deployStaking(IERC20 asset) public onlyOwner returns (address) {
@@ -166,40 +177,66 @@ contract VaultsController is Owned {
   }
 
   function _deployStaking(IERC20 asset, IDeploymentController deploymentController) internal returns (address staking) {
-    staking = deploymentController.deploy(
-      STAKING,
-      "MultiRewardsStaking",
-      abi.encodePacked(bytes4(keccak256("initialize(address,address,address)")), asset, escrow, adminProxy)
+    (bool success, bytes memory returnData) = adminProxy.execute(
+      address(deploymentController),
+      abi.encodePacked(
+        bytes4(keccak256("deploy(bytes32,bytes32,bytes)")),
+        STAKING,
+        "MultiRewardsStaking",
+        abi.encodePacked(bytes4(keccak256("initialize(address,address,address)")), asset, escrow, adminProxy)
+      )
     );
+    staking = abi.decode(returnData, (address));
   }
 
   /**
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @dev avoids stack too deep in deployVaultFromFactory
    */
-  function _handleKeeperSetup(address _vault, KeeperConfig memory _keeperConfig, bytes memory addKeeperData) internal {
+  function _handleKeeperSetup(
+    address _vault,
+    KeeperConfig memory _keeperConfig,
+    bytes memory addKeeperData
+  ) internal {
     (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
       addKeeperData,
       (bool, bool, uint256)
     );
-    IVault(_vault).setKeeperConfig(_keeperConfig);
-    keeperIncentive.createIncentive(
+    adminProxy.execute(
       _vault,
-      _keeperConfig.keeperPayout,
-      _keeperEnabled,
-      _keeperOpenToEveryone,
-      _vault,
-      _keeperCooldown,
-      0
+      abi.encodePacked(bytes4(keccak256("setKeeperConfig((uint256,uint256,uint256))")), abi.encode(_keeperConfig))
+    );
+    adminProxy.execute(
+      address(keeperIncentive),
+      abi.encodePacked(
+        bytes4(keccak256("createIncentive(address,uint256,bool,bool,address,uint256,uint256)")),
+        _vault,
+        _keeperConfig.keeperPayout,
+        _keeperEnabled,
+        _keeperOpenToEveryone,
+        _vault,
+        _keeperCooldown,
+        uint256(0)
+      )
     );
   }
 
-  function _registerVault(address vault, address staking, VaultMetadata memory metadata) internal {
+  function _registerVault(
+    address vault,
+    address staking,
+    VaultMetadata memory metadata
+  ) internal {
     metadata.vaultAddress = vault;
     metadata.staking = staking;
     metadata.submitter = msg.sender;
 
-    vaultsRegistry.registerVault(metadata);
+    adminProxy.execute(
+      address(vaultsRegistry),
+      abi.encodePacked(
+        bytes4(keccak256("registerVault((address,address,address,string,address[8],address,uint256))")),
+        abi.encode(metadata)
+      )
+    );
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -218,7 +255,7 @@ contract VaultsController is Owned {
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
       _deploymentController.cloneExists(address(newAdapter[i]));
-      IVault(vaults[i]).proposeAdapter(newAdapter[i]);
+      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("proposeAdapter(address)")), newAdapter));
     }
   }
 
@@ -229,7 +266,7 @@ contract VaultsController is Owned {
   function changeVaultAdapter(address[] memory vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
-      IVault(vaults[i]).changeAdapter();
+      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("changeAdapter()"))));
     }
   }
 
@@ -244,7 +281,10 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
-      IVault(vaults[i]).proposeFees(newFees[i]);
+      adminProxy.execute(
+        vaults[i],
+        abi.encodePacked(bytes4(keccak256("proposeFees((uint256,uint256,uint256,uint256))")), abi.encode(newFees[i]))
+      );
     }
   }
 
@@ -255,7 +295,7 @@ contract VaultsController is Owned {
   function changeVaultFees(address[] memory vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
-      IVault(vaults[i]).changeFees();
+      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("changeFees()"))));
     }
   }
 
@@ -269,7 +309,10 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
-      IVault(vaults[i]).setKeeperConfig(keeperConfigs[i]);
+      adminProxy.execute(
+        vaults[i],
+        abi.encodePacked(bytes4(keccak256("setKeeperConfig((uint256,uint256,uint256))")), abi.encode(keeperConfigs[i]))
+      );
     }
   }
 
@@ -289,7 +332,10 @@ contract VaultsController is Owned {
    * @param targets - addresses of the contracts to change endorsement
    */
   function toggleEndorsement(address[] memory targets) external onlyOwner {
-    endorsementRegistry.toggleEndorsement(targets);
+    adminProxy.execute(
+      address(endorsementRegistry),
+      abi.encodePacked(bytes4(keccak256("toggleEndorsement(address[])")), targets)
+    );
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -317,14 +363,19 @@ contract VaultsController is Owned {
       ) = abi.decode(rewardsTokenData[i], (address, uint160, uint256, bool, uint224, uint24, uint256));
       _verifyToken(rewardsToken);
       metadata = _verifySubmitterOrOwner(vaults[i]);
-      IMultiRewardsStaking(metadata.staking).addRewardsToken(
-        IERC20(rewardsToken),
-        rewardsPerSecond,
-        amount,
-        useEscrow,
-        escrowDuration,
-        escrowPercentage,
-        offset
+      // TODO can i pass the encoded data in here directly? concat or smth?
+      adminProxy.execute(
+        metadata.staking,
+        abi.encodePacked(
+          bytes4(keccak256("addRewardsToken(address,uint160,uint256,bool,uint224,uint24,uint256)")),
+          rewardsToken,
+          rewardsPerSecond,
+          amount,
+          useEscrow,
+          escrowDuration,
+          escrowPercentage,
+          offset
+        )
       );
     }
   }
@@ -334,8 +385,12 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       metadata = _verifySubmitter(vaults[i]);
+      // TODO can i pass the encoded data in here directly? concat or smth?
       (address rewardsToken, uint160 rewardsPerSecond) = abi.decode(rewardsTokenData[i], (address, uint160));
-      IMultiRewardsStaking(metadata.staking).changeRewardSpeed(IERC20(rewardsToken), rewardsPerSecond);
+      adminProxy.execute(
+        metadata.staking,
+        abi.encodePacked(bytes4(keccak256("changeRewardSpeed(address,uint160)")), rewardsToken, rewardsPerSecond)
+      );
     }
   }
 
@@ -356,11 +411,14 @@ contract VaultsController is Owned {
   IMultiRewardsEscrow public escrow;
 
   function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
-    escrow.setFees(tokens, fees);
+    adminProxy.execute(
+      address(escrow),
+      abi.encodePacked(bytes4(keccak256("setFees(address[],uint256[])")), tokens, fees)
+    );
   }
 
   function setEscrowKeeperPerc(uint256 keeperPerc) external onlyOwner {
-    escrow.setKeeperPerc(keeperPerc);
+    adminProxy.execute(address(escrow), abi.encodePacked(bytes4(keccak256("setKeeperPerc(uint256)")), keeperPerc));
   }
 
   // TODO do we need to change escrow?
@@ -370,10 +428,13 @@ contract VaultsController is Owned {
     //////////////////////////////////////////////////////////////*/
 
   function addTemplateType(bytes32[] memory templateTypes) external onlyOwner {
-    IDeploymentController _deploymentController = deploymentController;
+    address _deploymentController = address(deploymentController);
     uint8 len = uint8(templateTypes.length);
     for (uint256 i = 0; i < len; i++) {
-      _deploymentController.addTemplateType(templateTypes[i]);
+      adminProxy.execute(
+        _deploymentController,
+        abi.encodePacked(bytes4(keccak256("addTemplateType(bytes32)")), templateTypes[i])
+      );
     }
   }
 
@@ -386,8 +447,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      address adapter = IVault(vaults[i]).adapter();
-      IPausable(adapter).pause();
+      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodePacked(bytes4(keccak256("pause()"))));
     }
   }
 
@@ -395,7 +455,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      IPausable(vaults[i]).pause();
+      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("pause()"))));
     }
   }
 
@@ -403,8 +463,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      address adapter = IVault(vaults[i]).adapter();
-      IPausable(adapter).unpause();
+      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodePacked(bytes4(keccak256("unpause()"))));
     }
   }
 
@@ -412,7 +471,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      IPausable(vaults[i]).unpause();
+      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("unpause()"))));
     }
   }
 
