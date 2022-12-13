@@ -1,5 +1,4 @@
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
-import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useEffect, useState } from "react";
