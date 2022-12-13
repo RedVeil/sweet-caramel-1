@@ -3,8 +3,7 @@
 pragma solidity ^0.8.15;
 
 import { IERC4626, IERC20 } from "./IERC4626.sol";
-import { KeeperConfig } from "../../utils/KeeperIncentivized.sol";
-import { IKeeperIncentiveV2 } from "../IKeeperIncentiveV2.sol";
+import { IKeeperIncentiveV2, KeeperConfig } from "../IKeeperIncentiveV2.sol";
 
 // Fees are set in 1e18 for 100% (1 BPS = 1e14)
 // Raise Fees in BPS by 1e14 to get an accurate value
@@ -87,4 +86,16 @@ interface IVault is IERC4626 {
   function setQuitPeriod(uint256 _quitPeriod) external;
 
   function setKeeperConfig(KeeperConfig memory _config) external;
+
+  // INITIALIZE
+
+  function initialize(
+    IERC20 asset_,
+    IERC4626 adapter_,
+    FeeStructure memory feeStructure_,
+    address feeRecipient_,
+    IKeeperIncentiveV2 keeperIncentive_,
+    KeeperConfig memory keeperConfig_,
+    address owner
+  ) external;
 }

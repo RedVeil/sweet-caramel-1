@@ -18,4 +18,6 @@ interface IAdapter is IERC4626, IOwned, IPermit, IPausable {
   function supportsInterface(bytes4 interfaceId) external view returns (bool);
 
   function setManagementFee(uint256 fee) external;
+
+  function initialize(bytes memory adapterBaseData, bytes memory adapterData) external;
 }

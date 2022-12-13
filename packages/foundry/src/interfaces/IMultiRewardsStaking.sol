@@ -6,6 +6,7 @@ import { IERC4626, IERC20 } from "./vault/IERC4626.sol";
 import { IOwned } from "./IOwned.sol";
 import { IPermit } from "./IPermit.sol";
 import { IPausable } from "./IPausable.sol";
+import { IMultiRewardsEscrow } from "./IMultiRewardsEscrow.sol";
 
 interface IMultiRewardsStaking is IERC4626, IOwned, IPermit, IPausable {
   function addRewardsToken(
@@ -21,4 +22,10 @@ interface IMultiRewardsStaking is IERC4626, IOwned, IPermit, IPausable {
   function changeRewardSpeed(IERC20 rewardsToken, uint160 rewardsPerSecond) external;
 
   function fundReward(IERC20 rewardsToken, uint256 amount) external;
+
+  function initialize(
+    IERC20 _stakingToken,
+    IMultiRewardsEscrow _escrow,
+    address _owner
+  ) external;
 }

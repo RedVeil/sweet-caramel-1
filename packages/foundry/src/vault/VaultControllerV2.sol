@@ -22,10 +22,17 @@ contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
+
+  IDeploymentController public deploymentController;
+  IEndorsementRegistry public endorsementRegistry;
+  IVaultsRegistry public vaultsRegistry;
+  IKeeperIncentiveV2 public keeperIncentive;
+
   bytes32 public immutable VAULT = "Vault";
   bytes32 public immutable ADAPTER = "Adapter";
   bytes32 public immutable STRATEGY = "Strategy";
   bytes32 public immutable STAKING = "Staking";
+  bytes4 internal immutable DEPLOY_SIG = bytes4(keccak256("deploy(bytes32,bytes32,bytes)")); // TODO just store the hash
 
   constructor(
     address _owner,
@@ -35,13 +42,16 @@ contract VaultsController is Owned {
     IVaultsRegistry _vaulsRegistry,
     IKeeperIncentiveV2 _keeperIncentive,
     IMultiRewardsEscrow _escrow
-  ) Owned(_owner) {
-    adminProxy = _adminProxy;
-    deploymentController = _deploymentController;
-    endorsementRegistry = _endorsementRegistry;
-    vaultsRegistry = _vaulsRegistry;
-    keeperIncentive = _keeperIncentive;
-    escrow = _escrow;
+  )
+    Owned(_owner) // can change
+  //TODO which of these might we want to update?
+  {
+    adminProxy = _adminProxy; // cant change
+    deploymentController = _deploymentController; // can change -- If we want to add capabilities or switch the factory
+    endorsementRegistry = _endorsementRegistry; // cant change
+    vaultsRegistry = _vaulsRegistry; // cant change
+    keeperIncentive = _keeperIncentive; // can/cant change ?
+    escrow = _escrow; // cant change
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -106,18 +116,11 @@ contract VaultsController is Owned {
 
     (bool success, bytes memory returnData) = adminProxy.execute(
       address(deploymentController),
-      abi.encodePacked(
-        bytes4(keccak256("deploy(bytes32,bytes32,bytes)")),
+      abi.encodeWithSelector(
+        DEPLOY_SIG,
         VAULT,
-        "V1",
-        abi.encodePacked(
-          bytes4(
-            keccak256(
-              "initialize(address,address,(uint256,uint256,uint256,uint256),address,address,(uint256,uint256,uint256),address)"
-            )
-          ),
-          abi.encode(vaultData)
-        )
+        "V1", // TODO should this be set in state?
+        abi.encodeWithSelector(IVault.initialize.selector, abi.encode(vaultData))
       )
     );
     vault = abi.decode(returnData, (address));
@@ -143,16 +146,16 @@ contract VaultsController is Owned {
 
     (bool success, bytes memory returnDataAdapter) = adminProxy.execute(
       address(deploymentController),
-      abi.encodePacked(
-        bytes4(keccak256("deploy(bytes32,bytes32,bytes)")),
+      abi.encodeWithSelector(
+        DEPLOY_SIG,
         ADAPTER,
         adapterData.id,
-        abi.encodePacked(bytes4(keccak256("initialize(bytes,bytes)")), baseAdapterData, adapterData.data)
+        abi.encodeWithSelector(IAdapter.initialize.selector, baseAdapterData, adapterData.data)
       )
     );
     adapter = abi.decode(returnDataAdapter, (address));
 
-    adminProxy.execute(adapter, abi.encodePacked(bytes4(keccak256("setManagementFee(uint256)")), managementFee));
+    adminProxy.execute(adapter, abi.encodeWithSelector(IAdapter.setManagementFee.selector, managementFee));
   }
 
   function _deployStrategy(DeploymentArgs memory strategyData, IERC20 asset) internal returns (bytes memory) {
@@ -161,7 +164,7 @@ contract VaultsController is Owned {
     if (strategyData.id.length > 0) {
       (bool success, bytes memory returnDataStrategy) = adminProxy.execute(
         address(deploymentController),
-        abi.encodePacked(bytes4(keccak256("deploy(bytes32,bytes32,bytes)")), STRATEGY, strategyData.id, "")
+        abi.encodeWithSelector(DEPLOY_SIG, STRATEGY, strategyData.id, "")
       );
       strategy = abi.decode(returnDataStrategy, (address));
       Template memory strategyTemplate = deploymentController.getTemplate(STRATEGY, strategyData.id);
@@ -179,11 +182,11 @@ contract VaultsController is Owned {
   function _deployStaking(IERC20 asset, IDeploymentController deploymentController) internal returns (address staking) {
     (bool success, bytes memory returnData) = adminProxy.execute(
       address(deploymentController),
-      abi.encodePacked(
-        bytes4(keccak256("deploy(bytes32,bytes32,bytes)")),
+      abi.encodeWithSelector(
+        DEPLOY_SIG,
         STAKING,
-        "MultiRewardsStaking",
-        abi.encodePacked(bytes4(keccak256("initialize(address,address,address)")), asset, escrow, adminProxy)
+        "MultiRewardsStaking", // TODO should this be set in state?
+        abi.encodeWithSelector(IMultiRewardsStaking.initialize.selector, asset, escrow, adminProxy)
       )
     );
     staking = abi.decode(returnData, (address));
@@ -202,14 +205,11 @@ contract VaultsController is Owned {
       addKeeperData,
       (bool, bool, uint256)
     );
-    adminProxy.execute(
-      _vault,
-      abi.encodePacked(bytes4(keccak256("setKeeperConfig((uint256,uint256,uint256))")), abi.encode(_keeperConfig))
-    );
+    adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
     adminProxy.execute(
       address(keeperIncentive),
-      abi.encodePacked(
-        bytes4(keccak256("createIncentive(address,uint256,bool,bool,address,uint256,uint256)")),
+      abi.encodeWithSelector(
+        IKeeperIncentiveV2.createIncentive.selector,
         _vault,
         _keeperConfig.keeperPayout,
         _keeperEnabled,
@@ -232,10 +232,7 @@ contract VaultsController is Owned {
 
     adminProxy.execute(
       address(vaultsRegistry),
-      abi.encodePacked(
-        bytes4(keccak256("registerVault((address,address,address,string,address[8],address,uint256))")),
-        abi.encode(metadata)
-      )
+      abi.encodeWithSelector(IVaultsRegistry.registerVault.selector, abi.encode(metadata))
     );
   }
 
@@ -255,7 +252,7 @@ contract VaultsController is Owned {
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
       _deploymentController.cloneExists(address(newAdapter[i]));
-      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("proposeAdapter(address)")), newAdapter));
+      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.proposeAdapter.selector, newAdapter));
     }
   }
 
@@ -266,7 +263,7 @@ contract VaultsController is Owned {
   function changeVaultAdapter(address[] memory vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
-      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("changeAdapter()"))));
+      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.changeAdapter.selector));
     }
   }
 
@@ -281,10 +278,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
-      adminProxy.execute(
-        vaults[i],
-        abi.encodePacked(bytes4(keccak256("proposeFees((uint256,uint256,uint256,uint256))")), abi.encode(newFees[i]))
-      );
+      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.proposeFees.selector, abi.encode(newFees[i])));
     }
   }
 
@@ -295,7 +289,7 @@ contract VaultsController is Owned {
   function changeVaultFees(address[] memory vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
-      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("changeFees()"))));
+      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.changeFees.selector));
     }
   }
 
@@ -311,7 +305,7 @@ contract VaultsController is Owned {
       _verifySubmitter(vaults[i]);
       adminProxy.execute(
         vaults[i],
-        abi.encodePacked(bytes4(keccak256("setKeeperConfig((uint256,uint256,uint256))")), abi.encode(keeperConfigs[i]))
+        abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(keeperConfigs[i]))
       );
     }
   }
@@ -334,7 +328,7 @@ contract VaultsController is Owned {
   function toggleEndorsement(address[] memory targets) external onlyOwner {
     adminProxy.execute(
       address(endorsementRegistry),
-      abi.encodePacked(bytes4(keccak256("toggleEndorsement(address[])")), targets)
+      abi.encodeWithSelector(IEndorsementRegistry.toggleEndorsement.selector, targets)
     );
   }
 
@@ -352,30 +346,12 @@ contract VaultsController is Owned {
     VaultMetadata memory metadata;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      (
-        address rewardsToken,
-        uint160 rewardsPerSecond,
-        uint256 amount,
-        bool useEscrow,
-        uint224 escrowDuration,
-        uint24 escrowPercentage,
-        uint256 offset
-      ) = abi.decode(rewardsTokenData[i], (address, uint160, uint256, bool, uint224, uint24, uint256));
+      address rewardsToken = abi.decode(rewardsTokenData[i][:20], (address));
       _verifyToken(rewardsToken);
       metadata = _verifySubmitterOrOwner(vaults[i]);
-      // TODO can i pass the encoded data in here directly? concat or smth?
       adminProxy.execute(
         metadata.staking,
-        abi.encodePacked(
-          bytes4(keccak256("addRewardsToken(address,uint160,uint256,bool,uint224,uint24,uint256)")),
-          rewardsToken,
-          rewardsPerSecond,
-          amount,
-          useEscrow,
-          escrowDuration,
-          escrowPercentage,
-          offset
-        )
+        abi.encodeWithSelector(IMultiRewardsStaking.addRewardsToken.selector, rewardsTokenData[i])
       );
     }
   }
@@ -387,7 +363,7 @@ contract VaultsController is Owned {
       metadata = _verifySubmitter(vaults[i]);
       adminProxy.execute(
         metadata.staking,
-        abi.encodePacked(bytes4(keccak256("changeRewardSpeed(address,uint160)")), rewardsTokenData[i])
+        abi.encodeWithSelector(IMultiRewardsStaking.changeRewardSpeed.selector, rewardsTokenData[i])
       );
     }
   }
@@ -409,17 +385,12 @@ contract VaultsController is Owned {
   IMultiRewardsEscrow public escrow;
 
   function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
-    adminProxy.execute(
-      address(escrow),
-      abi.encodePacked(bytes4(keccak256("setFees(address[],uint256[])")), tokens, fees)
-    );
+    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardsEscrow.setFees.selector, tokens, fees));
   }
 
   function setEscrowKeeperPerc(uint256 keeperPerc) external onlyOwner {
-    adminProxy.execute(address(escrow), abi.encodePacked(bytes4(keccak256("setKeeperPerc(uint256)")), keeperPerc));
+    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardsEscrow.setKeeperPerc.selector, keeperPerc));
   }
-
-  // TODO do we need to change escrow?
 
   /*//////////////////////////////////////////////////////////////
                           FACTORY MANAGEMENT LOGIC
@@ -431,7 +402,7 @@ contract VaultsController is Owned {
     for (uint256 i = 0; i < len; i++) {
       adminProxy.execute(
         _deploymentController,
-        abi.encodePacked(bytes4(keccak256("addTemplateType(bytes32)")), templateTypes[i])
+        abi.encodeWithSelector(IDeploymentController.addTemplateType.selector, templateTypes[i])
       );
     }
   }
@@ -445,7 +416,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodePacked(bytes4(keccak256("pause()"))));
+      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodeWithSelector(IPausable.pause.selector));
     }
   }
 
@@ -453,7 +424,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("pause()"))));
+      adminProxy.execute(vaults[i], abi.encodeWithSelector(IPausable.pause.selector));
     }
   }
 
@@ -461,7 +432,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodePacked(bytes4(keccak256("unpause()"))));
+      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodeWithSelector(IPausable.unpause.selector));
     }
   }
 
@@ -469,7 +440,7 @@ contract VaultsController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(vaults[i], abi.encodePacked(bytes4(keccak256("unpause()"))));
+      adminProxy.execute(vaults[i], abi.encodeWithSelector(IPausable.unpause.selector));
     }
   }
 
@@ -505,20 +476,31 @@ contract VaultsController is Owned {
                           ADMIN LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IDeploymentController public deploymentController;
-  IEndorsementRegistry public endorsementRegistry;
-  IVaultsRegistry public vaultsRegistry;
-  IKeeperIncentiveV2 public keeperIncentive;
-
-  //TODO which of these might we want to update?
-
   uint256 public managementFee;
 
+  error InvalidManagementFee(uint256 fee);
+
+  event ManagementFeeChanged(uint256 oldFee, uint256 newFee);
+
   // TODO we would still need to update all adapter retroactively
-  function setManagementFee(uint256 newFee) external onlyOwner {}
+  function setManagementFee(uint256 newFee) external onlyOwner {
+    // Dont take more than 10% managementFee
+    if (newFee >= 1e17) revert InvalidManagementFee(newFee);
+
+    emit ManagementFeeChanged(managementFee, newFee);
+
+    managementFee = newFee;
+  }
 
   uint256 public harvestCooldown;
 
   // TODO we would still need to update all adapter retroactively
-  function setHarvestCooldown(uint256 newCooldown) external onlyOwner {}
+  function setHarvestCooldown(uint256 newCooldown) external onlyOwner {
+    // Dont take more than 10% managementFee
+    if (newCooldown >= 1e17) revert InvalidManagementFee(newCooldown);
+
+    emit ManagementFeeChanged(harvestCooldown, newCooldown);
+
+    harvestCooldown = newCooldown;
+  }
 }
