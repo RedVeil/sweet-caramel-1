@@ -34,12 +34,12 @@ contract YearnWrapper is AdapterBase {
     address externalRegistry,
     bytes memory
   ) external initStrategy {
-    (address asset, , , , , ) = abi.decode(popERC4626InitData, (address, address, address, uint256, bytes4[8], bytes));
+    (address _asset, , , , , ) = abi.decode(adapterInitData, (address, address, address, uint256, bytes4[8], bytes));
     __AdapterBase_init(adapterInitData);
 
-    yVault = VaultAPI(IYearnRegistry(externalRegistry).latestVault(asset));
+    yVault = VaultAPI(IYearnRegistry(externalRegistry).latestVault(_asset));
 
-    IERC20(asset()).approve(_vault, type(uint256).max);
+    IERC20(_asset).approve(address(yVault), type(uint256).max);
   }
 
   /*//////////////////////////////////////////////////////////////

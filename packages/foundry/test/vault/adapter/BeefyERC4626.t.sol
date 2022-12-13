@@ -50,7 +50,7 @@ contract BeefyERC4626Test is Test {
     );
 
     vm.prank(factory);
-    erc4626.initialize(popERC4626InitData, abi.encode(beefyVault, beefyBooster, 0));
+    erc4626.initialize(popERC4626InitData, address(0), abi.encode(beefyVault, beefyBooster, 0));
 
     deal(address(asset), address(this), 1000 ether);
   }
