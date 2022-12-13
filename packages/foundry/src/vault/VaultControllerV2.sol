@@ -3,8 +3,7 @@
 pragma solidity ^0.8.0;
 
 import { Owned } from "../utils/Owned.sol";
-import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
-import { KeeperConfig } from "../utils/KeeperIncentivized.sol";
+import { IKeeperIncentiveV2, KeeperConfig } from "../interfaces/IKeeperIncentiveV2.sol";
 import { IVault, VaultParams, FeeStructure } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
 import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
@@ -17,6 +16,7 @@ import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IStrategy } from "../interfaces/vault/IStrategy.sol";
 import { IAdapter } from "../interfaces/vault/IAdapter.sol";
 import { IPausable } from "../interfaces/IPausable.sol";
+import { DeploymentArgs } from "../interfaces/vault/IVaultsController.sol";
 
 contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
@@ -62,13 +62,6 @@ contract VaultsController is Owned {
     //////////////////////////////////////////////////////////////*/
 
   event VaultDeployed(address indexed vault, address indexed staking, address indexed adapter);
-
-  struct DeploymentArgs {
-    /// @Notice templateId
-    bytes32 id;
-    /// @Notice encoded init params
-    bytes data;
-  }
 
   function deployVault(
     DeploymentArgs memory strategyData,
