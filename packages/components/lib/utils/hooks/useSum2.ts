@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { BigNumber, constants } from "ethers";
-import useLog from "./useLog";
+import useLog from "@popcorn/components/lib/utils/hooks/useLog";
 import { formatAndRoundBigNumber } from "@popcorn/utils";
 
 export const useSum2 = ({

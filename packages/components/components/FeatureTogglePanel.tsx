@@ -1,7 +1,7 @@
 import { FeatureToggleContext } from "../context/FeatureToggleContext";
 import { useContext, useState } from "react";
 import { CheckCircle, Settings, X } from "react-feather";
-import useLog from "../pop/utils/hooks/useLog";
+import useLog from "@popcorn/components/lib/utils/hooks/useLog";
 
 export function FeatureTogglePanel(): JSX.Element {
   const developmentLike = (env: string) => env.includes("dev") || env.includes("staging");

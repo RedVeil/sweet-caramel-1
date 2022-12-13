@@ -16,7 +16,7 @@ import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/compon
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
-import { Pop } from "@popcorn/components/pop/types";
+import { Pop } from "@popcorn/components/lib/types";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;

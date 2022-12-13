@@ -1,5 +1,5 @@
 import { BigNumber, constants } from "ethers";
-import { useNamedAccounts } from "@popcorn/components/pop/utils";
+import { useNamedAccounts } from "@popcorn/components/lib/utils";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
 import { Pop, BigNumberWithFormatted } from "../../types";
 import { useContractReads } from "wagmi";

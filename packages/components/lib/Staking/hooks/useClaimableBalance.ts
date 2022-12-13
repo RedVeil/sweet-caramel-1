@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { useNamedAccounts } from "@popcorn/components/pop/utils";
+import { useNamedAccounts } from "@popcorn/components/lib/utils";
 import { Pop } from "../../types";
 import { useContractRead } from "wagmi";
 /**

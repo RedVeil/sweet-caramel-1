@@ -6,7 +6,7 @@ import { BigNumber, constants } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
 import { useEffect, useState } from "react";
-import { Pop } from "@popcorn/components/pop/types";
+import { Pop } from "@popcorn/components/lib/types";
 import { Erc20 } from "@popcorn/components";
 
 export interface TokenInputProps {

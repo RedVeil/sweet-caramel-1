@@ -1,11 +1,11 @@
-import { useNamedAccounts } from "../hooks";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { Escrow, Erc20, Price, Contract, Staking } from "../pop";
-import { Pop } from "../pop/types";
-import { Networth } from "../pop/Portfolio/Networth";
+import { Escrow, Erc20, Price, Contract, Staking } from "@popcorn/components/lib";
+import { Pop } from "@popcorn/components/lib/types";
+import { Networth } from "@popcorn/components/lib/Portfolio/Networth";
 import { BigNumber } from "ethers";
 import useSum from "../hooks/useSum3";
 

@@ -16,9 +16,9 @@ import { ChainId, PRC_PROVIDERS } from "web3/connectors";
 import { formatUnits } from "ethers/lib/utils";
 import { getStakingTVL } from "hooks/tvl/useStakingTVL";
 import { getPoolSize } from "hooks/tvl/usePoolSize";
-import { Tvl } from "@popcorn/components/pop/Contract";
+import { Tvl } from "@popcorn/components/lib/Contract";
 import { useNamedAccounts } from "@popcorn/components";
-import useTvl from "@popcorn/components/pop/Contract/hooks/useTvl";
+import useTvl from "@popcorn/components/lib/Contract/hooks/useTvl";
 import GoogleAnalyticsPrompt from "@popcorn/components/components/GoogleAnalyticsPrompt";
 
 const IndexPage = ({ tvlProps }) => {

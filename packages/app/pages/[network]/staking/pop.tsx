@@ -16,9 +16,8 @@ import React, { useContext, useEffect, useState } from "react";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { ethers } from "ethers";
-import { useNamedAccounts } from "@popcorn/components";
-import { useSpendableBalance } from "@popcorn/components/pop/POP";
-import useLog from "@popcorn/components/pop/utils/hooks/useLog";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
+import { useSpendableBalance } from "@popcorn/components/lib/POP";
 
 export default function PopStakingPage(): JSX.Element {
   const { account, signer } = useWeb3();

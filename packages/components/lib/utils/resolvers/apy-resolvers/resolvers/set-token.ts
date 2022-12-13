@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
-import { getComponents, getRequiredComponentUnitsForIssue } from "@popcorn/components/pop/SetProtocol";
+import { getComponents, getRequiredComponentUnitsForIssue } from "@popcorn/components/lib/SetProtocol";
 import { resolve_price } from "../../price-resolvers/resolve_price";
 import { resolve_apy } from "../resolve_apy";
 

@@ -8,7 +8,7 @@ import { useClaimableBalance } from "./hooks/useClaimableBalance";
 import { useClaimableToken } from "../utils/hooks/useClaimableToken";
 import { useMultiStatus } from "../utils";
 import { useMemo } from "react";
-import useLog from "@popcorn/components/pop/utils/hooks/useLog";
+import useLog from "@popcorn/components/lib/utils/hooks/useLog";
 
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
