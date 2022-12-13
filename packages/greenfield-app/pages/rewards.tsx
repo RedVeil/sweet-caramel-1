@@ -10,7 +10,7 @@ import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
-import { useComponentState } from "@popcorn/components/hooks";
+import { useComponentState } from "@popcorn/components/lib/utils/hooks";
 import { ConnectWallet } from "@popcorn/components/components/ConnectWallet";
 
 export enum Tabs {
