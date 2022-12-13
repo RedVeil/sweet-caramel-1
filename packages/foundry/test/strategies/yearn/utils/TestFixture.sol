@@ -53,7 +53,7 @@ contract TestFixture is ExtendedDSTest {
   // @dev used for non-fuzz tests to test large amounts
   uint256 public bigAmount;
   // Used for integer approximation
-  uint256 public constant DELTA = 10**5;
+  uint256 public constant DELTA = 10 ** 5;
 
   function setUp() public virtual {
     // NOTE: skip a few seconds to avoid block.timestamp == 0
@@ -83,10 +83,10 @@ contract TestFixture is ExtendedDSTest {
     vaultWrapper = IERC4626(yearnWrapperAddress);
 
     // NOTE: assume Token is priced to 1 for simplicity
-    minFuzzAmt = 10**vault.decimals() / 10;
-    maxFuzzAmt = uint256(maxDollarNotional) * 10**vault.decimals();
+    minFuzzAmt = 10 ** vault.decimals() / 10;
+    maxFuzzAmt = uint256(maxDollarNotional) * 10 ** vault.decimals();
 
-    bigAmount = uint256(bigDollarNotional) * 10**vault.decimals();
+    bigAmount = uint256(bigDollarNotional) * 10 ** vault.decimals();
 
     // add more labels to make your traces readable
     vm.label(address(vault), "Vault");
