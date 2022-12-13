@@ -58,7 +58,7 @@ contract VaultsController is Owned {
   }
 
   /*//////////////////////////////////////////////////////////////
-                          DEPLOYMENT LOGIC
+                          VAULT DEPLOYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
   event VaultDeployed(address indexed vault, address indexed staking, address indexed adapter);
@@ -119,6 +119,65 @@ contract VaultsController is Owned {
 
     vault = abi.decode(returnData, (address));
   }
+
+  /**
+   * @notice sets keeperConfig and creates incentive for new vault deployment
+   * @dev avoids stack too deep in deployVaultFromFactory
+   */
+  function _handleKeeperSetup(
+    address _vault,
+    KeeperConfig memory _keeperConfig,
+    bytes memory addKeeperData
+  ) internal {
+    adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
+
+    (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
+      addKeeperData,
+      (bool, bool, uint256)
+    );
+    adminProxy.execute(
+      address(keeperIncentive),
+      abi.encodeWithSelector(
+        IKeeperIncentiveV2.createIncentive.selector,
+        _vault,
+        _keeperConfig.keeperPayout,
+        _keeperEnabled,
+        _keeperOpenToEveryone,
+        _vault,
+        _keeperCooldown,
+        uint256(0)
+      )
+    );
+  }
+
+  function _handleVaultStakingRewards(address staking, bytes memory rewardsData) internal {
+    address[] memory stakingContracts = new address[](1);
+    bytes[] memory rewardsDatas = new bytes[](1);
+
+    stakingContracts[0] = staking;
+    rewardsDatas[0] = rewardsData;
+
+    addStakingRewardsToken(stakingContracts, rewardsDatas);
+  }
+
+  function _registerVault(
+    address vault,
+    address staking,
+    VaultMetadata memory metadata
+  ) internal {
+    metadata.vaultAddress = vault;
+    metadata.staking = staking;
+    metadata.submitter = msg.sender;
+
+    adminProxy.execute(
+      address(vaultsRegistry),
+      abi.encodeWithSelector(IVaultsRegistry.registerVault.selector, abi.encode(metadata))
+    );
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          ADAPTER DEPLOYMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
 
   function deployAdapter(
     IERC20 asset,
@@ -189,6 +248,10 @@ contract VaultsController is Owned {
     strategy = abi.decode(returnDataStrategy, (address));
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          STAKING DEPLOYMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
   function deployStaking(IERC20 asset) public onlyOwner returns (address) {
     if (!endorsementRegistry.endorsed(address(asset))) revert AssetNotEndorsed(asset);
 
@@ -207,61 +270,6 @@ contract VaultsController is Owned {
     );
 
     staking = abi.decode(returnData, (address));
-  }
-
-  /**
-   * @notice sets keeperConfig and creates incentive for new vault deployment
-   * @dev avoids stack too deep in deployVaultFromFactory
-   */
-  function _handleKeeperSetup(
-    address _vault,
-    KeeperConfig memory _keeperConfig,
-    bytes memory addKeeperData
-  ) internal {
-    adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
-
-    (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
-      addKeeperData,
-      (bool, bool, uint256)
-    );
-    adminProxy.execute(
-      address(keeperIncentive),
-      abi.encodeWithSelector(
-        IKeeperIncentiveV2.createIncentive.selector,
-        _vault,
-        _keeperConfig.keeperPayout,
-        _keeperEnabled,
-        _keeperOpenToEveryone,
-        _vault,
-        _keeperCooldown,
-        uint256(0)
-      )
-    );
-  }
-
-  function _handleVaultStakingRewards(address staking, bytes memory rewardsData) internal {
-    address[] memory stakingContracts = new address[](1);
-    bytes[] memory rewardsDatas = new bytes[](1);
-
-    stakingContracts[0] = staking;
-    rewardsDatas[0] = rewardsData;
-
-    addStakingRewardsToken(stakingContracts, rewardsDatas);
-  }
-
-  function _registerVault(
-    address vault,
-    address staking,
-    VaultMetadata memory metadata
-  ) internal {
-    metadata.vaultAddress = vault;
-    metadata.staking = staking;
-    metadata.submitter = msg.sender;
-
-    adminProxy.execute(
-      address(vaultsRegistry),
-      abi.encodeWithSelector(IVaultsRegistry.registerVault.selector, abi.encode(metadata))
-    );
   }
 
   /*//////////////////////////////////////////////////////////////
