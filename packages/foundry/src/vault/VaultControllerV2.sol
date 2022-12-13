@@ -57,8 +57,6 @@ contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
                           DEPLOYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
-  error MisConfig();
-  error AssetNotEndorsed(IERC20 asset);
 
   event VaultDeployed(address indexed vault, address indexed staking, address indexed adapter);
 
@@ -79,26 +77,18 @@ contract VaultsController is Owned {
   ) external onlyOwner returns (address vault) {
     IERC20 asset = vaultData.asset;
     IDeploymentController _deploymentController = deploymentController;
-    if (!endorsementRegistry.endorsed(address(asset))) revert AssetNotEndorsed(asset);
-    if (address(vaultData.adapter) != address(0)) {
-      if (adapterData.id > 0) revert MisConfig();
-      if (!_deploymentController.cloneExists(address(vaultData.adapter))) revert MisConfig();
-    }
+
+    _verifyToken(asset);
+    _verifyAdapterConfiguration(address(vaultData.adapter), adapterData.id, _deploymentController);
 
     if (adapterData.id.length > 0)
-      vaultData.adapter = IERC4626(_deployStrategyAndAdapter(strategyData, adapterData, asset, _deploymentController));
+      vaultData.adapter = IERC4626(_deployAdapter(asset, adapterData, strategyData, _deploymentController));
 
     vault = _deployVault(vaultData, _deploymentController);
 
     address staking = _deployStaking(asset, _deploymentController);
 
-    if (rewardsData.length > 0) {
-      address[] memory stakingContracts = new address[](1);
-      stakingContracts[0] = staking;
-      bytes[] memory rewardsDatas = new bytes[](1);
-      rewardsDatas[0] = rewardsData;
-      addRewardsToken(stakingContracts, rewardsDatas);
-    }
+    if (rewardsData.length > 0 && staking != address(0)) _handleVaultStakingRewards(staking, rewardsData);
 
     _handleKeeperSetup(vault, vaultData.keeperConfig, addKeeperData);
 
@@ -126,50 +116,38 @@ contract VaultsController is Owned {
     vault = abi.decode(returnData, (address));
   }
 
-  function deployStrategyAndAdapter(
-    DeploymentArgs memory strategyData,
+  function deployAdapter(
+    IERC20 asset,
     DeploymentArgs memory adapterData,
-    IERC20 asset
+    DeploymentArgs memory strategyData
   ) public onlyOwner returns (address) {
     if (!endorsementRegistry.endorsed(address(asset))) revert AssetNotEndorsed(asset);
 
-    return _deployStrategyAndAdapter(strategyData, adapterData, asset, deploymentController);
+    return _deployAdapter(asset, adapterData, strategyData, deploymentController);
   }
 
-  function _deployStrategyAndAdapter(
-    DeploymentArgs memory strategyData,
-    DeploymentArgs memory adapterData,
+  function _deployAdapter(
     IERC20 asset,
+    DeploymentArgs memory adapterData,
+    DeploymentArgs memory strategyData,
     IDeploymentController deploymentController
   ) internal returns (address) {
     address strategy;
     bytes4[8] memory requiredSigs;
     if (strategyData.id.length > 0) {
-      strategy = _deployStrategy(strategyData, asset, deploymentController);
+      strategy = _deployStrategy(asset, strategyData, deploymentController);
       requiredSigs = deploymentController.getTemplate(STRATEGY, strategyData.id).requiredSigs;
     }
 
     return
-      _deployAdapter(
+      __deployAdapter(
         adapterData,
         abi.encode(asset, address(adminProxy), IStrategy(strategy), requiredSigs, strategyData.data, harvestCooldown),
         deploymentController
       );
   }
 
-  function _deployStrategy(
-    DeploymentArgs memory strategyData,
-    IERC20 asset,
-    IDeploymentController deploymentController
-  ) internal returns (address strategy) {
-    (bool success, bytes memory returnDataStrategy) = adminProxy.execute(
-      address(deploymentController),
-      abi.encodeWithSelector(DEPLOY_SIG, STRATEGY, strategyData.id, "")
-    );
-    strategy = abi.decode(returnDataStrategy, (address));
-  }
-
-  function _deployAdapter(
+  function __deployAdapter(
     DeploymentArgs memory adapterData,
     bytes memory baseAdapterData,
     IDeploymentController deploymentController
@@ -191,6 +169,18 @@ contract VaultsController is Owned {
     adapter = abi.decode(returnDataAdapter, (address));
 
     adminProxy.execute(adapter, abi.encodeWithSelector(IAdapter.setManagementFee.selector, managementFee));
+  }
+
+  function _deployStrategy(
+    IERC20 asset,
+    DeploymentArgs memory strategyData,
+    IDeploymentController deploymentController
+  ) internal returns (address strategy) {
+    (bool success, bytes memory returnDataStrategy) = adminProxy.execute(
+      address(deploymentController),
+      abi.encodeWithSelector(DEPLOY_SIG, STRATEGY, strategyData.id, "")
+    );
+    strategy = abi.decode(returnDataStrategy, (address));
   }
 
   function deployStaking(IERC20 asset) public onlyOwner returns (address) {
@@ -238,6 +228,16 @@ contract VaultsController is Owned {
         uint256(0)
       )
     );
+  }
+
+  function _handleVaultStakingRewards(address staking, bytes memory rewardsData) internal {
+    address[] memory stakingContracts = new address[](1);
+    bytes[] memory rewardsDatas = new bytes[](1);
+
+    stakingContracts[0] = staking;
+    rewardsDatas[0] = rewardsData;
+
+    addStakingRewardsToken(stakingContracts, rewardsDatas);
   }
 
   function _registerVault(
@@ -329,13 +329,6 @@ contract VaultsController is Owned {
     }
   }
 
-  error NotSubmitter(address caller);
-
-  function _verifySubmitter(address vault) internal returns (VaultMetadata memory metadata) {
-    metadata = vaultsRegistry.vaults(vault);
-    if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
-  }
-
   /*//////////////////////////////////////////////////////////////
                           ENDORSEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -354,14 +347,8 @@ contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
                           STAKING MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
-  error TokenBad(IERC20 token);
 
-  function _verifyToken(address token) internal {
-    if (!endorsementRegistry.endorsed(token) || !deploymentController.cloneExists(token))
-      revert TokenBad(IERC20(token));
-  }
-
-  function addRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) public {
+  function addStakingRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) public {
     VaultMetadata memory metadata;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
@@ -392,7 +379,7 @@ contract VaultsController is Owned {
     }
   }
 
-  function changeRewardsSpeed(address[] memory vaults, bytes[] memory rewardsTokenData) external {
+  function changeStakingRewardsSpeed(address[] memory vaults, bytes[] memory rewardsTokenData) external {
     VaultMetadata memory metadata;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
@@ -404,7 +391,7 @@ contract VaultsController is Owned {
     }
   }
 
-  function fundReward(address[] memory vaults, bytes[] memory rewardsTokenData) external {
+  function fundStakingReward(address[] memory vaults, bytes[] memory rewardsTokenData) external {
     VaultMetadata memory metadata;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
@@ -446,7 +433,6 @@ contract VaultsController is Owned {
   /*//////////////////////////////////////////////////////////////
                           PAUSING LOGIC
     //////////////////////////////////////////////////////////////*/
-  error NotSubmitterNorOwner(address caller);
 
   function pauseAdapter(address[] calldata vaults) external {
     uint8 len = uint8(vaults.length);
@@ -480,9 +466,39 @@ contract VaultsController is Owned {
     }
   }
 
+  /*//////////////////////////////////////////////////////////////
+                       VERIFICATION LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  error NotSubmitterNorOwner(address caller);
+  error NotSubmitter(address caller);
+  error TokenNotAllowed(IERC20 token);
+  error AdapterConfigFaulty();
+
   function _verifySubmitterOrOwner(address vault) internal returns (VaultMetadata memory metadata) {
     metadata = vaultsRegistry.vaults(vault);
     if (msg.sender != metadata.submitter || msg.sender != owner) revert NotSubmitterNorOwner(msg.sender);
+  }
+
+  function _verifySubmitter(address vault) internal returns (VaultMetadata memory metadata) {
+    metadata = vaultsRegistry.vaults(vault);
+    if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
+  }
+
+  function _verifyToken(address token) internal {
+    if (!endorsementRegistry.endorsed(token) || !deploymentController.cloneExists(token))
+      revert TokenNotAllowed(IERC20(token));
+  }
+
+  function _verifyAdapterConfiguration(
+    address adapter,
+    bytes32 adapterId,
+    IDeploymentController _deploymentController
+  ) internal {
+    if (adapter != address(0)) {
+      if (adapterId > 0) revert AdapterConfigFaulty();
+      if (!_deploymentController.cloneExists(adapter)) revert AdapterConfigFaulty();
+    }
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -509,7 +525,7 @@ contract VaultsController is Owned {
   }
 
   /*//////////////////////////////////////////////////////////////
-                          ADMIN LOGIC
+                          MANAGEMENT FEE LOGIC
     //////////////////////////////////////////////////////////////*/
 
   uint256 public managementFee;
@@ -528,14 +544,22 @@ contract VaultsController is Owned {
     managementFee = newFee;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          HARVEST COOLDOWN LOGIC
+    //////////////////////////////////////////////////////////////*/
+
   uint256 public harvestCooldown;
+
+  error InvalidHarvestCooldown(uint256 cooldown);
+
+  event HarvestCooldownChanged(uint256 oldCooldown, uint256 newCooldown);
 
   // TODO we would still need to update all adapter retroactively
   function setHarvestCooldown(uint256 newCooldown) external onlyOwner {
-    // Dont take more than 10% managementFee
-    if (newCooldown >= 1e17) revert InvalidManagementFee(newCooldown);
+    // Dont wait more than X seconds
+    if (newCooldown >= 1e17) revert InvalidHarvestCooldown(newCooldown);
 
-    emit ManagementFeeChanged(harvestCooldown, newCooldown);
+    emit HarvestCooldownChanged(harvestCooldown, newCooldown);
 
     harvestCooldown = newCooldown;
   }
