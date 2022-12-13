@@ -32,7 +32,7 @@ contract VaultsController is Owned {
   bytes32 public immutable ADAPTER = "Adapter";
   bytes32 public immutable STRATEGY = "Strategy";
   bytes32 public immutable STAKING = "Staking";
-  bytes4 internal immutable DEPLOY_SIG = bytes4(keccak256("deploy(bytes32,bytes32,bytes)")); // TODO just store the hash
+  bytes4 internal immutable DEPLOY_SIG = bytes4(keccak256("deploy(bytes32,bytes32,bytes)"));
 
   constructor(
     address _owner,
@@ -52,6 +52,9 @@ contract VaultsController is Owned {
     vaultsRegistry = _vaulsRegistry; // cant change
     keeperIncentive = _keeperIncentive; // can/cant change ?
     escrow = _escrow; // cant change
+
+    latestTemplateKey[STAKING] = "MultiRewardsStaking";
+    latestTemplateKey[VAULT] = "V1";
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -109,10 +112,11 @@ contract VaultsController is Owned {
       abi.encodeWithSelector(
         DEPLOY_SIG,
         VAULT,
-        "V1", // TODO should this be set in state?
+        latestTemplateKey[VAULT],
         abi.encodeWithSelector(IVault.initialize.selector, abi.encode(vaultData))
       )
     );
+
     vault = abi.decode(returnData, (address));
   }
 
@@ -166,6 +170,7 @@ contract VaultsController is Owned {
         )
       )
     );
+
     adapter = abi.decode(returnDataAdapter, (address));
 
     adminProxy.execute(adapter, abi.encodeWithSelector(IAdapter.setManagementFee.selector, managementFee));
@@ -180,11 +185,13 @@ contract VaultsController is Owned {
       address(deploymentController),
       abi.encodeWithSelector(DEPLOY_SIG, STRATEGY, strategyData.id, "")
     );
+
     strategy = abi.decode(returnDataStrategy, (address));
   }
 
   function deployStaking(IERC20 asset) public onlyOwner returns (address) {
     if (!endorsementRegistry.endorsed(address(asset))) revert AssetNotEndorsed(asset);
+
     return _deployStaking(asset, deploymentController);
   }
 
@@ -194,10 +201,11 @@ contract VaultsController is Owned {
       abi.encodeWithSelector(
         DEPLOY_SIG,
         STAKING,
-        "MultiRewardsStaking", // TODO should this be set in state?
+        latestTemplateKey[STAKING],
         abi.encodeWithSelector(IMultiRewardsStaking.initialize.selector, asset, escrow, adminProxy)
       )
     );
+
     staking = abi.decode(returnData, (address));
   }
 
@@ -210,11 +218,12 @@ contract VaultsController is Owned {
     KeeperConfig memory _keeperConfig,
     bytes memory addKeeperData
   ) internal {
+    adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
+
     (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
       addKeeperData,
       (bool, bool, uint256)
     );
-    adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
     adminProxy.execute(
       address(keeperIncentive),
       abi.encodeWithSelector(
@@ -266,11 +275,14 @@ contract VaultsController is Owned {
    * @dev index of _vaults array and _newStrategies array must coincide
    */
   function proposeVaultAdapter(address[] memory vaults, IERC4626[] memory newAdapter) external {
+    _verifyEqualArrayLength(vaults.length, newAdapter.length);
+
     IDeploymentController _deploymentController = deploymentController;
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
       _deploymentController.cloneExists(address(newAdapter[i]));
+
       adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.proposeAdapter.selector, newAdapter));
     }
   }
@@ -294,9 +306,12 @@ contract VaultsController is Owned {
    * @dev index of _vaults array and _newFees must coincide
    */
   function proposeVaultFees(address[] memory vaults, FeeStructure[] memory newFees) external {
+    _verifyEqualArrayLength(vaults.length, newFees.length);
+
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
+
       adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.proposeFees.selector, abi.encode(newFees[i])));
     }
   }
@@ -319,9 +334,12 @@ contract VaultsController is Owned {
    * @dev index of _vaults array and _keeperConfigs must coincide
    */
   function setVaultKeeperConfig(address[] memory vaults, KeeperConfig[] memory keeperConfigs) external {
+    _verifyEqualArrayLength(vaults.length, keeperConfigs.length);
+
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       _verifySubmitter(vaults[i]);
+
       adminProxy.execute(
         vaults[i],
         abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(keeperConfigs[i]))
@@ -349,7 +367,9 @@ contract VaultsController is Owned {
     //////////////////////////////////////////////////////////////*/
 
   function addStakingRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) public {
-    VaultMetadata memory metadata;
+    _verifyEqualArrayLength(vaults.length, rewardsTokenData.length);
+
+    address staking;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
       (
@@ -361,10 +381,12 @@ contract VaultsController is Owned {
         uint24 escrowPercentage,
         uint256 offset
       ) = abi.decode(rewardsTokenData[i], (address, uint160, uint256, bool, uint224, uint24, uint256));
+
       _verifyToken(rewardsToken);
-      metadata = _verifySubmitterOrOwner(vaults[i]);
+      staking = _verifySubmitterOrOwner(vaults[i]).staking;
+
       adminProxy.execute(
-        metadata.staking,
+        staking,
         abi.encodeWithSelector(
           IMultiRewardsStaking.addRewardsToken.selector,
           rewardsToken,
@@ -380,24 +402,30 @@ contract VaultsController is Owned {
   }
 
   function changeStakingRewardsSpeed(address[] memory vaults, bytes[] memory rewardsTokenData) external {
-    VaultMetadata memory metadata;
+    _verifyEqualArrayLength(vaults.length, rewardsTokenData.length);
+
+    address staking;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      metadata = _verifySubmitter(vaults[i]);
+      staking = _verifySubmitter(vaults[i]).staking;
+
       adminProxy.execute(
-        metadata.staking,
+        staking,
         abi.encodeWithSelector(IMultiRewardsStaking.changeRewardSpeed.selector, rewardsTokenData[i])
       );
     }
   }
 
   function fundStakingReward(address[] memory vaults, bytes[] memory rewardsTokenData) external {
-    VaultMetadata memory metadata;
+    _verifyEqualArrayLength(vaults.length, rewardsTokenData.length);
+
+    address staking;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      metadata = vaultsRegistry.vaults(vaults[i]);
+      staking = vaultsRegistry.vaults(vaults[i]).staking;
+
       (address rewardsToken, uint256 amount) = abi.decode(rewardsTokenData[i], (address, uint256));
-      IMultiRewardsStaking(metadata.staking).fundReward(IERC20(rewardsToken), amount);
+      IMultiRewardsStaking(staking).fundReward(IERC20(rewardsToken), amount);
     }
   }
 
@@ -408,6 +436,7 @@ contract VaultsController is Owned {
   IMultiRewardsEscrow public escrow;
 
   function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
+    _verifyEqualArrayLength(tokens.length, fees.length);
     adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardsEscrow.setFees.selector, tokens, fees));
   }
 
@@ -474,6 +503,7 @@ contract VaultsController is Owned {
   error NotSubmitter(address caller);
   error TokenNotAllowed(IERC20 token);
   error AdapterConfigFaulty();
+  error ArrayLengthMissmatch();
 
   function _verifySubmitterOrOwner(address vault) internal returns (VaultMetadata memory metadata) {
     metadata = vaultsRegistry.vaults(vault);
@@ -499,6 +529,10 @@ contract VaultsController is Owned {
       if (adapterId > 0) revert AdapterConfigFaulty();
       if (!_deploymentController.cloneExists(adapter)) revert AdapterConfigFaulty();
     }
+  }
+
+  function _verifyEqualArrayLength(uint256 length1, uint256 length2) internal {
+    if (length1 != length2) revert ArrayLengthMissmatch();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -537,6 +571,7 @@ contract VaultsController is Owned {
   // TODO we would still need to update all adapter retroactively
   function setManagementFee(uint256 newFee) external onlyOwner {
     // Dont take more than 10% managementFee
+    // TODO what should be the range here?
     if (newFee >= 1e17) revert InvalidManagementFee(newFee);
 
     emit ManagementFeeChanged(managementFee, newFee);
@@ -557,10 +592,30 @@ contract VaultsController is Owned {
   // TODO we would still need to update all adapter retroactively
   function setHarvestCooldown(uint256 newCooldown) external onlyOwner {
     // Dont wait more than X seconds
+    // TODO what should be the range here?
     if (newCooldown >= 1e17) revert InvalidHarvestCooldown(newCooldown);
 
     emit HarvestCooldownChanged(harvestCooldown, newCooldown);
 
     harvestCooldown = newCooldown;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          TEMPLATE KEY LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  mapping(bytes32 => bytes32) public latestTemplateKey;
+
+  error TemplateKeyDoesntExist(bytes32 templateKey);
+
+  event LatestTemplateKeyChanged(bytes32 oldKey, bytes32 newKey);
+
+  function setLatestTemplateKey(bytes32 templateKey, bytes32 latestKey) external onlyOwner {
+    bytes32 oldKey = latestTemplateKey[templateKey];
+    if (oldKey.length == 0) revert TemplateKeyDoesntExist(templateKey);
+
+    emit ManagementFeeChanged(oldKey, latestKey);
+
+    latestTemplateKey[templateKey] = latestKey;
   }
 }
