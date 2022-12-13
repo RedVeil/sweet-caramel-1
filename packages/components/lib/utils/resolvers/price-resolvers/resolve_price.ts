@@ -22,7 +22,7 @@ export async function resolve_price({
   const _resolver = resolver || metadata?.priceResolver;
 
   let price: { value: BigNumber; decimals: number } | undefined;
-  if (!!_resolver && typeof Resolvers[_resolver] === "function") {
+  if (_resolver && typeof Resolvers[_resolver] === "function") {
     return (price = format(await Resolvers[_resolver](address, Number(chainId), rpc)));
   }
   return format(await Resolvers.default(address, Number(chainId), rpc));
