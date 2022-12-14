@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { ERC4626Upgradeable, IERC20Upgradeable as IERC20, IERC20MetadataUpgradeable as IERC20Metadata } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
+import { ERC4626Upgradeable, IERC20Upgradeable as IERC20, IERC20MetadataUpgradeable as IERC20Metadata, ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/MathUpgradeable.sol";
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
@@ -251,14 +251,10 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   bytes public strategyConfig;
   uint256 public harvestCooldown;
 
-  error HarvestTimeout();
-
   event Harvested();
 
   function harvest() public takeFees {
-    if (address(strategy) != address(0)) {
-      if ((feesUpdatedAt + harvestCooldown) >= block.timestamp) revert HarvestTimeout();
-
+    if (address(strategy) != address(0) && ((feesUpdatedAt + harvestCooldown) < block.timestamp)) {
       address(strategy).delegatecall(abi.encodeWithSignature("harvest()"));
     }
 

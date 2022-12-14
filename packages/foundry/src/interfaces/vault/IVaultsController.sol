@@ -29,9 +29,9 @@ interface IVaultsController {
     IERC20 asset,
     DeploymentArgs memory adapterData,
     DeploymentArgs memory strategyData
-  ) public returns (address);
+  ) external returns (address);
 
-  function deployStaking(IERC20 asset) public returns (address);
+  function deployStaking(IERC20 asset) external returns (address);
 
   function proposeVaultAdapter(address[] memory vaults, IERC4626[] memory newAdapter) external;
 

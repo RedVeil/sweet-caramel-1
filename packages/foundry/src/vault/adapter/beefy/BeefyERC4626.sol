@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.15;
 
-import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
+import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../../utils/WithRewards.sol";
 
 interface IBeefyVault {
@@ -117,11 +117,11 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
     if (_beefyBooster != address(0)) IERC20(_beefyVault).approve(_beefyBooster, type(uint256).max);
   }
 
-  function name() public view override returns (string memory) {
+  function name() public view override(IERC20Metadata, ERC20) returns (string memory) {
     return _name;
   }
 
-  function symbol() public view override returns (string memory) {
+  function symbol() public view override(IERC20Metadata, ERC20) returns (string memory) {
     return _symbol;
   }
 

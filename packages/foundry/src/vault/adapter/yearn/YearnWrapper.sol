@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.12;
 
-import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
+import { AdapterBase, IERC20, IERC20Metadata, ERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
 
 interface VaultAPI is IERC20 {
   function deposit(uint256 amount) external returns (uint256);
@@ -48,11 +48,11 @@ contract YearnWrapper is AdapterBase {
     IERC20(_asset).approve(address(yVault), type(uint256).max);
   }
 
-  function name() public view override returns (string memory) {
+  function name() public view override(IERC20Metadata, ERC20) returns (string memory) {
     return _name;
   }
 
-  function symbol() public view override returns (string memory) {
+  function symbol() public view override(IERC20Metadata, ERC20) returns (string memory) {
     return _symbol;
   }
 

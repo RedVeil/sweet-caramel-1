@@ -93,10 +93,10 @@ contract VaultsController is Owned {
     emit VaultDeployed(vault, staking, address(vaultData.adapter));
   }
 
-  function _deployVault(
-    VaultParams memory vaultData,
-    IDeploymentController deploymentController
-  ) internal returns (address vault) {
+  function _deployVault(VaultParams memory vaultData, IDeploymentController deploymentController)
+    internal
+    returns (address vault)
+  {
     vaultData.owner = address(adminProxy);
     vaultData.keeperIncentive = keeperIncentive;
 
@@ -117,7 +117,11 @@ contract VaultsController is Owned {
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @dev avoids stack too deep in deployVaultFromFactory
    */
-  function _handleKeeperSetup(address _vault, KeeperConfig memory _keeperConfig, bytes memory addKeeperData) internal {
+  function _handleKeeperSetup(
+    address _vault,
+    KeeperConfig memory _keeperConfig,
+    bytes memory addKeeperData
+  ) internal {
     adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
 
     (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
@@ -149,7 +153,11 @@ contract VaultsController is Owned {
     addStakingRewardsToken(stakingContracts, rewardsDatas);
   }
 
-  function _registerVault(address vault, address staking, VaultMetadata memory metadata) internal {
+  function _registerVault(
+    address vault,
+    address staking,
+    VaultMetadata memory metadata
+  ) internal {
     metadata.vaultAddress = vault;
     metadata.staking = staking;
     metadata.submitter = msg.sender;
@@ -375,7 +383,7 @@ contract VaultsController is Owned {
         uint256 offset
       ) = abi.decode(rewardsTokenData[i], (address, uint160, uint256, bool, uint224, uint24, uint256));
 
-      _verifyToken(rewardsToken);
+      _verifyToken(IERC20(rewardsToken));
       staking = _verifySubmitterOrOwner(vaults[i]).staking;
 
       adminProxy.execute(
@@ -508,9 +516,9 @@ contract VaultsController is Owned {
     if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
   }
 
-  function _verifyToken(address token) internal {
-    if (!endorsementRegistry.endorsed(token) || !deploymentController.cloneExists(token))
-      revert TokenNotAllowed(IERC20(token));
+  function _verifyToken(IERC20 token) internal {
+    if (!endorsementRegistry.endorsed(address(token)) || !deploymentController.cloneExists(address(token)))
+      revert TokenNotAllowed(token);
   }
 
   function _verifyAdapterConfiguration(
@@ -607,7 +615,7 @@ contract VaultsController is Owned {
     bytes32 oldKey = latestTemplateKey[templateKey];
     if (oldKey.length == 0) revert TemplateKeyDoesntExist(templateKey);
 
-    emit ManagementFeeChanged(oldKey, latestKey);
+    emit LatestTemplateKeyChanged(oldKey, latestKey);
 
     latestTemplateKey[templateKey] = latestKey;
   }
