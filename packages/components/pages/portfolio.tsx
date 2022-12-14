@@ -75,6 +75,13 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
+          <Contract.BalanceOf
+            key={`Contract.PopBalanceOf`}
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+          />
+
           <Erc20.BalanceOf
             key={`Erc20.BalanceOfValue`}
             account={account}

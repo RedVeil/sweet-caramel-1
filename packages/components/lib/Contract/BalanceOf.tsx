@@ -25,7 +25,7 @@ export const BalanceOf = ({ account, address, chainId }: Pop.StdProps) => {
     return <></>;
   };
 
-  const { value: stateValue, status: stateStatus } = _state[address || ""] || {};
+  const { value: stateValue, status: stateStatus } = _state["total"][address || ""] || {};
   const { data: price } = usePrice({ account, address, chainId });
   if (stateStatus === "success" && stateValue && stateValue !== constants.Zero && price?.value) {
     let tokenAmount = stateValue.div(price?.value);
