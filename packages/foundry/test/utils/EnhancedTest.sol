@@ -4,11 +4,7 @@ pragma solidity ^0.8.15;
 import { Test } from "forge-std/Test.sol";
 
 contract EnhancedTest is Test {
-  function assertApproxGeAbs(
-    uint256 a,
-    uint256 b,
-    uint256 maxDelta
-  ) internal {
+  function assertApproxGeAbs(uint256 a, uint256 b, uint256 maxDelta) internal {
     if (!(a >= b)) {
       uint256 dt = b - a;
       if (dt > maxDelta) {
@@ -22,12 +18,7 @@ contract EnhancedTest is Test {
     }
   }
 
-  function assertApproxGeAbs(
-    uint256 a,
-    uint256 b,
-    uint256 maxDelta,
-    string memory err
-  ) internal {
+  function assertApproxGeAbs(uint256 a, uint256 b, uint256 maxDelta, string memory err) internal {
     if (!(a >= b)) {
       uint256 dt = b - a;
       if (dt > maxDelta) {
@@ -42,11 +33,7 @@ contract EnhancedTest is Test {
     }
   }
 
-  function assertApproxLeAbs(
-    uint256 a,
-    uint256 b,
-    uint256 maxDelta
-  ) internal {
+  function assertApproxLeAbs(uint256 a, uint256 b, uint256 maxDelta) internal {
     if (!(a <= b)) {
       uint256 dt = a - b;
       if (dt > maxDelta) {
@@ -60,12 +47,7 @@ contract EnhancedTest is Test {
     }
   }
 
-  function assertApproxLeAbs(
-    uint256 a,
-    uint256 b,
-    uint256 maxDelta,
-    string memory err
-  ) internal {
+  function assertApproxLeAbs(uint256 a, uint256 b, uint256 maxDelta, string memory err) internal {
     if (!(a <= b)) {
       uint256 dt = a - b;
       if (dt > maxDelta) {

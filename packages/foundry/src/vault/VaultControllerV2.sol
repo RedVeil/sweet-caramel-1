@@ -93,10 +93,10 @@ contract VaultsController is Owned {
     emit VaultDeployed(vault, staking, address(vaultData.adapter));
   }
 
-  function _deployVault(VaultParams memory vaultData, IDeploymentController deploymentController)
-    internal
-    returns (address vault)
-  {
+  function _deployVault(
+    VaultParams memory vaultData,
+    IDeploymentController deploymentController
+  ) internal returns (address vault) {
     vaultData.owner = address(adminProxy);
     vaultData.keeperIncentive = keeperIncentive;
 
@@ -117,11 +117,7 @@ contract VaultsController is Owned {
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @dev avoids stack too deep in deployVaultFromFactory
    */
-  function _handleKeeperSetup(
-    address _vault,
-    KeeperConfig memory _keeperConfig,
-    bytes memory addKeeperData
-  ) internal {
+  function _handleKeeperSetup(address _vault, KeeperConfig memory _keeperConfig, bytes memory addKeeperData) internal {
     adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
 
     (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
@@ -153,11 +149,7 @@ contract VaultsController is Owned {
     addStakingRewardsToken(stakingContracts, rewardsDatas);
   }
 
-  function _registerVault(
-    address vault,
-    address staking,
-    VaultMetadata memory metadata
-  ) internal {
+  function _registerVault(address vault, address staking, VaultMetadata memory metadata) internal {
     metadata.vaultAddress = vault;
     metadata.staking = staking;
     metadata.submitter = msg.sender;
