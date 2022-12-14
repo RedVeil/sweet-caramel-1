@@ -4,28 +4,23 @@ import EthIcon from "../stories/assets/ethereum.svg";
 
 export interface PortfolioSectionProps {
   title: string;
-  PortfolioItems: Array<PortfolioItemProps>;
+  // PortfolioItems: JSX.Element;
   TotalValues: Array<{
     title: string;
     tooltip: JSX.Element;
     value: string | JSX.Element;
     hideMobile: boolean;
   }>;
+  children: any;
+  NetworkIcons: JSX.Element;
 }
-const PortfolioSection: React.FC<PortfolioSectionProps> = ({ title, PortfolioItems, TotalValues }) => {
+const PortfolioSection: React.FC<PortfolioSectionProps> = ({ title, TotalValues, children, NetworkIcons }) => {
   return (
     <div className=" font-khTeka mb-16 md:mb-18 px-6">
       <div className="grid grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
-        <div className="col-span-12 md:col-span-6 flex items-center space-x-10 mb-6 md:mb-[48px]">
+        <div className="col-span-12 md:col-span-6 flex items-center space-x-5 mb-6 md:mb-[48px]">
           <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">{title}</h2>
-          <div className="relative">
-            <div className="absolute top-0 -left-5">
-              <img src={EthIcon} alt="network logo" className="w-6 h-6" />
-            </div>
-            <div className="">
-              <img src={EthIcon} alt="network logo" className="w-6 h-6" />
-            </div>
-          </div>
+          {NetworkIcons}
         </div>
         <div className="col-span-12 md:col-span-6 grid grid-cols-12">
           <div className="col-span-12 xs:col-span-7 xs:col-end-13 md:col-span-12 grid grid-cols-12">
@@ -47,11 +42,12 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ title, PortfolioIte
         </div>
       </div>
       <div>
-        {PortfolioItems.map((items) => (
+        {/* {PortfolioItems.map((items) => (
           <div key={items.tokenName} className="mb-4">
             <PortfolioItem {...items} />
           </div>
-        ))}
+        ))} */}
+        {children}
       </div>
     </div>
   );

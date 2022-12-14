@@ -1,11 +1,11 @@
 import { Escrow, Erc20, Staking } from "@popcorn/components/lib";
 import { BigNumber, constants } from "ethers";
-import { useNetworth } from "packages/components/context/Networth";
+import { useNetworth } from "../../context/Networth";
 import { useEffect, useReducer, useState } from "react";
 import { FormattedBigNumber } from "../FormattedBigNumber";
 import { Pop } from "../types";
 import useLog from "../utils/hooks/useLog";
-import { updateNetworth } from "packages/components/reducers/networth/actions";
+import { updateNetworth } from "../../reducers/networth/actions";
 
 export const BalanceOf = ({ account, address, chainId }: Pop.StdProps) => {
   const { dispatch, state: _state } = useNetworth();

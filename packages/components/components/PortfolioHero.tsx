@@ -24,7 +24,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButto
           A glance at your current Popcorn portfolio <br />
           across different networks.
         </p>
-        <div className="hidden md:block">{NetworkSwitcher}</div>
+        <div className="hidden md:block mt-6">{NetworkSwitcher}</div>
       </div>
       <div className="absolute bottom-0 left-32 hidden md:block">
         <img src={HeroBg} alt="" className="w-full" />

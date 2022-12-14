@@ -5,12 +5,20 @@ import { Badge, BadgeVariant } from "./Badge";
 
 export interface PortfolioItemProps {
   tokenName: string;
-  chainId: number;
+  tokenIcon: JSX.Element;
+  contractIcon: string;
   token: string;
   portfolioValues: Array<{ value: string | JSX.Element; hideMobile: boolean }>;
   badge?: { label: string; variant: BadgeVariant };
 }
-const PortfolioItem: React.FC<PortfolioItemProps> = ({ tokenName, chainId, token, portfolioValues, badge }) => {
+const PortfolioItem: React.FC<PortfolioItemProps> = ({
+  tokenName,
+  tokenIcon,
+  token,
+  portfolioValues,
+  badge,
+  contractIcon,
+}) => {
   const filterHiddenMobile = () => portfolioValues.filter((value) => !value.hideMobile);
 
   return (
@@ -23,10 +31,11 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({ tokenName, chainId, token
         >
           <div className="relative">
             <div className="absolute top-0 -left-4">
-              <img src={EthIcon} alt="network logo" className="w-6 h-6" />
+              <img src={contractIcon} alt="network logo" className="w-6 h-6" />
             </div>
-            <img src={PopIcon} alt="token icon" className={"w-8 h-8 md:w-10 md:h-10"} />
+            {tokenIcon}
           </div>
+
           <div className="flex space-x-[6px] md:space-x-[52px]">
             <div>
               <p className="font-medium text-xs md:text-lg">{tokenName}</p>

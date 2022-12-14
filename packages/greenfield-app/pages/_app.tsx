@@ -22,6 +22,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
+import { NetworthContextProvider } from "@popcorn/components/context/Networth";
 
 const bnb: Chain = {
   id: 56,
@@ -140,17 +141,19 @@ export default function MyApp(props) {
         <FeatureToggleProvider>
           <WagmiConfig client={wagmiClient}>
             <RainbowKitProvider chains={chains}>
-              <OfacCheck />
-              <MobileFullScreenModalContainer />
-              <SingleActionModalContainer />
-              <MultiChoiceActionModalContainer />
-              <DualActionModalContainer />
-              <DualActionWideModalContainer />
-              <NetworkChangePromptModalContainer />
-              {getLayout(<Component {...pageProps} />)}
-              <FeatureTogglePanel />
-              <NotificationsContainer />
-              <Debug />
+              <NetworthContextProvider>
+                <OfacCheck />
+                <MobileFullScreenModalContainer />
+                <SingleActionModalContainer />
+                <MultiChoiceActionModalContainer />
+                <DualActionModalContainer />
+                <DualActionWideModalContainer />
+                <NetworkChangePromptModalContainer />
+                {getLayout(<Component {...pageProps} />)}
+                <FeatureTogglePanel />
+                <NotificationsContainer />
+                <Debug />
+              </NetworthContextProvider>
             </RainbowKitProvider>
           </WagmiConfig>
         </FeatureToggleProvider>
