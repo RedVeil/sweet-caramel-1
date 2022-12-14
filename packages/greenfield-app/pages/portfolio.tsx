@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PortfolioHero from "@popcorn/components/components/PortfolioHero";
+import PortfolioHero from "@popcorn/components/components/Portfolio/PortfolioHero";
 import ProductsPortfolio from "@popcorn/components/components/Portfolio/ProductsPortfolio";
 import { Tabs } from "@popcorn/components/components/Tabs";
 import useNetworkFilter from "hooks/useNetworkFilter";
