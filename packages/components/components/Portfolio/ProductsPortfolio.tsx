@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import PortfolioSection from "../PortfolioSection";
+import PortfolioSection from "./PortfolioSection";
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { useAccount } from "wagmi";
 import { Pop } from "../../lib/types";

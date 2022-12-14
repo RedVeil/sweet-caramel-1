@@ -2,7 +2,7 @@ import { networkMap } from "@popcorn/utils";
 import { useComponentState } from "../../lib/utils/hooks";
 import { Pop } from "../../lib/types";
 import useContractMetadata from "../../lib/Contract/hooks/useContractMetadata";
-import PortfolioItem from "../PortfolioItem";
+import PortfolioItem from "./PortfolioItem";
 import { networkLogos } from "@popcorn/utils";
 import { Escrow, Erc20, Price, Contract, Staking } from "../../lib/";
 import TokenIcon from "@popcorn/app/components/TokenIcon";

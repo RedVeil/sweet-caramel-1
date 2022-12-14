@@ -1,6 +1,6 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import PortfolioHero from "../components/PortfolioHero";
+import PortfolioHero from "../components/Portfolio/PortfolioHero";
 import EthIcon from "./assets/ethereum.svg";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Tabs } from "../components/Tabs";

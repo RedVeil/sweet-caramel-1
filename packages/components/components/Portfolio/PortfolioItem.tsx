@@ -1,7 +1,7 @@
 import React from "react";
 import PopIcon from "../stories/assets/POP.svg";
 import EthIcon from "../stories/assets/ethereum.svg";
-import { Badge, BadgeVariant } from "./Badge";
+import { Badge, BadgeVariant } from "../Badge";
 
 export interface PortfolioItemProps {
   tokenName: string;

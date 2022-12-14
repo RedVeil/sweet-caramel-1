@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ArrowSmallUpIcon, ArrowLongUpIcon } from "@heroicons/react/24/solid";
-import Dropdown from "./Dropdown";
+import Dropdown from "../Dropdown";
 import HeroBg from "../stories/assets/portfolioHeroBg.svg";
 import HeroBgMobile from "../stories/assets/portfolioHeroBgmobile.svg";
 

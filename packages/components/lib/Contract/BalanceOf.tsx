@@ -6,6 +6,7 @@ import { FormattedBigNumber } from "../FormattedBigNumber";
 import { Pop } from "../types";
 import useLog from "../utils/hooks/useLog";
 import { updateNetworth } from "../../reducers/networth/actions";
+import { usePrice } from "../Price";
 
 export const BalanceOf = ({ account, address, chainId }: Pop.StdProps) => {
   const { dispatch, state: _state } = useNetworth();
@@ -25,6 +26,11 @@ export const BalanceOf = ({ account, address, chainId }: Pop.StdProps) => {
   };
 
   const { value: stateValue, status: stateStatus } = _state[address || ""] || {};
+  const { data: price } = usePrice({ account, address, chainId });
+  if (stateStatus === "success" && stateValue && stateValue !== constants.Zero && price?.value) {
+    let tokenAmount = stateValue.div(price?.value);
+    console.log("tokenAmount", tokenAmount);
+  }
 
   return (
     <>

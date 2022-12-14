@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
-import PortfolioHero, { PortfolioHeroProps } from "./PortfolioHero";
-import PortfolioSection, { PortfolioSectionProps } from "./PortfolioSection";
+import PortfolioHero, { PortfolioHeroProps } from "./Portfolio/PortfolioHero";
+import PortfolioSection, { PortfolioSectionProps } from "./Portfolio/PortfolioSection";
 import { Tabs } from "../components/Tabs";
 
 interface PortfolioPageProps {
