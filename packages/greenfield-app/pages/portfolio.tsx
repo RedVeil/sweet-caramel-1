@@ -23,6 +23,7 @@ const Portfolio = () => {
             />
           }
           TabButtons={<Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />}
+          selectedNetworks={selectedNetworks}
         />
       </div>
       <div className="mt-7">

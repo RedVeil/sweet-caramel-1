@@ -3,17 +3,23 @@ import { ArrowSmallUpIcon, ArrowLongUpIcon } from "@heroicons/react/24/solid";
 import Dropdown from "../Dropdown";
 import HeroBg from "../../stories/assets/portfolioHeroBg.svg";
 import HeroBgMobile from "../../stories/assets/portfolioHeroBgmobile.svg";
-
+import { ChainId } from "@popcorn/utils";
+import { PopBalanceOf } from "@popcorn/components/lib/Contract";
+import { useSupportedContracts } from "@popcorn/components/hooks";
 export interface PortfolioHeroProps {
   NetworkSwitcher: JSX.Element;
   TabButtons: JSX.Element;
+  selectedNetworks: ChainId[];
 }
-const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButtons }) => {
+const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButtons, selectedNetworks }) => {
+  const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
   const options = [
     { id: "1", value: "50%" },
     { id: "2", value: "100%" },
   ];
   const [selectedOption, setSelectedOption] = useState({ id: "1", value: "50" });
+  const selectedContracts = useSupportedContracts(selectedNetworks);
+
   return (
     <div className="bg-warmGray md:bg-opacity-[15%] flex flex-col md:flex-row justify-between px-8 pt-10 pb-16 md:pb-[14px] relative">
       <div className="relative z-20">
@@ -51,7 +57,9 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButto
           </div>
           <div className="col-span-5 md:col-span-3">
             <p className="leading-6 text-base font-light md:font-normal">POP In Wallet</p>
-            <p className="text-3xl font-light md:font-medium">$81K</p>
+            <div className="text-3xl font-light md:font-medium">
+              <PopBalanceOf selectedContracts={selectedContracts} account={account} />
+            </div>
           </div>
         </div>
         <div className="md:hidden">{NetworkSwitcher}</div>

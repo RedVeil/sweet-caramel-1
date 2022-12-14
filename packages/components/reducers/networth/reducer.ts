@@ -4,23 +4,42 @@ import { NetworthActions, NetworthActionType } from "./actions";
 type Status = "loading" | "success" | "error" | "idle";
 
 export interface NetworthState {
-  [key: string]: { value: BigNumber; status: Status };
+  total: {
+    [key: string]: { value: BigNumber; status: Status };
+  };
+  popInWallet: { value: BigNumber; status: Status }[];
 }
 
-export const initialState: NetworthState = {};
+export const initialState: NetworthState = {
+  total: {},
+  popInWallet: [],
+};
 
-export const networthReducer = (state = initialState, action: NetworthActions = { type: null }) => {
+export const networthReducer = (state = initialState, action: NetworthActions = { type: null, payload: null }) => {
   switch (action.type) {
     case NetworthActionType.UPDATE_NETWORTH: {
       return {
         ...state,
-        //@ts-ignore TODO: fix this
-        [action.payload.key]: {
-          //@ts-ignore TODO: fix this
-          value: action.payload.value,
-          //@ts-ignore TODO: fix this
-          status: action.payload.status,
+        total: {
+          ...state.total,
+          [action.payload.key]: {
+            value: action.payload.value,
+            status: action.payload.status,
+          },
         },
+      };
+    }
+    case NetworthActionType.UPDATE_POP_BALANCE: {
+      return {
+        ...state,
+        popInWallet: [...state.popInWallet, action.payload],
+      };
+    }
+
+    case NetworthActionType.CLEAR_POP_BALANCE: {
+      return {
+        ...state,
+        popInWallet: [],
       };
     }
     default:
