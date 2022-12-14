@@ -33,12 +33,6 @@ contract AbstractAdapterTest is PropertyTest {
   IAdapter adapter;
   IStrategy strategy;
 
-  // NOTE: You MUST override this. Its should use exactly setup to override the previous setup
-  function overrideSetup(bytes memory testConfig) public virtual {
-    // setUpBasetest();
-    // protocol specific setup();
-  }
-
   function setUpBaseTest(
     IERC20 asset_,
     IAdapter adapter_,
@@ -70,6 +64,12 @@ contract AbstractAdapterTest is PropertyTest {
     //////////////////////////////////////////////////////////////*/
 
   // NOTE: You MUST override these
+
+  // Its should use exactly setup to override the previous setup
+  function overrideSetup(bytes memory testConfig) public virtual {
+    // setUpBasetest();
+    // protocol specific setup();
+  }
 
   // Construct a new Adapter and set it to `adapter`
   function createAdapter() public virtual {}
