@@ -5,7 +5,7 @@ import { useEffect, useReducer, useState } from "react";
 import { FormattedBigNumber } from "../FormattedBigNumber";
 import { Pop } from "../types";
 import useLog from "../utils/hooks/useLog";
-import { updateNetworth } from "../../reducers/networth/actions";
+import { updateNetworth } from "@popcorn/components/reducers/networth";
 import { usePrice } from "../Price";
 
 export const BalanceOf = ({ account, address, chainId }: Pop.StdProps) => {

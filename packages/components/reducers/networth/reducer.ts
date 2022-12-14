@@ -15,7 +15,7 @@ export const initialState: NetworthState = {
   popInWallet: [],
 };
 
-export const networthReducer = (state = initialState, action: NetworthActions = { type: null }) => {
+export const networthReducer = (state = initialState, action: NetworthActions = { type: null, payload: null }) => {
   switch (action.type) {
     case NetworthActionType.UPDATE_NETWORTH: {
       return {
@@ -33,6 +33,13 @@ export const networthReducer = (state = initialState, action: NetworthActions = 
       return {
         ...state,
         popInWallet: [...state.popInWallet, action.payload],
+      };
+    }
+
+    case NetworthActionType.CLEAR_POP_BALANCE: {
+      return {
+        ...state,
+        popInWallet: [],
       };
     }
     default:

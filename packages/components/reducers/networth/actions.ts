@@ -6,6 +6,7 @@ export type Status = "loading" | "success" | "error" | "idle";
 export enum NetworthActionType {
   UPDATE_NETWORTH = "UPDATE_NETWORTH",
   UPDATE_POP_BALANCE = "UPDATE_POP_BALANCE",
+  CLEAR_POP_BALANCE = "CLEAR_POP_BALANCE",
 }
 
 interface UpdateNetworth {
@@ -23,8 +24,11 @@ interface UpdatePopBalance {
     status: Status;
   };
 }
+interface ClearPopBalance {
+  type: NetworthActionType.CLEAR_POP_BALANCE;
+}
 
-export type NetworthActions = UpdateNetworth | UpdatePopBalance | { type: null };
+export type NetworthActions = UpdateNetworth | UpdatePopBalance | ClearPopBalance | { type: null; payload: null };
 
 export const updateNetworth =
   (payload: { key: string; value: BigNumber; status: Status }) => (dispatch: Dispatch<NetworthActions>) => {
@@ -34,10 +38,16 @@ export const updateNetworth =
     });
   };
 
-export const updatePopInWallet =
+export const updatePopBalance =
   (payload: { value: BigNumber; status: Status }) => (dispatch: Dispatch<NetworthActions>) => {
     dispatch({
       type: NetworthActionType.UPDATE_POP_BALANCE,
       payload: { ...payload },
     });
   };
+
+export const clearPopBalance = () => (dispatch: Dispatch<NetworthActions>) => {
+  dispatch({
+    type: NetworthActionType.CLEAR_POP_BALANCE,
+  });
+};
