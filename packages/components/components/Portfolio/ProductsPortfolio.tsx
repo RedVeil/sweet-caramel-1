@@ -6,7 +6,6 @@ import { Pop } from "../../lib/types";
 import { useNamedAccounts } from "../../lib/utils/hooks";
 import PortfolioItemsContainer from "./PortfolioItemsContainer";
 import { ChainId, networkLogos } from "@popcorn/utils";
-import { BalanceOf } from "@popcorn/components/lib/Contract";
 
 const ProductsPortfolio = ({ selectedNetworks }) => {
   console.log(selectedNetworks);
@@ -49,12 +48,6 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
   useEffect(() => {
     const filteredContracts = allContracts.filter((contract) => findNetwork(Number(contract.chainId)));
     setSelectedContracts(filteredContracts);
-    // if (selectedNetworks.includes(0)) {
-    //   setSelectedContracts(allContracts)
-    // } else {
-    //   const filteredContracts = allContracts.filter((contract) => findNetwork(Number(contract.chainId)))
-    //   setSelectedContracts(filteredContracts)
-    // }
   }, [selectedNetworks]);
 
   const props = {

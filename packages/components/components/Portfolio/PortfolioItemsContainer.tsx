@@ -6,7 +6,10 @@ import PortfolioItem from "./PortfolioItem";
 import { networkLogos } from "@popcorn/utils";
 import { Escrow, Erc20, Price, Contract, Staking } from "../../lib/";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
-import { BalanceOf } from "@popcorn/components/lib/Contract";
+import { TotalBalance, TokenAmount } from "@popcorn/components/lib/Contract/BalanceOf";
+import { BigNumber } from "ethers";
+import { useState } from "react";
+import { FormattedBigNumber } from "@popcorn/components/lib/FormattedBigNumber";
 
 interface ContractProps extends Pop.NamedAccountsMetadata {
   alias?: string;
@@ -41,8 +44,11 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
     {
       value: (
         <>
-          <BalanceOf key={`Contract.BalanceOf`} address={address} chainId={chainId} account={account} />
-          <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+          <TotalBalance address={address} chainId={chainId} account={account} />
+          <p className="text-tokenTextGray text-[10px] md:text-base">
+            {" "}
+            <TokenAmount address={address} chainId={chainId} account={account} symbol={symbol} />
+          </p>
         </>
       ),
       hideMobile: false,
