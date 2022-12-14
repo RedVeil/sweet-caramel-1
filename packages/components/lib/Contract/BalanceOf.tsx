@@ -28,66 +28,60 @@ const BalanceOf = ({ account, address, chainId }: BalanceOfProps) => {
     }, [status]);
     return <></>;
   };
-
-  const DefaultElements = () => {
-    return (
-      <>
-        <div className="hidden">
-          <Erc20.BalanceOf
-            key={`Erc20.BalanceOf`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, status }) => {
-              addNetworth({ key: address || "", value: balance?.value, status });
-              return <></>;
-            }}
-          />
-          <Escrow.BalanceOf
-            key={`Escrow.BalanceOf`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, status }) => {
-              addNetworth({ key: address || "", value: balance?.value, status });
-              return <></>;
-            }}
-          />
-          <Escrow.ClaimableBalanceOf
-            key={`Escrow.ClaimableBalanceOf`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, status }) => {
-              addNetworth({ key: address || "", value: balance?.value, status });
-              return <></>;
-            }}
-          />
-          <Escrow.VestingBalanceOf
-            key={`Escrow.VestingBalanceOf`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, status }) => {
-              addNetworth({ key: address || "", value: balance?.value, status });
-              return <></>;
-            }}
-          />
-          <Staking.ClaimableBalanceOf
-            key={`Staking.ClaimableBalanceOf`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, status }) => {
-              addNetworth({ key: address || "", value: balance, status });
-              return <></>;
-            }}
-          />
-        </div>
-      </>
-    );
-  };
-  return <DefaultElements />;
+  return (
+    <div className="hidden">
+      <Erc20.BalanceOf
+        key={`Erc20.BalanceOf`}
+        account={account}
+        address={address}
+        chainId={chainId}
+        render={({ balance, status }) => {
+          addNetworth({ key: address || "", value: balance?.value, status });
+          return <></>;
+        }}
+      />
+      <Escrow.BalanceOf
+        key={`Escrow.BalanceOf`}
+        account={account}
+        address={address}
+        chainId={chainId}
+        render={({ balance, status }) => {
+          addNetworth({ key: address || "", value: balance?.value, status });
+          return <></>;
+        }}
+      />
+      <Escrow.ClaimableBalanceOf
+        key={`Escrow.ClaimableBalanceOf`}
+        account={account}
+        address={address}
+        chainId={chainId}
+        render={({ balance, status }) => {
+          addNetworth({ key: address || "", value: balance?.value, status });
+          return <></>;
+        }}
+      />
+      <Escrow.VestingBalanceOf
+        key={`Escrow.VestingBalanceOf`}
+        account={account}
+        address={address}
+        chainId={chainId}
+        render={({ balance, status }) => {
+          addNetworth({ key: address || "", value: balance?.value, status });
+          return <></>;
+        }}
+      />
+      <Staking.ClaimableBalanceOf
+        key={`Staking.ClaimableBalanceOf`}
+        account={account}
+        address={address}
+        chainId={chainId}
+        render={({ balance, status }) => {
+          addNetworth({ key: address || "", value: balance, status });
+          return <></>;
+        }}
+      />
+    </div>
+  );
 };
 
 export const TotalBalance = ({ account, address, chainId }: BalanceOfProps) => {
