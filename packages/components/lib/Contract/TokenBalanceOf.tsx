@@ -6,7 +6,7 @@ import { usePrice } from "../Price";
 import { RenderBalance } from "./RenderBalance";
 
 interface TokenAmountProps extends Pop.StdProps {
-  symbol?: string;
+  symbol: string;
 }
 
 export const TokenBalanceOf = ({ account, address, chainId, symbol }: TokenAmountProps) => {

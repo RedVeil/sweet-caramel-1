@@ -23,7 +23,7 @@ export const Hoc =
     }, [value, decimals]);
 
     let _prefix = prefix ? prefix : "";
-    let _suffix = suffix ? ` ${suffix}` : "";
+    let _suffix = suffix ? suffix : "";
     return <Component {...props} formatted={_prefix + formatted + _suffix} />;
   };
 export const FormattedBigNumber = Hoc(withLoading(({ formatted }) => <>{formatted}</>));
