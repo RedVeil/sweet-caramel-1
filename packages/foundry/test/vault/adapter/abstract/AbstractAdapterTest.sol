@@ -5,9 +5,10 @@ import { Test } from "forge-std/Test.sol";
 
 import { PropertyTest } from "./PropertyTest.prop.sol";
 import { IAdapter } from "../../../../src/interfaces/vault/IAdapter.sol";
+import { IStrategy } from "../../../../src/interfaces/vault/IStrategy.sol";
 import { IERC20Upgradeable as IERC20, IERC20MetadataUpgradeable as IERC20Metadata } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
-
 import { ITestConfigStorage } from "./ITestConfigStorage.sol";
+import { MockStrategy } from "../../../utils/mocks/MockStrategy.sol";
 
 contract AbstractAdapterTest is PropertyTest {
   ITestConfigStorage testConfigStorage;
@@ -29,6 +30,7 @@ contract AbstractAdapterTest is PropertyTest {
 
   IERC20 asset;
   IAdapter adapter;
+  IStrategy strategy;
 
   // NOTE: You MUST override this. Its should use exactly setup to override the previous setup
   function setUpViaConfig(bytes memory testConfig) public virtual {
@@ -36,7 +38,12 @@ contract AbstractAdapterTest is PropertyTest {
     // protocol specific setup();
   }
 
-  function setUpBaseTest(IERC20 asset_, IAdapter adapter_, uint256 delta_, string memory basePreFix_) public {
+  function setUpBaseTest(
+    IERC20 asset_,
+    IAdapter adapter_,
+    uint256 delta_,
+    string memory basePreFix_
+  ) public {
     // Setup PropertyTest
     _asset_ = address(asset_);
     _vault_ = address(adapter_);
@@ -45,7 +52,7 @@ contract AbstractAdapterTest is PropertyTest {
     asset = asset_;
     adapter = adapter_;
 
-    defaultAmount = 10 ** IERC20Metadata(address(adapter)).decimals();
+    defaultAmount = 10**IERC20Metadata(address(adapter)).decimals();
 
     raise = defaultAmount * 10_000;
     maxAssets = defaultAmount * 1000;
@@ -53,6 +60,8 @@ contract AbstractAdapterTest is PropertyTest {
 
     basePreFix = basePreFix_;
     testPreFix = string.concat(basePreFix_, IERC20Metadata(address(asset)).symbol());
+
+    strategy = IStrategy(address(new MockStrategy()));
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -244,9 +253,9 @@ contract AbstractAdapterTest is PropertyTest {
 
       amount = bound(amount, 10, maxAssets);
 
-      (uint256 paidShares1, ) = prop_withdraw(bob, bob, bob, amount, testPreFix);
+      (uint256 paidShares1, ) = prop_withdraw(bob, bob, amount, testPreFix);
       increasePricePerShare(raise);
-      (uint256 paidShares2, ) = prop_withdraw(alice, alice, bob, amount, testPreFix);
+      (uint256 paidShares2, ) = prop_withdraw(alice, bob, amount, testPreFix);
 
       // paidShares1 should be greater than paidShares2
       assertGe(paidShares1, paidShares2, string.concat("pps", testPreFix));
@@ -260,9 +269,9 @@ contract AbstractAdapterTest is PropertyTest {
 
       amount = bound(amount, 10, maxShares);
 
-      (, uint256 receivedAssets1) = prop_redeem(bob, bob, bob, amount, testPreFix);
+      (, uint256 receivedAssets1) = prop_redeem(bob, bob, amount, testPreFix);
       increasePricePerShare(raise);
-      (, uint256 receivedAssets2) = prop_redeem(alice, alice, bob, amount, testPreFix);
+      (, uint256 receivedAssets2) = prop_redeem(alice, bob, amount, testPreFix);
 
       // receivedAssets2 should be greater than receivedAssets1
       assertGe(receivedAssets2, receivedAssets1, string.concat("pps", testPreFix));
@@ -351,9 +360,31 @@ contract AbstractAdapterTest is PropertyTest {
                               HARVEST
     //////////////////////////////////////////////////////////////*/
 
+  event StrategyExecuted();
+  event Harvested();
+
   function test__harvest() public virtual {
-    // TODO calls strategy if it exists
-    // TODO takes managementFees
+    deal(address(asset), bob, defaultAmount);
+
+    vm.startPrank(bob);
+    asset.approve(address(adapter), defaultAmount);
+    adapter.deposit(defaultAmount, bob);
+
+    // Skip a year
+    vm.warp(block.timestamp + 365.25 days);
+
+    uint256 expectedFee = adapter.convertToShares((defaultAmount * 5e16) / 1e18);
+    uint256 callTime = block.timestamp;
+
+    vm.expectEmit(false, false, false, true, address(adapter));
+    emit Harvested();
+    vm.expectEmit(false, false, false, true, address(adapter));
+    emit StrategyExecuted();
+    adapter.harvest();
+
+    assertEq(adapter.feesUpdatedAt(), callTime);
+    assertEq(adapter.assetsCheckpoint(), defaultAmount);
+    assertEq(adapter.totalSupply(), defaultAmount + expectedFee);
   }
 
   /*//////////////////////////////////////////////////////////////

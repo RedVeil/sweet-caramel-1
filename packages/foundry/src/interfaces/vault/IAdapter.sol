@@ -21,5 +21,15 @@ interface IAdapter is IERC4626, IOwned, IPermit, IPausable {
 
   function managementFee() external view returns (uint256);
 
-  function initialize(bytes memory adapterBaseData, address externalRegistry, bytes memory adapterData) external;
+  function harvest() external;
+
+  function assetsCheckpoint() external view returns (uint256);
+
+  function feesUpdatedAt() external view returns (uint256);
+
+  function initialize(
+    bytes memory adapterBaseData,
+    address externalRegistry,
+    bytes memory adapterData
+  ) external;
 }

@@ -279,7 +279,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
                       FEE LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  uint256 public managementFee = 50;
+  uint256 public managementFee = 5e16;
   uint256 constant MAX_FEE = 1e18;
   uint256 constant SECONDS_PER_YEAR = 365.25 days;
 
