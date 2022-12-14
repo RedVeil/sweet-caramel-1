@@ -75,7 +75,7 @@ export const PortfolioPage: NextPage = () => {
             chainId={token.chainId}
           />
 
-          {/* <Erc20.BalanceOf
+          <Erc20.BalanceOf
             key={`Erc20.BalanceOfValue`}
             account={account}
             address={token.address}
@@ -83,9 +83,9 @@ export const PortfolioPage: NextPage = () => {
             render={({ balance, price, status }) => (
               <Contract.Value balance={balance?.value} price={price?.value} status={status} callback={addToNetworth} />
             )}
-          /> */}
+          />
 
-          {/* <Escrow.BalanceOf
+          <Escrow.BalanceOf
             key={`Escrow.BalanceOfValue`}
             account={account}
             address={token.address}
@@ -95,9 +95,9 @@ export const PortfolioPage: NextPage = () => {
                 <Contract.Value balance={balance?.value} price={price?.value} status={status} />
               </>
             )}
-          /> */}
+          />
 
-          {/* <Escrow.ClaimableBalanceOf
+          <Escrow.ClaimableBalanceOf
             key={`Escrow.ClaimableBalanceOfValue`}
             account={account}
             address={token.address}
@@ -105,9 +105,9 @@ export const PortfolioPage: NextPage = () => {
             render={({ balance, price, status }) => (
               <Contract.Value balance={balance?.value} price={price?.value} status={status} />
             )}
-          /> */}
+          />
 
-          {/* <Escrow.VestingBalanceOf
+          <Escrow.VestingBalanceOf
             key={`Escrow.VestingBalanceOfValue`}
             account={account}
             address={token.address}
@@ -115,19 +115,19 @@ export const PortfolioPage: NextPage = () => {
             render={({ balance, price, status }) => (
               <Contract.Value balance={balance?.value} price={price?.value} status={status} />
             )}
-          /> */}
+          />
 
           <Price.PriceOf key={`Price.PriceOf`} address={token.address} chainId={token.chainId} />
 
           <Staking.Apy key={`Staking.vAPR`} address={token.address} chainId={token.chainId} />
 
-          {/* <Staking.ClaimableBalanceOf
+          <Staking.ClaimableBalanceOf
             key={`Staking.ClaimableBalanceValue`}
             account={account}
             address={token.address}
             chainId={token.chainId}
             render={(props) => <Contract.Value balance={props.balance} price={props.price} decimals={props.decimals} />}
-          /> */}
+          />
 
           <Contract.Tvl key={`Contract.TVL`} address={token.address} chainId={token.chainId} />
         </Contract.Metadata>
