@@ -58,7 +58,7 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
   }, [selectedNetworks]);
 
   const props = {
-    title: "Products",
+    title: "Assets",
 
     TotalValues: [
       {
@@ -113,9 +113,9 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
       <div className="relative -left-2">
         <img src={networkLogos[56]} alt="network logo" className="w-6 h-6" />
       </div>
-      {/* <div className="relative -left-3">
-      <img src={networkLogos[10]} alt="network logo" className="w-6 h-6" />
-    </div> */}
+      <div className="relative -left-3">
+        <img src={networkLogos[42161]} alt="network logo" className="w-6 h-6" />
+      </div>
     </div>
   );
   return (
