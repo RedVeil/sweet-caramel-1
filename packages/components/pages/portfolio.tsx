@@ -3,7 +3,6 @@ import { NextPage } from "next";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "@popcorn/components/lib";
-import { TotalBalance } from "@popcorn/components/lib/Contract/BalanceOf";
 import { Pop } from "@popcorn/components/lib/types";
 import { Networth } from "@popcorn/components/lib/Portfolio/Networth";
 import { BigNumber } from "ethers";
@@ -69,7 +68,12 @@ export const PortfolioPage: NextPage = () => {
           chainId={Number(token.chainId) as unknown as ChainId}
           address={token.address}
         >
-          <TotalBalance key={`Contract.BalanceOf`} account={account} address={token.address} chainId={token.chainId} />
+          <Contract.BalanceOf
+            key={`Contract.BalanceOf`}
+            account={account}
+            address={token.address}
+            chainId={token.chainId}
+          />
 
           <Erc20.BalanceOf
             key={`Erc20.BalanceOfValue`}
