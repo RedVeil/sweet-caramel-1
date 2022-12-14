@@ -13,14 +13,15 @@ import { MockStrategy } from "../../../utils/mocks/MockStrategy.sol";
 contract AbstractAdapterTest is PropertyTest {
   ITestConfigStorage testConfigStorage;
 
-  string basePreFix; // Depends on external Protocol (e.g. Beefy,Yearn...)
-  string testPreFix; // basePreFix + Asset
+  string baseTestId; // Depends on external Protocol (e.g. Beefy,Yearn...)
+  string testId; // baseTestId + Asset
 
   bytes32 constant PERMIT_TYPEHASH =
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
   address bob = address(1);
   address alice = address(2);
+  address feeRecipient = address(0x4444);
 
   uint256 defaultAmount;
   uint256 raise;
@@ -33,7 +34,7 @@ contract AbstractAdapterTest is PropertyTest {
   IStrategy strategy;
 
   // NOTE: You MUST override this. Its should use exactly setup to override the previous setup
-  function setUpViaConfig(bytes memory testConfig) public virtual {
+  function overrideSetup(bytes memory testConfig) public virtual {
     // setUpBasetest();
     // protocol specific setup();
   }
@@ -42,7 +43,7 @@ contract AbstractAdapterTest is PropertyTest {
     IERC20 asset_,
     IAdapter adapter_,
     uint256 delta_,
-    string memory basePreFix_
+    string memory baseTestId_
   ) public {
     // Setup PropertyTest
     _asset_ = address(asset_);
@@ -58,8 +59,8 @@ contract AbstractAdapterTest is PropertyTest {
     maxAssets = defaultAmount * 1000;
     maxShares = (maxAssets * 4) / 3;
 
-    basePreFix = basePreFix_;
-    testPreFix = string.concat(basePreFix_, IERC20Metadata(address(asset)).symbol());
+    baseTestId = baseTestId_;
+    testId = string.concat(baseTestId_, IERC20Metadata(address(asset)).symbol());
 
     strategy = IStrategy(address(new MockStrategy()));
   }
@@ -69,6 +70,9 @@ contract AbstractAdapterTest is PropertyTest {
     //////////////////////////////////////////////////////////////*/
 
   // NOTE: You MUST override these
+
+  // Construct a new Adapter and set it to `adapter`
+  function createAdapter() public virtual {}
 
   // Increase the pricePerShare of the external protocol
   // sometimes its enough to simply add assets, othertimes one also needs to call some functions before the external protocol reflects the change
@@ -83,26 +87,43 @@ contract AbstractAdapterTest is PropertyTest {
   // Verify that totalAssets returns the expected amount
   function verify_totalAssets() public virtual {}
 
-  // Verify that convertToShares returns the expected amount
-  function verify_convertToShares() public virtual {}
-
-  // Verify that convertToAssets returns the expected amount
-  function verify_convertToAssets() public virtual {}
+  function verify_adapterInit() public virtual {}
 
   /*//////////////////////////////////////////////////////////////
                           INITIALIZATION
     //////////////////////////////////////////////////////////////*/
 
-  // NOTE: You MUST override this
+  event SelectorsVerified();
+  event AdapterVerified();
+  event StrategySetup();
+  event Initialized(uint8 version);
 
   function test__initialization() public virtual {
-    // uint8 len = testConfigStorage.getTestConfigLength();
-    // for (uint8 i; i < len; i++) {
-    //   if (i > 0) setUpViaConfig(testConfigStorage.getTestConfig(i));
-    //   expect correct asset, owner, strategy, harvestCooldown, stratConfig and feesUpdatedAt
-    //   expect calling strategy init if it exists
-    //   expect correct name,symbol and decimals
-    // }
+    createAdapter();
+    uint256 callTime = block.timestamp;
+
+    vm.expectEmit(false, false, false, true, address(adapter));
+    emit SelectorsVerified();
+    vm.expectEmit(false, false, false, true, address(adapter));
+    emit AdapterVerified();
+    vm.expectEmit(false, false, false, true, address(adapter));
+    emit StrategySetup();
+    vm.expectEmit(false, false, false, true, address(adapter));
+    emit Initialized(uint8(1));
+    adapter.initialize(
+      abi.encode(asset, address(this), strategy, 0, new bytes4[](8), ""),
+      address(0),
+      testConfigStorage.getTestConfig(0)
+    );
+
+    assertEq(adapter.owner(), address(this), "owner");
+    assertEq(adapter.strategy(), address(strategy), "strategy");
+    assertEq(adapter.harvestCooldown(), 0, "harvestCooldown");
+    assertEq(adapter.strategyConfig(), "", "strategyConfig");
+    assertEq(adapter.feesUpdatedAt(), callTime, "feesUpdatedAt");
+    assertEq(IERC20Metadata(address(adapter)).decimals(), IERC20Metadata(address(asset)).decimals(), "decimals");
+
+    verify_adapterInit();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -127,12 +148,10 @@ contract AbstractAdapterTest is PropertyTest {
 
   function test__convertToShares() public virtual {
     prop_convertToShares(bob, alice, defaultAmount);
-    verify_convertToShares();
   }
 
   function test__convertToAssets() public virtual {
     prop_convertToAssets(bob, alice, defaultAmount);
-    verify_convertToAssets();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -173,7 +192,7 @@ contract AbstractAdapterTest is PropertyTest {
     vm.prank(bob);
     asset.approve(address(adapter), maxAssets);
 
-    prop_previewDeposit(bob, bob, amount, testPreFix);
+    prop_previewDeposit(bob, bob, amount, testId);
   }
 
   function test__previewMint(uint256 amount) public virtual {
@@ -183,7 +202,7 @@ contract AbstractAdapterTest is PropertyTest {
     vm.prank(bob);
     asset.approve(address(adapter), maxAssets);
 
-    prop_previewMint(bob, bob, amount, testPreFix);
+    prop_previewMint(bob, bob, amount, testId);
   }
 
   function test__previewWithdraw(uint256 amount) public virtual {
@@ -195,7 +214,7 @@ contract AbstractAdapterTest is PropertyTest {
     adapter.deposit(maxAssets, bob);
     vm.stopPrank();
 
-    prop_previewWithdraw(bob, bob, bob, amount, testPreFix);
+    prop_previewWithdraw(bob, bob, bob, amount, testId);
   }
 
   function test__previewRedeem(uint256 amount) public virtual {
@@ -207,7 +226,7 @@ contract AbstractAdapterTest is PropertyTest {
     adapter.deposit(maxAssets, bob);
     vm.stopPrank();
 
-    prop_previewRedeem(bob, bob, bob, amount, testPreFix);
+    prop_previewRedeem(bob, bob, bob, amount, testId);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -217,64 +236,64 @@ contract AbstractAdapterTest is PropertyTest {
   function test__deposit(uint256 amount) public virtual {
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
-      if (i > 0) setUpViaConfig(testConfigStorage.getTestConfig(i));
+      if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
       amount = bound(amount, 10, maxAssets);
 
-      (, uint256 receivedShares1) = prop_deposit(bob, bob, amount, testPreFix);
+      (, uint256 receivedShares1) = prop_deposit(bob, bob, amount, testId);
       increasePricePerShare(raise);
-      (, uint256 receivedShares2) = prop_deposit(bob, alice, amount, testPreFix);
+      (, uint256 receivedShares2) = prop_deposit(bob, alice, amount, testId);
 
       // received1 should be greater than received2
-      assertGe(receivedShares1, receivedShares2, string.concat("pps", testPreFix));
+      assertGe(receivedShares1, receivedShares2, string.concat("pps", testId));
     }
   }
 
   function test__mint(uint256 amount) public virtual {
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
-      if (i > 0) setUpViaConfig(testConfigStorage.getTestConfig(i));
+      if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
       amount = bound(amount, 10, maxShares);
 
-      (uint256 paidAssets1, ) = prop_mint(bob, bob, amount, testPreFix);
+      (uint256 paidAssets1, ) = prop_mint(bob, bob, amount, testId);
       increasePricePerShare(raise);
-      (uint256 paidAssets2, ) = prop_mint(bob, alice, amount, testPreFix);
+      (uint256 paidAssets2, ) = prop_mint(bob, alice, amount, testId);
 
       // paidAssets2 should be greater than paidAssets1
-      assertGe(paidAssets2, paidAssets1, string.concat("pps", testPreFix));
+      assertGe(paidAssets2, paidAssets1, string.concat("pps", testId));
     }
   }
 
   function test__withdraw(uint256 amount) public virtual {
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
-      if (i > 0) setUpViaConfig(testConfigStorage.getTestConfig(i));
+      if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
       amount = bound(amount, 10, maxAssets);
 
-      (uint256 paidShares1, ) = prop_withdraw(bob, bob, amount, testPreFix);
+      (uint256 paidShares1, ) = prop_withdraw(bob, bob, amount, testId);
       increasePricePerShare(raise);
-      (uint256 paidShares2, ) = prop_withdraw(alice, bob, amount, testPreFix);
+      (uint256 paidShares2, ) = prop_withdraw(alice, bob, amount, testId);
 
       // paidShares1 should be greater than paidShares2
-      assertGe(paidShares1, paidShares2, string.concat("pps", testPreFix));
+      assertGe(paidShares1, paidShares2, string.concat("pps", testId));
     }
   }
 
   function test__redeem(uint256 amount) public virtual {
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
-      if (i > 0) setUpViaConfig(testConfigStorage.getTestConfig(i));
+      if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
       amount = bound(amount, 10, maxShares);
 
-      (, uint256 receivedAssets1) = prop_redeem(bob, bob, amount, testPreFix);
+      (, uint256 receivedAssets1) = prop_redeem(bob, bob, amount, testId);
       increasePricePerShare(raise);
-      (, uint256 receivedAssets2) = prop_redeem(alice, bob, amount, testPreFix);
+      (, uint256 receivedAssets2) = prop_redeem(alice, bob, amount, testId);
 
       // receivedAssets2 should be greater than receivedAssets1
-      assertGe(receivedAssets2, receivedAssets1, string.concat("pps", testPreFix));
+      assertGe(receivedAssets2, receivedAssets1, string.concat("pps", testId));
     }
   }
 

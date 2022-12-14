@@ -3,86 +3,98 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyERC4626, SafeERC20, IERC20, Math, IBeefyVault, IBeefyBooster } from "../../../../src/vault/adapter/beefy/BeefyERC4626.sol";
+import { BeefyERC4626, SafeERC20, IERC20, IERC20Metadata, Math, IBeefyVault, IBeefyBooster } from "../../../../src/vault/adapter/beefy/BeefyERC4626.sol";
 import { BeefyTestConfigStorage, BeefyTestConfig } from "./BeefyTestConfigStorage.sol";
-import { AbstractAdapterTest, ITestConfigStorage } from "../abstract/AbstractAdapterTest.sol";
+import { AbstractAdapterTest, ITestConfigStorage, IAdapter } from "../abstract/AbstractAdapterTest.sol";
 
 contract BeefyAdapterTest is AbstractAdapterTest {
-  address lpChef = 0x1083926054069AaD75d7238E9B809b0eF9d94e5B;
+  using Math for uint256;
+
+  IBeefyBooster beefyBooster;
+  IBeefyVault beefyVault;
 
   // TODO update this fork -- maybe via config
   function setUp() public {
     uint256 forkId = vm.createSelectFork("https://polygon-mainnet.g.alchemy.com/v2/KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg");
     vm.selectFork(forkId);
 
-    // testConfigStorage = ITestConfigStorage(address(new BeefyTestConfigStorage()));
+    testConfigStorage = ITestConfigStorage(address(new BeefyTestConfigStorage()));
 
-    // rewardsToken.push(rewardToken);
-
-    // erc4626 = new BeefyERC4626();
-
-    // rewardsClaimer = new RewardsClaimer();
-
-    // bytes memory popERC4626InitData = abi.encode(
-    //   asset,
-    //   address(this),
-    //   IStrategy(address(rewardsClaimer)),
-    //   0,
-    //   new bytes4[](8),
-    //   abi.encode(feeRecipient)
-    // );
-
-    // vm.prank(factory);
-    // erc4626.initialize(popERC4626InitData, address(0), abi.encode(beefyVault, beefyBooster, 0));
-
-    // deal(address(asset), address(this), 1000 ether);
+    _setUpTest(testConfigStorage.getTestConfig(0));
   }
 
   // NOTE: You MUST override this. Its should use exactly setup to override the previous setup
-  function setUpViaConfig(bytes memory testConfig) public override {
-    // setUpBasetest();
-    // protocol specific setup();
+  function overrideSetup(bytes memory testConfig) public override {
+    _setUpTest(testConfig);
+  }
+
+  function _setUpTest(bytes memory testConfig) internal {
+    createAdapter();
+
+    (address _beefyVault, address _beefyBooster, ) = abi.decode(testConfig, (address, address, uint256));
+    beefyVault = IBeefyVault(_beefyVault);
+    beefyBooster = IBeefyBooster(_beefyBooster);
+
+    setUpBaseTest(IERC20(IBeefyVault(beefyVault).want()), adapter, 10, "Beefy ");
+
+    adapter.initialize(abi.encode(asset, address(this), strategy, 0, new bytes4[](8), ""), address(0), testConfig);
   }
 
   /*//////////////////////////////////////////////////////////////
                           HELPER
     //////////////////////////////////////////////////////////////*/
 
-  // NOTE: You MUST override these
+  function createAdapter() public override {
+    adapter = IAdapter(address(new BeefyERC4626()));
+  }
 
-  // Increase the pricePerShare of the external protocol
-  // sometimes its enough to simply add assets, othertimes one also needs to call some functions before the external protocol reflects the change
-  function increasePricePerShare(uint256 amount) public override {}
+  function increasePricePerShare(uint256 amount) public override {
+    deal(address(asset), address(beefyVault), amount);
+    beefyVault.earn();
+  }
 
-  // Check the balance of the external protocol held by the adapter
-  // Most of the time this should be a simple `balanceOf` call to the external protocol but some might have different implementations
   function iouBalance() public view override returns (uint256) {
-    // extProt.balanceOf(address(adapter))
+    return beefyVault.balanceOf(address(adapter));
   }
 
   // Verify that totalAssets returns the expected amount
-  function verify_totalAssets() public override {}
+  function verify_totalAssets() public override {
+    // Make sure totalAssets isnt 0
+    deal(address(asset), bob, defaultAmount);
+    vm.startPrank(bob);
+    asset.approve(address(adapter), defaultAmount);
+    adapter.deposit(defaultAmount, bob);
+    vm.stopPrank();
 
-  // Verify that convertToShares returns the expected amount
-  function verify_convertToShares() public override {}
-
-  // Verify that convertToAssets returns the expected amount
-  function verify_convertToAssets() public override {}
+    assertEq(
+      adapter.totalAssets(),
+      adapter.convertToAssets(adapter.totalSupply()),
+      string.concat("totalSupply converted != totalAssets", baseTestId)
+    );
+    assertEq(
+      adapter.totalAssets(),
+      iouBalance().mulDiv(beefyVault.balance(), beefyVault.totalSupply(), Math.Rounding.Up),
+      string.concat("totalAssets != beefy assets", baseTestId)
+    );
+  }
 
   /*//////////////////////////////////////////////////////////////
                           INITIALIZATION
     //////////////////////////////////////////////////////////////*/
 
-  function test__initialization() public override {
-    uint8 len = uint8(testConfigStorage.getTestConfigLength());
-    for (uint8 i; i < len; i++) {
-      bytes memory testConfig = testConfigStorage.getTestConfig(i);
-      if (i > 0) setUpViaConfig(testConfig);
-      (address beefyVault, ) = abi.decode(testConfig, (address, uint256));
+  function verify_adapterInit() public override {
+    assertEq(adapter.asset(), beefyVault.want(), "asset");
+    assertEq(
+      IERC20Metadata(address(adapter)).name(),
+      string.concat("Popcorn Beefy", IERC20Metadata(address(asset)).name(), " Adapter"),
+      "name"
+    );
+    assertEq(
+      IERC20Metadata(address(adapter)).symbol(),
+      string.concat("popB-", IERC20Metadata(address(asset)).symbol()),
+      "symbol"
+    );
 
-      // expect correct asset, owner, strategy, harvestCooldown, stratConfig and feesUpdatedAt
-      // expect calling strategy init if it exists
-      // expect correct name,symbol and decimals
-    }
+    assertEq(asset.allowance(address(adapter), address(beefyVault)), type(uint256).max, "allowance");
   }
 }

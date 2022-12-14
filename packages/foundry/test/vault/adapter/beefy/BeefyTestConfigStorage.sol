@@ -5,6 +5,7 @@ import { ITestConfigStorage } from "../abstract/ITestConfigStorage.sol";
 
 struct BeefyTestConfig {
   address beefyVault;
+  address beefyBooster;
   uint256 withdrawalFee;
 }
 
@@ -13,26 +14,11 @@ contract BeefyTestConfigStorage is ITestConfigStorage {
 
   constructor() {
     // BOMB-BTCB LP
-    testConfigs.push(BeefyTestConfig(0x94E85B8E050F3F281CB9597cc0144F1F7AF1fe9B, 10));
-
-    // CAKE-BNB LP
-    testConfigs.push(BeefyTestConfig(0xb26642B6690E4c4c9A6dAd6115ac149c700C7dfE, 10));
-
-    // BUSD-BNB LP
-    testConfigs.push(BeefyTestConfig(0xAd61143796D90FD5A61d89D63a546C7dB0a70475, 10));
-
-    // BTCB-ETH LP
-    testConfigs.push(BeefyTestConfig(0xEf43E54Bb4221106953951238FC301a1f8939490, 10));
-
-    // ETH-BNB LP
-    testConfigs.push(BeefyTestConfig(0x0eb78598851D08218d54fCe965ee2bf29C288fac, 10));
-
-    // USDC-BUSD LP
-    testConfigs.push(BeefyTestConfig(0x9260c62866f36638964551A8f480C3aAAa4693fd, 10));
+    testConfigs.push(BeefyTestConfig(0x94E85B8E050F3F281CB9597cc0144F1F7AF1fe9B, address(0), 10));
   }
 
   function getTestConfig(uint256 i) public view returns (bytes memory) {
-    return abi.encode(testConfigs[i].beefyVault, testConfigs[i].withdrawalFee);
+    return abi.encode(testConfigs[i].beefyVault, testConfigs[i].beefyBooster, testConfigs[i].withdrawalFee);
   }
 
   function getTestConfigLength() public view returns (uint256) {

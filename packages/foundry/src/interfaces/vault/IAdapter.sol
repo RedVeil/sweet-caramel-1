@@ -9,6 +9,8 @@ import { IPermit } from "../IPermit.sol";
 import { IPausable } from "../IPausable.sol";
 
 interface IAdapter is IERC4626, IOwned, IPermit, IPausable {
+  function strategy() external view returns (address);
+
   function strategyConfig() external view returns (bytes memory);
 
   function strategyDeposit(uint256 assets, uint256 shares) external;
@@ -26,6 +28,8 @@ interface IAdapter is IERC4626, IOwned, IPermit, IPausable {
   function assetsCheckpoint() external view returns (uint256);
 
   function feesUpdatedAt() external view returns (uint256);
+
+  function harvestCooldown() external view returns (uint256);
 
   function initialize(
     bytes memory adapterBaseData,
