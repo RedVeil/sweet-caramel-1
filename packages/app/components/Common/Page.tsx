@@ -21,7 +21,7 @@ export default function Page({ children }: PageProps) {
         <Navbar />
         <Toaster position="top-right" />
         {/* className="pt-5 md:pt-10 px-6 md:px-8" */}
-        <div>{children}</div>
+        <div className="pt-5 md:pt-10 px-6 md:px-8">{children}</div>
       </div>
       <Footer />
     </div>
