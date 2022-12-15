@@ -3,7 +3,6 @@ import { useNetworth } from "../../context/Networth";
 import { FormattedBigNumber } from "../FormattedBigNumber";
 import { Pop } from "../types";
 import { usePrice } from "../Price";
-import { RenderBalance } from "./RenderBalance";
 
 interface TokenAmountProps extends Pop.StdProps {
   symbol: string;
@@ -19,7 +18,6 @@ export const TokenBalanceOf = ({ account, address, chainId, symbol }: TokenAmoun
   }
   return (
     <>
-      <RenderBalance account={account} address={address} chainId={chainId} />
       <FormattedBigNumber value={tokenAmount} decimals={18} suffix={symbol} />
     </>
   );
