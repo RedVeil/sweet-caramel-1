@@ -5,4 +5,5 @@ export * from "./Value";
 export * from "./BalanceOf";
 export * from "./TokenBalanceOf";
 export * from "./PercentBalanceOf";
-export * from "./PopBalanceOf";
+export * from "./TotalPopBalanceOf";
+export * from "./TotalVestingBalanceOf";
