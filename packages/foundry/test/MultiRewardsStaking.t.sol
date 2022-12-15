@@ -254,10 +254,6 @@ contract MultiRewardsStakingTest is Test {
     assertEq(staking.nonces(owner), 1);
   }
 
-  function test__DOMAIN_SEPARATOR() public {
-    assertEq(staking.DOMAIN_SEPARATOR(), bytes32(0xc07c268262045a2a46ae4ec74d4793e1b714a2a841726c24ed704d2a2547cb6b));
-  }
-
   /*//////////////////////////////////////////////////////////////
                           ACCRUAL LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -270,7 +266,7 @@ contract MultiRewardsStakingTest is Test {
     stakingToken.approve(address(staking), 5 ether);
     staking.deposit(1 ether);
 
-    // Accrue 10% of rewards
+    // 10% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     uint256 callTimestamp = block.timestamp;
@@ -284,7 +280,7 @@ contract MultiRewardsStakingTest is Test {
     // Should be 1 ether of rewards
     assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 1 ether);
 
-    // Accrue 20% of rewards
+    // 20% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     callTimestamp = block.timestamp;
@@ -297,7 +293,7 @@ contract MultiRewardsStakingTest is Test {
     assertEq(staking.userIndex(alice, iRewardsToken1), index);
     assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 2 ether);
 
-    // Accrue 90% of rewards
+    // 90% of rewards paid out
     vm.warp(block.timestamp + 70);
 
     callTimestamp = block.timestamp;
@@ -310,7 +306,7 @@ contract MultiRewardsStakingTest is Test {
     assertEq(staking.userIndex(alice, iRewardsToken1), index);
     assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 9 ether);
 
-    // Accrue 100% of rewards
+    // 100% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     callTimestamp = block.timestamp;
@@ -405,7 +401,7 @@ contract MultiRewardsStakingTest is Test {
     stakingToken.approve(address(staking), 5 ether);
     staking.deposit(1 ether);
 
-    // Accrue 10% of rewards
+    // 10% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     uint256 callTimestamp = block.timestamp;
@@ -440,7 +436,7 @@ contract MultiRewardsStakingTest is Test {
     staking.deposit(1 ether);
     vm.stopPrank();
 
-    // Accrue 10% of rewards
+    // 10% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     uint256 callTimestamp = block.timestamp;
@@ -457,7 +453,7 @@ contract MultiRewardsStakingTest is Test {
     assertEq(staking.userIndex(bob, iRewardsToken1), index);
     assertEq(staking.rewardsAccrued(bob, iRewardsToken1), 0.5 ether);
 
-    // Accrue 20% of rewards
+    // 20% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     callTimestamp = block.timestamp;
@@ -476,7 +472,7 @@ contract MultiRewardsStakingTest is Test {
     // Bob accrued the entire rewards
     assertEq(staking.rewardsAccrued(bob, iRewardsToken1), 1.5 ether);
 
-    // Accrue 30% of rewards
+    // 30% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     callTimestamp = block.timestamp;
@@ -517,7 +513,7 @@ contract MultiRewardsStakingTest is Test {
     staking.deposit(1 ether);
     vm.stopPrank();
 
-    // Accrue 100% of rewards
+    // 100% of rewards paid out
     vm.warp(block.timestamp + 100);
 
     uint256 callTimestamp = block.timestamp;
@@ -531,7 +527,7 @@ contract MultiRewardsStakingTest is Test {
     assertEq(staking.userIndex(alice, iRewardsToken1), index);
     assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 10 ether);
 
-    // Accrue no more rewards after end time
+    // no more rewards after end time
     vm.warp(block.timestamp + 10);
 
     callTimestamp = block.timestamp;
@@ -554,7 +550,7 @@ contract MultiRewardsStakingTest is Test {
     vm.startPrank(alice);
     stakingToken.approve(address(staking), 5 ether);
 
-    // Accrue 10% of rewards
+    // 10% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     uint256 callTimestamp = block.timestamp;
@@ -568,7 +564,7 @@ contract MultiRewardsStakingTest is Test {
     assertEq(staking.userIndex(alice, iRewardsToken1), index);
     assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 0);
 
-    // Accrue 10% of rewards
+    // 10% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     callTimestamp = block.timestamp;
@@ -584,7 +580,7 @@ contract MultiRewardsStakingTest is Test {
     assertEq(staking.userIndex(bob, iRewardsToken1), index);
     assertEq(staking.rewardsAccrued(bob, iRewardsToken1), 0);
 
-    // Accrue 80% of rewards
+    // 80% of rewards paid out
     vm.warp(block.timestamp + 70);
 
     staking.withdraw(0.5 ether);
@@ -602,7 +598,7 @@ contract MultiRewardsStakingTest is Test {
 
     assertEq(staking.userIndex(bob, iRewardsToken1), index);
     assertEq(staking.rewardsAccrued(bob, iRewardsToken1), 4666666666666666666);
-    // Both accruals add up to 80% of rewards
+    // Both accruals add up to 80% of rewards paid out
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -614,6 +610,10 @@ contract MultiRewardsStakingTest is Test {
     rewardsToken.approve(address(staking), 10 ether);
 
     staking.addRewardsToken(IERC20(address(rewardsToken)), 0.1 ether, 10 ether, false, 0, 0, 0);
+  }
+
+  function _addRewardsTokenWithZeroRewardsSpeed(MockERC20 rewardsToken) internal {
+    staking.addRewardsToken(IERC20(address(rewardsToken)), 0, 0, false, 0, 0, 0);
   }
 
   function _addRewardsTokenWithEscrow(MockERC20 rewardsToken) internal {
@@ -665,6 +665,27 @@ contract MultiRewardsStakingTest is Test {
     assertEq(rewardsToken1.balanceOf(address(staking)), 10 ether);
   }
 
+  function test__addRewardsToken_0_rewardsSpeed() public {
+    uint256 callTimestamp = block.timestamp;
+    vm.expectEmit(false, false, false, true, address(staking));
+    emit RewardsInfoUpdate(iRewardsToken1, 0, callTimestamp.safeCastTo32());
+
+    staking.addRewardsToken(iRewardsToken1, 0, 0, true, 100, 10000000, 20);
+
+    (
+      uint64 ONE,
+      uint160 rewardsPerSecond,
+      uint32 rewardsEndTimestamp,
+      uint224 index,
+      uint32 lastUpdatedTimestamp
+    ) = staking.rewardsInfos(iRewardsToken1);
+    assertEq(uint256(ONE), 1 ether);
+    assertEq(rewardsPerSecond, 0);
+    assertEq(uint256(rewardsEndTimestamp), callTimestamp);
+    assertEq(index, 1 ether);
+    assertEq(uint256(lastUpdatedTimestamp), callTimestamp);
+  }
+
   function test__addRewardsToken_end_time_not_affected_by_other_transfers() public {
     // Prepare to transfer reward tokens
     rewardsToken1.mint(address(this), 20 ether);
@@ -700,6 +721,88 @@ contract MultiRewardsStakingTest is Test {
     staking.addRewardsToken(IERC20(address(stakingToken)), 0.1 ether, 10 ether, true, 100, 10000000, 0);
   }
 
+  function testFail__addRewardsToken_0_rewardsSpeed_non_0_amount() public {
+    // Prepare to transfer reward tokens
+    rewardsToken1.mint(address(this), 1 ether);
+    rewardsToken1.approve(address(staking), 1 ether);
+
+    staking.addRewardsToken(iRewardsToken1, 0, 1 ether, true, 100, 10000000, 20);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        CHANGE REWARDS SPEED LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  function test__changeRewardSpeed() public {
+    _addRewardsToken(rewardsToken1);
+
+    stakingToken.mint(alice, 1 ether);
+    stakingToken.mint(bob, 1 ether);
+
+    vm.prank(alice);
+    stakingToken.approve(address(staking), 1 ether);
+    vm.prank(bob);
+    stakingToken.approve(address(staking), 1 ether);
+
+    vm.prank(alice);
+    staking.deposit(1 ether);
+
+    // 10% of rewards paid out
+    vm.warp(block.timestamp + 10);
+    // Double Accrual (from original)
+    staking.changeRewardSpeed(iRewardsToken1, 0.2 ether);
+
+    // 30% of rewards paid out
+    vm.warp(block.timestamp + 10);
+    // Half Accrual (from original)
+    staking.changeRewardSpeed(iRewardsToken1, 0.05 ether);
+    vm.prank(bob);
+    staking.deposit(1 ether);
+
+    // 50% of rewards paid out
+    vm.warp(block.timestamp + 40);
+
+    vm.prank(alice);
+    staking.withdraw(1 ether);
+
+    // Check Alice RewardsState
+    (, , , uint224 index, uint32 lastUpdatedTimestamp) = staking.rewardsInfos(iRewardsToken1);
+    assertEq(uint256(index), 5 ether);
+
+    assertEq(staking.userIndex(alice, iRewardsToken1), index);
+    assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 4 ether);
+
+    vm.prank(bob);
+    staking.withdraw(1 ether);
+
+    // Check Bobs RewardsState
+    (, , , index, lastUpdatedTimestamp) = staking.rewardsInfos(iRewardsToken1);
+    assertEq(uint256(index), 5 ether);
+
+    assertEq(staking.userIndex(bob, iRewardsToken1), index);
+    assertEq(staking.rewardsAccrued(bob, iRewardsToken1), 1 ether);
+  }
+
+  function testFail__changeRewardSpeed_to_0() public {
+    _addRewardsToken(rewardsToken1);
+    staking.changeRewardSpeed(iRewardsToken1, 0);
+  }
+
+  function testFail__changeRewardSpeed_from_0() public {
+    _addRewardsTokenWithZeroRewardsSpeed(rewardsToken1);
+    staking.changeRewardSpeed(iRewardsToken1, 1);
+  }
+
+  function testFail__changeRewardSpeed_reward_doesnt_exist() public {
+    staking.changeRewardSpeed(iRewardsToken1, 1);
+  }
+
+  function testFail__changeRewardSpeed_nonOwner() public {
+    _addRewardsToken(rewardsToken1);
+    vm.prank(alice);
+    staking.changeRewardSpeed(iRewardsToken1, 1);
+  }
+
   /*//////////////////////////////////////////////////////////////
                         FUND REWARDS LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -723,6 +826,28 @@ contract MultiRewardsStakingTest is Test {
     // Confirm token transfer
     assertEq(rewardsToken1.balanceOf(address(this)), 0);
     assertEq(rewardsToken1.balanceOf(address(staking)), 20 ether);
+  }
+
+  function test__fundReward_0_rewardsSpeed() public {
+    _addRewardsTokenWithZeroRewardsSpeed(rewardsToken1);
+
+    rewardsToken1.mint(address(this), 10 ether);
+    rewardsToken1.approve(address(staking), 10 ether);
+
+    (, , uint32 oldRewardsEndTimestamp, , ) = staking.rewardsInfos(iRewardsToken1);
+
+    vm.expectEmit(false, false, false, true, address(staking));
+    emit RewardsInfoUpdate(iRewardsToken1, 0, oldRewardsEndTimestamp);
+
+    staking.fundReward(iRewardsToken1, 10 ether);
+
+    // RewardsEndTimeStamp should take new token into account
+    (, , uint32 rewardsEndTimestamp, , ) = staking.rewardsInfos(iRewardsToken1);
+    assertEq(uint256(rewardsEndTimestamp), uint256(oldRewardsEndTimestamp));
+
+    // Confirm token transfer
+    assertEq(rewardsToken1.balanceOf(address(this)), 0);
+    assertEq(rewardsToken1.balanceOf(address(staking)), 10 ether);
   }
 
   function test__fundReward_end_time_not_affected_by_other_transfers() public {
@@ -774,7 +899,7 @@ contract MultiRewardsStakingTest is Test {
     stakingToken.approve(address(staking), 5 ether);
     staking.deposit(1 ether);
 
-    // Accrue 10% of rewards
+    // 10% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     vm.expectEmit(false, false, false, true, address(staking));
@@ -784,6 +909,32 @@ contract MultiRewardsStakingTest is Test {
 
     assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 0);
     assertEq(rewardsToken1.balanceOf(alice), 1 ether);
+  }
+
+  function test__claim_0_rewardsSpeed() public {
+    // Prepare array for `claimRewards`
+    IERC20[] memory rewardsTokenKeys = new IERC20[](1);
+    rewardsTokenKeys[0] = iRewardsToken1;
+
+    _addRewardsTokenWithZeroRewardsSpeed(rewardsToken1);
+    rewardsToken1.mint(address(this), 5 ether);
+    rewardsToken1.approve(address(staking), 5 ether);
+    stakingToken.mint(alice, 1 ether);
+
+    vm.startPrank(alice);
+    stakingToken.approve(address(staking), 1 ether);
+    staking.deposit(1 ether);
+    vm.stopPrank();
+
+    staking.fundReward(iRewardsToken1, 5 ether);
+
+    vm.expectEmit(false, false, false, true, address(staking));
+    emit RewardsClaimed(alice, iRewardsToken1, 5 ether, false);
+
+    staking.claimRewards(alice, rewardsTokenKeys);
+
+    assertEq(staking.rewardsAccrued(alice, iRewardsToken1), 0);
+    assertEq(rewardsToken1.balanceOf(alice), 5 ether);
   }
 
   function test__claim_multiple_token_with_escrows() public {
@@ -800,7 +951,7 @@ contract MultiRewardsStakingTest is Test {
     stakingToken.approve(address(staking), 5 ether);
     staking.deposit(1 ether);
 
-    // Accrue 10% of rewards
+    // 10% of rewards paid out
     vm.warp(block.timestamp + 10);
 
     vm.expectEmit(false, false, false, true, address(staking));
