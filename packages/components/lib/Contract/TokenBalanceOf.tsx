@@ -11,7 +11,7 @@ interface TokenAmountProps extends Pop.StdProps {
 
 export const TokenBalanceOf = ({ account, address, chainId, symbol }: TokenAmountProps) => {
   const { dispatch, state: _state } = useNetworth();
-  const { value: stateValue, status: stateStatus } = _state[address || ""] || {};
+  const { value: stateValue, status: stateStatus } = _state.total[address || ""] || {};
   const { data: price } = usePrice({ account, address, chainId });
   let tokenAmount = BigNumber.from(0);
   if (stateStatus === "success" && stateValue && stateValue !== constants.Zero && price?.value) {

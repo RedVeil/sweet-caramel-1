@@ -1,10 +1,9 @@
-import { networkMap } from "@popcorn/utils";
 import { useComponentState } from "../../lib/utils/hooks";
 import { Pop } from "../../lib/types";
 import useContractMetadata from "../../lib/Contract/hooks/useContractMetadata";
 import PortfolioItem from "./PortfolioItem";
 import { networkLogos } from "@popcorn/utils";
-import { Escrow, Erc20, Price, Contract, Staking } from "../../lib/";
+import { Price, Contract } from "../../lib/";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { useNetworth } from "../../context/Networth";
 
@@ -29,7 +28,7 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
 
   const { symbol, priceResolver, apyResolver, balanceResolver, decimals, name, icons, alias: _alias } = data || {};
   const { dispatch, state: _state } = useNetworth();
-  const { value: stateValue, status: stateStatus } = _state[address || ""] || {};
+  const { value: stateValue, status: stateStatus } = _state.total[address || ""] || {};
 
   const portfolioValues = [
     {

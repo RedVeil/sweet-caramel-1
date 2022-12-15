@@ -2,12 +2,10 @@ import { Escrow, Erc20, Staking } from "@popcorn/components/lib";
 import { useNetworth } from "../../context/Networth";
 import { useEffect } from "react";
 import { Pop } from "../types";
-import useLog from "../utils/hooks/useLog";
 import { updateNetworth } from "../../reducers/networth/actions";
 
 export const RenderBalance = ({ account, address, chainId }: Pop.StdProps) => {
   const { dispatch, state: _state } = useNetworth();
-  useLog({ address, _state }, [address, _state]);
 
   const addNetworth = ({ key, value, status }) => {
     useEffect(() => {
