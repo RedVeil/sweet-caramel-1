@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
 import { withLoading } from "../utils";
 import { Pop } from "../types";
-import useLog from "../utils/hooks/useLog";
 
 interface FormattedBigNumerProps {
   formatted?: string;
