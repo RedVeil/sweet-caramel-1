@@ -1,6 +1,6 @@
 import { createContext, Dispatch, FC, useContext, useReducer, PropsWithChildren } from "react";
 import { networthReducer, initialState, NetworthState } from "../reducers/networth";
-import { NetworthActions } from "../reducers/networth/actions";
+import { NetworthActions } from "../reducers/networth/actionTypes";
 
 interface NetworthContextValues {
   state: NetworthState;
