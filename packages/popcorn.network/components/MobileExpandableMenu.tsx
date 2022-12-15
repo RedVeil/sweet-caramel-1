@@ -46,7 +46,7 @@ export const MobileExpandableMenu: React.FC = () => {
               ))}
             </div>
             <div className=" mt-10">
-              <a href="https://popcorndao.finance/" className="w-full block" target="_blank">
+              <a href="https://www.popcorndao.finance/" className="w-full block" target="_blank">
                 <PrimaryButton>Launch App</PrimaryButton>
               </a>
             </div>

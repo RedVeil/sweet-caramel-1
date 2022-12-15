@@ -5,8 +5,8 @@ import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
 import React from "react";
 import Product from "@popcorn/app/components/landing/Product";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
-import { useNamedAccounts } from "@popcorn/components";
-import { Staking, Contract } from "@popcorn/components/pop";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
+import { Staking, Contract } from "@popcorn/components/lib";
 import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 
 const Products = () => {

@@ -1,6 +1,6 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import PortfolioItem from "../components/PortfolioItem";
+import PortfolioItem from "../components/Portfolio/PortfolioItem";
 
 export default {
   title: "Components/PortfolioItem",

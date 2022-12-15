@@ -1,6 +1,6 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import PortfolioSection from "../components/PortfolioSection";
+import PortfolioSection from "../components/Portfolio/PortfolioSection";
 import TooltipIcon from "../stories/assets/tooltip.svg";
 import { BadgeVariant } from "../components/Badge";
 

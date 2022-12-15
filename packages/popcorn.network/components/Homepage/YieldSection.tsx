@@ -1,7 +1,7 @@
 import NewsletterSubscription from "components/CommonComponents/NewsletterSubscription";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { Tvl } from "@popcorn/components/pop/Contract";
+import { Tvl } from "@popcorn/components/lib/Contract";
 import { useNamedAccounts } from "@popcorn/components";
 import { ChainId } from "@popcorn/utils";
 

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@popcorn/utils/src/DateTime";
 import { InteractionType } from "@popcorn/app/components/staking/StakeInterface";
 import { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
-import { Pop } from "@popcorn/components/pop/types";
+import { Pop } from "@popcorn/components/lib/types";
 import { BigNumber } from "ethers";
 
 interface PopLockerInteractionProps extends StakingInteractionProps {

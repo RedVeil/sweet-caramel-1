@@ -1,5 +1,4 @@
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
-import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useEffect, useState } from "react";
@@ -10,7 +9,7 @@ import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
-import { useComponentState } from "@popcorn/components/hooks";
+import { useComponentState } from "@popcorn/components/lib/utils/hooks";
 import { ConnectWallet } from "@popcorn/components/components/ConnectWallet";
 
 export enum Tabs {

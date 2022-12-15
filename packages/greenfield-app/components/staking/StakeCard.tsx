@@ -10,7 +10,7 @@ import { StakingType } from "hooks/staking/useAllStakingAddresses";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
-import { Tvl } from "@popcorn/components/pop/Contract";
+import { Tvl } from "@popcorn/components/lib/Contract";
 
 interface StakeCardProps {
   stakingAddress: string;

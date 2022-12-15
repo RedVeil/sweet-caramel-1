@@ -34,7 +34,7 @@ const networks = [
 ];
 const NetworkSwitcher = (
   <div>
-    <div className="hidden md:flex flex-row items-center space-x-2 mt-6">
+    <div className="hidden md:flex flex-row items-center space-x-2">
       {networks.map(({ label, handleClick, isActive }) => (
         <button
           key={label}

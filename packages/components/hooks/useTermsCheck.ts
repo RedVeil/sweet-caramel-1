@@ -39,7 +39,7 @@ export default function useTermsCheck() {
     dispatch(setSingleActionModal(false));
     dispatch(
       setSingleActionModal({
-        title: "Just one more thing!",
+        title: "T&C",
         content: "To continue please sign terms and conditions.",
         onConfirm: {
           label: "Sign Message",
