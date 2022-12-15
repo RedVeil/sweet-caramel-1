@@ -7,3 +7,5 @@ export * from "./TokenBalanceOf";
 export * from "./PercentBalanceOf";
 export * from "./TotalPopBalanceOf";
 export * from "./TotalVestingBalanceOf";
+export * from "./TotalBalanceOf";
+export * from "./RenderBalance";
