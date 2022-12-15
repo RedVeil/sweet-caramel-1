@@ -1,12 +1,16 @@
-import { networkMap } from "@popcorn/utils";
-import { useComponentState } from "../../lib/utils/hooks";
-import { Pop } from "../../lib/types";
-import useContractMetadata from "../../lib/Contract/hooks/useContractMetadata";
-import PortfolioItem from "./PortfolioItem";
+/**
+ * Set explicit import type.
+ * @see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export
+ */
+import type { Pop } from "../../lib/types";
 import { networkLogos } from "@popcorn/utils";
-import { Escrow, Erc20, Price, Contract, Staking } from "../../lib/";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
+
+import PortfolioItem from "./PortfolioItem";
 import { useNetworth } from "../../context/Networth";
+import { useComponentState } from "../../lib/utils/hooks";
+import useContractMetadata from "../../lib/Contract/hooks/useContractMetadata";
+import { Price, Contract } from "../../lib/";
 
 interface ContractProps extends Pop.NamedAccountsMetadata {
   alias?: string;
@@ -45,7 +49,6 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
         <>
           <Contract.BalanceOf address={address} chainId={chainId} account={account} />
           <p className="text-tokenTextGray text-[10px] md:text-base">
-            {" "}
             <Contract.TokenBalanceOf
               address={address}
               chainId={chainId}
