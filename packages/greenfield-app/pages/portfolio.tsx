@@ -7,10 +7,13 @@ import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking"
 import NetworkFilter from "components/NetworkFilter";
 import { RenderBalance } from "@popcorn/components/lib/Contract";
 import { useSupportedContracts } from "@popcorn/components";
+import { useAccount } from "wagmi";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 
 const tabs = [{ label: "All" }, { label: "Rewards" }, { label: "Assets" }];
 const Portfolio = () => {
-  const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
+  // const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
+  const { address: account } = useAccount();
   const [activeTab, setActiveTab] = useState({ label: "All" });
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
@@ -35,7 +38,15 @@ const Portfolio = () => {
         />
       </div>
       <div className="mt-7">
-        <ProductsPortfolio selectedNetworks={selectedNetworks} />
+        <div className={account ? "" : "hidden"}>
+          <ProductsPortfolio selectedNetworks={selectedNetworks} />
+        </div>
+        <NotAvailable
+          title="No Records Available"
+          body="Connect your wallet to see your portfolio information"
+          image="/images/emptyRecord.svg"
+          visible={!account}
+        />
       </div>
     </div>
   );

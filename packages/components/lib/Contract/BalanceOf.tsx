@@ -3,7 +3,7 @@ import { FormattedBigNumber } from "../FormattedBigNumber";
 import { Pop } from "../types";
 import useLog from "../utils/hooks/useLog";
 
-export const BalanceOf = ({ account, address, chainId }: Pop.StdProps) => {
+export const BalanceOf = ({ address }: Pop.StdProps) => {
   const { state: _state } = useNetworth();
   const { value: stateValue, status: stateStatus } = _state["total"][address || ""] || {};
   return (

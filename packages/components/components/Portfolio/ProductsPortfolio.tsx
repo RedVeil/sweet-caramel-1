@@ -10,9 +10,9 @@ import { useSupportedContracts } from "@popcorn/components/hooks";
 const ProductsPortfolio = ({ selectedNetworks }) => {
   console.log(selectedNetworks);
 
-  // const { address: account } = useAccount();
+  const { address: account } = useAccount();
   // const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
-  const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
+  // const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
   const selectedContracts = useSupportedContracts(selectedNetworks);
 
   const props = {
@@ -77,20 +77,22 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
     </div>
   );
   return (
-    <div>
-      <PortfolioSection {...props} NetworkIcons={NetworkIcons}>
-        {selectedContracts.map((token, i) => (
-          <PortfolioItemsContainer
-            index={i}
-            alias={token.__alias}
-            key={`${i}:${token.chainId}:${token.address}`}
-            chainId={Number(token.chainId) as unknown as ChainId}
-            address={token.address}
-            account={account}
-          />
-        ))}
-      </PortfolioSection>
-    </div>
+    <>
+      <div>
+        <PortfolioSection {...props} NetworkIcons={NetworkIcons}>
+          {selectedContracts.map((token, i) => (
+            <PortfolioItemsContainer
+              index={i}
+              alias={token.__alias}
+              key={`${i}:${token.chainId}:${token.address}`}
+              chainId={Number(token.chainId) as unknown as ChainId}
+              address={token.address}
+              account={account}
+            />
+          ))}
+        </PortfolioSection>
+      </div>
+    </>
   );
 };
 

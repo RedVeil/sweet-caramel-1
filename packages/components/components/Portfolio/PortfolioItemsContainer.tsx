@@ -11,7 +11,7 @@ interface ContractProps extends Pop.NamedAccountsMetadata {
   alias?: string;
   children?: React.ReactElement[];
   index?: number;
-  account: string;
+  account?: string;
 }
 
 export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
@@ -42,7 +42,7 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
     {
       value: (
         <>
-          <Contract.BalanceOf address={address} chainId={chainId} account={account} />
+          <Contract.BalanceOf address={address} chainId={chainId} />
           <div className="text-tokenTextGray text-[10px] md:text-base">
             {" "}
             <Contract.TokenBalanceOf
