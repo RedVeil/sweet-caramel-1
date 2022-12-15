@@ -4,8 +4,9 @@ import Dropdown from "../Dropdown";
 import HeroBg from "../../stories/assets/portfolioHeroBg.svg";
 import HeroBgMobile from "../../stories/assets/portfolioHeroBgmobile.svg";
 import { ChainId } from "@popcorn/utils";
-import { PopBalanceOf } from "@popcorn/components/lib/Contract";
+import { TotalPopBalanceOf, TotalVestingBalanceOf } from "@popcorn/components/lib/Contract";
 import { useSupportedContracts } from "@popcorn/components/hooks";
+
 export interface PortfolioHeroProps {
   NetworkSwitcher: JSX.Element;
   TabButtons: JSX.Element;
@@ -41,24 +42,26 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButto
       <div>
         <div className="grid grid-cols-12 gap-4 md:gap-8 mt-8 md:mt-0">
           <div className="col-span-5 md:col-span-3">
-            <p className="leading-6 text-base md:mb-2 font-light md:font-normal">Weekly P&L</p>
+            {/* <p className="leading-6 text-base md:mb-2 font-light md:font-normal">Weekly P&L</p>
             <div className="md:rounded-lg md:bg-customLightGreen md:px-4 md:py-2 text-3xl md:text-base font-light md:font-medium text-customLightGreen md:text-white flex">
               <p> +20%</p> <ArrowSmallUpIcon className="w-6 hidden md:inline" />{" "}
               <ArrowLongUpIcon className="w-5 md:hidden" />{" "}
-            </div>
+            </div> */}
           </div>
           <div className="col-span-5 md:col-span-3">
-            <p className="leading-6 text-base font-light md:font-normal">Deposits</p>
-            <p className="text-3xl font-light md:font-medium">$81K</p>
+            {/* <p className="leading-6 text-base font-light md:font-normal">Deposits</p>
+            <p className="text-3xl font-light md:font-medium">$81K</p> */}
           </div>
           <div className="col-span-5 md:col-span-3">
             <p className="leading-6 text-base font-light md:font-normal">Vesting</p>
-            <p className="text-3xl font-light md:font-medium">$81K</p>
+            <div className="text-3xl font-light md:font-medium">
+              <TotalVestingBalanceOf selectedContracts={selectedContracts} account={account} />
+            </div>
           </div>
           <div className="col-span-5 md:col-span-3">
             <p className="leading-6 text-base font-light md:font-normal">POP In Wallet</p>
             <div className="text-3xl font-light md:font-medium">
-              <PopBalanceOf selectedContracts={selectedContracts} account={account} />
+              <TotalPopBalanceOf selectedContracts={selectedContracts} account={account} />
             </div>
           </div>
         </div>

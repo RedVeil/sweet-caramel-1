@@ -33,7 +33,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ title, TotalValues,
                   <p className="text-primaryLight text-sm md:text-base">{title}</p>
                   {tooltip}
                 </div>
-                <p className="text-sm md:text-lg">{value}</p>
+                <div className="text-sm md:text-lg">{value}</div>
               </div>
             ))}
           </div>

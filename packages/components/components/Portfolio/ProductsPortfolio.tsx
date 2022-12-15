@@ -4,8 +4,10 @@ import React, { useMemo } from "react";
 
 // aliased imports go second
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
+import { useAccount } from "wagmi";
+import { ChainId, networkLogos } from "@popcorn/utils";
+import { TotalBalanceOf } from "@popcorn/components/lib/Contract";
 import { useSupportedContracts } from "@popcorn/components/hooks";
-import { ChainId } from "@popcorn/utils";
 
 // relative imports got to lowest import block
 // assets go always at the end of this block and can by convention start with `asset_`
@@ -36,7 +38,7 @@ const ProductsPortfolio = ({
     TotalValues: [
       {
         title: "Price",
-        value: "$0.35",
+        value: "",
         tooltip: (
           <InfoIconWithTooltip
             classExtras=""
@@ -49,7 +51,7 @@ const ProductsPortfolio = ({
       },
       {
         title: "Portfolio %",
-        value: "50.23%",
+        value: "",
         tooltip: (
           <InfoIconWithTooltip
             classExtras=""
@@ -62,7 +64,7 @@ const ProductsPortfolio = ({
       },
       {
         title: "Balance",
-        value: "$40K",
+        value: <TotalBalanceOf account={account} selectedContracts={selectedContracts} />,
         tooltip: (
           <InfoIconWithTooltip
             classExtras=""

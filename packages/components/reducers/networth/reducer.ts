@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { NetworthActions, NetworthActionType } from "./actions";
+import { NetworthActions, NetworthActionType } from "./actionTypes";
 
 type Status = "loading" | "success" | "error" | "idle";
 
@@ -8,11 +8,13 @@ export interface NetworthState {
     [key: string]: { value: BigNumber; status: Status };
   };
   popInWallet: { value: BigNumber; status: Status }[];
+  vestingBalance: { value: BigNumber; status: Status }[];
 }
 
 export const initialState: NetworthState = {
   total: {},
   popInWallet: [],
+  vestingBalance: [],
 };
 
 export const networthReducer = (state = initialState, action: NetworthActions = { type: null, payload: null }) => {
@@ -29,6 +31,7 @@ export const networthReducer = (state = initialState, action: NetworthActions = 
         },
       };
     }
+
     case NetworthActionType.UPDATE_POP_BALANCE: {
       return {
         ...state,
@@ -42,6 +45,21 @@ export const networthReducer = (state = initialState, action: NetworthActions = 
         popInWallet: [],
       };
     }
+
+    case NetworthActionType.UPDATE_VESTING_BALANCE: {
+      return {
+        ...state,
+        vestingBalance: [...state.vestingBalance, action.payload],
+      };
+    }
+
+    case NetworthActionType.CLEAR_VESTING_BALANCE: {
+      return {
+        ...state,
+        vestingBalance: [],
+      };
+    }
+
     default:
       return state;
   }

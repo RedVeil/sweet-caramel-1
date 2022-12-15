@@ -33,7 +33,7 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
 
   const { symbol, priceResolver, apyResolver, balanceResolver, decimals, name, icons, alias: _alias } = data || {};
   const { dispatch, state: _state } = useNetworth();
-  const { value: stateValue, status: stateStatus } = _state[address || ""] || {};
+  const { value: stateValue, status: stateStatus } = _state.total[address || ""] || {};
 
   const portfolioValues = [
     {
@@ -48,14 +48,15 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
       value: (
         <>
           <Contract.BalanceOf address={address} chainId={chainId} account={account} />
-          <p className="text-tokenTextGray text-[10px] md:text-base">
+          <div className="text-tokenTextGray text-[10px] md:text-base">
+            {" "}
             <Contract.TokenBalanceOf
               address={address}
               chainId={chainId}
               account={account}
               symbol={symbol ? ` ${symbol}` : ""}
             />
-          </p>
+          </div>
         </>
       ),
       hideMobile: false,

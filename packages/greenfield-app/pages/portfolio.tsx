@@ -5,14 +5,17 @@ import { BigNumber } from "ethers";
 
 import useNetworkFilter from "hooks/useNetworkFilter";
 import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking";
+import { useSupportedContracts } from "@popcorn/components";
 
 import { Tabs } from "@popcorn/components/components/Tabs";
+import { RenderBalance } from "@popcorn/components/lib/Contract/RenderBalance";
 import PortfolioHero from "@popcorn/components/components/Portfolio/PortfolioHero";
 import ProductsPortfolio from "@popcorn/components/components/Portfolio/ProductsPortfolio";
 import NetworkFilter from "components/NetworkFilter";
 
-const tabs = [{ label: "All" }, { label: "Products" }, { label: "Rewards" }, { label: "Assets" }];
+const tabs = [{ label: "All" }, { label: "Rewards" }, { label: "Assets" }];
 const Portfolio = () => {
+  const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
   const [activeTab, setActiveTab] = useState({ label: "All" });
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
@@ -20,9 +23,13 @@ const Portfolio = () => {
   function filterRewardsOnly(renderElement, metadata: Pop.NamedAccountsMetadata) {
     return <RenderIfRewards metadata={metadata as any} element={renderElement} />;
   }
+  const selectedContracts = useSupportedContracts(selectedNetworks);
 
   return (
     <div>
+      {selectedContracts.map((token, index) => (
+        <RenderBalance key={index} address={token.address} chainId={token.chainId} account={account} />
+      ))}
       <div>
         <PortfolioHero
           NetworkSwitcher={
