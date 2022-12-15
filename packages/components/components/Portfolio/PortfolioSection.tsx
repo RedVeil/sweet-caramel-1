@@ -1,6 +1,4 @@
 import React from "react";
-import PortfolioItem, { PortfolioItemProps } from "./PortfolioItem";
-import EthIcon from "../stories/assets/ethereum.svg";
 
 export interface PortfolioSectionProps {
   title: string;
@@ -41,14 +39,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ title, TotalValues,
           </div>
         </div>
       </div>
-      <div>
-        {/* {PortfolioItems.map((items) => (
-          <div key={items.tokenName} className="mb-4">
-            <PortfolioItem {...items} />
-          </div>
-        ))} */}
-        {children}
-      </div>
+      <div>{children}</div>
     </div>
   );
 };
