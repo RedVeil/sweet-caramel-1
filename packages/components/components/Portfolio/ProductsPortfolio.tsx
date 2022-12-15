@@ -1,5 +1,6 @@
 // react, external dep imports go first
-import React from "react";
+import type { Pop } from "packages/components/lib/types";
+import React, { useMemo } from "react";
 
 // aliased imports go second
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
@@ -12,14 +13,26 @@ import PortfolioItemsContainer from "./PortfolioItemsContainer";
 import PortfolioSection from "./PortfolioSection";
 import NetworkIconList from "./NetworkIconList";
 
-const ProductsPortfolio = ({ selectedNetworks }) => {
+type ProductsPortfolioProps = {
+  selectedNetworks: any;
+  /** Filter render elements. Used to filter reward only contracts */
+  filterRenderItems?: (element: JSX.Element, contracts: Pop.NamedAccountsMetadata) => JSX.Element;
+  title?: string;
+};
+
+const ProductsPortfolio = ({
+  selectedNetworks,
+  // TODO: add a shared `noOp` helper
+  filterRenderItems = (item) => item,
+  title = "Assets",
+}: ProductsPortfolioProps) => {
   // const { address: account } = useAccount();
   // const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
   const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
   const selectedContracts = useSupportedContracts(selectedNetworks);
 
   const props = {
-    title: "Assets",
+    title,
     TotalValues: [
       {
         title: "Price",
@@ -63,22 +76,30 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
     ],
   };
 
+  const memoizedElements = useMemo(() => {
+    return selectedContracts.map((token, i) => {
+      return filterRenderItems(
+        <PortfolioItemsContainer
+          index={i}
+          alias={token.__alias}
+          key={`${i}:${token.chainId}:${token.address}`}
+          chainId={Number(token.chainId)}
+          address={token.address}
+          account={account}
+        />,
+        token,
+      );
+    });
+    // instead to shallow-evaluate the whole object we consider it's length
+  }, [selectedContracts.length]);
+
   return (
     <div>
       <PortfolioSection
         {...props}
         NetworkIcons={<NetworkIconList networks={[ChainId.Ethereum, ChainId.Polygon, ChainId.BNB, ChainId.Arbitrum]} />}
       >
-        {selectedContracts.map((token, i) => (
-          <PortfolioItemsContainer
-            index={i}
-            alias={token.__alias}
-            key={`${i}:${token.chainId}:${token.address}`}
-            chainId={Number(token.chainId)}
-            address={token.address}
-            account={account}
-          />
-        ))}
+        {memoizedElements}
       </PortfolioSection>
     </div>
   );
