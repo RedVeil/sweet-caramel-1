@@ -43,7 +43,7 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
       value: (
         <>
           <Contract.BalanceOf address={address} chainId={chainId} account={account} />
-          <p className="text-tokenTextGray text-[10px] md:text-base">
+          <div className="text-tokenTextGray text-[10px] md:text-base">
             {" "}
             <Contract.TokenBalanceOf
               address={address}
@@ -51,7 +51,7 @@ export const PortfolioItemsContainer: Pop.FC<ContractProps> = ({
               account={account}
               symbol={symbol ? ` ${symbol}` : ""}
             />
-          </p>
+          </div>
         </>
       ),
       hideMobile: false,

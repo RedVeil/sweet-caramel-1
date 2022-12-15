@@ -6,7 +6,7 @@ import useNetworkFilter from "hooks/useNetworkFilter";
 import { useChainsWithStaking, useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking";
 import NetworkFilter from "components/NetworkFilter";
 
-const tabs = [{ label: "All" }, { label: "Products" }, { label: "Rewards" }, { label: "Assets" }];
+const tabs = [{ label: "All" }, { label: "Rewards" }, { label: "Assets" }];
 const Portfolio = () => {
   const [activeTab, setActiveTab] = useState({ label: "All" });
   const supportedNetworks = useChainsWithStakingRewards();

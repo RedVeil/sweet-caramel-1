@@ -4,7 +4,6 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 import { useAccount } from "wagmi";
 import PortfolioItemsContainer from "./PortfolioItemsContainer";
 import { ChainId, networkLogos } from "@popcorn/utils";
-import { BalanceOf } from "@popcorn/components/lib/Contract";
 import { useSupportedContracts } from "@popcorn/components/hooks";
 
 const ProductsPortfolio = ({ selectedNetworks }) => {
@@ -21,7 +20,7 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
     TotalValues: [
       {
         title: "Price",
-        value: "$0.35",
+        value: "",
         tooltip: (
           <InfoIconWithTooltip
             classExtras=""
@@ -34,7 +33,7 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
       },
       {
         title: "Portfolio %",
-        value: "50.23%",
+        value: "",
         tooltip: (
           <InfoIconWithTooltip
             classExtras=""

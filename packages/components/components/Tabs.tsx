@@ -30,7 +30,7 @@ interface TabProps {
 
 export const Tabs: FC<TabProps> = ({ tabs, activeTab, setActiveTab }) => {
   return (
-    <div className="flex">
+    <div className="flex space-x-4">
       {tabs.map((tab) => (
         <button
           className={classnames(
