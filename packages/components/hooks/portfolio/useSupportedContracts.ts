@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { useNetworth } from "@popcorn/components/context/Networth";
-import { clearPopBalance } from "@popcorn/components/reducers/networth";
+import { clearPopBalance, clearVestingBalance } from "@popcorn/components/reducers/networth";
 import { Pop } from "../../lib/types";
 
 export const useSupportedContracts = (selectedNetworks) => {
@@ -43,8 +43,10 @@ export const useSupportedContracts = (selectedNetworks) => {
   useEffect(() => {
     const filteredContracts = allContracts.filter((contract) => findNetwork(Number(contract.chainId)));
 
-    // clear popBalance in the store before updating the state with new contracts
+    // clear popBalance and vesting in the store
     clearPopBalance()(dispatch);
+    clearVestingBalance()(dispatch);
+
     setSelectedContracts(filteredContracts);
 
     // if (selectedNetworks.includes(0)) {
