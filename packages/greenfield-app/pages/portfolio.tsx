@@ -42,12 +42,13 @@ const Portfolio = () => {
         <div className={account ? "" : "hidden"}>
           <ProductsPortfolio selectedNetworks={selectedNetworks} />
         </div>
-        <NotAvailable
-          title="No Records Available"
-          body="Connect your wallet to see your portfolio information"
-          image="/images/emptyRecord.svg"
-          visible={!account}
-        />
+        <div className={account ? "hidden" : ""}>
+          <NotAvailable
+            title="No Records Available"
+            body="Connect your wallet to see your portfolio information"
+            image="/images/emptyRecord.svg"
+          />
+        </div>
       </div>
     </div>
   );
