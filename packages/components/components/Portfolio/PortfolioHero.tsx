@@ -67,7 +67,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButto
         </div>
         <div className="md:hidden">{NetworkSwitcher}</div>
         <div className="hidden md:flex flex-col items-end mt-16">
-          {TabButtons}
+          {/* {TabButtons}
           <div className="mt-9 relative">
             <Dropdown
               options={options}
@@ -77,7 +77,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButto
               switchFilter={setSelectedOption}
               label="Highest holding %"
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
