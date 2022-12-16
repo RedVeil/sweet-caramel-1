@@ -6,7 +6,7 @@ export const ConnectWallet = ({ hidden }: { hidden?: boolean }) => {
 
   return (
     <div
-      className={`rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6 group cursor-pointer ${
+      className={`rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 group cursor-pointer ${
         hidden ? "hidden" : ""
       }`}
       onClick={openConnectModal}

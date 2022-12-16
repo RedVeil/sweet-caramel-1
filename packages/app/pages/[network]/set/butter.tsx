@@ -629,7 +629,7 @@ export default function ButterPage(): JSX.Element {
           <RightArrowIcon color="fff" />
         </div>
       </div>
-      <div className="flex flex-col md:flex-row mt-10">
+      <div className="flex flex-col md:flex-row md:mt-10">
         <div className="md:w-1/3 mb-10">
           <div className="order-2 md:order-1">
             {/* Connected and on Ethereum BUT loading */}
@@ -690,7 +690,7 @@ export default function ButterPage(): JSX.Element {
                 </div>
               )}
             <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
-            <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+            <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} md:mr-8`}>
               <ConnectWallet hidden={!!isConnected} />
             </div>
           </div>
