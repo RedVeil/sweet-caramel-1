@@ -15,7 +15,7 @@ const VotingProgress: React.FC<ProgressProps> = ({ progress, labels }) => {
         </div>
         <div
           className="h-full bg-[#5F3699] rounded-xl transition-all ease-in-out duration-500"
-          style={{ width: `${progress}%` }}
+          style={{ width: `${Math.round(progress)}%` }}
         ></div>
       </div>
       <div className="flex justify-between mt-4">
