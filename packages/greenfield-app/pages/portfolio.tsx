@@ -6,6 +6,8 @@ import { BigNumber } from "ethers";
 import useNetworkFilter from "hooks/useNetworkFilter";
 import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking";
 import { useSupportedContracts } from "@popcorn/components";
+import { useAccount } from "wagmi";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 
 import { Tabs } from "@popcorn/components/components/Tabs";
 import { RenderBalance } from "@popcorn/components/lib/Contract/RenderBalance";
@@ -15,7 +17,8 @@ import NetworkFilter from "components/NetworkFilter";
 
 const tabs = [{ label: "All" }, { label: "Rewards" }, { label: "Assets" }];
 const Portfolio = () => {
-  const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
+  // const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
+  const { address: account } = useAccount();
   const [activeTab, setActiveTab] = useState({ label: "All" });
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
@@ -41,11 +44,25 @@ const Portfolio = () => {
           }
           TabButtons={<Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />}
           selectedNetworks={selectedNetworks}
+          account={account}
         />
       </div>
       <div className="mt-7">
-        <ProductsPortfolio selectedNetworks={selectedNetworks} />
-        <ProductsPortfolio filterRenderItems={filterRewardsOnly} title="Rewards" selectedNetworks={selectedNetworks} />
+        <div className={account ? "" : "hidden"}>
+          <ProductsPortfolio selectedNetworks={selectedNetworks} />
+          <ProductsPortfolio
+            filterRenderItems={filterRewardsOnly}
+            title="Rewards"
+            selectedNetworks={selectedNetworks}
+          />
+        </div>
+        <div className={account ? "hidden" : ""}>
+          <NotAvailable
+            title="No Records Available"
+            body="Connect your wallet to see your portfolio information"
+            image="/images/emptyRecord.svg"
+          />
+        </div>
       </div>
     </div>
   );

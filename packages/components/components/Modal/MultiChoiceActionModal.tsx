@@ -1,6 +1,6 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
-import { XIcon } from "@heroicons/react/outline";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
@@ -105,7 +105,7 @@ export const MultiChoiceActionModal: React.FC<MultiChoiceActionModalProps> = ({
                     <div>
                       {/* Always add onDismiss prop when calling modal else this will break */}
                       <div className="flex justify-end">
-                        <XIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />
+                        <XMarkIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />
                       </div>
                       <div>{image}</div>
                       <div className="mt-10">

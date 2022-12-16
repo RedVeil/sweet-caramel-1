@@ -480,7 +480,7 @@ export default function ThreeXPage(): JSX.Element {
       </div>
 
       <div className="flex flex-col md:flex-row mt-10">
-        <div className="md:w-1/3 mb-10">
+        <div className="md:w-1/3 mb-2 md:mb-10">
           {/* Connected and on Ethereum BUT loading */}
           <span className={!!isConnected && butterIsSupportedOnNetwork && loadingThreeXData ? "" : "hidden"}>
             <div className="order-2 md:hidden">
@@ -543,17 +543,17 @@ export default function ThreeXPage(): JSX.Element {
             />
           </div>
           <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
-          <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+          <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} md:pr-8`}>
             <ConnectWallet hidden={!!isConnected} />
           </div>
         </div>
 
         <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
           <div className="flex flex-col md:flex-row mb-8">
-            <div className="md:w-2/3 flex flex-col mb-2 md:mr-8 order-1">
+            <div className="md:w-1/2 flex flex-col mb-2 md:mr-8 order-1">
               <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
             </div>
-            <div className="md:w-1/3 flex flex-col gap-4 mb-2 order-2">
+            <div className="md:w-1/2 flex flex-col gap-4 order-2 mb-2 ">
               <StatInfoCard
                 title="3X Value"
                 content={<Price.PriceOf address={contractAddresses.threeX} chainId={chainId} />}

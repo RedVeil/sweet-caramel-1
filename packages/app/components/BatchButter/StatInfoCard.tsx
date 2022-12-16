@@ -11,7 +11,7 @@ interface StatInfoCardProps {
 export default function StatInfoCard({ title, content, icon, info }: StatInfoCardProps): JSX.Element {
   return (
     <div className="bg-white border border-customLightGray rounded-lg h-full flex flex-col">
-      <div className="w-full flex flex-row p-6 h-full items-center justify-center">
+      <div className="w-full flex flex-row p-5 h-full items-center justify-center">
         <CardIcon icon={icon} />
         <div className="ml-4 w-full">
           <div className="flex flex-row items-center w-full pt-1">
