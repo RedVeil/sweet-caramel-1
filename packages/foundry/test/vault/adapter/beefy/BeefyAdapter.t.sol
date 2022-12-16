@@ -3,15 +3,17 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyERC4626, SafeERC20, IERC20, IERC20Metadata, Math, IBeefyVault, IBeefyBooster } from "../../../../src/vault/adapter/beefy/BeefyERC4626.sol";
+import { BeefyERC4626, SafeERC20, IERC20, IERC20Metadata, Math, IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "../../../../src/vault/adapter/beefy/BeefyERC4626.sol";
 import { BeefyTestConfigStorage, BeefyTestConfig } from "./BeefyTestConfigStorage.sol";
 import { AbstractAdapterTest, ITestConfigStorage, IAdapter } from "../abstract/AbstractAdapterTest.sol";
+import { MockAdapter } from "../../../utils/mocks/MockAdapter.sol";
 
 contract BeefyAdapterTest is AbstractAdapterTest {
   using Math for uint256;
 
   IBeefyBooster beefyBooster;
   IBeefyVault beefyVault;
+  IBeefyBalanceCheck beefyBalanceCheck;
 
   // TODO update this fork -- maybe via config
   function setUp() public {
@@ -23,7 +25,6 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     _setUpTest(testConfigStorage.getTestConfig(0));
   }
 
-  // NOTE: You MUST override this. Its should use exactly setup to override the previous setup
   function overrideSetup(bytes memory testConfig) public override {
     _setUpTest(testConfig);
   }
@@ -34,10 +35,16 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     (address _beefyVault, address _beefyBooster, ) = abi.decode(testConfig, (address, address, uint256));
     beefyVault = IBeefyVault(_beefyVault);
     beefyBooster = IBeefyBooster(_beefyBooster);
+    beefyBalanceCheck = IBeefyBalanceCheck(_beefyBooster == address(0) ? _beefyVault : _beefyBooster);
 
     setUpBaseTest(IERC20(IBeefyVault(beefyVault).want()), adapter, 10, "Beefy ");
 
-    adapter.initialize(abi.encode(asset, address(this), strategy, 0, new bytes4[](8), ""), address(0), testConfig);
+    vm.label(_beefyVault, "beefyVault");
+    vm.label(_beefyBooster, "beefyBooster");
+    vm.label(address(asset), "asset");
+    vm.label(address(this), "test");
+
+    adapter.initialize(abi.encode(asset, address(this), strategy, 0, sigs, ""), address(0), testConfig);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -54,7 +61,7 @@ contract BeefyAdapterTest is AbstractAdapterTest {
   }
 
   function iouBalance() public view override returns (uint256) {
-    return beefyVault.balanceOf(address(adapter));
+    return beefyBalanceCheck.balanceOf(address(adapter));
   }
 
   // Verify that totalAssets returns the expected amount

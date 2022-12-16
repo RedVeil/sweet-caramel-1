@@ -57,12 +57,6 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     feesUpdatedAt = block.timestamp;
   }
 
-  modifier initStrategy() {
-    _;
-    if (address(strategy) != address(0))
-      address(strategy).delegatecall(abi.encodeWithSignature("verifyAndSetupStrategy()"));
-  }
-
   /*//////////////////////////////////////////////////////////////
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -112,7 +106,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     address receiver,
     uint256 assets,
     uint256 shares
-  ) internal virtual override whenNotPaused {
+  ) internal virtual override {
     // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
     // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
     // calls the vault, which is assumed not malicious.
@@ -136,6 +130,8 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     // deposit into underlying protocol
   }
 
+  event log(string m, uint256 amount);
+
   /**
    * @dev Withdraw/redeem common workflow.
    */
@@ -146,13 +142,18 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     uint256 assets,
     uint256 shares
   ) internal virtual override {
+    emit log("ps", previewWithdraw(assets));
+    emit log("shares", shares);
     if (caller != owner) {
       _spendAllowance(owner, caller, shares);
     }
 
-    harvest();
-
-    _protocolWithdraw(assets, shares);
+    if (!paused()) {
+      uint256 oldBal = IERC20(asset()).balanceOf(address(this));
+      _protocolWithdraw(assets, shares);
+      uint256 newBal = IERC20(asset()).balanceOf(address(this));
+      assets = newBal - oldBal;
+    }
 
     // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
     // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
@@ -163,6 +164,8 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     _burn(owner, shares);
 
     IERC20(asset()).safeTransfer(receiver, assets);
+
+    harvest();
 
     emit Withdraw(caller, receiver, owner, assets, shares);
   }
@@ -280,14 +283,14 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   //////////////////////////////////////////////////////////////*/
 
   uint256 public managementFee = 5e16;
-  uint256 constant MAX_FEE = 1e18;
-  uint256 constant SECONDS_PER_YEAR = 365.25 days;
+  uint256 internal constant MAX_FEE = 1e18;
+  uint256 internal constant SECONDS_PER_YEAR = 365.25 days;
 
   // TODO use deterministic fee recipient proxy
   address FEE_RECIPIENT = address(0x4444);
 
-  uint256 assetsCheckpoint;
-  uint256 feesUpdatedAt;
+  uint256 public assetsCheckpoint;
+  uint256 public feesUpdatedAt;
 
   error InvalidManagementFee(uint256 fee);
 
@@ -331,8 +334,8 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   }
 
   function unpause() external onlyOwner {
-    _unpause();
     _protocolDeposit(totalAssets(), totalSupply());
+    _unpause();
   }
 
   /*//////////////////////////////////////////////////////////////

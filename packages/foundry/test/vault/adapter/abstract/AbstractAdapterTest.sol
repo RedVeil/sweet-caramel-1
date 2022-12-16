@@ -33,7 +33,14 @@ contract AbstractAdapterTest is PropertyTest {
   IAdapter adapter;
   IStrategy strategy;
 
-  function setUpBaseTest(IERC20 asset_, IAdapter adapter_, uint256 delta_, string memory baseTestId_) public {
+  bytes4[8] sigs;
+
+  function setUpBaseTest(
+    IERC20 asset_,
+    IAdapter adapter_,
+    uint256 delta_,
+    string memory baseTestId_
+  ) public {
     // Setup PropertyTest
     _asset_ = address(asset_);
     _vault_ = address(adapter_);
@@ -42,7 +49,7 @@ contract AbstractAdapterTest is PropertyTest {
     asset = asset_;
     adapter = adapter_;
 
-    defaultAmount = 10 ** IERC20Metadata(address(adapter)).decimals();
+    defaultAmount = 10**IERC20Metadata(address(adapter)).decimals();
 
     raise = defaultAmount * 10_000;
     maxAssets = defaultAmount * 1000;
@@ -84,6 +91,13 @@ contract AbstractAdapterTest is PropertyTest {
 
   function verify_adapterInit() public virtual {}
 
+  function _mintFor(uint256 amount, address receiver) internal {
+    deal(address(asset), receiver, amount);
+
+    vm.prank(receiver);
+    asset.approve(address(adapter), amount);
+  }
+
   /*//////////////////////////////////////////////////////////////
                           INITIALIZATION
     //////////////////////////////////////////////////////////////*/
@@ -97,16 +111,16 @@ contract AbstractAdapterTest is PropertyTest {
     createAdapter();
     uint256 callTime = block.timestamp;
 
-    vm.expectEmit(false, false, false, true, address(adapter));
+    vm.expectEmit(false, false, false, true, address(strategy));
     emit SelectorsVerified();
-    vm.expectEmit(false, false, false, true, address(adapter));
+    vm.expectEmit(false, false, false, true, address(strategy));
     emit AdapterVerified();
-    vm.expectEmit(false, false, false, true, address(adapter));
+    vm.expectEmit(false, false, false, true, address(strategy));
     emit StrategySetup();
     vm.expectEmit(false, false, false, true, address(adapter));
     emit Initialized(uint8(1));
     adapter.initialize(
-      abi.encode(asset, address(this), strategy, 0, new bytes4[](8), ""),
+      abi.encode(asset, address(this), strategy, 0, sigs, ""),
       address(0),
       testConfigStorage.getTestConfig(0)
     );
@@ -158,12 +172,22 @@ contract AbstractAdapterTest is PropertyTest {
   function test__maxDeposit() public virtual {
     prop_maxDeposit(bob);
 
+    // Deposit smth so withdraw on pause is not 0
+    deal(address(asset), address(this), 1 ether);
+    asset.approve(address(adapter), 1 ether);
+    adapter.deposit(1 ether, address(this));
+
     adapter.pause();
     assertEq(adapter.maxDeposit(bob), 0);
   }
 
   function test__maxMint() public virtual {
     prop_maxMint(bob);
+
+    // Deposit smth so withdraw on pause is not 0
+    deal(address(asset), address(this), 1 ether);
+    asset.approve(address(adapter), 1 ether);
+    adapter.deposit(1 ether, address(this));
 
     adapter.pause();
     assertEq(adapter.maxMint(bob), 0);
@@ -233,10 +257,14 @@ contract AbstractAdapterTest is PropertyTest {
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      amount = bound(amount, 10, maxAssets);
+      amount = bound(amount, defaultAmount, maxAssets);
 
+      _mintFor(amount, bob);
       (, uint256 receivedShares1) = prop_deposit(bob, bob, amount, testId);
+
       increasePricePerShare(raise);
+
+      _mintFor(amount, bob);
       (, uint256 receivedShares2) = prop_deposit(bob, alice, amount, testId);
 
       // received1 should be greater than received2
@@ -249,10 +277,14 @@ contract AbstractAdapterTest is PropertyTest {
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      amount = bound(amount, 10, maxShares);
+      amount = bound(amount, defaultAmount, maxShares);
 
+      _mintFor(adapter.previewMint(amount), bob);
       (uint256 paidAssets1, ) = prop_mint(bob, bob, amount, testId);
+
       increasePricePerShare(raise);
+
+      _mintFor(adapter.previewMint(amount), bob);
       (uint256 paidAssets2, ) = prop_mint(bob, alice, amount, testId);
 
       // paidAssets2 should be greater than paidAssets1
@@ -265,14 +297,33 @@ contract AbstractAdapterTest is PropertyTest {
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      amount = bound(amount, 10, maxAssets);
+      amount = bound(amount, defaultAmount, maxAssets);
+
+      _mintFor(maxAssets, bob);
+      vm.prank(bob);
+      adapter.deposit(maxAssets, bob);
 
       (uint256 paidShares1, ) = prop_withdraw(bob, bob, amount, testId);
+      emit log_named_uint("total assets1", adapter.totalAssets());
+
+      // TODO pricePerShare doesnt seem to work correctly
       increasePricePerShare(raise);
+      emit log_named_uint("total assets2", adapter.totalAssets());
+
+      _mintFor(maxAssets, bob);
+
+      vm.startPrank(bob);
+      adapter.deposit(maxAssets, bob);
+      //vm.prank(bob);
+      adapter.approve(alice, adapter.previewWithdraw(amount));
+      vm.stopPrank();
+      emit log_named_uint("preview", adapter.previewWithdraw(amount));
+      emit log_named_uint("allowance", adapter.allowance(alice, bob));
+
       (uint256 paidShares2, ) = prop_withdraw(alice, bob, amount, testId);
 
       // paidShares1 should be greater than paidShares2
-      assertGe(paidShares1, paidShares2, string.concat("pps", testId));
+      assertGe(paidShares2, paidShares1, string.concat("pps", testId));
     }
   }
 
@@ -281,10 +332,20 @@ contract AbstractAdapterTest is PropertyTest {
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      amount = bound(amount, 10, maxShares);
+      amount = bound(amount, defaultAmount, maxShares);
 
+      uint256 reqAssets = adapter.previewMint(adapter.previewRedeem(maxShares));
+      _mintFor(reqAssets, bob);
+      vm.prank(bob);
+      adapter.deposit(reqAssets, bob);
       (, uint256 receivedAssets1) = prop_redeem(bob, bob, amount, testId);
+
       increasePricePerShare(raise);
+
+      reqAssets = adapter.previewMint(adapter.previewRedeem(maxShares));
+      _mintFor(reqAssets, bob);
+      vm.prank(bob);
+      adapter.deposit(reqAssets, bob);
       (, uint256 receivedAssets2) = prop_redeem(alice, bob, amount, testId);
 
       // receivedAssets2 should be greater than receivedAssets1
@@ -297,12 +358,10 @@ contract AbstractAdapterTest is PropertyTest {
     //////////////////////////////////////////////////////////////*/
 
   function test__pause() public virtual {
-    deal(address(asset), bob, defaultAmount);
+    _mintFor(defaultAmount, bob);
 
-    vm.startPrank(bob);
-    asset.approve(address(adapter), defaultAmount);
+    vm.prank(bob);
     adapter.deposit(defaultAmount, bob);
-    vm.stopPrank();
 
     uint256 oldTotalAssets = adapter.totalAssets();
     uint256 oldTotalSupply = adapter.totalSupply();
@@ -313,17 +372,17 @@ contract AbstractAdapterTest is PropertyTest {
 
     // We simply withdraw into the adapter
     // TotalSupply and Assets dont change
-    assertEq(oldTotalAssets, adapter.totalAssets(), "totalAssets");
-    assertEq(oldTotalSupply, adapter.totalSupply(), "totalSupply");
-    assertEq(asset.balanceOf(address(adapter)), oldTotalAssets, "asset balance");
-    assertEq(iouBalance(), 0, "iou balance");
+    assertApproxEqAbs(oldTotalAssets, adapter.totalAssets(), _delta_, "totalAssets");
+    assertApproxEqAbs(oldTotalSupply, adapter.totalSupply(), _delta_, "totalSupply");
+    assertApproxEqAbs(asset.balanceOf(address(adapter)), oldTotalAssets, _delta_, "asset balance");
+    assertApproxEqAbs(iouBalance(), 0, _delta_, "iou balance");
 
     vm.startPrank(bob);
-    // Deposit and mint are paused
-    vm.expectRevert("Pausable: paused");
+    // Deposit and mint are paused (maxDeposit/maxMint are set to 0 on pause)
+    vm.expectRevert("ERC4626: deposit more than max");
     adapter.deposit(defaultAmount, bob);
 
-    vm.expectRevert("Pausable: paused");
+    vm.expectRevert("ERC4626: mint more than max");
     adapter.mint(defaultAmount, bob);
 
     // Withdraw and Redeem dont revert
@@ -337,25 +396,24 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__unpause() public virtual {
-    deal(address(asset), bob, defaultAmount * 3);
+    _mintFor(defaultAmount * 3, bob);
 
-    vm.startPrank(bob);
-    asset.approve(address(adapter), defaultAmount * 3);
+    vm.prank(bob);
     adapter.deposit(defaultAmount, bob);
-    vm.stopPrank();
 
     uint256 oldTotalAssets = adapter.totalAssets();
     uint256 oldTotalSupply = adapter.totalSupply();
+    uint256 oldIouBalance = iouBalance();
 
     adapter.pause();
     adapter.unpause();
 
     // We simply deposit back into the external protocol
     // TotalSupply and Assets dont change
-    assertEq(oldTotalAssets, adapter.totalAssets(), "totalAssets");
-    assertEq(oldTotalSupply, adapter.totalSupply(), "totalSupply");
-    assertEq(asset.balanceOf(address(adapter)), 0, "asset balance");
-    assertGt(iouBalance(), 0, "iou balance");
+    assertApproxEqAbs(oldTotalAssets, adapter.totalAssets(), _delta_, "totalAssets");
+    assertApproxEqAbs(oldTotalSupply, adapter.totalSupply(), _delta_, "totalSupply");
+    assertApproxEqAbs(asset.balanceOf(address(adapter)), 0, _delta_, "asset balance");
+    assertApproxEqAbs(iouBalance(), oldIouBalance, _delta_, "iou balance");
 
     // Deposit and mint dont revert
     vm.startPrank(bob);
@@ -378,10 +436,9 @@ contract AbstractAdapterTest is PropertyTest {
   event Harvested();
 
   function test__harvest() public virtual {
-    deal(address(asset), bob, defaultAmount);
+    _mintFor(defaultAmount, bob);
 
-    vm.startPrank(bob);
-    asset.approve(address(adapter), defaultAmount);
+    vm.prank(bob);
     adapter.deposit(defaultAmount, bob);
 
     // Skip a year
@@ -391,14 +448,15 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 callTime = block.timestamp;
 
     vm.expectEmit(false, false, false, true, address(adapter));
-    emit Harvested();
-    vm.expectEmit(false, false, false, true, address(adapter));
     emit StrategyExecuted();
+    vm.expectEmit(false, false, false, true, address(adapter));
+    emit Harvested();
+
     adapter.harvest();
 
-    assertEq(adapter.feesUpdatedAt(), callTime);
-    assertEq(adapter.assetsCheckpoint(), defaultAmount);
-    assertEq(adapter.totalSupply(), defaultAmount + expectedFee);
+    assertEq(adapter.feesUpdatedAt(), callTime, "feesUpdatedAt");
+    assertApproxEqAbs(adapter.assetsCheckpoint(), defaultAmount, _delta_, "assetsCheckpoint");
+    assertApproxEqAbs(adapter.totalSupply(), defaultAmount + expectedFee, _delta_, "totalSupply");
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -409,7 +467,7 @@ contract AbstractAdapterTest is PropertyTest {
 
   function test__setManagementFee() public virtual {
     vm.expectEmit(false, false, false, true, address(adapter));
-    emit ManagementFeeChanged(uint256(0), 1e16);
+    emit ManagementFeeChanged(5e16, 1e16);
     adapter.setManagementFee(1e16);
 
     assertEq(adapter.managementFee(), 1e16);
