@@ -16,6 +16,8 @@ export interface PortfolioHeroProps {
     selectedfilter: { id: string; value: string },
     setSelectedFilter: React.Dispatch<{ id: string; value: string }>,
   ];
+  VestingBalance?: JSX.Element;
+  POPInWalletBalance?: JSX.Element;
 }
 
 const PortfolioHero: React.FC<PortfolioHeroProps> = ({
@@ -24,13 +26,15 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
   selectedNetworks,
   account,
   filterState,
+  VestingBalance,
+  POPInWalletBalance,
 }) => {
   const options = [
     { id: "HIGHESTHOLDING", value: "Highest Holding Value" },
     { id: "LOWESTHOLDING", value: "Lowest Holding Value" },
   ];
 
-  const selectedContracts = useSupportedContracts(selectedNetworks);
+  // const selectedContracts = useSupportedContracts(selectedNetworks);
   const [selectedFilter, setSelectedFilter] = filterState;
 
   return (
@@ -67,13 +71,15 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
           <div className="col-span-5 md:col-span-3">
             <p className="leading-6 text-base font-light md:font-normal">Vesting</p>
             <div className="text-3xl font-light md:font-medium">
-              <TotalVestingBalanceOf selectedContracts={selectedContracts} account={account} />
+              {VestingBalance}
+              {/* <TotalVestingBalanceOf selectedContracts={selectedContracts} account={account} /> */}
             </div>
           </div>
           <div className="col-span-5 md:col-span-3">
             <p className="leading-6 text-base font-light md:font-normal">POP In Wallet</p>
             <div className="text-3xl font-light md:font-medium">
-              <TotalPopBalanceOf selectedContracts={selectedContracts} account={account} />
+              {POPInWalletBalance}
+              {/* <TotalPopBalanceOf selectedContracts={selectedContracts} account={account} /> */}
             </div>
           </div>
         </div>

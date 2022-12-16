@@ -1,6 +1,8 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import PortfolioItem from "../components/Portfolio/PortfolioItem";
+import EthIcon from "./assets/ethereum.svg";
+import POPIcon from "./assets/POP.svg";
 
 export default {
   title: "Components/PortfolioItem",
@@ -11,9 +13,10 @@ const Template: ComponentStory<typeof PortfolioItem> = (args) => <PortfolioItem 
 
 export const Primary = Template.bind({});
 Primary.args = {
-  tokenName: "Test Modal",
-  chainId: 1,
+  tokenName: "POP",
   token: "Popcorn",
+  contractIcon: EthIcon,
+  tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
   portfolioValues: [
     {
       value: "$0.35",

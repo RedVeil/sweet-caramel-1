@@ -5,6 +5,8 @@ import TooltipIcon from "../stories/assets/tooltip.svg";
 import { BadgeVariant } from "../components/Badge";
 import EthIcon from "./assets/ethereum.svg";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import POPIcon from "./assets/POP.svg";
+import PortfolioItem from "../components/Portfolio/PortfolioItem";
 
 export default {
   title: "Pages/PortfolioPage",
@@ -55,6 +57,93 @@ const NetworkSwitcher = (
   </div>
 );
 
+const PortfolioItemsChildren = () => {
+  const itemProps = [
+    {
+      tokenName: "POP",
+      token: "Popcorn",
+      contractIcon: EthIcon,
+      tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
+      portfolioValues: [
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
+      ],
+    },
+    {
+      tokenName: "Arrakis",
+      token: "Popcorn",
+      contractIcon: EthIcon,
+      tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
+      portfolioValues: [
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
+      ],
+    },
+    {
+      tokenName: "3X",
+      token: "Popcorn",
+      contractIcon: EthIcon,
+      tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
+      portfolioValues: [
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
+      ],
+    },
+  ];
+  return (
+    <>
+      {itemProps.map((props, index) => (
+        <PortfolioItem key={index} {...props} />
+      ))}
+    </>
+  );
+};
+
 const Template: ComponentStory<typeof PortfolioPage> = (args) => <PortfolioPage {...args} />;
 
 export const Primary = Template.bind({});
@@ -64,80 +153,7 @@ Primary.args = {
   sections: [
     {
       title: "Assets",
-      PortfolioItems: [
-        {
-          tokenName: "POP",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: false,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-        },
-        {
-          tokenName: "Arrakis",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: false,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-        },
-        {
-          tokenName: "3X",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: false,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-        },
-      ],
+      children: <PortfolioItemsChildren />,
       TotalValues: [
         {
           title: "Price",
@@ -158,95 +174,11 @@ Primary.args = {
           hideMobile: false,
         },
       ],
+      NetworkIcons: NetworkSwitcher,
     },
     {
       title: "Rewards",
-      PortfolioItems: [
-        {
-          tokenName: "POP",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: true,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-          badge: {
-            variant: BadgeVariant.primary,
-            label: "Claimable",
-          },
-        },
-        {
-          tokenName: "Arrakis",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: true,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-          badge: {
-            variant: BadgeVariant.primary,
-            label: "Claimable",
-          },
-        },
-        {
-          tokenName: "3X",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: true,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-          badge: {
-            variant: BadgeVariant.dark,
-            label: "Vesting",
-          },
-        },
-      ],
+      children: <PortfolioItemsChildren />,
       TotalValues: [
         {
           title: "Price",
@@ -267,6 +199,7 @@ Primary.args = {
           hideMobile: false,
         },
       ],
+      NetworkIcons: NetworkSwitcher,
     },
   ],
 };

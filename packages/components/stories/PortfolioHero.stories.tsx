@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import PortfolioHero from "../components/Portfolio/PortfolioHero";
 import EthIcon from "./assets/ethereum.svg";
@@ -60,4 +60,6 @@ export const Primary = Template.bind({});
 Primary.args = {
   NetworkSwitcher,
   TabButtons: <Tabs tabs={tabs} activeTab={{ label: "All" }} setActiveTab={(value) => console.log(value)} />,
+  selectedNetworks: [0, 1, 1337, 137],
+  filterState: [{ id: "1", value: "test" }, () => console.log("filter")],
 };
