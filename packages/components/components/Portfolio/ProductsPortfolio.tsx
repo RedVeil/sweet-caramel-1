@@ -6,15 +6,59 @@ import PortfolioItemsContainer from "./PortfolioItemsContainer";
 import { ChainId, networkLogos } from "@popcorn/utils";
 import { TotalBalanceOf } from "@popcorn/components/lib/Contract";
 import { useSupportedContracts } from "@popcorn/components/hooks";
+import { useNetworth } from "@popcorn/components/context/Networth";
+import { Pop } from "../../lib/types";
 
-const ProductsPortfolio = ({ selectedNetworks }) => {
-  console.log(selectedNetworks);
-
+interface ProductsPortfolioProps {
+  selectedNetworks: ChainId[];
+  filterBy?: string;
+}
+const ProductsPortfolio = ({ selectedNetworks, filterBy }: ProductsPortfolioProps) => {
   const { address: account } = useAccount();
   // const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
   // const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
   const selectedContracts = useSupportedContracts(selectedNetworks);
+  const { state: _state } = useNetworth();
+  const [filteredContracts, setFilteredContracts] = useState<Pop.NamedAccountsMetadata[]>(selectedContracts);
 
+  useEffect(() => {
+    if (!!filterBy) {
+      switch (filterBy) {
+        case "LOWESTHOLDING":
+          filterByLowestHolding();
+          break;
+        case "HIGHESTHOLDING":
+          filterByHighestHolding();
+          break;
+
+        default:
+          break;
+      }
+    }
+  }, [filterBy]);
+
+  const _filteredContracts = () =>
+    selectedContracts.sort((prev, current) => {
+      let prevContract = _state["total"][prev.address]?.value;
+      let currentContract = _state["total"][current.address]?.value;
+      if (prevContract && currentContract) {
+        return prevContract.gte(currentContract) ? 0 : -1;
+      } else return -1;
+    });
+
+  const filterByLowestHolding = () => {
+    // TODO: this should filter the contracts by lowest holding
+    // if ((selectedContracts?.length > 0) && (_state["total"])) {
+    //   setFilteredContracts(_filteredContracts())
+    // }
+  };
+
+  const filterByHighestHolding = () => {
+    // TODO: this should filter the contracts by highest holding
+    // if ((selectedContracts?.length > 0) && (_state["total"])) {
+    //   setFilteredContracts(_filteredContracts().reverse)
+    // }
+  };
   const props = {
     title: "Assets",
 
@@ -80,7 +124,7 @@ const ProductsPortfolio = ({ selectedNetworks }) => {
     <>
       <div>
         <PortfolioSection {...props} NetworkIcons={NetworkIcons}>
-          {selectedContracts.map((token, i) => (
+          {filteredContracts.map((token, i) => (
             <PortfolioItemsContainer
               index={i}
               alias={token.__alias}

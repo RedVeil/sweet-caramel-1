@@ -12,12 +12,12 @@ import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 
 const tabs = [{ label: "All" }, { label: "Rewards" }, { label: "Assets" }];
 const Portfolio = () => {
-  // const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
   const { address: account } = useAccount();
   const [activeTab, setActiveTab] = useState({ label: "All" });
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
   const selectedContracts = useSupportedContracts(selectedNetworks);
+  const [selectedfilter, setSelectedFilter] = useState<{ id: string; value: string }>(undefined);
 
   return (
     <div>
@@ -36,11 +36,12 @@ const Portfolio = () => {
           TabButtons={<Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />}
           selectedNetworks={selectedNetworks}
           account={account}
+          filterState={[selectedfilter, setSelectedFilter]}
         />
       </div>
       <div className="mt-7">
         <div className={account ? "" : "hidden"}>
-          <ProductsPortfolio selectedNetworks={selectedNetworks} />
+          <ProductsPortfolio selectedNetworks={selectedNetworks} filterBy={selectedfilter?.id} />
         </div>
         <div className={account ? "hidden" : ""}>
           <NotAvailable

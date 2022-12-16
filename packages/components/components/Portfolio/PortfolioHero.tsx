@@ -12,14 +12,26 @@ export interface PortfolioHeroProps {
   TabButtons: JSX.Element;
   selectedNetworks: ChainId[];
   account?: `0x${string}`;
-}
-const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButtons, selectedNetworks, account }) => {
-  const options = [
-    { id: "1", value: "50%" },
-    { id: "2", value: "100%" },
+  filterState: [
+    selectedfilter: { id: string; value: string },
+    setSelectedFilter: React.Dispatch<{ id: string; value: string }>,
   ];
-  const [selectedOption, setSelectedOption] = useState({ id: "1", value: "50" });
+}
+
+const PortfolioHero: React.FC<PortfolioHeroProps> = ({
+  NetworkSwitcher,
+  TabButtons,
+  selectedNetworks,
+  account,
+  filterState,
+}) => {
+  const options = [
+    { id: "HIGHESTHOLDING", value: "Highest Holding Value" },
+    { id: "LOWESTHOLDING", value: "Lowest Holding Value" },
+  ];
+
   const selectedContracts = useSupportedContracts(selectedNetworks);
+  const [selectedFilter, setSelectedFilter] = filterState;
 
   return (
     <div className="bg-warmGray md:bg-opacity-[15%] flex flex-col md:flex-row justify-between px-8 pt-10 pb-16 md:pb-[14px] relative">
@@ -67,17 +79,17 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({ NetworkSwitcher, TabButto
         </div>
         <div className="md:hidden">{NetworkSwitcher}</div>
         <div className="hidden md:flex flex-col items-end mt-16">
-          {/* {TabButtons}
+          {TabButtons}
           <div className="mt-9 relative">
             <Dropdown
               options={options}
               position="absolute top-14 left-0 z-40"
               width="w-full"
-              selectedItem={selectedOption}
-              switchFilter={setSelectedOption}
+              selectedItem={selectedFilter}
+              switchFilter={setSelectedFilter}
               label="Highest holding %"
             />
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
