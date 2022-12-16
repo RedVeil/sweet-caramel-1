@@ -8,7 +8,7 @@ import { WithContractRegistry, IContractRegistry } from "../utils/WithContractRe
 import { ClonableWithInitData } from "../utils/mocks/ClonableWithInitData.sol";
 import { ClonableWithoutInitData } from "../utils/mocks/ClonableWithoutInitData.sol";
 
-contract TemplateRegistryTEst is Test, WithContractRegistry {
+contract TemplateRegistryTest is Test, WithContractRegistry {
   TemplateRegistry registry;
 
   bytes32 public constant ENDORSEMENT_REGISTRY = keccak256("EndorsementRegistry");
@@ -90,9 +90,52 @@ contract TemplateRegistryTEst is Test, WithContractRegistry {
     bytes32[] memory templateKeys = registry.getTemplateKeys(templateType);
     assertEq(templateKeys.length, 1);
     assertEq(templateKeys[0], "ClonableWithInitData");
+
+    assertTrue(registry.templateExists("ClonableWithInitData"));
   }
 
-  function testFail__addTemplateType_templateType_doesnt_exists() public {}
+  function testFail__addTemplate_templateType_doesnt_exists() public {
+    ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
 
-  function testFail__addTemplateType_template_already_exists() public {}
+    registry.addTemplate(
+      templateType,
+      "ClonableWithInitData",
+      Template({
+        implementation: address(clonableWithInitData),
+        metadataCid: "cid",
+        requiresInitData: true,
+        registry: address(0x2222),
+        requiredSigs: reqSigs
+      })
+    );
+  }
+
+  function testFail__addTemplate_template_already_exists() public {
+    registry.addTemplateType(templateType);
+    ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
+
+    registry.addTemplate(
+      templateType,
+      "ClonableWithInitData",
+      Template({
+        implementation: address(clonableWithInitData),
+        metadataCid: "cid",
+        requiresInitData: true,
+        registry: address(0x2222),
+        requiredSigs: reqSigs
+      })
+    );
+
+    registry.addTemplate(
+      templateType,
+      "ClonableWithInitData",
+      Template({
+        implementation: address(clonableWithInitData),
+        metadataCid: "cid",
+        requiresInitData: true,
+        registry: address(0x2222),
+        requiredSigs: reqSigs
+      })
+    );
+  }
 }

@@ -38,7 +38,7 @@ contract TemplateRegistry is Owned {
     Template memory template
   ) external onlyOwner {
     if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
-    if (templateTypeExists[templateId]) revert TemplateExists(templateId);
+    if (templateExists[templateId]) revert TemplateExists(templateId);
 
     templates[templateType][templateId] = template;
 
