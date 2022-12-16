@@ -19,6 +19,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from "r
 import { setSingleActionModal } from "../actions";
 import { store } from "../store";
 import { useNamedAccounts } from "../../../components";
+import { isGrantsSupportedOnCurrentNetwork } from "helper/NetworkValid";
 
 export interface Contracts {
   staking?: GovStaking;
@@ -120,6 +121,22 @@ export default function ContractsWrapper({ children }: ContractsWrapperProps): J
     if (!library || !chainId) {
       setContracts({});
     } else {
+      if (!isGrantsSupportedOnCurrentNetwork(chainId)) {
+        return dispatch(
+          setSingleActionModal({
+            content: `The network selected in your wallet is not supported. Please switch to ${
+              networkMap[Number(process.env.CHAIN_ID) as ChainId]
+            }.`,
+            title: "Network Error",
+            visible: true,
+            type: "error",
+            onConfirm: {
+              label: "Close",
+              onClick: () => dispatch(setSingleActionModal(false)),
+            },
+          }),
+        );
+      }
       setContracts(initializeContracts(contractAddresses, library));
     }
   }, [library, active, chainId]);
