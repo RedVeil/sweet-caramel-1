@@ -60,6 +60,10 @@ export const networthReducer = (state = initialState, action: NetworthActions = 
       };
     }
 
+    case NetworthActionType.RESET_STATE: {
+      return initialState;
+    }
+
     default:
       return state;
   }

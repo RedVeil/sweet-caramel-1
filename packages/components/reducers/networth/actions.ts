@@ -37,3 +37,9 @@ export const clearVestingBalance = () => (dispatch: Dispatch<NetworthActions>) =
     type: NetworthActionType.CLEAR_VESTING_BALANCE,
   });
 };
+
+export const resetState = () => {
+  return {
+    type: NetworthActionType.RESET_STATE,
+  };
+};

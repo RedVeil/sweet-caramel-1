@@ -7,6 +7,7 @@ export enum NetworthActionType {
   CLEAR_POP_BALANCE = "CLEAR_POP_BALANCE",
   UPDATE_VESTING_BALANCE = "UPDATE_VESTING_BALANCE",
   CLEAR_VESTING_BALANCE = "CLEAR_VESTING_BALANCE",
+  RESET_STATE = "RESET_STATE",
 }
 
 interface UpdateNetworth {
@@ -37,9 +38,12 @@ interface UpdateVestingBalance {
     status: Status;
   };
 }
-
 interface ClearVestingBalance {
   type: NetworthActionType.CLEAR_VESTING_BALANCE;
+}
+
+interface ResetState {
+  type: NetworthActionType.RESET_STATE;
 }
 
 export type NetworthActions =
@@ -48,4 +52,5 @@ export type NetworthActions =
   | ClearPopBalance
   | UpdateVestingBalance
   | ClearVestingBalance
+  | ResetState
   | { type: null; payload: null };

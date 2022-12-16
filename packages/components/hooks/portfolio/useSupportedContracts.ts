@@ -31,16 +31,14 @@ export const useSupportedContracts = (selectedNetworks) => {
 
   const contractsOp = useNamedAccounts("10", ["pop", "popUsdcArrakisVault"]);
 
-  const findNetwork = (chainId: Number) => {
-    return selectedNetworks.includes(chainId);
-  };
-
   const allContracts = [...contractsEth, ...contractsPoly, ...contractsBnb, ...contractsArbitrum].flatMap(
     (network) => network,
   ) as Pop.NamedAccountsMetadata[];
 
   const [selectedContracts, setSelectedContracts] = useState(allContracts);
+
   useEffect(() => {
+    const findNetwork = (chainId) => selectedNetworks.includes(chainId);
     const filteredContracts = allContracts.filter((contract) => findNetwork(Number(contract.chainId)));
 
     // clear popBalance and vesting in the store
@@ -49,12 +47,7 @@ export const useSupportedContracts = (selectedNetworks) => {
 
     setSelectedContracts(filteredContracts);
 
-    // if (selectedNetworks.includes(0)) {
-    //   setSelectedContracts(allContracts)
-    // } else {
-    //   const filteredContracts = allContracts.filter((contract) => findNetwork(Number(contract.chainId)))
-    //   setSelectedContracts(filteredContracts)
-    // }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNetworks]);
 
   return selectedContracts;
