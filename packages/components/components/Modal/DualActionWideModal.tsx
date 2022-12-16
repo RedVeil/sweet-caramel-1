@@ -1,6 +1,6 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dialog, Transition } from "@headlessui/react";
-import { XIcon } from "@heroicons/react/outline";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
 import React, { Fragment, useEffect, useRef, useState } from "react";
@@ -98,7 +98,7 @@ const Example: React.FC<DualActionWideModalProps> = ({
             <Dialog.Panel className="absolute flex top-0 w-full h-full justify-center sm:items-center items-end pb-20">
               <div className="inline-block align-bottom bg-white rounded-lg p-6 md:p-10 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle w-88 md:max-w-md sm:w-full sm:p-6">
                 <div className="flex justify-end">
-                  <XIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />
+                  <XMarkIcon className="w-10 h-10 text-black mb-10" onClick={dismiss} role="button" />
                 </div>
                 <div>
                   {image}

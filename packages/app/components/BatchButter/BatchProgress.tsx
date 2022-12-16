@@ -17,7 +17,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
 
   return (
     <div className="bg-white border border-customLightGray rounded-lg h-full flex flex-col">
-      <div className="w-full flex flex-row p-6 h-full items-center gap-6 md:gap-0 md:space-x-6">
+      <div className="w-full flex flex-row p-5 h-full items-center gap-6 md:gap-0 md:space-x-6">
         <div className="relative h-20 w-20 p-2 rounded-full">
           <div className="bg-customYellow w-18 h-18 rounded-full relative transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
           <p className="text-2xl font-medium leading-none text-black absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-30">

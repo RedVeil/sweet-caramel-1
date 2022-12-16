@@ -14,7 +14,9 @@ export default function Hero(): JSX.Element {
           <TVLCard />
           <NetworthCard hidden={!isConnected} />
         </div>
-        <ConnectWallet hidden={isConnected} />
+        <div className="mt-6">
+          <ConnectWallet hidden={isConnected} />
+        </div>
       </div>
 
       <div className="col-span-12 md:col-span-8 md:col-start-4 pt-6">
