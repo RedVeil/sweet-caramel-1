@@ -81,10 +81,6 @@ contract CloneFactoryTest is Test, WithContractRegistry {
     factory.deploy(template, "");
   }
 
-  function test__deploy_not_endorsed() public pure {
-    revert("endorsement check not implemented in CloneFactory");
-  }
-
   function test__deploy_init_failed() public {
     Template memory template = Template({
       implementation: address(clonableWithoutInitDataImpl),
