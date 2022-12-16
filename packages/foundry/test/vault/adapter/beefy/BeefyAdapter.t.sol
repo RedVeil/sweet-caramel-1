@@ -6,7 +6,6 @@ import { Test } from "forge-std/Test.sol";
 import { BeefyERC4626, SafeERC20, IERC20, IERC20Metadata, Math, IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "../../../../src/vault/adapter/beefy/BeefyERC4626.sol";
 import { BeefyTestConfigStorage, BeefyTestConfig } from "./BeefyTestConfigStorage.sol";
 import { AbstractAdapterTest, ITestConfigStorage, IAdapter } from "../abstract/AbstractAdapterTest.sol";
-import { MockAdapter } from "../../../utils/mocks/MockAdapter.sol";
 
 contract BeefyAdapterTest is AbstractAdapterTest {
   using Math for uint256;
