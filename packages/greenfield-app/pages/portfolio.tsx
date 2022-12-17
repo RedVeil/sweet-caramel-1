@@ -32,22 +32,20 @@ const Portfolio = () => {
   }, [account]);
 
   return (
-    <div>
-      {selectedContracts.map((token, index) => (
-        <RenderBalance key={index} address={token.address} chainId={token.chainId} account={account} />
+    <>
+      {selectedContracts.map((token) => (
+        <RenderBalance key={token.address} address={token.address} chainId={token.chainId} account={account} />
       ))}
-      <div>
-        <PortfolioHero
-          NetworkSwitcher={<NetworkFilter supportedNetworks={supportedNetworks} selectNetwork={selectNetwork} />}
-          TabButtons={<Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />}
-          selectedNetworks={selectedNetworks}
-          account={account}
-          filterState={[selectedFilter, setSelectedFilter]}
-          VestingBalance={<TotalVestingBalanceOf selectedContracts={selectedContracts} account={account} />}
-          POPInWalletBalance={<TotalPopBalanceOf selectedContracts={selectedContracts} account={account} />}
-        />
-      </div>
-      <div className="mt-7">
+      <PortfolioHero
+        NetworkSwitcher={<NetworkFilter supportedNetworks={supportedNetworks} selectNetwork={selectNetwork} />}
+        TabButtons={<Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />}
+        selectedNetworks={selectedNetworks}
+        account={account}
+        filterState={[selectedFilter, setSelectedFilter]}
+        VestingBalance={<TotalVestingBalanceOf selectedContracts={selectedContracts} account={account} />}
+        POPInWalletBalance={<TotalPopBalanceOf selectedContracts={selectedContracts} account={account} />}
+      />
+      <div className="mt-7 mb-16 md:mb-18 px-6 md:px-8">
         <div className={account ? "" : "hidden"}>
           <ProductsPortfolio selectedNetworks={selectedNetworks} filterBy={selectedFilter?.id} />
         </div>
@@ -59,7 +57,7 @@ const Portfolio = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
