@@ -8,6 +8,7 @@ import { TotalBalanceOf } from "@popcorn/components/lib/Contract";
 import { useSupportedContracts } from "@popcorn/components/hooks";
 import { useNetworth } from "@popcorn/components/context/Networth";
 import { Pop } from "../../lib/types";
+import Image from "next/image";
 
 interface ProductsPortfolioProps {
   selectedNetworks: ChainId[];
@@ -15,8 +16,6 @@ interface ProductsPortfolioProps {
 }
 const ProductsPortfolio = ({ selectedNetworks, filterBy }: ProductsPortfolioProps) => {
   const { address: account } = useAccount();
-  // const account = "0x32cb9fd13af7635cc90d0713a80188b366a28205";
-  // const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
   const selectedContracts = useSupportedContracts(selectedNetworks);
   const { state: _state } = useNetworth();
   const [filteredContracts, setFilteredContracts] = useState<Pop.NamedAccountsMetadata[]>(selectedContracts);
@@ -107,36 +106,32 @@ const ProductsPortfolio = ({ selectedNetworks, filterBy }: ProductsPortfolioProp
   const NetworkIcons = (
     <div className="relative flex items-center">
       <div className="relative">
-        <img src={networkLogos[1]} alt="network logo" className="w-6 h-6" />
+        <Image src={networkLogos[1]} height="24" alt="network logo" width="24" objectFit="contain" />
       </div>
       <div className="relative -left-1">
-        <img src={networkLogos[137]} alt="network logo" className="w-6 h-6" />
+        <Image src={networkLogos[137]} height="24" alt="network logo" width="24" objectFit="contain" />
       </div>
       <div className="relative -left-2">
-        <img src={networkLogos[56]} alt="network logo" className="w-6 h-6" />
+        <Image src={networkLogos[56]} height="24" alt="network logo" width="24" objectFit="contain" />
       </div>
       <div className="relative -left-3">
-        <img src={networkLogos[42161]} alt="network logo" className="w-6 h-6" />
+        <Image src={networkLogos[42161]} height="24" alt="network logo" width="24" objectFit="contain" />
       </div>
     </div>
   );
   return (
-    <>
-      <div>
-        <PortfolioSection {...props} NetworkIcons={NetworkIcons}>
-          {filteredContracts.map((token, i) => (
-            <PortfolioItemsContainer
-              index={i}
-              alias={token.__alias}
-              key={`${i}:${token.chainId}:${token.address}`}
-              chainId={Number(token.chainId) as unknown as ChainId}
-              address={token.address}
-              account={account}
-            />
-          ))}
-        </PortfolioSection>
-      </div>
-    </>
+    <PortfolioSection {...props} NetworkIcons={NetworkIcons}>
+      {filteredContracts.map((token, i) => (
+        <PortfolioItemsContainer
+          index={i}
+          alias={token.__alias}
+          key={`${i}:${token.chainId}:${token.address}`}
+          chainId={Number(token.chainId) as unknown as ChainId}
+          address={token.address}
+          account={account}
+        />
+      ))}
+    </PortfolioSection>
   );
 };
 

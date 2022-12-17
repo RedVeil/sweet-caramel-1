@@ -4,7 +4,7 @@ import { Badge, BadgeVariant } from "../Badge";
 export interface PortfolioItemProps {
   tokenName: string;
   tokenIcon: JSX.Element;
-  contractIcon: string;
+  networkSticker: JSX.Element;
   token: string;
   portfolioValues: Array<{ value: string | JSX.Element; hideMobile: boolean }>;
   badge?: { label: string; variant: BadgeVariant };
@@ -16,7 +16,7 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({
   token,
   portfolioValues,
   badge,
-  contractIcon,
+  networkSticker,
 }) => {
   const filterHiddenMobile = () => portfolioValues.filter((value) => !value.hideMobile);
 
@@ -29,9 +29,7 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({
           }`}
         >
           <div className="relative">
-            <div className="absolute top-0 -left-4">
-              <img src={contractIcon} alt="network logo" className="w-6 h-6" />
-            </div>
+            {networkSticker}
             {tokenIcon}
           </div>
 
