@@ -1,8 +1,9 @@
 import { ArrowSmallUpIcon, ArrowLongUpIcon } from "@heroicons/react/24/solid";
 import Dropdown from "../Dropdown";
-import HeroBg from "../../stories/assets/portfolioHeroBg.svg";
-import HeroBgMobile from "../../stories/assets/portfolioHeroBgmobile.svg";
+import HeroBgMobile from "../../public/images/portfolioHeroBgmobile.svg";
+import HeroBg from "../../public/images/portfolioHeroBg.svg";
 import { ChainId } from "@popcorn/utils";
+import Image from "next/image";
 export interface PortfolioHeroProps {
   NetworkSwitcher: JSX.Element;
   TabButtons: JSX.Element;
@@ -12,8 +13,8 @@ export interface PortfolioHeroProps {
     selectedFilter: { id: string; value: string },
     setSelectedFilter: React.Dispatch<{ id: string; value: string }>,
   ];
-  VestingBalance?: JSX.Element;
-  POPInWalletBalance?: JSX.Element;
+  VestingBalance: JSX.Element;
+  POPInWalletBalance: JSX.Element;
 }
 
 const PortfolioHero: React.FC<PortfolioHeroProps> = ({
@@ -31,7 +32,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
   const [selectedFilter, setSelectedFilter] = filterState;
 
   return (
-    <div className="bg-warmGray md:bg-opacity-[15%] flex flex-col md:flex-row justify-between px-8 pt-10 pb-16 md:pb-[14px] relative">
+    <div className="bg-warmGray md:bg-opacity-[15%] flex flex-col md:flex-row justify-between px-8 pt-10 pb-16 md:pb-[14px] relative -mt-5">
       <div className="relative z-20">
         <h1 className="text-3xl md:text-4xl font-normal m-0 leading-[38px] md:leading-11 mb-4">
           Your Portfolio Overview
@@ -43,10 +44,10 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
         <div className="hidden md:block mt-6">{NetworkSwitcher}</div>
       </div>
       <div className="absolute bottom-0 left-32 hidden md:block">
-        <img src={HeroBg} alt="" className="w-full" />
+        <Image src={HeroBg} alt="" width={100} height={100} className="w-full h-[300px]" />
       </div>
       <div className="absolute right-5 top-16 md:hidden">
-        <img src={HeroBgMobile} alt="" className="w-full" />
+        <Image src={HeroBgMobile} alt="" width={100} height={100} className="w-full h-[126px]" />
       </div>
       <div>
         <div className="grid grid-cols-12 gap-4 md:gap-8 mt-8 md:mt-0">
