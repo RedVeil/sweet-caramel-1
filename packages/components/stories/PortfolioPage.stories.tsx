@@ -2,11 +2,11 @@ import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import PortfolioPage from "../components/PortfolioPage";
 import TooltipIcon from "../stories/assets/tooltip.svg";
-import { BadgeVariant } from "../components/Badge";
 import EthIcon from "./assets/ethereum.svg";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import POPIcon from "./assets/POP.svg";
 import PortfolioItem from "../components/Portfolio/PortfolioItem";
+import Image from "next/image";
 
 export default {
   title: "Pages/PortfolioPage",
@@ -62,8 +62,12 @@ const PortfolioItemsChildren = () => {
     {
       tokenName: "POP",
       token: "Popcorn",
-      contractIcon: EthIcon,
-      tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
+      networkSticker: (
+        <div className="absolute top-0 -left-4">
+          <Image src={EthIcon} height="24" alt="token icon" width="24" objectFit="contain" />
+        </div>
+      ),
+      tokenIcon: <Image src={POPIcon} height="32" alt="token icon" width="32" objectFit="contain" />,
       portfolioValues: [
         {
           value: "$0.35",
@@ -87,8 +91,12 @@ const PortfolioItemsChildren = () => {
     {
       tokenName: "Arrakis",
       token: "Popcorn",
-      contractIcon: EthIcon,
-      tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
+      networkSticker: (
+        <div className="absolute top-0 -left-4">
+          <Image src={EthIcon} height="24" alt="token icon" width="24" objectFit="contain" />
+        </div>
+      ),
+      tokenIcon: <Image src={POPIcon} height="32" alt="token icon" width="32" objectFit="contain" />,
       portfolioValues: [
         {
           value: "$0.35",
@@ -112,8 +120,12 @@ const PortfolioItemsChildren = () => {
     {
       tokenName: "3X",
       token: "Popcorn",
-      contractIcon: EthIcon,
-      tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
+      networkSticker: (
+        <div className="absolute top-0 -left-4">
+          <Image src={EthIcon} height="24" alt="token icon" width="24" objectFit="contain" />
+        </div>
+      ),
+      tokenIcon: <Image src={POPIcon} height="32" alt="token icon" width="32" objectFit="contain" />,
       portfolioValues: [
         {
           value: "$0.35",
@@ -158,23 +170,23 @@ Primary.args = {
         {
           title: "Price",
           value: "$0.35",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: true,
         },
         {
           title: "Portfolio %",
           value: "50.23%",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
         {
           title: "Balance",
           value: "$40K",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
       ],
-      NetworkIcons: NetworkSwitcher,
+      NetworkIcons: <></>,
     },
     {
       title: "Rewards",
@@ -183,23 +195,23 @@ Primary.args = {
         {
           title: "Price",
           value: "$0.35",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: true,
         },
         {
           title: "Portfolio %",
           value: "50.23%",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
         {
           title: "Balance",
           value: "$40K",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
       ],
-      NetworkIcons: NetworkSwitcher,
+      NetworkIcons: <></>,
     },
   ],
 };

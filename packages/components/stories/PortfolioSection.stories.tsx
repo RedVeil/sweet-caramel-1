@@ -60,7 +60,7 @@ const PortfolioItemsChildren = () => {
     {
       tokenName: "POP",
       token: "Popcorn",
-      contractIcon: EthIcon,
+      networkSticker: <img src={EthIcon} alt="token icon" className="w-6 h-6" />,
       tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
       portfolioValues: [
         {
@@ -85,7 +85,7 @@ const PortfolioItemsChildren = () => {
     {
       tokenName: "Arrakis",
       token: "Popcorn",
-      contractIcon: EthIcon,
+      networkSticker: <img src={EthIcon} alt="token icon" className="w-6 h-6" />,
       tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
       portfolioValues: [
         {
@@ -110,7 +110,7 @@ const PortfolioItemsChildren = () => {
     {
       tokenName: "3X",
       token: "Popcorn",
-      contractIcon: EthIcon,
+      networkSticker: <img src={EthIcon} alt="token icon" className="w-6 h-6" />,
       tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
       portfolioValues: [
         {

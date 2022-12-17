@@ -15,8 +15,8 @@ export const Primary = Template.bind({});
 Primary.args = {
   tokenName: "POP",
   token: "Popcorn",
-  contractIcon: EthIcon,
-  tokenIcon: <img src={POPIcon} alt="token icon" className={`w-6 h-6`} />,
+  networkSticker: <img src={EthIcon} alt="token icon" className="w-6 h-6" />,
+  tokenIcon: <img src={POPIcon} alt="token icon" className="w-6 h-6" />,
   portfolioValues: [
     {
       value: "$0.35",
