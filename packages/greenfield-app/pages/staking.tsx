@@ -1,4 +1,3 @@
-import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
 import StakeCard from "components/staking/StakeCard";
 import React, { useMemo } from "react";
 import useNetworkFilter from "hooks/useNetworkFilter";
@@ -24,11 +23,7 @@ export default function StakingOverviewPage(): JSX.Element {
           <p className="text-black mt-2 mb-4">Earn more by staking your tokens</p>
         </div>
       </div>
-      <NetworkFilter
-        supportedNetworks={supportedNetworks}
-        selectedNetworks={selectedNetworks}
-        selectNetwork={selectNetwork}
-      />
+      <NetworkFilter supportedNetworks={supportedNetworks} selectNetwork={selectNetwork} />
       <div className="border-t border-t-customLightGray border-opacity-40">
         <div className="w-full">
           <div className="h-full ">

@@ -1,6 +1,4 @@
 import React from "react";
-import PopIcon from "../stories/assets/POP.svg";
-import EthIcon from "../stories/assets/ethereum.svg";
 import { Badge, BadgeVariant } from "../Badge";
 
 export interface PortfolioItemProps {
@@ -11,6 +9,7 @@ export interface PortfolioItemProps {
   portfolioValues: Array<{ value: string | JSX.Element; hideMobile: boolean }>;
   badge?: { label: string; variant: BadgeVariant };
 }
+
 const PortfolioItem: React.FC<PortfolioItemProps> = ({
   tokenName,
   tokenIcon,

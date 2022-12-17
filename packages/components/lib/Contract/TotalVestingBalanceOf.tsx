@@ -4,15 +4,16 @@ import { useEffect, useMemo } from "react";
 import { FormattedBigNumber } from "../FormattedBigNumber";
 import { BigNumber } from "ethers";
 import { Pop } from "../types";
-import { ChainId } from "@popcorn/utils";
 import { updateVestingBalance } from "@popcorn/components/reducers/networth";
-
 interface PopBalanceOfProps extends Pick<Pop.StdProps, "account"> {
   selectedContracts: Pop.NamedAccountsMetadata[];
 }
 
 export const TotalVestingBalanceOf = ({ selectedContracts, account }: PopBalanceOfProps) => {
-  const { dispatch, state: _state } = useNetworth();
+  const {
+    dispatch,
+    state: { vestingBalance },
+  } = useNetworth();
 
   const addVestingValue = ({ value, status }) => {
     useEffect(() => {
@@ -27,10 +28,10 @@ export const TotalVestingBalanceOf = ({ selectedContracts, account }: PopBalance
   };
 
   const value = useMemo(() => {
-    return _state.vestingBalance.reduce((acc, cur) => {
+    return vestingBalance.reduce((acc, cur) => {
       return acc.add(cur.value);
     }, BigNumber.from(0));
-  }, [_state.vestingBalance]);
+  }, [vestingBalance]);
 
   return (
     <>
@@ -40,7 +41,7 @@ export const TotalVestingBalanceOf = ({ selectedContracts, account }: PopBalance
             key={`${i}:${token.chainId}:${token.address}`}
             account={account}
             address={token.address}
-            chainId={Number(token.chainId) as unknown as ChainId}
+            chainId={Number(token.chainId)}
             render={({ balance, status }) => {
               addVestingValue({ value: balance?.value, status });
               return <></>;
@@ -52,7 +53,7 @@ export const TotalVestingBalanceOf = ({ selectedContracts, account }: PopBalance
         value={value}
         decimals={18}
         prefix="$"
-        status={selectedContracts.length === 0 || _state.vestingBalance.length ? "success" : "loading"}
+        status={selectedContracts.length === 0 || vestingBalance.length ? "success" : "loading"}
       />
     </>
   );

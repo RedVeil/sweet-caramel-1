@@ -56,11 +56,7 @@ export default function RewardsPage(): JSX.Element {
         <div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
           <div className="col-span-12 md:col-span-4">
             <div className={`mb-12`}>
-              <NetworkFilter
-                supportedNetworks={supportedNetworks}
-                selectedNetworks={selectedNetworks}
-                selectNetwork={selectNetwork}
-              />
+              <NetworkFilter supportedNetworks={supportedNetworks} selectNetwork={selectNetwork} />
             </div>
             <ConnectDepositCard extraClasses="md:h-104" />
           </div>

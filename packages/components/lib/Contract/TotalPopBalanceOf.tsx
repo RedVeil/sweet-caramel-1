@@ -1,18 +1,21 @@
+import type { Pop } from "../types";
+import { useEffect, useMemo } from "react";
+import { BigNumber } from "ethers";
 import { Erc20 } from "@popcorn/components/lib";
 import { useNetworth } from "@popcorn/components/context/Networth";
-import { useEffect, useMemo } from "react";
-import { FormattedBigNumber } from "../FormattedBigNumber";
-import { BigNumber } from "ethers";
-import { Pop } from "../types";
 import { ChainId } from "@popcorn/utils";
 import { updatePopBalance } from "@popcorn/components/reducers/networth";
+import { FormattedBigNumber } from "../FormattedBigNumber";
 
 interface PopBalanceOfProps extends Pick<Pop.StdProps, "account"> {
   selectedContracts: Pop.NamedAccountsMetadata[];
 }
 
 export const TotalPopBalanceOf = ({ selectedContracts, account }: PopBalanceOfProps) => {
-  const { dispatch, state: _state } = useNetworth();
+  const {
+    dispatch,
+    state: { popInWallet },
+  } = useNetworth();
 
   const addPopValue = ({ value, status }) => {
     useEffect(() => {
@@ -27,10 +30,10 @@ export const TotalPopBalanceOf = ({ selectedContracts, account }: PopBalanceOfPr
   };
 
   const value = useMemo(() => {
-    return _state.popInWallet.reduce((acc, cur) => {
+    return popInWallet.reduce((acc, cur) => {
       return acc.add(cur.value);
     }, BigNumber.from(0));
-  }, [_state.popInWallet]);
+  }, [popInWallet]);
 
   return (
     <>
@@ -52,7 +55,7 @@ export const TotalPopBalanceOf = ({ selectedContracts, account }: PopBalanceOfPr
         value={value}
         decimals={18}
         prefix="$"
-        status={selectedContracts.length === 0 || _state.popInWallet.length ? "success" : "loading"}
+        status={selectedContracts.length === 0 || popInWallet.length ? "success" : "loading"}
       />
     </>
   );
