@@ -6,8 +6,8 @@ import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
-import { StateProvider } from "@popcorn/app/context/store";
+import { SingleActionModalContainer } from "@popcorn/components/components/Modal/SingleActionModalContainer";
+import { StateProvider } from "@popcorn/components/context/store";
 import { NetworthContextProvider } from "../context/Networth";
 
 const bnb: Chain = {

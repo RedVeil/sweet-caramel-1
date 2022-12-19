@@ -1,10 +1,10 @@
 import { ChainId } from "@popcorn/utils";
 import StatusWithLabel from "@popcorn/app/components/Common/StatusWithLabel";
-import { Apy, useApy } from "@popcorn/components/pop/Staking";
-import { Tvl } from "@popcorn/components/pop/Contract";
-import { FormattedBigNumber } from "@popcorn/components/pop/FormattedBigNumber";
-import { useMultiStatus } from "../../components/pop/utils/hooks/useMultiStatus";
-import useLog from "@popcorn/components/pop/utils/hooks/useLog";
+import { Apy, useApy } from "@popcorn/components/lib/Staking";
+import { Tvl } from "@popcorn/components/lib/Contract";
+import { FormattedBigNumber } from "@popcorn/components/lib/FormattedBigNumber";
+import { useMultiStatus } from "../../components/lib/utils/hooks/useMultiStatus";
+import useLog from "@popcorn/components/lib/utils/hooks/useLog";
 
 export interface SetStatsProps {
   address: string;

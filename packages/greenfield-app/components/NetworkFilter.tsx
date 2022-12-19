@@ -3,20 +3,14 @@ import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioBu
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import Image from "next/image";
 import { useState } from "react";
-import { Chain, chainId } from "wagmi";
 import { MobilePopupSelect } from "./MobilePopupSelect";
 
 interface NetworkFilterProps {
   supportedNetworks: ChainId[];
-  selectedNetworks: ChainId[];
   selectNetwork: (chainId: ChainId) => void;
 }
 
-export default function NetworkFilter({
-  supportedNetworks,
-  selectedNetworks,
-  selectNetwork,
-}: NetworkFilterProps): JSX.Element {
+export default function NetworkFilter({ supportedNetworks, selectNetwork }: NetworkFilterProps): JSX.Element {
   const [openFilter, setOpenFilter] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<{ id: ChainId; value: JSX.Element }>({
     id: ChainId.ALL,

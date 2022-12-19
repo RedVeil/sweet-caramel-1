@@ -2,9 +2,11 @@ import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import PortfolioPage from "../components/PortfolioPage";
 import TooltipIcon from "../stories/assets/tooltip.svg";
-import { BadgeVariant } from "../components/Badge";
 import EthIcon from "./assets/ethereum.svg";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import POPIcon from "./assets/POP.svg";
+import PortfolioItem from "../components/Portfolio/PortfolioItem";
+import Image from "next/image";
 
 export default {
   title: "Pages/PortfolioPage",
@@ -34,7 +36,7 @@ const networks = [
 ];
 const NetworkSwitcher = (
   <div>
-    <div className="hidden md:flex flex-row items-center space-x-2 mt-6">
+    <div className="hidden md:flex flex-row items-center space-x-2">
       {networks.map(({ label, handleClick, isActive }) => (
         <button
           key={label}
@@ -55,6 +57,105 @@ const NetworkSwitcher = (
   </div>
 );
 
+const PortfolioItemsChildren = () => {
+  const itemProps = [
+    {
+      tokenName: "POP",
+      token: "Popcorn",
+      networkSticker: (
+        <div className="absolute top-0 -left-4">
+          <Image src={EthIcon} height="24" alt="token icon" width="24" objectFit="contain" />
+        </div>
+      ),
+      tokenIcon: <Image src={POPIcon} height="32" alt="token icon" width="32" objectFit="contain" />,
+      portfolioValues: [
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
+      ],
+    },
+    {
+      tokenName: "Arrakis",
+      token: "Popcorn",
+      networkSticker: (
+        <div className="absolute top-0 -left-4">
+          <Image src={EthIcon} height="24" alt="token icon" width="24" objectFit="contain" />
+        </div>
+      ),
+      tokenIcon: <Image src={POPIcon} height="32" alt="token icon" width="32" objectFit="contain" />,
+      portfolioValues: [
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
+      ],
+    },
+    {
+      tokenName: "3X",
+      token: "Popcorn",
+      networkSticker: (
+        <div className="absolute top-0 -left-4">
+          <Image src={EthIcon} height="24" alt="token icon" width="24" objectFit="contain" />
+        </div>
+      ),
+      tokenIcon: <Image src={POPIcon} height="32" alt="token icon" width="32" objectFit="contain" />,
+      portfolioValues: [
+        {
+          value: "$0.35",
+          hideMobile: true,
+        },
+        {
+          value: "0.1234%",
+          hideMobile: false,
+        },
+        {
+          value: (
+            <>
+              <p>$10K</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
+            </>
+          ),
+          hideMobile: false,
+        },
+      ],
+    },
+  ];
+  return (
+    <>
+      {itemProps.map((props, index) => (
+        <PortfolioItem key={index} {...props} />
+      ))}
+    </>
+  );
+};
+
 const Template: ComponentStory<typeof PortfolioPage> = (args) => <PortfolioPage {...args} />;
 
 export const Primary = Template.bind({});
@@ -64,209 +165,53 @@ Primary.args = {
   sections: [
     {
       title: "Assets",
-      PortfolioItems: [
-        {
-          tokenName: "POP",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: false,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-        },
-        {
-          tokenName: "Arrakis",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: false,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-        },
-        {
-          tokenName: "3X",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: false,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-        },
-      ],
+      children: <PortfolioItemsChildren />,
       TotalValues: [
         {
           title: "Price",
           value: "$0.35",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: true,
         },
         {
           title: "Portfolio %",
           value: "50.23%",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
         {
           title: "Balance",
           value: "$40K",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
       ],
+      NetworkIcons: <></>,
     },
     {
       title: "Rewards",
-      PortfolioItems: [
-        {
-          tokenName: "POP",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: true,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-          badge: {
-            variant: BadgeVariant.primary,
-            label: "Claimable",
-          },
-        },
-        {
-          tokenName: "Arrakis",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: true,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-          badge: {
-            variant: BadgeVariant.primary,
-            label: "Claimable",
-          },
-        },
-        {
-          tokenName: "3X",
-          chainId: 1,
-          token: "Popcorn",
-          portfolioValues: [
-            {
-              value: "$0.35",
-              hideMobile: true,
-            },
-            {
-              value: "0.1234%",
-              hideMobile: true,
-            },
-            {
-              value: (
-                <>
-                  <p>$10K</p>
-                  <p className="text-tokenTextGray text-[10px] md:text-base">10K POP</p>
-                </>
-              ),
-              hideMobile: false,
-            },
-          ],
-          badge: {
-            variant: BadgeVariant.dark,
-            label: "Vesting",
-          },
-        },
-      ],
+      children: <PortfolioItemsChildren />,
       TotalValues: [
         {
           title: "Price",
           value: "$0.35",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: true,
         },
         {
           title: "Portfolio %",
           value: "50.23%",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
         {
           title: "Balance",
           value: "$40K",
-          tooltip: <img src={TooltipIcon} alt="tooltip" className={`cursor-pointer w-4 h-4`} />,
+          tooltip: <Image src={TooltipIcon} height="16" alt="tooltip icon" width="16" objectFit="contain" />,
           hideMobile: false,
         },
       ],
+      NetworkIcons: <></>,
     },
   ],
 };

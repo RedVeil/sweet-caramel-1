@@ -1,5 +1,4 @@
 import ConnectDepositCard from "@popcorn/app/components/Common/ConnectDepositCard";
-import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TabSelector from "components/TabSelector";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useEffect, useState } from "react";
@@ -10,7 +9,8 @@ import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";
 import VestingContainer from "components/vesting/VestingContainer";
-import { useComponentState } from "@popcorn/components/hooks";
+import { useComponentState } from "@popcorn/components/lib/utils/hooks";
+import { ConnectWallet } from "@popcorn/components/components/ConnectWallet";
 
 export enum Tabs {
   Staking = "Staking Rewards",
@@ -45,26 +45,10 @@ export default function RewardsPage(): JSX.Element {
   return (
     <>
       <div className="grid grid-cols-12 md:gap-8 laptop:gap-14">
-        <div className="col-span-12 md:col-span-3">
+        <div className="col-span-12 md:col-span-4 md:pr-24">
           <h1 className="text-6xl leading-12 text-black">Rewards</h1>
           <p className="mt-4 leading-5 text-black">Claim your rewards and track your vesting records.</p>
-          {!ready && (
-            <div
-              className=" rounded-lg md:border md:border-customLightGray px-0 pt-4 md:p-6 md:pb-0 mt-6"
-              onClick={connect}
-              role="button"
-            >
-              <p className="text-gray-900 text-3xl leading-8 hidden md:block">Connect your wallet</p>
-              <div className="border md:border-0 md:border-t border-customLightGray rounded-lg md:rounded-none px-6 md:px-0 py-6 md:py-2 mb-1 md:mt-4">
-                <div className="hidden md:block">
-                  <SecondaryActionButton label="Connect" />
-                </div>
-                <div className="md:hidden">
-                  <SecondaryActionButton label="Connect Wallet" />
-                </div>
-              </div>
-            </div>
-          )}
+          <ConnectWallet hidden={ready} />
         </div>
       </div>
 
@@ -72,11 +56,7 @@ export default function RewardsPage(): JSX.Element {
         <div className="grid grid-cols-12 md:gap-8 mt-16 md:mt-20">
           <div className="col-span-12 md:col-span-4">
             <div className={`mb-12`}>
-              <NetworkFilter
-                supportedNetworks={supportedNetworks}
-                selectedNetworks={selectedNetworks}
-                selectNetwork={selectNetwork}
-              />
+              <NetworkFilter supportedNetworks={supportedNetworks} selectNetwork={selectNetwork} />
             </div>
             <ConnectDepositCard extraClasses="md:h-104" />
           </div>

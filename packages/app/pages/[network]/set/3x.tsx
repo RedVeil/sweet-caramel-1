@@ -9,13 +9,13 @@ import ClaimableBatches from "@popcorn/app/components/BatchButter/ClaimableBatch
 import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
 import MobileTutorialSlider from "@popcorn/app/components/BatchButter/MobileTutorialSlider";
 import StatInfoCard from "@popcorn/app/components/BatchButter/StatInfoCard";
-import { ConnectWallet } from "@popcorn/app/components/ConnectWallet";
+import { ConnectWallet } from "@popcorn/components/components/ConnectWallet";
 import SetStats from "@popcorn/app/components/SetStats";
 import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
 import { SwitchNetwork } from "@popcorn/app/components/SwitchNetwork";
-import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
-import { BigNumber, constants, Contract, ethers } from "ethers";
+import { setMultiChoiceActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
+import { BigNumber, constants, ethers } from "ethers";
 import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
 import useSetToken from "@popcorn/app/hooks/set/useSetToken";
 import useThreeXBatch from "@popcorn/app/hooks/set/useThreeXBatch";
@@ -480,7 +480,7 @@ export default function ThreeXPage(): JSX.Element {
       </div>
 
       <div className="flex flex-col md:flex-row mt-10">
-        <div className="md:w-1/3 mb-10">
+        <div className="md:w-1/3 mb-2 md:mb-10">
           {/* Connected and on Ethereum BUT loading */}
           <span className={!!isConnected && butterIsSupportedOnNetwork && loadingThreeXData ? "" : "hidden"}>
             <div className="order-2 md:hidden">
@@ -543,17 +543,17 @@ export default function ThreeXPage(): JSX.Element {
             />
           </div>
           <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
-          <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+          <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} md:pr-8`}>
             <ConnectWallet hidden={!!isConnected} />
           </div>
         </div>
 
         <div className="order-1 md:order-2 md:w-2/3 flex flex-col">
           <div className="flex flex-col md:flex-row mb-8">
-            <div className="md:w-2/3 flex flex-col mb-2 md:mr-8 order-1">
+            <div className="md:w-1/2 flex flex-col mb-2 md:mr-8 order-1">
               <BatchProgress batchAmount={getBatchProgressAmount()} threshold={parseEther("100000")} />
             </div>
-            <div className="md:w-1/3 flex flex-col gap-4 mb-2 order-2">
+            <div className="md:w-1/2 flex flex-col gap-4 order-2 mb-2 ">
               <StatInfoCard
                 title="3X Value"
                 content={<Price.PriceOf address={contractAddresses.threeX} chainId={chainId} />}

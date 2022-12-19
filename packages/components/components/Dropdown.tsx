@@ -3,9 +3,9 @@ import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Menu, Transition } from "@headlessui/react";
 
 interface DropdownProps {
-  options: Array<string> | { [key: string]: string }[];
-  selectedItem: { id: string; value: string };
-  switchFilter: (item: { id: string; value: string }) => void;
+  options: Array<string> | { id: any; value: string }[];
+  selectedItem: { id: any; value: string };
+  switchFilter: (item: { id: any; value: string }) => void;
   position: string;
   width: string;
   label: string;
@@ -13,7 +13,7 @@ interface DropdownProps {
 
 const Dropdown: React.FC<DropdownProps> = ({ position, selectedItem, width, options, switchFilter, label }) => {
   const checkActiveItem = (item: any) => {
-    return selectedItem.id === item.id;
+    return selectedItem?.id ? selectedItem.id === item.id : false;
   };
   return (
     <Menu>

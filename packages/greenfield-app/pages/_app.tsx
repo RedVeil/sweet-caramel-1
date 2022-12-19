@@ -1,20 +1,20 @@
 import Page from "@popcorn/app/components/Common/Page";
 import { Debug } from "@popcorn/app/components/Debug";
 import { FeatureTogglePanel } from "@popcorn/components/components/FeatureTogglePanel";
-import { DualActionModalContainer } from "@popcorn/app/components/Modal/DualActionModalContainer";
-import DualActionWideModalContainer from "@popcorn/app/components/Modal/DualActionWideModalContainer";
-import { MobileFullScreenModalContainer } from "@popcorn/app/components/Modal/MobileFullScreenModalContainer";
-import { MultiChoiceActionModalContainer } from "@popcorn/app/components/Modal/MultiChoiceActionModalContainer";
-import { NetworkChangePromptModalContainer } from "@popcorn/app/components/Modal/NetworkChangePromptModalContainer";
-import { SingleActionModalContainer } from "@popcorn/app/components/Modal/SingleActionModalContainer";
+import { DualActionModalContainer } from "@popcorn/components/components/Modal/DualActionModalContainer";
+import DualActionWideModalContainer from "@popcorn/components/components/Modal/DualActionWideModalContainer";
+import { MobileFullScreenModalContainer } from "@popcorn/components/components/Modal/MobileFullScreenModalContainer";
+import { MultiChoiceActionModalContainer } from "@popcorn/components/components/Modal/MultiChoiceActionModalContainer";
+import { NetworkChangePromptModalContainer } from "@popcorn/components/components/Modal/NetworkChangePromptModalContainer";
+import { SingleActionModalContainer } from "@popcorn/components/components/Modal/SingleActionModalContainer";
 import NotificationsContainer from "@popcorn/app/components/Notifications/NotificationsContainer";
 import OfacCheck from "@popcorn/app/components/OfacCheck";
 import { FeatureToggleProvider } from "@popcorn/components/context/FeatureToggleContext";
 import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
-import { GlobalLinearProgressAndLoading } from "@popcorn/app/components/GlobalLinearProgressAndLoading";
-import { StateProvider } from "@popcorn/app/context/store";
+import { GlobalLinearProgressAndLoading } from "@popcorn/components/components/GlobalLinearProgressAndLoading";
+import { StateProvider } from "@popcorn/components/context/store";
 import { RainbowKitProvider, getDefaultWallets, Chain } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -22,6 +22,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
+import { NetworthContextProvider } from "@popcorn/components/context/Networth";
 
 const bnb: Chain = {
   id: 56,
@@ -140,17 +141,19 @@ export default function MyApp(props) {
         <FeatureToggleProvider>
           <WagmiConfig client={wagmiClient}>
             <RainbowKitProvider chains={chains}>
-              <OfacCheck />
-              <MobileFullScreenModalContainer />
-              <SingleActionModalContainer />
-              <MultiChoiceActionModalContainer />
-              <DualActionModalContainer />
-              <DualActionWideModalContainer />
-              <NetworkChangePromptModalContainer />
-              {getLayout(<Component {...pageProps} />)}
-              <FeatureTogglePanel />
-              <NotificationsContainer />
-              <Debug />
+              <NetworthContextProvider>
+                <OfacCheck />
+                <MobileFullScreenModalContainer />
+                <SingleActionModalContainer />
+                <MultiChoiceActionModalContainer />
+                <DualActionModalContainer />
+                <DualActionWideModalContainer />
+                <NetworkChangePromptModalContainer />
+                {getLayout(<Component {...pageProps} />)}
+                <FeatureTogglePanel />
+                <NotificationsContainer />
+                <Debug />
+              </NetworthContextProvider>
             </RainbowKitProvider>
           </WagmiConfig>
         </FeatureToggleProvider>

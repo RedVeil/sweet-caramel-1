@@ -1,7 +1,11 @@
-import { DualActionModalProps } from "@popcorn/app/components/Modal/DualActionModal";
-import { MultiChoiceActionModalProps } from "@popcorn/app/components/Modal/MultiChoiceActionModal";
-import { SingleActionModalProps } from "@popcorn/app/components/Modal/SingleActionModal";
-import { setDualActionWideModal, setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/context/actions";
+import { DualActionModalProps } from "@popcorn/components/components/Modal/DualActionModal";
+import { MultiChoiceActionModalProps } from "@popcorn/components/components/Modal/MultiChoiceActionModal";
+import { SingleActionModalProps } from "@popcorn/components/components/Modal/SingleActionModal";
+import {
+  setDualActionWideModal,
+  setMultiChoiceActionModal,
+  setSingleActionModal,
+} from "@popcorn/components/context/actions";
 
 export enum ModalType {
   SingleAction,

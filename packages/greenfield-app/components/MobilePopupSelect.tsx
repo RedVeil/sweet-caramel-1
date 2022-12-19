@@ -1,6 +1,6 @@
 import React, { JSXElementConstructor } from "react";
 import { List, ListItem } from "./ScrollableSelect";
-import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import PopUpModal from "@popcorn/components/components/Modal/PopUpModal";
 
 interface Category {
   id: any;

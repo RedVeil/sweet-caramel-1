@@ -3,8 +3,8 @@ import { ChainId } from "@popcorn/utils";
 import StakeInterface, { defaultForm, InteractionType } from "@popcorn/app/components/staking/StakeInterface";
 import StakeInterfaceLoader from "@popcorn/app/components/staking/StakeInterfaceLoader";
 import TermsContent from "@popcorn/app/components/staking/TermsModalContent";
-import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
@@ -16,9 +16,8 @@ import React, { useContext, useEffect, useState } from "react";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { ethers } from "ethers";
-import { useNamedAccounts } from "@popcorn/components";
-import { useSpendableBalance } from "@popcorn/components/pop/POP";
-import useLog from "@popcorn/components/pop/utils/hooks/useLog";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
+import { useSpendableBalance } from "@popcorn/components/lib/POP";
 
 export default function PopStakingPage(): JSX.Element {
   const { account, signer } = useWeb3();

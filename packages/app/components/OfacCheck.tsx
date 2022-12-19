@@ -1,5 +1,5 @@
-import { setSingleActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setSingleActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useContext, useEffect, useState } from "react";
 import { useDisconnect } from "wagmi";
