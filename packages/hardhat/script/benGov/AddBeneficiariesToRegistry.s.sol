@@ -17,7 +17,7 @@ bytes32 constant DEFAULT_REGION = 0xf2208c967df089f60420785795c0a9ba8896b0f6f186
 /// 6,7 - Yearly Election
 /// 8-18 - Unused
 contract AddBeneficiariesToRegistry is Script {
-  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6);
+  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0xc9e244f134824fbd070858ab7A82B0e0B298cD5d);
 
   string[19] internal cids = [
     "QmSzq4gKUk9LhNNCFBVDbkkz26umqu63jx2dXNABBKcgJ9",
@@ -45,15 +45,19 @@ contract AddBeneficiariesToRegistry is Script {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     vm.startBroadcast(deployerPrivateKey);
 
-    for (uint256 i; i < 11; i++) {
-      beneficiaryRegistry.addBeneficiary(vm.addr(i + 1), DEFAULT_REGION, cids[i]);
-    }
+    beneficiaryRegistry.addBeneficiary(vm.addr(1), DEFAULT_REGION, "QmcCmaXA3E8nzcBrTejHHjT8svKh6cSTwhKbPNuRyM6uH5");
+    beneficiaryRegistry.addBeneficiary(vm.addr(2), DEFAULT_REGION, "QmSLS4TKBM2M9tXv5CAdFqUQJ9wR8UjjyhtrUxtbRrXE9M");
+    beneficiaryRegistry.addBeneficiary(vm.addr(3), DEFAULT_REGION, "QmaisZuRUE1ndZGSzmvg4Uxr7nsi2ciQ1z9VoDCnpGRADt");
+
+    // for (uint256 i = 9; i < 14; i++) {
+    //   beneficiaryRegistry.addBeneficiary(vm.addr(i + 1), DEFAULT_REGION, cids[i]);
+    // }
     vm.stopBroadcast();
   }
 }
 
 contract RevokeBeneficiariesToRegistry is Script {
-  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6);
+  BeneficiaryRegistry internal beneficiaryRegistry = BeneficiaryRegistry(0xc9e244f134824fbd070858ab7A82B0e0B298cD5d);
 
   address[10] internal addresses = [
     0x0000000000000000000000000000000000000000,
@@ -68,12 +72,18 @@ contract RevokeBeneficiariesToRegistry is Script {
     0x3DA8D322CB2435dA26E9C9fEE670f9fB7Fe74E49
   ];
 
+  address[3] internal addx = [
+    0x70997970C51812dc3A010C7d01b50e0d17dc79C8,
+    0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC,
+    0x90F79bf6EB2c4f870365E785982E1f101E93b906
+  ];
+
   function run() external {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     vm.startBroadcast(deployerPrivateKey);
 
-    for (uint256 i; i < 10; i++) {
-      beneficiaryRegistry.revokeBeneficiary(addresses[i]);
+    for (uint256 i; i < 3; i++) {
+      beneficiaryRegistry.revokeBeneficiary(addx[i]);
     }
     vm.stopBroadcast();
   }
