@@ -8,6 +8,12 @@ import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import { useMemo } from "react";
 import usePoolTVL from "@popcorn/app/hooks/usePoolTVL";
 
+const formatter = new Intl.NumberFormat("en", {
+  notation: "compact",
+  style: "currency",
+  currency: "USD",
+});
+
 export function TVLCard(): JSX.Element {
   const { Ethereum, Polygon, Optimism } = ChainId;
   const eth = useDeployment(Ethereum);
@@ -32,14 +38,9 @@ export function TVLCard(): JSX.Element {
         polygonStakingTVL,
         butterTVL,
         threeXTVL,
-      ].reduce((total, num) => total.add(num ? num : constants.Zero), constants.Zero),
+      ].reduce((total, num) => total.add(num || 0), constants.Zero),
     [mainnetPoolTVL, polygonPoolTVL, optimismPoolTVL, mainnetStakingTVL, polygonStakingTVL, butterTVL, threeXTVL],
   );
-
-  let formatter = Intl.NumberFormat("en", {
-    //@ts-ignore
-    notation: "compact",
-  });
 
   return (
     <div className="col-span-5 md:col-span-12 rounded-lg border border-customLightGray p-5 md:py-7">
@@ -54,7 +55,7 @@ export function TVLCard(): JSX.Element {
         />
       </div>
       <p className="text-primary text-xl md:text-4xl leading-5 md:leading-8">
-        ${formatter.format(parseInt(formatUnits(tvl)))}
+        {formatter.format(parseInt(formatUnits(tvl)))}
       </p>
     </div>
   );

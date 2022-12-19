@@ -12,7 +12,7 @@ export default function useTokenBalance(
   const token = useERC20(address, chainId);
   return useSWR(
     [`erc20/${address}/balanceOf/${account}`, account],
-    async (key: string, account: string | undefined | null) => {
+    async () => {
       if (!isAddress(address) || !isAddress(account) || !token) {
         return constants.Zero;
       }

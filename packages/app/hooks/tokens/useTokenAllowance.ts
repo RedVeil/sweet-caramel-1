@@ -13,7 +13,7 @@ export default function useTokenAllowance(
   const token = useERC20(address, chainId);
   return useSWR(
     [`${token?.address}/allowance/${owner}/${spender}`, owner, spender],
-    async (key: string, owner: string | null, spender: string) => {
+    async () => {
       if (!isAddress(spender) || !isAddress(owner) || !token) {
         return constants.Zero;
       }

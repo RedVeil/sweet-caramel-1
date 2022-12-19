@@ -6,6 +6,8 @@ import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 import { ERC20__factory } from "@popcorn/hardhat/typechain";
 
+const REFETCH_INTERVAL = 10 * 1_000;
+
 export async function getPoolTVL(
   _key,
   poolAddress: string,
@@ -35,10 +37,12 @@ export default function usePoolTVL(chainId: ChainId): SWRResponse<BigNumber, Err
 
   return useSWR(
     [`getPoolTVL-${chainId}`, popUsdcUniV3Pool, rpcProvider, pop, usdc, priceData?.[ethPop], priceData?.[ethUsdc]],
-    getPoolTVL,
+    (args) => getPoolTVL(...args),
     {
-      refreshInterval: 3 * 1000,
-      dedupingInterval: 3 * 1000,
+      refreshInterval: REFETCH_INTERVAL,
+      dedupingInterval: REFETCH_INTERVAL,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
     },
   );
 }
