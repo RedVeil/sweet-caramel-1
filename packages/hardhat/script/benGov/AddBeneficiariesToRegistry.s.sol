@@ -45,9 +45,21 @@ contract AddBeneficiariesToRegistry is Script {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     vm.startBroadcast(deployerPrivateKey);
 
-    beneficiaryRegistry.addBeneficiary(vm.addr(1), DEFAULT_REGION, "QmcCmaXA3E8nzcBrTejHHjT8svKh6cSTwhKbPNuRyM6uH5");
-    beneficiaryRegistry.addBeneficiary(vm.addr(2), DEFAULT_REGION, "QmSLS4TKBM2M9tXv5CAdFqUQJ9wR8UjjyhtrUxtbRrXE9M");
-    beneficiaryRegistry.addBeneficiary(vm.addr(3), DEFAULT_REGION, "QmaisZuRUE1ndZGSzmvg4Uxr7nsi2ciQ1z9VoDCnpGRADt");
+    beneficiaryRegistry.addBeneficiary(
+      0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199,
+      DEFAULT_REGION,
+      "QmcCmaXA3E8nzcBrTejHHjT8svKh6cSTwhKbPNuRyM6uH5"
+    );
+    beneficiaryRegistry.addBeneficiary(
+      0x2546BcD3c84621e976D8185a91A922aE77ECEc30,
+      DEFAULT_REGION,
+      "QmSLS4TKBM2M9tXv5CAdFqUQJ9wR8UjjyhtrUxtbRrXE9M"
+    );
+    beneficiaryRegistry.addBeneficiary(
+      0xbDA5747bFD65F08deb54cb465eB87D40e51B197E,
+      DEFAULT_REGION,
+      "QmaisZuRUE1ndZGSzmvg4Uxr7nsi2ciQ1z9VoDCnpGRADt"
+    );
 
     // for (uint256 i = 9; i < 14; i++) {
     //   beneficiaryRegistry.addBeneficiary(vm.addr(i + 1), DEFAULT_REGION, cids[i]);
@@ -73,9 +85,9 @@ contract RevokeBeneficiariesToRegistry is Script {
   ];
 
   address[3] internal addx = [
-    0x70997970C51812dc3A010C7d01b50e0d17dc79C8,
-    0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC,
-    0x90F79bf6EB2c4f870365E785982E1f101E93b906
+    0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf,
+    0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF,
+    0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
   ];
 
   function run() external {

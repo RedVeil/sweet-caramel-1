@@ -81,15 +81,15 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <Web3ReactProvider getLibrary={getLibrary}>
         <StateProvider>
           <ContractsWrapper>
-            {/* <ElectionsProvider> */}
-            <SingleActionModalContainer />
-            <DualActionModalContainer />
-            <DualActionWideModalContainer />
-            <Toaster position="top-right" reverseOrder={false} />
-            {getLayout(<Component {...pageProps} />)}
-            <NotificationsContainer />
-            <Debug />
-            {/* </ElectionsProvider> */}
+            <ElectionsProvider>
+              <SingleActionModalContainer />
+              <DualActionModalContainer />
+              <DualActionWideModalContainer />
+              <Toaster position="top-right" reverseOrder={false} />
+              {getLayout(<Component {...pageProps} />)}
+              <NotificationsContainer />
+              <Debug />
+            </ElectionsProvider>
           </ContractsWrapper>
         </StateProvider>
       </Web3ReactProvider>
