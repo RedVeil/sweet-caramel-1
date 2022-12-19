@@ -3,6 +3,8 @@ import { BigNumber, constants, Contract, ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import useSWR, { SWRResponse } from "swr";
 
+const REFETCH_INTERVAL = 10 * 1_000;
+
 export async function getSetTokenValue(
   setTokenAddress: string,
   batchContract: Contract,
@@ -49,7 +51,9 @@ export default function useSetTokenTVL(
   chainId: ChainId,
 ): SWRResponse<BigNumber, Error> {
   return useSWR([`getSetTokenTVL-${setTokenAddress}`, setTokenAddress, batchAddress, chainId], getSetTokenTVL, {
-    refreshInterval: 3 * 1000,
-    dedupingInterval: 3 * 1000,
+    refreshInterval: REFETCH_INTERVAL,
+    dedupingInterval: REFETCH_INTERVAL,
+    shouldRetryOnError: false,
+    compare: (current, newState) => newState?.lte(current || 0),
   });
 }
