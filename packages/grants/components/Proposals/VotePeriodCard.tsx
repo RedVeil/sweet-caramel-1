@@ -32,7 +32,7 @@ const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startT
           clearInterval(interval);
         } else setTimeLeftProgress(progress);
       }
-    }, 10000);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [stageDeadline]);
