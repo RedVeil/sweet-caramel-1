@@ -5,16 +5,17 @@ import { useFeatures } from "@popcorn/components/hooks";
 import { Escrow, Erc20, Price, Contract, Staking } from "@popcorn/components/lib";
 import { Pop } from "@popcorn/components/lib/types";
 import { Networth } from "@popcorn/components/lib/Portfolio/Networth";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import useSum from "../hooks/useSum3";
+import { useAccount } from "wagmi";
+import { parseEther } from "ethers/lib/utils.js";
 
 export const PortfolioPage: NextPage = () => {
   const {
     features: { portfolio: visible },
   } = useFeatures();
 
-  // const { address: account } = useAccount();
-  const account = "0x4f20cb7a1d567a54350a18dacb0cc803aebb4483";
+  const { address: account } = useAccount();
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -67,77 +68,8 @@ export const PortfolioPage: NextPage = () => {
           key={`${i}:${token.chainId}:${token.address}`}
           chainId={Number(token.chainId) as unknown as ChainId}
           address={token.address}
-        >
-          <Contract.BalanceOf
-            key={`Contract.BalanceOf`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-          />
-
-          <Contract.BalanceOf
-            key={`Contract.PopBalanceOf`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-          />
-
-          <Erc20.BalanceOf
-            key={`Erc20.BalanceOfValue`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-            render={({ balance, price, status }) => (
-              <Contract.Value balance={balance?.value} price={price?.value} status={status} callback={addToNetworth} />
-            )}
-          />
-
-          <Escrow.BalanceOf
-            key={`Escrow.BalanceOfValue`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-            render={({ balance, price, status }) => (
-              <>
-                <Contract.Value balance={balance?.value} price={price?.value} status={status} />
-              </>
-            )}
-          />
-
-          <Escrow.ClaimableBalanceOf
-            key={`Escrow.ClaimableBalanceOfValue`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-            render={({ balance, price, status }) => (
-              <Contract.Value balance={balance?.value} price={price?.value} status={status} />
-            )}
-          />
-
-          <Escrow.VestingBalanceOf
-            key={`Escrow.VestingBalanceOfValue`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-            render={({ balance, price, status }) => (
-              <Contract.Value balance={balance?.value} price={price?.value} status={status} />
-            )}
-          />
-
-          <Price.PriceOf key={`Price.PriceOf`} address={token.address} chainId={token.chainId} />
-
-          <Staking.Apy key={`Staking.vAPR`} address={token.address} chainId={token.chainId} />
-
-          <Staking.ClaimableBalanceOf
-            key={`Staking.ClaimableBalanceValue`}
-            account={account}
-            address={token.address}
-            chainId={token.chainId}
-            render={(props) => <Contract.Value balance={props.balance} price={props.price} decimals={props.decimals} />}
-          />
-
-          <Contract.Tvl key={`Contract.TVL`} address={token.address} chainId={token.chainId} />
-        </Contract.Metadata>
+          callback={addToNetworth}
+        />
       ))}
     </div>
   );
