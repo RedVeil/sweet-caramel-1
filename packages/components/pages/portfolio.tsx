@@ -1,22 +1,30 @@
-import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { NextPage } from "next";
+import dynamic from "next/dynamic";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
-import { Escrow, Erc20, Price, Contract, Staking } from "@popcorn/components/lib";
 import { Pop } from "@popcorn/components/lib/types";
 import { Networth } from "@popcorn/components/lib/Portfolio/Networth";
 import { BigNumber, constants } from "ethers";
 import useSum from "../hooks/useSum3";
 import { useAccount } from "wagmi";
 import { parseEther } from "ethers/lib/utils.js";
+import { useMemo, useRef, useState } from "react";
+
+const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
+  ssr: false,
+});
+
+const getItemKey = (token: any) => `${token.chainId}:${token.address}`;
 
 export const PortfolioPage: NextPage = () => {
   const {
     features: { portfolio: visible },
   } = useFeatures();
 
+  const [balances, setBalances] = useState({} as { [key: string]: BigNumber | undefined });
   const { address: account } = useAccount();
-
+  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
   const contractsEth = useNamedAccounts("1", [
     "pop",
     "popStaking",
@@ -44,33 +52,51 @@ export const PortfolioPage: NextPage = () => {
   const contractsArbitrum = useNamedAccounts("42161", ["pop", "xPop", "rewardsEscrow"]);
 
   const contractsOp = useNamedAccounts("10", ["pop", "popUsdcArrakisVault"]);
-  const allContracts = [
-    ...contractsEth,
-    ...contractsPoly,
-    ...contractsBnb,
-    ...contractsArbitrum,
-    ...contractsOp,
-  ].flatMap((network) => network) as Pop.NamedAccountsMetadata[];
 
-  const { loading: networthLoading, sum: networth, add } = useSum({ expected: 1 });
-  const addToNetworth = (value?: BigNumber) => {
-    !!value && add(value);
-    return true;
+  const allContracts = useMemo(() => {
+    //...contractsPoly, ...contractsBnb, ...contractsArbitrum, ...contractsOp
+    return [...contractsEth].flatMap((network) => network) as Array<
+      Pop.NamedAccountsMetadata & { chainId: string; address: string; __alias: string }
+    >;
+  }, [account, contractsEth.length]);
+  // contractsPoly.length, contractsBnb.length, contractsArbitrum.length
+  const addToNetworth = (key, _value?: BigNumber) => {
+    if (_value?.gt(0)) {
+      console.log({ balances });
+      setBalances((current) => ({
+        ...current,
+        [key]: _value || constants.Zero,
+      }));
+    }
   };
+
+  const networth = Object.keys(balances).reduce((total, nodeKey) => {
+    return total.add(balances[nodeKey] || 0);
+  }, constants.Zero);
+
   return (
     <div className={visible ? "" : "hidden"}>
-      <Networth account={account} loading={networthLoading} value={networth} />
-
-      {allContracts.map((token, i) => (
-        <Contract.Metadata
-          index={i}
-          alias={token.__alias}
-          key={`${i}:${token.chainId}:${token.address}`}
-          chainId={Number(token.chainId) as unknown as ChainId}
-          address={token.address}
-          callback={addToNetworth}
-        />
-      ))}
+      <Networth account={account} value={networth} />
+      {allContracts
+        .sort((a, b) => {
+          const aValue = balances[getItemKey(a)];
+          const bValue = balances[getItemKey(b)];
+          if (!bValue) return 0;
+          return bValue.gt(aValue || 0) ? 1 : -1;
+        })
+        .map((token, i) => {
+          const key = getItemKey(token);
+          return (
+            <Metadata
+              index={i}
+              alias={token.__alias}
+              key={key}
+              chainId={Number(token.chainId)}
+              address={token.address}
+              callback={(value) => addToNetworth(key, value)}
+            />
+          );
+        })}
     </div>
   );
 };

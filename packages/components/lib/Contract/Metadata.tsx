@@ -6,6 +6,7 @@ import { Escrow, Erc20, Price, Contract, Staking } from "@popcorn/components/lib
 import { BigNumber, constants } from "ethers";
 import { useAccount } from "wagmi";
 import { useBalanceOf } from "../Erc20/hooks";
+import { useState } from "react";
 
 interface ContractProps extends Pop.NamedAccountsMetadata {
   alias?: string;
@@ -15,136 +16,83 @@ interface ContractProps extends Pop.NamedAccountsMetadata {
 }
 
 export const Metadata: Pop.FC<ContractProps> = ({ address, chainId, children, alias, index, callback }) => {
+  const [showItem, setShowItem] = useState(false);
   const { address: account } = useAccount();
-
+  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
   const { data, status } = useContractMetadata({ chainId, address, alias });
 
   const { symbol, priceResolver, apyResolver, balanceResolver, decimals, name, icons, alias: _alias } = data || {};
 
-  const { data: balance, status: balStatus } = useBalanceOf({ chainId, address, account });
-
-  const { ready } = useComponentState({
-    ready: !!data && !!balance,
-    loading: status === "loading" && balStatus === "loading",
-  });
-
   return (
-    <>
-      <div className={ready && balance?.value?.gt(constants.Zero) ? "" : "hidden"}>
-        <h2>
-          {index}: {alias}
-        </h2>
+    <div className={showItem ? "" : "hidden"}>
+      <h2>
+        {index}: {alias}
+      </h2>
+      <div>
+        {index}: Alias: {alias}
+      </div>
+      <div>
+        {index}: Chain: {networkMap[chainId]}
+      </div>
+      <div>
+        {index}: Contract address: {address}
+      </div>
+      <div>
+        {index}: Price Resolver: {priceResolver || "default"}
+      </div>
+      <div>
+        {index}: Apy Resolver: {apyResolver || "default"}
+      </div>
+      <div>
+        {index}: Balance Resolver: {balanceResolver || "default"}
+      </div>
+      <div>
+        {index}: Symbol: {symbol || "n/a"}
+      </div>
+      <div>
+        {index}: Icons: {(icons && icons.length > 0 && `${`[` + icons.join(", ") + `]`}`) || ""}
+      </div>
+      <div>
         <div>
-          {index}: Alias: {alias}
+          Erc20.BalanceOf:
+          {symbol}
+          <Erc20.BalanceOf key={`Erc20.BalanceOf`} account={account} address={address} chainId={chainId} />
         </div>
-        <div>
-          {index}: Chain: {networkMap[chainId]}
-        </div>
-        <div>
-          {index}: Contract address: {address}
-        </div>
-        <div>
-          {index}: Price Resolver: {priceResolver || "default"}
-        </div>
-        <div>
-          {index}: Apy Resolver: {apyResolver || "default"}
-        </div>
-        <div>
-          {index}: Balance Resolver: {balanceResolver || "default"}
-        </div>
-        <div>
-          {index}: Symbol: {symbol || "n/a"}
-        </div>
-        <div>
-          {index}: Icons: {(icons && icons.length > 0 && `${`[` + icons.join(", ") + `]`}`) || ""}
-        </div>
-        <div>
-          <div>
-            Erc20.BalanceOf:
-            {symbol}
-            <Erc20.BalanceOf key={`Erc20.BalanceOf`} account={account} address={address} chainId={chainId} />
-          </div>
 
-          <Erc20.BalanceOf
-            key={`Erc20.BalanceOfValue`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, price, status }) => (
+        <Erc20.BalanceOf
+          key={`Erc20.BalanceOfValue`}
+          account={account}
+          address={address}
+          chainId={chainId}
+          render={({ balance, price, status }) => {
+            const setHolderBalance = !showItem && balance?.value;
+            if (setHolderBalance && balance?.value?.gt(0)) {
+              setShowItem(true);
+            }
+            function handleCallback(value: any) {
+              if (setHolderBalance) callback!(value);
+            }
+            return (
               <div>
                 Erc20.BalanceOfValue:{" "}
-                <Contract.Value balance={balance?.value} price={price?.value} status={status} callback={callback} />
+                <Contract.Value
+                  balance={balance?.value}
+                  price={price?.value}
+                  status={status}
+                  callback={handleCallback}
+                />
               </div>
-            )}
-          />
+            );
+          }}
+        />
 
-          <Escrow.BalanceOf
-            key={`Escrow.BalanceOfValue`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, price, status }) => (
-              <div>
-                Escrow.BalanceOfValue: <Contract.Value balance={balance?.value} price={price?.value} status={status} />
-              </div>
-            )}
-          />
-
-          <Escrow.ClaimableBalanceOf
-            key={`Escrow.ClaimableBalanceOfValue`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, price, status }) => (
-              <div>
-                Escrow.ClaimableBalanceOfValue:{" "}
-                <Contract.Value balance={balance?.value} price={price?.value} status={status} />
-              </div>
-            )}
-          />
-
-          <Escrow.VestingBalanceOf
-            key={`Escrow.VestingBalanceOfValue`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={({ balance, price, status }) => (
-              <div>
-                Escrow.VestingBalanceOfValue:{" "}
-                <Contract.Value balance={balance?.value} price={price?.value} status={status} />
-              </div>
-            )}
-          />
-
-          <div>
-            Price.PriceOf: <Price.PriceOf key={`Price.PriceOf`} address={address} chainId={chainId} />
-          </div>
-
-          <div>
-            Staking.vAPR: <Staking.Apy key={`Staking.vAPR`} address={address} chainId={chainId} />
-          </div>
-
-          <Staking.ClaimableBalanceOf
-            key={`Staking.ClaimableBalanceValue`}
-            account={account}
-            address={address}
-            chainId={chainId}
-            render={(props) => (
-              <div>
-                Staking.ClaimableBalanceValue:{" "}
-                <Contract.Value balance={props.balance} price={props.price} decimals={props.decimals} />
-              </div>
-            )}
-          />
-
-          <div>
-            Contract.TVL: <Contract.Tvl key={`Contract.TVL`} address={address} chainId={chainId} />
-          </div>
+        <div>
+          Contract.TVL: <Contract.Tvl key={`Contract.TVL`} address={address} chainId={chainId} />
         </div>
-
-        <br />
       </div>
-    </>
+
+      <br />
+    </div>
   );
 };
 
