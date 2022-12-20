@@ -1,15 +1,13 @@
-import { NextPage } from "next";
+import type { NextPage } from "next";
+import { useMemo, useState } from "react";
+import { BigNumber, constants } from "ethers";
 import dynamic from "next/dynamic";
+import { useAccount } from "wagmi";
+
+import { Networth } from "@popcorn/components/lib/Portfolio/Networth";
 import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
-import { ChainId } from "@popcorn/utils";
 import { useFeatures } from "@popcorn/components/hooks";
 import { Pop } from "@popcorn/components/lib/types";
-import { Networth } from "@popcorn/components/lib/Portfolio/Networth";
-import { BigNumber, constants } from "ethers";
-import useSum from "../hooks/useSum3";
-import { useAccount } from "wagmi";
-import { parseEther } from "ethers/lib/utils.js";
-import { useMemo, useRef, useState } from "react";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
   ssr: false,
@@ -18,13 +16,12 @@ const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata
 const getItemKey = (token: any) => `${token.chainId}:${token.address}`;
 
 export const PortfolioPage: NextPage = () => {
+  const { address: account } = useAccount();
+  const [balances, setBalances] = useState({} as { [key: string]: BigNumber | undefined });
   const {
     features: { portfolio: visible },
   } = useFeatures();
 
-  const [balances, setBalances] = useState({} as { [key: string]: BigNumber | undefined });
-  const { address: account } = useAccount();
-  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
   const contractsEth = useNamedAccounts("1", [
     "pop",
     "popStaking",
@@ -36,7 +33,6 @@ export const PortfolioPage: NextPage = () => {
     "popUsdcArrakisVaultStaking",
     "rewardsEscrow",
   ]);
-
   const contractsPoly = useNamedAccounts("137", [
     "pop",
     "popStaking",
@@ -46,26 +42,22 @@ export const PortfolioPage: NextPage = () => {
     "rewardsEscrow",
     "xPop",
   ]);
-
   const contractsBnb = useNamedAccounts("56", ["pop", "xPop", "rewardsEscrow"]);
-
   const contractsArbitrum = useNamedAccounts("42161", ["pop", "xPop", "rewardsEscrow"]);
-
   const contractsOp = useNamedAccounts("10", ["pop", "popUsdcArrakisVault"]);
 
   const allContracts = useMemo(() => {
-    //...contractsPoly, ...contractsBnb, ...contractsArbitrum, ...contractsOp
-    return [...contractsEth].flatMap((network) => network) as Array<
-      Pop.NamedAccountsMetadata & { chainId: string; address: string; __alias: string }
-    >;
-  }, [account, contractsEth.length]);
-  // contractsPoly.length, contractsBnb.length, contractsArbitrum.length
-  const addToNetworth = (key, _value?: BigNumber) => {
-    if (_value?.gt(0)) {
-      console.log({ balances });
+    return [...contractsEth, ...contractsPoly, ...contractsBnb, ...contractsArbitrum, ...contractsOp].flatMap(
+      (network) => network,
+    ) as Array<Pop.NamedAccountsMetadata & { chainId: string; address: string; __alias: string }>;
+    // re-trigger only when array length change to avoid shallow object false positives
+  }, [account, contractsEth.length, contractsPoly.length, contractsBnb.length, contractsArbitrum.length]);
+
+  const addToNetworth = (key, value?: BigNumber) => {
+    if (value?.gt(0)) {
       setBalances((current) => ({
         ...current,
-        [key]: _value || constants.Zero,
+        [key]: value || constants.Zero,
       }));
     }
   };
@@ -91,6 +83,7 @@ export const PortfolioPage: NextPage = () => {
               index={i}
               alias={token.__alias}
               key={key}
+              networth={networth}
               chainId={Number(token.chainId)}
               address={token.address}
               callback={(value) => addToNetworth(key, value)}
