@@ -340,7 +340,7 @@
       "hardhat": "0xFC4EE541377F3b6641c23CBE82F6f04388290421",
       "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
       "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
-      "goerli": "0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e",
+      "goerli": "0xbcB4cB7AaB92A48a80f77721322bE86fadCa7A22",
       "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
     },
     "metadata": {
@@ -410,7 +410,7 @@
   },
   "govStaking": {
     "addresses": {
-      "goerli": "0x24aD8341522282725B31Da821f290b1ceBdf94fe"
+      "goerli": "0x735b45e0926fCa7A998904FA32d61C4bF0456540"
     },
     "metadata": {
       "contractName": "GovStaking"
@@ -418,7 +418,7 @@
   },
   "grantElections": {
     "addresses": {
-      "goerli": "0xF8C417F7a4593a561970358375Fc4b2F6F890E9c"
+      "goerli": "0xd198776d613f1d67f26EF1E526eF871b536Fcb21"
     },
     "metadata": {
       "contractName": "GrantElections"
@@ -621,7 +621,7 @@
   },
   "rewardsManager": {
     "addresses": {
-      "goerli": "0xFE4fE5e50dCc35B225028E3A8d23058D8A50676a"
+      "goerli": "0xE267b34596f3De6994059773d5F5D40a0711AE13"
     },
     "metadata": {
       "contractName": "RewardsManager"
@@ -796,7 +796,7 @@
       "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
       "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
       "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
-      "goerli": "0x42b85613D87eA55468DFE53b4d3d94D2a6d05E69"
+      "goerli": "0xb6b382D70C552671603153c67aA06dfDCB9Ff26f"
     },
     "metadata": null
   },
@@ -805,7 +805,7 @@
       "polygon": "0xd928a457247649835e652416847C54C038FAF920",
       "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
       "localhost": "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
-      "goerli": "0x52841Cfa95cFD2d8751cf202e7627AFFBbCF4A8B"
+      "goerli": "0x2E16224337E6c33Db58D42B701369806997A1487"
     },
     "metadata": {
       "contractName": "KeeperIncentive"
@@ -816,7 +816,7 @@
       "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
       "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
       "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
-      "goerli": "0x308bCee3746fD1FA8A6478C393ca9f8070E58A14"
+      "goerli": "0x5DFe4040c7FCb8002888b209eBf8e94Ffca108a3"
     }
   },
   "usdc": {
@@ -915,7 +915,7 @@
   },
   "beneficiaryRegistry": {
     "addresses": {
-      "goerli": "0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6"
+      "goerli": "0xc9e244f134824fbd070858ab7A82B0e0B298cD5d"
     },
     "metadata": {
       "contractName": "BeneficiaryRegistry"
@@ -924,7 +924,7 @@
   "beneficiaryGovernance": {
     "addresses": {
       "mainnet": "0xCa57C1d3c2c35E667745448Fef8407dd25487ff8",
-      "goerli": "0x62B00B60D1f4042B3474900BA3fd548fc553205f"
+      "goerli": "0x3189769b424C2ec5d3F7402c4aDcfFc01567b090"
     },
     "metadata": {
       "contractName": "BeneficiaryGovernance"
@@ -950,13 +950,13 @@
   },
   "BeneficiaryVaults": {
     "addresses": {
-      "goerli": "0x4E4c4Eb83305C47d80aB6C0065b2308f5640B41f"
+      "goerli": "0xbfB8EC59812680542786B487C76c451c7CB0d9aE"
     },
     "metadata": null
   },
   "Region": {
     "addresses": {
-      "goerli": "0x45926B4EFACbc7f2D301D6d59Fb80155906d2af0"
+      "goerli": "0x1265fF9Cbc8628ce4c62349D27Bb79B6B83B37Be"
     },
     "metadata": null
   },
@@ -972,7 +972,7 @@
   },
   "ParticipationReward": {
     "addresses": {
-      "goerli": "0x6768E6f0af526d5c14A4fee1c465CeCDb188dd0f"
+      "goerli": "0x451A80bCB45CffC2975fd6b8031746E0Aab81cD4"
     },
     "metadata": null
   },

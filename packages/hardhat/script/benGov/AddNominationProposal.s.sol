@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import { Script } from "forge-std/Script.sol";
 import { BeneficiaryGovernance } from "../../contracts/core/dao/BeneficiaryGovernance.sol";
+import { ParticipationReward } from "../../contracts/core/utils/ParticipationReward.sol";
 import { ERC20PresetMinterPauser } from "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
 bytes32 constant DEFAULT_REGION = 0xf2208c967df089f60420785795c0a9ba8896b0f6f1867fa7f1f12ad6f79c1a18; // World
@@ -18,9 +19,9 @@ bytes32 constant DEFAULT_REGION = 0xf2208c967df089f60420785795c0a9ba8896b0f6f186
 /// 8-18 - Unused
 contract AddProposal is Script {
   BeneficiaryGovernance internal beneficiaryGovernance =
-    BeneficiaryGovernance(0xCa57C1d3c2c35E667745448Fef8407dd25487ff8); // you must enter the new address from deployment here
-  ERC20PresetMinterPauser internal pop = ERC20PresetMinterPauser(0xFC4EE541377F3b6641c23CBE82F6f04388290421); // you must enter the new address from deployment here
-
+    BeneficiaryGovernance(0x3189769b424C2ec5d3F7402c4aDcfFc01567b090); // you must enter the new address from deployment here
+  ERC20PresetMinterPauser internal pop = ERC20PresetMinterPauser(0xbcB4cB7AaB92A48a80f77721322bE86fadCa7A22); // you must enter the new address from deployment here
+  ParticipationReward internal participationReward = ParticipationReward(0x451A80bCB45CffC2975fd6b8031746E0Aab81cD4);
   string[19] internal cids = [
     "QmSzq4gKUk9LhNNCFBVDbkkz26umqu63jx2dXNABBKcgJ9",
     "QmNY4QEKhnreDZHW3yiphXn765im5y8RCGrySKzRoXDPTB",
@@ -46,9 +47,9 @@ contract AddProposal is Script {
   function run() external {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     vm.startBroadcast(deployerPrivateKey);
-    pop.mint(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 200000000000000000000000000000000);
+    pop.mint(0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04, 200000000000000000000000000000000); // put your address here
     pop.approve(address(beneficiaryGovernance), 200000000000000000000000000000000);
-    for (uint256 i; i < 1; i++) {
+    for (uint256 i; i < 8; i++) {
       beneficiaryGovernance.createProposal(
         vm.addr(i + 1),
         DEFAULT_REGION,
