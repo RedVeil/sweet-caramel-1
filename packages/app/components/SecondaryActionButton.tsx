@@ -2,7 +2,7 @@ import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
 import React, { useState } from "react";
 
 interface ButtonProps {
-  label: string;
+  label: string | JSX.Element;
   handleClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   hidden?: boolean;
@@ -28,7 +28,9 @@ const SecondaryActionButton: React.FC<ButtonProps> = ({ label, handleClick, hidd
       onClick={handleClick}
     >
       <span>{label}</span>
-      <div className={`'absolute right-0 transition-all ease-in-out duration-500 ${arrowClass}`}>
+      <div
+        className={`absolute right-0 transition-all ease-in-out duration-500 top-1/2 -translate-y -1/2 ${arrowClass}`}
+      >
         <RightArrowIcon color={arrowColor} />
       </div>
     </button>
