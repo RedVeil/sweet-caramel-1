@@ -1,30 +1,41 @@
-import { networkMap } from "@popcorn/utils";
-import { useComponentState } from "../utils/hooks";
-import { Pop } from "../types";
-import useContractMetadata from "./hooks/useContractMetadata";
-import { Escrow, Erc20, Price, Contract, Staking } from "@popcorn/components/lib";
+import type { Pop } from "../types";
 import { BigNumber, constants } from "ethers";
 import { useAccount } from "wagmi";
-import { useBalanceOf } from "../Erc20/hooks";
 import { useState } from "react";
+
+import { networkMap } from "@popcorn/utils";
+import { Erc20, Contract } from "@popcorn/components/lib";
+import useContractMetadata from "./hooks/useContractMetadata";
 
 interface ContractProps extends Pop.NamedAccountsMetadata {
   alias?: string;
   children?: React.ReactElement[];
   index?: number;
   callback?: (value?: BigNumber) => void;
+  networth?: BigNumber;
 }
 
-export const Metadata: Pop.FC<ContractProps> = ({ address, chainId, children, alias, index, callback }) => {
-  const [showItem, setShowItem] = useState(false);
+const HUNDRED = BigNumber.from(100);
+export const Metadata: Pop.FC<ContractProps> = ({ address, chainId, children, alias, index, callback, networth }) => {
+  const [balance, setBalance] = useState<BigNumber>();
   const { address: account } = useAccount();
-  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
   const { data, status } = useContractMetadata({ chainId, address, alias });
 
   const { symbol, priceResolver, apyResolver, balanceResolver, decimals, name, icons, alias: _alias } = data || {};
 
+  function handleCallback(value: any) {
+    const setHolderBalance = !balance && value;
+    if (setHolderBalance) {
+      callback!(value);
+      setBalance(value);
+    }
+  }
+
+  const balanceGtZero = balance?.gt(0);
+  const portfolioDistribution = networth && balanceGtZero ? HUNDRED.mul(balance!).div(networth) : constants.Zero;
+
   return (
-    <div className={showItem ? "" : "hidden"}>
+    <div className={balanceGtZero ? "" : "hidden"}>
       <h2>
         {index}: {alias}
       </h2>
@@ -39,6 +50,9 @@ export const Metadata: Pop.FC<ContractProps> = ({ address, chainId, children, al
       </div>
       <div>
         {index}: Price Resolver: {priceResolver || "default"}
+      </div>
+      <div>
+        {index}: Portfolio {portfolioDistribution.toString()}%
       </div>
       <div>
         {index}: Apy Resolver: {apyResolver || "default"}
@@ -65,13 +79,6 @@ export const Metadata: Pop.FC<ContractProps> = ({ address, chainId, children, al
           address={address}
           chainId={chainId}
           render={({ balance, price, status }) => {
-            const setHolderBalance = !showItem && balance?.value;
-            if (setHolderBalance && balance?.value?.gt(0)) {
-              setShowItem(true);
-            }
-            function handleCallback(value: any) {
-              if (setHolderBalance) callback!(value);
-            }
             return (
               <div>
                 Erc20.BalanceOfValue:{" "}
