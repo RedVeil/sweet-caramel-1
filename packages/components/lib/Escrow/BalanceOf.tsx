@@ -7,7 +7,6 @@ import { usePrice } from "../Price";
 import { useMultiStatus } from "../utils/hooks/useMultiStatus";
 import { useNetworth } from "../../context/Networth";
 import { updateNetworth } from "../../reducers/networth/actions";
-import useLog from "../utils/hooks/useLog";
 
 const eth_call =
   (Component: Pop.FC<BigNumberWithFormatted>) =>
@@ -41,13 +40,6 @@ const eth_call =
         })(dispatch);
       }
     }, [status]);
-
-    useLog(
-      {
-        state,
-      },
-      [state],
-    );
 
     if (props.render) {
       return (
