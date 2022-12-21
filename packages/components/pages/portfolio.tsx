@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
 import { useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAccount } from "wagmi";
 
@@ -13,9 +12,11 @@ import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
 import { formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { Badge, BadgeVariant } from "@popcorn/components/components/Badge";
-import PortfolioHero from "../components/Portfolio/PortfolioHero.clean";
+
 import { useChainsWithStakingRewards } from "../../greenfield-app/hooks/staking/useChainsWithStaking";
 import useNetworkFilter from "../../greenfield-app/hooks/useNetworkFilter";
+import PortfolioHero from "../components/Portfolio/PortfolioHero.clean";
+import NetworkIconList from "../../greenfield-app/components/NetworkIconList";
 import { Erc20, Contract, Escrow } from "../lib";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
@@ -140,7 +141,7 @@ export const PortfolioPage: NextPage = () => {
       <div className="grid grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
         <div className="col-span-12 md:col-span-6 flex items-center space-x-5 mb-6 md:mb-[48px]">
           <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">Assets</h2>
-          <NetworkIcons />
+          <NetworkIconList networks={selectedNetworks} />
         </div>
         <div className="col-span-12 md:col-span-6 grid grid-cols-12">
           <div className="col-span-12 xs:col-span-7 xs:col-end-13 md:col-span-12 grid grid-cols-12">
@@ -268,7 +269,7 @@ export const PortfolioPage: NextPage = () => {
       <div className="grid grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
         <div className="col-span-12 md:col-span-6 flex items-center space-x-5 mb-6 md:mb-[48px]">
           <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">Escrow</h2>
-          <NetworkIcons />
+          <NetworkIconList networks={selectedNetworks} />
         </div>
         <div className="col-span-12 md:col-span-6 grid grid-cols-12">
           <div className="col-span-12 xs:col-span-7 xs:col-end-13 md:col-span-12 grid grid-cols-12">
@@ -448,22 +449,5 @@ function StyledBalance({ children }) {
     <div className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4`}>{children}</div>
   );
 }
-
-const NetworkIcons = () => (
-  <div className="relative flex items-center">
-    <div className="relative">
-      <Image src={networkLogos[1]} height="24" alt="network logo" width="24" objectFit="contain" />
-    </div>
-    <div className="relative -left-1">
-      <Image src={networkLogos[137]} height="24" alt="network logo" width="24" objectFit="contain" />
-    </div>
-    <div className="relative -left-2">
-      <Image src={networkLogos[56]} height="24" alt="network logo" width="24" objectFit="contain" />
-    </div>
-    <div className="relative -left-3">
-      <Image src={networkLogos[42161]} height="24" alt="network logo" width="24" objectFit="contain" />
-    </div>
-  </div>
-);
 
 export default PortfolioPage;
