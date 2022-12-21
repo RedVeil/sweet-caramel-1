@@ -1,13 +1,19 @@
 import type { NextPage } from "next";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
 import dynamic from "next/dynamic";
 import { useAccount } from "wagmi";
 
-import { Networth } from "@popcorn/components/lib/Portfolio/Networth";
 import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
+import PortfolioSection from "@popcorn/components/components/Portfolio/PortfolioSection.clean";
 import { useFeatures } from "@popcorn/components/hooks";
 import { Pop } from "@popcorn/components/lib/types";
+import PortfolioHero from "../components/Portfolio/PortfolioHero.clean";
+import { useChainsWithStakingRewards } from "../../greenfield-app/hooks/staking/useChainsWithStaking";
+import useNetworkFilter from "../../greenfield-app/hooks/useNetworkFilter";
+import { EmptyStateContainer } from "../../greenfield-app/pages/portfolio";
+import { useContractMetadata } from "../lib/Contract";
+import { Erc20 } from "../lib";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
   ssr: false,
@@ -16,6 +22,10 @@ const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata
 const getItemKey = (token: any) => `${token.chainId}:${token.address}`;
 
 export const PortfolioPage: NextPage = () => {
+  const supportedNetworks = useChainsWithStakingRewards();
+  const [selectedFilter, setSelectedFilter] = useState<{ id: string; value: string }>();
+  const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
+
   const { address: account } = useAccount();
   const [balances, setBalances] = useState({} as { [key: string]: BigNumber | undefined });
   const {
@@ -68,30 +78,57 @@ export const PortfolioPage: NextPage = () => {
 
   return (
     <div className={visible ? "" : "hidden"}>
-      <Networth account={account} value={networth} />
-      {allContracts
-        .sort((a, b) => {
-          const aValue = balances[getItemKey(a)];
-          const bValue = balances[getItemKey(b)];
-          if (!bValue) return 0;
-          return bValue.gt(aValue || 0) ? 1 : -1;
-        })
-        .map((token, i) => {
-          const key = getItemKey(token);
-          return (
-            <Metadata
-              index={i}
-              alias={token.__alias}
-              key={key}
-              networth={networth}
-              chainId={Number(token.chainId)}
-              address={token.address}
-              callback={(value) => addToNetworth(key, value)}
-            />
-          );
-        })}
+      <PortfolioHero
+        supportedNetworks={supportedNetworks}
+        selectedNetworks={selectedNetworks}
+        filterState={[selectedFilter!, setSelectedFilter]}
+        balance={networth}
+        selectNetwork={selectNetwork}
+        vestingBalance={constants.Zero}
+        account={account}
+      />
+      <EmptyStateContainer showEmptyState={!!account}>
+        {allContracts
+          .sort((a, b) => {
+            const aValue = balances[getItemKey(a)];
+            const bValue = balances[getItemKey(b)];
+            if (!bValue) return 0;
+            return bValue.gt(aValue || 0) ? 1 : -1;
+          })
+          .map((token, i) => {
+            const key = getItemKey(token);
+            const chainId = Number(token.chainId);
+            return (
+              <Metadata chainId={chainId} address={token.address} alias={token.__alias} key={key}>
+                {(metadata) => {
+                  return (
+                    <Fragment>
+                      <Erc20.ValueOfBalance
+                        chainId={chainId}
+                        account={account}
+                        address={token.address}
+                        render={({ balanceUSD }) => {
+                          if (balanceUSD?.value?.gt(0)) {
+                            return <StyledBalance>{balanceUSD?.value.toString()}</StyledBalance>;
+                          }
+                          return <></>;
+                        }}
+                      />
+                    </Fragment>
+                  );
+                }}
+              </Metadata>
+            );
+          })}
+      </EmptyStateContainer>
     </div>
   );
 };
+
+function StyledBalance({ children }) {
+  return (
+    <div className={`text-primary text-xs md:text-lg font-medium  col-end-13 col-span-6 md:col-span-4`}>{children}</div>
+  );
+}
 
 export default PortfolioPage;

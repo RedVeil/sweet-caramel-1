@@ -12,6 +12,7 @@ export default {
   title: "Components/PortfolioSection",
   component: PortfolioSection,
 } as ComponentMeta<typeof PortfolioSection>;
+
 const networks = [
   {
     icon: EthIcon,
@@ -32,6 +33,7 @@ const networks = [
     handleClick: () => console.log("switch"),
   },
 ];
+
 const NetworkSwitcher = (
   <div>
     <div className="hidden md:flex flex-row items-center space-x-2">
