@@ -1,5 +1,5 @@
 import type { Pop } from "../types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BigNumber, constants } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 
@@ -20,6 +20,7 @@ const eth_call =
     status,
     callback,
   }: Props & { status?: "idle" | "error" | "success" | "loading" } & { callback?: (value?: BigNumber) => void }) => {
+    const [isDirty, setDirty] = useState(false);
     const value =
       (balance &&
         price &&
@@ -30,8 +31,9 @@ const eth_call =
       constants.Zero;
 
     useEffect(() => {
-      if (status === "success" && callback && value) {
-        callback(value);
+      if (status === "success" && callback && value && !isDirty) {
+        setDirty(true);
+        callback!(value);
       }
     }, [status, value]);
 
