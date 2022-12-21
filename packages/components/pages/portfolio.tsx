@@ -5,14 +5,12 @@ import dynamic from "next/dynamic";
 import { useAccount } from "wagmi";
 
 import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
-import PortfolioSection from "@popcorn/components/components/Portfolio/PortfolioSection.clean";
 import { useFeatures } from "@popcorn/components/hooks";
 import { Pop } from "@popcorn/components/lib/types";
 import PortfolioHero from "../components/Portfolio/PortfolioHero.clean";
 import { useChainsWithStakingRewards } from "../../greenfield-app/hooks/staking/useChainsWithStaking";
 import useNetworkFilter from "../../greenfield-app/hooks/useNetworkFilter";
 import { EmptyStateContainer } from "../../greenfield-app/pages/portfolio";
-import { useContractMetadata } from "../lib/Contract";
 import { Erc20 } from "../lib";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
@@ -43,6 +41,7 @@ export const PortfolioPage: NextPage = () => {
     "popUsdcArrakisVaultStaking",
     "rewardsEscrow",
   ]);
+
   const contractsPoly = useNamedAccounts("137", [
     "pop",
     "popStaking",
@@ -52,16 +51,33 @@ export const PortfolioPage: NextPage = () => {
     "rewardsEscrow",
     "xPop",
   ]);
+
   const contractsBnb = useNamedAccounts("56", ["pop", "xPop", "rewardsEscrow"]);
   const contractsArbitrum = useNamedAccounts("42161", ["pop", "xPop", "rewardsEscrow"]);
   const contractsOp = useNamedAccounts("10", ["pop", "popUsdcArrakisVault"]);
 
+  const filterFor = (contracts: Array<any>, chainId) => (selectedNetworks.includes(chainId) ? contracts : []);
+
   const allContracts = useMemo(() => {
-    return [...contractsEth, ...contractsPoly, ...contractsBnb, ...contractsArbitrum, ...contractsOp].flatMap(
-      (network) => network,
-    ) as Array<Pop.NamedAccountsMetadata & { chainId: string; address: string; __alias: string }>;
+    const filteredContracs = [
+      ...filterFor(contractsEth, 1),
+      ...filterFor(contractsPoly, 137),
+      ...filterFor(contractsBnb, 56),
+      ...filterFor(contractsArbitrum, 42161),
+      ...filterFor(contractsOp, 10),
+    ];
+    return filteredContracs.flatMap((network) => network) as Array<
+      Pop.NamedAccountsMetadata & { chainId: string; address: string; __alias: string }
+    >;
     // re-trigger only when array length change to avoid shallow object false positives
-  }, [account, contractsEth.length, contractsPoly.length, contractsBnb.length, contractsArbitrum.length]);
+  }, [
+    account,
+    contractsEth.length,
+    contractsPoly.length,
+    contractsBnb.length,
+    contractsArbitrum.length,
+    selectedNetworks,
+  ]);
 
   const addToNetworth = (key, value?: BigNumber) => {
     if (value?.gt(0)) {
