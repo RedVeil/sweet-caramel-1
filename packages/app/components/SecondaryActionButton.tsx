@@ -29,7 +29,7 @@ const SecondaryActionButton: React.FC<ButtonProps> = ({ label, handleClick, hidd
     >
       <span>{label}</span>
       <div
-        className={`absolute right-0 transition-all ease-in-out duration-500 top-1/2 -translate-y -1/2 ${arrowClass}`}
+        className={`absolute right-0 transition-all ease-in-out duration-500 top-1/2 h-2 -translate-y-1/2 ${arrowClass}`}
       >
         <RightArrowIcon color={arrowColor} />
       </div>
