@@ -14,6 +14,24 @@ interface ProductsPortfolioProps {
   selectedNetworks: ChainId[];
   filterBy?: string;
 }
+
+export const NetworkIcons = () => (
+  <div className="relative flex items-center">
+    <div className="relative">
+      <Image src={networkLogos[1]} height="24" alt="network logo" width="24" objectFit="contain" />
+    </div>
+    <div className="relative -left-1">
+      <Image src={networkLogos[137]} height="24" alt="network logo" width="24" objectFit="contain" />
+    </div>
+    <div className="relative -left-2">
+      <Image src={networkLogos[56]} height="24" alt="network logo" width="24" objectFit="contain" />
+    </div>
+    <div className="relative -left-3">
+      <Image src={networkLogos[42161]} height="24" alt="network logo" width="24" objectFit="contain" />
+    </div>
+  </div>
+);
+
 const ProductsPortfolio = ({ selectedNetworks, filterBy }: ProductsPortfolioProps) => {
   const { address: account } = useAccount();
   const selectedContracts = useSupportedContracts(selectedNetworks);
@@ -60,7 +78,6 @@ const ProductsPortfolio = ({ selectedNetworks, filterBy }: ProductsPortfolioProp
   };
   const props = {
     title: "Assets",
-
     TotalValues: [
       {
         title: "Price",
@@ -103,24 +120,8 @@ const ProductsPortfolio = ({ selectedNetworks, filterBy }: ProductsPortfolioProp
       },
     ],
   };
-  const NetworkIcons = (
-    <div className="relative flex items-center">
-      <div className="relative">
-        <Image src={networkLogos[1]} height="24" alt="network logo" width="24" objectFit="contain" />
-      </div>
-      <div className="relative -left-1">
-        <Image src={networkLogos[137]} height="24" alt="network logo" width="24" objectFit="contain" />
-      </div>
-      <div className="relative -left-2">
-        <Image src={networkLogos[56]} height="24" alt="network logo" width="24" objectFit="contain" />
-      </div>
-      <div className="relative -left-3">
-        <Image src={networkLogos[42161]} height="24" alt="network logo" width="24" objectFit="contain" />
-      </div>
-    </div>
-  );
   return (
-    <PortfolioSection {...props} NetworkIcons={NetworkIcons}>
+    <PortfolioSection {...props} NetworkIcons={<NetworkIcons />}>
       {filteredContracts.map((token, i) => (
         <PortfolioItemsContainer
           index={i}
