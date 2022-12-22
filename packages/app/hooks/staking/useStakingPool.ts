@@ -24,6 +24,6 @@ export default function useStakingPool(address: string, chainId: ChainId): SWRRe
     shouldFetch
       ? [`getStakingPoolInfo-${address}`, account, stakingContract, chainId, provider, contractAddresses]
       : null,
-    getStakingPool,
+    (key) => getStakingPool(...key),
   );
 }

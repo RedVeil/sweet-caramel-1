@@ -18,6 +18,7 @@ import useNetworkFilter from "../../greenfield-app/hooks/useNetworkFilter";
 import NetworkIconList from "../../greenfield-app/components/NetworkIconList";
 import { Erc20, Contract, Escrow } from "../lib";
 import PortfolioHero from "../components/Portfolio/PortfolioHero";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
   ssr: false,
@@ -164,7 +165,6 @@ export const PortfolioPage: NextPage = () => {
         account={account}
         tabs={{ available: Sections, active: [selectedSections, selectSections] }}
       />
-
       <PortfolioSection
         selectedNetworks={selectedNetworks}
         selectedSections={selectedSections}
@@ -403,7 +403,7 @@ function PortfolioSection({
   const portfolioDistribution =
     balanceGTZero && totalSupply?.gt(0) ? HUNDRED.mul(totalSupply).div(balance).toString() : constants.Zero.toString();
   return (
-    <div className={balanceGTZero && selectedSections.includes(title) ? "" : "hidden"}>
+    <div className={selectedSections.includes(title) ? "" : "hidden"}>
       <section className="grid mt-16 grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
         <div className="col-span-12 md:col-span-6 flex items-center space-x-5 mb-6 md:mb-[48px]">
           <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">{title}</h2>
@@ -451,6 +451,9 @@ function PortfolioSection({
         </div>
       </section>
       {children}
+      <div className={balanceGTZero ? "hidden" : ""}>
+        <NotAvailable title={`No ${title} available`} body={""} image="/images/emptyRecord.svg" />
+      </div>
     </div>
   );
 }
