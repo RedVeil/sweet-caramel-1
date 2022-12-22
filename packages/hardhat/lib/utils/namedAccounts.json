@@ -21,6 +21,9 @@
       "mainnet": "0xeB906A75838A8078B181815969b1DCBC20eaF7c0"
     },
     "metadata": {
+      "name": "Staked Xen",
+      "symbol": "st-Xen",
+      "icons": ["/images/tokens/xen.png", "/images/icons/POP.svg"],
       "priceResolver": "staking",
       "apyResolver": "synthetix",
       "claimableTokenAdapter": {
@@ -103,6 +106,8 @@
       "contractName": "ButterStaking",
       "priceResolver": "staking",
       "symbol": "st-BTR",
+      "name": "Staked BTR",
+      "icons": ["/images/icons/BTR.svg"],
       "isERC20": false,
       "apyResolver": "synthetix",
       "claimableTokenAdapter": {
@@ -504,6 +509,8 @@
       "apyResolver": "synthetix",
       "isERC20": false,
       "symbol": "st-RAKIS-15",
+      "name": "Staked Arrakis USDC/POP LP",
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "claimableTokenAdapter": {
         "type": "synthetix",
         "tokenFunction": "rewardsToken",
@@ -521,6 +528,7 @@
     },
     "metadata": {
       "name": "USDC/POP LP",
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "buyLinkEthereum": "https://beta.arrakis.finance/#/vaults/0xBBA11b41407dF8793A89b44ee4b50AfAD4508555/add",
       "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add",
       "priceResolver": "arrakis"
@@ -545,6 +553,9 @@
       "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D"
     },
     "metadata": {
+      "name": "USDC/POP LP",
+      "symbol": "st-LP",
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "priceResolver": "staking",
       "apyResolver": "synthetix",
       "claimableTokenAdapter": {
@@ -741,7 +752,9 @@
     "metadata": {
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
+      "name": "Staked 3X",
       "symbol": "st-3X",
+      "icons": ["/images/tokens/3X.svg"],
       "isERC20": false,
       "apyResolver": "synthetix",
       "claimableTokenAdapter": {

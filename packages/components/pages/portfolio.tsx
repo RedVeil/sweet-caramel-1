@@ -29,21 +29,21 @@ export enum SortingType {
   BalAsc,
 }
 
-function sortBalDesc(a, b, balances: { [key: string]: BigNumber | undefined }): 0 | 1 | -1 {
-  const aValue = balances[getItemKey(a)];
-  const bValue = balances[getItemKey(b)];
+function sortBalDesc(a, b, balances: BalanceByKey): 0 | 1 | -1 {
+  const aValue = balances[getItemKey(a)]?.value;
+  const bValue = balances[getItemKey(b)]?.value;
   if (!bValue) return 0;
   return bValue.gt(aValue || 0) ? 1 : -1;
 }
 
-function sortBalAsc(a, b, balances: { [key: string]: BigNumber | undefined }): 0 | 1 | -1 {
-  const aValue = balances[getItemKey(a)];
-  const bValue = balances[getItemKey(b)];
+function sortBalAsc(a, b, balances: BalanceByKey): 0 | 1 | -1 {
+  const aValue = balances[getItemKey(a)]?.value;
+  const bValue = balances[getItemKey(b)]?.value;
   if (!bValue) return 0;
   return bValue.lt(aValue || 0) ? 1 : -1;
 }
 
-function sortEntries(a, b, balances: { [key: string]: BigNumber | undefined }, sortingType: SortingType): 0 | 1 | -1 {
+function sortEntries(a, b, balances: BalanceByKey, sortingType: SortingType): 0 | 1 | -1 {
   switch (sortingType) {
     case SortingType.BalAsc:
       return sortBalAsc(a, b, balances);
@@ -170,12 +170,13 @@ export const PortfolioPage: NextPage = () => {
         selectedSections={selectedSections}
         title="Assets"
         portfolio={{
-          balance: networth,
-          totalSupply: totalBalance.pop,
+          balance: totalBalance.pop,
+          networth: networth,
         }}
       >
         {allContracts
           .filter((contract) => contract.__alias !== "rewardsEscrow")
+          .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
           .map((token) => {
             const key = getItemKey(token);
             const chainId = Number(token.chainId);
@@ -252,8 +253,8 @@ export const PortfolioPage: NextPage = () => {
         selectedSections={selectedSections}
         title="Rewards"
         portfolio={{
-          balance: networth,
-          totalSupply: totalBalance.escrow,
+          balance: totalBalance.escrow,
+          networth: networth,
         }}
       >
         {escrowContracts.map((token) => {
@@ -397,14 +398,15 @@ function PortfolioSection({
   children: any;
   portfolio: {
     balance: BigNumber;
-    totalSupply: BigNumber;
+    networth: BigNumber;
   };
   title: string;
 }) {
-  const { balance, totalSupply } = portfolio;
+  const { balance, networth } = portfolio;
   const balanceGTZero = balance?.gt(0);
+
   const portfolioDistribution =
-    balanceGTZero && totalSupply?.gt(0) ? HUNDRED.mul(totalSupply).div(balance).toString() : constants.Zero.toString();
+    balanceGTZero && balance?.gt(0) ? HUNDRED.mul(balance).div(networth).toString() : constants.Zero.toString();
   return (
     <div className={selectedSections.includes(title) ? "" : "hidden"}>
       <section className="grid mt-16 grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
@@ -419,9 +421,9 @@ function PortfolioSection({
                 <p className="text-primaryLight text-sm md:text-base">Price</p>
                 <InfoIconWithTooltip
                   classExtras=""
-                  id="price-products-tooltip"
-                  title="Total value locked (TVL)"
-                  content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
+                  id="portfolio-price-tooltip"
+                  title="Price"
+                  content="The price of one token in USD."
                 />
               </div>
               <div className="text-sm md:text-lg"></div>
@@ -431,9 +433,9 @@ function PortfolioSection({
                 <p className="text-primaryLight text-sm md:text-base">Portfolio %</p>
                 <InfoIconWithTooltip
                   classExtras=""
-                  id="portfolio-products-tooltip"
-                  title="Total value locked (TVL)"
-                  content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
+                  id="portfolio-percentage-tooltip"
+                  title="Portfolio %"
+                  content="The size of your position in comparison to your total portfolio in Popcorn."
                 />
               </div>
               <div className="text-sm md:text-lg">{portfolioDistribution} %</div>
@@ -443,12 +445,12 @@ function PortfolioSection({
                 <p className="text-primaryLight text-sm md:text-base">Balance</p>
                 <InfoIconWithTooltip
                   classExtras=""
-                  id="portfolio-products-tooltip"
-                  title="Total value locked (TVL)"
-                  content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
+                  id="portfolio-balance-tooltip"
+                  title="Balance"
+                  content="The value of your position in USD and in the amount of token."
                 />
               </div>
-              <div className="text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.totalSupply, 18)}</div>
+              <div className="text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.balance, 18)}</div>
             </div>
           </div>
         </div>
