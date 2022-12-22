@@ -1,6 +1,4 @@
-import type { ContractMetadata } from "@popcorn/utils/src/types";
-
-import useContractMetadata from "./hooks/useContractMetadata";
+import useContractMetadata, { ContractMetadata } from "./hooks/useContractMetadata";
 
 interface ContractProps {
   alias?: string;

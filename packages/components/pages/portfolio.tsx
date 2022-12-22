@@ -226,6 +226,7 @@ export const PortfolioPage: NextPage = () => {
                                       status={status}
                                       balance={balance?.value}
                                       price={price?.value}
+                                      decimals={metadata?.decimals}
                                       callback={(value) => addToBalances(key, "pop", chainId, value)}
                                     />
                                   </StyledBalance>
@@ -304,6 +305,7 @@ export const PortfolioPage: NextPage = () => {
                               status={status}
                               balance={balance?.value}
                               price={price?.value}
+                              decimals={18}
                               callback={(value) => addToBalances(claimableKey, "escrow", chainId, value)}
                             />
                           </StyledBalance>
@@ -358,6 +360,7 @@ export const PortfolioPage: NextPage = () => {
                               status={status}
                               balance={balance?.value}
                               price={price?.value}
+                              decimals={18}
                               callback={(value) => addToBalances(vestingKey, "escrow", chainId, value)}
                             />
                           </StyledBalance>

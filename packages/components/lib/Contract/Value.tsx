@@ -32,8 +32,6 @@ const eth_call =
 
     useEffect(() => {
       if (status === "success" && callback && value.gt(0) && !isDirty) {
-        console.log(status);
-
         setDirty(true);
         callback!(value);
       }
