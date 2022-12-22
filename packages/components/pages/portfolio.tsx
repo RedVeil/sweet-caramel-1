@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import type { Pop } from "@popcorn/components/lib/types";
 import { useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
 import dynamic from "next/dynamic";
@@ -7,10 +8,9 @@ import { useAccount } from "wagmi";
 import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { useFeatures } from "@popcorn/components/hooks";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
-import { Pop } from "@popcorn/components/lib/types";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
-import { formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
+import { formatAndRoundBigNumber } from "@popcorn/utils";
 import { Badge, BadgeVariant } from "@popcorn/components/components/Badge";
 
 import { useChainsWithStakingRewards } from "../../greenfield-app/hooks/staking/useChainsWithStaking";
@@ -72,19 +72,17 @@ export const PortfolioPage: NextPage = () => {
   const contractsArbitrum = useNamedAccounts("42161", ["pop", "xPop", "rewardsEscrow"]);
   const contractsOp = useNamedAccounts("10", ["pop", "popUsdcArrakisVault"]);
 
-  const filterFor = (contracts: Array<any>, chainId) => (selectedNetworks.includes(chainId) ? contracts : []);
+  const filterByChainId = (contracts: Array<any>, chainId) => (selectedNetworks.includes(chainId) ? contracts : []);
 
   const allContracts = useMemo(() => {
     const filteredContracs = [
-      ...filterFor(contractsEth, 1),
-      ...filterFor(contractsPoly, 137),
-      ...filterFor(contractsBnb, 56),
-      ...filterFor(contractsArbitrum, 42161),
-      ...filterFor(contractsOp, 10),
+      ...filterByChainId(contractsEth, 1),
+      ...filterByChainId(contractsPoly, 137),
+      ...filterByChainId(contractsBnb, 56),
+      ...filterByChainId(contractsArbitrum, 42161),
+      ...filterByChainId(contractsOp, 10),
     ];
-    return filteredContracs.flatMap((network) => network) as Array<
-      Pop.NamedAccountsMetadata & { chainId: string; address: string; __alias: string }
-    >;
+    return filteredContracs.flatMap((network) => network) as Array<Pop.NamedAccountsMetadata>;
     // re-trigger only when array length change to avoid shallow object false positives
   }, [
     account,
@@ -96,11 +94,7 @@ export const PortfolioPage: NextPage = () => {
   ]);
 
   const escrowContracts = useMemo(() => {
-    return allContracts
-      .filter((contract) => contract.__alias === "rewardsEscrow")
-      .flatMap((network) => network) as Array<
-      Pop.NamedAccountsMetadata & { chainId: string; address: string; __alias: string }
-    >;
+    return allContracts.filter(({ __alias }) => __alias === "rewardsEscrow").flatMap((network) => network);
   }, [allContracts]);
 
   const addToBalances = (key, type: "escrow" | "pop", value?: BigNumber) => {
