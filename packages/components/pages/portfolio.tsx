@@ -74,15 +74,16 @@ export const PortfolioPage: NextPage = () => {
 
   const filterByChainId = (contracts: Array<any>, chainId) => (selectedNetworks.includes(chainId) ? contracts : []);
 
-  const allContracts = useMemo(() => {
+  const [allContracts, escrowContracts] = useMemo(() => {
     const filteredContracs = [
       ...filterByChainId(contractsEth, 1),
       ...filterByChainId(contractsPoly, 137),
       ...filterByChainId(contractsBnb, 56),
       ...filterByChainId(contractsArbitrum, 42161),
       ...filterByChainId(contractsOp, 10),
-    ];
-    return filteredContracs.flatMap((network) => network) as Array<Pop.NamedAccountsMetadata>;
+    ].flatMap((network) => network) as Array<Pop.NamedAccountsMetadata>;
+
+    return [filteredContracs, filteredContracs.filter(({ __alias }) => __alias === "rewardsEscrow")];
     // re-trigger only when array length change to avoid shallow object false positives
   }, [
     account,
@@ -92,10 +93,6 @@ export const PortfolioPage: NextPage = () => {
     contractsArbitrum.length,
     selectedNetworks,
   ]);
-
-  const escrowContracts = useMemo(() => {
-    return allContracts.filter(({ __alias }) => __alias === "rewardsEscrow").flatMap((network) => network);
-  }, [allContracts]);
 
   const addToBalances = (key, type: "escrow" | "pop", value?: BigNumber) => {
     if (value?.gt(0)) {
