@@ -17,7 +17,7 @@ export default function useGetMultipleToken(
 
   return useSWR(
     shouldFetch ? [`getMultipleToken-${tokenAddresses}`, account, chainId, tokenContracts, spender] : null,
-    async (key: string) => getMultipleToken(tokenContracts, rpcProvider, chainId, account, spender),
+    async () => getMultipleToken(tokenContracts, rpcProvider, chainId, account, spender),
     { refreshInterval: 2000 },
   );
 }

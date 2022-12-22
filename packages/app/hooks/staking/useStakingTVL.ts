@@ -5,6 +5,8 @@ import useSWR, { SWRResponse } from "swr";
 import { useRpcProvider } from "@popcorn/app/hooks/useRpcProvider";
 import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 
+const REFETCH_INTERVAL = 10 * 1_000;
+
 export async function getStakingTVL(
   _key,
   popLockerAddress: string,
@@ -27,8 +29,14 @@ export default function useStakingTVL(chainId: ChainId): SWRResponse<BigNumber, 
   const { pop } = useDeployment(ChainId.Ethereum);
   const { data: priceData } = useTokenPrices([pop], ChainId.Ethereum);
 
-  return useSWR([`getStakingTVL-${chainId}`, addresses.popStaking, rpcProvider, priceData?.[pop]], getStakingTVL, {
-    refreshInterval: 3 * 1000,
-    dedupingInterval: 3 * 1000,
-  });
+  return useSWR(
+    [`getStakingTVL-${chainId}`, addresses.popStaking, rpcProvider, priceData?.[pop]],
+    (args) => getStakingTVL(...args),
+    {
+      refreshInterval: REFETCH_INTERVAL,
+      dedupingInterval: REFETCH_INTERVAL,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    },
+  );
 }

@@ -17,7 +17,7 @@ export default function useGetStakedBalance(
 
   return useSWR(
     shouldFetch ? ["StakedTokenBalance", stakingContract, account] : null,
-    (stakingContract: Staking, account: string) => stakingContract.balanceOf(account),
+    () => stakingContract.balanceOf(account),
     {
       refreshInterval: 3 * 1000,
       dedupingInterval: 3 * 1000,

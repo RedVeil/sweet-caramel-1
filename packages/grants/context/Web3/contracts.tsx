@@ -18,7 +18,7 @@ import activateRPCNetwork from "helper/activateRPCNetwork";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { setSingleActionModal } from "../actions";
 import { store } from "../store";
-import { useNamedAccounts } from "../../../components";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { isGrantsSupportedOnCurrentNetwork } from "helper/NetworkValid";
 
 export interface Contracts {

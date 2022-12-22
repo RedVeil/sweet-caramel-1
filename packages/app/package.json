@@ -62,7 +62,7 @@
     "slick-carousel": "^1.8.1",
     "styled-components": "5.3.3",
     "svg-loaders-react": "2.2.1",
-    "swr": "1.2.1",
+    "swr": "^2.0.0",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss": "^3.2.4",
     "typechain": "5.2.0",

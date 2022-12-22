@@ -27,7 +27,7 @@ import { Region } from "../../contracts/core/utils/Region.sol";
 /// 6,7 - Yearly Election
 /// 8-18 - Unused
 contract DeployBenGov is Script {
-  address internal yourAddress = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266; // enter your address here
+  address internal yourAddress = 0xaD5459EBbA9110B0a77ab2c3A7C3F300bBc0bd04; // enter your address here
   ACLRegistry internal aclRegistry;
   ContractRegistry internal contractRegistry;
   ERC20PresetMinterPauser internal pop;
@@ -42,7 +42,8 @@ contract DeployBenGov is Script {
   Region internal region;
 
   function run() external returns (address) {
-    vm.startBroadcast();
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+    vm.startBroadcast(deployerPrivateKey);
     // Deploying core contracts
     aclRegistry = new ACLRegistry();
     aclRegistry.grantRole(keccak256("DAO"), yourAddress); // replace with your signer
@@ -77,7 +78,7 @@ contract DeployBenGov is Script {
     beneficiaryGovernance = new BeneficiaryGovernance(IContractRegistry(contractRegistry));
     contractRegistry.addContract(keccak256("BeneficiaryGovernance"), address(beneficiaryGovernance), "1");
     aclRegistry.grantRole(keccak256("BeneficiaryGovernance"), address(beneficiaryGovernance));
-    participationReward.addControllerContract("BeneficiaryGovernance", address(beneficiaryGovernance));
+    participationReward.addControllerContract(keccak256("BeneficiaryGovernance"), address(beneficiaryGovernance));
 
     beneficiaryRegistry = new BeneficiaryRegistry(IContractRegistry(contractRegistry));
     contractRegistry.addContract(keccak256("BeneficiaryRegistry"), address(beneficiaryRegistry), "1");

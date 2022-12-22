@@ -124,7 +124,7 @@ export default function useTokenPrices(addresses: string[], chainId: ChainId) {
 
   return useSWR(
     shouldFetch ? ["assetValue", addresses, chainId] : null,
-    (key, addresses, chainId) => fetchPrices(addresses, chainId),
+    ([_, addresses, chainId]) => fetchPrices(addresses, chainId),
     {
       refreshInterval: 10000,
     },
