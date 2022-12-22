@@ -48,6 +48,9 @@ export namespace Pop {
     priceResolver?: "staking" | "set_token" | "pop" | "univ3" | "arrakis";
     balanceResolver?: "escrowBalance";
     apyResolver?: "synthetix";
+    chainId?: string;
+    address?: string;
+    __alias?: string;
     [key: string]: any;
   }
 }
