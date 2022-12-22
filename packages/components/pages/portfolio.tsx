@@ -15,26 +15,63 @@ import { Badge, BadgeVariant } from "@popcorn/components/components/Badge";
 
 import { useChainsWithStakingRewards } from "../../greenfield-app/hooks/staking/useChainsWithStaking";
 import useNetworkFilter from "../../greenfield-app/hooks/useNetworkFilter";
-import PortfolioHero from "../components/Portfolio/PortfolioHero.clean";
 import NetworkIconList from "../../greenfield-app/components/NetworkIconList";
 import { Erc20, Contract, Escrow } from "../lib";
+import PortfolioHero from "../components/Portfolio/PortfolioHero";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
   ssr: false,
 });
 
-type BalanceByKey = { [key: string]: BigNumber | undefined };
+export enum SortingType {
+  BalDesc,
+  BalAsc,
+}
+
+function sortBalDesc(a, b, balances: { [key: string]: BigNumber | undefined }): 0 | 1 | -1 {
+  const aValue = balances[getItemKey(a)];
+  const bValue = balances[getItemKey(b)];
+  if (!bValue) return 0;
+  return bValue.gt(aValue || 0) ? 1 : -1;
+}
+
+function sortBalAsc(a, b, balances: { [key: string]: BigNumber | undefined }): 0 | 1 | -1 {
+  const aValue = balances[getItemKey(a)];
+  const bValue = balances[getItemKey(b)];
+  if (!bValue) return 0;
+  return bValue.lt(aValue || 0) ? 1 : -1;
+}
+
+function sortEntries(a, b, balances: { [key: string]: BigNumber | undefined }, sortingType: SortingType): 0 | 1 | -1 {
+  switch (sortingType) {
+    case SortingType.BalAsc:
+      return sortBalAsc(a, b, balances);
+    case SortingType.BalDesc:
+    default:
+      return sortBalDesc(a, b, balances);
+  }
+}
+
+type BalanceByKey = { [key: string]: { value: BigNumber | undefined; chainId: number } };
 
 const getItemKey = (token: any) => `${token.chainId}:${token.__alias}`;
-const sumUpBalances = (balances = {}) =>
+
+const sumUpBalances = (balances = {}, selectedNetworks) =>
   Object.keys(balances).reduce((total, key) => {
-    return total.add(balances[key] || 0);
+    const value = selectedNetworks.includes(balances[key].chainId) ? balances[key].value : 0;
+    return total.add(value);
   }, constants.Zero);
 
 const HUNDRED = BigNumber.from(100);
+
+export const Sections = ["Assets", "Rewards"];
+
 export const PortfolioPage: NextPage = () => {
+  const {
+    features: { portfolio: visible },
+  } = useFeatures();
+
   const supportedNetworks = useChainsWithStakingRewards();
-  const [selectedFilter, setSelectedFilter] = useState<{ id: string; value: string }>();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
   const { address: account } = useAccount();
@@ -42,9 +79,9 @@ export const PortfolioPage: NextPage = () => {
     pop: {} as BalanceByKey,
     escrow: {} as BalanceByKey,
   });
-  const {
-    features: { portfolio: visible },
-  } = useFeatures();
+  const [selectedSections, selectSections] = useState(Sections);
+
+  const [sortingType, setSortingType] = useState(SortingType.BalDesc);
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -97,21 +134,21 @@ export const PortfolioPage: NextPage = () => {
     return allContracts.filter(({ __alias }) => __alias === "rewardsEscrow").flatMap((network) => network);
   }, [allContracts]);
 
-  const addToBalances = (key, type: "escrow" | "pop", value?: BigNumber) => {
+  const addToBalances = (key, type: "escrow" | "pop", chainId: number, value?: BigNumber) => {
     if (value?.gt(0)) {
       setBalances((balances) => ({
         ...balances,
         [type]: {
           ...balances[type],
-          [key]: value || constants.Zero,
+          [key]: { value: value || constants.Zero, chainId: chainId },
         },
       }));
     }
   };
 
   const totalBalance = {
-    pop: sumUpBalances(balances.pop),
-    escrow: sumUpBalances(balances.escrow),
+    pop: sumUpBalances(balances.pop, selectedNetworks),
+    escrow: sumUpBalances(balances.escrow, selectedNetworks),
   };
 
   const networth = totalBalance.pop.add(totalBalance.escrow);
@@ -121,15 +158,16 @@ export const PortfolioPage: NextPage = () => {
       <PortfolioHero
         supportedNetworks={supportedNetworks}
         selectedNetworks={selectedNetworks}
-        filterState={[selectedFilter!, setSelectedFilter]}
-        balance={networth}
         selectNetwork={selectNetwork}
-        vestingBalance={constants.Zero}
+        balance={totalBalance.pop}
+        vestingBalance={totalBalance.escrow}
         account={account}
+        tabs={{ available: Sections, active: [selectedSections, selectSections] }}
       />
 
       <PortfolioSection
         selectedNetworks={selectedNetworks}
+        selectedSections={selectedSections}
         title="Assets"
         portfolio={{
           balance: networth,
@@ -138,12 +176,6 @@ export const PortfolioPage: NextPage = () => {
       >
         {allContracts
           .filter((contract) => contract.__alias !== "rewardsEscrow")
-          .sort((a, b) => {
-            const aValue = balances.pop[getItemKey(a)];
-            const bValue = balances.pop[getItemKey(b)];
-            if (!bValue) return 0;
-            return bValue.gt(aValue || 0) ? 1 : -1;
-          })
           .map((token) => {
             const key = getItemKey(token);
             const chainId = Number(token.chainId);
@@ -182,8 +214,8 @@ export const PortfolioPage: NextPage = () => {
                                 </StyledBalance>
                                 <StyledBalance>
                                   <>
-                                    {networth.gt(0) && balances[key]?.gt(0)
-                                      ? HUNDRED.mul(balances[key]!).div(networth).toString()
+                                    {networth.gt(0) && balances["pop"][key]?.value?.gt(0)
+                                      ? HUNDRED.mul(balances["pop"][key].value!).div(networth).toString()
                                       : constants.Zero.toString()}{" "}
                                     %
                                   </>
@@ -194,7 +226,7 @@ export const PortfolioPage: NextPage = () => {
                                       status={status}
                                       balance={balance?.value}
                                       price={price?.value}
-                                      callback={(value) => addToBalances(key, "pop", value)}
+                                      callback={(value) => addToBalances(key, "pop", chainId, value)}
                                     />
                                   </StyledBalance>
                                   <p className="text-tokenTextGray text-[10px] md:text-base">
@@ -216,133 +248,129 @@ export const PortfolioPage: NextPage = () => {
 
       <PortfolioSection
         selectedNetworks={selectedNetworks}
+        selectedSections={selectedSections}
         title="Rewards"
         portfolio={{
           balance: networth,
           totalSupply: totalBalance.escrow,
         }}
       >
-        {escrowContracts
-          .sort((a, b) => {
-            const aValue = balances.escrow[getItemKey(a)];
-            const bValue = balances.escrow[getItemKey(b)];
-            if (!bValue) return 0;
-            return bValue.gt(aValue || 0) ? 1 : -1;
-          })
-          .map((token) => {
-            const key = getItemKey(token);
-            return (
-              <div key={key}>
-                <Escrow.ClaimableBalanceOf
-                  account={account}
-                  address={token.address}
-                  chainId={Number(token.chainId)}
-                  render={({ balance, price, status }) => (
-                    <div
-                      className={`${
-                        balance?.value?.gt(0) ? "" : "hidden"
-                      } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
-                    >
-                      <div className="grid grid-cols-12">
-                        <div className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8`}>
-                          <div className="relative">
-                            <NetworkSticker selectedChainId={Number(token.chainId)} />
-                            <TokenIcon token={token.address || ""} chainId={Number(token.chainId)} />
-                          </div>
+        {escrowContracts.map((token) => {
+          const claimableKey = getItemKey(token) + "-claimable";
+          const vestingKey = getItemKey(token) + "-vesting";
+          const chainId = Number(token.chainId);
+          return (
+            <div key={getItemKey(token)}>
+              <Escrow.ClaimableBalanceOf
+                account={account}
+                address={token.address}
+                chainId={chainId}
+                render={({ balance, price, status }) => (
+                  <div
+                    className={`${
+                      balance?.value?.gt(0) ? "" : "hidden"
+                    } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
+                  >
+                    <div className="grid grid-cols-12">
+                      <div className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8`}>
+                        <div className="relative">
+                          <NetworkSticker selectedChainId={chainId} />
+                          <TokenIcon token={token.address || ""} chainId={chainId} />
+                        </div>
 
-                          <div className="flex space-x-[6px] md:space-x-[52px]">
-                            <div>
-                              <p className="font-medium text-xs md:text-lg">Pop</p>
-                              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
-                            </div>
+                        <div className="flex space-x-[6px] md:space-x-[52px]">
+                          <div>
+                            <p className="font-medium text-xs md:text-lg">Pop</p>
+                            <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
                           </div>
-                          <Badge variant={BadgeVariant.primary}>Claimable</Badge>
                         </div>
-                        <div className={`md:col-span-6 grid grid-cols-12 ${true ? "col-span-6" : "col-span-7"}`}>
+                        <Badge variant={BadgeVariant.primary}>Claimable</Badge>
+                      </div>
+                      <div className={`md:col-span-6 grid grid-cols-12 ${true ? "col-span-6" : "col-span-7"}`}>
+                        <StyledBalance>
+                          <>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</>
+                        </StyledBalance>
+                        <StyledBalance>
+                          <>
+                            {networth.gt(0) && balances["escrow"][claimableKey]?.value?.gt(0)
+                              ? HUNDRED.mul(balances["escrow"][claimableKey].value!).div(networth).toString()
+                              : constants.Zero.toString()}{" "}
+                            %
+                          </>
+                        </StyledBalance>
+                        <div className="col-end-13 col-span-6 md:col-span-4">
                           <StyledBalance>
-                            <>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</>
+                            <Contract.Value
+                              status={status}
+                              balance={balance?.value}
+                              price={price?.value}
+                              callback={(value) => addToBalances(claimableKey, "escrow", chainId, value)}
+                            />
                           </StyledBalance>
-                          <StyledBalance>
-                            <>
-                              {networth.gt(0) && balances[key]?.gt(0)
-                                ? HUNDRED.mul(balances[key]!).div(networth).toString()
-                                : constants.Zero.toString()}{" "}
-                              %
-                            </>
-                          </StyledBalance>
-                          <div className="col-end-13 col-span-6 md:col-span-4">
-                            <StyledBalance>
-                              <Contract.Value
-                                status={status}
-                                balance={balance?.value}
-                                price={price?.value}
-                                callback={(value) => addToBalances(key, "escrow", value)}
-                              />
-                            </StyledBalance>
-                            <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
-                          </div>
+                          <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
                         </div>
                       </div>
                     </div>
-                  )}
-                />
-                <Escrow.VestingBalanceOf
-                  account={account}
-                  address={token.address}
-                  chainId={Number(token.chainId)}
-                  render={({ balance, price, status }) => (
-                    <div
-                      className={`${
-                        balance?.value?.gt(0) ? "" : "hidden"
-                      } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
-                    >
-                      <div className="grid grid-cols-12">
-                        <div className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8`}>
-                          <div className="relative">
-                            <NetworkSticker selectedChainId={Number(token.chainId)} />
-                            <TokenIcon token={token.address || ""} chainId={Number(token.chainId)} />
-                          </div>
-                          <div className="flex space-x-[6px] md:space-x-[52px]">
-                            <div>
-                              <p className="font-medium text-xs md:text-lg">Pop</p>
-                              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
-                            </div>
-                          </div>
-                          <Badge variant={BadgeVariant.dark}>
-                            <>Vesting</>
-                          </Badge>
+                  </div>
+                )}
+              />
+              <Escrow.VestingBalanceOf
+                account={account}
+                address={token.address}
+                chainId={chainId}
+                render={({ balance, price, status }) => (
+                  <div
+                    className={`${
+                      balance?.value?.gt(0) ? "" : "hidden"
+                    } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
+                  >
+                    <div className="grid grid-cols-12">
+                      <div className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8`}>
+                        <div className="relative">
+                          <NetworkSticker selectedChainId={chainId} />
+                          <TokenIcon token={token.address || ""} chainId={chainId} />
                         </div>
-                        <div className={`md:col-span-6 grid grid-cols-12 ${true ? "col-span-6" : "col-span-7"}`}>
-                          <StyledBalance>
-                            <>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</>
-                          </StyledBalance>
-                          <StyledBalance>
-                            <>
-                              {networth.gt(0) && balances[key]?.gt(0)
-                                ? HUNDRED.mul(balances[key]!).div(networth).toString()
-                                : constants.Zero.toString()}{" "}
-                              %
-                            </>
-                          </StyledBalance>
-                          <div className="col-end-13 col-span-6 md:col-span-4">
-                            <StyledBalance>
-                              <Contract.Value
-                                status={status}
-                                balance={balance?.value}
-                                price={price?.value}
-                                callback={(value) => addToBalances(key, "escrow", value)}
-                              />
-                            </StyledBalance>
-                            <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
+                        <div className="flex space-x-[6px] md:space-x-[52px]">
+                          <div>
+                            <p className="font-medium text-xs md:text-lg">Pop</p>
+                            <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
                           </div>
+                        </div>
+                        <Badge variant={BadgeVariant.dark}>
+                          <>Vesting</>
+                        </Badge>
+                      </div>
+                      <div className={`md:col-span-6 grid grid-cols-12 ${true ? "col-span-6" : "col-span-7"}`}>
+                        <StyledBalance>
+                          <>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</>
+                        </StyledBalance>
+                        <StyledBalance>
+                          <>
+                            {networth.gt(0) && balances["escrow"][vestingKey]?.value?.gt(0)
+                              ? HUNDRED.mul(balances["escrow"][vestingKey].value!).div(networth).toString()
+                              : constants.Zero.toString()}{" "}
+                            %
+                          </>
+                        </StyledBalance>
+                        <div className="col-end-13 col-span-6 md:col-span-4">
+                          <StyledBalance>
+                            <Contract.Value
+                              status={status}
+                              balance={balance?.value}
+                              price={price?.value}
+                              callback={(value) => addToBalances(vestingKey, "escrow", chainId, value)}
+                            />
+                          </StyledBalance>
+                          <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
                         </div>
                       </div>
                     </div>
-                  )}
-                />
-              </div>
-            );
-          })}
+                  </div>
+                )}
+              />
+            </div>
+          );
+        })}
       </PortfolioSection>
     </div>
   );
@@ -356,11 +384,13 @@ function StyledBalance({ children }) {
 
 function PortfolioSection({
   selectedNetworks,
+  selectedSections,
   children,
   portfolio,
   title,
 }: {
   selectedNetworks: any;
+  selectedSections: string[];
   children: any;
   portfolio: {
     balance: BigNumber;
@@ -371,9 +401,9 @@ function PortfolioSection({
   const { balance, totalSupply } = portfolio;
   const balanceGTZero = balance?.gt(0);
   const portfolioDistribution =
-    balanceGTZero && totalSupply?.gt(0) ? HUNDRED.mul(balance).div(totalSupply).toString() : constants.Zero.toString();
+    balanceGTZero && totalSupply?.gt(0) ? HUNDRED.mul(totalSupply).div(balance).toString() : constants.Zero.toString();
   return (
-    <div className={balanceGTZero ? "" : "hidden"}>
+    <div className={balanceGTZero && selectedSections.includes(title) ? "" : "hidden"}>
       <section className="grid mt-16 grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
         <div className="col-span-12 md:col-span-6 flex items-center space-x-5 mb-6 md:mb-[48px]">
           <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">{title}</h2>
@@ -415,7 +445,7 @@ function PortfolioSection({
                   content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
                 />
               </div>
-              <div className="text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.balance, 18)}</div>
+              <div className="text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.totalSupply, 18)}</div>
             </div>
           </div>
         </div>

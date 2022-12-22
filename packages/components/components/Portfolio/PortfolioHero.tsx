@@ -1,36 +1,30 @@
 import { ArrowSmallUpIcon, ArrowLongUpIcon } from "@heroicons/react/24/solid";
-import Dropdown from "../Dropdown";
 import HeroBgMobile from "../../public/images/portfolioHeroBgmobile.svg";
 import HeroBg from "../../public/images/portfolioHeroBg.svg";
-import { ChainId } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import NetworkFilter from "../../../greenfield-app/components/NetworkFilter";
+
 import Image from "next/image";
+import { BigNumber } from "ethers";
+import { Tabs, TabsProps } from "../Tabs";
+
 export interface PortfolioHeroProps {
-  NetworkSwitcher: JSX.Element;
-  TabButtons: JSX.Element;
   selectedNetworks: ChainId[];
   account?: `0x${string}`;
-  filterState: [
-    selectedFilter: { id: string; value: string },
-    setSelectedFilter: React.Dispatch<{ id: string; value: string }>,
-  ];
-  VestingBalance: JSX.Element;
-  POPInWalletBalance: JSX.Element;
+  vestingBalance: BigNumber;
+  balance: BigNumber;
+  supportedNetworks: any;
+  selectNetwork: any;
+  tabs: TabsProps;
 }
 
 const PortfolioHero: React.FC<PortfolioHeroProps> = ({
-  NetworkSwitcher,
-  TabButtons,
-  filterState,
-  VestingBalance,
-  POPInWalletBalance,
+  supportedNetworks,
+  vestingBalance,
+  balance,
+  selectNetwork,
+  tabs,
 }) => {
-  const options = [
-    { id: "HIGHESTHOLDING", value: "Highest Holding Value" },
-    { id: "LOWESTHOLDING", value: "Lowest Holding Value" },
-  ];
-
-  const [selectedFilter, setSelectedFilter] = filterState;
-
   return (
     <div className="bg-warmGray md:bg-opacity-[15%] flex flex-col md:flex-row justify-between px-8 pt-10 pb-16 md:pb-[14px] relative -mt-5">
       <div className="relative z-20">
@@ -41,7 +35,9 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
           A glance at your current Popcorn portfolio <br />
           across different networks.
         </p>
-        <div className="hidden md:block mt-6">{NetworkSwitcher}</div>
+        <div className="hidden md:block mt-6">
+          <NetworkFilter supportedNetworks={supportedNetworks} selectNetwork={selectNetwork} />
+        </div>
       </div>
       <div className="absolute bottom-0 left-32 hidden md:block">
         <Image src={HeroBg} alt="" width={100} height={100} className="w-full h-[300px]" />
@@ -68,26 +64,18 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
           </div>
           <div className="col-span-5 md:col-span-3">
             <p className="leading-6 text-base font-light md:font-normal">Vesting</p>
-            <div className="text-3xl font-light md:font-medium">{VestingBalance}</div>
+            <div className="text-3xl font-light md:font-medium">${formatAndRoundBigNumber(vestingBalance, 18)}</div>
           </div>
           <div className="col-span-5 md:col-span-3">
-            <p className="leading-6 text-base font-light md:font-normal">POP In Wallet</p>
-            <div className="text-3xl font-light md:font-medium">{POPInWalletBalance}</div>
+            <p className="leading-6 text-base font-light md:font-normal">Asset Value</p>
+            <div className="text-3xl font-light md:font-medium">${formatAndRoundBigNumber(balance, 18)}</div>
           </div>
         </div>
-        <div className="md:hidden">{NetworkSwitcher}</div>
+        <div className="md:hidden">
+          <NetworkFilter supportedNetworks={supportedNetworks} selectNetwork={selectNetwork} />
+        </div>
         <div className="hidden md:flex flex-col items-end mt-16">
-          {TabButtons}
-          <div className="mt-9 relative">
-            <Dropdown
-              options={options}
-              position="absolute top-14 left-0 z-40"
-              width="w-full"
-              selectedItem={selectedFilter}
-              switchFilter={setSelectedFilter}
-              label="Highest holding %"
-            />
-          </div>
+          <Tabs available={tabs.available} active={tabs.active} />
         </div>
       </div>
     </div>

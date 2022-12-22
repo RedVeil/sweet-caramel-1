@@ -1,5 +1,4 @@
-import type { ContractMetadata } from "packages/utils/src/types";
-import type { Pop } from "../types";
+import type { ContractMetadata } from "@popcorn/utils/src/types";
 
 import useContractMetadata from "./hooks/useContractMetadata";
 
