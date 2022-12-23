@@ -1,4 +1,5 @@
-import { BigNumber } from "ethers";
+import type { BigNumber } from "ethers";
+import type { ReactNode } from "react";
 
 export namespace Pop {
   export type StdProps = BaseContractProps;
@@ -7,6 +8,10 @@ export namespace Pop {
   export type FC<T> = React.FC<FCProps<T> & Partial<HookResult<T>>>;
 
   export type FCProps<T> = BaseContractProps & T;
+
+  export type WithStdRenderProps<T = StdProps> = StdProps & {
+    render?: (props: StdProps & T) => JSX.Element;
+  };
 
   export type HookResult<T = unknown> = UseQueryResult<T>;
 
@@ -43,6 +48,9 @@ export namespace Pop {
     priceResolver?: "staking" | "set_token" | "pop" | "univ3" | "arrakis";
     balanceResolver?: "escrowBalance";
     apyResolver?: "synthetix";
+    chainId?: string;
+    address?: string;
+    __alias?: string;
     [key: string]: any;
   }
 }

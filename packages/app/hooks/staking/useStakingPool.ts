@@ -20,7 +20,11 @@ export default function useStakingPool(address: string, chainId: ChainId): SWRRe
   );
 
   const shouldFetch = !!stakingContract && !!chainId;
-  return useSWR(shouldFetch ? [address, chainId, account, provider, stakingContract] : null, async ([key]) => {
-    return getStakingPool(key, account, stakingContract, chainId, provider, contractAddresses);
-  });
+
+  return useSWR(
+    shouldFetch
+      ? [`getStakingPoolInfo-${address}`, account, stakingContract, chainId, provider, contractAddresses]
+      : null,
+    (key) => getStakingPool(...key),
+  );
 }

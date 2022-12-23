@@ -1,30 +1,38 @@
-import { FC } from "react";
-import classnames from "classnames";
-interface Tab {
-  label: string;
-}
-interface TabProps {
-  tabs: Tab[];
-  activeTab: { label: string };
-  setActiveTab: (tab: Tab) => void;
+import { Dispatch, FC } from "react";
+
+export interface TabsProps {
+  available: string[];
+  active: [string[], Dispatch<string[]>];
 }
 
-export const Tabs: FC<TabProps> = ({ tabs, activeTab, setActiveTab }) => {
+export const Tabs: FC<TabsProps> = ({ available, active }) => {
+  const [activeTabs, setActiveTabs] = active;
+
   return (
     <div className="flex space-x-4">
-      {tabs.map((tab) => (
+      <button
+        className={`flex items-center justify-center rounded-3xl py-3 px-5 text-base leading-6 font-normal border
+            ${
+              activeTabs.length === available.length
+                ? "border-primaryLight bg-primaryLight text-white"
+                : "bg-white border-[#d7d7d799]"
+            }`}
+        onClick={() => setActiveTabs(available)}
+      >
+        All
+      </button>
+      {available.map((tab) => (
         <button
-          className={classnames(
-            "flex items-center justify-center rounded-3xl py-3 px-5 text-base leading-6 font-normal",
-            {
-              "border-primary bg-primaryLight text-white": tab.label === activeTab.label,
-              "bg-white border border-[#d7d7d799]": tab.label !== activeTab.label,
-            },
-          )}
-          onClick={() => setActiveTab(tab)}
-          key={tab.label}
+          className={`flex items-center justify-center rounded-3xl py-3 px-5 text-base leading-6 font-normal border
+            ${
+              activeTabs.length !== available.length && activeTabs.includes(tab)
+                ? "border-primaryLight bg-primaryLight text-white"
+                : "bg-white border-[#d7d7d799]"
+            }`}
+          onClick={() => setActiveTabs([tab])}
+          key={tab}
         >
-          {tab.label}
+          {tab}
         </button>
       ))}
     </div>

@@ -6,7 +6,7 @@ function useLog(msg, ...deps) {
   msg = { ...msg, __useLogCaller: callerFunctionName };
 
   const enabled = useMemo(() => {
-    return process.env.NODE_ENV === "development";
+    return process.env.NODE_ENV === "development" && process.env.USE_LOG;
   }, []);
   useEffect(
     () => {

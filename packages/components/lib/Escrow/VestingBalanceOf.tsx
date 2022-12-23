@@ -42,10 +42,9 @@ const eth_call =
     const vestingBalance = useMemo(() => {
       return {
         value: (balance?.value || constants.Zero).sub(claimableBalance?.value || constants.Zero),
+        formatted: balance?.formatted,
       };
     }, [balance, claimableBalance]);
-
-    useLog({ vestingBalance }, [vestingBalance]);
 
     const status = useMultiStatus([balanceStatus, claimableBalanceStatus, priceStatus]);
     if (props.render) {

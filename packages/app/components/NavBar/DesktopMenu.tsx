@@ -13,8 +13,12 @@ import { networkLogos } from "@popcorn/utils";
 import { useIsConnected } from "@popcorn/app/hooks/useIsConnected";
 import { useMemo, useRef } from "react";
 import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
+import { useFeatures } from "@popcorn/components";
 
 export default function DesktopMenu(): JSX.Element {
+  const {
+    features: { portfolio },
+  } = useFeatures();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
@@ -42,6 +46,9 @@ export default function DesktopMenu(): JSX.Element {
         <ul className="flex items-center flex-row gap-16 md:gap-0 md:space-x-16 mr-10">
           <li>
             <NavbarLink label="Popcorn" url="/" isActive={router.pathname === "/"} />
+          </li>
+          <li className={portfolio ? "" : "hidden"}>
+            <NavbarLink label="Portfolio" url="/portfolio" isActive={router.pathname === "/portfolio"} />
           </li>
           <li className="relative flex flex-container flex-row z-10">
             <Menu>

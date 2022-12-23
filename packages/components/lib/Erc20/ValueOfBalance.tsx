@@ -7,9 +7,8 @@ import { withLogging } from "../utils/hocs/withLogging";
 import { useBalanceOf } from "./hooks";
 import { useMultiStatus } from "../utils/hooks/useMultiStatus";
 
-const eth_call =
-  (Component: Pop.FC<BigNumberWithFormatted>) =>
-  ({ ...props }: Pop.BaseContractProps) => {
+const eth_call = (Component: Pop.FC<BigNumberWithFormatted>) =>
+  function ComponentWithValueOfBalance({ ...props }: Pop.BaseContractProps) {
     const { data: balance, status: balanceStatus } = useBalanceOf(props);
     const { data: price, status: priceStatus } = usePrice(props);
     const { data, status: valueStatus } = useBalanceValue({ ...props, balance: balance?.value, price: price?.value });

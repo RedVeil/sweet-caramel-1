@@ -13,7 +13,7 @@ import useLog from "../../utils/hooks/useLog";
 interface Props extends Pop.StdProps {
   alias?: string;
 }
-interface ContractMetadata {
+export interface ContractMetadata {
   address: string;
   chainId: string;
   symbol?: string;
