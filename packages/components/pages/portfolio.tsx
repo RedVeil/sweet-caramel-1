@@ -75,7 +75,8 @@ export const PortfolioPage: NextPage = () => {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  const { address: account } = useAccount();
+  // const { address: account } = useAccount();
+  const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
   const [balances, setBalances] = useState({
     pop: {} as BalanceByKey,
     escrow: {} as BalanceByKey,
@@ -352,7 +353,7 @@ function PortfolioSection({
   return (
     <section className={`px-8 ${showSection || "hidden"}`}>
       <div className={`mt-8 mb-2 md:hidden ${balanceGTZero || "hidden"}`}>{networkListComponent}</div>
-      <table className={balanceGTZero ? "w-full" : "hidden"}>
+      <table className={`table table-fixed border-separate border-spacing-y-4 ${balanceGTZero ? "w-full" : "hidden"}`}>
         <thead>
           <tr className="">
             <th className="md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
@@ -368,7 +369,7 @@ function PortfolioSection({
               </div>
               <div className="text-white">.</div>
             </th>
-            <th className="text-primary text-lg font-medium">
+            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium">
               <div className="flex items-center gap-2">
                 <p className="text-primaryLight text-sm md:text-base">Portfolio %</p>
                 <InfoIconWithTooltip
@@ -380,7 +381,7 @@ function PortfolioSection({
               </div>
               <div className="text-left text-sm md:text-lg">{portfolioDistribution} %</div>
             </th>
-            <th className="text-primary text-lg font-medium">
+            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium">
               <div className="flex items-center space-x-2">
                 <p className="text-primaryLight text-sm md:text-base">Balance</p>
                 <InfoIconWithTooltip
@@ -422,7 +423,7 @@ function AssetRow({
     <>
       <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
         <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-4 pl-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 md:ml-4">
             <div className="relative">
               <NetworkSticker selectedChainId={chainId} />
               <TokenIcon token={address || ""} chainId={chainId} />
@@ -437,13 +438,6 @@ function AssetRow({
           </div>
         </td>
         {children}
-      </tr>
-      {/* Table hack to get some margin between rows as margins dont work in tables */}
-      <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
-        <td className="hidden md:block h-4"></td>
-        <td className="h-4"></td>
-        <td className="h-4"></td>
-        <td className="h-4"></td>
       </tr>
     </>
   );
