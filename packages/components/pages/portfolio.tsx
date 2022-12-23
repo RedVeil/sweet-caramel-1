@@ -339,24 +339,23 @@ function PortfolioSection({
   const { balance, networth } = portfolio;
   const balanceGTZero = balance?.gt(0);
 
+  const networkListComponent = (
+    <div className="flex items-center gap-5">
+      <h2 className="text-2xl md:text-3xl leading-6 md:leading-8 font-normal">{title}</h2>
+      <NetworkIconList networks={selectedNetworks} />
+    </div>
+  );
+
   const showSection = selectedSections.includes(title);
   const portfolioDistribution =
     balanceGTZero && balance?.gt(0) ? HUNDRED.mul(balance).div(networth).toString() : constants.Zero.toString();
   return (
-    <section className={showSection ? "" : "hidden"}>
-      <div className="flex items-center space-x-5 md:hidden">
-        <h2 className="text-2xl md:text-3xl leading-6 md:leading-8 font-normal">{title}</h2>
-        <NetworkIconList networks={selectedNetworks} />
-      </div>
-      <table className={balanceGTZero ? "w-full" : "w-full"}>
+    <section className={`px-8 ${showSection || "hidden"}`}>
+      <div className={`mt-8 mb-2 md:hidden ${balanceGTZero || "hidden"}`}>{networkListComponent}</div>
+      <table className={balanceGTZero ? "w-full" : "hidden"}>
         <thead>
           <tr className="">
-            <th className="w-[36rem]">
-              <div className="hidden md:flex items-center space-x-5">
-                <h2 className="text-2xl md:text-3xl leading-6 md:leading-8 font-normal">{title}</h2>
-                <NetworkIconList networks={selectedNetworks} />
-              </div>
-            </th>
+            <th className="md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
             <th className="hidden lg:table-cell text-primary text-lg font-medium py-4">
               <div className="flex items-center gap-2">
                 <p className="text-primaryLight text-sm md:text-base">Price</p>
@@ -397,7 +396,7 @@ function PortfolioSection({
         </thead>
         <tbody>{children}</tbody>
       </table>
-      <div className={balanceGTZero ? "hidden" : ""}>
+      <div className={`mt-4 mb-8 ${balanceGTZero && "hidden"}`}>
         <NotAvailable title={`No ${title} available`} body={""} image="/images/emptyRecord.svg" />
       </div>
     </section>
