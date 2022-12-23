@@ -352,7 +352,7 @@ function PortfolioSection({
   const portfolioDistribution =
     balanceGTZero && balance?.gt(0) ? HUNDRED.mul(balance).div(networth).toString() : constants.Zero.toString();
   return (
-    <section className={`px-8 ${showSection || "hidden"}`}>
+    <section className={`px-4 md:px-8 ${showSection || "hidden"}`}>
       <div className={`mt-8 mb-2 md:hidden ${balanceGTZero || "hidden"}`}>{networkListComponent}</div>
       <div className="overflow-x-auto">
         <table className={`table w-full table-fixed border-separate border-spacing-y-4 ${balanceGTZero || "hidden"}`}>
@@ -423,26 +423,24 @@ function AssetRow({
   name;
 }>) {
   return (
-    <>
-      <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
-        <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-4 pl-4">
-          <div className="flex items-center gap-4 md:ml-4">
-            <div className="relative">
-              <NetworkSticker selectedChainId={chainId} />
-              <TokenIcon token={address || ""} chainId={chainId} />
-            </div>
-            <div className="flex space-x-[6px] md:space-x-[52px]">
-              <div>
-                <p className="font-medium text-xs md:text-lg">{name}</p>
-                <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
-              </div>
-            </div>
-            {badge}
+    <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
+      <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-2 md:py-4 pl-2 md:pl-10">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <NetworkSticker selectedChainId={chainId} />
+            <TokenIcon token={address || ""} chainId={chainId} />
           </div>
-        </td>
-        {children}
-      </tr>
-    </>
+          <div className="flex space-x-[6px] md:space-x-[52px]">
+            <div>
+              <p className="font-medium text-xs md:text-lg">{name}</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
+            </div>
+          </div>
+          {badge}
+        </div>
+      </td>
+      {children}
+    </tr>
   );
 }
 
