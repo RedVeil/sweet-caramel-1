@@ -5,6 +5,7 @@ require("../utils/src/envLoader");
 const workspace = join(__dirname, "..");
 
 module.exports = {
+  swcMinify: false,
   typescript: {
     ignoreBuildErrors: false,
   },
