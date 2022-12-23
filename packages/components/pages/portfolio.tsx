@@ -122,7 +122,7 @@ export const PortfolioPage: NextPage = () => {
     ].flatMap((network) => network) as Array<Pop.NamedAccountsMetadata>;
 
     const escrow = allContracts.filter(({ __alias }) => __alias === "rewardsEscrow");
-    const rewards = allContracts.filter(({ __alias }) => __alias === "rewardsEscrow");
+    const rewards = allContracts.filter(({ __alias }) => __alias !== "rewardsEscrow");
     return [rewards, escrow];
     // re-trigger only when array length change to avoid shallow object false positives
   }, [
@@ -241,7 +241,13 @@ export const PortfolioPage: NextPage = () => {
                   address={token.address}
                   chainId={chainId}
                   render={({ balance, price, status }) => (
-                    <AssetRow name="Popcorn" chainId={chainId} balance={balance} address={token.address}>
+                    <AssetRow
+                      name="Popcorn"
+                      chainId={chainId}
+                      balance={balance}
+                      address={token.address}
+                      badge={<Badge variant={BadgeVariant.primary}>Claimable</Badge>}
+                    >
                       <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
                       <AssetCell>
                         {networth.gt(0) && balances[key]?.gt(0)
@@ -414,15 +420,14 @@ function AssetRow({
           <div className="relative">
             <NetworkSticker selectedChainId={chainId} />
             <TokenIcon token={address || ""} chainId={chainId} />
-            {badge}
           </div>
-
           <div className="flex space-x-[6px] md:space-x-[52px]">
             <div>
               <p className="font-medium text-xs md:text-lg">{name}</p>
               <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
             </div>
           </div>
+          {badge}
         </div>
       </td>
       {children}
