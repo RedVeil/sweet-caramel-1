@@ -313,7 +313,7 @@ export const PortfolioPage: NextPage = () => {
 function AssetCell({ children, as: Wrapper = "td", className }: { children: any; as?: any; className?: string }) {
   return (
     <Wrapper
-      className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4 md:bg-customLightGray md:bg-opacity-[10%] py-4 ${className}`}
+      className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4 md:bg-customLightGray md:bg-opacity-[10%] py-2 md:py-4 ${className}`}
     >
       {children}
     </Wrapper>
@@ -350,11 +350,11 @@ function PortfolioSection({
   const portfolioDistribution =
     balanceGTZero && balance?.gt(0) ? HUNDRED.mul(balance).div(networth).toString() : constants.Zero.toString();
   return (
-    <section className={`px-8 ${showSection || "hidden"}`}>
+    <section className={`px-4 md:px-8 ${showSection || "hidden"}`}>
       <div className={`mt-8 mb-2 md:hidden ${balanceGTZero || "hidden"}`}>{networkListComponent}</div>
       <table className={balanceGTZero ? "w-full" : "hidden"}>
         <thead>
-          <tr className="">
+          <tr className="border-b border-customLightGray md:border-white">
             <th className="md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
             <th className="hidden lg:table-cell text-primary text-lg font-medium py-4">
               <div className="flex items-center gap-2">
@@ -421,7 +421,7 @@ function AssetRow({
   return (
     <>
       <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
-        <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-4 pl-4">
+        <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-2 md:py-4 pl-2 md:pl-10">
           <div className="flex items-center gap-4">
             <div className="relative">
               <NetworkSticker selectedChainId={chainId} />
@@ -439,8 +439,8 @@ function AssetRow({
         {children}
       </tr>
       {/* Table hack to get some margin between rows as margins dont work in tables */}
-      <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
-        <td className="hidden md:block h-4"></td>
+      <tr className={`${balance?.value?.gt(0) ? "hidden md:block " : "hidden"}`}>
+        <td className="h-4"></td>
         <td className="h-4"></td>
         <td className="h-4"></td>
         <td className="h-4"></td>
