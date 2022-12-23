@@ -1,7 +1,4 @@
-import type { ContractMetadata } from "packages/utils/src/types";
-import type { Pop } from "../types";
-
-import useContractMetadata from "./hooks/useContractMetadata";
+import useContractMetadata, { ContractMetadata } from "./hooks/useContractMetadata";
 
 interface ContractProps {
   alias?: string;

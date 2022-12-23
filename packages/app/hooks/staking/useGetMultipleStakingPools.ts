@@ -22,7 +22,7 @@ export default function useGetMultipleStakingPools(
 
   const shouldFetch = !!stakingContracts && !!chainId;
 
-  return useSWR(shouldFetch ? [`getPoolInfo`, account, chainId, addresses, rpcProvider] : null, async (key: string) => {
+  return useSWR(shouldFetch ? [`getPoolInfo`, account, chainId, addresses, rpcProvider] : null, async ([key]) => {
     return Promise.all(
       stakingContracts.map(async (contract) =>
         getStakingPool(key, account, contract, chainId, rpcProvider, contractAddresses),

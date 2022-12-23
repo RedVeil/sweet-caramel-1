@@ -12,12 +12,8 @@ export default function useGetEarned(stakingContract: Staking, account: string |
     isAddress(account) &&
     account !== constants.AddressZero;
 
-  return useSWR(
-    shouldFetch ? ["Earned", stakingContract, account] : null,
-    (stakingContract: Staking, account: string) => stakingContract.earned(account),
-    {
-      refreshInterval: 3 * 1000,
-      dedupingInterval: 3 * 1000,
-    },
-  );
+  return useSWR(shouldFetch ? ["Earned", stakingContract, account] : null, () => stakingContract.earned(account), {
+    refreshInterval: 3 * 1000,
+    dedupingInterval: 3 * 1000,
+  });
 }

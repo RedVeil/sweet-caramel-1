@@ -26,7 +26,7 @@ async function getApyForYearnVaults(chainId: number, addresses: string[]): Promi
 }
 
 export default function useGetYearnAPY(addresses: string[], chainId): SWRResponse<number | void, Error> {
-  return useSWR([chainId, addresses], getApyForYearnVaults, {
+  return useSWR([chainId, addresses], (args) => getApyForYearnVaults(...args), {
     refreshInterval: 3 * 1000,
   });
 }

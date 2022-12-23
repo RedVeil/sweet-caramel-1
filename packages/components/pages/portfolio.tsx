@@ -15,26 +15,64 @@ import { Badge, BadgeVariant } from "@popcorn/components/components/Badge";
 
 import { useChainsWithStakingRewards } from "../../greenfield-app/hooks/staking/useChainsWithStaking";
 import useNetworkFilter from "../../greenfield-app/hooks/useNetworkFilter";
-import PortfolioHero from "../components/Portfolio/PortfolioHero.clean";
 import NetworkIconList from "../../greenfield-app/components/NetworkIconList";
 import { Erc20, Contract, Escrow } from "../lib";
+import PortfolioHero from "../components/Portfolio/PortfolioHero";
+import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
   ssr: false,
 });
 
-type BalanceByKey = { [key: string]: BigNumber | undefined };
+export enum SortingType {
+  BalDesc,
+  BalAsc,
+}
+
+function sortBalDesc(a, b, balances: BalanceByKey): 0 | 1 | -1 {
+  const aValue = balances[getItemKey(a)]?.value;
+  const bValue = balances[getItemKey(b)]?.value;
+  if (!bValue) return 0;
+  return bValue.gt(aValue || 0) ? 1 : -1;
+}
+
+function sortBalAsc(a, b, balances: BalanceByKey): 0 | 1 | -1 {
+  const aValue = balances[getItemKey(a)]?.value;
+  const bValue = balances[getItemKey(b)]?.value;
+  if (!bValue) return 0;
+  return bValue.lt(aValue || 0) ? 1 : -1;
+}
+
+function sortEntries(a, b, balances: BalanceByKey, sortingType: SortingType): 0 | 1 | -1 {
+  switch (sortingType) {
+    case SortingType.BalAsc:
+      return sortBalAsc(a, b, balances);
+    case SortingType.BalDesc:
+    default:
+      return sortBalDesc(a, b, balances);
+  }
+}
+
+type BalanceByKey = { [key: string]: { value: BigNumber | undefined; chainId: number } };
 
 const getItemKey = (token: any) => `${token.chainId}:${token.__alias}`;
-const sumUpBalances = (balances = {}) =>
+
+const sumUpBalances = (balances = {}, selectedNetworks) =>
   Object.keys(balances).reduce((total, key) => {
-    return total.add(balances[key] || 0);
+    const value = selectedNetworks.includes(balances[key].chainId) ? balances[key].value : 0;
+    return total.add(value);
   }, constants.Zero);
 
 const HUNDRED = BigNumber.from(100);
+
+export const Sections = ["Assets", "Rewards"];
+
 export const PortfolioPage: NextPage = () => {
+  const {
+    features: { portfolio: visible },
+  } = useFeatures();
+
   const supportedNetworks = useChainsWithStakingRewards();
-  const [selectedFilter, setSelectedFilter] = useState<{ id: string; value: string }>();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
   const { address: account } = useAccount();
@@ -42,9 +80,9 @@ export const PortfolioPage: NextPage = () => {
     pop: {} as BalanceByKey,
     escrow: {} as BalanceByKey,
   });
-  const {
-    features: { portfolio: visible },
-  } = useFeatures();
+  const [selectedSections, selectSections] = useState(Sections);
+
+  const [sortingType, setSortingType] = useState(SortingType.BalDesc);
 
   const contractsEth = useNamedAccounts("1", [
     "pop",
@@ -96,21 +134,21 @@ export const PortfolioPage: NextPage = () => {
     selectedNetworks,
   ]);
 
-  const addToBalances = (key, type: "escrow" | "pop", value?: BigNumber) => {
+  const addToBalances = (key, type: "escrow" | "pop", chainId: number, value?: BigNumber) => {
     if (value?.gt(0)) {
       setBalances((balances) => ({
         ...balances,
         [type]: {
           ...balances[type],
-          [key]: value || constants.Zero,
+          [key]: { value: value || constants.Zero, chainId: chainId },
         },
       }));
     }
   };
 
   const totalBalance = {
-    pop: sumUpBalances(balances.pop),
-    escrow: sumUpBalances(balances.escrow),
+    pop: sumUpBalances(balances.pop, selectedNetworks),
+    escrow: sumUpBalances(balances.escrow, selectedNetworks),
   };
 
   const networth = totalBalance.pop.add(totalBalance.escrow);
@@ -120,28 +158,23 @@ export const PortfolioPage: NextPage = () => {
       <PortfolioHero
         supportedNetworks={supportedNetworks}
         selectedNetworks={selectedNetworks}
-        filterState={[selectedFilter!, setSelectedFilter]}
-        balance={networth}
         selectNetwork={selectNetwork}
-        vestingBalance={constants.Zero}
+        balance={totalBalance.pop}
+        vestingBalance={totalBalance.escrow}
         account={account}
+        tabs={{ available: Sections, active: [selectedSections, selectSections] }}
       />
-
       <PortfolioSection
         selectedNetworks={selectedNetworks}
+        selectedSections={selectedSections}
         title="Assets"
         portfolio={{
-          balance: networth,
-          totalSupply: totalBalance.pop,
+          balance: totalBalance.pop,
+          networth: networth,
         }}
       >
         {rewardContracts
-          .sort((a, b) => {
-            const aValue = balances.pop[getItemKey(a)];
-            const bValue = balances.pop[getItemKey(b)];
-            if (!bValue) return 0;
-            return bValue.gt(aValue || 0) ? 1 : -1;
-          })
+          .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
           .map((token) => {
             const key = getItemKey(token);
             const chainId = Number(token.chainId);
@@ -170,7 +203,7 @@ export const PortfolioPage: NextPage = () => {
                                 status={status}
                                 balance={balance?.value}
                                 price={price?.value}
-                                callback={(value) => addToBalances(key, "pop", value)}
+                                callback={(value) => addToBalances(key, "pop", chainId, value)}
                               />
                               <p className="text-tokenTextGray text-[10px] md:text-base">
                                 {balance?.formatted} {metadata?.symbol}
@@ -189,28 +222,24 @@ export const PortfolioPage: NextPage = () => {
 
       <PortfolioSection
         selectedNetworks={selectedNetworks}
+        selectedSections={selectedSections}
         title="Rewards"
         portfolio={{
-          balance: networth,
-          totalSupply: totalBalance.escrow,
+          balance: totalBalance.escrow,
+          networth: networth,
         }}
       >
         {escrowContracts
-          .sort((a, b) => {
-            const aValue = balances.escrow[getItemKey(a)];
-            const bValue = balances.escrow[getItemKey(b)];
-            if (!bValue) return 0;
-            return bValue.gt(aValue || 0) ? 1 : -1;
-          })
+          .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
           .map((token) => {
-            const { chainId } = token;
             const key = getItemKey(token);
+            const chainId = Number(token.chainId);
             return (
               <Fragment key={key}>
                 <Escrow.ClaimableBalanceOf
                   account={account}
                   address={token.address}
-                  chainId={Number(token.chainId)}
+                  chainId={chainId}
                   render={({ balance, price, status }) => (
                     <AssetRow name="Popcorn" chainId={chainId} balance={balance} address={token.address}>
                       <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
@@ -225,7 +254,7 @@ export const PortfolioPage: NextPage = () => {
                           status={status}
                           balance={balance?.value}
                           price={price?.value}
-                          callback={(value) => addToBalances(key, "escrow", value)}
+                          callback={(value) => addToBalances(key, "escrow", chainId, value)}
                         />
                         <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
                       </AssetCell>
@@ -235,9 +264,15 @@ export const PortfolioPage: NextPage = () => {
                 <Escrow.VestingBalanceOf
                   account={account}
                   address={token.address}
-                  chainId={Number(token.chainId)}
+                  chainId={chainId}
                   render={({ balance, price, status }) => (
-                    <AssetRow balance={balance} name="Popcorn" address={token.address} chainId={chainId}>
+                    <AssetRow
+                      badge={<Badge variant={BadgeVariant.dark}>Vesting</Badge>}
+                      balance={balance}
+                      name="Popcorn"
+                      address={token.address}
+                      chainId={chainId}
+                    >
                       <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
                       <AssetCell>
                         {networth.gt(0) && balances[key]?.gt(0)
@@ -250,7 +285,7 @@ export const PortfolioPage: NextPage = () => {
                           status={status}
                           balance={balance?.value}
                           price={price?.value}
-                          callback={(value) => addToBalances(key, "escrow", value)}
+                          callback={(value) => addToBalances(key, "escrow", chainId, value)}
                         />
                         <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
                       </AssetCell>
@@ -275,30 +310,34 @@ function AssetCell({ children, as: Wrapper = "td", className }: { children: any;
 
 function PortfolioSection({
   selectedNetworks,
+  selectedSections,
   children,
   portfolio,
   title,
 }: {
   selectedNetworks: any;
+  selectedSections: string[];
   children: any;
   portfolio: {
     balance: BigNumber;
-    totalSupply: BigNumber;
+    networth: BigNumber;
   };
   title: string;
 }) {
-  const { balance, totalSupply } = portfolio;
+  const { balance, networth } = portfolio;
   const balanceGTZero = balance?.gt(0);
+
+  const showSection = selectedSections.includes(title);
   const portfolioDistribution =
-    balanceGTZero && totalSupply?.gt(0) ? HUNDRED.mul(balance).div(totalSupply).toString() : constants.Zero.toString();
+    balanceGTZero && balance?.gt(0) ? HUNDRED.mul(balance).div(networth).toString() : constants.Zero.toString();
   return (
-    <Fragment>
+    <section className={showSection ? "" : "hidden"}>
       <table className={balanceGTZero ? "w-full" : "w-full"}>
         <thead>
           <tr className="pb-4 border-b border-customLightGray">
             <th className="w-[36rem]">
               <div className="flex items-center space-x-5">
-                <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">{title}</h2>
+                <h2 className="text-2xl md:text-3xl leading-6 md:leading-8 font-normal">{title}</h2>
                 <NetworkIconList networks={selectedNetworks} />
               </div>
             </th>
@@ -307,9 +346,9 @@ function PortfolioSection({
                 <p className="text-primaryLight text-sm md:text-base">Price</p>
                 <InfoIconWithTooltip
                   classExtras=""
-                  id="price-products-tooltip"
-                  title="Total value locked (TVL)"
-                  content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
+                  id="portfolio-price-tooltip"
+                  title="Price"
+                  content="The price of one token in USD."
                 />
               </div>
               <div className="text-left text-sm md:text-lg">$12.3</div>
@@ -319,9 +358,9 @@ function PortfolioSection({
                 <p className="text-primaryLight text-sm md:text-base">Portfolio %</p>
                 <InfoIconWithTooltip
                   classExtras=""
-                  id="portfolio-products-tooltip"
-                  title="Total value locked (TVL)"
-                  content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
+                  id="portfolio-percentage-tooltip"
+                  title="Portfolio %"
+                  content="The size of your position in comparison to your total portfolio in Popcorn."
                 />
               </div>
               <div className="text-left text-sm md:text-lg">{portfolioDistribution} %</div>
@@ -331,9 +370,9 @@ function PortfolioSection({
                 <p className="text-primaryLight text-sm md:text-base">Balance</p>
                 <InfoIconWithTooltip
                   classExtras=""
-                  id="portfolio-products-tooltip"
-                  title="Total value locked (TVL)"
-                  content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
+                  id="portfolio-balance-tooltip"
+                  title="Balance"
+                  content="The value of your position in USD and in the amount of token."
                 />
               </div>
               <div className="text-left text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.balance, 18)}</div>
@@ -342,11 +381,28 @@ function PortfolioSection({
         </thead>
         <tbody>{children}</tbody>
       </table>
-    </Fragment>
+      <div className={balanceGTZero ? "hidden" : ""}>
+        <NotAvailable title={`No ${title} available`} body={""} image="/images/emptyRecord.svg" />
+      </div>
+    </section>
   );
 }
 
-function AssetRow({ chainId, address, balance, children, name }) {
+function AssetRow({
+  chainId,
+  badge,
+  address,
+  balance,
+  children,
+  name,
+}: Partial<{
+  chainId;
+  badge;
+  address;
+  balance;
+  children;
+  name;
+}>) {
   return (
     <tr
       className={`${
@@ -358,6 +414,7 @@ function AssetRow({ chainId, address, balance, children, name }) {
           <div className="relative">
             <NetworkSticker selectedChainId={chainId} />
             <TokenIcon token={address || ""} chainId={chainId} />
+            {badge}
           </div>
 
           <div className="flex space-x-[6px] md:space-x-[52px]">
