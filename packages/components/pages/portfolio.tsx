@@ -75,8 +75,9 @@ export const PortfolioPage: NextPage = () => {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  // const { address: account } = useAccount();
-  const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
+  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
+  const { address: account } = useAccount();
+
   const [balances, setBalances] = useState({
     pop: {} as BalanceByKey,
     escrow: {} as BalanceByKey,
@@ -314,7 +315,7 @@ export const PortfolioPage: NextPage = () => {
 function AssetCell({ children, as: Wrapper = "td", className }: { children: any; as?: any; className?: string }) {
   return (
     <Wrapper
-      className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4 md:bg-customLightGray md:bg-opacity-[10%] py-4 ${className}`}
+      className={`text-primary text-sm md:text-lg font-medium md:bg-customLightGray md:bg-opacity-[10%] px-2 py-4 ${className}`}
     >
       {children}
     </Wrapper>
@@ -353,50 +354,52 @@ function PortfolioSection({
   return (
     <section className={`px-8 ${showSection || "hidden"}`}>
       <div className={`mt-8 mb-2 md:hidden ${balanceGTZero || "hidden"}`}>{networkListComponent}</div>
-      <table className={`table table-fixed border-separate border-spacing-y-4 ${balanceGTZero ? "w-full" : "hidden"}`}>
-        <thead>
-          <tr className="">
-            <th className="md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
-            <th className="hidden lg:table-cell text-primary text-lg font-medium py-4">
-              <div className="flex items-center gap-2">
-                <p className="text-primaryLight text-sm md:text-base">Price</p>
-                <InfoIconWithTooltip
-                  classExtras=""
-                  id="portfolio-price-tooltip"
-                  title="Price"
-                  content="The price of one token in USD."
-                />
-              </div>
-              <div className="text-white">.</div>
-            </th>
-            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium">
-              <div className="flex items-center gap-2">
-                <p className="text-primaryLight text-sm md:text-base">Portfolio %</p>
-                <InfoIconWithTooltip
-                  classExtras=""
-                  id="portfolio-percentage-tooltip"
-                  title="Portfolio %"
-                  content="The size of your position in comparison to your total portfolio in Popcorn."
-                />
-              </div>
-              <div className="text-left text-sm md:text-lg">{portfolioDistribution} %</div>
-            </th>
-            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium">
-              <div className="flex items-center space-x-2">
-                <p className="text-primaryLight text-sm md:text-base">Balance</p>
-                <InfoIconWithTooltip
-                  classExtras=""
-                  id="portfolio-balance-tooltip"
-                  title="Balance"
-                  content="The value of your position in USD and in the amount of token."
-                />
-              </div>
-              <div className="text-left text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.balance, 18)}</div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>{children}</tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className={`table w-full table-fixed border-separate border-spacing-y-4 ${balanceGTZero || "hidden"}`}>
+          <thead>
+            <tr className="whitespace-nowrap">
+              <th className="w-[14rem] md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
+              <th className="hidden lg:table-cell text-primary text-lg font-medium py-4 px-2">
+                <div className="flex items-center gap-2">
+                  <p className="text-primaryLight text-sm md:text-base">Price</p>
+                  <InfoIconWithTooltip
+                    classExtras=""
+                    id="portfolio-price-tooltip"
+                    title="Price"
+                    content="The price of one token in USD."
+                  />
+                </div>
+                <div className="text-white">.</div>
+              </th>
+              <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
+                <div className="flex items-center gap-2">
+                  <p className="text-primaryLight text-sm md:text-base">Portfolio %</p>
+                  <InfoIconWithTooltip
+                    classExtras=""
+                    id="portfolio-percentage-tooltip"
+                    title="Portfolio %"
+                    content="The size of your position in comparison to your total portfolio in Popcorn."
+                  />
+                </div>
+                <div className="text-left text-sm md:text-lg">{portfolioDistribution} %</div>
+              </th>
+              <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
+                <div className="flex items-center space-x-2">
+                  <p className="text-primaryLight text-sm md:text-base">Balance</p>
+                  <InfoIconWithTooltip
+                    classExtras=""
+                    id="portfolio-balance-tooltip"
+                    title="Balance"
+                    content="The value of your position in USD and in the amount of token."
+                  />
+                </div>
+                <div className="text-left text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.balance, 18)}</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>{children}</tbody>
+        </table>
+      </div>
       <div className={`mt-4 mb-8 ${balanceGTZero && "hidden"}`}>
         <NotAvailable title={`No ${title} available`} body={""} image="/images/emptyRecord.svg" />
       </div>
