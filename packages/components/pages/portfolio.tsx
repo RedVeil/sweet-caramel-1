@@ -198,7 +198,7 @@ export const PortfolioPage: NextPage = () => {
                                 : constants.Zero.toString()}{" "}
                               %
                             </AssetCell>
-                            <AssetCell>
+                            <AssetCell className="rounded-r-2xl">
                               <Contract.Value
                                 status={status}
                                 balance={balance?.value}
@@ -248,14 +248,16 @@ export const PortfolioPage: NextPage = () => {
                       address={token.address}
                       badge={<Badge variant={BadgeVariant.primary}>Claimable</Badge>}
                     >
-                      <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
+                      <AssetCell className="hidden lg:table-cell">
+                        {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                      </AssetCell>
                       <AssetCell>
                         {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
                           ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
                           : constants.Zero.toString()}{" "}
                         %
                       </AssetCell>
-                      <AssetCell>
+                      <AssetCell className="rounded-r-2xl">
                         <Contract.Value
                           status={status}
                           balance={balance?.value}
@@ -279,14 +281,16 @@ export const PortfolioPage: NextPage = () => {
                       address={token.address}
                       chainId={chainId}
                     >
-                      <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
+                      <AssetCell className="hidden lg:table-cell">
+                        {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                      </AssetCell>
                       <AssetCell>
                         {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
                           ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
                           : constants.Zero.toString()}{" "}
                         %
                       </AssetCell>
-                      <AssetCell>
+                      <AssetCell className="rounded-r-2xl">
                         <Contract.Value
                           status={status}
                           balance={balance?.value}
@@ -308,7 +312,9 @@ export const PortfolioPage: NextPage = () => {
 
 function AssetCell({ children, as: Wrapper = "td", className }: { children: any; as?: any; className?: string }) {
   return (
-    <Wrapper className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4 ${className}`}>
+    <Wrapper
+      className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4 md:bg-customLightGray md:bg-opacity-[10%] py-4 ${className}`}
+    >
       {children}
     </Wrapper>
   );
@@ -338,16 +344,20 @@ function PortfolioSection({
     balanceGTZero && balance?.gt(0) ? HUNDRED.mul(balance).div(networth).toString() : constants.Zero.toString();
   return (
     <section className={showSection ? "" : "hidden"}>
+      <div className="flex items-center space-x-5 md:hidden">
+        <h2 className="text-2xl md:text-3xl leading-6 md:leading-8 font-normal">{title}</h2>
+        <NetworkIconList networks={selectedNetworks} />
+      </div>
       <table className={balanceGTZero ? "w-full" : "w-full"}>
         <thead>
-          <tr className="pb-4 border-b border-customLightGray">
+          <tr className="">
             <th className="w-[36rem]">
-              <div className="flex items-center space-x-5">
+              <div className="hidden md:flex items-center space-x-5">
                 <h2 className="text-2xl md:text-3xl leading-6 md:leading-8 font-normal">{title}</h2>
                 <NetworkIconList networks={selectedNetworks} />
               </div>
             </th>
-            <th className="hidden lg:table-cell text-primary text-lg font-medium">
+            <th className="hidden lg:table-cell text-primary text-lg font-medium py-4">
               <div className="flex items-center gap-2">
                 <p className="text-primaryLight text-sm md:text-base">Price</p>
                 <InfoIconWithTooltip
@@ -410,28 +420,33 @@ function AssetRow({
   name;
 }>) {
   return (
-    <tr
-      className={`${
-        balance?.value?.gt(0) ? "" : "hidden"
-      } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
-    >
-      <td>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <NetworkSticker selectedChainId={chainId} />
-            <TokenIcon token={address || ""} chainId={chainId} />
-          </div>
-          <div className="flex space-x-[6px] md:space-x-[52px]">
-            <div>
-              <p className="font-medium text-xs md:text-lg">{name}</p>
-              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
+    <>
+      <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
+        <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-4 pl-4">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <NetworkSticker selectedChainId={chainId} />
+              <TokenIcon token={address || ""} chainId={chainId} />
             </div>
+            <div className="flex space-x-[6px] md:space-x-[52px]">
+              <div>
+                <p className="font-medium text-xs md:text-lg">{name}</p>
+                <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
+              </div>
+            </div>
+            {badge}
           </div>
-          {badge}
-        </div>
-      </td>
-      {children}
-    </tr>
+        </td>
+        {children}
+      </tr>
+      {/* Table hack to get some margin between rows as margins dont work in tables */}
+      <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
+        <td className="hidden md:block h-4"></td>
+        <td className="h-4"></td>
+        <td className="h-4"></td>
+        <td className="h-4"></td>
+      </tr>
+    </>
   );
 }
 
