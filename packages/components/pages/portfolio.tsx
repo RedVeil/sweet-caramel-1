@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import type { Pop } from "@popcorn/components/lib/types";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
 import dynamic from "next/dynamic";
 import { useAccount } from "wagmi";
@@ -74,8 +74,8 @@ export const PortfolioPage: NextPage = () => {
 
   const filterByChainId = (contracts: Array<any>, chainId) => (selectedNetworks.includes(chainId) ? contracts : []);
 
-  const [allContracts, escrowContracts] = useMemo(() => {
-    const filteredContracs = [
+  const [rewardContracts, escrowContracts] = useMemo(() => {
+    const allContracts = [
       ...filterByChainId(contractsEth, 1),
       ...filterByChainId(contractsPoly, 137),
       ...filterByChainId(contractsBnb, 56),
@@ -83,7 +83,9 @@ export const PortfolioPage: NextPage = () => {
       ...filterByChainId(contractsOp, 10),
     ].flatMap((network) => network) as Array<Pop.NamedAccountsMetadata>;
 
-    return [filteredContracs, filteredContracs.filter(({ __alias }) => __alias === "rewardsEscrow")];
+    const escrow = allContracts.filter(({ __alias }) => __alias === "rewardsEscrow");
+    const rewards = allContracts.filter(({ __alias }) => __alias === "rewardsEscrow");
+    return [rewards, escrow];
     // re-trigger only when array length change to avoid shallow object false positives
   }, [
     account,
@@ -133,8 +135,7 @@ export const PortfolioPage: NextPage = () => {
           totalSupply: totalBalance.pop,
         }}
       >
-        {allContracts
-          .filter((contract) => contract.__alias !== "rewardsEscrow")
+        {rewardContracts
           .sort((a, b) => {
             const aValue = balances.pop[getItemKey(a)];
             const bValue = balances.pop[getItemKey(b)];
@@ -154,53 +155,28 @@ export const PortfolioPage: NextPage = () => {
                         account={account}
                         address={token.address}
                         render={({ balance, price, status }) => (
-                          <div
-                            className={`${
-                              balance?.value?.gt(0) ? "" : "hidden"
-                            } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
-                          >
-                            <div className="grid grid-cols-12">
-                              <div className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8`}>
-                                <div className="relative">
-                                  <NetworkSticker selectedChainId={chainId} />
-                                  <TokenIcon token={token.address || ""} chainId={chainId} />
-                                </div>
-
-                                <div className="flex space-x-[6px] md:space-x-[52px]">
-                                  <div>
-                                    <p className="font-medium text-xs md:text-lg">{metadata?.name}</p>
-                                    <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className={`md:col-span-6 grid grid-cols-12 ${true ? "col-span-6" : "col-span-7"}`}>
-                                <StyledBalance>
-                                  <>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</>
-                                </StyledBalance>
-                                <StyledBalance>
-                                  <>
-                                    {networth.gt(0) && balances[key]?.gt(0)
-                                      ? HUNDRED.mul(balances[key]!).div(networth).toString()
-                                      : constants.Zero.toString()}{" "}
-                                    %
-                                  </>
-                                </StyledBalance>
-                                <div className="col-end-13 col-span-6 md:col-span-4">
-                                  <StyledBalance>
-                                    <Contract.Value
-                                      status={status}
-                                      balance={balance?.value}
-                                      price={price?.value}
-                                      callback={(value) => addToBalances(key, "pop", value)}
-                                    />
-                                  </StyledBalance>
-                                  <p className="text-tokenTextGray text-[10px] md:text-base">
-                                    {balance?.formatted} {metadata?.symbol}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <AssetRow name={metadata?.name} address={token.address} balance={balance} chainId={chainId}>
+                            <AssetCell className="hidden lg:table-cell">
+                              {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                            </AssetCell>
+                            <AssetCell>
+                              {networth.gt(0) && balances[key]?.gt(0)
+                                ? HUNDRED.mul(balances[key]!).div(networth).toString()
+                                : constants.Zero.toString()}{" "}
+                              %
+                            </AssetCell>
+                            <AssetCell>
+                              <Contract.Value
+                                status={status}
+                                balance={balance?.value}
+                                price={price?.value}
+                                callback={(value) => addToBalances(key, "pop", value)}
+                              />
+                              <p className="text-tokenTextGray text-[10px] md:text-base">
+                                {balance?.formatted} {metadata?.symbol}
+                              </p>
+                            </AssetCell>
+                          </AssetRow>
                         )}
                       />
                     </>
@@ -227,60 +203,33 @@ export const PortfolioPage: NextPage = () => {
             return bValue.gt(aValue || 0) ? 1 : -1;
           })
           .map((token) => {
+            const { chainId } = token;
             const key = getItemKey(token);
             return (
-              <div key={key}>
+              <Fragment key={key}>
                 <Escrow.ClaimableBalanceOf
                   account={account}
                   address={token.address}
                   chainId={Number(token.chainId)}
                   render={({ balance, price, status }) => (
-                    <div
-                      className={`${
-                        balance?.value?.gt(0) ? "" : "hidden"
-                      } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
-                    >
-                      <div className="grid grid-cols-12">
-                        <div className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8`}>
-                          <div className="relative">
-                            <NetworkSticker selectedChainId={Number(token.chainId)} />
-                            <TokenIcon token={token.address || ""} chainId={Number(token.chainId)} />
-                          </div>
-
-                          <div className="flex space-x-[6px] md:space-x-[52px]">
-                            <div>
-                              <p className="font-medium text-xs md:text-lg">Pop</p>
-                              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
-                            </div>
-                          </div>
-                          <Badge variant={BadgeVariant.primary}>Claimable</Badge>
-                        </div>
-                        <div className={`md:col-span-6 grid grid-cols-12 ${true ? "col-span-6" : "col-span-7"}`}>
-                          <StyledBalance>
-                            <>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</>
-                          </StyledBalance>
-                          <StyledBalance>
-                            <>
-                              {networth.gt(0) && balances[key]?.gt(0)
-                                ? HUNDRED.mul(balances[key]!).div(networth).toString()
-                                : constants.Zero.toString()}{" "}
-                              %
-                            </>
-                          </StyledBalance>
-                          <div className="col-end-13 col-span-6 md:col-span-4">
-                            <StyledBalance>
-                              <Contract.Value
-                                status={status}
-                                balance={balance?.value}
-                                price={price?.value}
-                                callback={(value) => addToBalances(key, "escrow", value)}
-                              />
-                            </StyledBalance>
-                            <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <AssetRow name="Popcorn" chainId={chainId} balance={balance} address={token.address}>
+                      <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
+                      <AssetCell>
+                        {networth.gt(0) && balances[key]?.gt(0)
+                          ? HUNDRED.mul(balances[key]!).div(networth).toString()
+                          : constants.Zero.toString()}{" "}
+                        %
+                      </AssetCell>
+                      <AssetCell>
+                        <Contract.Value
+                          status={status}
+                          balance={balance?.value}
+                          price={price?.value}
+                          callback={(value) => addToBalances(key, "escrow", value)}
+                        />
+                        <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
+                      </AssetCell>
+                    </AssetRow>
                   )}
                 />
                 <Escrow.VestingBalanceOf
@@ -288,56 +237,27 @@ export const PortfolioPage: NextPage = () => {
                   address={token.address}
                   chainId={Number(token.chainId)}
                   render={({ balance, price, status }) => (
-                    <div
-                      className={`${
-                        balance?.value?.gt(0) ? "" : "hidden"
-                      } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
-                    >
-                      <div className="grid grid-cols-12">
-                        <div className={`flex items-center space-x-4 md:space-x-[52px] md:col-span-6 md:pl-8`}>
-                          <div className="relative">
-                            <NetworkSticker selectedChainId={Number(token.chainId)} />
-                            <TokenIcon token={token.address || ""} chainId={Number(token.chainId)} />
-                          </div>
-                          <div className="flex space-x-[6px] md:space-x-[52px]">
-                            <div>
-                              <p className="font-medium text-xs md:text-lg">Pop</p>
-                              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
-                            </div>
-                          </div>
-                          <Badge variant={BadgeVariant.dark}>
-                            <>Vesting</>
-                          </Badge>
-                        </div>
-                        <div className={`md:col-span-6 grid grid-cols-12 ${true ? "col-span-6" : "col-span-7"}`}>
-                          <StyledBalance>
-                            <>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</>
-                          </StyledBalance>
-                          <StyledBalance>
-                            <>
-                              {networth.gt(0) && balances[key]?.gt(0)
-                                ? HUNDRED.mul(balances[key]!).div(networth).toString()
-                                : constants.Zero.toString()}{" "}
-                              %
-                            </>
-                          </StyledBalance>
-                          <div className="col-end-13 col-span-6 md:col-span-4">
-                            <StyledBalance>
-                              <Contract.Value
-                                status={status}
-                                balance={balance?.value}
-                                price={price?.value}
-                                callback={(value) => addToBalances(key, "escrow", value)}
-                              />
-                            </StyledBalance>
-                            <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <AssetRow balance={balance} name="Popcorn" address={token.address} chainId={chainId}>
+                      <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
+                      <AssetCell>
+                        {networth.gt(0) && balances[key]?.gt(0)
+                          ? HUNDRED.mul(balances[key]!).div(networth).toString()
+                          : constants.Zero.toString()}{" "}
+                        %
+                      </AssetCell>
+                      <AssetCell>
+                        <Contract.Value
+                          status={status}
+                          balance={balance?.value}
+                          price={price?.value}
+                          callback={(value) => addToBalances(key, "escrow", value)}
+                        />
+                        <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
+                      </AssetCell>
+                    </AssetRow>
                   )}
                 />
-              </div>
+              </Fragment>
             );
           })}
       </PortfolioSection>
@@ -345,9 +265,11 @@ export const PortfolioPage: NextPage = () => {
   );
 };
 
-function StyledBalance({ children }) {
+function AssetCell({ children, as: Wrapper = "td", className }: { children: any; as?: any; className?: string }) {
   return (
-    <div className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4`}>{children}</div>
+    <Wrapper className={`text-primary text-xs md:text-lg font-medium col-end-13 col-span-6 md:col-span-4 ${className}`}>
+      {children}
+    </Wrapper>
   );
 }
 
@@ -370,16 +292,18 @@ function PortfolioSection({
   const portfolioDistribution =
     balanceGTZero && totalSupply?.gt(0) ? HUNDRED.mul(balance).div(totalSupply).toString() : constants.Zero.toString();
   return (
-    <div className={balanceGTZero ? "" : "hidden"}>
-      <section className="grid mt-16 grid-cols-12 pb-4 md:pb-0 border-b-[0.5px] md:border-b-0 border-customLightGray">
-        <div className="col-span-12 md:col-span-6 flex items-center space-x-5 mb-6 md:mb-[48px]">
-          <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">{title}</h2>
-          <NetworkIconList networks={selectedNetworks} />
-        </div>
-        <div className="col-span-12 md:col-span-6 grid grid-cols-12">
-          <div className="col-span-12 xs:col-span-7 xs:col-end-13 md:col-span-12 grid grid-cols-12">
-            <div className={`text-primary text-lg font-medium col-span-6 md:col-span-4 hidden md:block`}>
-              <div className="flex items-center space-x-2">
+    <Fragment>
+      <table className={balanceGTZero ? "w-full" : "w-full"}>
+        <thead>
+          <tr className="pb-4 border-b border-customLightGray">
+            <th className="w-[36rem]">
+              <div className="flex items-center space-x-5">
+                <h2 className="text-2xl md:text-3xl leading-6 md:leading-8">{title}</h2>
+                <NetworkIconList networks={selectedNetworks} />
+              </div>
+            </th>
+            <th className="hidden lg:table-cell text-primary text-lg font-medium">
+              <div className="flex items-center gap-2">
                 <p className="text-primaryLight text-sm md:text-base">Price</p>
                 <InfoIconWithTooltip
                   classExtras=""
@@ -388,10 +312,10 @@ function PortfolioSection({
                   content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
                 />
               </div>
-              <div className="text-sm md:text-lg"></div>
-            </div>
-            <div className={`text-primary text-lg font-medium col-span-6 md:col-span-4 hidden md:block`}>
-              <div className="flex items-center space-x-2">
+              <div className="text-left text-sm md:text-lg">$12.3</div>
+            </th>
+            <th className="text-primary text-lg font-medium">
+              <div className="flex items-center gap-2">
                 <p className="text-primaryLight text-sm md:text-base">Portfolio %</p>
                 <InfoIconWithTooltip
                   classExtras=""
@@ -400,9 +324,9 @@ function PortfolioSection({
                   content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
                 />
               </div>
-              <div className="text-sm md:text-lg">{portfolioDistribution} %</div>
-            </div>
-            <div className={`text-primary text-lg font-medium col-span-6 md:col-span-4 hidden md:block`}>
+              <div className="text-left text-sm md:text-lg">{portfolioDistribution} %</div>
+            </th>
+            <th className="text-primary text-lg font-medium">
               <div className="flex items-center space-x-2">
                 <p className="text-primaryLight text-sm md:text-base">Balance</p>
                 <InfoIconWithTooltip
@@ -412,13 +336,40 @@ function PortfolioSection({
                   content="Total value locked (TVL) is the amount of user funds deposited in popcorn products."
                 />
               </div>
-              <div className="text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.balance, 18)}</div>
+              <div className="text-left text-sm md:text-lg">${formatAndRoundBigNumber(portfolio.balance, 18)}</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </Fragment>
+  );
+}
+
+function AssetRow({ chainId, address, balance, children, name }) {
+  return (
+    <tr
+      className={`${
+        balance?.value?.gt(0) ? "" : "hidden"
+      } md:bg-customLightGray md:bg-opacity-[10%] rounded-2xl py-4 mb-4`}
+    >
+      <td>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <NetworkSticker selectedChainId={chainId} />
+            <TokenIcon token={address || ""} chainId={chainId} />
+          </div>
+
+          <div className="flex space-x-[6px] md:space-x-[52px]">
+            <div>
+              <p className="font-medium text-xs md:text-lg">{name}</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
             </div>
           </div>
         </div>
-      </section>
+      </td>
       {children}
-    </div>
+    </tr>
   );
 }
 
