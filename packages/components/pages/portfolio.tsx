@@ -193,8 +193,8 @@ export const PortfolioPage: NextPage = () => {
                               {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
                             </AssetCell>
                             <AssetCell>
-                              {networth.gt(0) && balances[key]?.gt(0)
-                                ? HUNDRED.mul(balances[key]!).div(networth).toString()
+                              {networth.gt(0) && balances.pop[key]?.value?.gt(0)
+                                ? HUNDRED.mul(balances.pop[key].value!).div(networth).toString()
                                 : constants.Zero.toString()}{" "}
                               %
                             </AssetCell>
@@ -250,8 +250,8 @@ export const PortfolioPage: NextPage = () => {
                     >
                       <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
                       <AssetCell>
-                        {networth.gt(0) && balances[key]?.gt(0)
-                          ? HUNDRED.mul(balances[key]!).div(networth).toString()
+                        {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
+                          ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
                           : constants.Zero.toString()}{" "}
                         %
                       </AssetCell>
@@ -281,8 +281,8 @@ export const PortfolioPage: NextPage = () => {
                     >
                       <AssetCell>{formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}</AssetCell>
                       <AssetCell>
-                        {networth.gt(0) && balances[key]?.gt(0)
-                          ? HUNDRED.mul(balances[key]!).div(networth).toString()
+                        {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
+                          ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
                           : constants.Zero.toString()}{" "}
                         %
                       </AssetCell>
@@ -357,7 +357,7 @@ function PortfolioSection({
                   content="The price of one token in USD."
                 />
               </div>
-              <div className="text-left text-sm md:text-lg">$12.3</div>
+              <div className="text-white">.</div>
             </th>
             <th className="text-primary text-lg font-medium">
               <div className="flex items-center gap-2">
