@@ -192,14 +192,9 @@ export const PortfolioPage: NextPage = () => {
                           render={({ balance, price, status }) => (
                             <AssetRow name={metadata?.name} address={token.address} balance={balance} chainId={chainId}>
                               <AssetCell className="hidden lg:table-cell">
-                                {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                                ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
                               </AssetCell>
-                              <AssetCell>
-                                {networth.gt(0) && balances.pop[key]?.value?.gt(0)
-                                  ? HUNDRED.mul(balances.pop[key].value!).div(networth).toString()
-                                  : constants.Zero.toString()}{" "}
-                                %
-                              </AssetCell>
+                              <AssetCell>{getPercentage(networth, balances.pop[key]?.value)}%</AssetCell>
                               <AssetCell className="rounded-r-2xl">
                                 <Contract.Value
                                   status={status}
@@ -251,14 +246,9 @@ export const PortfolioPage: NextPage = () => {
                         badge={<Badge variant={BadgeVariant.primary}>Claimable</Badge>}
                       >
                         <AssetCell className="hidden lg:table-cell">
-                          {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                          ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
                         </AssetCell>
-                        <AssetCell>
-                          {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
-                            ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
-                            : constants.Zero.toString()}{" "}
-                          %
-                        </AssetCell>
+                        <AssetCell>{getPercentage(networth, balances.escrow[key]?.value)}%</AssetCell>
                         <AssetCell className="rounded-r-2xl">
                           <Contract.Value
                             status={status}
@@ -382,7 +372,7 @@ function PortfolioSection({
                     content="The size of your position in comparison to your total portfolio in Popcorn."
                   />
                 </div>
-                <div className="text-left text-sm md:text-lg">{portfolioDistribution} %</div>
+                <div className="text-left text-sm md:text-lg">{portfolioDistribution}%</div>
               </th>
               <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
                 <div className="flex items-center space-x-2">
