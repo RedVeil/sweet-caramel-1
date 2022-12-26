@@ -7,27 +7,28 @@ const THOUSAND = 1e3;
 export function formatAndRoundBigNumber(value: BigNumber, decimals: number): string {
   if (BigNumber.isBigNumber(value)) {
     const formatedValue = Number(utils.formatUnits(value, decimals));
+
     if (formatedValue > MILLION) {
       return `${(formatedValue / MILLION).toLocaleString(undefined, {
         maximumFractionDigits: 2,
       })}M`;
-    } else if (formatedValue > THOUSAND) {
+    }
+
+    if (formatedValue > THOUSAND) {
       return `${(formatedValue / THOUSAND).toLocaleString(undefined, {
         maximumFractionDigits: 2,
       })}k`;
-    } else if (formatedValue >= 1) {
+    }
+
+    if (formatedValue >= 1) {
       return formatedValue.toLocaleString(undefined, {
         maximumFractionDigits: 2,
       });
-    } else if (formatedValue >= 1 / 1e6) {
-      return formatedValue.toLocaleString(undefined, {
-        maximumFractionDigits: 6,
-      });
-    } else if (formatedValue < 1) {
-      return formatedValue.toLocaleString(undefined, {
-        maximumFractionDigits: 12,
-      });
     }
+
+    return formatedValue.toLocaleString(undefined, {
+      maximumFractionDigits: 4,
+    });
   }
   return `Invalid val: ${value}`;
 }
