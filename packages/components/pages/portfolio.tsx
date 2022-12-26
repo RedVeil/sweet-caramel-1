@@ -2,7 +2,6 @@ import type { NextPage } from "next";
 import type { Pop } from "@popcorn/components/lib/types";
 import { Fragment, useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
-import dynamic from "next/dynamic";
 import { useAccount } from "wagmi";
 
 import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
@@ -21,9 +20,8 @@ import PortfolioHero from "../components/Portfolio/PortfolioHero";
 import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
 import { getPercentage } from "../lib/utils/numbers";
 
-const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
-  ssr: false,
-});
+import Metadata from "@popcorn/components/lib/Contract/Metadata";
+import NoSSR from "react-no-ssr";
 
 export enum SortingType {
   BalDesc,
@@ -156,7 +154,6 @@ export const PortfolioPage: NextPage = () => {
 
   const networth = totalBalance.pop.add(totalBalance.escrow);
 
-  console.log({ nw: networth.toString() });
   return (
     <div className={visible ? "" : "hidden"}>
       <PortfolioHero
@@ -168,143 +165,150 @@ export const PortfolioPage: NextPage = () => {
         account={account}
         tabs={{ available: Sections, active: [selectedSections, selectSections] }}
       />
-      <PortfolioSection
-        selectedNetworks={selectedNetworks}
-        selectedSections={selectedSections}
-        title="Assets"
-        portfolio={{
-          balance: totalBalance.pop,
-          networth: networth,
-        }}
-      >
-        {rewardContracts
-          .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
-          .map((token) => {
-            const key = getItemKey(token);
-            const chainId = Number(token.chainId);
-            return (
-              <Metadata chainId={chainId} address={token.address} alias={token.__alias} key={key}>
-                {(metadata) => {
-                  return (
-                    <>
-                      <Erc20.BalanceOf
-                        chainId={chainId}
-                        account={account}
-                        address={token.address}
-                        render={({ balance, price, status }) => (
-                          <AssetRow name={metadata?.name} address={token.address} balance={balance} chainId={chainId}>
-                            <AssetCell className="hidden lg:table-cell">
-                              ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
-                            </AssetCell>
-                            <AssetCell>
-                              {networth.gt(0) && balances.pop[key]?.value?.gt(0)
-                                ? HUNDRED.mul(balances.pop[key].value!).div(networth).toString()
-                                : constants.Zero.toString()}{" "}
-                              %
-                            </AssetCell>
-                            <AssetCell className="rounded-r-2xl">
-                              <Contract.Value
-                                status={status}
-                                balance={balance?.value}
-                                price={price?.value}
-                                callback={(value) => addToBalances(key, "pop", chainId, value)}
-                              />
-                              <p className="text-tokenTextGray text-[10px] md:text-base">
-                                {balance?.formatted} {metadata?.symbol}
-                              </p>
-                            </AssetCell>
-                          </AssetRow>
-                        )}
-                      />
-                    </>
-                  );
-                }}
-              </Metadata>
-            );
-          })}
-      </PortfolioSection>
+      <NoSSR>
+        <PortfolioSection
+          selectedNetworks={selectedNetworks}
+          selectedSections={selectedSections}
+          title="Assets"
+          portfolio={{
+            balance: totalBalance.pop,
+            networth: networth,
+          }}
+        >
+          {rewardContracts
+            .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
+            .map((token) => {
+              const key = getItemKey(token);
+              const chainId = Number(token.chainId);
+              return (
+                <Metadata chainId={chainId} address={token.address} alias={token.__alias} key={key}>
+                  {(metadata) => {
+                    return (
+                      <>
+                        <Erc20.BalanceOf
+                          chainId={chainId}
+                          account={account}
+                          address={token.address}
+                          render={({ balance, price, status }) => (
+                            <AssetRow name={metadata?.name} address={token.address} balance={balance} chainId={chainId}>
+                              <AssetCell className="hidden lg:table-cell">
+                                {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                              </AssetCell>
+                              <AssetCell>
+                                {networth.gt(0) && balances.pop[key]?.value?.gt(0)
+                                  ? HUNDRED.mul(balances.pop[key].value!).div(networth).toString()
+                                  : constants.Zero.toString()}{" "}
+                                %
+                              </AssetCell>
+                              <AssetCell className="rounded-r-2xl">
+                                <Contract.Value
+                                  status={status}
+                                  balance={balance?.value}
+                                  price={price?.value}
+                                  callback={(value) => addToBalances(key, "pop", chainId, value)}
+                                />
+                                <p className="text-tokenTextGray text-[10px] md:text-base">
+                                  {balance?.formatted} {metadata?.symbol}
+                                </p>
+                              </AssetCell>
+                            </AssetRow>
+                          )}
+                        />
+                      </>
+                    );
+                  }}
+                </Metadata>
+              );
+            })}
+        </PortfolioSection>
 
-      <PortfolioSection
-        selectedNetworks={selectedNetworks}
-        selectedSections={selectedSections}
-        title="Rewards"
-        portfolio={{
-          balance: totalBalance.escrow,
-          networth: networth,
-        }}
-      >
-        {escrowContracts
-          .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
-          .map((token) => {
-            const key = getItemKey(token);
-            const chainId = Number(token.chainId);
-            return (
-              <Fragment key={key}>
-                <Escrow.ClaimableBalanceOf
-                  account={account}
-                  address={token.address}
-                  chainId={chainId}
-                  render={({ balance, price, status }) => (
-                    <AssetRow
-                      name="Popcorn"
-                      chainId={chainId}
-                      balance={balance}
-                      address={token.address}
-                      badge={<Badge variant={BadgeVariant.primary}>Claimable</Badge>}
-                    >
-                      <AssetCell className="hidden lg:table-cell">
-                        ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
-                      </AssetCell>
-                      <AssetCell>{getPercentage(networth, balances.escrow[key]?.value)} %</AssetCell>
-                      <AssetCell className="rounded-r-2xl">
-                        <Contract.Value
-                          status={status}
-                          balance={balance?.value}
-                          price={price?.value}
-                          callback={(value) => addToBalances(key, "escrow", chainId, value)}
-                        />
-                        <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
-                      </AssetCell>
-                    </AssetRow>
-                  )}
-                />
-                <Escrow.VestingBalanceOf
-                  account={account}
-                  address={token.address}
-                  chainId={chainId}
-                  render={({ balance, price, status }) => (
-                    <AssetRow
-                      badge={<Badge variant={BadgeVariant.dark}>Vesting</Badge>}
-                      balance={balance}
-                      name="Popcorn"
-                      address={token.address}
-                      chainId={chainId}
-                    >
-                      <AssetCell className="hidden lg:table-cell">
-                        ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
-                      </AssetCell>
-                      <AssetCell>
-                        {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
-                          ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
-                          : constants.Zero.toString()}{" "}
-                        %
-                      </AssetCell>
-                      <AssetCell className="rounded-r-2xl">
-                        <Contract.Value
-                          status={status}
-                          balance={balance?.value}
-                          price={price?.value}
-                          callback={(value) => addToBalances(key, "escrow", chainId, value)}
-                        />
-                        <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
-                      </AssetCell>
-                    </AssetRow>
-                  )}
-                />
-              </Fragment>
-            );
-          })}
-      </PortfolioSection>
+        <PortfolioSection
+          selectedNetworks={selectedNetworks}
+          selectedSections={selectedSections}
+          title="Rewards"
+          portfolio={{
+            balance: totalBalance.escrow,
+            networth: networth,
+          }}
+        >
+          {escrowContracts
+            .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
+            .map((token) => {
+              const key = getItemKey(token);
+              const chainId = Number(token.chainId);
+              return (
+                <Fragment key={key}>
+                  <Escrow.ClaimableBalanceOf
+                    account={account}
+                    address={token.address}
+                    chainId={chainId}
+                    render={({ balance, price, status }) => (
+                      <AssetRow
+                        name="Popcorn"
+                        chainId={chainId}
+                        balance={balance}
+                        address={token.address}
+                        badge={<Badge variant={BadgeVariant.primary}>Claimable</Badge>}
+                      >
+                        <AssetCell className="hidden lg:table-cell">
+                          {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                        </AssetCell>
+                        <AssetCell>
+                          {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
+                            ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
+                            : constants.Zero.toString()}{" "}
+                          %
+                        </AssetCell>
+                        <AssetCell className="rounded-r-2xl">
+                          <Contract.Value
+                            status={status}
+                            balance={balance?.value}
+                            price={price?.value}
+                            callback={(value) => addToBalances(key, "escrow", chainId, value)}
+                          />
+                          <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
+                        </AssetCell>
+                      </AssetRow>
+                    )}
+                  />
+                  <Escrow.VestingBalanceOf
+                    account={account}
+                    address={token.address}
+                    chainId={chainId}
+                    render={({ balance, price, status }) => (
+                      <AssetRow
+                        badge={<Badge variant={BadgeVariant.dark}>Vesting</Badge>}
+                        balance={balance}
+                        name="Popcorn"
+                        address={token.address}
+                        chainId={chainId}
+                      >
+                        <AssetCell className="hidden lg:table-cell">
+                          {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                        </AssetCell>
+                        <AssetCell>
+                          {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
+                            ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
+                            : constants.Zero.toString()}{" "}
+                          %
+                        </AssetCell>
+                        <AssetCell className="rounded-r-2xl">
+                          <Contract.Value
+                            status={status}
+                            balance={balance?.value}
+                            price={price?.value}
+                            callback={(value) => addToBalances(key, "escrow", chainId, value)}
+                          />
+                          <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
+                        </AssetCell>
+                      </AssetRow>
+                    )}
+                  />
+                </Fragment>
+              );
+            })}
+        </PortfolioSection>
+      </NoSSR>
     </div>
   );
 };
@@ -312,7 +316,7 @@ export const PortfolioPage: NextPage = () => {
 function AssetCell({ children, as: Wrapper = "td", className }: { children: any; as?: any; className?: string }) {
   return (
     <Wrapper
-      className={`text-primary text-sm md:text-lg font-medium md:bg-customLightGray md:bg-opacity-[10%] px-2 py-4 ${className}`}
+      className={`text-primary text-sm md:text-lg font-medium md:bg-customLightGray md:bg-opacity-[10%] px-2 md:py-4 ${className}`}
     >
       {children}
     </Wrapper>

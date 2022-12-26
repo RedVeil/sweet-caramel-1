@@ -41,6 +41,10 @@ const networkData = [
 ];
 
 export const MobileMenu: React.FC = () => {
+  const {
+    features: { portfolio },
+  } = useFeatures();
+
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
@@ -100,7 +104,7 @@ export const MobileMenu: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className={`relative w-full ${!menuVisible ? "" : "hidden"}`}>
             <div
-              className={`w-full px-4 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
+              className={`w-full px-4 py-3 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
               onClick={() => setShowPopUp(true)}
             >
               <img src={logo} alt={""} className="w-3 h-3 object-contain" />
@@ -156,8 +160,11 @@ export const MobileMenu: React.FC = () => {
                 <div className="w-screen">
                   <div className="h-full w-full flex flex-col justify-between pt-18 px-6 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col w-full">
-                      <div className="pt-6 pb-6">
+                      <div className="py-6">
                         <NavbarLink label="Popcorn" url="/" isActive={router?.pathname === `/`} />
+                      </div>
+                      <div className={`py-6 ${portfolio ? "" : "hidden"}`}>
+                        <NavbarLink label="Portfolio" url="/portfolio" isActive={router.pathname === "/portfolio"} />
                       </div>
                       <div className="py-6">
                         {products.length < 2 ? (
