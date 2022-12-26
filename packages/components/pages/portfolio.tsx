@@ -19,6 +19,7 @@ import NetworkIconList from "../../greenfield-app/components/NetworkIconList";
 import { Erc20, Contract, Escrow } from "../lib";
 import PortfolioHero from "../components/Portfolio/PortfolioHero";
 import { NotAvailable } from "@popcorn/app/components/Rewards/NotAvailable";
+import { getPercentage } from "../lib/utils/numbers";
 
 const Metadata = dynamic(() => import("@popcorn/components/lib/Contract/Metadata"), {
   ssr: false,
@@ -75,8 +76,8 @@ export const PortfolioPage: NextPage = () => {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
-  const { address: account } = useAccount();
+  const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
+  // const { address: account } = useAccount();
 
   const [balances, setBalances] = useState({
     pop: {} as BalanceByKey,
@@ -155,6 +156,7 @@ export const PortfolioPage: NextPage = () => {
 
   const networth = totalBalance.pop.add(totalBalance.escrow);
 
+  console.log({ nw: networth.toString() });
   return (
     <div className={visible ? "" : "hidden"}>
       <PortfolioHero
@@ -192,7 +194,7 @@ export const PortfolioPage: NextPage = () => {
                         render={({ balance, price, status }) => (
                           <AssetRow name={metadata?.name} address={token.address} balance={balance} chainId={chainId}>
                             <AssetCell className="hidden lg:table-cell">
-                              {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                              ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
                             </AssetCell>
                             <AssetCell>
                               {networth.gt(0) && balances.pop[key]?.value?.gt(0)
@@ -251,14 +253,9 @@ export const PortfolioPage: NextPage = () => {
                       badge={<Badge variant={BadgeVariant.primary}>Claimable</Badge>}
                     >
                       <AssetCell className="hidden lg:table-cell">
-                        {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                        ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
                       </AssetCell>
-                      <AssetCell>
-                        {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
-                          ? HUNDRED.mul(balances.escrow[key].value!).div(networth).toString()
-                          : constants.Zero.toString()}{" "}
-                        %
-                      </AssetCell>
+                      <AssetCell>{getPercentage(networth, balances.escrow[key]?.value)} %</AssetCell>
                       <AssetCell className="rounded-r-2xl">
                         <Contract.Value
                           status={status}
@@ -284,7 +281,7 @@ export const PortfolioPage: NextPage = () => {
                       chainId={chainId}
                     >
                       <AssetCell className="hidden lg:table-cell">
-                        {formatAndRoundBigNumber(price?.value || constants.Zero, 18) + "$"}
+                        ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
                       </AssetCell>
                       <AssetCell>
                         {networth.gt(0) && balances.escrow[key]?.value?.gt(0)
