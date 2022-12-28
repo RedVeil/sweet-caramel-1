@@ -51,6 +51,7 @@ export namespace Pop {
     chainId?: string;
     address?: string;
     __alias?: string;
+    symbol?: string;
     [key: string]: any;
   }
 }

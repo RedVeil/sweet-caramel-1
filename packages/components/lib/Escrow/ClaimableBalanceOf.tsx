@@ -12,13 +12,9 @@ interface RenderProps extends Pop.StdProps {
   balance?: BigNumberWithFormatted;
   status?: "loading" | "success" | "error" | "idle";
 }
-const eth_call =
-  (Component: Pop.FC<BigNumberWithFormatted>) =>
-  ({
-    ...props
-  }: Pop.StdProps & {
-    render?: (props: RenderProps) => React.ReactElement;
-  }) => {
+
+const eth_call = (Component: Pop.FC<BigNumberWithFormatted>) =>
+  function ClaimableBalance({ ...props }: Pop.WithStdRenderProps<RenderProps>) {
     const { data: token } = useClaimableToken({ ...props });
     const { data: price, status: priceStatus } = usePrice({ ...props, address: token });
     const { data: ids, status: idsStatus } = useEscrowIds({ ...props });

@@ -3,6 +3,8 @@ import { useNamedAccounts } from "@popcorn/components/lib/utils";
 import { formatAndRoundBigNumber } from "@popcorn/utils/src/formatBigNumber";
 import { Pop, BigNumberWithFormatted } from "../../types";
 import { useContractReads } from "wagmi";
+
+const ZERO = constants.Zero;
 /**
  * useClaimableBalance returns the claimable balance a user has across all escrow records
  */
@@ -34,12 +36,12 @@ export const useClaimableBalance: Pop.Hook<BigNumberWithFormatted> = ({
     })),
   }) as Pop.HookResult<BigNumber[]>;
 
+  const value = data?.reduce((acc, curr) => acc.add(curr || 0), ZERO) || ZERO;
   return {
     data: data
       ? {
-          value: data?.reduce((acc, curr) => acc.add(curr), constants.Zero),
-          formatted:
-            data && formatAndRoundBigNumber(data.reduce((acc, curr) => acc.add(curr), constants.Zero) as BigNumber, 18),
+          value,
+          formatted: data && formatAndRoundBigNumber(value as BigNumber, 18),
         }
       : undefined,
     status,

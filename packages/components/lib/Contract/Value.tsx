@@ -11,15 +11,15 @@ interface Props {
   balance?: BigNumber;
   decimals?: number;
 }
-const eth_call =
-  (Component: Pop.FC<any>) =>
-  ({
+
+const eth_call = (Component: Pop.FC<any>) =>
+  function ValueWrapper({
     price,
     balance,
     decimals,
     status,
     callback,
-  }: Props & { status?: "idle" | "error" | "success" | "loading" } & { callback?: (value?: BigNumber) => void }) => {
+  }: Props & { status?: "idle" | "error" | "success" | "loading" } & { callback?: (value?: BigNumber) => void }) {
     const [isDirty, setDirty] = useState(false);
     const value =
       (balance &&
@@ -33,7 +33,7 @@ const eth_call =
     useEffect(() => {
       if (status === "success" && callback && value.gt(0) && !isDirty) {
         setDirty(true);
-        callback!(value);
+        callback?.(value);
       }
     }, [status, value]);
 
