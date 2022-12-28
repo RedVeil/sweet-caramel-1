@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import type { Pop } from "@popcorn/components/lib/types";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
 import dynamic from "next/dynamic";
 import { useAccount } from "wagmi";

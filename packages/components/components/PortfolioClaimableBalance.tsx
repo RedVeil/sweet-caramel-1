@@ -14,7 +14,7 @@ function PortfolioClaimableBalance({
   callback,
 }: {
   token: Pop.NamedAccountsMetadata;
-  account: string;
+  account?: string;
   networth: BigNumber;
   callback: any;
 }) {
