@@ -157,7 +157,7 @@ export function AssetRow({
       <AssetCell>{getPercentage(networth, pop.current)}%</AssetCell>
       <AssetCell>
         <Contract.Value status={status} balance={balance?.value} price={price?.value} callback={proxyCallback} />
-        <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} Pop</p>
+        <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} POP</p>
       </AssetCell>
     </tr>
   );
