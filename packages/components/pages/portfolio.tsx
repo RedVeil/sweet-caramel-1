@@ -1,8 +1,9 @@
 import type { NextPage } from "next";
 import type { Pop } from "@popcorn/components/lib/types";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
-import NoSSR from "react-no-ssr";
+import dynamic from "next/dynamic";
+import { useAccount } from "wagmi";
 
 import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { useFeatures } from "@popcorn/components/hooks";
@@ -11,9 +12,13 @@ import Metadata from "@popcorn/components/lib/Contract/Metadata";
 import { useChainsWithStakingRewards } from "../../greenfield-app/hooks/staking/useChainsWithStaking";
 import useNetworkFilter from "../../greenfield-app/hooks/useNetworkFilter";
 import PortfolioHero from "../components/Portfolio/PortfolioHero";
-import PortfolioSection, { AssetRow } from "../components/PortfolioSection";
+import { AssetRow } from "../components/PortfolioSection";
 import PortfolioClaimableBalance from "../components/PortfolioClaimableBalance";
 import { Erc20 } from "../lib";
+
+const PortfolioSection = dynamic(() => import("../components/PortfolioSection"), {
+  ssr: false,
+});
 
 type BalanceByKey = { [key: string]: { value: BigNumber | undefined; chainId: number } };
 
@@ -66,8 +71,8 @@ export const PortfolioPage: NextPage = () => {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
-  // const { address: account } = useAccount();
+  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
+  const { address: account } = useAccount();
 
   const [balances, setBalances] = useState({
     pop: {} as BalanceByKey,
@@ -146,7 +151,7 @@ export const PortfolioPage: NextPage = () => {
   };
 
   return (
-    <div className={visible ? "" : "hidden"}>
+    <Fragment>
       <PortfolioHero
         supportedNetworks={supportedNetworks}
         selectedNetworks={selectedNetworks}
@@ -156,66 +161,64 @@ export const PortfolioPage: NextPage = () => {
         account={account}
         tabs={{ available: Sections, active: [selectedSections, selectSections] }}
       />
-      <NoSSR>
-        <PortfolioSection
-          selectedNetworks={selectedNetworks}
-          selectedSections={selectedSections}
-          balance={totalBalance.pop}
-          title="Assets"
-        >
-          {rewardContracts
-            .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
-            .map((token) => {
-              const key = getItemKey(token);
-              const chainId = Number(token.chainId);
-              return (
-                <Metadata chainId={chainId} address={token.address} alias={token.__alias} key={key}>
-                  {(metadata) => (
-                    <Erc20.BalanceOf
-                      chainId={chainId}
-                      account={account}
-                      address={token.address}
-                      render={({ balance, price, status }) => (
-                        <AssetRow
-                          name={metadata?.name}
-                          address={token.address}
-                          balance={balance}
-                          chainId={chainId}
-                          networth={totalBalance.pop}
-                          price={price}
-                          status={status}
-                          callback={(value) => addToBalances(key, "pop", chainId, value)}
-                        />
-                      )}
-                    />
-                  )}
-                </Metadata>
-              );
-            })}
-        </PortfolioSection>
-        <PortfolioSection
-          selectedNetworks={selectedNetworks}
-          selectedSections={selectedSections}
-          balance={totalBalance.escrow}
-          title="Rewards"
-        >
-          {escrowContracts
-            .sort((a, b) => sortEntries(a, b, balances.escrow, SortingType.BalDesc))
-            .map((token) => {
-              const key = getItemKey(token);
-              return (
-                <PortfolioClaimableBalance
-                  key={`rewards-${key}`}
-                  account={account}
-                  networth={totalBalance.escrow}
-                  callback={(value) => addToBalances(key, "escrow", Number(token.chainId), value)}
-                  token={token}
-                />
-              );
-            })}
-        </PortfolioSection>
-      </NoSSR>
-    </div>
+      <PortfolioSection
+        selectedNetworks={selectedNetworks}
+        selectedSections={selectedSections}
+        balance={totalBalance.pop}
+        title="Assets"
+      >
+        {rewardContracts
+          .sort((a, b) => sortEntries(a, b, balances.pop, SortingType.BalDesc))
+          .map((token) => {
+            const key = getItemKey(token);
+            const chainId = Number(token.chainId);
+            return (
+              <Metadata chainId={chainId} address={token.address} alias={token.__alias} key={key}>
+                {(metadata) => (
+                  <Erc20.BalanceOf
+                    chainId={chainId}
+                    account={account}
+                    address={token.address}
+                    render={({ balance, price, status }) => (
+                      <AssetRow
+                        name={metadata?.name}
+                        address={token.address}
+                        balance={balance}
+                        chainId={chainId}
+                        networth={totalBalance.pop}
+                        price={price}
+                        status={status}
+                        callback={(value) => addToBalances(key, "pop", chainId, value)}
+                      />
+                    )}
+                  />
+                )}
+              </Metadata>
+            );
+          })}
+      </PortfolioSection>
+      <PortfolioSection
+        selectedNetworks={selectedNetworks}
+        selectedSections={selectedSections}
+        balance={totalBalance.escrow}
+        title="Rewards"
+      >
+        {escrowContracts
+          .sort((a, b) => sortEntries(a, b, balances.escrow, SortingType.BalDesc))
+          .map((token) => {
+            const key = getItemKey(token);
+            return (
+              <PortfolioClaimableBalance
+                key={`rewards-${key}`}
+                account={account}
+                networth={totalBalance.escrow}
+                callback={(value) => addToBalances(key, "escrow", Number(token.chainId), value)}
+                token={token}
+              />
+            );
+          })}
+      </PortfolioSection>
+    </Fragment>
   );
 };
 
