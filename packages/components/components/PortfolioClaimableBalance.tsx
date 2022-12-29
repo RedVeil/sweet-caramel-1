@@ -22,10 +22,11 @@ function PortfolioClaimableBalance({
   let mutableClaimableBalance = constants.Zero;
 
   const sharedProps = {
-    account: account as any,
     address: token.address,
+    account: account as any,
     chainId,
     networth,
+    token,
   };
 
   return (

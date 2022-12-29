@@ -189,7 +189,7 @@ export const PortfolioPage: NextPage = () => {
                     render={({ balance, price, status }) => (
                       <AssetRow
                         name={metadata?.name}
-                        address={token.address}
+                        token={token}
                         balance={balance}
                         chainId={chainId}
                         networth={totalBalance.pop}

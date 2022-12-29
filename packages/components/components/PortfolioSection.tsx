@@ -1,4 +1,4 @@
-import type { BigNumberWithFormatted } from "@popcorn/components/lib/types";
+import type { BigNumberWithFormatted, Pop } from "@popcorn/components/lib/types";
 import { BigNumber, constants } from "ethers";
 import { useState } from "react";
 
@@ -111,7 +111,7 @@ const ZERO = constants.Zero;
 export function AssetRow({
   chainId,
   badge,
-  address,
+  token,
   networth,
   price,
   balance,
@@ -127,6 +127,7 @@ export function AssetRow({
   balance: BigNumberWithFormatted;
   callback;
   name: string;
+  token: Pop.NamedAccountsMetadata;
   status;
 }>) {
   const [rawBalance, setRawBalance] = useState(ZERO);
@@ -136,13 +137,14 @@ export function AssetRow({
     callback?.(value);
   };
 
+  const percentage = getPercentage(networth, rawBalance);
   return (
     <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
       <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-2 md:py-4 pl-2 md:pl-10">
         <div className="flex items-center gap-4">
           <div className="relative">
             <NetworkSticker selectedChainId={chainId} />
-            <TokenIcon token={address || ""} chainId={chainId} />
+            <TokenIcon token={token?.address || ""} chainId={chainId} />
           </div>
           <div className="flex space-x-[6px] md:space-x-[52px]">
             <div>
@@ -156,10 +158,12 @@ export function AssetRow({
       <AssetCell className="hidden lg:table-cell">
         ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
       </AssetCell>
-      <AssetCell>{getPercentage(networth, rawBalance)}%</AssetCell>
+      <AssetCell>{percentage < 1 ? "<1" : percentage}%</AssetCell>
       <AssetCell>
         <Contract.Value status={status} balance={balance?.value} price={price?.value} callback={proxyCallback} />
-        <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} POP</p>
+        <p className="text-tokenTextGray text-[10px] md:text-base">
+          {balance?.formatted} {token?.symbol || "POP"}
+        </p>
       </AssetCell>
     </tr>
   );
