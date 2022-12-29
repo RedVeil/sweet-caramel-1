@@ -1,6 +1,6 @@
 import type { BigNumberWithFormatted } from "@popcorn/components/lib/types";
 import { BigNumber, constants } from "ethers";
-import { useRef } from "react";
+import { useState } from "react";
 
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
@@ -17,12 +17,14 @@ function PortfolioSection({
   selectedSections,
   children,
   balance,
+  networth,
   title,
 }: {
   selectedNetworks: any;
   selectedSections: string[];
   children: any;
   title: string;
+  networth: BigNumber;
   balance?: BigNumber;
 }) {
   const balanceGTZero = balance?.gt(0);
@@ -67,7 +69,7 @@ function PortfolioSection({
                     content="The size of your position in comparison to your total portfolio in Popcorn."
                   />
                 </div>
-                <div className="text-left text-sm md:text-lg">100%</div>
+                <div className="text-left text-sm md:text-lg">{getPercentage(networth, balance)}%</div>
               </th>
               <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
                 <div className="flex items-center space-x-2">
@@ -127,11 +129,11 @@ export function AssetRow({
   name: string;
   status;
 }>) {
-  const pop = useRef(ZERO);
+  const [rawBalance, setRawBalance] = useState(ZERO);
 
-  const proxyCallback = (value) => {
+  const proxyCallback = (value?: BigNumber) => {
+    if (value && value.gt(0)) setRawBalance(value);
     callback?.(value);
-    pop.current = value || ZERO;
   };
 
   return (
@@ -154,7 +156,7 @@ export function AssetRow({
       <AssetCell className="hidden lg:table-cell">
         ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
       </AssetCell>
-      <AssetCell>{getPercentage(networth, pop.current)}%</AssetCell>
+      <AssetCell>{getPercentage(networth, rawBalance)}%</AssetCell>
       <AssetCell>
         <Contract.Value status={status} balance={balance?.value} price={price?.value} callback={proxyCallback} />
         <p className="text-tokenTextGray text-[10px] md:text-base">{balance?.formatted} POP</p>
