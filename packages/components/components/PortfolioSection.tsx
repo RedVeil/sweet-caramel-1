@@ -36,6 +36,7 @@ function PortfolioSection({
   );
 
   const showSection = selectedSections.includes(title);
+  const distribution = getPercentage(networth, balance);
   return (
     <section className={`px-4 md:px-8 ${showSection || "hidden"}`}>
       <div className={`mt-8 mb-2 md:hidden ${balanceGTZero || "hidden"}`}>{networkListComponent}</div>
@@ -69,7 +70,7 @@ function PortfolioSection({
                     content="The size of your position in comparison to your total portfolio in Popcorn."
                   />
                 </div>
-                <div className="text-left text-sm md:text-lg">{getPercentage(networth, balance)}%</div>
+                <div className="text-left text-sm md:text-lg">{distribution < 1 ? "<1" : distribution}%</div>
               </th>
               <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
                 <div className="flex items-center space-x-2">
@@ -137,7 +138,6 @@ export function AssetRow({
     callback?.(value);
   };
 
-  const percentage = getPercentage(networth, rawBalance);
   return (
     <tr className={`${balance?.value?.gt(0) ? "" : "hidden"}`}>
       <td className="md:bg-customLightGray md:bg-opacity-[10%] rounded-l-2xl py-2 md:py-4 pl-2 md:pl-10">
@@ -158,7 +158,7 @@ export function AssetRow({
       <AssetCell className="hidden lg:table-cell">
         ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
       </AssetCell>
-      <AssetCell>{percentage < 1 ? "<1" : percentage}%</AssetCell>
+      <AssetCell>{getPercentage(networth, rawBalance)}%</AssetCell>
       <AssetCell>
         <Contract.Value status={status} balance={balance?.value} price={price?.value} callback={proxyCallback} />
         <p className="text-tokenTextGray text-[10px] md:text-base">
