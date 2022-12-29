@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import type { Pop } from "@popcorn/components/lib/types";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { BigNumber, constants } from "ethers";
 import dynamic from "next/dynamic";
 import { useAccount } from "wagmi";
@@ -62,7 +62,10 @@ const sumUpBalances = (balances = {}, selectedNetworks: Array<any> = []) =>
 
 // TODO: constants must be in UPPERCASE. Refactor
 export const Sections = ["Assets", "Rewards"];
-
+const INIT_BALANCE_STATE = {
+  pop: {} as BalanceByKey,
+  escrow: {} as BalanceByKey,
+};
 export const PortfolioPage: NextPage = () => {
   const {
     features: { portfolio: visible },
@@ -71,16 +74,12 @@ export const PortfolioPage: NextPage = () => {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb";
+  // const account = "0x6326c9F3934B090b82b2F92C44a1D981913e02CD"; // M
+  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb" // L
   const { address: account } = useAccount();
 
-  const [balances, setBalances] = useState({
-    pop: {} as BalanceByKey,
-    escrow: {} as BalanceByKey,
-  });
-
+  const [balances, setBalances] = useState(INIT_BALANCE_STATE);
   const [selectedSections, selectSections] = useState(Sections);
-
   const [sortingType, setSortingType] = useState(SortingType.BalDesc);
 
   const contractsEth = useNamedAccounts("1", [
@@ -133,6 +132,11 @@ export const PortfolioPage: NextPage = () => {
     selectedNetworks,
   ]);
 
+  useEffect(() => {
+    setBalances(INIT_BALANCE_STATE);
+    // reset when new account
+  }, [account]);
+
   const addToBalances = (key, type: "escrow" | "pop", chainId: number, value?: BigNumber) => {
     if (value?.gt(0)) {
       setBalances((balances) => ({
@@ -150,6 +154,8 @@ export const PortfolioPage: NextPage = () => {
     escrow: sumUpBalances(balances.escrow, selectedNetworks),
   };
 
+  const networth = totalBalance.pop.add(totalBalance.escrow);
+
   return (
     <Fragment>
       <PortfolioHero
@@ -164,6 +170,7 @@ export const PortfolioPage: NextPage = () => {
       <PortfolioSection
         selectedNetworks={selectedNetworks}
         selectedSections={selectedSections}
+        networth={networth}
         balance={totalBalance.pop}
         title="Assets"
       >
@@ -200,6 +207,7 @@ export const PortfolioPage: NextPage = () => {
       <PortfolioSection
         selectedNetworks={selectedNetworks}
         selectedSections={selectedSections}
+        networth={networth}
         balance={totalBalance.escrow}
         title="Rewards"
       >
