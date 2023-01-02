@@ -21,19 +21,18 @@ const eth_call = (Component: Pop.FC<any>) =>
     callback,
   }: Props & { status?: "idle" | "error" | "success" | "loading" } & { callback?: (value?: BigNumber) => void }) {
     const value =
-      (balance &&
-        price &&
-        balance
-          .mul(price)
-          .mul(parseUnits("1", decimals == 6 ? 12 : 0))
-          .div(parseUnits("1", 18))) ||
-      constants.Zero;
+      balance && price
+        ? balance
+            .mul(price)
+            .mul(parseUnits("1", decimals == 6 ? 12 : 0))
+            .div(parseUnits("1", 18))
+        : constants.Zero;
 
     useEffect(() => {
       if (status === "success" && value.gt(0)) {
         callback?.(value);
       }
-    }, [status, value]);
+    }, [status, value._hex, decimals, price]);
 
     return <Component {...{ price, balance, decimals, value, status }} />;
   };
