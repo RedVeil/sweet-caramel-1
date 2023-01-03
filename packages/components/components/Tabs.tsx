@@ -8,33 +8,31 @@ export interface TabsProps {
 export const Tabs: FC<TabsProps> = ({ available, active }) => {
   const [activeTabs, setActiveTabs] = active;
 
+  const allSelected = activeTabs.length === available.length;
   return (
-    <div className="flex space-x-4">
-      <button
-        className={`flex items-center justify-center rounded-3xl py-3 px-5 text-base leading-6 font-normal border
-            ${
-              activeTabs.length === available.length
-                ? "border-primaryLight bg-primaryLight text-white"
-                : "bg-white border-[#d7d7d799]"
-            }`}
-        onClick={() => setActiveTabs(available)}
-      >
+    <div className="flex gap-4">
+      <Tab isActive={allSelected} onClick={() => setActiveTabs(available)}>
         All
-      </button>
+      </Tab>
       {available.map((tab) => (
-        <button
-          className={`flex items-center justify-center rounded-3xl py-3 px-5 text-base leading-6 font-normal border
-            ${
-              activeTabs.length !== available.length && activeTabs.includes(tab)
-                ? "border-primaryLight bg-primaryLight text-white"
-                : "bg-white border-[#d7d7d799]"
-            }`}
+        <Tab
+          key={`tab-item-${tab}`}
+          isActive={!allSelected && activeTabs.includes(tab)}
           onClick={() => setActiveTabs([tab])}
-          key={tab}
         >
           {tab}
-        </button>
+        </Tab>
       ))}
     </div>
   );
 };
+
+const Tab = ({ isActive, onClick, children }) => (
+  <button
+    className={`flex items-center justify-center rounded-3xl py-2.5 px-5 text-base leading-6 font-normal border
+    ${isActive ? "border-primaryLight bg-primaryLight text-white" : "bg-white border-[#d7d7d799]"}`}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
