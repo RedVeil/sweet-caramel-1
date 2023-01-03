@@ -35,12 +35,7 @@ contract AbstractAdapterTest is PropertyTest {
 
   bytes4[8] sigs;
 
-  function setUpBaseTest(
-    IERC20 asset_,
-    IAdapter adapter_,
-    uint256 delta_,
-    string memory baseTestId_
-  ) public {
+  function setUpBaseTest(IERC20 asset_, IAdapter adapter_, uint256 delta_, string memory baseTestId_) public {
     // Setup PropertyTest
     _asset_ = address(asset_);
     _vault_ = address(adapter_);
@@ -49,7 +44,7 @@ contract AbstractAdapterTest is PropertyTest {
     asset = asset_;
     adapter = adapter_;
 
-    defaultAmount = 10**IERC20Metadata(address(adapter)).decimals();
+    defaultAmount = 10 ** IERC20Metadata(address(adapter)).decimals();
 
     raise = defaultAmount * 10_000;
     maxAssets = defaultAmount * 1000;
