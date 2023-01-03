@@ -11,6 +11,7 @@ export class BeneficiaryGovernanceAdapter {
       id: id.toString(),
       proposalType: proposal.proposalType,
       status: Number(proposal.status.toString()),
+      startTime: new Date(Number(proposal.startTime.toString()) * 1000),
       stageDeadline: new Date(
         (Number(proposal.startTime.toString()) +
           Number(proposal.configurationOptions.votingPeriod.toString()) +
