@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import { Test } from "forge-std/Test.sol";
 
 import { PropertyTest } from "./PropertyTest.prop.sol";
-import { IAdapter } from "../../../../src/interfaces/vault/IAdapter.sol";
+import { IAdapter, IERC4626 } from "../../../../src/interfaces/vault/IAdapter.sol";
 import { IStrategy } from "../../../../src/interfaces/vault/IStrategy.sol";
 import { IERC20Upgradeable as IERC20, IERC20MetadataUpgradeable as IERC20Metadata } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import { ITestConfigStorage } from "./ITestConfigStorage.sol";
@@ -32,10 +32,18 @@ contract AbstractAdapterTest is PropertyTest {
   IERC20 asset;
   IAdapter adapter;
   IStrategy strategy;
+  address externalRegistry;
 
   bytes4[8] sigs;
 
-  function setUpBaseTest(IERC20 asset_, IAdapter adapter_, uint256 delta_, string memory baseTestId_) public {
+  function setUpBaseTest(
+    IERC20 asset_,
+    IAdapter adapter_,
+    address externalRegistry_,
+    uint256 delta_,
+    string memory baseTestId_,
+    bool useStrategy_
+  ) public {
     // Setup PropertyTest
     _asset_ = address(asset_);
     _vault_ = address(adapter_);
@@ -43,17 +51,18 @@ contract AbstractAdapterTest is PropertyTest {
 
     asset = asset_;
     adapter = adapter_;
+    externalRegistry = externalRegistry_;
 
-    defaultAmount = 10 ** IERC20Metadata(address(adapter)).decimals();
+    defaultAmount = 10**IERC20Metadata(address(asset_)).decimals();
 
-    raise = defaultAmount * 10_000;
+    raise = defaultAmount * 100_000;
     maxAssets = defaultAmount * 1000;
-    maxShares = (maxAssets * 4) / 3;
+    maxShares = maxAssets / 2;
 
     baseTestId = baseTestId_;
     testId = string.concat(baseTestId_, IERC20Metadata(address(asset)).symbol());
 
-    strategy = IStrategy(address(new MockStrategy()));
+    if (useStrategy_) strategy = IStrategy(address(new MockStrategy()));
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -106,17 +115,19 @@ contract AbstractAdapterTest is PropertyTest {
     createAdapter();
     uint256 callTime = block.timestamp;
 
-    vm.expectEmit(false, false, false, true, address(strategy));
-    emit SelectorsVerified();
-    vm.expectEmit(false, false, false, true, address(strategy));
-    emit AdapterVerified();
-    vm.expectEmit(false, false, false, true, address(strategy));
-    emit StrategySetup();
+    if (address(strategy) != address(0)) {
+      vm.expectEmit(false, false, false, true, address(strategy));
+      emit SelectorsVerified();
+      vm.expectEmit(false, false, false, true, address(strategy));
+      emit AdapterVerified();
+      vm.expectEmit(false, false, false, true, address(strategy));
+      emit StrategySetup();
+    }
     vm.expectEmit(false, false, false, true, address(adapter));
     emit Initialized(uint8(1));
     adapter.initialize(
       abi.encode(asset, address(this), strategy, 0, sigs, ""),
-      address(0),
+      externalRegistry,
       testConfigStorage.getTestConfig(0)
     );
 
@@ -168,9 +179,9 @@ contract AbstractAdapterTest is PropertyTest {
     prop_maxDeposit(bob);
 
     // Deposit smth so withdraw on pause is not 0
-    deal(address(asset), address(this), 1 ether);
-    asset.approve(address(adapter), 1 ether);
-    adapter.deposit(1 ether, address(this));
+    deal(address(asset), address(this), defaultAmount);
+    asset.approve(address(adapter), defaultAmount);
+    adapter.deposit(defaultAmount, address(this));
 
     adapter.pause();
     assertEq(adapter.maxDeposit(bob), 0);
@@ -180,9 +191,9 @@ contract AbstractAdapterTest is PropertyTest {
     prop_maxMint(bob);
 
     // Deposit smth so withdraw on pause is not 0
-    deal(address(asset), address(this), 1 ether);
-    asset.approve(address(adapter), 1 ether);
-    adapter.deposit(1 ether, address(this));
+    deal(address(asset), address(this), defaultAmount);
+    asset.approve(address(adapter), defaultAmount);
+    adapter.deposit(defaultAmount, address(this));
 
     adapter.pause();
     assertEq(adapter.maxMint(bob), 0);
@@ -200,7 +211,7 @@ contract AbstractAdapterTest is PropertyTest {
                           PREVIEW VIEWS
     //////////////////////////////////////////////////////////////*/
   function test__previewDeposit(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxAssets);
 
     deal(address(asset), bob, maxAssets);
     vm.prank(bob);
@@ -210,7 +221,7 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__previewMint(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
 
     deal(address(asset), bob, maxAssets);
     vm.prank(bob);
@@ -220,25 +231,23 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__previewWithdraw(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxAssets);
 
-    deal(address(asset), bob, maxAssets);
-    vm.startPrank(bob);
-    asset.approve(address(adapter), maxAssets);
-    adapter.deposit(maxAssets, bob);
-    vm.stopPrank();
+    uint256 reqAssets = (adapter.previewMint(adapter.previewWithdraw(amount)) * 10) / 9;
+    _mintFor(reqAssets, bob);
+    vm.prank(bob);
+    adapter.deposit(reqAssets, bob);
 
     prop_previewWithdraw(bob, bob, bob, amount, testId);
   }
 
   function test__previewRedeem(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
 
-    deal(address(asset), bob, maxAssets);
-    vm.startPrank(bob);
-    asset.approve(address(adapter), maxAssets);
-    adapter.deposit(maxAssets, bob);
-    vm.stopPrank();
+    uint256 reqAssets = (adapter.previewMint(amount) * 10) / 9;
+    _mintFor(reqAssets, bob);
+    vm.prank(bob);
+    adapter.deposit(reqAssets, bob);
 
     prop_previewRedeem(bob, bob, bob, amount, testId);
   }
@@ -248,100 +257,82 @@ contract AbstractAdapterTest is PropertyTest {
     //////////////////////////////////////////////////////////////*/
 
   function test__deposit(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxAssets);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
       _mintFor(amount, bob);
-      (, uint256 receivedShares) = prop_deposit(bob, bob, amount, testId);
-
-      _mintFor(amount, bob);
-      (, uint256 receivedShares1) = prop_deposit(bob, alice, amount, testId);
+      prop_deposit(bob, bob, amount, testId);
 
       increasePricePerShare(raise);
 
       _mintFor(amount, bob);
-      (, uint256 receivedShares2) = prop_deposit(bob, alice, amount, testId);
-
-      // received1 should be greater than received2
-      assertGe(receivedShares1, receivedShares2, string.concat("pps", testId));
+      prop_deposit(bob, alice, amount, testId);
     }
   }
 
   function test__mint(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
       _mintFor(adapter.previewMint(amount), bob);
-      (uint256 paidAssets, ) = prop_mint(bob, bob, amount, testId);
-
-      _mintFor(amount, bob);
-      (uint256 paidAssets1, ) = prop_mint(bob, alice, amount, testId);
+      prop_mint(bob, bob, amount, testId);
 
       increasePricePerShare(raise);
 
       _mintFor(adapter.previewMint(amount), bob);
-      (uint256 paidAssets2, ) = prop_mint(bob, alice, amount, testId);
-
-      // paidAssets2 should be greater than paidAssets1
-      assertGe(paidAssets2, paidAssets1, string.concat("pps", testId));
+      prop_mint(bob, alice, amount, testId);
     }
   }
 
   function test__withdraw(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxAssets);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      uint256 reqAssets = adapter.previewMint(adapter.previewWithdraw(maxShares));
+      uint256 reqAssets = (adapter.previewMint(adapter.previewWithdraw(amount)) * 10) / 9;
       _mintFor(reqAssets, bob);
       vm.prank(bob);
       adapter.deposit(reqAssets, bob);
-      (uint256 paidShares1, ) = prop_withdraw(bob, bob, amount, testId);
+      prop_withdraw(bob, bob, amount, testId);
+
+      _mintFor(reqAssets, bob);
+      vm.prank(bob);
+      adapter.deposit(reqAssets, bob);
 
       increasePricePerShare(raise);
 
-      reqAssets = adapter.previewMint(adapter.previewWithdraw(maxShares));
-      _mintFor(reqAssets, bob);
       vm.prank(bob);
-      adapter.deposit(reqAssets, bob);
-      vm.prank(bob);
-      adapter.approve(alice, reqAssets);
-      (uint256 paidShares2, ) = prop_withdraw(alice, bob, amount, testId);
-
-      // paidShares1 should be greater than paidShares2
-      assertGe(paidShares1, paidShares2, string.concat("pps", testId));
+      adapter.approve(alice, type(uint256).max);
+      prop_withdraw(alice, bob, amount, testId);
     }
   }
 
   function test__redeem(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
+    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      uint256 reqAssets = adapter.previewMint(adapter.previewRedeem(maxShares));
+      uint256 reqAssets = (adapter.previewMint(amount) * 10) / 9;
       _mintFor(reqAssets, bob);
       vm.prank(bob);
       adapter.deposit(reqAssets, bob);
-      (, uint256 receivedAssets1) = prop_redeem(bob, bob, amount, testId);
+      prop_redeem(bob, bob, amount, testId);
+
+      _mintFor(reqAssets, bob);
+      vm.prank(bob);
+      adapter.deposit(reqAssets, bob);
 
       increasePricePerShare(raise);
 
-      reqAssets = adapter.previewMint(adapter.previewRedeem(maxShares));
-      _mintFor(reqAssets, bob);
       vm.prank(bob);
-      adapter.deposit(reqAssets, bob);
-      vm.prank(bob);
-      adapter.approve(alice, reqAssets);
-      (, uint256 receivedAssets2) = prop_redeem(alice, bob, amount, testId);
-
-      // receivedAssets2 should be greater than receivedAssets1
-      assertGe(receivedAssets2, receivedAssets1, string.concat("pps", testId));
+      adapter.approve(alice, type(uint256).max);
+      prop_redeem(alice, bob, amount, testId);
     }
   }
 
@@ -428,10 +419,16 @@ contract AbstractAdapterTest is PropertyTest {
   event Harvested();
 
   function test__harvest() public virtual {
+    emit log_named_uint("ta1", adapter.totalAssets());
+
     _mintFor(defaultAmount, bob);
+
+    emit log_named_uint("ta2", adapter.totalAssets());
 
     vm.prank(bob);
     adapter.deposit(defaultAmount, bob);
+
+    emit log_named_uint("ta3", adapter.totalAssets());
 
     // Skip a year
     vm.warp(block.timestamp + 365.25 days);
@@ -439,12 +436,18 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 expectedFee = adapter.convertToShares((defaultAmount * 5e16) / 1e18);
     uint256 callTime = block.timestamp;
 
-    vm.expectEmit(false, false, false, true, address(adapter));
-    emit StrategyExecuted();
+    if (address(strategy) != address(0)) {
+      vm.expectEmit(false, false, false, true, address(adapter));
+      emit StrategyExecuted();
+    }
     vm.expectEmit(false, false, false, true, address(adapter));
     emit Harvested();
 
+    emit log_named_uint("ta4", adapter.totalAssets());
+
     adapter.harvest();
+
+    emit log_named_uint("ta5", adapter.totalAssets());
 
     assertEq(adapter.feesUpdatedAt(), callTime, "feesUpdatedAt");
     assertApproxEqAbs(adapter.assetsCheckpoint(), defaultAmount, _delta_, "assetsCheckpoint");

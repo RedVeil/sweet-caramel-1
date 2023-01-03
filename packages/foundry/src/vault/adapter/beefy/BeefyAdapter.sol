@@ -60,7 +60,7 @@ interface IBeefyBalanceCheck {
  *
  * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
  */
-contract BeefyERC4626 is AdapterBase, WithRewards {
+contract BeefyAdapter is AdapterBase, WithRewards {
   using SafeERC20 for IERC20;
   using Math for uint256;
 
@@ -86,7 +86,11 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
      @notice Initializes the Vault.
      @param beefyInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
     */
-  function initialize(bytes memory adapterInitData, address externalRegistry, bytes memory beefyInitData) public {
+  function initialize(
+    bytes memory adapterInitData,
+    address externalRegistry,
+    bytes memory beefyInitData
+  ) public {
     (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
       beefyInitData,
       (address, address, uint256)
@@ -134,7 +138,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
         : beefyBalanceCheck.balanceOf(address(this)).mulDiv(
           beefyVault.balance(),
           beefyVault.totalSupply(),
-          Math.Rounding.Up
+          Math.Rounding.Down
         );
   }
 
@@ -155,8 +159,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
                      DEPOSIT/WITHDRAWAL LIMIT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  /** @dev See {IERC4262-previewWithdraw}. */
-  function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+  function previewWithdraw(uint256 assets) public view override returns (uint256) {
     uint256 beefyFee = beefyWithdrawalFee == 0
       ? 0
       : assets.mulDiv(beefyWithdrawalFee, BPS_DENOMINATOR, Math.Rounding.Up);
@@ -164,8 +167,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
     return _convertToShares(assets - beefyFee, Math.Rounding.Up);
   }
 
-  /** @dev See {IERC4262-previewRedeem}. */
-  function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+  function previewRedeem(uint256 shares) public view override returns (uint256) {
     uint256 assets = _convertToAssets(shares, Math.Rounding.Down);
 
     return

@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyERC4626, SafeERC20, IERC20, IERC20Metadata, Math, IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "../../../../src/vault/adapter/beefy/BeefyERC4626.sol";
+import { BeefyAdapter, SafeERC20, IERC20, IERC20Metadata, Math, IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "../../../../src/vault/adapter/beefy/BeefyAdapter.sol";
 import { BeefyTestConfigStorage, BeefyTestConfig } from "./BeefyTestConfigStorage.sol";
 import { AbstractAdapterTest, ITestConfigStorage, IAdapter } from "../abstract/AbstractAdapterTest.sol";
 
@@ -39,14 +39,14 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     beefyBooster = IBeefyBooster(_beefyBooster);
     beefyBalanceCheck = IBeefyBalanceCheck(_beefyBooster == address(0) ? _beefyVault : _beefyBooster);
 
-    setUpBaseTest(IERC20(IBeefyVault(beefyVault).want()), adapter, 10, "Beefy ");
+    setUpBaseTest(IERC20(IBeefyVault(beefyVault).want()), adapter, address(0), 10, "Beefy ", true);
 
     vm.label(_beefyVault, "beefyVault");
     vm.label(_beefyBooster, "beefyBooster");
     vm.label(address(asset), "asset");
     vm.label(address(this), "test");
 
-    adapter.initialize(abi.encode(asset, address(this), strategy, 0, sigs, ""), address(0), testConfig);
+    adapter.initialize(abi.encode(asset, address(this), strategy, 0, sigs, ""), externalRegistry, testConfig);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -54,11 +54,11 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     //////////////////////////////////////////////////////////////*/
 
   function createAdapter() public override {
-    adapter = IAdapter(address(new BeefyERC4626()));
+    adapter = IAdapter(address(new BeefyAdapter()));
   }
 
   function increasePricePerShare(uint256 amount) public override {
-    deal(address(asset), address(beefyVault), amount);
+    deal(address(asset), address(beefyVault), asset.balanceOf(address(beefyVault)) + amount);
     beefyVault.earn();
   }
 
@@ -82,7 +82,7 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     );
     assertEq(
       adapter.totalAssets(),
-      iouBalance().mulDiv(beefyVault.balance(), beefyVault.totalSupply(), Math.Rounding.Up),
+      iouBalance().mulDiv(beefyVault.balance(), beefyVault.totalSupply(), Math.Rounding.Down),
       string.concat("totalAssets != beefy assets", baseTestId)
     );
   }
@@ -113,7 +113,7 @@ contract BeefyAdapterTest is AbstractAdapterTest {
       (address, address, uint256)
     );
 
-    vm.expectRevert(abi.encodeWithSelector(BeefyERC4626.InvalidBeefyWithdrawalFee.selector, 51));
+    vm.expectRevert(abi.encodeWithSelector(BeefyAdapter.InvalidBeefyWithdrawalFee.selector, 51));
     adapter.initialize(
       abi.encode(asset, address(this), strategy, 0, sigs, ""),
       address(0),
@@ -123,7 +123,7 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     // Using Retired USD+-MATIC vLP vault on polygon
     vm.expectRevert(
       abi.encodeWithSelector(
-        BeefyERC4626.InvalidBeefyVault.selector,
+        BeefyAdapter.InvalidBeefyVault.selector,
         address(0x3af3563Ba5C68EB7DCbAdd2dF0FcE4CC9818e75c)
       )
     );
@@ -136,7 +136,7 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     // Using stMATIC-MATIC vault Booster on polygon
     vm.expectRevert(
       abi.encodeWithSelector(
-        BeefyERC4626.InvalidBeefyBooster.selector,
+        BeefyAdapter.InvalidBeefyBooster.selector,
         address(0xBb77dDe3101B8f9B71755ABe2F69b64e79AE4A41)
       )
     );

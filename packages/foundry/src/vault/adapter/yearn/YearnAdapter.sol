@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.12;
 
-import { AdapterBase, IERC20, IERC20Metadata, ERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
+import { AdapterBase, ERC4626Upgradeable as ERC4626, IERC20, IERC20Metadata, ERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
 
 interface VaultAPI is IERC20 {
   function deposit(uint256 amount) external returns (uint256);
@@ -12,14 +12,26 @@ interface VaultAPI is IERC20 {
 
   function totalAssets() external view returns (uint256);
 
+  function totalSupply() external view returns (uint256);
+
   function depositLimit() external view returns (uint256);
+
+  function token() external view returns (address);
+
+  function lastReport() external view returns (uint256);
+
+  function lockedProfit() external view returns (uint256);
+
+  function lockedProfitDegradation() external view returns (uint256);
+
+  function totalDebt() external view returns (uint256);
 }
 
 interface IYearnRegistry {
   function latestVault(address token) external view returns (address);
 }
 
-contract YearnWrapper is AdapterBase {
+contract YearnAdapter is AdapterBase {
   using SafeERC20 for IERC20;
   using Math for uint256;
 
@@ -31,8 +43,13 @@ contract YearnWrapper is AdapterBase {
   string internal _symbol;
 
   VaultAPI public yVault;
+  uint256 constant DEGRADATION_COEFFICIENT = 10**18;
 
-  function initialize(bytes memory adapterInitData, address externalRegistry, bytes memory) external {
+  function initialize(
+    bytes memory adapterInitData,
+    address externalRegistry,
+    bytes memory
+  ) external {
     (address _asset, , , , , ) = abi.decode(adapterInitData, (address, address, address, uint256, bytes4[8], bytes));
     __AdapterBase_init(adapterInitData);
 
@@ -57,41 +74,45 @@ contract YearnWrapper is AdapterBase {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view override returns (uint256) {
-    return yVault.balanceOf(address(this)).mulDiv(yVault.pricePerShare(), 10 ** decimals(), Math.Rounding.Down);
+    return paused() ? IERC20(asset()).balanceOf(address(this)) : _shareValue(yVault.balanceOf(address(this)));
   }
 
-  function convertToShares(uint256 assets) public view override returns (uint256) {
-    return assets.mulDiv(10 ** decimals(), yVault.pricePerShare(), Math.Rounding.Down);
+  function _calculateLockedProfit() internal view returns (uint256) {
+    uint256 lockedFundsRatio = (block.timestamp - yVault.lastReport()) * yVault.lockedProfitDegradation();
+
+    if (lockedFundsRatio < DEGRADATION_COEFFICIENT) {
+      uint256 lockedProfit = yVault.lockedProfit();
+      return lockedProfit - ((lockedFundsRatio * lockedProfit) / DEGRADATION_COEFFICIENT);
+    } else {
+      return 0;
+    }
   }
 
-  function convertToAssets(uint256 shares) public view override returns (uint256) {
-    return shares.mulDiv(yVault.pricePerShare(), 10 ** decimals(), Math.Rounding.Down);
+  function _shareValue(uint256 shares) internal view returns (uint256) {
+    if (yVault.totalSupply() == 0) return shares;
+
+    return shares.mulDiv(_freeFunds(), yVault.totalSupply(), Math.Rounding.Down);
   }
 
-  function previewDeposit(uint256 assets) public view override returns (uint256) {
-    return convertToShares(assets).mulDiv(9999, 10_000, Math.Rounding.Down); // return less
+  function _totalAssets() internal view returns (uint256) {
+    return IERC20(asset()).balanceOf(address(yVault)) + yVault.totalDebt();
   }
 
-  function previewMint(uint256 shares) public view override returns (uint256) {
-    return
-      shares.mulDiv(yVault.pricePerShare(), 10 ** decimals(), Math.Rounding.Up).mulDiv(
-        9999,
-        10_000,
-        Math.Rounding.Down
-      ); // return less
+  function _freeFunds() internal view returns (uint256) {
+    return _totalAssets() - _calculateLockedProfit();
   }
 
-  function previewWithdraw(uint256 assets) public view override returns (uint256) {
-    return
-      assets.mulDiv(10 ** decimals(), yVault.pricePerShare(), Math.Rounding.Up).mulDiv(
-        10_000,
-        9999,
-        Math.Rounding.Down
-      ); // return more
+  function _sharesForAmount(uint256 amount) internal view returns (uint256) {
+    uint256 _freeFunds = _freeFunds();
+    if (_freeFunds > 0) {
+      return ((amount * yVault.totalSupply()) / _freeFunds);
+    } else {
+      return 0;
+    }
   }
 
-  function previewRedeem(uint256 shares) public view override returns (uint256) {
-    return convertToAssets(shares).mulDiv(10_000, 9999, Math.Rounding.Down); // return more
+  function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
+    return shares.mulDiv(yVault.balanceOf(address(this)), totalSupply(), Math.Rounding.Up);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -99,6 +120,8 @@ contract YearnWrapper is AdapterBase {
   //////////////////////////////////////////////////////////////*/
 
   function maxDeposit(address) public view override returns (uint256) {
+    if (paused()) return 0;
+
     VaultAPI _bestVault = yVault;
     uint256 _totalAssets = _bestVault.totalAssets();
     uint256 _depositLimit = _bestVault.depositLimit();
@@ -114,7 +137,7 @@ contract YearnWrapper is AdapterBase {
     yVault.deposit(amount);
   }
 
-  function _protocolWithdraw(uint256 amount, uint256) internal virtual override {
-    yVault.withdraw(amount);
+  function _protocolWithdraw(uint256 assets, uint256 shares) internal virtual override {
+    yVault.withdraw(convertToUnderlyingShares(assets, shares));
   }
 }
