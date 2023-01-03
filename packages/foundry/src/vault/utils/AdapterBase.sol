@@ -101,7 +101,12 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   /**
    * @dev Deposit/mint common workflow.
    */
-  function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
+  function _deposit(
+    address caller,
+    address receiver,
+    uint256 assets,
+    uint256 shares
+  ) internal virtual override {
     // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
     // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
     // calls the vault, which is assumed not malicious.
@@ -125,8 +130,6 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     // deposit into underlying protocol
   }
 
-  event log(string m, uint256 amount);
-
   /**
    * @dev Withdraw/redeem common workflow.
    */
@@ -137,17 +140,12 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     uint256 assets,
     uint256 shares
   ) internal virtual override {
-    emit log("ps", previewWithdraw(assets));
-    emit log("shares", shares);
     if (caller != owner) {
       _spendAllowance(owner, caller, shares);
     }
 
     if (!paused()) {
-      uint256 oldBal = IERC20(asset()).balanceOf(address(this));
       _protocolWithdraw(assets, shares);
-      uint256 newBal = IERC20(asset()).balanceOf(address(this));
-      assets = newBal - oldBal;
     }
 
     // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the

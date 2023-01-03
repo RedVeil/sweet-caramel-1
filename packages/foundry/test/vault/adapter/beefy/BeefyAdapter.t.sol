@@ -16,7 +16,10 @@ contract BeefyAdapterTest is AbstractAdapterTest {
 
   // TODO update this fork -- maybe via config
   function setUp() public {
-    uint256 forkId = vm.createSelectFork("https://polygon-mainnet.g.alchemy.com/v2/KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg");
+    uint256 forkId = vm.createSelectFork(
+      "https://polygon-mainnet.g.alchemy.com/v2/KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg",
+      36869759
+    );
     vm.selectFork(forkId);
 
     testConfigStorage = ITestConfigStorage(address(new BeefyTestConfigStorage()));
@@ -102,5 +105,45 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     );
 
     assertEq(asset.allowance(address(adapter), address(beefyVault)), type(uint256).max, "allowance");
+
+    // Test Beefy Config Boundaries
+    createAdapter();
+    (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
+      testConfigStorage.getTestConfig(0),
+      (address, address, uint256)
+    );
+
+    vm.expectRevert(abi.encodeWithSelector(BeefyERC4626.InvalidBeefyWithdrawalFee.selector, 51));
+    adapter.initialize(
+      abi.encode(asset, address(this), strategy, 0, sigs, ""),
+      address(0),
+      abi.encode(_beefyVault, _beefyBooster, uint256(51))
+    );
+
+    // Using Retired USD+-MATIC vLP vault on polygon
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        BeefyERC4626.InvalidBeefyVault.selector,
+        address(0x3af3563Ba5C68EB7DCbAdd2dF0FcE4CC9818e75c)
+      )
+    );
+    adapter.initialize(
+      abi.encode(asset, address(this), strategy, 0, sigs, ""),
+      address(0),
+      abi.encode(address(0x3af3563Ba5C68EB7DCbAdd2dF0FcE4CC9818e75c), _beefyBooster, _beefyWithdrawalFee)
+    );
+
+    // Using stMATIC-MATIC vault Booster on polygon
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        BeefyERC4626.InvalidBeefyBooster.selector,
+        address(0xBb77dDe3101B8f9B71755ABe2F69b64e79AE4A41)
+      )
+    );
+    adapter.initialize(
+      abi.encode(asset, address(this), strategy, 0, sigs, ""),
+      address(0),
+      abi.encode(_beefyVault, address(0xBb77dDe3101B8f9B71755ABe2F69b64e79AE4A41), _beefyWithdrawalFee)
+    );
   }
 }

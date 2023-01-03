@@ -35,7 +35,12 @@ contract AbstractAdapterTest is PropertyTest {
 
   bytes4[8] sigs;
 
-  function setUpBaseTest(IERC20 asset_, IAdapter adapter_, uint256 delta_, string memory baseTestId_) public {
+  function setUpBaseTest(
+    IERC20 asset_,
+    IAdapter adapter_,
+    uint256 delta_,
+    string memory baseTestId_
+  ) public {
     // Setup PropertyTest
     _asset_ = address(asset_);
     _vault_ = address(adapter_);
@@ -44,7 +49,7 @@ contract AbstractAdapterTest is PropertyTest {
     asset = asset_;
     adapter = adapter_;
 
-    defaultAmount = 10 ** IERC20Metadata(address(adapter)).decimals();
+    defaultAmount = 10**IERC20Metadata(address(adapter)).decimals();
 
     raise = defaultAmount * 10_000;
     maxAssets = defaultAmount * 1000;
@@ -199,8 +204,8 @@ contract AbstractAdapterTest is PropertyTest {
   /*//////////////////////////////////////////////////////////////
                           PREVIEW VIEWS
     //////////////////////////////////////////////////////////////*/
-  function test__previewDeposit(uint256 amount) public virtual {
-    amount = bound(amount, 10, maxAssets);
+  function test__previewDeposit(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
 
     deal(address(asset), bob, maxAssets);
     vm.prank(bob);
@@ -209,8 +214,8 @@ contract AbstractAdapterTest is PropertyTest {
     prop_previewDeposit(bob, bob, amount, testId);
   }
 
-  function test__previewMint(uint256 amount) public virtual {
-    amount = bound(amount, 10, maxShares);
+  function test__previewMint(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
 
     deal(address(asset), bob, maxAssets);
     vm.prank(bob);
@@ -219,8 +224,8 @@ contract AbstractAdapterTest is PropertyTest {
     prop_previewMint(bob, bob, amount, testId);
   }
 
-  function test__previewWithdraw(uint256 amount) public virtual {
-    amount = bound(amount, 10, maxAssets);
+  function test__previewWithdraw(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
 
     deal(address(asset), bob, maxAssets);
     vm.startPrank(bob);
@@ -231,8 +236,8 @@ contract AbstractAdapterTest is PropertyTest {
     prop_previewWithdraw(bob, bob, bob, amount, testId);
   }
 
-  function test__previewRedeem(uint256 amount) public virtual {
-    amount = bound(amount, 10, maxShares);
+  function test__previewRedeem(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
 
     deal(address(asset), bob, maxAssets);
     vm.startPrank(bob);
@@ -247,15 +252,17 @@ contract AbstractAdapterTest is PropertyTest {
                     DEPOSIT/MINT/WITHDRAW/REDEEM
     //////////////////////////////////////////////////////////////*/
 
-  function test__deposit(uint256 amount) public virtual {
+  function test__deposit(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      amount = bound(amount, defaultAmount, maxAssets);
+      _mintFor(amount, bob);
+      (, uint256 receivedShares) = prop_deposit(bob, bob, amount, testId);
 
       _mintFor(amount, bob);
-      (, uint256 receivedShares1) = prop_deposit(bob, bob, amount, testId);
+      (, uint256 receivedShares1) = prop_deposit(bob, alice, amount, testId);
 
       increasePricePerShare(raise);
 
@@ -267,15 +274,17 @@ contract AbstractAdapterTest is PropertyTest {
     }
   }
 
-  function test__mint(uint256 amount) public virtual {
+  function test__mint(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      amount = bound(amount, defaultAmount, maxShares);
-
       _mintFor(adapter.previewMint(amount), bob);
-      (uint256 paidAssets1, ) = prop_mint(bob, bob, amount, testId);
+      (uint256 paidAssets, ) = prop_mint(bob, bob, amount, testId);
+
+      _mintFor(amount, bob);
+      (uint256 paidAssets1, ) = prop_mint(bob, alice, amount, testId);
 
       increasePricePerShare(raise);
 
@@ -287,47 +296,38 @@ contract AbstractAdapterTest is PropertyTest {
     }
   }
 
-  function test__withdraw(uint256 amount) public virtual {
+  function test__withdraw(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      amount = bound(amount, defaultAmount, maxAssets);
-
-      _mintFor(maxAssets, bob);
+      uint256 reqAssets = adapter.previewMint(adapter.previewWithdraw(maxShares));
+      _mintFor(reqAssets, bob);
       vm.prank(bob);
-      adapter.deposit(maxAssets, bob);
-
+      adapter.deposit(reqAssets, bob);
       (uint256 paidShares1, ) = prop_withdraw(bob, bob, amount, testId);
-      emit log_named_uint("total assets1", adapter.totalAssets());
 
-      // TODO pricePerShare doesnt seem to work correctly
       increasePricePerShare(raise);
-      emit log_named_uint("total assets2", adapter.totalAssets());
 
-      _mintFor(maxAssets, bob);
-
-      vm.startPrank(bob);
-      adapter.deposit(maxAssets, bob);
-      //vm.prank(bob);
-      adapter.approve(alice, adapter.previewWithdraw(amount));
-      vm.stopPrank();
-      emit log_named_uint("preview", adapter.previewWithdraw(amount));
-      emit log_named_uint("allowance", adapter.allowance(alice, bob));
-
+      reqAssets = adapter.previewMint(adapter.previewWithdraw(maxShares));
+      _mintFor(reqAssets, bob);
+      vm.prank(bob);
+      adapter.deposit(reqAssets, bob);
+      vm.prank(bob);
+      adapter.approve(alice, reqAssets);
       (uint256 paidShares2, ) = prop_withdraw(alice, bob, amount, testId);
 
       // paidShares1 should be greater than paidShares2
-      assertGe(paidShares2, paidShares1, string.concat("pps", testId));
+      assertGe(paidShares1, paidShares2, string.concat("pps", testId));
     }
   }
 
-  function test__redeem(uint256 amount) public virtual {
+  function test__redeem(uint8 fuzzAmount) public virtual {
+    uint256 amount = bound(uint256(fuzzAmount), 10, 10 ether);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
-
-      amount = bound(amount, defaultAmount, maxShares);
 
       uint256 reqAssets = adapter.previewMint(adapter.previewRedeem(maxShares));
       _mintFor(reqAssets, bob);
@@ -341,6 +341,8 @@ contract AbstractAdapterTest is PropertyTest {
       _mintFor(reqAssets, bob);
       vm.prank(bob);
       adapter.deposit(reqAssets, bob);
+      vm.prank(bob);
+      adapter.approve(alice, reqAssets);
       (, uint256 receivedAssets2) = prop_redeem(alice, bob, amount, testId);
 
       // receivedAssets2 should be greater than receivedAssets1

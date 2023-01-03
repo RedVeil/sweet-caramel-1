@@ -14,12 +14,12 @@ contract BeefyTestConfigStorage is ITestConfigStorage {
 
   constructor() {
     //  Polygon - stMATIC-MATIC vault
-    // testConfigs.push(
-    //   BeefyTestConfig(0xF79BF908d0e6d8E7054375CD80dD33424B1980bf, 0x69C28193185CFcd42D62690Db3767915872bC5EA, 0)
-    // );
+    testConfigs.push(
+      BeefyTestConfig(0xF79BF908d0e6d8E7054375CD80dD33424B1980bf, 0x69C28193185CFcd42D62690Db3767915872bC5EA, 0)
+    );
 
     // Polygon - MAI-FRAX sLP vault
-    //testConfigs.push(BeefyTestConfig(0xbC94bDb5393CBABF9B319E892abC95B93B5949A8, address(0), 0));
+    testConfigs.push(BeefyTestConfig(0xbC94bDb5393CBABF9B319E892abC95B93B5949A8, address(0), 0));
 
     testConfigs.push(BeefyTestConfig(0xc10C75247f503cc7B7496D72a6F3C443adDB7110, address(0), 0));
   }

@@ -86,7 +86,11 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
      @notice Initializes the Vault.
      @param beefyInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
     */
-  function initialize(bytes memory adapterInitData, address externalRegistry, bytes memory beefyInitData) public {
+  function initialize(
+    bytes memory adapterInitData,
+    address externalRegistry,
+    bytes memory beefyInitData
+  ) public {
     (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
       beefyInitData,
       (address, address, uint256)
@@ -94,10 +98,10 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
     __AdapterBase_init(adapterInitData);
 
     // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
-    //if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
-    // if (IBeefyVault(_beefyVault).want() != asset()) revert InvalidBeefyVault(_beefyVault);
-    // if (_beefyBooster != address(0) && IBeefyBooster(_beefyBooster).stakedToken() != _beefyVault)
-    //   revert InvalidBeefyBooster(_beefyBooster);
+    if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
+    if (IBeefyVault(_beefyVault).want() != asset()) revert InvalidBeefyVault(_beefyVault);
+    if (_beefyBooster != address(0) && IBeefyBooster(_beefyBooster).stakedToken() != _beefyVault)
+      revert InvalidBeefyBooster(_beefyBooster);
 
     _name = string.concat("Popcorn Beefy", IERC20Metadata(asset()).name(), " Adapter");
     _symbol = string.concat("popB-", IERC20Metadata(asset()).symbol());
@@ -182,7 +186,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
   }
 
   function _protocolWithdraw(uint256, uint256 shares) internal virtual override {
-    uint256 beefyShares = convertToUnderlyingShares(0, shares); //amount.mulDiv(1e18, beefyVault.getPricePerFullShare(), Math.Rounding.Down); // TODO divide by beefyVault decimals
+    uint256 beefyShares = convertToUnderlyingShares(0, shares);
     if (address(beefyBooster) != address(0)) beefyBooster.withdraw(beefyShares);
     beefyVault.withdraw(beefyShares);
   }
