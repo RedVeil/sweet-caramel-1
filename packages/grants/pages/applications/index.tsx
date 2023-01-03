@@ -19,6 +19,8 @@ enum ApplicationStatus {
   ChallengePeriod = "Challenge Period",
   Completed = "Completed",
 }
+const CHALLENGE_PERIOD_DAYS = 2 * 86400 * 1000;
+
 const BeneficiaryApplications = () => {
   const applicationTypes = [
     {
@@ -74,8 +76,11 @@ const BeneficiaryApplications = () => {
     const filteringProposals = proposals
       ?.filter((proposal: Proposal) => {
         const proposalStatus = proposal?.status;
-        if (new Date(proposal?.stageDeadline).getTime() < Date.now()) {
-          return statusFilter.status.includes(proposalStatus + 1);
+        if (new Date(proposal?.stageDeadline).getTime() < Date.now() && proposalStatus == ProposalStatus.New) {
+          if (new Date(proposal?.stageDeadline).getTime() + CHALLENGE_PERIOD_DAYS > Date.now()) {
+            return statusFilter.status.includes(ProposalStatus.ChallengePeriod);
+          }
+          return statusFilter.status.includes(ProposalStatus.PendingFinalization);
         }
         return statusFilter.status.includes(proposalStatus);
       })
@@ -123,10 +128,10 @@ const BeneficiaryApplications = () => {
                 {applicationTypes.map((type) => (
                   <Button
                     key={type.label}
-                    variant={type.status === statusFilter.status ? "primary" : "secondary"}
+                    variant={type.label === statusFilter.label ? "primary" : "secondary"}
                     onClick={() => setStatusFilter(type)}
                     className={`flex-shrink-0 ${
-                      type.status === statusFilter.status
+                      type.label === statusFilter.label
                         ? "!border-0 !bg-[#827D69] !text-white"
                         : "!border-[#E5E7EB] text-[#55503D] !font-normal"
                     }`}
@@ -158,13 +163,13 @@ const BeneficiaryApplications = () => {
             {applicationTypes.map((type) => (
               <div className="col-span-3" key={type.label}>
                 <Button
-                  variant={type.status === statusFilter.status ? "primary !bg-[#827D69]" : "secondary"}
+                  variant={type.label === statusFilter.label ? "primary !bg-[#827D69]" : "secondary"}
                   onClick={() => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
                   className={`!border-[#E5E7EB] !text-sm w-full ${
-                    type.status === statusFilter.status ? "!border-0 !bg-[#827D69] !text-white" : ""
+                    type.label === statusFilter.label ? "!border-0 !bg-[#827D69] !text-white" : ""
                   }`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
