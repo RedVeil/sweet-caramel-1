@@ -45,8 +45,12 @@ contract VaultUnitTest is Test {
   event Paused(address account);
   event Unpaused(address account);
 
-  function _setFees(uint256 depositFee, uint256 withdrawalFee, uint256 managementFee, uint256 performanceFee) internal {
-    vm.prank(ACL_ADMIN);
+  function _setFees(
+    uint256 depositFee,
+    uint256 withdrawalFee,
+    uint256 managementFee,
+    uint256 performanceFee
+  ) internal {
     vault.proposeFees(
       FeeStructure({
         deposit: depositFee,
@@ -82,13 +86,12 @@ contract VaultUnitTest is Test {
       IERC4626(address(adapter)),
       FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
-      IKeeperIncentiveV2(KEEPER_INCENTIVE),
-      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1, keeperPayout: 9 }),
+      IKeeperIncentiveV2(keeperIncentive),
+      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1e15, keeperPayout: 9 }),
       address(this)
     );
 
     vm.startPrank(ACL_ADMIN);
-    IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), ACL_ADMIN);
 
     IContractRegistry(CONTRACT_REGISTRY).addContract(keccak256("FeeRecipient"), feeRecipient, keccak256("1"));
@@ -520,11 +523,8 @@ contract VaultUnitTest is Test {
     assertEq(underlying.balanceOf(alice), 1e18);
   }
 
-  function test_PreviewDepositMintTakesFeesIntoAccount(uint128 amount) public {
-    // Define lower bound for the test due to fees and underflow
-    if (amount == 0) amount = 1;
-    // Define upper bound for the test due to overflow
-    vm.assume(amount < 283568639100782052886145506193140176214);
+  function test_PreviewDepositMintTakesFeesIntoAccount(uint8 fuzzAmount) public {
+    uint256 amount = bound(uint256(fuzzAmount), 1, 1 ether);
 
     _setFees(1e17, 0, 0, 0);
 
@@ -541,11 +541,8 @@ contract VaultUnitTest is Test {
     assertApproxEqAbs(expectedShares, actualShares, 2);
   }
 
-  function test_PreviewWithdrawRedeemTakesFeesIntoAccount(uint128 amount) public {
-    // Define lower bound for the test due to fees and underflow
-    if (amount == 0) amount = 1;
-    // Define upper bound for the test due to overflow
-    vm.assume(amount < 216554372251204060390530395229862551237);
+  function test_PreviewWithdrawRedeemTakesFeesIntoAccount(uint8 fuzzAmount) public {
+    uint256 amount = bound(uint256(fuzzAmount), 1, 1 ether);
 
     _setFees(0, 1e17, 0, 0);
 
@@ -658,7 +655,6 @@ contract VaultUnitTest is Test {
 
     uint256 accruedFeesAfter = vault.balanceOf(address(vault));
 
-    vm.prank(ACL_ADMIN);
     vault.withdrawAccruedFees();
 
     uint256 keeperBalAfter = vault.balanceOf(address(keeperIncentive));
@@ -692,7 +688,6 @@ contract VaultUnitTest is Test {
     vm.expectEmit(false, false, false, true, address(vault));
     emit NewAdapterProposed(IERC4626(address(newAdapter)), callTime);
 
-    vm.prank(ACL_ADMIN);
     vault.proposeAdapter(IERC4626(address(newAdapter)));
 
     assertEq(vault.proposalTimeStamp(), callTime);
@@ -708,7 +703,6 @@ contract VaultUnitTest is Test {
   function testFail_changeAdapterRespectRageQuit() public {
     MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
 
-    vm.startPrank(ACL_ADMIN);
     vault.proposeAdapter(IERC4626(address(newAdapter)));
 
     // Didnt respect 3 days before propsal and change
@@ -733,7 +727,6 @@ contract VaultUnitTest is Test {
     uint256 oldAssetCheckpoint = vault.assetsCheckpoint();
 
     // Preparation to change the adapter
-    vm.prank(ACL_ADMIN);
     vault.proposeAdapter(IERC4626(address(newAdapter)));
 
     vm.warp(block.timestamp + 3 days);
@@ -741,7 +734,6 @@ contract VaultUnitTest is Test {
     vm.expectEmit(false, false, false, true, address(vault));
     emit ChangedAdapter(IERC4626(address(adapter)), IERC4626(address(newAdapter)));
 
-    vm.prank(ACL_ADMIN);
     vault.changeAdapter();
 
     assertEq(underlying.allowance(address(vault), address(adapter)), 0);
@@ -811,11 +803,10 @@ contract VaultUnitTest is Test {
 
     vm.expectEmit(false, false, false, true, address(vault));
     emit KeeperConfigUpdated(
-      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1e17, keeperPayout: 9 }),
+      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1e15, keeperPayout: 9 }),
       newKeeperConfig
     );
 
-    vm.prank(ACL_ADMIN);
     vault.setKeeperConfig(newKeeperConfig);
 
     (uint256 minWithdrawalAmount, uint256 incentiveVigBps, uint256 keeperPayout) = vault.keeperConfig();
@@ -841,9 +832,8 @@ contract VaultUnitTest is Test {
     vm.stopPrank();
 
     vm.expectEmit(false, false, false, true, address(vault));
-    emit Paused(ACL_ADMIN);
+    emit Paused(address(this));
 
-    vm.prank(ACL_ADMIN);
     vault.pause();
 
     assertTrue(vault.paused());
@@ -865,7 +855,6 @@ contract VaultUnitTest is Test {
 
   // Unpause
   function testFail_unpauseNonVaultController() public {
-    vm.prank(ACL_ADMIN);
     vault.pause();
 
     vm.prank(alice);
@@ -880,13 +869,11 @@ contract VaultUnitTest is Test {
     vm.prank(alice);
     underlying.approve(address(vault), depositAmount * 2);
 
-    vm.prank(ACL_ADMIN);
     vault.pause();
 
     vm.expectEmit(false, false, false, true, address(vault));
-    emit Unpaused(ACL_ADMIN);
+    emit Unpaused(address(this));
 
-    vm.prank(ACL_ADMIN);
     vault.unpause();
 
     assertFalse(vault.paused());
