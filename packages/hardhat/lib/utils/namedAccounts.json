@@ -22,7 +22,7 @@
     },
     "metadata": {
       "name": "Staked Xen",
-      "symbol": "st-Xen",
+      "symbol": "stXen",
       "icons": ["/images/tokens/xen.png", "/images/icons/POP.svg"],
       "priceResolver": "staking",
       "apyResolver": "synthetix",
@@ -71,7 +71,8 @@
       "name": "Butter (V2)",
       "icons": ["/images/icons/BTR.svg"],
       "priceResolver": "set_token",
-      "apyResolver": "set_token"
+      "apyResolver": "set_token",
+      "symbol": "BTR"
     }
   },
   "butterBatch": {
@@ -105,7 +106,7 @@
     "metadata": {
       "contractName": "ButterStaking",
       "priceResolver": "staking",
-      "symbol": "st-BTR",
+      "symbol": "stBTR",
       "name": "Staked BTR",
       "icons": ["/images/icons/BTR.svg"],
       "isERC20": false,
@@ -508,7 +509,7 @@
       "priceResolver": "staking",
       "apyResolver": "synthetix",
       "isERC20": false,
-      "symbol": "st-RAKIS-15",
+      "symbol": "stRAKIS-15",
       "name": "Staked Arrakis USDC/POP LP",
       "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "claimableTokenAdapter": {
@@ -554,7 +555,7 @@
     },
     "metadata": {
       "name": "USDC/POP LP",
-      "symbol": "st-LP",
+      "symbol": "stLP",
       "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "priceResolver": "staking",
       "apyResolver": "synthetix",
@@ -719,7 +720,8 @@
     "metadata": {
       "icons": ["/images/tokens/3X.svg"],
       "priceResolver": "set_token",
-      "apyResolver": "set_token"
+      "apyResolver": "set_token",
+      "symbol": "3X"
     }
   },
   "threeXBatch": {
@@ -753,7 +755,7 @@
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
       "name": "Staked 3X",
-      "symbol": "st-3X",
+      "symbol": "st3X",
       "icons": ["/images/tokens/3X.svg"],
       "isERC20": false,
       "apyResolver": "synthetix",
