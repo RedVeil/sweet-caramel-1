@@ -86,11 +86,7 @@ contract BeefyERC4626 is AdapterBase, WithRewards {
      @notice Initializes the Vault.
      @param beefyInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
     */
-  function initialize(
-    bytes memory adapterInitData,
-    address externalRegistry,
-    bytes memory beefyInitData
-  ) public {
+  function initialize(bytes memory adapterInitData, address externalRegistry, bytes memory beefyInitData) public {
     (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
       beefyInitData,
       (address, address, uint256)
