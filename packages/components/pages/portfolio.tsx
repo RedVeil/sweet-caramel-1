@@ -74,7 +74,7 @@ export const PortfolioPage: NextPage = () => {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  // const account = "0x6326c9F3934B090b82b2F92C44a1D981913e02CD"; // M
+  //const account = "0x86D8E71df8CF1d225b133422F1c750cd6ddb138c"; // M
   // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb" // L
   const { address: account } = useAccount();
 
@@ -192,7 +192,7 @@ export const PortfolioPage: NextPage = () => {
                         token={token}
                         balance={balance}
                         chainId={chainId}
-                        networth={totalBalance.pop}
+                        networth={networth}
                         price={price}
                         status={status}
                         callback={(value) => addToBalances(key, "pop", chainId, value)}
@@ -219,7 +219,7 @@ export const PortfolioPage: NextPage = () => {
               <PortfolioClaimableBalance
                 key={`rewards-${key}`}
                 account={account}
-                networth={totalBalance.escrow}
+                networth={networth}
                 callback={(value) => addToBalances(key, "escrow", Number(token.chainId), value)}
                 token={token}
               />

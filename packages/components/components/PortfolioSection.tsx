@@ -39,9 +39,9 @@ function PortfolioSection({
   const distribution = getPercentage(networth, balance);
   return (
     <section className={`px-4 md:px-8 ${showSection || "hidden"}`}>
-      <div className={`mt-8 mb-2 md:hidden ${balanceGTZero || "hidden"}`}>{networkListComponent}</div>
+      <div className={`mt-8 mb-2 md:hidden`}>{networkListComponent}</div>
       <div className="overflow-x-auto">
-        <table className={`table w-full table-fixed border-separate border-spacing-y-4 ${balanceGTZero || "hidden"}`}>
+        <table className={`table w-full table-fixed border-separate border-spacing-y-4`}>
           <thead>
             <tr
               data-dev-note="relative - fixes sticky position issue by children tooltip"
@@ -51,26 +51,20 @@ function PortfolioSection({
               <th className="hidden lg:table-cell text-primary text-lg font-medium py-4 px-2">
                 <div className="flex items-center gap-2">
                   <p className="text-primaryLight text-sm md:text-base">Price</p>
-                  <InfoIconWithTooltip
-                    classExtras=""
-                    id="portfolio-price-tooltip"
-                    title="Price"
-                    content="The price of one token in USD."
-                  />
                 </div>
                 <div className="text-white">.</div>
               </th>
               <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
                 <div className="flex items-center gap-2">
-                  <p className="text-primaryLight text-sm md:text-base">Portfolio %</p>
+                  <p className="text-primaryLight text-sm md:text-base">Allocation</p>
                   <InfoIconWithTooltip
                     classExtras=""
                     id="portfolio-percentage-tooltip"
-                    title="Portfolio %"
-                    content="The size of your position in comparison to your total portfolio in Popcorn."
+                    title="Allocation"
+                    content="The percentage weight of your holding."
                   />
                 </div>
-                <div className="text-left text-sm md:text-lg">{distribution < 1 ? "<1" : distribution}%</div>
+                <div className="text-left text-sm md:text-lg">{distribution}%</div>
               </th>
               <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
                 <div className="flex items-center space-x-2">
@@ -79,7 +73,7 @@ function PortfolioSection({
                     classExtras=""
                     id="portfolio-balance-tooltip"
                     title="Balance"
-                    content="The value of your position in USD and in the amount of token."
+                    content="The value of your position in USD equivalent."
                   />
                 </div>
                 <div className="text-left text-sm md:text-lg">
@@ -91,7 +85,7 @@ function PortfolioSection({
           <tbody>{children}</tbody>
         </table>
       </div>
-      <div className={`mt-4 mb-8 ${balanceGTZero && "hidden"}`}>
+      <div className={`mb-8 ${balanceGTZero && "hidden"}`}>
         <NotAvailable title={`No ${title} available`} body={""} image="/images/emptyRecord.svg" />
       </div>
     </section>
