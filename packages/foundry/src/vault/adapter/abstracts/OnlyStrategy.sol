@@ -4,10 +4,10 @@
 pragma solidity ^0.8.15;
 
 contract OnlyStrategy {
-  error OnlyStrategy(address sender);
+  error NotStrategy(address sender);
 
   modifier onlyStrategy() {
-    if (msg.sender != address(this)) revert OnlyStrategy(msg.sender);
+    if (msg.sender != address(this)) revert NotStrategy(msg.sender);
     _;
   }
 }

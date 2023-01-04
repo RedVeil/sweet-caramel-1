@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.15;
 
-import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
+import { Clones } from "openzeppelin-contracts/proxy/Clones.sol";
 import { Owned } from "../utils/Owned.sol";
 import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
 

@@ -12,8 +12,8 @@ import { Vault, FeeStructure, IERC20Metadata, IERC20 } from "../../../../src/vau
 import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../../../../src/utils/KeeperIncentiveV2.sol";
 import { IContractRegistry } from "../../../../src/interfaces/IContractRegistry.sol";
 import { IACLRegistry } from "../../../../src/interfaces/IACLRegistry.sol";
-import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/MathUpgradeable.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
+import { Strings } from "openzeppelin-contracts/utils/Strings.sol";
 
 uint256 constant ETH_MAINNET = 1;
 uint256 constant POLYGON_MAINNET = 137;
@@ -185,14 +185,18 @@ contract AbstractVaultIntegrationTest is Test {
     uint256 pps1;
     uint256 pps2;
     uint256 len = Math.min(uint256(testConfigStorage.getTestConfigLength()), maxConfigs);
+    // solhint-disable
     for (uint256 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
+
+      // solhint-disable
       for (uint256 i; i < 3; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         deposit(amount);
         pps2 = vault.convertToAssets(defaultAmount);
         assertWithin(pps1, pps2, 1, string.concat(Strings.toString(i), "-deposit-", testId));
       }
+      // solhint-disable
       for (uint256 i; i < 2; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         vm.prank(bob);
@@ -207,6 +211,7 @@ contract AbstractVaultIntegrationTest is Test {
     uint256 amount = bound(uint256(fuzzAmount), defaultAmount, maxDeposit);
 
     uint256 len = Math.min(uint256(testConfigStorage.getTestConfigLength()), maxConfigs);
+    // solhint-disable
     for (uint256 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
@@ -235,15 +240,18 @@ contract AbstractVaultIntegrationTest is Test {
     uint256 pps1;
     uint256 pps2;
     uint256 len = Math.min(uint256(testConfigStorage.getTestConfigLength()), maxConfigs);
+    // solhint-disable
     for (uint256 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
+      // solhint-disable
       for (uint256 i; i < 3; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         mint(amount);
         pps2 = vault.convertToAssets(defaultAmount);
         assertWithin(pps1, pps2, 1, string.concat(Strings.toString(i), "-mint-", testId));
       }
+      // solhint-disable
       for (uint256 i; i < 2; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         vm.prank(bob);
@@ -258,6 +266,7 @@ contract AbstractVaultIntegrationTest is Test {
     uint256 amount = bound(uint256(fuzzAmount), defaultAmount, maxDeposit);
 
     uint256 len = Math.min(uint256(testConfigStorage.getTestConfigLength()), maxConfigs);
+    // solhint-disable
     for (uint256 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 

@@ -5,12 +5,12 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import "../src/utils/ACLRegistry.sol";
-import "../src/utils/ContractRegistry.sol";
-import "../src/utils/KeeperIncentiveV2.sol";
-import "./utils/mocks/KeeperIncentivizedHelper.sol";
-import "./utils/mocks/KeeperIncentiveHelper.sol";
-import "./utils/mocks/MockERC20.sol";
+import { ACLRegistry } from "../src/utils/ACLRegistry.sol";
+import { ContractRegistry } from "../src/utils/ContractRegistry.sol";
+import { KeeperIncentiveV2, IKeeperIncentiveV2, Incentive, Account, INCENTIVE_MANAGER_ROLE } from "../src/utils/KeeperIncentiveV2.sol";
+import { KeeperIncentivizedHelper } from "./utils/mocks/KeeperIncentivizedHelper.sol";
+import { KeeperIncentiveHelper } from "./utils/mocks/KeeperIncentiveHelper.sol";
+import { MockERC20 } from "./utils/mocks/MockERC20.sol";
 
 contract KeeperIncentiveTest is Test {
   // Contracts

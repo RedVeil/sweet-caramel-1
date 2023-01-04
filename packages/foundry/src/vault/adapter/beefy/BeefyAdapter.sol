@@ -90,7 +90,7 @@ contract BeefyAdapter is AdapterBase, WithRewards {
     */
   function initialize(
     bytes memory adapterInitData,
-    address externalRegistry,
+    address,
     bytes memory beefyInitData
   ) public {
     (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
@@ -152,9 +152,9 @@ contract BeefyAdapter is AdapterBase, WithRewards {
   }
 
   function rewardTokens() external view override returns (address[] memory) {
-    address[] memory rewardTokens = new address[](1);
-    rewardTokens[0] = beefyBooster.rewardToken();
-    return rewardTokens;
+    address[] memory _rewardTokens = new address[](1);
+    _rewardTokens[0] = beefyBooster.rewardToken();
+    return _rewardTokens;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ contract BeefyAdapter is AdapterBase, WithRewards {
                       EIP-165 LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function supportsInterface(bytes4 interfaceId) public view override(WithRewards, AdapterBase) returns (bool) {
+  function supportsInterface(bytes4 interfaceId) public pure override(WithRewards, AdapterBase) returns (bool) {
     return interfaceId == type(IWithRewards).interfaceId || interfaceId == type(IAdapter).interfaceId;
   }
 }

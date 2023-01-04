@@ -105,9 +105,9 @@ contract YearnAdapter is AdapterBase {
   }
 
   function _sharesForAmount(uint256 amount) internal view returns (uint256) {
-    uint256 _freeFunds = _freeFunds();
-    if (_freeFunds > 0) {
-      return ((amount * yVault.totalSupply()) / _freeFunds);
+    uint256 freeFunds = _freeFunds();
+    if (freeFunds > 0) {
+      return ((amount * yVault.totalSupply()) / freeFunds);
     } else {
       return 0;
     }
@@ -125,10 +125,10 @@ contract YearnAdapter is AdapterBase {
     if (paused()) return 0;
 
     VaultAPI _bestVault = yVault;
-    uint256 _totalAssets = _bestVault.totalAssets();
+    uint256 assets = _bestVault.totalAssets();
     uint256 _depositLimit = _bestVault.depositLimit();
-    if (_totalAssets >= _depositLimit) return 0;
-    return _depositLimit - _totalAssets;
+    if (assets >= _depositLimit) return 0;
+    return _depositLimit - assets;
   }
 
   /*//////////////////////////////////////////////////////////////

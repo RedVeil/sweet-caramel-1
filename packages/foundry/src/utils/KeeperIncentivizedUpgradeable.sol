@@ -4,7 +4,7 @@
 pragma solidity ^0.8.15;
 
 import { IKeeperIncentiveV2, KeeperConfig } from "../interfaces/IKeeperIncentiveV2.sol";
-import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
+import { Initializable } from "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  *  @notice Provides modifiers and internal functions for processing keeper incentives

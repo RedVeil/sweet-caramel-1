@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts/token/ERC20/IERC20.sol";
 
 interface IStaking {
   event RewardAdded(uint256 reward);
@@ -42,7 +42,11 @@ interface IStaking {
 
   function withdraw(uint256 amount) external;
 
-  function withdrawFor(uint256 amount, address owner, address receiver) external;
+  function withdrawFor(
+    uint256 amount,
+    address owner,
+    address receiver
+  ) external;
 
   function getReward() external;
 
