@@ -337,6 +337,54 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   /*//////////////////////////////////////////////////////////////
+                          ROUNDTRIP TESTS
+    //////////////////////////////////////////////////////////////*/
+
+  function test__RT_deposit_redeem() public virtual {
+    _mintFor(defaultAmount, bob);
+
+    vm.startPrank(bob);
+    uint256 shares = adapter.deposit(defaultAmount, bob);
+    uint256 assets = adapter.redeem(shares, bob, bob);
+    vm.stopPrank();
+
+    assertApproxLeAbs(assets, defaultAmount, _delta_, testId);
+  }
+
+  function test__RT_deposit_withdraw() public virtual {
+    _mintFor(defaultAmount, bob);
+
+    vm.startPrank(bob);
+    uint256 shares1 = adapter.deposit(defaultAmount, bob);
+    uint256 shares2 = adapter.withdraw(defaultAmount, bob, bob);
+    vm.stopPrank();
+
+    assertApproxGeAbs(shares2, shares1, _delta_, testId);
+  }
+
+  function test__RT_mint_withdraw() public virtual {
+    _mintFor(adapter.previewMint(defaultAmount), bob);
+
+    vm.startPrank(bob);
+    uint256 assets = adapter.mint(defaultAmount, bob);
+    uint256 shares = adapter.withdraw(assets, bob, bob);
+    vm.stopPrank();
+
+    assertApproxGeAbs(shares, defaultAmount, _delta_, testId);
+  }
+
+  function test__RT_mint_redeem() public virtual {
+    _mintFor(adapter.previewMint(defaultAmount), bob);
+
+    vm.startPrank(bob);
+    uint256 assets1 = adapter.mint(defaultAmount, bob);
+    uint256 assets2 = adapter.redeem(defaultAmount, bob, bob);
+    vm.stopPrank();
+
+    assertApproxGeAbs(assets2, assets1, _delta_, testId);
+  }
+
+  /*//////////////////////////////////////////////////////////////
                               PAUSE
     //////////////////////////////////////////////////////////////*/
 

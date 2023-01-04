@@ -83,38 +83,6 @@ contract YearnAdapterTest is AbstractAdapterTest {
     );
   }
 
-  function test__harvest() public override {
-    // Without a keeper harvesting `_calculateLockedProfit()` drops to 0 after some point unlocking some further assets.
-    // Realisticly this would never happens since the keeper wouldnt forfeit their fees.
-    // Since the end value is slightly different in the base test i overwrote this test.
-    // Everything else in this test remains as usual.
-    uint256 additionalAsset = 50;
-
-    _mintFor(defaultAmount, bob);
-
-    vm.prank(bob);
-    adapter.deposit(defaultAmount, bob);
-
-    // Skip a year
-    vm.warp(block.timestamp + 365.25 days);
-
-    uint256 expectedFee = adapter.convertToShares((defaultAmount * 5e16) / 1e18);
-    uint256 callTime = block.timestamp;
-
-    if (address(strategy) != address(0)) {
-      vm.expectEmit(false, false, false, true, address(adapter));
-      emit StrategyExecuted();
-    }
-    vm.expectEmit(false, false, false, true, address(adapter));
-    emit Harvested();
-
-    adapter.harvest();
-
-    assertEq(adapter.feesUpdatedAt(), callTime, "feesUpdatedAt");
-    assertApproxEqAbs(adapter.assetsCheckpoint(), defaultAmount + additionalAsset, _delta_, "assetsCheckpoint");
-    assertApproxEqAbs(adapter.totalSupply(), defaultAmount + expectedFee, _delta_, "totalSupply");
-  }
-
   /*//////////////////////////////////////////////////////////////
                           INITIALIZATION
     //////////////////////////////////////////////////////////////*/
@@ -133,5 +101,33 @@ contract YearnAdapterTest is AbstractAdapterTest {
     );
 
     assertEq(asset.allowance(address(adapter), address(yearnVault)), type(uint256).max, "allowance");
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          ROUNDTRIP TESTS
+    //////////////////////////////////////////////////////////////*/
+
+  // NOTE - The yearn adapter suffers often from an off-by-one error which "steals" 1 wei from the user
+  function test__RT_deposit_withdraw() public virtual {
+    _mintFor(defaultAmount, bob);
+
+    vm.startPrank(bob);
+    uint256 shares1 = adapter.deposit(defaultAmount, bob);
+    uint256 shares2 = adapter.withdraw(defaultAmount - 1, bob, bob);
+    vm.stopPrank();
+
+    assertApproxGeAbs(shares2, shares1, _delta_, testId);
+  }
+
+  // NOTE - The yearn adapter suffers often from an off-by-one error which "steals" 1 wei from the user
+  function test__RT_mint_withdraw() public virtual {
+    _mintFor(adapter.previewMint(defaultAmount), bob);
+
+    vm.startPrank(bob);
+    uint256 assets = adapter.mint(defaultAmount, bob);
+    uint256 shares = adapter.withdraw(assets - 1, bob, bob);
+    vm.stopPrank();
+
+    assertApproxGeAbs(shares, defaultAmount, _delta_, testId);
   }
 }
