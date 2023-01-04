@@ -1,12 +1,12 @@
-import { ArrowSmallUpIcon, ArrowLongUpIcon } from "@heroicons/react/24/solid";
-import HeroBgMobile from "../../public/images/portfolioHeroBgmobile.svg";
-import HeroBg from "../../public/images/portfolioHeroBg.svg";
-import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import NetworkFilter from "../../../greenfield-app/components/NetworkFilter";
-
 import Image from "next/image";
 import { BigNumber } from "ethers";
+
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import NetworkFilter from "greenfield-app/components/NetworkFilter";
+
 import { Tabs, TabsProps } from "../Tabs";
+import HeroBgMobile from "../../public/images/portfolioHeroBgmobile.svg";
+import HeroBg from "../../public/images/portfolioHeroBg.svg";
 
 export interface PortfolioHeroProps {
   selectedNetworks: ChainId[];
@@ -47,21 +47,8 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
       </div>
       <div>
         <div className="grid grid-cols-12 gap-4 md:gap-8 mt-8 md:mt-0">
-          <div className="col-span-5 md:col-span-3">
-            <div className="hidden">
-              <p className="leading-6 text-base md:mb-2 font-light md:font-normal">Weekly P&L</p>
-              <div className="md:rounded-lg md:bg-customLightGreen md:px-4 md:py-2 text-3xl md:text-base font-light md:font-medium text-customLightGreen md:text-white flex">
-                <p> +20%</p> <ArrowSmallUpIcon className="w-6 hidden md:inline" />{" "}
-                <ArrowLongUpIcon className="w-5 md:hidden" />{" "}
-              </div>
-            </div>
-          </div>
-          <div className="col-span-5 md:col-span-3">
-            <div className="hidden">
-              <p className="leading-6 text-base font-light md:font-normal">Deposits</p>
-              <p className="text-3xl font-light md:font-medium">$81K</p>
-            </div>
-          </div>
+          <div className="col-span-5 md:col-span-3" />
+          <div className="col-span-5 md:col-span-3" />
           <div className="col-span-5 md:col-span-3">
             <p className="leading-6 text-base font-light md:font-normal">Vesting</p>
             <div className="text-3xl font-light md:font-medium">${formatAndRoundBigNumber(vestingBalance, 18)}</div>

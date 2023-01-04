@@ -1,11 +1,13 @@
-import { useComponentState } from "../../lib/utils/hooks";
-import { Pop } from "../../lib/types";
-import useContractMetadata from "../../lib/Contract/hooks/useContractMetadata";
-import PortfolioItem from "./PortfolioItem";
-import { Price, Contract } from "../../lib/";
-import TokenIcon from "@popcorn/app/components/TokenIcon";
-import { useNetworth } from "../../context/Networth";
+import type { Pop } from "@popcorn/components/lib/types";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
+import TokenIcon from "@popcorn/app/components/TokenIcon";
+
+import PortfolioItem from "./PortfolioItem";
+import { useNetworth } from "../../context/Networth";
+import { useComponentState } from "../../lib/utils/hooks";
+import { Price, Contract } from "../../lib/";
+import useContractMetadata from "../../lib/Contract/hooks/useContractMetadata";
+
 interface ContractProps extends Pop.NamedAccountsMetadata {
   alias?: string;
   children?: React.ReactElement[];
