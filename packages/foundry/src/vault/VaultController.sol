@@ -5,8 +5,8 @@ pragma solidity ^0.8.15;
 import { Owned } from "../utils/Owned.sol";
 import { IKeeperIncentiveV2, KeeperConfig } from "../interfaces/IKeeperIncentiveV2.sol";
 import { IVault, VaultParams, FeeStructure } from "../interfaces/vault/IVault.sol";
-import { IMultiRewardsStaking } from "../interfaces/IMultiRewardsStaking.sol";
-import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
+import { IMultiRewardStaking } from "../interfaces/IMultiRewardStaking.sol";
+import { IMultiRewardEscrow } from "../interfaces/IMultiRewardEscrow.sol";
 import { IDeploymentController } from "../interfaces/vault/IDeploymentController.sol";
 import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
 import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
@@ -41,7 +41,7 @@ contract VaultController is Owned {
     IEndorsementRegistry _endorsementRegistry,
     IVaultRegistry _vaultRegistry,
     IKeeperIncentiveV2 _keeperIncentive,
-    IMultiRewardsEscrow _escrow
+    IMultiRewardEscrow _escrow
   )
     Owned(_owner) // can change
   //TODO which of these might we want to update?
@@ -53,7 +53,7 @@ contract VaultController is Owned {
     keeperIncentive = _keeperIncentive; // can/cant change ?
     escrow = _escrow; // cant change
 
-    latestTemplateKey[STAKING] = "MultiRewardsStaking";
+    latestTemplateKey[STAKING] = "MultiRewardStaking";
     latestTemplateKey[VAULT] = "V1";
   }
 
@@ -258,7 +258,7 @@ contract VaultController is Owned {
         DEPLOY_SIG,
         STAKING,
         latestTemplateKey[STAKING],
-        abi.encodeWithSelector(IMultiRewardsStaking.initialize.selector, asset, escrow, adminProxy)
+        abi.encodeWithSelector(IMultiRewardStaking.initialize.selector, asset, escrow, adminProxy)
       )
     );
 
@@ -389,7 +389,7 @@ contract VaultController is Owned {
       adminProxy.execute(
         staking,
         abi.encodeWithSelector(
-          IMultiRewardsStaking.addRewardsToken.selector,
+          IMultiRewardStaking.addRewardsToken.selector,
           rewardsToken,
           rewardsPerSecond,
           amount,
@@ -412,7 +412,7 @@ contract VaultController is Owned {
 
       adminProxy.execute(
         staking,
-        abi.encodeWithSelector(IMultiRewardsStaking.changeRewardSpeed.selector, rewardsTokenData[i])
+        abi.encodeWithSelector(IMultiRewardStaking.changeRewardSpeed.selector, rewardsTokenData[i])
       );
     }
   }
@@ -426,7 +426,7 @@ contract VaultController is Owned {
       staking = vaultsRegistry.vaults(vaults[i]).staking;
 
       (address rewardsToken, uint256 amount) = abi.decode(rewardsTokenData[i], (address, uint256));
-      IMultiRewardsStaking(staking).fundReward(IERC20(rewardsToken), amount);
+      IMultiRewardStaking(staking).fundReward(IERC20(rewardsToken), amount);
     }
   }
 
@@ -434,15 +434,15 @@ contract VaultController is Owned {
                           ESCROW MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IMultiRewardsEscrow public escrow;
+  IMultiRewardEscrow public escrow;
 
   function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
     _verifyEqualArrayLength(tokens.length, fees.length);
-    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardsEscrow.setFees.selector, tokens, fees));
+    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardEscrow.setFees.selector, tokens, fees));
   }
 
   function setEscrowKeeperPerc(uint256 keeperPerc) external onlyOwner {
-    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardsEscrow.setKeeperPerc.selector, keeperPerc));
+    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardEscrow.setKeeperPerc.selector, keeperPerc));
   }
 
   /*//////////////////////////////////////////////////////////////

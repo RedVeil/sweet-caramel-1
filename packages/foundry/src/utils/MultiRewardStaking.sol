@@ -8,9 +8,9 @@ import { ERC4626Upgradeable, ERC20Upgradeable, IERC20Upgradeable as IERC20, IERC
 import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
 import { OwnedUpgradeable } from "./OwnedUpgradeable.sol";
-import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
+import { IMultiRewardEscrow } from "../interfaces/IMultiRewardEscrow.sol";
 
-contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
+contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
   using SafeERC20 for IERC20;
   using SafeCastLib for uint256;
   using Math for uint256;
@@ -25,7 +25,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
 
   function initialize(
     IERC20 _stakingToken,
-    IMultiRewardsEscrow _escrow,
+    IMultiRewardEscrow _escrow,
     address _owner
   ) external initializer {
     __ERC4626_init(IERC20Metadata(address(_stakingToken)));
@@ -91,11 +91,11 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
   error ZeroAddressTransfer(address from, address to);
   error InsufficentBalance();
 
-  function _convertToShares(uint256 assets, Math.Rounding) internal view override returns (uint256) {
+  function _convertToShares(uint256 assets, Math.Rounding) internal pure override returns (uint256) {
     return assets;
   }
 
-  function _convertToAssets(uint256 shares, Math.Rounding) internal view override returns (uint256) {
+  function _convertToAssets(uint256 shares, Math.Rounding) internal pure override returns (uint256) {
     return shares;
   }
 
@@ -147,7 +147,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
                             CLAIM LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  IMultiRewardsEscrow public escrow;
+  IMultiRewardEscrow public escrow;
 
   event RewardsClaimed(address indexed user, IERC20 rewardsToken, uint256 amount, bool escrowed);
 
@@ -388,7 +388,7 @@ contract MultiRewardsStaking is ERC4626Upgradeable, OwnedUpgradeable {
     _;
   }
 
-  function _accrueStatic(RewardsInfo memory rewards) internal returns (uint256 accrued) {
+  function _accrueStatic(RewardsInfo memory rewards) internal view returns (uint256 accrued) {
     uint256 elapsed;
     if (rewards.rewardsEndTimestamp > block.timestamp) {
       elapsed = block.timestamp - rewards.lastUpdatedTimestamp;

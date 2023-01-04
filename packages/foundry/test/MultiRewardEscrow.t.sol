@@ -6,7 +6,7 @@ import { Test } from "forge-std/Test.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 
 import { MockERC20 } from "./utils/mocks/MockERC20.sol";
-import { MultiRewardsEscrow, IERC20 } from "../src/utils/MultiRewardsEscrow.sol";
+import { MultiRewardEscrow, IERC20 } from "../src/utils/MultiRewardEscrow.sol";
 import { IContractRegistry } from "../src/interfaces/IContractRegistry.sol";
 import { IACLRegistry } from "../src/interfaces/IACLRegistry.sol";
 import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../src/utils/KeeperIncentiveV2.sol";
@@ -15,7 +15,7 @@ address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 
-contract MultiRewardsEscrowTest is Test {
+contract MultiRewardEscrowTest is Test {
   MockERC20 token1;
   MockERC20 token2;
   IERC20 iToken1;
@@ -23,7 +23,7 @@ contract MultiRewardsEscrowTest is Test {
 
   KeeperIncentiveV2 keeperIncentive;
 
-  MultiRewardsEscrow escrow;
+  MultiRewardEscrow escrow;
 
   address alice = address(0xABCD);
   address bob = address(0xDCBA);
@@ -53,7 +53,7 @@ contract MultiRewardsEscrowTest is Test {
 
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 0, 0);
 
-    escrow = new MultiRewardsEscrow(address(this), IKeeperIncentiveV2(address(keeperIncentive)), feeRecipient);
+    escrow = new MultiRewardEscrow(address(this), IKeeperIncentiveV2(address(keeperIncentive)), feeRecipient);
 
     token1.mint(alice, 10 ether);
     token2.mint(alice, 10 ether);
@@ -100,7 +100,7 @@ contract MultiRewardsEscrowTest is Test {
 
     // Check Alice's Escrow
     bytes32[] memory aliceEscrowIds = escrow.getEscrowIdsByUser(alice);
-    MultiRewardsEscrow.Escrow[] memory aliceEscrows = escrow.getEscrows(aliceEscrowIds);
+    MultiRewardEscrow.Escrow[] memory aliceEscrows = escrow.getEscrows(aliceEscrowIds);
 
     assertEq(address(aliceEscrows[0].token), address(token1));
     assertEq(aliceEscrows[0].start, aliceLockTime);
@@ -112,7 +112,7 @@ contract MultiRewardsEscrowTest is Test {
 
     // Check Bob's Escrow
     bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
-    MultiRewardsEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
 
     uint256 start = bobLockTime + 10;
     assertEq(address(bobEscrows[0].token), address(token2));
@@ -173,7 +173,7 @@ contract MultiRewardsEscrowTest is Test {
     assertEq(token1.balanceOf(bob), 10 ether);
     assertEq(token2.balanceOf(bob), 1 ether);
 
-    MultiRewardsEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
 
     assertEq(bobEscrows[0].lastUpdateTime, bobClaimTime);
     assertEq(bobEscrows[0].balance, 0);
@@ -191,7 +191,7 @@ contract MultiRewardsEscrowTest is Test {
     vm.startPrank(bob);
     escrow.claimRewards(bobEscrowIds);
 
-    vm.expectRevert(MultiRewardsEscrow.NotClaimable.selector);
+    vm.expectRevert(MultiRewardEscrow.NotClaimable.selector);
     escrow.claimRewards(bobEscrowIds);
   }
 
@@ -207,7 +207,6 @@ contract MultiRewardsEscrowTest is Test {
     vm.expectEmit(false, false, false, true, address(escrow));
     emit RewardsClaimed(iToken2, bob, 1 ether);
 
-    uint256 bobClaimTime = block.timestamp;
     escrow.claimRewards(bobEscrowIds);
   }
 
@@ -233,8 +232,11 @@ contract MultiRewardsEscrowTest is Test {
     emit FeeSet(iToken2, 1e16);
     escrow.setFees(tokens, fees);
 
-    assertEq(escrow.feePercs(iToken1), 1e14);
-    assertEq(escrow.feePercs(iToken2), 1e16);
+    (, uint256 feePerc) = escrow.fees(iToken1);
+    assertEq(feePerc, 1e14);
+
+    (, feePerc) = escrow.fees(iToken2);
+    assertEq(feePerc, 1e16);
   }
 
   function testFail__setFees_nonOwner() public {
@@ -278,15 +280,18 @@ contract MultiRewardsEscrowTest is Test {
 
     // Check Bob's Escrow
     bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
-    MultiRewardsEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
 
     assertEq(bobEscrows[0].balance, 10 ether - expectedFee1);
     assertEq(bobEscrows[0].initialBalance, 10 ether - expectedFee1);
     assertEq(bobEscrows[1].balance, 10 ether - expectedFee2);
     assertEq(bobEscrows[1].initialBalance, 10 ether - expectedFee2);
 
-    assertEq(escrow.fees(iToken1), expectedFee1);
-    assertEq(escrow.fees(iToken2), expectedFee2);
+    (uint256 accrued, ) = escrow.fees(iToken1);
+    assertEq(accrued, expectedFee1);
+
+    (accrued, ) = escrow.fees(iToken2);
+    assertEq(accrued, expectedFee2);
   }
 
   function test__claimFees() public {
@@ -315,7 +320,7 @@ contract MultiRewardsEscrowTest is Test {
   }
 
   function testFail__claimFees_no_fees() public {
-    (IERC20[] memory tokens, uint256[] memory fees) = _getFeeSettings();
+    (IERC20[] memory tokens, ) = _getFeeSettings();
     escrow.claimFees(tokens);
   }
 
@@ -364,7 +369,7 @@ contract MultiRewardsEscrowTest is Test {
     _lockFunds();
 
     bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
-    MultiRewardsEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
     assertEq(bobEscrows.length, 2);
   }
 
@@ -380,7 +385,7 @@ contract MultiRewardsEscrowTest is Test {
     escrowIds[0] = bobEscrowIds[0];
     escrowIds[1] = aliceEscrowIds[0];
 
-    MultiRewardsEscrow.Escrow[] memory escrows = escrow.getEscrows(escrowIds);
+    MultiRewardEscrow.Escrow[] memory escrows = escrow.getEscrows(escrowIds);
     assertEq(escrows.length, 2);
     assertEq(escrows[0].account, bob);
     assertEq(escrows[1].account, alice);
@@ -388,7 +393,7 @@ contract MultiRewardsEscrowTest is Test {
 
   function test__getEscrows_no_ids() public {
     bytes32[] memory escrowIds = new bytes32[](1);
-    MultiRewardsEscrow.Escrow[] memory escrows = escrow.getEscrows(escrowIds);
+    MultiRewardEscrow.Escrow[] memory escrows = escrow.getEscrows(escrowIds);
 
     assertEq(escrows.length, 1);
 

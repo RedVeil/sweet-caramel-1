@@ -10,17 +10,17 @@ import { MockERC20 } from "./utils/mocks/MockERC20.sol";
 import { IContractRegistry } from "../src/interfaces/IContractRegistry.sol";
 import { IACLRegistry } from "../src/interfaces/IACLRegistry.sol";
 import { IKeeperIncentiveV2 } from "../src/interfaces/IKeeperIncentiveV2.sol";
-import { IMultiRewardsEscrow } from "../src/interfaces/IMultiRewardsEscrow.sol";
+import { IMultiRewardEscrow } from "../src/interfaces/IMultiRewardEscrow.sol";
 
-import { MultiRewardsStaking, IERC20 } from "../src/utils/MultiRewardsStaking.sol";
-import { MultiRewardsEscrow } from "../src/utils/MultiRewardsEscrow.sol";
+import { MultiRewardStaking, IERC20 } from "../src/utils/MultiRewardStaking.sol";
+import { MultiRewardEscrow } from "../src/utils/MultiRewardEscrow.sol";
 
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 address constant KEEPER_INCENTIVE = 0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF;
 
-contract MultiRewardsStakingTest is Test {
+contract MultiRewardStakingTest is Test {
   using SafeCastLib for uint256;
 
   MockERC20 stakingToken;
@@ -28,8 +28,8 @@ contract MultiRewardsStakingTest is Test {
   MockERC20 rewardsToken2;
   IERC20 iRewardsToken1;
   IERC20 iRewardsToken2;
-  MultiRewardsStaking staking;
-  MultiRewardsEscrow escrow;
+  MultiRewardStaking staking;
+  MultiRewardEscrow escrow;
 
   address alice = address(0xABCD);
   address bob = address(0xDCBA);
@@ -55,10 +55,10 @@ contract MultiRewardsStakingTest is Test {
     iRewardsToken1 = IERC20(address(rewardsToken1));
     iRewardsToken2 = IERC20(address(rewardsToken2));
 
-    escrow = new MultiRewardsEscrow(address(this), IKeeperIncentiveV2(KEEPER_INCENTIVE), feeRecipient);
+    escrow = new MultiRewardEscrow(address(this), IKeeperIncentiveV2(KEEPER_INCENTIVE), feeRecipient);
 
-    staking = new MultiRewardsStaking();
-    staking.initialize(IERC20(address(stakingToken)), IMultiRewardsEscrow(address(escrow)), address(this));
+    staking = new MultiRewardStaking();
+    staking.initialize(IERC20(address(stakingToken)), IMultiRewardEscrow(address(escrow)), address(this));
 
     vm.startPrank(ACL_ADMIN);
     IACLRegistry(ACL_REGISTRY).grantRole(keccak256("VaultsController"), address(this));
@@ -77,8 +77,8 @@ contract MultiRewardsStakingTest is Test {
 
     MockERC20 newStakingToken = new MockERC20("New Staking Token", "NSTKN", 6);
 
-    MultiRewardsStaking newStaking = new MultiRewardsStaking();
-    newStaking.initialize(IERC20(address(newStakingToken)), IMultiRewardsEscrow(address(escrow)), address(this));
+    MultiRewardStaking newStaking = new MultiRewardStaking();
+    newStaking.initialize(IERC20(address(newStakingToken)), IMultiRewardEscrow(address(escrow)), address(this));
 
     assertEq(newStaking.name(), "Staked New Staking Token");
     assertEq(newStaking.symbol(), "pst-NSTKN");
@@ -715,7 +715,7 @@ contract MultiRewardsStakingTest is Test {
 
     staking.addRewardsToken(iRewardsToken1, 0.1 ether, 10 ether, true, 100, 10000000, 0);
 
-    vm.expectRevert(MultiRewardsStaking.RewardTokenAlreadyExist.selector);
+    vm.expectRevert(MultiRewardStaking.RewardTokenAlreadyExist.selector);
     staking.addRewardsToken(iRewardsToken1, 0.1 ether, 10 ether, true, 100, 10000000, 0);
   }
 
@@ -862,7 +862,6 @@ contract MultiRewardsStakingTest is Test {
     rewardsToken1.transfer(address(staking), 10 ether);
 
     (, , uint32 oldRewardsEndTimestamp, , ) = staking.rewardsInfos(iRewardsToken1);
-    uint256 callTimestamp = block.timestamp;
 
     staking.fundReward(iRewardsToken1, 10 ether);
 
@@ -970,15 +969,7 @@ contract MultiRewardsStakingTest is Test {
 
     // Check escrow
     bytes32[] memory escrowIds = escrow.getEscrowIdsByUser(alice);
-    (
-      IERC20 token,
-      uint256 start,
-      uint256 lastUpdateTime,
-      uint256 end,
-      uint256 initialBalance,
-      uint256 balance,
-      address account
-    ) = escrow.escrows(escrowIds[0]);
+    (IERC20 token, , , , , uint256 balance, address account) = escrow.escrows(escrowIds[0]);
 
     assertEq(rewardsToken2.balanceOf(address(escrow)), 0.1 ether);
     assertEq(address(token), address(rewardsToken2));

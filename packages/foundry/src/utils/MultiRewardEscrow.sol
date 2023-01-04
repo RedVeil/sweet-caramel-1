@@ -2,13 +2,14 @@
 // Docgen-SOLC: 0.8.15
 
 pragma solidity ^0.8.15;
+
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 import { Owned } from "./Owned.sol";
 import { KeeperIncentivized, IKeeperIncentiveV2 } from "./KeeperIncentivized.sol";
 
-contract MultiRewardsEscrow is Owned, KeeperIncentivized {
+contract MultiRewardEscrow is Owned, KeeperIncentivized {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
@@ -106,12 +107,12 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
 
     bytes32 id = keccak256(abi.encodePacked(token, account, amount, nonce));
 
-    uint256 feePerc = feePercs[token];
+    uint256 feePerc = fees[token].feePerc;
     if (feePerc > 0) {
       uint256 fee = Math.mulDiv(amount, feePerc, 1e18);
 
       amount -= fee;
-      fees[token] += fee;
+      fees[token].accrued += fee;
     }
 
     uint256 start = block.timestamp + offset;
@@ -196,13 +197,15 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
                             FEE LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  struct Fee {
+    uint256 accrued;
+    uint256 feePerc;
+  }
+
   address public feeRecipient;
 
   // escrowToken => feeAmount
-  mapping(IERC20 => uint256) public fees;
-
-  // escrowToken => feePerc
-  mapping(IERC20 => uint256) public feePercs;
+  mapping(IERC20 => Fee) public fees;
 
   uint256 public keeperPerc;
 
@@ -217,16 +220,16 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
   /**
    * @notice Set fees for multiple tokens
    * @param tokens that we want to take fees on
-   * @param fees in 1e18. (1e18 = 100%, 1e14 = 1 BPS)
+   * @param tokenFees in 1e18. (1e18 = 100%, 1e14 = 1 BPS)
    */
-  function setFees(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
-    if (tokens.length != fees.length) revert ArraysNotMatching(tokens.length, fees.length);
+  function setFees(IERC20[] memory tokens, uint256[] memory tokenFees) external onlyOwner {
+    if (tokens.length != tokenFees.length) revert ArraysNotMatching(tokens.length, tokenFees.length);
 
     for (uint256 i = 0; i < tokens.length; i++) {
-      if (fees[i] >= 1e17) revert DontGetGreedy(fees[i]);
+      if (tokenFees[i] >= 1e17) revert DontGetGreedy(tokenFees[i]);
 
-      feePercs[tokens[i]] = fees[i];
-      emit FeeSet(tokens[i], fees[i]);
+      fees[tokens[i]].feePerc = tokenFees[i];
+      emit FeeSet(tokens[i], tokenFees[i]);
     }
   }
 
@@ -250,23 +253,24 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
     uint256 incentiveVig = keeperPerc;
 
     for (uint256 i = 0; i < tokens.length; i++) {
-      uint256 fee = fees[tokens[i]];
+      Fee memory fee = fees[tokens[i]];
+      uint256 accrued = fee.accrued;
 
-      if (fee == 0) revert NoFee(tokens[i]);
+      if (accrued == 0) revert NoFee(tokens[i]);
 
-      uint256 tipAmount = (fee * incentiveVig) / 1e18;
+      uint256 tipAmount = (accrued * incentiveVig) / 1e18;
 
-      fee -= tipAmount;
+      accrued -= tipAmount;
 
-      fees[tokens[i]] = 0;
+      fees[tokens[i]].accrued = 0;
 
       tokens[i].approve(address(_keeperIncentive), tipAmount);
 
       _keeperIncentive.tip(address(tokens[i]), msg.sender, 0, tipAmount);
 
-      tokens[i].safeTransfer(feeRecipient, fee);
+      tokens[i].safeTransfer(feeRecipient, accrued);
 
-      emit FeeClaimed(tokens[i], fee);
+      emit FeeClaimed(tokens[i], accrued);
     }
   }
 }
