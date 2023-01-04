@@ -34,6 +34,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
   const [termsAccepted, setTermsAccepted] = useState<boolean>(true);
   const [wait, setWait] = useState<boolean>(false);
   const [lockDuration, setLockDuration] = useState<number>(TWELVE_WEEKS);
+  console.log(allowance, "lol");
 
   async function lockPop(): Promise<void> {
     setWait(true);
@@ -69,10 +70,10 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
     await contracts.pop
       .connect(signer)
       .approve(contracts.staking.address, constants.MaxUint256)
-      .then((res) => {
+      .then(async (res) => {
+        res.wait(confirmationsPerChain(chainId));
         toast.dismiss();
         toast.success("POP Approved!");
-        onCloseStakeModal();
       })
       .catch((err) => {
         toast.dismiss();

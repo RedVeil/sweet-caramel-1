@@ -53,7 +53,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
   useEffect(() => {
     const { id } = router.query;
     if (id && id !== proposalId) setProposalId(id as string);
-  }, [router, proposalId]);
+  }, [router, proposalId, hasVoted]);
 
   useEffect(() => {
     if (contracts?.beneficiaryGovernance && proposalId) {
