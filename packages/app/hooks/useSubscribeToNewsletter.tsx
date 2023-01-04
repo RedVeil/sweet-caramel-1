@@ -1,6 +1,6 @@
 import MainActionButton from "@popcorn/app/components/MainActionButton";
-import { setSingleActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setSingleActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import { isValidEmailAddress } from "@popcorn/app/helper/verifyEmail";
 import Image from "next/image";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -90,7 +90,7 @@ const useSubscribeToNewsletter = (): {
         const subscribedToNewsletter = localStorage.getItem("subscribedToNewsletter");
         if (!subscribedToNewsletter) {
           setTimeout(() => {
-            showNewsletterModal();
+            //showNewsletterModal();
             localStorage.setItem("subscribedToNewsletter", "true");
           }, 3000);
         }

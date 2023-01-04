@@ -5,14 +5,16 @@ require("../utils/src/envLoader");
 const workspace = join(__dirname, "..");
 
 module.exports = {
+  swcMinify: false,
   typescript: {
     ignoreBuildErrors: false,
   },
   images: {
-		domains: ["popcorn.mypinata.cloud", "gateway.pinata.cloud"],
+    domains: ["popcorn.mypinata.cloud", "gateway.pinata.cloud"],
   },
   env: {
     RPC_URL: process.env.RPC_URL,
+    APP_ENV: process.env.APP_ENV,
     CHAIN_ID: process.env.CHAIN_ID,
     ADDR_STAKING: process.env.ADDR_STAKING,
     ADDR_POP: process.env.ADDR_POP,

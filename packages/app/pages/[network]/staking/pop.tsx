@@ -3,8 +3,8 @@ import { ChainId } from "@popcorn/utils";
 import StakeInterface, { defaultForm, InteractionType } from "@popcorn/app/components/staking/StakeInterface";
 import StakeInterfaceLoader from "@popcorn/app/components/staking/StakeInterfaceLoader";
 import TermsContent from "@popcorn/app/components/staking/TermsModalContent";
-import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setMultiChoiceActionModal, setSingleActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
@@ -16,9 +16,11 @@ import React, { useContext, useEffect, useState } from "react";
 import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { ethers } from "ethers";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
+import { useSpendableBalance } from "@popcorn/components/lib/POP";
 
 export default function PopStakingPage(): JSX.Element {
-  const { account, signer, onContractSuccess, onContractError } = useWeb3();
+  const { account, signer } = useWeb3();
   const chainId = useChainIdFromUrl();
   const { popStaking } = useDeployment(chainId);
   const { dispatch } = useContext(store);
@@ -38,6 +40,9 @@ export default function PopStakingPage(): JSX.Element {
   const transaction = useTransaction(chainId);
   const { data: tokenPriceData } = useTokenPrices([stakingToken?.address], chainId);
   const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
+
+  const [metadata] = useNamedAccounts(chainId as any, ["tokenManager"]);
+  const spendableBalance = useSpendableBalance({ account, address: metadata?.address, chainId });
 
   useEffect(() => {
     if (router?.query?.action === "withdraw") {
@@ -133,6 +138,7 @@ export default function PopStakingPage(): JSX.Element {
         <StakeInterface
           stakingPool={stakingPool}
           user={balances}
+          spendableBalance={spendableBalance}
           form={[form, setForm]}
           stake={stake}
           withdraw={withdraw}
@@ -140,6 +146,7 @@ export default function PopStakingPage(): JSX.Element {
           restake={openTermsModal}
           onlyView={!account}
           chainId={chainId}
+          account={account}
           isPopLocker
           stakedTokenPrice={tokenPrice}
         />

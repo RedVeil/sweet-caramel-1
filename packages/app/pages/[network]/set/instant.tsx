@@ -9,8 +9,8 @@ import { BatchType, Token } from "@popcorn/utils/src/types";
 import { Pages } from "@popcorn/app/components/BatchButter/ButterTokenInput";
 import MintRedeemInterface from "@popcorn/app/components/BatchButter/MintRedeemInterface";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
-import { setDualActionWideModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setDualActionWideModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
 import useButterWhaleData from "@popcorn/app/hooks/set/useButterWhaleData";
@@ -300,7 +300,7 @@ export default function InstantButter() {
             <>
               {!account && (
                 <div className="h-full px-5 pt-6 bg-white border border-gray-200 rounded-3xl pb-14 laptop:pb-18 shadow-custom">
-                  <div className="w-full py-64 mt-1 mb-2 smlaptop:mt-2">
+                  <div className="w-full py-64 mt-1 mb-2 lg:mt-2">
                     <MainActionButton
                       label="Connect Wallet"
                       handleClick={() => {

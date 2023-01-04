@@ -21,3 +21,6 @@ a {
 .hidden {
   display: none;
 }
+.sb-show-main.sb-main-padded{
+  padding:0px!important;
+}

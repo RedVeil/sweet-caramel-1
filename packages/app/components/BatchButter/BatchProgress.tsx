@@ -17,7 +17,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
 
   return (
     <div className="bg-white border border-customLightGray rounded-lg h-full flex flex-col">
-      <div className="w-full flex flex-row p-6 h-full items-center gap-6 md:gap-0 md:space-x-6">
+      <div className="w-full flex flex-row p-5 h-full items-center gap-6 md:gap-0 md:space-x-6">
         <div className="relative h-20 w-20 p-2 rounded-full">
           <div className="bg-customYellow w-18 h-18 rounded-full relative transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
           <p className="text-2xl font-medium leading-none text-black absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-30">
@@ -36,7 +36,7 @@ const BatchProgress: React.FC<BatchProgressProps> = ({ batchAmount, threshold })
               classExtras="mt-0 ml-2"
               id="3"
               title="Batch Processing"
-              content="Mint and redeem batches with at least $1000 are processed by keepers approximately every 48 hours. Batch sizes greater than $100k are processed sooner.  Network congestion may cause delays."
+              content="Mint and redeem deposits are currently being processed within 15 - 60 minutes. After the deposit is processed, you'll be able to claim/withdraw your tokens."
             />
           </div>
           <p className="text-primary leading-6 break-words">

@@ -4,11 +4,11 @@ import TokenIcon from "@popcorn/app/components/TokenIcon";
 import { BigNumber, constants, Signer } from "ethers";
 import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
-import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
+import { setMultiChoiceActionModal } from "@popcorn/components/context/actions";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useTransaction } from "@popcorn/app/hooks/useTransaction";
 import { useContext, useEffect, useState } from "react";
-import { store } from "@popcorn/app/context/store";
+import { store } from "@popcorn/components/context/store";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import { StakingType } from "hooks/staking/useAllStakingAddresses";
@@ -96,7 +96,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ stakingAddress, stakingType, chai
         </ContentLoader>
       </div>
       <div
-        className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray ${
+        className={`hover:scale-102 transition duration-500 ease-in-out transform w-full md:h-48 border-b border-customLightGray border-opacity-40 ${
           !staking?.earned || staking?.earned?.eq(constants.Zero) ? "hidden" : ""
         }`}
       >

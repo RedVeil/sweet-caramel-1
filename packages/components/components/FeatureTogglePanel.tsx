@@ -3,6 +3,9 @@ import { useContext, useState } from "react";
 import { CheckCircle, Settings, X } from "react-feather";
 
 export function FeatureTogglePanel(): JSX.Element {
+  const developmentLike = (env: string) => env.includes("dev") || env.includes("staging");
+  const enabled = developmentLike(process.env.APP_ENV || "");
+
   const [showPanel, setShowPanel] = useState(false);
   const { features, setFeatures } = useContext(FeatureToggleContext);
 
@@ -12,12 +15,8 @@ export function FeatureTogglePanel(): JSX.Element {
     setFeatures(newFeatures);
   }
 
-  if (process.env.IS_DEV !== "TRUE") {
-    return <></>;
-  }
-
   return (
-    <div className="card fixed bottom-1 right-1 z-30">
+    <div className={`card fixed bottom-1 right-1 z-30 ${(enabled && " ") || "hidden "}`}>
       {showPanel ? (
         <div className="flex flex-col p-2 space-y-2">
           <span className="flex flex-row items-center justify-end" onClick={() => setShowPanel(false)}>

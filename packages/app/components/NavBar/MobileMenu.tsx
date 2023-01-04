@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
-import PopUpModal from "@popcorn/app/components/Modal/PopUpModal";
+import PopUpModal from "@popcorn/components/components/Modal/PopUpModal";
 import DiscordIcon from "@popcorn/app/components/SVGIcons/DiscordIcon";
 import MediumIcon from "@popcorn/app/components/SVGIcons/MediumIcon";
 import RedditIcon from "@popcorn/app/components/SVGIcons/RedditIcon";
@@ -9,7 +9,6 @@ import TelegramIcon from "@popcorn/app/components/SVGIcons/TelegramIcon";
 import TwitterIcon from "@popcorn/app/components/SVGIcons/TwitterIcon";
 import YoutubeIcon from "@popcorn/app/components/SVGIcons/YoutubeIcon";
 import TertiaryActionButton from "@popcorn/app/components/TertiaryActionButton";
-import useSubscribeToNewsletter from "@popcorn/app/hooks/useSubscribeToNewsletter";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
@@ -42,6 +41,10 @@ const networkData = [
 ];
 
 export const MobileMenu: React.FC = () => {
+  const {
+    features: { portfolio },
+  } = useFeatures();
+
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
@@ -90,8 +93,6 @@ export const MobileMenu: React.FC = () => {
     setShowPopUp(false);
   };
 
-  const { showNewsletterModal } = useSubscribeToNewsletter();
-
   return (
     <>
       <div className="flex flex-row justify-between items-center px-6 py-6 font-khTeka">
@@ -103,7 +104,7 @@ export const MobileMenu: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className={`relative w-full ${!menuVisible ? "" : "hidden"}`}>
             <div
-              className={`w-full px-4 py-2 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
+              className={`w-full px-4 py-3 flex flex-row items-center justify-center border border-light bg-white rounded-3xl cursor-pointer relative gap-2`}
               onClick={() => setShowPopUp(true)}
             >
               <img src={logo} alt={""} className="w-3 h-3 object-contain" />
@@ -159,8 +160,11 @@ export const MobileMenu: React.FC = () => {
                 <div className="w-screen">
                   <div className="h-full w-full flex flex-col justify-between pt-18 px-6 shadow-xl bg-white overflow-y-scroll">
                     <div className="flex flex-col w-full">
-                      <div className="pt-6 pb-6">
+                      <div className="py-6">
                         <NavbarLink label="Popcorn" url="/" isActive={router?.pathname === `/`} />
+                      </div>
+                      <div className={`py-6 ${portfolio ? "" : "hidden"}`}>
+                        <NavbarLink label="Portfolio" url="/portfolio" isActive={router.pathname === "/portfolio"} />
                       </div>
                       <div className="py-6">
                         {products.length < 2 ? (
@@ -175,15 +179,7 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-6">
                         <NavbarLink label="Rewards" url={`/rewards`} isActive={router?.pathname.includes("/rewards")} />
                       </div>
-                      <div className="py-6">
-                        <TertiaryActionButton
-                          label="Newsletter"
-                          handleClick={showNewsletterModal}
-                          className="!border-customLightGray !font-normal hover:!bg-transparent hover:!text-primary"
-                        />
-                      </div>
                     </div>
-
                     <div>
                       <div className="grid grid-cols-12 mt-12">
                         <div className="col-span-6">
@@ -205,7 +201,10 @@ export const MobileMenu: React.FC = () => {
                         <div className="col-span-6">
                           <p className="text-gray-900 font-medium leading-6 tracking-1">Bug Bounty</p>
                           <div className="flex flex-col">
-                            <Link href="/immunefi" className=" text-primary leading-6 mt-4">
+                            <Link
+                              href="https://immunefi.com/bounty/popcornnetwork"
+                              className=" text-primary leading-6 mt-4"
+                            >
                               Immunefi
                             </Link>
                           </div>

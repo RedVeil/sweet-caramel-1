@@ -19,7 +19,7 @@ export const useSum = ({
   const reset = () => {
     setCount((prevState) => 0);
     setSum((prevState) => constants.Zero);
-    setLoading((prevState) => true);
+    if (expected > 0) setLoading((prevState) => true);
   };
 
   useEffect(() => {

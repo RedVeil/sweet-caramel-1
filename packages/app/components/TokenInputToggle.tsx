@@ -21,7 +21,7 @@ const TokenInputToggle: React.FC<TokenInputToggleProps> = ({ state, labels }) =>
         onClick={(e) => toggle(false)}
       >
         <p
-          className={`text-center leading-none text-base mb-4 mt-2 ${
+          className={`text-center leading-none text-base cursor-pointer mb-4 mt-2 ${
             visible ? "text-primaryLight group-hover:text-primary" : "text-primary font-medium"
           }`}
         >
@@ -37,7 +37,7 @@ const TokenInputToggle: React.FC<TokenInputToggleProps> = ({ state, labels }) =>
         onClick={(e) => toggle(true)}
       >
         <p
-          className={`text-center leading-none text-base mb-4 mt-2 ${
+          className={`text-center leading-none text-base cursor-pointer mb-4 mt-2 ${
             visible ? "text-primary  font-medium" : "text-primaryLight group-hover:text-primary"
           }`}
         >

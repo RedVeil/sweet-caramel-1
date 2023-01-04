@@ -1,7 +1,7 @@
 import { BigNumber, constants } from "ethers";
 import { useEffect, useMemo, useState } from "react";
 import { PortfolioState } from "../../reducers/portfolio";
-import useLog from "../../pop/utils/hooks/useLog";
+import useLog from "@popcorn/components/lib/utils/hooks/useLog";
 
 export const useNetworth = (
   state: PortfolioState,

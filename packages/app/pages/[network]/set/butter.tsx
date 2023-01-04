@@ -17,8 +17,8 @@ import MobileTutorialSlider from "@popcorn/app/components/BatchButter/MobileTuto
 import StatInfoCard from "@popcorn/app/components/BatchButter/StatInfoCard";
 import TutorialSlider from "@popcorn/app/components/BatchButter/TutorialSlider";
 import RightArrowIcon from "@popcorn/app/components/SVGIcons/RightArrowIcon";
-import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setMultiChoiceActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import { BigNumber, constants, ethers } from "ethers";
 import { isDepositDisabled } from "@popcorn/app/helper/isDepositDisabled";
 import { ModalType, toggleModal } from "@popcorn/app/helper/modalHelpers";
@@ -29,7 +29,7 @@ import useButterWhaleData from "@popcorn/app/hooks/set/useButterWhaleData";
 import useButterWhaleProcessing from "@popcorn/app/hooks/set/useButterWhaleProcessing";
 import useThreeCurveVirtualPrice from "@popcorn/app/hooks/useThreeCurveVirtualPrice";
 import useWeb3 from "@popcorn/app/hooks/useWeb3";
-import { ConnectWallet } from "@popcorn/app/components/ConnectWallet";
+import { ConnectWallet } from "@popcorn/components/components/ConnectWallet";
 import SetStats from "@popcorn/app/components/SetStats";
 import { useAdjustDepositDecimals } from "@popcorn/app/hooks/useAdjustDepositDecimals";
 import { useChainIdFromUrl } from "@popcorn/app/hooks/useChainIdFromUrl";
@@ -613,7 +613,7 @@ export default function ButterPage(): JSX.Element {
             Mint BTR and earn interest on multiple stablecoins at once. <br />
             Stake BTR to earn boosted APY.
           </p>
-          <SetStats token={butter} />
+          <SetStats address={addr.butter} chainId={chainId} stakingAddress={addr.butterStaking} symbol={"BTR"} />
         </div>
         <div className="col-span-5 hidden md:block">
           <TutorialSlider isThreeX={false} />
@@ -629,11 +629,11 @@ export default function ButterPage(): JSX.Element {
           <RightArrowIcon color="fff" />
         </div>
       </div>
-      <div className="flex flex-col md:flex-row mt-10">
+      <div className="flex flex-col md:flex-row md:mt-10">
         <div className="md:w-1/3 mb-10">
           <div className="order-2 md:order-1">
             {/* Connected and on Ethereum BUT loading */}
-            <div className={account.address && butterIsSupportedOnNetwork && loadingButterBatchData ? "" : "hidden"}>
+            <div className={!!isConnected && butterIsSupportedOnNetwork && loadingButterBatchData ? "" : "hidden"}>
               <div className="order-2 md:hidden">
                 <ContentLoader viewBox="0 0 450 600" backgroundColor={"#EBE7D4"} foregroundColor={"#d7d5bc"}>
                   <rect x="0" y="0" rx="8" ry="8" width="100%" height="600" />
@@ -690,7 +690,7 @@ export default function ButterPage(): JSX.Element {
                 </div>
               )}
             <SwitchNetwork chainId={ChainId.Ethereum} hidden={!isConnected || butterIsSupportedOnNetwork} />
-            <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} `}>
+            <div className={`order-2 md:order-1 ${!!isConnected ? "hidden" : ""} md:mr-8`}>
               <ConnectWallet hidden={!!isConnected} />
             </div>
           </div>

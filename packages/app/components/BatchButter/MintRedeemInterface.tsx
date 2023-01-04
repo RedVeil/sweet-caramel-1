@@ -86,20 +86,18 @@ const MintRedeemInterface: React.FC<MintRedeemInterfaceProps> = ({
           disabled={disabled}
         />
       </div>
-      {!useUnclaimedDeposits &&
-        [Pages.butter, Pages.threeX].includes(page) &&
-        !(page === Pages.threeX && !features["instant3X"]) && (
-          <div className="mt-2">
-            <CheckMarkToggleWithInfo
-              label={`Use Instant ${pageToDisplayToken(page).output} (Higher Gas Fee)`}
-              value={instant}
-              onChange={(e) => setInstant(!instant)}
-              image={butterModalImage}
-              infoTitle="Instant Butter"
-              infoText="Using 'Instant Butter' comes with higher gas costs. Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when the gas costs are acceptable to you."
-            />
-          </div>
-        )}
+      {!useUnclaimedDeposits && [Pages.butter, Pages.threeX].includes(page) && features["instant3X"] && (
+        <div className="mt-2">
+          <CheckMarkToggleWithInfo
+            label={`Use Instant ${pageToDisplayToken(page).output} (Higher Gas Fee)`}
+            value={instant}
+            onChange={(e) => setInstant(!instant)}
+            image={butterModalImage}
+            infoTitle="Instant Butter"
+            infoText="Using 'Instant Butter' comes with higher gas costs. Mint/redeem Butter in one transaction without having to wait for a batch to process. Use this feature only when the gas costs are acceptable to you."
+          />
+        </div>
+      )}
       {showSlippageAdjust && (
         <div className="w-full mt-6">
           <SlippageSettings slippage={slippage} setSlippage={setSlippage} slippageOptions={[0.1, 0.5, 1]} />

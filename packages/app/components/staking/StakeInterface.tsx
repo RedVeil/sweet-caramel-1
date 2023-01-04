@@ -5,7 +5,7 @@ import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip
 import SecondaryActionButton from "@popcorn/app/components/SecondaryActionButton";
 import TokenIcon from "@popcorn/app/components/TokenIcon";
 import TokenInputToggle from "@popcorn/app/components/TokenInputToggle";
-import { ChainId, formatAndRoundBigNumber, networkLogos } from "@popcorn/utils";
+import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
 import { BigNumber, constants } from "ethers";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
 import Link from "next/link";
@@ -13,16 +13,17 @@ import { useRouter } from "next/router";
 import useContractMetadata from "@popcorn/app/hooks/useContractMetadata";
 import PopLockerInteraction from "@popcorn/app/components/staking/PopLockerInteraction";
 import StakingInteraction, { StakingInteractionProps } from "@popcorn/app/components/staking/StakingInteraction";
-import usePushWithinChain from "@popcorn/app/hooks/usePushWithinChain";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
 import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import usePopLocker from "@popcorn/app/hooks/staking/usePopLocker";
+import { Pop } from "@popcorn/components/lib/types";
 
 interface StakeInterfaceProps extends StakingInteractionProps {
   stakedTokenPrice: BigNumber;
   chainId: number;
   restake?: () => void;
   isPopLocker?: boolean;
+  spendableBalance?: Pop.HookResult<BigNumber>;
 }
 
 export interface StakingForm {
@@ -54,6 +55,8 @@ export default function StakeInterface({
   restake,
   isPopLocker,
   stakedTokenPrice,
+  account,
+  spendableBalance,
 }: StakeInterfaceProps): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const popMetadata = useContractMetadata(stakingToken?.address, chainId);
@@ -151,8 +154,10 @@ export default function StakeInterface({
                 form={form}
                 onlyView={onlyView}
                 approve={approve}
+                spendableBalance={spendableBalance}
                 stake={stake}
                 withdraw={withdraw}
+                account={account}
                 restake={restake}
               />
             ) : (
@@ -163,6 +168,7 @@ export default function StakeInterface({
                 form={form}
                 onlyView={onlyView}
                 approve={approve}
+                account={account}
                 stake={stake}
                 withdraw={withdraw}
               />
@@ -309,12 +315,6 @@ export default function StakeInterface({
         </div>
       </div>
 
-      <div className="bg-customRed rounded-lg p-6 flex md:hidden flex-col justify-between">
-        <h2 className=" text-2xl leading-6"></h2>
-        <div className="flex justify-end mt-2">
-          <img src="/images/hands.svg" alt="" className=" h-12 w-12" />
-        </div>
-      </div>
       {/* <FooterLandScapeImage/> */}
     </>
   );

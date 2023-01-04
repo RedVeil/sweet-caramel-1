@@ -18,14 +18,22 @@ export default function TokenIcon({
   if (metadata?.icons?.length > 1) {
     return (
       <div className="flex flex-row flex-shrink-0 flex-grow-0">
-        <img src={metadata?.icons[0]} alt="token icon" className={imageSize ? imageSize : "w-10 h-10"} />
-        <img src={metadata?.icons[1]} alt="token icon" className={`${imageSize ? imageSize : "w-10 h-10"} -ml-3`} />
+        <img src={metadata?.icons[0]} alt="token icon" className={imageSize ? imageSize : "w-6 md:w-10 h-6 md:h-10"} />
+        <img
+          src={metadata?.icons[1]}
+          alt="token icon"
+          className={`${imageSize ? imageSize : "w-6 md:w-10 h-6 md:h-10"} -ml-3`}
+        />
       </div>
     );
   }
   if (metadata?.icons?.length === 1) {
-    return <img src={metadata?.icons[0]} alt="token icon" className={imageSize ? imageSize : "w-10 h-10"} />;
+    return (
+      <img src={metadata?.icons[0]} alt="token icon" className={imageSize ? imageSize : "w-6 md:w-10 h-6 md:h-10"} />
+    );
   }
   // Per default show POP icon
-  return <img src={"/images/icons/POP.svg"} alt="token icon" className={imageSize ? imageSize : "w-10 h-10"} />;
+  return (
+    <img src={"/images/icons/POP.svg"} alt="token icon" className={imageSize ? imageSize : "w-6 md:w-10 h-6 md:h-10"} />
+  );
 }

@@ -1,3 +1,3 @@
 export * from "./components";
 export * from "./hooks";
-export * from "./pop";
+export * from "./lib";

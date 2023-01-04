@@ -53,7 +53,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await deployments.get("BeneficiaryRegistry")
     ).address,
   );
-  const testPop = await hre.ethers.getContractAt("MockERC20", (await deployments.get("POP")).address);
+  const testPop = await hre.ethers.getContractAt("MockERC20", (await deployments.get("TestPOP")).address);
   const govStaking = await hre.ethers.getContractAt("GovStaking", (await deployments.get("GovStaking")).address);
   const beneficiaryGovernance = await hre.ethers.getContractAt(
     "BeneficiaryGovernance",

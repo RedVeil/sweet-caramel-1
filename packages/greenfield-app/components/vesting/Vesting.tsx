@@ -23,10 +23,10 @@ export default function Vesting({ chainId, addClaimable, isNotAvailable }: Vesti
   const { escrows, totalClaimablePop, totalVestingPop, revalidate, isValidating, error } = useEscrows(chainId);
 
   useEffect(() => {
-    if (totalClaimablePop || error || isValidating) {
+    if ((totalClaimablePop && !isValidating) || error) {
       addClaimable(totalClaimablePop);
     }
-  }, [totalClaimablePop, isValidating, error]);
+  }, [totalClaimablePop, error]);
 
   const claimAllEscrows = async () => {
     const escrowsIds = escrows.map((escrow) => escrow.id);

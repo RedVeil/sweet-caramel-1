@@ -3,20 +3,14 @@ import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioBu
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import Image from "next/image";
 import { useState } from "react";
-import { Chain, chainId } from "wagmi";
 import { MobilePopupSelect } from "./MobilePopupSelect";
 
 interface NetworkFilterProps {
   supportedNetworks: ChainId[];
-  selectedNetworks: ChainId[];
   selectNetwork: (chainId: ChainId) => void;
 }
 
-export default function NetworkFilter({
-  supportedNetworks,
-  selectedNetworks,
-  selectNetwork,
-}: NetworkFilterProps): JSX.Element {
+export default function NetworkFilter({ supportedNetworks, selectNetwork }: NetworkFilterProps): JSX.Element {
   const [openFilter, setOpenFilter] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<{ id: ChainId; value: JSX.Element }>({
     id: ChainId.ALL,
@@ -70,7 +64,7 @@ export default function NetworkFilter({
             e.preventDefault();
             setOpenFilter(true);
           }}
-          className="w-full py-3 px-5 flex flex-row items-center justify-between mt-1 space-x-1 rounded-4xl border border-gray-300"
+          className="w-full py-3 px-5 flex flex-row items-center justify-between mt-1 space-x-1 rounded-4xl border border-gray-300 bg-white"
         >
           <div className="flex items-center">{categoryFilter.value}</div>
           <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />

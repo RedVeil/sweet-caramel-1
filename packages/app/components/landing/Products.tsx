@@ -1,19 +1,13 @@
-import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
+import { ChainId } from "@popcorn/utils";
 import { InfoIconWithTooltip } from "@popcorn/app/components/InfoIconWithTooltip";
-import { constants } from "ethers";
-import { formatUnits, parseUnits } from "ethers/lib/utils";
-import useGetYearnAPY from "@popcorn/app/hooks/set/useGetYearnAPY";
-import useSetTokenTVL from "@popcorn/app/hooks/set/useSetTokenTVL";
-import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
+import { formatUnits } from "ethers/lib/utils";
 import useStakingTVL from "@popcorn/app/hooks/staking/useStakingTVL";
-import { useDeployment } from "@popcorn/app/hooks/useDeployment";
 import React from "react";
 import Product from "@popcorn/app/components/landing/Product";
 import useNetworkName from "@popcorn/app/hooks/useNetworkName";
-import useTvl from "@popcorn/components/pop/Contract/hooks/useTvl";
-import { useNamedAccounts } from "@popcorn/components";
-import { Apy, useApy } from "@popcorn/components/pop/Staking";
-import { Tvl } from "@popcorn/components/pop/Contract";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
+import { Staking, Contract } from "@popcorn/components/lib";
+import { useFeatures } from "@popcorn/components/hooks/useFeatures";
 
 const Products = () => {
   const { Ethereum, Polygon } = ChainId;
@@ -21,7 +15,15 @@ const Products = () => {
 
   const { data: mainnetStakingTVL } = useStakingTVL(Ethereum);
   const { data: polygonStakingTVL } = useStakingTVL(Polygon);
-  const contractsEth = useNamedAccounts("1", ["threeX", "butter", "threeXStaking", "butterStaking"]);
+  const [threeX, butter, threeXStaking, butterStaking] = useNamedAccounts("1", [
+    "threeX",
+    "butter",
+    "threeXStaking",
+    "butterStaking",
+  ]);
+  const {
+    features: { sweetVaults: displaySweetVaults },
+  } = useFeatures();
 
   const formatter = Intl.NumberFormat("en", {
     //@ts-ignore
@@ -30,32 +32,34 @@ const Products = () => {
 
   return (
     <section className="mt-10">
-      <h6 className="font-medium leading-8 mb-4">Our Products</h6>
+      <h6 className="font-medium leading-8 mb-4">Featured</h6>
       <div className="border-t border-customLightGray">
-        <Product
-          title="Sweet Vaults"
-          description="Single-asset vaults to earn yield on your digital assets"
-          stats={[
-            {
-              label: "TVL",
-              content: "$3.7m",
-              infoIconProps: {
-                title: "Total Value Locked",
-                content: "The total value of assets held by the underlying smart contracts.",
-                id: "sweet-vault-tvl",
+        {displaySweetVaults && (
+          <Product
+            title="Sweet Vaults"
+            description="Single-asset vaults to earn yield on your digital assets"
+            stats={[
+              {
+                label: "TVL",
+                content: "$3.7m",
+                infoIconProps: {
+                  title: "Total Value Locked",
+                  content: "The total value of assets held by the underlying smart contracts.",
+                  id: "sweet-vault-tvl",
+                },
               },
-            },
-          ]}
-          route={`${networkName}/sweet-vaults`}
-          badge="/images/newProductBadge.svg"
-        />
+            ]}
+            route={`${networkName}/sweet-vaults`}
+            badge="/images/newProductBadge.svg"
+          />
+        )}
         <Product
           title="3X"
           description="EUR & USD exposure with noble yield that funds social impact organizations"
           stats={[
             {
               label: "TVL",
-              content: <Tvl chainId={Ethereum} address={contractsEth[0].address} />,
+              content: <Contract.Tvl chainId={Ethereum} address={threeX.address} />,
               infoIconProps: {
                 title: "Total Value Locked",
                 content: "The total value of assets held by the underlying smart contracts.",
@@ -64,7 +68,7 @@ const Products = () => {
             },
             {
               label: "vAPR",
-              content: <Apy chainId={Ethereum} address={contractsEth[2].address} />,
+              content: <Staking.Apy chainId={Ethereum} address={threeXStaking.address} />,
               infoIconProps: {
                 title: "Variable Annual Percentage Rate",
                 content:
@@ -75,7 +79,6 @@ const Products = () => {
           ]}
           route={`${networkName}/set/3x`}
           customContent={ThreeXExposure}
-          badge="/images/fireProductBadge.svg"
         />
         <Product
           title="Butter"
@@ -83,7 +86,7 @@ const Products = () => {
           stats={[
             {
               label: "TVL",
-              content: <Tvl chainId={Ethereum} address={contractsEth[1].address} />,
+              content: <Contract.Tvl chainId={Ethereum} address={butter.address} />,
               infoIconProps: {
                 title: "Total Value Locked",
                 content: "The total value of assets held by the underlying smart contracts.",
@@ -92,7 +95,7 @@ const Products = () => {
             },
             {
               label: "vAPR",
-              content: <Apy chainId={Ethereum} address={contractsEth[3].address} />,
+              content: <Staking.Apy chainId={Ethereum} address={butterStaking.address} />,
               infoIconProps: {
                 title: "Variable Annual Percentage Rate",
                 content:

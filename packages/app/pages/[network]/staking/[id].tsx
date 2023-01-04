@@ -1,6 +1,6 @@
 import SuccessfulStakingModal from "@popcorn/app/components/staking/SuccessfulStakingModal";
-import { setMultiChoiceActionModal } from "@popcorn/app/context/actions";
-import { store } from "@popcorn/app/context/store";
+import { setMultiChoiceActionModal } from "@popcorn/components/context/actions";
+import { store } from "@popcorn/components/context/store";
 import useBalanceAndAllowance from "@popcorn/app/hooks/staking/useBalanceAndAllowance";
 import useStakingPool from "@popcorn/app/hooks/staking/useStakingPool";
 import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
@@ -29,7 +29,7 @@ export default function StakingPage(): JSX.Element {
   const stakingToken = stakingPool?.stakingToken;
   const { data: tokenPriceData, isValidating: tokenPriceValidating } = useTokenPrices([stakingToken?.address], chainId);
   const tokenPrice = tokenPriceData?.[stakingToken?.address?.toLowerCase()];
-  const isLoading = isValidating || tokenPriceValidating;
+  const isLoading = !stakingPool && (isValidating || tokenPriceValidating);
   const transaction = useTransaction(chainId);
 
   useEffect(() => {
@@ -110,6 +110,7 @@ export default function StakingPage(): JSX.Element {
       approve={approve}
       onlyView={!account}
       chainId={chainId}
+      account={account}
       stakedTokenPrice={tokenPrice}
     />
   );

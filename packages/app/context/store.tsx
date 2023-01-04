@@ -1,24 +1,33 @@
 import {
   DefaultDualActionWideModalProps,
   DualActionWideModalProps,
-} from "@popcorn/app/components/Modal/DualActionWideModal";
+} from "@popcorn/components/components/Modal/DualActionWideModal";
 import {
   DefaultMobileFullScreenModalProps,
   MobileFullScreenModalProps,
-} from "@popcorn/app/components/Modal/MobileFullScreenModal";
+} from "@popcorn/components/components/Modal/MobileFullScreenModal";
 import {
   DefaultMultiChoiceActionModalProps,
   MultiChoiceActionModalProps,
-} from "@popcorn/app/components/Modal/MultiChoiceActionModal";
+} from "@popcorn/components/components/Modal/MultiChoiceActionModal";
 import {
   DefaultNetworkChangePromptModalProps,
   NetworkChangePromptModalProps,
-} from "@popcorn/app/components/Modal/NetworkChangePromptModal";
-import { DefaultSingleActionModalProps, SingleActionModalProps } from "@popcorn/app/components/Modal/SingleActionModal";
-import { DefaultWalletSelectModalProps, WalletSelectModalProps } from "@popcorn/app/components/Modal/WalletSelectModal";
+} from "@popcorn/components/components/Modal/NetworkChangePromptModal";
+import {
+  DefaultSingleActionModalProps,
+  SingleActionModalProps,
+} from "@popcorn/components/components/Modal/SingleActionModal";
+import {
+  DefaultWalletSelectModalProps,
+  WalletSelectModalProps,
+} from "@popcorn/components/components/Modal/WalletSelectModal";
 import { NotificationProps } from "@popcorn/app/components/Notifications/NotificationProps";
 import React, { createContext, useReducer } from "react";
-import { DefaultDualActionModalProps, DualActionModalProps } from "@popcorn/app/components/Modal/DualActionModal";
+import {
+  DefaultDualActionModalProps,
+  DualActionModalProps,
+} from "@popcorn/components/components/Modal/DualActionModal";
 import {
   AppActions,
   CLEAR_NOTIFICATIONS,
@@ -34,7 +43,7 @@ import {
   SINGLE_ACTION_MODAL,
   UNSET_NOTIFICATION,
   WALLET_SELECT_MODAL,
-} from "@popcorn/app/context/actions";
+} from "@popcorn/components/context/actions";
 
 interface DefaultState {
   notifications: NotificationProps[];

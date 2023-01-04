@@ -21,8 +21,18 @@
       "mainnet": "0xeB906A75838A8078B181815969b1DCBC20eaF7c0"
     },
     "metadata": {
+      "name": "Staked Xen",
+      "symbol": "stXen",
+      "icons": ["/images/tokens/xen.png", "/images/icons/POP.svg"],
       "priceResolver": "staking",
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "angleRouter": {
@@ -60,7 +70,9 @@
     "metadata": {
       "name": "Butter (V2)",
       "icons": ["/images/icons/BTR.svg"],
-      "priceResolver": "set_token"
+      "priceResolver": "set_token",
+      "apyResolver": "set_token",
+      "symbol": "BTR"
     }
   },
   "butterBatch": {
@@ -94,9 +106,18 @@
     "metadata": {
       "contractName": "ButterStaking",
       "priceResolver": "staking",
-      "symbol": "st-BTR",
+      "symbol": "stBTR",
+      "name": "Staked BTR",
+      "icons": ["/images/icons/BTR.svg"],
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "butterWhaleProcessing": {
@@ -316,7 +337,7 @@
       "hardhat": "0xFC4EE541377F3b6641c23CBE82F6f04388290421",
       "arbitrum": "0x68ead55c258d6fa5e46d67fc90f53211eab885be",
       "bsc": "0xE8647Ea19496E87c061bBAD79f457928b2F52b5a",
-      "goerli": "0x970d2F05bda79048EDDFe5a34FDb6B4979CD4d7e",
+      "goerli": "0xbcB4cB7AaB92A48a80f77721322bE86fadCa7A22",
       "optimism": "0x6F0fecBC276de8fC69257065fE47C5a03d986394"
     },
     "metadata": {
@@ -382,15 +403,15 @@
   },
   "govStaking": {
     "addresses": {
-      "goerli": "0x24aD8341522282725B31Da821f290b1ceBdf94fe"
+      "goerli": "0x735b45e0926fCa7A998904FA32d61C4bF0456540"
     },
     "metadata": {
-      "contractName": "govStaking"
+      "contractName": "GovStaking"
     }
   },
   "grantElections": {
     "addresses": {
-      "goerli": "0xF8C417F7a4593a561970358375Fc4b2F6F890E9c"
+      "goerli": "0xd198776d613f1d67f26EF1E526eF871b536Fcb21"
     },
     "metadata": {
       "contractName": "GrantElections"
@@ -450,10 +471,21 @@
     "metadata": {
       "contractName": "PopLocker",
       "icons": ["/images/icons/POP.svg"],
-      "name": "POP",
+      "name": "Staked POP",
       "symbol": "vlPOP",
       "priceResolver": "staking",
+      "balanceOfAdapter": {
+        "functionName": "lockedBalanceOf(address)",
+        "functionAbi": [
+          "function lockedBalanceOf(address) external view returns (uint256)"
+        ]
+      },
       "isERC20": false
+    }
+  },
+  "tokenManager": {
+    "addresses": {
+      "mainnet": "0x50a7c5a2aa566eb8aafc80ffc62e984bfece334f"
     }
   },
   "popUsdcArrakisVault": {
@@ -477,7 +509,16 @@
       "priceResolver": "staking",
       "apyResolver": "synthetix",
       "isERC20": false,
-      "symbol": "st-RAKIS-15"
+      "symbol": "stRAKIS-15",
+      "name": "Staked Arrakis USDC/POP LP",
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "popUsdcLp": {
@@ -488,6 +529,7 @@
     },
     "metadata": {
       "name": "USDC/POP LP",
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "buyLinkEthereum": "https://beta.arrakis.finance/#/vaults/0xBBA11b41407dF8793A89b44ee4b50AfAD4508555/add",
       "buyLinkPolygon": "https://beta.arrakis.finance/#/vaults/0x6dE0500211bc3140409B345Fa1a5289cb77Af1e4/add",
       "priceResolver": "arrakis"
@@ -512,8 +554,18 @@
       "rinkeby": "0x2B2C9812A5561DC3B0d99bbeEd8690002191Ea4D"
     },
     "metadata": {
+      "name": "USDC/POP LP",
+      "symbol": "stLP",
+      "icons": ["/images/tokens/usdc.svg", "/images/icons/POP.svg"],
       "priceResolver": "staking",
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "popUsdcUniV3Pool": {
@@ -544,12 +596,22 @@
       "priceResolver": "pop",
       "symbol": "POP",
       "balanceResolver": "escrowBalance",
+      "tvlResolver": {
+        "type": "escrow",
+        "tokenFunction": "POP",
+        "tokenFunctionAbi": ["function POP() external view returns (address)"]
+      },
+      "claimableTokenAdapter": {
+        "type": "escrow",
+        "tokenFunction": "POP",
+        "tokenFunctionAbi": ["function POP() external view returns (address)"]
+      },
       "isERC20": false
     }
   },
   "rewardsManager": {
     "addresses": {
-      "goerli": "0xFE4fE5e50dCc35B225028E3A8d23058D8A50676a"
+      "goerli": "0xE267b34596f3De6994059773d5F5D40a0711AE13"
     },
     "metadata": {
       "contractName": "RewardsManager"
@@ -657,7 +719,9 @@
     },
     "metadata": {
       "icons": ["/images/tokens/3X.svg"],
-      "priceResolver": "set_token"
+      "priceResolver": "set_token",
+      "apyResolver": "set_token",
+      "symbol": "3X"
     }
   },
   "threeXBatch": {
@@ -667,6 +731,14 @@
     },
     "metadata": {
       "contractName": "ThreeXBatchProcessing"
+    }
+  },
+  "threeXZapper": {
+    "addresses": {
+      "mainnet": "0x6DB9Bb0c672E93515acd1514eafc61e3FC6eDd84"
+    },
+    "metadata": {
+      "contractName": "ThreeXZapper"
     }
   },
   "threeXBatchVault": {
@@ -682,9 +754,18 @@
     "metadata": {
       "contractName": "ThreeXStaking",
       "priceResolver": "staking",
-      "symbol": "st-3X",
+      "name": "Staked 3X",
+      "symbol": "st3X",
+      "icons": ["/images/tokens/3X.svg"],
       "isERC20": false,
-      "apyResolver": "synthetix"
+      "apyResolver": "synthetix",
+      "claimableTokenAdapter": {
+        "type": "synthetix",
+        "tokenFunction": "rewardsToken",
+        "tokenFunctionAbi": [
+          "function rewardsToken() external view returns (address)"
+        ]
+      }
     }
   },
   "threeXWhale": {
@@ -700,7 +781,7 @@
       "mainnet": "0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4",
       "polygon": "0x0C0991CB6e1c8456660A49aa200B71de6158b85C",
       "rinkeby": "0x6eB155e648dc865a2687E81CFb73fff5dEbb0b56",
-      "goerli": "0x42b85613D87eA55468DFE53b4d3d94D2a6d05E69"
+      "goerli": "0xb6b382D70C552671603153c67aA06dfDCB9Ff26f"
     },
     "metadata": null
   },
@@ -709,7 +790,7 @@
       "polygon": "0xd928a457247649835e652416847C54C038FAF920",
       "mainnet": "0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF",
       "localhost": "0x359570B3a0437805D0a71457D61AD26a28cAC9A2",
-      "goerli": "0x52841Cfa95cFD2d8751cf202e7627AFFBbCF4A8B"
+      "goerli": "0x2E16224337E6c33Db58D42B701369806997A1487"
     },
     "metadata": {
       "contractName": "KeeperIncentive"
@@ -720,7 +801,7 @@
       "mainnet": "0x85831b53AFb86889c20aF38e654d871D8b0B7eC3",
       "polygon": "0x078927eF642319963a976008A7B1161059b7E77a",
       "rinkeby": "0xe8af04AD759Ad790Aa5592f587D3cFB3ecC6A9dA",
-      "goerli": "0x308bCee3746fD1FA8A6478C393ca9f8070E58A14"
+      "goerli": "0x5DFe4040c7FCb8002888b209eBf8e94Ffca108a3"
     }
   },
   "usdc": {
@@ -798,6 +879,7 @@
     },
     "metadata": {
       "icons": ["/images/icons/POP.svg"],
+      "name": "Redeemable POP",
       "priceResolver": "pop"
     }
   },
@@ -811,7 +893,7 @@
   },
   "beneficiaryRegistry": {
     "addresses": {
-      "goerli": "0xa8b52Ed2F6605ecDCBaC29d93AbCcd8e9350e1A6"
+      "goerli": "0xc9e244f134824fbd070858ab7A82B0e0B298cD5d"
     },
     "metadata": {
       "contractName": "BeneficiaryRegistry"
@@ -820,7 +902,7 @@
   "beneficiaryGovernance": {
     "addresses": {
       "mainnet": "0xCa57C1d3c2c35E667745448Fef8407dd25487ff8",
-      "goerli": "0x62B00B60D1f4042B3474900BA3fd548fc553205f"
+      "goerli": "0x3189769b424C2ec5d3F7402c4aDcfFc01567b090"
     },
     "metadata": {
       "contractName": "BeneficiaryGovernance"
@@ -830,7 +912,9 @@
     "addresses": {
       "mainnet": "0x5AB64C599FcC59f0f2726A300b03166A395578Da"
     },
-    "metadata": null
+    "metadata": {
+      "apyResolver": "yearn"
+    }
   },
   "yAlusd": {
     "addresses": {
@@ -838,18 +922,19 @@
       "rinkeby": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8"
     },
     "metadata": {
-      "name": "yAlusd"
+      "name": "yAlusd",
+      "apyResolver": "yearn"
     }
   },
   "BeneficiaryVaults": {
     "addresses": {
-      "goerli": "0x4E4c4Eb83305C47d80aB6C0065b2308f5640B41f"
+      "goerli": "0xbfB8EC59812680542786B487C76c451c7CB0d9aE"
     },
     "metadata": null
   },
   "Region": {
     "addresses": {
-      "goerli": "0x45926B4EFACbc7f2D301D6d59Fb80155906d2af0"
+      "goerli": "0x1265fF9Cbc8628ce4c62349D27Bb79B6B83B37Be"
     },
     "metadata": null
   },
@@ -859,12 +944,13 @@
       "rinkeby": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139"
     },
     "metadata": {
-      "name": "yFrax"
+      "name": "yFrax",
+      "apyResolver": "yearn"
     }
   },
   "ParticipationReward": {
     "addresses": {
-      "goerli": "0x6768E6f0af526d5c14A4fee1c465CeCDb188dd0f"
+      "goerli": "0x451A80bCB45CffC2975fd6b8031746E0Aab81cD4"
     },
     "metadata": null
   },
@@ -872,7 +958,9 @@
     "addresses": {
       "mainnet": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e"
     },
-    "metadata": null
+    "metadata": {
+      "apyResolver": "yearn"
+    }
   },
   "yMusd": {
     "addresses": {
@@ -880,7 +968,8 @@
       "rinkeby": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757"
     },
     "metadata": {
-      "name": "yMusd"
+      "name": "yMusd",
+      "apyResolver": "yearn"
     }
   },
   "yRai": {
@@ -889,7 +978,8 @@
       "rinkeby": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE"
     },
     "metadata": {
-      "name": "yRai"
+      "name": "yRai",
+      "apyResolver": "yearn"
     }
   },
   "ySusd": {
@@ -899,7 +989,8 @@
     "metadata": {
       "name": "sUSD",
       "symbol": "sUSD",
-      "icons": ["/images/tokens/sUSD.png"]
+      "icons": ["/images/tokens/sUSD.png"],
+      "apyResolver": "yearn"
     }
   },
   "yearnRegistry": {

@@ -7,9 +7,8 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, deployments, addresses, signer } = await getSetup(hre);
   const { pop } = addresses;
 
-  const popAddress = !["mainnet", "polygon", "arbitrum", "bsc", "remote_fork"].includes(hre.network.name)
-    ? (await deployments.get("POP")).address
-    : pop;
+  const isLocalNetwork = !["mainnet", "polygon", "arbitrum", "bsc", "remote_fork"].includes(hre.network.name);
+  const popAddress = isLocalNetwork ? (await deployments.get("TestPOP")).address : pop;
 
   const deployed = await deploy(contract_name, {
     from: await signer.getAddress(),

@@ -35,9 +35,12 @@ const BeneficiaryApplications = () => {
     { label: ApplicationStatus.New, status: [ProposalStatus.New] },
     {
       label: ApplicationStatus.ChallengePeriod,
-      status: [ProposalStatus.ChallengePeriod, ProposalStatus.PendingFinalization],
+      status: [ProposalStatus.ChallengePeriod],
     },
-    { label: ApplicationStatus.Completed, status: [ProposalStatus.Passed, ProposalStatus.Failed] },
+    {
+      label: ApplicationStatus.Completed,
+      status: [ProposalStatus.Passed, ProposalStatus.Failed, ProposalStatus.PendingFinalization],
+    },
   ];
   const { account, library } = useWeb3React<Web3Provider>();
   const { contracts } = useContext(ContractsContext);
@@ -71,6 +74,9 @@ const BeneficiaryApplications = () => {
     const filteringProposals = proposals
       ?.filter((proposal: Proposal) => {
         const proposalStatus = proposal?.status;
+        if (new Date(proposal?.stageDeadline).getTime() < Date.now()) {
+          return statusFilter.status.includes(proposalStatus + 1);
+        }
         return statusFilter.status.includes(proposalStatus);
       })
       ?.filter((proposal: Proposal) => {

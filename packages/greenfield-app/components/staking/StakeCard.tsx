@@ -1,6 +1,5 @@
 import { ChainId, formatAndRoundBigNumber, networkMap } from "@popcorn/utils";
 import { constants } from "ethers";
-import useTokenPrices from "@popcorn/app/hooks/tokens/useTokenPrices";
 import { useContractMetadata } from "@popcorn/app/hooks/useContractMetadata";
 import Badge, { Badge as BadgeType } from "@popcorn/app/components/Common/Badge";
 import MainActionButton from "@popcorn/app/components/MainActionButton";
@@ -11,6 +10,7 @@ import { StakingType } from "hooks/staking/useAllStakingAddresses";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 import { NetworkSticker } from "@popcorn/app/components/NetworkSticker";
+import { Tvl } from "@popcorn/components/lib/Contract";
 
 interface StakeCardProps {
   stakingAddress: string;
@@ -38,11 +38,6 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
   const isValidating = stakingType === StakingType.PopLocker ? popLockerIsValidating : stakingPoolIsValidating;
   const error = stakingType === StakingType.PopLocker ? popLockerError : stakingPoolError;
 
-  const {
-    data: tokenPrice,
-    isValidating: tokenPriceValidating,
-    error: tokenPriceError,
-  } = useTokenPrices([staking?.stakingToken?.address], chainId);
   const metadata = useContractMetadata(staking?.stakingToken?.address, chainId);
 
   function onSelectPool() {
@@ -64,7 +59,7 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
       </div>
 
       <div
-        className={`border-b border-b-customLightGray cursor-pointer hover:scale-102 transition duration-500 ease-in-out transform relative ${
+        className={`border-b border-b-customLightGray  border-opacity-40 cursor-pointer hover:scale-102 hover:border-opacity-60 transition duration-500 ease-in-out transform relative ${
           staking === undefined ? "hidden" : ""
         }`}
         onClick={onSelectPool}
@@ -102,16 +97,9 @@ const StakeCard: React.FC<StakeCardProps> = ({ stakingAddress, stakingType, chai
             </div>
             <div className="w-1/2 md:w-1/4 mt-6 md:mt-0">
               <p className="text-primaryLight leading-6">TVL</p>
-              <p className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
-                {!tokenPriceValidating && !tokenPriceError && tokenPrice !== undefined
-                  ? `$ ${formatAndRoundBigNumber(
-                      staking?.totalStake
-                        ?.mul(tokenPrice[staking?.stakingToken?.address.toLowerCase()])
-                        .div(constants.WeiPerEther),
-                      staking?.stakingToken?.decimals,
-                    )}`
-                  : "..."}
-              </p>
+              <div className="text-primary text-2xl md:text-3xl leading-6 md:leading-8">
+                <Tvl chainId={chainId} address={staking?.address} />
+              </div>
             </div>
             <div className="w-full md:w-1/2 mt-6 md:mt-0">
               <p className="text-primaryLight leading-6">Token Emissions</p>
