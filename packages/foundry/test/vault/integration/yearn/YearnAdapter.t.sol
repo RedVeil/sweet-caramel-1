@@ -22,8 +22,6 @@ contract YearnAdapterTest is AbstractAdapterTest {
     _setUpTest(testConfigStorage.getTestConfig(0));
   }
 
-  function test__setUp() public {}
-
   function overrideSetup(bytes memory testConfig) public override {
     _setUpTest(testConfig);
   }
@@ -78,7 +76,7 @@ contract YearnAdapterTest is AbstractAdapterTest {
       adapter.totalAssets(),
       iouBalance().mulDiv(
         yearnVault.pricePerShare(),
-        10 ** IERC20Metadata(address(adapter)).decimals(),
+        10**IERC20Metadata(address(adapter)).decimals(),
         Math.Rounding.Up
       ),
       string.concat("totalAssets != yearn assets", baseTestId)

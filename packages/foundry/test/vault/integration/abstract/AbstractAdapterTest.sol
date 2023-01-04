@@ -53,7 +53,7 @@ contract AbstractAdapterTest is PropertyTest {
     adapter = adapter_;
     externalRegistry = externalRegistry_;
 
-    defaultAmount = 10 ** IERC20Metadata(address(asset_)).decimals();
+    defaultAmount = 10**IERC20Metadata(address(asset_)).decimals();
 
     raise = defaultAmount * 100_000;
     maxAssets = defaultAmount * 1000;
@@ -419,16 +419,10 @@ contract AbstractAdapterTest is PropertyTest {
   event Harvested();
 
   function test__harvest() public virtual {
-    emit log_named_uint("ta1", adapter.totalAssets());
-
     _mintFor(defaultAmount, bob);
-
-    emit log_named_uint("ta2", adapter.totalAssets());
 
     vm.prank(bob);
     adapter.deposit(defaultAmount, bob);
-
-    emit log_named_uint("ta3", adapter.totalAssets());
 
     // Skip a year
     vm.warp(block.timestamp + 365.25 days);
@@ -443,11 +437,7 @@ contract AbstractAdapterTest is PropertyTest {
     vm.expectEmit(false, false, false, true, address(adapter));
     emit Harvested();
 
-    emit log_named_uint("ta4", adapter.totalAssets());
-
     adapter.harvest();
-
-    emit log_named_uint("ta5", adapter.totalAssets());
 
     assertEq(adapter.feesUpdatedAt(), callTime, "feesUpdatedAt");
     assertApproxEqAbs(adapter.assetsCheckpoint(), defaultAmount, _delta_, "assetsCheckpoint");

@@ -3,16 +3,16 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 
-import { MockERC20 } from "../../utils/mocks/MockERC20.sol";
-import { MockERC4626 } from "../../utils/mocks/MockERC4626.sol";
-import { Vault } from "../../../src/vault/Vault.sol";
-import { KeeperConfig } from "../../../src/utils/KeeperIncentivized.sol";
-import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../../../src/utils/KeeperIncentiveV2.sol";
-import { IContractRegistry } from "../../../src/interfaces/IContractRegistry.sol";
+import { MockERC20 } from "../utils/mocks/MockERC20.sol";
+import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
+import { Vault } from "../../src/vault/Vault.sol";
+import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
+import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../../src/utils/KeeperIncentiveV2.sol";
+import { IContractRegistry } from "../../src/interfaces/IContractRegistry.sol";
 
-import { IACLRegistry } from "../../../src/interfaces/IACLRegistry.sol";
-import { IERC4626, IERC20 } from "../../../src/interfaces/vault/IERC4626.sol";
-import { FeeStructure } from "../../../src/interfaces/vault/IVault.sol";
+import { IACLRegistry } from "../../src/interfaces/IACLRegistry.sol";
+import { IERC4626, IERC20 } from "../../src/interfaces/vault/IERC4626.sol";
+import { FeeStructure } from "../../src/interfaces/vault/IVault.sol";
 
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
@@ -21,7 +21,7 @@ address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
 address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
 address constant KEEPER_INCENTIVE = 0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF;
 
-contract VaultUnitTest is Test {
+contract VaultTest is Test {
   using FixedPointMathLib for uint256;
 
   bytes32 constant PERMIT_TYPEHASH =
