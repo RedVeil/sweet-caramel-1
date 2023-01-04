@@ -1,9 +1,10 @@
 /* This example requires Tailwind CSS v2.0+ */
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import TertiaryActionButton from "components/CommonComponents/TertiaryActionButton";
-import MainActionButton from "components/MainActionButton";
 import Image from "next/image";
+
+import TertiaryActionButton from "@popcorn/popcorn-network/components/CommonComponents/TertiaryActionButton";
+import MainActionButton from "@popcorn/popcorn-network/components/MainActionButton";
 
 export interface SingleActionModalProps {
   title: string;
@@ -17,6 +18,7 @@ export interface SingleActionModalProps {
   keepOpen?: boolean;
   isTerms?: boolean;
 }
+
 export const DefaultSingleActionModalProps: SingleActionModalProps = {
   content: "",
   title: "",

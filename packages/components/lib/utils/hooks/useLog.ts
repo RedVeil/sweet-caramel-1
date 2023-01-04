@@ -8,6 +8,7 @@ function useLog(msg, ...deps) {
   const enabled = useMemo(() => {
     return process.env.NODE_ENV === "development" && process.env.USE_LOG;
   }, []);
+
   useEffect(
     () => {
       !!enabled && console.log({ ...msg });

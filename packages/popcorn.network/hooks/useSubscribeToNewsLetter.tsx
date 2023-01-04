@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import PrimaryButton from "components/CommonComponents/PrimaryButton";
 import { toast } from "react-hot-toast";
-import { setSingleActionModal } from "app/actions";
-import { store } from "app/store";
-import { isValidEmailAddress } from "helpers/verifyEmail";
+
+import { setSingleActionModal } from "@popcorn/popcorn-network/app/actions";
+import { store } from "@popcorn/popcorn-network/app/store";
+import { isValidEmailAddress } from "@popcorn/popcorn-network/helpers/verifyEmail";
+import PrimaryButton from "@popcorn/popcorn-network/components/CommonComponents/PrimaryButton";
 
 const useSubscribeToNewsletter = (): {
   showNewsletterModal: () => void;
