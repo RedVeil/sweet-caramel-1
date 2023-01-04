@@ -93,15 +93,15 @@ contract VaultController is Owned {
     emit VaultDeployed(vault, staking, address(vaultData.adapter));
   }
 
-  function _deployVault(VaultParams memory vaultData, IDeploymentController deploymentController)
+  function _deployVault(VaultParams memory vaultData, IDeploymentController _deploymentController)
     internal
     returns (address vault)
   {
     vaultData.owner = address(adminProxy);
     vaultData.keeperIncentive = keeperIncentive;
 
-    (bool success, bytes memory returnData) = adminProxy.execute(
-      address(deploymentController),
+    (, bytes memory returnData) = adminProxy.execute(
+      address(_deploymentController),
       abi.encodeWithSelector(
         DEPLOY_SIG,
         VAULT,
@@ -186,30 +186,30 @@ contract VaultController is Owned {
     IERC20 asset,
     DeploymentArgs memory adapterData,
     DeploymentArgs memory strategyData,
-    IDeploymentController deploymentController
+    IDeploymentController _deploymentController
   ) internal returns (address) {
     address strategy;
     bytes4[8] memory requiredSigs;
     if (strategyData.id.length > 0) {
-      strategy = _deployStrategy(asset, strategyData, deploymentController);
-      requiredSigs = deploymentController.getTemplate(STRATEGY, strategyData.id).requiredSigs;
+      strategy = _deployStrategy(strategyData, _deploymentController);
+      requiredSigs = _deploymentController.getTemplate(STRATEGY, strategyData.id).requiredSigs;
     }
 
     return
       __deployAdapter(
         adapterData,
         abi.encode(asset, address(adminProxy), IStrategy(strategy), requiredSigs, strategyData.data, harvestCooldown),
-        deploymentController
+        _deploymentController
       );
   }
 
   function __deployAdapter(
     DeploymentArgs memory adapterData,
     bytes memory baseAdapterData,
-    IDeploymentController deploymentController
+    IDeploymentController _deploymentController
   ) internal returns (address adapter) {
     (, bytes memory returnDataAdapter) = adminProxy.execute(
-      address(deploymentController),
+      address(_deploymentController),
       abi.encodeWithSelector(
         DEPLOY_SIG,
         ADAPTER,
@@ -217,7 +217,7 @@ contract VaultController is Owned {
         abi.encodeWithSelector(
           IAdapter.initialize.selector,
           baseAdapterData,
-          deploymentController.getTemplate(ADAPTER, adapterData.id).registry,
+          _deploymentController.getTemplate(ADAPTER, adapterData.id).registry,
           adapterData.data
         )
       )
@@ -228,13 +228,12 @@ contract VaultController is Owned {
     adminProxy.execute(adapter, abi.encodeWithSelector(IAdapter.setManagementFee.selector, managementFee));
   }
 
-  function _deployStrategy(
-    IERC20 asset,
-    DeploymentArgs memory strategyData,
-    IDeploymentController deploymentController
-  ) internal returns (address strategy) {
-    (bool success, bytes memory returnDataStrategy) = adminProxy.execute(
-      address(deploymentController),
+  function _deployStrategy(DeploymentArgs memory strategyData, IDeploymentController _deploymentController)
+    internal
+    returns (address strategy)
+  {
+    (, bytes memory returnDataStrategy) = adminProxy.execute(
+      address(_deploymentController),
       abi.encodeWithSelector(DEPLOY_SIG, STRATEGY, strategyData.id, "")
     );
 
@@ -251,9 +250,12 @@ contract VaultController is Owned {
     return _deployStaking(asset, deploymentController);
   }
 
-  function _deployStaking(IERC20 asset, IDeploymentController deploymentController) internal returns (address staking) {
-    (bool success, bytes memory returnData) = adminProxy.execute(
-      address(deploymentController),
+  function _deployStaking(IERC20 asset, IDeploymentController _deploymentController)
+    internal
+    returns (address staking)
+  {
+    (, bytes memory returnData) = adminProxy.execute(
+      address(_deploymentController),
       abi.encodeWithSelector(
         DEPLOY_SIG,
         STAKING,
@@ -506,17 +508,17 @@ contract VaultController is Owned {
   error AdapterConfigFaulty();
   error ArrayLengthMissmatch();
 
-  function _verifySubmitterOrOwner(address vault) internal returns (VaultMetadata memory metadata) {
+  function _verifySubmitterOrOwner(address vault) internal view returns (VaultMetadata memory metadata) {
     metadata = vaultsRegistry.vaults(vault);
     if (msg.sender != metadata.submitter || msg.sender != owner) revert NotSubmitterNorOwner(msg.sender);
   }
 
-  function _verifySubmitter(address vault) internal returns (VaultMetadata memory metadata) {
+  function _verifySubmitter(address vault) internal view returns (VaultMetadata memory metadata) {
     metadata = vaultsRegistry.vaults(vault);
     if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
   }
 
-  function _verifyToken(IERC20 token) internal {
+  function _verifyToken(IERC20 token) internal view {
     if (!endorsementRegistry.endorsed(address(token)) || !deploymentController.cloneExists(address(token)))
       revert TokenNotAllowed(token);
   }
@@ -525,14 +527,14 @@ contract VaultController is Owned {
     address adapter,
     bytes32 adapterId,
     IDeploymentController _deploymentController
-  ) internal {
+  ) internal view {
     if (adapter != address(0)) {
       if (adapterId > 0) revert AdapterConfigFaulty();
       if (!_deploymentController.cloneExists(adapter)) revert AdapterConfigFaulty();
     }
   }
 
-  function _verifyEqualArrayLength(uint256 length1, uint256 length2) internal {
+  function _verifyEqualArrayLength(uint256 length1, uint256 length2) internal pure {
     if (length1 != length2) revert ArrayLengthMissmatch();
   }
 
