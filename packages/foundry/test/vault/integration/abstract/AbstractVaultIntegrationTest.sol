@@ -53,17 +53,12 @@ contract AbstractVaultIntegrationTest is Test {
                           TEST SETUP
     //////////////////////////////////////////////////////////////*/
 
-  function setUpBaseTest(
-    IERC20 asset_,
-    IAdapter adapter_,
-    string memory baseTestId_,
-    uint256 maxConfigs_
-  ) public {
+  function setUpBaseTest(IERC20 asset_, IAdapter adapter_, string memory baseTestId_, uint256 maxConfigs_) public {
     asset = asset_;
     adapter = adapter_;
     baseTestId = baseTestId_;
     maxConfigs = maxConfigs_;
-    defaultAmount = 10**IERC20Metadata(address(asset_)).decimals();
+    defaultAmount = 10 ** IERC20Metadata(address(asset_)).decimals();
     maxDeposit = defaultAmount * 10_000;
 
     _setUpAdminAddresses(block.chainid);
@@ -121,12 +116,7 @@ contract AbstractVaultIntegrationTest is Test {
   // Construct a new Adapter and set it to `adapter`
   function createAdapter() public virtual {}
 
-  function assertWithin(
-    uint256 expected,
-    uint256 actual,
-    uint256 delta,
-    string memory err
-  ) internal {
+  function assertWithin(uint256 expected, uint256 actual, uint256 delta, string memory err) internal {
     if (expected > actual) {
       assertLe(expected - actual, delta, err);
     } else if (actual > expected) {
