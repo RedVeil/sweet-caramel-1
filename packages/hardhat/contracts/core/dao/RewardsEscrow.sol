@@ -20,6 +20,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
     uint256 initialBalance;
     uint256 balance;
     address account;
+    address token;
   }
 
   IERC20 public immutable POP;
@@ -92,11 +93,12 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
   function lock(
     address _account,
     uint256 _amount,
-    uint256 _duration
+    uint256 _duration,
+    address _token
   ) external override nonReentrant {
     require(authorized[msg.sender], "unauthorized");
     require(_amount > 0, "amount must be greater than 0");
-    require(POP.balanceOf(msg.sender) >= _amount, "insufficient balance");
+    require(IERC20(_token).balanceOf(msg.sender) >= _amount, "insufficient balance");
     require(_duration > 0, "duration must be > 0");
 
     nonce++;
@@ -108,12 +110,13 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
       end: block.timestamp + _duration,
       initialBalance: _amount,
       balance: _amount,
-      account: _account
+      account: _account,
+      token: _token
     });
 
     escrowIdsByAddress[_account].push(id);
 
-    POP.safeTransferFrom(msg.sender, address(this), _amount);
+    IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
 
     emit Locked(_account, _amount);
   }
@@ -130,7 +133,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
     uint256 reward = _claimReward(_escrowId);
     require(reward > 0, "no rewards");
 
-    POP.safeTransfer(msg.sender, reward);
+    IERC20(escrow.token).safeTransfer(msg.sender, reward);
 
     emit RewardsClaimed(msg.sender, reward);
   }
@@ -142,30 +145,23 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    * @dev prevention for gas overflow should be handled in the frontend
    */
   function claimRewards(bytes32[] calldata _escrowIdsByAddress) external nonReentrant {
-    uint256 total;
-
     for (uint256 i = 0; i < _escrowIdsByAddress.length; i++) {
       bytes32 _escrowId = _escrowIdsByAddress[i];
       Escrow memory escrow = escrows[_escrowId];
       require(msg.sender == escrow.account, "unauthorized");
       uint256 reward = _claimReward(_escrowId);
-      total += reward;
+      require(reward > 0, "no rewards");
+      IERC20(escrow.token).safeTransfer(msg.sender, reward);
+      emit RewardsClaimed(msg.sender, reward);
     }
-    require(total > 0, "no rewards");
-
-    POP.safeTransfer(msg.sender, total);
-
-    emit RewardsClaimed(msg.sender, total);
   }
 
-  /* ========== RESTRICTED FUNCTIONS ========== */
-
-  function addAuthorizedContract(address _staking) external onlyOwner {
+  function addAuthorizedContract(address _staking) external {
     authorized[_staking] = true;
     emit AddAuthorizedContract(_staking);
   }
 
-  function removeAuthorizedContract(address _staking) external onlyOwner {
+  function removeAuthorizedContract(address _staking) external {
     delete authorized[_staking];
     emit RemoveAuthorizedContract(_staking);
   }

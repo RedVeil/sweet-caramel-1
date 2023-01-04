@@ -5,30 +5,40 @@ pragma solidity ^0.8.0;
 
 bytes32 constant INCENTIVE_MANAGER_ROLE = keccak256("INCENTIVE_MANAGER_ROLE");
 
+/**
+ * @dev Either set incentiveVigBps or keeperPayout. Both would be overkill
+ * @dev KeeperPayout is not used in here but in KeeperIncentiveV2 and is here as reference
+ */
+struct KeeperConfig {
+  uint256 minWithdrawalAmount; // minimum amount required of accrued fees for calling withdrawAccruedFees
+  uint256 incentiveVigBps; // percentage of accrued fees (in bps) allocated to fund the keeper incentive reserves
+  uint256 keeperPayout; // amount paid out to keeper per invocation of incentivized function - withdrawAccruedFees()
+}
+
+struct Incentive {
+  uint256 reward; //pop reward for calling the function
+  bool enabled;
+  bool openToEveryone; //can everyone call the function to get the reward or only approved?
+  address rewardToken;
+  uint256 cooldown; // seconds required between incentive payouts
+  uint256 burnPercentage;
+  uint256 id;
+  uint256 lastInvocation;
+}
+
+/**
+ * @notice keeper account balances are addressesable by the keeper address whereas account balances held by this contract which have not yet been internally transferred to keepers are addressable by this contract's address
+ * @param balance balance
+ * @param token rewardsToken address
+ * @param accountId incentive account id
+ **/
+struct Account {
+  uint256 balance;
+  address token;
+  bytes32 accountId;
+}
+
 interface IKeeperIncentiveV2 {
-  struct Incentive {
-    uint256 reward; //pop reward for calling the function
-    bool enabled;
-    bool openToEveryone; //can everyone call the function to get the reward or only approved?
-    address rewardToken;
-    uint256 cooldown; // seconds required between incentive payouts
-    uint256 burnPercentage;
-    uint256 id;
-    uint256 lastInvocation;
-  }
-
-  /**
-   * @notice keeper account balances are addressesable by the keeper address whereas account balances held by this contract which have not yet been internally transferred to keepers are addressable by this contract's address
-   * @param balance balance
-   * @param token rewardsToken address
-   * @param accountId incentive account id
-   **/
-  struct Account {
-    uint256 balance;
-    address token;
-    bytes32 accountId;
-  }
-
   /* ==========  VIEWS  ========== */
 
   /**
@@ -72,11 +82,7 @@ interface IKeeperIncentiveV2 {
   /**
    * @dev Deprecated, use handleKeeperIncentive(uint8 _i, address _keeper) instead
    */
-  function handleKeeperIncentive(
-    bytes32,
-    uint8 _i,
-    address _keeper
-  ) external;
+  function handleKeeperIncentive(bytes32, uint8 _i, address _keeper) external;
 
   /**
    * @notice Keeper calls to claim rewards earned
@@ -157,11 +163,7 @@ interface IKeeperIncentiveV2 {
    * @param _i incentive index
    * @param _amount amount of reward token to fund incentive with
    */
-  function fundIncentive(
-    address _contractAddress,
-    uint256 _i,
-    uint256 _amount
-  ) external;
+  function fundIncentive(address _contractAddress, uint256 _i, uint256 _amount) external;
 
   /**
    * @notice Allows for incentives to be funded with additional tip
@@ -170,12 +172,7 @@ interface IKeeperIncentiveV2 {
    * @param _i incentive index
    * @param _amount amount of reward token to tip
    */
-  function tip(
-    address _rewardToken,
-    address _keeper,
-    uint256 _i,
-    uint256 _amount
-  ) external;
+  function tip(address _rewardToken, address _keeper, uint256 _i, uint256 _amount) external;
 
   /**
    * @notice Allows for incentives to be funded with additional tip

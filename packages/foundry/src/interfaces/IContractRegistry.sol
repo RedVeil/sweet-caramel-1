@@ -11,15 +11,7 @@ interface IContractRegistry {
 
   function getContractIdFromAddress(address _contractAddress) external view returns (bytes32);
 
-  function addContract(
-    bytes32 _name,
-    address _address,
-    bytes32 _version
-  ) external;
+  function addContract(bytes32 _name, address _address, bytes32 _version) external;
 
-  function updateContract(
-    bytes32 _name,
-    address _newAddress,
-    bytes32 _version
-  ) external;
+  function updateContract(bytes32 _name, address _newAddress, bytes32 _version) external;
 }
