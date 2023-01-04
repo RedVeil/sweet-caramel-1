@@ -60,11 +60,7 @@ contract ContractRegistry is IContractRegistry {
 
   /* ========== MUTATIVE FUNCTIONS ========== */
 
-  function addContract(
-    bytes32 _name,
-    address _address,
-    bytes32 _version
-  ) external override {
+  function addContract(bytes32 _name, address _address, bytes32 _version) external override {
     aclRegistry.requireRole(keccak256("DAO"), msg.sender);
     require(contracts[_name].contractAddress == address(0), "contract already exists");
     require(contractAddresses[_address] == "", "contract address already in use");
@@ -74,11 +70,7 @@ contract ContractRegistry is IContractRegistry {
     emit ContractAdded(_name, _address, _version);
   }
 
-  function updateContract(
-    bytes32 _name,
-    address _newAddress,
-    bytes32 _version
-  ) external {
+  function updateContract(bytes32 _name, address _newAddress, bytes32 _version) external {
     aclRegistry.requireRole(keccak256("DAO"), msg.sender);
     require(contracts[_name].contractAddress != address(0), "contract doesnt exist");
     require(contractAddresses[_newAddress] == "", "contract address already in use");

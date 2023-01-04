@@ -34,11 +34,7 @@ contract MockERC4626 is ERC20 {
 
   ERC20 public immutable asset;
 
-  constructor(
-    ERC20 _asset,
-    string memory _name,
-    string memory _symbol
-  ) ERC20(_name, _symbol) {
+  constructor(ERC20 _asset, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
     asset = _asset;
 
     _decimals = _asset.decimals();
@@ -83,11 +79,7 @@ contract MockERC4626 is ERC20 {
     afterDeposit(assets, shares);
   }
 
-  function withdraw(
-    uint256 assets,
-    address receiver,
-    address owner
-  ) public virtual returns (uint256 shares) {
+  function withdraw(uint256 assets, address receiver, address owner) public virtual returns (uint256 shares) {
     shares = previewWithdraw(assets); // No need to check for rounding error, previewWithdraw rounds up.
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -101,11 +93,7 @@ contract MockERC4626 is ERC20 {
     asset.safeTransfer(receiver, assets);
   }
 
-  function redeem(
-    uint256 shares,
-    address receiver,
-    address owner
-  ) public virtual returns (uint256 assets) {
+  function redeem(uint256 shares, address receiver, address owner) public virtual returns (uint256 assets) {
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
     // Check for rounding error since we round down in previewRedeem.

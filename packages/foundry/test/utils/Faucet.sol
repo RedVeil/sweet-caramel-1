@@ -26,11 +26,7 @@ interface Crv3CryptoPool {
 }
 
 interface CrvAavePool {
-  function add_liquidity(
-    uint256[3] calldata amounts,
-    uint256 min_mint_amount,
-    bool use_underlying
-  ) external;
+  function add_liquidity(uint256[3] calldata amounts, uint256 min_mint_amount, bool use_underlying) external;
 }
 
 interface CrvCompPool {
@@ -110,11 +106,7 @@ contract Faucet {
     IERC20(crvSBtcLP).safeApprove(address(crvIbBtcPool), type(uint256).max);
   }
 
-  function sendTokens(
-    address token,
-    uint256 amount,
-    address recipient
-  ) public returns (uint256[] memory) {
+  function sendTokens(address token, uint256 amount, address recipient) public returns (uint256[] memory) {
     address[] memory path = new address[](2);
     path[0] = uniswap.WETH();
     path[1] = token;

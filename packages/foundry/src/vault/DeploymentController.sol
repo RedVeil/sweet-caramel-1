@@ -36,11 +36,7 @@ contract DeploymentController is Owned {
                           TEMPLATE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function addTemplate(
-    bytes32 templateType,
-    bytes32 templateId,
-    Template memory template
-  ) external {
+  function addTemplate(bytes32 templateType, bytes32 templateId, Template memory template) external {
     templateRegistry.addTemplate(templateType, templateId, template);
   }
 

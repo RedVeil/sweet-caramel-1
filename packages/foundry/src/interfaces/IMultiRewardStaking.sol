@@ -23,9 +23,5 @@ interface IMultiRewardStaking is IERC4626, IOwned, IPermit, IPausable {
 
   function fundReward(IERC20 rewardsToken, uint256 amount) external;
 
-  function initialize(
-    IERC20 _stakingToken,
-    IMultiRewardEscrow _escrow,
-    address _owner
-  ) external;
+  function initialize(IERC20 _stakingToken, IMultiRewardEscrow _escrow, address _owner) external;
 }

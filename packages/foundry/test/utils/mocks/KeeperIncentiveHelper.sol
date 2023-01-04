@@ -31,12 +31,7 @@ contract KeeperIncentiveHelper {
     emit FunctionCalled(msg.sender);
   }
 
-  function tipIncentive(
-    address _rewardToken,
-    address _keeper,
-    uint256 _i,
-    uint256 _amount
-  ) public {
+  function tipIncentive(address _rewardToken, address _keeper, uint256 _i, uint256 _amount) public {
     IERC20(_rewardToken).safeTransferFrom(msg.sender, address(this), _amount);
     IERC20(_rewardToken).approve(address(keeperIncentive), _amount);
     keeperIncentive.tip(_rewardToken, _keeper, _i, _amount);

@@ -90,12 +90,7 @@ contract RewardsEscrow is IRewardsEscrow, ReentrancyGuard, Ownable {
    * @notice Locks funds for escrow
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds
    */
-  function lock(
-    address _account,
-    uint256 _amount,
-    uint256 _duration,
-    address _token
-  ) external override nonReentrant {
+  function lock(address _account, uint256 _amount, uint256 _duration, address _token) external override nonReentrant {
     require(authorized[msg.sender], "unauthorized");
     require(_amount > 0, "amount must be greater than 0");
     require(IERC20(_token).balanceOf(msg.sender) >= _amount, "insufficient balance");
