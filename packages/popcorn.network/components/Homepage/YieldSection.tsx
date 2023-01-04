@@ -1,12 +1,12 @@
-import NewsletterSubscription from "components/CommonComponents/NewsletterSubscription";
+import React from "react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+
 import { Tvl } from "@popcorn/components/lib/Contract";
-import { useNamedAccounts } from "@popcorn/components";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { ChainId } from "@popcorn/utils";
+import NewsletterSubscription from "components/CommonComponents/NewsletterSubscription";
 
 const YieldSection = ({ tvlProps }) => {
-  const [loading, setLoading] = useState<boolean>(true);
   const [threex, butter] = useNamedAccounts("1", ["threeX", "butter"]);
 
   return (
