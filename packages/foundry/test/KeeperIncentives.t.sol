@@ -1,5 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
+pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
@@ -98,14 +100,19 @@ contract KeeperIncentiveTest is Test {
     helper.incentivisedFunction(i);
   }
 
-  function accountId(address _contract, uint256 index, address _rewardToken) internal pure returns (bytes32) {
+  function accountId(
+    address _contract,
+    uint256 index,
+    address _rewardToken
+  ) internal pure returns (bytes32) {
     return keccak256(abi.encode(_contract, index, _rewardToken));
   }
 
-  function getKeeperClaimableTokenBalance(
-    address keeperAddress,
-    address _rewardToken
-  ) public view returns (uint256 balance) {
+  function getKeeperClaimableTokenBalance(address keeperAddress, address _rewardToken)
+    public
+    view
+    returns (uint256 balance)
+  {
     Account[] memory accounts = keeperIncentive.getAccounts(keeperAddress);
     for (uint256 i; i < accounts.length; ++i) {
       if (address(accounts[i].token) == _rewardToken) {

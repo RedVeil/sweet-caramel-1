@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
 import { Owned } from "../utils/Owned.sol";
@@ -32,7 +33,11 @@ contract TemplateRegistry is Owned {
   event TemplateAdded(bytes32 templateType, bytes32 templateId, address implementation);
   event TemplateUpdated(bytes32 templateType, bytes32 templateId);
 
-  function addTemplate(bytes32 templateType, bytes32 templateId, Template memory template) external onlyOwner {
+  function addTemplate(
+    bytes32 templateType,
+    bytes32 templateId,
+    Template memory template
+  ) external onlyOwner {
     if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
     if (templateExists[templateId]) revert TemplateExists(templateId);
 

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
 import { Owned } from "../utils/Owned.sol";
@@ -7,7 +8,7 @@ import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.s
 
 /**
  * @notice Factory that deploys Vault, VaultStaking, and Wrapper contracts
- * @dev deploy functions can only be called by VaultsController
+ * @dev deploy functions can only be called by VaultController
  */
 contract EndorsementRegistry is Owned {
   /*//////////////////////////////////////////////////////////////

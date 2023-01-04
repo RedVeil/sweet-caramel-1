@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 // https://docs.synthetix.io/contracts/source/contracts/owned
 contract Owned {

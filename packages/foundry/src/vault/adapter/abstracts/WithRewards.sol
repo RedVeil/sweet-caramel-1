@@ -1,10 +1,12 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
-import { EIP165 } from "./EIP165.sol";
+import { EIP165 } from "../../../utils/EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
-import { IWithRewards } from "../../interfaces/vault/IWithRewards.sol";
-import { IAdapter } from "../../interfaces/vault/IAdapter.sol";
+import { IWithRewards } from "../../../interfaces/vault/IWithRewards.sol";
+import { IAdapter } from "../../../interfaces/vault/IAdapter.sol";
 
 contract WithRewards is EIP165, OnlyStrategy {
   function rewardTokens() external view virtual returns (address[] memory) {}

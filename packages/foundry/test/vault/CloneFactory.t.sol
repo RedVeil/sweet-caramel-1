@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.15;
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
 
+pragma solidity ^0.8.15;
 import { Test } from "forge-std/Test.sol";
 import { CloneFactory } from "../../src/vault/CloneFactory.sol";
 import { Template } from "../../src/interfaces/vault/ITemplateRegistry.sol";

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 import { IKeeperIncentiveV2, KeeperConfig } from "../interfaces/IKeeperIncentiveV2.sol";
 import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
@@ -45,7 +45,12 @@ abstract contract KeeperIncentivizedUpgradeable is Initializable {
    * @param _i incentive index
    * @param _amount amount of reward token to tip
    */
-  function _tip(address _rewardToken, address _keeper, uint256 _i, uint256 _amount) internal {
+  function _tip(
+    address _rewardToken,
+    address _keeper,
+    uint256 _i,
+    uint256 _amount
+  ) internal {
     return keeperIncentiveV2.tip(_rewardToken, _keeper, _i, _amount);
   }
 }

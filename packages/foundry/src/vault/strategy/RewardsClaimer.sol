@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity ^0.8.15;
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
 
+pragma solidity ^0.8.15;
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { IAdapter } from "../../interfaces/vault/IAdapter.sol";

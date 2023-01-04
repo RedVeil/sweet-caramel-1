@@ -1,17 +1,19 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
-import { VaultsRegistry } from "../../src/vault/VaultsRegistry.sol";
-import { VaultMetadata } from "../../src/interfaces/vault/IVaultsRegistry.sol";
+import { VaultRegistry } from "../../src/vault/VaultRegistry.sol";
+import { VaultMetadata } from "../../src/interfaces/vault/IVaultRegistry.sol";
 import { WithContractRegistry, IContractRegistry } from "../utils/WithContractRegistry.sol";
 import { MockERC20 } from "../utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
 
-contract VaultsRegistryTest is Test, WithContractRegistry {
+contract VaultRegistryTest is Test, WithContractRegistry {
   MockERC20 asset = new MockERC20("ERC20", "TEST", 18);
   MockERC4626 vault = new MockERC4626(asset, "ERC4626", "TEST-4626");
-  VaultsRegistry registry;
+  VaultRegistry registry;
 
   address nonOwner = makeAddr("non owner");
 
@@ -31,7 +33,7 @@ contract VaultsRegistryTest is Test, WithContractRegistry {
       swapTokenAddresses[i] = address(uint160(i));
     }
 
-    registry = new VaultsRegistry(address(this));
+    registry = new VaultRegistry(address(this));
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -96,7 +98,7 @@ contract VaultsRegistryTest is Test, WithContractRegistry {
 
     registry.registerVault(vaultParams);
 
-    vm.expectRevert(VaultsRegistry.VaultAlreadyRegistered.selector);
+    vm.expectRevert(VaultRegistry.VaultAlreadyRegistered.selector);
     registry.registerVault(vaultParams);
   }
 }

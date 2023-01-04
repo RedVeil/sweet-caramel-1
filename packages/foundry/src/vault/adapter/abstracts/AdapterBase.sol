@@ -1,16 +1,18 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
 import { ERC4626Upgradeable, IERC20Upgradeable as IERC20, IERC20MetadataUpgradeable as IERC20Metadata, ERC20Upgradeable as ERC20 } from "openzeppelin-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { MathUpgradeable as Math } from "openzeppelin-upgradeable/utils/math/MathUpgradeable.sol";
 import { PausableUpgradeable } from "openzeppelin-upgradeable/security/PausableUpgradeable.sol";
-import { ACLAuth } from "../../utils/ACLAuth.sol";
-import { IStrategy } from "../../interfaces/vault/IStrategy.sol";
-import { IAdapter } from "../../interfaces/vault/IAdapter.sol";
-import { EIP165 } from "./EIP165.sol";
+import { ACLAuth } from "../../../utils/ACLAuth.sol";
+import { IStrategy } from "../../../interfaces/vault/IStrategy.sol";
+import { IAdapter } from "../../../interfaces/vault/IAdapter.sol";
+import { EIP165 } from "../../../utils/EIP165.sol";
 import { OnlyStrategy } from "./OnlyStrategy.sol";
-import { OwnedUpgradeable } from "../../utils/OwnedUpgradeable.sol";
+import { OwnedUpgradeable } from "../../../utils/OwnedUpgradeable.sol";
 
 /*
  * @title Beefy ERC4626 Contract
@@ -100,10 +102,13 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     return paused() ? 0 : _convertToAssets(shares, Math.Rounding.Up);
   }
 
-  function _convertToShares(
-    uint256 assets,
-    Math.Rounding rounding
-  ) internal view virtual override returns (uint256 shares) {
+  function _convertToShares(uint256 assets, Math.Rounding rounding)
+    internal
+    view
+    virtual
+    override
+    returns (uint256 shares)
+  {
     uint256 _totalSupply = totalSupply();
     uint256 _totalAssets = totalAssets();
     return
@@ -119,7 +124,12 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   /**
    * @dev Deposit/mint common workflow.
    */
-  function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
+  function _deposit(
+    address caller,
+    address receiver,
+    uint256 assets,
+    uint256 shares
+  ) internal virtual override {
     // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
     // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
     // calls the vault, which is assumed not malicious.

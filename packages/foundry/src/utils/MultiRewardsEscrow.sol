@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
-pragma solidity ^0.8.0;
+// Docgen-SOLC: 0.8.15
 
+pragma solidity ^0.8.15;
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
@@ -90,7 +90,13 @@ contract MultiRewardsEscrow is Owned, KeeperIncentivized {
    * @notice Locks funds for escrow
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds
    */
-  function lock(IERC20 token, address account, uint256 amount, uint256 duration, uint256 offset) external {
+  function lock(
+    IERC20 token,
+    address account,
+    uint256 amount,
+    uint256 duration,
+    uint256 offset
+  ) external {
     if (token == IERC20(address(0))) revert ZeroAddress();
     if (account == address(0)) revert ZeroAddress();
     if (amount == 0) revert ZeroAmount();

@@ -1,7 +1,9 @@
-// SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.12;
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
 
-import { AdapterBase, ERC4626Upgradeable as ERC4626, IERC20, IERC20Metadata, ERC20, SafeERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
+pragma solidity ^0.8.15;
+
+import { AdapterBase, ERC4626Upgradeable as ERC4626, IERC20, IERC20Metadata, ERC20, SafeERC20, Math, IStrategy, IAdapter } from "../abstracts/AdapterBase.sol";
 
 interface VaultAPI is IERC20 {
   function deposit(uint256 amount) external returns (uint256);
@@ -43,9 +45,13 @@ contract YearnAdapter is AdapterBase {
   string internal _symbol;
 
   VaultAPI public yVault;
-  uint256 constant DEGRADATION_COEFFICIENT = 10 ** 18;
+  uint256 constant DEGRADATION_COEFFICIENT = 10**18;
 
-  function initialize(bytes memory adapterInitData, address externalRegistry, bytes memory) external {
+  function initialize(
+    bytes memory adapterInitData,
+    address externalRegistry,
+    bytes memory
+  ) external {
     (address _asset, , , , , ) = abi.decode(adapterInitData, (address, address, address, uint256, bytes4[8], bytes));
     __AdapterBase_init(adapterInitData);
 

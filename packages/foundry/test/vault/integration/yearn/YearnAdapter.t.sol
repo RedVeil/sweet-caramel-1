@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
@@ -76,7 +78,7 @@ contract YearnAdapterTest is AbstractAdapterTest {
       adapter.totalAssets(),
       iouBalance().mulDiv(
         yearnVault.pricePerShare(),
-        10 ** IERC20Metadata(address(adapter)).decimals(),
+        10**IERC20Metadata(address(adapter)).decimals(),
         Math.Rounding.Up
       ),
       string.concat("totalAssets != yearn assets", baseTestId)
@@ -108,7 +110,7 @@ contract YearnAdapterTest is AbstractAdapterTest {
     //////////////////////////////////////////////////////////////*/
 
   // NOTE - The yearn adapter suffers often from an off-by-one error which "steals" 1 wei from the user
-  function test__RT_deposit_withdraw() public virtual {
+  function test__RT_deposit_withdraw() public override {
     _mintFor(defaultAmount, bob);
 
     vm.startPrank(bob);
@@ -120,7 +122,7 @@ contract YearnAdapterTest is AbstractAdapterTest {
   }
 
   // NOTE - The yearn adapter suffers often from an off-by-one error which "steals" 1 wei from the user
-  function test__RT_mint_withdraw() public virtual {
+  function test__RT_mint_withdraw() public override {
     _mintFor(adapter.previewMint(defaultAmount), bob);
 
     vm.startPrank(bob);

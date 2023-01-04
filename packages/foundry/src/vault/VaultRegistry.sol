@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
 import { IERC4626 } from "../interfaces/vault/IERC4626.sol";
 import { Owned } from "../utils/Owned.sol";
-import { VaultMetadata } from "../interfaces/vault/IVaultsRegistry.sol";
+import { VaultMetadata } from "../interfaces/vault/IVaultRegistry.sol";
 
 /**
  * @notice Registry for vaults deployed through VaultsFactory
- * @dev all mutative functions can only be called by VaultsController
+ * @dev all mutative functions can only be called by VaultController
  */
-contract VaultsRegistry is Owned {
+contract VaultRegistry is Owned {
   /*//////////////////////////////////////////////////////////////
                             IMMUTABLES
     //////////////////////////////////////////////////////////////*/

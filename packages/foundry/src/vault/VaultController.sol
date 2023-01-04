@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
-pragma solidity ^0.8.0;
+// Docgen-SOLC: 0.8.15
 
+pragma solidity ^0.8.15;
 import { Owned } from "../utils/Owned.sol";
 import { IKeeperIncentiveV2, KeeperConfig } from "../interfaces/IKeeperIncentiveV2.sol";
 import { IVault, VaultParams, FeeStructure } from "../interfaces/vault/IVault.sol";
@@ -10,22 +10,22 @@ import { IMultiRewardsEscrow } from "../interfaces/IMultiRewardsEscrow.sol";
 import { IDeploymentController } from "../interfaces/vault/IDeploymentController.sol";
 import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
 import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
-import { IVaultsRegistry, VaultMetadata } from "../interfaces/vault/IVaultsRegistry.sol";
+import { IVaultRegistry, VaultMetadata } from "../interfaces/vault/IVaultRegistry.sol";
 import { IAdminProxy } from "../interfaces/vault/IAdminProxy.sol";
 import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IStrategy } from "../interfaces/vault/IStrategy.sol";
 import { IAdapter } from "../interfaces/vault/IAdapter.sol";
 import { IPausable } from "../interfaces/IPausable.sol";
-import { DeploymentArgs } from "../interfaces/vault/IVaultsController.sol";
+import { DeploymentArgs } from "../interfaces/vault/IVaultController.sol";
 
-contract VaultsController is Owned {
+contract VaultController is Owned {
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
   IDeploymentController public deploymentController;
   IEndorsementRegistry public endorsementRegistry;
-  IVaultsRegistry public vaultsRegistry;
+  IVaultRegistry public vaultsRegistry;
   IKeeperIncentiveV2 public keeperIncentive;
 
   bytes32 public immutable VAULT = "Vault";
@@ -39,7 +39,7 @@ contract VaultsController is Owned {
     IAdminProxy _adminProxy,
     IDeploymentController _deploymentController,
     IEndorsementRegistry _endorsementRegistry,
-    IVaultsRegistry _vaulsRegistry,
+    IVaultRegistry _vaultRegistry,
     IKeeperIncentiveV2 _keeperIncentive,
     IMultiRewardsEscrow _escrow
   )
@@ -49,7 +49,7 @@ contract VaultsController is Owned {
     adminProxy = _adminProxy; // cant change
     deploymentController = _deploymentController; // can change -- If we want to add capabilities or switch the factory
     endorsementRegistry = _endorsementRegistry; // cant change
-    vaultsRegistry = _vaulsRegistry; // cant change
+    vaultsRegistry = _vaultRegistry; // cant change
     keeperIncentive = _keeperIncentive; // can/cant change ?
     escrow = _escrow; // cant change
 
@@ -93,10 +93,10 @@ contract VaultsController is Owned {
     emit VaultDeployed(vault, staking, address(vaultData.adapter));
   }
 
-  function _deployVault(
-    VaultParams memory vaultData,
-    IDeploymentController deploymentController
-  ) internal returns (address vault) {
+  function _deployVault(VaultParams memory vaultData, IDeploymentController deploymentController)
+    internal
+    returns (address vault)
+  {
     vaultData.owner = address(adminProxy);
     vaultData.keeperIncentive = keeperIncentive;
 
@@ -117,7 +117,11 @@ contract VaultsController is Owned {
    * @notice sets keeperConfig and creates incentive for new vault deployment
    * @dev avoids stack too deep in deployVaultFromFactory
    */
-  function _handleKeeperSetup(address _vault, KeeperConfig memory _keeperConfig, bytes memory addKeeperData) internal {
+  function _handleKeeperSetup(
+    address _vault,
+    KeeperConfig memory _keeperConfig,
+    bytes memory addKeeperData
+  ) internal {
     adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
 
     (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
@@ -149,14 +153,18 @@ contract VaultsController is Owned {
     addStakingRewardsToken(stakingContracts, rewardsDatas);
   }
 
-  function _registerVault(address vault, address staking, VaultMetadata memory metadata) internal {
+  function _registerVault(
+    address vault,
+    address staking,
+    VaultMetadata memory metadata
+  ) internal {
     metadata.vaultAddress = vault;
     metadata.staking = staking;
     metadata.submitter = msg.sender;
 
     adminProxy.execute(
       address(vaultsRegistry),
-      abi.encodeWithSelector(IVaultsRegistry.registerVault.selector, abi.encode(metadata))
+      abi.encodeWithSelector(IVaultRegistry.registerVault.selector, abi.encode(metadata))
     );
   }
 

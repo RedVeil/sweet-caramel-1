@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
 import { EnhancedTest } from "../../../utils/EnhancedTest.sol";
@@ -29,7 +31,11 @@ contract PropertyTest is EnhancedTest {
     //////////////////////////////////////////////////////////////*/
 
   // "MUST NOT show any variations depending on the caller."
-  function prop_convertToShares(address caller1, address caller2, uint256 assets) public {
+  function prop_convertToShares(
+    address caller1,
+    address caller2,
+    uint256 assets
+  ) public {
     vm.prank(caller1);
     uint256 res1 = IERC4626(_vault_).convertToShares(assets); // "MAY revert due to integer overflow caused by an unreasonably large input."
     vm.prank(caller2);
@@ -38,7 +44,11 @@ contract PropertyTest is EnhancedTest {
   }
 
   // "MUST NOT show any variations depending on the caller."
-  function prop_convertToAssets(address caller1, address caller2, uint256 shares) public {
+  function prop_convertToAssets(
+    address caller1,
+    address caller2,
+    uint256 shares
+  ) public {
     vm.prank(caller1);
     uint256 res1 = IERC4626(_vault_).convertToAssets(shares); // "MAY revert due to integer overflow caused by an unreasonably large input."
     vm.prank(caller2);
@@ -79,7 +89,12 @@ contract PropertyTest is EnhancedTest {
   // shares that would be minted in a deposit call in the same transaction.
   // I.e. deposit should return the same or more shares as previewDeposit if
   // called in the same transaction."
-  function prop_previewDeposit(address caller, address receiver, uint256 assets, string memory testPreFix) public {
+  function prop_previewDeposit(
+    address caller,
+    address receiver,
+    uint256 assets,
+    string memory testPreFix
+  ) public {
     uint256 sharesPreview = IERC4626(_vault_).previewDeposit(assets); // "MAY revert due to other conditions that would also cause deposit to revert."
 
     vm.prank(caller);
@@ -92,7 +107,12 @@ contract PropertyTest is EnhancedTest {
   // that would be deposited in a mint call in the same transaction. I.e. mint
   // should return the same or fewer assets as previewMint if called in the
   // same transaction."
-  function prop_previewMint(address caller, address receiver, uint256 shares, string memory testPreFix) public {
+  function prop_previewMint(
+    address caller,
+    address receiver,
+    uint256 shares,
+    string memory testPreFix
+  ) public {
     uint256 assetsPreview = IERC4626(_vault_).previewMint(shares);
 
     vm.prank(caller);

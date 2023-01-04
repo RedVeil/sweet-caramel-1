@@ -1,8 +1,10 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
 pragma solidity ^0.8.15;
 
-import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../../utils/AdapterBase.sol";
-import { WithRewards, IWithRewards } from "../../utils/WithRewards.sol";
+import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../abstracts/AdapterBase.sol";
+import { WithRewards, IWithRewards } from "../abstracts/WithRewards.sol";
 
 interface IBeefyVault {
   function want() external view returns (address);
@@ -86,7 +88,11 @@ contract BeefyAdapter is AdapterBase, WithRewards {
      @notice Initializes the Vault.
      @param beefyInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
     */
-  function initialize(bytes memory adapterInitData, address externalRegistry, bytes memory beefyInitData) public {
+  function initialize(
+    bytes memory adapterInitData,
+    address externalRegistry,
+    bytes memory beefyInitData
+  ) public {
     (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
       beefyInitData,
       (address, address, uint256)

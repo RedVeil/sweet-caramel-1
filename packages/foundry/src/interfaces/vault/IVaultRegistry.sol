@@ -15,7 +15,7 @@ struct VaultMetadata {
   uint256 exchange; // number specifying exchange (1 = curve)
 }
 
-interface IVaultsRegistry is IOwned {
+interface IVaultRegistry is IOwned {
   function vaults(address vault) external view returns (VaultMetadata memory);
 
   function getSubmitter(address vault) external view returns (address);
