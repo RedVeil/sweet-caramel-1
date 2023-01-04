@@ -1,7 +1,6 @@
 import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 
-import { Button } from "./Button";
 import SingleActionModal from "../components/SingleActionModal";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
