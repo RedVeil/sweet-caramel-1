@@ -1,4 +1,4 @@
-import { useNamedAccounts } from "../../hooks";
+import { useNamedAccounts } from "@popcorn/components/lib/utils/hooks";
 import { useToken as _useToken } from "wagmi";
 import { useEffect } from "react";
 
