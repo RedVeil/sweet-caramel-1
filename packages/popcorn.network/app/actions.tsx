@@ -1,17 +1,18 @@
-import React from 'react';
-import { Notification } from '../app/store';
-import { Link } from '@material-ui/core';
+import React from "react";
+import { Link } from "@material-ui/core";
+
 import {
   SingleActionModalProps,
   DefaultSingleActionModalProps,
-} from 'components/Modal/SingleActionModal';
-import { DualActionModalProps } from 'components/Modal/DualActionModal';
-import { DefaultDualActionModalProps } from '../components/Modal/DualActionModal';
+} from "@popcorn/popcorn-network/components/Modal/SingleActionModal";
+import { DualActionModalProps } from "@popcorn/popcorn-network/components/Modal/DualActionModal";
+import { DefaultDualActionModalProps } from "../components/Modal/DualActionModal";
+import { Notification } from "../app/store";
 
-export const DISPLAY_NOTIFICATION = 'notifications/DISPLAY_NOTIFICATION';
-export const TOGGLE_NOTIFICATION = 'notifications/TOGGLE_NOTIFICATION';
-export const SINGLE_ACTION_MODAL = 'modals/SINGLE_ACTION_MODAL';
-export const DUAL_ACTION_MODAL = 'modals/DUAL_ACTION_MODAL';
+export const DISPLAY_NOTIFICATION = "notifications/DISPLAY_NOTIFICATION";
+export const TOGGLE_NOTIFICATION = "notifications/TOGGLE_NOTIFICATION";
+export const SINGLE_ACTION_MODAL = "modals/SINGLE_ACTION_MODAL";
+export const DUAL_ACTION_MODAL = "modals/DUAL_ACTION_MODAL";
 
 export type AppActions =
   | DisplayNotificationAction
@@ -23,9 +24,7 @@ export interface DisplayNotificationAction {
   type: typeof DISPLAY_NOTIFICATION;
   payload: Notification;
 }
-export const displayNotification = (
-  notification: Partial<Notification>,
-): DisplayNotificationAction => {
+export const displayNotification = (notification: Partial<Notification>): DisplayNotificationAction => {
   return {
     type: DISPLAY_NOTIFICATION,
     payload: { ...notification, visible: true } as Notification,
@@ -46,11 +45,10 @@ export const showPaywall = (): DisplayNotificationAction => {
     backdrop: true,
     isFlash: false,
     visible: true,
-    type: 'info',
+    type: "info",
     content: (
       <div>
-        Sorry, that feature is only available for{' '}
-        <Link href="/modals/4">premium members</Link>.
+        Sorry, that feature is only available for <Link href="/modals/4">premium members</Link>.
       </div>
     ),
   });
@@ -61,9 +59,7 @@ export interface SetSingleActionModalAction {
   payload: SingleActionModalProps;
 }
 
-export const setSingleActionModal = (
-  props: Partial<SingleActionModalProps> | false,
-): SetSingleActionModalAction => {
+export const setSingleActionModal = (props: Partial<SingleActionModalProps> | false): SetSingleActionModalAction => {
   if (!props) {
     return {
       type: SINGLE_ACTION_MODAL,
@@ -87,9 +83,7 @@ export interface SetDualActionModalAction {
   type: typeof DUAL_ACTION_MODAL;
   payload: DualActionModalProps;
 }
-export const setDualActionModal = (
-  props: Partial<DualActionModalProps>| false,
-): SetDualActionModalAction => {
+export const setDualActionModal = (props: Partial<DualActionModalProps> | false): SetDualActionModalAction => {
   if (!props) {
     return {
       type: DUAL_ACTION_MODAL,
