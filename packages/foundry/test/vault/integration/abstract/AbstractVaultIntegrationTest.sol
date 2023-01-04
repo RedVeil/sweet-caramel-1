@@ -189,14 +189,14 @@ contract AbstractVaultIntegrationTest is Test {
     for (uint256 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      // solhint-disable
+      // solhint-disable-next-line
       for (uint256 i; i < 3; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         deposit(amount);
         pps2 = vault.convertToAssets(defaultAmount);
         assertWithin(pps1, pps2, 1, string.concat(Strings.toString(i), "-deposit-", testId));
       }
-      // solhint-disable
+      // solhint-disable-next-line
       for (uint256 i; i < 2; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         vm.prank(bob);
@@ -244,14 +244,14 @@ contract AbstractVaultIntegrationTest is Test {
     for (uint256 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      // solhint-disable
+      // solhint-disable-next-line
       for (uint256 i; i < 3; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         mint(amount);
         pps2 = vault.convertToAssets(defaultAmount);
         assertWithin(pps1, pps2, 1, string.concat(Strings.toString(i), "-mint-", testId));
       }
-      // solhint-disable
+      // solhint-disable-next-line
       for (uint256 i; i < 2; ++i) {
         pps1 = vault.convertToAssets(defaultAmount);
         vm.prank(bob);

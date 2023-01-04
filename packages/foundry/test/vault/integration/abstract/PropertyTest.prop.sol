@@ -17,12 +17,12 @@ contract PropertyTest is EnhancedTest {
     //////////////////////////////////////////////////////////////*/
 
   // "MUST NOT revert."
-  function prop_asset() public {
+  function prop_asset() public view {
     IERC4626(_vault_).asset();
   }
 
   // "MUST NOT revert."
-  function prop_totalAssets() public {
+  function prop_totalAssets() public view {
     IERC4626(_vault_).totalAssets();
   }
 
@@ -61,23 +61,23 @@ contract PropertyTest is EnhancedTest {
     //////////////////////////////////////////////////////////////*/
 
   // "MUST NOT revert."
-  function prop_maxDeposit(address caller) public {
+  function prop_maxDeposit(address caller) public view {
     IERC4626(_vault_).maxDeposit(caller);
   }
 
   // "MUST NOT revert."
-  function prop_maxMint(address caller) public {
+  function prop_maxMint(address caller) public view {
     IERC4626(_vault_).maxMint(caller);
   }
 
   // "MUST NOT revert."
   // NOTE: some implementations failed due to arithmetic overflow
-  function prop_maxWithdraw(address caller) public {
+  function prop_maxWithdraw(address caller) public view {
     IERC4626(_vault_).maxWithdraw(caller);
   }
 
   // "MUST NOT revert."
-  function prop_maxRedeem(address caller) public {
+  function prop_maxRedeem(address caller) public view {
     IERC4626(_vault_).maxRedeem(caller);
   }
 

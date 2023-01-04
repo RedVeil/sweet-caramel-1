@@ -398,8 +398,6 @@ contract AbstractAdapterTest is PropertyTest {
 
     uint256 oldTotalAssets = adapter.totalAssets();
     uint256 oldTotalSupply = adapter.totalSupply();
-    uint256 oldUserAssets = asset.balanceOf(bob);
-    uint256 oldUserShares = adapter.balanceOf(bob);
 
     adapter.pause();
 

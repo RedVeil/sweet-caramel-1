@@ -274,6 +274,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
 
   function harvest() public takeFees {
     if (address(strategy) != address(0) && ((feesUpdatedAt + harvestCooldown) < block.timestamp)) {
+      // solhint-disable
       address(strategy).delegatecall(abi.encodeWithSignature("harvest()"));
     }
 
@@ -330,11 +331,11 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   modifier takeFees() {
     _;
 
-    uint256 managementFee = accruedManagementFee();
+    uint256 _managementFee = accruedManagementFee();
 
-    if (managementFee > 0) {
+    if (_managementFee > 0) {
       feesUpdatedAt = block.timestamp;
-      _mint(FEE_RECIPIENT, convertToShares(managementFee));
+      _mint(FEE_RECIPIENT, convertToShares(_managementFee));
     }
 
     assetsCheckpoint = totalAssets();
