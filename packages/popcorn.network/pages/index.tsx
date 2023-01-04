@@ -1,25 +1,19 @@
-import { Dialog, Transition } from "@headlessui/react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { formatUnits } from "ethers/lib/utils";
+import { ChainId, PRC_PROVIDERS } from "web3/connectors";
+
+import GoogleAnalyticsPrompt from "@popcorn/components/components/GoogleAnalyticsPrompt";
 import FacebookPixel from "components/FacebookPixel";
 import LinkedInPagePixel from "components/LinkedInPagePixel";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { Fragment, useEffect, useState, useRef, useCallback } from "react";
-import { useOnClickOutside } from "../hooks";
 import YieldSection from "components/Homepage/YieldSection";
 import Hero from "components/Homepage/Hero";
 import AsSeenSection from "components/Homepage/AsSeenSection";
 import SecuritySection from "components/Homepage/SecuritySection";
 import PartnersSection from "components/Homepage/PartnersSection";
 import Header from "components/Header";
-import { getSetTokenTVL } from "hooks/tvl/useSetTokenTVL";
-import { ChainId, PRC_PROVIDERS } from "web3/connectors";
-import { formatUnits } from "ethers/lib/utils";
 import { getStakingTVL } from "hooks/tvl/useStakingTVL";
 import { getPoolSize } from "hooks/tvl/usePoolSize";
-import { Tvl } from "@popcorn/components/lib/Contract";
-import { useNamedAccounts } from "@popcorn/components";
-import useTvl from "@popcorn/components/lib/Contract/hooks/useTvl";
-import GoogleAnalyticsPrompt from "@popcorn/components/components/GoogleAnalyticsPrompt";
 
 const IndexPage = ({ tvlProps }) => {
   const router = useRouter();
