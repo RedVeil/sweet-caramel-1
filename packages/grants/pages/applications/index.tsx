@@ -130,11 +130,6 @@ const BeneficiaryApplications = () => {
                     key={type.label}
                     variant={type.label === statusFilter.label ? "primary" : "secondary"}
                     onClick={() => setStatusFilter(type)}
-                    className={`flex-shrink-0 ${
-                      type.label === statusFilter.label
-                        ? "!border-0 !bg-[#827D69] !text-white"
-                        : "!border-[#E5E7EB] text-[#55503D] !font-normal"
-                    }`}
                   >
                     {type.label}
                   </Button>
@@ -163,14 +158,11 @@ const BeneficiaryApplications = () => {
             {applicationTypes.map((type) => (
               <div className="col-span-3" key={type.label}>
                 <Button
-                  variant={type.label === statusFilter.label ? "primary !bg-[#827D69]" : "secondary"}
+                  variant={type.label === statusFilter.label ? "primary" : "secondary"}
                   onClick={() => {
                     setStatusFilter(type);
                     setOpenMobileFilter(false);
                   }}
-                  className={`!border-[#E5E7EB] !text-sm w-full ${
-                    type.label === statusFilter.label ? "!border-0 !bg-[#827D69] !text-white" : ""
-                  }`}
                 >
                   {type.label === "Challenge Period" ? "Challenge" : type.label}
                 </Button>
