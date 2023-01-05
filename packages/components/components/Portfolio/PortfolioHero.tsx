@@ -1,12 +1,12 @@
 import { ArrowSmallUpIcon, ArrowLongUpIcon } from "@heroicons/react/24/solid";
-import HeroBgMobile from "../../public/images/portfolioHeroBgmobile.svg";
-import HeroBg from "../../public/images/portfolioHeroBg.svg";
+import HeroBgMobile from "@popcorn/components/public/images/portfolioHeroBgmobile.svg";
+import HeroBg from "@popcorn/components/public/images/portfolioHeroBg.svg";
 import { ChainId, formatAndRoundBigNumber } from "@popcorn/utils";
-import NetworkFilter from "../../../greenfield-app/components/NetworkFilter";
 
 import Image from "next/image";
 import { BigNumber } from "ethers";
 import { Tabs, TabsProps } from "../Tabs";
+import NetworkFilter from "@popcorn/components/components/NetworkFilter";
 
 export interface PortfolioHeroProps {
   selectedNetworks: ChainId[];

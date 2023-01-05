@@ -1,9 +1,9 @@
-import { ChevronDownIcon } from "@heroicons/react/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import PseudoRadioButton from "@popcorn/app/components/BatchButter/PseudoRadioButton";
 import { ChainId, networkLogos, networkMap } from "@popcorn/utils";
 import Image from "next/image";
 import { useState } from "react";
-import { MobilePopupSelect } from "./MobilePopupSelect";
+import { MobilePopupSelect } from "./Modal/MobilePopupSelect";
 
 interface NetworkFilterProps {
   supportedNetworks: ChainId[];

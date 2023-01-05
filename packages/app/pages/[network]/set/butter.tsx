@@ -619,7 +619,7 @@ export default function ButterPage(): JSX.Element {
           <TutorialSlider isThreeX={false} />
         </div>
       </div>
-      <div className="md:hidden mt-10">
+      <div className="md:hidden my-10">
         <div
           className="bg-customPurple rounded-lg w-full px-6 py-6 text-white flex justify-between items-center"
           role="button"

@@ -1,11 +1,8 @@
 import type { Pop } from "@popcorn/components/lib/types";
-import { Fragment } from "react";
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 
-import { Badge, BadgeVariant } from "@popcorn/components/components/Badge";
-
-import { Escrow } from "../lib";
-import { AssetRow } from "../components/PortfolioSection";
+import { Escrow } from "@popcorn/components/lib";
+import { AssetRow } from "./PortfolioSection";
 
 function PortfolioClaimableBalance({
   token,

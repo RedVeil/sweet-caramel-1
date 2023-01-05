@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Menu, Transition } from "@headlessui/react";
-import { SortingType } from "../pages/portfolio";
+import { SortingType } from "./types";
 
 interface DropdownProps {
   sorting: [SortingType, React.Dispatch<SortingType>];
