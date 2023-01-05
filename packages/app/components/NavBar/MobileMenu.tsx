@@ -146,7 +146,6 @@ export const MobileMenu: React.FC = () => {
         <Dialog as="div" className="fixed inset-0 overflow-hidden" onClose={() => toggleMenu(false)}>
           <div className="absolute inset-0 overflow-hidden">
             <Dialog.Overlay className="absolute inset-0" />
-
             <div className="fixed inset-x-0 top-20 bottom-0 max-w-full flex bg-white">
               <Transition.Child
                 as={Fragment}
