@@ -12,6 +12,7 @@ const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startT
   const [openVoteEndDate, setOpenVoteEndDate] = useState<string>("");
   const [challengePeriodEndDate, setChallengePeriodEndDate] = useState<string>("");
   const [timeLeftProgress, setTimeLeftProgress] = useState<number>(0);
+  const [challengePeriodPassed, setChallengePeriodPassed] = useState<boolean>();
   useEffect(() => {
     let challengePeriodEnd = new Date(stageDeadline);
     challengePeriodEnd.setDate(challengePeriodEnd.getDate() + NUMBER__OF_CHALLENGE_PERIOD_DAYS);
@@ -22,15 +23,18 @@ const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startT
         const startDateTime = startTime?.getTime();
         const endTime = stageDeadline?.getTime();
         const currentTime = new Date().getTime();
-        const distanceWhole = startDateTime - endTime;
-        const distanceLeft = startDateTime - currentTime;
-        const minutesLeft = Math.floor(distanceLeft / (1000 * 60));
-        const minutesTotal = Math.floor(distanceWhole / (1000 * 60));
+        const minutesLeft = Math.floor(currentTime - startDateTime / (1000 * 60));
+        const minutesTotal = Math.floor(endTime - startDateTime / (1000 * 60));
         const progress = (minutesLeft / minutesTotal) * 100;
+        setChallengePeriodPassed(currentTime > challengePeriodEnd.getTime());
         if (progress >= 100 || currentTime >= endTime) {
           setTimeLeftProgress(100);
           clearInterval(interval);
-        } else setTimeLeftProgress(progress);
+        } else if (currentTime < endTime) {
+          setTimeLeftProgress(0);
+        } else {
+          setTimeLeftProgress(progress);
+        }
       }
     }, 1000);
 
@@ -48,11 +52,11 @@ const VotePeriodCard: React.FC<VotingPeriodCardProps> = ({ stageDeadline, startT
   return (
     <div className="bg-gray-50 rounded-lg md:rounded-t-none md:rounded-b-4xl p-10 md:border-t border-customLightGray">
       <div className="flex items-center justify-center mb-5">
-        {ActiveIndicator}
+        {new Date().getTime() > stageDeadline?.getTime() ? ActiveIndicator : InactiveIndicator}
         <div className="w-28 xs:w-44 bg-customLightGray h-0.5">
           <hr className="transition ease-in border border-customPurple" style={{ width: `${timeLeftProgress}%` }} />
         </div>
-        {timeLeftProgress < 100 ? InactiveIndicator : ActiveIndicator}
+        {challengePeriodPassed ? ActiveIndicator : InactiveIndicator}
       </div>
       <div className="flex justify-between">
         <div className="text-center">

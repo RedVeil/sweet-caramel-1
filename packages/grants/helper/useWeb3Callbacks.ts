@@ -9,7 +9,7 @@ export function confirmationsPerChain(chainId: ChainId): number {
     case ChainId.Polygon:
       return 2;
     case ChainId.Goerli:
-      return 3;
+      return 2;
     case ChainId.Hardhat:
     case ChainId.Localhost:
       return 0;

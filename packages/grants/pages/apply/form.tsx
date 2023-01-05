@@ -22,6 +22,7 @@ import toast from "react-hot-toast";
 import inputExists, { isValidEmail } from "utils/isValidInput";
 import { setSingleActionModal } from "../../context/actions";
 import { store } from "../../context/store";
+import useTokenAllowance from "hooks/token/useTokenAllowance";
 
 export const defaultFormData: BeneficiaryApplication = {
   organizationName: "",
@@ -69,6 +70,8 @@ const ApplyForm = () => {
   const [uploading, setUploading] = useState<boolean>(false);
 
   const { data: proposalBond } = useProposalBond(contracts?.beneficiaryGovernance);
+  const { data: popAllowance } = useTokenAllowance(contracts?.pop, account, contracts?.beneficiaryGovernance?.address);
+  console.log(popAllowance, "popAllow");
 
   useEffect(() => {
     const formData = localStorage.getItem("beneficiaryApplicationForm");
@@ -199,11 +202,13 @@ const ApplyForm = () => {
         try {
           const cid = await IpfsClient.add(submissionData);
           toast.dismiss();
-          await (
-            await contracts?.pop
-              ?.connect(library.getSigner())
-              ?.approve(contracts.beneficiaryGovernance.address, proposalBond)
-          )?.wait(confirmationsPerChain(chainId));
+          if (popAllowance.lt(proposalBond)) {
+            await (
+              await contracts?.pop
+                ?.connect(library.getSigner())
+                ?.approve(contracts.beneficiaryGovernance.address, proposalBond)
+            )?.wait(confirmationsPerChain(chainId));
+          }
 
           await contracts.beneficiaryGovernance
             .connect(library.getSigner())
@@ -235,7 +240,7 @@ const ApplyForm = () => {
       }
       setUploading(false);
     },
-    [account, contracts, proposalBond],
+    [account, contracts, proposalBond, popAllowance],
   );
 
   const clearLocalStorage = () => {
