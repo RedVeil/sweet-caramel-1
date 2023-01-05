@@ -40,51 +40,49 @@ function PortfolioSection({
   return (
     <section className={`px-4 md:px-8 ${showSection || "hidden"}`}>
       <div className={`mt-8 mb-2 md:hidden`}>{networkListComponent}</div>
-      <div className="overflow-x-auto">
-        <table className={`table w-full table-fixed border-separate border-spacing-y-4`}>
-          <thead>
-            <tr
-              data-dev-note="relative - fixes sticky position issue by children tooltip"
-              className="whitespace-nowrap relative"
-            >
-              <th className="w-[14rem] md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
-              <th className="hidden lg:table-cell text-primary text-lg font-medium py-4 px-2">
-                <div className="flex items-center gap-2">
-                  <p className="text-primaryLight text-sm md:text-base">Price</p>
-                </div>
-                <div className="text-white">.</div>
-              </th>
-              <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
-                <div className="flex items-center gap-2">
-                  <p className="text-primaryLight text-sm md:text-base">Allocation</p>
-                  <InfoIconWithTooltip
-                    classExtras=""
-                    id="portfolio-percentage-tooltip"
-                    title="Allocation"
-                    content="The percentage weight of your holding."
-                  />
-                </div>
-                <div className="text-left text-sm md:text-lg">{distribution}%</div>
-              </th>
-              <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
-                <div className="flex items-center space-x-2">
-                  <p className="text-primaryLight text-sm md:text-base">Balance</p>
-                  <InfoIconWithTooltip
-                    classExtras=""
-                    id="portfolio-balance-tooltip"
-                    title="Balance"
-                    content="The value of your position in USD equivalent."
-                  />
-                </div>
-                <div className="text-left text-sm md:text-lg">
-                  ${formatAndRoundBigNumber(balance || constants.Zero, 18)}
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>{children}</tbody>
-        </table>
-      </div>
+      <table className={`table w-full table-fixed border-separate border-spacing-y-4`}>
+        <thead>
+          <tr
+            data-dev-note="relative - fixes sticky position issue by children tooltip"
+            className="whitespace-nowrap relative"
+          >
+            <th className="w-[14rem] md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
+            <th className="hidden lg:table-cell text-primary text-lg font-medium py-4 px-2">
+              <div className="flex items-center gap-2">
+                <p className="text-primaryLight text-sm md:text-base">Price</p>
+              </div>
+              <div className="text-white">.</div>
+            </th>
+            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
+              <div className="flex items-center gap-2">
+                <p className="text-primaryLight text-sm md:text-base">Allocation</p>
+                <InfoIconWithTooltip
+                  classExtras=""
+                  id="portfolio-percentage-tooltip"
+                  title="Allocation"
+                  content="The percentage weight of your holding."
+                />
+              </div>
+              <div className="text-left text-sm md:text-lg">{distribution}%</div>
+            </th>
+            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
+              <div className="flex items-center space-x-2">
+                <p className="text-primaryLight text-sm md:text-base">Balance</p>
+                <InfoIconWithTooltip
+                  classExtras=""
+                  id="portfolio-balance-tooltip"
+                  title="Balance"
+                  content="The value of your position in USD equivalent."
+                />
+              </div>
+              <div className="text-left text-sm md:text-lg">
+                ${formatAndRoundBigNumber(balance || constants.Zero, 18)}
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
       <div className={`mb-8 ${balanceGTZero && "hidden"}`}>
         <NotAvailable title={`No ${title} available`} body={""} image="/images/emptyRecord.svg" />
       </div>
