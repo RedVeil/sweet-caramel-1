@@ -9,6 +9,7 @@ import { AssetRow } from "../components/PortfolioSection";
 
 function PortfolioClaimableBalance({
   token,
+  type: rewardType,
   account,
   networth,
   callback,
@@ -17,9 +18,9 @@ function PortfolioClaimableBalance({
   account?: string;
   networth: BigNumber;
   callback: any;
+  type: "vesting" | "claimable";
 }) {
   const chainId = Number(token.chainId);
-  let mutableClaimableBalance = constants.Zero;
 
   const sharedProps = {
     address: token.address,
@@ -28,28 +29,28 @@ function PortfolioClaimableBalance({
     networth,
     token,
   };
+  const isClaimable = rewardType === "claimable";
 
   return (
     <Escrow.ClaimableBalanceOf
       {...sharedProps}
-      render={({ balance: claimableBalance, price, status }) => (
-        <Fragment>
+      render={({ balance: claimableBalance, price, status }) =>
+        isClaimable ? (
           <AssetRow
             {...sharedProps}
-            badge={<Badge variant={BadgeVariant.primary}>Claimable</Badge>}
-            callback={(value) => (mutableClaimableBalance = value)}
+            callback={callback}
             name={token.symbol || "Popcorn"}
             balance={claimableBalance}
             status={status}
             price={price}
           />
+        ) : (
           <Escrow.VestingBalanceOf
             {...sharedProps}
             render={({ balance: vestingBalance, price, status }) => (
               <AssetRow
                 {...sharedProps}
-                badge={<Badge variant={BadgeVariant.dark}>Vesting</Badge>}
-                callback={(value) => callback(value.add(mutableClaimableBalance))}
+                callback={callback}
                 name="Popcorn"
                 balance={vestingBalance}
                 status={status}
@@ -57,8 +58,8 @@ function PortfolioClaimableBalance({
               />
             )}
           />
-        </Fragment>
-      )}
+        )
+      }
     />
   );
 }
