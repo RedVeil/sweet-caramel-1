@@ -46,14 +46,8 @@ function PortfolioSection({
             data-dev-note="relative - fixes sticky position issue by children tooltip"
             className="whitespace-nowrap relative"
           >
-            <th className="w-[14rem] md:w-[36rem] opacity-0 md:opacity-100">{networkListComponent}</th>
-            <th className="hidden lg:table-cell text-primary text-lg font-medium py-4 px-2">
-              <div className="flex items-center gap-2">
-                <p className="text-primaryLight text-sm md:text-base">Price</p>
-              </div>
-              <div className="text-white">.</div>
-            </th>
-            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
+            <th className="w-[40%] sm:w-[50%] md:w-[60%] opacity-0 md:opacity-100">{networkListComponent}</th>
+            <th className="text-primary text-lg font-medium px-2">
               <div className="flex items-center gap-2">
                 <p className="text-primaryLight text-sm md:text-base">Allocation</p>
                 <InfoIconWithTooltip
@@ -65,7 +59,7 @@ function PortfolioSection({
               </div>
               <div className="text-left text-sm md:text-lg">{distribution}%</div>
             </th>
-            <th className="w-[8rem] md:w-auto text-primary text-lg font-medium px-2">
+            <th className="text-primary text-lg font-medium px-2">
               <div className="flex items-center space-x-2">
                 <p className="text-primaryLight text-sm md:text-base">Balance</p>
                 <InfoIconWithTooltip
@@ -141,15 +135,14 @@ export function AssetRow({
           <div className="flex space-x-[6px] md:space-x-[52px]">
             <div>
               <p className="font-medium text-xs md:text-lg">{name}</p>
-              <p className="text-tokenTextGray text-[10px] md:text-base">Popcorn</p>
+              <p className="text-tokenTextGray text-[10px] md:text-base">
+                ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
+              </p>
             </div>
           </div>
           {badge}
         </div>
       </td>
-      <AssetCell className="hidden lg:table-cell">
-        ${formatAndRoundBigNumber(price?.value || constants.Zero, 18)}
-      </AssetCell>
       <AssetCell>{getPercentage(networth, rawBalance)}%</AssetCell>
       <AssetCell>
         <Contract.Value status={status} balance={balance?.value} price={price?.value} callback={proxyCallback} />
