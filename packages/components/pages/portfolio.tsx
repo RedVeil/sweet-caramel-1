@@ -61,11 +61,15 @@ const sumUpBalances = (balances = {}, selectedNetworks: Array<any> = []) =>
   }, constants.Zero);
 
 // TODO: constants must be in UPPERCASE. Refactor
-export const Sections = ["Assets", "Rewards"];
+
+const REWARDS_SECTION = "Claimable + Vesting";
+export const Sections = ["Assets", REWARDS_SECTION];
 const INIT_BALANCE_STATE = {
   pop: {} as BalanceByKey,
-  escrow: {} as BalanceByKey,
+  claimable: {} as BalanceByKey,
+  vesting: {} as BalanceByKey,
 };
+
 export const PortfolioPage: NextPage = () => {
   const {
     features: { portfolio: visible },
@@ -74,8 +78,8 @@ export const PortfolioPage: NextPage = () => {
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  //const account = "0x86D8E71df8CF1d225b133422F1c750cd6ddb138c"; // M
-  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb" // L
+  // const account = "0x86D8E71df8CF1d225b133422F1c750cd6ddb138c"; // M
+  // const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb"; // L
   const { address: account } = useAccount();
 
   const [balances, setBalances] = useState(INIT_BALANCE_STATE);
@@ -137,7 +141,7 @@ export const PortfolioPage: NextPage = () => {
     // reset when new account
   }, [account]);
 
-  const addToBalances = (key, type: "escrow" | "pop", chainId: number, value?: BigNumber) => {
+  const addToBalances = (key, type: "claimable" | "pop" | "vesting", chainId: number, value?: BigNumber) => {
     if (value?.gt(0)) {
       setBalances((balances) => ({
         ...balances,
@@ -151,10 +155,12 @@ export const PortfolioPage: NextPage = () => {
 
   const totalBalance = {
     pop: sumUpBalances(balances.pop, selectedNetworks),
-    escrow: sumUpBalances(balances.escrow, selectedNetworks),
+    vesting: sumUpBalances(balances.vesting, selectedNetworks),
+    claimable: sumUpBalances(balances.claimable, selectedNetworks),
   };
 
-  const networth = totalBalance.pop.add(totalBalance.escrow);
+  const rewardsBalance = totalBalance.claimable.add(totalBalance.vesting);
+  const networth = totalBalance.pop.add(rewardsBalance);
 
   return (
     <Fragment>
@@ -163,7 +169,7 @@ export const PortfolioPage: NextPage = () => {
         selectedNetworks={selectedNetworks}
         selectNetwork={selectNetwork}
         balance={totalBalance.pop}
-        vestingBalance={totalBalance.escrow}
+        vestingBalance={rewardsBalance}
         account={account}
         tabs={{ available: Sections, active: [selectedSections, selectSections] }}
       />
@@ -204,23 +210,51 @@ export const PortfolioPage: NextPage = () => {
             );
           })}
       </PortfolioSection>
+
       <PortfolioSection
         selectedNetworks={selectedNetworks}
         selectedSections={selectedSections}
         networth={networth}
-        balance={totalBalance.escrow}
-        title="Rewards"
+        balance={totalBalance.claimable}
+        sectionKeyName={REWARDS_SECTION}
+        title="Claimable"
       >
         {escrowContracts
-          .sort((a, b) => sortEntries(a, b, balances.escrow, SortingType.BalDesc))
+          .sort((a, b) => sortEntries(a, b, balances.claimable, SortingType.BalDesc))
           .map((token) => {
             const key = getItemKey(token);
             return (
               <PortfolioClaimableBalance
                 key={`rewards-${key}`}
                 account={account}
+                type="claimable"
                 networth={networth}
-                callback={(value) => addToBalances(key, "escrow", Number(token.chainId), value)}
+                callback={(value) => addToBalances(key, "claimable", Number(token.chainId), value)}
+                token={token}
+              />
+            );
+          })}
+      </PortfolioSection>
+
+      <PortfolioSection
+        selectedNetworks={selectedNetworks}
+        selectedSections={selectedSections}
+        networth={networth}
+        balance={totalBalance.vesting}
+        sectionKeyName={REWARDS_SECTION}
+        title="Vesting"
+      >
+        {escrowContracts
+          .sort((a, b) => sortEntries(a, b, balances.vesting, SortingType.BalDesc))
+          .map((token) => {
+            const key = getItemKey(token);
+            return (
+              <PortfolioClaimableBalance
+                key={`vesting-${key}`}
+                account={account}
+                type="vesting"
+                networth={networth}
+                callback={(value) => addToBalances(key, "vesting", Number(token.chainId), value)}
                 token={token}
               />
             );
