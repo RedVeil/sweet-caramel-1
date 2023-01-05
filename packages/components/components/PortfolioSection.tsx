@@ -19,6 +19,7 @@ function PortfolioSection({
   balance,
   networth,
   title,
+  sectionKeyName,
 }: {
   selectedNetworks: any;
   selectedSections: string[];
@@ -26,6 +27,7 @@ function PortfolioSection({
   title: string;
   networth: BigNumber;
   balance?: BigNumber;
+  sectionKeyName?: string;
 }) {
   const balanceGTZero = balance?.gt(0);
   const networkListComponent = (
@@ -35,7 +37,7 @@ function PortfolioSection({
     </div>
   );
 
-  const showSection = selectedSections.includes(title);
+  const showSection = selectedSections.includes(sectionKeyName || title);
   const distribution = getPercentage(networth, balance);
   return (
     <section className={`px-4 md:px-8 ${showSection || "hidden"}`}>
