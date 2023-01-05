@@ -12,7 +12,7 @@ const ConnectWalletButtons: React.FC<Props> = ({ connected, connectWallet, disco
     <>
       {!connected && (
         <Button variant="primary" onClick={connectWallet}>
-          <span className="hidden md:inline">Connect to Polygon</span>
+          <span className="hidden md:inline">Connect to Goerli</span>
           <span className="md:hidden">
             <WalletIcon />
           </span>
@@ -24,9 +24,9 @@ const ConnectWalletButtons: React.FC<Props> = ({ connected, connectWallet, disco
           onClick={disconnectWallet}
         >
           <div className="w-4 h-4 relative">
-            <Image src="/images/polygonLogo.png" alt="polygon logo" layout="fill" objectFit="contain" priority={true} />
+            {/* <Image src="/images/polygonLogo.png" alt="polygon logo" layout="fill" objectFit="contain" priority={true} /> */}
           </div>
-          <span className="mx-2">Polygon</span>
+          <span className="mx-2">Goerli</span>
           <span className="block h-2 w-2 rounded-full border border-green-400 bg-green-400"></span>
         </button>
       )}
