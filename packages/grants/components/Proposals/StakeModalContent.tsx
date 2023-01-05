@@ -13,6 +13,8 @@ import { confirmationsPerChain } from "helper/useWeb3Callbacks";
 import useTokenBalance from "hooks/token/useTokenBalance";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
+import { escapeRegExp, inputRegex } from "@popcorn/app/helper/inputRegex";
+import MuiInput from "@mui/material/Input";
 
 interface StakeModalProps {
   beneficiary: BeneficiaryApplication;
@@ -32,6 +34,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
   const [termsAccepted, setTermsAccepted] = useState<boolean>(true);
   const [wait, setWait] = useState<boolean>(false);
   const [lockDuration, setLockDuration] = useState<number>(TWELVE_WEEKS);
+  console.log(allowance, "lol");
 
   async function lockPop(): Promise<void> {
     setWait(true);
@@ -67,10 +70,10 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
     await contracts.pop
       .connect(signer)
       .approve(contracts.staking.address, constants.MaxUint256)
-      .then((res) => {
+      .then(async (res) => {
+        res.wait(confirmationsPerChain(chainId));
         toast.dismiss();
         toast.success("POP Approved!");
-        onCloseStakeModal();
       })
       .catch((err) => {
         toast.dismiss();
@@ -85,6 +88,15 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
       });
     setWait(false);
   }
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (inputRegex.test(escapeRegExp(event.target.value))) {
+      const newAmount = ["", "."].includes(event.target.value) ? constants.Zero : utils.parseEther(event.target.value);
+      if (!popToLock.eq(newAmount)) {
+        setPopToLock(newAmount);
+      }
+    }
+  };
 
   return (
     <div className="text-left text-base text-gray-900 relative -my-6">
@@ -115,12 +127,32 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           <CustomSlider
             aria-label="pop lock slider"
             min={0}
+            value={Math.floor(Number(utils.formatUnits(popToLock)))}
             max={Number(utils.formatUnits(popBalance ?? constants.Zero))}
             onChange={(e) => setPopToLock(parseEther(String((e.target as HTMLInputElement).value)))}
             disabled={!account}
             size="small"
             step={1}
             valueLabelDisplay="off"
+          />
+        </div>
+        <div
+          className={`relative flex items-center px-5 py-4 mt-4 border border-customLightGray rounded-lg ${
+            popBalance && popToLock?.gt(popBalance) ? "focus:ring-red-600 border-red-600" : "focus:ring-0"
+          }`}
+        >
+          <Input
+            onChange={handleInputChange}
+            value={Math.floor(Number(utils.formatUnits(popToLock)))}
+            size="small"
+            disableUnderline={true}
+            inputProps={{
+              step: 1,
+              min: 0,
+              max: Number(utils.formatUnits(popBalance ?? constants.Zero)),
+              type: "string",
+              "aria-labelledby": "pop lock slider",
+            }}
           />
         </div>
       </div>
@@ -158,7 +190,7 @@ const StakeModalContent: React.FC<StakeModalProps> = ({ beneficiary, onCloseStak
           </ol>
         </div>
       </div>
-      {(allowance ?? constants.Zero).eq(constants.Zero) ? (
+      {(allowance ?? constants.Zero).lt(popToLock) ? (
         <Button variant="primary" className="w-full py-2 mt-10" disabled={wait} onClick={approve}>
           Approve
         </Button>
@@ -195,6 +227,10 @@ const CustomSlider = styled(Slider)({
       height: 24,
     },
   },
+});
+
+const Input = styled(MuiInput)({
+  width: "100%",
 });
 
 export default StakeModalContent;
