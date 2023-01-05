@@ -319,7 +319,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
             <ShareIcon className="w-6 h-6" />
             Share
           </button>
-          {account && account == proposal?.application?.beneficiaryAddress && (
+          {/* {account && account == proposal?.application?.beneficiaryAddress && (
             <Link href="/profile/edit">
               <button
                 className=" opacity-80 bg-white border-white rounded-3xl text-black font-medium flex items-center px-5 py-3 gap-3 shadow-white-button "
@@ -329,7 +329,7 @@ const ProposalPage: React.FC<ProposalPageProps> = ({ proposalType }) => {
                 Edit Profile
               </button>
             </Link>
-          )}
+          )} */}
         </div>
       </Hero>
       <div className="hidden md:block mx-8 mt-8">
