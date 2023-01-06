@@ -73,12 +73,7 @@ contract VaultTest is Test {
                               HELPER
     //////////////////////////////////////////////////////////////*/
 
-  function _setFees(
-    uint256 depositFee,
-    uint256 withdrawalFee,
-    uint256 managementFee,
-    uint256 performanceFee
-  ) internal {
+  function _setFees(uint256 depositFee, uint256 withdrawalFee, uint256 managementFee, uint256 performanceFee) internal {
     vault.proposeFees(
       FeeStructure({
         deposit: depositFee,
