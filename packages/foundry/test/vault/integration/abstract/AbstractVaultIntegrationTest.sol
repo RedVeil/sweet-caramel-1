@@ -55,15 +55,18 @@ contract AbstractVaultIntegrationTest is Test {
                           TEST SETUP
     //////////////////////////////////////////////////////////////*/
 
-  function setUpBaseTest(IERC20 asset_, IAdapter adapter_, string memory baseTestId_, uint256 maxConfigs_) public {
+  function setUpBaseTest(
+    IERC20 asset_,
+    IAdapter adapter_,
+    string memory baseTestId_,
+    uint256 maxConfigs_
+  ) public {
     asset = asset_;
     adapter = adapter_;
     baseTestId = baseTestId_;
     maxConfigs = maxConfigs_;
-    defaultAmount = 10 ** IERC20Metadata(address(asset_)).decimals();
+    defaultAmount = 10**IERC20Metadata(address(asset_)).decimals();
     maxDeposit = defaultAmount * 10_000;
-
-    _setUpAdminAddresses(block.chainid);
 
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(contractRegistry), 0, 0);
 
@@ -74,21 +77,8 @@ contract AbstractVaultIntegrationTest is Test {
       adapter_,
       FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
-      IKeeperIncentiveV2(keeperIncentive),
-      KeeperConfig({ minWithdrawalAmount: 100, incentiveVigBps: 1e15, keeperPayout: 9 }),
       address(this)
     );
-
-    vm.startPrank(aclAdmin);
-    IACLRegistry(aclRegistry).grantRole(keccak256("INCENTIVE_MANAGER_ROLE"), aclAdmin);
-    IContractRegistry(contractRegistry).addContract(keccak256("FeeRecipient"), feeRecipient, keccak256("1"));
-    IContractRegistry(contractRegistry).updateContract(
-      keccak256("KeeperIncentive"),
-      address(keeperIncentive),
-      keccak256("2")
-    );
-    keeperIncentive.createIncentive(vaultAddress, 1, false, true, address(asset_), 1, 0);
-    vm.stopPrank();
 
     vm.label(alice, "alice");
     vm.label(bob, "bob");
@@ -118,25 +108,18 @@ contract AbstractVaultIntegrationTest is Test {
   // Construct a new Adapter and set it to `adapter`
   function createAdapter() public virtual {}
 
-  function assertWithin(uint256 expected, uint256 actual, uint256 delta, string memory err) internal {
+  function assertWithin(
+    uint256 expected,
+    uint256 actual,
+    uint256 delta,
+    string memory err
+  ) internal {
     if (expected > actual) {
       assertLe(expected - actual, delta, err);
     } else if (actual > expected) {
       assertLe(actual - expected, delta, err);
     } else {
       assertEq(expected, actual, err);
-    }
-  }
-
-  function _setUpAdminAddresses(uint256 chainid) internal {
-    if (chainid == ETH_MAINNET) {
-      contractRegistry = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
-      aclRegistry = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
-      aclAdmin = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
-    } else if (chainid == POLYGON_MAINNET) {
-      contractRegistry = 0x078927eF642319963a976008A7B1161059b7E77a;
-      aclRegistry = 0x0C0991CB6e1c8456660A49aa200B71de6158b85C;
-      aclAdmin = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
     }
   }
 

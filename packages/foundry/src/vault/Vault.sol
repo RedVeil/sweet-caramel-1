@@ -6,22 +6,14 @@ pragma solidity ^0.8.15;
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "openzeppelin-contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { PausableUpgradeable } from "openzeppelin-contracts-upgradeable/security/PausableUpgradeable.sol";
-import { KeeperIncentivizedUpgradeable, KeeperConfig } from "../utils/KeeperIncentivizedUpgradeable.sol";
 import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IERC20Metadata } from "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { FeeStructure } from "../interfaces/vault/IVault.sol";
-import { IKeeperIncentiveV2 } from "../interfaces/IKeeperIncentiveV2.sol";
 import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { OwnedUpgradeable } from "../utils/OwnedUpgradeable.sol";
 import { ERC20Upgradeable } from "openzeppelin-contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
-contract Vault is
-  ERC20Upgradeable,
-  ReentrancyGuardUpgradeable,
-  PausableUpgradeable,
-  OwnedUpgradeable,
-  KeeperIncentivizedUpgradeable
-{
+contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, OwnedUpgradeable {
   using SafeERC20 for IERC20;
   using Math for uint256;
 
@@ -39,13 +31,24 @@ contract Vault is
 
   event VaultInitialized(bytes32 contractName, address indexed asset);
 
+  error InvalidAsset();
+  error InvalidAdapter();
+
+  /**
+   * @notice Initialize a new Vault
+   * @param asset_ Underlying Asset which users will deposit.
+   * @param adapter_ Adapter which will be used to interact with the wrapped protocol.
+   * @param fees_ Desired fees in 1e18 (e.g. 100% = 1e18 or 1 BPS = 1e12)
+   * @param feeRecipient_ Recipient of all vault fees. (Must not be zero address)
+   * @param owner Vault creator.
+   * @dev This function is called by the factory contract when deploying a new vault.
+   * @dev Usually the adapter should already be pre configured. Otherwise a new one can only be added after a ragequit time.
+   */
   function initialize(
     IERC20 asset_,
     IERC4626 adapter_,
-    FeeStructure memory feeStructure_,
+    FeeStructure memory fees_,
     address feeRecipient_,
-    IKeeperIncentiveV2 keeperIncentive_,
-    KeeperConfig memory keeperConfig_,
     address owner
   ) external initializer {
     __ERC20_init(
@@ -53,7 +56,9 @@ contract Vault is
       string.concat("pop-", IERC20Metadata(address(asset_)).symbol())
     );
     __Owned_init(owner);
-    __KeeperIncentivized_init(keeperIncentive_);
+
+    if (address(asset_) == address(0)) revert InvalidAsset();
+    if (address(asset_) != adapter_.asset()) revert InvalidAdapter();
 
     asset = asset_;
     adapter = adapter_;
@@ -65,13 +70,12 @@ contract Vault is
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10 ** decimals();
+    ONE = 10**decimals();
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
-    feeStructure = feeStructure_;
+    fees = fees_;
 
-    keeperConfig = keeperConfig_;
     quitPeriod = 3 days;
 
     if (feeRecipient_ == address(0)) revert InvalidFeeRecipient();
@@ -117,17 +121,20 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return shares of the vault issued to `receiver`.
    */
-  function deposit(
-    uint256 assets,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 shares)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
-    uint256 feeShares = convertToShares(assets.mulDiv(feeStructure.deposit, 1e18, Math.Rounding.Down));
+    uint256 feeShares = convertToShares(assets.mulDiv(fees.deposit, 1e18, Math.Rounding.Down));
 
     shares = convertToShares(assets) - feeShares;
 
-    if (feeShares > 0) _mint(address(this), feeShares);
+    if (feeShares > 0) _mint(feeRecipient, feeShares);
 
     _mint(receiver, shares);
 
@@ -155,19 +162,22 @@ contract Vault is
    * @param receiver Receiver of issued vault shares.
    * @return assets of underlying that have been deposited.
    */
-  function mint(
-    uint256 shares,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 assets) {
+  function mint(uint256 shares, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 assets)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
-    uint256 depositFee = feeStructure.deposit;
+    uint256 depositFee = fees.deposit;
 
     uint256 feeShares = shares.mulDiv(depositFee, 1e18 - depositFee, Math.Rounding.Down);
 
     assets = convertToAssets(shares + feeShares);
 
-    if (feeShares > 0) _mint(address(this), feeShares);
+    if (feeShares > 0) _mint(feeRecipient, feeShares);
 
     _mint(receiver, shares);
 
@@ -204,7 +214,7 @@ contract Vault is
 
     shares = convertToShares(assets);
 
-    uint256 withdrawalFee = feeStructure.withdrawal;
+    uint256 withdrawalFee = fees.withdrawal;
 
     uint256 feeShares = shares.mulDiv(withdrawalFee, 1e18 - withdrawalFee, Math.Rounding.Down);
 
@@ -214,7 +224,7 @@ contract Vault is
 
     _burn(owner, shares);
 
-    _mint(address(this), feeShares);
+    if (feeShares > 0) _mint(feeRecipient, feeShares);
 
     adapter.withdraw(assets, receiver, address(this));
 
@@ -237,18 +247,22 @@ contract Vault is
    * @param owner Owner of burned vault shares.
    * @return assets of underlying sent to `receiver`.
    */
-  function redeem(uint256 shares, address receiver, address owner) public nonReentrant returns (uint256 assets) {
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public nonReentrant returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
-    uint256 feeShares = shares.mulDiv(feeStructure.withdrawal, 1e18, Math.Rounding.Down);
+    uint256 feeShares = shares.mulDiv(fees.withdrawal, 1e18, Math.Rounding.Down);
 
     assets = convertToAssets(shares - feeShares);
 
     _burn(owner, shares);
 
-    _mint(address(this), feeShares);
+    if (feeShares > 0) _mint(feeRecipient, feeShares);
 
     adapter.withdraw(assets, receiver, address(this));
 
@@ -295,7 +309,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewDeposit(uint256 assets) public view returns (uint256 shares) {
-    shares = adapter.previewDeposit(assets - assets.mulDiv(feeStructure.deposit, 1e18, Math.Rounding.Down));
+    shares = adapter.previewDeposit(assets - assets.mulDiv(fees.deposit, 1e18, Math.Rounding.Down));
   }
 
   /**
@@ -305,7 +319,7 @@ contract Vault is
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewMint(uint256 shares) public view returns (uint256 assets) {
-    uint256 depositFee = feeStructure.deposit;
+    uint256 depositFee = fees.deposit;
 
     shares += shares.mulDiv(depositFee, 1e18 - depositFee, Math.Rounding.Up);
 
@@ -319,7 +333,7 @@ contract Vault is
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
   function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
-    uint256 withdrawalFee = feeStructure.withdrawal;
+    uint256 withdrawalFee = fees.withdrawal;
 
     assets += assets.mulDiv(withdrawalFee, 1e18 - withdrawalFee, Math.Rounding.Up);
 
@@ -335,7 +349,7 @@ contract Vault is
   function previewRedeem(uint256 shares) public view returns (uint256 assets) {
     assets = adapter.previewRedeem(shares);
 
-    assets -= assets.mulDiv(feeStructure.withdrawal, 1e18, Math.Rounding.Down);
+    assets -= assets.mulDiv(fees.withdrawal, 1e18, Math.Rounding.Down);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -384,7 +398,7 @@ contract Vault is
   function accruedManagementFee() public view returns (uint256) {
     uint256 area = (totalAssets() + assetsCheckpoint) * (block.timestamp - feesUpdatedAt);
 
-    return (feeStructure.management.mulDiv(area, 2, Math.Rounding.Down) / SECONDS_PER_YEAR) / 1e18;
+    return (fees.management.mulDiv(area, 2, Math.Rounding.Down) / SECONDS_PER_YEAR) / 1e18;
   }
 
   /**
@@ -397,8 +411,7 @@ contract Vault is
     uint256 shareValue = convertToAssets(ONE);
 
     if (shareValue > vaultShareHWM) {
-      return
-        feeStructure.performance.mulDiv((shareValue - vaultShareHWM) * totalSupply(), 1e18 * ONE, Math.Rounding.Down);
+      return fees.performance.mulDiv((shareValue - vaultShareHWM) * totalSupply(), 1e18 * ONE, Math.Rounding.Down);
     } else {
       return 0;
     }
@@ -433,7 +446,7 @@ contract Vault is
     }
 
     if (totalFee > 0 && currentAssets > 0) {
-      _mint(address(this), convertToShares(totalFee));
+      _mint(feeRecipient, convertToShares(totalFee));
     }
 
     _;
@@ -446,44 +459,19 @@ contract Vault is
     assetsCheckpoint = totalAssets();
   }
 
-  /**
-   * @notice Transfer accrued fees to rewards manager contract. Caller must be a registered keeper.
-   * @dev we send funds now to the feeRecipient which is set on in the contract registry. We must make sure that this is not address(0) before withdrawing fees
-   */
-  function withdrawAccruedFees() external keeperIncentive(0) takeFees nonReentrant {
-    uint256 accruedFees = balanceOf(address(this));
-    uint256 incentiveVig = keeperConfig.incentiveVigBps;
-
-    if (accruedFees < keeperConfig.minWithdrawalAmount) revert InsufficientWithdrawalAmount(accruedFees);
-
-    uint256 tipAmount = (accruedFees * incentiveVig) / 1e18;
-
-    accruedFees -= tipAmount;
-
-    _burn(address(this), accruedFees);
-
-    _mint(feeRecipient, accruedFees);
-
-    IKeeperIncentiveV2 _keeperIncentive = keeperIncentiveV2;
-
-    _approve(address(this), address(_keeperIncentive), tipAmount);
-
-    _keeperIncentive.tip(address(this), msg.sender, 0, tipAmount);
-  }
-
   /*//////////////////////////////////////////////////////////////
                             FEE MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  FeeStructure public feeStructure;
+  FeeStructure public fees;
 
   FeeStructure public proposedFees;
-  uint256 proposedFeeTimeStamp;
+  uint256 public proposedFeeTime;
 
   address public feeRecipient;
 
-  event NewFeesProposed(FeeStructure newFees);
-  event FeesUpdated(FeeStructure previousFees, FeeStructure newFees);
+  event NewFeesProposed(FeeStructure newFees, uint256 timestamp);
+  event ChangedFees(FeeStructure previousFees, FeeStructure newFees);
   event FeeRecipientUpdated(address indexed previousFeeRecipient, address indexed newFeeRecipient);
 
   error InvalidFeeStructure();
@@ -491,7 +479,7 @@ contract Vault is
   error NotPassedQuitPeriod(uint256 quitPeriod);
 
   /**
-   * @notice Propose a new feeStructure for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
+   * @notice Propose new fees for this vault. Caller must have VAULTS_CONTROlLER from ACLRegistry.
    * @param newFees New `feeStructure`.
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
    */
@@ -501,19 +489,19 @@ contract Vault is
     ) revert InvalidFeeStructure();
 
     proposedFees = newFees;
-    proposedFeeTimeStamp = block.timestamp;
+    proposedFeeTime = block.timestamp;
 
-    emit NewFeesProposed(newFees);
+    emit NewFeesProposed(newFees, block.timestamp);
   }
 
   /**
    * @notice Set fees in BPS to proposed fees from proposeNewFees function
    */
   function changeFees() external {
-    if (block.timestamp < proposedFeeTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
+    if (block.timestamp < proposedFeeTime + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
-    emit FeesUpdated(feeStructure, proposedFees);
-    feeStructure = proposedFees;
+    emit ChangedFees(fees, proposedFees);
+    fees = proposedFees;
   }
 
   /**
@@ -528,12 +516,12 @@ contract Vault is
   }
 
   /*//////////////////////////////////////////////////////////////
-                          STRATEGY LOGIC
+                          ADAPTER LOGIC
     //////////////////////////////////////////////////////////////*/
 
   IERC4626 public adapter;
   IERC4626 public proposedAdapter;
-  uint256 public proposalTimeStamp;
+  uint256 public proposedAdapterTime;
 
   event NewAdapterProposed(IERC4626 newAdapter, uint256 timestamp);
   event ChangedAdapter(IERC4626 oldAdapter, IERC4626 newAdapter);
@@ -549,7 +537,7 @@ contract Vault is
     if (newAdapter.asset() != address(asset)) revert VaultAssetMismatchNewAdapterAsset();
 
     proposedAdapter = newAdapter;
-    proposalTimeStamp = block.timestamp;
+    proposedAdapterTime = block.timestamp;
 
     emit NewAdapterProposed(newAdapter, block.timestamp);
   }
@@ -561,7 +549,7 @@ contract Vault is
    * @dev Last we update HWM and assetsCheckpoint for fees to make sure they adjust to the new adapter
    */
   function changeAdapter() external takeFees {
-    if (block.timestamp < proposalTimeStamp + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
+    if (block.timestamp < proposedAdapterTime + quitPeriod) revert NotPassedQuitPeriod(quitPeriod);
 
     adapter.redeem(adapter.balanceOf(address(this)), address(this), address(this));
 
@@ -597,27 +585,6 @@ contract Vault is
     quitPeriod = _quitPeriod;
 
     emit QuitPeriodSet(quitPeriod);
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                          KEEPER LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-  KeeperConfig public keeperConfig;
-
-  error InvalidVig();
-  error InvalidMinWithdrawal();
-
-  /**
-   * @notice Change keeper config. Caller must have VAULTS_CONTROLLER from ACLRegistry.
-   */
-  function setKeeperConfig(KeeperConfig memory _config) external onlyOwner {
-    if (_config.incentiveVigBps > 1e18) revert InvalidVig();
-    if (_config.minWithdrawalAmount < 0) revert InvalidMinWithdrawal();
-
-    emit KeeperConfigUpdated(keeperConfig, _config);
-
-    keeperConfig = _config;
   }
 
   /*//////////////////////////////////////////////////////////////

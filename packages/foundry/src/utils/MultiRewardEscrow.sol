@@ -7,20 +7,15 @@ import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgrad
 import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 import { Owned } from "./Owned.sol";
-import { KeeperIncentivized, IKeeperIncentiveV2 } from "./KeeperIncentivized.sol";
 
-contract MultiRewardEscrow is Owned, KeeperIncentivized {
+contract MultiRewardEscrow is Owned {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-  constructor(
-    address _owner,
-    IKeeperIncentiveV2 _keeperIncentive,
-    address _feeRecipient
-  ) Owned(_owner) KeeperIncentivized(_keeperIncentive) {
+  constructor(address _owner, address _feeRecipient) Owned(_owner) {
     feeRecipient = _feeRecipient;
   }
 
@@ -91,11 +86,19 @@ contract MultiRewardEscrow is Owned, KeeperIncentivized {
    * @notice Locks funds for escrow
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds
    */
-  function lock(IERC20 token, address account, uint256 amount, uint256 duration, uint256 offset) external {
+  function lock(
+    IERC20 token,
+    address account,
+    uint256 amount,
+    uint256 duration,
+    uint256 offset
+  ) external {
     if (token == IERC20(address(0))) revert ZeroAddress();
     if (account == address(0)) revert ZeroAddress();
     if (amount == 0) revert ZeroAmount();
     if (duration == 0) revert ZeroAmount();
+
+    token.safeTransferFrom(msg.sender, address(this), amount);
 
     nonce++;
 
@@ -106,7 +109,7 @@ contract MultiRewardEscrow is Owned, KeeperIncentivized {
       uint256 fee = Math.mulDiv(amount, feePerc, 1e18);
 
       amount -= fee;
-      fees[token].accrued += fee;
+      token.safeTransfer(feeRecipient, fee);
     }
 
     uint256 start = block.timestamp + offset;
@@ -123,8 +126,6 @@ contract MultiRewardEscrow is Owned, KeeperIncentivized {
 
     userEscrowIds[account].push(id);
     userEscrowIdsByToken[account][token].push(id);
-
-    token.safeTransferFrom(msg.sender, address(this), amount);
 
     emit Locked(token, account, amount, duration, offset);
   }
@@ -201,15 +202,11 @@ contract MultiRewardEscrow is Owned, KeeperIncentivized {
   // escrowToken => feeAmount
   mapping(IERC20 => Fee) public fees;
 
-  uint256 public keeperPerc;
-
   error ArraysNotMatching(uint256 length1, uint256 length2);
   error DontGetGreedy(uint256 fee);
   error NoFee(IERC20 token);
 
   event FeeSet(IERC20 indexed token, uint256 amount);
-  event KeeperPercUpdated(uint256 oldPerc, uint256 newPerc);
-  event FeeClaimed(IERC20 indexed token, uint256 amount);
 
   /**
    * @notice Set fees for multiple tokens
@@ -224,47 +221,6 @@ contract MultiRewardEscrow is Owned, KeeperIncentivized {
 
       fees[tokens[i]].feePerc = tokenFees[i];
       emit FeeSet(tokens[i], tokenFees[i]);
-    }
-  }
-
-  /**
-   * @notice Change keeperPerc
-   */
-  function setKeeperPerc(uint256 perc) external onlyOwner {
-    if (perc >= 1e18) revert DontGetGreedy(perc);
-
-    emit KeeperPercUpdated(keeperPerc, perc);
-
-    keeperPerc = perc;
-  }
-
-  /**
-   * @notice Claim fees
-   * @param tokens that have accrued fees
-   */
-  function claimFees(IERC20[] memory tokens) external keeperIncentive(0) {
-    IKeeperIncentiveV2 _keeperIncentive = keeperIncentiveV2;
-    uint256 incentiveVig = keeperPerc;
-
-    for (uint256 i = 0; i < tokens.length; i++) {
-      Fee memory fee = fees[tokens[i]];
-      uint256 accrued = fee.accrued;
-
-      if (accrued == 0) revert NoFee(tokens[i]);
-
-      uint256 tipAmount = (accrued * incentiveVig) / 1e18;
-
-      accrued -= tipAmount;
-
-      fees[tokens[i]].accrued = 0;
-
-      tokens[i].approve(address(_keeperIncentive), tipAmount);
-
-      _keeperIncentive.tip(address(tokens[i]), msg.sender, 0, tipAmount);
-
-      tokens[i].safeTransfer(feeRecipient, accrued);
-
-      emit FeeClaimed(tokens[i], accrued);
     }
   }
 }

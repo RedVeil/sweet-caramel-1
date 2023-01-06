@@ -3,7 +3,6 @@
 pragma solidity ^0.8.15;
 
 import { IERC4626, IERC20 } from "./IERC4626.sol";
-import { IKeeperIncentiveV2, KeeperConfig } from "../IKeeperIncentiveV2.sol";
 
 // Fees are set in 1e18 for 100% (1 BPS = 1e14)
 // Raise Fees in BPS by 1e14 to get an accurate value
@@ -19,8 +18,6 @@ struct VaultParams {
   IERC4626 adapter;
   FeeStructure feeStructure;
   address feeRecipient;
-  IKeeperIncentiveV2 keeperIncentive;
-  KeeperConfig keeperConfig;
   address owner;
 }
 
@@ -36,12 +33,6 @@ interface IVault is IERC4626 {
   function assetsCheckpoint() external view returns (uint256);
 
   function feesUpdatedAt() external view returns (uint256);
-
-  function feeStructure() external view returns (FeeStructure memory);
-
-  function proposedFees() external view returns (FeeStructure memory);
-
-  function proposedFeeTimeStamp() external view returns (uint256);
 
   function feeRecipient() external view returns (address);
 
@@ -63,7 +54,7 @@ interface IVault is IERC4626 {
 
   function proposedAdapter() external view returns (address);
 
-  function proposalTimeStamp() external view returns (uint256);
+  function proposedAdapterTime() external view returns (uint256);
 
   function proposeAdapter(IERC4626 newAdapter) external;
 
@@ -71,11 +62,15 @@ interface IVault is IERC4626 {
 
   // MANAGEMENT FUNCTIONS - FEES
 
+  function fees() external view returns (FeeStructure memory);
+
+  function proposedFees() external view returns (FeeStructure memory);
+
+  function proposedFeeTime() external view returns (uint256);
+
   function proposeFees(FeeStructure memory) external;
 
   function changeFees() external;
-
-  function withdrawAccruedFees() external;
 
   function setFeeRecipient(address feeRecipient) external;
 
@@ -85,8 +80,6 @@ interface IVault is IERC4626 {
 
   function setQuitPeriod(uint256 _quitPeriod) external;
 
-  function setKeeperConfig(KeeperConfig memory _config) external;
-
   // INITIALIZE
 
   function initialize(
@@ -94,8 +87,6 @@ interface IVault is IERC4626 {
     IERC4626 adapter_,
     FeeStructure memory feeStructure_,
     address feeRecipient_,
-    IKeeperIncentiveV2 keeperIncentive_,
-    KeeperConfig memory keeperConfig_,
     address owner
   ) external;
 }

@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.15;
 import { Owned } from "../utils/Owned.sol";
-import { IKeeperIncentiveV2, KeeperConfig } from "../interfaces/IKeeperIncentiveV2.sol";
 import { IVault, VaultParams, FeeStructure } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardStaking } from "../interfaces/IMultiRewardStaking.sol";
 import { IMultiRewardEscrow } from "../interfaces/IMultiRewardEscrow.sol";
@@ -26,7 +25,6 @@ contract VaultController is Owned {
   IDeploymentController public deploymentController;
   IEndorsementRegistry public endorsementRegistry;
   IVaultRegistry public vaultsRegistry;
-  IKeeperIncentiveV2 public keeperIncentive;
 
   bytes32 public immutable VAULT = "Vault";
   bytes32 public immutable ADAPTER = "Adapter";
@@ -40,7 +38,6 @@ contract VaultController is Owned {
     IDeploymentController _deploymentController,
     IEndorsementRegistry _endorsementRegistry,
     IVaultRegistry _vaultRegistry,
-    IKeeperIncentiveV2 _keeperIncentive,
     IMultiRewardEscrow _escrow
   )
     Owned(_owner) // can change
@@ -50,7 +47,6 @@ contract VaultController is Owned {
     deploymentController = _deploymentController; // can change -- If we want to add capabilities or switch the factory
     endorsementRegistry = _endorsementRegistry; // cant change
     vaultsRegistry = _vaultRegistry; // cant change
-    keeperIncentive = _keeperIncentive; // can/cant change ?
     escrow = _escrow; // cant change
 
     latestTemplateKey[STAKING] = "MultiRewardStaking";
@@ -68,8 +64,7 @@ contract VaultController is Owned {
     DeploymentArgs memory adapterData,
     bytes memory rewardsData,
     VaultParams memory vaultData,
-    VaultMetadata memory metadata,
-    bytes memory addKeeperData
+    VaultMetadata memory metadata
   ) external onlyOwner returns (address vault) {
     IERC20 asset = vaultData.asset;
     IDeploymentController _deploymentController = deploymentController;
@@ -86,19 +81,16 @@ contract VaultController is Owned {
 
     if (rewardsData.length > 0 && staking != address(0)) _handleVaultStakingRewards(staking, rewardsData);
 
-    _handleKeeperSetup(vault, vaultData.keeperConfig, addKeeperData);
-
     _registerVault(vault, staking, metadata);
 
     emit VaultDeployed(vault, staking, address(vaultData.adapter));
   }
 
-  function _deployVault(
-    VaultParams memory vaultData,
-    IDeploymentController _deploymentController
-  ) internal returns (address vault) {
+  function _deployVault(VaultParams memory vaultData, IDeploymentController _deploymentController)
+    internal
+    returns (address vault)
+  {
     vaultData.owner = address(adminProxy);
-    vaultData.keeperIncentive = keeperIncentive;
 
     (, bytes memory returnData) = adminProxy.execute(
       address(_deploymentController),
@@ -113,32 +105,6 @@ contract VaultController is Owned {
     vault = abi.decode(returnData, (address));
   }
 
-  /**
-   * @notice sets keeperConfig and creates incentive for new vault deployment
-   * @dev avoids stack too deep in deployVaultFromFactory
-   */
-  function _handleKeeperSetup(address _vault, KeeperConfig memory _keeperConfig, bytes memory addKeeperData) internal {
-    adminProxy.execute(_vault, abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(_keeperConfig)));
-
-    (bool _keeperEnabled, bool _keeperOpenToEveryone, uint256 _keeperCooldown) = abi.decode(
-      addKeeperData,
-      (bool, bool, uint256)
-    );
-    adminProxy.execute(
-      address(keeperIncentive),
-      abi.encodeWithSelector(
-        IKeeperIncentiveV2.createIncentive.selector,
-        _vault,
-        _keeperConfig.keeperPayout,
-        _keeperEnabled,
-        _keeperOpenToEveryone,
-        _vault,
-        _keeperCooldown,
-        uint256(0)
-      )
-    );
-  }
-
   function _handleVaultStakingRewards(address staking, bytes memory rewardsData) internal {
     address[] memory stakingContracts = new address[](1);
     bytes[] memory rewardsDatas = new bytes[](1);
@@ -149,7 +115,11 @@ contract VaultController is Owned {
     addStakingRewardsToken(stakingContracts, rewardsDatas);
   }
 
-  function _registerVault(address vault, address staking, VaultMetadata memory metadata) internal {
+  function _registerVault(
+    address vault,
+    address staking,
+    VaultMetadata memory metadata
+  ) internal {
     metadata.vaultAddress = vault;
     metadata.staking = staking;
     metadata.submitter = msg.sender;
@@ -220,10 +190,10 @@ contract VaultController is Owned {
     adminProxy.execute(adapter, abi.encodeWithSelector(IAdapter.setManagementFee.selector, managementFee));
   }
 
-  function _deployStrategy(
-    DeploymentArgs memory strategyData,
-    IDeploymentController _deploymentController
-  ) internal returns (address strategy) {
+  function _deployStrategy(DeploymentArgs memory strategyData, IDeploymentController _deploymentController)
+    internal
+    returns (address strategy)
+  {
     (, bytes memory returnDataStrategy) = adminProxy.execute(
       address(_deploymentController),
       abi.encodeWithSelector(DEPLOY_SIG, STRATEGY, strategyData.id, "")
@@ -242,10 +212,10 @@ contract VaultController is Owned {
     return _deployStaking(asset, deploymentController);
   }
 
-  function _deployStaking(
-    IERC20 asset,
-    IDeploymentController _deploymentController
-  ) internal returns (address staking) {
+  function _deployStaking(IERC20 asset, IDeploymentController _deploymentController)
+    internal
+    returns (address staking)
+  {
     (, bytes memory returnData) = adminProxy.execute(
       address(_deploymentController),
       abi.encodeWithSelector(
@@ -319,26 +289,6 @@ contract VaultController is Owned {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
       adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.changeFees.selector));
-    }
-  }
-
-  /**
-   * @notice Sets keeperConfig for a vault
-   * @param vaults - addresses of the newly deployed vaults
-   * @param keeperConfigs - the keeperConfig structs from the VaultParams used in vault deployment
-   * @dev index of _vaults array and _keeperConfigs must coincide
-   */
-  function setVaultKeeperConfig(address[] memory vaults, KeeperConfig[] memory keeperConfigs) external {
-    _verifyEqualArrayLength(vaults.length, keeperConfigs.length);
-
-    uint8 len = uint8(vaults.length);
-    for (uint8 i = 0; i < len; i++) {
-      _verifySubmitter(vaults[i]);
-
-      adminProxy.execute(
-        vaults[i],
-        abi.encodeWithSelector(IVault.setKeeperConfig.selector, abi.encode(keeperConfigs[i]))
-      );
     }
   }
 
@@ -433,10 +383,6 @@ contract VaultController is Owned {
   function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
     _verifyEqualArrayLength(tokens.length, fees.length);
     adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardEscrow.setFees.selector, tokens, fees));
-  }
-
-  function setEscrowKeeperPerc(uint256 keeperPerc) external onlyOwner {
-    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardEscrow.setKeeperPerc.selector, keeperPerc));
   }
 
   /*//////////////////////////////////////////////////////////////

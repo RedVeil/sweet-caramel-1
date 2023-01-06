@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.15;
 
-import { KeeperConfig } from "../IKeeperIncentiveV2.sol";
 import { VaultParams, FeeStructure } from "./IVault.sol";
 import { VaultMetadata } from "./IVaultRegistry.sol";
 import { IERC4626, IERC20 } from "./IERC4626.sol";
@@ -40,8 +39,6 @@ interface IVaultController {
   function proposeVaultFees(address[] memory vaults, FeeStructure[] memory newFees) external;
 
   function changeVaultFees(address[] memory vaults) external;
-
-  function setVaultKeeperConfig(address[] memory vaults, KeeperConfig[] memory keeperConfigs) external;
 
   function toggleEndorsement(address[] memory targets) external;
 
