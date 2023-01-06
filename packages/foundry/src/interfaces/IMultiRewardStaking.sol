@@ -9,8 +9,8 @@ import { IPausable } from "./IPausable.sol";
 import { IMultiRewardEscrow } from "./IMultiRewardEscrow.sol";
 
 interface IMultiRewardStaking is IERC4626, IOwned, IPermit, IPausable {
-  function addRewardsToken(
-    IERC20 rewardsToken,
+  function addRewardToken(
+    IERC20 rewardToken,
     uint160 rewardsPerSecond,
     uint256 amount,
     bool useEscrow,
@@ -19,9 +19,13 @@ interface IMultiRewardStaking is IERC4626, IOwned, IPermit, IPausable {
     uint256 offset
   ) external;
 
-  function changeRewardSpeed(IERC20 rewardsToken, uint160 rewardsPerSecond) external;
+  function changeRewardSpeed(IERC20 rewardToken, uint160 rewardsPerSecond) external;
 
-  function fundReward(IERC20 rewardsToken, uint256 amount) external;
+  function fundReward(IERC20 rewardToken, uint256 amount) external;
 
-  function initialize(IERC20 _stakingToken, IMultiRewardEscrow _escrow, address _owner) external;
+  function initialize(
+    IERC20 _stakingToken,
+    IMultiRewardEscrow _escrow,
+    address _owner
+  ) external;
 }

@@ -45,10 +45,10 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   error InvalidAdapter();
 
   /**
-   * @notice Initialize a new Vault
+   * @notice Initialize a new Vault.
    * @param asset_ Underlying Asset which users will deposit.
    * @param adapter_ Adapter which will be used to interact with the wrapped protocol.
-   * @param fees_ Desired fees in 1e18 (e.g. 100% = 1e18 or 1 BPS = 1e12)
+   * @param fees_ Desired fees in 1e18. (1e18 = 100%, 1e14 = 1 BPS)
    * @param feeRecipient_ Recipient of all vault fees. (Must not be zero address)
    * @param owner Vault creator.
    * @dev This function is called by the factory contract when deploying a new vault.
@@ -456,7 +456,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   /**
    * @notice Propose new fees for this vault. Caller must be owner.
    * @param newFees Fees for depositing, withdrawal, management and performance in 1e18.
-   * @dev Fees can be 0 but never 1e18 (100% = 1e18; 1 BPS = 1e12)
+   * @dev Fees can be 0 but never 1e18 (1e18 = 100%, 1e14 = 1 BPS)
    */
   function proposeFees(FeeStructure memory newFees) external onlyOwner {
     if (
