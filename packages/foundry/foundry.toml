@@ -1,7 +1,4 @@
 [profile.default]
-
-
-
 src = 'src'
 out = 'out'
 test = 'test'
@@ -25,8 +22,6 @@ remappings = [
 [rpc_endpoints]
 FORKING_RPC_URL = "${FORKING_RPC_URL}"
 
-
-
 [profile.ci]
 src = 'src'
 out = 'out'
@@ -37,4 +32,12 @@ fs_permissions = [{ access = "read-write", path = "./"}]
 verbosity = 2
 fuzz_max_global_rejects = 100000000
 fuzz_runs = 2500
+
+remappings = [
+  'ds-test/=lib/forge-std/lib/ds-test/src/',
+  'forge-std/=lib/forge-std/src/',
+  'openzeppelin-contracts/=../../node_modules/@openzeppelin/contracts/',
+  'openzeppelin-contracts-upgradeable/=../../node_modules/openzeppelin-upgradeable/',
+  'solmate/=lib/solmate/src/'
+]
 

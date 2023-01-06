@@ -1,4 +1,4 @@
 export enum VoteOptions {
-  Yes = "Yes",
-  No = "No",
+  Yes = 0,
+  No = 1,
 }

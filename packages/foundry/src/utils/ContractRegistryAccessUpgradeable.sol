@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.0;
-
+pragma solidity ^0.8.15;
 import "../interfaces/IContractRegistry.sol";
-import "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  *  @notice Provides an internal `_getContract` helper function to access the `ContractRegistry` - Upgradable version

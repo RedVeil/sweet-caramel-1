@@ -4,7 +4,7 @@ import useWeb3 from "@popcorn/app/hooks/useWeb3";
 import { useEffect, useState } from "react";
 import useSelectNetwork from "hooks/useNetworkFilter";
 import { useChainsWithStakingRewards } from "hooks/staking/useChainsWithStaking";
-import NetworkFilter from "components/NetworkFilter";
+import NetworkFilter from "@popcorn/components/components/NetworkFilter";
 import { ChainId } from "@popcorn/utils";
 import AirDropClaim from "components/rewards/AirdropClaim";
 import StakingRewardsContainer from "components/rewards/StakingRewardsContainer";

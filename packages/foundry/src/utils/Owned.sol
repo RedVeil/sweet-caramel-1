@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 // https://docs.synthetix.io/contracts/source/contracts/owned
 contract Owned {
@@ -14,12 +14,12 @@ contract Owned {
     emit OwnerChanged(address(0), _owner);
   }
 
-  function nominateNewOwner(address _owner) external onlyOwner {
+  function nominateNewOwner(address _owner) external virtual onlyOwner {
     nominatedOwner = _owner;
     emit OwnerNominated(_owner);
   }
 
-  function acceptOwnership() external {
+  function acceptOwnership() external virtual {
     require(msg.sender == nominatedOwner, "You must be nominated before you can accept ownership");
     emit OwnerChanged(owner, nominatedOwner);
     owner = nominatedOwner;

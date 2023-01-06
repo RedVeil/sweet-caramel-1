@@ -1,14 +1,16 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+
+pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import "../src/utils/ACLRegistry.sol";
-import "../src/utils/ContractRegistry.sol";
-import "../src/utils/KeeperIncentiveV2.sol";
-import "./utils/mocks/KeeperIncentivizedHelper.sol";
-import "./utils/mocks/KeeperIncentiveHelper.sol";
-import "./utils/mocks/MockERC20.sol";
+import { ACLRegistry } from "../src/utils/ACLRegistry.sol";
+import { ContractRegistry } from "../src/utils/ContractRegistry.sol";
+import { KeeperIncentiveV2, IKeeperIncentiveV2, Incentive, Account, INCENTIVE_MANAGER_ROLE } from "../src/utils/KeeperIncentiveV2.sol";
+import { KeeperIncentivizedHelper } from "./utils/mocks/KeeperIncentivizedHelper.sol";
+import { KeeperIncentiveHelper } from "./utils/mocks/KeeperIncentiveHelper.sol";
+import { MockERC20 } from "./utils/mocks/MockERC20.sol";
 
 contract KeeperIncentiveTest is Test {
   // Contracts
@@ -49,7 +51,7 @@ contract KeeperIncentiveTest is Test {
     keeperIncentive = new KeeperIncentiveV2(contractRegistry, 0.25e18, 2000e18);
     staking = new MockStaking();
     helper = new KeeperIncentiveHelper(keeperIncentive);
-    keeperIncentivizedHelper = new KeeperIncentivizedHelper(contractRegistry);
+    keeperIncentivizedHelper = new KeeperIncentivizedHelper(IKeeperIncentiveV2(address(keeperIncentive)));
 
     // Grant roles
     aclRegistry.grantRole(DAO_ROLE, manager);
@@ -111,7 +113,7 @@ contract KeeperIncentiveTest is Test {
     view
     returns (uint256 balance)
   {
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeperAddress);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeperAddress);
     for (uint256 i; i < accounts.length; ++i) {
       if (address(accounts[i].token) == _rewardToken) {
         balance += balance + accounts[i].balance;
@@ -154,8 +156,8 @@ contract TestViews is KeeperIncentiveTest {
   }
 
   function test__returnsKeeperIncentivesAccountBalances() public {
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
-    IKeeperIncentiveV2.Account[] memory popAccounts = new IKeeperIncentiveV2.Account[](6);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory popAccounts = new Account[](6);
 
     uint256 popCount;
     for (uint256 i; i < accounts.length; ++i) {
@@ -188,7 +190,7 @@ contract TestViews is KeeperIncentiveTest {
   }
 
   function test__returnsKeeperAccounts() public {
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
 
     assertEq(accounts.length, 6);
 
@@ -199,7 +201,7 @@ contract TestViews is KeeperIncentiveTest {
   }
 
   function test__returnsClaimableKeeperBalance() public {
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
 
     assertEq(accounts.length, 6);
 
@@ -340,8 +342,8 @@ contract TestCooldown is KeeperIncentiveTest {
     vm.expectRevert("wait for cooldown period");
     runJob(1);
 
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
-    IKeeperIncentiveV2.Account memory account = accounts[0];
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account memory account = accounts[0];
     assertEq(account.balance, 1 ether);
   }
 }
@@ -723,8 +725,8 @@ contract ClaimableBalances is KeeperIncentiveTest {
 
     runJob(0);
 
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
-    IKeeperIncentiveV2.Account[] memory popAccounts = new IKeeperIncentiveV2.Account[](6);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory popAccounts = new Account[](6);
 
     uint256 popCount;
     for (uint256 i; i < accounts.length; ++i) {
@@ -753,7 +755,7 @@ contract ClaimableBalances is KeeperIncentiveTest {
 
     runJob(1);
 
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
     assertEq(accounts.length, 2);
 
     assertEq(accounts[0].token, address(mockPop));
@@ -775,7 +777,7 @@ contract ClaimableBalances is KeeperIncentiveTest {
     runJob(0);
     runJob(1);
 
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
     assertEq(accounts.length, 2);
 
     assertEq(accounts[0].token, address(mockPop));
@@ -829,7 +831,7 @@ contract ClaimableBalances is KeeperIncentiveTest {
     createIncentive(rewardAmount, 1);
     fundIncentive(1, fundAmount);
 
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
     assertEq(accounts.length, 0);
 
     runJob(1);
@@ -930,14 +932,14 @@ contract ClaimableBalances is KeeperIncentiveTest {
     runJob(2);
     runJob(3);
 
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
     assertEq(accounts.length, 3);
 
     claimArgument.push(accountId(address(helper), 2, address(mockPop)));
     vm.prank(keeper);
     keeperIncentive.claim(claimArgument);
 
-    IKeeperIncentiveV2.Account[] memory accountsAfter = keeperIncentive.getAccounts(keeper);
+    Account[] memory accountsAfter = keeperIncentive.getAccounts(keeper);
 
     assertEq(accountsAfter.length, 3);
     assertEq(accountsAfter[0].balance, accounts[0].balance);
@@ -965,14 +967,14 @@ contract ClaimableBalances is KeeperIncentiveTest {
     runJob(2);
     vm.warp(block.timestamp + 2);
 
-    IKeeperIncentiveV2.Account[] memory accounts = keeperIncentive.getAccounts(keeper);
+    Account[] memory accounts = keeperIncentive.getAccounts(keeper);
     assertEq(accounts.length, 3);
 
     claimArgument.push(accountId(address(helper), 1, address(mockPop)));
     vm.prank(keeper);
     keeperIncentive.claim(claimArgument);
 
-    IKeeperIncentiveV2.Account[] memory accountsAfter = keeperIncentive.getAccounts(keeper);
+    Account[] memory accountsAfter = keeperIncentive.getAccounts(keeper);
     assertEq(accountsAfter.length, 3);
 
     assertEq(accountsAfter[0].token, address(mockPop));

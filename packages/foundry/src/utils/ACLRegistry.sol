@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
-import "../interfaces/IACLRegistry.sol";
+import { IACLRegistry } from "../interfaces/IACLRegistry.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access

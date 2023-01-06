@@ -143,10 +143,9 @@ export const MobileMenu: React.FC = () => {
         </div>
       </div>
       <Transition.Root show={menuVisible} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 overflow-hidden" onClose={() => toggleMenu(false)}>
+        <Dialog as="div" className="fixed inset-0 overflow-hidden z-50" onClose={() => toggleMenu(false)}>
           <div className="absolute inset-0 overflow-hidden">
             <Dialog.Overlay className="absolute inset-0" />
-
             <div className="fixed inset-x-0 top-20 bottom-0 max-w-full flex bg-white">
               <Transition.Child
                 as={Fragment}
@@ -172,9 +171,6 @@ export const MobileMenu: React.FC = () => {
                         ) : (
                           <NavbarLink label="Products" isActive={false} onClick={() => toggleProductsMenu(true)} />
                         )}
-                      </div>
-                      <div className="py-6">
-                        <NavbarLink label="Staking" url="/staking" isActive={router?.pathname.includes("/staking")} />
                       </div>
                       <div className="py-6">
                         <NavbarLink label="Rewards" url={`/rewards`} isActive={router?.pathname.includes("/rewards")} />
@@ -241,11 +237,11 @@ export const MobileMenu: React.FC = () => {
 
       <PopUpModal visible={showPopUp} onClosePopUpModal={closePopUp}>
         <div>
-          <p className=" text-black  mb-3">Connect to Wallet</p>
+          <p className="text-black mb-3">Connect to Wallet</p>
           <MainActionButton label="Connect Wallet" handleClick={openConnectModal} hidden={isConnected} />
           <TertiaryActionButton label="Disconnect" handleClick={disconnect} hidden={!isConnected} />
           <hr className="my-6" />
-          <p className=" text-black mb-3">Select Network</p>
+          <p className="text-black mb-3">Select Network</p>
           <div
             className={`h-12 px-6 flex flex-row items-center justify-center border border-customLightGray rounded-4xl text-primary cursor-pointer`}
             onClick={openChainModal}
@@ -256,7 +252,7 @@ export const MobileMenu: React.FC = () => {
         </div>
       </PopUpModal>
       <Transition.Root show={productsMenuVisible} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 overflow-hidden" onClose={() => toggleMenu(false)}>
+        <Dialog as="div" className="fixed inset-0 overflow-hidden z-50" onClose={() => toggleMenu(false)}>
           <div className="absolute inset-0 overflow-hidden">
             <Dialog.Overlay className="absolute inset-0" />
 

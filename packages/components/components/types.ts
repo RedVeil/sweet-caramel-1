@@ -17,3 +17,8 @@ export type BaseTokenProps<T> = {
 export interface BaseWalletTokenProps<T> extends BaseTokenProps<T> {
   updateWallet?: (args: UpdateWalletBalanceActionProps) => void;
 }
+
+export enum SortingType {
+  BalDesc,
+  BalAsc,
+}

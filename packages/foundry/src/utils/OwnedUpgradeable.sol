@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
-// Docgen-SOLC: 0.8.0
+// Docgen-SOLC: 0.8.15
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
-import "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/owned
 contract OwnedUpgradeable is Initializable {

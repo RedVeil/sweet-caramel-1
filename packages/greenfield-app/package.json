@@ -1,5 +1,5 @@
 {
-  "name": "greenfield-app",
+  "name": "@popcorn/greenfield-app",
   "version": "2.1.12",
   "private": true,
   "scripts": {
