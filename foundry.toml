@@ -1,7 +1,8 @@
-[default]
+[profile.default]
 src = 'src'
 out = 'out'
 libs = ["node_modules", "lib"]
+fs_permissions = [{ access = "read-write", path = "./"}]
 remappings = [
     '@anthonymartin/=node_modules/@anthonymartin/',
     '@balancer-labs/=node_modules/@balancer-labs/',

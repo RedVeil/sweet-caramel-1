@@ -9,10 +9,11 @@ import { VaultMetadata } from "../../src/interfaces/vault/IVaultRegistry.sol";
 import { WithContractRegistry, IContractRegistry } from "../utils/WithContractRegistry.sol";
 import { MockERC20 } from "../utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
+import { IERC20 } from "../../src/interfaces/vault/IERC4626.sol";
 
 contract VaultRegistryTest is Test, WithContractRegistry {
   MockERC20 asset = new MockERC20("ERC20", "TEST", 18);
-  MockERC4626 vault = new MockERC4626(asset, "ERC4626", "TEST-4626");
+  MockERC4626 vault = new MockERC4626(IERC20(address(asset)), "ERC4626", "TEST-4626");
   VaultRegistry registry;
 
   address nonOwner = makeAddr("non owner");

@@ -47,7 +47,12 @@ contract VaultTest is Test {
   event Paused(address account);
   event Unpaused(address account);
 
-  function _setFees(uint256 depositFee, uint256 withdrawalFee, uint256 managementFee, uint256 performanceFee) internal {
+  function _setFees(
+    uint256 depositFee,
+    uint256 withdrawalFee,
+    uint256 managementFee,
+    uint256 performanceFee
+  ) internal {
     vault.proposeFees(
       FeeStructure({
         deposit: depositFee,
@@ -70,7 +75,7 @@ contract VaultTest is Test {
     vm.label(bob, "bob");
 
     underlying = new MockERC20("Mock Token", "TKN", 18);
-    adapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+    adapter = new MockERC4626(IERC20(address(underlying)), "Mock Token Vault", "vwTKN");
 
     keeperIncentive = new KeeperIncentiveV2(IContractRegistry(CONTRACT_REGISTRY), 0, 0);
 
@@ -672,14 +677,14 @@ contract VaultTest is Test {
 
   // Propose Adapter
   function testFail_proposeAdapterNonVaultController() public {
-    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+    MockERC4626 newAdapter = new MockERC4626(IERC20(address(underlying)), "Mock Token Vault", "vwTKN");
 
     vm.prank(alice);
     vault.proposeAdapter(IERC4626(address(newAdapter)));
   }
 
   function test_proposeAdapter() public {
-    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+    MockERC4626 newAdapter = new MockERC4626(IERC20(address(underlying)), "Mock Token Vault", "vwTKN");
 
     uint256 callTime = block.timestamp;
     vm.expectEmit(false, false, false, true, address(vault));
@@ -698,7 +703,7 @@ contract VaultTest is Test {
   }
 
   function testFail_changeAdapterRespectRageQuit() public {
-    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+    MockERC4626 newAdapter = new MockERC4626(IERC20(address(underlying)), "Mock Token Vault", "vwTKN");
 
     vault.proposeAdapter(IERC4626(address(newAdapter)));
 
@@ -707,7 +712,7 @@ contract VaultTest is Test {
   }
 
   function test_changeAdapter() public {
-    MockERC4626 newAdapter = new MockERC4626(underlying, "Mock Token Vault", "vwTKN");
+    MockERC4626 newAdapter = new MockERC4626(IERC20(address(underlying)), "Mock Token Vault", "vwTKN");
     uint256 depositAmount = 1 ether;
 
     // Deposit funds for testing
