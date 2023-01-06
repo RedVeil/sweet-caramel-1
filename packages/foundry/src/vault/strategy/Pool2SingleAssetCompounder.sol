@@ -24,7 +24,7 @@ contract Pool2SingleAssetCompounder is StrategyBase {
     for (uint256 i = 0; i < len; i++) {
       tradePath[0] = rewardTokens[i];
 
-      uint256[] memory amountsOut = IUniswapRouterV2(router).getAmountsOut(ERC20(asset).decimals()**10, tradePath);
+      uint256[] memory amountsOut = IUniswapRouterV2(router).getAmountsOut(ERC20(asset).decimals() ** 10, tradePath);
       if (amountsOut[amountsOut.length] == 0) revert NoValidTradePath();
     }
   }

@@ -102,13 +102,10 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     return paused() ? 0 : _convertToAssets(shares, Math.Rounding.Up);
   }
 
-  function _convertToShares(uint256 assets, Math.Rounding rounding)
-    internal
-    view
-    virtual
-    override
-    returns (uint256 shares)
-  {
+  function _convertToShares(
+    uint256 assets,
+    Math.Rounding rounding
+  ) internal view virtual override returns (uint256 shares) {
     uint256 _totalSupply = totalSupply();
     uint256 _totalAssets = totalAssets();
     return
@@ -124,12 +121,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   /**
    * @dev Deposit/mint common workflow.
    */
-  function _deposit(
-    address caller,
-    address receiver,
-    uint256 assets,
-    uint256 shares
-  ) internal virtual override {
+  function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
     // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
     // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
     // calls the vault, which is assumed not malicious.

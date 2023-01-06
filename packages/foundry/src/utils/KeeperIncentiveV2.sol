@@ -168,11 +168,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
   /**
    * @dev Deprecated, use handleKeeperIncentive(uint8 _i, address _keeper) instead
    */
-  function handleKeeperIncentive(
-    bytes32,
-    uint8 _i,
-    address _keeper
-  ) external override(IKeeperIncentiveV2) {
+  function handleKeeperIncentive(bytes32, uint8 _i, address _keeper) external override(IKeeperIncentiveV2) {
     _handleKeeperIncentive(_i, _keeper);
   }
 
@@ -344,11 +340,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param _i incentive index
    * @param _amount amount of reward token to fund incentive with
    */
-  function fundIncentive(
-    address _contractAddress,
-    uint256 _i,
-    uint256 _amount
-  ) external {
+  function fundIncentive(address _contractAddress, uint256 _i, uint256 _amount) external {
     require(_amount > 0, "must send amount");
     require(incentivesByController[_contractAddress].length > _i, "incentive does not exist");
     Incentive storage incentive = incentivesByController[_contractAddress][_i];
@@ -372,12 +364,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param _i incentive index
    * @param _amount amount of reward token to tip
    */
-  function tip(
-    address _rewardToken,
-    address _keeper,
-    uint256 _i,
-    uint256 _amount
-  ) external {
+  function tip(address _rewardToken, address _keeper, uint256 _i, uint256 _amount) external {
     require(_amount > 0, "must send amount");
     require(allowedControllers[msg.sender], "must be controller contract");
 
@@ -494,11 +481,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param incentive incentive struct used to determine reward tokens and burn amount
    * @param _incentiveAccountId id of the incentive to deposit tokens
    */
-  function _payoutIncentive(
-    address _keeper,
-    Incentive memory incentive,
-    bytes32 _incentiveAccountId
-  ) internal {
+  function _payoutIncentive(address _keeper, Incentive memory incentive, bytes32 _incentiveAccountId) internal {
     (uint256 payoutAmount, uint256 burnAmount) = _previewPayout(incentive);
     _deposit(_keeper, payoutAmount, _incentiveAccountId);
 
@@ -524,11 +507,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param amount amount of reward tokens distributed to keeper
    * @param _incentiveAccountId id of the incentive to deposit tokens
    */
-  function _deposit(
-    address keeper,
-    uint256 amount,
-    bytes32 _incentiveAccountId
-  ) internal {
+  function _deposit(address keeper, uint256 amount, bytes32 _incentiveAccountId) internal {
     _cacheKeeperAccount(keeper, _incentiveAccountId);
     _internalTransfer(_incentiveAccountId, address(this), keeper, amount);
   }
@@ -559,12 +538,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param from address sending tokens
    * @dev if burning tokens, amount is sent to address(0)
    */
-  function _internalTransfer(
-    bytes32 _incentiveAccountId,
-    address from,
-    address to,
-    uint256 amount
-  ) private {
+  function _internalTransfer(bytes32 _incentiveAccountId, address from, address to, uint256 amount) private {
     Account storage fromAccount = accounts[_incentiveAccountId][from];
     Account storage toAccount = accounts[_incentiveAccountId][to];
     fromAccount.balance -= from == address(0) ? 0 : amount;
@@ -577,11 +551,7 @@ contract KeeperIncentiveV2 is IKeeperIncentiveV2, ACLAuth, ContractRegistryAcces
    * @param _incentiveAccountId id of the incentive
    * @param tokenAddress address of token to burn
    */
-  function _burn(
-    uint256 amount,
-    bytes32 _incentiveAccountId,
-    address tokenAddress
-  ) internal {
+  function _burn(uint256 amount, bytes32 _incentiveAccountId, address tokenAddress) internal {
     burnBalancesByToken[tokenAddress] += amount;
     _internalTransfer(_incentiveAccountId, address(this), burnAddress, amount);
   }

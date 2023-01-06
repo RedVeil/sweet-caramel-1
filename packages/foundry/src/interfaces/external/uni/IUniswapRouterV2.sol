@@ -16,13 +16,7 @@ interface IUniswapRouterV2 {
     uint256 amountBMin,
     address to,
     uint256 deadline
-  )
-    external
-    returns (
-      uint256 amountA,
-      uint256 amountB,
-      uint256 liquidity
-    );
+  ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
   function addLiquidityBNB(
     address token,
@@ -31,14 +25,7 @@ interface IUniswapRouterV2 {
     uint256 amountBNBMin,
     address to,
     uint256 deadline
-  )
-    external
-    payable
-    returns (
-      uint256 amountToken,
-      uint256 amountBNB,
-      uint256 liquidity
-    );
+  ) external payable returns (uint256 amountToken, uint256 amountBNB, uint256 liquidity);
 
   function removeLiquidity(
     address tokenA,
@@ -177,11 +164,7 @@ interface IUniswapRouterV2 {
     uint256 deadline
   ) external payable returns (uint256[] memory amounts);
 
-  function quote(
-    uint256 amountA,
-    uint256 reserveA,
-    uint256 reserveB
-  ) external pure returns (uint256 amountB);
+  function quote(uint256 amountA, uint256 reserveA, uint256 reserveB) external pure returns (uint256 amountB);
 
   function getAmountOut(
     uint256 amountIn,

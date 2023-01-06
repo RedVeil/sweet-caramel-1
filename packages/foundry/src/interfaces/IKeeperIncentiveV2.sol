@@ -82,11 +82,7 @@ interface IKeeperIncentiveV2 {
   /**
    * @dev Deprecated, use handleKeeperIncentive(uint8 _i, address _keeper) instead
    */
-  function handleKeeperIncentive(
-    bytes32,
-    uint8 _i,
-    address _keeper
-  ) external;
+  function handleKeeperIncentive(bytes32, uint8 _i, address _keeper) external;
 
   /**
    * @notice Keeper calls to claim rewards earned
@@ -167,11 +163,7 @@ interface IKeeperIncentiveV2 {
    * @param _i incentive index
    * @param _amount amount of reward token to fund incentive with
    */
-  function fundIncentive(
-    address _contractAddress,
-    uint256 _i,
-    uint256 _amount
-  ) external;
+  function fundIncentive(address _contractAddress, uint256 _i, uint256 _amount) external;
 
   /**
    * @notice Allows for incentives to be funded with additional tip
@@ -180,12 +172,7 @@ interface IKeeperIncentiveV2 {
    * @param _i incentive index
    * @param _amount amount of reward token to tip
    */
-  function tip(
-    address _rewardToken,
-    address _keeper,
-    uint256 _i,
-    uint256 _amount
-  ) external;
+  function tip(address _rewardToken, address _keeper, uint256 _i, uint256 _amount) external;
 
   /**
    * @notice Allows for incentives to be funded with additional tip
