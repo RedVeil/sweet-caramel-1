@@ -63,15 +63,9 @@ const INIT_BALANCE_STATE = {
 };
 
 export const PortfolioPage: NextPage = () => {
-  const {
-    features: { portfolio: visible },
-  } = useFeatures();
-
   const supportedNetworks = useChainsWithStakingRewards();
   const [selectedNetworks, selectNetwork] = useNetworkFilter(supportedNetworks);
 
-  //const account = "0x22f5413C075Ccd56D575A54763831C4c27A37Bdb"; // L
-  // const account = "0x72a91930748d6fb28338b0e013ec64728fc0a9ba" // W
   const { address: account } = useAccount();
 
   const [balances, setBalances] = useState(INIT_BALANCE_STATE);

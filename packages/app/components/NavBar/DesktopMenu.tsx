@@ -16,9 +16,6 @@ import { useProductLinks } from "@popcorn/app/hooks/useProductLinks";
 import { useFeatures } from "@popcorn/components";
 
 export default function DesktopMenu(): JSX.Element {
-  const {
-    features: { portfolio },
-  } = useFeatures();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
@@ -47,7 +44,7 @@ export default function DesktopMenu(): JSX.Element {
           <li>
             <NavbarLink label="Popcorn" url="/" isActive={router.pathname === "/"} />
           </li>
-          <li className={portfolio ? "" : "hidden"}>
+          <li>
             <NavbarLink label="Portfolio" url="/portfolio" isActive={router.pathname === "/portfolio"} />
           </li>
           <li className="relative flex flex-container flex-row z-10">

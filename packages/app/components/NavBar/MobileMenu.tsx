@@ -41,10 +41,6 @@ const networkData = [
 ];
 
 export const MobileMenu: React.FC = () => {
-  const {
-    features: { portfolio },
-  } = useFeatures();
-
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const { openChainModal } = useChainModal();
@@ -162,7 +158,7 @@ export const MobileMenu: React.FC = () => {
                       <div className="py-6">
                         <NavbarLink label="Popcorn" url="/" isActive={router?.pathname === `/`} />
                       </div>
-                      <div className={`py-6 ${portfolio ? "" : "hidden"}`}>
+                      <div className={`py-6`}>
                         <NavbarLink label="Portfolio" url="/portfolio" isActive={router.pathname === "/portfolio"} />
                       </div>
                       <div className="py-6">
