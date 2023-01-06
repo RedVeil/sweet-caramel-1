@@ -27,10 +27,6 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
   using SafeCastLib for uint256;
   using Math for uint256;
 
-  /*//////////////////////////////////////////////////////////////
-                            IMMUTABLES
-    //////////////////////////////////////////////////////////////*/
-
   string private _name;
   string private _symbol;
   uint8 private _decimals;

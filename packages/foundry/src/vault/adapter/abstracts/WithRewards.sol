@@ -8,6 +8,7 @@ import { OnlyStrategy } from "./OnlyStrategy.sol";
 import { IWithRewards } from "../../../interfaces/vault/IWithRewards.sol";
 import { IAdapter } from "../../../interfaces/vault/IAdapter.sol";
 
+/// @notice Abstract base for adapters that have rewards
 contract WithRewards is EIP165, OnlyStrategy {
   function rewardTokens() external view virtual returns (address[] memory) {}
 

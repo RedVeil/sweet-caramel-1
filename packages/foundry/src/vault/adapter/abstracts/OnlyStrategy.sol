@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.15;
 
+/// @notice Enforces that the caller is the strategy via delegatecall
 contract OnlyStrategy {
   error NotStrategy(address sender);
 

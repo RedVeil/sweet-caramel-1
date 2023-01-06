@@ -19,10 +19,6 @@ import { Owned } from "./Owned.sol";
 contract MultiRewardEscrow is Owned {
   using SafeERC20 for IERC20;
 
-  /*//////////////////////////////////////////////////////////////
-                            CONSTRUCTOR
-    //////////////////////////////////////////////////////////////*/
-
   /**
    * @notice Constructor for the Escrow contract.
    * @param _owner Owner of the contract. Controls management functions.
