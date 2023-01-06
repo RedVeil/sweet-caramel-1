@@ -154,7 +154,7 @@ export const PortfolioPage: NextPage = () => {
         supportedNetworks={supportedNetworks}
         selectedNetworks={selectedNetworks}
         selectNetwork={selectNetwork}
-        balance={totalBalance.pop}
+        networth={networth}
         vestingBalance={rewardsBalance}
         account={account}
         tabs={{ available: Sections, active: [selectedSections, selectSections] }}

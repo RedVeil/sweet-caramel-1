@@ -12,7 +12,7 @@ export interface PortfolioHeroProps {
   selectedNetworks: ChainId[];
   account?: `0x${string}`;
   vestingBalance: BigNumber;
-  balance: BigNumber;
+  networth: BigNumber;
   supportedNetworks: any;
   selectNetwork: any;
   tabs: TabsProps;
@@ -21,7 +21,7 @@ export interface PortfolioHeroProps {
 const PortfolioHero: React.FC<PortfolioHeroProps> = ({
   supportedNetworks,
   vestingBalance,
-  balance,
+  networth,
   selectNetwork,
   tabs,
 }) => {
@@ -67,8 +67,8 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
             <div className="text-3xl font-light md:font-medium">${formatAndRoundBigNumber(vestingBalance, 18)}</div>
           </div>
           <div className="col-span-5 md:col-span-3">
-            <p className="leading-6 text-base font-light md:font-normal">Asset Value</p>
-            <div className="text-3xl font-light md:font-medium">${formatAndRoundBigNumber(balance, 18)}</div>
+            <p className="leading-6 text-base font-light md:font-normal">Networth</p>
+            <div className="text-3xl font-light md:font-medium">${formatAndRoundBigNumber(networth, 18)}</div>
           </div>
         </div>
         <div className="md:hidden">
