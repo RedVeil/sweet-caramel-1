@@ -471,8 +471,8 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   address public feeRecipient;
 
   event NewFeesProposed(FeeStructure newFees, uint256 timestamp);
-  event ChangedFees(FeeStructure previousFees, FeeStructure newFees);
-  event FeeRecipientUpdated(address indexed previousFeeRecipient, address indexed newFeeRecipient);
+  event ChangedFees(FeeStructure oldFees, FeeStructure newFees);
+  event FeeRecipientUpdated(address oldFeeRecipient, address newFeeRecipient);
 
   error InvalidFeeStructure();
   error InvalidFeeRecipient();

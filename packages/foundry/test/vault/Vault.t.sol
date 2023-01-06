@@ -4,24 +4,12 @@
 pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
-
 import { MockERC20 } from "../utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
 import { Vault } from "../../src/vault/Vault.sol";
-import { KeeperConfig } from "../../src/utils/KeeperIncentivized.sol";
-import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../../src/utils/KeeperIncentiveV2.sol";
-import { IContractRegistry } from "../../src/interfaces/IContractRegistry.sol";
-
-import { IACLRegistry } from "../../src/interfaces/IACLRegistry.sol";
 import { IERC4626, IERC20 } from "../../src/interfaces/vault/IERC4626.sol";
 import { FeeStructure } from "../../src/interfaces/vault/IVault.sol";
-
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
-
-address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
-address constant ACL_REGISTRY = 0x8A41aAa4B467ea545DDDc5759cE3D35984F093f4;
-address constant ACL_ADMIN = 0x92a1cB552d0e177f3A135B4c87A4160C8f2a485f;
-address constant KEEPER_INCENTIVE = 0xaFacA2Ad8dAd766BCc274Bf16039088a7EA493bF;
 
 contract VaultTest is Test {
   using FixedPointMathLib for uint256;
@@ -40,8 +28,8 @@ contract VaultTest is Test {
   address bob = address(0xDCBA);
 
   event NewFeesProposed(FeeStructure newFees, uint256 timestamp);
-  event ChangedFees(FeeStructure previousFees, FeeStructure newFees);
-  event FeeRecipientUpdated(address newFeeRecipient, address oldFeeRecipient);
+  event ChangedFees(FeeStructure oldFees, FeeStructure newFees);
+  event FeeRecipientUpdated(address oldFeeRecipient, address newFeeRecipient);
   event NewAdapterProposed(IERC4626 newAdapter, uint256 timestamp);
   event ChangedAdapter(IERC4626 oldAdapter, IERC4626 newAdapter);
   event QuitPeriodSet(uint256 quitPeriod);
@@ -108,25 +96,25 @@ contract VaultTest is Test {
       bob
     );
 
-    assertEq(vault.name(), "Popcorn Mock Token Vault");
-    assertEq(vault.symbol(), "pop-TKN");
-    assertEq(vault.decimals(), 18);
+    assertEq(newVault.name(), "Popcorn Mock Token Vault");
+    assertEq(newVault.symbol(), "pop-TKN");
+    assertEq(newVault.decimals(), 18);
 
-    assertEq(address(vault.asset()), address(asset));
-    assertEq(address(vault.adapter()), address(adapter));
-    assertEq(vault.owner(), bob);
+    assertEq(address(newVault.asset()), address(asset));
+    assertEq(address(newVault.adapter()), address(adapter));
+    assertEq(newVault.owner(), bob);
 
-    (uint256 deposit, uint256 withdrawal, uint256 management, uint256 performance) = vault.fees();
+    (uint256 deposit, uint256 withdrawal, uint256 management, uint256 performance) = newVault.fees();
     assertEq(deposit, 100);
     assertEq(withdrawal, 100);
     assertEq(management, 100);
     assertEq(performance, 100);
-    assertEq(vault.feeRecipient(), feeRecipient);
-    assertEq(vault.vaultShareHWM(), 1 ether);
-    assertEq(vault.feesUpdatedAt(), callTime);
+    assertEq(newVault.feeRecipient(), feeRecipient);
+    assertEq(newVault.vaultShareHWM(), 1 ether);
+    assertEq(newVault.feesUpdatedAt(), callTime);
 
-    assertEq(vault.quitPeriod(), 3 days);
-    assertEq(asset.allowance(address(vault), address(adapter)), type(uint256).max);
+    assertEq(newVault.quitPeriod(), 3 days);
+    assertEq(asset.allowance(address(newVault), address(adapter)), type(uint256).max);
   }
 
   function testFail__initialize_asset_is_zero() public {
@@ -679,7 +667,7 @@ contract VaultTest is Test {
     vault.takeManagementAndPerformanceFees();
 
     assertEq(vault.totalSupply(), depositAmount + expectedFeeInShares);
-    assertEq(vault.balanceOf(address(vault)), expectedFeeInShares);
+    assertEq(vault.balanceOf(feeRecipient), expectedFeeInShares);
 
     // High Water Mark should remain unchanged
     assertEq(vault.vaultShareHWM(), 1 ether);
@@ -708,7 +696,7 @@ contract VaultTest is Test {
     vault.takeManagementAndPerformanceFees();
 
     assertEq(vault.totalSupply(), depositAmount + expectedFeeInShares);
-    assertEq(vault.balanceOf(address(vault)), expectedFeeInShares);
+    assertEq(vault.balanceOf(feeRecipient), expectedFeeInShares);
 
     // There should be a new High Water Mark
     assertEq(vault.vaultShareHWM(), (depositAmount + amount).mulDivDown(depositAmount, depositAmount));

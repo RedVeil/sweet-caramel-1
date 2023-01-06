@@ -5,11 +5,10 @@ pragma solidity ^0.8.15;
 import { Test } from "forge-std/Test.sol";
 import { CloneFactory } from "../../src/vault/CloneFactory.sol";
 import { Template } from "../../src/interfaces/vault/ITemplateRegistry.sol";
-import { WithContractRegistry, IContractRegistry } from "../utils/WithContractRegistry.sol";
 import { ClonableWithInitData } from "../utils/mocks/ClonableWithInitData.sol";
 import { ClonableWithoutInitData } from "../utils/mocks/ClonableWithoutInitData.sol";
 
-contract CloneFactoryTest is Test, WithContractRegistry {
+contract CloneFactoryTest is Test {
   CloneFactory factory;
   ClonableWithInitData clonableWithInitDataImpl = new ClonableWithInitData();
   ClonableWithoutInitData clonableWithoutInitDataImpl = new ClonableWithoutInitData();
@@ -23,8 +22,6 @@ contract CloneFactoryTest is Test, WithContractRegistry {
   event Deployment(address indexed clone);
 
   function setUp() public {
-    _adminPrepare();
-
     factory = new CloneFactory(address(this));
   }
 

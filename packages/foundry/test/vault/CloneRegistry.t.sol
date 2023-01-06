@@ -5,9 +5,8 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 import { CloneRegistry } from "../../src/vault/CloneRegistry.sol";
-import { WithContractRegistry, IContractRegistry } from "../utils/WithContractRegistry.sol";
 
-contract CloneRegistryTest is Test, WithContractRegistry {
+contract CloneRegistryTest is Test {
   CloneRegistry registry;
 
   address nonOwner = makeAddr("non owner");
@@ -16,8 +15,6 @@ contract CloneRegistryTest is Test, WithContractRegistry {
   event CloneAdded(address clone);
 
   function setUp() public {
-    _adminPrepare();
-
     registry = new CloneRegistry(address(this));
   }
 

@@ -1,5 +1,6 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.0;
+// SPDX-License-Identifier: GPL-3.0
+// Docgen-SOLC: 0.8.15
+pragma solidity ^0.8.15;
 
 import { IERC4626, IERC20 } from "../../../src/interfaces/vault/IERC4626.sol";
 import { ERC20 } from "openzeppelin-contracts/token/ERC20/ERC20.sol";

@@ -7,11 +7,7 @@ import { Test } from "forge-std/Test.sol";
 import { ITestConfigStorage } from "./ITestConfigStorage.sol";
 import { IAdapter, IERC4626 } from "../../../../src/interfaces/vault/IAdapter.sol";
 import { IStrategy } from "../../../../src/interfaces/vault/IStrategy.sol";
-import { KeeperConfig } from "../../../../src/utils/KeeperIncentivized.sol";
 import { Vault, FeeStructure, IERC20Metadata, IERC20 } from "../../../../src/vault/Vault.sol";
-import { KeeperIncentiveV2, IKeeperIncentiveV2 } from "../../../../src/utils/KeeperIncentiveV2.sol";
-import { IContractRegistry } from "../../../../src/interfaces/IContractRegistry.sol";
-import { IACLRegistry } from "../../../../src/interfaces/IACLRegistry.sol";
 import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { Strings } from "openzeppelin-contracts/utils/Strings.sol";
 
@@ -32,7 +28,6 @@ contract AbstractVaultIntegrationTest is Test {
   IERC20 asset;
   Vault vault;
   IAdapter adapter;
-  KeeperIncentiveV2 keeperIncentive;
 
   address bob = address(1);
   address alice = address(2);
@@ -67,8 +62,6 @@ contract AbstractVaultIntegrationTest is Test {
     maxConfigs = maxConfigs_;
     defaultAmount = 10**IERC20Metadata(address(asset_)).decimals();
     maxDeposit = defaultAmount * 10_000;
-
-    keeperIncentive = new KeeperIncentiveV2(IContractRegistry(contractRegistry), 0, 0);
 
     address vaultAddress = address(new Vault());
     vault = Vault(vaultAddress);

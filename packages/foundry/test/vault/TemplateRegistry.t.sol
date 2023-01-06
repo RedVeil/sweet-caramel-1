@@ -6,11 +6,10 @@ pragma solidity ^0.8.15;
 import { Test } from "forge-std/Test.sol";
 import { TemplateRegistry, Template } from "../../src/vault/TemplateRegistry.sol";
 import { EndorsementRegistry } from "../../src/vault/EndorsementRegistry.sol";
-import { WithContractRegistry, IContractRegistry } from "../utils/WithContractRegistry.sol";
 import { ClonableWithInitData } from "../utils/mocks/ClonableWithInitData.sol";
 import { ClonableWithoutInitData } from "../utils/mocks/ClonableWithoutInitData.sol";
 
-contract TemplateRegistryTest is Test, WithContractRegistry {
+contract TemplateRegistryTest is Test {
   TemplateRegistry registry;
 
   bytes32 public constant ENDORSEMENT_REGISTRY = keccak256("EndorsementRegistry");
@@ -25,8 +24,6 @@ contract TemplateRegistryTest is Test, WithContractRegistry {
   event TemplateUpdated(bytes32 templateType, bytes32 templateKey);
 
   function setUp() public {
-    _adminPrepare();
-
     registry = new TemplateRegistry(address(this));
     reqSigs[0] = bytes4(keccak256("rewardsToken()"));
   }
