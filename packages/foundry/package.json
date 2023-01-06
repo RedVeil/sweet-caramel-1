@@ -10,7 +10,11 @@
     "test": "forge test",
     "prettier": "prettier --write 'src/**/*.sol'",
     "coverage": "utils/coverage.sh",
-    "prettify": "yarn lint-staged --allow-empty"
+    "prettify": "yarn lint-staged --allow-empty",
+    "anvil": "./script/anvil.sh",
+    "fund:seth": "./script/fundSEth.sh",
+    "deploy:vaults": "forge script ./script/DeployVault.s.sol --rpc-url http://localhost:8545 --broadcast",
+    "dev": "yarn fund:seth && yarn deploy:vaults"
   },
   "lint-staged": {
     "*.{sol,ts,tsx}": "prettier --write"

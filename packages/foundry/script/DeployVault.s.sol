@@ -16,7 +16,7 @@ import { FeeStructure } from "../src/interfaces/vault/IVault.sol";
 address constant CONTRACT_REGISTRY = 0x85831b53AFb86889c20aF38e654d871D8b0B7eC3;
 
 contract VulnerableScript is Script {
-  IERC20 asset = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48); //USDC
+  IERC20 asset = IERC20(0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb); //sETH
   address feeRecipient = address(0x4444);
   MockERC4626 adapter;
   KeeperIncentiveV2 keeperIncentive;
