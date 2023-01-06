@@ -39,7 +39,7 @@ contract CloneFactoryTest is Test {
     });
 
     vm.expectEmit(true, false, false, false);
-    emit Deployment(address(0xa38D17ef017A314cCD72b8F199C0e108EF7Ca04c));
+    emit Deployment(address(0x4f81992FCe2E1846dD528eC0102e6eE1f61ed3e2));
 
     address clone = factory.deploy(template, "");
 
@@ -58,7 +58,7 @@ contract CloneFactoryTest is Test {
     bytes memory initData = abi.encodeCall(ClonableWithInitData.initialize, (100));
 
     vm.expectEmit(true, false, false, false);
-    emit Deployment(address(0xa38D17ef017A314cCD72b8F199C0e108EF7Ca04c));
+    emit Deployment(address(0x4f81992FCe2E1846dD528eC0102e6eE1f61ed3e2));
 
     address clone = factory.deploy(template, initData);
 
