@@ -26,7 +26,7 @@ const PortfolioHero: React.FC<PortfolioHeroProps> = ({
   tabs,
 }) => {
   return (
-    <div className="bg-warmGray overflow-hidden md:bg-opacity-[15%] flex flex-col md:flex-row justify-between px-8 pt-10 pb-16 md:pb-[14px] relative -mt-5">
+    <div className="bg-warmGray overflow-hidden md:bg-opacity-[15%] flex flex-col md:flex-row justify-between px-8 pt-10 pb-16 md:pb-[14px] relative -mt-5 rounded-2xl">
       <div className="relative z-[1]">
         <h1 className="text-3xl md:text-4xl font-normal m-0 leading-[38px] md:leading-11 mb-4">
           Your Portfolio Overview
