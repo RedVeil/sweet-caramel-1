@@ -16,12 +16,14 @@ contract TemplateRegistryTest is Test {
 
   address nonOwner = address(0x666);
   bytes32 templateType = "templateType";
+  bytes32 templateId = "ClonableWithInitData";
+  string metadataCid = "cid";
 
   address[] addressArray;
   bytes4[8] reqSigs;
   event TemplateTypeAdded(bytes32 templateType);
-  event TemplateAdded(bytes32 templateType, bytes32 templateKey, address implementation);
-  event TemplateUpdated(bytes32 templateType, bytes32 templateKey);
+  event TemplateAdded(bytes32 templateType, bytes32 templateId, address implementation);
+  event TemplateUpdated(bytes32 templateType, bytes32 templateId);
 
   function setUp() public {
     registry = new TemplateRegistry(address(this));
@@ -64,33 +66,33 @@ contract TemplateRegistryTest is Test {
     ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
 
     vm.expectEmit(true, true, true, false, address(registry));
-    emit TemplateAdded(templateType, "ClonableWithInitData", address(clonableWithInitData));
+    emit TemplateAdded(templateType, templateId, address(clonableWithInitData));
 
     registry.addTemplate(
       templateType,
-      "ClonableWithInitData",
+      templateId,
       Template({
         implementation: address(clonableWithInitData),
-        metadataCid: "cid",
+        metadataCid: metadataCid,
         requiresInitData: true,
         registry: address(0x2222),
         requiredSigs: reqSigs
       })
     );
 
-    Template memory template = registry.getTemplate(templateType, "ClonableWithInitData");
+    Template memory template = registry.getTemplate(templateType, templateId);
     assertEq(template.implementation, address(clonableWithInitData));
-    assertEq(template.metadataCid, "cid");
+    assertEq(template.metadataCid, metadataCid);
     assertEq(template.requiresInitData, true);
     assertEq(template.registry, address(0x2222));
     assertEq(template.requiredSigs[0], reqSigs[0]);
     assertEq(template.requiredSigs[7], reqSigs[7]);
 
-    bytes32[] memory templateKeys = registry.getTemplateKeys(templateType);
-    assertEq(templateKeys.length, 1);
-    assertEq(templateKeys[0], "ClonableWithInitData");
+    bytes32[] memory templateIds = registry.getTemplateIds(templateType);
+    assertEq(templateIds.length, 1);
+    assertEq(templateIds[0], templateId);
 
-    assertTrue(registry.templateExists("ClonableWithInitData"));
+    assertTrue(registry.templateExists(templateId));
   }
 
   function testFail__addTemplate_templateType_doesnt_exists() public {
@@ -98,10 +100,10 @@ contract TemplateRegistryTest is Test {
 
     registry.addTemplate(
       templateType,
-      "ClonableWithInitData",
+      templateId,
       Template({
         implementation: address(clonableWithInitData),
-        metadataCid: "cid",
+        metadataCid: metadataCid,
         requiresInitData: true,
         registry: address(0x2222),
         requiredSigs: reqSigs
@@ -115,10 +117,10 @@ contract TemplateRegistryTest is Test {
 
     registry.addTemplate(
       templateType,
-      "ClonableWithInitData",
+      templateId,
       Template({
         implementation: address(clonableWithInitData),
-        metadataCid: "cid",
+        metadataCid: metadataCid,
         requiresInitData: true,
         registry: address(0x2222),
         requiredSigs: reqSigs
@@ -127,10 +129,10 @@ contract TemplateRegistryTest is Test {
 
     registry.addTemplate(
       templateType,
-      "ClonableWithInitData",
+      templateId,
       Template({
         implementation: address(clonableWithInitData),
-        metadataCid: "cid",
+        metadataCid: metadataCid,
         requiresInitData: true,
         registry: address(0x2222),
         requiredSigs: reqSigs

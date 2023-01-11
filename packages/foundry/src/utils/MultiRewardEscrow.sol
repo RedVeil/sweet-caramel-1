@@ -7,17 +7,19 @@ import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgrad
 import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 import { Owned } from "./Owned.sol";
+import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
 
 /**
  * @title   MultiRewardEscrow
  * @author  RedVeil
- * @notice  A simple implementation to permissionlessly escrow any amount of tokens for a specific period of time.
+ * @notice  Permissionlessly escrow tokens for a specific period of time.
  *
  * Anyone can create an escrow for any token and any user.
  * The owner can only decide to take fees on the creation of escrows with certain tokens.
  */
 contract MultiRewardEscrow is Owned {
   using SafeERC20 for IERC20;
+  using SafeCastLib for uint256;
 
   /**
    * @notice Constructor for the Escrow contract.
@@ -61,11 +63,11 @@ contract MultiRewardEscrow is Owned {
     /// @notice The escrowed token
     IERC20 token;
     /// @notice Timestamp of the start of the unlock
-    uint256 start;
+    uint32 start;
     /// @notice The timestamp the unlock ends at
-    uint256 end;
+    uint32 end;
     /// @notice The timestamp the index was last updated at
-    uint256 lastUpdateTime;
+    uint32 lastUpdateTime;
     /// @notice Initial balance of the escrow
     uint256 initialBalance;
     /// @notice Current balance of the escrow
@@ -84,7 +86,7 @@ contract MultiRewardEscrow is Owned {
 
   uint256 internal nonce;
 
-  event Locked(IERC20 indexed token, address indexed account, uint256 amount, uint256 duration, uint256 offset);
+  event Locked(IERC20 indexed token, address indexed account, uint256 amount, uint32 duration, uint32 offset);
 
   error ZeroAddress();
   error ZeroAmount();
@@ -99,7 +101,13 @@ contract MultiRewardEscrow is Owned {
    * @dev This creates a separate escrow structure which can later be iterated upon to unlock the escrowed funds.
    * @dev The Owner may decide to add a fee to the escrowed amount.
    */
-  function lock(IERC20 token, address account, uint256 amount, uint256 duration, uint256 offset) external {
+  function lock(
+    IERC20 token,
+    address account,
+    uint256 amount,
+    uint32 duration,
+    uint32 offset
+  ) external {
     if (token == IERC20(address(0))) revert ZeroAddress();
     if (account == address(0)) revert ZeroAddress();
     if (amount == 0) revert ZeroAmount();
@@ -119,7 +127,7 @@ contract MultiRewardEscrow is Owned {
       token.safeTransfer(feeRecipient, fee);
     }
 
-    uint256 start = block.timestamp + offset;
+    uint32 start = block.timestamp.safeCastTo32() + offset;
 
     escrows[id] = Escrow({
       token: token,
@@ -168,7 +176,7 @@ contract MultiRewardEscrow is Owned {
       if (claimable == 0) revert NotClaimable(escrowId);
 
       escrows[escrowId].balance -= claimable;
-      escrows[escrowId].lastUpdateTime = block.timestamp;
+      escrows[escrowId].lastUpdateTime = block.timestamp.safeCastTo32();
 
       escrow.token.safeTransfer(escrow.account, claimable);
       emit RewardsClaimed(escrow.token, escrow.account, claimable);
@@ -176,12 +184,18 @@ contract MultiRewardEscrow is Owned {
   }
 
   function _getClaimableAmount(Escrow memory escrow) internal view returns (uint256) {
-    if (escrow.lastUpdateTime == 0 || escrow.end == 0 || escrow.balance == 0) {
+    if (
+      escrow.lastUpdateTime == 0 ||
+      escrow.end == 0 ||
+      escrow.balance == 0 ||
+      block.timestamp.safeCastTo32() < escrow.start
+    ) {
       return 0;
     }
     return
       Math.min(
-        (escrow.balance * (block.timestamp - escrow.lastUpdateTime)) / (escrow.end - escrow.lastUpdateTime),
+        (escrow.balance * (block.timestamp - uint256(escrow.lastUpdateTime))) /
+          (uint256(escrow.end) - uint256(escrow.lastUpdateTime)),
         escrow.balance
       );
   }

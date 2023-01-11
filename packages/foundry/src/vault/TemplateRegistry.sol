@@ -33,7 +33,20 @@ contract TemplateRegistry is Owned {
   event TemplateAdded(bytes32 templateType, bytes32 templateId, address implementation);
   event TemplateUpdated(bytes32 templateType, bytes32 templateId);
 
-  function addTemplate(bytes32 templateType, bytes32 templateId, Template memory template) external onlyOwner {
+  function addTemplateType(bytes32 templateType) external onlyOwner {
+    if (templateTypeExists[templateType]) revert TemplateTypeExists(templateType);
+
+    templateTypeExists[templateType] = true;
+    templateTypes.push(templateType);
+
+    emit TemplateTypeAdded(templateType);
+  }
+
+  function addTemplate(
+    bytes32 templateType,
+    bytes32 templateId,
+    Template memory template
+  ) external onlyOwner {
     if (!templateTypeExists[templateType]) revert KeyNotFound(templateType);
     if (templateExists[templateId]) revert TemplateExists(templateId);
 
@@ -45,20 +58,15 @@ contract TemplateRegistry is Owned {
     emit TemplateAdded(templateType, templateId, template.implementation);
   }
 
-  function addTemplateType(bytes32 templateType) external onlyOwner {
-    if (templateTypeExists[templateType]) revert TemplateTypeExists(templateType);
-
-    templateTypeExists[templateType] = true;
-    templateTypes.push(templateType);
-
-    emit TemplateTypeAdded(templateType);
-  }
+  /*//////////////////////////////////////////////////////////////
+                          TEMPLATE VIEW LOGIC
+    //////////////////////////////////////////////////////////////*/
 
   function getTemplateTypes() external view returns (bytes32[] memory) {
     return templateTypes;
   }
 
-  function getTemplateKeys(bytes32 templateType) external view returns (bytes32[] memory) {
+  function getTemplateIds(bytes32 templateType) external view returns (bytes32[] memory) {
     return templateIds[templateType];
   }
 

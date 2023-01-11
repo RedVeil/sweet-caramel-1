@@ -4,7 +4,8 @@
 pragma solidity ^0.8.15;
 
 import { IOwned } from "../IOwned.sol";
+import { Template } from "./ITemplateRegistry.sol";
 
 interface ICloneFactory is IOwned {
-  function deploy(bytes32 templateType, bytes32 templateKey, bytes memory data) external returns (address);
+  function deploy(Template memory template, bytes memory data) external returns (address);
 }

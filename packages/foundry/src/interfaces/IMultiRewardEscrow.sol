@@ -9,8 +9,8 @@ interface IMultiRewardEscrow {
     IERC20 token,
     address account,
     uint256 amount,
-    uint256 duration,
-    uint256 offset
+    uint32 duration,
+    uint32 offset
   ) external;
 
   function setFees(IERC20[] memory tokens, uint256[] memory tokenFees) external;

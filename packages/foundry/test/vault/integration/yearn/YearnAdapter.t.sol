@@ -14,9 +14,8 @@ contract YearnAdapterTest is AbstractAdapterTest {
 
   VaultAPI yearnVault;
 
-  // TODO update this fork -- maybe via config
   function setUp() public {
-    uint256 forkId = vm.createSelectFork("https://eth-mainnet.alchemyapi.io/v2/KsuP431uPWKR3KFb-K_0MT1jcwpUnjAg");
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("mainnet"));
     vm.selectFork(forkId);
 
     testConfigStorage = ITestConfigStorage(address(new YearnTestConfigStorage()));
@@ -78,7 +77,7 @@ contract YearnAdapterTest is AbstractAdapterTest {
       adapter.totalAssets(),
       iouBalance().mulDiv(
         yearnVault.pricePerShare(),
-        10 ** IERC20Metadata(address(adapter)).decimals(),
+        10**IERC20Metadata(address(adapter)).decimals(),
         Math.Rounding.Up
       ),
       string.concat("totalAssets != yearn assets", baseTestId)

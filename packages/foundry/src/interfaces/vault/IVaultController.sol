@@ -74,7 +74,7 @@ interface IVaultController {
 
   function harvestCooldown() external view returns (uint256);
 
-  function setLatestTemplateKey(bytes32 templateKey, bytes32 latestKey) external;
+  function setLatestTemplateId(bytes32 templateType, bytes32 latestId) external;
 
-  function latestTemplateKey(bytes32 templateKey, bytes32 latestKey) external view returns (bytes32);
+  function latestTemplateId(bytes32 templateType, bytes32 latestId) external view returns (bytes32);
 }

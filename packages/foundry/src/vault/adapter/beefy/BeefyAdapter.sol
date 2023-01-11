@@ -5,70 +5,20 @@ pragma solidity ^0.8.15;
 
 import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../abstracts/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../abstracts/WithRewards.sol";
-
-interface IBeefyVault {
-  function want() external view returns (address);
-
-  function deposit(uint256 _amount) external;
-
-  function withdraw(uint256 _shares) external;
-
-  function withdrawAll() external;
-
-  function balanceOf(address _account) external view returns (uint256);
-
-  //Returns total balance of underlying token in the vault and its strategies
-  function balance() external view returns (uint256);
-
-  function totalSupply() external view returns (uint256);
-
-  function earn() external;
-
-  function getPricePerFullShare() external view returns (uint256);
-
-  function strategy() external view returns (address);
-}
-
-interface IBeefyBooster {
-  function earned(address _account) external view returns (uint256);
-
-  function balanceOf(address _account) external view returns (uint256);
-
-  function stakedToken() external view returns (address);
-
-  function rewardToken() external view returns (address);
-
-  function periodFinish() external view returns (uint256);
-
-  function rewardPerToken() external view returns (uint256);
-
-  function stake(uint256 _amount) external;
-
-  function withdraw(uint256 _shares) external;
-
-  function exit() external;
-
-  function getReward() external;
-}
-
-interface IBeefyBalanceCheck {
-  function balanceOf(address _account) external view returns (uint256);
-}
+import { IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "./IBeefy.sol";
 
 /**
- * @title Beefy ERC4626 Contract
- * @notice ERC4626 wrapper for beefy vaults
- * @author RedVeil
+ * @title   Beefy Adapter
+ * @author  RedVeil
+ * @notice  ERC4626 wrapper for Beefy Vaults.
  *
- * Wraps https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol
+ * An ERC4626 compliant Wrapper for https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/vaults/BeefyVaultV6.sol.
+ * Allows wrapping Beefy Vaults with or without an active Booster.
+ * Allows for additional strategies to use rewardsToken in case of an active Booster.
  */
 contract BeefyAdapter is AdapterBase, WithRewards {
   using SafeERC20 for IERC20;
   using Math for uint256;
-
-  /*//////////////////////////////////////////////////////////////
-                               IMMUTABLES
-    //////////////////////////////////////////////////////////////*/
 
   string internal _name;
   string internal _symbol;
@@ -85,17 +35,27 @@ contract BeefyAdapter is AdapterBase, WithRewards {
   error InvalidBeefyBooster(address beefyBooster);
 
   /**
-     @notice Initializes the Vault.
-     @param beefyInitData The Beefy Vault contract,  An optional booster contract which rewards additional token for the vault,beefyStrategy withdrawalFee in 10_000 (BPS)
-    */
-  function initialize(bytes memory adapterInitData, address, bytes memory beefyInitData) public {
+   * @notice Initialize a new Beefy Adapter.
+   * @param adapterInitData Encoded data for the base adapter initialization.
+   * @param beefyInitData Encoded data for the beefy adapter initialization.
+   * @dev `_beefyVault` - The underlying beefy vault.
+   * @dev `_beefyBooster` - An optional beefy booster.
+   * @dev `_beefyWithdrawalFee` - A withdrawal fee paid to beefy in 10_000 (BPS).
+   * @dev This function is called by the factory contract when deploying a new vault.
+   * @dev The `_beefyWithdrawalFee` is used to accurately calculate the amount of tokens to withdraw from the beefy vault.
+   */
+  function initialize(
+    bytes memory adapterInitData,
+    address,
+    bytes memory beefyInitData
+  ) public {
     (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
       beefyInitData,
       (address, address, uint256)
     );
     __AdapterBase_init(adapterInitData);
 
-    // Defined in the FeeManager of beefy. Strats can never have more than 50 BPS withdrawal fees
+    // Defined in the FeeManager of Beefy. Strats can never have more than 50 BPS withdrawal fees
     if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
     if (IBeefyVault(_beefyVault).want() != asset()) revert InvalidBeefyVault(_beefyVault);
     if (_beefyBooster != address(0) && IBeefyBooster(_beefyBooster).stakedToken() != _beefyVault)
@@ -127,8 +87,6 @@ contract BeefyAdapter is AdapterBase, WithRewards {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  /// @notice Calculates the total amount of underlying tokens the Vault holds.
-  /// @return The total amount of underlying tokens the Vault holds.
   function totalAssets() public view override returns (uint256) {
     return
       paused()
@@ -140,23 +98,25 @@ contract BeefyAdapter is AdapterBase, WithRewards {
         );
   }
 
-  // takes as argument the internal ERC4626 shares to redeem
-  // returns the external BeefyVault shares to withdraw
+  /// @notice The amount of beefy shares to withdraw given an amount of adapter shares
   function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
     uint256 supply = totalSupply();
     return supply == 0 ? shares : shares.mulDiv(beefyBalanceCheck.balanceOf(address(this)), supply, Math.Rounding.Up);
   }
 
+  /// @notice The token rewarded if a beefy booster is configured
   function rewardTokens() external view override returns (address[] memory) {
     address[] memory _rewardTokens = new address[](1);
+    if (address(beefyBooster) == address(0)) return _rewardTokens;
     _rewardTokens[0] = beefyBooster.rewardToken();
     return _rewardTokens;
   }
 
   /*//////////////////////////////////////////////////////////////
-                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
+                        ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  /// @notice `previewWithdraw` that takes beefy withdrawal fees into account
   function previewWithdraw(uint256 assets) public view override returns (uint256) {
     uint256 beefyFee = beefyWithdrawalFee == 0
       ? 0
@@ -165,6 +125,7 @@ contract BeefyAdapter is AdapterBase, WithRewards {
     return _convertToShares(assets - beefyFee, Math.Rounding.Up);
   }
 
+  /// @notice `previewRedeem` that takes beefy withdrawal fees into account
   function previewRedeem(uint256 shares) public view override returns (uint256) {
     uint256 assets = _convertToAssets(shares, Math.Rounding.Down);
 
@@ -176,11 +137,13 @@ contract BeefyAdapter is AdapterBase, WithRewards {
                           INTERNAL HOOKS LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  /// @notice Deposit into beefy vault and optionally into the booster given its configured
   function _protocolDeposit(uint256 amount, uint256) internal virtual override {
     beefyVault.deposit(amount);
     if (address(beefyBooster) != address(0)) beefyBooster.stake(beefyVault.balanceOf(address(this)));
   }
 
+  /// @notice Withdraw from the beefy vault and optionally from the booster given its configured
   function _protocolWithdraw(uint256, uint256 shares) internal virtual override {
     uint256 beefyShares = convertToUnderlyingShares(0, shares);
     if (address(beefyBooster) != address(0)) beefyBooster.withdraw(beefyShares);
@@ -191,7 +154,11 @@ contract BeefyAdapter is AdapterBase, WithRewards {
                             STRATEGY LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  error NoBeefyBooster();
+
+  /// @notice Claim rewards from the beefy booster given its configured
   function claim() public override onlyStrategy {
+    if (address(beefyBooster) == address(0)) revert NoBeefyBooster();
     beefyBooster.getReward();
   }
 

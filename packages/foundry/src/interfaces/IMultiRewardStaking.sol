@@ -14,9 +14,9 @@ interface IMultiRewardStaking is IERC4626, IOwned, IPermit, IPausable {
     uint160 rewardsPerSecond,
     uint256 amount,
     bool useEscrow,
-    uint224 escrowDuration,
-    uint24 escrowPercentage,
-    uint256 offset
+    uint192 escrowPercentage,
+    uint32 escrowDuration,
+    uint32 offset
   ) external;
 
   function changeRewardSpeed(IERC20 rewardToken, uint160 rewardsPerSecond) external;

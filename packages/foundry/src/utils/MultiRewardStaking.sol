@@ -37,7 +37,11 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
    * @param _escrow An optional escrow contract which can be used to lock rewards on claim.
    * @param _owner Owner of the contract. Controls management functions.
    */
-  function initialize(IERC20 _stakingToken, IMultiRewardEscrow _escrow, address _owner) external initializer {
+  function initialize(
+    IERC20 _stakingToken,
+    IMultiRewardEscrow _escrow,
+    address _owner
+  ) external initializer {
     __ERC4626_init(IERC20Metadata(address(_stakingToken)));
     __Owned_init(_owner);
 
@@ -129,7 +133,11 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
   }
 
   /// @notice Internal transfer function used by `transfer()` and `transferFrom()`. Accrues rewards for `from` and `to`.
-  function _transfer(address from, address to, uint256 amount) internal override accrueRewards(from, to) {
+  function _transfer(
+    address from,
+    address to,
+    uint256 amount
+  ) internal override accrueRewards(from, to) {
     if (from == address(0) || to == address(0)) revert ZeroAddressTransfer(from, to);
 
     uint256 fromBalance = balanceOf(from);
@@ -179,12 +187,17 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
   }
 
   /// @notice Locks a percentage of a reward in an escrow contract. Pays out the rest to the user.
-  function _lockToken(address user, IERC20 rewardToken, uint256 rewardAmount, EscrowInfo memory escrowInfo) internal {
-    uint256 escrowed = rewardAmount.mulDiv(uint256(escrowInfo.escrowPercentage), 1e8, Math.Rounding.Down);
+  function _lockToken(
+    address user,
+    IERC20 rewardToken,
+    uint256 rewardAmount,
+    EscrowInfo memory escrowInfo
+  ) internal {
+    uint256 escrowed = rewardAmount.mulDiv(uint256(escrowInfo.escrowPercentage), 1e18, Math.Rounding.Down);
     uint256 payout = rewardAmount - escrowed;
 
     rewardToken.safeTransfer(user, payout);
-    escrow.lock(rewardToken, user, escrowed, uint256(escrowInfo.escrowDuration), escrowInfo.offset);
+    escrow.lock(rewardToken, user, escrowed, escrowInfo.escrowDuration, escrowInfo.offset);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -209,12 +222,12 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
   }
 
   struct EscrowInfo {
-    /// @notice Rewards per second
-    uint224 escrowDuration;
     /// @notice Percentage of reward that gets escrowed in 1e18 (1e18 = 100%, 1e14 = 1 BPS)
-    uint24 escrowPercentage;
-    /// @notice A cliff before the escrow starts.
-    uint256 offset;
+    uint192 escrowPercentage;
+    /// @notice Duration of the escrow in seconds
+    uint32 escrowDuration;
+    /// @notice A cliff before the escrow starts in seconds
+    uint32 offset;
   }
 
   IERC20[] public rewardTokens;
@@ -245,8 +258,8 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
    * @param rewardsPerSecond The rate in which `rewardToken` will be accrued.
    * @param amount Initial funding amount for this reward.
    * @param useEscrow Bool if the rewards should be escrowed on claim.
-   * @param escrowDuration The duration of the escrow.
    * @param escrowPercentage The percentage of the reward that gets escrowed in 1e18. (1e18 = 100%, 1e14 = 1 BPS)
+   * @param escrowDuration The duration of the escrow.
    * @param offset A cliff after claim before the escrow starts.
    * @dev The `rewardsEndTimestamp` gets calculated based on `rewardsPerSecond` and `amount`.
    * @dev If `rewardsPerSecond` is 0 the rewards will be paid out instantly. In this case `amount` must be 0.
@@ -257,9 +270,9 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
     uint160 rewardsPerSecond,
     uint256 amount,
     bool useEscrow,
-    uint224 escrowDuration,
-    uint24 escrowPercentage,
-    uint256 offset
+    uint192 escrowPercentage,
+    uint32 escrowDuration,
+    uint32 offset
   ) external onlyOwner {
     if (asset() == address(rewardToken)) revert RewardTokenCantBeStakingToken();
 
@@ -276,14 +289,14 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
 
     if (useEscrow) {
       escrowInfos[rewardToken] = EscrowInfo({
-        escrowDuration: escrowDuration,
         escrowPercentage: escrowPercentage,
+        escrowDuration: escrowDuration,
         offset: offset
       });
       rewardToken.safeApprove(address(escrow), type(uint256).max);
     }
 
-    uint64 ONE = (10 ** IERC20Metadata(address(rewardToken)).decimals()).safeCastTo64();
+    uint64 ONE = (10**IERC20Metadata(address(rewardToken)).decimals()).safeCastTo64();
     uint32 rewardsEndTimestamp = rewardsPerSecond == 0
       ? block.timestamp.safeCastTo32()
       : _calcRewardsEnd(0, rewardsPerSecond, amount);
@@ -414,7 +427,7 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
     uint256 supplyTokens = totalSupply();
     uint224 deltaIndex;
     if (supplyTokens != 0)
-      deltaIndex = accrued.mulDiv(uint256(10 ** decimals()), supplyTokens, Math.Rounding.Down).safeCastTo224();
+      deltaIndex = accrued.mulDiv(uint256(10**decimals()), supplyTokens, Math.Rounding.Down).safeCastTo224();
 
     rewardInfos[_rewardToken].index += deltaIndex;
     rewardInfos[_rewardToken].lastUpdatedTimestamp = block.timestamp.safeCastTo32();

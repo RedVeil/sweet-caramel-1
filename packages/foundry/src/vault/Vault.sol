@@ -46,7 +46,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @param adapter_ Adapter which will be used to interact with the wrapped protocol.
    * @param fees_ Desired fees in 1e18. (1e18 = 100%, 1e14 = 1 BPS)
    * @param feeRecipient_ Recipient of all vault fees. (Must not be zero address)
-   * @param owner Vault creator.
+   * @param owner Owner of the contract. Controls management functions.
    * @dev This function is called by the factory contract when deploying a new vault.
    * @dev Usually the adapter should already be pre configured. Otherwise a new one can only be added after a ragequit time.
    */
@@ -76,7 +76,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10 ** decimals();
+    ONE = 10**decimals();
     vaultShareHWM = ONE;
 
     feesUpdatedAt = block.timestamp;
@@ -121,10 +121,13 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @param receiver Receiver of issued vault shares.
    * @return shares Quantity of vault shares issued to `receiver`.
    */
-  function deposit(
-    uint256 assets,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 shares) {
+  function deposit(uint256 assets, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 shares)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 feeShares = convertToShares(assets.mulDiv(fees.deposit, 1e18, Math.Rounding.Down));
@@ -152,10 +155,13 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @param receiver Receiver of issued vault shares.
    * @return assets Quantity of assets deposited by caller.
    */
-  function mint(
-    uint256 shares,
-    address receiver
-  ) public nonReentrant whenNotPaused syncFeeCheckpoint returns (uint256 assets) {
+  function mint(uint256 shares, address receiver)
+    public
+    nonReentrant
+    whenNotPaused
+    syncFeeCheckpoint
+    returns (uint256 assets)
+  {
     if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 depositFee = fees.deposit;
@@ -223,7 +229,11 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @param owner Owner of burned vault shares.
    * @return assets Quantity of `asset` sent to `receiver`.
    */
-  function redeem(uint256 shares, address receiver, address owner) public nonReentrant returns (uint256 assets) {
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public nonReentrant returns (uint256 assets) {
     if (receiver == address(0)) revert InvalidReceiver();
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
@@ -550,16 +560,12 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
                           PAUSING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  /**
-   * @notice Pause deposits. Caller must be Owner.
-   */
+  /// @notice Pause deposits. Caller must be Owner.
   function pause() external onlyOwner {
     _pause();
   }
 
-  /**
-   * @notice Unpause deposits. Caller must be Owner.
-   */
+  /// @notice Unpause deposits. Caller must be Owner.
   function unpause() external onlyOwner {
     _unpause();
   }

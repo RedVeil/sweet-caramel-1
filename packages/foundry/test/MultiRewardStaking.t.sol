@@ -604,7 +604,7 @@ contract MultiRewardStakingTest is Test {
     rewardsToken.mint(address(this), 10 ether);
     rewardsToken.approve(address(staking), 10 ether);
 
-    staking.addRewardToken(IERC20(address(rewardsToken)), 0.1 ether, 10 ether, true, 100, 10000000, 0);
+    staking.addRewardToken(IERC20(address(rewardsToken)), 0.1 ether, 10 ether, true, 1e17, 100, 0);
   }
 
   function test__addRewardToken() public {
@@ -616,17 +616,17 @@ contract MultiRewardStakingTest is Test {
     vm.expectEmit(false, false, false, true, address(staking));
     emit RewardInfoUpdate(iRewardToken1, 0.1 ether, (callTimestamp + 100).safeCastTo32());
 
-    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 100, 10000000, 20);
+    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 10000000, 100, 20);
 
     // Confirm that all data is set correctly
     IERC20[] memory rewardTokens = staking.getAllRewardsTokens();
     assertEq(rewardTokens.length, 1);
     assertEq(address(rewardTokens[0]), address(iRewardToken1));
 
-    (uint224 escrowDuration, uint24 escrowPercentage, uint256 offset) = staking.escrowInfos(iRewardToken1);
+    (uint192 escrowPercentage, uint32 escrowDuration, uint32 offset) = staking.escrowInfos(iRewardToken1);
     assertEq(uint256(escrowDuration), 100);
     assertEq(uint256(escrowPercentage), 10000000);
-    assertEq(offset, 20);
+    assertEq(uint256(offset), 20);
 
     (
       uint64 ONE,
@@ -651,7 +651,7 @@ contract MultiRewardStakingTest is Test {
     vm.expectEmit(false, false, false, true, address(staking));
     emit RewardInfoUpdate(iRewardToken1, 0, callTimestamp.safeCastTo32());
 
-    staking.addRewardToken(iRewardToken1, 0, 0, true, 100, 10000000, 20);
+    staking.addRewardToken(iRewardToken1, 0, 0, true, 10000000, 100, 20);
 
     (
       uint64 ONE,
@@ -676,7 +676,7 @@ contract MultiRewardStakingTest is Test {
     rewardToken1.transfer(address(staking), 10 ether);
 
     uint256 callTimestamp = block.timestamp;
-    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 100, 10000000, 0);
+    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 10000000, 100, 0);
 
     // RewardsEndTimeStamp shouldnt be affected by previous token transfer
     (, , uint32 rewardsEndTimestamp, , ) = staking.rewardInfos(iRewardToken1);
@@ -692,14 +692,14 @@ contract MultiRewardStakingTest is Test {
     rewardToken1.mint(address(this), 20 ether);
     rewardToken1.approve(address(staking), 20 ether);
 
-    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 100, 10000000, 0);
+    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 10000000, 100, 0);
 
     vm.expectRevert(MultiRewardStaking.RewardTokenAlreadyExist.selector);
-    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 100, 10000000, 0);
+    staking.addRewardToken(iRewardToken1, 0.1 ether, 10 ether, true, 10000000, 100, 0);
   }
 
   function testFail__addRewardToken_rewardsToken_is_stakingToken() public {
-    staking.addRewardToken(IERC20(address(stakingToken)), 0.1 ether, 10 ether, true, 100, 10000000, 0);
+    staking.addRewardToken(IERC20(address(stakingToken)), 0.1 ether, 10 ether, true, 10000000, 100, 0);
   }
 
   function testFail__addRewardToken_0_rewardsSpeed_non_0_amount() public {
@@ -707,7 +707,7 @@ contract MultiRewardStakingTest is Test {
     rewardToken1.mint(address(this), 1 ether);
     rewardToken1.approve(address(staking), 1 ether);
 
-    staking.addRewardToken(iRewardToken1, 0, 1 ether, true, 100, 10000000, 20);
+    staking.addRewardToken(iRewardToken1, 0, 1 ether, true, 10000000, 100, 20);
   }
 
   /*//////////////////////////////////////////////////////////////

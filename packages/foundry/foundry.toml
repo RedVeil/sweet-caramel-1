@@ -8,8 +8,6 @@ verbosity = 2
 fuzz_runs = 256
 fuzz_max_global_rejects = 100000000
 
-
-
 remappings = [
   'ds-test/=lib/forge-std/lib/ds-test/src/',
   'forge-std/=lib/forge-std/src/',
@@ -18,9 +16,9 @@ remappings = [
   'solmate/=lib/solmate/src/'
 ]
 
-
 [rpc_endpoints]
-FORKING_RPC_URL = "${FORKING_RPC_URL}"
+mainnet = "${ETH_RPC_URL}" 
+polygon = "${POLYGON_RPC_URL}" 
 
 [profile.ci]
 src = 'src'

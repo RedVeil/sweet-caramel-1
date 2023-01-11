@@ -62,10 +62,10 @@ contract CloneFactoryTest is Test {
 
     address clone = factory.deploy(template, initData);
 
-    assertEq(ClonableWithoutInitData(clone).val(), 100);
+    assertEq(ClonableWithInitData(clone).val(), 100);
   }
 
-  function test__deploy_nonOwner() public {
+  function test__deploy_nonOwner_failed() public {
     Template memory template = Template({
       implementation: address(clonableWithoutInitDataImpl),
       metadataCid: metadataCid,
