@@ -23,6 +23,8 @@ interface IAToken is IERC20 {
       uint256,
       uint256
     );
+
+  function POOL() external view returns (address);
 }
 
 // Aave liquidity mining interface

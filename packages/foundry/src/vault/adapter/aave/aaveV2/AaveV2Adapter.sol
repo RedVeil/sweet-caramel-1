@@ -33,9 +33,6 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   // @notice Check to see if Aave liquidity mining is active
   bool public isActiveMining;
 
-  // @notice The address that will receive the liquidity mining rewards if LM is active
-  address public rewardsRecipient;
-
   // @notice The Aave LendingPool contract
   ILendingPool public lendingPool;
 
@@ -46,7 +43,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   /**
    * @notice Initialize a new AaveV2 Adapter.
    * @param adapterInitData Encoded data for the base adapter initialization.
-   * @param aaveInitData Encoded data for the beefy adapter initialization.
+   * @param _aToken Aave wrapped asset. Can also be used to get lendingPool and aaveMining.
    * @dev `_aToken` - The underlying asset supplied to and wrapped by Aave.
    * @dev `_lendingPool` - The lending pool.
    * @dev `_aaveMining` - An optional liquidity mining contract to boost yield.
@@ -55,38 +52,25 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   function initialize(
     bytes memory adapterInitData,
     address,
-    bytes memory aaveInitData
+    address _aToken
   ) public {
-    (address _aToken, address _lendingPool, address _aaveMining, address _rewardsRecipient) = abi.decode(
-      aaveInitData,
-      (address, address, address, address)
-    );
     __AdapterBase_init(adapterInitData);
 
     _name = string.concat("Popcorn AaveV2", IERC20Metadata(asset()).name(), " Adapter");
     _symbol = string.concat("popB-", IERC20Metadata(asset()).symbol());
 
     aToken = IAToken(_aToken);
-    lendingPool = ILendingPool(_lendingPool);
-    aaveMining = IAaveMining(_aaveMining);
-    // Method implemented manually inputs mining contract and then checks for emission.
-    // Commented method below queries the aToken for contract.
-    // **IAaveIncentivesController aaveMining = aToken.getIncentivesController();**
-    rewardsRecipient = _rewardsRecipient;
+    lendingPool = ILendingPool(aToken.POOL());
+    aaveMining = IAaveMining(aToken.getIncentivesController());
 
-    IERC20(asset()).approve(_lendingPool, type(uint256).max);
+    IERC20(asset()).approve(address(lendingPool), type(uint256).max);
 
-    (, uint256 emission, ) = aaveMining.getAssetData(asset());
+    uint256 emission;
+    if (address(aaveMining) != address(0)) {
+      (, emission, ) = aaveMining.getAssetData(asset());
+    }
 
     isActiveMining = emission > 0 ? true : false;
-  }
-
-  function name() public view override(IERC20Metadata, ERC20) returns (string memory) {
-    return _name;
-  }
-
-  function symbol() public view override(IERC20Metadata, ERC20) returns (string memory) {
-    return _symbol;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -149,7 +133,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
     address[] memory assets = new address[](1);
     assets[0] = address(aToken);
     if (isActiveMining == false) revert MiningNotActive();
-    aaveMining.claimRewards(assets, type(uint256).max, rewardsRecipient);
+    aaveMining.claimRewards(assets, type(uint256).max, address(this));
   }
 
   /*//////////////////////////////////////////////////////////////
