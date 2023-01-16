@@ -40,6 +40,8 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
+  error DifferentAssets(address asset, address underlying);
+
   /**
    * @notice Initialize a new AaveV2 Adapter.
    * @param adapterInitData Encoded data for the base adapter initialization.
@@ -49,6 +51,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
    * @dev `_aaveMining` - An optional liquidity mining contract to boost yield.
    * @dev This function is called by the factory contract when deploying a new vault.
    */
+
   function initialize(
     bytes memory adapterInitData,
     address,
@@ -60,6 +63,9 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
     _symbol = string.concat("popB-", IERC20Metadata(asset()).symbol());
 
     aToken = IAToken(_aToken);
+    if (aToken.UNDERLYING_ASSET_ADDRESS() != asset())
+      revert DifferentAssets(aToken.UNDERLYING_ASSET_ADDRESS(), asset());
+
     lendingPool = ILendingPool(aToken.POOL());
     aaveMining = IAaveMining(aToken.getIncentivesController());
 
@@ -78,7 +84,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view override returns (uint256) {
-    return paused() ? IERC20(asset()).balanceOf(address(this)) : aToken.balanceOf(address(this));
+    return paused() ? IERC20(asset()).balanceOf(address(this)) : aToken.scaledBalanceOf(address(this));
   }
 
   /// @notice The amount of aave shares to withdraw given an mount of adapter shares

@@ -3,26 +3,27 @@ pragma solidity ^0.8.15;
 
 import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 
+interface IScaledBalanceToken {
+  /**
+   * @dev Returns the scaled balance of the user. The scaled balance is the sum of all the
+   * updated stored balance divided by the reserve's liquidity index at the moment of the update
+   * @param user The user whose balance is calculated
+   * @return The scaled balance of the user
+   **/
+  function scaledBalanceOf(address user) external view returns (uint256);
+}
+
 // Aave aToken (wrapped underlying)
-interface IAToken is IERC20 {
+interface IAToken is IERC20, IScaledBalanceToken {
+  /**
+   * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
+   **/
+  function UNDERLYING_ASSET_ADDRESS() external view returns (address);
+
   /**
    * @dev Returns the address of the incentives controller contract
    **/
   function getIncentivesController() external view returns (IAaveMining);
-
-  /*
-   * @dev Returns the configuration of the distribution for a certain asset
-   * @param asset The address of the reference asset of the distribution
-   * @return The asset index, the emission per second and the last updated timestamp
-   **/
-  function getAssetData(address asset)
-    external
-    view
-    returns (
-      uint256,
-      uint256,
-      uint256
-    );
 
   function POOL() external view returns (address);
 }
@@ -35,6 +36,11 @@ interface IAaveMining {
     address to
   ) external returns (uint256);
 
+  /*
+   * @dev Returns the configuration of the distribution for a certain asset
+   * @param asset The address of the reference asset of the distribution
+   * @return The asset index, the emission per second and the last updated timestamp
+   **/
   function getAssetData(address asset)
     external
     view
