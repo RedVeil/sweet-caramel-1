@@ -11,6 +11,12 @@ interface IScaledBalanceToken {
    * @return The scaled balance of the user
    **/
   function scaledBalanceOf(address user) external view returns (uint256);
+
+  /**
+   * @dev Returns the scaled total supply of the variable debt token. Represents sum(debt/index)
+   * @return The scaled total supply
+   **/
+  function scaledTotalSupply() external view returns (uint256);
 }
 
 // Aave aToken (wrapped underlying)
@@ -37,16 +43,17 @@ interface IAaveMining {
   ) external returns (uint256);
 
   /*
+   * LEGACY **************************
    * @dev Returns the configuration of the distribution for a certain asset
    * @param asset The address of the reference asset of the distribution
    * @return The asset index, the emission per second and the last updated timestamp
    **/
-  function getAssetData(address asset)
+  function assets(address asset)
     external
     view
     returns (
-      uint256,
-      uint256,
+      uint128,
+      uint128,
       uint256
     );
 

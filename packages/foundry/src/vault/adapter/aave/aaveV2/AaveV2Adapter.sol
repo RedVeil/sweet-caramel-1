@@ -45,7 +45,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   /**
    * @notice Initialize a new AaveV2 Adapter.
    * @param adapterInitData Encoded data for the base adapter initialization.
-   * @param _aToken Aave wrapped asset. Can also be used to get lendingPool and aaveMining.
+   * @param aaveV2InitData Aave wrapped asset. Can also be used to get lendingPool and aaveMining.
    * @dev `_aToken` - The underlying asset supplied to and wrapped by Aave.
    * @dev `_lendingPool` - The lending pool.
    * @dev `_aaveMining` - An optional liquidity mining contract to boost yield.
@@ -55,14 +55,14 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   function initialize(
     bytes memory adapterInitData,
     address,
-    address _aToken
+    bytes memory aaveV2InitData
   ) public {
     __AdapterBase_init(adapterInitData);
 
     _name = string.concat("Popcorn AaveV2", IERC20Metadata(asset()).name(), " Adapter");
     _symbol = string.concat("popB-", IERC20Metadata(asset()).symbol());
 
-    aToken = IAToken(_aToken);
+    aToken = IAToken(abi.decode(aaveV2InitData, (address)));
     if (aToken.UNDERLYING_ASSET_ADDRESS() != asset())
       revert DifferentAssets(aToken.UNDERLYING_ASSET_ADDRESS(), asset());
 
@@ -71,12 +71,20 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
 
     IERC20(asset()).approve(address(lendingPool), type(uint256).max);
 
-    uint256 emission;
+    uint128 emission;
     if (address(aaveMining) != address(0)) {
-      (, emission, ) = aaveMining.getAssetData(asset());
+      (, emission, ) = aaveMining.assets(asset());
     }
 
     isActiveMining = emission > 0 ? true : false;
+  }
+
+  function name() public view override(IERC20Metadata, ERC20) returns (string memory) {
+    return _name;
+  }
+
+  function symbol() public view override(IERC20Metadata, ERC20) returns (string memory) {
+    return _symbol;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -84,7 +92,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view override returns (uint256) {
-    return paused() ? IERC20(asset()).balanceOf(address(this)) : aToken.scaledBalanceOf(address(this));
+    return paused() ? IERC20(asset()).balanceOf(address(this)) : aToken.balanceOf(address(this));
   }
 
   /// @notice The amount of aave shares to withdraw given an mount of adapter shares
@@ -106,11 +114,11 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
     //////////////////////////////////////////////////////////////*/
 
   function previewWithdraw(uint256 assets) public view override returns (uint256) {
-    return _convertToShares(assets, Math.Rounding.Down);
+    return _convertToShares(assets, Math.Rounding.Up);
   }
 
   function previewRedeem(uint256 shares) public view override returns (uint256) {
-    return _convertToAssets(shares, Math.Rounding.Down);
+    return _convertToAssets(shares, Math.Rounding.Up);
   }
 
   /*//////////////////////////////////////////////////////////////

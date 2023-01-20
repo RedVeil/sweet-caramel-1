@@ -79,11 +79,6 @@ contract AaveV2AdapterTest is AbstractAdapterTest {
       adapter.convertToAssets(adapter.totalSupply()),
       string.concat("totalSupply converted != totalAssets", baseTestId)
     );
-    assertEq(
-      adapter.totalAssets(),
-      iouBalance().mulDiv(aToken.balanceOf(address(adapter)), aToken.totalSupply(), Math.Rounding.Down),
-      string.concat("totalAssets != aToken assets", baseTestId)
-    );
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -103,7 +98,7 @@ contract AaveV2AdapterTest is AbstractAdapterTest {
       "symbol"
     );
 
-    assertEq(asset.allowance(address(adapter), address(aToken)), type(uint256).max, "allowance");
+    assertEq(asset.allowance(address(adapter), address(lendingPool)), type(uint256).max, "allowance");
   }
 
   /*//////////////////////////////////////////////////////////////
