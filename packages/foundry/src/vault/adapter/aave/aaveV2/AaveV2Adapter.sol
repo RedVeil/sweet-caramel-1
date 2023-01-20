@@ -118,7 +118,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   }
 
   function previewRedeem(uint256 shares) public view override returns (uint256) {
-    return _convertToAssets(shares, Math.Rounding.Up);
+    return _convertToAssets(shares, Math.Rounding.Down);
   }
 
   /*//////////////////////////////////////////////////////////////
