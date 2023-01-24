@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
+import { DataTypes } from "./lib.sol";
 
 interface IScaledBalanceToken {
   /**
@@ -74,4 +75,11 @@ interface ILendingPool {
     uint256 amount,
     address to
   ) external returns (uint256);
+
+  /**
+   * @dev Returns the state and configuration of the reserve
+   * @param asset The address of the underlying asset of the reserve
+   * @return The state of the reserve
+   **/
+  function getReserveData(address asset) external view returns (DataTypes.ReserveData memory);
 }

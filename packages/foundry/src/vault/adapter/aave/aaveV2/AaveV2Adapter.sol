@@ -6,6 +6,7 @@ pragma solidity ^0.8.15;
 import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../../abstracts/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../../abstracts/WithRewards.sol";
 import { ILendingPool, IAaveMining, IAToken } from "./IAaveV2.sol";
+import { DataTypes } from "./lib.sol";
 
 /**
  * @title   AaveV2 Adapter
@@ -148,6 +149,12 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
     assets[0] = address(aToken);
     if (isActiveMining == false) revert MiningNotActive();
     aaveMining.claimRewards(assets, type(uint256).max, address(this));
+  }
+
+  function getApy() public view override returns (uint256) {
+    DataTypes.ReserveData memory data = lendingPool.getReserveData(asset());
+    uint128 supplyRate = data.currentLiquidityRate;
+    return uint256(supplyRate / 1e9);
   }
 
   /*//////////////////////////////////////////////////////////////
